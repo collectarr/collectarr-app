@@ -213,16 +213,25 @@ double defaultComicTableColumnWidth(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 52.0,
     LibraryTableColumn.cover => 42.0,
+    LibraryTableColumn.artist => 160.0,
+    LibraryTableColumn.album => 260.0,
     LibraryTableColumn.title => 260.0,
     LibraryTableColumn.issue => 64.0,
     LibraryTableColumn.variant => 170.0,
     LibraryTableColumn.format => 118.0,
     LibraryTableColumn.publisher => 140.0,
+    LibraryTableColumn.label => 140.0,
+    LibraryTableColumn.catalogNumber => 134.0,
     LibraryTableColumn.platform => 118.0,
     LibraryTableColumn.developer => 140.0,
     LibraryTableColumn.releaseDate => 118.0,
     LibraryTableColumn.releasePlatform => 140.0,
     LibraryTableColumn.barcode => 160.0,
+    LibraryTableColumn.discCount => 92.0,
+    LibraryTableColumn.trackCount => 92.0,
+    LibraryTableColumn.length => 92.0,
+    LibraryTableColumn.vinylColor => 118.0,
+    LibraryTableColumn.rpm => 78.0,
     LibraryTableColumn.grade => 88.0,
     LibraryTableColumn.condition => 124.0,
     LibraryTableColumn.completion => 110.0,
@@ -244,9 +253,16 @@ double minComicTableColumnWidth(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 44.0,
     LibraryTableColumn.cover => 44.0,
+    LibraryTableColumn.artist => 110.0,
+    LibraryTableColumn.album => 160.0,
     LibraryTableColumn.issue => 54.0,
     LibraryTableColumn.price => 78.0,
     LibraryTableColumn.wishlist => 70.0,
+    LibraryTableColumn.catalogNumber => 84.0,
+    LibraryTableColumn.discCount => 64.0,
+    LibraryTableColumn.trackCount => 64.0,
+    LibraryTableColumn.length => 72.0,
+    LibraryTableColumn.rpm => 60.0,
     _ => 86.0,
   };
 }
@@ -254,8 +270,10 @@ double minComicTableColumnWidth(LibraryTableColumn column) {
 double maxComicTableColumnWidth(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.title => 520.0,
+    LibraryTableColumn.album => 520.0,
     LibraryTableColumn.variant => 420.0,
     LibraryTableColumn.barcode => 260.0,
+    LibraryTableColumn.catalogNumber => 240.0,
     _ => 260.0,
   };
 }
@@ -309,16 +327,25 @@ String comicTableColumnDescription(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 'Owned, wishlist, cover, and metadata badges',
     LibraryTableColumn.cover => 'Small cover preview',
+    LibraryTableColumn.artist => 'Artist or creator name',
+    LibraryTableColumn.album => 'Album or work title',
     LibraryTableColumn.title => 'Series or item title',
     LibraryTableColumn.issue => 'Issue or item number',
     LibraryTableColumn.variant => 'Edition or variant label',
     LibraryTableColumn.format => 'Primary physical format label',
     LibraryTableColumn.publisher => 'Publisher from catalog metadata',
+    LibraryTableColumn.label => 'Music label or publisher',
+    LibraryTableColumn.catalogNumber => 'Music catalog number',
     LibraryTableColumn.platform => 'Platform or system metadata',
     LibraryTableColumn.developer => 'Developer or creator metadata',
     LibraryTableColumn.releaseDate => 'Known release or store date',
     LibraryTableColumn.releasePlatform => 'Platform for the selected release',
     LibraryTableColumn.barcode => 'UPC or barcode when available',
+    LibraryTableColumn.discCount => 'Number of discs or media',
+    LibraryTableColumn.trackCount => 'Number of tracks',
+    LibraryTableColumn.length => 'Total runtime',
+    LibraryTableColumn.vinylColor => 'Vinyl color or media color',
+    LibraryTableColumn.rpm => 'Playback speed',
     LibraryTableColumn.grade => 'Personal grade for owned copies',
     LibraryTableColumn.condition => 'Personal condition for owned copies',
     LibraryTableColumn.price => 'Personal purchase price',
@@ -340,10 +367,19 @@ LibraryTableColumnGroup comicTableColumnGroup(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status ||
     LibraryTableColumn.cover ||
+    LibraryTableColumn.artist ||
+    LibraryTableColumn.album ||
     LibraryTableColumn.title ||
     LibraryTableColumn.issue ||
     LibraryTableColumn.publisher ||
+    LibraryTableColumn.label ||
+    LibraryTableColumn.catalogNumber ||
     LibraryTableColumn.releaseDate ||
+    LibraryTableColumn.discCount ||
+    LibraryTableColumn.trackCount ||
+    LibraryTableColumn.length ||
+    LibraryTableColumn.vinylColor ||
+    LibraryTableColumn.rpm ||
     LibraryTableColumn.added ||
     LibraryTableColumn.updated =>
       LibraryTableColumnGroup.main,
@@ -396,16 +432,25 @@ LibrarySortColumn? comicTableColumnSort(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.cover => null,
     LibraryTableColumn.status => LibrarySortColumn.status,
+    LibraryTableColumn.artist => null,
+    LibraryTableColumn.album => LibrarySortColumn.title,
     LibraryTableColumn.title => LibrarySortColumn.title,
     LibraryTableColumn.issue => LibrarySortColumn.issue,
     LibraryTableColumn.variant => LibrarySortColumn.variant,
     LibraryTableColumn.format => LibrarySortColumn.format,
     LibraryTableColumn.publisher => LibrarySortColumn.publisher,
+    LibraryTableColumn.label => LibrarySortColumn.publisher,
+    LibraryTableColumn.catalogNumber => null,
     LibraryTableColumn.platform => null,
     LibraryTableColumn.developer => null,
     LibraryTableColumn.releaseDate => LibrarySortColumn.releaseDate,
     LibraryTableColumn.releasePlatform => LibrarySortColumn.format,
     LibraryTableColumn.barcode => LibrarySortColumn.barcode,
+    LibraryTableColumn.discCount => null,
+    LibraryTableColumn.trackCount => null,
+    LibraryTableColumn.length => null,
+    LibraryTableColumn.vinylColor => null,
+    LibraryTableColumn.rpm => null,
     LibraryTableColumn.grade => LibrarySortColumn.grade,
     LibraryTableColumn.condition => LibrarySortColumn.condition,
     LibraryTableColumn.price => LibrarySortColumn.price,

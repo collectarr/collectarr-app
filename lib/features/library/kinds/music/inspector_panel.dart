@@ -255,6 +255,43 @@ class _MusicInspectorMain extends StatelessWidget {
                       icon: Icons.confirmation_number_outlined,
                       text: 'Cat No ${music!.catalogNumber!}',
                     ),
+                  if (discGroups.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final group in discGroups)
+                          _MusicDiscCard(
+                            discNumber: group.discNumber,
+                            trackCount: group.tracks.length,
+                            duration: _formatTotalDuration(group.tracks),
+                          ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: _MusicCoverCard(
+                          title: 'Front cover',
+                          coverUrl: entry.displayCoverUrl,
+                          accent: inspector.accent,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _MusicCoverCard(
+                          title: 'Back cover',
+                          coverUrl: null,
+                          accent: inspector.accent,
+                          emptyText: 'Back cover not in metadata',
+                        ),
+                      ),
+                    ],
+                  ),
                   if (_ebayUri(entry) case final uri?) ...[
                     const SizedBox(height: 8),
                     InkWell(
@@ -607,6 +644,110 @@ class _MusicInspectorInfoLine extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MusicDiscCard extends StatelessWidget {
+  const _MusicDiscCard({
+    required this.discNumber,
+    required this.trackCount,
+    this.duration,
+  });
+
+  final int discNumber;
+  final int trackCount;
+  final String? duration;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: palette.divider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Disc $discNumber',
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '$trackCount tracks${duration == null ? '' : ' • $duration'}',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: palette.textMuted,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MusicCoverCard extends StatelessWidget {
+  const _MusicCoverCard({
+    required this.title,
+    required this.accent,
+    this.coverUrl,
+    this.emptyText,
+  });
+
+  final String title;
+  final String? coverUrl;
+  final String? emptyText;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+        ),
+        const SizedBox(height: 6),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: palette.surface.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: palette.divider),
+          ),
+          child: SizedBox(
+            height: 120,
+            child: coverUrl == null
+                ? Center(
+                    child: Text(
+                      emptyText ?? '-',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: palette.textMuted,
+                          ),
+                    ),
+                  )
+                : LibraryInteractiveCover(
+                    title: title,
+                    imageUrl: coverUrl,
+                    accentColor: accent,
+                    enableFullscreen: false,
+                    enableSecondaryControl: false,
+                  ),
+          ),
+        ),
+      ],
     );
   }
 }

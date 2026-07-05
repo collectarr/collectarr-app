@@ -86,8 +86,9 @@ void main() {
     expect(find.text('Lupus Dei'), findsWidgets);
     expect(find.text('Disc #1'), findsOneWidget);
     expect(find.text('Disc #2'), findsOneWidget);
-    expect(find.text('Info'), findsOneWidget);
-    expect(find.text('Personal'), findsOneWidget);
+    expect(find.text('Front cover'), findsOneWidget);
+    expect(find.text('Back cover'), findsOneWidget);
+    expect(find.text('Back cover not in metadata'), findsOneWidget);
   });
 
   testWidgets('music inspector highlights matching tracks for track search', (

@@ -171,6 +171,28 @@ final class MusicRelease {
   List<CatalogTrack> get tracks =>
       [for (final media in this.media) ...media.toCatalogTracks()];
 
+  int get discCount => media.isEmpty ? 0 : media.length;
+
+  String? get length {
+    var totalSeconds = 0;
+    for (final track in tracks) {
+      final duration = track.durationSeconds;
+      if (duration != null && duration > 0) {
+        totalSeconds += duration;
+      }
+    }
+    if (totalSeconds <= 0) {
+      return null;
+    }
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
+    if (hours > 0) {
+      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+
   bool get isLive => extras?.toLowerCase().contains('live') ?? false;
 
   factory MusicRelease.fromDto(MusicReleaseDto dto) {

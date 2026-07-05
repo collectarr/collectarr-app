@@ -160,9 +160,16 @@ class MusicLibraryMediaPresentationBuilder
           LibraryInspectorFactData(releaseFields.barcodeLabel, entry.barcode!),
       ],
       contextFacts: [
+        if (series?.seriesTitle != null)
+          LibraryInspectorFactData(
+            'Artist',
+            series!.seriesTitle!,
+            onTap: tapFor(series.seriesTitle),
+          ),
+        LibraryInspectorFactData('Album', entry.resolvedTitle),
         if (entry.publisher != null)
           LibraryInspectorFactData(
-            mediaFields.publisherLabel,
+            'Label',
             entry.publisher!,
             onTap: tapFor(entry.publisher),
           ),
@@ -175,14 +182,22 @@ class MusicLibraryMediaPresentationBuilder
         ),
         if (music?.trackCount != null)
           LibraryInspectorFactData('Tracks', music!.trackCount.toString()),
+        if (music?.discCount case final discCount?)
+          LibraryInspectorFactData('Disc count', discCount.toString()),
         if (music?.catalogNumber != null)
-          LibraryInspectorFactData('Catalog No.', music!.catalogNumber!),
+          LibraryInspectorFactData('Catalog #', music!.catalogNumber!),
         if (music?.releaseStatus != null)
           LibraryInspectorFactData('Release Status', music!.releaseStatus!),
         if (entry.country != null)
           LibraryInspectorFactData('Country', entry.country!),
         if (entry.language != null)
           LibraryInspectorFactData('Language', entry.language!),
+        if (music?.length != null)
+          LibraryInspectorFactData('Length', music!.length!),
+        if (music?.vinylColor != null)
+          LibraryInspectorFactData('Vinyl color', music!.vinylColor!),
+        if (music?.rpm != null)
+          LibraryInspectorFactData('RPM', music!.rpm!),
         if (entry.audienceRating != null)
           LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
         LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),

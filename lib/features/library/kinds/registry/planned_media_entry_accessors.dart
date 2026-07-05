@@ -3,12 +3,20 @@ part of 'planned_media_adapters.dart';
 class PlannedMediaEntryAccessors {
   const PlannedMediaEntryAccessors({
     required this.series,
+    required this.album,
     required this.storyArc,
     required this.country,
     required this.language,
     required this.pageCount,
     required this.ageRating,
     required this.imprint,
+    required this.label,
+    required this.catalogNumber,
+    required this.discCount,
+    required this.trackCount,
+    required this.length,
+    required this.vinylColor,
+    required this.rpm,
     required this.platform,
     required this.developer,
     required this.releasePlatform,
@@ -24,12 +32,20 @@ class PlannedMediaEntryAccessors {
   });
 
   final String? Function(LibraryWorkspaceEntry entry) series;
+  final String? Function(LibraryWorkspaceEntry entry) album;
   final String? Function(LibraryWorkspaceEntry entry) storyArc;
   final String? Function(LibraryWorkspaceEntry entry) country;
   final String? Function(LibraryWorkspaceEntry entry) language;
   final int? Function(LibraryWorkspaceEntry entry) pageCount;
   final String? Function(LibraryWorkspaceEntry entry) ageRating;
   final String? Function(LibraryWorkspaceEntry entry) imprint;
+  final String? Function(LibraryWorkspaceEntry entry) label;
+  final String? Function(LibraryWorkspaceEntry entry) catalogNumber;
+  final int? Function(LibraryWorkspaceEntry entry) discCount;
+  final int? Function(LibraryWorkspaceEntry entry) trackCount;
+  final String? Function(LibraryWorkspaceEntry entry) length;
+  final String? Function(LibraryWorkspaceEntry entry) vinylColor;
+  final String? Function(LibraryWorkspaceEntry entry) rpm;
   final String? Function(LibraryWorkspaceEntry entry) platform;
   final String? Function(LibraryWorkspaceEntry entry) developer;
   final String? Function(LibraryWorkspaceEntry entry) releasePlatform;
@@ -47,12 +63,20 @@ class PlannedMediaEntryAccessors {
 
 final plannedDefaultEntryAccessors = PlannedMediaEntryAccessors(
   series: (entry) => entry.series?.seriesTitle,
+  album: (entry) => entry.title,
   storyArc: (entry) => _firstStringValue(entry.storyArcs),
   country: (entry) => entry.country,
   language: (entry) => entry.language,
   pageCount: (entry) => entry.publishing?.pageCount,
   ageRating: (entry) => entry.ageRating,
   imprint: (entry) => entry.publishing?.imprint,
+  label: (entry) => entry.publisher,
+  catalogNumber: (entry) => entry.music?.catalogNumber,
+  discCount: (entry) => entry.music?.discs.length,
+  trackCount: (entry) => entry.music?.trackCount ?? entry.music?.tracks.length,
+  length: (entry) => entry.music?.length,
+  vinylColor: (entry) => entry.music?.vinylColor,
+  rpm: (entry) => entry.music?.rpm?.toString(),
   platform: (entry) =>
       _firstStringValue(entry.game?.platforms ?? entry.rawPlatforms),
   developer: (entry) => _firstCreatorName(entry.creators),
@@ -70,12 +94,20 @@ final plannedDefaultEntryAccessors = PlannedMediaEntryAccessors(
 
 final plannedComicEntryAccessors = PlannedMediaEntryAccessors(
   series: (entry) => entry.series?.seriesTitle,
+  album: (entry) => entry.title,
   storyArc: (entry) => _firstStringValue(entry.storyArcs),
   country: (entry) => entry.country,
   language: (entry) => entry.language,
   pageCount: (entry) => entry.publishing?.pageCount,
   ageRating: (entry) => entry.ageRating,
   imprint: (entry) => entry.publishing?.imprint,
+  label: (entry) => entry.publisher,
+  catalogNumber: (entry) => entry.music?.catalogNumber,
+  discCount: (entry) => entry.music?.discs.length,
+  trackCount: (entry) => entry.music?.trackCount ?? entry.music?.tracks.length,
+  length: (entry) => entry.music?.length,
+  vinylColor: (entry) => entry.music?.vinylColor,
+  rpm: (entry) => entry.music?.rpm?.toString(),
   platform: (entry) =>
       _firstStringValue(entry.game?.platforms ?? entry.rawPlatforms),
   developer: (entry) => _firstCreatorName(entry.creators),
@@ -94,12 +126,20 @@ final plannedComicEntryAccessors = PlannedMediaEntryAccessors(
 final plannedBookEntryAccessors = plannedDefaultEntryAccessors;
 final plannedGameEntryAccessors = PlannedMediaEntryAccessors(
   series: (entry) => entry.series?.seriesTitle,
+  album: (entry) => entry.title,
   storyArc: (entry) => _firstStringValue(entry.storyArcs),
   country: (entry) => entry.country,
   language: (entry) => entry.language,
   pageCount: (entry) => entry.publishing?.pageCount,
   ageRating: (entry) => entry.ageRating,
   imprint: (entry) => entry.publishing?.imprint,
+  label: (entry) => entry.publisher,
+  catalogNumber: (entry) => entry.music?.catalogNumber,
+  discCount: (entry) => entry.music?.discs.length,
+  trackCount: (entry) => entry.music?.trackCount ?? entry.music?.tracks.length,
+  length: (entry) => entry.music?.length,
+  vinylColor: (entry) => entry.music?.vinylColor,
+  rpm: (entry) => entry.music?.rpm?.toString(),
   platform: (entry) =>
       _firstStringValue(entry.game?.platforms ?? entry.rawPlatforms),
   developer: (entry) => _firstCreatorName(entry.creators),
@@ -117,7 +157,36 @@ final plannedGameEntryAccessors = PlannedMediaEntryAccessors(
 
 final plannedBoardGameEntryAccessors = plannedDefaultEntryAccessors;
 final plannedMovieEntryAccessors = plannedDefaultEntryAccessors;
-final plannedMusicEntryAccessors = plannedDefaultEntryAccessors;
+final plannedMusicEntryAccessors = PlannedMediaEntryAccessors(
+  series: (entry) => entry.series?.seriesTitle,
+  album: (entry) => entry.title,
+  storyArc: (entry) => _firstStringValue(entry.storyArcs),
+  country: (entry) => entry.country,
+  language: (entry) => entry.language,
+  pageCount: (entry) => entry.publishing?.pageCount,
+  ageRating: (entry) => entry.ageRating,
+  imprint: (entry) => entry.publishing?.imprint,
+  label: (entry) => entry.publisher,
+  catalogNumber: (entry) => entry.music?.catalogNumber,
+  discCount: (entry) => entry.music?.discs.length,
+  trackCount: (entry) => entry.music?.trackCount ?? entry.music?.tracks.length,
+  length: (entry) => entry.music?.length,
+  vinylColor: (entry) => entry.music?.vinylColor,
+  rpm: (entry) => entry.music?.rpm?.toString(),
+  platform: (entry) =>
+      _firstStringValue(entry.game?.platforms ?? entry.rawPlatforms),
+  developer: (entry) => _firstCreatorName(entry.creators),
+  releasePlatform: (entry) => entry.referenceFormatLabel,
+  completion: (entry) => entry.collectionStatus,
+  creators: (entry) => entry.creators,
+  characters: (entry) => entry.characters,
+  storyArcs: (entry) => entry.storyArcs,
+  genres: (entry) => entry.genres,
+  rawPlatforms: (entry) => entry.game?.platforms ?? entry.rawPlatforms,
+  keyComic: (_) => false,
+  rawOrSlabbed: (_) => null,
+  gradingCompany: (_) => null,
+);
 
 LibraryEntryFilterValues plannedMediaFilterValuesForEntry(
   LibraryWorkspaceEntry entry,
@@ -139,17 +208,21 @@ Iterable<String> plannedMediaLinkedMetadataCandidatesForEntry(
   yield* _nonEmptyValues([
     entry.resolvedTitle,
     entry.title,
+    accessors.album(entry),
     entry.localizedTitle,
     entry.originalTitle,
     filterValues.series,
     entry.itemNumber,
     entry.publisher,
+    accessors.label(entry),
     entry.variant,
     publishing?.imprint,
-    publishing?.seriesGroup,
+    accessors.catalogNumber(entry),
     filterValues.country,
     filterValues.language,
     accessors.ageRating(entry),
+    accessors.vinylColor(entry),
+    accessors.rpm(entry),
   ]);
   yield* _nonEmptyValues(entry.searchAliases);
   if (accessors.creators(entry) case final creators?) {

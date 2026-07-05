@@ -30,16 +30,25 @@ double defaultPlannedMediaTableColumnWidth(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 52.0,
     LibraryTableColumn.cover => 42.0,
+    LibraryTableColumn.artist => 160.0,
+    LibraryTableColumn.album => 260.0,
     LibraryTableColumn.title => 280.0,
     LibraryTableColumn.issue => 86.0,
     LibraryTableColumn.variant => 170.0,
     LibraryTableColumn.format => 116.0,
     LibraryTableColumn.publisher => 150.0,
+    LibraryTableColumn.label => 150.0,
+    LibraryTableColumn.catalogNumber => 134.0,
     LibraryTableColumn.platform => 118.0,
     LibraryTableColumn.developer => 140.0,
     LibraryTableColumn.releaseDate => 118.0,
     LibraryTableColumn.releasePlatform => 140.0,
     LibraryTableColumn.barcode => 160.0,
+    LibraryTableColumn.discCount => 92.0,
+    LibraryTableColumn.trackCount => 92.0,
+    LibraryTableColumn.length => 92.0,
+    LibraryTableColumn.vinylColor => 118.0,
+    LibraryTableColumn.rpm => 78.0,
     LibraryTableColumn.grade => 88.0,
     LibraryTableColumn.condition => 124.0,
     LibraryTableColumn.completion => 110.0,
@@ -61,9 +70,17 @@ double minPlannedMediaTableColumnWidth(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 44.0,
     LibraryTableColumn.cover => 44.0,
+    LibraryTableColumn.artist => 110.0,
+    LibraryTableColumn.album => 160.0,
+    LibraryTableColumn.label => 110.0,
     LibraryTableColumn.issue => 64.0,
     LibraryTableColumn.price => 78.0,
     LibraryTableColumn.wishlist => 70.0,
+    LibraryTableColumn.catalogNumber => 84.0,
+    LibraryTableColumn.discCount => 64.0,
+    LibraryTableColumn.trackCount => 64.0,
+    LibraryTableColumn.length => 72.0,
+    LibraryTableColumn.rpm => 60.0,
     _ => 86.0,
   };
 }
@@ -71,8 +88,10 @@ double minPlannedMediaTableColumnWidth(LibraryTableColumn column) {
 double maxPlannedMediaTableColumnWidth(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.title => 560.0,
+    LibraryTableColumn.album => 560.0,
     LibraryTableColumn.variant => 420.0,
     LibraryTableColumn.barcode => 260.0,
+    LibraryTableColumn.catalogNumber => 240.0,
     _ => 260.0,
   };
 }
@@ -101,16 +120,25 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => '',
     LibraryTableColumn.cover => '',
+    LibraryTableColumn.artist => 'Artist',
+    LibraryTableColumn.album => 'Album',
     LibraryTableColumn.title => 'Title',
     LibraryTableColumn.issue => 'Number',
     LibraryTableColumn.variant => 'Edition',
     LibraryTableColumn.format => 'Format',
     LibraryTableColumn.publisher => 'Publisher',
+    LibraryTableColumn.label => 'Label',
+    LibraryTableColumn.catalogNumber => 'Catalog #',
     LibraryTableColumn.platform => 'Platform',
     LibraryTableColumn.developer => 'Developer',
     LibraryTableColumn.releaseDate => 'Release Date',
     LibraryTableColumn.releasePlatform => 'Release Platform',
     LibraryTableColumn.barcode => 'Barcode',
+    LibraryTableColumn.discCount => 'Disc Count',
+    LibraryTableColumn.trackCount => 'Track Count',
+    LibraryTableColumn.length => 'Length',
+    LibraryTableColumn.vinylColor => 'Vinyl Color',
+    LibraryTableColumn.rpm => 'RPM',
     LibraryTableColumn.grade => 'Grade',
     LibraryTableColumn.condition => 'Condition',
     LibraryTableColumn.completion => 'Completion',
@@ -166,10 +194,19 @@ LibraryTableColumnGroup plannedMediaTableColumnGroup(
   return switch (column) {
     LibraryTableColumn.status ||
     LibraryTableColumn.cover ||
+    LibraryTableColumn.artist ||
+    LibraryTableColumn.album ||
     LibraryTableColumn.title ||
     LibraryTableColumn.issue ||
     LibraryTableColumn.publisher ||
+    LibraryTableColumn.label ||
+    LibraryTableColumn.catalogNumber ||
     LibraryTableColumn.releaseDate ||
+    LibraryTableColumn.discCount ||
+    LibraryTableColumn.trackCount ||
+    LibraryTableColumn.length ||
+    LibraryTableColumn.vinylColor ||
+    LibraryTableColumn.rpm ||
     LibraryTableColumn.added ||
     LibraryTableColumn.updated =>
       LibraryTableColumnGroup.main,
@@ -212,7 +249,9 @@ bool plannedMediaTableColumnIsNumeric(LibraryTableColumn column) {
     LibraryTableColumn.issue ||
     LibraryTableColumn.price ||
     LibraryTableColumn.value ||
-    LibraryTableColumn.pageCount =>
+    LibraryTableColumn.pageCount ||
+    LibraryTableColumn.discCount ||
+    LibraryTableColumn.trackCount =>
       true,
     _ => false,
   };
@@ -222,16 +261,25 @@ LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.cover => null,
     LibraryTableColumn.status => LibrarySortColumn.status,
+    LibraryTableColumn.artist => null,
+    LibraryTableColumn.album => LibrarySortColumn.title,
     LibraryTableColumn.title => LibrarySortColumn.title,
     LibraryTableColumn.issue => LibrarySortColumn.issue,
     LibraryTableColumn.variant => LibrarySortColumn.variant,
     LibraryTableColumn.format => LibrarySortColumn.format,
     LibraryTableColumn.publisher => LibrarySortColumn.publisher,
+    LibraryTableColumn.label => LibrarySortColumn.publisher,
+    LibraryTableColumn.catalogNumber => null,
     LibraryTableColumn.platform => null,
     LibraryTableColumn.developer => null,
     LibraryTableColumn.releaseDate => LibrarySortColumn.releaseDate,
     LibraryTableColumn.releasePlatform => LibrarySortColumn.format,
     LibraryTableColumn.barcode => LibrarySortColumn.barcode,
+    LibraryTableColumn.discCount => null,
+    LibraryTableColumn.trackCount => null,
+    LibraryTableColumn.length => null,
+    LibraryTableColumn.vinylColor => null,
+    LibraryTableColumn.rpm => null,
     LibraryTableColumn.grade => LibrarySortColumn.grade,
     LibraryTableColumn.condition => LibrarySortColumn.condition,
     LibraryTableColumn.price => LibrarySortColumn.price,
@@ -282,6 +330,8 @@ Widget plannedMediaTableCell(
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
       ),
+    LibraryTableColumn.artist => LibraryTableCellText(_musicArtist(entry)),
+    LibraryTableColumn.album => LibraryTableCellText(entry.title),
     LibraryTableColumn.issue => LibraryTableCellText(entry.itemNumber),
     LibraryTableColumn.variant => LibraryTableCellText(
         [
@@ -296,9 +346,20 @@ Widget plannedMediaTableCell(
     LibraryTableColumn.format =>
       LibraryTableCellText(entry.referenceFormatLabel),
     LibraryTableColumn.publisher => LibraryTableCellText(entry.publisher),
+    LibraryTableColumn.label => LibraryTableCellText(entry.publisher),
+    LibraryTableColumn.catalogNumber =>
+      LibraryTableCellText(_musicCatalogNumber(entry)),
     LibraryTableColumn.releaseDate =>
       LibraryTableCellText(formatNullableDate(entry.releaseDate)),
     LibraryTableColumn.barcode => LibraryTableCellText(entry.barcode),
+    LibraryTableColumn.discCount =>
+      LibraryTableCellText(_musicDiscCount(entry)?.toString()),
+    LibraryTableColumn.trackCount =>
+      LibraryTableCellText(_musicTrackCount(entry)?.toString()),
+    LibraryTableColumn.length => LibraryTableCellText(_musicLength(entry)),
+    LibraryTableColumn.vinylColor =>
+      LibraryTableCellText(_musicVinylColor(entry)),
+    LibraryTableColumn.rpm => LibraryTableCellText(_musicRpm(entry)),
     LibraryTableColumn.grade => LibraryTableCellText(entry.grade),
     LibraryTableColumn.condition => LibraryTableCellText(entry.condition),
     LibraryTableColumn.price =>
@@ -346,4 +407,79 @@ String? _firstDisplayValue(List<String>? values) {
     }
   }
   return null;
+}
+
+String? _musicArtist(LibraryWorkspaceEntry entry) {
+  final series = entry.series?.seriesTitle?.trim();
+  if (series != null && series.isNotEmpty) {
+    return series;
+  }
+  final creators = entry.creators ?? const <Map<String, dynamic>>[];
+  for (final creator in creators) {
+    final name =
+        (creator['name'] ?? creator['display_name'] ?? '').toString().trim();
+    if (name.isNotEmpty) {
+      return name;
+    }
+  }
+  return null;
+}
+
+String? _musicCatalogNumber(LibraryWorkspaceEntry entry) {
+  final catalogNumber = entry.music?.catalogNumber?.trim();
+  if (catalogNumber != null && catalogNumber.isNotEmpty) {
+    return catalogNumber;
+  }
+  return entry.publishing?.subtitle?.trim();
+}
+
+int? _musicDiscCount(LibraryWorkspaceEntry entry) {
+  final discs = entry.music?.discs;
+  if (discs != null && discs.isNotEmpty) {
+    return discs.length;
+  }
+  return entry.editions.isNotEmpty ? entry.editions.length : null;
+}
+
+int? _musicTrackCount(LibraryWorkspaceEntry entry) {
+  final trackCount = entry.music?.trackCount;
+  if (trackCount != null) {
+    return trackCount;
+  }
+  final tracks = entry.music?.tracks;
+  return tracks == null || tracks.isEmpty ? null : tracks.length;
+}
+
+String? _musicLength(LibraryWorkspaceEntry entry) {
+  final tracks = entry.music?.tracks;
+  if (tracks == null || tracks.isEmpty) {
+    return null;
+  }
+  var totalSeconds = 0;
+  for (final track in tracks) {
+    final seconds = track.durationSeconds;
+    if (seconds != null && seconds > 0) {
+      totalSeconds += seconds;
+    }
+  }
+  if (totalSeconds <= 0) {
+    return null;
+  }
+  final hours = totalSeconds ~/ 3600;
+  final minutes = (totalSeconds % 3600) ~/ 60;
+  final seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+  return '$minutes:${seconds.toString().padLeft(2, '0')}';
+}
+
+String? _musicVinylColor(LibraryWorkspaceEntry entry) {
+  final color = entry.music?.vinylColor?.trim();
+  return color == null || color.isEmpty ? null : color;
+}
+
+String? _musicRpm(LibraryWorkspaceEntry entry) {
+  final rpm = entry.music?.rpm?.trim();
+  return rpm == null || rpm.isEmpty ? null : '$rpm RPM';
 }

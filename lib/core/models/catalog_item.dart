@@ -361,6 +361,28 @@ class MusicCatalogDetails {
       instrument != null ||
       isLive != null ||
       composition != null;
+
+  int get discCount => discs.length;
+
+  String? get length {
+    var totalSeconds = 0;
+    for (final track in tracks) {
+      final duration = track.durationSeconds;
+      if (duration != null && duration > 0) {
+        totalSeconds += duration;
+      }
+    }
+    if (totalSeconds <= 0) {
+      return null;
+    }
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
+    if (hours > 0) {
+      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
 }
 
 class CatalogSeriesDetails {
