@@ -169,6 +169,7 @@ class LibraryWorkspace extends ConsumerWidget {
             itemBuilder: (context, item) => LibraryCoverTile(
               key: ValueKey(item.entry.id),
               entry: item.entry,
+              customFieldBadges: item.customFieldBadges,
               active: _isActive(item),
               selected: _isSelectionSelected(item),
               selectionMode: selectionEnabled,
@@ -205,6 +206,7 @@ class LibraryWorkspace extends ConsumerWidget {
             itemBuilder: (context, item) => LibraryWorkspaceCard(
               key: ValueKey(item.entry.id),
               entry: item.entry,
+              customFieldBadges: item.customFieldBadges,
               selected: _isHighlighted(item),
               onTap: _selectionTap(item),
               onDoubleTap: () => onOpenItem(item),
@@ -239,6 +241,7 @@ class LibraryWorkspace extends ConsumerWidget {
             itemBuilder: (context, item) => LibraryWorkspaceCard(
               key: ValueKey(item.entry.id),
               entry: item.entry,
+              customFieldBadges: item.customFieldBadges,
               selected: _isHighlighted(item),
               onTap: _selectionTap(item),
               onDoubleTap: () => onOpenItem(item),
@@ -294,6 +297,7 @@ class LibraryWorkspace extends ConsumerWidget {
           itemBuilder: (context, item) => LibraryCoverTile(
             key: ValueKey(item.entry.id),
             entry: item.entry,
+            customFieldBadges: item.customFieldBadges,
             active: _isActive(item),
             selected: _isSelectionSelected(item),
             selectionMode: selectionEnabled,
@@ -331,6 +335,7 @@ class LibraryWorkspace extends ConsumerWidget {
           itemBuilder: (context, item) => LibraryWorkspaceCard(
             key: ValueKey(item.entry.id),
             entry: item.entry,
+            customFieldBadges: item.customFieldBadges,
             selected: _isHighlighted(item),
             onTap: _selectionTap(item),
             onDoubleTap: () => onOpenItem(item),
@@ -501,6 +506,7 @@ class LibraryWorkspace extends ConsumerWidget {
               child: LibraryWorkspaceCard(
                 key: ValueKey(item.entry.id),
                 entry: item.entry,
+                customFieldBadges: item.customFieldBadges,
                 selected: _isHighlighted(item),
                 onTap: _selectionTap(item),
                 onDoubleTap: () => onOpenItem(item),

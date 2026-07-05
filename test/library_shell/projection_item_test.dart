@@ -1,7 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,13 +8,10 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 void main() {
   test('library projection prefers structured location path', () {
     final projection = LibraryProjectionItem.fromShelf(
-      ShelfEntry(
+      testShelfEntry(
         itemId: 'comic-1',
-        catalogItem: CatalogItem(
-          id: 'comic-1',
-          kind: 'comic',
-          title: 'Batman',
-        ),
+        kind: 'comic',
+        title: 'Batman',
         ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
@@ -43,13 +38,10 @@ void main() {
 
   test('library projection exposes bundle and release reference labels', () {
     final bundleProjection = LibraryProjectionItem.fromShelf(
-      ShelfEntry(
+      testShelfEntry(
         itemId: 'comic-2',
-        catalogItem: CatalogItem(
-          id: 'comic-2',
-          kind: 'comic',
-          title: 'Batman',
-        ),
+        kind: 'comic',
+        title: 'Batman',
         ownedItem: testOwnedItem(
           id: 'owned-2',
           itemId: 'comic-2',
@@ -61,16 +53,17 @@ void main() {
       comicsLibraryConfig,
     );
     final wishlistProjection = LibraryProjectionItem.fromShelf(
-      ShelfEntry(
+      testShelfEntry(
         itemId: 'comic-3',
-        catalogItem: CatalogItem(
-          id: 'comic-3',
-          kind: 'comic',
-          title: 'Detective Comics',
-        ),
+        kind: 'comic',
+        title: 'Detective Comics',
         wishlistItem: WishlistItem(
           id: 'wish-3',
-          itemId: 'comic-3',
+          catalogRef: CatalogEntityRef(
+            kind: 'comic',
+            entityType: CatalogEntityType.ownedCopy,
+            id: 'comic-3',
+          ),
           anchorType: 'variant',
           editionId: 'edition-3',
           variantId: 'variant-3',

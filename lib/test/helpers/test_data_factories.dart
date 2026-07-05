@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
@@ -210,6 +212,8 @@ ShelfEntry testShelfEntry({
   String title = 'Test Item',
   CatalogItem? catalogItem,
   OwnedItem? ownedItem,
+  WishlistItem? wishlistItem,
+  TrackingEntry? trackingEntry,
   String? locationPath,
 }) {
   final resolvedCatalogItem = catalogItem ?? testCatalogItem(
@@ -221,6 +225,8 @@ ShelfEntry testShelfEntry({
     itemId: itemId,
     catalogItem: LibraryMetadataItem.fromCatalogItem(resolvedCatalogItem),
     ownedItem: ownedItem,
+    wishlistItem: wishlistItem,
+    trackingEntry: trackingEntry,
     locationPath: locationPath,
   );
 }

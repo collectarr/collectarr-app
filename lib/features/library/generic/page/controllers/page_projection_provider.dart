@@ -23,6 +23,7 @@ class LibraryProjectionRequest {
     required this.filterSelection,
     required this.customFieldValuesByItem,
     required this.customFieldValuesByDefinitionByItem,
+    required this.customFieldDefinitions,
     required this.activeLoanOwnedItemIds,
     required this.searchTarget,
   });
@@ -47,6 +48,7 @@ class LibraryProjectionRequest {
   final LibraryFilterSelection filterSelection;
   final Map<String, List<String>> customFieldValuesByItem;
   final Map<String, Map<String, String>> customFieldValuesByDefinitionByItem;
+  final List<CustomFieldDefinition> customFieldDefinitions;
   final Set<String> activeLoanOwnedItemIds;
   final LibrarySearchTarget searchTarget;
 
@@ -78,6 +80,7 @@ class LibraryProjectionRequest {
           customFieldValuesByDefinitionByItem,
           other.customFieldValuesByDefinitionByItem,
         ) &&
+        listEquals(customFieldDefinitions, other.customFieldDefinitions) &&
         setEquals(activeLoanOwnedItemIds, other.activeLoanOwnedItemIds) &&
         searchTarget == other.searchTarget;
   }
@@ -103,6 +106,7 @@ class LibraryProjectionRequest {
         filterSelection,
         _stringListMapHash(customFieldValuesByItem),
         _stringNestedMapHash(customFieldValuesByDefinitionByItem),
+        Object.hashAll(customFieldDefinitions),
         Object.hashAll(activeLoanOwnedItemIds.toList(growable: false)),
         searchTarget,
       ]);
@@ -190,6 +194,7 @@ final libraryProjectionProvider = Provider.autoDispose
     overrideBuckets: request.overrideBuckets,
     constrainedItemIds: request.constrainedItemIds,
     filterSelection: request.filterSelection,
+    customFieldDefinitions: request.customFieldDefinitions,
     customFieldValuesByItem: request.customFieldValuesByItem,
     customFieldValuesByDefinitionByItem:
         request.customFieldValuesByDefinitionByItem,

@@ -37,6 +37,8 @@ abstract final class _LibraryProjectionControllerOps {
     final customFieldValuesByDefinition =
         customFieldCache.asData?.value.valuesByDefinitionByItem ??
             const <String, Map<String, String>>{};
+    final customFieldDefinitions =
+        customFieldCache.asData?.value.definitions ?? const [];
     final activeLoanOwnedItemIds = state._activeLoanOwnedItemIds;
     final query = searchState.query;
     final searchTarget = state._effectiveSearchTarget;
@@ -60,6 +62,7 @@ abstract final class _LibraryProjectionControllerOps {
       searchPinnedItemId: searchState.pinnedItemId,
       customFieldValuesByItem: customFieldValues,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
+      customFieldDefinitions: customFieldDefinitions,
       activeLoanOwnedItemIds: activeLoanOwnedItemIds,
     );
     return state.ref.watch(
@@ -85,6 +88,7 @@ abstract final class _LibraryProjectionControllerOps {
           filterSelection: filterSelection,
           customFieldValuesByItem: customFieldValues,
           customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,
+          customFieldDefinitions: customFieldDefinitions,
           activeLoanOwnedItemIds: activeLoanOwnedItemIds,
           searchTarget: searchTarget,
         ),
@@ -108,6 +112,7 @@ abstract final class _LibraryProjectionControllerOps {
     required LibraryFilterSelection filterSelection,
     required Set<String>? constrainedItemIds,
     required String? searchPinnedItemId,
+    required List<CustomFieldDefinition> customFieldDefinitions,
     required Map<String, List<String>> customFieldValuesByItem,
     required Map<String, Map<String, String>>
         customFieldValuesByDefinitionByItem,
@@ -133,6 +138,7 @@ abstract final class _LibraryProjectionControllerOps {
       stableSetSignature(constrainedItemIds),
       searchPinnedItemId,
       stableSetSignature(activeLoanOwnedItemIds),
+      _customFieldDefinitionsSignature(customFieldDefinitions),
       customFieldValuesSignatureForProjection(state, customFieldValuesByItem),
       customFieldValuesByDefinitionSignatureForProjection(
         state,
@@ -174,6 +180,24 @@ abstract final class _LibraryProjectionControllerOps {
         innerSignature = Object.hash(innerSignature, innerKey, inner[innerKey]);
       }
       signature = Object.hash(signature, outerKey, innerSignature);
+    }
+    return signature;
+  }
+
+  static int _customFieldDefinitionsSignature(
+    List<CustomFieldDefinition> definitions,
+  ) {
+    var signature = definitions.length;
+    for (final definition in definitions) {
+      signature = Object.hash(
+        signature,
+        definition.id,
+        definition.name,
+        definition.fieldType,
+        definition.mediaKind,
+        definition.editScope,
+        definition.sortOrder,
+      );
     }
     return signature;
   }

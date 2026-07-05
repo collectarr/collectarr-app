@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -246,6 +247,7 @@ class LibraryProjection {
     List<LibrarySeriesBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
+    List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
@@ -270,6 +272,7 @@ class LibraryProjection {
       overrideBuckets: overrideBuckets,
       constrainedItemIds: constrainedItemIds,
       filterSelection: filterSelection,
+      customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
       customFieldValuesByDefinitionByItem:
           customFieldValuesByDefinitionByItem,

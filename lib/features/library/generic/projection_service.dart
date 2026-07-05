@@ -22,6 +22,7 @@ class LibraryProjectionService {
     List<LibrarySeriesBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
+    List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
@@ -31,6 +32,10 @@ class LibraryProjectionService {
     final allItems = libraryItemsForShelf(
       shelf,
       type,
+      customFieldDefinitions: customFieldDefinitions,
+      customFieldValuesByDefinitionByItem:
+          customFieldValuesByDefinitionByItem,
+      customFieldValuesByItem: customFieldValuesByItem,
       browserMode: browserMode,
       releaseFolderTitleItemId: releaseFolderTitleItemId,
     );

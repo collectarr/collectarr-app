@@ -37,6 +37,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     this.selectionMode = false,
     this.onSelectionToggleTap,
     this.onEditTap,
+    this.customFieldBadges = const <String>[],
     super.key,
   });
 
@@ -56,6 +57,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
   final bool selectionMode;
   final VoidCallback? onSelectionToggleTap;
   final VoidCallback? onEditTap;
+  final List<String> customFieldBadges;
 
   @override
   Widget build(BuildContext context) {
@@ -336,6 +338,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: noteLabel,
                                     accentColor: accentColor,
                                   ),
+                                for (final badge in customFieldBadges)
+                                  _LibraryCompactMetaPill(
+                                    icon: Icons.tune,
+                                    label: badge,
+                                    accentColor: accentColor,
+                                  ),
                                 if (comic?.keyComic == true)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.label_important,
@@ -377,7 +385,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 ..._gameCompactBadges(entry, accentColor),
                               ],
                             ),
-                            const Spacer(),
+                              const Spacer(),
                             if (entry.browseScope != LibraryBrowserScope.title)
                               Text(
                                 entry.barcode == null || entry.barcode!.isEmpty
@@ -788,6 +796,21 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 children: _videoCompactBadges(entry, accentColor),
                               ),
                             ],
+                            if (customFieldBadges.isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: [
+                                  for (final badge in customFieldBadges)
+                                    _LibraryCompactMetaPill(
+                                      icon: Icons.tune,
+                                      label: badge,
+                                      accentColor: accentColor,
+                                    ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -964,6 +987,21 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   ),
                               ],
                             ),
+                            if (customFieldBadges.isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: [
+                                  for (final badge in customFieldBadges)
+                                    _LibraryCompactMetaPill(
+                                      icon: Icons.tune,
+                                      label: badge,
+                                      accentColor: accentColor,
+                                    ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),

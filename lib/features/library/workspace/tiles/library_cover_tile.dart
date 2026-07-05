@@ -41,6 +41,7 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
     this.accentColor = kAppAccent,
     this.selectionColor = kAppHighlight,
     this.mutedTextColor = kAppTextMuted,
+    this.customFieldBadges = const <String>[],
     super.key,
   });
 
@@ -58,6 +59,7 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
   final Color accentColor;
   final Color selectionColor;
   final Color mutedTextColor;
+  final List<String> customFieldBadges;
 
   @override
   ConsumerState<LibraryCoverTile> createState() => _LibraryCoverTileState();
@@ -283,6 +285,11 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
         LibraryCoverBadge(
           icon: Icons.sticky_note_2_outlined,
           label: label,
+        ),
+      for (final badge in widget.customFieldBadges)
+        LibraryCoverBadge(
+          icon: Icons.tune,
+          label: badge,
         ),
     ];
   }
