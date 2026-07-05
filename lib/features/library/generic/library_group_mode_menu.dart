@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
@@ -188,6 +187,10 @@ class _LibraryGroupModeMenuButtonState
         : genericFolderPresetLabel(widget.folderPreset!, widget.type);
     final modes =
         widget.availableModes ?? libraryGroupModesForType(widget.type);
+    final categories = widget.type.kindUiAdapter.groupModeCategories(
+      widget.type,
+      modes,
+    );
     final menuWidth = _resolveMenuWidth(context, modes);
     final overlay = Overlay.of(context, rootOverlay: true)
         .context
@@ -245,12 +248,15 @@ class _LibraryGroupModeMenuButtonState
     final textStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
           fontWeight: FontWeight.w800,
         );
+    final categories = widget.type.kindUiAdapter.groupModeCategories(
+      widget.type,
+      modes,
+    );
     final labels = <String>[
       if (widget.onSidebarVisibilityChanged != null && widget.sidebarVisible)
         'No folders',
       'Favorites',
-      for (final category in _categorizeGroupModes(widget.type, modes))
-        category.label,
+      for (final category in categories) category.label,
       for (final mode in modes)
         genericGroupModeFolderSetLabel(mode, widget.type),
       for (final preset in widget.pinnedFolderPresets)
@@ -308,7 +314,7 @@ class _LibraryGroupModeDropdownMenuState
     extends State<LibraryGroupModeDropdownMenu> {
   late List<LibraryFolderPreset> _pinnedPresets;
   late Map<String, bool> _expandedSections;
-  late List<_GroupModeCategory> _categories;
+  late List<LibraryGroupModeCategory> _categories;
 
   void _emitSelection(Object? value) {
     final onSelected = widget.onSelected;
@@ -324,7 +330,10 @@ class _LibraryGroupModeDropdownMenuState
     super.initState();
     _pinnedPresets =
         List<LibraryFolderPreset>.from(widget.initialPinnedPresets);
-    _categories = _categorizeGroupModes(widget.type, widget.availableModes);
+    _categories = widget.type.kindUiAdapter.groupModeCategories(
+      widget.type,
+      widget.availableModes,
+    );
     _expandedSections = {
       for (final category in _categories)
         category.label: category.modes.any(
@@ -590,162 +599,6 @@ class _LibraryGroupModeDropdownMenuState
   }
 }
 
-class _GroupModeCategory {
-  const _GroupModeCategory(this.label, this.modes);
-
-  final String label;
-  final List<LibraryGroupMode> modes;
-}
-
-List<_GroupModeCategory> _categorizeGroupModes(
-  LibraryTypeConfig type,
-  List<LibraryGroupMode> modes,
-) {
-  if (type.workspace.kind == CatalogMediaKind.comic) {
-    const mainModes = {
-      LibraryGroupMode.series,
-      LibraryGroupMode.ageRating,
-      LibraryGroupMode.country,
-      LibraryGroupMode.crossover,
-      LibraryGroupMode.genre,
-      LibraryGroupMode.imprint,
-      LibraryGroupMode.language,
-      LibraryGroupMode.publisher,
-      LibraryGroupMode.releaseDate,
-      LibraryGroupMode.releaseMonth,
-      LibraryGroupMode.releaseYear,
-      LibraryGroupMode.seriesGroup,
-      LibraryGroupMode.storyArc,
-    };
-    const valueModes = {
-      LibraryGroupMode.grade,
-      LibraryGroupMode.condition,
-      LibraryGroupMode.isKeyComic,
-      LibraryGroupMode.rawOrSlabbed,
-      LibraryGroupMode.myRating,
-      LibraryGroupMode.purchaseDate,
-      LibraryGroupMode.purchaseMonth,
-      LibraryGroupMode.purchaseYear,
-      LibraryGroupMode.purchaseStore,
-      LibraryGroupMode.owner,
-    };
-    const editionModes = {
-      LibraryGroupMode.coverDate,
-      LibraryGroupMode.coverMonth,
-      LibraryGroupMode.coverYear,
-      LibraryGroupMode.format,
-    };
-    const creatorsAndCharactersModes = {
-      LibraryGroupMode.creator,
-      LibraryGroupMode.artist,
-      LibraryGroupMode.character,
-      LibraryGroupMode.colorist,
-      LibraryGroupMode.coverArtist,
-      LibraryGroupMode.coverColorist,
-      LibraryGroupMode.coverInker,
-      LibraryGroupMode.coverPainter,
-      LibraryGroupMode.coverPenciller,
-      LibraryGroupMode.coverSeparator,
-      LibraryGroupMode.editor,
-      LibraryGroupMode.editorInChief,
-      LibraryGroupMode.inker,
-      LibraryGroupMode.layouts,
-      LibraryGroupMode.letterer,
-      LibraryGroupMode.painter,
-      LibraryGroupMode.penciller,
-      LibraryGroupMode.plotter,
-      LibraryGroupMode.scripter,
-      LibraryGroupMode.separator,
-      LibraryGroupMode.translator,
-      LibraryGroupMode.writer,
-    };
-    final main = modes.where(mainModes.contains).toList();
-    final value = modes.where(valueModes.contains).toList();
-    final edition = modes.where(editionModes.contains).toList();
-    final creatorsAndCharacters =
-        modes.where(creatorsAndCharactersModes.contains).toList();
-    final personal = modes
-        .where((mode) =>
-            !mainModes.contains(mode) &&
-            !valueModes.contains(mode) &&
-            !editionModes.contains(mode) &&
-            !creatorsAndCharactersModes.contains(mode))
-        .toList();
-    return [
-      if (main.isNotEmpty) _GroupModeCategory('Main', main),
-      if (value.isNotEmpty) _GroupModeCategory('Value', value),
-      if (edition.isNotEmpty) _GroupModeCategory('Edition', edition),
-      if (creatorsAndCharacters.isNotEmpty)
-        _GroupModeCategory('Creators & Characters', creatorsAndCharacters),
-      if (personal.isNotEmpty) _GroupModeCategory('Personal', personal),
-    ];
-  }
-  const mainModes = {
-    LibraryGroupMode.series,
-    LibraryGroupMode.storyArc,
-    LibraryGroupMode.character,
-    LibraryGroupMode.title,
-    LibraryGroupMode.publisher,
-    LibraryGroupMode.year,
-    LibraryGroupMode.audienceRating,
-    LibraryGroupMode.color,
-    LibraryGroupMode.genre,
-    LibraryGroupMode.country,
-    LibraryGroupMode.language,
-    LibraryGroupMode.ageRating,
-    LibraryGroupMode.movieOrTvSeries,
-    LibraryGroupMode.releaseDate,
-    LibraryGroupMode.releaseMonth,
-    LibraryGroupMode.releaseYear,
-  };
-  const editionModes = {
-    LibraryGroupMode.audioTracks,
-    LibraryGroupMode.boxSet,
-    LibraryGroupMode.distributor,
-    LibraryGroupMode.editionReleaseDate,
-    LibraryGroupMode.editionReleaseMonth,
-    LibraryGroupMode.editionReleaseYear,
-    LibraryGroupMode.extras,
-    LibraryGroupMode.format,
-    LibraryGroupMode.hdr,
-    LibraryGroupMode.layers,
-    LibraryGroupMode.packaging,
-    LibraryGroupMode.regions,
-    LibraryGroupMode.screenRatios,
-    LibraryGroupMode.subtitles,
-  };
-  const crewModes = {
-    LibraryGroupMode.actor,
-    LibraryGroupMode.director,
-    LibraryGroupMode.musician,
-    LibraryGroupMode.photography,
-    LibraryGroupMode.producer,
-    LibraryGroupMode.writer,
-    LibraryGroupMode.creator,
-    LibraryGroupMode.artist,
-    LibraryGroupMode.penciller,
-    LibraryGroupMode.colorist,
-    LibraryGroupMode.letterer,
-    LibraryGroupMode.coverArtist,
-    LibraryGroupMode.editor,
-  };
-  final main = modes.where(mainModes.contains).toList();
-  final edition = modes.where(editionModes.contains).toList();
-  final crew = modes.where(crewModes.contains).toList();
-  final personal = modes
-      .where((mode) =>
-          !mainModes.contains(mode) &&
-          !editionModes.contains(mode) &&
-          !crewModes.contains(mode))
-      .toList();
-  return [
-    if (main.isNotEmpty) _GroupModeCategory('Main', main),
-    if (edition.isNotEmpty) _GroupModeCategory('Edition', edition),
-    if (crew.isNotEmpty) _GroupModeCategory('Cast & Crew', crew),
-    if (personal.isNotEmpty) _GroupModeCategory('Personal', personal),
-  ];
-}
-
 class _GroupModeFavoritesDialog extends StatefulWidget {
   const _GroupModeFavoritesDialog({
     required this.type,
@@ -781,8 +634,10 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     _fieldSearchController = TextEditingController();
     _draftModes = const [];
     _expandedEditorSections = {
-      for (final category
-          in _categorizeGroupModes(widget.type, widget.availableModes))
+      for (final category in widget.type.kindUiAdapter.groupModeCategories(
+        widget.type,
+        widget.availableModes,
+      ))
         category.label: category.label == 'Main',
     };
   }
@@ -871,7 +726,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     });
   }
 
-  void _toggleCategoryModes(_GroupModeCategory category) {
+  void _toggleCategoryModes(LibraryGroupModeCategory category) {
     final visibleModes = [
       for (final mode in category.modes)
         if (_matchesFieldSearch(mode)) mode,
@@ -911,7 +766,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
   }
 
   _FolderGroupSelectionState _selectionStateForCategory(
-    _GroupModeCategory category,
+    LibraryGroupModeCategory category,
   ) {
     final visibleModes = [
       for (final mode in category.modes)
@@ -949,16 +804,18 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     });
   }
 
-  List<_GroupModeCategory> get _filteredCategories {
+  List<LibraryGroupModeCategory> get _filteredCategories {
     final query = _fieldSearch.trim().toLowerCase();
-    final categories =
-        _categorizeGroupModes(widget.type, widget.availableModes);
+    final categories = widget.type.kindUiAdapter.groupModeCategories(
+      widget.type,
+      widget.availableModes,
+    );
     if (query.isEmpty) {
       return categories;
     }
     return [
       for (final category in categories)
-        _GroupModeCategory(
+        LibraryGroupModeCategory(
           category.label,
           [
             for (final mode in category.modes)
@@ -1661,7 +1518,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   Widget _buildEditorCategorySection(
     BuildContext context,
-    _GroupModeCategory category,
+    LibraryGroupModeCategory category,
   ) {
     final expanded = _expandedEditorSections[category.label] ?? true;
     final selectionState = _selectionStateForCategory(category);

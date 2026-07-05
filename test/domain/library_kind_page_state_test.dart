@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
@@ -147,7 +148,7 @@ void main() {
                 accent: Colors.blue,
                 routeUri: Uri(path: '/tv'))
             .createState(),
-        isA<VideoDrilldownLibraryPageState>());
+        isA<GenericLibraryPageState>());
     expect(
         AnimeLibraryPage(
                 type: animeLibraryConfig,
@@ -159,8 +160,40 @@ void main() {
   });
 
   test('reading queue visibility is now kind-owned in page state', () {
-    expect(booksLibraryConfig.capabilities.supportsReadingQueue, isTrue);
-    expect(gamesLibraryConfig.capabilities.supportsReadingQueue, isFalse);
+    expect(
+        booksLibraryConfig.kindUiAdapter.showsReadingQueue(booksLibraryConfig),
+        isTrue);
+    expect(
+        gamesLibraryConfig.kindUiAdapter.showsReadingQueue(gamesLibraryConfig),
+        isFalse);
+  });
+
+  test('kind ui adapter owns track search and group mode categories', () {
+    expect(
+      musicLibraryConfig.kindUiAdapter
+          .supportsMusicTrackSearch(musicLibraryConfig),
+      isTrue,
+    );
+    expect(
+      moviesLibraryConfig.kindUiAdapter
+          .supportsMusicTrackSearch(moviesLibraryConfig),
+      isFalse,
+    );
+
+    final comicCategories =
+        comicsLibraryConfig.kindUiAdapter.groupModeCategories(
+      comicsLibraryConfig,
+      [
+        LibraryGroupMode.series,
+        LibraryGroupMode.grade,
+        LibraryGroupMode.writer
+      ],
+    );
+    expect(comicCategories.map((category) => category.label), [
+      'Main',
+      'Value',
+      'Creators & Characters',
+    ]);
   });
 
   testWidgets('book edit dialog resolves all-scope requests to media scope',

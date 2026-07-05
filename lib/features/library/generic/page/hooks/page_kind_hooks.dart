@@ -8,12 +8,11 @@ extension _PageKindHooks on GenericLibraryPageState {
       collectarrMediaAdapter(widget.type);
 
   bool get _supportsMusicTrackSearch =>
-      widget.type.workspace.kind == CatalogMediaKind.music;
+      widget.type.kindUiAdapter.supportsMusicTrackSearch(widget.type);
 
-  LibrarySearchTarget get _effectiveSearchTarget =>
-      _supportsMusicTrackSearch
-          ? _LibraryPageSearchControllerOps.thisState(this).target
-          : LibrarySearchTarget.all;
+  LibrarySearchTarget get _effectiveSearchTarget => _supportsMusicTrackSearch
+      ? _LibraryPageSearchControllerOps.thisState(this).target
+      : LibrarySearchTarget.all;
 
   LibraryViewPreferenceStore get _viewPrefs =>
       LibraryViewPreferenceStore(widget.type.workspace.kind);
@@ -23,7 +22,7 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   bool showsReadingQueue() {
-    return widget.type.capabilities.supportsReadingQueue;
+    return widget.type.kindUiAdapter.showsReadingQueue(widget.type);
   }
 
   bool get _isScopedMediaReleaseSplit {

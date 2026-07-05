@@ -467,6 +467,175 @@ class LibraryAddVideoKindFilterOption {
   final IconData icon;
 }
 
+class LibraryGroupModeCategory {
+  const LibraryGroupModeCategory(this.label, this.modes);
+
+  final String label;
+  final List<LibraryGroupMode> modes;
+}
+
+class LibraryKindUiAdapter {
+  const LibraryKindUiAdapter();
+
+  bool supportsMusicTrackSearch(LibraryTypeConfig type) {
+    return type.workspace.kind == CatalogMediaKind.music;
+  }
+
+  bool showsReadingQueue(LibraryTypeConfig type) {
+    return type.supportsReadingQueue;
+  }
+
+  List<LibraryGroupModeCategory> groupModeCategories(
+    LibraryTypeConfig type,
+    List<LibraryGroupMode> modes,
+  ) {
+    if (type.workspace.kind == CatalogMediaKind.comic) {
+      const mainModes = {
+        LibraryGroupMode.series,
+        LibraryGroupMode.ageRating,
+        LibraryGroupMode.country,
+        LibraryGroupMode.crossover,
+        LibraryGroupMode.genre,
+        LibraryGroupMode.imprint,
+        LibraryGroupMode.language,
+        LibraryGroupMode.publisher,
+        LibraryGroupMode.releaseDate,
+        LibraryGroupMode.releaseMonth,
+        LibraryGroupMode.releaseYear,
+        LibraryGroupMode.seriesGroup,
+        LibraryGroupMode.storyArc,
+      };
+      const valueModes = {
+        LibraryGroupMode.grade,
+        LibraryGroupMode.condition,
+        LibraryGroupMode.isKeyComic,
+        LibraryGroupMode.rawOrSlabbed,
+        LibraryGroupMode.myRating,
+        LibraryGroupMode.purchaseDate,
+        LibraryGroupMode.purchaseMonth,
+        LibraryGroupMode.purchaseYear,
+        LibraryGroupMode.purchaseStore,
+        LibraryGroupMode.owner,
+      };
+      const editionModes = {
+        LibraryGroupMode.coverDate,
+        LibraryGroupMode.coverMonth,
+        LibraryGroupMode.coverYear,
+        LibraryGroupMode.format,
+      };
+      const creatorsAndCharactersModes = {
+        LibraryGroupMode.creator,
+        LibraryGroupMode.artist,
+        LibraryGroupMode.character,
+        LibraryGroupMode.colorist,
+        LibraryGroupMode.coverArtist,
+        LibraryGroupMode.coverColorist,
+        LibraryGroupMode.coverInker,
+        LibraryGroupMode.coverPainter,
+        LibraryGroupMode.coverPenciller,
+        LibraryGroupMode.coverSeparator,
+        LibraryGroupMode.editor,
+        LibraryGroupMode.editorInChief,
+        LibraryGroupMode.inker,
+        LibraryGroupMode.layouts,
+        LibraryGroupMode.letterer,
+        LibraryGroupMode.painter,
+        LibraryGroupMode.penciller,
+        LibraryGroupMode.plotter,
+        LibraryGroupMode.scripter,
+        LibraryGroupMode.separator,
+        LibraryGroupMode.translator,
+        LibraryGroupMode.writer,
+      };
+      final main = modes.where(mainModes.contains).toList();
+      final value = modes.where(valueModes.contains).toList();
+      final edition = modes.where(editionModes.contains).toList();
+      final creatorsAndCharacters =
+          modes.where(creatorsAndCharactersModes.contains).toList();
+      final personal = modes
+          .where((mode) =>
+              !mainModes.contains(mode) &&
+              !valueModes.contains(mode) &&
+              !editionModes.contains(mode) &&
+              !creatorsAndCharactersModes.contains(mode))
+          .toList();
+      return [
+        if (main.isNotEmpty) LibraryGroupModeCategory('Main', main),
+        if (value.isNotEmpty) LibraryGroupModeCategory('Value', value),
+        if (edition.isNotEmpty) LibraryGroupModeCategory('Edition', edition),
+        if (creatorsAndCharacters.isNotEmpty)
+          LibraryGroupModeCategory(
+              'Creators & Characters', creatorsAndCharacters),
+        if (personal.isNotEmpty) LibraryGroupModeCategory('Personal', personal),
+      ];
+    }
+    const mainModes = {
+      LibraryGroupMode.series,
+      LibraryGroupMode.storyArc,
+      LibraryGroupMode.character,
+      LibraryGroupMode.title,
+      LibraryGroupMode.publisher,
+      LibraryGroupMode.year,
+      LibraryGroupMode.audienceRating,
+      LibraryGroupMode.color,
+      LibraryGroupMode.genre,
+      LibraryGroupMode.country,
+      LibraryGroupMode.language,
+      LibraryGroupMode.ageRating,
+      LibraryGroupMode.movieOrTvSeries,
+      LibraryGroupMode.releaseDate,
+      LibraryGroupMode.releaseMonth,
+      LibraryGroupMode.releaseYear,
+    };
+    const editionModes = {
+      LibraryGroupMode.audioTracks,
+      LibraryGroupMode.boxSet,
+      LibraryGroupMode.distributor,
+      LibraryGroupMode.editionReleaseDate,
+      LibraryGroupMode.editionReleaseMonth,
+      LibraryGroupMode.editionReleaseYear,
+      LibraryGroupMode.extras,
+      LibraryGroupMode.format,
+      LibraryGroupMode.hdr,
+      LibraryGroupMode.layers,
+      LibraryGroupMode.packaging,
+      LibraryGroupMode.regions,
+      LibraryGroupMode.screenRatios,
+      LibraryGroupMode.subtitles,
+    };
+    const crewModes = {
+      LibraryGroupMode.actor,
+      LibraryGroupMode.director,
+      LibraryGroupMode.musician,
+      LibraryGroupMode.photography,
+      LibraryGroupMode.producer,
+      LibraryGroupMode.writer,
+      LibraryGroupMode.creator,
+      LibraryGroupMode.artist,
+      LibraryGroupMode.penciller,
+      LibraryGroupMode.colorist,
+      LibraryGroupMode.letterer,
+      LibraryGroupMode.coverArtist,
+      LibraryGroupMode.editor,
+    };
+    final main = modes.where(mainModes.contains).toList();
+    final edition = modes.where(editionModes.contains).toList();
+    final crew = modes.where(crewModes.contains).toList();
+    final personal = modes
+        .where((mode) =>
+            !mainModes.contains(mode) &&
+            !editionModes.contains(mode) &&
+            !crewModes.contains(mode))
+        .toList();
+    return [
+      if (main.isNotEmpty) LibraryGroupModeCategory('Main', main),
+      if (edition.isNotEmpty) LibraryGroupModeCategory('Edition', edition),
+      if (crew.isNotEmpty) LibraryGroupModeCategory('Cast & Crew', crew),
+      if (personal.isNotEmpty) LibraryGroupModeCategory('Personal', personal),
+    ];
+  }
+}
+
 class LibraryTypeConfig {
   const LibraryTypeConfig({
     required this.workspace,
@@ -502,6 +671,7 @@ class LibraryTypeConfig {
     this.inspectorSectionsBuilder,
     this.showsDefaultInspectorPersonalSection = true,
     this.kindBrowserDelegateBuilder,
+    this.kindUiAdapter = const LibraryKindUiAdapter(),
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -536,6 +706,7 @@ class LibraryTypeConfig {
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
   final bool showsDefaultInspectorPersonalSection;
   final LibraryKindBrowserDelegate Function()? kindBrowserDelegateBuilder;
+  final LibraryKindUiAdapter kindUiAdapter;
 
   List<TransferableField> transferableFieldsWithCustomFields(
     List<CustomFieldDefinition> definitions,

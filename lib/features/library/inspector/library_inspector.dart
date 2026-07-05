@@ -363,7 +363,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         onShare: onShare,
         onOpenDetails: onOpenDetails,
         density: density,
-        conditionGradeSection: conditionGradeSection,
       ),
     );
   }
@@ -389,7 +388,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     required VoidCallback onShare,
     required VoidCallback onOpenDetails,
     required LibraryWorkspaceDensityPreset density,
-    required Widget? conditionGradeSection,
   }) {
     final hero = widget.type.inspectorHeroBuilder?.call(
           context,
