@@ -45,6 +45,7 @@ class LibraryMetadataItem {
     this.language,
     this.ageRating,
     this.audienceRating,
+    this.boardGameStats,
     this.trailerUrls = const <TrailerLink>[],
   }) : mediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
 
@@ -91,6 +92,7 @@ class LibraryMetadataItem {
   final String? language;
   final String? ageRating;
   final String? audienceRating;
+  final BoardGameStatsDetails? boardGameStats;
   final List<TrailerLink> trailerUrls;
 
   String get kind => mediaKind.apiValue;
@@ -141,6 +143,7 @@ class LibraryMetadataItem {
       language: item.language,
       ageRating: item.ageRating,
       audienceRating: item.audienceRating,
+      boardGameStats: item.boardGameStats,
       trailerUrls: item.trailerUrls,
     );
   }
@@ -192,6 +195,7 @@ class LibraryMetadataItem {
     Object? language = _unset,
     Object? ageRating = _unset,
     Object? audienceRating = _unset,
+    Object? boardGameStats = _unset,
     List<TrailerLink>? trailerUrls,
   }) {
     return LibraryMetadataItem(
@@ -294,6 +298,9 @@ class LibraryMetadataItem {
       audienceRating: identical(audienceRating, _unset)
           ? this.audienceRating
           : audienceRating as String?,
+      boardGameStats: identical(boardGameStats, _unset)
+          ? this.boardGameStats
+          : boardGameStats as BoardGameStatsDetails?,
       trailerUrls: trailerUrls ?? this.trailerUrls,
     );
   }
@@ -344,6 +351,7 @@ class LibraryMetadataItem {
       language: language,
       ageRating: ageRating,
       audienceRating: audienceRating,
+      boardGameStats: boardGameStats,
       trailerUrls: trailerUrls,
     );
   }
@@ -423,6 +431,7 @@ class LibraryMetadataItem {
       'editions':
           editions.map((edition) => edition.toJson()).toList(growable: false),
       'platforms': platforms,
+      if (boardGameStats != null) ...boardGameStats!.toJson(),
       'toy_subtype': game?.toySubtype,
       'toy_type': game?.toyType,
       'creators': creators,

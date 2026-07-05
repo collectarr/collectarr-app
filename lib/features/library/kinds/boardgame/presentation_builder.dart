@@ -31,6 +31,7 @@ class BoardGameLibraryMediaPresentationBuilder
         boardGameWork == null || boardGameWork.editions.isEmpty
             ? null
             : boardGameWork.editions.first;
+    final playStats = boardGameWork?.playStats;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -120,6 +121,28 @@ class BoardGameLibraryMediaPresentationBuilder
             'Audience Rating',
             selectedEdition!.audienceRating!,
           ),
+        if (playStats?.bggRank != null)
+          LibraryInspectorFactData('BGG Rank', '#${playStats!.bggRank}'),
+        if (playStats?.bggRating != null)
+          LibraryInspectorFactData(
+            'BGG Rating',
+            playStats!.bggRating!.toStringAsFixed(2),
+          ),
+        if (playStats?.playCount != null)
+          LibraryInspectorFactData(
+            'Play Count',
+            playStats!.playCount.toString(),
+          ),
+        if (playStats?.lastPlayed != null)
+          LibraryInspectorFactData(
+            'Last Played',
+            _dateLabel(playStats!.lastPlayed!),
+          ),
+        if (playStats?.favoritePlayerCount != null)
+          LibraryInspectorFactData(
+            'Favorite Players',
+            playStats!.favoritePlayerCount.toString(),
+          ),
         if (entry.barcode?.trim().isNotEmpty == true)
           LibraryInspectorFactData('Barcode', entry.barcode!),
         LibraryInspectorFactData(
@@ -155,4 +178,11 @@ String _playersLabel(BoardGameEdition? edition) {
     return '$maxPlayers';
   }
   return 'Players';
+}
+
+String _dateLabel(DateTime value) {
+  final y = value.year.toString().padLeft(4, '0');
+  final m = value.month.toString().padLeft(2, '0');
+  final d = value.day.toString().padLeft(2, '0');
+  return '$y-$m-$d';
 }

@@ -514,6 +514,92 @@ class GameCatalogDetails {
       platforms.isNotEmpty || toySubtype != null || toyType != null;
 }
 
+class BoardGameStatsDetails {
+  const BoardGameStatsDetails({
+    this.bggRank,
+    this.bggRating,
+    this.playCount,
+    this.lastPlayed,
+    this.favoritePlayerCount,
+    this.playerStats = const <Map<String, dynamic>>[],
+  });
+
+  final int? bggRank;
+  final double? bggRating;
+  final int? playCount;
+  final DateTime? lastPlayed;
+  final int? favoritePlayerCount;
+  final List<Map<String, dynamic>> playerStats;
+
+  factory BoardGameStatsDetails.fromJson(Map<String, dynamic> json) {
+    return BoardGameStatsDetails(
+      bggRank: _boardGameIntOrNull(
+        json['bgg_rank'] ?? json['bggRank'] ?? json['rank'] ?? json['rank_value'],
+      ),
+      bggRating: _boardGameDoubleOrNull(
+        json['bgg_rating'] ?? json['bggRating'] ?? json['rating'],
+      ),
+      playCount: _boardGameIntOrNull(
+        json['play_count'] ?? json['playCount'] ?? json['plays'],
+      ),
+      lastPlayed: _boardGameDateOrNull(
+        json['last_played'] ?? json['lastPlayed'] ?? json['last_played_at'],
+      ),
+      favoritePlayerCount: _boardGameIntOrNull(
+        json['favorite_player_count'] ??
+            json['favoritePlayerCount'] ??
+            json['favorite_players'],
+      ),
+      playerStats: (json['player_stats'] as List<dynamic>? ??
+                  json['playerStats'] as List<dynamic>? ??
+                  json['stats'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map((entry) => Map<String, dynamic>.from(entry))
+              .toList(growable: false) ??
+          const <Map<String, dynamic>>[],
+    );
+  }
+
+  bool get hasData =>
+      bggRank != null ||
+      bggRating != null ||
+      playCount != null ||
+      lastPlayed != null ||
+      favoritePlayerCount != null ||
+      playerStats.isNotEmpty;
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (bggRank != null) 'bgg_rank': bggRank,
+      if (bggRating != null) 'bgg_rating': bggRating,
+      if (playCount != null) 'play_count': playCount,
+      if (lastPlayed != null) 'last_played': lastPlayed!.toUtc().toIso8601String(),
+      if (favoritePlayerCount != null)
+        'favorite_player_count': favoritePlayerCount,
+      if (playerStats.isNotEmpty) 'player_stats': playerStats,
+    };
+  }
+}
+
+int? _boardGameIntOrNull(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '');
+}
+
+double? _boardGameDoubleOrNull(Object? value) {
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is num) return value.toDouble();
+  return double.tryParse(value?.toString() ?? '');
+}
+
+DateTime? _boardGameDateOrNull(Object? value) {
+  final text = value?.toString().trim();
+  if (text == null || text.isEmpty) return null;
+  return DateTime.tryParse(text);
+}
+
 sealed class CatalogItem {
   const CatalogItem._({
     required this.id,
@@ -553,6 +639,7 @@ sealed class CatalogItem {
     this.ageRating,
     this.audienceRating,
     this.rawPlatforms,
+    this.boardGameStats,
     this.trailerUrls = const <TrailerLink>[],
   });
 
@@ -594,6 +681,7 @@ sealed class CatalogItem {
     List<Map<String, dynamic>>? characterDetails,
     List<String>? storyArcs,
     List<String>? rawPlatforms,
+    BoardGameStatsDetails? boardGameStats,
     List<TrailerLink>? trailerUrls,
     List<String>? genres,
     List<CatalogEdition>? editions,
@@ -641,6 +729,7 @@ sealed class CatalogItem {
       ageRating: ageRating,
       audienceRating: audienceRating,
       rawPlatforms: _normalizeStringList(rawPlatforms ?? game?.platforms),
+      boardGameStats: boardGameStats,
       trailerUrls: _normalizeTrailerList(trailerUrls),
     );
     series = series == null ? null : _seriesOrNull(series);
@@ -785,6 +874,7 @@ sealed class CatalogItem {
       toySubtype: json['toy_subtype'] as String?,
       toyType: json['toy_type'] as String?,
     );
+    final boardGameStats = BoardGameStatsDetails.fromJson(json);
     final publishing = CatalogPublishingDetails(
       pageCount: json['page_count'] as int?,
       coverPriceCents: json['cover_price_cents'] as int?,
@@ -875,6 +965,7 @@ sealed class CatalogItem {
       language: json['language'] as String?,
       ageRating: json['age_rating'] as String?,
       audienceRating: json['audience_rating'] as String?,
+      boardGameStats: boardGameStats.hasData ? boardGameStats : null,
     );
   }
 
@@ -915,6 +1006,7 @@ sealed class CatalogItem {
   final String? ageRating;
   final String? audienceRating;
   final List<String>? rawPlatforms;
+  final BoardGameStatsDetails? boardGameStats;
   final List<TrailerLink> trailerUrls;
 
   String get kind => mediaKind.apiValue;
@@ -1020,6 +1112,7 @@ sealed class CatalogItem {
       'editions':
           editions.map((edition) => edition.toJson()).toList(growable: false),
       'platforms': platforms,
+      if (boardGameStats != null) ...boardGameStats!.toJson(),
       'toy_subtype': game?.toySubtype,
       'toy_type': game?.toyType,
       'creators': creators,
@@ -1119,6 +1212,7 @@ abstract base class _TypedCatalogItem extends CatalogItem {
           ageRating: common.ageRating,
           audienceRating: common.audienceRating,
           rawPlatforms: common.rawPlatforms,
+          boardGameStats: common.boardGameStats,
           trailerUrls: common.trailerUrls ?? const <TrailerLink>[],
         );
 
@@ -1321,6 +1415,7 @@ class _CatalogItemCommon {
     this.ageRating,
     this.audienceRating,
     this.rawPlatforms,
+    this.boardGameStats,
     this.trailerUrls,
   });
 
@@ -1361,6 +1456,7 @@ class _CatalogItemCommon {
   final String? ageRating;
   final String? audienceRating;
   final List<String>? rawPlatforms;
+  final BoardGameStatsDetails? boardGameStats;
   final List<TrailerLink>? trailerUrls;
 }
 

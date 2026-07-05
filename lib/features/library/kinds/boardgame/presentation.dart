@@ -353,6 +353,9 @@ BoardGameWork _boardGameWorkFromMetadataItem(LibraryMetadataItem item) {
     families: const <String>[],
     expansions: const <String>[],
     rankings: const <String>[],
+    playStats: item.boardGameStats == null
+        ? null
+        : BoardGamePlayStats.fromDetails(item.boardGameStats!),
     editions: [
       for (final edition in item.editions)
         _boardGameEditionFromCatalogEdition(edition),
