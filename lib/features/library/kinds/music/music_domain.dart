@@ -6,6 +6,10 @@ final class MusicTrack {
     required this.title,
     this.position,
     this.durationSeconds,
+    this.offsetMilliseconds,
+    this.bitrateKbps,
+    this.fileSizeBytes,
+    this.trackHash,
     this.artist,
     this.discNumber,
   });
@@ -13,6 +17,10 @@ final class MusicTrack {
   final String title;
   final int? position;
   final int? durationSeconds;
+  final int? offsetMilliseconds;
+  final int? bitrateKbps;
+  final int? fileSizeBytes;
+  final String? trackHash;
   final String? artist;
   final int? discNumber;
 
@@ -22,6 +30,24 @@ final class MusicTrack {
       position: _parseInt(dto.position),
       durationSeconds:
           dto.durationMs == null ? null : (dto.durationMs! ~/ 1000),
+      offsetMilliseconds: _parseInt(dto.raw['offset_ms']?.toString() ?? ''),
+      bitrateKbps: _parseInt(dto.raw['bitrate_kbps']?.toString() ?? ''),
+      fileSizeBytes: _parseInt(dto.raw['file_size_bytes']?.toString() ?? ''),
+      trackHash: _stringOrNull(dto.raw['track_hash']),
+    );
+  }
+
+  CatalogTrack toCatalogTrack({required int discNumber}) {
+    return CatalogTrack(
+      title: title,
+      position: position,
+      durationSeconds: durationSeconds,
+      offsetMilliseconds: offsetMilliseconds,
+      bitrateKbps: bitrateKbps,
+      fileSizeBytes: fileSizeBytes,
+      trackHash: trackHash,
+      artist: artist,
+      discNumber: discNumber,
     );
   }
 }
@@ -38,6 +64,14 @@ final class MusicMedia {
     this.soundType,
     this.spars,
     this.trackCount,
+    this.expectedTrackCount,
+    this.ownedTrackCount,
+    this.missingTrackCount,
+    this.missingTrackPositions = const <String>[],
+    this.toc,
+    this.cddbId,
+    this.leadoutOffset,
+    this.bpDiscId,
     this.vinylColor,
     this.vinylWeight,
     this.tracks = const <MusicTrack>[],
@@ -53,6 +87,14 @@ final class MusicMedia {
   final String? soundType;
   final String? spars;
   final int? trackCount;
+  final int? expectedTrackCount;
+  final int? ownedTrackCount;
+  final int? missingTrackCount;
+  final List<String> missingTrackPositions;
+  final String? toc;
+  final String? cddbId;
+  final int? leadoutOffset;
+  final String? bpDiscId;
   final String? vinylColor;
   final String? vinylWeight;
   final List<MusicTrack> tracks;
@@ -69,6 +111,20 @@ final class MusicMedia {
       soundType: dto.soundType,
       spars: dto.spars,
       trackCount: dto.trackCount,
+      expectedTrackCount: _parseInt(
+        dto.raw['expected_track_count']?.toString() ?? '',
+      ),
+      ownedTrackCount: _parseInt(
+        dto.raw['owned_track_count']?.toString() ?? '',
+      ),
+      missingTrackCount: _parseInt(
+        dto.raw['missing_track_count']?.toString() ?? '',
+      ),
+      missingTrackPositions: _stringList(dto.raw['missing_track_positions']),
+      toc: _stringOrNull(dto.raw['toc']),
+      cddbId: _stringOrNull(dto.raw['cddb_id']),
+      leadoutOffset: _parseInt(dto.raw['leadout_offset']?.toString() ?? ''),
+      bpDiscId: _stringOrNull(dto.raw['bp_disc_id']),
       vinylColor: dto.vinylColor,
       vinylWeight: dto.vinylWeight,
       tracks: [
@@ -81,19 +137,30 @@ final class MusicMedia {
     return CatalogDisc(
       discNumber: mediaNumber,
       discName: title,
+      discFormat: mediaType,
+      trackCount: trackCount,
+      expectedTrackCount: expectedTrackCount,
+      ownedTrackCount: ownedTrackCount,
+      missingTrackCount: missingTrackCount,
+      missingTrackPositions: missingTrackPositions,
+      toc: toc,
+      cddbId: cddbId,
+      leadoutOffset: leadoutOffset,
+      bpDiscId: bpDiscId,
+      packaging: packaging,
+      mediaCondition: mediaCondition,
+      soundType: soundType,
+      rpm: rpm,
+      vinylColor: vinylColor,
+      vinylWeight: vinylWeight,
+      tracks: [for (final track in tracks) track.toCatalogTrack(discNumber: mediaNumber)],
     );
   }
 
   List<CatalogTrack> toCatalogTracks() {
     return [
       for (final track in tracks)
-        CatalogTrack(
-          title: track.title,
-          position: track.position,
-          durationSeconds: track.durationSeconds,
-          artist: track.artist,
-          discNumber: track.discNumber ?? mediaNumber,
-        ),
+        track.toCatalogTrack(discNumber: mediaNumber),
     ];
   }
 }
@@ -106,6 +173,7 @@ final class MusicRelease {
     this.subtitle,
     this.publisher,
     this.catalogNumber,
+    this.upc,
     this.recordingDate,
     this.originalReleaseDate,
     this.releaseDate,
@@ -127,6 +195,13 @@ final class MusicRelease {
     this.soundType,
     this.vinylColor,
     this.vinylWeight,
+    this.expectedMediaCount,
+    this.ownedMediaCount,
+    this.missingMediaCount,
+    this.missingDiscNumbers = const <int>[],
+    this.localCoverImagePath,
+    this.localBackImagePath,
+    this.localThumbnailImagePath,
     this.genres = const <String>[],
     this.creators = const <Map<String, dynamic>>[],
     this.identifiers = const <dynamic>[],
@@ -139,6 +214,7 @@ final class MusicRelease {
   final String? subtitle;
   final String? publisher;
   final String? catalogNumber;
+  final String? upc;
   final DateTime? recordingDate;
   final DateTime? originalReleaseDate;
   final DateTime? releaseDate;
@@ -160,6 +236,13 @@ final class MusicRelease {
   final String? soundType;
   final String? vinylColor;
   final String? vinylWeight;
+  final int? expectedMediaCount;
+  final int? ownedMediaCount;
+  final int? missingMediaCount;
+  final List<int> missingDiscNumbers;
+  final String? localCoverImagePath;
+  final String? localBackImagePath;
+  final String? localThumbnailImagePath;
   final List<String> genres;
   final List<Map<String, dynamic>> creators;
   final List<dynamic> identifiers;
@@ -206,7 +289,10 @@ final class MusicRelease {
       artist: _artistFromContributions(contributors),
       subtitle: dto.subtitle,
       publisher: dto.publisher,
-      catalogNumber: dto.extras,
+      catalogNumber: dto.raw['catalog_number']?.toString().trim().isNotEmpty == true
+          ? dto.raw['catalog_number'].toString().trim()
+          : dto.extras,
+      upc: _stringOrNull(dto.raw['upc']) ?? _stringOrNull(dto.raw['barcode']),
       recordingDate: dto.recordingDate,
       originalReleaseDate: dto.releaseDate,
       releaseDate: dto.releaseDate,
@@ -233,6 +319,18 @@ final class MusicRelease {
           _stringOrNull(dto.media.isEmpty ? null : dto.media.first.vinylColor),
       vinylWeight:
           _stringOrNull(dto.media.isEmpty ? null : dto.media.first.vinylWeight),
+      expectedMediaCount: _parseInt(
+        dto.raw['expected_media_count']?.toString() ?? '',
+      ),
+      ownedMediaCount: _parseInt(dto.raw['owned_media_count']?.toString() ?? ''),
+      missingMediaCount: _parseInt(
+        dto.raw['missing_media_count']?.toString() ?? '',
+      ),
+      missingDiscNumbers: _intList(dto.raw['missing_disc_numbers']),
+      localCoverImagePath: _stringOrNull(dto.raw['local_cover_image_path']),
+      localBackImagePath: _stringOrNull(dto.raw['local_back_image_path']),
+      localThumbnailImagePath:
+          _stringOrNull(dto.raw['local_thumbnail_image_path']),
       genres: _stringList(dto.raw['genres']),
       creators: contributors,
       identifiers: List<dynamic>.unmodifiable(dto.identifiers),
@@ -282,5 +380,16 @@ List<String> _stringList(Object? value) {
     for (final entry in value)
       if (entry != null && entry.toString().trim().isNotEmpty)
         entry.toString().trim(),
+  ];
+}
+
+List<int> _intList(Object? value) {
+  if (value is! List) {
+    return const <int>[];
+  }
+  return [
+    for (final entry in value)
+      if (entry != null && int.tryParse(entry.toString().trim()) != null)
+        int.parse(entry.toString().trim()),
   ];
 }

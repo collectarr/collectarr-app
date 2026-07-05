@@ -215,6 +215,7 @@ extension _LibraryEditRendererComicHelpers on _LibraryEditRendererState {
       tracking: selection.tracking,
       customFieldEdits: selection.customFieldEdits,
       itemImageEdits: selection.itemImageEdits,
+      submitAction: selection.submitAction,
     );
   }
 }

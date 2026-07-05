@@ -259,11 +259,24 @@ class LibraryEditValueTab extends StatelessWidget {
               ),
               ValueContextChip(
                 icon: Icons.trending_up_outlined,
-                label: 'Market value',
+                label: 'Manual estimate',
                 value: marketValueController.text.isEmpty
                     ? '—'
                     : formatMoney(
                         parseMoneyCents(marketValueController.text),
+                        currencyController.text,
+                      ),
+              ),
+              ValueContextChip(
+                icon: Icons.shield_outlined,
+                label: 'Insurance',
+                value: marketValueController.text.isEmpty &&
+                        priceController.text.isEmpty
+                    ? '—'
+                    : formatMoney(
+                        parseMoneyCents(marketValueController.text.isEmpty
+                            ? priceController.text
+                            : marketValueController.text),
                         currencyController.text,
                       ),
               ),

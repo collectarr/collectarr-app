@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -56,6 +57,20 @@ bool libraryShowsTrackData(Object? mediaType) {
 bool libraryShowsSynopsis(Object? mediaType) {
   return collectarrLibraryTypes.byKind(mediaType)?.capabilities.showsSynopsis ??
       false;
+}
+
+String? libraryHierarchyContractDiagnosticLabel(LibraryWorkspaceEntry entry) {
+  final seriesTitle = entry.series?.seriesTitle?.trim();
+  if (seriesTitle == null || seriesTitle.isEmpty) {
+    return 'Missing series title';
+  }
+  if (entry.browseScope != LibraryBrowserScope.title) {
+    final variant = entry.variant?.trim();
+    if (variant == null || variant.isEmpty) {
+      return 'Missing release variant';
+    }
+  }
+  return null;
 }
 
 bool libraryShowsReadingQueue(Object? mediaType) {

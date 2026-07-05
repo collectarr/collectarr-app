@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,6 +65,7 @@ void main() {
                   createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
                   updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
                 ),
+                densityPreset: LibraryWorkspaceDensityPreset.comfortable,
                 accent: const Color(0xFFFDAD49),
                 onAddOwned: () {},
                 onRemoveOwned: () {},
@@ -129,6 +130,7 @@ void main() {
                   createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
                   updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
                 ),
+                densityPreset: LibraryWorkspaceDensityPreset.comfortable,
                 accent: const Color(0xFFFDAD49),
                 searchQuery: 'prayer',
                 searchTarget: LibrarySearchTarget.tracksOnly,

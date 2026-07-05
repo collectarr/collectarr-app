@@ -81,6 +81,7 @@ const comicsLibraryGroupModes = [
   LibraryGroupMode.purchaseStore,
   LibraryGroupMode.owner,
   LibraryGroupMode.location,
+  LibraryGroupMode.storageDevice,
   LibraryGroupMode.ownership,
   LibraryGroupMode.addedDate,
   LibraryGroupMode.addedMonth,
@@ -371,6 +372,12 @@ const comicsLibraryGroupModeDefinitions = [
     icon: Icons.verified_outlined,
   ),
   LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.valueLocked,
+    label: 'Value',
+    sidebarTitle: 'Value Locked',
+    icon: Icons.request_quote_outlined,
+  ),
+  LibraryGroupModeDefinition(
     mode: LibraryGroupMode.condition,
     label: 'Condition',
     sidebarTitle: 'Conditions',
@@ -429,6 +436,13 @@ const comicsLibraryGroupModeDefinitions = [
     label: 'Location',
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.storageDevice,
+    label: 'Storage Box',
+    sidebarTitle: 'Storage Boxes',
+    icon: Icons.inventory_2_outlined,
+    supportsBucketManagement: true,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.ownership,

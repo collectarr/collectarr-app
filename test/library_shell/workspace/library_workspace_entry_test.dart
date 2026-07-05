@@ -85,6 +85,34 @@ void main() {
     expect(item.displayCoverUrl, 'https://example.test/thumb.jpg');
   });
 
+  test('exposes explicit core and synthetic ids', () {
+    final item = LibraryWorkspaceEntry(
+      id: 'tmdb-local:movie:42',
+      mediaType: 'movie',
+      title: 'Example Movie',
+      titleItemId: '00000000-0000-0000-0000-000000000042',
+      updatedAt: DateTime.utc(2026),
+    );
+
+    expect(item.canonicalItemId, '00000000-0000-0000-0000-000000000042');
+    expect(item.providerScopedId, '00000000-0000-0000-0000-000000000042');
+    expect(item.localSyntheticId, 'tmdb-local:movie:42');
+    expect(item.canHydrateFromCore, isTrue);
+  });
+
+  test('marks local-only entries as non-hydratable', () {
+    final item = LibraryWorkspaceEntry(
+      id: 'provider:movie:42',
+      mediaType: 'movie',
+      title: 'Provider Only Movie',
+      updatedAt: DateTime.utc(2026),
+    );
+
+    expect(item.canonicalItemId, 'provider:movie:42');
+    expect(item.localSyntheticId, 'provider:movie:42');
+    expect(item.canHydrateFromCore, isFalse);
+  });
+
   test('tracks front and back owned-item images', () {
     final item = LibraryWorkspaceEntry(
       id: '1',

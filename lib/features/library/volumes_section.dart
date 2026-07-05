@@ -10,6 +10,7 @@ class VolumesSection extends ConsumerWidget {
     this.provider,
     this.providerItemId,
     this.itemId,
+    this.canHydrateFromCore = false,
     this.kind,
   })  : assert(
           itemId != null || (provider != null && providerItemId != null),
@@ -23,12 +24,21 @@ class VolumesSection extends ConsumerWidget {
   final String? provider;
   final String? providerItemId;
   final String? itemId;
+  final bool canHydrateFromCore;
   final String? kind;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final volumesAsync = itemId != null
-        ? ref.watch(itemVolumesProvider((itemId: itemId!, kind: kind)))
+        ? ref.watch(
+            itemVolumesProvider(
+              (
+                itemId: itemId!,
+                kind: kind,
+                canHydrateFromCore: canHydrateFromCore,
+              ),
+            ),
+          )
         : ref.watch(
             volumesProvider(
               (provider: provider!, providerItemId: providerItemId!),

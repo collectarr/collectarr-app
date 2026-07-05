@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliar
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -693,6 +694,8 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           isWishlisted: entry.isWishlisted,
                           hasMissingCover: entry.hasMissingCover,
                           hasMissingMetadata: entry.hasMissingMetadata,
+                          contractDiagnosticLabel:
+                              libraryHierarchyContractDiagnosticLabel(entry),
                           keyLabel: libraryKeyMarkerLabel(
                             comic?.keyComic ?? false,
                             comic?.keyReason,

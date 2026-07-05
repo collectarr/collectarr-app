@@ -13,21 +13,21 @@ class TvLibraryEditPresentationBuilder extends DefaultLibraryEditPresentationBui
             LibraryEditTabSpec(
               id: 'release_media',
               icon: Icons.album_outlined,
-              label: 'Release media',
+              label: 'Edition Details',
             ),
             LibraryEditTabSpec(
               id: 'episode_map',
               icon: Icons.route_outlined,
-              label: 'Episode map',
+              label: 'Disc / episode nesting',
             ),
             LibraryEditTabSpec(id: 'personal', icon: Icons.person, label: 'Personal'),
             LibraryEditTabSpec(
               id: 'custom',
               icon: Icons.edit_note,
-              label: 'Custom Fields',
+              label: 'User Defined',
             ),
             LibraryEditTabSpec(id: 'cover', icon: Icons.camera_alt, label: 'Covers'),
-            LibraryEditTabSpec(id: 'photos', icon: Icons.image, label: 'My Images'),
+            LibraryEditTabSpec(id: 'photos', icon: Icons.image, label: 'Images'),
             LibraryEditTabSpec(
               id: 'synopsis',
               icon: Icons.description_outlined,
@@ -42,16 +42,16 @@ class TvLibraryEditPresentationBuilder extends DefaultLibraryEditPresentationBui
             LibraryEditTabSpec(
               id: 'release_media',
               icon: Icons.album_outlined,
-              label: 'Release media',
+              label: 'Edition Details',
             ),
             LibraryEditTabSpec(
               id: 'episode_map',
               icon: Icons.route_outlined,
-              label: 'Episode map',
+              label: 'Disc / episode nesting',
             ),
             LibraryEditTabSpec(id: 'personal', icon: Icons.person, label: 'Personal'),
             LibraryEditTabSpec(id: 'cover', icon: Icons.camera_alt, label: 'Covers'),
-            LibraryEditTabSpec(id: 'photos', icon: Icons.image, label: 'My Images'),
+            LibraryEditTabSpec(id: 'photos', icon: Icons.image, label: 'Images'),
             LibraryEditTabSpec(
               id: 'synopsis',
               icon: Icons.description_outlined,
@@ -66,12 +66,12 @@ class TvLibraryEditPresentationBuilder extends DefaultLibraryEditPresentationBui
             LibraryEditTabSpec(
               id: 'release_media',
               icon: Icons.album_outlined,
-              label: 'Release media',
+              label: 'Edition Details',
             ),
             LibraryEditTabSpec(
               id: 'episode_map',
               icon: Icons.route_outlined,
-              label: 'Episode map',
+              label: 'Disc / episode nesting',
             ),
             LibraryEditTabSpec(id: 'synopsis', icon: Icons.description_outlined, label: 'Plot'),
             LibraryEditTabSpec(id: 'cast', icon: Icons.people, label: 'Cast'),

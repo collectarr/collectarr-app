@@ -143,6 +143,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
 class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  LibraryEditSubmitAction _submitAction = LibraryEditSubmitAction.save;
   late final LibraryEditDraft _draft;
 
   late final TabController _tabController;
@@ -755,7 +756,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       views: _tabViews(),
       onClose: () => Navigator.of(context).pop(),
       onCancel: () => Navigator.of(context).pop(),
-      onSave: _submit,
+      onSave: () => _submit(LibraryEditSubmitAction.save),
+      onSaveAndNext: widget.onNext == null
+          ? null
+          : () => _submit(LibraryEditSubmitAction.saveAndNext),
       onPrevious: widget.onPrevious,
       onNext: widget.onNext,
       footerContent: _isOwned ? _ownedSharedFooterRow() : null,
@@ -2485,9 +2489,10 @@ ORDER BY owner_label COLLATE NOCASE
     setState(mutation);
   }
 
-  void _submit() {
+  void _submit(LibraryEditSubmitAction submitAction) {
     if (!_formKey.currentState!.validate()) return;
-    var selection = _draft.buildSelection();
+    _submitAction = submitAction;
+    var selection = _draft.buildSelection(submitAction: _submitAction);
     selection = _applyVideoSelectionEdits(selection);
     selection = _applyComicSelectionEdits(selection);
     selection = _applyGameSelection(selection);
@@ -2508,6 +2513,7 @@ ORDER BY owner_label COLLATE NOCASE
       tracking: selection.tracking,
       customFieldEdits: selection.customFieldEdits,
       itemImageEdits: selection.itemImageEdits,
+      submitAction: selection.submitAction,
     );
   }
 
@@ -2528,6 +2534,7 @@ ORDER BY owner_label COLLATE NOCASE
       tracking: selection.tracking,
       customFieldEdits: selection.customFieldEdits,
       itemImageEdits: selection.itemImageEdits,
+      submitAction: selection.submitAction,
     );
   }
 

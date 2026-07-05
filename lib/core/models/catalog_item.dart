@@ -62,6 +62,22 @@ class CatalogDisc {
     this.slot,
     this.matrixSideA,
     this.matrixSideB,
+    this.trackCount,
+    this.expectedTrackCount,
+    this.ownedTrackCount,
+    this.missingTrackCount,
+    this.missingTrackPositions = const <String>[],
+    this.toc,
+    this.cddbId,
+    this.leadoutOffset,
+    this.bpDiscId,
+    this.packaging,
+    this.mediaCondition,
+    this.soundType,
+    this.rpm,
+    this.vinylColor,
+    this.vinylWeight,
+    this.tracks = const <CatalogTrack>[],
   });
 
   final int discNumber;
@@ -71,6 +87,22 @@ class CatalogDisc {
   final String? slot;
   final String? matrixSideA;
   final String? matrixSideB;
+  final int? trackCount;
+  final int? expectedTrackCount;
+  final int? ownedTrackCount;
+  final int? missingTrackCount;
+  final List<String> missingTrackPositions;
+  final String? toc;
+  final String? cddbId;
+  final int? leadoutOffset;
+  final String? bpDiscId;
+  final String? packaging;
+  final String? mediaCondition;
+  final String? soundType;
+  final int? rpm;
+  final String? vinylColor;
+  final String? vinylWeight;
+  final List<CatalogTrack> tracks;
 
   factory CatalogDisc.fromJson(Map<String, dynamic> json) {
     return CatalogDisc(
@@ -81,6 +113,29 @@ class CatalogDisc {
       slot: json['slot'] as String?,
       matrixSideA: json['matrix_side_a'] as String?,
       matrixSideB: json['matrix_side_b'] as String?,
+      trackCount: json['track_count'] as int?,
+      expectedTrackCount: json['expected_track_count'] as int?,
+      ownedTrackCount: json['owned_track_count'] as int?,
+      missingTrackCount: json['missing_track_count'] as int?,
+      missingTrackPositions: (json['missing_track_positions'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
+      toc: json['toc'] as String?,
+      cddbId: json['cddb_id'] as String?,
+      leadoutOffset: json['leadout_offset'] as int?,
+      bpDiscId: json['bp_disc_id'] as String?,
+      packaging: json['packaging'] as String?,
+      mediaCondition: json['media_condition'] as String?,
+      soundType: json['sound_type'] as String?,
+      rpm: json['rpm'] as int?,
+      vinylColor: json['vinyl_color'] as String?,
+      vinylWeight: json['vinyl_weight'] as String?,
+      tracks: (json['tracks'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(CatalogTrack.fromJson)
+              .toList(growable: false) ??
+          const <CatalogTrack>[],
     );
   }
 
@@ -93,6 +148,24 @@ class CatalogDisc {
       if (slot != null) 'slot': slot,
       if (matrixSideA != null) 'matrix_side_a': matrixSideA,
       if (matrixSideB != null) 'matrix_side_b': matrixSideB,
+      if (trackCount != null) 'track_count': trackCount,
+      if (expectedTrackCount != null) 'expected_track_count': expectedTrackCount,
+      if (ownedTrackCount != null) 'owned_track_count': ownedTrackCount,
+      if (missingTrackCount != null) 'missing_track_count': missingTrackCount,
+      if (missingTrackPositions.isNotEmpty)
+        'missing_track_positions': missingTrackPositions,
+      if (toc != null) 'toc': toc,
+      if (cddbId != null) 'cddb_id': cddbId,
+      if (leadoutOffset != null) 'leadout_offset': leadoutOffset,
+      if (bpDiscId != null) 'bp_disc_id': bpDiscId,
+      if (packaging != null) 'packaging': packaging,
+      if (mediaCondition != null) 'media_condition': mediaCondition,
+      if (soundType != null) 'sound_type': soundType,
+      if (rpm != null) 'rpm': rpm,
+      if (vinylColor != null) 'vinyl_color': vinylColor,
+      if (vinylWeight != null) 'vinyl_weight': vinylWeight,
+      if (tracks.isNotEmpty)
+        'tracks': tracks.map((track) => track.toJson()).toList(growable: false),
     };
   }
 }
@@ -102,6 +175,10 @@ class CatalogTrack {
     required this.title,
     this.position,
     this.durationSeconds,
+    this.offsetMilliseconds,
+    this.bitrateKbps,
+    this.fileSizeBytes,
+    this.trackHash,
     this.artist,
     this.discNumber,
   });
@@ -109,6 +186,10 @@ class CatalogTrack {
   final String title;
   final int? position;
   final int? durationSeconds;
+  final int? offsetMilliseconds;
+  final int? bitrateKbps;
+  final int? fileSizeBytes;
+  final String? trackHash;
   final String? artist;
   final int? discNumber;
 
@@ -117,6 +198,10 @@ class CatalogTrack {
       title: json['title'] as String? ?? 'Untitled track',
       position: json['position'] as int?,
       durationSeconds: json['duration_seconds'] as int?,
+      offsetMilliseconds: json['offset_milliseconds'] as int?,
+      bitrateKbps: json['bitrate_kbps'] as int?,
+      fileSizeBytes: json['file_size_bytes'] as int?,
+      trackHash: json['track_hash'] as String?,
       artist: json['artist'] as String?,
       discNumber: json['disc_number'] as int?,
     );
@@ -127,6 +212,10 @@ class CatalogTrack {
       'title': title,
       if (position != null) 'position': position,
       if (durationSeconds != null) 'duration_seconds': durationSeconds,
+      if (offsetMilliseconds != null) 'offset_milliseconds': offsetMilliseconds,
+      if (bitrateKbps != null) 'bitrate_kbps': bitrateKbps,
+      if (fileSizeBytes != null) 'file_size_bytes': fileSizeBytes,
+      if (trackHash != null) 'track_hash': trackHash,
       if (artist != null) 'artist': artist,
       if (discNumber != null) 'disc_number': discNumber,
     };
@@ -309,7 +398,12 @@ class MusicCatalogDetails {
     this.trackCount,
     this.tracks = const <CatalogTrack>[],
     this.discs = const <CatalogDisc>[],
+    this.expectedMediaCount,
+    this.ownedMediaCount,
+    this.missingMediaCount,
+    this.missingDiscNumbers = const <int>[],
     this.catalogNumber,
+    this.upc,
     this.releaseStatus,
     this.originalReleaseDate,
     this.recordingDate,
@@ -323,12 +417,20 @@ class MusicCatalogDetails {
     this.instrument,
     this.isLive,
     this.composition,
+    this.localCoverImagePath,
+    this.localBackImagePath,
+    this.localThumbnailImagePath,
   });
 
   final int? trackCount;
   final List<CatalogTrack> tracks;
   final List<CatalogDisc> discs;
+  final int? expectedMediaCount;
+  final int? ownedMediaCount;
+  final int? missingMediaCount;
+  final List<int> missingDiscNumbers;
   final String? catalogNumber;
+  final String? upc;
   final String? releaseStatus;
   final DateTime? originalReleaseDate;
   final DateTime? recordingDate;
@@ -342,12 +444,20 @@ class MusicCatalogDetails {
   final String? instrument;
   final bool? isLive;
   final String? composition;
+  final String? localCoverImagePath;
+  final String? localBackImagePath;
+  final String? localThumbnailImagePath;
 
   bool get hasData =>
       trackCount != null ||
       tracks.isNotEmpty ||
       discs.isNotEmpty ||
+      expectedMediaCount != null ||
+      ownedMediaCount != null ||
+      missingMediaCount != null ||
+      missingDiscNumbers.isNotEmpty ||
       catalogNumber != null ||
+      upc != null ||
       releaseStatus != null ||
       originalReleaseDate != null ||
       recordingDate != null ||
@@ -360,7 +470,10 @@ class MusicCatalogDetails {
       mediaCondition != null ||
       instrument != null ||
       isLive != null ||
-      composition != null;
+      composition != null ||
+      localCoverImagePath != null ||
+      localBackImagePath != null ||
+      localThumbnailImagePath != null;
 
   int get discCount => discs.length;
 

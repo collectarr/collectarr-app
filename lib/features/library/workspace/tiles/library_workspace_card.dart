@@ -171,6 +171,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 hasFrontImage: entry.hasFrontImage,
                                 hasBackImage: entry.hasBackImage,
                                 extraImageCount: entry.extraImageCount,
+                                contractDiagnosticLabel:
+                                    libraryHierarchyContractDiagnosticLabel(
+                                  entry,
+                                ),
                                 keyLabel: libraryKeyMarkerLabel(
                                   comic?.keyComic ?? false,
                                   comic?.keyReason,
@@ -545,6 +549,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 isWishlisted: entry.isWishlisted,
                                 hasMissingCover: entry.hasMissingCover,
                                 hasMissingMetadata: entry.hasMissingMetadata,
+                                contractDiagnosticLabel:
+                                    libraryHierarchyContractDiagnosticLabel(
+                                  entry,
+                                ),
                                 keyLabel: libraryKeyMarkerLabel(
                                   comic?.keyComic ?? false,
                                   comic?.keyReason,

@@ -123,8 +123,7 @@ String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }
-  final title = entry.resolvedTitle.trim();
-  return title.isEmpty ? unknownLabel : title;
+  return unknownLabel;
 }
 
 String _locationBucket(String? location) {

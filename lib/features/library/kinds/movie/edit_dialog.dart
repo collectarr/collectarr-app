@@ -16,21 +16,25 @@ const _movieMediaTabs = [
   ),
   LibraryEditTabSpec(id: 'links', icon: Icons.language, label: 'Links'),
   LibraryEditTabSpec(id: 'cover', icon: Icons.camera_alt, label: 'Covers'),
-  LibraryEditTabSpec(id: 'photos', icon: Icons.image, label: 'My Images'),
+  LibraryEditTabSpec(id: 'photos', icon: Icons.image, label: 'Images'),
 ];
 
 const _movieReleaseTabs = [
-  LibraryEditTabSpec(id: 'edition', icon: Icons.info_outline, label: 'Edition'),
+  LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.info_outline,
+    label: 'Edition Details',
+  ),
   LibraryEditTabSpec(id: 'personal', icon: Icons.person, label: 'Personal'),
   LibraryEditTabSpec(
     id: 'read_history',
     icon: Icons.auto_stories_outlined,
     label: 'Tracking',
   ),
-  LibraryEditTabSpec(id: 'custom', icon: Icons.edit_note, label: 'Custom Fields'),
-  LibraryEditTabSpec(id: 'specs', icon: Icons.info_outline, label: 'Edition Specs'),
+  LibraryEditTabSpec(id: 'custom', icon: Icons.edit_note, label: 'User Defined'),
+  LibraryEditTabSpec(id: 'specs', icon: Icons.info_outline, label: 'Edition Details'),
   LibraryEditTabSpec(id: 'cover', icon: Icons.camera_alt, label: 'Covers'),
-  LibraryEditTabSpec(id: 'photos', icon: Icons.image, label: 'My Images'),
+  LibraryEditTabSpec(id: 'photos', icon: Icons.image, label: 'Images'),
 ];
 
 const _movieCombinedTabs = [

@@ -17,6 +17,7 @@ class LibraryCoverBadges extends StatelessWidget {
     this.signedLabel,
     this.valueLabel,
     this.notesLabel,
+    this.contractDiagnosticLabel,
     super.key,
   });
 
@@ -34,6 +35,7 @@ class LibraryCoverBadges extends StatelessWidget {
   final String? signedLabel;
   final String? valueLabel;
   final String? notesLabel;
+  final String? contractDiagnosticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -143,6 +145,13 @@ class LibraryCoverBadges extends StatelessWidget {
             backgroundColor: colorScheme.secondaryContainer,
             foregroundColor: colorScheme.onSecondaryContainer,
           ),
+        if (contractDiagnosticLabel != null)
+          LibraryCoverBadge(
+            icon: Icons.rule_outlined,
+            label: contractDiagnosticLabel!,
+            backgroundColor: colorScheme.errorContainer,
+            foregroundColor: colorScheme.onErrorContainer,
+          ),
       ],
     );
   }
@@ -206,6 +215,7 @@ class LibraryItemStatusIcons extends StatelessWidget {
     this.hasKeyMarker = false,
     this.hasSlabMarker = false,
     this.hasNotesMarker = false,
+    this.contractDiagnosticLabel,
     super.key,
   });
 
@@ -220,6 +230,7 @@ class LibraryItemStatusIcons extends StatelessWidget {
   final bool hasKeyMarker;
   final bool hasSlabMarker;
   final bool hasNotesMarker;
+  final String? contractDiagnosticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -283,6 +294,15 @@ class LibraryItemStatusIcons extends StatelessWidget {
           Icons.sticky_note_2_outlined,
           size: 16,
           color: colorScheme.secondary,
+        ),
+      if (contractDiagnosticLabel != null)
+        Tooltip(
+          message: contractDiagnosticLabel!,
+          child: Icon(
+            Icons.rule_outlined,
+            size: 16,
+            color: colorScheme.error,
+          ),
         ),
     ];
     return LayoutBuilder(

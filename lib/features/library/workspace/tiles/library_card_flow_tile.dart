@@ -136,6 +136,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                             hasFrontImage: entry.hasFrontImage,
                             hasBackImage: entry.hasBackImage,
                             extraImageCount: entry.extraImageCount,
+                            contractDiagnosticLabel:
+                                libraryHierarchyContractDiagnosticLabel(entry),
                             keyLabel: libraryKeyMarkerLabel(
                               comic?.keyComic ?? false,
                               comic?.keyReason,
@@ -180,7 +182,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                           ],
                         ),
                         // Series / subtitle
-                        if (_seriesSummary(metadataPresentation, entry)
+                        if (_seriesSummary(metadataPresentation)
                             case final seriesTitle?) ...[
                           const SizedBox(height: 4),
                           Text(
@@ -413,11 +415,10 @@ String? _metadataFactValue(
 
 String? _seriesSummary(
   LibraryMetadataPresentation? presentation,
-  LibraryWorkspaceEntry entry,
 ) {
   final seriesTitle = _metadataFactValue(presentation, 'Series') ??
       _metadataFactValue(presentation, 'Artist');
-  if (seriesTitle == null || seriesTitle == entry.title) {
+  if (seriesTitle == null) {
     return null;
   }
   return seriesTitle;

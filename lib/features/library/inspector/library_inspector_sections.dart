@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/tracking/media_rating_field.dart
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
 import 'package:flutter/material.dart';
 
 class InspectorMetadataSection extends StatelessWidget {
@@ -53,8 +54,12 @@ class InspectorPersonalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final valueSnapshot = LibraryValueSnapshot.fromEntry(
+      entry,
+      ownedItem: ownedItem,
+      providerName: entry.marketValueCents != null ? 'Provider snapshot' : null,
+    );
     final paid = formatMoney(entry.pricePaidCents, entry.currency);
-    final profitLoss = _profitLossLabel(ownedItem);
     final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
       ownedItem,
       entry.editions,
@@ -121,6 +126,38 @@ class InspectorPersonalSection extends StatelessWidget {
                 genericLibraryDash(entry.locationPath),
               ),
             LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
+            if (valueSnapshot.providerValueCents != null)
+              LibraryInspectorFactData(
+                'Provider value',
+                formatMoney(
+                  valueSnapshot.providerValueCents,
+                  valueSnapshot.currency,
+                ),
+              ),
+            if (valueSnapshot.manualEstimatedValueCents != null)
+              LibraryInspectorFactData(
+                'Manual value',
+                formatMoney(
+                  valueSnapshot.manualEstimatedValueCents,
+                  valueSnapshot.currency,
+                ),
+              ),
+            if (valueSnapshot.currentValueCents != null)
+              LibraryInspectorFactData(
+                'Current value',
+                formatMoney(
+                  valueSnapshot.currentValueCents,
+                  valueSnapshot.currency,
+                ),
+              ),
+            if (valueSnapshot.insuranceValueCents != null)
+              LibraryInspectorFactData(
+                'Insurance',
+                formatMoney(
+                  valueSnapshot.insuranceValueCents,
+                  valueSnapshot.currency,
+                ),
+              ),
             LibraryInspectorFactData(
               'Purchased',
               genericLibraryDash(
@@ -144,8 +181,14 @@ class InspectorPersonalSection extends StatelessWidget {
                         ownedItem!.sellPriceCents, ownedItem!.currency)
                     : '-',
               ),
-              if (profitLoss != null)
-                LibraryInspectorFactData('Profit / Loss', profitLoss),
+              if (valueSnapshot.profitLossCents != null)
+                LibraryInspectorFactData(
+                  'Profit / Loss',
+                  formatMoney(
+                    valueSnapshot.profitLossCents,
+                    valueSnapshot.currency,
+                  ),
+                ),
               LibraryInspectorFactData(
                 'Sold to',
                 genericLibraryDash(ownedItem?.soldTo),
@@ -175,15 +218,6 @@ class InspectorPersonalSection extends StatelessWidget {
       ],
     );
   }
-}
-
-String? _profitLossLabel(OwnedItem? ownedItem) {
-  final paid = ownedItem?.pricePaidCents;
-  final sold = ownedItem?.sellPriceCents;
-  if (paid == null || sold == null) {
-    return null;
-  }
-  return formatMoney(sold - paid, ownedItem?.currency);
 }
 
 class EmptyInspector extends StatelessWidget {

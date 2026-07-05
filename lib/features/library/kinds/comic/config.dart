@@ -26,6 +26,8 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,
+    LibraryTableColumn.frontCover,
+    LibraryTableColumn.backCover,
     LibraryTableColumn.title,
     LibraryTableColumn.issue,
     LibraryTableColumn.variant,
@@ -34,6 +36,7 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
     LibraryTableColumn.barcode,
     LibraryTableColumn.grade,
     LibraryTableColumn.condition,
+    LibraryTableColumn.value,
     LibraryTableColumn.price,
     LibraryTableColumn.location,
     LibraryTableColumn.wishlist,

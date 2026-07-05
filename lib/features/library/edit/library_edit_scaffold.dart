@@ -26,6 +26,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     required this.onClose,
     required this.onCancel,
     required this.onSave,
+    this.onSaveAndNext,
     this.onPrevious,
     this.onNext,
     this.chromeVariant = LibraryEditChromeVariant.standard,
@@ -53,6 +54,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final VoidCallback onClose;
   final VoidCallback onCancel;
   final VoidCallback onSave;
+  final VoidCallback? onSaveAndNext;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
@@ -248,6 +250,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                       _LibraryEditFooter(
                         onCancel: widget.onCancel,
                         onSave: widget.onSave,
+                        onSaveAndNext: widget.onSaveAndNext,
                         onPrevious: widget.onPrevious,
                         onNext: widget.onNext,
                         chromeVariant: widget.chromeVariant,
@@ -434,6 +437,7 @@ class _LibraryEditFooter extends StatelessWidget {
   const _LibraryEditFooter({
     required this.onCancel,
     required this.onSave,
+    this.onSaveAndNext,
     this.onPrevious,
     this.onNext,
     required this.chromeVariant,
@@ -442,6 +446,7 @@ class _LibraryEditFooter extends StatelessWidget {
 
   final VoidCallback onCancel;
   final VoidCallback onSave;
+  final VoidCallback? onSaveAndNext;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
@@ -509,6 +514,25 @@ class _LibraryEditFooter extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
+          if (onSaveAndNext != null) ...[
+            SizedBox(
+              width: 128,
+              child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  shape: kLibraryDialogFooterButtonShape,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                  minimumSize:
+                      const Size(128, kLibraryDialogFooterButtonHeight),
+                  visualDensity: VisualDensity.compact,
+                ),
+                onPressed: onSaveAndNext,
+                icon: const Icon(Icons.save_alt_outlined),
+                label: const Text('Save & Next'),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
           SizedBox(
             width: 112,
             child: FilledButton.icon(

@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('series bucketing with genericLibraryBucketLabelBuilder', () {
-    test('groups by seriesTitle when available (v0 items)', () {
+    test('groups by seriesTitle when available', () {
       final entry = LibraryWorkspaceEntry(
         id: 'comic-1',
         mediaType: 'comic',
@@ -28,11 +28,10 @@ void main() {
         ),
       );
 
-      // With seriesId present, bucket key includes ID for uniqueness
-      expect(bucket, 'Batman: The Dark Knight|batman-dark-knight');
+      expect(bucket, 'Batman: The Dark Knight');
     });
 
-    test('falls back to resolvedTitle when seriesTitle is null (v1 items)', () {
+    test('uses unknown series when seriesTitle is missing', () {
       final entry = LibraryWorkspaceEntry(
         id: 'comic-2',
         mediaType: 'comic',
@@ -49,10 +48,10 @@ void main() {
         ),
       );
 
-      expect(bucket, 'Batman #50');
+      expect(bucket, 'Unknown series');
     });
 
-    test('falls back to resolvedTitle when seriesTitle is empty', () {
+    test('uses unknown series when seriesTitle is empty', () {
       final entry = LibraryWorkspaceEntry(
         id: 'comic-3',
         mediaType: 'comic',
@@ -72,11 +71,10 @@ void main() {
         ),
       );
 
-      // With seriesId but empty title, use id: prefix
-      expect(bucket, 'id:ww-v1');
+      expect(bucket, 'Unknown series');
     });
 
-    test('uses unknownLabel when both seriesTitle and title are empty', () {
+    test('uses unknown series when both seriesTitle and title are empty', () {
       final entry = LibraryWorkspaceEntry(
         id: 'comic-4',
         mediaType: 'comic',
@@ -96,8 +94,7 @@ void main() {
         ),
       );
 
-      // With seriesId but no title, use id: prefix
-      expect(bucket, 'id:unknown-id');
+      expect(bucket, 'Unknown series');
     });
 
     test('issue: duplicate series buckets when different series have same title',
@@ -146,19 +143,16 @@ void main() {
         ),
       );
 
-      // With the fix, v0 item includes seriesId making it unique
-      expect(v0Bucket, 'Batman|batman-dark-knight-id');
-      expect(v1Bucket, 'Batman');
+      expect(v0Bucket, 'Batman');
+      expect(v1Bucket, 'Unknown series');
       expect(v0Bucket, isNot(v1Bucket));
 
       // This prevents duplicate series sections in the UI
     });
 
     test(
-        'items with same seriesTitle but different seriesIds should be in separate buckets',
+        'items with same seriesTitle share the same series bucket under the contract',
         () {
-      // Two different series with the same title should appear as separate buckets
-      // when they have different seriesIds
 
       // Series A: Batman, ID batman-123
       final item1 = LibraryWorkspaceEntry(
@@ -200,11 +194,8 @@ void main() {
         ),
       );
 
-      // Now they should have different bucket keys (with seriesId included)
-      // to prevent duplicate series sections
-      expect(bucket1, 'Batman|batman-123');
-      expect(bucket2, 'Batman|batman-456');
-      expect(bucket1, isNot(bucket2));
+      expect(bucket1, 'Batman');
+      expect(bucket2, 'Batman');
     });
   });
 }

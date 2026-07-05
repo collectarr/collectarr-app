@@ -238,6 +238,16 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
       ref.invalidate(
         libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue),
       );
+      if (result.submitAction == LibraryEditSubmitAction.saveAndNext &&
+          nextItem != null) {
+        unawaited(
+          showEditDialog(
+            nextItem,
+            nextItem.source.ownedItem,
+          ),
+        );
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${widget.type.singularLabel} updated')),
       );

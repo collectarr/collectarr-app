@@ -9,6 +9,10 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Widget buildMusicInspectorPanel(
@@ -18,17 +22,30 @@ Widget buildMusicInspectorPanel(
   return MusicInspectorPanel(request: request);
 }
 
-class MusicInspectorPanel extends StatelessWidget {
+class MusicInspectorPanel extends StatefulWidget {
   const MusicInspectorPanel({super.key, required this.request});
 
   final LibraryInspectorPanelRequest request;
 
   @override
+  State<MusicInspectorPanel> createState() => _MusicInspectorPanelState();
+}
+
+class _MusicInspectorPanelState extends State<MusicInspectorPanel> {
+  static const _tabs = <_MusicInspectorTab>[
+    _MusicInspectorTab.overview,
+    _MusicInspectorTab.tracks,
+    _MusicInspectorTab.discs,
+    _MusicInspectorTab.product,
+  ];
+  int _selectedTabIndex = 0;
+
+  @override
   Widget build(BuildContext context) {
-    final entry = request.inspector.entry;
-    final ownedItem = request.inspector.ownedItem;
+    final entry = widget.request.inspector.entry;
+    final ownedItem = widget.request.inspector.ownedItem;
     final palette = appPalette(context);
-    final accent = request.inspector.accent;
+    final accent = widget.request.inspector.accent;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -48,31 +65,89 @@ class MusicInspectorPanel extends StatelessWidget {
             children: [
               InspectorUnifiedToolbar(
                 entry: entry,
-                onEdit: request.onEdit,
-                onShare: request.onShare,
-                onDuplicate: request.onDuplicate,
-                onToggleOwned: request.onToggleOwned,
-                onLoan: request.onLoan,
-                onRefreshMetadata: request.onRefreshMetadata,
-                onUnlinkFromCore: request.onUnlinkFromCore,
-                onDetailsLayoutChanged: request.onDetailsLayoutChanged,
+                onEdit: widget.request.onEdit,
+                onShare: widget.request.onShare,
+                onDuplicate: widget.request.onDuplicate,
+                onToggleOwned: widget.request.onToggleOwned,
+                onLoan: widget.request.onLoan,
+                onRefreshMetadata: widget.request.onRefreshMetadata,
+                onUnlinkFromCore: widget.request.onUnlinkFromCore,
+                onDetailsLayoutChanged: widget.request.onDetailsLayoutChanged,
               ),
               const SizedBox(height: 8),
-              _MusicInspectorHeader(inspector: request.inspector),
+              _MusicInspectorHeader(inspector: widget.request.inspector),
               const SizedBox(height: 10),
-              _MusicInspectorMain(inspector: request.inspector),
+              _MusicInspectorTabsHeader(
+                tabs: _tabs,
+                selectedIndex: _selectedTabIndex,
+                accent: accent,
+                onChanged: (index) => setState(() => _selectedTabIndex = index),
+              ),
               const SizedBox(height: 10),
-              _MusicInspectorTracks(inspector: request.inspector),
-              const SizedBox(height: 10),
-              _MusicInspectorDetailsPersonal(inspector: request.inspector),
-              if (request.trailingSections.isNotEmpty) ...[
+              _buildSelectedTab(),
+              if (widget.request.trailingSections.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                ...request.trailingSections,
+                ...widget.request.trailingSections,
               ],
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSelectedTab() {
+    final inspector = widget.request.inspector;
+    return switch (_tabs[_selectedTabIndex]) {
+      _MusicInspectorTab.overview => Column(
+          children: [
+            _MusicInspectorMain(inspector: inspector),
+            const SizedBox(height: 10),
+            _MusicInspectorDetailsPersonal(inspector: inspector),
+          ],
+        ),
+      _MusicInspectorTab.tracks => _MusicInspectorTracks(inspector: inspector),
+      _MusicInspectorTab.discs => _MusicDiscDetails(inspector: inspector),
+      _MusicInspectorTab.product => _MusicProductDetails(inspector: inspector),
+    };
+  }
+}
+
+enum _MusicInspectorTab { overview, tracks, discs, product }
+
+class _MusicInspectorTabsHeader extends StatelessWidget {
+  const _MusicInspectorTabsHeader({
+    required this.tabs,
+    required this.selectedIndex,
+    required this.accent,
+    required this.onChanged,
+  });
+
+  final List<_MusicInspectorTab> tabs;
+  final int selectedIndex;
+  final Color accent;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = <_MusicInspectorTab, String>{
+      _MusicInspectorTab.overview: 'Overview',
+      _MusicInspectorTab.tracks: 'Track List',
+      _MusicInspectorTab.discs: 'Disc Details',
+      _MusicInspectorTab.product: 'Product',
+    };
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (var index = 0; index < tabs.length; index++)
+          ChoiceChip(
+            label: Text(labels[tabs[index]]!),
+            selected: selectedIndex == index,
+            selectedColor: accent.withValues(alpha: 0.22),
+            onSelected: (_) => onChanged(index),
+          ),
+      ],
     );
   }
 }
@@ -339,6 +414,7 @@ class _MusicInspectorTracks extends StatelessWidget {
     if (groups.isEmpty) {
       return const SizedBox.shrink();
     }
+    final palette = appPalette(context);
     final rawQuery = inspector.searchQuery?.trim().toLowerCase();
     final highlightTerms = inspector.searchTarget.includesTracks
         ? _musicSearchTerms(rawQuery)
@@ -348,14 +424,148 @@ class _MusicInspectorTracks extends StatelessWidget {
       title: 'Tracks',
       accentColor: inspector.accent,
       children: [
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            Text(
+              '${tracks.length} ${tracks.length == 1 ? 'track' : 'tracks'}',
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: palette.textMuted,
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+            TextButton.icon(
+              onPressed: tracks.isEmpty
+                  ? null
+                  : () => _copyTracks(context, tracks),
+              icon: const Icon(Icons.copy, size: 16),
+              label: const Text('Copy'),
+            ),
+            TextButton.icon(
+              onPressed: tracks.isEmpty
+                  ? null
+                  : () => _printTracks(context, tracks),
+              icon: const Icon(Icons.print_outlined, size: 16),
+              label: const Text('Print'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
         for (var index = 0; index < groups.length; index++) ...[
           _MusicDiscTable(
             discNumber: groups[index].discNumber,
             tracks: groups[index].tracks,
             highlightTerms: highlightTerms,
+            onFilterByValue: inspector.onFilterByValue,
           ),
           if (index < groups.length - 1) const SizedBox(height: 12),
         ],
+      ],
+    );
+  }
+}
+
+class _MusicDiscDetails extends StatelessWidget {
+  const _MusicDiscDetails({required this.inspector});
+
+  final LibraryInspectorRequest inspector;
+
+  @override
+  Widget build(BuildContext context) {
+    final entry = inspector.entry;
+    final music = entry.music;
+    final discs = music?.discs ?? const <CatalogDisc>[];
+    return LibraryInspectorSection(
+      title: 'Disc Details',
+      accentColor: inspector.accent,
+      children: [
+        LibraryInspectorFactGrid(
+          facts: [
+            if (music?.expectedMediaCount != null)
+              LibraryInspectorFactData(
+                'Expected discs',
+                music!.expectedMediaCount.toString(),
+              ),
+            if (music?.ownedMediaCount != null)
+              LibraryInspectorFactData(
+                'Owned discs',
+                music!.ownedMediaCount.toString(),
+              ),
+            if (music?.missingMediaCount != null)
+              LibraryInspectorFactData(
+                'Missing discs',
+                music!.missingMediaCount.toString(),
+              ),
+            if (music?.missingDiscNumbers.isNotEmpty == true)
+              LibraryInspectorFactData(
+                'Missing disc #',
+                music!.missingDiscNumbers.join(', '),
+              ),
+          ],
+        ),
+        if (discs.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          for (var index = 0; index < discs.length; index++) ...[
+            _MusicDiscCardSection(disc: discs[index], accent: inspector.accent),
+            if (index < discs.length - 1) const SizedBox(height: 10),
+          ],
+        ],
+      ],
+    );
+  }
+}
+
+class _MusicProductDetails extends StatelessWidget {
+  const _MusicProductDetails({required this.inspector});
+
+  final LibraryInspectorRequest inspector;
+
+  @override
+  Widget build(BuildContext context) {
+    final entry = inspector.entry;
+    final music = entry.music;
+    final rows = <(String, String)>[
+      if (entry.publisher?.trim().isNotEmpty == true) ('Label', entry.publisher!),
+      if (music?.catalogNumber?.trim().isNotEmpty == true)
+        ('Catalog number', music!.catalogNumber!),
+      if (music?.upc?.trim().isNotEmpty == true) ('UPC', music!.upc!),
+      if (entry.barcode?.trim().isNotEmpty == true) ('Barcode', entry.barcode!),
+      if (entry.referenceFormatLabel?.trim().isNotEmpty == true ||
+          entry.variant?.trim().isNotEmpty == true)
+        ('Format', entry.referenceFormatLabel ?? entry.variant ?? '-'),
+      if (music?.releaseStatus?.trim().isNotEmpty == true)
+        ('Release status', music!.releaseStatus!),
+      if (music?.originalReleaseDate != null)
+        ('Original release', formatDate(music!.originalReleaseDate!)),
+      if (music?.recordingDate != null)
+        ('Recording date', formatDate(music!.recordingDate!)),
+      if (entry.country?.trim().isNotEmpty == true) ('Country', entry.country!),
+      if (entry.language?.trim().isNotEmpty == true)
+        ('Language', entry.language!),
+      if (music?.rpm?.trim().isNotEmpty == true) ('RPM', music!.rpm!),
+      if (music?.soundType?.trim().isNotEmpty == true)
+        ('Sound', music!.soundType!),
+      if (music?.vinylColor?.trim().isNotEmpty == true)
+        ('Vinyl color', music!.vinylColor!),
+      if (music?.vinylWeight?.trim().isNotEmpty == true)
+        ('Vinyl weight', music!.vinylWeight!),
+      if (music?.localCoverImagePath?.trim().isNotEmpty == true)
+        ('Local cover', music!.localCoverImagePath!),
+      if (music?.localBackImagePath?.trim().isNotEmpty == true)
+        ('Local back', music!.localBackImagePath!),
+      if (music?.localThumbnailImagePath?.trim().isNotEmpty == true)
+        ('Local thumbnail', music!.localThumbnailImagePath!),
+    ];
+    return LibraryInspectorSection(
+      title: 'Product Details',
+      accentColor: inspector.accent,
+      children: [
+        LibraryInspectorFactGrid(
+          facts: [
+            for (final row in rows) LibraryInspectorFactData(row.$1, row.$2),
+          ],
+        ),
       ],
     );
   }
@@ -370,54 +580,6 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
   Widget build(BuildContext context) {
     final entry = inspector.entry;
     final owned = inspector.ownedItem;
-    final music = entry.music;
-    final detailRows = <(String, String)>[
-      if (entry.publisher?.trim().isNotEmpty == true)
-        ('Label', entry.publisher!),
-      if (entry.releaseDate != null || entry.releaseYear != null)
-        (
-          'Release',
-          formatNullableDate(entry.releaseDate) ??
-              entry.releaseYear!.toString(),
-        ),
-      if (music?.originalReleaseDate != null)
-        ('Original release', formatDate(music!.originalReleaseDate!)),
-      if (music?.recordingDate != null)
-        ('Recording date', formatDate(music!.recordingDate!)),
-      if (entry.country?.trim().isNotEmpty == true) ('Country', entry.country!),
-      if (entry.language?.trim().isNotEmpty == true)
-        ('Language', entry.language!),
-      if (entry.referenceFormatLabel?.trim().isNotEmpty == true ||
-          entry.variant?.trim().isNotEmpty == true)
-        ('Format', entry.referenceFormatLabel ?? entry.variant ?? '-'),
-      if (music?.releaseStatus?.trim().isNotEmpty == true)
-        ('Release status', music!.releaseStatus!),
-      if (music?.isLive != null)
-        ('Live recording', music!.isLive! ? 'Yes' : 'No'),
-      if (music?.rpm?.trim().isNotEmpty == true) ('RPM', music!.rpm!),
-      if (music?.spars?.trim().isNotEmpty == true) ('SPARS', music!.spars!),
-      if (music?.soundType?.trim().isNotEmpty == true)
-        ('Sound', music!.soundType!),
-      if (music?.vinylColor?.trim().isNotEmpty == true)
-        ('Vinyl color', music!.vinylColor!),
-      if (music?.vinylWeight?.trim().isNotEmpty == true)
-        ('Vinyl weight', music!.vinylWeight!),
-      if (music?.mediaCondition?.trim().isNotEmpty == true)
-        ('Media condition', music!.mediaCondition!),
-      if (owned?.packaging?.trim().isNotEmpty == true)
-        ('Packaging', owned!.packaging!),
-      if (owned?.boxSetName?.trim().isNotEmpty == true)
-        ('Box set', owned!.boxSetName!),
-      if (owned?.features?.trim().isNotEmpty == true)
-        ('Extras', owned!.features!),
-      if (music?.studio?.trim().isNotEmpty == true) ('Studio', music!.studio!),
-      if (music?.catalogNumber?.trim().isNotEmpty == true)
-        ('Catalog number', music!.catalogNumber!),
-      if (entry.barcode?.trim().isNotEmpty == true) ('Barcode', entry.barcode!),
-      if (entry.genres?.isNotEmpty == true)
-        ('Genres', entry.genres!.join(', ')),
-      if (entry.tags?.trim().isNotEmpty == true) ('Tags', entry.tags!),
-    ];
     final personalRows = <(String, String)>[
       ('Index', owned?.indexNumber?.toString() ?? '-'),
       if (owned?.condition?.trim().isNotEmpty == true)
@@ -451,13 +613,6 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
     return Column(
       children: [
         LibraryInspectorSection(
-          title: 'Info',
-          accentColor: inspector.accent,
-          children: [
-            LibraryInspectorFactGrid(facts: asFacts(detailRows)),
-          ],
-        ),
-        LibraryInspectorSection(
           title: 'Personal',
           accentColor: inspector.accent,
           children: [
@@ -490,11 +645,13 @@ class _MusicDiscTable extends StatelessWidget {
     required this.discNumber,
     required this.tracks,
     this.highlightTerms = const <String>[],
+    this.onFilterByValue,
   });
 
   final int discNumber;
   final List<CatalogTrack> tracks;
   final List<String> highlightTerms;
+  final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
@@ -530,6 +687,7 @@ class _MusicDiscTable extends StatelessWidget {
             child: _MusicTrackRow(
               track: track,
               highlight: _matchesTrackTerms(track, highlightTerms),
+              onFilterByValue: onFilterByValue,
             ),
           ),
       ],
@@ -541,10 +699,12 @@ class _MusicTrackRow extends StatelessWidget {
   const _MusicTrackRow({
     required this.track,
     required this.highlight,
+    this.onFilterByValue,
   });
 
   final CatalogTrack track;
   final bool highlight;
+  final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
@@ -588,12 +748,24 @@ class _MusicTrackRow extends StatelessWidget {
                         ),
                   ),
                   if (track.artist?.trim().isNotEmpty == true)
-                    Text(
-                      track.artist!.trim(),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: palette.textMuted,
-                            fontWeight: FontWeight.w600,
-                          ),
+                    InkWell(
+                      onTap: onFilterByValue == null
+                          ? null
+                          : () => onFilterByValue!(track.artist!.trim()),
+                      borderRadius: BorderRadius.circular(3),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 1),
+                        child: Text(
+                          track.artist!.trim(),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: onFilterByValue == null
+                                        ? palette.textMuted
+                                        : inspectorActionColor(context),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -613,6 +785,133 @@ class _MusicTrackRow extends StatelessWidget {
       ),
     );
   }
+}
+
+Color inspectorActionColor(BuildContext context) {
+  final palette = appPalette(context);
+  return palette.accent;
+}
+
+Future<void> _copyTracks(
+  BuildContext context,
+  List<CatalogTrack> tracks,
+) async {
+  final rows = <List<String>>[
+    ['Disc', 'Track', 'Artist', 'Duration'],
+    for (final track in tracks)
+      [
+        track.discNumber?.toString() ?? '-',
+        track.position?.toString() ?? '-',
+        track.artist?.trim().isNotEmpty == true ? track.artist!.trim() : '',
+        track.durationSeconds == null
+            ? ''
+            : _formatTrackDuration(track.durationSeconds!),
+      ],
+  ];
+  await Clipboard.setData(
+    ClipboardData(text: _tracksToCsv(rows)),
+  );
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Copied track list')),
+    );
+  }
+}
+
+Future<void> _printTracks(
+  BuildContext context,
+  List<CatalogTrack> tracks,
+) async {
+  final rows = <List<String>>[
+    ['Disc', 'Track', 'Artist', 'Duration'],
+    for (final track in tracks)
+      [
+        track.discNumber?.toString() ?? '-',
+        track.position?.toString() ?? '-',
+        track.artist?.trim().isNotEmpty == true ? track.artist!.trim() : '',
+        track.durationSeconds == null
+            ? ''
+            : _formatTrackDuration(track.durationSeconds!),
+      ],
+  ];
+  final doc = pw.Document(title: 'Track list');
+  doc.addPage(
+    pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.all(20),
+      build: (context) {
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              'Track list',
+              style: pw.TextStyle(
+                fontSize: 18,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Table(
+              border: pw.TableBorder.all(color: PdfColors.grey300),
+              columnWidths: const {
+                0: pw.FixedColumnWidth(36),
+                1: pw.FixedColumnWidth(36),
+                2: pw.FlexColumnWidth(3),
+                3: pw.FixedColumnWidth(54),
+              },
+              children: [
+                pw.TableRow(
+                  decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+                  children: [
+                    _pdfCell('Disc', bold: true),
+                    _pdfCell('Track', bold: true),
+                    _pdfCell('Artist', bold: true),
+                    _pdfCell('Duration', bold: true),
+                  ],
+                ),
+                for (final row in rows.skip(1))
+                  pw.TableRow(
+                    children: [
+                      _pdfCell(row[0]),
+                      _pdfCell(row[1]),
+                      _pdfCell(row[2]),
+                      _pdfCell(row[3]),
+                    ],
+                  ),
+              ],
+            ),
+          ],
+        );
+      },
+    ),
+  );
+  await Printing.layoutPdf(
+    onLayout: (_) => doc.save(),
+    name: 'track_list.pdf',
+  );
+}
+
+pw.Widget _pdfCell(String value, {bool bold = false}) {
+  return pw.Padding(
+    padding: const pw.EdgeInsets.all(4),
+    child: pw.Text(
+      value,
+      style: pw.TextStyle(
+        fontSize: 9,
+        fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+      ),
+    ),
+  );
+}
+
+String _tracksToCsv(List<List<String>> rows) {
+  return rows
+      .map(
+        (row) => row
+            .map((value) => '"${value.replaceAll('"', '""')}"')
+            .join(','),
+      )
+      .join('\n');
 }
 
 class _MusicInspectorInfoLine extends StatelessWidget {
@@ -690,6 +989,63 @@ class _MusicDiscCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _MusicDiscCardSection extends StatelessWidget {
+  const _MusicDiscCardSection({
+    required this.disc,
+    required this.accent,
+  });
+
+  final CatalogDisc disc;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = <(String, String)>[
+      if (disc.discName?.trim().isNotEmpty == true) ('Name', disc.discName!),
+      if (disc.discFormat?.trim().isNotEmpty == true) ('Format', disc.discFormat!),
+      if (disc.trackCount != null) ('Track count', disc.trackCount.toString()),
+      if (disc.expectedTrackCount != null)
+        ('Expected tracks', disc.expectedTrackCount.toString()),
+      if (disc.ownedTrackCount != null)
+        ('Owned tracks', disc.ownedTrackCount.toString()),
+      if (disc.missingTrackCount != null)
+        ('Missing tracks', disc.missingTrackCount.toString()),
+      if (disc.missingTrackPositions.isNotEmpty)
+        ('Missing positions', disc.missingTrackPositions.join(', ')),
+      if (disc.toc?.trim().isNotEmpty == true) ('TOC', disc.toc!),
+      if (disc.cddbId?.trim().isNotEmpty == true) ('CDDB ID', disc.cddbId!),
+      if (disc.leadoutOffset != null) ('Leadout', disc.leadoutOffset.toString()),
+      if (disc.bpDiscId?.trim().isNotEmpty == true) ('BP Disc ID', disc.bpDiscId!),
+      if (disc.packaging?.trim().isNotEmpty == true) ('Packaging', disc.packaging!),
+      if (disc.mediaCondition?.trim().isNotEmpty == true)
+        ('Media condition', disc.mediaCondition!),
+      if (disc.soundType?.trim().isNotEmpty == true) ('Sound', disc.soundType!),
+      if (disc.rpm != null) ('RPM', disc.rpm.toString()),
+      if (disc.vinylColor?.trim().isNotEmpty == true)
+        ('Vinyl color', disc.vinylColor!),
+      if (disc.vinylWeight?.trim().isNotEmpty == true)
+        ('Vinyl weight', disc.vinylWeight!),
+    ];
+    return LibraryInspectorSection(
+      title: 'Disc ${disc.discNumber}',
+      accentColor: accent,
+      children: [
+        LibraryInspectorFactGrid(
+          facts: [for (final row in rows) LibraryInspectorFactData(row.$1, row.$2)],
+        ),
+        const SizedBox(height: 10),
+        _MusicDiscCard(
+          discNumber: disc.discNumber,
+          trackCount: disc.trackCount ?? disc.tracks.length,
+          duration: _formatTotalDuration(
+            disc.tracks,
+          ),
+        ),
+      ],
     );
   }
 }

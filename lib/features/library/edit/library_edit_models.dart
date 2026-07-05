@@ -6,6 +6,11 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 // Selection data classes returned by the edit dialog
 // ---------------------------------------------------------------------------
 
+enum LibraryEditSubmitAction {
+  save,
+  saveAndNext,
+}
+
 class LibraryEditSelection {
   const LibraryEditSelection({
     required this.item,
@@ -15,6 +20,7 @@ class LibraryEditSelection {
     this.tracking,
     this.customFieldEdits = const {},
     this.itemImageEdits = const [],
+    this.submitAction = LibraryEditSubmitAction.save,
   });
 
   final LibraryMetadataItem item;
@@ -24,6 +30,7 @@ class LibraryEditSelection {
   final LibraryTrackingEditSelection? tracking;
   final Map<String, String?> customFieldEdits;
   final List<ItemImageEdit> itemImageEdits;
+  final LibraryEditSubmitAction submitAction;
 }
 
 class LibraryPersonalEditSelection {

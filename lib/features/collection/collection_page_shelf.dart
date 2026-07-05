@@ -516,7 +516,11 @@ class _ShelfVolumesPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final volumesAsync = ref.watch(shelfVolumesProvider(itemId));
+    final volumesAsync = ref.watch(
+      shelfVolumesProvider(
+        (itemId: itemId, canHydrateFromCore: true),
+      ),
+    );
     return volumesAsync.when(
       loading: () => const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),

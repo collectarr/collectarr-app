@@ -722,7 +722,9 @@ class LibraryEditDraft {
         episodeNumberController.text.trim().isNotEmpty;
   }
 
-  LibraryEditSelection buildSelection() {
+  LibraryEditSelection buildSelection({
+    LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
+  }) {
     final updatedPublishing = CatalogPublishingDetails(
       pageCount: parseInt(pageCountController.text),
       coverPriceCents: item.publishing?.coverPriceCents,
@@ -912,6 +914,7 @@ class LibraryEditDraft {
             ),
       customFieldEdits: customFieldEdits,
       itemImageEdits: itemImageEdits,
+            submitAction: submitAction,
     );
   }
 

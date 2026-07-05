@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -284,6 +285,11 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
       if (libraryNotesMarkerLabel(entry.notes) case final label?)
         LibraryCoverBadge(
           icon: Icons.sticky_note_2_outlined,
+          label: label,
+        ),
+      if (libraryHierarchyContractDiagnosticLabel(entry) case final label?)
+        LibraryCoverBadge(
+          icon: Icons.rule_outlined,
           label: label,
         ),
       for (final badge in widget.customFieldBadges)

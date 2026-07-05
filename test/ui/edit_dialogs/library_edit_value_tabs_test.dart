@@ -71,11 +71,12 @@ void main() {
 
     expect(find.text('Price paid'), findsOneWidget);
     expect(find.text('Last bag & board date'), findsOneWidget);
-    expect(find.text('Market value: '), findsOneWidget);
+    expect(find.text('Manual estimate: '), findsOneWidget);
+    expect(find.text('Insurance: '), findsOneWidget);
     expect(find.text('Purchase date: 2024-01-02'), findsOneWidget);
     expect(find.text('USD 12.50'), findsOneWidget);
     expect(find.text('USD 25.00'), findsOneWidget);
-    expect(find.text('USD 20.00'), findsOneWidget);
+    expect(find.text('USD 20.00'), findsWidgets);
   });
 
   testWidgets('sold tab renders sold summary when sold date exists', (

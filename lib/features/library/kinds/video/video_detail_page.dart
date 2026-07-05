@@ -55,7 +55,7 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
     super.initState();
     final nodes = _releaseNodesFor(widget.request.type, widget.request.entry);
     _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
-    if (_isTvKind) {
+    if (_isTvKind && widget.request.entry.canHydrateFromCore) {
       _tvSeriesFuture = _loadTvSeriesSnapshot();
     }
   }
@@ -67,9 +67,12 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
       final nodes = _releaseNodesFor(widget.request.type, widget.request.entry);
       _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
       _selectedOwnedItemIdByRelease.clear();
-      _tvSeriesSnapshot = null;
-      if (_isTvKind) {
-        _tvSeriesFuture = _loadTvSeriesSnapshot();
+      if (oldWidget.request.entry.canonicalItemId !=
+          widget.request.entry.canonicalItemId) {
+        _tvSeriesSnapshot = null;
+        if (_isTvKind && widget.request.entry.canHydrateFromCore) {
+          _tvSeriesFuture = _loadTvSeriesSnapshot();
+        }
       }
     }
   }
@@ -77,15 +80,18 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
   bool get _isTvKind => widget.request.type.workspace.kind.apiValue == 'tv';
 
   Future<TvSeries?> _loadTvSeriesSnapshot() async {
+    if (!widget.request.entry.canHydrateFromCore) {
+      return null;
+    }
     final api = ref.read(apiClientProvider);
-    final dto = await api.getTvSeriesDto(widget.request.entry.id);
+    final dto = await api.getTvSeriesDto(widget.request.entry.canonicalItemId);
     return TvSeries.fromDto(dto);
   }
 
   Future<void> _addCopyForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
     await ref.read(collectionMutationsProvider).addItem(
-          widget.request.entry.id,
+          widget.request.entry.canonicalItemId,
           editionId: anchor.editionId,
           variantId: anchor.variantId,
           bundleReleaseId: anchor.bundleReleaseId,
@@ -103,7 +109,7 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
   Future<void> _addWishlistForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
     await ref.read(collectionMutationsProvider).addToWishlist(
-          widget.request.entry.id,
+          widget.request.entry.canonicalItemId,
           editionId: anchor.editionId,
           variantId: anchor.variantId,
           bundleReleaseId: anchor.bundleReleaseId,
@@ -143,13 +149,19 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
     final wishlistValue = ref.watch(wishlistProvider);
     final ownedCopies = ownedCopiesValue.maybeWhen(
       data: (items) => items
-          .where((item) => !item.isDeleted && item.itemId == request.entry.id)
+          .where(
+            (item) =>
+                !item.isDeleted && item.itemId == request.entry.canonicalItemId,
+          )
           .toList(growable: false),
       orElse: () => const <OwnedItem>[],
     );
     final wishlistItems = wishlistValue.maybeWhen(
       data: (items) => items
-          .where((item) => !item.isDeleted && item.itemId == request.entry.id)
+          .where(
+            (item) =>
+                !item.isDeleted && item.itemId == request.entry.canonicalItemId,
+          )
           .toList(growable: false),
       orElse: () => const <WishlistItem>[],
     );
@@ -162,7 +174,7 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
     final seriesRef = CatalogEntityRef(
       kind: request.type.workspace.kind.apiValue,
       entityType: CatalogEntityType.work,
-      id: request.entry.id,
+      id: request.entry.canonicalItemId,
     );
     final seasonsAsync = ref.watch(seasonsByCatalogRefProvider(seriesRef));
     final watchHistoryTargets = <WatchHistoryTargetOption>[

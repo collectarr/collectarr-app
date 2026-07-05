@@ -10,15 +10,10 @@ final volumesProvider = FutureProvider.autoDispose.family<List<Season>,
       .timeout(const Duration(seconds: 60));
 });
 
-final _uuidPattern = RegExp(
-  r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
-  caseSensitive: false,
-);
-
 final itemVolumesProvider = FutureProvider.autoDispose.family<
     List<Season>,
-    ({String itemId, String? kind})>((ref, params) async {
-  if (!_uuidPattern.hasMatch(params.itemId)) {
+    ({String itemId, String? kind, bool canHydrateFromCore})>((ref, params) async {
+  if (!params.canHydrateFromCore) {
     return const <Season>[];
   }
   final api = ref.watch(apiClientProvider);
