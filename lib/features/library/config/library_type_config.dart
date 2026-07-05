@@ -521,6 +521,10 @@ class LibraryKindUiAdapter {
     return type.supportsMetadataCompareWithServer;
   }
 
+  bool supportsMissingComicsReport(LibraryTypeConfig type) {
+    return type.workspace.kind == CatalogMediaKind.comic;
+  }
+
   bool shouldOpenReleaseFolderOnOpen(
     LibraryTypeConfig type, {
     required LibraryWorkspaceBrowserMode browserMode,

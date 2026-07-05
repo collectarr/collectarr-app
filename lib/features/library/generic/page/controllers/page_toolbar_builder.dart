@@ -134,11 +134,11 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
         onSmartLists: () => showSmartListsFlow(shelfState),
         onFolders: showUserFoldersFlow,
         onReadingQueue: showsReadingQueue() ? showReadingQueueFlow : null,
-        onEditConditionPickList: widget.type.conditions.isNotEmpty
+        onEditConditionPickList: widget.type.hasConditionPickList
             ? showConditionPickListEditorFlow
             : null,
         onEditGradePickList:
-            widget.type.grades.isNotEmpty ? showGradePickListEditorFlow : null,
+            widget.type.hasGradePickList ? showGradePickListEditorFlow : null,
         onEditTagPickList: showTagPickListEditorFlow,
         onTransferFieldData:
             projection != null && _hasOwnedItemsInProjection(projection)
@@ -153,7 +153,10 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
             ? () => printReportFlow(projection)
             : null,
         onMissingComics:
-            projection != null && widget.type.workspace.kind.apiValue == 'comic'
+            projection != null &&
+                widget.type.kindUiAdapter.supportsMissingComicsReport(
+                  widget.type,
+                )
                 ? () => showMissingComicsFlow(projection)
                 : null,
         onShareCollection:

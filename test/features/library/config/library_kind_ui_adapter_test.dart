@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,5 +18,18 @@ void main() {
     expect(facets.map((category) => category.label), [
       for (final category in categories) category.label,
     ]);
+  });
+
+  test('comic-only toolbar actions stay in the kind adapter', () {
+    final adapter = comicsLibraryConfig.kindUiAdapter;
+
+    expect(
+      adapter.supportsMissingComicsReport(comicsLibraryConfig),
+      isTrue,
+    );
+    expect(
+      adapter.supportsMissingComicsReport(moviesLibraryConfig),
+      isFalse,
+    );
   });
 }
