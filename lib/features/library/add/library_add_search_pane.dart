@@ -22,10 +22,14 @@ class _SearchPane extends StatelessWidget {
     required this.providerNumberText,
     required this.providerPublisherText,
     required this.providerYearText,
+    required this.isWideLayout,
     required this.showCoreResults,
     required this.showProviderResults,
     required this.showMediaResults,
     required this.showReleaseResults,
+    required this.hideComicOwnedResults,
+    required this.hideComicVariantResults,
+    required this.compactComicIssues,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
@@ -34,6 +38,9 @@ class _SearchPane extends StatelessWidget {
     required this.onShowProviderResultsChanged,
     required this.onShowMediaResultsChanged,
     required this.onShowReleaseResultsChanged,
+    required this.onHideComicOwnedResultsChanged,
+    required this.onHideComicVariantResultsChanged,
+    required this.onCompactComicIssuesChanged,
     required this.onSearchCore,
   });
 
@@ -57,10 +64,14 @@ class _SearchPane extends StatelessWidget {
   final String providerNumberText;
   final String providerPublisherText;
   final String providerYearText;
+  final bool isWideLayout;
   final bool showCoreResults;
   final bool showProviderResults;
   final bool showMediaResults;
   final bool showReleaseResults;
+  final bool hideComicOwnedResults;
+  final bool hideComicVariantResults;
+  final bool compactComicIssues;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
@@ -69,6 +80,9 @@ class _SearchPane extends StatelessWidget {
   final ValueChanged<bool> onShowProviderResultsChanged;
   final ValueChanged<bool> onShowMediaResultsChanged;
   final ValueChanged<bool> onShowReleaseResultsChanged;
+  final ValueChanged<bool> onHideComicOwnedResultsChanged;
+  final ValueChanged<bool> onHideComicVariantResultsChanged;
+  final ValueChanged<bool> onCompactComicIssuesChanged;
   final VoidCallback onSearchCore;
 
   @override
@@ -100,6 +114,9 @@ class _SearchPane extends StatelessWidget {
         providerNumberText: providerNumberText,
         providerPublisherText: providerPublisherText,
         providerYearText: providerYearText,
+        hideComicOwnedResults: hideComicOwnedResults,
+        hideComicVariantResults: hideComicVariantResults,
+        compactComicIssues: compactComicIssues,
         onSearchCore: onSearchCore,
         onSelectResult: onSelectResult,
         onSelectProviderCandidate: onSelectProviderCandidate,
@@ -337,6 +354,9 @@ class _SearchResultsList extends StatelessWidget {
     required this.providerNumberText,
     required this.providerPublisherText,
     required this.providerYearText,
+    required this.hideComicOwnedResults,
+    required this.hideComicVariantResults,
+    required this.compactComicIssues,
     required this.onSearchCore,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
@@ -364,6 +384,9 @@ class _SearchResultsList extends StatelessWidget {
   final String providerNumberText;
   final String providerPublisherText;
   final String providerYearText;
+  final bool hideComicOwnedResults;
+  final bool hideComicVariantResults;
+  final bool compactComicIssues;
   final VoidCallback onSearchCore;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;

@@ -58,8 +58,8 @@ extension _LibraryAddDialogSelectionState on _LibraryAddDialogState {
       if (value != LibraryAddReferenceType.bundleRelease) {
         _selectedBundleReleaseId = null;
       } else {
-        _selectedBundleReleaseId =
-            _selectedBundleReleaseId ?? (bundles.isNotEmpty ? bundles.first.id : null);
+        _selectedBundleReleaseId = _selectedBundleReleaseId ??
+            (bundles.isNotEmpty ? bundles.first.id : null);
       }
       if (value != LibraryAddReferenceType.edition) {
         _selectedReferenceEditionId = null;
@@ -67,7 +67,8 @@ extension _LibraryAddDialogSelectionState on _LibraryAddDialogState {
       }
     });
     final bundleReleaseId = _selectedBundleReleaseId;
-    if (value == LibraryAddReferenceType.bundleRelease && bundleReleaseId != null) {
+    if (value == LibraryAddReferenceType.bundleRelease &&
+        bundleReleaseId != null) {
       unawaited(_ensureBundleReleaseDetailLoaded(bundleReleaseId));
     }
   }
@@ -157,16 +158,44 @@ extension _LibraryAddDialogSelectionState on _LibraryAddDialogState {
     if (!_showCoreResults) {
       return const <LibraryMetadataItem>[];
     }
-    return _results.where(_matchesEntityScopeForCore).toList(growable: false);
+    return _results.where((item) {
+      if (!_matchesEntityScopeForCore(item)) {
+        return false;
+      }
+      if (widget.type.workspace.kind.apiValue != 'comic') {
+        return true;
+      }
+      if (_hideComicOwnedResults && _isOwnedCatalogItem(item.id)) {
+        return false;
+      }
+      if (_hideComicVariantResults && _isComicVariantResult(item)) {
+        return false;
+      }
+      return true;
+    }).toList(growable: false);
   }
 
   List<ProviderCandidate> _visibleProviderResults() {
     if (!_showProviderResults) {
       return const <ProviderCandidate>[];
     }
-    return _providerResults
-        .where(_matchesEntityScopeForProvider)
-        .toList(growable: false);
+    return _providerResults.where((candidate) {
+      if (!_matchesEntityScopeForProvider(candidate)) {
+        return false;
+      }
+      if (widget.type.workspace.kind.apiValue != 'comic') {
+        return true;
+      }
+      return !_hideComicVariantResults || !candidate.isVariant;
+    }).toList(growable: false);
+  }
+
+  bool _isOwnedCatalogItem(String id) =>
+      ref.read(collectionByCatalogItemProvider).containsKey(id);
+
+  bool _isComicVariantResult(LibraryMetadataItem item) {
+    final variantText = item.variant?.trim();
+    return variantText != null && variantText.isNotEmpty;
   }
 
   void _pruneSelectionsForVisibility({

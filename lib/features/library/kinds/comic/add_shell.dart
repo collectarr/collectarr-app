@@ -18,7 +18,8 @@ Widget buildComicAddHeader(
     child: DecoratedBox(
       decoration: BoxDecoration(
         color: request.accent,
-        border: Border(bottom: BorderSide(color: request.accent.withValues(alpha: 0.92))),
+        border: Border(
+            bottom: BorderSide(color: request.accent.withValues(alpha: 0.92))),
       ),
       child: Row(
         children: [
@@ -74,12 +75,17 @@ Widget buildComicAddModeBar(
                         ? 'library-add-barcode-field'
                         : 'library-add-query-field',
                   ),
-                  controller:
-                      isBarcode ? request.barcodeController : request.queryController,
+                  controller: isBarcode
+                      ? request.barcodeController
+                      : request.queryController,
                   onChanged: isSearch ? request.onQueryChanged : null,
-                  onSubmitted: (_) => isBarcode ? request.onLookupBarcode() : request.onSearch(),
+                  onSubmitted: (_) => isBarcode
+                      ? request.onLookupBarcode()
+                      : request.onSearch(),
                   decoration: InputDecoration(
-                    labelText: isBarcode ? 'Barcode / UPC / ISBN' : 'Series, issue or title',
+                    labelText: isBarcode
+                        ? 'Barcode / UPC / ISBN'
+                        : 'Series, issue or title',
                     hintText: isBarcode
                         ? 'Scan or enter barcode...'
                         : 'Search comics by series, issue, or exact title...',
@@ -95,7 +101,8 @@ Widget buildComicAddModeBar(
                             icon: request.isScanningCover
                                 ? const SizedBox.square(
                                     dimension: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
                                   )
                                 : const Icon(Icons.photo_camera_outlined),
                           )
@@ -109,7 +116,8 @@ Widget buildComicAddModeBar(
                     ? null
                     : (isBarcode ? request.onLookupBarcode : request.onSearch),
                 style: libraryAddFilledButtonStyle(request.accent),
-                icon: Icon(isBarcode ? Icons.qr_code_2 : Icons.search, size: 18),
+                icon:
+                    Icon(isBarcode ? Icons.qr_code_2 : Icons.search, size: 18),
                 label: Text(isBarcode ? 'Lookup' : 'Search Comics'),
               ),
             ],
@@ -156,9 +164,7 @@ Widget buildComicAddModeBar(
                   onPressed: request.onToggleAdvanced,
                   style: libraryAddOutlinedButtonStyle(request.accent),
                   icon: Icon(
-                    request.showAdvanced
-                        ? Icons.tune
-                        : Icons.tune_outlined,
+                    request.showAdvanced ? Icons.tune : Icons.tune_outlined,
                     size: 18,
                   ),
                   label: const Text('Filters'),
@@ -205,7 +211,9 @@ Widget buildComicAddModeBar(
               ],
             ),
           ],
-          if (isSearch && request.showSuggestions && request.suggestions.isNotEmpty) ...[
+          if (isSearch &&
+              request.showSuggestions &&
+              request.suggestions.isNotEmpty) ...[
             const SizedBox(height: 8),
             Material(
               color: palette.panel,
@@ -223,9 +231,10 @@ Widget buildComicAddModeBar(
                       ListTile(
                         dense: true,
                         title: Text(suggestion.title),
-                        subtitle: suggestion.itemNumber?.trim().isNotEmpty == true
-                            ? Text('Issue ${suggestion.itemNumber}')
-                            : null,
+                        subtitle:
+                            suggestion.itemNumber?.trim().isNotEmpty == true
+                                ? Text('Issue ${suggestion.itemNumber}')
+                                : null,
                         onTap: () => request.onSelectSuggestion(suggestion),
                       ),
                   ],
@@ -283,6 +292,7 @@ class _ComicAddSearchPane extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (request.error != null) AppErrorBanner(request.error!),
+          if (request.isWideLayout) _ComicFilterBar(request: request),
           _tableHeader(context),
           Expanded(
             child: request.isBusy && entries.isEmpty
@@ -331,12 +341,58 @@ class _ComicAddSearchPane extends StatelessWidget {
               SizedBox(width: 36),
               _ComicFixedHeaderCell(label: 'Series', width: _seriesWidth),
               _ComicFixedHeaderCell(label: 'Issue', width: _issueWidth),
-              _ComicFixedHeaderCell(label: 'Variant Description', width: _editionWidth),
+              _ComicFixedHeaderCell(
+                  label: 'Variant Description', width: _editionWidth),
               _ComicFixedHeaderCell(label: 'Publisher', width: _publisherWidth),
-              _ComicFixedHeaderCell(label: 'Release Date', width: _releaseWidth),
+              _ComicFixedHeaderCell(
+                  label: 'Release Date', width: _releaseWidth),
               _ComicFixedHeaderCell(label: 'Format', width: _formatWidth),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ComicFilterBar extends StatelessWidget {
+  const _ComicFilterBar({required this.request});
+
+  final LibraryAddSearchPaneRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(bottom: BorderSide(color: palette.divider)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 6,
+          children: [
+            FilterChip(
+              label: const Text('Hide owned'),
+              selected: request.hideComicOwnedResults,
+              onSelected: request.onHideComicOwnedResultsChanged,
+              visualDensity: VisualDensity.compact,
+            ),
+            FilterChip(
+              label: const Text('Hide variants'),
+              selected: request.hideComicVariantResults,
+              onSelected: request.onHideComicVariantResultsChanged,
+              visualDensity: VisualDensity.compact,
+            ),
+            FilterChip(
+              label: const Text('Compact issues'),
+              selected: request.compactComicIssues,
+              onSelected: request.onCompactComicIssuesChanged,
+              visualDensity: VisualDensity.compact,
+            ),
+          ],
         ),
       ),
     );
@@ -390,17 +446,21 @@ class _ComicSearchRow extends StatelessWidget {
     final palette = appPalette(context);
     final selected = entry.item != null
         ? request.selectedResultId == entry.item!.id
-        : request.selectedProviderCandidateId == entry.candidate!.localCatalogId;
-    final checked = entry.item != null && request.checkedResultIds.contains(entry.item!.id);
-    final owned = entry.item != null && request.ownedCatalogItemIds.contains(entry.item!.id);
+        : request.selectedProviderCandidateId ==
+            entry.candidate!.localCatalogId;
+    final checked =
+        entry.item != null && request.checkedResultIds.contains(entry.item!.id);
+    final owned = entry.item != null &&
+        request.ownedCatalogItemIds.contains(entry.item!.id);
     final background = selected
-        ? Color.alphaBlend(request.accent.withValues(alpha: 0.2), palette.selection)
+        ? Color.alphaBlend(
+            request.accent.withValues(alpha: 0.2), palette.selection)
         : owned
             ? Color.alphaBlend(
                 const Color(0xFF2E7D32).withValues(alpha: 0.1),
                 odd ? palette.tableOddRow : palette.tableEvenRow,
               )
-        : (odd ? palette.tableOddRow : palette.tableEvenRow);
+            : (odd ? palette.tableOddRow : palette.tableEvenRow);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -409,9 +469,10 @@ class _ComicSearchRow extends StatelessWidget {
         ),
         onTap: entry.item != null
             ? () => request.onSelectResult(entry.item!.id)
-            : () => request.onSelectProviderCandidate(entry.candidate!.localCatalogId),
+            : () => request
+                .onSelectProviderCandidate(entry.candidate!.localCatalogId),
         child: Container(
-          height: 66,
+          height: request.compactComicIssues ? 64 : 72,
           decoration: BoxDecoration(
             color: background,
             border: Border(
@@ -437,9 +498,11 @@ class _ComicSearchRow extends StatelessWidget {
                     child: entry.item != null
                         ? Checkbox(
                             value: checked,
-                            onChanged: (_) => request.onToggleResultCheck(entry.item!.id),
+                            onChanged: (_) =>
+                                request.onToggleResultCheck(entry.item!.id),
                             activeColor: request.accent,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
                             visualDensity: VisualDensity.compact,
                           )
                         : Icon(
@@ -449,7 +512,7 @@ class _ComicSearchRow extends StatelessWidget {
                           ),
                   ),
                   _seriesCell(context, owned),
-                  _cell(_issueText),
+                  _issueCell(context),
                   _cell(_editionText),
                   _cell(_publisherText),
                   _cell(_releaseText),
@@ -480,7 +543,7 @@ class _ComicSearchRow extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Wrap(
             spacing: 4,
             runSpacing: 4,
@@ -488,7 +551,8 @@ class _ComicSearchRow extends StatelessWidget {
               LibraryAddResultBadge(
                 entry.item != null
                     ? 'core'
-                    : request.type.metadataProviderLabel(entry.candidate!.provider),
+                    : request.type
+                        .metadataProviderLabel(entry.candidate!.provider),
                 accent: request.accent,
               ),
               if (owned)
@@ -506,11 +570,45 @@ class _ComicSearchRow extends StatelessWidget {
     );
   }
 
+  Widget _issueCell(BuildContext context) {
+    final palette = appPalette(context);
+    return SizedBox(
+      width: _ComicAddSearchPane._issueWidth,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: request.compactComicIssues
+            ? Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: palette.panel,
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: palette.divider),
+                ),
+                child: Text(
+                  _issueText.isNotEmpty ? _issueText : '—',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: palette.textPrimary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              )
+            : Text(
+                _issueText,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+      ),
+    );
+  }
+
   Widget _cell(String text) {
     final width = switch (text) {
       _ when identical(text, _issueText) => _ComicAddSearchPane._issueWidth,
       _ when identical(text, _editionText) => _ComicAddSearchPane._editionWidth,
-      _ when identical(text, _publisherText) => _ComicAddSearchPane._publisherWidth,
+      _ when identical(text, _publisherText) =>
+        _ComicAddSearchPane._publisherWidth,
       _ when identical(text, _releaseText) => _ComicAddSearchPane._releaseWidth,
       _ => _ComicAddSearchPane._formatWidth,
     };
@@ -551,12 +649,15 @@ class _ComicSearchRow extends StatelessWidget {
   }
 
   String get _publisherText {
-    return entry.item?.publisher?.trim() ?? entry.candidate?.publisher?.trim() ?? '';
+    return entry.item?.publisher?.trim() ??
+        entry.candidate?.publisher?.trim() ??
+        '';
   }
 
   String get _releaseText {
     if (entry.item != null) {
-      return _formatReleaseDate(entry.item!.releaseDate, entry.item!.releaseYear);
+      return _formatReleaseDate(
+          entry.item!.releaseDate, entry.item!.releaseYear);
     }
     final year = entry.candidate!.series?.volumeStartYear;
     return year?.toString() ?? '';
@@ -594,8 +695,18 @@ String _candidateSeries(ProviderCandidate candidate) {
 String _formatReleaseDate(DateTime? date, int? year) {
   if (date != null) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }

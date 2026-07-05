@@ -1585,6 +1585,63 @@ void main() {
     );
   });
 
+  testWidgets('comic add search can hide owned results', (tester) async {
+    tester.view.physicalSize = const Size(1100, 760);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final api = _FakeLibraryAddApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          collectionByCatalogItemProvider.overrideWith(
+            (ref) => {
+              'comic-423': testOwnedItem(
+                id: 'owned-comic-423',
+                itemId: 'comic-423',
+                updatedAt: DateTime.utc(2026, 6, 1, 12),
+              ),
+            },
+          ),
+          authControllerProvider.overrideWith(
+            (ref) => TestAdminAuthController(ref),
+          ),
+          metadataProviderStatusesProvider.overrideWith(
+            (ref) async => const <String, AdminProviderStatus>{},
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: LibraryAddDialog(
+              type: comicsLibraryConfig,
+              autoLookupInitialBarcode: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('library-add-query-field')),
+      'Batman',
+    );
+    await tester.tap(find.text('Search Comics'));
+    await pumpUntilSettled(tester);
+
+    expect(comicSearchResultById('comic-423'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilterChip, 'Hide owned'));
+    await pumpUntilSettled(tester);
+
+    expect(comicSearchResultById('comic-423'), findsNothing);
+  });
+
   testWidgets('comic add dialog previews selected bundle release members', (
     tester,
   ) async {

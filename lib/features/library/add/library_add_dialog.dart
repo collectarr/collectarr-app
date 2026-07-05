@@ -211,6 +211,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   bool _showProviderResults = true;
   bool _showMediaResults = true;
   bool _showReleaseResults = true;
+  bool _hideComicOwnedResults = false;
+  bool _hideComicVariantResults = false;
+  bool _compactComicIssues = true;
   bool _isQueueingIngest = false;
   bool _isAdding = false;
   LibraryAddDialogMode _mode = LibraryAddDialogMode.search;
@@ -609,10 +612,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         providerNumberText: _searchNumberController.text,
                         providerPublisherText: _searchPublisherController.text,
                         providerYearText: _searchYearController.text,
+                        isWideLayout: constraints.maxWidth >= 720,
                         showCoreResults: _showCoreResults,
                         showProviderResults: _showProviderResults,
                         showMediaResults: _showMediaResults,
                         showReleaseResults: _showReleaseResults,
+                        hideComicOwnedResults: _hideComicOwnedResults,
+                        hideComicVariantResults: _hideComicVariantResults,
+                        compactComicIssues: _compactComicIssues,
                         onSelectResult: (id) {
                           _selectCoreResult(id);
                         },
@@ -633,6 +640,23 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onShowProviderResultsChanged: (_) {},
                         onShowMediaResultsChanged: (_) {},
                         onShowReleaseResultsChanged: (_) {},
+                        onHideComicOwnedResultsChanged: (value) => setState(() {
+                          _hideComicOwnedResults = value;
+                          _pruneSelectionsForVisibility(
+                            visibleResults: _visibleCoreResults(),
+                            visibleProviderResults: _visibleProviderResults(),
+                          );
+                        }),
+                        onHideComicVariantResultsChanged: (value) =>
+                            setState(() {
+                          _hideComicVariantResults = value;
+                          _pruneSelectionsForVisibility(
+                            visibleResults: _visibleCoreResults(),
+                            visibleProviderResults: _visibleProviderResults(),
+                          );
+                        }),
+                        onCompactComicIssuesChanged: (value) =>
+                            setState(() => _compactComicIssues = value),
                         onSearchCore: _search,
                       );
                       final searchPane = widget.searchPaneBuilder
@@ -675,6 +699,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 searchPaneRequest.providerPublisherText,
                             providerYearText:
                                 searchPaneRequest.providerYearText,
+                            isWideLayout: searchPaneRequest.isWideLayout,
                             showCoreResults: searchPaneRequest.showCoreResults,
                             showProviderResults:
                                 searchPaneRequest.showProviderResults,
@@ -682,6 +707,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 searchPaneRequest.showMediaResults,
                             showReleaseResults:
                                 searchPaneRequest.showReleaseResults,
+                            hideComicOwnedResults:
+                                searchPaneRequest.hideComicOwnedResults,
+                            hideComicVariantResults:
+                                searchPaneRequest.hideComicVariantResults,
+                            compactComicIssues:
+                                searchPaneRequest.compactComicIssues,
                             onSelectResult: searchPaneRequest.onSelectResult,
                             onSelectProviderCandidate:
                                 searchPaneRequest.onSelectProviderCandidate,
@@ -697,6 +728,12 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 searchPaneRequest.onShowMediaResultsChanged,
                             onShowReleaseResultsChanged:
                                 searchPaneRequest.onShowReleaseResultsChanged,
+                            onHideComicOwnedResultsChanged: searchPaneRequest
+                                .onHideComicOwnedResultsChanged,
+                            onHideComicVariantResultsChanged: searchPaneRequest
+                                .onHideComicVariantResultsChanged,
+                            onCompactComicIssuesChanged:
+                                searchPaneRequest.onCompactComicIssuesChanged,
                             onSearchCore: searchPaneRequest.onSearchCore,
                           );
                       final searchPaneWithSourceToggles =
@@ -1965,28 +2002,28 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             id: itemId,
           )
           .then((dto) {
-            final sourceSelection = selected!;
-            final raw = <String, dynamic>{
-              ...dto.raw,
-              'id': dto.id,
-              'title': dto.title,
-              'kind': dto.kind,
-              if (!dto.raw.containsKey('editions') &&
-                  sourceSelection.editions.isNotEmpty)
-                'editions': [
-                  for (final edition in sourceSelection.editions) edition.toJson(),
-                ],
-              if (!dto.raw.containsKey('track_count') &&
-                  sourceSelection.music?.trackCount != null)
-                'track_count': sourceSelection.music!.trackCount,
-              if (!dto.raw.containsKey('tracks') &&
-                  (sourceSelection.music?.tracks.isNotEmpty ?? false))
-                'tracks': [
-                  for (final track in sourceSelection.music!.tracks) track.toJson(),
-                ],
-            };
-            return CatalogItem.fromJson(raw);
-          });
+        final sourceSelection = selected!;
+        final raw = <String, dynamic>{
+          ...dto.raw,
+          'id': dto.id,
+          'title': dto.title,
+          'kind': dto.kind,
+          if (!dto.raw.containsKey('editions') &&
+              sourceSelection.editions.isNotEmpty)
+            'editions': [
+              for (final edition in sourceSelection.editions) edition.toJson(),
+            ],
+          if (!dto.raw.containsKey('track_count') &&
+              sourceSelection.music?.trackCount != null)
+            'track_count': sourceSelection.music!.trackCount,
+          if (!dto.raw.containsKey('tracks') &&
+              (sourceSelection.music?.tracks.isNotEmpty ?? false))
+            'tracks': [
+              for (final track in sourceSelection.music!.tracks) track.toJson(),
+            ],
+        };
+        return CatalogItem.fromJson(raw);
+      });
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
@@ -2038,8 +2075,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (!mounted || searchGeneration != _coreSearchGeneration) {
         return;
       }
-      final firstBundleId =
-          _selectedBundleReleaseId ?? (bundleReleases.isNotEmpty ? bundleReleases.first.id : null);
+      final firstBundleId = _selectedBundleReleaseId ??
+          (bundleReleases.isNotEmpty ? bundleReleases.first.id : null);
       setState(() {
         _bundleReleasesByItemId[itemId] = bundleReleases;
         _pendingBundleReleaseItemIds.remove(itemId);
@@ -2340,7 +2377,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   currentMusic.mediaCondition ?? fallbackMusic.mediaCondition,
               instrument: currentMusic.instrument ?? fallbackMusic.instrument,
               isLive: currentMusic.isLive ?? fallbackMusic.isLive,
-              composition: currentMusic.composition ?? fallbackMusic.composition,
+              composition:
+                  currentMusic.composition ?? fallbackMusic.composition,
             );
             if (mergedMusic.hasData) {
               fullItem = fullItem.copyWith(music: mergedMusic);
