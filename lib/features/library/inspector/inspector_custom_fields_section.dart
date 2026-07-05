@@ -35,12 +35,14 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
     required this.mediaKind,
     required this.db,
     required this.accent,
+    this.onFilterByValue,
   });
 
   final String ownedItemId;
   final String mediaKind;
   final LocalDatabase db;
   final Color accent;
+  final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,7 +69,14 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
         LibraryInspectorFactGrid(
           facts: [
             for (final f in resolved)
-              LibraryInspectorFactData(f.label, f.value),
+              LibraryInspectorFactData(
+                f.label,
+                f.value,
+                onTap: onFilterByValue == null || f.value.trim().isEmpty
+                    ? null
+                    : () => onFilterByValue!(f.value),
+                tooltip: 'Show all with ${f.value}',
+              ),
           ],
         ),
       ],

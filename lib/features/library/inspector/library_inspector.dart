@@ -464,6 +464,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           mediaKind: widget.type.workspace.kind.apiValue,
           db: widget.db!,
           accent: widget.accent,
+          onFilterByValue: widget.onFilterByValue,
         ),
       if (activeOwnedItem != null &&
           widget.db != null &&

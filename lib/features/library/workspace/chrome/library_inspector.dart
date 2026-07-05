@@ -10,11 +10,17 @@ const double _kInspectorSectionContentTopPadding = 6;
 const double _kInspectorFactLabelWidth = 104;
 
 class LibraryInspectorFactData {
-  const LibraryInspectorFactData(this.label, this.value, {this.onTap});
+  const LibraryInspectorFactData(
+    this.label,
+    this.value, {
+    this.onTap,
+    this.tooltip,
+  });
 
   final String label;
   final String value;
   final VoidCallback? onTap;
+  final String? tooltip;
 }
 
 class LibraryInspectorSection extends StatefulWidget {
@@ -147,7 +153,12 @@ class LibraryInspectorFactGrid extends StatelessWidget {
           return Column(
             children: [
               for (final fact in facts)
-                LibraryInspectorFact(fact.label, fact.value, onTap: fact.onTap),
+                LibraryInspectorFact(
+                  fact.label,
+                  fact.value,
+                  onTap: fact.onTap,
+                  tooltip: fact.tooltip,
+                ),
             ],
           );
         }
@@ -158,8 +169,12 @@ class LibraryInspectorFactGrid extends StatelessWidget {
             for (final fact in facts)
               SizedBox(
                 width: (constraints.maxWidth - 8) / 2,
-                child: LibraryInspectorFact(fact.label, fact.value,
-                    onTap: fact.onTap),
+                child: LibraryInspectorFact(
+                  fact.label,
+                  fact.value,
+                  onTap: fact.onTap,
+                  tooltip: fact.tooltip,
+                ),
               ),
           ],
         );
@@ -175,12 +190,14 @@ class LibraryInspectorFact extends StatelessWidget {
     super.key,
     this.mutedTextColor = _kDefaultMutedText,
     this.onTap,
+    this.tooltip,
   });
 
   final String label;
   final String value;
   final Color mutedTextColor;
   final VoidCallback? onTap;
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -208,21 +225,44 @@ class LibraryInspectorFact extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: onTap != null && value != '-' && value.isNotEmpty
-                ? InkWell(
-                    onTap: onTap,
-                    borderRadius: BorderRadius.circular(4),
-                    child: Text(
-                      value,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: onSurfaceColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                            decoration: TextDecoration.underline,
-                            decorationColor:
-                                onSurfaceColor.withValues(alpha: 0.4),
-                          ),
+                ? Tooltip(
+                    message: tooltip ?? 'Show all with $value',
+                    child: InkWell(
+                      onTap: onTap,
+                      borderRadius: BorderRadius.circular(4),
+                      mouseCursor: SystemMouseCursors.click,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 1),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                value,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: onSurfaceColor,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor:
+                                          onSurfaceColor.withValues(alpha: 0.4),
+                                    ),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.filter_alt_outlined,
+                              size: 14,
+                              color: resolvedMutedTextColor,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   )
                 : Text(
@@ -401,15 +441,18 @@ class _LibraryInspectorChipState extends State<LibraryInspectorChip> {
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(3),
-          hoverColor: Colors.transparent,
-          splashColor: chipTextColor.withValues(alpha: 0.12),
-          highlightColor: chipTextColor.withValues(alpha: 0.06),
-          child: chip,
+      child: Tooltip(
+        message: 'Show all with ${widget.value}',
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: widget.onTap,
+            borderRadius: BorderRadius.circular(3),
+            hoverColor: Colors.transparent,
+            splashColor: chipTextColor.withValues(alpha: 0.12),
+            highlightColor: chipTextColor.withValues(alpha: 0.06),
+            child: chip,
+          ),
         ),
       ),
     );

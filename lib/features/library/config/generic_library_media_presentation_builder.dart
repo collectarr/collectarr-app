@@ -115,15 +115,35 @@ class GenericLibraryMediaPresentationBuilder
         if (publishing?.subtitle != null)
           LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
         if (entry.country != null)
-          LibraryInspectorFactData('Country', entry.country!),
+          LibraryInspectorFactData(
+            'Country',
+            entry.country!,
+            onTap: tapFor(entry.country),
+          ),
         if (music?.releaseStatus != null)
-          LibraryInspectorFactData('Release Status', music!.releaseStatus!),
+          LibraryInspectorFactData(
+            'Release Status',
+            music!.releaseStatus!,
+            onTap: tapFor(music.releaseStatus),
+          ),
         if (entry.language != null)
-          LibraryInspectorFactData('Language', entry.language!),
+          LibraryInspectorFactData(
+            'Language',
+            entry.language!,
+            onTap: tapFor(entry.language),
+          ),
         if (entry.ageRating != null)
-          LibraryInspectorFactData('Age Rating', entry.ageRating!),
+          LibraryInspectorFactData(
+            'Age Rating',
+            entry.ageRating!,
+            onTap: tapFor(entry.ageRating),
+          ),
         if (entry.audienceRating != null)
-          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
+          LibraryInspectorFactData(
+            'Audience Rating',
+            entry.audienceRating!,
+            onTap: tapFor(entry.audienceRating),
+          ),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryInspectorFactData('Variant Type', variantType.trim()),
@@ -133,6 +153,7 @@ class GenericLibraryMediaPresentationBuilder
           LibraryInspectorFactData(
             referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
             referencePlatforms.join(', '),
+            onTap: tapFor(referencePlatforms.join(', ')),
           ),
         LibraryInspectorFactData(
           'Cover',

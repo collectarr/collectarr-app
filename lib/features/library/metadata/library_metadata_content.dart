@@ -133,7 +133,8 @@ class _LibraryMetadataValueList extends StatelessWidget {
                   _LibraryMetadataInlineValue(
                     value: values[index],
                     trailingComma: index < values.length - 1,
-                    onTap: onValueTap == null ? null : () => onValueTap!(values[index]),
+                    onTap:
+                        onValueTap == null ? null : () => onValueTap!(values[index]),
                   ),
               ],
             ),
@@ -170,10 +171,14 @@ class _LibraryMetadataInlineValue extends StatelessWidget {
     if (onTap == null) {
       return text;
     }
-    return InkWell(
-      borderRadius: BorderRadius.circular(3),
-      onTap: onTap,
-      child: text,
+    return Tooltip(
+      message: 'Show all with $value',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(3),
+        mouseCursor: SystemMouseCursors.click,
+        onTap: onTap,
+        child: text,
+      ),
     );
   }
 }

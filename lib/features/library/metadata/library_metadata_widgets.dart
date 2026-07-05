@@ -87,10 +87,14 @@ class _LibraryMetadataCreditRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: onTap == null
           ? content
-          : InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(4),
-              child: content,
+          : Tooltip(
+              message: 'Show all with $name',
+              child: InkWell(
+                onTap: onTap,
+                borderRadius: BorderRadius.circular(4),
+                mouseCursor: SystemMouseCursors.click,
+                child: content,
+              ),
             ),
     );
   }

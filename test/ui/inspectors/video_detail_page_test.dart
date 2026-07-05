@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
@@ -221,7 +222,11 @@ void main() {
             (ref) async => [
               WishlistItem(
                 id: 'wishlist-1',
-                itemId: 'movie-1',
+                catalogRef: CatalogEntityRef(
+                  kind: 'movie',
+                  entityType: CatalogEntityType.ownedCopy,
+                  id: 'movie-1',
+                ),
                 anchorType: 'edition',
                 editionId: 'edition-4k',
                 createdAt: DateTime.utc(2026, 5, 25, 9),
