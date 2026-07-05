@@ -48,16 +48,12 @@ void main() {
     expect(find.text('Appearance'), findsOneWidget);
     expect(find.text('Data'), findsOneWidget);
     expect(find.text('Account'), findsOneWidget);
-    expect(find.text('Connection presets'), findsOneWidget);
-    expect(find.text('Use Local desktop'), findsOneWidget);
-    expect(find.text('Use Android emulator'), findsOneWidget);
-    expect(find.text('Use LAN template'), findsOneWidget);
     await _scrollToText(tester, 'Metadata server');
     expect(find.text('Metadata server'), findsOneWidget);
     expect(find.text('Check metadata server'), findsOneWidget);
     await _scrollToText(tester, 'Personal sync service');
     expect(find.text('Personal sync service'), findsOneWidget);
-    expect(find.text('Check connections'), findsOneWidget);
+    expect(find.text('Check sync server connection'), findsOneWidget);
     expect(find.text('Sync now'), findsOneWidget);
     await _scrollToText(tester, 'Device pairing');
     expect(find.text('Device pairing'), findsOneWidget);
@@ -260,37 +256,6 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Sync conflict review'), findsNothing);
-  });
-
-  testWidgets('settings page applies Android emulator endpoint preset',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(1000, 1200);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: SettingsPage()),
-      ),
-    );
-    await pumpUntilSettled(tester);
-
-    await tester.tap(find.text('Use Android emulator'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Android emulator endpoints saved'), findsOneWidget);
-    final settings = await ConnectionSettingsStore().read();
-    expect(settings.metadataBaseUrl, 'http://10.0.2.2:8010');
-    expect(settings.syncBaseUrl, 'http://10.0.2.2:8020');
-    await _scrollToText(tester, 'Metadata server');
-    expect(find.text('http://10.0.2.2:8010'), findsOneWidget);
-    await _scrollToText(tester, 'Personal sync service');
-    expect(find.text('http://10.0.2.2:8020'), findsOneWidget);
   });
 
   testWidgets('settings page applies pasted pairing code', (tester) async {

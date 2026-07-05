@@ -7,7 +7,6 @@ import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
-import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
@@ -155,22 +154,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             children: [
               _SettingsTabBody(
                 children: [
-                  _SettingsPanel(
-                    icon: Icons.route_outlined,
-                    title: 'Connection presets',
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final preset in ConnectionPreset.values)
-                          OutlinedButton.icon(
-                            onPressed: () => _applyConnectionPreset(preset),
-                            icon: Icon(_presetIcon(preset)),
-                            label: Text('Use ${preset.label}'),
-                          ),
-                      ],
-                    ),
-                  ),
                   _SettingsPanel(
                     icon: Icons.dns_outlined,
                     title: 'Metadata server',
@@ -882,32 +865,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     _syncController.text = settings.syncBaseUrl;
     _syncKeyController.text = settings.syncKey;
     _lastSyncedSettings = settings;
-  }
-
-  void _applyConnectionPreset(ConnectionPreset preset) {
-    final settings = preset.applyTo(ref.read(connectionSettingsProvider));
-    setState(() {
-      _metadataController.text = settings.metadataBaseUrl;
-      _syncController.text = settings.syncBaseUrl;
-      _syncKeyController.text = settings.syncKey;
-      _metadataDiagnostic = null;
-      _syncDiagnostic = null;
-      _syncStatusDetails = null;
-      _syncDevices = const [];
-    });
-    unawaited(
-      _autoSaveConnectionSettings(
-        notify: '${preset.label} endpoints saved',
-      ),
-    );
-  }
-
-  IconData _presetIcon(ConnectionPreset preset) {
-    return switch (preset.id) {
-      'local-desktop' => Icons.computer_outlined,
-      'android-emulator' => Icons.android_outlined,
-      _ => Icons.router_outlined,
-    };
   }
 
   void _scheduleConnectionAutoSave() {
