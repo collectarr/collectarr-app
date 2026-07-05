@@ -33,6 +33,29 @@ void main() {
     });
   });
 
+  group('LibraryInspectorSectionFlow', () {
+    testWidgets('keeps section groups in order and skips empty groups',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: buildLibraryInspectorSectionFlow(
+                beforeBodySections: const [Text('Before')],
+                bodySections: const [Text('Body')],
+                afterBodySections: const [Text('After')],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Before'), findsOneWidget);
+      expect(find.text('Body'), findsOneWidget);
+      expect(find.text('After'), findsOneWidget);
+    });
+  });
+
   group('LibraryInspectorTitleStatusCard', () {
     testWidgets('renders eyebrow title and status badge', (tester) async {
       await tester.pumpWidget(

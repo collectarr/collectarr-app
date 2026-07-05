@@ -69,8 +69,10 @@ class GameInspectorPanel extends StatelessWidget {
         _GameInspectorMain(inspector: request.inspector),
         const SizedBox(height: 10),
         _GameInspectorDetailsPersonal(inspector: request.inspector),
-        ...buildLibraryInspectorSectionList(request.primarySections),
-        ...buildLibraryInspectorSectionList(request.trailingSections),
+        ...buildLibraryInspectorSectionFlow(
+          bodySections: request.primarySections,
+          afterBodySections: request.trailingSections,
+        ),
       ],
     );
   }

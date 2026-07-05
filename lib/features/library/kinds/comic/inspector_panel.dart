@@ -42,6 +42,15 @@ class ComicInspectorPanel extends StatelessWidget {
         if (request.trailingSections.isNotEmpty) ...request.trailingSections,
       ]      ),
       const SizedBox(height: 6),
+      ...buildLibraryInspectorSectionFlow(
+        bodySections: [
+          request.ownedCopiesSection,
+          request.bundleSection,
+          request.conditionGradeSection,
+          ...request.primarySections,
+        ],
+        afterBodySections: request.trailingSections,
+      ),
     ];
 
     return LibraryInspectorPanelLayout(

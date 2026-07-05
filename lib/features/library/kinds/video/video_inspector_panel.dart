@@ -47,13 +47,15 @@ class VideoInspectorPanel extends StatelessWidget {
           ownedItem: ownedItem,
           accent: accent,
         ),
-        ...buildLibraryInspectorSectionList([
-          request.ownedCopiesSection,
-          request.bundleSection,
-          request.conditionGradeSection,
-          if (sections.isNotEmpty) ...sections,
-          if (request.trailingSections.isNotEmpty) ...request.trailingSections,
-        ]),
+        ...buildLibraryInspectorSectionFlow(
+          bodySections: [
+            request.ownedCopiesSection,
+            request.bundleSection,
+            request.conditionGradeSection,
+            ...sections,
+          ],
+          afterBodySections: request.trailingSections,
+        ),
       ],
     );
   }

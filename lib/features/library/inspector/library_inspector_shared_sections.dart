@@ -42,6 +42,22 @@ List<Widget> buildLibraryInspectorSectionList(
   return resolved;
 }
 
+List<Widget> buildLibraryInspectorSectionFlow({
+  Iterable<Widget?> beforeBodySections = const [],
+  Iterable<Widget?> bodySections = const [],
+  Iterable<Widget?> afterBodySections = const [],
+  double spacing = 8,
+}) {
+  return buildLibraryInspectorSectionList(
+    [
+      ...beforeBodySections,
+      ...bodySections,
+      ...afterBodySections,
+    ],
+    spacing: spacing,
+  );
+}
+
 List<Widget> buildLibraryInspectorSectionWidgets(
   Iterable<LibraryInspectorSectionSpec?> sections, {
   double spacing = 8,
