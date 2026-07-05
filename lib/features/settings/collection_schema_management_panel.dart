@@ -892,6 +892,7 @@ class _SchemaTableDetailPane extends StatelessWidget {
               initialValue: pathStartController.text.isEmpty
                   ? current.name
                   : pathStartController.text,
+              isExpanded: true,
               decoration: const InputDecoration(
                 labelText: 'Start table',
                 border: OutlineInputBorder(),
@@ -914,6 +915,7 @@ class _SchemaTableDetailPane extends StatelessWidget {
               initialValue: pathEndController.text.isEmpty
                   ? current.name
                   : pathEndController.text,
+              isExpanded: true,
               decoration: const InputDecoration(
                 labelText: 'End table',
                 border: OutlineInputBorder(),

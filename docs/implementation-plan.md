@@ -56,6 +56,8 @@
 ### 🎨 UI Polish
 - Distinctive library icons across the active library kinds so comics, books, games, board games, movies, and music stay visually distinct in navigation
 - Animated accent theming across all UI elements (not just top/bottom bars) using `AnimatedTheme`
+- Cleaner auth/login shell with fewer redundant labels and a more branded landing surface
+- Platform-aware settings/tooling placement so desktop-only helpers stay off Android
 - Hyperlink-driven metadata filters feed exact library filters instead of mutating the free-text search box
 - Inspector/detail views surface richer personal value tracking (`cover price`, `sell price`, `profit / loss`)
 - Workspace filter dialog can filter by resolved location path
@@ -99,8 +101,26 @@
 ### 🧱 Library De-Generalization (final cleanup)
 - [ ] Continue split of remaining generic shell decisions into explicit hooks
 	- Move the remaining drilldown/sidebar/toolbar branches out of `generic/page.dart`.
+- [ ] Finish the `KindWorkspaceConfig` contract for workspace rendering
+	- Route available views, primary/sort/filter/folder fields, inspector sections, and add/edit capabilities through config instead of kind checks.
+- [ ] Upgrade folder sidebar to support optional tree view
+	- Keep current drilldown behavior, add list/tree modes, preserve expanded-node state per kind and preset, and render cumulative counts per node.
 - [ ] Remove dead generic shell branches once concrete kind states own behavior.
 	- Delete fallback branches after each kind-local hook lands.
+
+### 🧩 Shared UI Shell Convergence
+- [ ] Make add/edit/inspector/detail/admin dialogs share a common shell
+	- Extract `LibrarySurface`, `LibraryPanelChrome`, `LibraryDialogScaffold`, and shared section/footer/empty/error states.
+- [ ] Normalize panel layout across dialogs and side panels
+	- Keep header, context bar, main content, optional side panel, and footer actions consistent across kinds.
+- [ ] Create one panel grammar
+	- Standardize title, subtitle/count, primary action, secondary menu, scrollable content, and pinned footer rules across panels.
+- [ ] Add a density system
+	- Support comfortable, compact, and dense modes consistently across cards, rows, inspectors, add results, comparison rows, and sidebars.
+- [ ] Standardize inspector/detail/edit section ordering
+	- Keep the same section order everywhere: identity, personal status, progress/ownership, format/edition/release, people, series links, images/media, notes/custom fields, source/corrections, activity/history.
+- [ ] Split `LibraryAddDialog` into controller, layout, and kind adapter
+	- Separate state, responsive shell, and kind-specific labels/search/preview/manual-entry groups.
 
 ### 🧭 Admin UX Consistency
 - [ ] Align app-side admin proposal/editor UX with shared-field architecture
@@ -108,5 +128,34 @@
 - [ ] Keep Admin stats/dashboard wiring in parity with Core summary/image-cache contracts.
 	- Keep stats/dashboard surfaces aligned with Core summary and image-cache contracts.
 
+### 📜 Global Activity / History
+- [ ] Add a global activity page
+	- Reuse the existing activity aggregator without an itemId filter and add kind/event/date/source filters.
+- [ ] Keep per-item activity sections intact
+	- Item detail activity is already implemented; the missing piece is the collection-wide view.
+
+### 📅 Calendar + iCalendar
+- [x] Calendar page and manual ICS export
+	- Local calendar aggregation and RFC 5545 export are already implemented.
+- [ ] Add a live subscribable ICS feed
+	- Provide a feed URL instead of only manual export, with optional kind filtering and per-kind settings.
+
+### 🔔 Notifications
+- [ ] Add local notifications
+	- Start with loan due reminders, release reminders, and sync-conflict/import/proposal attention alerts.
+- [ ] Define notification rules and scheduling
+	- Support kind, event type, offsets, channels, and quiet hours.
+
+### 📥 Personal List Imports
+- [x] CSV/CLZ import-export
+	- Existing CSV/CLZ import-export flow is already implemented.
+- [x] TMDb import
+	- Existing TMDb import path is already implemented.
+- [ ] Add a generic importer framework for personal lists
+	- Model `ImportSource`, `ImportRun`, `ImportRow`, `ImportMapping`, `ImportConflict`, and `ImportResult` once, then reuse it for third-party list imports.
+- [ ] Import MAL / AniList / Trakt / Simkl / Kitsu personal lists
+	- Start with MAL and AniList, then cover Trakt, Simkl, and Kitsu watched/read/rated/watchlist/progress data.
+
 ### 🚫 Lower Priority Unless Product Direction Changes
 - Social/OIDC auth, collaborative lists, and media-server webhooks remain below collector-parity and metadata-contract work.
+- Media-server watched sync (Plex/Jellyfin/Emby) stays low priority until the local watch-session flow and mapping layer are needed.

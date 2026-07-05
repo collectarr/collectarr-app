@@ -78,6 +78,16 @@ class CompactLibraryToolbar extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
+              if (onRandomPick != null) ...[
+                Tooltip(
+                  message: 'Random pick',
+                  child: IconButton.filledTonal(
+                    onPressed: onRandomPick,
+                    icon: const Icon(Icons.casino_outlined),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
               Tooltip(
                 message: 'Add ${type.pluralLabel}',
                 child: IconButton.filled(

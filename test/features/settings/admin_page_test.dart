@@ -73,6 +73,8 @@ void main() {
     expect(find.text('1 recent reject'), findsOneWidget);
     expect(find.text('Approved via provider'), findsOneWidget);
     expect(find.text('Rejected proposal'), findsOneWidget);
+    expect(find.text('Collection schema'), findsOneWidget);
+    expect(find.text('Schema explorer'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Reindex search'));
     await pumpUntilSettled(tester);

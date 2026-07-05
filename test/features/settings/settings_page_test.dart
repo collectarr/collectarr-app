@@ -37,7 +37,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: SettingsPage()),
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.windows),
+          home: const SettingsPage(),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -66,17 +69,6 @@ void main() {
     expect(find.text('Library navigation'), findsOneWidget);
     expect(find.text('Keyboard shortcuts'), findsOneWidget);
     expect(find.text('View shortcuts'), findsOneWidget);
-    await _scrollToText(tester, 'Collection schema');
-    expect(find.text('Collection schema'), findsOneWidget);
-    expect(find.text('Schema explorer'), findsOneWidget);
-    expect(find.text('Search tables, columns, or relations'), findsOneWidget);
-    expect(find.text('Only connected tables'), findsOneWidget);
-    expect(find.text('Copy summary'), findsOneWidget);
-    expect(find.text('New root location'), findsOneWidget);
-    expect(find.text('Manage locations'), findsOneWidget);
-    expect(find.text('New custom field'), findsOneWidget);
-    expect(find.text('Manage custom fields'), findsOneWidget);
-    expect(find.text('All libraries: 0'), findsOneWidget);
 
     await _openSettingsTab(tester, 'Appearance');
     expect(find.text('Appearance'), findsWidgets);
@@ -101,6 +93,33 @@ void main() {
     expect(find.text('Save settings'), findsNothing);
   });
 
+  testWidgets('settings page hides keyboard shortcuts on Android',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.android),
+          home: const SettingsPage(),
+        ),
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    await _openSettingsTab(tester, 'Libraries');
+    expect(find.text('Library navigation'), findsOneWidget);
+    expect(find.text('Keyboard shortcuts'), findsNothing);
+    expect(find.text('View shortcuts'), findsNothing);
+  });
+
   testWidgets('settings page persists animation preference', (tester) async {
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(1000, 1200);
@@ -113,7 +132,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: SettingsPage()),
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.windows),
+          home: const SettingsPage(),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -147,7 +169,8 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.windows),
           home: SettingsPage(showWebSyncWarning: true),
         ),
       ),
@@ -189,7 +212,10 @@ void main() {
             ),
           ),
         ],
-        child: const MaterialApp(home: SettingsPage()),
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.windows),
+          home: const SettingsPage(),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -277,7 +303,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: SettingsPage()),
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.windows),
+          home: const SettingsPage(),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -309,7 +338,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: SettingsPage()),
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.windows),
+          home: const SettingsPage(),
+        ),
       ),
     );
     await pumpUntilSettled(tester);
@@ -340,7 +372,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: SettingsPage()),
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.windows),
+          home: const SettingsPage(),
+        ),
       ),
     );
     await pumpUntilSettled(tester);

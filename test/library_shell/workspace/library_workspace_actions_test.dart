@@ -4,11 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('primary actions render add button and random pick action', (
+  testWidgets('primary actions render add button only', (
     tester,
   ) async {
     var addPressed = false;
-    var randomPressed = false;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -19,7 +18,6 @@ void main() {
               onAdd: () => addPressed = true,
               onScanBarcode: () {},
               onRefreshMetadata: () {},
-              onRandomPick: () => randomPressed = true,
               addBackgroundColor: Colors.cyan,
               addForegroundColor: Colors.black,
             ),
@@ -29,13 +27,11 @@ void main() {
     );
 
     expect(find.text('Add Comics'), findsOneWidget);
-    expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.casino_outlined), findsNothing);
 
     await tester.tap(find.text('Add Comics'));
     await tester.pump();
-    await tester.tap(find.byIcon(Icons.casino_outlined));
 
     expect(addPressed, isTrue);
-    expect(randomPressed, isTrue);
   });
 }

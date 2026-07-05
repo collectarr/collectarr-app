@@ -30,7 +30,6 @@ class LibraryToolbarPrimaryActions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final useFab =
         ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
-    final showTrailingActions = onRandomPick != null;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -52,16 +51,7 @@ class LibraryToolbarPrimaryActions extends ConsumerWidget {
               label: Text(addLabel),
             ),
           ),
-          if (showTrailingActions) const SizedBox(width: 6),
         ],
-        if (onRandomPick != null)
-          Tooltip(
-            message: 'Random pick',
-            child: LibraryWorkspaceIconButton(
-              icon: Icons.casino_outlined,
-              onPressed: onRandomPick!,
-            ),
-          ),
       ],
     );
   }

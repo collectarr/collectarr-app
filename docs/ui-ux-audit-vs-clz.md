@@ -193,7 +193,7 @@ These are CLZ features that don't make sense for Collectarr's architecture:
 | 9 | **Collection tabs** (user-created collection splits) | Organizational flexibility | Medium |
 | 10 | **Public share link** | Social / show-off feature | High — needs web frontend or core read-only API |
 | 11 | **Cover art scanning** (image recognition) | Impressive but niche | Very High — ML model or external API |
-| 12 | **Random pick / "shake phone"** | Fun but trivial | Very Low |
+| 12 | **Random pick / "shake phone"** | Implemented in toolbar | — |
 
 ---
 

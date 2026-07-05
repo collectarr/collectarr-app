@@ -5,6 +5,7 @@ class AdminDashboardTab extends StatelessWidget {
     super.key,
     required this.isReindexing,
     required this.isLoadingDashboard,
+    required this.db,
     required this.summary,
     required this.searchStatus,
     required this.lastReindex,
@@ -23,6 +24,7 @@ class AdminDashboardTab extends StatelessWidget {
 
   final bool isReindexing;
   final bool isLoadingDashboard;
+  final LocalDatabase db;
   final AdminCatalogSummary? summary;
   final AdminSearchStatus? searchStatus;
   final AdminSearchReindexResult? lastReindex;
@@ -93,6 +95,12 @@ class AdminDashboardTab extends StatelessWidget {
             history: proposalHistory,
             errorMessage: dashboardErrorMessage,
           ),
+        ),
+        const SizedBox(height: 12),
+        _AdminPanel(
+          icon: Icons.account_tree_outlined,
+          title: 'Collection schema',
+          child: CollectionSchemaManagementPanel(db: db),
         ),
       ],
     );

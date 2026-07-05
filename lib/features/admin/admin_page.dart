@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_diagnostics_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
@@ -484,6 +485,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return AdminDashboardTab(
       isReindexing: _isReindexing,
       isLoadingDashboard: _isLoadingDashboard,
+      db: ref.read(localDatabaseProvider),
       summary: _summary,
       searchStatus: _searchStatus,
       lastReindex: _lastReindex,

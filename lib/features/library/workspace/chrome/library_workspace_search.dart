@@ -25,6 +25,7 @@ class LibraryToolbarSearch extends StatelessWidget {
     required this.selectionColor,
     this.onScanBarcode,
     this.onScanCover,
+    this.onRandomPick,
     this.selectedFilterLabel,
     this.onClearFilter,
     this.onChanged,
@@ -44,6 +45,7 @@ class LibraryToolbarSearch extends StatelessWidget {
   final ValueChanged<String> onSearch;
   final VoidCallback? onScanBarcode;
   final VoidCallback? onScanCover;
+  final VoidCallback? onRandomPick;
   final VoidCallback? onClearFilter;
   final ValueChanged<String>? onChanged;
   final Color selectionColor;
@@ -63,7 +65,10 @@ class LibraryToolbarSearch extends StatelessWidget {
     final showSearchScope =
         searchTargetOptions.isNotEmpty && onSearchTargetChanged != null;
     final inlineActionCount =
-        1 + (onScanBarcode != null ? 1 : 0) + (onScanCover != null ? 1 : 0);
+        1 +
+        (onScanBarcode != null ? 1 : 0) +
+        (onScanCover != null ? 1 : 0) +
+        (onRandomPick != null ? 1 : 0);
     final inlineActionsWidth = inlineActionCount * 28.0 + 8;
     const searchScopeWidth = 110.0;
     final inputBackground = Color.alphaBlend(
@@ -187,6 +192,12 @@ class LibraryToolbarSearch extends StatelessWidget {
                                               tooltip: 'Search by cover',
                                               icon: Icons.image_search,
                                               onPressed: onScanCover!,
+                                            ),
+                                          if (onRandomPick != null)
+                                            _ToolbarSearchInlineAction(
+                                              tooltip: 'Random pick',
+                                              icon: Icons.casino_outlined,
+                                              onPressed: onRandomPick!,
                                             ),
                                         ],
                                       ),

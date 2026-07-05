@@ -117,7 +117,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                   ),
                 ),
               ),
-              const _AuthStatusBar(),
             ],
           ),
         ),
@@ -211,7 +210,7 @@ class _AuthBrandPanel extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Your self-hosted media collection manager',
+              'Sign in to your catalog',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: Colors.white70,
                     fontWeight: FontWeight.w600,
@@ -219,8 +218,7 @@ class _AuthBrandPanel extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Comics, manga, movies, games, music, books — all in one place. '
-              'Your data stays on your server.',
+              'Manage your collection with a clean, metadata-first workflow.',
               style: TextStyle(color: _authMuted, height: 1.35),
             ),
             const SizedBox(height: 20),
@@ -288,21 +286,24 @@ class _AuthFormPanel extends StatelessWidget {
                   color: _authYellow,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  auth.isRestoring ? 'Restoring session' : 'Login',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
+                Expanded(
+                  child: Text(
+                    auth.isRestoring ? 'Restoring session' : 'Sign in',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            const _AuthModeStrip(),
-            if (auth.email != null && auth.email!.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              _RememberedAccount(email: auth.email!),
-            ],
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+            Text(
+              auth.isRestoring
+                  ? 'Checking your saved session.'
+                  : 'Enter your Collectarr credentials.',
+              style: const TextStyle(color: _authMuted, fontSize: 12),
+            ),
+            const SizedBox(height: 18),
             TextField(
               controller: emailController,
               enabled: !isBusy,
@@ -358,41 +359,6 @@ class _AuthFormPanel extends StatelessWidget {
               onPressed: isBusy ? null : onUseDevCredentials,
               icon: const Icon(Icons.science_outlined, size: 18),
               label: const Text('Use dev credentials'),
-            ),
-            const Divider(height: 24),
-            const Text(
-              'Dev credentials: user@example.com / password123',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: _authMuted, fontSize: 12),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AuthModeStrip extends StatelessWidget {
-  const _AuthModeStrip();
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: kAppCardBackground,
-        border: Border.all(color: _authDivider),
-      ),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          children: [
-            Icon(Icons.lock_person_outlined, color: _authAccent, size: 18),
-            SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Metadata account gates server search only. Personal shelf data stays in the local database.',
-                style: TextStyle(color: _authMuted, fontSize: 12, height: 1.2),
-              ),
             ),
           ],
         ),
@@ -623,39 +589,6 @@ class _PreviewInspector extends StatelessWidget {
   }
 }
 
-class _RememberedAccount extends StatelessWidget {
-  const _RememberedAccount({required this.email});
-
-  final String email;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: const Color(0xFF171717),
-        border: Border.all(color: _authDivider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          children: [
-            const Icon(Icons.history, color: _authAccent, size: 18),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Last account: $email',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: _authMuted),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _PreviewComic extends StatelessWidget {
   const _PreviewComic({
     required this.index,
@@ -769,38 +702,6 @@ class _TinyMeta extends StatelessWidget {
   }
 }
 
-class _AuthStatusBar extends StatelessWidget {
-  const _AuthStatusBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 26,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: const BoxDecoration(
-        color: Color(0xFF242424),
-        border: Border(top: BorderSide(color: _authDivider)),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.storage, color: _authAccent, size: 16),
-          SizedBox(width: 6),
-          Text('Local personal database', style: TextStyle(fontSize: 11)),
-          VerticalDivider(width: 18, color: _authDivider),
-          Expanded(
-            child: Text(
-              'Server stores catalog metadata only',
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: _authMuted, fontSize: 11),
-            ),
-          ),
-          Text('Ready', style: TextStyle(color: _authMuted, fontSize: 11)),
-        ],
-      ),
-    );
-  }
-}
-
 class CollectarrRestoreScreen extends StatelessWidget {
   const CollectarrRestoreScreen({super.key});
 
@@ -864,7 +765,6 @@ class CollectarrRestoreScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              _AuthStatusBar(),
             ],
           ),
         ),

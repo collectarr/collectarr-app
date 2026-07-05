@@ -21,6 +21,7 @@ void main() {
               onSearch: (value) => lastSearch = value,
               onScanBarcode: () {},
               onScanCover: () {},
+              onRandomPick: () {},
               selectedFilterLabel: 'Owned',
               onClearFilter: () {},
               selectionColor: Colors.cyan,
@@ -33,6 +34,7 @@ void main() {
     expect(find.byIcon(Icons.search), findsOneWidget);
     expect(find.byIcon(Icons.qr_code_2), findsOneWidget);
     expect(find.byIcon(Icons.image_search), findsOneWidget);
+    expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
     expect(find.text('Owned'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.search));

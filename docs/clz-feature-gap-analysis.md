@@ -43,7 +43,7 @@
 | Personal ratings + notes | ✅ | 🟡 | Notes exist, no star rating field |
 | Cloud sync | ✅ | ✅ | |
 | Wishlist | ✅ | ✅ | |
-| Random pick ("shake phone") | ✅ | ❌ | |
+| Random pick ("shake phone") | ✅ | ✅ | Toolbar random pick action is now available |
 | Hyperlink filtering | ✅ | ✅ | Click any creator/publisher to filter |
 
 ---
@@ -119,7 +119,7 @@
 | **Hyperlink filtering** | ✅ Done | 📱 App | Click any creator/character/series/publisher to filter the library |
 | **Location tracking** | ✅ Done | 📱 App + 🔄 Sync | Hierarchical locations with rename/reparent/description/sync |
 | **Trailer links** | ✅ Done | 📱 App | YouTube-detected trailers on detail page for movies/TV/games |
-| **Random pick / shake phone** | 🟡 Low | 📱 App | Fun "what should I read/watch/play" — pure UI |
+| **Random pick / shake phone** | ✅ Done | 📱 App | Toolbar random pick action is available |
 | **Cover art scanning (visual recognition)** | 🟡 Low | 🎯 Core | Only comics; would need ML model or external API |
 | **Sold items tracking** | ✅ Done | 📱 App + 🔄 Sync | soldAt, sellPriceCents, soldTo fields |
 | **Pricing integrations** | 🟡 Low | 🎯 Core | CovrPrice (comics), PriceCharting (games) — paid external APIs |

@@ -667,6 +667,7 @@ void main() {
       LibraryGroupMode.releaseMonth,
       LibraryGroupMode.releaseYear,
       LibraryGroupMode.series,
+      LibraryGroupMode.title,
       LibraryGroupMode.completeness,
       LibraryGroupMode.condition,
       LibraryGroupMode.purchaseDate,

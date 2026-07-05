@@ -780,6 +780,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                   hintText: 'Search ${type.pluralLabel.toLowerCase()}...',
                   onScanBarcode: onScan,
                   onScanCover: onScanCover,
+                  onRandomPick: onRandomPick,
                   selectedFilterLabel: selectedBucket,
                   onSearch: onSearchChanged,
                   onClearFilter: onClearBucket,

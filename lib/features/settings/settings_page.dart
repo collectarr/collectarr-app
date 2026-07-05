@@ -31,7 +31,6 @@ import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortc
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -120,6 +119,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         accentScope?.accent ?? libraryAccentForKind(selectedLibraryKind);
     final animationDuration = accentScope?.animationDuration ??
         (uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero);
+    final isAndroidPlatform = Theme.of(context).platform == TargetPlatform.android;
     _syncTextControllers(settings);
 
     return Theme(
@@ -417,35 +417,29 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           .reset(),
                     ),
                   ),
-                  _SettingsPanel(
-                    icon: Icons.keyboard_command_key,
-                    title: 'Keyboard shortcuts',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Review current shortcuts and manage key bindings. Shortcut remapping will be configurable here.',
-                        ),
-                        const SizedBox(height: 10),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: OutlinedButton.icon(
-                            onPressed: () =>
-                                showKeyboardShortcutsDialog(context),
-                            icon: const Icon(Icons.keyboard_outlined),
-                            label: const Text('View shortcuts'),
+                  if (!isAndroidPlatform)
+                    _SettingsPanel(
+                      icon: Icons.keyboard_command_key,
+                      title: 'Keyboard shortcuts',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                            'Review current shortcuts and manage key bindings. Shortcut remapping will be configurable here.',
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 10),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: OutlinedButton.icon(
+                              onPressed: () =>
+                                  showKeyboardShortcutsDialog(context),
+                              icon: const Icon(Icons.keyboard_outlined),
+                              label: const Text('View shortcuts'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  _SettingsPanel(
-                    icon: Icons.account_tree_outlined,
-                    title: 'Collection schema',
-                    child: CollectionSchemaManagementPanel(
-                      db: ref.read(localDatabaseProvider),
-                    ),
-                  ),
                 ],
               ),
               _SettingsTabBody(

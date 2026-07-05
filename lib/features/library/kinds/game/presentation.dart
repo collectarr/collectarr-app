@@ -173,6 +173,7 @@ const gamesLibraryGroupModes = [
   LibraryGroupMode.releaseMonth,
   LibraryGroupMode.releaseYear,
   LibraryGroupMode.series,
+  LibraryGroupMode.title,
   // Value
   LibraryGroupMode.completeness,
   LibraryGroupMode.condition,
@@ -207,6 +208,12 @@ const gamesLibraryGroupModes = [
 ];
 
 const gamesLibraryGroupModeDefinitions = [
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.title,
+    label: 'Title',
+    sidebarTitle: 'Titles',
+    icon: Icons.sort_by_alpha,
+  ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.audienceRating,
     label: 'Audience Rating',
