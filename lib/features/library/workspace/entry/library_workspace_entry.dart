@@ -41,6 +41,9 @@ sealed class LibraryWorkspaceEntry {
     this.hasMissingMetadata = false,
     this.condition,
     this.grade,
+    this.signedBy,
+    this.marketValueCents,
+    this.marketValueCurrency,
     this.primaryReferenceLabel,
     this.referenceScopeLabel,
     this.referenceFormatLabel,
@@ -105,6 +108,9 @@ sealed class LibraryWorkspaceEntry {
     bool hasMissingMetadata = false,
     String? condition,
     String? grade,
+    String? signedBy,
+    int? marketValueCents,
+    String? marketValueCurrency,
     String? rawOrSlabbed,
     String? gradingCompany,
     String? labelType,
@@ -176,6 +182,9 @@ sealed class LibraryWorkspaceEntry {
       hasMissingMetadata: hasMissingMetadata,
       condition: condition,
       grade: grade,
+      signedBy: signedBy,
+      marketValueCents: marketValueCents,
+      marketValueCurrency: marketValueCurrency,
       primaryReferenceLabel: primaryReferenceLabel,
       referenceScopeLabel: referenceScopeLabel,
       referenceFormatLabel: referenceFormatLabel,
@@ -309,6 +318,9 @@ sealed class LibraryWorkspaceEntry {
       hasMissingMetadata: false,
       condition: null,
       grade: null,
+      signedBy: null,
+      marketValueCents: null,
+      marketValueCurrency: null,
       primaryReferenceLabel: null,
       referenceScopeLabel: null,
       referenceFormatLabel:
@@ -381,6 +393,9 @@ sealed class LibraryWorkspaceEntry {
   final bool hasMissingMetadata;
   final String? condition;
   final String? grade;
+  final String? signedBy;
+  final int? marketValueCents;
+  final String? marketValueCurrency;
   final String? primaryReferenceLabel;
   final String? referenceScopeLabel;
   final String? referenceFormatLabel;
@@ -474,6 +489,9 @@ class LibraryWorkspaceEntryData {
     required this.hasMissingMetadata,
     required this.condition,
     required this.grade,
+    this.signedBy,
+    this.marketValueCents,
+    this.marketValueCurrency,
     required this.primaryReferenceLabel,
     required this.referenceScopeLabel,
     required this.referenceFormatLabel,
@@ -534,6 +552,9 @@ class LibraryWorkspaceEntryData {
   final bool hasMissingMetadata;
   final String? condition;
   final String? grade;
+  final String? signedBy;
+  final int? marketValueCents;
+  final String? marketValueCurrency;
   final String? primaryReferenceLabel;
   final String? referenceScopeLabel;
   final String? referenceFormatLabel;

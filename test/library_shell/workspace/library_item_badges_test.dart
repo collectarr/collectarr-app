@@ -75,6 +75,26 @@ void main() {
     expect(find.byIcon(Icons.sticky_note_2_outlined), findsOneWidget);
   });
 
+  testWidgets('cover badges renders grade, signed, and value markers',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: LibraryCoverBadges(
+          isOwned: true,
+          isTracked: false,
+          isWishlisted: false,
+          gradeLabel: 'Grade 9.8',
+          signedLabel: 'Signed',
+          valueLabel: 'Value USD 25.00',
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.star_rate), findsOneWidget);
+    expect(find.byIcon(Icons.verified_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.sell_outlined), findsOneWidget);
+  });
+
   testWidgets('status icons shows wishlist marker only when present',
       (tester) async {
     await tester.pumpWidget(

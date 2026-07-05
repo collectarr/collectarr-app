@@ -84,6 +84,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       bundleReleaseId: entry.referenceBundleReleaseId,
     );
     final comic = entry.comic;
+    final gradeLabel = entry.grade?.trim();
     final strongSelection =
         selected && entry.browseScope != LibraryBrowserScope.title;
     if (entry.mediaType == 'music') {
@@ -169,9 +170,19 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   comic?.keyComic ?? false,
                                   comic?.keyReason,
                                 ),
+                                gradeLabel:
+                                    gradeLabel == null || gradeLabel.isEmpty
+                                        ? null
+                                        : 'Grade $gradeLabel',
                                 slabLabel: librarySlabMarkerLabel(
                                   comic?.rawOrSlabbed,
                                   comic?.gradingCompany,
+                                ),
+                                signedLabel:
+                                    librarySignedMarkerLabel(entry.signedBy),
+                                valueLabel: libraryValueMarkerLabel(
+                                  entry.marketValueCents,
+                                  entry.marketValueCurrency,
                                 ),
                                 notesLabel:
                                     libraryNotesMarkerLabel(entry.notes),

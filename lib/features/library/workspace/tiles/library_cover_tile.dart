@@ -257,10 +257,26 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
           icon: Icons.label_important,
           label: label,
         ),
+      if (entry.grade?.trim().isNotEmpty == true)
+        LibraryCoverBadge(
+          icon: Icons.star_rate,
+          label: 'Grade ${entry.grade!.trim()}',
+        ),
       if (librarySlabMarkerLabel(comic?.rawOrSlabbed, comic?.gradingCompany)
           case final label?)
         LibraryCoverBadge(
           icon: Icons.workspace_premium,
+          label: label,
+        ),
+      if (librarySignedMarkerLabel(entry.signedBy) case final label?)
+        LibraryCoverBadge(
+          icon: Icons.verified_outlined,
+          label: label,
+        ),
+      if (libraryValueMarkerLabel(entry.marketValueCents, entry.marketValueCurrency)
+          case final label?)
+        LibraryCoverBadge(
+          icon: Icons.sell_outlined,
           label: label,
         ),
       if (libraryNotesMarkerLabel(entry.notes) case final label?)

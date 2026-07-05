@@ -9,7 +9,10 @@ class LibraryCoverBadges extends StatelessWidget {
     this.hasMissingCover = false,
     this.hasMissingMetadata = false,
     this.keyLabel,
+    this.gradeLabel,
     this.slabLabel,
+    this.signedLabel,
+    this.valueLabel,
     this.notesLabel,
     super.key,
   });
@@ -20,7 +23,10 @@ class LibraryCoverBadges extends StatelessWidget {
   final bool hasMissingCover;
   final bool hasMissingMetadata;
   final String? keyLabel;
+  final String? gradeLabel;
   final String? slabLabel;
+  final String? signedLabel;
+  final String? valueLabel;
   final String? notesLabel;
 
   @override
@@ -75,12 +81,33 @@ class LibraryCoverBadges extends StatelessWidget {
             backgroundColor: colorScheme.tertiaryContainer,
             foregroundColor: colorScheme.onTertiaryContainer,
           ),
+        if (gradeLabel != null)
+          LibraryCoverBadge(
+            icon: Icons.star_rate,
+            label: gradeLabel!,
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainer,
+          ),
         if (slabLabel != null)
           LibraryCoverBadge(
             icon: Icons.workspace_premium,
             label: slabLabel!,
             backgroundColor: colorScheme.primaryContainer,
             foregroundColor: colorScheme.onPrimaryContainer,
+          ),
+        if (signedLabel != null)
+          LibraryCoverBadge(
+            icon: Icons.verified_outlined,
+            label: signedLabel!,
+            backgroundColor: colorScheme.secondaryContainer,
+            foregroundColor: colorScheme.onSecondaryContainer,
+          ),
+        if (valueLabel != null)
+          LibraryCoverBadge(
+            icon: Icons.sell_outlined,
+            label: valueLabel!,
+            backgroundColor: colorScheme.tertiaryContainer,
+            foregroundColor: colorScheme.onTertiaryContainer,
           ),
         if (notesLabel != null)
           LibraryCoverBadge(
@@ -279,4 +306,24 @@ String? libraryNotesMarkerLabel(String? notes) {
     return null;
   }
   return 'Notes: $trimmed';
+}
+
+String? librarySignedMarkerLabel(String? signedBy) {
+  final trimmed = signedBy?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return null;
+  }
+  return 'Signed';
+}
+
+String? libraryValueMarkerLabel(int? cents, String? currency) {
+  if (cents == null) {
+    return null;
+  }
+  final amount = (cents / 100).toStringAsFixed(2);
+  final code = currency?.trim();
+  if (code == null || code.isEmpty) {
+    return 'Value $amount';
+  }
+  return 'Value $code $amount';
 }

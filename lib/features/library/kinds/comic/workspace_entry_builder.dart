@@ -87,6 +87,9 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
     hasMissingMetadata: _hasMissingCoreMetadata(item),
     condition: source.ownedItem?.condition,
     grade: source.ownedItem?.grade,
+    signedBy: source.ownedItem?.signedBy,
+    marketValueCents: source.ownedItem?.marketValueCents,
+    marketValueCurrency: source.ownedItem?.currency,
     primaryReferenceLabel: libraryPrimaryReferenceLabel(
       ownedItem: source.ownedItem,
       wishlistItem: source.wishlistItem,
@@ -183,6 +186,9 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     hasMissingMetadata: false,
     condition: null,
     grade: null,
+    signedBy: null,
+    marketValueCents: null,
+    marketValueCurrency: null,
     primaryReferenceLabel: null,
     referenceScopeLabel: null,
     referenceFormatLabel:
