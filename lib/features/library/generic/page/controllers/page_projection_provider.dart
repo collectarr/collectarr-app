@@ -112,6 +112,19 @@ class LibraryProjectionRequest {
       ]);
 }
 
+@immutable
+class LibraryProjectionCache {
+  const LibraryProjectionCache({
+    required this.valuesByItem,
+    required this.valuesByDefinitionByItem,
+    required this.definitions,
+  });
+
+  final Map<String, List<String>> valuesByItem;
+  final Map<String, Map<String, String>> valuesByDefinitionByItem;
+  final List<CustomFieldDefinition> definitions;
+}
+
 bool _stringListMapEquals(
   Map<String, List<String>> left,
   Map<String, List<String>> right,
@@ -125,6 +138,7 @@ bool _stringListMapEquals(
       return false;
     }
   }
+
   return true;
 }
 
@@ -200,5 +214,16 @@ final libraryProjectionProvider = Provider.autoDispose
         request.customFieldValuesByDefinitionByItem,
     activeLoanOwnedItemIds: request.activeLoanOwnedItemIds,
     searchTarget: request.searchTarget,
+  );
+});
+
+final libraryProjectionCacheProvider =
+    FutureProvider.family<LibraryProjectionCache, String?>((ref, mediaKind) {
+  return ref.watch(libraryCustomFieldCacheProvider(mediaKind).future).then(
+    (cache) => LibraryProjectionCache(
+      valuesByItem: cache.valuesByItem,
+      valuesByDefinitionByItem: cache.valuesByDefinitionByItem,
+      definitions: cache.definitions,
+    ),
   );
 });

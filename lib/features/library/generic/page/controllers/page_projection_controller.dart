@@ -29,16 +29,16 @@ abstract final class _LibraryProjectionControllerOps {
     final quickView = state._quickView;
     final collectionStatusScope = state._collectionStatusScope;
     final filterSelection = state._filterSelection;
-    final customFieldCache = state.ref.watch(
-      libraryCustomFieldCacheProvider(state.widget.type.workspace.kind.apiValue),
+    final projectionCache = state.ref.watch(
+      libraryProjectionCacheProvider(state.widget.type.workspace.kind.apiValue),
     );
     final customFieldValues =
-        customFieldCache.asData?.value.valuesByItem ?? const <String, List<String>>{};
+        projectionCache.asData?.value.valuesByItem ?? const <String, List<String>>{};
     final customFieldValuesByDefinition =
-        customFieldCache.asData?.value.valuesByDefinitionByItem ??
+        projectionCache.asData?.value.valuesByDefinitionByItem ??
             const <String, Map<String, String>>{};
     final customFieldDefinitions =
-        customFieldCache.asData?.value.definitions ?? const [];
+        projectionCache.asData?.value.definitions ?? const [];
     final activeLoanOwnedItemIds = state._activeLoanOwnedItemIds;
     final query = searchState.query;
     final searchTarget = state._effectiveSearchTarget;
