@@ -2,8 +2,10 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 @immutable
@@ -70,6 +72,49 @@ List<Widget> buildLibraryInspectorSectionWidgets(
     );
   }
   return resolved;
+}
+
+class LibraryInspectorPanelLayout extends StatelessWidget {
+  const LibraryInspectorPanelLayout({
+    super.key,
+    required this.entry,
+    required this.ownedItem,
+    required this.accent,
+    required this.children,
+    this.panelPadding = const EdgeInsets.fromLTRB(8, 0, 8, 12),
+  });
+
+  final LibraryWorkspaceEntry entry;
+  final OwnedItem? ownedItem;
+  final Color accent;
+  final List<Widget> children;
+  final EdgeInsetsGeometry panelPadding;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(
+          left: BorderSide(
+            color: accent.withValues(alpha: palette.isDark ? 0.3 : 0.22),
+          ),
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: InspectorBackdrop(entry: entry, ownedItem: ownedItem),
+          ),
+          ListView(
+            padding: panelPadding,
+            children: children,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 List<Widget> buildLibraryInspectorEditorSections({

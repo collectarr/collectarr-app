@@ -45,49 +45,33 @@ class GameInspectorPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final entry = request.inspector.entry;
     final ownedItem = request.inspector.ownedItem;
-    final palette = appPalette(context);
     final accent = request.inspector.accent;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border(
-          left: BorderSide(
-            color: accent.withValues(alpha: palette.isDark ? 0.3 : 0.22),
-          ),
+    return LibraryInspectorPanelLayout(
+      entry: entry,
+      ownedItem: ownedItem,
+      accent: accent,
+      children: [
+        InspectorUnifiedToolbar(
+          entry: entry,
+          onEdit: request.onEdit,
+          onShare: request.onShare,
+          onDuplicate: request.onDuplicate,
+          onToggleOwned: request.onToggleOwned,
+          onLoan: request.onLoan,
+          onRefreshMetadata: request.onRefreshMetadata,
+          onUnlinkFromCore: request.onUnlinkFromCore,
+          onDetailsLayoutChanged: request.onDetailsLayoutChanged,
         ),
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: InspectorBackdrop(entry: entry, ownedItem: ownedItem),
-          ),
-          ListView(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
-            children: [
-              InspectorUnifiedToolbar(
-                entry: entry,
-                onEdit: request.onEdit,
-                onShare: request.onShare,
-                onDuplicate: request.onDuplicate,
-                onToggleOwned: request.onToggleOwned,
-                onLoan: request.onLoan,
-                onRefreshMetadata: request.onRefreshMetadata,
-                onUnlinkFromCore: request.onUnlinkFromCore,
-                onDetailsLayoutChanged: request.onDetailsLayoutChanged,
-              ),
-              const SizedBox(height: 8),
-              _GameInspectorHeader(inspector: request.inspector),
-              const SizedBox(height: 10),
-              _GameInspectorMain(inspector: request.inspector),
-              const SizedBox(height: 10),
-              _GameInspectorDetailsPersonal(inspector: request.inspector),
-              ...buildLibraryInspectorSectionList(request.primarySections),
-              ...buildLibraryInspectorSectionList(request.trailingSections),
-            ],
-          ),
-        ],
-      ),
+        const SizedBox(height: 8),
+        _GameInspectorHeader(inspector: request.inspector),
+        const SizedBox(height: 10),
+        _GameInspectorMain(inspector: request.inspector),
+        const SizedBox(height: 10),
+        _GameInspectorDetailsPersonal(inspector: request.inspector),
+        ...buildLibraryInspectorSectionList(request.primarySections),
+        ...buildLibraryInspectorSectionList(request.trailingSections),
+      ],
     );
   }
 }

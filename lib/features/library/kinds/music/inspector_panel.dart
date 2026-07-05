@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -54,55 +54,40 @@ class _MusicInspectorPanelState extends State<MusicInspectorPanel> {
   Widget build(BuildContext context) {
     final entry = widget.request.inspector.entry;
     final ownedItem = widget.request.inspector.ownedItem;
-    final palette = appPalette(context);
     final accent = widget.request.inspector.accent;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border(
-          left: BorderSide(
-            color: accent.withValues(alpha: palette.isDark ? 0.3 : 0.22),
-          ),
+    return LibraryInspectorPanelLayout(
+      entry: entry,
+      ownedItem: ownedItem,
+      accent: accent,
+      children: [
+        InspectorUnifiedToolbar(
+          entry: entry,
+          onEdit: widget.request.onEdit,
+          onShare: widget.request.onShare,
+          onDuplicate: widget.request.onDuplicate,
+          onToggleOwned: widget.request.onToggleOwned,
+          onLoan: widget.request.onLoan,
+          onRefreshMetadata: widget.request.onRefreshMetadata,
+          onUnlinkFromCore: widget.request.onUnlinkFromCore,
+          onDetailsLayoutChanged: widget.request.onDetailsLayoutChanged,
         ),
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-              child: InspectorBackdrop(entry: entry, ownedItem: ownedItem)),
-          ListView(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
-            children: [
-              InspectorUnifiedToolbar(
-                entry: entry,
-                onEdit: widget.request.onEdit,
-                onShare: widget.request.onShare,
-                onDuplicate: widget.request.onDuplicate,
-                onToggleOwned: widget.request.onToggleOwned,
-                onLoan: widget.request.onLoan,
-                onRefreshMetadata: widget.request.onRefreshMetadata,
-                onUnlinkFromCore: widget.request.onUnlinkFromCore,
-                onDetailsLayoutChanged: widget.request.onDetailsLayoutChanged,
-              ),
-              const SizedBox(height: 8),
-              _MusicInspectorHeader(inspector: widget.request.inspector),
-              const SizedBox(height: 10),
-              _MusicInspectorTabsHeader(
-                tabs: _tabs,
-                selectedIndex: _selectedTabIndex,
-                accent: accent,
-                onChanged: (index) => setState(() => _selectedTabIndex = index),
-              ),
-              const SizedBox(height: 10),
-              _buildSelectedTab(),
-              if (widget.request.trailingSections.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                ...widget.request.trailingSections,
-              ],
-            ],
-          ),
+        const SizedBox(height: 8),
+        _MusicInspectorHeader(inspector: widget.request.inspector),
+        const SizedBox(height: 10),
+        _MusicInspectorTabsHeader(
+          tabs: _tabs,
+          selectedIndex: _selectedTabIndex,
+          accent: accent,
+          onChanged: (index) => setState(() => _selectedTabIndex = index),
+        ),
+        const SizedBox(height: 10),
+        _buildSelectedTab(),
+        if (widget.request.trailingSections.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          ...widget.request.trailingSections,
         ],
-      ),
+      ],
     );
   }
 
