@@ -2,6 +2,9 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
+import 'dart:typed_data';
+
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -80,6 +83,43 @@ void main() {
     );
 
     expect(item.displayCoverUrl, 'https://example.test/thumb.jpg');
+  });
+
+  test('tracks front and back owned-item images', () {
+    final item = LibraryWorkspaceEntry(
+      id: '1',
+      mediaType: 'comic',
+      title: 'Superman',
+      itemImages: [
+        ItemImage(
+          id: 'img-1',
+          ownedItemId: 'owned-1',
+          imageType: 'front_cover',
+          imageData: Uint8List.fromList([1, 2, 3]),
+          createdAt: DateTime.utc(2026),
+        ),
+        ItemImage(
+          id: 'img-2',
+          ownedItemId: 'owned-1',
+          imageType: 'back_cover',
+          imageData: Uint8List.fromList([4, 5, 6]),
+          createdAt: DateTime.utc(2026),
+        ),
+        ItemImage(
+          id: 'img-3',
+          ownedItemId: 'owned-1',
+          imageType: 'auxiliary',
+          imageData: Uint8List.fromList([7, 8, 9]),
+          createdAt: DateTime.utc(2026),
+        ),
+      ],
+      updatedAt: DateTime.utc(2026),
+    );
+
+    expect(item.hasFrontImage, isTrue);
+    expect(item.hasBackImage, isTrue);
+    expect(item.extraImages, hasLength(1));
+    expect(item.extraImageCount, 1);
   });
 
   test('book media falls back to primary release cover and reference ids', () {

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -7,8 +8,9 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 LibraryWorkspaceEntry buildMovieWorkWorkspaceEntry({
   required MovieWork work,
   required MoviePersonalOverlay overlay,
+  List<ItemImage> itemImages = const <ItemImage>[],
 }) {
-  final common = _buildWorkEntryData(work, overlay);
+  final common = _buildWorkEntryData(work, overlay, itemImages);
   return MovieWorkspaceEntry(
     common: common,
     series: work.series,
@@ -21,11 +23,13 @@ LibraryWorkspaceEntry buildMovieReleaseWorkspaceEntry({
   required MovieWork work,
   required MovieRelease release,
   required MoviePersonalOverlay overlay,
+  List<ItemImage> itemImages = const <ItemImage>[],
 }) {
   final common = _buildReleaseEntryData(
     work: work,
     release: release,
     overlay: overlay,
+    itemImages: itemImages,
   );
   return MovieWorkspaceEntry(
     common: common,
@@ -44,7 +48,11 @@ LibraryWorkspaceEntry buildMoviesLibraryWorkspaceEntryFromShelf(
   }
   final work = MovieWork.fromMetadataItem(item);
   final overlay = MoviePersonalOverlay.fromShelfEntry(source);
-  return buildMovieWorkWorkspaceEntry(work: work, overlay: overlay);
+  return buildMovieWorkWorkspaceEntry(
+    work: work,
+    overlay: overlay,
+    itemImages: source.itemImages,
+  );
 }
 
 LibraryWorkspaceEntry buildMoviesLibraryReleaseEntry(
@@ -64,12 +72,14 @@ LibraryWorkspaceEntry buildMoviesLibraryReleaseEntry(
     work: work,
     release: release,
     overlay: overlay,
+    itemImages: request.titleEntry.itemImages,
   );
 }
 
 LibraryWorkspaceEntryData _buildWorkEntryData(
   MovieWork work,
   MoviePersonalOverlay overlay,
+  List<ItemImage> itemImages,
 ) {
   final primaryRelease = work.releases.isEmpty ? null : work.releases.first;
   final edition = primaryRelease?.toCatalogEdition();
@@ -90,6 +100,9 @@ LibraryWorkspaceEntryData _buildWorkEntryData(
     synopsis: work.synopsis,
     coverImageUrl: work.coverImageUrl,
     thumbnailImageUrl: work.thumbnailImageUrl,
+    frontCoverUrl: work.coverImageUrl,
+    backCoverUrl: null,
+    itemImages: itemImages,
     publisher: edition?.publisher ?? primaryRelease?.publisher,
     coverDate: work.releaseDate,
     releaseDate: work.releaseDate,
@@ -146,6 +159,7 @@ LibraryWorkspaceEntryData _buildReleaseEntryData({
   required MovieWork work,
   required MovieRelease release,
   required MoviePersonalOverlay overlay,
+  required List<ItemImage> itemImages,
 }) {
   final edition = release.toCatalogEdition();
   return LibraryWorkspaceEntryData(
@@ -170,6 +184,9 @@ LibraryWorkspaceEntryData _buildReleaseEntryData({
         release.backCoverUrl ??
         work.thumbnailImageUrl ??
         work.coverImageUrl,
+    frontCoverUrl: release.frontCoverUrl ?? work.coverImageUrl,
+    backCoverUrl: release.backCoverUrl,
+    itemImages: itemImages,
     publisher: release.publisher ?? release.distributor,
     coverDate: work.releaseDate,
     releaseDate: release.releaseDate,

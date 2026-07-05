@@ -9,6 +9,14 @@ void main() {
       plannedMediaTableColumnLabel(LibraryTableColumn.artist),
       'Artist',
     );
+    expect(
+      plannedMediaTableColumnLabel(LibraryTableColumn.frontCover),
+      'Front Cover',
+    );
+    expect(
+      plannedMediaTableColumnLabel(LibraryTableColumn.backCover),
+      'Back Cover',
+    );
     expect(plannedMediaTableColumnLabel(LibraryTableColumn.album), 'Album');
     expect(
       plannedMediaTableColumnLabel(LibraryTableColumn.catalogNumber),

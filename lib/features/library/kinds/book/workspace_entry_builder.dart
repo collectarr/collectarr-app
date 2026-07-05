@@ -68,6 +68,7 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
       thumbnailImageUrl: work.thumbnailImageUrl ??
           primaryReleaseCoverUrl ??
           work.coverImageUrl,
+      itemImages: overlay.itemImages,
       publisher: work.publisher,
       coverDate: work.coverDate,
       releaseDate: work.releaseDate,
@@ -203,6 +204,7 @@ LibraryWorkspaceEntryData _buildEditionEntryData({
         resolvedVariant?.coverImageUrl ??
         titleEntry.thumbnailImageUrl ??
         titleEntry.coverImageUrl,
+    itemImages: titleEntry.itemImages,
     publisher: edition.publisher ?? titleEntry.publisher,
     coverDate: titleEntry.coverDate,
     releaseDate: edition.releaseDate,

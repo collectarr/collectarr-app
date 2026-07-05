@@ -8,6 +8,9 @@ class LibraryCoverBadges extends StatelessWidget {
     required this.isWishlisted,
     this.hasMissingCover = false,
     this.hasMissingMetadata = false,
+    this.hasFrontImage = false,
+    this.hasBackImage = false,
+    this.extraImageCount = 0,
     this.keyLabel,
     this.gradeLabel,
     this.slabLabel,
@@ -22,6 +25,9 @@ class LibraryCoverBadges extends StatelessWidget {
   final bool isWishlisted;
   final bool hasMissingCover;
   final bool hasMissingMetadata;
+  final bool hasFrontImage;
+  final bool hasBackImage;
+  final int extraImageCount;
   final String? keyLabel;
   final String? gradeLabel;
   final String? slabLabel;
@@ -73,6 +79,27 @@ class LibraryCoverBadges extends StatelessWidget {
             label: 'Missing metadata',
             backgroundColor: colorScheme.secondaryContainer,
             foregroundColor: colorScheme.onSecondaryContainer,
+          ),
+        if (hasFrontImage)
+          LibraryCoverBadge(
+            icon: Icons.image_outlined,
+            label: 'Has front cover',
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainer,
+          ),
+        if (hasBackImage)
+          LibraryCoverBadge(
+            icon: Icons.image_search_outlined,
+            label: 'Has back cover',
+            backgroundColor: colorScheme.secondaryContainer,
+            foregroundColor: colorScheme.onSecondaryContainer,
+          ),
+        if (extraImageCount > 0)
+          LibraryCoverBadge(
+            icon: Icons.collections_outlined,
+            label: '$extraImageCount extra image${extraImageCount == 1 ? '' : 's'}',
+            backgroundColor: colorScheme.tertiaryContainer,
+            foregroundColor: colorScheme.onTertiaryContainer,
           ),
         if (keyLabel != null)
           LibraryCoverBadge(
@@ -173,6 +200,9 @@ class LibraryItemStatusIcons extends StatelessWidget {
     required this.isWishlisted,
     this.hasMissingCover = false,
     this.hasMissingMetadata = false,
+    this.hasFrontImage = false,
+    this.hasBackImage = false,
+    this.extraImageCount = 0,
     this.hasKeyMarker = false,
     this.hasSlabMarker = false,
     this.hasNotesMarker = false,
@@ -184,6 +214,9 @@ class LibraryItemStatusIcons extends StatelessWidget {
   final bool isWishlisted;
   final bool hasMissingCover;
   final bool hasMissingMetadata;
+  final bool hasFrontImage;
+  final bool hasBackImage;
+  final int extraImageCount;
   final bool hasKeyMarker;
   final bool hasSlabMarker;
   final bool hasNotesMarker;
@@ -212,6 +245,26 @@ class LibraryItemStatusIcons extends StatelessWidget {
           Icons.manage_search,
           size: 16,
           color: colorScheme.secondary,
+        ),
+      if (hasFrontImage)
+        Icon(Icons.image_outlined, size: 16, color: colorScheme.primary),
+      if (hasBackImage)
+        Icon(Icons.image_search_outlined,
+            size: 16, color: colorScheme.secondary),
+      if (extraImageCount > 0)
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Icon(Icons.collections_outlined,
+                size: 16, color: colorScheme.tertiary),
+            Text(
+              '$extraImageCount',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w900,
+                  ),
+            ),
+          ],
         ),
       if (hasKeyMarker)
         Icon(

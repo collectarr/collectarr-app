@@ -17,6 +17,7 @@ class LibraryCoverImage extends ConsumerWidget {
     this.imageUrl,
     this.localBytes,
     this.ownedItemId,
+    this.localImageType = 'front_cover',
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
     super.key,
@@ -27,6 +28,7 @@ class LibraryCoverImage extends ConsumerWidget {
   final String? imageUrl;
   final Uint8List? localBytes;
   final String? ownedItemId;
+  final String localImageType;
   final double borderRadius;
   final BoxFit fit;
 
@@ -38,7 +40,12 @@ class LibraryCoverImage extends ConsumerWidget {
     // there is no usable remote URL to avoid first-load source swapping.
     var local = localBytes;
     if (local == null && ownedItemId != null && url == null) {
-      local = ref.watch(localCoverImageProvider(ownedItemId!)).value;
+      local = ref.watch(
+        localItemImageProvider((
+          ownedItemId: ownedItemId!,
+          imageType: localImageType,
+        )),
+      ).value;
     }
 
     final placeholder = LibraryGeneratedCover(

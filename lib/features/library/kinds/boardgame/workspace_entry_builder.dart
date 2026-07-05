@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -14,6 +15,7 @@ final class BoardGamePersonalOverlay {
     this.wishlistItem,
     this.locationPath,
     this.updatedAt,
+    this.itemImages = const <ItemImage>[],
   });
 
   factory BoardGamePersonalOverlay.fromShelfEntry(ShelfEntry source) {
@@ -23,6 +25,7 @@ final class BoardGamePersonalOverlay {
       wishlistItem: source.wishlistItem,
       locationPath: source.locationPath,
       updatedAt: source.updatedAt,
+      itemImages: source.itemImages,
     );
   }
 
@@ -31,6 +34,7 @@ final class BoardGamePersonalOverlay {
   final WishlistItem? wishlistItem;
   final String? locationPath;
   final DateTime? updatedAt;
+  final List<ItemImage> itemImages;
 
   bool get isOwned => ownedItem != null;
   bool get isTracked => trackingEntry != null;
@@ -67,6 +71,7 @@ LibraryWorkspaceEntry buildBoardGameEditionWorkspaceEntry({
       thumbnailImageUrl: edition.coverImageUrl ??
           titleEntry.thumbnailImageUrl ??
           titleEntry.coverImageUrl,
+      itemImages: titleEntry.itemImages,
       publisher: edition.publisher ?? titleEntry.publisher,
       coverDate: titleEntry.coverDate,
       releaseDate: edition.releaseDate,
@@ -147,6 +152,7 @@ LibraryWorkspaceEntry buildBoardGameWorkspaceEntry(
       synopsis: null,
       coverImageUrl: selectedEdition?.coverImageUrl,
       thumbnailImageUrl: selectedEdition?.coverImageUrl,
+      itemImages: overlay.itemImages,
       publisher: selectedEdition?.publisher,
       coverDate: null,
       releaseDate: selectedEdition?.releaseDate,

@@ -213,6 +213,11 @@ double defaultComicTableColumnWidth(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 52.0,
     LibraryTableColumn.cover => 42.0,
+    LibraryTableColumn.frontCover => 42.0,
+    LibraryTableColumn.backCover => 42.0,
+    LibraryTableColumn.hasFront => 78.0,
+    LibraryTableColumn.hasBack => 78.0,
+    LibraryTableColumn.extraImages => 82.0,
     LibraryTableColumn.artist => 160.0,
     LibraryTableColumn.album => 260.0,
     LibraryTableColumn.title => 260.0,
@@ -253,6 +258,11 @@ double minComicTableColumnWidth(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 44.0,
     LibraryTableColumn.cover => 44.0,
+    LibraryTableColumn.frontCover => 44.0,
+    LibraryTableColumn.backCover => 44.0,
+    LibraryTableColumn.hasFront => 68.0,
+    LibraryTableColumn.hasBack => 68.0,
+    LibraryTableColumn.extraImages => 70.0,
     LibraryTableColumn.artist => 110.0,
     LibraryTableColumn.album => 160.0,
     LibraryTableColumn.issue => 54.0,
@@ -274,6 +284,8 @@ double maxComicTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.variant => 420.0,
     LibraryTableColumn.barcode => 260.0,
     LibraryTableColumn.catalogNumber => 240.0,
+    LibraryTableColumn.frontCover => 90.0,
+    LibraryTableColumn.backCover => 90.0,
     _ => 260.0,
   };
 }
@@ -297,6 +309,11 @@ String comicTableColumnLabel(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.title => 'Series',
     LibraryTableColumn.variant => 'Variant Description',
+    LibraryTableColumn.frontCover => 'Front Cover',
+    LibraryTableColumn.backCover => 'Back Cover',
+    LibraryTableColumn.hasFront => 'Has Front',
+    LibraryTableColumn.hasBack => 'Has Back',
+    LibraryTableColumn.extraImages => 'Extra Images',
     LibraryTableColumn.location => 'Location',
     LibraryTableColumn.added => 'Added Date',
     LibraryTableColumn.platform => 'Platform',
@@ -312,6 +329,11 @@ String comicTableColumnDisplayName(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.title => 'Series',
     LibraryTableColumn.variant => 'Variant Description',
+    LibraryTableColumn.frontCover => 'Front Cover',
+    LibraryTableColumn.backCover => 'Back Cover',
+    LibraryTableColumn.hasFront => 'Has Front',
+    LibraryTableColumn.hasBack => 'Has Back',
+    LibraryTableColumn.extraImages => 'Extra Images',
     LibraryTableColumn.location => 'Location',
     LibraryTableColumn.added => 'Added Date',
     LibraryTableColumn.platform => 'Platform',
@@ -327,6 +349,11 @@ String comicTableColumnDescription(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 'Owned, wishlist, cover, and metadata badges',
     LibraryTableColumn.cover => 'Small cover preview',
+    LibraryTableColumn.frontCover => 'Front cover preview',
+    LibraryTableColumn.backCover => 'Back cover preview',
+    LibraryTableColumn.hasFront => 'Owned copy has a front cover image',
+    LibraryTableColumn.hasBack => 'Owned copy has a back cover image',
+    LibraryTableColumn.extraImages => 'Owned copy extra image count',
     LibraryTableColumn.artist => 'Artist or creator name',
     LibraryTableColumn.album => 'Album or work title',
     LibraryTableColumn.title => 'Series or item title',
@@ -367,6 +394,8 @@ LibraryTableColumnGroup comicTableColumnGroup(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status ||
     LibraryTableColumn.cover ||
+    LibraryTableColumn.frontCover ||
+    LibraryTableColumn.backCover ||
     LibraryTableColumn.artist ||
     LibraryTableColumn.album ||
     LibraryTableColumn.title ||
@@ -397,7 +426,10 @@ LibraryTableColumnGroup comicTableColumnGroup(LibraryTableColumn column) {
       LibraryTableColumnGroup.value,
     LibraryTableColumn.location ||
     LibraryTableColumn.wishlist ||
-    LibraryTableColumn.completion =>
+    LibraryTableColumn.completion ||
+    LibraryTableColumn.hasFront ||
+    LibraryTableColumn.hasBack ||
+    LibraryTableColumn.extraImages =>
       LibraryTableColumnGroup.personal,
     LibraryTableColumn.country ||
     LibraryTableColumn.language ||
@@ -422,7 +454,8 @@ bool comicTableColumnIsNumeric(LibraryTableColumn column) {
     LibraryTableColumn.issue ||
     LibraryTableColumn.price ||
     LibraryTableColumn.value ||
-    LibraryTableColumn.pageCount =>
+    LibraryTableColumn.pageCount ||
+    LibraryTableColumn.extraImages =>
       true,
     _ => false,
   };
@@ -431,6 +464,11 @@ bool comicTableColumnIsNumeric(LibraryTableColumn column) {
 LibrarySortColumn? comicTableColumnSort(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.cover => null,
+    LibraryTableColumn.frontCover => null,
+    LibraryTableColumn.backCover => null,
+    LibraryTableColumn.hasFront => null,
+    LibraryTableColumn.hasBack => null,
+    LibraryTableColumn.extraImages => null,
     LibraryTableColumn.status => LibrarySortColumn.status,
     LibraryTableColumn.artist => null,
     LibraryTableColumn.album => LibrarySortColumn.title,

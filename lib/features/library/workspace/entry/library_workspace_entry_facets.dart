@@ -94,6 +94,13 @@ List<Map<String, dynamic>>? _copyMapList(List<Map<String, dynamic>>? values) {
   return values.toList(growable: false);
 }
 
+List<ItemImage> _copyImageList(List<ItemImage> values) {
+  if (values.isEmpty) {
+    return const <ItemImage>[];
+  }
+  return values.toList(growable: false);
+}
+
 List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
   if (values.isEmpty) {
     return const <CatalogEdition>[];

@@ -65,6 +65,7 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
     synopsis: item.synopsis,
     coverImageUrl: item.coverImageUrl,
     thumbnailImageUrl: item.thumbnailImageUrl,
+    itemImages: source.itemImages,
     publisher: item.publisher,
     coverDate: item.coverDate,
     releaseDate: item.releaseDate,
@@ -161,6 +162,7 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
         primaryVariant?.coverImageUrl ??
         entry.thumbnailImageUrl ??
         entry.coverImageUrl,
+    itemImages: entry.itemImages,
     publisher: request.edition.publisher ?? entry.publisher,
     coverDate: entry.coverDate,
     releaseDate: request.edition.releaseDate,

@@ -133,6 +133,9 @@ class LibraryCardFlowTile extends StatelessWidget {
                             isWishlisted: entry.isWishlisted,
                             hasMissingCover: entry.hasMissingCover,
                             hasMissingMetadata: entry.hasMissingMetadata,
+                            hasFrontImage: entry.hasFrontImage,
+                            hasBackImage: entry.hasBackImage,
+                            extraImageCount: entry.extraImageCount,
                             keyLabel: libraryKeyMarkerLabel(
                               comic?.keyComic ?? false,
                               comic?.keyReason,

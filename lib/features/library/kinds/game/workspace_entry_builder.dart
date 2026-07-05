@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/catalog_item_types.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -15,6 +16,7 @@ final class GamePersonalOverlay {
     this.wishlistItem,
     this.locationPath,
     this.updatedAt,
+    this.itemImages = const <ItemImage>[],
     this.isOwnedOverride = false,
     this.isTrackedOverride = false,
     this.isWishlistedOverride = false,
@@ -27,6 +29,7 @@ final class GamePersonalOverlay {
       wishlistItem: source.wishlistItem,
       locationPath: source.locationPath,
       updatedAt: source.updatedAt,
+      itemImages: source.itemImages,
     );
   }
 
@@ -35,6 +38,7 @@ final class GamePersonalOverlay {
   final WishlistItem? wishlistItem;
   final String? locationPath;
   final DateTime? updatedAt;
+  final List<ItemImage> itemImages;
   final bool isOwnedOverride;
   final bool isTrackedOverride;
   final bool isWishlistedOverride;
@@ -74,6 +78,7 @@ LibraryWorkspaceEntry buildGameReleaseWorkspaceEntry({
       thumbnailImageUrl: release.coverImageUrl ??
           titleEntry.thumbnailImageUrl ??
           titleEntry.coverImageUrl,
+      itemImages: overlay.itemImages,
       publisher: release.publisher ?? titleEntry.publisher,
       coverDate: titleEntry.coverDate,
       releaseDate: release.releaseDate,
@@ -163,6 +168,7 @@ LibraryWorkspaceEntry buildGameWorkspaceEntry(
       thumbnailImageUrl: work.thumbnailImageUrl ??
           referenceRelease?.coverImageUrl ??
           work.coverImageUrl,
+      itemImages: overlay.itemImages,
       publisher: work.publisher ?? referenceRelease?.publisher,
       coverDate: work.coverDate,
       releaseDate: work.releaseDate ?? referenceRelease?.releaseDate,

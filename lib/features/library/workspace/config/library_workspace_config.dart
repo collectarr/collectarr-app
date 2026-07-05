@@ -362,6 +362,11 @@ class LibrarySortPreset {
 enum LibraryTableColumn {
   status,
   cover,
+  frontCover,
+  backCover,
+  hasFront,
+  hasBack,
+  extraImages,
   artist,
   album,
   title,
@@ -400,6 +405,11 @@ enum LibraryTableColumn {
 const kAllLibraryTableColumns = [
   LibraryTableColumn.status,
   LibraryTableColumn.cover,
+  LibraryTableColumn.frontCover,
+  LibraryTableColumn.backCover,
+  LibraryTableColumn.hasFront,
+  LibraryTableColumn.hasBack,
+  LibraryTableColumn.extraImages,
   LibraryTableColumn.artist,
   LibraryTableColumn.album,
   LibraryTableColumn.title,
@@ -462,7 +472,7 @@ class LibraryWorkspaceConfig {
     required this.defaultVisibleColumns,
     this.availableSortColumns = kAllLibrarySortColumns,
     this.availableTableColumns = kAllLibraryTableColumns,
-    this.columnRegistry = const LibraryColumnRegistry(const []),
+    this.columnRegistry = LibraryColumnRegistry(const []),
   });
 
   final CatalogMediaKind kind;

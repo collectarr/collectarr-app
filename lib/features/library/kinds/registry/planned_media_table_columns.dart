@@ -30,6 +30,11 @@ double defaultPlannedMediaTableColumnWidth(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 52.0,
     LibraryTableColumn.cover => 42.0,
+    LibraryTableColumn.frontCover => 42.0,
+    LibraryTableColumn.backCover => 42.0,
+    LibraryTableColumn.hasFront => 78.0,
+    LibraryTableColumn.hasBack => 78.0,
+    LibraryTableColumn.extraImages => 82.0,
     LibraryTableColumn.artist => 160.0,
     LibraryTableColumn.album => 260.0,
     LibraryTableColumn.title => 280.0,
@@ -70,6 +75,11 @@ double minPlannedMediaTableColumnWidth(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 44.0,
     LibraryTableColumn.cover => 44.0,
+    LibraryTableColumn.frontCover => 44.0,
+    LibraryTableColumn.backCover => 44.0,
+    LibraryTableColumn.hasFront => 68.0,
+    LibraryTableColumn.hasBack => 68.0,
+    LibraryTableColumn.extraImages => 70.0,
     LibraryTableColumn.artist => 110.0,
     LibraryTableColumn.album => 160.0,
     LibraryTableColumn.label => 110.0,
@@ -92,6 +102,8 @@ double maxPlannedMediaTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.variant => 420.0,
     LibraryTableColumn.barcode => 260.0,
     LibraryTableColumn.catalogNumber => 240.0,
+    LibraryTableColumn.frontCover => 90.0,
+    LibraryTableColumn.backCover => 90.0,
     _ => 260.0,
   };
 }
@@ -120,6 +132,11 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => '',
     LibraryTableColumn.cover => '',
+    LibraryTableColumn.frontCover => 'Front Cover',
+    LibraryTableColumn.backCover => 'Back Cover',
+    LibraryTableColumn.hasFront => 'Has Front',
+    LibraryTableColumn.hasBack => 'Has Back',
+    LibraryTableColumn.extraImages => 'Extra Images',
     LibraryTableColumn.artist => 'Artist',
     LibraryTableColumn.album => 'Album',
     LibraryTableColumn.title => 'Title',
@@ -173,6 +190,11 @@ String plannedMediaTableColumnDisplayName(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.status => 'Status',
     LibraryTableColumn.cover => 'Cover',
+    LibraryTableColumn.frontCover => 'Front Cover',
+    LibraryTableColumn.backCover => 'Back Cover',
+    LibraryTableColumn.hasFront => 'Has Front',
+    LibraryTableColumn.hasBack => 'Has Back',
+    LibraryTableColumn.extraImages => 'Extra Images',
     _ => plannedMediaTableColumnLabel(column),
   };
 }
@@ -194,6 +216,8 @@ LibraryTableColumnGroup plannedMediaTableColumnGroup(
   return switch (column) {
     LibraryTableColumn.status ||
     LibraryTableColumn.cover ||
+    LibraryTableColumn.frontCover ||
+    LibraryTableColumn.backCover ||
     LibraryTableColumn.artist ||
     LibraryTableColumn.album ||
     LibraryTableColumn.title ||
@@ -224,7 +248,10 @@ LibraryTableColumnGroup plannedMediaTableColumnGroup(
       LibraryTableColumnGroup.value,
     LibraryTableColumn.location ||
     LibraryTableColumn.wishlist ||
-    LibraryTableColumn.completion =>
+    LibraryTableColumn.completion ||
+    LibraryTableColumn.hasFront ||
+    LibraryTableColumn.hasBack ||
+    LibraryTableColumn.extraImages =>
       LibraryTableColumnGroup.personal,
     LibraryTableColumn.country ||
     LibraryTableColumn.language ||
@@ -260,6 +287,11 @@ bool plannedMediaTableColumnIsNumeric(LibraryTableColumn column) {
 LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.cover => null,
+    LibraryTableColumn.frontCover => null,
+    LibraryTableColumn.backCover => null,
+    LibraryTableColumn.hasFront => null,
+    LibraryTableColumn.hasBack => null,
+    LibraryTableColumn.extraImages => null,
     LibraryTableColumn.status => LibrarySortColumn.status,
     LibraryTableColumn.artist => null,
     LibraryTableColumn.album => LibrarySortColumn.title,
@@ -309,6 +341,9 @@ Widget plannedMediaTableCell(
         isWishlisted: entry.isWishlisted,
         hasMissingCover: entry.hasMissingCover,
         hasMissingMetadata: entry.hasMissingMetadata,
+        hasFrontImage: entry.hasFrontImage,
+        hasBackImage: entry.hasBackImage,
+        extraImageCount: entry.extraImageCount,
         hasKeyMarker: accessors.keyComic(entry),
         hasSlabMarker: accessors.rawOrSlabbed(entry) != null ||
             accessors.gradingCompany(entry) != null,
@@ -323,6 +358,38 @@ Widget plannedMediaTableCell(
           imageUrl: entry.displayCoverUrl,
           ownedItemId: entry.ownedItemId,
         ),
+      ),
+    LibraryTableColumn.frontCover => SizedBox(
+        width: 24,
+        height: 32,
+        child: LibraryCoverImage(
+          title: entry.resolvedTitle,
+          itemNumber: entry.itemNumber,
+          imageUrl: entry.frontCoverUrl ?? entry.displayCoverUrl,
+          localBytes: entry.frontImage?.imageData,
+          ownedItemId: entry.ownedItemId,
+        ),
+      ),
+    LibraryTableColumn.backCover => SizedBox(
+        width: 24,
+        height: 32,
+        child: LibraryCoverImage(
+          title: entry.resolvedTitle,
+          itemNumber: entry.itemNumber,
+          imageUrl: entry.backCoverUrl,
+          localBytes: entry.backImage?.imageData,
+          ownedItemId: entry.ownedItemId,
+        ),
+      ),
+    LibraryTableColumn.hasFront => _ImagePresenceCell(
+        present: entry.hasFrontImage,
+      ),
+    LibraryTableColumn.hasBack => _ImagePresenceCell(
+        present: entry.hasBackImage,
+      ),
+    LibraryTableColumn.extraImages => _ImagePresenceCell(
+        present: entry.extraImageCount > 0,
+        label: entry.extraImageCount > 0 ? '${entry.extraImageCount}' : '-',
       ),
     LibraryTableColumn.title => Text(
         entry.resolvedTitle,
@@ -396,6 +463,44 @@ Widget plannedMediaTableCell(
     LibraryTableColumn.imprint =>
       LibraryTableCellText(entry.publishing?.imprint),
   };
+}
+
+class _ImagePresenceCell extends StatelessWidget {
+  const _ImagePresenceCell({
+    required this.present,
+    this.label,
+  });
+
+  final bool present;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            present ? Icons.check_circle_outline : Icons.remove_circle_outline,
+            size: 16,
+            color: present ? colorScheme.primary : colorScheme.outline,
+            semanticLabel: label,
+          ),
+          if (label != null && label!.isNotEmpty) ...[
+            const SizedBox(width: 4),
+            Text(
+              label!,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: present ? colorScheme.primary : colorScheme.outline,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 String? _firstDisplayValue(List<String>? values) {

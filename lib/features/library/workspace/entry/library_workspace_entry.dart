@@ -1,6 +1,7 @@
 // ignore_for_file: use_super_parameters
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
@@ -27,6 +28,9 @@ sealed class LibraryWorkspaceEntry {
     this.synopsis,
     this.coverImageUrl,
     this.thumbnailImageUrl,
+    this.frontCoverUrl,
+    this.backCoverUrl,
+    this.itemImages = const <ItemImage>[],
     this.publisher,
     this.coverDate,
     this.releaseDate,
@@ -94,6 +98,9 @@ sealed class LibraryWorkspaceEntry {
     String? plotDescription,
     String? coverImageUrl,
     String? thumbnailImageUrl,
+    String? frontCoverUrl,
+    String? backCoverUrl,
+    List<ItemImage> itemImages = const <ItemImage>[],
     String? publisher,
     DateTime? coverDate,
     DateTime? releaseDate,
@@ -168,6 +175,9 @@ sealed class LibraryWorkspaceEntry {
       synopsis: synopsis,
       coverImageUrl: coverImageUrl,
       thumbnailImageUrl: thumbnailImageUrl,
+      frontCoverUrl: frontCoverUrl,
+      backCoverUrl: backCoverUrl,
+      itemImages: _copyImageList(itemImages),
       publisher: publisher,
       coverDate: coverDate,
       releaseDate: releaseDate,
@@ -249,6 +259,7 @@ sealed class LibraryWorkspaceEntry {
     String? fallbackSynopsis,
     String? fallbackCoverImageUrl,
     String? fallbackThumbnailImageUrl,
+    String? fallbackBackCoverUrl,
     String? fallbackPublisher,
     DateTime? fallbackCoverDate,
     int? fallbackReleaseYear,
@@ -304,6 +315,9 @@ sealed class LibraryWorkspaceEntry {
           primaryVariant?.coverImageUrl ??
           fallbackThumbnailImageUrl ??
           fallbackCoverImageUrl,
+      frontCoverUrl: primaryVariant?.coverImageUrl ?? fallbackCoverImageUrl,
+      backCoverUrl: fallbackBackCoverUrl,
+      itemImages: const <ItemImage>[],
       publisher: edition.publisher ?? fallbackPublisher,
       coverDate: fallbackCoverDate,
       releaseDate: edition.releaseDate,
@@ -379,6 +393,9 @@ sealed class LibraryWorkspaceEntry {
   final String? synopsis;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final String? frontCoverUrl;
+  final String? backCoverUrl;
+  final List<ItemImage> itemImages;
   final String? publisher;
   final DateTime? coverDate;
   final DateTime? releaseDate;
@@ -435,7 +452,20 @@ sealed class LibraryWorkspaceEntry {
     return title;
   }
 
-  String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
+  String? get displayCoverUrl =>
+      thumbnailImageUrl ?? frontCoverUrl ?? coverImageUrl;
+  ItemImage? get frontImage => _imageByType('front_cover');
+  ItemImage? get backImage => _imageByType('back_cover');
+  List<ItemImage> get extraImages => [
+        for (final image in itemImages)
+          if (image.imageType != 'front_cover' && image.imageType != 'back_cover')
+            image,
+      ];
+  bool get hasFrontImage =>
+      frontCoverUrl?.trim().isNotEmpty == true || frontImage != null;
+  bool get hasBackImage =>
+      backCoverUrl?.trim().isNotEmpty == true || backImage != null;
+  int get extraImageCount => extraImages.length;
 
   final String? plotSummary;
   final String? plotDescription;
@@ -455,6 +485,15 @@ sealed class LibraryWorkspaceEntry {
   VideoCatalogDetails? get video;
   MusicCatalogDetails? get music;
   GameCatalogDetails? get game;
+
+  ItemImage? _imageByType(String imageType) {
+    for (final image in itemImages) {
+      if (image.imageType == imageType) {
+        return image;
+      }
+    }
+    return null;
+  }
 }
 
 class LibraryWorkspaceEntryData {
@@ -475,6 +514,9 @@ class LibraryWorkspaceEntryData {
     required this.synopsis,
     required this.coverImageUrl,
     required this.thumbnailImageUrl,
+    this.frontCoverUrl,
+    this.backCoverUrl,
+    this.itemImages = const <ItemImage>[],
     required this.publisher,
     required this.coverDate,
     required this.releaseDate,
@@ -538,6 +580,9 @@ class LibraryWorkspaceEntryData {
   final String? synopsis;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final String? frontCoverUrl;
+  final String? backCoverUrl;
+  final List<ItemImage> itemImages;
   final String? publisher;
   final DateTime? coverDate;
   final DateTime? releaseDate;
