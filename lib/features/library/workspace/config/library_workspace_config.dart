@@ -424,7 +424,7 @@ class LibraryTableColumnPreset {
 }
 
 class LibraryWorkspaceConfig {
-  LibraryWorkspaceConfig({
+  const LibraryWorkspaceConfig({
     required this.kind,
     required this.title,
     required this.icon,
@@ -434,9 +434,8 @@ class LibraryWorkspaceConfig {
     required this.defaultVisibleColumns,
     this.availableSortColumns = kAllLibrarySortColumns,
     this.availableTableColumns = kAllLibraryTableColumns,
-    LibraryColumnRegistry? columnRegistry,
-  }) : columnRegistry =
-            columnRegistry ?? LibraryColumnRegistry(const []);
+    this.columnRegistry = const LibraryColumnRegistry(const []),
+  });
 
   final CatalogMediaKind kind;
   final String title;

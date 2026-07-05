@@ -1,10 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_inspector_panel.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_detail_page.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -64,8 +63,8 @@ const moviesLibraryConfig = LibraryTypeConfig(
     defaultVideoKindFilters: {'movie'},
   ),
   editPresentation: movieLibraryEditPresentation,
-  inspectorPanelBuilder: buildVideoInspectorPanel,
-  inspectorSectionsBuilder: buildVideoInspectorSections,
+  inspectorPanelBuilder: buildMovieInspectorPanel,
+  inspectorSectionsBuilder: buildMovieInspectorSections,
   mediaFields: MediaEditFields(
     numberLabel: 'Edition no.',
     publisherLabel: 'Studio',

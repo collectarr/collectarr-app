@@ -1,0 +1,162 @@
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
+import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
+import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
+import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
+import 'package:collectarr_app/features/library/inspector/sections/personal_status_section.dart';
+import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+
+List<Widget> buildMovieInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) {
+  final entry = request.entry;
+  final video = entry.video;
+  final editionCount = entry.editions.length;
+  final facts = <LibraryInspectorFactData>[
+    LibraryInspectorFactData('Title', entry.resolvedTitle),
+    if (entry.originalTitle?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Original title', entry.originalTitle!),
+    if (entry.publisher?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Studio', entry.publisher!),
+    if (entry.releaseDate != null)
+      LibraryInspectorFactData('Release date', _formatDate(entry.releaseDate!)),
+    if (video?.runtimeMinutes != null)
+      LibraryInspectorFactData('Runtime', '${video!.runtimeMinutes} min'),
+    LibraryInspectorFactData('Releases', editionCount.toString()),
+    if (entry.barcode?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Barcode', entry.barcode!),
+    if (entry.country?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Country', entry.country!),
+    if (entry.language?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Language', entry.language!),
+    if (entry.ageRating?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Age rating', entry.ageRating!),
+    if (entry.audienceRating?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Audience rating', entry.audienceRating!),
+    LibraryInspectorFactData(
+      'Cover',
+      entry.hasMissingCover ? 'Missing' : 'Ready',
+    ),
+    LibraryInspectorFactData(
+      'Metadata',
+      entry.hasMissingMetadata ? 'Missing' : 'Ready',
+    ),
+  ];
+
+  final sections = <Widget>[
+    InspectorMetadataFactsSection(
+      title: 'Movie details',
+      accent: request.accent,
+      facts: facts,
+      children: [
+        if (entry.synopsis?.trim().isNotEmpty == true)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              entry.synopsis!,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+      ],
+    ),
+    if (entry.editions.isNotEmpty || video?.nrDiscs != null)
+      InspectorReleasesSection(request: request),
+    if ((entry.creators ?? const <Map<String, dynamic>>[]).isNotEmpty)
+      InspectorContributorsSection(request: request),
+    if (entry.trailerUrls.isNotEmpty)
+      InspectorLinksTrailersSection(request: request),
+    if (request.ownedItem != null || request.trackingEntry != null)
+      InspectorPersonalStatusSection(
+        entry: entry,
+        ownedItem: request.ownedItem,
+        trackingEntry: request.trackingEntry,
+        accent: request.accent,
+        onFilterByValue: request.onFilterByValue,
+      ),
+  ];
+
+  return sections;
+}
+
+Widget buildMovieInspectorPanel(
+  BuildContext context,
+  LibraryInspectorPanelRequest request,
+) {
+  return _MovieInspectorPanel(request: request);
+}
+
+class _MovieInspectorPanel extends StatelessWidget {
+  const _MovieInspectorPanel({required this.request});
+
+  final LibraryInspectorPanelRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final entry = request.inspector.entry;
+    final ownedItem = request.inspector.ownedItem;
+    final palette = appPalette(context);
+    final accent = request.inspector.accent;
+    final sections = buildMovieInspectorSections(context, request.inspector);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.panel,
+        border: Border(
+          left: BorderSide(
+            color: accent.withValues(alpha: palette.isDark ? 0.3 : 0.22),
+          ),
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: InspectorBackdrop(entry: entry, ownedItem: ownedItem),
+          ),
+          ListView(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+            children: [
+              InspectorUnifiedToolbar(
+                entry: entry,
+                onEdit: request.onEdit,
+                onShare: request.onShare,
+                onDuplicate: request.onDuplicate,
+                onToggleOwned: request.onToggleOwned,
+                onLoan: request.onLoan,
+                onRefreshMetadata: request.onRefreshMetadata,
+                onUnlinkFromCore: request.onUnlinkFromCore,
+                onDetailsLayoutChanged: request.onDetailsLayoutChanged,
+              ),
+              const SizedBox(height: 8),
+              LibraryDetailHero(
+                type: request.inspector.type,
+                entry: entry,
+                ownedItem: ownedItem,
+                accent: accent,
+              ),
+              ...buildLibraryInspectorSectionList([
+                request.ownedCopiesSection,
+                request.bundleSection,
+                request.conditionGradeSection,
+                if (sections.isNotEmpty) ...sections,
+                if (request.trailingSections.isNotEmpty) ...request.trailingSections,
+              ]),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _formatDate(DateTime value) {
+  final y = value.year.toString().padLeft(4, '0');
+  final m = value.month.toString().padLeft(2, '0');
+  final d = value.day.toString().padLeft(2, '0');
+  return '$y-$m-$d';
+}
