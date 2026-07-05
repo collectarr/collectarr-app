@@ -2,8 +2,6 @@ import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'library_workspace_controls.dart';
-
 class LibraryToolbarPrimaryActions extends ConsumerWidget {
   const LibraryToolbarPrimaryActions({
     super.key,
