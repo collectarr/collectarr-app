@@ -345,8 +345,9 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
             TextField(
               controller: _nameController,
               autofocus: true,
+              onChanged: (_) => setState(() {}),
               decoration: const InputDecoration(
-                labelText: 'Borrower name',
+                labelText: 'Borrower / contact',
                 border: OutlineInputBorder(),
               ),
             ),

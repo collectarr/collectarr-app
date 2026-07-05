@@ -3,12 +3,15 @@ import 'dart:convert';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
+import 'package:collectarr_app/features/loans/loan_manager_page.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:drift/native.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helpers/secure_storage_mock.dart';
@@ -181,10 +185,43 @@ void main() {
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
-    // Non-admin users see 4 destinations (Libraries, Shelf, Calendar, Settings).
-    expect(navigationBar.destinations.length, 4);
+    // Non-admin users see 5 destinations (Libraries, Shelf, Loans, Calendar, Settings).
+    expect(navigationBar.destinations.length, 5);
+    expect(find.text('Loans'), findsOneWidget);
     expect(find.text('Calendar'), findsOneWidget);
     expect(find.text('Admin'), findsNothing);
+  });
+
+  testWidgets('app shell opens the loans tab', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
+    _setDesktopViewport(tester);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      _shellTestApp(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          localDatabaseProvider.overrideWithValue(db),
+          ..._baseShellOverrides(),
+        ],
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    final context = tester.element(find.byType(AppShell));
+    GoRouter.of(context).go(AppRoutes.loans);
+    await tester.pump();
+
+    expect(find.byType(LoanManagerPage), findsOneWidget);
   });
 
   testWidgets(
@@ -246,9 +283,9 @@ void main() {
     final navigationBar = tester.widget<NavigationBar>(
       find.byType(NavigationBar),
     );
-    // Admin accounts see 5 destinations with 'Admin' label
-    // (Libraries, Shelf, Calendar, Admin, Settings).
-    expect(navigationBar.destinations.length, 5);
+    // Admin accounts see 6 destinations with 'Admin' label
+    // (Libraries, Shelf, Loans, Calendar, Admin, Settings).
+    expect(navigationBar.destinations.length, 6);
     expect(find.text('Admin'), findsOneWidget);
     expect(find.text('Manage'), findsNothing);
   });

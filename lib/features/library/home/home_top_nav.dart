@@ -275,7 +275,7 @@ class _MediaLibraryOverdueActions extends StatelessWidget {
               overdueLoanCount: overdueLoanCount,
               selectedOverdueLoanCount: selectedOverdueLoanCount,
               selectedLabel: selectedLabel,
-              onPressed: () => context.go('${AppRoutes.shelf}?filter=overdue'),
+              onPressed: () => context.go(AppRoutes.loans),
             ),
           ],
         ],
@@ -352,8 +352,8 @@ class _OverdueLoanChip extends StatelessWidget {
     final label = '$overdueLoanCount overdue';
     final tooltip = selectedOverdueLoanCount > 0
         ? '$overdueLoanCount overdue loan${overdueLoanCount == 1 ? '' : 's'} · '
-            '$selectedOverdueLoanCount in $selectedLabel · Open Shelf'
-        : '$overdueLoanCount overdue loan${overdueLoanCount == 1 ? '' : 's'} · Open Shelf';
+            '$selectedOverdueLoanCount in $selectedLabel · Open Loans'
+        : '$overdueLoanCount overdue loan${overdueLoanCount == 1 ? '' : 's'} · Open Loans';
     return Tooltip(
       message: tooltip,
       child: Material(

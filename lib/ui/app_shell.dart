@@ -39,12 +39,13 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 
   /// Branch indices in the GoRouter StatefulShellRoute:
-  /// 0 = libraries, 1 = shelf, 2 = calendar, 3 = admin, 4 = settings
+  /// 0 = libraries, 1 = shelf, 2 = loans, 3 = calendar, 4 = admin, 5 = settings
   static const _branchLibraries = 0;
   static const _branchShelf = 1;
-  static const _branchCalendar = 2;
-  static const _branchAdmin = 3;
-  static const _branchSettings = 4;
+  static const _branchLoans = 2;
+  static const _branchCalendar = 3;
+  static const _branchAdmin = 4;
+  static const _branchSettings = 5;
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +62,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final visibleBranches = [
       _branchLibraries,
       _branchShelf,
+      _branchLoans,
       _branchCalendar,
       if (isAdmin) _branchAdmin,
       _branchSettings,
@@ -72,6 +74,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final pages = [
       const _ShellPage(label: 'Libraries', icon: Icons.apps_outlined),
       const _ShellPage(label: 'Shelf', icon: Icons.inventory_2),
+      const _ShellPage(label: 'Loans', icon: Icons.handshake_outlined),
       const _ShellPage(label: 'Calendar', icon: Icons.calendar_month_outlined),
       if (isAdmin)
         const _ShellPage(

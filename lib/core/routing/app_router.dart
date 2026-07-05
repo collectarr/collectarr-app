@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/auth/auth_page.dart';
 import 'package:collectarr_app/features/calendar/calendar_page.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/loans/loan_manager_page.dart';
 import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
@@ -25,6 +26,7 @@ abstract final class AppRoutes {
   static const restoring = '/restoring';
   static const libraries = '/libraries';
   static const shelf = '/shelf';
+  static const loans = '/loans';
   static const calendar = '/calendar';
   static const admin = '/admin';
   static const settings = '/settings';
@@ -85,7 +87,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.libraries,
-                builder: (context, state) => LibraryHomePage(routeUri: state.uri),
+                builder: (context, state) =>
+                    LibraryHomePage(routeUri: state.uri),
               ),
             ],
           ),
@@ -97,6 +100,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   showOverdueOnly:
                       state.uri.queryParameters['filter'] == 'overdue',
                 ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.loans,
+                builder: (context, state) => const LoanManagerPage(),
               ),
             ],
           ),
