@@ -249,21 +249,25 @@ class LibraryViewControls extends StatelessWidget {
     super.key,
     required this.viewMode,
     required this.detailsLayout,
+    required this.densityPreset,
     required this.coverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
+    required this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
   });
 
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
+  final LibraryWorkspaceDensityPreset densityPreset;
   final double coverSize;
   final double minCoverSize;
   final double maxCoverSize;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
+  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
 
   @override
@@ -281,6 +285,11 @@ class LibraryViewControls extends StatelessWidget {
           onChanged: onDetailsLayoutChanged,
         ),
         const SizedBox(width: 12),
+        LibraryWorkspaceDensityDropdown(
+          densityPreset: densityPreset,
+          onChanged: onDensityPresetChanged,
+        ),
+        const SizedBox(width: 12),
         LibraryCoverSizeSlider(
           viewMode: viewMode,
           coverSize: coverSize,
@@ -289,6 +298,91 @@ class LibraryViewControls extends StatelessWidget {
           onChanged: onCoverSizeChanged,
         ),
       ],
+    );
+  }
+}
+
+class LibraryWorkspaceDensityDropdown extends StatelessWidget {
+  const LibraryWorkspaceDensityDropdown({
+    super.key,
+    required this.densityPreset,
+    required this.onChanged,
+    this.iconOnly = false,
+  });
+
+  final LibraryWorkspaceDensityPreset densityPreset;
+  final ValueChanged<LibraryWorkspaceDensityPreset> onChanged;
+  final bool iconOnly;
+
+  @override
+  Widget build(BuildContext context) {
+    final menuText = libraryToolbarMenuText(context);
+    final menuMuted = libraryToolbarMenuMutedText(context);
+    final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          height: 1,
+          fontWeight: FontWeight.w700,
+          color: menuText,
+        );
+    final menuWidth = _measureDensityDropdownWidth(
+      context,
+      textStyle: dropdownTextStyle,
+    );
+    final triggerWidth = iconOnly
+        ? 34.0
+        : _measureSplitTriggerWidth(
+            context,
+            leadingLabel: 'Density',
+            valueLabel: densityPreset.label,
+          );
+    return SizedBox(
+      width: triggerWidth,
+      child: PopupMenuButton<LibraryWorkspaceDensityPreset>(
+        tooltip: densityPreset.tooltip,
+        initialValue: densityPreset,
+        onSelected: onChanged,
+        padding: EdgeInsets.zero,
+        color: libraryToolbarMenuSurface(context),
+        surfaceTintColor: Colors.transparent,
+        menuPadding: const EdgeInsets.symmetric(vertical: 4),
+        position: PopupMenuPosition.under,
+        constraints: const BoxConstraints(
+          minWidth: 0,
+          maxWidth: double.infinity,
+        ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
+        shape: libraryToolbarDropdownMenuShape(context),
+        itemBuilder: (context) => [
+          for (final preset in LibraryWorkspaceDensityPreset.values)
+            PopupMenuItem<LibraryWorkspaceDensityPreset>(
+              height: _viewModeDropdownHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              value: preset,
+              child: LibraryWorkspaceMenuRow(
+                label: preset.label,
+                leading: Icon(
+                  preset.icon,
+                  size: 17,
+                  color: preset == densityPreset ? menuText : menuMuted,
+                ),
+                trailing: preset == densityPreset
+                    ? Icon(Icons.check, size: 16, color: menuText)
+                    : null,
+                textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      height: 1,
+                      fontWeight: preset == densityPreset
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: menuText,
+                    ),
+              ),
+            ),
+        ],
+        child: _LibraryToolbarSplitLabelTrigger(
+          leadingLabel: 'Density',
+          valueLabel: densityPreset.label,
+          valueIcon: densityPreset.icon,
+          iconOnly: iconOnly,
+        ),
+      ),
     );
   }
 }
@@ -331,6 +425,26 @@ double _measureViewDropdownWidth(
     }
   }
   return (24 + 17 + 8 + maxLabelWidth + 28).clamp(108, double.infinity);
+}
+
+double _measureDensityDropdownWidth(
+  BuildContext context, {
+  required TextStyle? textStyle,
+}) {
+  final textScaler = MediaQuery.textScalerOf(context);
+  var maxLabelWidth = 0.0;
+  for (final preset in LibraryWorkspaceDensityPreset.values) {
+    final painter = TextPainter(
+      text: TextSpan(text: preset.label, style: textStyle),
+      maxLines: 1,
+      textDirection: Directionality.of(context),
+      textScaler: textScaler,
+    )..layout();
+    if (painter.width > maxLabelWidth) {
+      maxLabelWidth = painter.width;
+    }
+  }
+  return (24 + 17 + 8 + maxLabelWidth + 28).clamp(126, double.infinity);
 }
 
 String _viewModeLabel(LibraryViewMode mode) {

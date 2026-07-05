@@ -41,6 +41,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.releaseFolderLabel,
     this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
+    required this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
     required this.onClearBucket,
@@ -102,6 +103,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final String? releaseFolderLabel;
   final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
+  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback? onEditSort;
   final String? selectedBucket;
@@ -267,6 +269,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                             LibraryDetailsLayoutDropdown(
                               detailsLayout: viewState.detailsLayout,
                               onChanged: onDetailsLayoutChanged,
+                              iconOnly: true,
+                            ),
+                            const _LibraryDesktopToolbarSeparator(),
+                            LibraryWorkspaceDensityDropdown(
+                              densityPreset: viewState.densityPreset,
+                              onChanged: onDensityPresetChanged,
                               iconOnly: true,
                             ),
                             if (viewState.viewMode == LibraryViewMode.list) ...[
@@ -929,6 +937,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     required this.onRefreshMetadata,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
+    required this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.quickView,
     required this.onQuickViewSelected,
@@ -992,6 +1001,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final VoidCallback onRefreshMetadata;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
+  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final LibraryQuickView? quickView;
   final ValueChanged<LibraryQuickView> onQuickViewSelected;

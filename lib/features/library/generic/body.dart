@@ -324,6 +324,7 @@ class LibraryBody extends StatelessWidget {
           type: type,
           entry: selected?.entry,
           ownedItem: selected?.source.ownedItem,
+          densityPreset: viewState.densityPreset,
           accent: accent,
           contextLabel: inspectorContextLabel,
           onAddOwned: selected == null ? null : () => onAddOwned(selected),

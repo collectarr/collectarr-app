@@ -18,6 +18,7 @@ class CompactLibraryToolbar extends StatelessWidget {
     required this.onSearchChanged,
     required this.onRefreshMetadata,
     required this.onViewModeChanged,
+    required this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.quickView,
     required this.onQuickViewSelected,
@@ -40,6 +41,7 @@ class CompactLibraryToolbar extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
   final VoidCallback onRefreshMetadata;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
+  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final LibraryQuickView? quickView;
   final ValueChanged<LibraryQuickView> onQuickViewSelected;
@@ -109,6 +111,7 @@ class CompactLibraryToolbar extends StatelessWidget {
                   onPressed: () => _showCompactCoverSizeSheet(
                     context,
                     onViewModeChanged,
+                    onDensityPresetChanged,
                     onCoverSizeChanged,
                   ),
                   icon: const Icon(Icons.photo_size_select_large_outlined),
@@ -125,6 +128,7 @@ class CompactLibraryToolbar extends StatelessWidget {
 void _showCompactCoverSizeSheet(
   BuildContext context,
   ValueChanged<LibraryViewMode> onViewModeChanged,
+  ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged,
   ValueChanged<double> onCoverSizeChanged,
 ) {
   showModalBottomSheet<void>(
@@ -173,6 +177,35 @@ void _showCompactCoverSizeSheet(
               onTap: () {
                 Navigator.of(context).pop();
                 onViewModeChanged(LibraryViewMode.list);
+              },
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.density_small),
+              title: const Text('Compact density'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onDensityPresetChanged(LibraryWorkspaceDensityPreset.compact);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.density_medium),
+              title: const Text('Comfortable density'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onDensityPresetChanged(
+                  LibraryWorkspaceDensityPreset.comfortable,
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_rows),
+              title: const Text('Spreadsheet density'),
+              onTap: () {
+                Navigator.of(context).pop();
+                onDensityPresetChanged(
+                  LibraryWorkspaceDensityPreset.ultraCompact,
+                );
               },
             ),
             const Divider(height: 1),

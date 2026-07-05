@@ -23,6 +23,7 @@ class LibraryToolbarActions {
     this.onBrowserModeChanged,
     this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
+    required this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.onClearBucket,
     required this.onRefreshMetadata,
@@ -64,7 +65,8 @@ class LibraryToolbarActions {
   final ValueChanged<String>? onSearchInputChanged;
   final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
   final VoidCallback? onClearSearch;
-  final ValueChanged<LibraryToolbarSearchSuggestion>? onSearchSuggestionSelected;
+  final ValueChanged<LibraryToolbarSearchSuggestion>?
+      onSearchSuggestionSelected;
   final VoidCallback onEditColumns;
   final ValueChanged<LibrarySortColumn> onSortChanged;
   final VoidCallback? onEditSort;
@@ -73,6 +75,7 @@ class LibraryToolbarActions {
   final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
   final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
+  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback onClearBucket;
   final VoidCallback onRefreshMetadata;

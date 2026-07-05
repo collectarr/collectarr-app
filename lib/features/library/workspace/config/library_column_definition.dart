@@ -95,5 +95,5 @@ LibraryColumnDefinition legacyLibraryColumnDefinition(
 LibraryColumnRegistry defaultLibraryColumnRegistry({
   required Set<CatalogMediaKind> kinds,
 }) {
-  return LibraryColumnRegistry(const []);
+  return const LibraryColumnRegistry([]);
 }

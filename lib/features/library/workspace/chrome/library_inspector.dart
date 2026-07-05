@@ -1,13 +1,12 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:flutter/material.dart';
 
 const Color _kDefaultAccent = kAppAccent;
 const Color _kDefaultMutedText = kAppTextMuted;
 const double _kTwoColumnBreakpoint = 420;
-const double _kInspectorSectionSpacing = 4;
-const double _kInspectorSectionContentTopPadding = 6;
-const double _kInspectorFactLabelWidth = 104;
 
 class LibraryInspectorFactData {
   const LibraryInspectorFactData(
@@ -58,6 +57,7 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final density = LibraryWorkspaceDensityScope.of(context);
     final resolvedMutedTextColor = widget.mutedTextColor == _kDefaultMutedText
         ? palette.textMuted
         : widget.mutedTextColor;
@@ -65,7 +65,7 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
     final accentBorderColor = widget.accentColor.withValues(alpha: 0.18);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: _kInspectorSectionSpacing),
+      padding: EdgeInsets.only(bottom: density.inspectorSectionSpacing),
       child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border(
@@ -73,7 +73,7 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+          padding: density.inspectorSectionPadding,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -88,7 +88,8 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
                     ),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
+                    padding: EdgeInsets.only(
+                        bottom: density.inspectorSectionSpacing / 2),
                     child: Row(
                       children: [
                         Text(
@@ -97,7 +98,7 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
                               Theme.of(context).textTheme.labelSmall?.copyWith(
                                     color: palette.textMuted,
                                     fontWeight: FontWeight.w900,
-                                    fontSize: 12,
+                                    fontSize: density.inspectorSectionTitleSize,
                                     letterSpacing: 0.35,
                                   ),
                         ),
@@ -118,8 +119,8 @@ class _LibraryInspectorSectionState extends State<LibraryInspectorSection> {
               AnimatedCrossFade(
                 firstChild: const SizedBox.shrink(),
                 secondChild: Padding(
-                  padding: const EdgeInsets.only(
-                    top: _kInspectorSectionContentTopPadding,
+                  padding: EdgeInsets.only(
+                    top: density.inspectorSectionContentTopPadding,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,6 +149,7 @@ class LibraryInspectorFactGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final density = LibraryWorkspaceDensityScope.of(context);
         final twoColumns = constraints.maxWidth >= _kTwoColumnBreakpoint;
         if (!twoColumns) {
           return Column(
@@ -163,12 +165,14 @@ class LibraryInspectorFactGrid extends StatelessWidget {
           );
         }
         return Wrap(
-          spacing: 8,
+          spacing: density.inspectorSectionSpacing,
           runSpacing: 0,
           children: [
             for (final fact in facts)
               SizedBox(
-                width: (constraints.maxWidth - 8) / 2,
+                width:
+                    (constraints.maxWidth - density.inspectorSectionSpacing) /
+                        2,
                 child: LibraryInspectorFact(
                   fact.label,
                   fact.value,
@@ -202,23 +206,26 @@ class LibraryInspectorFact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final density = LibraryWorkspaceDensityScope.of(context);
     final resolvedMutedTextColor = mutedTextColor == _kDefaultMutedText
         ? palette.textMuted
         : mutedTextColor;
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: EdgeInsets.symmetric(
+        vertical: density == LibraryWorkspaceDensityPreset.ultraCompact ? 1 : 2,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: _kInspectorFactLabelWidth,
+            width: density.inspectorFactLabelWidth,
             child: Text(
               label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: resolvedMutedTextColor,
                     fontWeight: FontWeight.w800,
-                    fontSize: 12,
+                    fontSize: density.inspectorFactLabelSize,
                   ),
             ),
           ),
@@ -232,7 +239,12 @@ class LibraryInspectorFact extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                       mouseCursor: SystemMouseCursors.click,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 1),
+                        padding: EdgeInsets.symmetric(
+                          vertical: density ==
+                                  LibraryWorkspaceDensityPreset.ultraCompact
+                              ? 0
+                              : 1,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -247,7 +259,7 @@ class LibraryInspectorFact extends StatelessWidget {
                                     ?.copyWith(
                                       color: onSurfaceColor,
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 13,
+                                      fontSize: density.inspectorFactValueSize,
                                       decoration: TextDecoration.underline,
                                       decorationColor:
                                           onSurfaceColor.withValues(alpha: 0.4),
@@ -272,7 +284,7 @@ class LibraryInspectorFact extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: onSurfaceColor,
                           fontWeight: FontWeight.w600,
-                          fontSize: 13,
+                          fontSize: density.inspectorFactValueSize,
                         ),
                   ),
           ),

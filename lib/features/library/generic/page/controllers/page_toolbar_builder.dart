@@ -96,6 +96,9 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
       onDetailsLayoutChanged: (layout) => _updateViewState(
         (state) => state.copyWith(detailsLayout: layout),
       ),
+      onDensityPresetChanged: (densityPreset) => _updateViewState(
+        (state) => state.copyWith(densityPreset: densityPreset),
+      ),
       onCoverSizeChanged: (size) => _updateViewState(
         (state) => state.copyWith(coverSize: size),
       ),
@@ -143,9 +146,10 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty
           ? () => printReportFlow(projection)
           : null,
-      onMissingComics: projection != null && widget.type.workspace.kind.apiValue == 'comic'
-          ? () => showMissingComicsFlow(projection)
-          : null,
+      onMissingComics:
+          projection != null && widget.type.workspace.kind.apiValue == 'comic'
+              ? () => showMissingComicsFlow(projection)
+              : null,
       onShareCollection:
           projection != null && projection.filteredItems.isNotEmpty
               ? () => shareCollectionFlow(projection)
@@ -168,6 +172,5 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
       onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
       onGroupModeChanged: _setFolderPreset,
     );
-
   }
 }

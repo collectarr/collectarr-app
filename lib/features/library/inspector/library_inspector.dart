@@ -27,14 +27,13 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-const double _kInspectorOuterGap = 8;
 
 @immutable
 class _InspectorConditionGradeOptionsRequest {
@@ -97,6 +96,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.type,
     required this.entry,
     required this.ownedItem,
+    required this.densityPreset,
     required this.accent,
     required this.onAddOwned,
     required this.onRemoveOwned,
@@ -114,6 +114,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry? entry;
   final OwnedItem? ownedItem;
+  final LibraryWorkspaceDensityPreset densityPreset;
   final Color accent;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
@@ -338,6 +339,58 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       );
     }
 
+    final density = widget.densityPreset;
+    return LibraryWorkspaceDensityScope(
+      densityPreset: widget.densityPreset,
+      child: _buildContent(
+        context,
+        ref,
+        selected,
+        activeOwnedItem,
+        ownedCopies,
+        activeTrackingEntry,
+        inspectorRequest,
+        usesCustomInspectorPanel: usesCustomInspectorPanel,
+        activeBundleReleaseId: activeBundleReleaseId,
+        extraActions: extraActions,
+        onToggleOwned: onToggleOwned,
+        onToggleWishlist: onToggleWishlist,
+        onEdit: onEdit,
+        onCorrectMetadata: onCorrectMetadata,
+        onDuplicate: onDuplicate,
+        onLoan: onLoan,
+        onRefreshMetadata: onRefreshMetadata,
+        onShare: onShare,
+        onOpenDetails: onOpenDetails,
+        density: density,
+        conditionGradeSection: conditionGradeSection,
+      ),
+    );
+  }
+
+  Widget _buildContent(
+    BuildContext context,
+    WidgetRef ref,
+    LibraryWorkspaceEntry selected,
+    OwnedItem? activeOwnedItem,
+    List<OwnedItem> ownedCopies,
+    TrackingEntry? activeTrackingEntry,
+    LibraryInspectorRequest inspectorRequest, {
+    required bool usesCustomInspectorPanel,
+    required String? activeBundleReleaseId,
+    required List<Widget> extraActions,
+    required VoidCallback? onToggleOwned,
+    required VoidCallback? onToggleWishlist,
+    required VoidCallback? onEdit,
+    required VoidCallback? onCorrectMetadata,
+    required VoidCallback? onDuplicate,
+    required VoidCallback? onLoan,
+    required VoidCallback? onRefreshMetadata,
+    required VoidCallback onShare,
+    required VoidCallback onOpenDetails,
+    required LibraryWorkspaceDensityPreset density,
+    required Widget? conditionGradeSection,
+  }) {
     final hero = widget.type.inspectorHeroBuilder?.call(
           context,
           inspectorRequest,
@@ -539,13 +592,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             onRefreshMetadata: onRefreshMetadata,
             onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: density.inspectorOuterGap),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Column(
               children: [
                 hero,
-                const SizedBox(height: 6),
+                SizedBox(height: density.inspectorOuterGap),
                 InspectorActionBar(
                   type: widget.type,
                   entry: selected,
@@ -560,11 +613,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             ),
           ),
           if (ownedCopies.isNotEmpty) ...[
-            const SizedBox(height: _kInspectorOuterGap),
+            SizedBox(height: density.inspectorOuterGap),
             ownedCopiesSection!,
           ],
           if (activeBundleReleaseId != null) ...[
-            const SizedBox(height: _kInspectorOuterGap),
+            SizedBox(height: density.inspectorOuterGap),
             bundleSection!,
           ],
           if (activeOwnedItem != null &&
@@ -576,10 +629,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     fallbackLabel: selected.variant,
                   ) !=
                   true) ...[
-            const SizedBox(height: _kInspectorOuterGap),
+            SizedBox(height: density.inspectorOuterGap),
             conditionGradeSection!,
           ],
-          const SizedBox(height: _kInspectorOuterGap),
+          SizedBox(height: density.inspectorOuterGap),
           ...primarySections,
           ...trailingSections,
         ],

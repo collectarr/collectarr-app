@@ -16,6 +16,7 @@ class LibraryViewTableControlState {
     required this.counts,
     required this.viewMode,
     required this.detailsLayout,
+    required this.densityPreset,
     required this.isSidebarVisible,
     required this.coverSize,
     required this.minCoverSize,
@@ -28,6 +29,7 @@ class LibraryViewTableControlState {
   final LibraryWorkspaceCounts counts;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
+  final LibraryWorkspaceDensityPreset densityPreset;
   final bool isSidebarVisible;
   final double coverSize;
   final double minCoverSize;
@@ -45,6 +47,7 @@ class LibraryViewTableControlCallbacks {
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
+    required this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
     this.onColumnFavoriteSelected,
   });
@@ -53,6 +56,7 @@ class LibraryViewTableControlCallbacks {
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
+  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
 }

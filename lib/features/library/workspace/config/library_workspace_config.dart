@@ -6,6 +6,8 @@ enum LibraryViewMode { grid, card, horizontalCards, cardFlow, list, shelves }
 
 enum LibraryWorkspaceBrowserMode { media, releases }
 
+enum LibraryWorkspaceDensityPreset { comfortable, compact, ultraCompact }
+
 extension LibraryViewModeCoverSizeSupport on LibraryViewMode {
   bool get supportsCoverSize {
     return switch (this) {
@@ -470,9 +472,15 @@ class LibraryWorkspaceConfig {
     required this.preferencePrefix,
     required this.defaultSortColumn,
     required this.defaultVisibleColumns,
+    this.defaultDensityPreset = LibraryWorkspaceDensityPreset.compact,
     this.availableSortColumns = kAllLibrarySortColumns,
     this.availableTableColumns = kAllLibraryTableColumns,
-    this.columnRegistry = LibraryColumnRegistry(const []),
+    this.availableDensityPresets = const [
+      LibraryWorkspaceDensityPreset.comfortable,
+      LibraryWorkspaceDensityPreset.compact,
+      LibraryWorkspaceDensityPreset.ultraCompact,
+    ],
+    this.columnRegistry = const LibraryColumnRegistry([]),
   });
 
   final CatalogMediaKind kind;
@@ -482,8 +490,10 @@ class LibraryWorkspaceConfig {
   final String preferencePrefix;
   final LibrarySortColumn defaultSortColumn;
   final Set<LibraryTableColumn> defaultVisibleColumns;
+  final LibraryWorkspaceDensityPreset defaultDensityPreset;
   final List<LibrarySortColumn> availableSortColumns;
   final List<LibraryTableColumn> availableTableColumns;
+  final List<LibraryWorkspaceDensityPreset> availableDensityPresets;
   final LibraryColumnRegistry columnRegistry;
 
   bool supportsSortColumn(LibrarySortColumn column) {
@@ -492,6 +502,10 @@ class LibraryWorkspaceConfig {
 
   bool supportsTableColumn(LibraryTableColumn column) {
     return availableTableColumns.contains(column);
+  }
+
+  bool supportsDensityPreset(LibraryWorkspaceDensityPreset preset) {
+    return availableDensityPresets.contains(preset);
   }
 
   String preferenceKey(String suffix) => '$preferencePrefix.$suffix';

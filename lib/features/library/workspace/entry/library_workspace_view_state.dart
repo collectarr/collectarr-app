@@ -86,6 +86,7 @@ class LibraryWorkspaceViewProfile {
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
+      densityPreset: config.defaultDensityPreset,
       visibleColumns: Set.of(config.defaultVisibleColumns),
       columnWidths: const {},
     );
@@ -108,6 +109,7 @@ class LibraryWorkspaceViewProfile {
       sidebarWidth: preferences.sidebarWidth,
       detailsWidth: preferences.detailsWidth,
       detailsHeight: preferences.detailsHeight,
+      densityPreset: preferences.densityPreset,
       visibleColumns: preferences.visibleColumns,
       columnWidths: preferences.columnWidths.map(
         (column, width) => MapEntry(column, clampColumnWidth(column, width)),
@@ -118,6 +120,7 @@ class LibraryWorkspaceViewProfile {
   Future<LibraryWorkspaceViewState> load() async {
     final preferences = await LibraryWorkspacePreferences(config).read(
       defaultCoverSize: defaultCoverSize,
+      defaultDensityPreset: config.defaultDensityPreset,
       minCoverSize: minCoverSize,
       maxCoverSize: maxCoverSize,
       defaultViewMode: defaultViewMode,
@@ -155,6 +158,7 @@ class LibraryWorkspaceViewState {
     required this.sidebarWidth,
     required this.detailsWidth,
     required this.detailsHeight,
+    required this.densityPreset,
     required Set<LibraryTableColumn> visibleColumns,
     required Map<LibraryTableColumn, double> columnWidths,
   })  : _sortRules = List.unmodifiable(
@@ -176,6 +180,7 @@ class LibraryWorkspaceViewState {
   final double sidebarWidth;
   final double detailsWidth;
   final double detailsHeight;
+  final LibraryWorkspaceDensityPreset densityPreset;
   final Set<LibraryTableColumn> visibleColumns;
   final Map<LibraryTableColumn, double> columnWidths;
 
@@ -198,6 +203,7 @@ class LibraryWorkspaceViewState {
       sidebarWidth: sidebarWidth,
       detailsWidth: detailsWidth,
       detailsHeight: detailsHeight,
+      densityPreset: densityPreset,
       visibleColumns: visibleColumns,
       columnWidths: columnWidths,
     );
@@ -215,6 +221,7 @@ class LibraryWorkspaceViewState {
     double? sidebarWidth,
     double? detailsWidth,
     double? detailsHeight,
+    LibraryWorkspaceDensityPreset? densityPreset,
     Set<LibraryTableColumn>? visibleColumns,
     Map<LibraryTableColumn, double>? columnWidths,
   }) {
@@ -241,6 +248,7 @@ class LibraryWorkspaceViewState {
       sidebarWidth: sidebarWidth ?? this.sidebarWidth,
       detailsWidth: detailsWidth ?? this.detailsWidth,
       detailsHeight: detailsHeight ?? this.detailsHeight,
+      densityPreset: densityPreset ?? this.densityPreset,
       visibleColumns: visibleColumns ?? this.visibleColumns,
       columnWidths: columnWidths ?? this.columnWidths,
     );
@@ -295,6 +303,7 @@ class LibraryWorkspaceViewState {
       viewMode: config.viewMode,
       detailsLayout: config.detailsLayout,
       coverSize: config.coverSize,
+      densityPreset: densityPreset,
       visibleColumns: Set.of(config.visibleColumns),
       columnWidths: const {},
     );

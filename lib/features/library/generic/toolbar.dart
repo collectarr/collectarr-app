@@ -54,6 +54,7 @@ class LibraryToolbar extends StatelessWidget {
     this.releaseFolderLabel,
     this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
+    required this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
     required this.onClearBucket,
@@ -148,13 +149,13 @@ class LibraryToolbar extends StatelessWidget {
         releaseFolderLabel = state.releaseFolderLabel,
         onReleaseFolderBack = actions.onReleaseFolderBack,
         onDetailsLayoutChanged = actions.onDetailsLayoutChanged,
+        onDensityPresetChanged = actions.onDensityPresetChanged,
         onCoverSizeChanged = actions.onCoverSizeChanged,
         selectedBucket = state.selectedBucket,
         onClearBucket = actions.onClearBucket,
         onRefreshMetadata = actions.onRefreshMetadata,
         collectionStatusScope = state.collectionStatusScope,
-        onCollectionStatusScopeChanged =
-            actions.onCollectionStatusScopeChanged,
+        onCollectionStatusScopeChanged = actions.onCollectionStatusScopeChanged,
         quickView = state.quickView,
         onQuickViewSelected = actions.onQuickViewSelected,
         availableLetters = state.availableLetters,
@@ -174,8 +175,7 @@ class LibraryToolbar extends StatelessWidget {
         activeColumnFavoriteLabel = state.activeColumnFavoriteLabel,
         onColumnFavoriteSelected = actions.onColumnFavoriteSelected,
         pinnedColumnFavoriteKeys = state.pinnedColumnFavoriteKeys,
-        onTogglePinnedColumnFavorite =
-            actions.onTogglePinnedColumnFavorite,
+        onTogglePinnedColumnFavorite = actions.onTogglePinnedColumnFavorite,
         canJumpToIssue = state.canJumpToIssue,
         onJumpToIssueSubmitted = actions.onJumpToIssueSubmitted,
         hasActiveFilters = state.hasActiveFilters,
@@ -239,6 +239,7 @@ class LibraryToolbar extends StatelessWidget {
   final String? releaseFolderLabel;
   final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
+  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final String? selectedBucket;
   final VoidCallback onClearBucket;
@@ -341,6 +342,7 @@ class LibraryToolbar extends StatelessWidget {
                   onRefreshMetadata: onRefreshMetadata,
                   onViewModeChanged: onViewModeChanged,
                   onDetailsLayoutChanged: onDetailsLayoutChanged,
+                  onDensityPresetChanged: onDensityPresetChanged,
                   onCoverSizeChanged: onCoverSizeChanged,
                   quickView: quickView,
                   onQuickViewSelected: onQuickViewSelected,
@@ -441,6 +443,7 @@ class LibraryToolbar extends StatelessWidget {
                       releaseFolderLabel: releaseFolderLabel,
                       onReleaseFolderBack: onReleaseFolderBack,
                       onDetailsLayoutChanged: onDetailsLayoutChanged,
+                      onDensityPresetChanged: onDensityPresetChanged,
                       onCoverSizeChanged: onCoverSizeChanged,
                       selectedBucket: selectedBucket,
                       onClearBucket: onClearBucket,

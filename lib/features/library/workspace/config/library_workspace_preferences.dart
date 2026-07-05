@@ -12,6 +12,7 @@ class LibraryWorkspacePreferenceSnapshot {
     required this.sortAscending,
     this.sortRules,
     required this.coverSize,
+    required this.densityPreset,
     required this.sidebarWidth,
     required this.detailsWidth,
     required this.detailsHeight,
@@ -27,6 +28,7 @@ class LibraryWorkspacePreferenceSnapshot {
   final bool sortAscending;
   final List<LibrarySortRule>? sortRules;
   final double coverSize;
+  final LibraryWorkspaceDensityPreset densityPreset;
   final double sidebarWidth;
   final double detailsWidth;
   final double detailsHeight;
@@ -64,7 +66,8 @@ class LibraryWorkspacePreferences {
 
   static final _cachedChromeByConfig =
       <String, LibraryWorkspaceChromePreferenceSnapshot>{};
-  static final _cachedSnapshots = <String, LibraryWorkspacePreferenceSnapshot>{};
+  static final _cachedSnapshots =
+      <String, LibraryWorkspacePreferenceSnapshot>{};
 
   final LibraryWorkspaceConfig config;
 
@@ -87,6 +90,7 @@ class LibraryWorkspacePreferences {
 
   Future<LibraryWorkspacePreferenceSnapshot> read({
     required double defaultCoverSize,
+    required LibraryWorkspaceDensityPreset defaultDensityPreset,
     double? minCoverSize,
     double? maxCoverSize,
     LibraryViewMode defaultViewMode = LibraryViewMode.grid,
@@ -99,12 +103,12 @@ class LibraryWorkspacePreferences {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final coverSize = prefs.getDouble(_key('cover_size')) ?? defaultCoverSize;
-    final sidebarWidth = prefs.getDouble(_key('sidebar_width')) ??
-        defaultSidebarWidth;
-    final detailsWidth = prefs.getDouble(_key('details_width')) ??
-        defaultDetailsWidth;
-    final detailsHeight = prefs.getDouble(_key('details_height')) ??
-      defaultDetailsHeight;
+    final sidebarWidth =
+        prefs.getDouble(_key('sidebar_width')) ?? defaultSidebarWidth;
+    final detailsWidth =
+        prefs.getDouble(_key('details_width')) ?? defaultDetailsWidth;
+    final detailsHeight =
+        prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
     final sortColumn = _enumByName(
           config.availableSortColumns,
           prefs.getString(_key('sort_column')),
@@ -119,8 +123,8 @@ class LibraryWorkspacePreferences {
     );
     final snapshot = LibraryWorkspacePreferenceSnapshot(
       browserMode: _enumByName(
-        LibraryWorkspaceBrowserMode.values,
-        prefs.getString(_key('browser_mode')),
+            LibraryWorkspaceBrowserMode.values,
+            prefs.getString(_key('browser_mode')),
           ) ??
           LibraryWorkspaceBrowserMode.media,
       viewMode: _enumByName(
@@ -128,17 +132,22 @@ class LibraryWorkspacePreferences {
             prefs.getString(_key('view_mode')),
           ) ??
           defaultViewMode,
+      densityPreset: _enumByName(
+            config.availableDensityPresets,
+            prefs.getString(_key('density_preset')),
+          ) ??
+          defaultDensityPreset,
       detailsLayout: _enumByName(
             LibraryDetailsLayout.values,
             prefs.getString(_key('details_layout')),
           ) ??
           defaultDetailsLayout,
-        isSidebarVisible:
+      isSidebarVisible:
           prefs.getBool(_key('sidebar_visible')) ?? defaultSidebarVisible,
-        sortColumn: sortColumn,
+      sortColumn: sortColumn,
       sortAscending:
           prefs.getBool(_key('sort_ascending')) ?? defaultSortAscending,
-        sortRules: sortRules,
+      sortRules: sortRules,
       coverSize: _clamp(coverSize, minCoverSize, maxCoverSize),
       sidebarWidth: clampLibraryPaneWidth(
         sidebarWidth,
@@ -183,6 +192,9 @@ class LibraryWorkspacePreferences {
       sortAscending: snapshot.sortAscending,
       sortRules: normalizedSortRules,
       coverSize: snapshot.coverSize,
+      densityPreset: config.supportsDensityPreset(snapshot.densityPreset)
+          ? snapshot.densityPreset
+          : config.defaultDensityPreset,
       sidebarWidth: snapshot.sidebarWidth,
       detailsWidth: snapshot.detailsWidth,
       detailsHeight: snapshot.detailsHeight,
@@ -197,18 +209,29 @@ class LibraryWorkspacePreferences {
       normalizedSnapshot.browserMode.name,
     );
     await prefs.setString(_key('view_mode'), normalizedSnapshot.viewMode.name);
-    await prefs.setString(_key('details_layout'), normalizedSnapshot.detailsLayout.name);
-    await prefs.setBool(_key('sidebar_visible'), normalizedSnapshot.isSidebarVisible);
-    await prefs.setString(_key('sort_column'), normalizedSnapshot.sortColumn.name);
-    await prefs.setBool(_key('sort_ascending'), normalizedSnapshot.sortAscending);
+    await prefs.setString(
+      _key('density_preset'),
+      normalizedSnapshot.densityPreset.name,
+    );
+    await prefs.setString(
+        _key('details_layout'), normalizedSnapshot.detailsLayout.name);
+    await prefs.setBool(
+        _key('sidebar_visible'), normalizedSnapshot.isSidebarVisible);
+    await prefs.setString(
+        _key('sort_column'), normalizedSnapshot.sortColumn.name);
+    await prefs.setBool(
+        _key('sort_ascending'), normalizedSnapshot.sortAscending);
     await prefs.setStringList(
       _key('sort_rules'),
       _encodeSortRules(normalizedSnapshot.sortRules),
     );
     await prefs.setDouble(_key('cover_size'), normalizedSnapshot.coverSize);
-    await prefs.setDouble(_key('sidebar_width'), normalizedSnapshot.sidebarWidth);
-    await prefs.setDouble(_key('details_width'), normalizedSnapshot.detailsWidth);
-    await prefs.setDouble(_key('details_height'), normalizedSnapshot.detailsHeight);
+    await prefs.setDouble(
+        _key('sidebar_width'), normalizedSnapshot.sidebarWidth);
+    await prefs.setDouble(
+        _key('details_width'), normalizedSnapshot.detailsWidth);
+    await prefs.setDouble(
+        _key('details_height'), normalizedSnapshot.detailsHeight);
     await prefs.setStringList(
       _key('visible_columns'),
       normalizedSnapshot.visibleColumns
@@ -309,7 +332,9 @@ class LibraryWorkspacePreferences {
     if (config.supportsTableColumn(LibraryTableColumn.title)) {
       normalized.add(LibraryTableColumn.title);
     }
-    return normalized.isEmpty ? Set.of(config.defaultVisibleColumns) : normalized;
+    return normalized.isEmpty
+        ? Set.of(config.defaultVisibleColumns)
+        : normalized;
   }
 
   Map<LibraryTableColumn, double> _normalizeColumnWidths(

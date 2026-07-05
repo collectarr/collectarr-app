@@ -135,23 +135,33 @@ class LibraryWorkspace extends ConsumerWidget {
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
     final defaultCoverSize = adapter.viewProfile.defaultCoverSize;
     final isMusicLibrary = type.capabilities.prefersSquareCovers;
+    final density = viewState.densityPreset;
     final cardScale = defaultCoverSize > 0
-        ? (viewState.coverSize / defaultCoverSize).clamp(0.78, 1.48)
+        ? ((viewState.coverSize / defaultCoverSize).clamp(0.72, 1.44) *
+            density.cardScaleFactor)
         : 1.0;
     final cardCoverWidth =
         (uiPrefs.cardCoverWidth * cardScale).clamp(60.0, 164.0).toDouble();
-    final cardTileWidth = (430.0 * cardScale).clamp(336.0, 620.0).toDouble();
-    final cardTileHeight = (156.0 * cardScale).clamp(132.0, 228.0).toDouble();
+    final cardTileWidth = (430.0 * cardScale).clamp(312.0, 620.0).toDouble();
+    final cardTileHeight = (156.0 * cardScale).clamp(124.0, 228.0).toDouble();
     final standardVerticalTileWidth =
-        (viewState.coverSize + 54).clamp(168.0, 244.0).toDouble();
-    final standardVerticalTileHeight =
-        (standardVerticalTileWidth * 1.45).clamp(232.0, 352.0).toDouble();
+        ((viewState.coverSize + 54) * density.cardScaleFactor)
+            .clamp(160.0, 244.0)
+            .toDouble();
+    final standardVerticalTileHeight = (standardVerticalTileWidth *
+            (1.34 + ((density.cardScaleFactor - 0.86) * 0.4)))
+        .clamp(220.0, 352.0)
+        .toDouble();
     final musicVerticalTileWidth =
-        (viewState.coverSize + 56).clamp(172.0, 248.0).toDouble();
-    final musicVerticalTileHeight =
-        (viewState.coverSize * 1.5).clamp(236.0, 360.0).toDouble();
+        ((viewState.coverSize + 56) * density.cardScaleFactor)
+            .clamp(164.0, 248.0)
+            .toDouble();
+    final musicVerticalTileHeight = (viewState.coverSize *
+            (1.38 + ((density.cardScaleFactor - 0.86) * 0.5)))
+        .clamp(224.0, 360.0)
+        .toDouble();
     final coverMainAxisExtent =
-        viewState.coverSize * adapter.viewProfile.coverGridHeightFactor;
+        viewState.coverSize * density.coverGridHeightFactor;
     if (_showGrouped && items.isNotEmpty) {
       return switch (viewState.viewMode) {
         LibraryViewMode.grid => _GroupedGrid(
@@ -417,6 +427,7 @@ class LibraryWorkspace extends ConsumerWidget {
       builder: (context, constraints) {
         final palette = appPalette(context);
         final compact = type.presentation.usesCompactTableLayout;
+        final density = viewState.densityPreset;
         final tableWidth = adapter.tableWidthForColumns(
           viewState.visibleColumns,
           viewState.columnWidths,
@@ -455,8 +466,8 @@ class LibraryWorkspace extends ConsumerWidget {
                   onSortChanged: onSortChanged,
                   onColumnWidthChanged: onColumnWidthChanged,
                   onColumnReordered: onColumnReordered,
-                  headerHeight: compact ? 24 : 26,
-                  rowHeight: compact ? 30 : 32,
+                  headerHeight: density.tableHeaderHeight,
+                  rowHeight: density.tableRowHeight,
                   columnSpacing: compact ? 6 : 8,
                   horizontalMargin: compact ? 4 : 6,
                   selectionRailWidth: compact ? 1 : 2,

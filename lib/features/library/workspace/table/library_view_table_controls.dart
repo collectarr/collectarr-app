@@ -48,11 +48,13 @@ class LibraryViewTableControls extends StatelessWidget {
           LibraryViewControls(
             viewMode: state.viewMode,
             detailsLayout: state.detailsLayout,
+            densityPreset: state.densityPreset,
             coverSize: state.coverSize,
             minCoverSize: state.minCoverSize,
             maxCoverSize: state.maxCoverSize,
             onViewModeChanged: callbacks.onViewModeChanged,
             onDetailsLayoutChanged: callbacks.onDetailsLayoutChanged,
+            onDensityPresetChanged: callbacks.onDensityPresetChanged,
             onCoverSizeChanged: callbacks.onCoverSizeChanged,
           ),
         ],
