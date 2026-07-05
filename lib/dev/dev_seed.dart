@@ -35,6 +35,207 @@ Future<bool> _isDatabaseEmpty(LocalDatabase db) async {
   return (count.read(countExpr) ?? 0) == 0;
 }
 
+const String _seedCoverImageData =
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+XbL0AAAAASUVORK5CYII=';
+
+CatalogItem _enrichSeedItem(CatalogItem item) {
+  final payload = Map<String, dynamic>.from(item.toSyncPayload());
+
+  payload.putIfAbsent('localized_title', () => item.displayTitle ?? item.title);
+  payload.putIfAbsent('original_title', () => item.originalTitle ?? item.title);
+  payload.putIfAbsent(
+    'title_extension',
+    () => item.releaseYear != null ? '${item.releaseYear}' : item.itemNumber,
+  );
+  payload.putIfAbsent(
+    'search_aliases',
+    () => <String?>[
+      item.title,
+      item.displayTitle,
+      item.originalTitle,
+      item.series?.seriesTitle,
+    ].whereType<String>().toList(growable: false),
+  );
+  payload.putIfAbsent('cover_image_data', () => _seedCoverImageData);
+  payload.putIfAbsent(
+    'trailer_urls',
+    () => <TrailerLink>[
+      TrailerLink(
+        url: 'https://example.com/${item.kind}/${item.id}/trailer',
+        title: '${item.title} trailer',
+        source: 'seed',
+      ),
+    ].map((link) => link.toJson()).toList(growable: false),
+  );
+
+  if (item.publishing != null || _shouldSeedPublishingDetails(item.kind)) {
+    payload.putIfAbsent(
+      'page_count',
+      () => _seedPageCountForKind(item.kind),
+    );
+    payload.putIfAbsent(
+      'cover_price_cents',
+      () => _seedCoverPriceForKind(item.kind),
+    );
+    payload.putIfAbsent('currency', () => 'USD');
+    payload.putIfAbsent('imprint', () => item.publisher);
+    payload.putIfAbsent('subtitle', () => '${item.title} seed edition');
+    payload.putIfAbsent('series_group', () => item.series?.seriesTitle);
+    payload.putIfAbsent('publication_place', () => 'US');
+    payload.putIfAbsent('original_country', () => 'US');
+    payload.putIfAbsent('original_language', () => _seedOriginalLanguage(item.kind));
+    payload.putIfAbsent(
+      'original_publication_date',
+      () => item.releaseDate?.toUtc().toIso8601String(),
+    );
+    payload.putIfAbsent('original_publication_place', () => 'US');
+    payload.putIfAbsent('original_publisher', () => item.publisher);
+    payload.putIfAbsent('paper_type', () => _seedPaperType(item.kind));
+    payload.putIfAbsent('printed_by', () => 'Collectarr Seeds');
+    payload.putIfAbsent(
+      'subjects',
+      () => <String>[
+        item.kind,
+        if (item.series?.seriesTitle != null) item.series!.seriesTitle!,
+      ],
+    );
+    payload.putIfAbsent(
+      'dust_jacket_condition',
+      () => item.kind == 'book' ? 'very good' : null,
+    );
+    payload.putIfAbsent('dust_jacket', () => item.kind == 'book');
+    payload.putIfAbsent('audiobook_abridged', () => false);
+    payload.putIfAbsent('first_edition', () => true);
+  }
+
+  if (_isVideoKind(item.kind)) {
+    payload.putIfAbsent('runtime_minutes', () => _seedRuntimeMinutes(item.kind));
+    payload.putIfAbsent('color', () => 'Color');
+    payload.putIfAbsent('nr_discs', () => 1);
+    payload.putIfAbsent('screen_ratio', () => '16:9');
+    payload.putIfAbsent('audio_tracks', () => 'English 5.1');
+    payload.putIfAbsent('subtitles', () => 'English');
+    payload.putIfAbsent('layers', () => 'single');
+    payload.putIfAbsent('age_rating', () => _seedAgeRating(item.kind));
+    payload.putIfAbsent('audience_rating', () => _seedAudienceRating(item.kind));
+  }
+
+  if (item.kind == 'music') {
+    payload.putIfAbsent('track_count', () => 10);
+    payload.putIfAbsent('catalog_number', () => 'SEED-${item.id}');
+    payload.putIfAbsent(
+      'original_release_date',
+      () => item.releaseDate?.toUtc().toIso8601String(),
+    );
+    payload.putIfAbsent(
+      'recording_date',
+      () => item.releaseDate?.toUtc().toIso8601String(),
+    );
+    payload.putIfAbsent('studio', () => item.publisher);
+    payload.putIfAbsent('rpm', () => '33 1/3');
+    payload.putIfAbsent('spars', () => 'none');
+    payload.putIfAbsent('sound_type', () => 'stereo');
+    payload.putIfAbsent('vinyl_color', () => 'black');
+    payload.putIfAbsent('vinyl_weight', () => '180g');
+    payload.putIfAbsent('media_condition', () => 'excellent');
+    payload.putIfAbsent('instrument', () => 'ensemble');
+    payload.putIfAbsent('is_live', () => false);
+    payload.putIfAbsent('composition', () => item.title);
+  }
+
+  if (item.kind == 'game') {
+    payload.putIfAbsent('platforms', () => <String>['PC', 'Console']);
+    payload.putIfAbsent('toy_subtype', () => 'video game');
+    payload.putIfAbsent('toy_type', () => 'software');
+  }
+
+  if (item.kind == 'boardgame') {
+    payload.putIfAbsent('bgg_rank', () => 1);
+    payload.putIfAbsent('bgg_rating', () => 7.5);
+    payload.putIfAbsent('play_count', () => 5);
+    payload.putIfAbsent('last_played', () => item.releaseDate?.toUtc().toIso8601String());
+    payload.putIfAbsent('favorite_player_count', () => 4);
+    payload.putIfAbsent(
+      'player_stats',
+      () => <Map<String, dynamic>>[
+        {'players': 2, 'rating': 7.0},
+      ],
+    );
+  }
+
+  return CatalogItem.fromJson(payload);
+}
+
+bool _isVideoKind(String kind) => kind == 'movie' || kind == 'tv' || kind == 'anime';
+
+bool _shouldSeedPublishingDetails(String kind) =>
+    kind == 'book' || kind == 'comic' || kind == 'manga' || _isVideoKind(kind);
+
+String? _seedPaperType(String kind) {
+  if (kind == 'book' || kind == 'comic' || kind == 'manga') {
+    return 'paperback';
+  }
+  return null;
+}
+
+String? _seedOriginalLanguage(String kind) {
+  return switch (kind) {
+    'music' => 'en',
+    'game' => 'en',
+    'boardgame' => 'en',
+    _ => 'en',
+  };
+}
+
+int _seedPageCountForKind(String kind) {
+  return switch (kind) {
+    'book' => 560,
+    'comic' => 32,
+    'manga' => 192,
+    _ => 1,
+  };
+}
+
+int _seedCoverPriceForKind(String kind) {
+  return switch (kind) {
+    'book' => 2499,
+    'comic' => 499,
+    'manga' => 799,
+    'music' => 1999,
+    'game' => 5999,
+    'boardgame' => 4499,
+    _ => 1999,
+  };
+}
+
+int _seedRuntimeMinutes(String kind) {
+  return switch (kind) {
+    'movie' => 120,
+    'tv' => 42,
+    'anime' => 24,
+    _ => 0,
+  };
+}
+
+String _seedAgeRating(String kind) {
+  return switch (kind) {
+    'tv' => 'TV-MA',
+    'anime' => 'TV-14',
+    'movie' => 'PG-13',
+    _ => 'PG',
+  };
+}
+
+String _seedAudienceRating(String kind) {
+  return switch (kind) {
+    'movie' => 'PG-13',
+    'tv' => 'TV-MA',
+    'anime' => 'TV-14',
+    'boardgame' => '10+',
+    _ => 'All',
+  };
+}
+
 /// Seeds the local database with rich dev data if it is empty.
 ///
 /// Call from app startup or a debug menu. Skips seeding if data already exists.
@@ -50,15 +251,15 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   // --- Catalog Items ---
   final allItems = <CatalogItem>[
-    ..._movieItems(),
-    ..._tvItems(),
-    ..._animeItems(),
-    ..._mangaItems(),
-    ..._bookItems(),
-    ..._musicItems(),
-    ..._gameItems(),
-    ..._boardgameItems(),
-    ..._comicItems(),
+    ..._movieItems().map(_enrichSeedItem),
+    ..._tvItems().map(_enrichSeedItem),
+    ..._animeItems().map(_enrichSeedItem),
+    ..._mangaItems().map(_enrichSeedItem),
+    ..._bookItems().map(_enrichSeedItem),
+    ..._musicItems().map(_enrichSeedItem),
+    ..._gameItems().map(_enrichSeedItem),
+    ..._boardgameItems().map(_enrichSeedItem),
+    ..._comicItems().map(_enrichSeedItem),
   ];
 
   // upsertAll also auto-populates SeriesRegistry & PickLists from catalog data
