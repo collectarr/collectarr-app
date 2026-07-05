@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -10,6 +11,28 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 
 void main() {
+  group('LibraryInspectorSectionSpec', () {
+    testWidgets('builds a standard inspector section wrapper', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: buildLibraryInspectorSectionWidgets([
+                const LibraryInspectorSectionSpec(
+                  title: 'Example',
+                  children: [Text('Section body')],
+                ),
+              ]),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Example'), findsOneWidget);
+      expect(find.text('Section body'), findsOneWidget);
+    });
+  });
+
   group('InspectorMetadataSection', () {
     testWidgets('renders metadata section title', (tester) async {
       final type = collectarrLibraryTypes.byKind('comic')!;

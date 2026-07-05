@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/volumes_section.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -191,6 +192,7 @@ class BookLibraryMediaPresentationBuilder
     final bookEntry = entry is BookWorkspaceEntry ? entry : null;
     final originalDetails = bookEntry?.originalDetails;
     final physicalDetails = bookEntry?.physicalDetails;
+    final sectionSpecs = <LibraryInspectorSectionSpec>[];
     final originalFacts = <LibraryInspectorFactData>[
       if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Series', entry.series!.seriesTitle!.trim()),
@@ -212,8 +214,8 @@ class BookLibraryMediaPresentationBuilder
         ),
     ];
     if (originalFacts.isNotEmpty) {
-      sections.add(
-        LibraryInspectorSection(
+      sectionSpecs.add(
+        LibraryInspectorSectionSpec(
           title: 'Original Details',
           accentColor: accent,
           children: [LibraryInspectorFactGrid(facts: originalFacts)],
@@ -258,8 +260,8 @@ class BookLibraryMediaPresentationBuilder
         ),
     ];
     if (productFacts.isNotEmpty) {
-      sections.add(
-        LibraryInspectorSection(
+      sectionSpecs.add(
+        LibraryInspectorSectionSpec(
           title: 'Product Details',
           accentColor: accent,
           children: [LibraryInspectorFactGrid(facts: productFacts)],
@@ -307,8 +309,8 @@ class BookLibraryMediaPresentationBuilder
         ),
     ];
     if (imageFacts.isNotEmpty) {
-      sections.add(
-        LibraryInspectorSection(
+      sectionSpecs.add(
+        LibraryInspectorSectionSpec(
           title: 'Images',
           accentColor: accent,
           children: [LibraryInspectorFactGrid(facts: imageFacts)],
@@ -358,8 +360,8 @@ class BookLibraryMediaPresentationBuilder
         LibraryInspectorFactData('Tags', entry.tags!.trim()),
     ];
     if (personalFacts.isNotEmpty) {
-      sections.add(
-        LibraryInspectorSection(
+      sectionSpecs.add(
+        LibraryInspectorSectionSpec(
           title: 'Personal Details',
           accentColor: accent,
           children: [LibraryInspectorFactGrid(facts: personalFacts)],
@@ -367,6 +369,7 @@ class BookLibraryMediaPresentationBuilder
       );
     }
 
+    sections.addAll(buildLibraryInspectorSectionWidgets(sectionSpecs));
     return sections;
   }
 
