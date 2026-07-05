@@ -1425,6 +1425,8 @@ class _ProviderStatusTile extends StatelessWidget {
                     const _MiniChip(label: 'attribution'),
                   if (provider.allowsImageMirroring)
                     const _MiniChip(label: 'image mirror ok'),
+                  if (provider.imagePolicy.isNotEmpty)
+                    _MiniChip(label: _imagePolicyLabel(provider.imagePolicy)),
                   if (provider.licenseName != null)
                     _MiniChip(label: provider.licenseName!),
                 ],
@@ -1435,6 +1437,17 @@ class _ProviderStatusTile extends StatelessWidget {
       ),
     );
   }
+}
+
+String _imagePolicyLabel(String policy) {
+  return switch (policy) {
+    'mirrored_image' => 'mirrored image',
+    'remote_image_plus_cache' => 'remote image + cache',
+    'remote_image_only' => 'remote image only',
+    'user_supplied_image' => 'user-supplied image',
+    'fallback_generated_cover' => 'fallback generated cover',
+    _ => policy.replaceAll('_', ' '),
+  };
 }
 
 class _ProviderResultsList extends StatelessWidget {

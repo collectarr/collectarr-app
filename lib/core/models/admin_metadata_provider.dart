@@ -16,6 +16,7 @@ class AdminProviderStatus {
     required this.nonCommercialOnly,
     required this.allowsRedistribution,
     required this.allowsImageMirroring,
+    required this.imagePolicy,
     required this.requiresAttribution,
     this.licenseName,
     this.termsUrl,
@@ -37,6 +38,7 @@ class AdminProviderStatus {
   final bool nonCommercialOnly;
   final bool allowsRedistribution;
   final bool allowsImageMirroring;
+  final String imagePolicy;
   final bool requiresAttribution;
   final String? licenseName;
   final String? termsUrl;
@@ -65,6 +67,7 @@ class AdminProviderStatus {
       nonCommercialOnly: json['non_commercial_only'] as bool? ?? false,
       allowsRedistribution: json['allows_redistribution'] as bool? ?? false,
       allowsImageMirroring: json['allows_image_mirroring'] as bool? ?? false,
+      imagePolicy: json['image_policy'] as String? ?? 'remote_image_only',
       requiresAttribution: json['requires_attribution'] as bool? ?? false,
       licenseName: json['license_name'] as String?,
       termsUrl: json['terms_url'] as String?,

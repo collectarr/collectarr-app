@@ -110,6 +110,7 @@ void main() {
     expect(find.text('1 approved'), findsOneWidget);
     expect(find.text('1 rejected'), findsOneWidget);
     expect(find.text('Manual GCD correction'), findsOneWidget);
+    expect(find.text('remote image only'), findsWidgets);
 
     await tester
         .tap(find.widgetWithText(OutlinedButton, 'Review in search').first);
@@ -773,6 +774,7 @@ class _FakeAdminApiClient extends ApiClient {
         nonCommercialOnly: false,
         allowsRedistribution: true,
         allowsImageMirroring: false,
+        imagePolicy: 'remote_image_only',
         requiresAttribution: true,
         licenseName: 'CC BY-SA',
         message: 'Ready',
@@ -790,6 +792,7 @@ class _FakeAdminApiClient extends ApiClient {
         nonCommercialOnly: true,
         allowsRedistribution: false,
         allowsImageMirroring: false,
+        imagePolicy: 'remote_image_only',
         requiresAttribution: true,
         message: 'Set COMICVINE_API_KEY',
       ),
@@ -805,6 +808,7 @@ class _FakeAdminApiClient extends ApiClient {
         nonCommercialOnly: false,
         allowsRedistribution: false,
         allowsImageMirroring: false,
+        imagePolicy: 'remote_image_only',
         requiresAttribution: true,
         message: 'Planned game provider',
       ),
