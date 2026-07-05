@@ -55,7 +55,7 @@ void main() {
   test('reports the reset v1 schema version', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 1);
   });
 
   test('destructively rebuilds a higher-versioned cache to the v1 schema',
@@ -86,7 +86,7 @@ void main() {
     expect(rows, isEmpty, reason: 'destructive rebuild should clear the cache');
 
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.first, 3);
+    expect(version.data.values.first, 1);
   });
 
   test('stores personal collection and wishlist data locally', () async {

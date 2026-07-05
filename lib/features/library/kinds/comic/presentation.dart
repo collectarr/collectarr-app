@@ -32,6 +32,7 @@ const comicsIssueVisibleColumns = {
 
 const comicsLibraryGroupModes = [
   LibraryGroupMode.series,
+  LibraryGroupMode.title,
   LibraryGroupMode.ageRating,
   LibraryGroupMode.country,
   LibraryGroupMode.crossover,
@@ -70,6 +71,7 @@ const comicsLibraryGroupModes = [
   LibraryGroupMode.editor,
   LibraryGroupMode.editorInChief,
   LibraryGroupMode.format,
+  LibraryGroupMode.valueLocked,
   LibraryGroupMode.grade,
   LibraryGroupMode.condition,
   LibraryGroupMode.isKeyComic,
@@ -105,6 +107,12 @@ const comicsLibraryGroupModeDefinitions = [
     label: 'Series',
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.title,
+    label: 'Title',
+    sidebarTitle: 'Titles',
+    icon: Icons.sort_by_alpha,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.ageRating,

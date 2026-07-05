@@ -228,7 +228,6 @@ void main() {
     expect(
       OwnedItem.fromJson({
         'id': 'owned-1',
-        'item_id': 'book-1',
         'catalog_ref': ref.toJson(),
         'updated_at': '2026-07-02T00:00:00.000Z',
       }).catalogRef.id,

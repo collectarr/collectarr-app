@@ -56,17 +56,11 @@ class WatchSession {
 
   factory WatchSession.fromJson(Map<String, dynamic> json) {
     final targetRefJson = json['target_ref'] ?? json['catalog_ref'];
-    // Legacy read fallback only; writes now always use catalog_ref.
-    final fallbackItemId = json['item_id'] as String? ?? '';
     return WatchSession(
       id: json['id'] as String,
       targetRef: targetRefJson is Map<String, dynamic>
           ? CatalogEntityRef.fromJson(targetRefJson)
-          : CatalogEntityRef(
-              kind: 'unknown',
-              entityType: CatalogEntityType.work,
-              id: fallbackItemId,
-            ),
+          : throw const FormatException('Watch session is missing catalog_ref'),
       trackingEntryId: json['tracking_entry_id'] as String?,
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,

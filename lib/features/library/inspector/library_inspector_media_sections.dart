@@ -161,7 +161,7 @@ class InspectorTrackList extends StatelessWidget {
     );
 
     return LibraryInspectorSection(
-      title: headerLabel,
+      title: 'Track List',
       accentColor: accent,
       children: [
         if (coverUrl != null)

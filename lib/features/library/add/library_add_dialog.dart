@@ -467,7 +467,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       isSearchingProvider: _isSearchingProvider,
       onModeChanged: (mode) {
         if (mode == LibraryAddDialogMode.manual) {
-          _openManualEditor(_addTarget);
+          setState(() => _mode = LibraryAddDialogMode.manual);
           return;
         }
         setState(() => _mode = mode);
@@ -485,7 +485,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       isScanningCover: _isScanningCover,
       onScanCover: _scanCover,
       onLookupBarcode: _lookupBarcode,
-      onManual: () => _openManualEditor(_addTarget),
+      onManual: () => setState(() => _mode = LibraryAddDialogMode.manual),
       showAdvanced: _showAdvancedSearch,
       onToggleAdvanced: () =>
           setState(() => _showAdvancedSearch = !_showAdvancedSearch),

@@ -428,7 +428,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration {
@@ -440,7 +440,7 @@ class LocalDatabase extends _$LocalDatabase {
       // remaining safe because no user-authored data lives here.
       onUpgrade: (m, from, to) => _destructiveRebuild(m),
       beforeOpen: (details) async {
-        // The schema was reset to version 3. An existing local cache created by
+        // The schema was reset to version 1. An existing local cache created by
         // an older build can carry a higher on-disk version, for which Drift
         // does not call onUpgrade. Force the same destructive rebuild so the
         // local cache always matches the current schema.

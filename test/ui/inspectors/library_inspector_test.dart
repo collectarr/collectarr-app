@@ -268,7 +268,7 @@ void main() {
     expect(find.text('Collect'), findsNothing);
     expect(find.text('Remove'), findsNothing);
     expect(find.byIcon(Icons.check_circle), findsWidgets);
-    expect(find.text('Overview'), findsNothing);
+    expect(find.text('Overview'), findsWidgets);
     expect(find.text('Collection tools'), findsNothing);
 
     expect(find.byType(ComicInspectorPanel), findsOneWidget);

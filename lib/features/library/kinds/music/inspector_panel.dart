@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -38,7 +39,16 @@ class _MusicInspectorPanelState extends State<MusicInspectorPanel> {
     _MusicInspectorTab.discs,
     _MusicInspectorTab.product,
   ];
-  int _selectedTabIndex = 0;
+  late int _selectedTabIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedTabIndex = widget.request.inspector.searchTarget ==
+            LibrarySearchTarget.tracksOnly
+        ? 1
+        : 0;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -974,7 +984,7 @@ class _MusicDiscCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Disc $discNumber',
+              'Disc #$discNumber',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
@@ -1031,7 +1041,7 @@ class _MusicDiscCardSection extends StatelessWidget {
         ('Vinyl weight', disc.vinylWeight!),
     ];
     return LibraryInspectorSection(
-      title: 'Disc ${disc.discNumber}',
+      title: 'Disc #${disc.discNumber}',
       accentColor: accent,
       children: [
         LibraryInspectorFactGrid(

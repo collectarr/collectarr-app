@@ -120,30 +120,6 @@ class _LibraryAddModeBar extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Expanded(
-                    child: mode == LibraryAddDialogMode.search
-                        ? LibraryToolbarSearch(
-                            controller: queryController,
-                            hintText: searchLabels.queryHint,
-                            onSearch: (_) => onSearch(),
-                            onChanged: onQueryChanged,
-                            onScanBarcode: () =>
-                                onModeChanged(LibraryAddDialogMode.barcode),
-                            onScanCover: canScanCover ? onScanCover : null,
-                            selectionColor: accent,
-                            maxWidth: 620,
-                          )
-                        : _LibraryAddModeTextField(
-                            fieldKey:
-                                const ValueKey('library-add-barcode-field'),
-                            controller: barcodeController,
-                            label: 'Barcode / UPC / ISBN',
-                            hintText: 'Scan or enter barcode / UPC / ISBN...',
-                            keyboardType: TextInputType.number,
-                            onSubmitted: onLookupBarcode,
-                          ),
-                  ),
-                  const SizedBox(width: 8),
                   if (mode == LibraryAddDialogMode.search) ...[
                     _AdvancedToggleButton(
                       expanded: showAdvanced,
@@ -162,6 +138,23 @@ class _LibraryAddModeBar extends StatelessWidget {
                       label: 'Manual',
                       accent: accent,
                       onPressed: onManual,
+                    ),
+                    const Spacer(),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: LibraryToolbarSearch(
+                          controller: queryController,
+                          hintText: searchLabels.queryHint,
+                          onSearch: (_) => onSearch(),
+                          onChanged: onQueryChanged,
+                          onScanBarcode: () =>
+                              onModeChanged(LibraryAddDialogMode.barcode),
+                          onScanCover: canScanCover ? onScanCover : null,
+                          selectionColor: accent,
+                          maxWidth: 620,
+                        ),
+                      ),
                     ),
                   ] else if (mode == LibraryAddDialogMode.barcode) ...[
                     _LibraryAddModeButton(
@@ -184,6 +177,20 @@ class _LibraryAddModeBar extends StatelessWidget {
                       label: 'Manual',
                       accent: accent,
                       onPressed: onManual,
+                    ),
+                    const Spacer(),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: _LibraryAddModeTextField(
+                          fieldKey: const ValueKey('library-add-barcode-field'),
+                          controller: barcodeController,
+                          label: 'Barcode / UPC / ISBN',
+                          hintText: 'Scan or enter barcode / UPC / ISBN...',
+                          keyboardType: TextInputType.number,
+                          onSubmitted: onLookupBarcode,
+                        ),
+                      ),
                     ),
                   ] else ...[
                     Expanded(
@@ -269,24 +276,27 @@ class _LibraryAddModeBar extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Expanded(
-                          child: LibraryToolbarSearch(
-                            controller: queryController,
-                            hintText: searchLabels.queryHint,
-                            onSearch: (_) => onSearch(),
-                            onChanged: onQueryChanged,
-                            onScanBarcode: () =>
-                                onModeChanged(LibraryAddDialogMode.barcode),
-                            onScanCover: canScanCover ? onScanCover : null,
-                            selectionColor: accent,
-                            maxWidth: 620,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
                         _AdvancedToggleButton(
                           expanded: showAdvanced,
                           accent: accent,
                           onPressed: onToggleAdvanced,
+                        ),
+                        const Spacer(),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: LibraryToolbarSearch(
+                              controller: queryController,
+                              hintText: searchLabels.queryHint,
+                              onSearch: (_) => onSearch(),
+                              onChanged: onQueryChanged,
+                              onScanBarcode: () =>
+                                  onModeChanged(LibraryAddDialogMode.barcode),
+                              onScanCover: canScanCover ? onScanCover : null,
+                              selectionColor: accent,
+                              maxWidth: 620,
+                            ),
+                          ),
                         ),
                       ],
                     ),

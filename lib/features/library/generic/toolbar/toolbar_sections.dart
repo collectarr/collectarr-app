@@ -743,7 +743,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
       ],
     );
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2),
       child: Row(
         children: [
           Expanded(

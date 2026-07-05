@@ -2,12 +2,9 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
-import 'package:collectarr_app/dev/dev_seed.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
 import 'package:collectarr_app/ui/app_zoom.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,10 +34,6 @@ void main() {
       // can discover custom panes at runtime.
       registerLibraryAddBuilders();
       await _logFontDiagnostics(container!);
-
-      if (kDebugMode && kIsWeb) {
-        await seedLocalDatabase(container!.read(localDatabaseProvider));
-      }
 
       runApp(
         UncontrolledProviderScope(
@@ -122,6 +115,7 @@ class CollectarrApp extends ConsumerWidget {
     final palette = paletteForThemeMode(themeMode);
     return MaterialApp.router(
       title: 'Collectarr',
+      debugShowCheckedModeBanner: false,
       theme: buildAppShellTheme(palette: palette),
       builder: (context, child) => AppZoomWrapper(child: child!),
       routerConfig: router,

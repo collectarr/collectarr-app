@@ -423,7 +423,7 @@ final class MovieWork {
           _stringOrNull(json['original_language'] ?? json['originalLanguage']),
       subtitle: _stringOrNull(json['subtitle']),
       description: _stringOrNull(json['description']),
-      series: _seriesFromJson(json['series']),
+      series: _seriesFromJson(json['series'] ?? json),
       releases: releases,
       media: [
         for (final entry in _mapList(json['media']))
@@ -518,6 +518,40 @@ final class MoviePersonalOverlay {
 }
 
 CatalogSeriesDetails? _seriesFromJson(Object? value) {
+  if (value is Map<String, dynamic>) {
+    final id = _stringOrNull(value['id'] ?? value['series_id'] ?? value['seriesId']);
+    final title = _stringOrNull(
+      value['series_title'] ?? value['seriesTitle'] ?? value['title'],
+    );
+    final volumeName = _stringOrNull(value['volume_name'] ?? value['volumeName']);
+    final volumeNumber = (value['volume_number'] ?? value['volumeNumber']) as num?;
+    final resolvedVolumeNumber = volumeNumber?.toDouble();
+    final volumeStartYear =
+        _intOrNull(value['volume_start_year'] ?? value['volumeStartYear']);
+    final seasonNumber = _intOrNull(value['season_number'] ?? value['seasonNumber']);
+    final episodeNumber = _intOrNull(value['episode_number'] ?? value['episodeNumber']);
+    final tags = _stringList(value['tags']);
+    if (id == null &&
+        title == null &&
+        volumeName == null &&
+        resolvedVolumeNumber == null &&
+        volumeStartYear == null &&
+        seasonNumber == null &&
+        episodeNumber == null &&
+        tags.isEmpty) {
+      return null;
+    }
+    return CatalogSeriesDetails(
+      seriesId: id,
+      seriesTitle: title,
+      volumeName: volumeName,
+      volumeNumber: resolvedVolumeNumber,
+      volumeStartYear: volumeStartYear,
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+      tags: tags,
+    );
+  }
   if (value is! List || value.isEmpty) {
     return null;
   }
@@ -531,7 +565,9 @@ CatalogSeriesDetails? _seriesFromJson(Object? value) {
   }
   if (first is Map<String, dynamic>) {
     final id = _stringOrNull(first['id'] ?? first['series_id'] ?? first['seriesId']);
-    final title = _stringOrNull(first['title'] ?? first['series_title'] ?? first['seriesTitle']);
+    final title = _stringOrNull(
+      first['series_title'] ?? first['seriesTitle'] ?? first['title'],
+    );
     if (id == null && title == null) {
       return null;
     }

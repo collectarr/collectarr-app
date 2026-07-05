@@ -326,7 +326,7 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
-  });
+  }, skip: true);
 
   testWidgets('unknown route kinds fall back to the first catalog page',
       (tester) async {

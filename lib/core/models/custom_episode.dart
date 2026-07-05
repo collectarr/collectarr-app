@@ -43,16 +43,8 @@ final class CustomEpisode {
   }
 
   factory CustomEpisode.fromJson(Map<String, dynamic> json) {
-    final catalogRefJson = json['catalog_ref'];
-    // Legacy read fallback only; writes now always use catalog_ref.
-    final fallbackItemId = json['item_id'] as String? ?? '';
-    final seriesRef = catalogRefJson is Map<String, dynamic>
-        ? CatalogEntityRef.fromJson(catalogRefJson)
-        : CatalogEntityRef(
-            kind: 'tv',
-            entityType: CatalogEntityType.work,
-            id: fallbackItemId,
-          );
+    final seriesRef =
+        CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>);
     return CustomEpisode(
       id: json['id'] as String,
       seriesRef: seriesRef,

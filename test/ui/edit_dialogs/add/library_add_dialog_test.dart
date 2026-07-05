@@ -1068,7 +1068,7 @@ void main() {
     );
   });
 
-  testWidgets('movie manual action opens edit modal', (tester) async {
+  testWidgets('movie manual action opens manual pane', (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -1097,11 +1097,13 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Cancel'), findsAtLeastNWidgets(1));
-    expect(find.text('Save'), findsAtLeastNWidgets(1));
+    expect(find.text('Cancel'), findsNothing);
+    expect(find.text('Save'), findsNothing);
+    expect(find.text('Previous'), findsNothing);
+    expect(find.text('Next'), findsNothing);
   });
 
-  testWidgets('showLibraryAddDialog opens comic edit modal from manual action',
+  testWidgets('showLibraryAddDialog opens comic manual pane from manual action',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
@@ -1137,10 +1139,13 @@ void main() {
 
     await tester.tap(find.text('Open comic add'));
     await pumpUntilSettled(tester);
-    await tester.tap(find.text('Manual'));
+    await tester.tap(find.widgetWithText(TextButton, 'Manual'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Cancel'), findsAtLeastNWidgets(1));
+    expect(find.text('Cancel'), findsNothing);
+    expect(find.text('Save'), findsNothing);
+    expect(find.text('Previous'), findsNothing);
+    expect(find.text('Next'), findsNothing);
   });
 
   testWidgets('comic manual action remains available after rebuilds',
@@ -1172,9 +1177,10 @@ void main() {
 
     await tester.pumpWidget(buildSubject());
 
-    await tester.tap(find.text('Manual'));
+    await tester.tap(find.widgetWithText(TextButton, 'Manual'));
     await pumpUntilSettled(tester);
-    expect(find.text('Cancel'), findsAtLeastNWidgets(1));
+    expect(find.text('Cancel'), findsNothing);
+    expect(find.text('Save'), findsNothing);
 
     await tester.pumpWidget(buildSubject());
     await pumpUntilSettled(tester);
@@ -1338,8 +1344,8 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Cancel'), findsAtLeastNWidgets(1));
-    expect(find.text('Save'), findsAtLeastNWidgets(1));
+    expect(find.text('Cancel'), findsNothing);
+    expect(find.text('Save'), findsNothing);
   });
 
   testWidgets('showLibraryAddDialog uses movie-specific preview pane',

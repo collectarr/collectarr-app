@@ -36,7 +36,7 @@ void main() {
     expect(fieldFor('title', 'game')?['writeTarget'], 'core_canonical');
     expect(fieldFor('physical_format_label', 'game')?['writeTarget'],
         'readonly_computed');
-    expect(fieldFor('platforms', 'game')?['scope'], 'work');
+    expect(fieldFor('platforms', 'game')?['scope'], 'platform');
     expect(fieldFor('platforms', 'boardgame')?['scope'], 'work');
   });
 }

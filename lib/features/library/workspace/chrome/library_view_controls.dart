@@ -272,24 +272,22 @@ class LibraryViewControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
       children: [
         LibraryViewModeDropdown(
           viewMode: viewMode,
           onChanged: onViewModeChanged,
         ),
-        const SizedBox(width: 8),
         LibraryDetailsLayoutDropdown(
           detailsLayout: detailsLayout,
           onChanged: onDetailsLayoutChanged,
         ),
-        const SizedBox(width: 12),
         LibraryWorkspaceDensityDropdown(
           densityPreset: densityPreset,
           onChanged: (value) => onDensityPresetChanged?.call(value),
         ),
-        const SizedBox(width: 12),
         LibraryCoverSizeSlider(
           viewMode: viewMode,
           coverSize: coverSize,

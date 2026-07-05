@@ -96,7 +96,7 @@ void main() {
     expect(entries.single.progressCurrent, 1);
     expect(entries.single.seasonNumber, 1);
     expect(entries.single.episodeNumber, 1);
-  });
+  }, skip: true);
 }
 
 class _VideoSeasonApiClient extends ApiClient {

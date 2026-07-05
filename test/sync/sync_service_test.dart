@@ -221,7 +221,13 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'source_device_id': 'desktop',
           'client_changed_at': '2026-05-12T08:00:00.000Z',
           'changed_at': '2026-05-12T09:00:00.000Z',
-          'payload': {'item_id': 'comic-1'},
+          'payload': {
+            'catalog_ref': {
+              'kind': 'comic',
+              'entity_type': 'work',
+              'id': 'comic-1',
+            },
+          },
         },
         {
           'entity_type': 'tracking_entry',
@@ -231,7 +237,11 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'client_changed_at': '2026-05-12T08:10:00.000Z',
           'changed_at': '2026-05-12T09:00:00.000Z',
           'payload': {
-            'item_id': 'comic-1',
+            'catalog_ref': {
+              'kind': 'comic',
+              'entity_type': 'work',
+              'id': 'comic-1',
+            },
             'owned_item_id': 'owned-1',
             'source_type': 'physical',
             'status': 'Completed',
@@ -257,7 +267,13 @@ class _FakeSyncClient extends CollectarrSyncClient {
           'source_device_id': 'desktop',
           'client_changed_at': '2026-05-12T08:30:00.000Z',
           'changed_at': '2026-05-12T09:00:00.000Z',
-          'payload': {'item_id': 'comic-2'},
+          'payload': {
+            'catalog_ref': {
+              'kind': 'comic',
+              'entity_type': 'work',
+              'id': 'comic-2',
+            },
+          },
         },
       ],
       'changes': [],
@@ -299,7 +315,14 @@ class _RejectedSyncClient extends CollectarrSyncClient {
           'source_device_id': 'desktop',
           'client_changed_at': '2026-05-12T09:00:00.000Z',
           'changed_at': '2026-05-12T09:05:00.000Z',
-          'payload': {'item_id': 'comic-1', 'grade': '9.8'},
+          'payload': {
+            'catalog_ref': {
+              'kind': 'comic',
+              'entity_type': 'work',
+              'id': 'comic-1',
+            },
+            'grade': '9.8',
+          },
         },
       ],
       'changes': [],
