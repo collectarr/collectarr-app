@@ -78,7 +78,11 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
             : _selection.selectedCount,
         totalSelectableCount: projection?.filteredItems.length ?? 0,
         showReleaseFolderBack: showReleaseFolderBack,
-        releaseFolderLabel: _releaseFolderLabelForProjection(projection),
+        releaseFolderLabel: widget.type.kindUiAdapter.releaseFolderLabelForProjection(
+          widget.type,
+          projection,
+          releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
+        ),
       ),
       actions: LibraryToolbarActions(
         onAdd: () => showAddDialogFlow(),

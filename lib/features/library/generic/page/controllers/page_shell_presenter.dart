@@ -309,7 +309,11 @@ abstract final class _LibraryPageShellPresenter {
           browserMode: state._activeBrowserMode,
           releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
         ),
-        releaseFolderLabel: state._releaseFolderLabelForProjection(projection),
+        releaseFolderLabel: state.widget.type.kindUiAdapter.releaseFolderLabelForProjection(
+          state.widget.type,
+          projection,
+          releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
+        ),
         onReleaseFolderBack: state.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
           state.widget.type,
           browserMode: state._activeBrowserMode,

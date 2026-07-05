@@ -74,16 +74,11 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   String? _releaseFolderLabelForProjection(LibraryProjection? projection) {
-    final titleId = activeReleaseFolderTitleItemId;
-    if (titleId == null || projection == null) {
-      return null;
-    }
-    for (final item in projection.allItems) {
-      if ((item.entry.titleItemId ?? item.entry.id) == titleId) {
-        return item.entry.resolvedTitle;
-      }
-    }
-    return null;
+    return widget.type.kindUiAdapter.releaseFolderLabelForProjection(
+      widget.type,
+      projection,
+      releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
+    );
   }
 
   String? _releasePositionLabelForProjection(LibraryProjection projection) {

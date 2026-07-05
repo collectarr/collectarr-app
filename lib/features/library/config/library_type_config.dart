@@ -537,6 +537,23 @@ class LibraryKindUiAdapter {
     );
   }
 
+  String? releaseFolderLabelForProjection(
+    LibraryTypeConfig type,
+    LibraryProjection? projection, {
+    String? releaseFolderTitleItemId,
+  }) {
+    final titleId = releaseFolderTitleItemId;
+    if (titleId == null || projection == null) {
+      return null;
+    }
+    for (final item in projection.allItems) {
+      if ((item.entry.titleItemId ?? item.entry.id) == titleId) {
+        return item.entry.resolvedTitle;
+      }
+    }
+    return null;
+  }
+
   bool canJumpToIssue(
     LibraryTypeConfig type,
     LibraryProjection? projection, {
