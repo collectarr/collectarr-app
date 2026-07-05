@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -157,6 +156,56 @@ LibraryWorkspaceEntry buildTvReleaseWorkspaceEntry({
     editions: const <CatalogEdition>[],
     video: VideoCatalogDetails(nrDiscs: release.media.length),
     creators: series.contributions,
+  );
+}
+
+LibraryWorkspaceEntry buildTvReleaseMediaWorkspaceEntry({
+  required TvRelease release,
+  required TvReleaseMedia media,
+}) {
+  return LibraryWorkspaceEntry(
+    id: '${release.id}:media:${media.id}',
+    mediaType: 'tv',
+    title: release.title ?? release.seriesId,
+    browseScope: LibraryBrowserScope.release,
+    titleItemId: release.seriesId,
+    releaseId: release.id,
+    displayTitle: media.title ?? release.title ?? release.seriesId,
+    itemNumber: media.discNumber == null ? null : 'Disc ${media.discNumber}',
+    variant: media.formatLabel,
+    hasMissingCover: false,
+    hasMissingMetadata: false,
+    locationPath: null,
+    addedAt: null,
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    editions: const <CatalogEdition>[],
+    video: VideoCatalogDetails(nrDiscs: media.discNumber),
+  );
+}
+
+LibraryWorkspaceEntry buildTvReleaseEpisodeMapWorkspaceEntry({
+  required TvRelease release,
+  required TvReleaseMedia media,
+  required TvReleaseEpisodeMap episodeMap,
+}) {
+  final sequence = episodeMap.sequenceNumber ?? episodeMap.discNumber ?? 1;
+  return LibraryWorkspaceEntry(
+    id: '${release.id}:media:${media.id}:map:${episodeMap.id}',
+    mediaType: 'tv',
+    title: release.title ?? release.seriesId,
+    browseScope: LibraryBrowserScope.release,
+    titleItemId: release.seriesId,
+    releaseId: release.id,
+    displayTitle: 'Episode map $sequence',
+    itemNumber: 'Disc ${media.discNumber ?? sequence}',
+    variant: media.formatLabel,
+    hasMissingCover: false,
+    hasMissingMetadata: false,
+    locationPath: null,
+    addedAt: null,
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
+    editions: const <CatalogEdition>[],
+    video: VideoCatalogDetails(nrDiscs: media.discNumber),
   );
 }
 

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +14,7 @@ void main() {
     );
     final wishlist = WishlistItem(
       id: 'wishlist-1',
-      itemId: 'comic-1',
+      catalogRef: testCatalogRef('comic-1', kind: 'comic'),
       createdAt: DateTime.utc(2026),
       updatedAt: DateTime.utc(2026),
     );

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -232,12 +231,7 @@ void main() {
     await repo.upsert(
       TrackingEntry(
         id: 'track-1',
-        itemId: 'music-1',
-        catalogRef: CatalogEntityRef(
-          kind: 'music',
-          entityType: CatalogEntityType.work,
-          id: 'music-1',
-        ),
+        catalogRef: testCatalogRef('music-1', kind: 'music'),
         editionId: 'edition-cd',
         variantId: 'variant-deluxe',
         sourceType: 'physical',

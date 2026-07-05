@@ -69,6 +69,18 @@ CatalogItem testCatalogItem({
   );
 }
 
+CatalogEntityRef testCatalogRef(
+  String id, {
+  String kind = 'unknown',
+  CatalogEntityType entityType = CatalogEntityType.work,
+}) {
+  return CatalogEntityRef(
+    kind: kind,
+    entityType: entityType,
+    id: id,
+  );
+}
+
 OwnedItem testOwnedItem({
   String id = 'owned-1',
   String itemId = 'test-item-1',

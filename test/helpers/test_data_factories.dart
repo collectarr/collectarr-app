@@ -70,6 +70,18 @@ CatalogItem testCatalogItem({
   );
 }
 
+CatalogEntityRef testCatalogRef(
+  String id, {
+  String kind = 'unknown',
+  CatalogEntityType entityType = CatalogEntityType.work,
+}) {
+  return CatalogEntityRef(
+    kind: kind,
+    entityType: entityType,
+    id: id,
+  );
+}
+
 /// Builds an [OwnedItem] with sensible defaults for testing.
 OwnedItem testOwnedItem({
   String id = 'owned-1',

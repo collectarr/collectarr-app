@@ -53,6 +53,7 @@ class _BundleBrowserApiClient extends ApiClient {
   int summaryCalls = 0;
   int detailCalls = 0;
 
+  @override
   Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
     summaryCalls += 1;
     return const [

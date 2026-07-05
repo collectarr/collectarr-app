@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
@@ -152,7 +151,7 @@ void main() {
     );
     final trackingEntry = TrackingEntry(
       id: 'tracking-1',
-      itemId: 'comic-1',
+      catalogRef: testCatalogRef('comic-1', kind: 'comic'),
       ownedItemId: 'owned-1',
       editionId: 'edition-1',
       variantId: 'variant-1',

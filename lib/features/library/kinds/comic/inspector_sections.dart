@@ -1,21 +1,12 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
-import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
-import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
-import 'package:collectarr_app/features/library/inspector/sections/personal_status_section.dart';
-import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
-import 'package:collectarr_app/features/library/inspector/sections/session_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
 import 'package:collectarr_app/state/api_provider.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -462,44 +453,6 @@ List<LibraryInspectorFactData> _collectorFacts(OwnedItem? ownedItem) {
   return rows;
 }
 
-List<LibraryInspectorFactData> _personalFacts(
-  LibraryWorkspaceEntry entry,
-  OwnedItem? ownedItem,
-  TrackingEntry? trackingEntry,
-) {
-  if (ownedItem == null && trackingEntry == null) {
-    return const [];
-  }
-  final rows = <LibraryInspectorFactData>[];
-  final rating = trackingEntry?.rating ?? ownedItem?.rating;
-  if (rating != null && rating > 0) {
-    rows.add(LibraryInspectorFactData('My Rating', '$rating / 10'));
-  }
-  final trackingStatusLabel = trackingEntry?.status?.label;
-  final readStatus =
-      trackingStatusLabel == null || trackingStatusLabel == 'Not tracked'
-          ? ownedItem?.readStatus
-          : trackingStatusLabel;
-  rows.add(LibraryInspectorFactData('Read', _readLabel(readStatus)));
-  if (ownedItem?.indexNumber != null) {
-    rows.add(
-        LibraryInspectorFactData('Index', ownedItem!.indexNumber.toString()));
-  }
-  rows.add(
-    LibraryInspectorFactData(
-      'Added',
-      formatLibraryTimestamp(ownedItem?.createdAt ?? ownedItem?.updatedAt),
-    ),
-  );
-  rows.add(
-    LibraryInspectorFactData(
-      'Modified',
-      formatLibraryTimestamp(ownedItem?.updatedAt ?? entry.updatedAt),
-    ),
-  );
-  return rows;
-}
-
 List<LibraryInspectorFactData> _valueFacts(
   LibraryWorkspaceEntry entry,
   OwnedItem? ownedItem,
@@ -705,16 +658,6 @@ int? _comicIssueNumberToInt(String? value) {
   }
   final normalized = text.replaceAll(RegExp(r'[^0-9]'), '');
   return normalized.isEmpty ? null : int.tryParse(normalized);
-}
-
-String _readLabel(String? status) {
-  final normalized = status?.trim().toLowerCase();
-  return switch (normalized) {
-    null || '' || 'not tracked' || 'not_started' || 'planned' => 'X',
-    'completed' => 'Read',
-    'reading' => 'Reading',
-    String value => value.replaceAll('_', ' '),
-  };
 }
 
 Future<void> _launchUrl(String value) async {

@@ -249,13 +249,13 @@ class LibraryViewControls extends StatelessWidget {
     super.key,
     required this.viewMode,
     required this.detailsLayout,
-    required this.densityPreset,
+    this.densityPreset = LibraryWorkspaceDensityPreset.compact,
     required this.coverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
-    required this.onDensityPresetChanged,
+    this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
   });
 
@@ -267,7 +267,7 @@ class LibraryViewControls extends StatelessWidget {
   final double maxCoverSize;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
-  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
+  final ValueChanged<LibraryWorkspaceDensityPreset>? onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
 
   @override
@@ -287,7 +287,7 @@ class LibraryViewControls extends StatelessWidget {
         const SizedBox(width: 12),
         LibraryWorkspaceDensityDropdown(
           densityPreset: densityPreset,
-          onChanged: onDensityPresetChanged,
+          onChanged: (value) => onDensityPresetChanged?.call(value),
         ),
         const SizedBox(width: 12),
         LibraryCoverSizeSlider(

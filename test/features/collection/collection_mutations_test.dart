@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
@@ -441,7 +440,7 @@ void main() {
     final originalRow = await db.select(db.wishlistItemsCache).getSingle();
     final original = WishlistItem(
       id: originalRow.id,
-      itemId: originalRow.itemId,
+      catalogRef: testCatalogRef(originalRow.itemId, kind: 'movie'),
       anchorType: originalRow.anchorType,
       editionId: originalRow.editionId,
       variantId: originalRow.variantId,

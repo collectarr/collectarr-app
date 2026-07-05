@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -40,7 +39,7 @@ void main() {
       wishlistItems: [
         WishlistItem(
           id: 'wish-1',
-          itemId: 'comic-3',
+          catalogRef: testCatalogRef('comic-3', kind: 'comic'),
           createdAt: DateTime.utc(2026, 5, 9),
           updatedAt: DateTime.utc(2026, 5, 9),
         ),
@@ -48,12 +47,7 @@ void main() {
       watchSessions: [
         WatchSession(
           id: 'watch-1',
-          itemId: 'comic-1',
-          targetRef: const CatalogEntityRef(
-            kind: 'comic',
-            entityType: CatalogEntityType.work,
-            id: 'comic-1',
-          ),
+          targetRef: testCatalogRef('comic-1', kind: 'comic'),
           watchedAt: DateTime.utc(2026, 5, 8),
           sourceType: TrackingSourceType.streaming,
           updatedAt: DateTime.utc(2026, 5, 8),
@@ -113,7 +107,6 @@ void main() {
       wishlistItems: [
         WishlistItem(
           id: 'wish-1',
-          itemId: 'legacy-wish-1',
           catalogRef: const CatalogEntityRef(
             kind: 'book',
             entityType: CatalogEntityType.work,
@@ -126,7 +119,6 @@ void main() {
       trackingEntries: [
         TrackingEntry(
           id: 'track-1',
-          itemId: 'legacy-track-1',
           catalogRef: const CatalogEntityRef(
             kind: 'book',
             entityType: CatalogEntityType.work,

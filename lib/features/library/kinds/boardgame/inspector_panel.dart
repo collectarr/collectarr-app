@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sections.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
@@ -333,22 +332,4 @@ String? _joinNonEmpty(Iterable<String> values) {
     return null;
   }
   return normalized.join(' | ');
-}
-
-String _playersLabel(BoardGameEdition? edition) {
-  if (edition == null) {
-    return 'Players';
-  }
-  final minPlayers = edition.minPlayers;
-  final maxPlayers = edition.maxPlayers;
-  if (minPlayers != null && maxPlayers != null && minPlayers != maxPlayers) {
-    return '$minPlayers-$maxPlayers players';
-  }
-  if (minPlayers != null) {
-    return '$minPlayers players';
-  }
-  if (maxPlayers != null) {
-    return '$maxPlayers players';
-  }
-  return 'Players';
 }

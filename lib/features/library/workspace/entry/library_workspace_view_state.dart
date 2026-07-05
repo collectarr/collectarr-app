@@ -158,7 +158,7 @@ class LibraryWorkspaceViewState {
     required this.sidebarWidth,
     required this.detailsWidth,
     required this.detailsHeight,
-    required this.densityPreset,
+    this.densityPreset = LibraryWorkspaceDensityPreset.compact,
     required Set<LibraryTableColumn> visibleColumns,
     required Map<LibraryTableColumn, double> columnWidths,
   })  : _sortRules = List.unmodifiable(

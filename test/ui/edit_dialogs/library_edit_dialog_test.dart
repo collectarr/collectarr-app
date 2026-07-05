@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -93,7 +92,7 @@ void main() {
     );
     final trackingEntry = TrackingEntry(
       id: 'tracking-1',
-      itemId: 'movie-1',
+      catalogRef: testCatalogRef('movie-1', kind: 'movie'),
       ownedItemId: 'owned-1',
       editionId: 'edition-steelbook',
       variantId: 'variant-4k',
@@ -808,7 +807,7 @@ void main() {
     );
     final trackingEntry = TrackingEntry(
       id: 'tracking-book-preserve-1',
-      itemId: 'book-preserve-1',
+      catalogRef: testCatalogRef('book-preserve-1', kind: 'book'),
       sourceType: 'physical',
       status: 'Reading',
       progressCurrent: 120,
@@ -993,7 +992,7 @@ void main() {
     ));
     final trackingEntry = TrackingEntry(
       id: 'tracking-digital-1',
-      itemId: 'movie-tracked-1',
+      catalogRef: testCatalogRef('movie-tracked-1', kind: 'movie'),
       editionId: 'edition-digital',
       variantId: 'variant-stream',
       sourceType: 'digital',
@@ -1331,7 +1330,7 @@ void main() {
     ));
     final wishlistItem = WishlistItem(
       id: 'wishlist-1',
-      itemId: 'movie-wishlist-1',
+      catalogRef: testCatalogRef('movie-wishlist-1', kind: 'movie'),
       createdAt: DateTime.utc(2026, 5, 19),
       updatedAt: DateTime.utc(2026, 5, 20),
     );

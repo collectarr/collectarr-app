@@ -49,6 +49,7 @@ void main() {
         isSidebarVisible: true,
         sortColumn: LibrarySortColumn.grade,
         sortAscending: false,
+        densityPreset: LibraryWorkspaceDensityPreset.compact,
         sortRules: [
           LibrarySortRule(
             column: LibrarySortColumn.grade,
@@ -76,6 +77,7 @@ void main() {
 
     final restored = await store.read(
       defaultCoverSize: 128,
+      defaultDensityPreset: LibraryWorkspaceDensityPreset.compact,
       minCoverSize: 104,
       maxCoverSize: 188,
     );
@@ -122,6 +124,7 @@ void main() {
         isSidebarVisible: true,
         sortColumn: LibrarySortColumn.grade,
         sortAscending: false,
+        densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 144,
         sidebarWidth: 305,
         detailsWidth: 430,
@@ -138,6 +141,7 @@ void main() {
 
     final restored = await mangaStore.read(
       defaultCoverSize: 128,
+      defaultDensityPreset: LibraryWorkspaceDensityPreset.compact,
       minCoverSize: 104,
       maxCoverSize: 188,
     );
@@ -166,6 +170,7 @@ void main() {
         isSidebarVisible: true,
         sortColumn: LibrarySortColumn.title,
         sortAscending: true,
+        densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 144,
         sidebarWidth: 640,
         detailsWidth: 980,
@@ -180,6 +185,7 @@ void main() {
 
     final restored = await store.read(
       defaultCoverSize: 128,
+      defaultDensityPreset: LibraryWorkspaceDensityPreset.compact,
       minCoverSize: 104,
       maxCoverSize: 188,
     );
@@ -200,6 +206,7 @@ void main() {
         isSidebarVisible: false,
         sortColumn: LibrarySortColumn.grade,
         sortAscending: false,
+        densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 144,
         sidebarWidth: 305,
         detailsWidth: 430,
@@ -219,6 +226,7 @@ void main() {
         isSidebarVisible: true,
         sortColumn: LibrarySortColumn.title,
         sortAscending: true,
+        densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 128,
         sidebarWidth: 250,
         detailsWidth: 340,
@@ -233,11 +241,13 @@ void main() {
 
     final comics = await comicsStore.read(
       defaultCoverSize: 128,
+      defaultDensityPreset: LibraryWorkspaceDensityPreset.compact,
       minCoverSize: 104,
       maxCoverSize: 188,
     );
     final manga = await mangaStore.read(
       defaultCoverSize: 128,
+      defaultDensityPreset: LibraryWorkspaceDensityPreset.compact,
       minCoverSize: 104,
       maxCoverSize: 188,
     );

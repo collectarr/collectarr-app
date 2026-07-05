@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
@@ -126,7 +125,7 @@ void main() {
               ),
               trackingEntry: TrackingEntry(
                 id: 'track-1',
-                itemId: 'book-1',
+                catalogRef: testCatalogRef('book-1', kind: 'book'),
                 rating: 8,
                 progressCurrent: 412,
                 progressTotal: 412,

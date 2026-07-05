@@ -326,6 +326,7 @@ void main() {
               onViewModeChanged: (_) {},
               onDetailsLayoutChanged: (_) {},
               onCoverSizeChanged: (_) {},
+              onDensityPresetChanged: (_) {},
               onManageColumns: () {},
               quickView: null,
               onQuickViewSelected: (_) {},

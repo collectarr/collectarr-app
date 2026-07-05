@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';

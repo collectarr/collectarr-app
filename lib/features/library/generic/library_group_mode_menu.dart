@@ -187,10 +187,6 @@ class _LibraryGroupModeMenuButtonState
         : genericFolderPresetLabel(widget.folderPreset!, widget.type);
     final modes =
         widget.availableModes ?? libraryGroupModesForType(widget.type);
-    final categories = widget.type.kindUiAdapter.groupModeCategories(
-      widget.type,
-      modes,
-    );
     final menuWidth = _resolveMenuWidth(context, modes);
     final overlay = Overlay.of(context, rootOverlay: true)
         .context

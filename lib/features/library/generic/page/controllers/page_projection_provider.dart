@@ -23,7 +23,7 @@ class LibraryProjectionRequest {
     required this.filterSelection,
     required this.customFieldValuesByItem,
     required this.customFieldValuesByDefinitionByItem,
-    required this.customFieldDefinitions,
+    this.customFieldDefinitions = const [],
     required this.activeLoanOwnedItemIds,
     required this.searchTarget,
   });

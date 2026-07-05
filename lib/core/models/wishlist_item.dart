@@ -19,12 +19,12 @@ class WishlistItem {
     required this.updatedAt,
     this.deletedAt,
   }) : anchor = anchor ??
-            PersonalItemAnchor.fromRaw(
-              anchorType: anchorType,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
-            );
+          PersonalItemAnchor.fromRaw(
+            anchorType: anchorType,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+          );
 
   final String id;
   final CatalogEntityRef catalogRef;

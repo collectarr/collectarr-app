@@ -1,10 +1,8 @@
 import 'dart:typed_data';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -525,13 +523,13 @@ void main() {
       ),
       wishlistItem: WishlistItem(
         id: 'wish-1',
-        itemId: 'movie-1',
+        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         createdAt: DateTime.utc(2024, 10, 1),
         updatedAt: DateTime.utc(2024, 10, 1),
       ),
       trackingEntry: TrackingEntry(
         id: 'tracking-1',
-        itemId: 'movie-1',
+        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         rating: 9,
         status: 'Completed',
         finishedAt: DateTime.utc(2026, 4, 10),
@@ -540,24 +538,14 @@ void main() {
       watchSessions: [
         WatchSession(
           id: 'watch-2',
-          itemId: 'movie-1',
-          targetRef: const CatalogEntityRef(
-            kind: 'movie',
-            entityType: CatalogEntityType.work,
-            id: 'movie-1',
-          ),
+          targetRef: testCatalogRef('movie-1', kind: 'movie'),
           watchedAt: DateTime.utc(2026, 4, 10),
           sourceType: TrackingSourceType.streaming,
           updatedAt: DateTime.utc(2026, 4, 10),
         ),
         WatchSession(
           id: 'watch-1',
-          itemId: 'movie-1',
-          targetRef: const CatalogEntityRef(
-            kind: 'movie',
-            entityType: CatalogEntityType.work,
-            id: 'movie-1',
-          ),
+          targetRef: testCatalogRef('movie-1', kind: 'movie'),
           watchedAt: DateTime.utc(2026, 4, 9),
           sourceType: TrackingSourceType.physical,
           updatedAt: DateTime.utc(2026, 4, 9),

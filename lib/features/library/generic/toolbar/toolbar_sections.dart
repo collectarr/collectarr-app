@@ -20,6 +20,8 @@ import 'package:flutter/material.dart';
 const double _kLibraryToolbarBandVerticalPadding = 2;
 const double _kLibraryToolbarBandHorizontalPadding = 4;
 
+void _noopDensityPresetChanged(LibraryWorkspaceDensityPreset _) {}
+
 class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   const LibraryDesktopSecondaryToolbar({
     super.key,
@@ -41,7 +43,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.releaseFolderLabel,
     this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
-    required this.onDensityPresetChanged,
+    this.onDensityPresetChanged = _noopDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
     required this.onClearBucket,

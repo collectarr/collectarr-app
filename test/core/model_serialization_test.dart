@@ -510,12 +510,7 @@ void main() {
   test('wishlist item builds sync payload', () {
     final item = WishlistItem(
       id: 'wish-1',
-      itemId: 'comic-1',
-      catalogRef: CatalogEntityRef(
-        kind: 'comic',
-        entityType: CatalogEntityType.work,
-        id: 'comic-1',
-      ),
+      catalogRef: testCatalogRef('comic-1', kind: 'comic'),
       targetPriceCents: 999,
       currency: 'USD',
       createdAt: DateTime.utc(2026, 5, 11),

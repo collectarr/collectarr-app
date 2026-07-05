@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -57,7 +56,7 @@ void main() {
             ],
             trackingEntry: TrackingEntry(
               id: 'tracking-1',
-              itemId: 'movie-1',
+              catalogRef: testCatalogRef('movie-1', kind: 'movie'),
               progressCurrent: 5,
               progressTotal: 12,
               seasonNumber: 1,

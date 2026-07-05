@@ -16,6 +16,7 @@ void main() {
             builder: (context, setState) => LibraryViewControls(
               viewMode: viewMode,
               detailsLayout: detailsLayout,
+              densityPreset: LibraryWorkspaceDensityPreset.compact,
               coverSize: coverSize,
               minCoverSize: 100,
               maxCoverSize: 200,
@@ -23,6 +24,7 @@ void main() {
               onDetailsLayoutChanged: (value) =>
                   setState(() => detailsLayout = value),
               onCoverSizeChanged: (value) => setState(() => coverSize = value),
+              onDensityPresetChanged: (_) {},
             ),
           ),
         ),

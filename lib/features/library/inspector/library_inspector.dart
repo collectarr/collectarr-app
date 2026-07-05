@@ -96,7 +96,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.type,
     required this.entry,
     required this.ownedItem,
-    required this.densityPreset,
+    this.densityPreset = LibraryWorkspaceDensityPreset.compact,
     required this.accent,
     required this.onAddOwned,
     required this.onRemoveOwned,

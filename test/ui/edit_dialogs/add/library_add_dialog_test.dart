@@ -12,7 +12,6 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
@@ -2285,6 +2284,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
     throw StateError('Unknown typed metadata item $kind:$id');
   }
 
+  @override
   Future<List<BundleReleaseSummary>> getItemBundleReleases(
       String itemId) async {
     if (itemId == 'comic-423') {

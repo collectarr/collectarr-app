@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
@@ -171,7 +170,7 @@ ShelfEntry _entry({
     wishlistItem: wishlisted
         ? WishlistItem(
             id: 'wish-$itemId',
-            itemId: itemId,
+            catalogRef: testCatalogRef(itemId, kind: 'comic'),
             createdAt: timestamp,
             updatedAt: timestamp,
           )

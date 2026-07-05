@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -123,7 +122,7 @@ void main() {
               mediaType: 'movie',
               trackingEntry: TrackingEntry(
                 id: 'tracking-1',
-                itemId: 'movie-1',
+                catalogRef: testCatalogRef('movie-1', kind: 'movie'),
                 editionId: 'edition-stream',
                 variantId: 'variant-hd',
                 sourceType: 'digital',

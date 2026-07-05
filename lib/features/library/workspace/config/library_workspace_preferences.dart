@@ -12,7 +12,7 @@ class LibraryWorkspacePreferenceSnapshot {
     required this.sortAscending,
     this.sortRules,
     required this.coverSize,
-    required this.densityPreset,
+    this.densityPreset = LibraryWorkspaceDensityPreset.compact,
     required this.sidebarWidth,
     required this.detailsWidth,
     required this.detailsHeight,
@@ -90,7 +90,8 @@ class LibraryWorkspacePreferences {
 
   Future<LibraryWorkspacePreferenceSnapshot> read({
     required double defaultCoverSize,
-    required LibraryWorkspaceDensityPreset defaultDensityPreset,
+    LibraryWorkspaceDensityPreset defaultDensityPreset =
+        LibraryWorkspaceDensityPreset.compact,
     double? minCoverSize,
     double? maxCoverSize,
     LibraryViewMode defaultViewMode = LibraryViewMode.grid,

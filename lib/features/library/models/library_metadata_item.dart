@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 class LibraryMetadataItem {
   LibraryMetadataItem({

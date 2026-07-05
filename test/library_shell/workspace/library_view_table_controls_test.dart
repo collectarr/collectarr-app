@@ -40,6 +40,7 @@ void main() {
                   counts: const LibraryWorkspaceCounts(shown: 12, total: 28),
                   viewMode: viewMode,
                   detailsLayout: detailsLayout,
+                  densityPreset: LibraryWorkspaceDensityPreset.compact,
                   isSidebarVisible: true,
                   coverSize: 128,
                   minCoverSize: 100,
@@ -55,6 +56,7 @@ void main() {
                       setState(() => viewMode = value),
                   onDetailsLayoutChanged: (value) =>
                       setState(() => detailsLayout = value),
+                  onDensityPresetChanged: (_) {},
                   onCoverSizeChanged: (_) {},
                   onColumnFavoriteSelected: (preset) =>
                       selectedPreset = preset.label,

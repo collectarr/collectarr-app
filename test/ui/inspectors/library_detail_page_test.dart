@@ -111,7 +111,7 @@ void main() {
             (ref) async => [
               TrackingEntry(
                 id: 'tracking-1',
-                itemId: 'movie-1',
+                catalogRef: testCatalogRef('movie-1', kind: 'movie'),
                 sourceType: 'digital',
                 status: 'Watching',
                 rating: 8,

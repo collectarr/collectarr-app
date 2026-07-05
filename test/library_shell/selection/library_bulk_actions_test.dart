@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -138,7 +137,7 @@ void main() {
         itemId: 'movie-2',
         wishlistItem: WishlistItem(
           id: wishlistRow.id,
-          itemId: wishlistRow.itemId,
+          catalogRef: testCatalogRef(wishlistRow.itemId, kind: 'movie'),
           createdAt: wishlistRow.createdAt,
           updatedAt: wishlistRow.updatedAt,
         ),
@@ -147,7 +146,7 @@ void main() {
         itemId: 'movie-3',
         trackingEntry: TrackingEntry(
           id: trackingRow.id,
-          itemId: trackingRow.itemId,
+          catalogRef: testCatalogRef(trackingRow.itemId, kind: 'movie'),
           ownedItemId: trackingRow.ownedItemId,
           editionId: trackingRow.editionId,
           variantId: trackingRow.variantId,
@@ -200,7 +199,7 @@ void main() {
         itemId: 'movie-1',
         wishlistItem: WishlistItem(
           id: row4k.id,
-          itemId: row4k.itemId,
+          catalogRef: testCatalogRef(row4k.itemId, kind: 'movie'),
           anchorType: row4k.anchorType,
           editionId: row4k.editionId,
           variantId: row4k.variantId,

@@ -253,7 +253,7 @@ pw.Document buildMissingComicsPdfDocument({
 String _verboseGroupLabel(MissingComicIssueGroup group) {
   final variants = group.variants
       .map((variant) => variant.variant?.trim())
-      .where((value) => value != null && value!.isNotEmpty)
+      .where((value) => value != null && value.isNotEmpty)
       .cast<String>()
       .toSet()
       .toList(growable: false);
