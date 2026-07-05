@@ -362,6 +362,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: 'Wishlist',
                                     accentColor: accentColor,
                                   ),
+                                ..._gameCompactBadges(entry, accentColor),
                               ],
                             ),
                             const Spacer(),
@@ -582,6 +583,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     ),
                               ),
                             ],
+                            ..._gameCompactBadgeRow(entry, accentColor),
                           ],
                         ),
                       ),
@@ -1105,6 +1107,141 @@ String? _compactNotesLabel(String? notes) {
     return trimmed;
   }
   return '${trimmed.substring(0, 27)}...';
+}
+
+List<Widget> _gameCompactBadges(
+  LibraryWorkspaceEntry entry,
+  Color accentColor,
+) {
+  if (entry.mediaType != 'game') {
+    return const <Widget>[];
+  }
+  final badges = <Widget>[];
+  final platforms = _compactPlatformLabel(libraryReferencePlatforms(entry));
+  final releasePlatform = entry.referenceFormatLabel?.trim();
+  final developer = _compactGameDeveloperLabel(entry);
+  final ageRating = entry.ageRating?.trim();
+  final completion = _compactGameCompletionLabel(entry);
+  final value = entry.pricePaidCents == null
+      ? null
+      : formatMoney(entry.pricePaidCents, entry.currency);
+  final hardware = _compactHardwareLabel(entry);
+  if (platforms != null) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.sports_esports,
+        label: platforms,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (releasePlatform != null && releasePlatform.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.album_outlined,
+        label: releasePlatform,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (developer != null && developer.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.code_outlined,
+        label: developer,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (ageRating != null && ageRating.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.shield_outlined,
+        label: ageRating,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (completion != null && completion.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.check_circle_outline,
+        label: completion,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (value != null && value.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.payments_outlined,
+        label: value,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (hardware != null && hardware.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.videogame_asset_outlined,
+        label: hardware,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  return badges;
+}
+
+List<Widget> _gameCompactBadgeRow(
+  LibraryWorkspaceEntry entry,
+  Color accentColor,
+) {
+  final badges = _gameCompactBadges(entry, accentColor);
+  if (badges.isEmpty) {
+    return const <Widget>[];
+  }
+  return [
+    const SizedBox(height: 8),
+    Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: badges,
+    ),
+  ];
+}
+
+String? _compactGameDeveloperLabel(LibraryWorkspaceEntry entry) {
+  final roles = entry.game?.companyRoles ?? const <String>[];
+  for (final role in roles) {
+    final trimmed = role.trim();
+    if (trimmed.isNotEmpty) {
+      return trimmed;
+    }
+  }
+  return null;
+}
+
+String? _compactGameCompletionLabel(LibraryWorkspaceEntry entry) {
+  final status = entry.collectionStatus?.trim();
+  if (status != null && status.isNotEmpty) {
+    return status;
+  }
+  return entry.isOwned ? 'Owned' : null;
+}
+
+String? _compactHardwareLabel(LibraryWorkspaceEntry entry) {
+  final game = entry.game;
+  if (game == null) {
+    return null;
+  }
+  final parts = <String>[
+    if (game.toySubtype?.trim().isNotEmpty == true) game.toySubtype!.trim(),
+    if (game.toyType?.trim().isNotEmpty == true) game.toyType!.trim(),
+  ];
+  if (parts.isEmpty) {
+    return null;
+  }
+  return parts.join(' / ');
 }
 
 class _LibraryIssuePill extends StatelessWidget {

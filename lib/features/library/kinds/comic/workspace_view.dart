@@ -41,16 +41,16 @@ final comicsMediaAdapter = LibraryMediaAdapter(
   columnGroupLabel: comicTableColumnGroupLabel,
   columnIsNumeric: comicTableColumnIsNumeric,
   columnSort: comicTableColumnSort,
-    tableCellBuilder: (entry, column) =>
+  tableCellBuilder: (entry, column) =>
       plannedMediaTableCell(entry, column, plannedComicEntryAccessors),
   compareEntriesByColumn: compareComicEntriesByColumn,
-    entryFilterValuesBuilder: (entry) =>
+  entryFilterValuesBuilder: (entry) =>
       plannedMediaFilterValuesForEntry(entry, plannedComicEntryAccessors),
-    entryLinkedMetadataCandidatesBuilder: (entry) =>
+  entryLinkedMetadataCandidatesBuilder: (entry) =>
       plannedMediaLinkedMetadataCandidatesForEntry(
-      entry,
-      plannedComicEntryAccessors,
-      ),
+    entry,
+    plannedComicEntryAccessors,
+  ),
   entrySubgroupKeyBuilder: plannedMediaSubgroupKeyForEntry,
   compareSubgroupKeys: plannedMediaCompareSubgroupKeys,
 );
@@ -59,12 +59,13 @@ int compareComicEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
-) => comparePlannedMediaEntriesByColumn(
-  left,
-  right,
-  column,
-  plannedComicEntryAccessors,
-);
+) =>
+    comparePlannedMediaEntriesByColumn(
+      left,
+      right,
+      column,
+      plannedComicEntryAccessors,
+    );
 
 const comicsTableColumnPresets = [
   LibraryTableColumnPreset(
@@ -217,11 +218,16 @@ double defaultComicTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.variant => 170.0,
     LibraryTableColumn.format => 118.0,
     LibraryTableColumn.publisher => 140.0,
+    LibraryTableColumn.platform => 118.0,
+    LibraryTableColumn.developer => 140.0,
     LibraryTableColumn.releaseDate => 118.0,
+    LibraryTableColumn.releasePlatform => 140.0,
     LibraryTableColumn.barcode => 160.0,
     LibraryTableColumn.grade => 88.0,
     LibraryTableColumn.condition => 124.0,
+    LibraryTableColumn.completion => 110.0,
     LibraryTableColumn.price => 92.0,
+    LibraryTableColumn.value => 92.0,
     LibraryTableColumn.location => 118.0,
     LibraryTableColumn.wishlist => 82.0,
     LibraryTableColumn.added => 98.0,
@@ -275,6 +281,11 @@ String comicTableColumnLabel(LibraryTableColumn column) {
     LibraryTableColumn.variant => 'Variant Description',
     LibraryTableColumn.location => 'Location',
     LibraryTableColumn.added => 'Added Date',
+    LibraryTableColumn.platform => 'Platform',
+    LibraryTableColumn.developer => 'Developer',
+    LibraryTableColumn.releasePlatform => 'Release Platform',
+    LibraryTableColumn.completion => 'Completion',
+    LibraryTableColumn.value => 'Value',
     _ => plannedMediaTableColumnLabelForType(comicsLibraryConfig, column),
   };
 }
@@ -285,6 +296,11 @@ String comicTableColumnDisplayName(LibraryTableColumn column) {
     LibraryTableColumn.variant => 'Variant Description',
     LibraryTableColumn.location => 'Location',
     LibraryTableColumn.added => 'Added Date',
+    LibraryTableColumn.platform => 'Platform',
+    LibraryTableColumn.developer => 'Developer',
+    LibraryTableColumn.releasePlatform => 'Release Platform',
+    LibraryTableColumn.completion => 'Completion',
+    LibraryTableColumn.value => 'Value',
     _ => plannedMediaTableColumnDisplayNameForType(comicsLibraryConfig, column),
   };
 }
@@ -298,11 +314,16 @@ String comicTableColumnDescription(LibraryTableColumn column) {
     LibraryTableColumn.variant => 'Edition or variant label',
     LibraryTableColumn.format => 'Primary physical format label',
     LibraryTableColumn.publisher => 'Publisher from catalog metadata',
+    LibraryTableColumn.platform => 'Platform or system metadata',
+    LibraryTableColumn.developer => 'Developer or creator metadata',
     LibraryTableColumn.releaseDate => 'Known release or store date',
+    LibraryTableColumn.releasePlatform => 'Platform for the selected release',
     LibraryTableColumn.barcode => 'UPC or barcode when available',
     LibraryTableColumn.grade => 'Personal grade for owned copies',
     LibraryTableColumn.condition => 'Personal condition for owned copies',
     LibraryTableColumn.price => 'Personal purchase price',
+    LibraryTableColumn.completion => 'Completion or collection status',
+    LibraryTableColumn.value => 'Current or paid value',
     LibraryTableColumn.location => 'Assigned location path',
     LibraryTableColumn.wishlist => 'Wishlist status',
     LibraryTableColumn.added => 'Added date for owned or wishlisted items',
@@ -328,14 +349,19 @@ LibraryTableColumnGroup comicTableColumnGroup(LibraryTableColumn column) {
       LibraryTableColumnGroup.main,
     LibraryTableColumn.variant ||
     LibraryTableColumn.format ||
-    LibraryTableColumn.barcode =>
+    LibraryTableColumn.barcode ||
+    LibraryTableColumn.platform ||
+    LibraryTableColumn.developer ||
+    LibraryTableColumn.releasePlatform =>
       LibraryTableColumnGroup.edition,
     LibraryTableColumn.grade ||
     LibraryTableColumn.condition ||
-    LibraryTableColumn.price =>
+    LibraryTableColumn.price ||
+    LibraryTableColumn.value =>
       LibraryTableColumnGroup.value,
     LibraryTableColumn.location ||
-    LibraryTableColumn.wishlist =>
+    LibraryTableColumn.wishlist ||
+    LibraryTableColumn.completion =>
       LibraryTableColumnGroup.personal,
     LibraryTableColumn.country ||
     LibraryTableColumn.language ||
@@ -359,6 +385,7 @@ bool comicTableColumnIsNumeric(LibraryTableColumn column) {
   return switch (column) {
     LibraryTableColumn.issue ||
     LibraryTableColumn.price ||
+    LibraryTableColumn.value ||
     LibraryTableColumn.pageCount =>
       true,
     _ => false,
@@ -374,13 +401,18 @@ LibrarySortColumn? comicTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.variant => LibrarySortColumn.variant,
     LibraryTableColumn.format => LibrarySortColumn.format,
     LibraryTableColumn.publisher => LibrarySortColumn.publisher,
+    LibraryTableColumn.platform => null,
+    LibraryTableColumn.developer => null,
     LibraryTableColumn.releaseDate => LibrarySortColumn.releaseDate,
+    LibraryTableColumn.releasePlatform => LibrarySortColumn.format,
     LibraryTableColumn.barcode => LibrarySortColumn.barcode,
     LibraryTableColumn.grade => LibrarySortColumn.grade,
     LibraryTableColumn.condition => LibrarySortColumn.condition,
     LibraryTableColumn.price => LibrarySortColumn.price,
+    LibraryTableColumn.value => LibrarySortColumn.price,
     LibraryTableColumn.location => LibrarySortColumn.location,
     LibraryTableColumn.wishlist => LibrarySortColumn.wishlist,
+    LibraryTableColumn.completion => LibrarySortColumn.collectionStatus,
     LibraryTableColumn.added => LibrarySortColumn.added,
     LibraryTableColumn.updated => LibrarySortColumn.updated,
     LibraryTableColumn.country => LibrarySortColumn.country,

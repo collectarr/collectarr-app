@@ -9,6 +9,10 @@ class PlannedMediaEntryAccessors {
     required this.pageCount,
     required this.ageRating,
     required this.imprint,
+    required this.platform,
+    required this.developer,
+    required this.releasePlatform,
+    required this.completion,
     required this.creators,
     required this.characters,
     required this.storyArcs,
@@ -26,6 +30,10 @@ class PlannedMediaEntryAccessors {
   final int? Function(LibraryWorkspaceEntry entry) pageCount;
   final String? Function(LibraryWorkspaceEntry entry) ageRating;
   final String? Function(LibraryWorkspaceEntry entry) imprint;
+  final String? Function(LibraryWorkspaceEntry entry) platform;
+  final String? Function(LibraryWorkspaceEntry entry) developer;
+  final String? Function(LibraryWorkspaceEntry entry) releasePlatform;
+  final String? Function(LibraryWorkspaceEntry entry) completion;
   final List<Map<String, dynamic>>? Function(LibraryWorkspaceEntry entry)
       creators;
   final List<String>? Function(LibraryWorkspaceEntry entry) characters;
@@ -45,6 +53,11 @@ final plannedDefaultEntryAccessors = PlannedMediaEntryAccessors(
   pageCount: (entry) => entry.publishing?.pageCount,
   ageRating: (entry) => entry.ageRating,
   imprint: (entry) => entry.publishing?.imprint,
+  platform: (entry) =>
+      _firstStringValue(entry.game?.platforms ?? entry.rawPlatforms),
+  developer: (entry) => _firstCreatorName(entry.creators),
+  releasePlatform: (entry) => entry.referenceFormatLabel,
+  completion: (entry) => entry.collectionStatus,
   creators: (entry) => entry.creators,
   characters: (entry) => entry.characters,
   storyArcs: (entry) => entry.storyArcs,
@@ -63,6 +76,11 @@ final plannedComicEntryAccessors = PlannedMediaEntryAccessors(
   pageCount: (entry) => entry.publishing?.pageCount,
   ageRating: (entry) => entry.ageRating,
   imprint: (entry) => entry.publishing?.imprint,
+  platform: (entry) =>
+      _firstStringValue(entry.game?.platforms ?? entry.rawPlatforms),
+  developer: (entry) => _firstCreatorName(entry.creators),
+  releasePlatform: (entry) => entry.referenceFormatLabel,
+  completion: (entry) => entry.collectionStatus,
   creators: (entry) => entry.creators,
   characters: (entry) => entry.characters,
   storyArcs: (entry) => entry.storyArcs,
@@ -74,7 +92,29 @@ final plannedComicEntryAccessors = PlannedMediaEntryAccessors(
 );
 
 final plannedBookEntryAccessors = plannedDefaultEntryAccessors;
-final plannedGameEntryAccessors = plannedDefaultEntryAccessors;
+final plannedGameEntryAccessors = PlannedMediaEntryAccessors(
+  series: (entry) => entry.series?.seriesTitle,
+  storyArc: (entry) => _firstStringValue(entry.storyArcs),
+  country: (entry) => entry.country,
+  language: (entry) => entry.language,
+  pageCount: (entry) => entry.publishing?.pageCount,
+  ageRating: (entry) => entry.ageRating,
+  imprint: (entry) => entry.publishing?.imprint,
+  platform: (entry) =>
+      _firstStringValue(entry.game?.platforms ?? entry.rawPlatforms),
+  developer: (entry) => _firstCreatorName(entry.creators),
+  releasePlatform: (entry) => entry.referenceFormatLabel,
+  completion: (entry) => entry.collectionStatus,
+  creators: (entry) => entry.creators,
+  characters: (entry) => entry.characters,
+  storyArcs: (entry) => entry.storyArcs,
+  genres: (entry) => entry.genres,
+  rawPlatforms: (entry) => entry.game?.platforms ?? entry.rawPlatforms,
+  keyComic: (_) => false,
+  rawOrSlabbed: (_) => null,
+  gradingCompany: (_) => null,
+);
+
 final plannedBoardGameEntryAccessors = plannedDefaultEntryAccessors;
 final plannedMovieEntryAccessors = plannedDefaultEntryAccessors;
 final plannedMusicEntryAccessors = plannedDefaultEntryAccessors;
@@ -165,4 +205,17 @@ int plannedMediaCompareSubgroupKeys(
     return leftNumber.compareTo(rightNumber);
   }
   return left.compareTo(right);
+}
+
+String? _firstCreatorName(List<Map<String, dynamic>>? creators) {
+  if (creators == null) {
+    return null;
+  }
+  for (final credit in creators) {
+    final name = credit['name']?.toString().trim();
+    if (name != null && name.isNotEmpty) {
+      return name;
+    }
+  }
+  return null;
 }
