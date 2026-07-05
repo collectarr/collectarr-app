@@ -169,7 +169,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
 
   List<Widget> _adminScalarFieldsForTab(SharedMetadataEditTab tab) {
     return [
-      for (final field in kAdminMetadataScalarFields.where((f) => f.tab == tab))
+      for (final field in sharedMetadataFieldsForTab(tab))
         _correctionField(
           _controllerForFieldKey(field.key),
           field.label,

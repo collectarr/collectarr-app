@@ -30,6 +30,16 @@ void main() {
     expect(tabs, containsAll(SharedMetadataEditTab.values));
   });
 
+  test('shared metadata helpers return tab-scoped field groups', () {
+    final grouped = groupSharedMetadataFieldsByTab();
+    expect(grouped[SharedMetadataEditTab.item], isNotEmpty);
+    expect(grouped[SharedMetadataEditTab.relations], isNotEmpty);
+    expect(
+      sharedMetadataFieldByKey('title')?.tab,
+      SharedMetadataEditTab.item,
+    );
+  });
+
   test('typed admin fields keep expected value types', () {
     SharedMetadataFieldDescriptor byKey(String key) =>
         kAdminMetadataScalarFields.firstWhere((field) => field.key == key);

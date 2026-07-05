@@ -167,6 +167,37 @@ const List<SharedMetadataFieldDescriptor> kProposalCorrectionFields = [
   ),
 ];
 
+SharedMetadataFieldDescriptor? sharedMetadataFieldByKey(String key) {
+  for (final field in kAdminMetadataScalarFields) {
+    if (field.key == key) {
+      return field;
+    }
+  }
+  return null;
+}
+
+List<SharedMetadataFieldDescriptor> sharedMetadataFieldsForTab(
+  SharedMetadataEditTab tab, {
+  Iterable<SharedMetadataFieldDescriptor>? fields,
+}) {
+  final source = fields ?? kAdminMetadataScalarFields;
+  return [
+    for (final field in source)
+      if (field.tab == tab) field,
+  ];
+}
+
+Map<SharedMetadataEditTab, List<SharedMetadataFieldDescriptor>>
+    groupSharedMetadataFieldsByTab({
+  Iterable<SharedMetadataFieldDescriptor>? fields,
+}) {
+  final source = fields ?? kAdminMetadataScalarFields;
+  return {
+    for (final tab in SharedMetadataEditTab.values)
+      tab: sharedMetadataFieldsForTab(tab, fields: source),
+  };
+}
+
 TextInputType? sharedFieldKeyboardType(SharedMetadataFieldDescriptor field) {
   return switch (field.inputType) {
     SharedMetadataFieldInputType.number => TextInputType.number,
