@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:xml/xml.dart';
@@ -36,8 +37,7 @@ class ComicInfoXml {
       }
       _optionalElement(builder, 'Summary', catalog.synopsis);
       if (catalog.releaseDate != null) {
-        _optionalElement(
-            builder, 'Year', catalog.releaseDate!.year.toString());
+        _optionalElement(builder, 'Year', catalog.releaseDate!.year.toString());
         _optionalElement(
             builder, 'Month', catalog.releaseDate!.month.toString());
         _optionalElement(builder, 'Day', catalog.releaseDate!.day.toString());
@@ -53,8 +53,8 @@ class ComicInfoXml {
         if (owned.rating != null && owned.rating! > 0) {
           // ComicInfo uses 0-5 scale; our rating is 0-10, map accordingly
           final comicInfoRating = (owned.rating! / 2).round().clamp(0, 5);
-          _optionalElement(builder, 'CommunityRating',
-              comicInfoRating.toStringAsFixed(1));
+          _optionalElement(
+              builder, 'CommunityRating', comicInfoRating.toStringAsFixed(1));
         }
         if (owned.tags != null && owned.tags!.trim().isNotEmpty) {
           _optionalElement(builder, 'Tags', owned.tags);
@@ -66,12 +66,41 @@ class ComicInfoXml {
 
   /// Parse a ComicInfo.xml string into a partial metadata item + notes map.
   ComicInfoData deserialize(String xmlString) {
+    final split = splitForImport(xmlString);
+
+    return ComicInfoData(
+      title: split.canonical.title,
+      seriesTitle: split.canonical.seriesTitle,
+      itemNumber: split.canonical.itemNumber,
+      volumeNumber: split.canonical.volumeNumber,
+      synopsis: split.canonical.synopsis,
+      publisher: split.canonical.publisher,
+      releaseDate: split.canonical.releaseDate,
+      releaseYear: split.canonical.releaseYear,
+      physicalFormatLabel: split.canonical.physicalFormatLabel,
+      notes: split.personal.notes,
+      tags: split.personal.tags,
+      rating: split.personal.rating,
+      canonical: split.canonical,
+      personal: split.personal,
+      unknownFields: split.unknownFields,
+    );
+  }
+
+  /// Split ComicInfo.xml into canonical metadata and local personal state.
+  ComicInfoImportSplit splitForImport(String xmlString) {
     final document = XmlDocument.parse(xmlString);
     final root = document.rootElement;
     if (root.localName != 'ComicInfo') {
       throw FormatException(
-          'Expected <ComicInfo> root element, got <${root.localName}>');
+        'Expected <ComicInfo> root element, got <${root.localName}>',
+      );
     }
+
+    final fields = <String, String>{
+      for (final el in root.children.whereType<XmlElement>())
+        el.localName: el.innerText.trim(),
+    };
 
     final title = _text(root, 'Title') ?? _text(root, 'Series') ?? 'Unknown';
     final series = _text(root, 'Series') ?? title;
@@ -95,7 +124,7 @@ class ComicInfoXml {
       releaseDate = DateTime(year, month ?? 1, day ?? 1);
     }
 
-    return ComicInfoData(
+    final canonical = ComicInfoCanonicalCandidate(
       title: title,
       seriesTitle: series,
       itemNumber: number,
@@ -105,9 +134,27 @@ class ComicInfoXml {
       releaseDate: releaseDate,
       releaseYear: year,
       physicalFormatLabel: format,
+    );
+
+    final personal = ComicInfoPersonalState(
       notes: notes,
       tags: tags,
       rating: communityRating != null ? (communityRating * 2).round() : null,
+      localOnlyFields: {
+        for (final entry in fields.entries)
+          if (!_isCanonicalField(entry.key) && !_isPersonalField(entry.key))
+            entry.key: entry.value,
+      },
+    );
+
+    return ComicInfoImportSplit(
+      canonical: canonical,
+      personal: personal,
+      unknownFields: {
+        for (final entry in fields.entries)
+          if (!_isCanonicalField(entry.key) && !_isPersonalField(entry.key))
+            entry.key: entry.value,
+      },
     );
   }
 
@@ -127,6 +174,82 @@ class ComicInfoXml {
     final text = _text(root, name);
     return text == null ? null : int.tryParse(text);
   }
+
+  bool _isCanonicalField(String name) {
+    return {
+      'Title',
+      'Series',
+      'Number',
+      'Volume',
+      'Summary',
+      'Year',
+      'Month',
+      'Day',
+      'Publisher',
+      'Format',
+    }.contains(name);
+  }
+
+  bool _isPersonalField(String name) {
+    return {
+      'Notes',
+      'Tags',
+      'CommunityRating',
+    }.contains(name);
+  }
+}
+
+@immutable
+class ComicInfoImportSplit {
+  const ComicInfoImportSplit({
+    required this.canonical,
+    required this.personal,
+    required this.unknownFields,
+  });
+
+  final ComicInfoCanonicalCandidate canonical;
+  final ComicInfoPersonalState personal;
+  final Map<String, String> unknownFields;
+}
+
+@immutable
+class ComicInfoCanonicalCandidate {
+  const ComicInfoCanonicalCandidate({
+    required this.title,
+    this.seriesTitle,
+    this.itemNumber,
+    this.volumeNumber,
+    this.synopsis,
+    this.publisher,
+    this.releaseDate,
+    this.releaseYear,
+    this.physicalFormatLabel,
+  });
+
+  final String title;
+  final String? seriesTitle;
+  final String? itemNumber;
+  final int? volumeNumber;
+  final String? synopsis;
+  final String? publisher;
+  final DateTime? releaseDate;
+  final int? releaseYear;
+  final String? physicalFormatLabel;
+}
+
+@immutable
+class ComicInfoPersonalState {
+  const ComicInfoPersonalState({
+    this.notes,
+    this.tags,
+    this.rating,
+    this.localOnlyFields = const {},
+  });
+
+  final String? notes;
+  final String? tags;
+  final int? rating;
+  final Map<String, String> localOnlyFields;
 }
 
 /// Parsed ComicInfo.xml data.
@@ -144,6 +267,9 @@ class ComicInfoData {
     this.notes,
     this.tags,
     this.rating,
+    this.canonical,
+    this.personal,
+    this.unknownFields = const {},
   });
 
   final String title;
@@ -158,4 +284,7 @@ class ComicInfoData {
   final String? notes;
   final String? tags;
   final int? rating;
+  final ComicInfoCanonicalCandidate? canonical;
+  final ComicInfoPersonalState? personal;
+  final Map<String, String> unknownFields;
 }
