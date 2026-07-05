@@ -3,7 +3,6 @@ part of '../../page.dart';
 @immutable
 class LibraryProjectionRequest {
   const LibraryProjectionRequest({
-    required this.signature,
     required this.shelf,
     required this.type,
     required this.adapter,
@@ -28,7 +27,6 @@ class LibraryProjectionRequest {
     required this.searchTarget,
   });
 
-  final String signature;
   final ShelfState shelf;
   final LibraryTypeConfig type;
   final LibraryMediaAdapter adapter;
