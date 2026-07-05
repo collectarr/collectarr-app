@@ -111,6 +111,14 @@ final List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     ),
 ];
 
+/// Canonical metadata fields owned by Core.
+final List<SharedMetadataFieldDescriptor> kCanonicalMetadataFields =
+    kAdminMetadataScalarFields;
+
+final List<String> kCanonicalMetadataFieldKeys = [
+  for (final field in kCanonicalMetadataFields) field.key,
+];
+
 /// Complete app edit contract: scalar fields plus app-rendered special cases.
 ///
 /// This is the key set the Flutter edit dialog is expected to support.
@@ -123,8 +131,9 @@ final List<String> kLibraryEditableFieldKeys = [
   'tracks',
 ];
 
-final List<String> _kAdminMetadataScalarFieldKeys =
-    [for (final field in kAdminMetadataScalarFields) field.key];
+final List<String> _kAdminMetadataScalarFieldKeys = [
+  for (final field in kAdminMetadataScalarFields) field.key
+];
 
 const List<SharedMetadataFieldDescriptor> kProposalCorrectionFields = [
   SharedMetadataFieldDescriptor(

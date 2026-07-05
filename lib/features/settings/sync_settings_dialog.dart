@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/metadata/library_field_ownership.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,42 +11,6 @@ enum SyncFieldPolicy {
   const SyncFieldPolicy(this.label);
   final String label;
 }
-
-class SyncFieldSetting {
-  const SyncFieldSetting(
-    this.key,
-    this.label, {
-    this.group,
-  });
-  final String key;
-  final String label;
-  final String? group;
-}
-
-const _syncFields = [
-  SyncFieldSetting('front_cover', 'Front Cover', group: 'Images'),
-  SyncFieldSetting('back_cover', 'Back Cover', group: 'Images'),
-  SyncFieldSetting('series', 'Series', group: 'Catalog'),
-  SyncFieldSetting('title', 'Title', group: 'Catalog'),
-  SyncFieldSetting('item_number', 'Issue / Number', group: 'Catalog'),
-  SyncFieldSetting('variant', 'Variant / Edition', group: 'Catalog'),
-  SyncFieldSetting('synopsis', 'Synopsis / Plot', group: 'Catalog'),
-  SyncFieldSetting('publisher', 'Publisher', group: 'Catalog'),
-  SyncFieldSetting('release_date', 'Release Date', group: 'Catalog'),
-  SyncFieldSetting('physical_format', 'Format', group: 'Catalog'),
-  SyncFieldSetting('barcode', 'Barcode', group: 'Catalog'),
-  SyncFieldSetting('condition', 'Condition', group: 'Personal'),
-  SyncFieldSetting('grade', 'Grade', group: 'Personal'),
-  SyncFieldSetting('location_id', 'Location', group: 'Personal'),
-  SyncFieldSetting('tags', 'Tags', group: 'Personal'),
-  SyncFieldSetting('rating', 'Rating', group: 'Personal'),
-  SyncFieldSetting('read_status', 'Read Status', group: 'Personal'),
-  SyncFieldSetting('personal_notes', 'Notes', group: 'Personal'),
-  SyncFieldSetting('purchase_date', 'Date Purchased', group: 'Personal'),
-  SyncFieldSetting('price_paid', 'Price Paid', group: 'Personal'),
-  SyncFieldSetting('features', 'Features', group: 'Personal'),
-  SyncFieldSetting('hdr_formats', 'HDR Formats', group: 'Personal'),
-];
 
 const _prefsPrefix = 'collectarr.sync_field_policy.';
 
@@ -71,7 +36,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final loaded = <String, SyncFieldPolicy>{};
-    for (final field in _syncFields) {
+    for (final field in kSyncablePersonalFields) {
       final stored = prefs.getString('$_prefsPrefix${field.key}');
       loaded[field.key] = SyncFieldPolicy.values.firstWhere(
         (p) => p.name == stored,
@@ -151,7 +116,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
           TextButton(
             onPressed: () {
               setState(() {
-                for (final field in _syncFields) {
+                for (final field in kSyncablePersonalFields) {
                   _policies[field.key] = SyncFieldPolicy.updateEmpty;
                 }
               });
@@ -169,13 +134,13 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
   List<Widget> _buildFieldRows() {
     final widgets = <Widget>[];
     String? lastGroup;
-    for (final field in _syncFields) {
+    for (final field in kSyncablePersonalFields) {
       if (field.group != lastGroup) {
         lastGroup = field.group;
         widgets.add(Padding(
           padding: const EdgeInsets.only(top: 12, bottom: 4),
           child: Text(
-            field.group ?? '',
+            field.group,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -238,7 +203,7 @@ class _SyncFieldRow extends StatelessWidget {
     required this.onChanged,
   });
 
-  final SyncFieldSetting field;
+  final PersonalLibraryFieldSpec field;
   final SyncFieldPolicy policy;
   final Color accent;
   final ValueChanged<SyncFieldPolicy> onChanged;
