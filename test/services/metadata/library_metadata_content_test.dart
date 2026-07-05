@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('music metadata presentation exposes track count without track list', () {
+  test('music metadata presentation exposes track count without track list',
+      () {
     final presentation = buildLibraryMetadataPresentation(
       type: musicLibraryConfig,
       entry: LibraryWorkspaceEntry(
@@ -47,7 +48,8 @@ void main() {
       ),
     );
 
-    final musicSections = musicLibraryConfig.presentation.builder.buildInspectorSections(
+    final musicSections =
+        musicLibraryConfig.presentation.builder.buildInspectorSections(
       context: context,
       entry: LibraryWorkspaceEntry(
         id: 'music-1',
@@ -58,7 +60,8 @@ void main() {
       ),
       accent: Colors.cyan,
     );
-    final movieSections = moviesLibraryConfig.presentation.builder.buildInspectorSections(
+    final movieSections =
+        moviesLibraryConfig.presentation.builder.buildInspectorSections(
       context: context,
       entry: LibraryWorkspaceEntry(
         id: 'movie-1',
@@ -70,7 +73,8 @@ void main() {
       accent: Colors.red,
     );
 
-    expect(musicSections.whereType<InspectorTrackListUnavailable>(), hasLength(1));
+    expect(
+        musicSections.whereType<InspectorTrackListUnavailable>(), hasLength(1));
     expect(
       movieSections
           .whereType<LibraryInspectorSection>()
@@ -94,7 +98,8 @@ void main() {
       ),
     );
 
-    final sections = booksLibraryConfig.presentation.builder.buildInspectorSections(
+    final sections =
+        booksLibraryConfig.presentation.builder.buildInspectorSections(
       context: context,
       entry: LibraryWorkspaceEntry(
         id: 'book-1',
@@ -102,6 +107,7 @@ void main() {
         title: 'Hyperion',
         series: const CatalogSeriesDetails(seriesTitle: 'Hyperion Cantos'),
         publisher: 'Bantam',
+        coverImageUrl: 'https://example.com/hyperion.jpg',
         barcode: '9780553283686',
         condition: 'Fine',
         grade: '9.0',
@@ -112,11 +118,20 @@ void main() {
     );
 
     expect(
-      sections.whereType<LibraryInspectorSection>().map((section) => section.title),
-      containsAll(<String>['Work', 'Edition', 'Printing', 'Personal']),
+      sections
+          .whereType<LibraryInspectorSection>()
+          .map((section) => section.title),
+      containsAll(<String>[
+        'Original Details',
+        'Product Details',
+        'Images',
+        'Personal Details',
+      ]),
     );
     expect(
-      sections.whereType<LibraryInspectorChipSection>().map((section) => section.title),
+      sections
+          .whereType<LibraryInspectorChipSection>()
+          .map((section) => section.title),
       containsAll(<String>['Identifiers']),
     );
   });

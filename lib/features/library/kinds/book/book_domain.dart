@@ -31,7 +31,6 @@ final class BookVariant {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final bool isPrimary;
-
 }
 
 final class BookEdition {
@@ -47,6 +46,14 @@ final class BookEdition {
     this.releaseDate,
     this.physicalFormat,
     this.physicalFormatLabel,
+    this.dimensions,
+    this.dustJacket,
+    this.printing,
+    this.firstEdition = false,
+    this.numberLine,
+    this.coverImagePath,
+    this.thumbnailImagePath,
+    this.backImagePath,
     this.variants = const <BookVariant>[],
   });
 
@@ -61,6 +68,14 @@ final class BookEdition {
   final DateTime? releaseDate;
   final String? physicalFormat;
   final String? physicalFormatLabel;
+  final String? dimensions;
+  final bool? dustJacket;
+  final String? printing;
+  final bool firstEdition;
+  final String? numberLine;
+  final String? coverImagePath;
+  final String? thumbnailImagePath;
+  final String? backImagePath;
   final List<BookVariant> variants;
 
   factory BookEdition.fromDto(BookEditionDto dto) {
@@ -74,8 +89,68 @@ final class BookEdition {
       language: dto.language,
       region: dto.region,
       releaseDate: dto.releaseDate,
+      dimensions: _stringField(dto.raw, 'dimensions'),
+      dustJacket: _boolField(dto.raw, 'dust_jacket'),
+      printing: _stringField(dto.raw, 'printing'),
+      firstEdition: _boolField(dto.raw, 'first_edition') ?? false,
+      numberLine: _stringField(dto.raw, 'number_line'),
+      coverImagePath: _stringField(dto.raw, 'cover_image_path'),
+      thumbnailImagePath: _stringField(dto.raw, 'thumbnail_image_path'),
+      backImagePath: _stringField(dto.raw, 'back_image_path'),
     );
   }
+}
+
+final class BookOriginalDetails {
+  const BookOriginalDetails({
+    this.publisher,
+    this.dewey,
+    this.lccn,
+    this.locControlNumber,
+  });
+
+  final String? publisher;
+  final String? dewey;
+  final String? lccn;
+  final String? locControlNumber;
+
+  bool get isEmpty =>
+      publisher == null &&
+      dewey == null &&
+      lccn == null &&
+      locControlNumber == null;
+}
+
+final class BookPhysicalDetails {
+  const BookPhysicalDetails({
+    this.dimensions,
+    this.dustJacket,
+    this.printing,
+    this.firstEdition = false,
+    this.numberLine,
+    this.coverImagePath,
+    this.thumbnailImagePath,
+    this.backImagePath,
+  });
+
+  final String? dimensions;
+  final bool? dustJacket;
+  final String? printing;
+  final bool firstEdition;
+  final String? numberLine;
+  final String? coverImagePath;
+  final String? thumbnailImagePath;
+  final String? backImagePath;
+
+  bool get isEmpty =>
+      dimensions == null &&
+      dustJacket == null &&
+      printing == null &&
+      !firstEdition &&
+      numberLine == null &&
+      coverImagePath == null &&
+      thumbnailImagePath == null &&
+      backImagePath == null;
 }
 
 final class BookWork {
@@ -99,6 +174,7 @@ final class BookWork {
     this.crossover,
     this.series,
     this.publishing,
+    this.originalDetails,
     this.editions = const <BookEdition>[],
     this.trailerUrls = const <TrailerLink>[],
     this.plotSummary,
@@ -133,6 +209,7 @@ final class BookWork {
   final String? crossover;
   final CatalogSeriesDetails? series;
   final CatalogPublishingDetails? publishing;
+  final BookOriginalDetails? originalDetails;
   final List<BookEdition> editions;
   final List<TrailerLink> trailerUrls;
   final String? plotSummary;
@@ -192,6 +269,7 @@ final class BookWork {
               originalPublisher: dto.publisherName,
               subjects: List<String>.unmodifiable(dto.genres),
             ),
+      originalDetails: _bookOriginalDetailsFromDto(dto),
       editions: editions,
       plotSummary: dto.plotSummaryValue,
       plotDescription: dto.plotDescriptionValue,
@@ -207,5 +285,54 @@ final class BookWork {
       physicalFormatLabel: dto.physicalFormatLabelValue,
     );
   }
+}
 
+BookOriginalDetails? _bookOriginalDetailsFromDto(BookWorkDto dto) {
+  final raw = dto.raw;
+  final originalDetails = raw['original_details'];
+  if (originalDetails is Map<String, dynamic>) {
+    final details = BookOriginalDetails(
+      publisher: _stringField(originalDetails, 'publisher') ??
+          _stringField(originalDetails, 'original_publisher'),
+      dewey: _stringField(originalDetails, 'dewey'),
+      lccn: _stringField(originalDetails, 'lccn'),
+      locControlNumber: _stringField(originalDetails, 'loc_control_number') ??
+          _stringField(originalDetails, 'locControlNumber'),
+    );
+    if (!details.isEmpty) {
+      return details;
+    }
+  }
+  final details = BookOriginalDetails(
+    publisher: _stringField(raw, 'original_publisher') ?? dto.publisherName,
+    dewey: _stringField(raw, 'dewey'),
+    lccn: _stringField(raw, 'lccn'),
+    locControlNumber: _stringField(raw, 'loc_control_number') ??
+        _stringField(raw, 'locControlNumber'),
+  );
+  return details.isEmpty ? null : details;
+}
+
+String? _stringField(Map<String, dynamic> raw, String key) {
+  final value = raw[key];
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
+}
+
+bool? _boolField(Map<String, dynamic> raw, String key) {
+  final value = raw[key];
+  if (value is bool) {
+    return value;
+  }
+  final text = value?.toString().trim().toLowerCase();
+  if (text == null || text.isEmpty) {
+    return null;
+  }
+  if (text == 'true' || text == '1' || text == 'yes') {
+    return true;
+  }
+  if (text == 'false' || text == '0' || text == 'no') {
+    return false;
+  }
+  return null;
 }

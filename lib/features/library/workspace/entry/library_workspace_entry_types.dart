@@ -135,6 +135,8 @@ abstract base class _TypedLibraryWorkspaceEntry extends LibraryWorkspaceEntry {
           hasMissingMetadata: common.hasMissingMetadata,
           condition: common.condition,
           grade: common.grade,
+          marketValueCents: common.marketValueCents,
+          marketValueCurrency: common.marketValueCurrency,
           primaryReferenceLabel: common.primaryReferenceLabel,
           referenceScopeLabel: common.referenceScopeLabel,
           referenceFormatLabel: common.referenceFormatLabel,
@@ -225,6 +227,8 @@ final class BookWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
     this.bookEditions = const <BookEdition>[],
+    this.originalDetails,
+    this.physicalDetails,
   }) : super._(
           common: common,
           seriesDetails: _seriesOrNull(series),
@@ -232,6 +236,8 @@ final class BookWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
         );
 
   final List<BookEdition> bookEditions;
+  final BookOriginalDetails? originalDetails;
+  final BookPhysicalDetails? physicalDetails;
 }
 
 final class MovieWorkspaceEntry extends _TypedLibraryWorkspaceEntry {

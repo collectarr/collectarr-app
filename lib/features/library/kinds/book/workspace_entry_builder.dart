@@ -48,6 +48,19 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
       _primaryBookReleaseCover(primaryRelease.edition) ??
           primaryRelease.variant?.thumbnailImageUrl ??
           primaryRelease.variant?.coverImageUrl;
+  final originalDetails = work.originalDetails;
+  final physicalDetails = bookEditions.isNotEmpty
+      ? BookPhysicalDetails(
+          dimensions: bookEditions.first.dimensions,
+          dustJacket: bookEditions.first.dustJacket,
+          printing: bookEditions.first.printing,
+          firstEdition: bookEditions.first.firstEdition,
+          numberLine: bookEditions.first.numberLine,
+          coverImagePath: bookEditions.first.coverImagePath,
+          thumbnailImagePath: bookEditions.first.thumbnailImagePath,
+          backImagePath: bookEditions.first.backImagePath,
+        )
+      : null;
   return BookWorkspaceEntry(
     common: LibraryWorkspaceEntryData(
       id: work.id,
@@ -110,6 +123,9 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
       notes: overlay.ownedItem?.personalNotes ?? overlay.wishlistItem?.notes,
       tags: overlay.ownedItem?.tags,
       collectionStatus: overlay.ownedItem?.collectionStatus,
+      readStatus: overlay.trackingEntry?.statusStorageValue ??
+          overlay.ownedItem?.readStatus,
+      rating: overlay.trackingEntry?.rating ?? overlay.ownedItem?.rating,
       lastBagBoardDate: overlay.ownedItem?.lastBagBoardDate,
       pricePaidCents: overlay.ownedItem?.pricePaidCents,
       currency: overlay.ownedItem?.currency,
@@ -132,6 +148,8 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
     series: work.series,
     publishing: work.publishing,
     bookEditions: bookEditions,
+    originalDetails: originalDetails,
+    physicalDetails: physicalDetails,
   );
 }
 
@@ -166,6 +184,18 @@ LibraryWorkspaceEntry buildBookEditionWorkspaceEntry({
     series: titleEntry.series,
     publishing: titleEntry.publishing,
     bookEditions: bookEditions,
+    originalDetails: titleEntry.originalDetails,
+    physicalDetails: titleEntry.physicalDetails ??
+        BookPhysicalDetails(
+          dimensions: edition.dimensions,
+          dustJacket: edition.dustJacket,
+          printing: edition.printing,
+          firstEdition: edition.firstEdition,
+          numberLine: edition.numberLine,
+          coverImagePath: edition.coverImagePath,
+          thumbnailImagePath: edition.thumbnailImagePath,
+          backImagePath: edition.backImagePath,
+        ),
   );
 }
 
@@ -182,8 +212,8 @@ LibraryWorkspaceEntryData _buildEditionEntryData({
   required String? referenceBundleReleaseId,
   required DateTime updatedAt,
 }) {
-  final resolvedVariant = variant ??
-      (edition.variants.isEmpty ? null : edition.variants.first);
+  final resolvedVariant =
+      variant ?? (edition.variants.isEmpty ? null : edition.variants.first);
   return LibraryWorkspaceEntryData(
     id: '${titleEntry.id}:release:${edition.id}',
     browseScope: LibraryBrowserScope.release,
@@ -221,14 +251,16 @@ LibraryWorkspaceEntryData _buildEditionEntryData({
     grade: null,
     primaryReferenceLabel: null,
     referenceScopeLabel: null,
-    referenceFormatLabel: resolvedVariant?.physicalFormatLabel ??
-        edition.physicalFormatLabel,
+    referenceFormatLabel:
+        resolvedVariant?.physicalFormatLabel ?? edition.physicalFormatLabel,
     referenceEditionId: referenceEditionId ?? edition.id,
     referenceVariantId: referenceVariantId ?? resolvedVariant?.id,
     referenceBundleReleaseId: referenceBundleReleaseId,
     notes: null,
     tags: null,
     collectionStatus: null,
+    readStatus: null,
+    rating: null,
     lastBagBoardDate: null,
     pricePaidCents: null,
     currency: null,

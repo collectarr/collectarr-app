@@ -25,10 +25,13 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,
+    LibraryTableColumn.author,
     LibraryTableColumn.title,
     LibraryTableColumn.publisher,
     LibraryTableColumn.releaseDate,
     LibraryTableColumn.barcode,
+    LibraryTableColumn.readStatus,
+    LibraryTableColumn.rating,
     LibraryTableColumn.condition,
     LibraryTableColumn.price,
     LibraryTableColumn.location,

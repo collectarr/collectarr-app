@@ -40,6 +40,12 @@ void main() {
       'age_rating': 'PG',
       'audience_rating': 'Teen',
       'physical_format_label': 'Paperback',
+      'original_details': {
+        'original_publisher': 'Victor Gollancz Ltd',
+        'dewey': '823.914',
+        'lccn': '89012345',
+        'loc_control_number': '89012345',
+      },
       'editions': [
         {
           'id': 'book-edition-1',
@@ -52,6 +58,14 @@ void main() {
           'publication_date': '1989-03-16T00:00:00Z',
           'language': 'en',
           'release_status': 'published',
+          'dimensions': '198 x 129 mm',
+          'dust_jacket': true,
+          'printing': '1st printing',
+          'first_edition': true,
+          'number_line': '1 3 5 7 9',
+          'cover_image_path': '/covers/book-edition-1-front.jpg',
+          'thumbnail_image_path': '/covers/book-edition-1-thumb.jpg',
+          'back_image_path': '/covers/book-edition-1-back.jpg',
         },
       ],
     });
@@ -70,6 +84,9 @@ void main() {
     expect(book.storyArcs, ['Ankh-Morpork']);
     expect(book.editions, hasLength(1));
     expect(book.editions.first.title, 'Paperback');
+    expect(book.originalDetails?.dewey, '823.914');
+    expect(book.editions.first.dimensions, '198 x 129 mm');
+    expect(book.editions.first.firstEdition, isTrue);
     expect(book.physicalFormatLabel, 'Paperback');
   });
 }

@@ -86,6 +86,7 @@ const comicsTableColumnPresets = [
       LibraryTableColumn.issue,
       LibraryTableColumn.grade,
       LibraryTableColumn.condition,
+      LibraryTableColumn.value,
       LibraryTableColumn.location,
       LibraryTableColumn.updated,
     },
@@ -100,7 +101,21 @@ const comicsTableColumnPresets = [
       LibraryTableColumn.grade,
       LibraryTableColumn.condition,
       LibraryTableColumn.price,
+      LibraryTableColumn.value,
       LibraryTableColumn.barcode,
+    },
+  ),
+  LibraryTableColumnPreset(
+    label: 'Images',
+    columns: {
+      LibraryTableColumn.status,
+      LibraryTableColumn.frontCover,
+      LibraryTableColumn.backCover,
+      LibraryTableColumn.hasFront,
+      LibraryTableColumn.hasBack,
+      LibraryTableColumn.extraImages,
+      LibraryTableColumn.title,
+      LibraryTableColumn.issue,
     },
   ),
   LibraryTableColumnPreset(
@@ -108,6 +123,11 @@ const comicsTableColumnPresets = [
     columns: {
       LibraryTableColumn.status,
       LibraryTableColumn.cover,
+      LibraryTableColumn.frontCover,
+      LibraryTableColumn.backCover,
+      LibraryTableColumn.hasFront,
+      LibraryTableColumn.hasBack,
+      LibraryTableColumn.extraImages,
       LibraryTableColumn.title,
       LibraryTableColumn.issue,
       LibraryTableColumn.variant,
@@ -116,6 +136,7 @@ const comicsTableColumnPresets = [
       LibraryTableColumn.barcode,
       LibraryTableColumn.grade,
       LibraryTableColumn.condition,
+      LibraryTableColumn.value,
       LibraryTableColumn.price,
       LibraryTableColumn.location,
       LibraryTableColumn.wishlist,
@@ -218,6 +239,7 @@ double defaultComicTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.hasFront => 78.0,
     LibraryTableColumn.hasBack => 78.0,
     LibraryTableColumn.extraImages => 82.0,
+    LibraryTableColumn.author => 160.0,
     LibraryTableColumn.artist => 160.0,
     LibraryTableColumn.album => 260.0,
     LibraryTableColumn.title => 260.0,
@@ -242,6 +264,8 @@ double defaultComicTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.completion => 110.0,
     LibraryTableColumn.price => 92.0,
     LibraryTableColumn.value => 92.0,
+    LibraryTableColumn.readStatus => 104.0,
+    LibraryTableColumn.rating => 84.0,
     LibraryTableColumn.location => 118.0,
     LibraryTableColumn.wishlist => 82.0,
     LibraryTableColumn.added => 98.0,
@@ -354,6 +378,7 @@ String comicTableColumnDescription(LibraryTableColumn column) {
     LibraryTableColumn.hasFront => 'Owned copy has a front cover image',
     LibraryTableColumn.hasBack => 'Owned copy has a back cover image',
     LibraryTableColumn.extraImages => 'Owned copy extra image count',
+    LibraryTableColumn.author => 'Author or creator name',
     LibraryTableColumn.artist => 'Artist or creator name',
     LibraryTableColumn.album => 'Album or work title',
     LibraryTableColumn.title => 'Series or item title',
@@ -378,6 +403,8 @@ String comicTableColumnDescription(LibraryTableColumn column) {
     LibraryTableColumn.price => 'Personal purchase price',
     LibraryTableColumn.completion => 'Completion or collection status',
     LibraryTableColumn.value => 'Current or paid value',
+    LibraryTableColumn.readStatus => 'Read It',
+    LibraryTableColumn.rating => 'Rating',
     LibraryTableColumn.location => 'Assigned location path',
     LibraryTableColumn.wishlist => 'Wishlist status',
     LibraryTableColumn.added => 'Added date for owned or wishlisted items',
@@ -396,6 +423,7 @@ LibraryTableColumnGroup comicTableColumnGroup(LibraryTableColumn column) {
     LibraryTableColumn.cover ||
     LibraryTableColumn.frontCover ||
     LibraryTableColumn.backCover ||
+    LibraryTableColumn.author ||
     LibraryTableColumn.artist ||
     LibraryTableColumn.album ||
     LibraryTableColumn.title ||
@@ -424,7 +452,9 @@ LibraryTableColumnGroup comicTableColumnGroup(LibraryTableColumn column) {
     LibraryTableColumn.price ||
     LibraryTableColumn.value =>
       LibraryTableColumnGroup.value,
+    LibraryTableColumn.rating => LibraryTableColumnGroup.value,
     LibraryTableColumn.location ||
+    LibraryTableColumn.readStatus ||
     LibraryTableColumn.wishlist ||
     LibraryTableColumn.completion ||
     LibraryTableColumn.hasFront ||
@@ -470,6 +500,7 @@ LibrarySortColumn? comicTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.hasBack => null,
     LibraryTableColumn.extraImages => null,
     LibraryTableColumn.status => LibrarySortColumn.status,
+    LibraryTableColumn.author => null,
     LibraryTableColumn.artist => null,
     LibraryTableColumn.album => LibrarySortColumn.title,
     LibraryTableColumn.title => LibrarySortColumn.title,
@@ -493,6 +524,8 @@ LibrarySortColumn? comicTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.condition => LibrarySortColumn.condition,
     LibraryTableColumn.price => LibrarySortColumn.price,
     LibraryTableColumn.value => LibrarySortColumn.price,
+    LibraryTableColumn.readStatus => null,
+    LibraryTableColumn.rating => null,
     LibraryTableColumn.location => LibrarySortColumn.location,
     LibraryTableColumn.wishlist => LibrarySortColumn.wishlist,
     LibraryTableColumn.completion => LibrarySortColumn.collectionStatus,

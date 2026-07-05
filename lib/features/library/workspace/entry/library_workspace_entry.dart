@@ -10,6 +10,11 @@ import 'package:collectarr_app/features/library/workspace/entry/library_browser_
 part 'library_workspace_entry_facets.dart';
 part 'library_workspace_entry_types.dart';
 
+final _uuidPattern = RegExp(
+  r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+  caseSensitive: false,
+);
+
 sealed class LibraryWorkspaceEntry {
   LibraryWorkspaceEntry._({
     required this.id,
@@ -57,6 +62,8 @@ sealed class LibraryWorkspaceEntry {
     this.notes,
     this.tags,
     this.collectionStatus,
+    this.readStatus,
+    this.rating,
     this.lastBagBoardDate,
     this.pricePaidCents,
     this.currency,
@@ -133,6 +140,8 @@ sealed class LibraryWorkspaceEntry {
     String? notes,
     String? tags,
     String? collectionStatus,
+    String? readStatus,
+    int? rating,
     DateTime? lastBagBoardDate,
     int? pricePaidCents,
     String? currency,
@@ -204,6 +213,8 @@ sealed class LibraryWorkspaceEntry {
       notes: notes,
       tags: tags,
       collectionStatus: collectionStatus,
+      readStatus: readStatus,
+      rating: rating,
       lastBagBoardDate: lastBagBoardDate,
       pricePaidCents: pricePaidCents,
       currency: currency,
@@ -345,6 +356,8 @@ sealed class LibraryWorkspaceEntry {
       notes: null,
       tags: null,
       collectionStatus: null,
+      readStatus: null,
+      rating: null,
       lastBagBoardDate: null,
       pricePaidCents: null,
       currency: null,
@@ -422,6 +435,8 @@ sealed class LibraryWorkspaceEntry {
   final String? notes;
   final String? tags;
   final String? collectionStatus;
+  final String? readStatus;
+  final int? rating;
   final DateTime? lastBagBoardDate;
   final int? pricePaidCents;
   final String? currency;
@@ -454,11 +469,30 @@ sealed class LibraryWorkspaceEntry {
 
   String? get displayCoverUrl =>
       thumbnailImageUrl ?? frontCoverUrl ?? coverImageUrl;
+
+  String get canonicalItemId => titleItemId ?? id;
+
+  String get providerScopedId => releaseId ?? copyId ?? canonicalItemId;
+
+  String? get localSyntheticId {
+    final normalizedId = id.trim();
+    if (normalizedId.isEmpty) {
+      return null;
+    }
+    if (normalizedId != canonicalItemId) {
+      return normalizedId;
+    }
+    return canHydrateFromCore ? null : normalizedId;
+  }
+
+  bool get canHydrateFromCore => _uuidPattern.hasMatch(canonicalItemId);
+
   ItemImage? get frontImage => _imageByType('front_cover');
   ItemImage? get backImage => _imageByType('back_cover');
   List<ItemImage> get extraImages => [
         for (final image in itemImages)
-          if (image.imageType != 'front_cover' && image.imageType != 'back_cover')
+          if (image.imageType != 'front_cover' &&
+              image.imageType != 'back_cover')
             image,
       ];
   bool get hasFrontImage =>
@@ -543,6 +577,8 @@ class LibraryWorkspaceEntryData {
     required this.notes,
     required this.tags,
     required this.collectionStatus,
+    this.readStatus,
+    this.rating,
     required this.lastBagBoardDate,
     required this.pricePaidCents,
     required this.currency,
@@ -609,6 +645,8 @@ class LibraryWorkspaceEntryData {
   final String? notes;
   final String? tags;
   final String? collectionStatus;
+  final String? readStatus;
+  final int? rating;
   final DateTime? lastBagBoardDate;
   final int? pricePaidCents;
   final String? currency;

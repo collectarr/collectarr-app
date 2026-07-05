@@ -35,6 +35,7 @@ double defaultPlannedMediaTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.hasFront => 78.0,
     LibraryTableColumn.hasBack => 78.0,
     LibraryTableColumn.extraImages => 82.0,
+    LibraryTableColumn.author => 160.0,
     LibraryTableColumn.artist => 160.0,
     LibraryTableColumn.album => 260.0,
     LibraryTableColumn.title => 280.0,
@@ -60,6 +61,8 @@ double defaultPlannedMediaTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.price => 92.0,
     LibraryTableColumn.value => 92.0,
     LibraryTableColumn.location => 118.0,
+    LibraryTableColumn.readStatus => 104.0,
+    LibraryTableColumn.rating => 84.0,
     LibraryTableColumn.wishlist => 82.0,
     LibraryTableColumn.added => 112.0,
     LibraryTableColumn.updated => 112.0,
@@ -80,6 +83,7 @@ double minPlannedMediaTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.hasFront => 68.0,
     LibraryTableColumn.hasBack => 68.0,
     LibraryTableColumn.extraImages => 70.0,
+    LibraryTableColumn.author => 110.0,
     LibraryTableColumn.artist => 110.0,
     LibraryTableColumn.album => 160.0,
     LibraryTableColumn.label => 110.0,
@@ -87,6 +91,8 @@ double minPlannedMediaTableColumnWidth(LibraryTableColumn column) {
     LibraryTableColumn.price => 78.0,
     LibraryTableColumn.wishlist => 70.0,
     LibraryTableColumn.catalogNumber => 84.0,
+    LibraryTableColumn.readStatus => 82.0,
+    LibraryTableColumn.rating => 60.0,
     LibraryTableColumn.discCount => 64.0,
     LibraryTableColumn.trackCount => 64.0,
     LibraryTableColumn.length => 72.0,
@@ -137,6 +143,7 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
     LibraryTableColumn.hasFront => 'Has Front',
     LibraryTableColumn.hasBack => 'Has Back',
     LibraryTableColumn.extraImages => 'Extra Images',
+    LibraryTableColumn.author => 'Author',
     LibraryTableColumn.artist => 'Artist',
     LibraryTableColumn.album => 'Album',
     LibraryTableColumn.title => 'Title',
@@ -162,6 +169,8 @@ String plannedMediaTableColumnLabel(LibraryTableColumn column) {
     LibraryTableColumn.price => 'Price',
     LibraryTableColumn.value => 'Value',
     LibraryTableColumn.location => 'Location',
+    LibraryTableColumn.readStatus => 'Read It',
+    LibraryTableColumn.rating => 'Rating',
     LibraryTableColumn.wishlist => 'Wishlist',
     LibraryTableColumn.added => 'Added Date',
     LibraryTableColumn.updated => 'Updated',
@@ -195,6 +204,7 @@ String plannedMediaTableColumnDisplayName(LibraryTableColumn column) {
     LibraryTableColumn.hasFront => 'Has Front',
     LibraryTableColumn.hasBack => 'Has Back',
     LibraryTableColumn.extraImages => 'Extra Images',
+    LibraryTableColumn.author => 'Author',
     _ => plannedMediaTableColumnLabel(column),
   };
 }
@@ -218,6 +228,7 @@ LibraryTableColumnGroup plannedMediaTableColumnGroup(
     LibraryTableColumn.cover ||
     LibraryTableColumn.frontCover ||
     LibraryTableColumn.backCover ||
+    LibraryTableColumn.author ||
     LibraryTableColumn.artist ||
     LibraryTableColumn.album ||
     LibraryTableColumn.title ||
@@ -247,12 +258,14 @@ LibraryTableColumnGroup plannedMediaTableColumnGroup(
     LibraryTableColumn.value =>
       LibraryTableColumnGroup.value,
     LibraryTableColumn.location ||
+    LibraryTableColumn.readStatus ||
     LibraryTableColumn.wishlist ||
     LibraryTableColumn.completion ||
     LibraryTableColumn.hasFront ||
     LibraryTableColumn.hasBack ||
     LibraryTableColumn.extraImages =>
       LibraryTableColumnGroup.personal,
+    LibraryTableColumn.rating => LibraryTableColumnGroup.value,
     LibraryTableColumn.country ||
     LibraryTableColumn.language ||
     LibraryTableColumn.pageCount ||
@@ -278,7 +291,8 @@ bool plannedMediaTableColumnIsNumeric(LibraryTableColumn column) {
     LibraryTableColumn.value ||
     LibraryTableColumn.pageCount ||
     LibraryTableColumn.discCount ||
-    LibraryTableColumn.trackCount =>
+    LibraryTableColumn.trackCount ||
+    LibraryTableColumn.rating =>
       true,
     _ => false,
   };
@@ -293,6 +307,7 @@ LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.hasBack => null,
     LibraryTableColumn.extraImages => null,
     LibraryTableColumn.status => LibrarySortColumn.status,
+    LibraryTableColumn.author => null,
     LibraryTableColumn.artist => null,
     LibraryTableColumn.album => LibrarySortColumn.title,
     LibraryTableColumn.title => LibrarySortColumn.title,
@@ -317,8 +332,10 @@ LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
     LibraryTableColumn.price => LibrarySortColumn.price,
     LibraryTableColumn.value => LibrarySortColumn.price,
     LibraryTableColumn.location => LibrarySortColumn.location,
+    LibraryTableColumn.readStatus => null,
     LibraryTableColumn.wishlist => LibrarySortColumn.wishlist,
     LibraryTableColumn.completion => LibrarySortColumn.collectionStatus,
+    LibraryTableColumn.rating => null,
     LibraryTableColumn.added => LibrarySortColumn.added,
     LibraryTableColumn.updated => LibrarySortColumn.updated,
     LibraryTableColumn.country => LibrarySortColumn.country,
@@ -348,6 +365,9 @@ Widget plannedMediaTableCell(
         hasSlabMarker: accessors.rawOrSlabbed(entry) != null ||
             accessors.gradingCompany(entry) != null,
         hasNotesMarker: entry.notes != null && entry.notes!.trim().isNotEmpty,
+        contractDiagnosticLabel: libraryHierarchyContractDiagnosticLabel(
+          entry,
+        ),
       ),
     LibraryTableColumn.cover => SizedBox(
         width: 24,
@@ -397,6 +417,7 @@ Widget plannedMediaTableCell(
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
       ),
+    LibraryTableColumn.author => LibraryTableCellText(_bookAuthor(entry)),
     LibraryTableColumn.artist => LibraryTableCellText(_musicArtist(entry)),
     LibraryTableColumn.album => LibraryTableCellText(entry.title),
     LibraryTableColumn.issue => LibraryTableCellText(entry.itemNumber),
@@ -442,8 +463,10 @@ Widget plannedMediaTableCell(
     LibraryTableColumn.completion =>
       LibraryTableCellText(accessors.completion(entry)),
     LibraryTableColumn.location => LibraryTableCellText(entry.locationPath),
+    LibraryTableColumn.readStatus => LibraryTableCellText(entry.readStatus),
     LibraryTableColumn.wishlist =>
       entry.isWishlisted ? const Icon(Icons.star, size: 18) : const Text(''),
+    LibraryTableColumn.rating => LibraryTableCellText(entry.rating?.toString()),
     LibraryTableColumn.added => Text(
         formatDate(entry.addedAt ?? entry.updatedAt),
         style: const TextStyle(fontSize: 12),
@@ -520,6 +543,34 @@ String? _musicArtist(LibraryWorkspaceEntry entry) {
     return series;
   }
   final creators = entry.creators ?? const <Map<String, dynamic>>[];
+  for (final creator in creators) {
+    final name =
+        (creator['name'] ?? creator['display_name'] ?? '').toString().trim();
+    if (name.isNotEmpty) {
+      return name;
+    }
+  }
+  return null;
+}
+
+String? _bookAuthor(LibraryWorkspaceEntry entry) {
+  final creators = entry.creators ?? const <Map<String, dynamic>>[];
+  for (final creator in creators) {
+    final role = creator['role']?.toString().trim().toLowerCase();
+    final name =
+        (creator['name'] ?? creator['display_name'] ?? '').toString().trim();
+    if (name.isEmpty) {
+      continue;
+    }
+    if (role == null || role.isEmpty) {
+      return name;
+    }
+    if (role.contains('author') ||
+        role.contains('writer') ||
+        role.contains('novelist')) {
+      return name;
+    }
+  }
   for (final creator in creators) {
     final name =
         (creator['name'] ?? creator['display_name'] ?? '').toString().trim();

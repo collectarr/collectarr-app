@@ -179,67 +179,90 @@ class BookLibraryMediaPresentationBuilder
     ValueChanged<String>? onFilterByValue,
   }) {
     final sections = <Widget>[];
-    final resolvedItemId = entry.titleItemId ?? entry.id;
     if (showVolumeHierarchy) {
-      sections.add(VolumesSection(itemId: resolvedItemId, kind: 'book'));
+      sections.add(
+        VolumesSection(
+          itemId: entry.canonicalItemId,
+          canHydrateFromCore: entry.canHydrateFromCore,
+          kind: 'book',
+        ),
+      );
     }
-    final workFacts = <LibraryInspectorFactData>[
+    final bookEntry = entry is BookWorkspaceEntry ? entry : null;
+    final originalDetails = bookEntry?.originalDetails;
+    final physicalDetails = bookEntry?.physicalDetails;
+    final originalFacts = <LibraryInspectorFactData>[
       if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Series', entry.series!.seriesTitle!.trim()),
       if (entry.synopsis != null && entry.synopsis!.trim().isNotEmpty)
         LibraryInspectorFactData('Summary', entry.synopsis!.trim()),
+      if (originalDetails?.publisher?.trim().isNotEmpty == true)
+        LibraryInspectorFactData(
+          'Original publisher',
+          originalDetails!.publisher!.trim(),
+        ),
+      if (originalDetails?.dewey?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Dewey', originalDetails!.dewey!.trim()),
+      if (originalDetails?.lccn?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('LCCN', originalDetails!.lccn!.trim()),
+      if (originalDetails?.locControlNumber?.trim().isNotEmpty == true)
+        LibraryInspectorFactData(
+          'LoC control number',
+          originalDetails!.locControlNumber!.trim(),
+        ),
     ];
-    if (workFacts.isNotEmpty) {
+    if (originalFacts.isNotEmpty) {
       sections.add(
         LibraryInspectorSection(
-          title: 'Work',
+          title: 'Original Details',
           accentColor: accent,
-          children: [LibraryInspectorFactGrid(facts: workFacts)],
+          children: [LibraryInspectorFactGrid(facts: originalFacts)],
         ),
       );
     }
 
-    final editionFacts = <LibraryInspectorFactData>[
+    final productFacts = <LibraryInspectorFactData>[
       if (entry.referenceFormatLabel?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Format', entry.referenceFormatLabel!.trim()),
       if (entry.publisher?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Publisher', entry.publisher!.trim()),
+      if (entry.barcode?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('ISBN / Barcode', entry.barcode!.trim()),
       if (entry.country?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Country', entry.country!.trim()),
       if (entry.language?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Language', entry.language!.trim()),
       if (entry.ageRating?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Age Rating', entry.ageRating!.trim()),
-    ];
-    if (editionFacts.isNotEmpty) {
-      sections.add(
-        LibraryInspectorSection(
-          title: 'Edition',
-          accentColor: accent,
-          children: [LibraryInspectorFactGrid(facts: editionFacts)],
-        ),
-      );
-    }
-
-    final printingFacts = <LibraryInspectorFactData>[
       if (entry.publishing?.pageCount != null)
         LibraryInspectorFactData(
             'Pages', entry.publishing!.pageCount.toString()),
-      LibraryInspectorFactData(
-        'Printings',
-        entry is BookWorkspaceEntry
-            ? entry.bookEditions.length.toString()
-            : entry.editions.length.toString(),
-      ),
-      if (entry.barcode?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Identifier', entry.barcode!.trim()),
+      if (physicalDetails?.dimensions?.trim().isNotEmpty == true)
+        LibraryInspectorFactData(
+          'Dimensions',
+          physicalDetails!.dimensions!.trim(),
+        ),
+      if (physicalDetails?.printing?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Printing', physicalDetails!.printing!.trim()),
+      if (physicalDetails?.firstEdition == true)
+        const LibraryInspectorFactData('First edition', 'Yes'),
+      if (physicalDetails?.dustJacket != null)
+        LibraryInspectorFactData(
+          'Dust jacket',
+          physicalDetails!.dustJacket! ? 'Yes' : 'No',
+        ),
+      if (physicalDetails?.numberLine?.trim().isNotEmpty == true)
+        LibraryInspectorFactData(
+          'Number line',
+          physicalDetails!.numberLine!.trim(),
+        ),
     ];
-    if (printingFacts.any((fact) => fact.value.trim().isNotEmpty)) {
+    if (productFacts.isNotEmpty) {
       sections.add(
         LibraryInspectorSection(
-          title: 'Printing',
+          title: 'Product Details',
           accentColor: accent,
-          children: [LibraryInspectorFactGrid(facts: printingFacts)],
+          children: [LibraryInspectorFactGrid(facts: productFacts)],
         ),
       );
     }
@@ -255,6 +278,40 @@ class BookLibraryMediaPresentationBuilder
           title: 'Contributors',
           values: creatorNames,
           onValueTap: onFilterByValue,
+        ),
+      );
+    }
+
+    final imageFacts = <LibraryInspectorFactData>[
+      if (entry.displayCoverUrl?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Cover', entry.displayCoverUrl!.trim()),
+      if (entry.frontCoverUrl?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Front cover', entry.frontCoverUrl!.trim()),
+      if (entry.backCoverUrl?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Back cover', entry.backCoverUrl!.trim()),
+      if (bookEntry?.physicalDetails?.coverImagePath?.trim().isNotEmpty == true)
+        LibraryInspectorFactData(
+          'Local cover path',
+          bookEntry!.physicalDetails!.coverImagePath!.trim(),
+        ),
+      if (bookEntry?.physicalDetails?.thumbnailImagePath?.trim().isNotEmpty ==
+          true)
+        LibraryInspectorFactData(
+          'Local thumbnail path',
+          bookEntry!.physicalDetails!.thumbnailImagePath!.trim(),
+        ),
+      if (bookEntry?.physicalDetails?.backImagePath?.trim().isNotEmpty == true)
+        LibraryInspectorFactData(
+          'Local back path',
+          bookEntry!.physicalDetails!.backImagePath!.trim(),
+        ),
+    ];
+    if (imageFacts.isNotEmpty) {
+      sections.add(
+        LibraryInspectorSection(
+          title: 'Images',
+          accentColor: accent,
+          children: [LibraryInspectorFactGrid(facts: imageFacts)],
         ),
       );
     }
@@ -286,6 +343,10 @@ class BookLibraryMediaPresentationBuilder
       if (entry.collectionStatus?.trim().isNotEmpty == true)
         LibraryInspectorFactData(
             'Collection Status', entry.collectionStatus!.trim()),
+      if (entry.readStatus?.trim().isNotEmpty == true)
+        LibraryInspectorFactData('Read It', entry.readStatus!.trim()),
+      if (entry.rating != null)
+        LibraryInspectorFactData('Rating', entry.rating!.toString()),
       if (entry.locationPath?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Location', entry.locationPath!.trim()),
       if (entry.pricePaidCents != null)
@@ -299,7 +360,7 @@ class BookLibraryMediaPresentationBuilder
     if (personalFacts.isNotEmpty) {
       sections.add(
         LibraryInspectorSection(
-          title: 'Personal',
+          title: 'Personal Details',
           accentColor: accent,
           children: [LibraryInspectorFactGrid(facts: personalFacts)],
         ),
