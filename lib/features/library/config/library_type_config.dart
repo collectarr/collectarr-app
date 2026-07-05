@@ -914,6 +914,14 @@ class LibraryTypeConfig {
     return viewState.browserMode;
   }
 
+  LibraryEditScope editScopeForBrowserMode(
+    LibraryWorkspaceBrowserMode browserMode,
+  ) {
+    return browserMode == LibraryWorkspaceBrowserMode.releases
+        ? LibraryEditScope.release
+        : LibraryEditScope.media;
+  }
+
   bool shouldOpenReleaseFolderOnOpen({
     required LibraryWorkspaceBrowserMode browserMode,
     required LibraryBrowserScope browseScope,

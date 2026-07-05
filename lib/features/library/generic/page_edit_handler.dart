@@ -153,14 +153,11 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
       navigator.pop();
     }
 
-    final baseRequest = LibraryEditDialogRequest(
+    final     baseRequest = LibraryEditDialogRequest(
       type: widget.type,
       item: freshMetadataItem,
       ownedItem: owned,
-      scope: scope ??
-          (_activeBrowserMode == LibraryWorkspaceBrowserMode.releases
-              ? LibraryEditScope.release
-              : LibraryEditScope.media),
+      scope: scope ?? widget.type.editScopeForBrowserMode(_activeBrowserMode),
       wishlistItem: wishlist,
       trackingEntry: activeTrackingEntry,
       accent: widget.accent,

@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart'
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -201,6 +202,21 @@ void main() {
     );
     expect(boardGamesLibraryConfig.availableSortColumns,
         boardGamesLibrarySortColumns);
+  });
+
+  test('edit scope follows the active browser mode', () {
+    expect(
+      booksLibraryConfig.editScopeForBrowserMode(
+        LibraryWorkspaceBrowserMode.media,
+      ),
+      LibraryEditScope.media,
+    );
+    expect(
+      booksLibraryConfig.editScopeForBrowserMode(
+        LibraryWorkspaceBrowserMode.releases,
+      ),
+      LibraryEditScope.release,
+    );
   });
 
   test('library type config can carry an add dialog launcher override', () {
