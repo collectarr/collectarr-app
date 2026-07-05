@@ -111,6 +111,21 @@ final List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
     ),
 ];
 
+/// Complete app edit contract: scalar fields plus app-rendered special cases.
+///
+/// This is the key set the Flutter edit dialog is expected to support.
+final List<String> kLibraryEditableFieldKeys = [
+  // Scalar fields.
+  ..._kAdminMetadataScalarFieldKeys,
+  // App-rendered special cases that still need to match the core schema.
+  'physical_format',
+  'track_count',
+  'tracks',
+];
+
+final List<String> _kAdminMetadataScalarFieldKeys =
+    [for (final field in kAdminMetadataScalarFields) field.key];
+
 const List<SharedMetadataFieldDescriptor> kProposalCorrectionFields = [
   SharedMetadataFieldDescriptor(
     key: 'title',

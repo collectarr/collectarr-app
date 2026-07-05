@@ -69,6 +69,15 @@ void main() {
     }
   });
 
+  test('core editable field keys match the app edit contract exactly', () {
+    final coreKeys = schema.fields
+        .where((field) => field.editable)
+        .map((field) => field.key)
+        .toSet();
+    final appKeys = kLibraryEditableFieldKeys.toSet();
+    expect(appKeys, equals(coreKeys));
+  });
+
   test('overlapping field value types agree with the core registry', () {
     final appByKey = {
       for (final field in kAdminMetadataScalarFields) field.key: field,
