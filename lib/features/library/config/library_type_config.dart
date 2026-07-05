@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_column_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -477,6 +478,28 @@ class LibraryGroupModeCategory {
 class LibraryKindUiAdapter {
   const LibraryKindUiAdapter();
 
+  List<LibraryEditTabSpec> detailTabs(
+    LibraryTypeConfig type, {
+    required LibraryEditPresentationContext context,
+  }) {
+    return type.editPresentation
+        .builderForScope(context.scope)
+        .buildTabs(context: context);
+  }
+
+  List<LibraryColumnDefinition> tableColumns(LibraryTypeConfig type) {
+    return type.presentation.columnRegistry?.forKind(type.workspace.kind) ??
+        const [];
+  }
+
+  List<Widget> inspectorSections(
+    LibraryTypeConfig type, {
+    required BuildContext context,
+    required LibraryInspectorRequest request,
+  }) {
+    return type.inspectorSectionsBuilder?.call(context, request) ?? const [];
+  }
+
   bool supportsMusicTrackSearch(LibraryTypeConfig type) {
     return type.workspace.kind == CatalogMediaKind.music;
   }
@@ -489,7 +512,9 @@ class LibraryKindUiAdapter {
     LibraryTypeConfig type,
     LibraryGroupMode mode,
   ) {
-    return type.presentation.groupModeDefinitionFor(mode).supportsBucketManagement;
+    return type.presentation
+        .groupModeDefinitionFor(mode)
+        .supportsBucketManagement;
   }
 
   bool supportsMetadataCompareWithServer(LibraryTypeConfig type) {
@@ -666,6 +691,13 @@ class LibraryKindUiAdapter {
       if (crew.isNotEmpty) LibraryGroupModeCategory('Cast & Crew', crew),
       if (personal.isNotEmpty) LibraryGroupModeCategory('Personal', personal),
     ];
+  }
+
+  List<LibraryGroupModeCategory> sidebarFacets(
+    LibraryTypeConfig type,
+    List<LibraryGroupMode> modes,
+  ) {
+    return groupModeCategories(type, modes);
   }
 }
 

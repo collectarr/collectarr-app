@@ -244,7 +244,7 @@ class _LibraryGroupModeMenuButtonState
     final textStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
           fontWeight: FontWeight.w800,
         );
-    final categories = widget.type.kindUiAdapter.groupModeCategories(
+    final categories = widget.type.kindUiAdapter.sidebarFacets(
       widget.type,
       modes,
     );

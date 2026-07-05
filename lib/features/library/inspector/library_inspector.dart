@@ -400,18 +400,21 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           accent: widget.accent,
           contextLabel: widget.contextLabel,
         );
-    final primarySections = widget.type.inspectorSectionsBuilder?.call(
-          context,
-          inspectorRequest,
-        ) ??
-        <Widget>[
-          InspectorMetadataSection(
-            type: widget.type,
-            entry: selected,
-            accent: widget.accent,
-            onFilterByValue: widget.onFilterByValue,
-          ),
-        ];
+    final primarySections = widget.type.kindUiAdapter.inspectorSections(
+      widget.type,
+      context: context,
+      request: inspectorRequest,
+    );
+    final effectivePrimarySections = primarySections.isNotEmpty
+        ? primarySections
+        : <Widget>[
+            InspectorMetadataSection(
+              type: widget.type,
+              entry: selected,
+              accent: widget.accent,
+              onFilterByValue: widget.onFilterByValue,
+            ),
+          ];
     Widget? ownedCopiesSection;
     if (ownedCopies.isNotEmpty) {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
@@ -541,7 +544,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         LibraryInspectorPanelRequest(
           inspector: inspectorRequest,
           hero: hero,
-          primarySections: primarySections,
+          primarySections: effectivePrimarySections,
           trailingSections: trailingSections,
           ownedCopies: ownedCopies,
           selectedOwnedItemId: activeOwnedItem?.id,
@@ -631,7 +634,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             conditionGradeSection!,
           ],
           SizedBox(height: density.inspectorOuterGap),
-          ...primarySections,
+          ...effectivePrimarySections,
           ...trailingSections,
         ],
       ),
