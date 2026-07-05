@@ -19,16 +19,16 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
-part 'planned_media_entry_accessors.dart';
-part 'planned_media_table_columns.dart';
-part 'planned_media_books_adapter.dart';
-part 'planned_media_games_adapter.dart';
-part 'planned_media_boardgames_adapter.dart';
-part 'planned_media_manga_adapter.dart';
-part 'planned_media_movies_adapter.dart';
-part 'planned_media_tv_adapter.dart';
-part 'planned_media_anime_adapter.dart';
-part 'planned_media_music_adapter.dart';
+part 'media_entry_accessors.dart';
+part 'media_table_columns.dart';
+part 'book_media_adapter.dart';
+part 'game_media_adapter.dart';
+part 'boardgame_media_adapter.dart';
+part 'manga_media_adapter.dart';
+part 'movie_media_adapter.dart';
+part 'tv_media_adapter.dart';
+part 'anime_media_adapter.dart';
+part 'music_media_adapter.dart';
 
 const double kPlannedMediaMinCoverSize = 96;
 const double kPlannedMediaDefaultCoverSize = 128;
@@ -36,7 +36,7 @@ const double kPlannedMediaMaxCoverSize = 188;
 const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
 
-final plannedMediaAdapters = LibraryMediaAdapterRegistry([
+final mediaAdapters = LibraryMediaAdapterRegistry([
   booksMediaAdapter,
   gamesMediaAdapter,
   boardGamesMediaAdapter,

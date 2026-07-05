@@ -1,4 +1,4 @@
-part of 'planned_media_adapters.dart';
+part of 'media_adapters.dart';
 
 double plannedMediaTableWidthForColumns({
   required LibraryWorkspaceConfig config,
