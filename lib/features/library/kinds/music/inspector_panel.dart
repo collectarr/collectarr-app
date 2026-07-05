@@ -156,7 +156,6 @@ class _MusicInspectorHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final entry = inspector.entry;
     final artist = entry.series?.seriesTitle?.trim();
-    final palette = appPalette(context);
     final statusIcon =
         entry.isOwned ? Icons.inventory_2_outlined : Icons.star_border;
     final statusLabel = entry.isOwned
@@ -164,68 +163,12 @@ class _MusicInspectorHeader extends StatelessWidget {
         : entry.isWishlisted
             ? 'Wishlist'
             : 'Catalog';
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.surface.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: palette.divider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (artist != null && artist.isNotEmpty)
-              Text(
-                artist,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: inspector.accent,
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    entry.resolvedTitle,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          height: 1.05,
-                        ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: palette.panel,
-                    borderRadius: BorderRadius.circular(3),
-                    border: Border.all(color: palette.divider),
-                  ),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(statusIcon, size: 14, color: inspector.accent),
-                        const SizedBox(width: 4),
-                        Text(
-                          statusLabel,
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return LibraryInspectorTitleStatusCard(
+      eyebrow: artist,
+      title: entry.resolvedTitle,
+      accent: inspector.accent,
+      statusIcon: statusIcon,
+      statusLabel: statusLabel,
     );
   }
 }

@@ -33,6 +33,28 @@ void main() {
     });
   });
 
+  group('LibraryInspectorTitleStatusCard', () {
+    testWidgets('renders eyebrow title and status badge', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: LibraryInspectorTitleStatusCard(
+              eyebrow: 'Series',
+              title: 'Dune',
+              accent: Colors.blue,
+              statusIcon: Icons.inventory_2_outlined,
+              statusLabel: 'In collection',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Series'), findsOneWidget);
+      expect(find.text('Dune'), findsOneWidget);
+      expect(find.text('In collection'), findsOneWidget);
+    });
+  });
+
   group('InspectorMetadataSection', () {
     testWidgets('renders metadata section title', (tester) async {
       final type = collectarrLibraryTypes.byKind('comic')!;
