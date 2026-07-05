@@ -22,6 +22,14 @@ class BookInspectorPanel extends StatelessWidget {
     final entry = request.inspector.entry;
     final ownedItem = request.inspector.ownedItem;
     final accent = request.inspector.accent;
+    final series = entry.series?.seriesTitle?.trim();
+    final statusIcon =
+        entry.isOwned ? Icons.inventory_2_outlined : Icons.star_border;
+    final statusLabel = entry.isOwned
+        ? 'In collection'
+        : entry.isWishlisted
+            ? 'Wishlist'
+            : 'Catalog';
     final sections = const BookLibraryMediaPresentationBuilder(
       showSummary: true,
     ).buildInspectorSections(
@@ -54,6 +62,14 @@ class BookInspectorPanel extends StatelessWidget {
           accent: accent,
         ),
         const SizedBox(height: 6),
+        LibraryInspectorTitleStatusCard(
+          eyebrow: series,
+          title: entry.resolvedTitle,
+          accent: accent,
+          statusIcon: statusIcon,
+          statusLabel: statusLabel,
+        ),
+        const SizedBox(height: 10),
         InspectorActionBar(
           type: request.inspector.type,
           entry: entry,
