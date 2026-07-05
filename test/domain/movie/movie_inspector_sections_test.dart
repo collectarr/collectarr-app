@@ -31,6 +31,10 @@ void main() {
             'language': 'en',
             'barcode': '1234567890123',
             'format_label': '4K UHD',
+            'audio_tracks': 'Dolby Atmos',
+            'subtitles': 'English, Spanish',
+            'screen_ratios': '2.39:1',
+            'extras': ['Director commentary'],
             'media': [
               {
                 'id': 'media-1',
@@ -41,6 +45,9 @@ void main() {
               },
             ],
           },
+        ],
+        'trailer_urls': [
+          {'url': 'https://example.com/trailer'},
         ],
         'kind': 'movie',
       }),
@@ -73,8 +80,13 @@ void main() {
       sections.whereType<InspectorMetadataFactsSection>(),
       hasLength(1),
     );
+    final factsSection = sections.whereType<InspectorMetadataFactsSection>().single;
+    expect(
+      factsSection.facts.map((fact) => fact.label),
+      containsAll(['Runtime', 'Layers', 'Trailers']),
+    );
     expect(sections.whereType<InspectorReleasesSection>(), hasLength(1));
     expect(sections.whereType<InspectorContributorsSection>(), isEmpty);
-    expect(sections.whereType<InspectorLinksTrailersSection>(), isEmpty);
+    expect(sections.whereType<InspectorLinksTrailersSection>(), hasLength(1));
   });
 }

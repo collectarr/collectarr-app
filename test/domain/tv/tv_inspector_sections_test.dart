@@ -30,6 +30,13 @@ void main() {
                     mediaType: 'tv',
                     title: 'Cowboy Bebop',
                     displayTitle: 'Cowboy Bebop',
+                    video: const VideoCatalogDetails(
+                      runtimeMinutes: 24,
+                      nrDiscs: 2,
+                      audioTracks: 'Stereo',
+                      subtitles: 'English',
+                      layers: 'Dual layer',
+                    ),
                     editions: [
                       CatalogEdition(
                         id: 'release-1',
@@ -37,6 +44,9 @@ void main() {
                         format: 'Blu-ray',
                         releaseDate: DateTime.utc(2024, 1, 5),
                       ),
+                    ],
+                    trailerUrls: const [
+                      TrailerLink(url: 'https://example.com/trailer'),
                     ],
                     updatedAt: DateTime.utc(2026, 7, 5),
                   ),
@@ -54,6 +64,11 @@ void main() {
 
     expect(sections, hasLength(6));
     expect(sections.whereType<InspectorMetadataFactsSection>(), hasLength(1));
+    final factsSection = sections.whereType<InspectorMetadataFactsSection>().single;
+    expect(
+      factsSection.facts.map((fact) => fact.label),
+      containsAll(['Discs', 'Runtime', 'Audio', 'Subtitles', 'Layers', 'Trailers']),
+    );
     expect(sections.whereType<InspectorEpisodeGridSection>(), hasLength(1));
     expect(sections.whereType<InspectorSessionHistorySection>(), hasLength(1));
     expect(sections.whereType<InspectorReleasesSection>(), hasLength(1));

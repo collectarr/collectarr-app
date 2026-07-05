@@ -64,12 +64,27 @@ List<Widget> buildTvInspectorSections(
       LibraryInspectorFactData('Discs', entry.video!.nrDiscs.toString()),
     if (entry.video?.runtimeMinutes != null)
       LibraryInspectorFactData('Runtime', '${entry.video!.runtimeMinutes} min'),
+    if (entry.video?.color?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('HDR / color', entry.video!.color!),
+    if (entry.video?.screenRatio?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Screen ratio', entry.video!.screenRatio!),
+    if (entry.video?.audioTracks?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Audio', entry.video!.audioTracks!),
+    if (entry.video?.subtitles?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Subtitles', entry.video!.subtitles!),
+    if (entry.video?.layers?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Layers', entry.video!.layers!),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryInspectorFactData('Condition', ownedItem!.condition!),
     if (trackingEntry?.episodeRatings.isNotEmpty == true)
       LibraryInspectorFactData(
         'Rated episodes',
         trackingEntry!.episodeRatings.length.toString(),
+      ),
+    if (request.entry.trailerUrls.isNotEmpty)
+      LibraryInspectorFactData(
+        'Trailers',
+        request.entry.trailerUrls.length.toString(),
       ),
   ];
 

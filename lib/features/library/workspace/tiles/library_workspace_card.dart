@@ -290,6 +290,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: runtime,
                                     accentColor: accentColor,
                                   ),
+                                ..._videoCompactBadges(entry, accentColor),
                                 if (_metadataFactValue(
                                         metadataPresentation, 'Tracks')
                                     case final trackCount?)
@@ -583,7 +584,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     ),
                               ),
                             ],
-                            ..._gameCompactBadgeRow(entry, accentColor),
                           ],
                         ),
                       ),
@@ -769,6 +769,14 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                       fontWeight: FontWeight.w800,
                                     ),
                               ),
+                            if (_videoCompactBadges(entry, accentColor).isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: _videoCompactBadges(entry, accentColor),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -1109,6 +1117,104 @@ String? _compactNotesLabel(String? notes) {
   return '${trimmed.substring(0, 27)}...';
 }
 
+List<Widget> _videoCompactBadges(
+  LibraryWorkspaceEntry entry,
+  Color accentColor,
+) {
+  final video = entry.video;
+  if (video == null) {
+    return const <Widget>[];
+  }
+  final badges = <Widget>[];
+  final edition = resolveLibraryEntryReferenceRelease(entry).edition ??
+      (entry.editions.isNotEmpty ? entry.editions.first : null);
+  final format = entry.referenceFormatLabel?.trim() ??
+      edition?.format?.trim() ??
+      edition?.physicalFormatLabel?.trim();
+  final region = edition?.region?.trim() ?? entry.country?.trim();
+  final hdr = video.color?.trim();
+  final screenRatio = video.screenRatio?.trim();
+  final audio = video.audioTracks?.trim();
+  final subtitles = video.subtitles?.trim();
+  final layers = video.layers?.trim();
+  final trailerCount = entry.trailerUrls.where((link) => link.isTrailerLink).length;
+  if (format != null && format.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.album_outlined,
+        label: format,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (region != null && region.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.public_outlined,
+        label: region,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (hdr != null && hdr.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.hdr_on_outlined,
+        label: hdr,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (screenRatio != null && screenRatio.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.aspect_ratio_outlined,
+        label: screenRatio,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (audio != null && audio.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.volume_up_outlined,
+        label: audio,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (subtitles != null && subtitles.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.closed_caption_outlined,
+        label: subtitles,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (layers != null && layers.isNotEmpty) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.layers_outlined,
+        label: layers,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  if (trailerCount > 0) {
+    badges.add(
+      _LibraryCompactMetaPill(
+        icon: Icons.ondemand_video_outlined,
+        label: trailerCount == 1
+            ? 'Trailer'
+            : '$trailerCount trailers',
+        accentColor: accentColor,
+      ),
+    );
+  }
+  return badges;
+}
+
 List<Widget> _gameCompactBadges(
   LibraryWorkspaceEntry entry,
   Color accentColor,
@@ -1117,7 +1223,6 @@ List<Widget> _gameCompactBadges(
     return const <Widget>[];
   }
   final badges = <Widget>[];
-  final platforms = _compactPlatformLabel(libraryReferencePlatforms(entry));
   final releasePlatform = entry.referenceFormatLabel?.trim();
   final developer = _compactGameDeveloperLabel(entry);
   final ageRating = entry.ageRating?.trim();
@@ -1126,15 +1231,6 @@ List<Widget> _gameCompactBadges(
       ? null
       : formatMoney(entry.pricePaidCents, entry.currency);
   final hardware = _compactHardwareLabel(entry);
-  if (platforms != null) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.sports_esports,
-        label: platforms,
-        accentColor: accentColor,
-      ),
-    );
-  }
   if (releasePlatform != null && releasePlatform.isNotEmpty) {
     badges.add(
       _LibraryCompactMetaPill(
@@ -1192,33 +1288,25 @@ List<Widget> _gameCompactBadges(
   return badges;
 }
 
-List<Widget> _gameCompactBadgeRow(
-  LibraryWorkspaceEntry entry,
-  Color accentColor,
-) {
-  final badges = _gameCompactBadges(entry, accentColor);
-  if (badges.isEmpty) {
-    return const <Widget>[];
-  }
-  return [
-    const SizedBox(height: 8),
-    Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: badges,
-    ),
-  ];
-}
-
 String? _compactGameDeveloperLabel(LibraryWorkspaceEntry entry) {
-  final roles = entry.game?.companyRoles ?? const <String>[];
-  for (final role in roles) {
-    final trimmed = role.trim();
-    if (trimmed.isNotEmpty) {
-      return trimmed;
+  final creators = entry.creators ?? const <Map<String, dynamic>>[];
+  String? fallbackName;
+  for (final creator in creators) {
+    final rawName =
+        (creator['name'] ?? creator['display_name'] ?? '').toString().trim();
+    if (rawName.isEmpty) {
+      continue;
+    }
+    fallbackName ??= rawName;
+    final role =
+        (creator['role'] ?? creator['type'] ?? '').toString().toLowerCase();
+    if (role.contains('developer') ||
+        role.contains('publisher') ||
+        role.contains('studio')) {
+      return rawName;
     }
   }
-  return null;
+  return fallbackName;
 }
 
 String? _compactGameCompletionLabel(LibraryWorkspaceEntry entry) {

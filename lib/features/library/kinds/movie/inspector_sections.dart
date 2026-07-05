@@ -28,6 +28,16 @@ List<Widget> buildMovieInspectorSections(
       LibraryInspectorFactData('Release date', _formatDate(entry.releaseDate!)),
     if (video?.runtimeMinutes != null)
       LibraryInspectorFactData('Runtime', '${video!.runtimeMinutes} min'),
+    if (video?.color?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('HDR / color', video!.color!),
+    if (video?.screenRatio?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Screen ratio', video!.screenRatio!),
+    if (video?.audioTracks?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Audio', video!.audioTracks!),
+    if (video?.subtitles?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Subtitles', video!.subtitles!),
+    if (video?.layers?.trim().isNotEmpty == true)
+      LibraryInspectorFactData('Layers', video!.layers!),
     LibraryInspectorFactData('Releases', editionCount.toString()),
     if (entry.barcode?.trim().isNotEmpty == true)
       LibraryInspectorFactData('Barcode', entry.barcode!),
@@ -39,6 +49,11 @@ List<Widget> buildMovieInspectorSections(
       LibraryInspectorFactData('Age rating', entry.ageRating!),
     if (entry.audienceRating?.trim().isNotEmpty == true)
       LibraryInspectorFactData('Audience rating', entry.audienceRating!),
+    if (entry.trailerUrls.isNotEmpty)
+      LibraryInspectorFactData(
+        'Trailers',
+        entry.trailerUrls.length.toString(),
+      ),
     LibraryInspectorFactData(
       'Cover',
       entry.hasMissingCover ? 'Missing' : 'Ready',
