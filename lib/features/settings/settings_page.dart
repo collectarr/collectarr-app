@@ -296,10 +296,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           runSpacing: 8,
                           children: [
                             OutlinedButton.icon(
-                              onPressed: _checkConnections,
+                              onPressed: _checkSyncConnection,
                               icon:
                                   const Icon(Icons.health_and_safety_outlined),
-                              label: const Text('Check connections'),
+                              label: const Text('Check sync server connection'),
                             ),
                             FilledButton.tonalIcon(
                               onPressed: sync.isSyncing ? null : _syncNow,
@@ -1051,15 +1051,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
-  Future<void> _checkConnections() async {
+  Future<void> _checkSyncConnection() async {
     await _autoSaveConnectionSettings();
     if (!mounted) {
       return;
     }
-    await Future.wait([
-      _checkMetadata(),
-      _checkSync(),
-    ]);
+    await _checkSync();
   }
 
   Future<void> _checkMetadata() async {
