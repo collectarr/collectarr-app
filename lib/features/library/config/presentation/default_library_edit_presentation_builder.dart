@@ -87,6 +87,15 @@ class DefaultLibraryEditPresentationBuilder
     required LibraryEditPresentationContext context,
     required String tabId,
   }) {
+    final tabs = buildTabs(context: context);
+    for (final tab in tabs) {
+      if (tab.id == tabId && tab.sectionIds.isNotEmpty) {
+        return List<String>.unmodifiable(tab.sectionIds);
+      }
+      if (tab.id == tabId && tab.sectionIdsForContext != null) {
+        return List<String>.unmodifiable(tab.sectionIdsForContext!(context));
+      }
+    }
     final sections = switch (tabId) {
       'details' => ['catalog_details'],
       'main' => [

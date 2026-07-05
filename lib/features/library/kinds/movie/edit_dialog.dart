@@ -5,18 +5,54 @@ import 'package:collectarr_app/features/library/edit/default_kind_edit_dialog.da
 import 'package:flutter/material.dart';
 
 const _movieMediaTabs = [
-  LibraryEditTabSpec(id: 'media', icon: Icons.movie, label: 'Media'),
-  LibraryEditTabSpec(id: 'synopsis', icon: Icons.description_outlined, label: 'Plot'),
-  LibraryEditTabSpec(id: 'cast', icon: Icons.people, label: 'Cast'),
-  LibraryEditTabSpec(id: 'crew', icon: Icons.people_outline, label: 'Crew'),
+  LibraryEditTabSpec(
+    id: 'media',
+    icon: Icons.movie,
+    label: 'Media',
+    sectionIds: ['catalog_snapshot'],
+  ),
+  LibraryEditTabSpec(
+    id: 'synopsis',
+    icon: Icons.description_outlined,
+    label: 'Plot',
+    sectionIds: ['synopsis'],
+  ),
+  LibraryEditTabSpec(
+    id: 'cast',
+    icon: Icons.people,
+    label: 'Cast',
+    sectionIds: ['cast_list'],
+  ),
+  LibraryEditTabSpec(
+    id: 'crew',
+    icon: Icons.people_outline,
+    label: 'Crew',
+    sectionIds: ['crew_list'],
+  ),
   LibraryEditTabSpec(
     id: 'read_history',
     icon: Icons.auto_stories_outlined,
     label: 'Tracking',
+    sectionIds: ['tracking_context', 'tracking_personal'],
   ),
-  LibraryEditTabSpec(id: 'links', icon: Icons.language, label: 'Links'),
-  LibraryEditTabSpec(id: 'cover', icon: Icons.camera_alt, label: 'Covers'),
-  LibraryEditTabSpec(id: 'photos', icon: Icons.image, label: 'Images'),
+  LibraryEditTabSpec(
+    id: 'links',
+    icon: Icons.language,
+    label: 'Links',
+    sectionIds: ['external_links'],
+  ),
+  LibraryEditTabSpec(
+    id: 'cover',
+    icon: Icons.camera_alt,
+    label: 'Covers',
+    sectionIds: ['cover_images'],
+  ),
+  LibraryEditTabSpec(
+    id: 'photos',
+    icon: Icons.image,
+    label: 'Images',
+    sectionIds: ['photos'],
+  ),
 ];
 
 const _movieReleaseTabs = [
@@ -24,17 +60,53 @@ const _movieReleaseTabs = [
     id: 'edition',
     icon: Icons.info_outline,
     label: 'Edition Details',
+    sectionIds: ['release_details', 'ownership_reference', 'box_set'],
   ),
-  LibraryEditTabSpec(id: 'personal', icon: Icons.person, label: 'Personal'),
+  LibraryEditTabSpec(
+    id: 'personal',
+    icon: Icons.person,
+    label: 'Personal',
+    sectionIds: [
+      'ownership_fields',
+      'purchase_fields',
+      'sold_fields',
+      'wishlist_reference',
+      'owned_notes',
+      'collection_fields_info',
+      'ownership_reference',
+      'owned_grading',
+    ],
+  ),
   LibraryEditTabSpec(
     id: 'read_history',
     icon: Icons.auto_stories_outlined,
     label: 'Tracking',
+    sectionIds: ['tracking_context', 'tracking_personal'],
   ),
-  LibraryEditTabSpec(id: 'custom', icon: Icons.edit_note, label: 'User Defined'),
-  LibraryEditTabSpec(id: 'specs', icon: Icons.info_outline, label: 'Edition Details'),
-  LibraryEditTabSpec(id: 'cover', icon: Icons.camera_alt, label: 'Covers'),
-  LibraryEditTabSpec(id: 'photos', icon: Icons.image, label: 'Images'),
+  LibraryEditTabSpec(
+    id: 'custom',
+    icon: Icons.edit_note,
+    label: 'User Defined',
+    sectionIds: ['custom_fields'],
+  ),
+  LibraryEditTabSpec(
+    id: 'specs',
+    icon: Icons.info_outline,
+    label: 'Edition Details',
+    sectionIds: ['video_specs', 'hdr', 'audio_subtitles', 'features'],
+  ),
+  LibraryEditTabSpec(
+    id: 'cover',
+    icon: Icons.camera_alt,
+    label: 'Covers',
+    sectionIds: ['cover_images'],
+  ),
+  LibraryEditTabSpec(
+    id: 'photos',
+    icon: Icons.image,
+    label: 'Images',
+    sectionIds: ['photos'],
+  ),
 ];
 
 const _movieCombinedTabs = [
@@ -53,38 +125,6 @@ class MovieLibraryCombinedEditPresentationBuilder
           trackedTabs: _movieCombinedTabs,
           catalogTabs: _movieCombinedTabs,
         );
-
-  @override
-  List<String> buildTabSectionIds({
-    required LibraryEditPresentationContext context,
-    required String tabId,
-  }) {
-    final sections = switch (tabId) {
-      'media' => ['catalog_snapshot'],
-      'edition' => ['release_details', 'ownership_reference', 'box_set'],
-      'specs' => ['video_specs', 'hdr', 'audio_subtitles', 'features'],
-      'cast' => ['cast_list'],
-      'crew' => ['crew_list'],
-      'read_history' => ['tracking_context', 'tracking_personal'],
-      'cover' => ['cover_images'],
-      'synopsis' => ['synopsis'],
-      'links' => ['external_links'],
-      'personal' => [
-          'ownership_fields',
-          'purchase_fields',
-          'sold_fields',
-          'wishlist_reference',
-          'owned_notes',
-          'collection_fields_info',
-          'ownership_reference',
-          'owned_grading',
-        ],
-      'custom' => ['custom_fields'],
-      'photos' => ['photos'],
-      _ => const <String>[],
-    };
-    return List<String>.unmodifiable(sections);
-  }
 }
 
 class MovieLibraryMediaEditPresentationBuilder
@@ -98,24 +138,6 @@ class MovieLibraryMediaEditPresentationBuilder
           trackedTabs: _movieMediaTabs,
           catalogTabs: _movieMediaTabs,
         );
-
-  @override
-  List<String> buildTabSectionIds({
-    required LibraryEditPresentationContext context,
-    required String tabId,
-  }) {
-    final sections = switch (tabId) {
-      'media' => ['catalog_snapshot'],
-      'cast' => ['cast_list'],
-      'crew' => ['crew_list'],
-      'read_history' => ['tracking_context', 'tracking_personal'],
-      'cover' => ['cover_images'],
-      'synopsis' => ['synopsis'],
-      'links' => ['external_links'],
-      _ => const <String>[],
-    };
-    return List<String>.unmodifiable(sections);
-  }
 }
 
 class MovieLibraryReleaseEditPresentationBuilder
@@ -129,33 +151,6 @@ class MovieLibraryReleaseEditPresentationBuilder
           trackedTabs: _movieReleaseTabs,
           catalogTabs: _movieReleaseTabs,
         );
-
-  @override
-  List<String> buildTabSectionIds({
-    required LibraryEditPresentationContext context,
-    required String tabId,
-  }) {
-    final sections = switch (tabId) {
-      'edition' => ['release_details', 'ownership_reference', 'box_set'],
-      'read_history' => ['tracking_context', 'tracking_personal'],
-      'personal' => [
-          'ownership_fields',
-          'purchase_fields',
-          'sold_fields',
-          'wishlist_reference',
-          'owned_notes',
-          'collection_fields_info',
-          'ownership_reference',
-          'owned_grading',
-        ],
-      'custom' => ['custom_fields'],
-      'specs' => ['video_specs', 'hdr', 'audio_subtitles', 'features'],
-      'cover' => ['cover_images'],
-      'photos' => ['photos'],
-      _ => const <String>[],
-    };
-    return List<String>.unmodifiable(sections);
-  }
 }
 
 const movieLibraryEditPresentation = LibraryEditPresentation(

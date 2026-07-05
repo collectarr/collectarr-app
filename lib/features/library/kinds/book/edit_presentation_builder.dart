@@ -2,6 +2,19 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:flutter/material.dart';
 
+List<String> _bookReleasePersonalSections(
+  LibraryEditPresentationContext context,
+) {
+  return [
+    'book_personal_tracking',
+    if (context.hasWishlistContext) 'book_wishlist_reference',
+    if (context.isOwned)
+      'book_collection_notes'
+    else if (!context.hasWishlistContext)
+      'book_collection_fields_info',
+  ];
+}
+
 class BookLibraryMediaEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const BookLibraryMediaEditPresentationBuilder()
@@ -11,36 +24,43 @@ class BookLibraryMediaEditPresentationBuilder
               id: 'main',
               icon: Icons.menu_book,
               label: 'Main',
+              sectionIds: ['book_details'],
             ),
             LibraryEditTabSpec(
               id: 'credits',
               icon: Icons.groups_2,
               label: 'Credits',
+              sectionIds: ['book_credits'],
             ),
             LibraryEditTabSpec(
               id: 'custom',
               icon: Icons.edit_note,
               label: 'Custom Fields',
+              sectionIds: ['book_custom_fields'],
             ),
             LibraryEditTabSpec(
               id: 'read_history',
               icon: Icons.auto_stories_outlined,
               label: 'Tracking',
+              sectionIds: ['book_read_history'],
             ),
             LibraryEditTabSpec(
               id: 'covers',
               icon: Icons.photo_camera_outlined,
               label: 'Covers',
+              sectionIds: ['book_cover_sources'],
             ),
             LibraryEditTabSpec(
               id: 'plot',
               icon: Icons.description_outlined,
               label: 'Plot',
+              sectionIds: ['book_plot'],
             ),
             LibraryEditTabSpec(
               id: 'links',
               icon: Icons.public,
               label: 'Links',
+              sectionIds: ['book_identifiers_links'],
             ),
           ],
           trackedTabs: const [
@@ -124,52 +144,49 @@ class BookLibraryMediaEditPresentationBuilder
     required LibraryEditPresentationContext context,
   }) {
     return const [
-      LibraryEditTabSpec(id: 'main', icon: Icons.menu_book, label: 'Main'),
+      LibraryEditTabSpec(
+        id: 'main',
+        icon: Icons.menu_book,
+        label: 'Main',
+        sectionIds: ['book_details'],
+      ),
       LibraryEditTabSpec(
         id: 'credits',
         icon: Icons.groups_2,
         label: 'Credits',
+        sectionIds: ['book_credits'],
       ),
       LibraryEditTabSpec(
         id: 'custom',
         icon: Icons.edit_note,
         label: 'Custom Fields',
+        sectionIds: ['book_custom_fields'],
       ),
       LibraryEditTabSpec(
         id: 'read_history',
         icon: Icons.auto_stories_outlined,
         label: 'Tracking',
+        sectionIds: ['book_read_history'],
       ),
       LibraryEditTabSpec(
         id: 'covers',
         icon: Icons.photo_camera_outlined,
         label: 'Covers',
+        sectionIds: ['book_cover_sources'],
       ),
       LibraryEditTabSpec(
         id: 'plot',
         icon: Icons.description_outlined,
         label: 'Plot',
+        sectionIds: ['book_plot'],
       ),
-      LibraryEditTabSpec(id: 'links', icon: Icons.public, label: 'Links'),
+      LibraryEditTabSpec(
+        id: 'links',
+        icon: Icons.public,
+        label: 'Links',
+        sectionIds: ['book_identifiers_links'],
+      ),
     ];
-  }
-
-  @override
-  List<String> buildTabSectionIds({
-    required LibraryEditPresentationContext context,
-    required String tabId,
-  }) {
-    final sections = switch (tabId) {
-      'main' => ['book_details'],
-      'credits' => ['book_credits'],
-      'plot' => ['book_plot'],
-      'covers' => ['book_cover_sources'],
-      'links' => ['book_identifiers_links'],
-      'custom' => ['book_custom_fields'],
-      'read_history' => ['book_read_history'],
-      _ => const <String>[],
-    };
-    return List<String>.unmodifiable(sections);
   }
 
   @override
@@ -197,31 +214,37 @@ class BookLibraryReleaseEditPresentationBuilder
               id: 'details',
               icon: Icons.info_outline,
               label: 'Release',
+              sectionIds: ['book_contents'],
             ),
             LibraryEditTabSpec(
               id: 'personal',
               icon: Icons.person_outline,
               label: 'Personal',
+              sectionIdsForContext: _bookReleasePersonalSections,
             ),
             LibraryEditTabSpec(
               id: 'custom',
               icon: Icons.edit_note,
               label: 'Custom Fields',
+              sectionIds: ['book_custom_fields'],
             ),
             LibraryEditTabSpec(
               id: 'read_history',
               icon: Icons.auto_stories_outlined,
               label: 'Tracking',
+              sectionIds: ['book_read_history'],
             ),
             LibraryEditTabSpec(
               id: 'value',
               icon: Icons.attach_money,
               label: 'Value',
+              sectionIds: ['book_value'],
             ),
             LibraryEditTabSpec(
               id: 'photos',
               icon: Icons.image_outlined,
               label: 'My Images',
+              sectionIds: ['book_photos'],
             ),
           ],
           trackedTabs: const [
@@ -229,31 +252,37 @@ class BookLibraryReleaseEditPresentationBuilder
               id: 'details',
               icon: Icons.info_outline,
               label: 'Release',
+              sectionIds: ['book_contents'],
             ),
             LibraryEditTabSpec(
               id: 'personal',
               icon: Icons.person_outline,
               label: 'Personal',
+              sectionIdsForContext: _bookReleasePersonalSections,
             ),
             LibraryEditTabSpec(
               id: 'custom',
               icon: Icons.edit_note,
               label: 'Custom Fields',
+              sectionIds: ['book_custom_fields'],
             ),
             LibraryEditTabSpec(
               id: 'read_history',
               icon: Icons.auto_stories_outlined,
               label: 'Tracking',
+              sectionIds: ['book_read_history'],
             ),
             LibraryEditTabSpec(
               id: 'value',
               icon: Icons.attach_money,
               label: 'Value',
+              sectionIds: ['book_value'],
             ),
             LibraryEditTabSpec(
               id: 'photos',
               icon: Icons.image_outlined,
               label: 'My Images',
+              sectionIds: ['book_photos'],
             ),
           ],
           catalogTabs: const [
@@ -261,16 +290,19 @@ class BookLibraryReleaseEditPresentationBuilder
               id: 'details',
               icon: Icons.info_outline,
               label: 'Release',
+              sectionIds: ['book_contents'],
             ),
             LibraryEditTabSpec(
               id: 'custom',
               icon: Icons.edit_note,
               label: 'Custom Fields',
+              sectionIds: ['book_custom_fields'],
             ),
             LibraryEditTabSpec(
               id: 'read_history',
               icon: Icons.auto_stories_outlined,
               label: 'Tracking',
+              sectionIds: ['book_read_history'],
             ),
           ],
         );
@@ -285,31 +317,37 @@ class BookLibraryReleaseEditPresentationBuilder
             id: 'details',
             icon: Icons.info_outline,
             label: 'Release',
+            sectionIds: ['book_contents'],
           ),
           LibraryEditTabSpec(
             id: 'personal',
             icon: Icons.person_outline,
             label: 'Personal',
+            sectionIdsForContext: _bookReleasePersonalSections,
           ),
           LibraryEditTabSpec(
             id: 'custom',
             icon: Icons.edit_note,
             label: 'Custom Fields',
+            sectionIds: ['book_custom_fields'],
           ),
           LibraryEditTabSpec(
             id: 'read_history',
             icon: Icons.auto_stories_outlined,
             label: 'Tracking',
+            sectionIds: ['book_read_history'],
           ),
           LibraryEditTabSpec(
             id: 'value',
             icon: Icons.attach_money,
             label: 'Value',
+            sectionIds: ['book_value'],
           ),
           LibraryEditTabSpec(
             id: 'photos',
             icon: Icons.image_outlined,
             label: 'My Images',
+            sectionIds: ['book_photos'],
           ),
         ],
       false => const [
@@ -317,43 +355,22 @@ class BookLibraryReleaseEditPresentationBuilder
             id: 'details',
             icon: Icons.info_outline,
             label: 'Release',
+            sectionIds: ['book_contents'],
           ),
           LibraryEditTabSpec(
             id: 'custom',
             icon: Icons.edit_note,
             label: 'Custom Fields',
+            sectionIds: ['book_custom_fields'],
           ),
           LibraryEditTabSpec(
             id: 'read_history',
             icon: Icons.auto_stories_outlined,
             label: 'Tracking',
+            sectionIds: ['book_read_history'],
           ),
         ],
     };
-  }
-
-  @override
-  List<String> buildTabSectionIds({
-    required LibraryEditPresentationContext context,
-    required String tabId,
-  }) {
-    final sections = switch (tabId) {
-      'details' => ['book_contents'],
-      'read_history' => ['book_read_history'],
-      'value' => ['book_value'],
-      'personal' => [
-          'book_personal_tracking',
-          if (context.hasWishlistContext) 'book_wishlist_reference',
-          if (context.isOwned)
-            'book_collection_notes'
-          else if (!context.hasWishlistContext)
-            'book_collection_fields_info',
-        ],
-      'custom' => ['book_custom_fields'],
-      'photos' => ['book_photos'],
-      _ => const <String>[],
-    };
-    return List<String>.unmodifiable(sections);
   }
 
   @override

@@ -32,11 +32,16 @@ class LibraryEditTabSpec {
     required this.id,
     required this.icon,
     required this.label,
+    this.sectionIds = const [],
+    this.sectionIdsForContext,
   });
 
   final String id;
   final IconData icon;
   final String label;
+  final List<String> sectionIds;
+  final List<String> Function(LibraryEditPresentationContext context)?
+      sectionIdsForContext;
 }
 
 class LibraryEditFooterSpec {

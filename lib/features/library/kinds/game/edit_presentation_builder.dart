@@ -7,26 +7,36 @@ const _gameMediaTabs = [
     id: 'main',
     icon: Icons.sports_esports,
     label: 'Main',
+    sectionIds: [
+      'catalog_snapshot',
+      'tracking_context',
+      'ownership_reference',
+      'owned_grading',
+    ],
   ),
   LibraryEditTabSpec(
     id: 'synopsis',
     icon: Icons.description_outlined,
     label: 'Description',
+    sectionIds: ['synopsis'],
   ),
   LibraryEditTabSpec(
     id: 'links',
     icon: Icons.public,
     label: 'Links',
+    sectionIds: ['external_links'],
   ),
   LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.photo_camera_outlined,
     label: 'Covers',
+    sectionIds: ['cover_images'],
   ),
   LibraryEditTabSpec(
     id: 'photos',
     icon: Icons.image_outlined,
     label: 'My Images',
+    sectionIds: ['photos'],
   ),
 ];
 
@@ -35,26 +45,36 @@ const _gameReleaseTabs = [
     id: 'value',
     icon: Icons.attach_money,
     label: 'Value',
+    sectionIds: ['purchase', 'value_summary', 'sold_status', 'profit_loss'],
   ),
   LibraryEditTabSpec(
     id: 'personal',
     icon: Icons.person_outline,
     label: 'Personal',
+    sectionIds: [
+      'tracking_personal',
+      'wishlist_reference',
+      'owned_notes',
+      'collection_fields_info',
+    ],
   ),
   LibraryEditTabSpec(
     id: 'custom',
     icon: Icons.edit_note,
     label: 'Custom Fields',
+    sectionIds: ['custom_fields'],
   ),
   LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.photo_camera_outlined,
     label: 'Covers',
+    sectionIds: ['cover_images'],
   ),
   LibraryEditTabSpec(
     id: 'photos',
     icon: Icons.image_outlined,
     label: 'My Images',
+    sectionIds: ['photos'],
   ),
 ];
 
@@ -71,35 +91,6 @@ class GameLibraryCombinedEditPresentationBuilder
           trackedTabs: _gameCombinedTabs,
           catalogTabs: _gameCombinedTabs,
         );
-
-  @override
-  List<String> buildTabSectionIds({
-    required LibraryEditPresentationContext context,
-    required String tabId,
-  }) {
-    final sections = switch (tabId) {
-      'main' => [
-          'catalog_snapshot',
-          'tracking_context',
-          'ownership_reference',
-          'owned_grading',
-        ],
-      'value' => ['purchase', 'value_summary', 'sold_status', 'profit_loss'],
-      'personal' => [
-          'tracking_personal',
-          'wishlist_reference',
-          'owned_notes',
-          'collection_fields_info',
-        ],
-      'custom' => ['custom_fields'],
-      'cover' => ['cover_images'],
-      'photos' => ['photos'],
-      'synopsis' => ['synopsis'],
-      'links' => ['external_links'],
-      _ => const <String>[],
-    };
-    return List<String>.unmodifiable(sections);
-  }
 }
 
 class GameLibraryMediaEditPresentationBuilder
@@ -110,26 +101,6 @@ class GameLibraryMediaEditPresentationBuilder
           trackedTabs: _gameMediaTabs,
           catalogTabs: _gameMediaTabs,
         );
-
-  @override
-  List<String> buildTabSectionIds({
-    required LibraryEditPresentationContext context,
-    required String tabId,
-  }) {
-    final sections = switch (tabId) {
-      'main' => [
-          'catalog_snapshot',
-          'tracking_context',
-          'ownership_reference',
-          'owned_grading',
-        ],
-      'cover' => ['cover_images'],
-      'synopsis' => ['synopsis'],
-      'links' => ['external_links'],
-      _ => const <String>[],
-    };
-    return List<String>.unmodifiable(sections);
-  }
 }
 
 class GameLibraryReleaseEditPresentationBuilder
@@ -140,27 +111,6 @@ class GameLibraryReleaseEditPresentationBuilder
           trackedTabs: _gameReleaseTabs,
           catalogTabs: _gameReleaseTabs,
         );
-
-  @override
-  List<String> buildTabSectionIds({
-    required LibraryEditPresentationContext context,
-    required String tabId,
-  }) {
-    final sections = switch (tabId) {
-      'value' => ['purchase', 'value_summary', 'sold_status', 'profit_loss'],
-      'personal' => [
-          'tracking_personal',
-          'wishlist_reference',
-          'owned_notes',
-          'collection_fields_info',
-        ],
-      'custom' => ['custom_fields'],
-      'cover' => ['cover_images'],
-      'photos' => ['photos'],
-      _ => const <String>[],
-    };
-    return List<String>.unmodifiable(sections);
-  }
 }
 
 const gameLibraryEditPresentation = LibraryEditPresentation(

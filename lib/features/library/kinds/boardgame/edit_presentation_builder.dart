@@ -7,26 +7,36 @@ const _boardGameTabs = [
     id: 'main',
     icon: Icons.casino_outlined,
     label: 'Main',
+    sectionIds: [
+      'catalog_snapshot',
+      'tracking_context',
+      'ownership_reference',
+      'owned_grading',
+    ],
   ),
   LibraryEditTabSpec(
     id: 'synopsis',
     icon: Icons.description_outlined,
     label: 'Description',
+    sectionIds: ['synopsis'],
   ),
   LibraryEditTabSpec(
     id: 'links',
     icon: Icons.public,
     label: 'Links',
+    sectionIds: ['external_links'],
   ),
   LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.photo_camera_outlined,
     label: 'Covers',
+    sectionIds: ['cover_images'],
   ),
   LibraryEditTabSpec(
     id: 'photos',
     icon: Icons.image_outlined,
     label: 'My Images',
+    sectionIds: ['photos'],
   ),
 ];
 
@@ -38,26 +48,6 @@ class BoardGameLibraryEditPresentationBuilder
           trackedTabs: _boardGameTabs,
           catalogTabs: _boardGameTabs,
         );
-
-  @override
-  List<String> buildTabSectionIds({
-    required LibraryEditPresentationContext context,
-    required String tabId,
-  }) {
-    final sections = switch (tabId) {
-      'main' => [
-          'catalog_snapshot',
-          'tracking_context',
-          'ownership_reference',
-          'owned_grading',
-        ],
-      'cover' => ['cover_images'],
-      'synopsis' => ['synopsis'],
-      'links' => ['external_links'],
-      _ => const <String>[],
-    };
-    return List<String>.unmodifiable(sections);
-  }
 }
 
 const boardGamesLibraryEditPresentation = LibraryEditPresentation(
