@@ -69,6 +69,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
+    this.onMissingComics,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.groupMode,
@@ -129,6 +130,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onMissingComics;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final LibraryFolderPreset? folderPreset;
@@ -363,6 +365,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     onTransferFieldData: onTransferFieldData,
                     onReassignIndex: onReassignIndex,
                     onPrintReport: onPrintReport,
+                    onMissingComics: onMissingComics,
                     onShareCollection: onShareCollection,
                     onCompareMetadataWithServer: onCompareMetadataWithServer,
                   ),

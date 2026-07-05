@@ -254,6 +254,15 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
     );
   }
 
+  Future<void> showMissingComicsFlow(LibraryProjection projection) async {
+    await showComicMissingComicsDialog(
+      context: context,
+      type: widget.type,
+      projection: projection,
+      accent: widget.accent,
+    );
+  }
+
   void shareCollectionFlow(LibraryProjection projection) {
     final items = projection.filteredItems.map((i) => i.entry).toList();
     showCollectionShareDialog(

@@ -103,6 +103,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
+    this.onMissingComics,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.groupMode,
@@ -198,6 +199,7 @@ class LibraryToolbar extends StatelessWidget {
         onTransferFieldData = actions.onTransferFieldData,
         onReassignIndex = actions.onReassignIndex,
         onPrintReport = actions.onPrintReport,
+        onMissingComics = actions.onMissingComics,
         onShareCollection = actions.onShareCollection,
         onCompareMetadataWithServer = actions.onCompareMetadataWithServer,
         groupMode = state.groupMode,
@@ -287,6 +289,7 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onMissingComics;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final LibraryGroupMode? groupMode;

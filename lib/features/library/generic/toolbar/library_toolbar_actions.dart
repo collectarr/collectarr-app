@@ -51,6 +51,7 @@ class LibraryToolbarActions {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
+    this.onMissingComics,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.onPinnedFolderPresetsChanged,
@@ -101,6 +102,7 @@ class LibraryToolbarActions {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onMissingComics;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
