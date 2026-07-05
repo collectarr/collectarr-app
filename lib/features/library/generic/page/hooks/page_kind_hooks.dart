@@ -38,7 +38,8 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   bool _shouldOpenReleaseFolder(LibraryProjectionItem item) {
-    return widget.type.shouldOpenReleaseFolderOnOpen(
+    return widget.type.kindUiAdapter.shouldOpenReleaseFolderOnOpen(
+      widget.type,
       browserMode: _activeBrowserMode,
       browseScope: item.entry.browseScope,
     );
@@ -50,7 +51,7 @@ extension _PageKindHooks on GenericLibraryPageState {
       _selectedBucket = null;
       _selectedLetter = null;
       if (mode != LibraryWorkspaceBrowserMode.releases) {
-        setActiveReleaseFolderTitleItemId(null);
+        _kindBrowserDelegate.closeReleaseFolder();
       }
       _sanitizeScopeDependentState();
     });
@@ -59,7 +60,7 @@ extension _PageKindHooks on GenericLibraryPageState {
   void _openReleaseFolder(LibraryProjectionItem item) {
     final titleId = item.entry.titleItemId ?? item.entry.id;
     setState(() {
-      setActiveReleaseFolderTitleItemId(titleId);
+      _kindBrowserDelegate.openReleaseFolder(titleId);
       _selectedBucket = null;
       _selectedLetter = null;
       _selectedId = item.entry.id;
@@ -68,7 +69,7 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   void _closeReleaseFolder() {
-    setState(() => setActiveReleaseFolderTitleItemId(null));
+    setState(_kindBrowserDelegate.closeReleaseFolder);
   }
 
   String? _releaseFolderLabelForProjection(LibraryProjection? projection) {

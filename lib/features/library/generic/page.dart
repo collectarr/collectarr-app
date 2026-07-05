@@ -980,11 +980,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _closeReleaseFolder();
       return;
     }
-    if (_kindBrowserDelegate.videoShelfDrilldownTitleItemId != null) {
-      setState(() {
-        _kindBrowserDelegate.videoShelfDrilldownTitleItemId = null;
-        _kindBrowserDelegate.videoShelfDrilldownReleaseId = null;
-      });
+    if (_kindBrowserDelegate.hasVideoShelfDrilldown) {
+      setState(_kindBrowserDelegate.closeVideoShelfDrilldown);
       return;
     }
     if (_selection.itemIds.isNotEmpty || _selectedId != null) {
@@ -998,7 +995,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @protected
   bool supportsBucketManagement(LibraryGroupMode mode) {
-    return libraryGroupModeSupportsBucketManagement(widget.type, mode);
+    return widget.type.kindUiAdapter.supportsBucketManagement(widget.type, mode);
   }
 
   @protected

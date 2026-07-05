@@ -3,6 +3,16 @@ abstract class LibraryKindBrowserDelegate {
 
   set releaseFolderTitleItemId(String? value);
 
+  bool get hasReleaseFolderTitleItemId => releaseFolderTitleItemId != null;
+
+  void openReleaseFolder(String? titleItemId) {
+    releaseFolderTitleItemId = titleItemId;
+  }
+
+  void closeReleaseFolder() {
+    releaseFolderTitleItemId = null;
+  }
+
   String? get videoShelfDrilldownTitleItemId;
 
   set videoShelfDrilldownTitleItemId(String? value);
@@ -10,9 +20,24 @@ abstract class LibraryKindBrowserDelegate {
   String? get videoShelfDrilldownReleaseId;
 
   set videoShelfDrilldownReleaseId(String? value);
+
+  bool get hasVideoShelfDrilldown => videoShelfDrilldownTitleItemId != null;
+
+  void openVideoShelfDrilldown(
+    String titleItemId, {
+    String? releaseId,
+  }) {
+    videoShelfDrilldownTitleItemId = titleItemId;
+    videoShelfDrilldownReleaseId = releaseId;
+  }
+
+  void closeVideoShelfDrilldown() {
+    videoShelfDrilldownTitleItemId = null;
+    videoShelfDrilldownReleaseId = null;
+  }
 }
 
-class LibraryNoopBrowserDelegate implements LibraryKindBrowserDelegate {
+class LibraryNoopBrowserDelegate extends LibraryKindBrowserDelegate {
   LibraryNoopBrowserDelegate({String? initialReleaseFolderTitleItemId})
       : _releaseFolderTitleItemId = initialReleaseFolderTitleItemId;
 
@@ -45,8 +70,7 @@ class LibraryNoopBrowserDelegate implements LibraryKindBrowserDelegate {
   }
 }
 
-class LibraryReleaseFolderBrowserDelegate
-    implements LibraryKindBrowserDelegate {
+class LibraryReleaseFolderBrowserDelegate extends LibraryKindBrowserDelegate {
   LibraryReleaseFolderBrowserDelegate({
     String? initialReleaseFolderTitleItemId,
   }) : _releaseFolderTitleItemId = initialReleaseFolderTitleItemId;

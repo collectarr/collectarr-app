@@ -174,7 +174,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._savedColumnFavoritePresets = const [];
       state._scopeHistory = const [];
       state._selectionAnchorId = null;
-      state.setActiveReleaseFolderTitleItemId(null);
+      state._kindBrowserDelegate.closeReleaseFolder();
       state.ref
           .read(
             libraryFacetControllerProvider(

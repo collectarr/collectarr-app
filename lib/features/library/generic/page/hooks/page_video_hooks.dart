@@ -15,8 +15,7 @@ extension _PageVideoHooks on GenericLibraryPageState {
   void _openVideoShelfDrilldown(LibraryProjectionItem item) {
     setState(() {
       _selectedId = item.entry.id;
-      _kindBrowserDelegate.videoShelfDrilldownTitleItemId = item.entry.id;
-      _kindBrowserDelegate.videoShelfDrilldownReleaseId = null;
+      _kindBrowserDelegate.openVideoShelfDrilldown(item.entry.id);
     });
   }
 
@@ -60,15 +59,12 @@ extension _PageVideoHooks on GenericLibraryPageState {
     };
     final titleItem = itemsById[titleItemId];
     if (titleItem == null || !_canOpenVideoShelfDrilldown(titleItem)) {
-      if (_kindBrowserDelegate.videoShelfDrilldownTitleItemId != null) {
+      if (_kindBrowserDelegate.hasVideoShelfDrilldown) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) {
             return;
           }
-          setState(() {
-            _kindBrowserDelegate.videoShelfDrilldownTitleItemId = null;
-            _kindBrowserDelegate.videoShelfDrilldownReleaseId = null;
-          });
+          setState(_kindBrowserDelegate.closeVideoShelfDrilldown);
         });
       }
       return null;
@@ -96,12 +92,13 @@ extension _PageVideoHooks on GenericLibraryPageState {
     if (_kindBrowserDelegate.videoShelfDrilldownReleaseId == null &&
         drilldownItems.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted ||
-            _kindBrowserDelegate.videoShelfDrilldownReleaseId != null) {
+        if (!mounted || _kindBrowserDelegate.videoShelfDrilldownReleaseId != null) {
           return;
         }
-        setState(() => _kindBrowserDelegate.videoShelfDrilldownReleaseId =
-            drilldownItems.first.entry.id);
+        setState(() => _kindBrowserDelegate.openVideoShelfDrilldown(
+              titleItemId,
+              releaseId: drilldownItems.first.entry.id,
+            ));
       });
     }
 
@@ -111,13 +108,14 @@ extension _PageVideoHooks on GenericLibraryPageState {
       selectedReleaseId: _kindBrowserDelegate.videoShelfDrilldownReleaseId,
       coverSize: viewState.coverSize,
       accent: widget.accent,
-      onBack: () => setState(() {
-        _kindBrowserDelegate.videoShelfDrilldownTitleItemId = null;
-        _kindBrowserDelegate.videoShelfDrilldownReleaseId = null;
-      }),
+      onBack: () => setState(_kindBrowserDelegate.closeVideoShelfDrilldown),
       onRefreshFromCore: () => _refreshVideoTitleFromCore(titleItem),
-      onSelectRelease: (releaseId) =>
-          setState(() => _kindBrowserDelegate.videoShelfDrilldownReleaseId = releaseId),
+      onSelectRelease: (releaseId) => setState(
+        () => _kindBrowserDelegate.openVideoShelfDrilldown(
+          titleItemId,
+          releaseId: releaseId,
+        ),
+      ),
       onOpenTitleDetails: () => showLibraryDetailPage(
         context: context,
         request: LibraryDetailPageRequest(

@@ -13,7 +13,9 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
   }
 
   bool canCompareMetadataWithServerItem(LibraryProjectionItem item) {
-    if (!supportsMetadataCompareWithServer()) {
+    if (!widget.type.kindUiAdapter.supportsMetadataCompareWithServer(
+      widget.type,
+    )) {
       return false;
     }
     final catalogId = item.source.catalogItem?.id ?? item.entry.id;
@@ -47,10 +49,6 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
     await runCollectionAction((actions) => actions.removeOwned(item));
   }
 
-  bool supportsMetadataCompareWithServer() {
-    return widget.type.capabilities.supportsMetadataCompare;
-  }
-
   LibraryProjectionItem? selectedProjectionItemFor(
       LibraryProjection projection) {
     final selectedId = _selectedId;
@@ -69,7 +67,9 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
     LibraryProjection projection, {
     LibraryProjectionItem? item,
   }) async {
-    if (!supportsMetadataCompareWithServer()) {
+    if (!widget.type.kindUiAdapter.supportsMetadataCompareWithServer(
+      widget.type,
+    )) {
       return;
     }
     final targetItem = item ?? selectedProjectionItemFor(projection);

@@ -280,7 +280,8 @@ abstract final class _LibraryPageShellPresenter {
       db: state.ref.read(localDatabaseProvider),
       folderPreset: state._activeFolderPreset,
       pinnedFolderPresets: state._pinnedFolderPresets,
-      onManageBuckets: state.supportsBucketManagement(activeProjectionGroupMode)
+      onManageBuckets: state.widget.type.kindUiAdapter.supportsBucketManagement(
+              state.widget.type, activeProjectionGroupMode)
           ? () => unawaited(state._showBucketManagerFlow(projection))
           : null,
       onPinnedFolderPresetsChanged: state._setPinnedFolderPresets,
@@ -303,12 +304,14 @@ abstract final class _LibraryPageShellPresenter {
         browserMode: state._activeBrowserMode,
         supportsMediaReleaseSplit: state._supportsMediaReleaseSplit,
         onBrowserModeChanged: state._setBrowserMode,
-        showReleaseFolderBack: state.widget.type.shouldShowReleaseFolderBack(
+        showReleaseFolderBack: state.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
+          state.widget.type,
           browserMode: state._activeBrowserMode,
           releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
         ),
         releaseFolderLabel: state._releaseFolderLabelForProjection(projection),
-        onReleaseFolderBack: state.widget.type.shouldShowReleaseFolderBack(
+        onReleaseFolderBack: state.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
+          state.widget.type,
           browserMode: state._activeBrowserMode,
           releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
         )

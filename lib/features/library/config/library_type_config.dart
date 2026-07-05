@@ -485,6 +485,39 @@ class LibraryKindUiAdapter {
     return type.supportsReadingQueue;
   }
 
+  bool supportsBucketManagement(
+    LibraryTypeConfig type,
+    LibraryGroupMode mode,
+  ) {
+    return type.presentation.groupModeDefinitionFor(mode).supportsBucketManagement;
+  }
+
+  bool supportsMetadataCompareWithServer(LibraryTypeConfig type) {
+    return type.supportsMetadataCompareWithServer;
+  }
+
+  bool shouldOpenReleaseFolderOnOpen(
+    LibraryTypeConfig type, {
+    required LibraryWorkspaceBrowserMode browserMode,
+    required LibraryBrowserScope browseScope,
+  }) {
+    return type.shouldOpenReleaseFolderOnOpen(
+      browserMode: browserMode,
+      browseScope: browseScope,
+    );
+  }
+
+  bool shouldShowReleaseFolderBack(
+    LibraryTypeConfig type, {
+    required LibraryWorkspaceBrowserMode browserMode,
+    String? releaseFolderTitleItemId,
+  }) {
+    return type.shouldShowReleaseFolderBack(
+      browserMode: browserMode,
+      releaseFolderTitleItemId: releaseFolderTitleItemId,
+    );
+  }
+
   List<LibraryGroupModeCategory> groupModeCategories(
     LibraryTypeConfig type,
     List<LibraryGroupMode> modes,

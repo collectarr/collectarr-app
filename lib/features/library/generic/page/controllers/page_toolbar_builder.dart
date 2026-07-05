@@ -15,7 +15,8 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
         query: searchState.query,
       )),
     );
-    final showReleaseFolderBack = widget.type.shouldShowReleaseFolderBack(
+    final showReleaseFolderBack = widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
+      widget.type,
       browserMode: _activeBrowserMode,
       releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
     );
@@ -155,7 +156,10 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
               ? () => shareCollectionFlow(projection)
               : null,
       onCompareMetadataWithServer: (() {
-        if (projection == null || !supportsMetadataCompareWithServer()) {
+        if (projection == null ||
+            !widget.type.kindUiAdapter.supportsMetadataCompareWithServer(
+              widget.type,
+            )) {
           return null;
         }
         final selected = selectedProjectionItemFor(projection);
