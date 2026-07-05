@@ -52,7 +52,7 @@ LibraryMediaAdapter plannedMediaAdapter(
   PlannedMediaEntryAccessors? entryAccessors,
   LibraryEntryColumnComparator? compareEntriesByColumn,
 }) {
-  final resolvedEntryAccessors = entryAccessors ?? plannedDefaultEntryAccessors;
+  final resolvedEntryAccessors = entryAccessors ?? defaultEntryAccessors;
   final viewProfile = plannedMediaWorkspaceViewProfile(type.workspace);
   return LibraryMediaAdapter(
     type: type,
@@ -207,7 +207,7 @@ int plannedMediaCompareEntriesByColumn(
     left,
     right,
     column,
-    plannedDefaultEntryAccessors,
+    defaultEntryAccessors,
   );
 }
 
@@ -283,7 +283,7 @@ int compareBookEntriesByColumn(
       left,
       right,
       column,
-      plannedBookEntryAccessors,
+      bookEntryAccessors,
     );
 
 int compareGameEntriesByColumn(
@@ -295,7 +295,7 @@ int compareGameEntriesByColumn(
       left,
       right,
       column,
-      plannedGameEntryAccessors,
+      gameEntryAccessors,
     );
 
 int compareBoardGameEntriesByColumn(
@@ -307,7 +307,7 @@ int compareBoardGameEntriesByColumn(
       left,
       right,
       column,
-      plannedBoardGameEntryAccessors,
+      boardGameEntryAccessors,
     );
 
 int compareMovieEntriesByColumn(
@@ -319,7 +319,7 @@ int compareMovieEntriesByColumn(
       left,
       right,
       column,
-      plannedMovieEntryAccessors,
+      movieEntryAccessors,
     );
 
 int compareMusicEntriesByColumn(
@@ -331,7 +331,7 @@ int compareMusicEntriesByColumn(
       left,
       right,
       column,
-      plannedMusicEntryAccessors,
+      musicEntryAccessors,
     );
 
 int _compareIssueNumbers(String? left, String? right) {

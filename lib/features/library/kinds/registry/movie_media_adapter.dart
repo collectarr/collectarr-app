@@ -2,6 +2,6 @@ part of 'media_adapters.dart';
 
 final moviesMediaAdapter = plannedMediaAdapter(
   moviesLibraryConfig,
-  entryAccessors: plannedMovieEntryAccessors,
+  entryAccessors: movieEntryAccessors,
   compareEntriesByColumn: compareMovieEntriesByColumn,
 );

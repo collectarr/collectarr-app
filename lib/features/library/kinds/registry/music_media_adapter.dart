@@ -2,6 +2,6 @@ part of 'media_adapters.dart';
 
 final musicMediaAdapter = plannedMediaAdapter(
   musicLibraryConfig,
-  entryAccessors: plannedMusicEntryAccessors,
+  entryAccessors: musicEntryAccessors,
   compareEntriesByColumn: compareMusicEntriesByColumn,
 );

@@ -2,6 +2,6 @@ part of 'media_adapters.dart';
 
 final animeMediaAdapter = plannedMediaAdapter(
   animeLibraryConfig,
-  entryAccessors: plannedMovieEntryAccessors,
+  entryAccessors: movieEntryAccessors,
   compareEntriesByColumn: compareMovieEntriesByColumn,
 );

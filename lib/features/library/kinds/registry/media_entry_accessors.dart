@@ -61,7 +61,7 @@ class PlannedMediaEntryAccessors {
   final String? Function(LibraryWorkspaceEntry entry) gradingCompany;
 }
 
-final plannedDefaultEntryAccessors = PlannedMediaEntryAccessors(
+final defaultEntryAccessors = PlannedMediaEntryAccessors(
   series: (entry) => entry.series?.seriesTitle,
   album: (entry) => entry.title,
   storyArc: (entry) => _firstStringValue(entry.storyArcs),
@@ -92,7 +92,7 @@ final plannedDefaultEntryAccessors = PlannedMediaEntryAccessors(
   gradingCompany: (_) => null,
 );
 
-final plannedComicEntryAccessors = PlannedMediaEntryAccessors(
+final comicEntryAccessors = PlannedMediaEntryAccessors(
   series: (entry) => entry.series?.seriesTitle,
   album: (entry) => entry.title,
   storyArc: (entry) => _firstStringValue(entry.storyArcs),
@@ -123,8 +123,8 @@ final plannedComicEntryAccessors = PlannedMediaEntryAccessors(
   gradingCompany: (entry) => entry.comic?.gradingCompany,
 );
 
-final plannedBookEntryAccessors = plannedDefaultEntryAccessors;
-final plannedGameEntryAccessors = PlannedMediaEntryAccessors(
+final bookEntryAccessors = defaultEntryAccessors;
+final gameEntryAccessors = PlannedMediaEntryAccessors(
   series: (entry) => entry.series?.seriesTitle,
   album: (entry) => entry.title,
   storyArc: (entry) => _firstStringValue(entry.storyArcs),
@@ -155,9 +155,9 @@ final plannedGameEntryAccessors = PlannedMediaEntryAccessors(
   gradingCompany: (_) => null,
 );
 
-final plannedBoardGameEntryAccessors = plannedDefaultEntryAccessors;
-final plannedMovieEntryAccessors = plannedDefaultEntryAccessors;
-final plannedMusicEntryAccessors = PlannedMediaEntryAccessors(
+final boardGameEntryAccessors = defaultEntryAccessors;
+final movieEntryAccessors = defaultEntryAccessors;
+final musicEntryAccessors = PlannedMediaEntryAccessors(
   series: (entry) => entry.series?.seriesTitle,
   album: (entry) => entry.title,
   storyArc: (entry) => _firstStringValue(entry.storyArcs),

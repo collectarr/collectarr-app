@@ -2,6 +2,6 @@ part of 'media_adapters.dart';
 
 final mangaMediaAdapter = plannedMediaAdapter(
   mangaLibraryConfig,
-  entryAccessors: plannedBookEntryAccessors,
+  entryAccessors: bookEntryAccessors,
   compareEntriesByColumn: compareBookEntriesByColumn,
 );

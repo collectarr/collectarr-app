@@ -2,6 +2,6 @@ part of 'media_adapters.dart';
 
 final gamesMediaAdapter = plannedMediaAdapter(
   gamesLibraryConfig,
-  entryAccessors: plannedGameEntryAccessors,
+  entryAccessors: gameEntryAccessors,
   compareEntriesByColumn: compareGameEntriesByColumn,
 );
