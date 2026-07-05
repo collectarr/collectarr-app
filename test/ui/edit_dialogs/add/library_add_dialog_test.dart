@@ -363,9 +363,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    final api = _FakeLibraryAddApiClient();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          apiClientProvider.overrideWithValue(api),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           metadataProviderStatusesProvider.overrideWith(
@@ -398,6 +401,8 @@ void main() {
     await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 35));
+    await pumpUntilSettled(tester);
     await ensureAdvancedSearchVisible(tester);
 
     expect(
@@ -442,9 +447,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    final api = _FakeLibraryAddApiClient();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          apiClientProvider.overrideWithValue(api),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           metadataProviderStatusesProvider.overrideWith(
@@ -475,6 +483,8 @@ void main() {
     await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 35));
+    await pumpUntilSettled(tester);
 
     expect(
         find.byKey(const ValueKey('library-add-query-field')), findsOneWidget);
@@ -493,9 +503,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    final api = _FakeLibraryAddApiClient();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          apiClientProvider.overrideWithValue(api),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           metadataProviderStatusesProvider.overrideWith(
@@ -547,9 +560,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    final api = _FakeLibraryAddApiClient();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          apiClientProvider.overrideWithValue(api),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           metadataProviderStatusesProvider.overrideWith(
@@ -592,6 +608,8 @@ void main() {
     await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 35));
+    await pumpUntilSettled(tester);
     await ensureAdvancedSearchVisible(tester);
 
     expect(
@@ -617,9 +635,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    final api = _FakeLibraryAddApiClient();
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          apiClientProvider.overrideWithValue(api),
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           metadataProviderStatusesProvider.overrideWith(
@@ -656,6 +677,8 @@ void main() {
     await tester.tap(find.byTooltip('Scan cover'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 35));
+    await pumpUntilSettled(tester);
     await ensureAdvancedSearchVisible(tester);
 
     expect(

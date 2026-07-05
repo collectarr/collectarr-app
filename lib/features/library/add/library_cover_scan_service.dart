@@ -671,7 +671,7 @@ class _LibraryCoverScanReviewDialogState
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Keep this image local and confirm it before search hints are derived. Crop and OCR hooks can plug into this step later.',
+                  'Keep this image local and confirm it before search hints are derived. Crop and OCR happen locally before the identify search runs.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -1175,8 +1175,8 @@ LibraryCoverScanResult _analysisDerivedResult(
     reviewSummary: _reviewSummary(image),
     warnings: <String>[
       primaryHasReviewText
-          ? 'Search hints were derived locally from the imported filename and review text. OCR is not enabled yet.'
-          : 'Search hints were derived locally from the imported filename. OCR is not enabled yet.',
+          ? 'Search hints were derived locally from the imported filename and review text.'
+          : 'Search hints were derived locally from the imported filename.',
     ],
   );
 }

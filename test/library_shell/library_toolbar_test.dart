@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/game/config.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
@@ -130,84 +132,83 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryToolbar(
-              type: moviesLibraryConfig,
-              searchController: searchController,
-              viewState: moviesMediaAdapter.viewProfile.defaults(),
-              adapter: moviesMediaAdapter,
-              counts: const LibraryToolbarCounts(),
-              onAdd: () {},
-              onScan: () {},
-              onSearchChanged: (_) {},
-              onEditColumns: () {},
-              onSortChanged: (_) {},
-              onSidebarVisibilityChanged: (_) {},
-              onViewModeChanged: (_) {},
-              onDetailsLayoutChanged: (_) {},
-              onCoverSizeChanged: (_) {},
-              selectedBucket: null,
-              onClearBucket: () {},
-              onRefreshMetadata: () {},
-              quickView: null,
-              onQuickViewSelected: (_) {},
-              hasActiveFilters: false,
-              onClearFilters: () {},
-              onScanCover: () {},
+    Future<void> expectScanCover({
+      required dynamic type,
+      required dynamic adapter,
+      required dynamic viewState,
+      required bool expected,
+    }) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: LibraryToolbar(
+                type: type,
+                searchController: searchController,
+                viewState: viewState,
+                adapter: adapter,
+                counts: const LibraryToolbarCounts(),
+                onAdd: () {},
+                onScan: () {},
+                onSearchChanged: (_) {},
+                onEditColumns: () {},
+                onSortChanged: (_) {},
+                onSidebarVisibilityChanged: (_) {},
+                onViewModeChanged: (_) {},
+                onDetailsLayoutChanged: (_) {},
+                onCoverSizeChanged: (_) {},
+                selectedBucket: null,
+                onClearBucket: () {},
+                onRefreshMetadata: () {},
+                quickView: null,
+                onQuickViewSelected: (_) {},
+                hasActiveFilters: false,
+                onClearFilters: () {},
+                onScanCover: () {},
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    final movieFiltering = tester.widget<LibraryDesktopFilteringToolbar>(
-      find.byType(LibraryDesktopFilteringToolbar),
-    );
-    expect(movieFiltering.onScanCover, isNull);
+      final filtering = tester.widget<LibraryDesktopFilteringToolbar>(
+        find.byType(LibraryDesktopFilteringToolbar),
+      );
+      expect(filtering.onScanCover != null, expected);
+    }
 
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryToolbar(
-              type: comicsLibraryConfig,
-              searchController: searchController,
-              viewState: collectarrMediaAdapters
-                  .byKind('comic')!
-                  .viewProfile
-                  .defaults(),
-              adapter: collectarrMediaAdapters.byKind('comic')!,
-              counts: const LibraryToolbarCounts(),
-              onAdd: () {},
-              onScan: () {},
-              onSearchChanged: (_) {},
-              onEditColumns: () {},
-              onSortChanged: (_) {},
-              onSidebarVisibilityChanged: (_) {},
-              onViewModeChanged: (_) {},
-              onDetailsLayoutChanged: (_) {},
-              onCoverSizeChanged: (_) {},
-              selectedBucket: null,
-              onClearBucket: () {},
-              onRefreshMetadata: () {},
-              quickView: null,
-              onQuickViewSelected: (_) {},
-              hasActiveFilters: false,
-              onClearFilters: () {},
-              onScanCover: () {},
-            ),
-          ),
-        ),
-      ),
+    await expectScanCover(
+      type: moviesLibraryConfig,
+      adapter: moviesMediaAdapter,
+      viewState: moviesMediaAdapter.viewProfile.defaults(),
+      expected: true,
     );
-
-    final comicsFiltering = tester.widget<LibraryDesktopFilteringToolbar>(
-      find.byType(LibraryDesktopFilteringToolbar),
+    await expectScanCover(
+      type: booksLibraryConfig,
+      adapter: plannedMediaAdapters.byKind('book')!,
+      viewState: plannedMediaAdapters.byKind('book')!.viewProfile.defaults(),
+      expected: true,
     );
-    expect(comicsFiltering.onScanCover, isNotNull);
+    await expectScanCover(
+      type: gamesLibraryConfig,
+      adapter: collectarrMediaAdapters.byKind('game')!,
+      viewState: collectarrMediaAdapters.byKind('game')!.viewProfile.defaults(),
+      expected: true,
+    );
+    await expectScanCover(
+      type: boardGamesLibraryConfig,
+      adapter: collectarrMediaAdapters.byKind('boardgame')!,
+      viewState: collectarrMediaAdapters.byKind('boardgame')!
+          .viewProfile
+          .defaults(),
+      expected: true,
+    );
+    await expectScanCover(
+      type: comicsLibraryConfig,
+      adapter: collectarrMediaAdapters.byKind('comic')!,
+      viewState: collectarrMediaAdapters.byKind('comic')!.viewProfile.defaults(),
+      expected: true,
+    );
   });
 
   testWidgets('toolbar gates reading queue action by type capability', (

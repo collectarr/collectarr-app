@@ -61,6 +61,7 @@ const gamesLibraryConfig = LibraryTypeConfig(
     barcodeLabel: 'UPC / Barcode',
   ),
   capabilities: LibraryTypeCapabilities(
+    canScanCover: true,
     supportsMediaReleaseSplit: true,
     usesGameCompletenessFields: true,
   ),

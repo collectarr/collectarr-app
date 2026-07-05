@@ -54,7 +54,7 @@ class LibraryToolbar extends StatelessWidget {
     this.releaseFolderLabel,
     this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
-    required this.onDensityPresetChanged,
+    this.onDensityPresetChanged = _noopDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
     required this.onClearBucket,
@@ -115,6 +115,8 @@ class LibraryToolbar extends StatelessWidget {
     this.onGroupModeChanged,
     this.includeDesktopSecondaryBand = true,
   });
+
+  static void _noopDensityPresetChanged(LibraryWorkspaceDensityPreset _) {}
 
   LibraryToolbar.grouped({
     super.key,

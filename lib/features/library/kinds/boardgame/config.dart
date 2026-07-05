@@ -57,5 +57,8 @@ const boardGamesLibraryConfig = LibraryTypeConfig(
     variantLabel: 'Expansion / Edition',
     barcodeLabel: 'Barcode',
   ),
+  capabilities: LibraryTypeCapabilities(
+    canScanCover: true,
+  ),
   showsDefaultInspectorPersonalSection: false,
 );

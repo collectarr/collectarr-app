@@ -1388,6 +1388,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _providerPreviews.clear();
         _searchedProvider = false;
       });
+      await _search();
     } finally {
       if (mounted) {
         setState(() => _isScanningCover = false);

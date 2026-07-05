@@ -75,6 +75,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
+    canScanCover: true,
     supportsVideoKindFilters: true,
     supportsMediaReleaseSplit: true,
     wideDialog: true,

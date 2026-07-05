@@ -66,6 +66,7 @@ final booksLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     showsCreatorSpotlight: true,
+    canScanCover: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
     supportsOwnedItemImages: false,
     supportsMediaReleaseSplit: true,
