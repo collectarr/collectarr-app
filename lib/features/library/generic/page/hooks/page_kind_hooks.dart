@@ -31,7 +31,8 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
-    return widget.type.browserModeForViewState(
+    return widget.type.kindUiAdapter.browserModeForViewState(
+      widget.type,
       _viewState ?? _adapter.viewProfile.defaults(),
       releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
     );

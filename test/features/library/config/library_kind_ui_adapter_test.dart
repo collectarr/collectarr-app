@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -30,6 +32,28 @@ void main() {
     expect(
       adapter.supportsMissingComicsReport(moviesLibraryConfig),
       isFalse,
+    );
+  });
+
+  test('browser mode resolution stays in the kind adapter', () {
+    final adapter = booksLibraryConfig.kindUiAdapter;
+    final state = LibraryWorkspaceViewState(
+      viewMode: LibraryViewMode.grid,
+      detailsLayout: LibraryDetailsLayout.bottom,
+      isSidebarVisible: true,
+      sortColumn: booksLibraryConfig.workspace.defaultSortColumn,
+      sortAscending: true,
+      coverSize: 180,
+      sidebarWidth: 320,
+      detailsWidth: 420,
+      detailsHeight: 260,
+      visibleColumns: Set.of(booksLibraryConfig.workspace.defaultVisibleColumns),
+      columnWidths: const {},
+    );
+
+    expect(
+      adapter.browserModeForViewState(booksLibraryConfig, state),
+      equals(booksLibraryConfig.browserModeForViewState(state)),
     );
   });
 }

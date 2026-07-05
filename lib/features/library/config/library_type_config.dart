@@ -525,6 +525,17 @@ class LibraryKindUiAdapter {
     return type.workspace.kind == CatalogMediaKind.comic;
   }
 
+  LibraryWorkspaceBrowserMode browserModeForViewState(
+    LibraryTypeConfig type,
+    LibraryWorkspaceViewState viewState, {
+    String? releaseFolderTitleItemId,
+  }) {
+    return type.browserModeForViewState(
+      viewState,
+      releaseFolderTitleItemId: releaseFolderTitleItemId,
+    );
+  }
+
   bool shouldOpenReleaseFolderOnOpen(
     LibraryTypeConfig type, {
     required LibraryWorkspaceBrowserMode browserMode,
