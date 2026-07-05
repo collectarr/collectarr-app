@@ -25,7 +25,6 @@ import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
-import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -466,7 +465,7 @@ void main() {
         contains('purchase price'));
     expect(
       comicsTableColumnPresets.map((preset) => preset.label),
-      ['Essential', 'Ownership', 'Value', 'Full'],
+      ['Essential', 'Ownership', 'Value', 'Images', 'Full'],
     );
     expect(
       comicsMediaAdapter.orderedTableColumns(const {}).first,
@@ -474,17 +473,7 @@ void main() {
     );
   });
 
-  test('planned media adapters cover non-comics workspace defaults', () {
-    expect(plannedMediaAdapters.supportedKinds, [
-      'book',
-      'game',
-      'boardgame',
-      'manga',
-      'movie',
-      'tv',
-      'anime',
-      'music',
-    ]);
+  test('media adapters cover workspace defaults', () {
     expect(collectarrMediaAdapters.supportedKinds, [
       'comic',
       'book',

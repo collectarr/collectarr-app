@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/kinds/registry/planned_media_adapters.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
@@ -185,8 +184,8 @@ void main() {
     );
     await expectScanCover(
       type: booksLibraryConfig,
-      adapter: plannedMediaAdapters.byKind('book')!,
-      viewState: plannedMediaAdapters.byKind('book')!.viewProfile.defaults(),
+      adapter: collectarrMediaAdapters.byKind('book')!,
+      viewState: collectarrMediaAdapters.byKind('book')!.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
