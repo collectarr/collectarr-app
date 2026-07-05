@@ -78,12 +78,15 @@ class BookInspectorPanel extends StatelessWidget {
                 extraActions: request.extraActions,
                 onOpenDetails: request.onOpenDetails,
               ),
+              if (request.trailingSections.isNotEmpty) ...[
+                ...request.trailingSections,
+                const SizedBox(height: 6),
+              ],
               ...buildLibraryInspectorSectionList([
                 request.ownedCopiesSection,
                 request.bundleSection,
                 request.conditionGradeSection,
                 if (sections.isNotEmpty) ...sections,
-                if (request.trailingSections.isNotEmpty) ...request.trailingSections,
               ]),
             ],
           ),

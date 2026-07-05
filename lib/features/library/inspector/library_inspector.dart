@@ -441,28 +441,19 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       );
     }
     final trailingSections = <Widget>[
-      if (widget.type.showsDefaultInspectorPersonalSection)
-        InspectorPersonalSection(
-          entry: selected,
-          ownedItem: activeOwnedItem,
-          trackingEntry: activeTrackingEntry,
-          accent: widget.accent,
-          onFilterByValue: widget.onFilterByValue,
-        ),
-      ...?(!usesCustomInspectorPanel
-          ? buildLibraryInspectorEditorSections(
-              type: widget.type,
-              entry: selected,
-              accent: widget.accent,
-              ownedItem: activeOwnedItem,
-              trackingEntry: activeTrackingEntry,
-            )
-          : null),
       if (activeOwnedItem != null && widget.db != null)
         InspectorCustomFieldsSection(
           ownedItemId: activeOwnedItem.id,
           mediaKind: widget.type.workspace.kind.apiValue,
           db: widget.db!,
+          accent: widget.accent,
+          onFilterByValue: widget.onFilterByValue,
+        ),
+      if (widget.type.showsDefaultInspectorPersonalSection)
+        InspectorPersonalSection(
+          entry: selected,
+          ownedItem: activeOwnedItem,
+          trackingEntry: activeTrackingEntry,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
@@ -474,6 +465,15 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           db: widget.db!,
           accent: widget.accent,
         ),
+      ...?(!usesCustomInspectorPanel
+          ? buildLibraryInspectorEditorSections(
+              type: widget.type,
+              entry: selected,
+              accent: widget.accent,
+              ownedItem: activeOwnedItem,
+              trackingEntry: activeTrackingEntry,
+            )
+          : null),
       ...?(!usesCustomInspectorPanel
           ? buildLibraryInspectorKindSections(
               context: context,
