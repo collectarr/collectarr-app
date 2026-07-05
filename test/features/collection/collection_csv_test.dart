@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -13,7 +14,7 @@ void main() {
     final exported = csv.exportShelf([
       ShelfEntry(
         itemId: 'comic-1',
-        catalogItem: CatalogItem(
+        catalogItem: LibraryMetadataItem.fromCatalogItem(CatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man, "Vol. 1"',
@@ -25,7 +26,7 @@ void main() {
           publisher: 'Marvel',
           releaseDate: DateTime.utc(1963, 3, 1),
           barcode: '071486024576',
-        ),
+        )),
         ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
@@ -89,11 +90,77 @@ void main() {
     expect(rows.single.tags, 'spider,key');
   });
 
+  test('collection csv round-trips typed custom field values', () {
+    final csv = CollectionCsv();
+    final defs = [
+      CustomFieldDefinition(
+        id: 'cf-1',
+        name: 'Acquisition Source',
+        fieldType: 'singleSelect',
+        createdAt: DateTime.utc(2026, 1, 1),
+      ),
+      CustomFieldDefinition(
+        id: 'cf-2',
+        name: 'Favorite Formats',
+        fieldType: 'multiSelect',
+        createdAt: DateTime.utc(2026, 1, 1),
+      ),
+    ];
+    final exported = csv.exportShelf(
+      [
+        ShelfEntry(
+          itemId: 'book-1',
+          catalogItem: LibraryMetadataItem.fromCatalogItem(CatalogItem(
+            id: 'book-1',
+            kind: 'book',
+            title: 'Test Book',
+          )),
+          ownedItem: testOwnedItem(
+            id: 'owned-1',
+            itemId: 'book-1',
+            updatedAt: DateTime.utc(2026, 5, 12),
+          ),
+        ),
+      ],
+      customFieldDefinitions: defs,
+      customFieldValuesByItem: {
+        'owned-1': [
+          CustomFieldValue(
+            id: 'val-1',
+            targetId: 'owned-1',
+            targetScope: CustomFieldTargetScope.ownedCopy,
+            fieldDefinitionId: 'cf-1',
+            value: 'Purchase',
+            updatedAt: DateTime.utc(2026, 5, 12),
+          ),
+          CustomFieldValue(
+            id: 'val-2',
+            targetId: 'owned-1',
+            targetScope: CustomFieldTargetScope.ownedCopy,
+            fieldDefinitionId: 'cf-2',
+            value: '["Hardcover","Digital"]',
+            updatedAt: DateTime.utc(2026, 5, 12),
+          ),
+        ],
+      },
+    );
+
+    expect(exported, contains('cf_Acquisition Source'));
+    expect(exported, contains('cf_Favorite Formats'));
+
+    final rows = csv.parse(exported);
+    expect(rows.single.customFieldValues['Acquisition Source'], 'Purchase');
+    expect(
+      rows.single.customFieldValues['Favorite Formats'],
+      '["Hardcover","Digital"]',
+    );
+  });
+
   test('collection csv exports clz-friendly shelf rows', () {
     final exported = CollectionCsv().exportClzFriendlyShelf([
       ShelfEntry(
         itemId: 'comic-1',
-        catalogItem: CatalogItem(
+        catalogItem: LibraryMetadataItem.fromCatalogItem(CatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'The Amazing Spider-Man, Vol. 2',
@@ -102,7 +169,7 @@ void main() {
           releaseDate: DateTime.utc(2005, 7, 1),
           barcode: '75960604716152011',
           variant: 'Regular Cover',
-        ),
+        )),
         ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
@@ -130,7 +197,7 @@ void main() {
     final exported = CollectionCsv().exportClzFriendlyShelf([
       ShelfEntry(
         itemId: 'movie-1',
-        catalogItem: CatalogItem(
+        catalogItem: LibraryMetadataItem.fromCatalogItem(CatalogItem(
           id: 'movie-1',
           kind: 'movie',
           title: 'Blade Runner',
@@ -142,7 +209,7 @@ void main() {
           editionTitle: 'Final Cut 4K release',
           physicalFormat: '4k-uhd',
           physicalFormatLabel: '4K UHD',
-        ),
+        )),
         ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'movie-1',
@@ -386,11 +453,11 @@ void main() {
       [
         ShelfEntry(
           itemId: 'comic-1',
-          catalogItem: CatalogItem(
+          catalogItem: LibraryMetadataItem.fromCatalogItem(CatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
-          ),
+          )),
           ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
@@ -450,11 +517,11 @@ void main() {
       [
         ShelfEntry(
           itemId: 'comic-1',
-          catalogItem: CatalogItem(
+          catalogItem: LibraryMetadataItem.fromCatalogItem(CatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
-          ),
+          )),
           ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',

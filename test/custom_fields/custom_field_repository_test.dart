@@ -61,14 +61,14 @@ void main() {
       await repo.upsertDefinition(CustomFieldDefinition(
         id: 'def-2',
         name: 'Platform',
-        fieldType: 'select',
+        fieldType: 'singleSelect',
         mediaKind: 'game',
         createdAt: DateTime.utc(2026, 1, 1),
       ));
       await repo.upsertDefinition(CustomFieldDefinition(
         id: 'def-3',
         name: 'Favourite',
-        fieldType: 'bool',
+        fieldType: 'boolean',
         createdAt: DateTime.utc(2026, 1, 1),
       ));
 

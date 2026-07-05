@@ -58,7 +58,12 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
     for (final def in data.definitions) {
       final value = data.valueMap[def.id];
       if (value != null && value.trim().isNotEmpty) {
-        resolved.add(_ResolvedField(label: def.name, value: value));
+        resolved.add(
+          _ResolvedField(
+            label: def.name,
+            value: displayCustomFieldValue(def, value),
+          ),
+        );
       }
     }
     if (resolved.isEmpty) return const SizedBox.shrink();

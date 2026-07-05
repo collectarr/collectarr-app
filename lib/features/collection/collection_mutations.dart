@@ -1367,7 +1367,7 @@ class CollectionMutations {
             catalogItems[row.itemId],
           ),
           fieldDefinitionId: def.id,
-          value: entry.value,
+          value: normalizeCustomFieldInputValue(def, entry.value),
           updatedAt: now,
         ));
       }

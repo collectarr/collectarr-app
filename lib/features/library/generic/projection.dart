@@ -548,6 +548,10 @@ bool _matchesCustomField(
   if (expectedValue == null || expectedValue.isEmpty) {
     return true;
   }
+  final parsedValues = parseCustomFieldMultiValues(actualValue);
+  if (parsedValues.isNotEmpty) {
+    return parsedValues.contains(expectedValue);
+  }
   return actualValue == expectedValue;
 }
 

@@ -213,7 +213,7 @@ class _DefinitionTile extends StatelessWidget {
               final stacked = constraints.maxWidth < 640;
               final kindLabel = _mediaKindLabel(definition.mediaKind);
               final scopeLabel = _editScopeLabel(definition.editScope);
-              final typeLabel = _fieldTypeLabel(definition.fieldType);
+              final typeLabel = definition.valueTypeLabel;
               final rowChildren = <Widget>[
                 ReorderableDragStartListener(
                   index: index,
@@ -338,18 +338,19 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _optionsController;
-  late String _fieldType;
+  late CustomFieldValueType _fieldType;
   String? _mediaKind;
   String? _editScope;
 
-  static const _fieldTypes = ['text', 'number', 'date', 'bool', 'select'];
+  static final List<CustomFieldValueType> _fieldTypes =
+      CustomFieldValueType.values;
 
   @override
   void initState() {
     super.initState();
     final existing = widget.existing;
     _nameController = TextEditingController(text: existing?.name ?? '');
-    _fieldType = existing?.fieldType ?? 'text';
+    _fieldType = existing?.valueType ?? CustomFieldValueType.text;
     _mediaKind = existing?.mediaKind;
     _editScope = existing?.editScope;
     _optionsController = TextEditingController(
@@ -381,13 +382,13 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
   }
 
   String? _encodeOptions() {
-    if (_fieldType != 'select') return null;
+    if (!_fieldType.supportsOptions) return null;
     final items = _optionsController.text
         .split(',')
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
-    return items.isEmpty ? null : jsonEncode(items);
+    return items.isEmpty ? null : encodeCustomFieldOptions(items);
   }
 
   @override
@@ -410,16 +411,16 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                     (value == null || value.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
+              DropdownButtonFormField<CustomFieldValueType>(
                 initialValue: _fieldType,
                 dropdownColor: appPalette(context).panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(labelText: 'Field type'),
                 items: [
                   for (final type in _fieldTypes)
-                    DropdownMenuItem(
+                    DropdownMenuItem<CustomFieldValueType>(
                       value: type,
-                      child: Text(_fieldTypeLabel(type)),
+                      child: Text(type.label),
                     ),
                 ],
                 onChanged: (value) {
@@ -473,7 +474,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                 ],
                 onChanged: (value) => setState(() => _editScope = value),
               ),
-              if (_fieldType == 'select') ...[
+              if (_fieldType.supportsOptions) ...[
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _optionsController,
@@ -506,7 +507,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
     final def = CustomFieldDefinition(
       id: widget.existing?.id ?? const Uuid().v4(),
       name: _nameController.text.trim(),
-      fieldType: _fieldType,
+      fieldType: _fieldType.apiValue,
       mediaKind: _mediaKind,
       editScope: _editScope,
       sortOrder: widget.existing?.sortOrder ?? 0,
@@ -530,17 +531,6 @@ class _DefinitionPill extends StatelessWidget {
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
-}
-
-String _fieldTypeLabel(String type) {
-  return switch (type) {
-    'text' => 'Text',
-    'number' => 'Number',
-    'date' => 'Date',
-    'bool' => 'Yes / No',
-    'select' => 'Select',
-    _ => type,
-  };
 }
 
 String _mediaKindLabel(String? kind) {

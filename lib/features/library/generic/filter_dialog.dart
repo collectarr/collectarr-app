@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -431,13 +428,23 @@ class LibraryFilterOptions {
         final values = customFieldValuesByDefinitionByItem[ownedItemId];
         if (values != null) {
           for (final fieldEntry in values.entries) {
-            final normalized = fieldEntry.value.trim();
-            if (normalized.isEmpty) {
+            final normalizedValues = parseCustomFieldMultiValues(
+              fieldEntry.value,
+            );
+            if (normalizedValues.isEmpty) {
+              final normalized = fieldEntry.value.trim();
+              if (normalized.isNotEmpty) {
+                customFieldValues
+                    .putIfAbsent(fieldEntry.key, () => <String>{})
+                    .add(normalized);
+              }
               continue;
             }
-            customFieldValues
-                .putIfAbsent(fieldEntry.key, () => <String>{})
-                .add(normalized);
+            for (final normalized in normalizedValues) {
+              customFieldValues
+                  .putIfAbsent(fieldEntry.key, () => <String>{})
+                  .add(normalized);
+            }
           }
         }
       }
@@ -468,26 +475,12 @@ class LibraryFilterOptions {
 }
 
 Set<String> _customFieldPresetOptions(CustomFieldDefinition definition) {
-  if (definition.fieldType != 'select' ||
+  if (!definition.valueType.supportsOptions ||
       definition.options == null ||
       definition.options!.isEmpty) {
     return const <String>{};
   }
-  try {
-    return (jsonDecode(definition.options!) as List)
-        .whereType<String>()
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toSet();
-  } catch (error, stackTrace) {
-    logRecoverableError(
-      source: 'library_filter',
-      message: 'Failed to deserialize filter preset custom field options.',
-      error: error,
-      stackTrace: stackTrace,
-    );
-    return const <String>{};
-  }
+  return definition.optionValues.toSet();
 }
 
 /// Returns true if the entry matches the active filter selection.

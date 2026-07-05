@@ -44,7 +44,7 @@ class CustomFieldRepository {
           CustomFieldDefinitionsCacheCompanion.insert(
             id: def.id,
             name: def.name,
-            fieldType: def.fieldType,
+            fieldType: def.valueType.apiValue,
             mediaKind: Value(def.mediaKind),
             editScope: Value(def.editScope),
             sortOrder: Value(def.sortOrder),
@@ -167,7 +167,7 @@ class CustomFieldRepository {
     return CustomFieldDefinition(
       id: row.id,
       name: row.name,
-      fieldType: row.fieldType,
+      fieldType: CustomFieldValueType.fromApiValue(row.fieldType).apiValue,
       mediaKind: row.mediaKind,
       editScope: row.editScope,
       sortOrder: row.sortOrder,
