@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_grouped_shelf_view.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_shelf_view.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -174,148 +175,26 @@ class LibraryWorkspace extends ConsumerWidget {
       coverSize: viewState.coverSize,
     );
     if (_showGrouped && items.isNotEmpty) {
-      return switch (viewState.viewMode) {
-        LibraryViewMode.grid => _GroupedGrid(
-            items: items,
-            adapter: adapter,
-            type: type,
-            groupMode: groupMode,
-            selectedId: selectedId,
-            selectionEnabled: selectionEnabled,
-            selectedIds: selectedIds,
-            accent: accent,
-            maxCrossAxisExtent: viewState.coverSize,
-            mainAxisExtent: coverMainAxisExtent,
-            onSelectionChanged: onBoxSelectionChanged,
-            itemBuilder: (context, item) {
-              final child = LibraryCoverTile(
-                key: ValueKey(item.entry.id),
-                entry: item.entry,
-                customFieldBadges: item.customFieldBadges,
-                active: _isActive(item),
-                selected: _isSelectionSelected(item),
-                selectionMode: selectionEnabled,
-                onTap: _selectionTap(item),
-                onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
-                onDoubleTap: () => onOpenItem(item),
-                onEditTap: () => onEditItem(item),
-                onSecondaryTapUp: onItemContextMenu == null
-                    ? null
-                    : (d) => onItemContextMenu!(item, d.globalPosition),
-                coverSize: viewState.coverSize,
-                selectedColor: palette.selection,
-                accentColor: accent,
-                selectionColor: accent,
-                mutedTextColor: palette.textMuted,
-              );
-              return adapter.workspaceCardBuilder == null
-                  ? child
-                  : adapter.workspaceCardBuilder!(context, item.entry, child);
-            },
-          ),
-        LibraryViewMode.card => _GroupedGrid(
-            items: items,
-            adapter: adapter,
-            type: type,
-            groupMode: groupMode,
-            selectedId: selectedId,
-            selectionEnabled: selectionEnabled,
-            selectedIds: selectedIds,
-            accent: accent,
-            maxCrossAxisExtent: isMusicLibrary
-                ? musicVerticalTileWidth
-                : standardVerticalTileWidth,
-            mainAxisExtent: isMusicLibrary
-                ? musicVerticalTileHeight
-                : standardVerticalTileHeight,
-            onSelectionChanged: onBoxSelectionChanged,
-            itemBuilder: (context, item) {
-              final child = LibraryWorkspaceCard(
-                key: ValueKey(item.entry.id),
-                entry: item.entry,
-                customFieldBadges: item.customFieldBadges,
-                selected: _isHighlighted(item),
-                onTap: _selectionTap(item),
-                onDoubleTap: () => onOpenItem(item),
-                onSecondaryTapUp: onItemContextMenu == null
-                    ? null
-                    : (d) => onItemContextMenu!(item, d.globalPosition),
-                dateFormatter: formatDate,
-                moneyFormatter: formatMoney,
-                selectedColor: palette.selection,
-                accentColor: accent,
-                mutedTextColor: palette.textMuted,
-                coverWidth:
-                    isMusicLibrary ? viewState.coverSize : cardCoverWidth,
-                musicLayout: LibraryMusicCardLayout.vertical,
-                cardLayout: LibraryCardLayout.vertical,
-                selectionMode: selectionEnabled,
-                onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
-                onEditTap: () => onEditItem(item),
-              );
-              return adapter.workspaceCardBuilder == null
-                  ? child
-                  : adapter.workspaceCardBuilder!(context, item.entry, child);
-            },
-          ),
-        LibraryViewMode.horizontalCards => _GroupedGrid(
-            items: items,
-            adapter: adapter,
-            type: type,
-            groupMode: groupMode,
-            selectedId: selectedId,
-            selectionEnabled: selectionEnabled,
-            selectedIds: selectedIds,
-            accent: accent,
-            maxCrossAxisExtent: cardTileWidth,
-            mainAxisExtent: cardTileHeight,
-            onSelectionChanged: onBoxSelectionChanged,
-            itemBuilder: (context, item) {
-              final child = LibraryWorkspaceCard(
-                key: ValueKey(item.entry.id),
-                entry: item.entry,
-                customFieldBadges: item.customFieldBadges,
-                selected: _isHighlighted(item),
-                onTap: _selectionTap(item),
-                onDoubleTap: () => onOpenItem(item),
-                onSecondaryTapUp: onItemContextMenu == null
-                    ? null
-                    : (d) => onItemContextMenu!(item, d.globalPosition),
-                dateFormatter: formatDate,
-                moneyFormatter: formatMoney,
-                selectedColor: palette.selection,
-                accentColor: accent,
-                mutedTextColor: palette.textMuted,
-                coverWidth: cardCoverWidth,
-                musicLayout: LibraryMusicCardLayout.horizontal,
-                cardLayout: LibraryCardLayout.horizontal,
-                selectionMode: selectionEnabled,
-                onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
-                onEditTap: () => onEditItem(item),
-              );
-              return adapter.workspaceCardBuilder == null
-                  ? child
-                  : adapter.workspaceCardBuilder!(context, item.entry, child);
-            },
-          ),
-        LibraryViewMode.cardFlow => _GroupedGrid(
-            items: items,
-            adapter: adapter,
-            type: type,
-            groupMode: groupMode,
-            selectedId: selectedId,
-            selectionEnabled: selectionEnabled,
-            selectedIds: selectedIds,
-            accent: accent,
-            maxCrossAxisExtent: 560,
-            mainAxisExtent: 204,
-            onSelectionChanged: onBoxSelectionChanged,
-            itemBuilder: (context, item) => const SizedBox.shrink(),
-          ),
-        LibraryViewMode.list => _buildTable(),
-        LibraryViewMode.shelves =>
-          const SizedBox.shrink(), // shelves never grouped
-      };
+      final groups = libraryGroupEntriesForItems(items, type, groupMode);
+      return LibraryGroupedShelfView(
+        type: type,
+        adapter: adapter,
+        groups: groups,
+        viewState: viewState,
+        selectedId: selectedId,
+        selectionEnabled: selectionEnabled,
+        selectedIds: selectedIds,
+        accent: accent,
+        onSelectGroupBucket: onBucketChanged,
+        onOpenGroupDetails: (group) => onOpenItem(group.representativeItem),
+        onActivateItem: onActivateItem,
+        onToggleSelectionItem: onToggleSelectionItem,
+        onOpenItem: onOpenItem,
+        onEditItem: onEditItem,
+        emptyBuilder: _emptyBuilder,
+        onItemContextMenu: onItemContextMenu,
+        onBoxSelectionChanged: onBoxSelectionChanged,
+      );
     }
     return switch (viewState.viewMode) {
       LibraryViewMode.grid => LibraryWorkspaceGrid<LibraryProjectionItem>(

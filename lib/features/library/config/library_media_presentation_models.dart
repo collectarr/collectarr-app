@@ -92,12 +92,31 @@ class LibraryMediaStatsLabels {
 
 enum LibrarySortFieldGroup { main, value, edition, personal }
 
+enum LibraryGroupPresentation { inlineHeaders, folderGrid }
+
+extension LibraryGroupPresentationLabels on LibraryGroupPresentation {
+  String get label {
+    return switch (this) {
+      LibraryGroupPresentation.inlineHeaders => 'Inline headers',
+      LibraryGroupPresentation.folderGrid => 'Folder grid',
+    };
+  }
+
+  IconData get icon {
+    return switch (this) {
+      LibraryGroupPresentation.inlineHeaders => Icons.segment_outlined,
+      LibraryGroupPresentation.folderGrid => Icons.folder_open_outlined,
+    };
+  }
+}
+
 class LibraryGroupModeDefinition {
   const LibraryGroupModeDefinition({
     required this.mode,
     required this.label,
     required this.sidebarTitle,
     required this.icon,
+    this.presentation = LibraryGroupPresentation.inlineHeaders,
     this.supportsBucketManagement = false,
     this.bucketManagerListLabel,
     this.drilldownChildMode,
@@ -108,6 +127,7 @@ class LibraryGroupModeDefinition {
   final String label;
   final String sidebarTitle;
   final IconData icon;
+  final LibraryGroupPresentation presentation;
   final bool supportsBucketManagement;
   final String? bucketManagerListLabel;
   final LibraryGroupMode? drilldownChildMode;

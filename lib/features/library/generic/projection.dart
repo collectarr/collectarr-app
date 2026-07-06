@@ -9,9 +9,11 @@ import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -269,6 +271,14 @@ IconData genericGroupModeIcon(
       Icons.account_tree_outlined;
 }
 
+LibraryGroupPresentation genericGroupPresentationForMode(
+  LibraryGroupMode mode, [
+  LibraryTypeConfig? type,
+]) {
+  return libraryGroupModeDefinitionOrNull(mode, type)?.presentation ??
+      LibraryGroupPresentation.inlineHeaders;
+}
+
 List<LibraryGroupMode> libraryGroupModesForType(
   LibraryTypeConfig type,
 ) {
@@ -428,6 +438,29 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
     return a.title.compareTo(b.title);
   });
   return buckets;
+}
+
+List<GroupShelfEntry> libraryGroupEntriesForItems(
+  List<LibraryProjectionItem> items,
+  LibraryTypeConfig type,
+  LibraryGroupMode groupMode,
+) {
+  final grouped = <String, List<LibraryProjectionItem>>{};
+  for (final item in items) {
+    final bucket = genericBucketForItemMode(item, type, groupMode);
+    (grouped[bucket] ??= []).add(item);
+  }
+  final sortedBuckets = grouped.keys.toList()..sort();
+  return [
+    for (final bucket in sortedBuckets)
+      GroupShelfEntry(
+        groupMode: groupMode,
+        bucket: bucket,
+        presentation: genericGroupPresentationForMode(groupMode, type),
+        items: List<LibraryProjectionItem>.unmodifiable(grouped[bucket]!),
+        representativeItem: grouped[bucket]!.first,
+      ),
+  ];
 }
 
 final _issueNumberRegExp = RegExp(r'^\s*(\d+)');

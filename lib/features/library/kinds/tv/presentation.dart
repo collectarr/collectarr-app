@@ -37,6 +37,7 @@ String tvLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 const tvLibraryGroupModes = [
+  LibraryGroupMode.series,
   LibraryGroupMode.genre,
   LibraryGroupMode.country,
   LibraryGroupMode.language,
@@ -45,7 +46,6 @@ const tvLibraryGroupModes = [
   LibraryGroupMode.releaseDate,
   LibraryGroupMode.releaseMonth,
   LibraryGroupMode.releaseYear,
-  LibraryGroupMode.series,
   LibraryGroupMode.publisher,
   LibraryGroupMode.title,
   LibraryGroupMode.ownership,
@@ -119,6 +119,7 @@ const tvLibraryGroupModeDefinitions = [
     label: 'Series',
     sidebarTitle: 'Series',
     icon: Icons.tv_outlined,
+    presentation: LibraryGroupPresentation.folderGrid,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.publisher,
