@@ -244,8 +244,21 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   List<String> _imprintOptions = const [];
   List<String> _seriesGroupOptions = const [];
   List<String> _physicalFormatOptions = const [];
+  List<String> _conditionOptions = const [];
+  List<String> _gradeOptions = const [];
   List<String> _ownerOptions = const [];
   List<String> _countryOptions = const [];
+  List<String> _languageOptions = const [];
+  List<String> _ageRatingOptions = const [];
+  List<String> _audienceRatingOptions = const [];
+  List<String> _regionOptions = const [];
+  List<String> _packagingOptions = const [];
+  List<String> _distributorOptions = const [];
+  List<String> _screenRatioOptions = const [];
+  List<String> _layersOptions = const [];
+  List<String> _colorOptions = const [];
+  List<String> _audioTracksOptions = const [];
+  List<String> _subtitlesOptions = const [];
   List<String> _crossoverOptions = const [];
   List<String> _storyArcOptions = const [];
   List<String> _pageQualityOptions = const [];
@@ -921,9 +934,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   ),
                 _responsiveFields([
                   if (_showPhysicalOwnedFields) ...[
-                    _field(
-                        controller: _conditionController, label: 'Condition'),
-                    _field(controller: _gradeController, label: 'Grade'),
+                    _conditionPickField(),
+                    _gradePickField(),
                   ],
                   if (!_isOwned) ...[
                     _trackingEditionSelectionField(),
@@ -1099,10 +1111,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 label: 'Platform',
                 hint: 'Comma-separated platforms',
               ),
-              _field(
-                controller: _audienceRatingController,
-                label: 'Audience rating',
-              ),
+              _audienceRatingPickField(),
               TagPickListField(
                 controller: _genresEditController,
                 options: _gameGenreOptions,
@@ -1358,11 +1367,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             ),
             const SizedBox(height: 10),
             _responsiveFields([
-              _field(
-                controller: _ownerLabelController,
-                label: 'Owner',
-                hint: 'Name of the owner',
-              ),
+              _ownerPickField(),
             ]),
             const SizedBox(height: 10),
           ],
@@ -1593,8 +1598,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         children: [
           _responsiveFields([
             if (_showPhysicalOwnedFields) ...[
-              _field(controller: _conditionController, label: 'Condition'),
-              _field(controller: _gradeController, label: 'Grade'),
+              _conditionPickField(),
+              _gradePickField(),
             ],
           ]),
         ],
@@ -1805,6 +1810,143 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     );
   }
 
+  Widget _pickField({
+    required TextEditingController controller,
+    required String label,
+    required List<String> options,
+    String? hint,
+    String? Function(String?)? validator,
+    ValueChanged<String?>? onChanged,
+    VoidCallback? onManage,
+    String? manageTooltip,
+    bool showPickerListAction = false,
+  }) {
+    return SingleValuePickField(
+      controller: controller,
+      options: options,
+      label: label,
+      hint: hint,
+      validator: validator,
+      onChanged: onChanged,
+      onManage: onManage,
+      manageTooltip: manageTooltip,
+      showPickerListAction: showPickerListAction || onManage == null,
+    );
+  }
+
+  Widget _conditionPickField({String label = 'Condition'}) {
+    return _pickField(
+      controller: _conditionController,
+      label: label,
+      options: _conditionOptions,
+    );
+  }
+
+  Widget _gradePickField({String label = 'Grade'}) {
+    return _pickField(
+      controller: _gradeController,
+      label: label,
+      options: _gradeOptions,
+    );
+  }
+
+  Widget _ownerPickField({String label = 'Owner'}) {
+    return _pickField(
+      controller: _ownerLabelController,
+      label: label,
+      options: _ownerOptions,
+      showPickerListAction: true,
+    );
+  }
+
+  Widget _languagePickField({String label = 'Language'}) {
+    return _pickField(
+      controller: _languageController,
+      label: label,
+      options: _languageOptions,
+    );
+  }
+
+  Widget _ageRatingPickField({String label = 'Age rating'}) {
+    return _pickField(
+      controller: _ageRatingController,
+      label: label,
+      options: _ageRatingOptions,
+    );
+  }
+
+  Widget _audienceRatingPickField({String label = 'Audience rating'}) {
+    return _pickField(
+      controller: _audienceRatingController,
+      label: label,
+      options: _audienceRatingOptions,
+    );
+  }
+
+  Widget _regionPickField({String label = 'Region'}) {
+    return _pickField(
+      controller: _regionController,
+      label: label,
+      options: _regionOptions,
+    );
+  }
+
+  Widget _packagingPickField({String label = 'Packaging'}) {
+    return _pickField(
+      controller: _packagingController,
+      label: label,
+      options: _packagingOptions,
+    );
+  }
+
+  Widget _distributorPickField({String label = 'Distributor'}) {
+    return _pickField(
+      controller: _distributorController,
+      label: label,
+      options: _distributorOptions,
+    );
+  }
+
+  Widget _screenRatioPickField({String label = 'Screen ratio'}) {
+    return _pickField(
+      controller: _screenRatioController,
+      label: label,
+      options: _screenRatioOptions,
+    );
+  }
+
+  Widget _layersPickField({String label = 'Layers'}) {
+    return _pickField(
+      controller: _layersController,
+      label: label,
+      options: _layersOptions,
+    );
+  }
+
+  Widget _colorPickField({String label = 'Color'}) {
+    return _pickField(
+      controller: _colorController,
+      label: label,
+      options: _colorOptions,
+    );
+  }
+
+  Widget _audioTracksPickField({String label = 'Audio tracks'}) {
+    return _pickField(
+      controller: _audioTracksController,
+      label: label,
+      options: _audioTracksOptions,
+    );
+  }
+
+  Widget _subtitlesPickField({String label = 'Subtitles'}) {
+    return _pickField(
+      controller: _subtitlesController,
+      label: label,
+      options: _subtitlesOptions,
+    );
+  }
+
   Widget _footerField({
     required TextEditingController controller,
     required String label,
@@ -1923,11 +2065,85 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         ],
         selectedValue: _physicalFormatLabelController.text,
       ),
+      loadConditionGradePickListOptions(
+        db,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        builtInConditions: const ['Near Mint', 'Very Fine', 'Fine', 'Good'],
+        builtInGrades: const ['9.8', '9.6', '9.4', '9.2', '9.0', '8.5'],
+        selectedCondition: _conditionController.text,
+        selectedGrade: _gradeController.text,
+      ),
       loadSingleValuePickListOptions(
         db,
         listName: kCountryPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
         selectedValue: _countryController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kLanguagePickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _languageController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kAgeRatingPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _ageRatingController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kAudienceRatingPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _audienceRatingController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kRegionPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _regionController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kPackagingPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _packagingController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kDistributorPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _distributorController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kScreenRatioPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _screenRatioController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kLayersPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _layersController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kColorPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _colorController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kAudioTrackPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _audioTracksController.text,
+      ),
+      loadSingleValuePickListOptions(
+        db,
+        listName: kSubtitlePickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValue: _subtitlesController.text,
       ),
       loadSingleValuePickListOptions(
         db,
@@ -1990,17 +2206,31 @@ ORDER BY owner_label COLLATE NOCASE
       _imprintOptions = List<String>.from(results[1] as List<String>);
       _seriesGroupOptions = List<String>.from(results[2] as List<String>);
       _physicalFormatOptions = List<String>.from(results[3] as List<String>);
-      _countryOptions = List<String>.from(results[4] as List<String>);
-      _crossoverOptions = List<String>.from(results[5] as List<String>);
-      _storyArcOptions = List<String>.from(results[6] as List<String>);
-      _pageQualityOptions = List<String>.from(results[7] as List<String>);
-      _keyCategoryOptions = List<String>.from(results[8] as List<String>);
+      final conditionGrade = results[4] as PickListConditionGradeOptions;
+      _conditionOptions = conditionGrade.conditions;
+      _gradeOptions = conditionGrade.grades;
+      _countryOptions = List<String>.from(results[5] as List<String>);
+      _languageOptions = List<String>.from(results[6] as List<String>);
+      _ageRatingOptions = List<String>.from(results[7] as List<String>);
+      _audienceRatingOptions = List<String>.from(results[8] as List<String>);
+      _regionOptions = List<String>.from(results[9] as List<String>);
+      _packagingOptions = List<String>.from(results[10] as List<String>);
+      _distributorOptions = List<String>.from(results[11] as List<String>);
+      _screenRatioOptions = List<String>.from(results[12] as List<String>);
+      _layersOptions = List<String>.from(results[13] as List<String>);
+      _colorOptions = List<String>.from(results[14] as List<String>);
+      _audioTracksOptions = List<String>.from(results[15] as List<String>);
+      _subtitlesOptions = List<String>.from(results[16] as List<String>);
+      _crossoverOptions = List<String>.from(results[17] as List<String>);
+      _storyArcOptions = List<String>.from(results[18] as List<String>);
+      _pageQualityOptions = List<String>.from(results[19] as List<String>);
+      _keyCategoryOptions = List<String>.from(results[20] as List<String>);
       _ownerOptions = [
-        for (final row in (results[9] as List<QueryRow>))
+        for (final row in (results[21] as List<QueryRow>))
           row.read<String>('owner_label'),
       ];
       _seriesEntries = List<SeriesRegistryEntry>.from(
-        results[10] as List<SeriesRegistryEntry>,
+        results[22] as List<SeriesRegistryEntry>,
       );
     });
     await _loadGenreOptions();
@@ -2072,7 +2302,7 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _seriesField() {
-    return SingleValuePickField(
+    return _pickField(
       controller: _titleController,
       options: [for (final entry in _seriesEntries) entry.title],
       label: 'Series',
@@ -2098,7 +2328,7 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _publisherField({String label = 'Publisher'}) {
-    return SingleValuePickField(
+    return _pickField(
       controller: _publisherController,
       options: _publisherOptions,
       label: label,
@@ -2110,7 +2340,7 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _imprintField() {
-    return SingleValuePickField(
+    return _pickField(
       controller: _imprintController,
       options: _imprintOptions,
       label: 'Imprint',
@@ -2122,7 +2352,7 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _seriesGroupField({String label = 'Series Group'}) {
-    return SingleValuePickField(
+    return _pickField(
       controller: _seriesGroupController,
       options: _seriesGroupOptions,
       label: label,
@@ -2134,7 +2364,7 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _physicalFormatField({String label = 'Format'}) {
-    return SingleValuePickField(
+    return _pickField(
       controller: _physicalFormatLabelController,
       options: mergePickListValues(
         builtInValues: [
@@ -2172,7 +2402,7 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _countryPickField({String label = 'Country'}) {
-    return SingleValuePickField(
+    return _pickField(
       controller: _countryController,
       options: _countryOptions,
       label: label,
@@ -2184,7 +2414,7 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _crossoverPickField({String label = 'Crossover'}) {
-    return SingleValuePickField(
+    return _pickField(
       controller: _crossoverController,
       options: _crossoverOptions,
       label: label,
@@ -2196,7 +2426,7 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _storyArcPickField({String label = 'Story Arc'}) {
-    return SingleValuePickField(
+    return _pickField(
       controller: _storyArcsController,
       options: _storyArcOptions,
       label: label,
@@ -2208,7 +2438,7 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _pageQualityPickField({String label = 'Page quality'}) {
-    return SingleValuePickField(
+    return _pickField(
       controller: _pageQualityController,
       options: _pageQualityOptions,
       label: label,
@@ -2226,7 +2456,7 @@ ORDER BY owner_label COLLATE NOCASE
   }
 
   Widget _keyCategoryPickField({String label = 'Key category'}) {
-    return SingleValuePickField(
+    return _pickField(
       controller: _keyCategoryController,
       options: _keyCategoryOptions,
       label: label,
@@ -2242,15 +2472,6 @@ ORDER BY owner_label COLLATE NOCASE
           'Classic cover',
         ],
       ),
-    );
-  }
-
-  Widget _ownerPickField({String label = 'Owner'}) {
-    return SingleValuePickField(
-      controller: _ownerLabelController,
-      options: _ownerOptions,
-      label: label,
-      showPickerListAction: true,
     );
   }
 

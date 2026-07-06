@@ -71,7 +71,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
               const SizedBox(height: 10),
               _responsiveFields([
                 _releaseDatePartsField(),
-                _field(controller: _publisherController, label: 'Studios'),
+                _publisherField(label: 'Studios'),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
@@ -80,20 +80,16 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                   label: 'Runtime (min)',
                   validator: optionalIntValidator,
                 ),
-                _field(
-                    controller: _ageRatingController,
-                    label: 'Age rating'),
+                _ageRatingPickField(),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
-                _field(
-                    controller: _audienceRatingController,
-                    label: 'Audience rating'),
+                _audienceRatingPickField(),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
-                _field(controller: _countryController, label: 'Country'),
-                _field(controller: _languageController, label: 'Language'),
+                _countryPickField(),
+                _languagePickField(),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
@@ -290,11 +286,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                     label: 'Box set',
                     hint: 'Name of the box set this disc belongs to',
                   ),
-                  _field(
-                    controller: _packagingController,
-                    label: 'Packaging',
-                    hint: 'e.g. Keep Case, Steelbook, Digibook',
-                  ),
+                  _packagingPickField(),
                 ],
                 flexes: const [1, 1],
                 breakpoint: 720,
@@ -302,20 +294,13 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
               const SizedBox(height: 10),
               _flexResponsiveFields(
                 [
-                  _field(
-                    controller: _distributorController,
-                    label: 'Distributor',
-                  ),
+                  _distributorPickField(),
                   _field(
                     controller: _nrDiscsController,
                     label: 'Nr. of Discs',
                     validator: optionalIntValidator,
                   ),
-                  _field(
-                    controller: _colorController,
-                    label: 'Color',
-                    hint: 'B&W, Color, or Both',
-                  ),
+                  _colorPickField(),
                 ],
                 flexes: const [3, 2, 2],
                 breakpoint: 820,
@@ -391,11 +376,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
             children: [
               if (_showPhysicalOwnedFields) ...[
                 _responsiveFields([
-                  _field(
-                    controller: _ownerLabelController,
-                    label: 'Owner',
-                    hint: 'Name of the owner',
-                  ),
+                  _ownerPickField(),
                 ]),
                 const SizedBox(height: 10),
                 _responsiveFields([
@@ -434,9 +415,8 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                 const SizedBox(height: 10),
                 _responsiveFields([
                   if (_showPhysicalOwnedFields) ...[
-                    _field(
-                        controller: _conditionController, label: 'Condition'),
-                    _field(controller: _gradeController, label: 'Grade'),
+                    _conditionPickField(),
+                    _gradePickField(),
                   ],
                   _field(
                     controller: _quantityController,
@@ -819,24 +799,12 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _responsiveFields([
-                _field(
-                  controller: _regionController,
-                  label: 'Region',
-                  hint: 'e.g. A, B, C (Blu-ray) or 1-6 (DVD)',
-                ),
-                _field(
-                  controller: _screenRatioController,
-                  label: 'Screen Ratio',
-                  hint: 'e.g. 2.39:1, 1.85:1, 16:9',
-                ),
+                _regionPickField(),
+                _screenRatioPickField(),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
-                _field(
-                  controller: _layersController,
-                  label: 'Layers',
-                  hint: 'e.g. Single, Dual',
-                ),
+                _layersPickField(),
               ]),
             ],
           ),

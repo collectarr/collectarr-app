@@ -188,6 +188,61 @@ class CatalogCacheRepository {
         final mediaKind = entry.key;
         final scopedItems = entry.value;
         await pickLists.captureValuesWithoutTransaction(
+          kCountryPickListName,
+          scopedItems.map((item) => item.country),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kLanguagePickListName,
+          scopedItems.map((item) => item.language),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kAgeRatingPickListName,
+          scopedItems.map((item) => item.ageRating),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kAudienceRatingPickListName,
+          scopedItems.map((item) => item.audienceRating),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kScreenRatioPickListName,
+          scopedItems.map((item) => item.video?.screenRatio),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kLayersPickListName,
+          scopedItems.map((item) => item.video?.layers),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kColorPickListName,
+          scopedItems.map((item) => item.video?.color),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kAudioTrackPickListName,
+          scopedItems.map((item) => item.video?.audioTracks),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kSubtitlePickListName,
+          scopedItems.map((item) => item.video?.subtitles),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kGamePlatformPickListName,
+          scopedItems.expand((item) => item.game?.platforms ?? const <String>[]),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
+          kMusicFormatPickListName,
+          scopedItems.map((item) => item.physicalFormatLabel ?? item.physicalFormat),
+          mediaKind: mediaKind,
+        );
+        await pickLists.captureValuesWithoutTransaction(
           kPublisherPickListName,
           scopedItems.map((item) => item.publisher),
           mediaKind: mediaKind,
