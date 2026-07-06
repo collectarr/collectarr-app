@@ -556,6 +556,9 @@ class _CustomEpisodesPanel extends ConsumerWidget {
         initialAirDate: existing?.airDate ?? providerEpisode?.airDate ?? '',
         initialRuntimeMinutes:
             existing?.runtimeMinutes ?? providerEpisode?.runtimeMinutes,
+        initialStillImageUrl: existing?.stillImageUrl ?? '',
+        initialLocalImagePath: existing?.localImagePath ?? '',
+        initialThumbnailImageUrl: existing?.thumbnailImageUrl ?? '',
       ),
     );
     if (result == null || !context.mounted) return;
@@ -568,6 +571,9 @@ class _CustomEpisodesPanel extends ConsumerWidget {
           overview: result.overview,
           airDate: result.airDate,
           runtimeMinutes: result.runtimeMinutes,
+          stillImageUrl: result.stillImageUrl,
+          localImagePath: result.localImagePath,
+          thumbnailImageUrl: result.thumbnailImageUrl,
         );
   }
 
@@ -586,6 +592,9 @@ class _CustomEpisodesPanel extends ConsumerWidget {
           overview: episode.overview,
           airDate: episode.airDate,
           runtimeMinutes: episode.runtimeMinutes,
+          stillImageUrl: episode.stillImageUrl,
+          localImagePath: episode.localImagePath,
+          thumbnailImageUrl: episode.thumbnailImageUrl,
         );
   }
 
@@ -723,6 +732,9 @@ class _CustomEpisodeFormResult {
     this.overview,
     this.airDate,
     this.runtimeMinutes,
+    this.stillImageUrl,
+    this.localImagePath,
+    this.thumbnailImageUrl,
   });
 
   final int episodeNumber;
@@ -730,6 +742,9 @@ class _CustomEpisodeFormResult {
   final String? overview;
   final String? airDate;
   final int? runtimeMinutes;
+  final String? stillImageUrl;
+  final String? localImagePath;
+  final String? thumbnailImageUrl;
 }
 
 class _CustomEpisodeFormDialog extends StatefulWidget {
@@ -742,6 +757,9 @@ class _CustomEpisodeFormDialog extends StatefulWidget {
     required this.initialOverview,
     required this.initialAirDate,
     required this.initialRuntimeMinutes,
+    required this.initialStillImageUrl,
+    required this.initialLocalImagePath,
+    required this.initialThumbnailImageUrl,
   });
 
   final Color accent;
@@ -752,6 +770,9 @@ class _CustomEpisodeFormDialog extends StatefulWidget {
   final String? initialOverview;
   final String? initialAirDate;
   final int? initialRuntimeMinutes;
+  final String? initialStillImageUrl;
+  final String? initialLocalImagePath;
+  final String? initialThumbnailImageUrl;
 
   @override
   State<_CustomEpisodeFormDialog> createState() =>
@@ -764,6 +785,9 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
   late final TextEditingController _overviewController;
   late final TextEditingController _airDateController;
   late final TextEditingController _runtimeController;
+  late final TextEditingController _stillImageUrlController;
+  late final TextEditingController _localImagePathController;
+  late final TextEditingController _thumbnailImageUrlController;
 
   bool get _isValid =>
       _titleController.text.trim().isNotEmpty &&
@@ -782,6 +806,12 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
     _runtimeController = TextEditingController(
       text: widget.initialRuntimeMinutes?.toString() ?? '',
     );
+    _stillImageUrlController =
+        TextEditingController(text: widget.initialStillImageUrl ?? '');
+    _localImagePathController =
+        TextEditingController(text: widget.initialLocalImagePath ?? '');
+    _thumbnailImageUrlController =
+        TextEditingController(text: widget.initialThumbnailImageUrl ?? '');
   }
 
   @override
@@ -791,6 +821,9 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
     _overviewController.dispose();
     _airDateController.dispose();
     _runtimeController.dispose();
+    _stillImageUrlController.dispose();
+    _localImagePathController.dispose();
+    _thumbnailImageUrlController.dispose();
     super.dispose();
   }
 
@@ -843,6 +876,26 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
               ),
               keyboardType: TextInputType.number,
             ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _stillImageUrlController,
+              decoration:
+                  const InputDecoration(labelText: 'Still image URL (optional)'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _thumbnailImageUrlController,
+              decoration: const InputDecoration(
+                labelText: 'Thumbnail image URL (optional)',
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _localImagePathController,
+              decoration: const InputDecoration(
+                labelText: 'Local image path (optional)',
+              ),
+            ),
           ],
         ),
       ),
@@ -867,6 +920,16 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
                           : _airDateController.text.trim(),
                       runtimeMinutes:
                           int.tryParse(_runtimeController.text.trim()),
+                      stillImageUrl: _stillImageUrlController.text.trim().isEmpty
+                          ? null
+                          : _stillImageUrlController.text.trim(),
+                      localImagePath: _localImagePathController.text.trim().isEmpty
+                          ? null
+                          : _localImagePathController.text.trim(),
+                      thumbnailImageUrl:
+                          _thumbnailImageUrlController.text.trim().isEmpty
+                              ? null
+                              : _thumbnailImageUrlController.text.trim(),
                     ),
                   )
               : null,

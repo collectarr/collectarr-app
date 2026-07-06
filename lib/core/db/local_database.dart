@@ -303,6 +303,9 @@ class CustomEpisodesCache extends Table {
   TextColumn get overview => text().nullable()();
   TextColumn get airDate => text().nullable()();
   IntColumn get runtimeMinutes => integer().nullable()();
+  TextColumn get stillImageUrl => text().nullable()();
+  TextColumn get localImagePath => text().nullable()();
+  TextColumn get thumbnailImageUrl => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
 
@@ -428,7 +431,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {

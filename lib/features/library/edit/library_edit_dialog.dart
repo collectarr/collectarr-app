@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:async';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
@@ -8,8 +9,10 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -58,6 +61,7 @@ part 'library_edit_dialog_anchor_widgets.dart';
 part 'library_edit_dialog_video_models.dart';
 part 'library_edit_dialog_video_tabs.dart';
 part '../kinds/video/edit/video_edit_controller.dart';
+part '../kinds/tv/edit_tabs/tv_episodes_tab.dart';
 part '../kinds/tv/edit_tabs/tv_release_media_tab.dart';
 part '../kinds/tv/edit_tabs/tv_episode_disc_map_tab.dart';
 part '../kinds/comic/library_edit_dialog_comic_tabs.dart';
@@ -706,6 +710,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         return _mainTab();
       case 'media':
         return _mediaTab();
+      case 'tv_episodes':
+        return _tvEpisodesTab();
       case 'release_media':
         return _tvReleaseMediaTab();
       case 'episode_map':

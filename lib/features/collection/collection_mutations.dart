@@ -824,6 +824,9 @@ class CollectionMutations {
     String? overview,
     String? airDate,
     int? runtimeMinutes,
+    String? stillImageUrl,
+    String? localImagePath,
+    String? thumbnailImageUrl,
   }) async {
     final now = DateTime.now().toUtc();
     final episode = CustomEpisode(
@@ -835,6 +838,9 @@ class CollectionMutations {
       overview: overview,
       airDate: airDate,
       runtimeMinutes: runtimeMinutes,
+      stillImageUrl: stillImageUrl,
+      localImagePath: localImagePath,
+      thumbnailImageUrl: thumbnailImageUrl,
       updatedAt: now,
     );
     await _customEpisodesCache().upsert(episode);

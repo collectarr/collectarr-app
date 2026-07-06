@@ -12,6 +12,9 @@ final class CustomEpisode {
     this.overview,
     this.airDate,
     this.runtimeMinutes,
+    this.stillImageUrl,
+    this.localImagePath,
+    this.thumbnailImageUrl,
     this.deletedAt,
   });
 
@@ -23,6 +26,9 @@ final class CustomEpisode {
   final String? overview;
   final String? airDate;
   final int? runtimeMinutes;
+  final String? stillImageUrl;
+  final String? localImagePath;
+  final String? thumbnailImageUrl;
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
@@ -54,6 +60,9 @@ final class CustomEpisode {
       overview: json['overview'] as String?,
       airDate: json['air_date'] as String?,
       runtimeMinutes: json['runtime_minutes'] as int?,
+      stillImageUrl: json['still_image_url'] as String?,
+      localImagePath: json['local_image_path'] as String?,
+      thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       updatedAt: DateTime.parse(json['updated_at'] as String),
       deletedAt: json['deleted_at'] != null
           ? DateTime.parse(json['deleted_at'] as String)
@@ -67,6 +76,9 @@ final class CustomEpisode {
     String? overview,
     String? airDate,
     int? runtimeMinutes,
+    String? stillImageUrl,
+    String? localImagePath,
+    String? thumbnailImageUrl,
     int? episodeNumber,
     int? seasonNumber,
     DateTime? updatedAt,
@@ -81,6 +93,9 @@ final class CustomEpisode {
       overview: overview ?? this.overview,
       airDate: airDate ?? this.airDate,
       runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      stillImageUrl: stillImageUrl ?? this.stillImageUrl,
+      localImagePath: localImagePath ?? this.localImagePath,
+      thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
     );

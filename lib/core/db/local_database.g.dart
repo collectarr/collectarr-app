@@ -9592,6 +9592,24 @@ class $CustomEpisodesCacheTable extends CustomEpisodesCache
   late final GeneratedColumn<int> runtimeMinutes = GeneratedColumn<int>(
       'runtime_minutes', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _stillImageUrlMeta =
+      const VerificationMeta('stillImageUrl');
+  @override
+  late final GeneratedColumn<String> stillImageUrl = GeneratedColumn<String>(
+      'still_image_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _localImagePathMeta =
+      const VerificationMeta('localImagePath');
+  @override
+  late final GeneratedColumn<String> localImagePath = GeneratedColumn<String>(
+      'local_image_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _thumbnailImageUrlMeta =
+      const VerificationMeta('thumbnailImageUrl');
+  @override
+  late final GeneratedColumn<String> thumbnailImageUrl =
+      GeneratedColumn<String>('thumbnail_image_url', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
@@ -9614,6 +9632,9 @@ class $CustomEpisodesCacheTable extends CustomEpisodesCache
         overview,
         airDate,
         runtimeMinutes,
+        stillImageUrl,
+        localImagePath,
+        thumbnailImageUrl,
         updatedAt,
         deletedAt
       ];
@@ -9675,6 +9696,24 @@ class $CustomEpisodesCacheTable extends CustomEpisodesCache
           runtimeMinutes.isAcceptableOrUnknown(
               data['runtime_minutes']!, _runtimeMinutesMeta));
     }
+    if (data.containsKey('still_image_url')) {
+      context.handle(
+          _stillImageUrlMeta,
+          stillImageUrl.isAcceptableOrUnknown(
+              data['still_image_url']!, _stillImageUrlMeta));
+    }
+    if (data.containsKey('local_image_path')) {
+      context.handle(
+          _localImagePathMeta,
+          localImagePath.isAcceptableOrUnknown(
+              data['local_image_path']!, _localImagePathMeta));
+    }
+    if (data.containsKey('thumbnail_image_url')) {
+      context.handle(
+          _thumbnailImageUrlMeta,
+          thumbnailImageUrl.isAcceptableOrUnknown(
+              data['thumbnail_image_url']!, _thumbnailImageUrlMeta));
+    }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
@@ -9711,6 +9750,12 @@ class $CustomEpisodesCacheTable extends CustomEpisodesCache
           .read(DriftSqlType.string, data['${effectivePrefix}air_date']),
       runtimeMinutes: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}runtime_minutes']),
+      stillImageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}still_image_url']),
+      localImagePath: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}local_image_path']),
+      thumbnailImageUrl: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}thumbnail_image_url']),
       updatedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
@@ -9734,6 +9779,9 @@ class CustomEpisodesCacheData extends DataClass
   final String? overview;
   final String? airDate;
   final int? runtimeMinutes;
+  final String? stillImageUrl;
+  final String? localImagePath;
+  final String? thumbnailImageUrl;
   final DateTime updatedAt;
   final DateTime? deletedAt;
   const CustomEpisodesCacheData(
@@ -9745,6 +9793,9 @@ class CustomEpisodesCacheData extends DataClass
       this.overview,
       this.airDate,
       this.runtimeMinutes,
+      this.stillImageUrl,
+      this.localImagePath,
+      this.thumbnailImageUrl,
       required this.updatedAt,
       this.deletedAt});
   @override
@@ -9763,6 +9814,15 @@ class CustomEpisodesCacheData extends DataClass
     }
     if (!nullToAbsent || runtimeMinutes != null) {
       map['runtime_minutes'] = Variable<int>(runtimeMinutes);
+    }
+    if (!nullToAbsent || stillImageUrl != null) {
+      map['still_image_url'] = Variable<String>(stillImageUrl);
+    }
+    if (!nullToAbsent || localImagePath != null) {
+      map['local_image_path'] = Variable<String>(localImagePath);
+    }
+    if (!nullToAbsent || thumbnailImageUrl != null) {
+      map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl);
     }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -9787,6 +9847,15 @@ class CustomEpisodesCacheData extends DataClass
       runtimeMinutes: runtimeMinutes == null && nullToAbsent
           ? const Value.absent()
           : Value(runtimeMinutes),
+      stillImageUrl: stillImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stillImageUrl),
+      localImagePath: localImagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localImagePath),
+      thumbnailImageUrl: thumbnailImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thumbnailImageUrl),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
@@ -9806,6 +9875,10 @@ class CustomEpisodesCacheData extends DataClass
       overview: serializer.fromJson<String?>(json['overview']),
       airDate: serializer.fromJson<String?>(json['airDate']),
       runtimeMinutes: serializer.fromJson<int?>(json['runtimeMinutes']),
+      stillImageUrl: serializer.fromJson<String?>(json['stillImageUrl']),
+      localImagePath: serializer.fromJson<String?>(json['localImagePath']),
+      thumbnailImageUrl:
+          serializer.fromJson<String?>(json['thumbnailImageUrl']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
@@ -9822,6 +9895,9 @@ class CustomEpisodesCacheData extends DataClass
       'overview': serializer.toJson<String?>(overview),
       'airDate': serializer.toJson<String?>(airDate),
       'runtimeMinutes': serializer.toJson<int?>(runtimeMinutes),
+      'stillImageUrl': serializer.toJson<String?>(stillImageUrl),
+      'localImagePath': serializer.toJson<String?>(localImagePath),
+      'thumbnailImageUrl': serializer.toJson<String?>(thumbnailImageUrl),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
@@ -9836,6 +9912,9 @@ class CustomEpisodesCacheData extends DataClass
           Value<String?> overview = const Value.absent(),
           Value<String?> airDate = const Value.absent(),
           Value<int?> runtimeMinutes = const Value.absent(),
+          Value<String?> stillImageUrl = const Value.absent(),
+          Value<String?> localImagePath = const Value.absent(),
+          Value<String?> thumbnailImageUrl = const Value.absent(),
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       CustomEpisodesCacheData(
@@ -9848,6 +9927,13 @@ class CustomEpisodesCacheData extends DataClass
         airDate: airDate.present ? airDate.value : this.airDate,
         runtimeMinutes:
             runtimeMinutes.present ? runtimeMinutes.value : this.runtimeMinutes,
+        stillImageUrl:
+            stillImageUrl.present ? stillImageUrl.value : this.stillImageUrl,
+        localImagePath:
+            localImagePath.present ? localImagePath.value : this.localImagePath,
+        thumbnailImageUrl: thumbnailImageUrl.present
+            ? thumbnailImageUrl.value
+            : this.thumbnailImageUrl,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
       );
@@ -9867,6 +9953,15 @@ class CustomEpisodesCacheData extends DataClass
       runtimeMinutes: data.runtimeMinutes.present
           ? data.runtimeMinutes.value
           : this.runtimeMinutes,
+      stillImageUrl: data.stillImageUrl.present
+          ? data.stillImageUrl.value
+          : this.stillImageUrl,
+      localImagePath: data.localImagePath.present
+          ? data.localImagePath.value
+          : this.localImagePath,
+      thumbnailImageUrl: data.thumbnailImageUrl.present
+          ? data.thumbnailImageUrl.value
+          : this.thumbnailImageUrl,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
@@ -9883,6 +9978,9 @@ class CustomEpisodesCacheData extends DataClass
           ..write('overview: $overview, ')
           ..write('airDate: $airDate, ')
           ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('stillImageUrl: $stillImageUrl, ')
+          ..write('localImagePath: $localImagePath, ')
+          ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -9890,8 +9988,20 @@ class CustomEpisodesCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, itemId, seasonNumber, episodeNumber,
-      title, overview, airDate, runtimeMinutes, updatedAt, deletedAt);
+  int get hashCode => Object.hash(
+      id,
+      itemId,
+      seasonNumber,
+      episodeNumber,
+      title,
+      overview,
+      airDate,
+      runtimeMinutes,
+      stillImageUrl,
+      localImagePath,
+      thumbnailImageUrl,
+      updatedAt,
+      deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9904,6 +10014,9 @@ class CustomEpisodesCacheData extends DataClass
           other.overview == this.overview &&
           other.airDate == this.airDate &&
           other.runtimeMinutes == this.runtimeMinutes &&
+          other.stillImageUrl == this.stillImageUrl &&
+          other.localImagePath == this.localImagePath &&
+          other.thumbnailImageUrl == this.thumbnailImageUrl &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
 }
@@ -9918,6 +10031,9 @@ class CustomEpisodesCacheCompanion
   final Value<String?> overview;
   final Value<String?> airDate;
   final Value<int?> runtimeMinutes;
+  final Value<String?> stillImageUrl;
+  final Value<String?> localImagePath;
+  final Value<String?> thumbnailImageUrl;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
   final Value<int> rowid;
@@ -9930,6 +10046,9 @@ class CustomEpisodesCacheCompanion
     this.overview = const Value.absent(),
     this.airDate = const Value.absent(),
     this.runtimeMinutes = const Value.absent(),
+    this.stillImageUrl = const Value.absent(),
+    this.localImagePath = const Value.absent(),
+    this.thumbnailImageUrl = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -9943,6 +10062,9 @@ class CustomEpisodesCacheCompanion
     this.overview = const Value.absent(),
     this.airDate = const Value.absent(),
     this.runtimeMinutes = const Value.absent(),
+    this.stillImageUrl = const Value.absent(),
+    this.localImagePath = const Value.absent(),
+    this.thumbnailImageUrl = const Value.absent(),
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -9961,6 +10083,9 @@ class CustomEpisodesCacheCompanion
     Expression<String>? overview,
     Expression<String>? airDate,
     Expression<int>? runtimeMinutes,
+    Expression<String>? stillImageUrl,
+    Expression<String>? localImagePath,
+    Expression<String>? thumbnailImageUrl,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
@@ -9974,6 +10099,9 @@ class CustomEpisodesCacheCompanion
       if (overview != null) 'overview': overview,
       if (airDate != null) 'air_date': airDate,
       if (runtimeMinutes != null) 'runtime_minutes': runtimeMinutes,
+      if (stillImageUrl != null) 'still_image_url': stillImageUrl,
+      if (localImagePath != null) 'local_image_path': localImagePath,
+      if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
@@ -9989,6 +10117,9 @@ class CustomEpisodesCacheCompanion
       Value<String?>? overview,
       Value<String?>? airDate,
       Value<int?>? runtimeMinutes,
+      Value<String?>? stillImageUrl,
+      Value<String?>? localImagePath,
+      Value<String?>? thumbnailImageUrl,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
       Value<int>? rowid}) {
@@ -10001,6 +10132,9 @@ class CustomEpisodesCacheCompanion
       overview: overview ?? this.overview,
       airDate: airDate ?? this.airDate,
       runtimeMinutes: runtimeMinutes ?? this.runtimeMinutes,
+      stillImageUrl: stillImageUrl ?? this.stillImageUrl,
+      localImagePath: localImagePath ?? this.localImagePath,
+      thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
@@ -10034,6 +10168,15 @@ class CustomEpisodesCacheCompanion
     if (runtimeMinutes.present) {
       map['runtime_minutes'] = Variable<int>(runtimeMinutes.value);
     }
+    if (stillImageUrl.present) {
+      map['still_image_url'] = Variable<String>(stillImageUrl.value);
+    }
+    if (localImagePath.present) {
+      map['local_image_path'] = Variable<String>(localImagePath.value);
+    }
+    if (thumbnailImageUrl.present) {
+      map['thumbnail_image_url'] = Variable<String>(thumbnailImageUrl.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -10057,6 +10200,9 @@ class CustomEpisodesCacheCompanion
           ..write('overview: $overview, ')
           ..write('airDate: $airDate, ')
           ..write('runtimeMinutes: $runtimeMinutes, ')
+          ..write('stillImageUrl: $stillImageUrl, ')
+          ..write('localImagePath: $localImagePath, ')
+          ..write('thumbnailImageUrl: $thumbnailImageUrl, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
@@ -17993,6 +18139,9 @@ typedef $$CustomEpisodesCacheTableCreateCompanionBuilder
   Value<String?> overview,
   Value<String?> airDate,
   Value<int?> runtimeMinutes,
+  Value<String?> stillImageUrl,
+  Value<String?> localImagePath,
+  Value<String?> thumbnailImageUrl,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -18007,6 +18156,9 @@ typedef $$CustomEpisodesCacheTableUpdateCompanionBuilder
   Value<String?> overview,
   Value<String?> airDate,
   Value<int?> runtimeMinutes,
+  Value<String?> stillImageUrl,
+  Value<String?> localImagePath,
+  Value<String?> thumbnailImageUrl,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -18044,6 +18196,17 @@ class $$CustomEpisodesCacheTableFilterComposer
 
   ColumnFilters<int> get runtimeMinutes => $composableBuilder(
       column: $table.runtimeMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get stillImageUrl => $composableBuilder(
+      column: $table.stillImageUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get localImagePath => $composableBuilder(
+      column: $table.localImagePath,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
@@ -18089,6 +18252,18 @@ class $$CustomEpisodesCacheTableOrderingComposer
       column: $table.runtimeMinutes,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get stillImageUrl => $composableBuilder(
+      column: $table.stillImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get localImagePath => $composableBuilder(
+      column: $table.localImagePath,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 
@@ -18128,6 +18303,15 @@ class $$CustomEpisodesCacheTableAnnotationComposer
 
   GeneratedColumn<int> get runtimeMinutes => $composableBuilder(
       column: $table.runtimeMinutes, builder: (column) => column);
+
+  GeneratedColumn<String> get stillImageUrl => $composableBuilder(
+      column: $table.stillImageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get localImagePath => $composableBuilder(
+      column: $table.localImagePath, builder: (column) => column);
+
+  GeneratedColumn<String> get thumbnailImageUrl => $composableBuilder(
+      column: $table.thumbnailImageUrl, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -18174,6 +18358,9 @@ class $$CustomEpisodesCacheTableTableManager extends RootTableManager<
             Value<String?> overview = const Value.absent(),
             Value<String?> airDate = const Value.absent(),
             Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String?> stillImageUrl = const Value.absent(),
+            Value<String?> localImagePath = const Value.absent(),
+            Value<String?> thumbnailImageUrl = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -18187,6 +18374,9 @@ class $$CustomEpisodesCacheTableTableManager extends RootTableManager<
             overview: overview,
             airDate: airDate,
             runtimeMinutes: runtimeMinutes,
+            stillImageUrl: stillImageUrl,
+            localImagePath: localImagePath,
+            thumbnailImageUrl: thumbnailImageUrl,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,
@@ -18200,6 +18390,9 @@ class $$CustomEpisodesCacheTableTableManager extends RootTableManager<
             Value<String?> overview = const Value.absent(),
             Value<String?> airDate = const Value.absent(),
             Value<int?> runtimeMinutes = const Value.absent(),
+            Value<String?> stillImageUrl = const Value.absent(),
+            Value<String?> localImagePath = const Value.absent(),
+            Value<String?> thumbnailImageUrl = const Value.absent(),
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -18213,6 +18406,9 @@ class $$CustomEpisodesCacheTableTableManager extends RootTableManager<
             overview: overview,
             airDate: airDate,
             runtimeMinutes: runtimeMinutes,
+            stillImageUrl: stillImageUrl,
+            localImagePath: localImagePath,
+            thumbnailImageUrl: thumbnailImageUrl,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,

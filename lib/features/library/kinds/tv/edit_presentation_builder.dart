@@ -52,6 +52,12 @@ const _tvMediaTabs = [
     sectionIds: ['external_links'],
   ),
   LibraryEditTabSpec(
+    id: 'episodes',
+    icon: Icons.play_circle_outline,
+    label: 'Episodes',
+    sectionIds: ['tv_episodes'],
+  ),
+  LibraryEditTabSpec(
     id: 'episode_map',
     icon: Icons.route_outlined,
     label: 'Episodes',
@@ -113,6 +119,12 @@ const _tvReleaseTabs = [
     icon: Icons.language,
     label: 'Links',
     sectionIds: ['external_links'],
+  ),
+  LibraryEditTabSpec(
+    id: 'episodes',
+    icon: Icons.play_circle_outline,
+    label: 'Episodes',
+    sectionIds: ['tv_episodes'],
   ),
 ];
 

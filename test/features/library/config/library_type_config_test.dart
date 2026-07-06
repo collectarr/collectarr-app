@@ -267,8 +267,10 @@ void main() {
         .builderForScope(LibraryEditScope.release)
         .buildTabs(context: context);
 
+    expect(mediaTabs.any((tab) => tab.id == 'episodes'), isTrue);
     expect(mediaTabs.any((tab) => tab.id == 'release_media'), isFalse);
     expect(mediaTabs.any((tab) => tab.id == 'episode_map'), isTrue);
+    expect(releaseTabs.any((tab) => tab.id == 'episodes'), isTrue);
     expect(releaseTabs.any((tab) => tab.id == 'release_media'), isTrue);
     expect(releaseTabs.any((tab) => tab.id == 'episode_map'), isFalse);
   });
