@@ -70,7 +70,7 @@ class CompactDropdown extends StatelessWidget {
       elevation: 10,
       constraints: BoxConstraints(minWidth: width, maxWidth: 220),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: BorderRadius.zero,
         side: BorderSide(color: compactMenuBorderFor(accent, palette)),
       ),
       onSelected: onChanged,
@@ -127,7 +127,7 @@ class CompactDropdownWithNone extends StatelessWidget {
       elevation: 10,
       constraints: BoxConstraints(minWidth: width, maxWidth: 220),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: BorderRadius.zero,
         side: BorderSide(color: compactMenuBorderFor(accent, palette)),
       ),
       onSelected: onChanged,
@@ -246,7 +246,7 @@ class CompactInputShell extends StatelessWidget {
       decoration: BoxDecoration(
         color: compactMenuBackgroundFor(accent, palette),
         border: Border.all(color: compactMenuBorderFor(accent, palette)),
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: BorderRadius.zero,
       ),
       child: child,
     );
@@ -280,7 +280,7 @@ class CompactDateButton extends StatelessWidget {
           onChanged(picked);
         }
       },
-      borderRadius: BorderRadius.circular(3),
+      borderRadius: BorderRadius.zero,
       child: CompactMenuFrame(
         width: 150,
         label: value == null ? label : formatCompactDate(value!),
