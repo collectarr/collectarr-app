@@ -108,7 +108,10 @@ void main() {
     expect(seriesEntry.id, 'series-1');
     expect(seasonEntry.releaseId, 'season-1');
     expect(seasonEntry.itemNumber, 'Season 1');
+    expect(seasonEntry.referenceScopeLabel, 'Season');
+    expect(seasonEntry.referenceEditionId, 'season-1');
     expect(episodeEntry.itemNumber, 'E01');
+    expect(episodeEntry.referenceEditionId, isNull);
     expect(releaseEntry.browseScope, LibraryBrowserScope.release);
     expect(releaseEntry.releaseId, 'release-1');
     expect(releaseEntry.referenceVariantId, 'media-1');
