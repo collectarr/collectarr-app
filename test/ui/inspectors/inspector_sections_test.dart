@@ -433,8 +433,7 @@ void main() {
         ),
       );
 
-      expect(find.textContaining('Select'), findsOneWidget);
-      expect(find.text('Details panel'), findsOneWidget);
+      expect(find.textContaining('No comic selected'), findsOneWidget);
     });
   });
 }

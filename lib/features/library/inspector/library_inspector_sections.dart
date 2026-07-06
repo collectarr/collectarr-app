@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_inspector_compat.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
 import 'package:flutter/material.dart';

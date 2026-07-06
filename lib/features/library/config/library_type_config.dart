@@ -851,6 +851,7 @@ class LibraryTypeConfig {
   final LibraryEditDialogBuilder? releaseEditDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
   @Deprecated('Use detailPageBuilder and LibraryDetail* wrappers instead.')
+  @Deprecated('Use inspectorSectionsBuilder + LibraryDetailPanelScaffold.')
   final LibraryInspectorPanelBuilder? inspectorPanelBuilder;
   final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
