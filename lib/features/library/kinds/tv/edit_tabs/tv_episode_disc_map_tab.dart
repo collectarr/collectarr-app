@@ -14,9 +14,9 @@ extension _LibraryEditRendererTvEpisodeDiscMapTab on _LibraryEditRendererState {
           title: 'Episode map',
           accent: widget.accent,
           child: FutureBuilder<TvSeries?>(
-            future: _tvSeriesFuture ??= _loadTvSeriesSnapshot(),
+            future: _videoEdit.tvSeriesFuture ??= _videoEdit.loadTvSeriesSnapshot(),
             builder: (context, snapshot) {
-              final series = snapshot.data ?? _tvSeriesSnapshot;
+              final series = snapshot.data ?? _videoEdit.tvSeriesSnapshot;
               if (snapshot.connectionState == ConnectionState.waiting &&
                   series == null) {
                 return const EditSectionStateMessage(
@@ -30,7 +30,7 @@ extension _LibraryEditRendererTvEpisodeDiscMapTab on _LibraryEditRendererState {
                   customEpisodesAsync,
                 );
               }
-              final episodes = _flattenTvEpisodes(series);
+              final episodes = _videoEdit.flattenTvEpisodes(series);
               if (episodes.isEmpty) {
                 return _manualEpisodeFallbackSection(
                   context,
@@ -38,9 +38,9 @@ extension _LibraryEditRendererTvEpisodeDiscMapTab on _LibraryEditRendererState {
                 );
               }
               final discNumbers = <int>{
-                for (final media in _tvReleaseMediaDraft) media.discNumber ?? 1,
-                if (_tvReleaseMediaDraft.isEmpty) 1,
-                for (final assignment in _tvEpisodeDiscAssignments.values) assignment,
+                for (final media in _videoEdit.tvReleaseMediaDraft) media.discNumber ?? 1,
+                if (_videoEdit.tvReleaseMediaDraft.isEmpty) 1,
+                for (final assignment in _videoEdit.tvEpisodeDiscAssignments.values) assignment,
               }.toList()
                 ..sort();
               return Column(
@@ -95,7 +95,7 @@ extension _LibraryEditRendererTvEpisodeDiscMapTab on _LibraryEditRendererState {
                                       Expanded(
                                         flex: 4,
                                         child: Text(
-                                          _tvEpisodeLabel(episode),
+                                          _videoEdit.tvEpisodeLabel(episode),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
@@ -104,7 +104,7 @@ extension _LibraryEditRendererTvEpisodeDiscMapTab on _LibraryEditRendererState {
                                         flex: 2,
                                         child: DropdownButtonFormField<int>(
                                           initialValue:
-                                              _tvEpisodeDiscAssignments[episode.id] ??
+                                              _videoEdit.tvEpisodeDiscAssignments[episode.id] ??
                                                   (discNumbers.isEmpty
                                                       ? 1
                                                       : discNumbers.first),
@@ -123,7 +123,7 @@ extension _LibraryEditRendererTvEpisodeDiscMapTab on _LibraryEditRendererState {
                                             if (value == null) {
                                               return;
                                             }
-                                            _updateTvEpisodeDiscAssignment(
+                                            _videoEdit.updateTvEpisodeDiscAssignment(
                                               episode.id,
                                               value,
                                             );

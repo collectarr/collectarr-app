@@ -8,9 +8,9 @@ extension _LibraryEditRendererTvReleaseMediaTab on _LibraryEditRendererState {
           title: 'Release media',
           accent: widget.accent,
           child: FutureBuilder<TvSeries?>(
-            future: _tvSeriesFuture ??= _loadTvSeriesSnapshot(),
+            future: _videoEdit.tvSeriesFuture ??= _videoEdit.loadTvSeriesSnapshot(),
             builder: (context, snapshot) {
-              final series = snapshot.data ?? _tvSeriesSnapshot;
+              final series = snapshot.data ?? _videoEdit.tvSeriesSnapshot;
               if (snapshot.connectionState == ConnectionState.waiting &&
                   series == null) {
                 return const EditSectionStateMessage(
@@ -24,9 +24,9 @@ extension _LibraryEditRendererTvReleaseMediaTab on _LibraryEditRendererState {
                   icon: Icons.tv_off_outlined,
                 );
               }
-              final media = _tvReleaseMediaDraft.isEmpty
-                  ? _buildFallbackTvReleaseMedia(series)
-                  : _tvReleaseMediaDraft;
+              final media = _videoEdit.tvReleaseMediaDraft.isEmpty
+                  ? _videoEdit.buildFallbackTvReleaseMedia(series)
+                  : _videoEdit.tvReleaseMediaDraft;
               if (media.isEmpty) {
                 return const EditSectionStateMessage(
                   message: 'No release media is available for this series.',
@@ -92,15 +92,15 @@ extension _LibraryEditRendererTvReleaseMediaTab on _LibraryEditRendererState {
                                 children: [
                                   for (final episode in disc.episodes.isNotEmpty
                                       ? disc.episodes
-                                      : _flattenTvEpisodes(series)
+                                      : _videoEdit.flattenTvEpisodes(series)
                                           .where(
                                             (episode) =>
-                                                _tvEpisodeDiscAssignments[episode.id] ==
+                                                _videoEdit.tvEpisodeDiscAssignments[episode.id] ==
                                                 (disc.discNumber ?? 1),
                                           ))
                                     Chip(
                                       label: Text(
-                                        _tvEpisodeLabel(episode),
+                                        _videoEdit.tvEpisodeLabel(episode),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -120,9 +120,4 @@ extension _LibraryEditRendererTvReleaseMediaTab on _LibraryEditRendererState {
     );
   }
 
-  String _tvEpisodeLabel(TvEpisode episode) {
-    final seasonPart = 'S${episode.seasonNumber.toString().padLeft(2, '0')}';
-    final episodePart = 'E${episode.episodeNumber.toString().padLeft(2, '0')}';
-    return '$seasonPart$episodePart ${episode.title ?? 'Episode'}';
-  }
 }

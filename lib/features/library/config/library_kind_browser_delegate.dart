@@ -1,3 +1,10 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:flutter/material.dart';
+
 abstract class LibraryKindBrowserDelegate {
   String? get releaseFolderTitleItemId;
 
@@ -34,6 +41,37 @@ abstract class LibraryKindBrowserDelegate {
   void closeVideoShelfDrilldown() {
     videoShelfDrilldownTitleItemId = null;
     videoShelfDrilldownReleaseId = null;
+  }
+
+  Widget? buildDrilldown({
+    required BuildContext context,
+    required LibraryTypeConfig type,
+    required LibraryProjectionItem selectedItem,
+    required double coverSize,
+    required Color accent,
+    required VoidCallback onBack,
+    required Future<void> Function() onRefreshFromCore,
+    required VoidCallback onOpenTitleDetails,
+    required List<OwnedItem> ownedCopies,
+    required List<WishlistItem> wishlistItems,
+  }) {
+    return buildLibraryKindDrilldown(
+      context: context,
+      type: type,
+      selectedItem: selectedItem,
+      coverSize: coverSize,
+      accent: accent,
+      onBack: onBack,
+      onRefreshFromCore: onRefreshFromCore,
+      onOpenTitleDetails: onOpenTitleDetails,
+      ownedCopies: ownedCopies,
+      wishlistItems: wishlistItems,
+      selectedReleaseId: videoShelfDrilldownReleaseId,
+      onSelectRelease: (releaseId) => openVideoShelfDrilldown(
+        selectedItem.entry.id,
+        releaseId: releaseId,
+      ),
+    );
   }
 }
 

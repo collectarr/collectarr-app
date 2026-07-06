@@ -82,14 +82,7 @@ extension _PageVideoHooks on GenericLibraryPageState {
     final ownedCopies = ownedCopiesByItemId[titleItemId] ?? const <OwnedItem>[];
     final wishlistItems =
         wishlistByItemId[titleItemId] ?? const <WishlistItem>[];
-    if (titleItem.entry.mediaType == 'tv') {
-      return TvShelfSeasonDrilldown(
-        titleEntry: titleItem.entry,
-        coverSize: viewState.coverSize,
-        accent: widget.accent,
-        onBack: () => setState(_kindBrowserDelegate.closeVideoShelfDrilldown),
-        onRefreshFromCore: () => _refreshVideoTitleFromCore(titleItem),
-        onOpenTitleDetails: () => showLibraryDetailPage(
+    void openTitleDetails() => showLibraryDetailPage(
           context: context,
           request: LibraryDetailPageRequest(
             type: widget.type,
@@ -114,69 +107,41 @@ extension _PageVideoHooks on GenericLibraryPageState {
                 unawaited(showEditDialog(titleItem, ownedItem)),
             onFilterByValue: _toggleLinkedMetadataFilter,
           ),
-        ),
-      );
-    }
-    final drilldownItems = buildVideoShelfReleaseItems(
-      titleItem: titleItem,
-      ownedCopies: ownedCopies,
-      wishlistItems: wishlistItems,
-      releaseEntryBuilder: widget.type.presentation.releaseEntryBuilder,
-    );
+        );
 
     if (_kindBrowserDelegate.videoShelfDrilldownReleaseId == null &&
-        drilldownItems.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || _kindBrowserDelegate.videoShelfDrilldownReleaseId != null) {
-          return;
-        }
-        setState(() => _kindBrowserDelegate.openVideoShelfDrilldown(
-              titleItemId,
-              releaseId: drilldownItems.first.entry.id,
-            ));
-      });
+        titleItem.entry.mediaType != 'tv') {
+      final drilldownItems = buildVideoShelfReleaseItems(
+        titleItem: titleItem,
+        ownedCopies: ownedCopies,
+        wishlistItems: wishlistItems,
+        releaseEntryBuilder: widget.type.presentation.releaseEntryBuilder,
+      );
+      if (drilldownItems.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted ||
+              _kindBrowserDelegate.videoShelfDrilldownReleaseId != null) {
+            return;
+          }
+          setState(() => _kindBrowserDelegate.openVideoShelfDrilldown(
+                titleItemId,
+                releaseId: drilldownItems.first.entry.id,
+              ));
+        });
+      }
     }
 
-    return VideoShelfReleaseDrilldown(
-      titleItem: titleItem,
-      items: drilldownItems,
-      selectedReleaseId: _kindBrowserDelegate.videoShelfDrilldownReleaseId,
+    return _kindBrowserDelegate.buildDrilldown(
+      context: context,
+      type: widget.type,
+      selectedItem: titleItem,
       coverSize: viewState.coverSize,
       accent: widget.accent,
       onBack: () => setState(_kindBrowserDelegate.closeVideoShelfDrilldown),
       onRefreshFromCore: () => _refreshVideoTitleFromCore(titleItem),
-      onSelectRelease: (releaseId) => setState(
-        () => _kindBrowserDelegate.openVideoShelfDrilldown(
-          titleItemId,
-          releaseId: releaseId,
-        ),
-      ),
-      onOpenTitleDetails: () => showLibraryDetailPage(
-        context: context,
-        request: LibraryDetailPageRequest(
-          type: widget.type,
-          entry: titleItem.entry,
-          ownedItem: titleItem.source.ownedItem,
-          accent: widget.accent,
-          onAddOwned: () => runCollectionAction(
-            (actions) => actions.addOwned(titleItem),
-          ),
-          onRemoveOwned: titleItem.source.ownedItem == null
-              ? null
-              : () => confirmAndRemoveOwned(titleItem),
-          onAddWishlist: () => runCollectionAction(
-            (actions) => actions.addWishlist(titleItem),
-          ),
-          onRemoveWishlist: titleItem.source.isWishlisted
-              ? () => runCollectionAction(
-                    (actions) => actions.removeWishlist(titleItem),
-                  )
-              : null,
-          onEdit: (ownedItem) =>
-              unawaited(showEditDialog(titleItem, ownedItem)),
-          onFilterByValue: _toggleLinkedMetadataFilter,
-        ),
-      ),
+      onOpenTitleDetails: openTitleDetails,
+      ownedCopies: ownedCopies,
+      wishlistItems: wishlistItems,
     );
   }
 

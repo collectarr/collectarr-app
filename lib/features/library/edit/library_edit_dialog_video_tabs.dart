@@ -46,7 +46,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
               const SizedBox(height: 10),
               _responsiveFields([
                 _field(
-                    controller: _titleExtensionController,
+                    controller: _videoEdit.titleExtensionController,
                     label: 'Title extension',
                     hint: 'e.g. Collector\'s Edition, Director\'s Cut'),
                 _field(
@@ -76,7 +76,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
               const SizedBox(height: 10),
               _responsiveFields([
                 _field(
-                  controller: _runtimeController,
+                  controller: _videoEdit.runtimeController,
                   label: 'Runtime (min)',
                   validator: optionalIntValidator,
                 ),
@@ -111,11 +111,11 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
       title: 'Cast',
       emptyMessage: 'No cast data yet.',
       addLabel: 'Add Cast',
-      credits: _videoCastCredits,
+      credits: _videoEdit.castCredits,
       defaultRole: 'Actor',
       roleOptions: _castRoleOptions,
       addCredit: () => _mutateDialogState(
-        () => _videoCastCredits.add(EditableVideoCredit.custom(role: 'Actor')),
+        () => _videoEdit.castCredits.add(EditableVideoCredit.custom(role: 'Actor')),
       ),
     );
   }
@@ -125,12 +125,12 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
       title: 'Crew',
       emptyMessage: 'No crew data yet.',
       addLabel: 'Add Crew',
-      credits: _videoCrewCredits,
+      credits: _videoEdit.crewCredits,
       defaultRole: 'Director',
       roleOptions: _crewRoleOptions,
       addCredit: () => _mutateDialogState(
         () =>
-            _videoCrewCredits.add(EditableVideoCredit.custom(role: 'Director')),
+            _videoEdit.crewCredits.add(EditableVideoCredit.custom(role: 'Director')),
       ),
     );
   }
@@ -296,7 +296,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                 [
                   _distributorPickField(),
                   _field(
-                    controller: _nrDiscsController,
+                    controller: _videoEdit.nrDiscsController,
                     label: 'Nr. of Discs',
                     validator: optionalIntValidator,
                   ),
@@ -602,8 +602,8 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                 const SizedBox(height: 10),
                 _responsiveFields(
                   buildTrackingEpisodeFieldWidgets(
-                    seasonNumberController: _seasonNumberController,
-                    episodeNumberController: _episodeNumberController,
+                    seasonNumberController: _videoEdit.seasonNumberController,
+                    episodeNumberController: _videoEdit.episodeNumberController,
                     buildField: (controller, label) => _field(
                       controller: controller,
                       label: label,
@@ -844,7 +844,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
           child: Column(
             children: [
               TextFormField(
-                controller: _audioTracksController,
+                controller: _videoEdit.audioTracksController,
                 minLines: 3,
                 maxLines: 6,
                 decoration: const InputDecoration(
@@ -857,7 +857,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _subtitlesController,
+                controller: _videoEdit.subtitlesController,
                 minLines: 3,
                 maxLines: 6,
                 decoration: const InputDecoration(

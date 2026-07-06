@@ -57,6 +57,7 @@ import 'package:url_launcher/url_launcher.dart';
 part 'library_edit_dialog_anchor_widgets.dart';
 part 'library_edit_dialog_video_models.dart';
 part 'library_edit_dialog_video_tabs.dart';
+part '../kinds/video/edit/video_edit_controller.dart';
 part '../kinds/tv/edit_tabs/tv_release_media_tab.dart';
 part '../kinds/tv/edit_tabs/tv_episode_disc_map_tab.dart';
 part '../kinds/comic/library_edit_dialog_comic_tabs.dart';
@@ -151,6 +152,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final LibraryEditDraft _draft;
 
   late final TabController _tabController;
+  late final VideoEditController _videoEdit;
 
   TextEditingController get _titleController => _draft.titleController;
   TextEditingController get _numberController => _draft.numberController;
@@ -185,7 +187,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _sortKeyController => _draft.sortKeyController;
   TextEditingController get _originalTitleController =>
       _draft.originalTitleController;
-  TextEditingController get _runtimeController => _draft.runtimeController;
   TextEditingController get _audienceRatingController =>
       _draft.audienceRatingController;
   TextEditingController get _countryController => _draft.countryController;
@@ -193,8 +194,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _ageRatingController => _draft.ageRatingController;
   TextEditingController get _genresEditController =>
       _draft.genresEditController;
-  TextEditingController get _titleExtensionController =>
-      _draft.titleExtensionController;
   TextEditingController get _crossoverController => _draft.crossoverController;
   TextEditingController get _storyArcsController => _draft.storyArcsController;
   TextEditingController get _seriesTitleController =>
@@ -230,10 +229,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _draft.progressTotalController;
   TextEditingController get _timesCompletedController =>
       _draft.timesCompletedController;
-  TextEditingController get _seasonNumberController =>
-      _draft.seasonNumberController;
-  TextEditingController get _episodeNumberController =>
-      _draft.episodeNumberController;
   TextEditingController get _trackingNotesController =>
       _draft.trackingNotesController;
   TextEditingController get _tagsController => _draft.tagsController;
@@ -257,8 +252,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   List<String> _screenRatioOptions = const [];
   List<String> _layersOptions = const [];
   List<String> _colorOptions = const [];
-  List<String> _audioTracksOptions = const [];
-  List<String> _subtitlesOptions = const [];
   List<String> _crossoverOptions = const [];
   List<String> _storyArcOptions = const [];
   List<String> _pageQualityOptions = const [];
@@ -272,12 +265,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   final List<_EditableComicCreator> _comicCreators = [];
   final List<_EditableComicCharacter> _comicCharacters = [];
   final List<Map<String, TextEditingController>> _comicLinks = [];
-  final List<EditableVideoCredit> _videoCastCredits = [];
-  final List<EditableVideoCredit> _videoCrewCredits = [];
-  Future<TvSeries?>? _tvSeriesFuture;
-  TvSeries? _tvSeriesSnapshot;
-  List<TvReleaseMedia> _tvReleaseMediaDraft = const <TvReleaseMedia>[];
-  Map<String, int> _tvEpisodeDiscAssignments = <String, int>{};
   final TextEditingController _comicCharacterDraftController =
       TextEditingController();
   List<StorageLocation> get _availableLocations => _draft.availableLocations;
@@ -386,12 +373,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   set _gameValueIsLocked(bool value) => _draft.gameValueIsLocked = value;
   TextEditingController get _marketValueController =>
       _draft.marketValueController;
-  TextEditingController get _audioTracksController =>
-      _draft.audioTracksController;
-  TextEditingController get _subtitlesController => _draft.subtitlesController;
-  TextEditingController get _layersController => _draft.layersController;
-  TextEditingController get _colorController => _draft.colorController;
-  TextEditingController get _nrDiscsController => _draft.nrDiscsController;
 
   String? get _physicalFormatId => _draft.physicalFormatId;
   set _physicalFormatId(String? value) => _draft.physicalFormatId = value;
@@ -423,10 +404,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   bool get _isTrackingOnly => !_isOwned && widget.trackingEntry != null;
 
   bool get _hasWishlistContext => widget.wishlistItem != null;
-
-  bool get _isVideoKind {
-    return widget.item.mediaKind.isVideoLibraryKind;
-  }
 
   bool get _isMovieKind => widget.type.workspace.kind.apiValue == 'movie';
 
@@ -523,8 +500,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return widget.type.trackingProfile.name == videoTrackingProfile.name ||
         series?.seasonNumber != null ||
         series?.episodeNumber != null ||
-        _seasonNumberController.text.trim().isNotEmpty ||
-        _episodeNumberController.text.trim().isNotEmpty;
+        _videoEdit.seasonNumberController.text.trim().isNotEmpty ||
+        _videoEdit.episodeNumberController.text.trim().isNotEmpty;
   }
 
   @override
@@ -560,14 +537,20 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _gamePlatformsController = TextEditingController(
       text: (widget.item.game?.platforms ?? const <String>[]).join(', '),
     );
+    _videoEdit = VideoEditController(
+      ref: ref,
+      type: widget.type,
+      item: widget.item,
+      draft: _draft,
+    );
     _initializeKindSpecificEditors();
 
-    if (_isTvKind) {
-      _tvSeriesFuture = _loadTvSeriesSnapshot().then((series) {
+    if (_videoEdit.isTvKind) {
+      _videoEdit.tvSeriesFuture = _videoEdit.loadTvSeriesSnapshot().then((series) {
         if (!mounted || series == null) {
           return series;
         }
-        setState(() => _primeTvSeriesDraft(series));
+        setState(() => _videoEdit.primeTvSeriesDraft(series));
         return series;
       });
     }
@@ -594,12 +577,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       link['title']?.dispose();
       link['url']?.dispose();
     }
-    for (final credit in _videoCastCredits) {
-      credit.dispose();
-    }
-    for (final credit in _videoCrewCredits) {
-      credit.dispose();
-    }
+    _videoEdit.dispose();
     _gamePlatformsController.dispose();
     _tabController.dispose();
     _draft.dispose();
@@ -635,95 +613,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   void _initializeVideoEditors() {
-    _initializeVideoEditorsForState();
+    _videoEdit.initializeVideoEditors();
   }
 
   void _initializeKindSpecificEditors() {
     _initializeGameChipEditors();
     _initializeComicEditors();
     _initializeVideoEditors();
-  }
-
-  bool get _isTvKind => _isVideoKind && widget.type.workspace.kind.apiValue == 'tv';
-
-  Future<TvSeries?> _loadTvSeriesSnapshot() async {
-    final api = ref.read(apiClientProvider);
-    final seriesId = widget.item.series?.seriesId ?? widget.item.id;
-    final dto = await api.getTvSeriesDto(seriesId);
-    return TvSeries.fromDto(dto);
-  }
-
-  void _primeTvSeriesDraft(TvSeries series) {
-    _tvSeriesSnapshot = series;
-    _tvReleaseMediaDraft = series.media.isEmpty
-        ? _buildFallbackTvReleaseMedia(series)
-        : List<TvReleaseMedia>.from(series.media);
-    _tvEpisodeDiscAssignments = {
-      for (final media in _tvReleaseMediaDraft)
-        for (final episode in media.episodes) episode.id: media.discNumber ?? 1,
-    };
-    if (_tvEpisodeDiscAssignments.isEmpty) {
-      final fallbackDisc = _tvReleaseMediaDraft.isEmpty ? 1 : (_tvReleaseMediaDraft.first.discNumber ?? 1);
-      for (final episode in _flattenTvEpisodes(series)) {
-        _tvEpisodeDiscAssignments[episode.id] = fallbackDisc;
-      }
-    }
-  }
-
-  void _updateTvEpisodeDiscAssignment(String episodeId, int discNumber) {
-    setState(() {
-      _tvEpisodeDiscAssignments[episodeId] = discNumber;
-    });
-  }
-
-  List<TvReleaseMedia> _buildFallbackTvReleaseMedia(TvSeries series) {
-    final episodeCount = _flattenTvEpisodes(series).length;
-    final discCount = (widget.item.video?.nrDiscs ?? episodeCount).clamp(1, 20).toInt();
-    final episodes = _flattenTvEpisodes(series);
-    if (discCount == 1) {
-      return [
-        TvReleaseMedia(
-          id: '${series.id}:media:1',
-          releaseId: series.id,
-          title: 'Disc 1',
-          formatLabel: widget.item.physicalFormatLabel,
-          discNumber: 1,
-          sequenceNumber: 1,
-          features: const <String>[],
-          episodes: episodes,
-        ),
-      ];
-    }
-    final media = <TvReleaseMedia>[];
-    for (var i = 1; i <= discCount; i++) {
-      media.add(
-        TvReleaseMedia(
-          id: '${series.id}:media:$i',
-          releaseId: series.id,
-          title: 'Disc $i',
-          formatLabel: widget.item.physicalFormatLabel,
-          discNumber: i,
-          sequenceNumber: i,
-          features: const <String>[],
-          episodes: const <TvEpisode>[],
-        ),
-      );
-    }
-    return media;
-  }
-
-  List<TvEpisode> _flattenTvEpisodes(TvSeries series) {
-    final episodes = <TvEpisode>[];
-    for (final season in series.seasons) {
-      episodes.addAll(season.episodes);
-    }
-    if (episodes.isNotEmpty) {
-      return episodes;
-    }
-    for (final media in series.media) {
-      episodes.addAll(media.episodes);
-    }
-    return episodes;
   }
 
   Map<String, TextEditingController> _createComicLinkControllers({
@@ -871,7 +767,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _mediaTab() {
-    if (_isVideoKind) {
+    if (_videoEdit.isVideoKind) {
       return _LibraryEditRendererVideoTabs(this)._videoMediaTab();
     }
     return _genericMediaTab();
@@ -1257,7 +1153,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     if (!_canShowPersonalFields) {
       return const SizedBox.shrink();
     }
-    if (_isVideoKind) {
+    if (_videoEdit.isVideoKind) {
       return _LibraryEditRendererVideoTabs(this)._videoPersonalTab();
     }
     return EditTabShell(
@@ -1327,8 +1223,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             const SizedBox(height: 10),
             _responsiveFields(
               buildTrackingEpisodeFieldWidgets(
-                seasonNumberController: _seasonNumberController,
-                episodeNumberController: _episodeNumberController,
+                seasonNumberController: _videoEdit.seasonNumberController,
+                episodeNumberController: _videoEdit.episodeNumberController,
                 buildField: (controller, label) => _field(
                   controller: controller,
                   label: label,
@@ -1917,7 +1813,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _layersPickField({String label = 'Layers'}) {
     return _pickField(
-      controller: _layersController,
+      controller: _videoEdit.layersController,
       label: label,
       options: _layersOptions,
     );
@@ -1925,25 +1821,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _colorPickField({String label = 'Color'}) {
     return _pickField(
-      controller: _colorController,
+      controller: _videoEdit.colorController,
       label: label,
       options: _colorOptions,
-    );
-  }
-
-  Widget _audioTracksPickField({String label = 'Audio tracks'}) {
-    return _pickField(
-      controller: _audioTracksController,
-      label: label,
-      options: _audioTracksOptions,
-    );
-  }
-
-  Widget _subtitlesPickField({String label = 'Subtitles'}) {
-    return _pickField(
-      controller: _subtitlesController,
-      label: label,
-      options: _subtitlesOptions,
     );
   }
 
@@ -2125,25 +2005,25 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         db,
         listName: kLayersPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _layersController.text,
+        selectedValue: _videoEdit.layersController.text,
       ),
       loadSingleValuePickListOptions(
         db,
         listName: kColorPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _colorController.text,
+        selectedValue: _videoEdit.colorController.text,
       ),
       loadSingleValuePickListOptions(
         db,
         listName: kAudioTrackPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _audioTracksController.text,
+        selectedValue: _videoEdit.audioTracksController.text,
       ),
       loadSingleValuePickListOptions(
         db,
         listName: kSubtitlePickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _subtitlesController.text,
+        selectedValue: _videoEdit.subtitlesController.text,
       ),
       loadSingleValuePickListOptions(
         db,
@@ -2219,8 +2099,6 @@ ORDER BY owner_label COLLATE NOCASE
       _screenRatioOptions = List<String>.from(results[12] as List<String>);
       _layersOptions = List<String>.from(results[13] as List<String>);
       _colorOptions = List<String>.from(results[14] as List<String>);
-      _audioTracksOptions = List<String>.from(results[15] as List<String>);
-      _subtitlesOptions = List<String>.from(results[16] as List<String>);
       _crossoverOptions = List<String>.from(results[17] as List<String>);
       _storyArcOptions = List<String>.from(results[18] as List<String>);
       _pageQualityOptions = List<String>.from(results[19] as List<String>);
@@ -2739,7 +2617,7 @@ ORDER BY owner_label COLLATE NOCASE
     if (!_formKey.currentState!.validate()) return;
     _submitAction = submitAction;
     var selection = _draft.buildSelection(submitAction: _submitAction);
-    selection = _applyVideoSelectionEdits(selection);
+    selection = _videoEdit.applyVideoSelectionEdits(selection);
     selection = _applyComicSelectionEdits(selection);
     selection = _applyGameSelection(selection);
     selection = _normalizeSelectionScope(selection);
