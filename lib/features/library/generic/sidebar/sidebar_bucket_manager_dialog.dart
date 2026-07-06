@@ -2,11 +2,12 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
+import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/foundation.dart';
 
 const _bucketManagerUnset = Object();
@@ -160,206 +161,195 @@ class _LibraryBucketManagerDialogState
       widget.groupMode,
       widget.type,
     );
-    return Dialog(
-      insetPadding: const EdgeInsets.all(24),
-      clipBehavior: Clip.antiAlias,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 760, maxHeight: 760),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    return LibraryDialogScaffold(
+      title: Text(title),
+      onClose: _submitting ? null : () => Navigator.of(context).pop(),
+      maxWidth: 760,
+      maxHeight: 760,
+      padding: EdgeInsets.zero,
+      footer: LibraryActionFooter(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            AccentDialogHeader(
-              title: title,
-              accent: widget.accent,
-              onClose: _submitting ? null : () => Navigator.of(context).pop(),
+            TextButton(
+              onPressed: _submitting ? null : () => Navigator.of(context).pop(),
+              child: const Text('Close'),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
-                        hintText: 'Search...',
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
+          ],
+        ),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (_) => setState(() {}),
+                    decoration: const InputDecoration(
+                      hintText: 'Search...',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                      isDense: true,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: palette.highlight.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: palette.highlight.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.zero,
+                    border: Border.all(color: palette.divider),
+                  ),
+                  child: Text(
+                    '${widget.entries.length} ${genericGroupModeSidebarTitle(widget.groupMode, widget.type).toUpperCase()}',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: palette.divider),
+                    borderRadius: BorderRadius.zero,
+                    color: palette.panelRaised,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        listLabel,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.arrow_drop_down,
+                        color: palette.textMuted,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Container(
+              color: palette.panel,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Row(
+                children: [
+                  const SizedBox(width: 40),
+                  Expanded(
                     child: Text(
-                      '${widget.entries.length} ${genericGroupModeSidebarTitle(widget.groupMode, widget.type).toUpperCase()}',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      'Name',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w800,
                           ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: palette.divider),
-                      borderRadius: BorderRadius.circular(10),
-                      color: palette.panelRaised,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          listLabel,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          Icons.arrow_drop_down,
-                          color: palette.textMuted,
-                        ),
-                      ],
+                  SizedBox(
+                    width: 56,
+                    child: Text(
+                      'Count',
+                      textAlign: TextAlign.right,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
                   ),
+                  const SizedBox(width: 40),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Container(
-                color: palette.panel,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 40),
-                    Expanded(
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+              child: filteredEntries.isEmpty
+                  ? Center(
                       child: Text(
-                        'Name',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
+                        'No ${genericGroupModeSidebarTitle(widget.groupMode, widget.type).toLowerCase()} found.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: palette.textMuted,
                             ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 56,
-                      child: Text(
-                        'Count',
-                        textAlign: TextAlign.right,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(width: 72),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-                child: filteredEntries.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No ${genericGroupModeSidebarTitle(widget.groupMode, widget.type).toLowerCase()} found.',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: palette.textMuted,
-                                  ),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: filteredEntries.length,
-                        itemBuilder: (context, index) {
-                          final entry = filteredEntries[index];
-                          final rowColor = index.isEven
-                              ? Colors.transparent
-                              : palette.panel.withValues(alpha: 0.35);
-                          return ColoredBox(
-                            color: rowColor,
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  tooltip: 'Rename ${entry.label}',
-                                  onPressed: _submitting
-                                      ? null
-                                      : () => _renameEntry(entry),
-                                  icon:
-                                      const Icon(Icons.edit_outlined, size: 18),
-                                ),
-                                IconButton(
-                                  tooltip: 'Merge ${entry.label}',
-                                  onPressed:
-                                      _submitting || widget.entries.length < 2
-                                          ? null
-                                          : () => _mergeEntry(entry),
-                                  icon: const Icon(Icons.merge_type_outlined,
-                                      size: 18),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10),
-                                    child: Text(
-                                      entry.label,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 56,
+                    )
+                  : ListView.builder(
+                      itemCount: filteredEntries.length,
+                      itemBuilder: (context, index) {
+                        final entry = filteredEntries[index];
+                        final rowColor = index.isEven
+                            ? Colors.transparent
+                            : palette.panel.withValues(alpha: 0.35);
+                        return ColoredBox(
+                          color: rowColor,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                tooltip: 'Rename ${entry.label}',
+                                onPressed: _submitting
+                                    ? null
+                                    : () => _renameEntry(entry),
+                                icon: const Icon(Icons.edit_outlined, size: 18),
+                              ),
+                              IconButton(
+                                tooltip: 'Merge ${entry.label}',
+                                onPressed:
+                                    _submitting || widget.entries.length < 2
+                                        ? null
+                                        : () => _mergeEntry(entry),
+                                icon: const Icon(Icons.merge_type_outlined,
+                                    size: 18),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
                                   child: Text(
-                                    '${entry.count}',
-                                    textAlign: TextAlign.right,
+                                    entry.label,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyLarge
-                                        ?.copyWith(fontWeight: FontWeight.w700),
+                                        ?.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                 ),
-                                IconButton(
-                                  tooltip: 'Delete ${entry.label}',
-                                  onPressed: _submitting
-                                      ? null
-                                      : () => _deleteEntry(entry),
-                                  icon: const Icon(Icons.close, size: 18),
+                              ),
+                              SizedBox(
+                                width: 56,
+                                child: Text(
+                                  '${entry.count}',
+                                  textAlign: TextAlign.right,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(fontWeight: FontWeight.w700),
                                 ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-              ),
+                              ),
+                              IconButton(
+                                tooltip: 'Delete ${entry.label}',
+                                onPressed: _submitting
+                                    ? null
+                                    : () => _deleteEntry(entry),
+                                icon: const Icon(Icons.close, size: 18),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed:
-                        _submitting ? null : () => Navigator.of(context).pop(),
-                    child: const Text('Close'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

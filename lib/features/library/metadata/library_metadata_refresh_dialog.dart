@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
+import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
@@ -8,7 +9,6 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _maxRefreshTargets = 100;
@@ -91,15 +91,25 @@ class _LibraryMetadataRefreshDialogState
     final visibleTargets = targets.take(_maxRefreshTargets).toList();
     final overLimit = targets.length > visibleTargets.length;
     final summary = _summary();
-    return AccentAlertDialog(
-      backgroundColor: palette.panel,
-      titlePadding: EdgeInsets.zero,
-      title: AccentDialogHeader(
-        title: 'Refresh ${widget.type.pluralLabel.toLowerCase()} metadata',
-        accent: widget.accent,
-        icon: Icons.sync,
+    return LibraryDialogScaffold(
+      title: Row(
+        children: [
+          Icon(Icons.sync, color: widget.accent, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Refresh ${widget.type.pluralLabel.toLowerCase()} metadata',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
-      content: SizedBox(
+      onClose: _running ? null : () => Navigator.of(context).pop(),
+      maxWidth: 720,
+      maxHeight: 820,
+      padding: const EdgeInsets.all(12),
+      child: SizedBox(
         width: 680,
         child: SingleChildScrollView(
           child: Column(
@@ -190,28 +200,35 @@ class _LibraryMetadataRefreshDialogState
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _running ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+      footer: LibraryActionFooter(
+        child: Row(
+          children: [
+            TextButton(
+              onPressed: _running ? null : () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.icon(
+              onPressed:
+                  _running || visibleTargets.isEmpty ? null : () => _runRefresh(),
+              icon: _running
+                  ? const SizedBox.square(
+                      dimension: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.sync),
+              label: Text(_finished ? 'Run again' : 'Refresh'),
+            ),
+            if (_finished) ...[
+              const SizedBox(width: 8),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(_summary().result),
+                child: const Text('Done'),
+              ),
+            ],
+          ],
         ),
-        FilledButton.icon(
-          onPressed:
-              _running || visibleTargets.isEmpty ? null : () => _runRefresh(),
-          icon: _running
-              ? const SizedBox.square(
-                  dimension: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.sync),
-          label: Text(_finished ? 'Run again' : 'Refresh'),
-        ),
-        if (_finished)
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(_summary().result),
-            child: const Text('Done'),
-          ),
-      ],
+      ),
     );
   }
 

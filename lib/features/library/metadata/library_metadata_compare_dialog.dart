@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
+import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/state/api_provider.dart';
-import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -429,101 +429,78 @@ class _LibraryMetadataCompareDialogState
   Widget build(BuildContext context) {
     final local = widget.localItem;
     final server = _serverItem;
-    return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1200, maxHeight: 820),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-              decoration: BoxDecoration(
-                color: kEditPanelRaised,
-                border: Border(
-                    bottom: BorderSide(
-                        color: widget.accent.withValues(alpha: 0.25))),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.compare_arrows, color: widget.accent),
-                  const SizedBox(width: 8),
-                  Expanded(
+    return LibraryDialogScaffold(
+      title: Row(
+        children: [
+          Icon(Icons.compare_arrows, color: widget.accent),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Metadata Compare — ${local.title}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+      onClose: () => Navigator.of(context).pop(),
+      maxWidth: 1200,
+      maxHeight: 820,
+      padding: EdgeInsets.zero,
+      child: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
                     child: Text(
-                      'Metadata Compare — ${local.title}',
-                      style: Theme.of(context).textTheme.titleMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      _error!,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: Colors.redAccent),
                     ),
                   ),
-                  LibrarySquareCloseButton(
-                    tooltip: 'Close',
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _error != null
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Text(
-                              _error!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(color: Colors.redAccent),
+                )
+              : server == null
+                  ? const SizedBox.shrink()
+                  : Scrollbar(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          children: [
+                            MetadataDiffPanel(
+                              title: 'Metadata fields (Local vs Server)',
+                              entries: local.kind == 'music'
+                                  ? _musicEntries(local, server)
+                                  : _comicEntries(local, server),
+                              showOnlyDifferences: false,
+                              emptyText: 'No metadata fields available.',
                             ),
-                          ),
-                        )
-                      : server == null
-                          ? const SizedBox.shrink()
-                          : Scrollbar(
-                              child: SingleChildScrollView(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  children: [
-                                    MetadataDiffPanel(
-                                      title:
-                                          'Metadata fields (Local vs Server)',
-                                      entries: local.kind == 'music'
-                                          ? _musicEntries(local, server)
-                                          : _comicEntries(local, server),
-                                      showOnlyDifferences: false,
-                                      emptyText:
-                                          'No metadata fields available.',
-                                    ),
-                                    MetadataDiffPanel(
-                                      title: 'Creators (Local vs Server)',
-                                      entries: _creatorsEntries(local, server),
-                                      showOnlyDifferences: false,
-                                      emptyText: 'No creators available.',
-                                    ),
-                                    if (local.kind == 'comic')
-                                      MetadataDiffPanel(
-                                        title: 'Characters (Local vs Server)',
-                                        entries:
-                                            _charactersEntries(local, server),
-                                        showOnlyDifferences: false,
-                                        emptyText: 'No characters available.',
-                                      ),
-                                    if (local.kind == 'music')
-                                      MetadataDiffPanel(
-                                        title: 'Discs (Local vs Server)',
-                                        entries: _discEntries(local, server),
-                                        showOnlyDifferences: false,
-                                        emptyText: 'No discs available.',
-                                      ),
-                                  ],
-                                ),
+                            MetadataDiffPanel(
+                              title: 'Creators (Local vs Server)',
+                              entries: _creatorsEntries(local, server),
+                              showOnlyDifferences: false,
+                              emptyText: 'No creators available.',
+                            ),
+                            if (local.kind == 'comic')
+                              MetadataDiffPanel(
+                                title: 'Characters (Local vs Server)',
+                                entries: _charactersEntries(local, server),
+                                showOnlyDifferences: false,
+                                emptyText: 'No characters available.',
                               ),
-                            ),
-            ),
-          ],
-        ),
-      ),
+                            if (local.kind == 'music')
+                              MetadataDiffPanel(
+                                title: 'Discs (Local vs Server)',
+                                entries: _discEntries(local, server),
+                                showOnlyDifferences: false,
+                                emptyText: 'No discs available.',
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
     );
   }
 }
