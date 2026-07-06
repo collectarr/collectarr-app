@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/inspector/inspector_location_sec
 import 'package:collectarr_app/features/library/inspector/inspector_folder_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
+import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -524,7 +524,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           accent: widget.accent,
         ),
       ...?(!usesCustomInspectorPanel
-          ? buildLibraryInspectorEditorSections(
+            ? buildLibraryDetailEditorSections(
               type: widget.type,
               entry: selected,
               accent: widget.accent,
@@ -533,7 +533,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             )
           : null),
       ...?(!usesCustomInspectorPanel
-          ? buildLibraryInspectorKindSections(
+            ? buildLibraryDetailKindSections(
               context: context,
               type: widget.type,
               entry: selected,

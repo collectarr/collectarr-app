@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/inspector/inspector_personal_det
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
-List<Widget> buildLibraryInspectorEditorSections({
+List<Widget> buildLibraryDetailEditorSections({
   required LibraryTypeConfig type,
   required LibraryWorkspaceEntry entry,
   required Color accent,
@@ -30,7 +30,7 @@ List<Widget> buildLibraryInspectorEditorSections({
   ];
 }
 
-List<Widget> buildLibraryInspectorKindSections({
+List<Widget> buildLibraryDetailKindSections({
   required BuildContext context,
   required LibraryTypeConfig type,
   required LibraryWorkspaceEntry entry,

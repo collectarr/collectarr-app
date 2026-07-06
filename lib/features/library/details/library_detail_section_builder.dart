@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_trailers_s
 import 'package:collectarr_app/features/library/detail/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
+import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +55,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
             accent: accent,
             onFilterByValue: onFilterByValue,
           ),
-          ...buildLibraryInspectorEditorSections(
+          ...buildLibraryDetailEditorSections(
             type: type,
             entry: entry,
             accent: accent,
@@ -222,4 +222,3 @@ List<Widget> buildLibraryDetailSectionWidgets(
   }
   return resolved;
 }
-
