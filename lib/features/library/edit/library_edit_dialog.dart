@@ -191,11 +191,15 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _coverController => _draft.coverController;
   TextEditingController get _thumbnailController => _draft.thumbnailController;
   TextEditingController get _synopsisController => _draft.synopsisController;
+  TextEditingController get _displayTitleController =>
+      _draft.displayTitleController;
   TextEditingController get _sortKeyController => _draft.sortKeyController;
   TextEditingController get _originalTitleController =>
       _draft.originalTitleController;
-  TextEditingController get _titleExtensionController =>
-      _videoEdit.titleExtensionController;
+  TextEditingController get _localizedTitleController =>
+      _draft.localizedTitleController;
+  TextEditingController get _searchAliasesController =>
+      _draft.searchAliasesController;
   TextEditingController get _seriesTitleController =>
       _draft.seriesTitleController;
   TextEditingController get _audienceRatingController =>

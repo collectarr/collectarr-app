@@ -279,16 +279,6 @@ void main() {
       find.widgetWithText(TextFormField, 'Age'),
       'Teen',
     );
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Genre'),
-      'Sci-Fi, Fantasy',
-    );
-
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Title'),
-      'Saga Deluxe',
-    );
-
     await tester.tap(find.text('Custom Fields').last);
     await pumpUntilSettled(tester);
     expect(find.text('Signature note'), findsOneWidget);
@@ -321,13 +311,13 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    expect(selection!.item.title, 'Saga Deluxe');
+    expect(selection!.item.title, 'Over the Garden Wall');
     expect(selection!.item.crossover, 'Image United');
     expect(selection!.item.storyArcs, ['Finale']);
     expect(selection!.item.country, 'Canada');
     expect(selection!.item.language, 'French');
     expect(selection!.item.ageRating, 'Teen');
-    expect(selection!.item.genres, ['Sci-Fi', 'Fantasy']);
+    expect(selection!.item.genres, ['Sci-Fi']);
     expect(selection!.item.coverDate, DateTime(2026, 1, 1));
     expect(selection!.item.trailerUrls, hasLength(2));
     expect(

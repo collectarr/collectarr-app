@@ -54,15 +54,17 @@ class LibraryEditDraft {
     required this.coverController,
     required this.thumbnailController,
     required this.synopsisController,
+    required this.displayTitleController,
     required this.sortKeyController,
     required this.originalTitleController,
+    required this.localizedTitleController,
+    required this.searchAliasesController,
     required this.runtimeController,
     required this.audienceRatingController,
     required this.countryController,
     required this.languageController,
     required this.ageRatingController,
     required this.genresEditController,
-    required this.titleExtensionController,
     required this.crossoverController,
     required this.storyArcsController,
     required this.seriesTitleController,
@@ -229,7 +231,7 @@ class LibraryEditDraft {
     final pageCountController = create(
       item.publishing?.pageCount?.toString() ?? '',
     );
-    final editionTitleController = create(item.editionTitle ?? '');
+    final editionTitleController = create(item.editionTitle ?? item.titleExtension ?? '');
     final barcodeController = create(item.barcode ?? '');
     final variantController = create(item.variant ?? '');
     final physicalFormatLabelController = create(
@@ -248,8 +250,13 @@ class LibraryEditDraft {
     final coverController = create(item.coverImageUrl ?? '');
     final thumbnailController = create(item.thumbnailImageUrl ?? '');
     final synopsisController = create(item.synopsis ?? '');
+    final displayTitleController = create(item.displayTitle ?? '');
     final sortKeyController = create(item.sortKey ?? '');
     final originalTitleController = create(item.originalTitle ?? '');
+    final localizedTitleController = create(item.localizedTitle ?? '');
+    final searchAliasesController = create(
+      (item.searchAliases ?? const <String>[]).join(', '),
+    );
     final runtimeController = create(
       item.video?.runtimeMinutes?.toString() ?? '',
     );
@@ -258,7 +265,6 @@ class LibraryEditDraft {
     final languageController = create(item.language ?? '');
     final ageRatingController = create(item.ageRating ?? '');
     final genresEditController = create(item.genres?.join(', ') ?? '');
-    final titleExtensionController = create(item.titleExtension ?? '');
     final crossoverController = create(item.crossover?.trim() ?? '');
     final storyArcsController = create(
       (item.storyArcs ?? const <String>[]).join(', '),
@@ -413,15 +419,17 @@ class LibraryEditDraft {
       coverController: coverController,
       thumbnailController: thumbnailController,
       synopsisController: synopsisController,
+      displayTitleController: displayTitleController,
       sortKeyController: sortKeyController,
       originalTitleController: originalTitleController,
+      localizedTitleController: localizedTitleController,
+      searchAliasesController: searchAliasesController,
       runtimeController: runtimeController,
       audienceRatingController: audienceRatingController,
       countryController: countryController,
       languageController: languageController,
       ageRatingController: ageRatingController,
       genresEditController: genresEditController,
-      titleExtensionController: titleExtensionController,
       crossoverController: crossoverController,
       storyArcsController: storyArcsController,
       seriesTitleController: seriesTitleController,
@@ -552,15 +560,17 @@ class LibraryEditDraft {
   final TextEditingController coverController;
   final TextEditingController thumbnailController;
   final TextEditingController synopsisController;
+  final TextEditingController displayTitleController;
   final TextEditingController sortKeyController;
   final TextEditingController originalTitleController;
+  final TextEditingController localizedTitleController;
+  final TextEditingController searchAliasesController;
   final TextEditingController runtimeController;
   final TextEditingController audienceRatingController;
   final TextEditingController countryController;
   final TextEditingController languageController;
   final TextEditingController ageRatingController;
   final TextEditingController genresEditController;
-  final TextEditingController titleExtensionController;
   final TextEditingController crossoverController;
   final TextEditingController storyArcsController;
   final TextEditingController seriesTitleController;
@@ -757,7 +767,9 @@ class LibraryEditDraft {
         title: titleController.text.trim(),
         sortKey: emptyToNull(sortKeyController.text),
         originalTitle: emptyToNull(originalTitleController.text),
-        titleExtension: emptyToNull(titleExtensionController.text),
+        displayTitle: emptyToNull(displayTitleController.text),
+        localizedTitle: emptyToNull(localizedTitleController.text),
+        searchAliases: _splitList(searchAliasesController.text),
         itemNumber: emptyToNull(numberController.text),
         synopsis: emptyToNull(synopsisController.text),
         coverImageUrl: emptyToNull(coverController.text),
@@ -916,6 +928,15 @@ class LibraryEditDraft {
       itemImageEdits: itemImageEdits,
             submitAction: submitAction,
     );
+  }
+
+  List<String>? _splitList(String value) {
+    final entries = value
+        .split(RegExp(r'[,\r\n]+'))
+        .map((entry) => entry.trim())
+        .where((entry) => entry.isNotEmpty)
+        .toList();
+    return entries.isEmpty ? null : entries;
   }
 
   void dispose() {

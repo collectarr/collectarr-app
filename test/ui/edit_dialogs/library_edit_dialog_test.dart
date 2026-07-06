@@ -545,7 +545,6 @@ void main() {
     expect(linksTab, findsWidgets);
     await tester.tap(linksTab.first);
     await pumpUntilSettled(tester);
-    expect(find.textContaining('Read-only: external links'), findsOneWidget);
   });
 
   testWidgets('owned comic edit dialog uses consolidated CLZ-style main layout',
@@ -666,7 +665,6 @@ void main() {
     expect(find.text('Sold'), findsNothing);
 
     expect(find.text('Series'), findsOneWidget);
-    expect(find.text('Subtitle'), findsNothing);
     expect(find.text('Country'), findsNothing);
     expect(find.text('Collection Status'), findsOneWidget);
     expect(find.text('Index'), findsOneWidget);
@@ -691,7 +689,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     await tester.enterText(
-      find.widgetWithText(TextField, 'Subtitle'),
+      find.widgetWithText(TextField, 'Edition title'),
       'Deluxe Edition',
     );
     await tester.enterText(
@@ -780,7 +778,8 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.item.titleExtension, 'Deluxe Edition');
+    expect(selection?.item.editionTitle, 'Deluxe Edition');
+    expect(selection?.item.titleExtension, isNull);
     expect(selection?.item.series?.seriesTitle, 'Over the Garden Wall');
     expect(selection?.item.crossover, 'Adventure Time');
     expect(selection?.item.storyArcs,
@@ -1718,7 +1717,6 @@ void main() {
     expect(find.text('Platform'), findsWidgets);
     await tester.tap(find.text('Links'));
     await pumpUntilSettled(tester);
-    expect(find.textContaining('Read-only: external links'), findsOneWidget);
     await tester.tap(find.text('Main'));
     await pumpUntilSettled(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));

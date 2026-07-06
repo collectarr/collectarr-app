@@ -11,27 +11,35 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _responsiveFields([
-                _crossoverPickField(),
-                _storyArcPickField(),
-              ]),
-              const SizedBox(height: 10),
-              _responsiveFields([
                 _field(
                   controller: _titleController,
                   label: 'Title',
                 ),
                 _field(
-                  controller: _titleExtensionController,
-                  label: 'Subtitle',
+                  controller: _originalTitleController,
+                  label: 'Original title',
                 ),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
-                _countryPickField(),
                 _field(
-                  controller: _languageController,
-                  label: 'Language',
+                  controller: _editionTitleController,
+                  label: 'Edition title',
                 ),
+                _field(
+                  controller: _variantController,
+                  label: 'Variant / format',
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _crossoverPickField(),
+                _storyArcPickField(),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _countryPickField(),
+                _field(controller: _languageController, label: 'Language'),
               ]),
               const SizedBox(height: 10),
               LayoutBuilder(
@@ -93,6 +101,34 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
                   );
                 },
               ),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Advanced',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _responsiveFields([
+                _field(controller: _sortKeyController, label: 'Sort title'),
+                TextFormField(
+                  controller: _searchAliasesController,
+                  minLines: 1,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Search aliases',
+                    hintText: 'Comma-separated aliases',
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _localizedTitleController,
+                  label: 'Localized title',
+                ),
+              ]),
             ],
           ),
         ),

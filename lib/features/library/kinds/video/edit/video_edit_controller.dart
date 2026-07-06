@@ -23,8 +23,6 @@ class VideoEditController {
   Map<String, int> tvEpisodeDiscAssignments = <String, int>{};
 
   TextEditingController get runtimeController => draft.runtimeController;
-  TextEditingController get titleExtensionController =>
-      draft.titleExtensionController;
   TextEditingController get seasonNumberController =>
       draft.seasonNumberController;
   TextEditingController get episodeNumberController =>

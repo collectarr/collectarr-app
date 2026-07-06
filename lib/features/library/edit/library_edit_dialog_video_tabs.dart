@@ -26,6 +26,7 @@ const _crewRoleOptions = <String>[
 
 extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
   Widget _videoMediaTab() {
+    final releaseFields = widget.type.releaseFields;
     return EditTabShell(
       children: [
         EditSection(
@@ -41,23 +42,71 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                   validator: (value) =>
                       emptyToNull(value ?? '') == null ? 'Enter a title' : null,
                 ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(controller: _originalTitleController, label: 'Original title'),
                 _field(
-                  controller: _sortKeyController,
-                  label: 'Sort title (advanced)',
+                  controller: _editionTitleController,
+                  label: releaseFields.editionTitleLabel,
                 ),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
                 _field(
-                    controller: _originalTitleController,
-                    label: 'Original title'),
+                  controller: _variantController,
+                  label: releaseFields.variantLabel,
+                ),
+                _field(
+                  controller: _displayTitleController,
+                  label: 'Custom display title',
+                ),
+              ]),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Advanced',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _responsiveFields([
+                _field(
+                  controller: _sortKeyController,
+                  label: 'Sort title',
+                ),
+                TextFormField(
+                  controller: _searchAliasesController,
+                  minLines: 1,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Search aliases',
+                    hintText: 'Comma-separated aliases',
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              _responsiveFields([
+                _field(
+                  controller: _localizedTitleController,
+                  label: 'Localized title',
+                ),
               ]),
               const SizedBox(height: 10),
               Text(
-                'Use the Edition tab for edition title / variant details.',
+                'Sort title is optional. Custom display title stays local to your library.',
                 style: TextStyle(color: appPalette(context).textMuted),
               ),
-              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+        EditSection(
+          title: 'Release details',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               _responsiveFields([
                 _releaseDatePartsField(),
                 _publisherField(label: 'Studios'),
