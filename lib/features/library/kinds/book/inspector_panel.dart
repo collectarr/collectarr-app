@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
+import 'package:collectarr_app/features/library/details/library_detail_title_status_card.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +63,7 @@ class BookInspectorPanel extends StatelessWidget {
             accent: accent,
           ),
           const SizedBox(height: 6),
-          LibraryInspectorTitleStatusCard(
+          LibraryDetailTitleStatusCard(
             eyebrow: series,
             title: entry.resolvedTitle,
             accent: accent,

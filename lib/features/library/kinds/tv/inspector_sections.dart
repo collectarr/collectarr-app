@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_title_status_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/episode_grid_section.dart';
@@ -9,7 +10,6 @@ import 'package:collectarr_app/features/library/inspector/sections/links_trailer
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/session_history_section.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
@@ -208,7 +208,7 @@ Widget buildTvInspectorPanel(
       onUnlinkFromCore: request.onUnlinkFromCore,
       onDetailsLayoutChanged: request.onDetailsLayoutChanged,
     ),
-    hero: LibraryInspectorTitleStatusCard(
+    hero: LibraryDetailTitleStatusCard(
       eyebrow: entry.series?.seriesTitle?.trim(),
       title: entry.resolvedTitle,
       accent: accent,
