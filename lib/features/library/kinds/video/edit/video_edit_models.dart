@@ -1,4 +1,8 @@
-part of 'library_edit_dialog.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/user_external_link.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 enum VideoCreditKind { cast, crew }
 
@@ -183,7 +187,7 @@ class EditableUserExternalLink {
   }
 }
 
-bool _isVideoCastRole(String? role) {
+bool isVideoCastRole(String? role) {
   final normalized = role?.trim().toLowerCase() ?? '';
   if (normalized.isEmpty) {
     return true;
@@ -198,7 +202,7 @@ List<EditableVideoCredit> splitVideoCredits(
   final credits = <EditableVideoCredit>[];
   for (final creator in creators) {
     final role = creator['role']?.toString();
-    final isCast = _isVideoCastRole(role);
+    final isCast = isVideoCastRole(role);
     if ((kind == VideoCreditKind.cast && isCast) ||
         (kind == VideoCreditKind.crew && !isCast)) {
       credits.add(EditableVideoCredit.fromMetadata(creator));

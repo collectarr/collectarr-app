@@ -35,6 +35,9 @@ export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_tabs.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
@@ -61,12 +64,6 @@ import 'package:drift/drift.dart' show QueryRow;
 import 'package:uuid/uuid.dart';
 
 part 'library_edit_dialog_anchor_widgets.dart';
-part 'library_edit_dialog_video_models.dart';
-part 'library_edit_dialog_video_tabs.dart';
-part '../kinds/video/edit/video_edit_controller.dart';
-part '../kinds/tv/edit_tabs/tv_episodes_tab.dart';
-part '../kinds/tv/edit_tabs/tv_release_media_tab.dart';
-part '../kinds/tv/edit_tabs/tv_episode_disc_map_tab.dart';
 part '../kinds/comic/library_edit_dialog_comic_tabs.dart';
 part 'library_edit_dialog_comic_models.dart';
 
@@ -150,6 +147,17 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   @override
   ConsumerState<LibraryEditRenderer> createState() =>
       _LibraryEditRendererState();
+}
+
+Widget _readHistoryTab() {
+  return EditTabShell(
+    children: [
+      const EditSectionStateMessage(
+        message: 'Read history is managed in the personal tab.',
+        icon: Icons.history,
+      ),
+    ],
+  );
 }
 
 class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
@@ -725,11 +733,26 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       case 'media':
         return _mediaTab();
       case 'tv_episodes':
-        return _tvEpisodesTab();
+        return TvEpisodesTab(
+          type: widget.type,
+          item: widget.item,
+          accent: widget.accent,
+          videoEdit: _videoEdit,
+        );
       case 'release_media':
-        return _tvReleaseMediaTab();
+        return TvReleaseMediaTab(
+          type: widget.type,
+          item: widget.item,
+          accent: widget.accent,
+          videoEdit: _videoEdit,
+        );
       case 'episode_map':
-        return _tvEpisodeDiscMapTab();
+        return TvEpisodeDiscMapTab(
+          type: widget.type,
+          item: widget.item,
+          accent: widget.accent,
+          videoEdit: _videoEdit,
+        );
       case 'value':
         return _valueTabForKind();
       case 'personal':
@@ -747,19 +770,38 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       case 'synopsis':
         return _synopsisTab();
       case 'edition':
-        return _LibraryEditRendererVideoTabs(this)._editionTab();
+        return VideoEditEditionTab(
+          type: widget.type,
+          draft: _draft,
+          accent: widget.accent,
+          physicalFormats: widget.physicalFormats,
+        );
       case 'specs':
-        return _LibraryEditRendererVideoTabs(this)._specsTab();
+        return VideoEditSpecsTab(
+          draft: _draft,
+          videoEdit: _videoEdit,
+          accent: widget.accent,
+        );
       case 'cast':
-        return _LibraryEditRendererVideoTabs(this)._castTab();
+        return VideoEditCastTab(
+          accent: widget.accent,
+          videoEdit: _videoEdit,
+        );
       case 'crew':
-        return _LibraryEditRendererVideoTabs(this)._crewTab();
+        return VideoEditCrewTab(
+          accent: widget.accent,
+          videoEdit: _videoEdit,
+        );
       case 'creators':
         return _comicCreatorsTab();
       case 'characters':
         return _comicCharactersTab();
       case 'discs':
-        return _LibraryEditRendererVideoTabs(this)._discsTab();
+        return VideoEditDiscsTab(
+          type: widget.type,
+          item: widget.item,
+          accent: widget.accent,
+        );
       case 'links':
         return _linksTabForKind();
       default:
@@ -785,12 +827,23 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     if (_isComicKind) {
       return _comicLinksTab();
     }
-    return _LibraryEditRendererVideoTabs(this)._linksTab();
+    return VideoEditLinksTab(
+      type: widget.type,
+      item: widget.item,
+      accent: widget.accent,
+      videoEdit: _videoEdit,
+    );
   }
 
   Widget _mediaTab() {
     if (_videoEdit.isVideoKind) {
-      return _LibraryEditRendererVideoTabs(this)._videoMediaTab();
+      return VideoEditMediaTab(
+        type: widget.type,
+        draft: _draft,
+        videoEdit: _videoEdit,
+        accent: widget.accent,
+        genreOptions: _genreOptions,
+      );
     }
     return _genericMediaTab();
   }
@@ -1181,7 +1234,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       return const SizedBox.shrink();
     }
     if (_videoEdit.isVideoKind) {
-      return _LibraryEditRendererVideoTabs(this)._videoPersonalTab();
+      return _personalTab();
     }
     return EditTabShell(
       children: [
