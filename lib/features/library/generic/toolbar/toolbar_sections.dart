@@ -797,6 +797,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                   searchActive: searchActive,
                   suggestions: searchSuggestions,
                   onSuggestionSelected: onSearchSuggestionSelected,
+                  maxWidth: 380,
                 ),
               ),
             ),

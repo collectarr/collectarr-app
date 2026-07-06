@@ -134,4 +134,31 @@ void main() {
 
     controller.dispose();
   });
+
+  testWidgets('toolbar search can fill the band width when capped higher', (
+    tester,
+  ) async {
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 380,
+            child: LibraryToolbarSearch(
+              controller: controller,
+              hintText: 'Search comics...',
+              onSearch: (_) {},
+              selectionColor: Colors.cyan,
+              maxWidth: 380,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.getSize(find.byType(LibraryToolbarSearch)).width, 380);
+    expect(tester.getSize(find.byType(TextField)).width, 380);
+  });
 }
