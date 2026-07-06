@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_workspace_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
@@ -25,6 +26,11 @@ const tvLibraryGroupLabels = LibraryMediaGroupLabels(
   publisherMode: 'Networks',
   genre: 'Genres',
 );
+
+const tvDefaultWorkspaceGroupMode = LibraryGroupMode.series;
+const tvDefaultWorkspaceGroupPresentation = LibraryGroupPresentation.folderGrid;
+const tvDefaultVideoDisplayLevel = VideoDisplayLevel.season;
+const tvDefaultVideoGrouping = VideoGroupingDefault.bySeries;
 
 const tvLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
 
@@ -115,11 +121,11 @@ const tvLibraryGroupModeDefinitions = [
     icon: Icons.event_outlined,
   ),
   LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.series,
+    mode: tvDefaultWorkspaceGroupMode,
     label: 'Series',
     sidebarTitle: 'Series',
     icon: Icons.tv_outlined,
-    presentation: LibraryGroupPresentation.folderGrid,
+    presentation: tvDefaultWorkspaceGroupPresentation,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.publisher,

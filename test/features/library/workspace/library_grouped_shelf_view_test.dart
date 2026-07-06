@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
@@ -9,6 +10,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('tv defaults to series folder grid presentation', () {
+    expect(tvDefaultWorkspaceGroupMode, LibraryGroupMode.series);
+    expect(tvDefaultWorkspaceGroupPresentation, LibraryGroupPresentation.folderGrid);
+    expect(tvDefaultVideoDisplayLevel, VideoDisplayLevel.season);
+    expect(tvDefaultVideoGrouping, VideoGroupingDefault.bySeries);
     expect(tvLibraryGroupModes.first, LibraryGroupMode.series);
     expect(
       tvLibraryGroupModeDefinitions
