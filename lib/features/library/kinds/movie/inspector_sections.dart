@@ -1,15 +1,14 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/personal_status_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildMovieInspectorSections(
@@ -115,41 +114,50 @@ class _MovieInspectorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entry = request.inspector.entry;
-    final ownedItem = request.inspector.ownedItem;
     final accent = request.inspector.accent;
     final sections = buildMovieInspectorSections(context, request.inspector);
 
-    return LibraryInspectorPanelLayout(
-      entry: entry,
-      ownedItem: ownedItem,
+    return LibraryDetailPanelScaffold(
       accent: accent,
-      children: [
-        InspectorUnifiedToolbar(
-          entry: entry,
-          detailsLayout: request.inspector.detailsLayout,
-          onEdit: request.onEdit,
-          onShare: request.onShare,
-          onDuplicate: request.onDuplicate,
-          onToggleOwned: request.onToggleOwned,
-          onLoan: request.onLoan,
-          onRefreshMetadata: request.onRefreshMetadata,
-          onUnlinkFromCore: request.onUnlinkFromCore,
-          onDetailsLayoutChanged: request.onDetailsLayoutChanged,
+      toolbar: InspectorUnifiedToolbar(
+        entry: entry,
+        detailsLayout: request.inspector.detailsLayout,
+        onEdit: request.onEdit,
+        onShare: request.onShare,
+        onDuplicate: request.onDuplicate,
+        onToggleOwned: request.onToggleOwned,
+        onLoan: request.onLoan,
+        onRefreshMetadata: request.onRefreshMetadata,
+        onUnlinkFromCore: request.onUnlinkFromCore,
+        onDetailsLayoutChanged: request.onDetailsLayoutChanged,
+      ),
+      hero: LibraryDetailHero(
+        type: request.inspector.type,
+        entry: entry,
+        ownedItem: request.inspector.ownedItem,
+        accent: accent,
+      ),
+      sections: [
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.identity,
+          title: 'Details',
+          children: [
+            ...sections,
+            if (request.ownedCopiesSection != null) ...[
+              request.ownedCopiesSection!,
+              const SizedBox(height: 8),
+            ],
+            if (request.bundleSection != null) ...[
+              request.bundleSection!,
+              const SizedBox(height: 8),
+            ],
+            if (request.conditionGradeSection != null) ...[
+              request.conditionGradeSection!,
+              const SizedBox(height: 8),
+            ],
+            if (request.trailingSections.isNotEmpty) ...request.trailingSections,
+          ],
         ),
-        const SizedBox(height: 8),
-        LibraryDetailHero(
-          type: request.inspector.type,
-          entry: entry,
-          ownedItem: ownedItem,
-          accent: accent,
-        ),
-        ...buildLibraryInspectorSectionList([
-          request.ownedCopiesSection,
-          request.bundleSection,
-          request.conditionGradeSection,
-          if (sections.isNotEmpty) ...sections,
-          if (request.trailingSections.isNotEmpty) ...request.trailingSections,
-        ]),
       ],
     );
   }

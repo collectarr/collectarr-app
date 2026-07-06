@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:flutter/material.dart';
 
 Widget buildComicInspectorPanel(
@@ -19,9 +20,10 @@ class ComicInspectorPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = request.inspector.accent;
     final entry = request.inspector.entry;
-    final ownedItem = request.inspector.ownedItem;
-    final children = <Widget>[
-      InspectorUnifiedToolbar(
+
+    return LibraryDetailPanelScaffold(
+      accent: accent,
+      toolbar: InspectorUnifiedToolbar(
         entry: entry,
         detailsLayout: request.inspector.detailsLayout,
         onEdit: request.onEdit,
@@ -33,32 +35,23 @@ class ComicInspectorPanel extends StatelessWidget {
         onUnlinkFromCore: request.onUnlinkFromCore,
         onDetailsLayoutChanged: request.onDetailsLayoutChanged,
       ),
-      const SizedBox(height: 8),
-      request.hero,
-      ...buildLibraryInspectorSectionList([
-        request.ownedCopiesSection,
-        request.bundleSection,
-        request.conditionGradeSection,
-        if (request.primarySections.isNotEmpty) ...request.primarySections,
-        if (request.trailingSections.isNotEmpty) ...request.trailingSections,
-      ]      ),
-      const SizedBox(height: 6),
-      ...buildLibraryInspectorSectionFlow(
-        bodySections: [
-          request.ownedCopiesSection,
-          request.bundleSection,
-          request.conditionGradeSection,
-          ...request.primarySections,
-        ],
-        afterBodySections: request.trailingSections,
-      ),
-    ];
-
-    return LibraryInspectorPanelLayout(
-      entry: entry,
-      ownedItem: ownedItem,
-      accent: accent,
-      children: children,
+      hero: request.hero,
+      sections: [
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.identity,
+          title: 'Details',
+          children: [
+            if (request.ownedCopiesSection != null)
+              request.ownedCopiesSection!,
+            if (request.bundleSection != null)
+              request.bundleSection!,
+            if (request.conditionGradeSection != null)
+              request.conditionGradeSection!,
+            if (request.primarySections.isNotEmpty) ...request.primarySections,
+            if (request.trailingSections.isNotEmpty) ...request.trailingSections,
+          ],
+        ),
+      ],
     );
   }
 }
