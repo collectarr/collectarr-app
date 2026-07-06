@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_detail_page.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -45,6 +46,7 @@ const tvLibraryConfig = LibraryTypeConfig(
   presentation: tvLibraryMediaPresentation,
   editPresentation: tvLibraryEditPresentation,
   editDialogBuilder: buildTvLibraryEditDialog,
+  detailPageBuilder: buildVideoLibraryDetailPage,
   inspectorSectionsBuilder: buildTvInspectorSections,
   addChrome: LibraryAddChromeConfig(
     videoKindFilterOptions: [

@@ -6,10 +6,12 @@ import 'package:collectarr_app/features/library/details/library_detail_title_sta
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/episode_grid_section.dart';
-import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/session_history_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_external_links_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_progress_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
@@ -160,8 +162,15 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     ),
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.progressOwnership,
-      title: 'Releases',
-      children: [InspectorReleasesSection(request: request)],
+      title: 'TV progress',
+      children: [
+        VideoProgressSection(
+          seriesRef: seriesRef,
+          accent: request.accent,
+        ),
+        const SizedBox(height: 8),
+        InspectorReleasesSection(request: request),
+      ],
     ),
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.people,
@@ -178,7 +187,18 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.seriesLinks,
       title: 'Links / trailers',
-      children: [InspectorLinksTrailersSection(request: request)],
+      children: [
+        VideoExternalLinksSection(
+          title: 'External links',
+          links: request.entry.trailerUrls,
+          accent: request.accent,
+        ),
+        const SizedBox(height: 8),
+        VideoUpcomingEpisodesSection(
+          seriesRef: seriesRef,
+          accent: request.accent,
+        ),
+      ],
     ),
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.activityHistory,

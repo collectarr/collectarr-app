@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_detail_page.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -216,6 +217,7 @@ void main() {
     expect(tvLibraryConfig.supportsMetadataProvider('tmdb'), isTrue);
     expect(tvLibraryConfig.capabilities.videoSeriesEntryTypes, {'tv'});
     expect(tvLibraryConfig.editDialogBuilder, isNotNull);
+    expect(tvLibraryConfig.detailPageBuilder, same(buildVideoLibraryDetailPage));
   });
 
   test('tv edit presentation splits media and release tabs', () {

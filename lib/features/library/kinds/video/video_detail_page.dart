@@ -15,8 +15,11 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder
 import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_external_links_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_progress_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_episode_rating_section.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -293,6 +296,12 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
               onFilterByValue: request.onFilterByValue,
             ),
             const SizedBox(height: 16),
+            if (_isTvKind)
+              VideoProgressSection(
+                seriesRef: seriesRef,
+                accent: request.accent,
+              ),
+            if (_isTvKind) const SizedBox(height: 16),
             VideoSeasonTrackingSection(
               seriesRef: CatalogEntityRef(
                 kind: request.type.workspace.kind.apiValue,
@@ -309,6 +318,19 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
               accent: request.accent,
             ),
             const SizedBox(height: 16),
+            if (_isTvKind)
+              VideoExternalLinksSection(
+                title: 'External links',
+                links: request.entry.trailerUrls,
+                accent: request.accent,
+              ),
+            if (_isTvKind) const SizedBox(height: 16),
+            if (_isTvKind)
+              VideoUpcomingEpisodesSection(
+                seriesRef: seriesRef,
+                accent: request.accent,
+              ),
+            if (_isTvKind) const SizedBox(height: 16),
             if (tvReleaseBrowser != null)
               tvReleaseBrowser
             else if (selectedRelease != null)

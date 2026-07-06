@@ -6,6 +6,11 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_episode_identity.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_episode_row.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_progress_presenter.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_progress_summary.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_season_summary_card.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -78,6 +83,11 @@ class _VideoSeasonTrackingSectionState
         final allEpisodesWatched =
             selectedSeason.episodes.isNotEmpty &&
                 watchedInSelectedSeason == selectedSeason.episodes.length;
+        final seasonSummary = const VideoProgressPresenter().seasonSummary(
+          season: selectedSeason,
+          trackedUnits: trackedUnits,
+          watchSessions: watchSessions,
+        );
         return DecoratedBox(
           decoration: BoxDecoration(
             color: appPalette(context).surfaceSubtle,
@@ -106,6 +116,26 @@ class _VideoSeasonTrackingSectionState
                   ),
                 ),
                 const SizedBox(height: 10),
+                VideoSeasonSummaryCard(
+                  summary: seasonSummary,
+                  accent: widget.accent,
+                  onMarkWatched: _seasonMutationInFlight ||
+                          selectedSeason.episodes.isEmpty ||
+                          allEpisodesWatched
+                      ? null
+                      : () => _setSeasonWatched(
+                            selectedSeason,
+                            completed: true,
+                          ),
+                  onClear: _seasonMutationInFlight ||
+                          watchedInSelectedSeason == 0
+                      ? null
+                      : () => _setSeasonWatched(
+                            selectedSeason,
+                            completed: false,
+                          ),
+                ),
+                const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -124,34 +154,6 @@ class _VideoSeasonTrackingSectionState
                   ],
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    FilledButton.tonalIcon(
-                      onPressed: _seasonMutationInFlight ||
-                              selectedSeason.episodes.isEmpty ||
-                              allEpisodesWatched
-                          ? null
-                          : () => _setSeasonWatched(
-                                selectedSeason,
-                                completed: true,
-                              ),
-                      icon: const Icon(Icons.done_all),
-                      label: const Text('Mark season watched'),
-                    ),
-                    const SizedBox(width: 8),
-                    OutlinedButton.icon(
-                      onPressed: _seasonMutationInFlight ||
-                              watchedInSelectedSeason == 0
-                          ? null
-                          : () => _setSeasonWatched(
-                                selectedSeason,
-                                completed: false,
-                              ),
-                      icon: const Icon(Icons.remove_done_outlined),
-                      label: const Text('Clear season'),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 12),
                 _CustomEpisodesPanel(
                   catalogRef: widget.seriesRef,
@@ -487,6 +489,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
             const SizedBox(height: 4),
             for (final episode in providerEpisodes)
               _ProviderEpisodeTile(
+                seasonNumber: seasonNumber,
                 accent: accent,
                 episode: episode,
                 watched: watchedEpisodeKeys
@@ -596,6 +599,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
 class _ProviderEpisodeTile extends StatelessWidget {
   const _ProviderEpisodeTile({
     required this.accent,
+    required this.seasonNumber,
     required this.episode,
     required this.watched,
     required this.watchCount,
@@ -605,6 +609,7 @@ class _ProviderEpisodeTile extends StatelessWidget {
   });
 
   final Color accent;
+  final int seasonNumber;
   final Episode episode;
   final bool watched;
   final int watchCount;
@@ -614,52 +619,24 @@ class _ProviderEpisodeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: palette.surfaceSubtle.withValues(alpha: 0.82),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: BorderSide(color: accent.withValues(alpha: 0.14)),
+    return VideoEpisodeRow(
+      episode: VideoEpisodeProgressSummary(
+        episode: VideoEpisodeIdentity(
+          seasonNumber: seasonNumber,
+          episodeNumber: episode.episodeNumber,
+          title: episode.title,
+          airDate: _parseDate(episode.airDate),
+          runtimeMinutes: episode.runtimeMinutes,
         ),
-        child: ListTile(
-          leading: busy
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : IconButton(
-                  tooltip: watched ? 'Mark unwatched' : 'Mark watched',
-                  onPressed: onWatchToggle,
-                  icon: Icon(
-                    watched ? Icons.check_box : Icons.check_box_outline_blank,
-                    color: watched ? accent : palette.textMuted,
-                  ),
-                ),
-          title: Text(
-            'E${episode.episodeNumber} • ${episode.title}',
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-          subtitle: Text(
-            [
-              if (episode.runtimeMinutes != null) '${episode.runtimeMinutes} min',
-              if (episode.airDate != null && episode.airDate!.trim().isNotEmpty)
-                episode.airDate!,
-              if (watchCount > 0) '🎬 $watchCount',
-            ].join(' • '),
-            style: TextStyle(color: palette.textMuted, fontSize: 12),
-          ),
-          trailing: IconButton(
-            icon: const Icon(Icons.copy_outlined, size: 18),
-            color: palette.textMuted,
-            tooltip: 'Duplicate into custom episode',
-            onPressed: onDuplicate,
-          ),
-          onTap: busy ? null : onWatchToggle,
-        ),
+        watchedCount: watchCount,
+        isWatched: watched,
       ),
+      accent: accent,
+      watched: watched,
+      watchCount: watchCount,
+      busy: busy,
+      onToggleWatched: onWatchToggle,
+      onDuplicate: onDuplicate,
     );
   }
 }
@@ -691,76 +668,50 @@ class _CustomEpisodeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: palette.surfaceSubtle.withValues(alpha: 0.82),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: BorderSide(color: accent.withValues(alpha: 0.14)),
+    return VideoEpisodeRow(
+      episode: VideoEpisodeProgressSummary(
+        episode: VideoEpisodeIdentity(
+          seasonNumber: episode.seasonNumber,
+          episodeNumber: episode.episodeNumber,
+          title: episode.title,
+          airDate: _parseDate(episode.airDate),
+          runtimeMinutes: episode.runtimeMinutes,
         ),
-        child: ListTile(
-          leading: busy
-              ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : IconButton(
-                  tooltip: watched ? 'Mark unwatched' : 'Mark watched',
-                  onPressed: onWatchToggle,
-                  icon: Icon(
-                    watched ? Icons.check_box : Icons.check_box_outline_blank,
-                    color: watched ? accent : palette.textMuted,
-                  ),
-                ),
-          title: Text(
-            'E${episode.episodeNumber} • ${episode.title}',
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-          subtitle: Text(
-            [
-              if (episode.runtimeMinutes != null) '${episode.runtimeMinutes} min',
-              if (episode.airDate != null && episode.airDate!.trim().isNotEmpty)
-                episode.airDate!,
-              if (watchCount > 0) '🎬 $watchCount',
-              '✏️ custom',
-            ].join(' • '),
-            style: TextStyle(color: palette.textMuted, fontSize: 12),
-          ),
-          trailing: Wrap(
-            spacing: 0,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit_outlined, size: 18),
-                color: palette.textMuted,
-                tooltip: 'Edit custom episode',
-                onPressed: onEdit,
-              ),
-              IconButton(
-                icon: const Icon(Icons.arrow_upward, size: 18),
-                color: palette.textMuted,
-                tooltip: 'Move up',
-                onPressed: onMoveUp,
-              ),
-              IconButton(
-                icon: const Icon(Icons.arrow_downward, size: 18),
-                color: palette.textMuted,
-                tooltip: 'Move down',
-                onPressed: onMoveDown,
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline, size: 18),
-                color: palette.textMuted,
-                tooltip: 'Delete custom episode',
-                onPressed: onDelete,
-              ),
-            ],
-          ),
-          onTap: busy ? null : onWatchToggle,
-        ),
+        watchedCount: watchCount,
+        isWatched: watched,
       ),
+      accent: accent,
+      watched: watched,
+      watchCount: watchCount,
+      busy: busy,
+      onToggleWatched: onWatchToggle,
+      onEdit: onEdit,
+      extraActions: [
+        IconButton(
+          icon: const Icon(Icons.arrow_upward, size: 18),
+          color: appPalette(context).textMuted,
+          tooltip: 'Move up',
+          onPressed: onMoveUp,
+          visualDensity: VisualDensity.compact,
+          constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+        ),
+        IconButton(
+          icon: const Icon(Icons.arrow_downward, size: 18),
+          color: appPalette(context).textMuted,
+          tooltip: 'Move down',
+          onPressed: onMoveDown,
+          visualDensity: VisualDensity.compact,
+          constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete_outline, size: 18),
+          color: appPalette(context).textMuted,
+          tooltip: 'Delete custom episode',
+          onPressed: onDelete,
+          visualDensity: VisualDensity.compact,
+          constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+        ),
+      ],
     );
   }
 }
@@ -924,4 +875,11 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
       ],
     );
   }
+}
+
+DateTime? _parseDate(String? raw) {
+  if (raw == null || raw.trim().isEmpty) {
+    return null;
+  }
+  return DateTime.tryParse(raw);
 }

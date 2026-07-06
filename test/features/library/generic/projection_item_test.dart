@@ -1,7 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../../helpers/test_data_factories.dart';
 
@@ -53,10 +56,15 @@ void main() {
       comicsLibraryConfig,
     );
     final wishlistProjection = LibraryProjectionItem.fromShelf(
-      testShelfEntry(
+      ShelfEntry(
         itemId: 'comic-3',
-        kind: 'comic',
-        title: 'Detective Comics',
+        catalogItem: LibraryMetadataItem.fromCatalogItem(
+          CatalogItem(
+            id: 'comic-3',
+            kind: 'comic',
+            title: 'Detective Comics',
+          ),
+        ),
         wishlistItem: WishlistItem(
           id: 'wish-3',
           catalogRef: CatalogEntityRef(
