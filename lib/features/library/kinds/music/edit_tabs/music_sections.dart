@@ -812,11 +812,34 @@ extension _MusicSections on _MusicLibraryEditDialogState {
         );
       case 'music_metadata_source_notes':
         return EditSection(
-          title: 'Metadata source notes',
+          title: 'External links',
           accent: _accent,
-          child: const Text(
-            'Provider-specific online links are not modeled separately in the current client yet. This tab keeps the CLZ-style surface for identifiers and remote asset references so the music edit flow stays consistent.',
-            style: TextStyle(color: kEditTextMuted),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_externalLinkEdits.isEmpty)
+                const Text(
+                  'Add web links for stores, discography pages or other references.',
+                  style: TextStyle(color: kEditTextMuted),
+                )
+              else
+                Column(
+                  children: [
+                    for (var index = 0; index < _externalLinkEdits.length; index++)
+                      ...[
+                        _buildExternalLinkRow(index),
+                        if (index < _externalLinkEdits.length - 1)
+                          const SizedBox(height: 10),
+                      ],
+                  ],
+                ),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: _addExternalLink,
+                icon: const Icon(Icons.add),
+                label: const Text('Add link'),
+              ),
+            ],
           ),
         );
       default:

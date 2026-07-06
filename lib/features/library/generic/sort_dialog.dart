@@ -1166,5 +1166,9 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
 }
 
 String _sortColumnLabel(LibraryTypeConfig type, LibrarySortColumn column) {
-  return type.presentation.sortColumnDefinitionFor(column).label;
+  try {
+    return type.presentation.sortColumnDefinitionFor(column).label;
+  } on StateError {
+    return librarySortColumnFallbackLabel(column);
+  }
 }

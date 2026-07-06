@@ -886,9 +886,17 @@ String _sortFavoriteSummary(
   return rules
       .map(
         (rule) =>
-            '${type.presentation.sortColumnDefinitionFor(rule.column).label} ${rule.ascending ? 'ASC' : 'DESC'}',
+            '${_sortColumnLabel(type, rule.column)} ${rule.ascending ? 'ASC' : 'DESC'}',
       )
       .join('  |  ');
+}
+
+String _sortColumnLabel(LibraryTypeConfig type, LibrarySortColumn column) {
+  try {
+    return type.presentation.sortColumnDefinitionFor(column).label;
+  } on StateError {
+    return librarySortColumnFallbackLabel(column);
+  }
 }
 
 List<LibrarySortFavorite> _orderedPinnedSortFavorites(

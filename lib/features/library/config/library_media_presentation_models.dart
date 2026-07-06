@@ -131,6 +131,17 @@ class LibrarySortColumnDefinition {
   final bool defaultAscending;
 }
 
+String librarySortColumnFallbackLabel(LibrarySortColumn column) {
+  final raw = column.name.replaceAllMapped(
+    RegExp(r'([a-z0-9])([A-Z])'),
+    (match) => '${match[1]} ${match[2]}',
+  );
+  if (raw.isEmpty) {
+    return column.name;
+  }
+  return raw[0].toUpperCase() + raw.substring(1);
+}
+
 class LibraryFilterOptionLabels {
   const LibraryFilterOptionLabels({
     this.ownershipAll = 'All items',
@@ -247,8 +258,7 @@ class LibraryReferenceLabels {
       'Wishlisted as ${editionScope.toLowerCase()}';
   String get wishlistedAsVariant =>
       'Wishlisted as ${variantScope.toLowerCase()}';
-  String get wishlistedAsBundle =>
-      'Wishlisted as ${bundleScope.toLowerCase()}';
+  String get wishlistedAsBundle => 'Wishlisted as ${bundleScope.toLowerCase()}';
 }
 
 class LibraryStatusLabels {

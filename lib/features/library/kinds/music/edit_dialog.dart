@@ -153,6 +153,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   late List<MusicCreditEntry> _musicianCredits;
   late List<String> _genreValues;
   late List<String> _soundValues;
+  final List<_MusicExternalLinkEdit> _externalLinkEdits =
+      <_MusicExternalLinkEdit>[];
   String _rpmSelection = '';
   bool _isFetchingServerSnapshot = false;
   String? _serverSnapshotError;
@@ -268,6 +270,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _genreValues = _splitCommaList(_genresController.text) ?? const <String>[];
     _soundValues =
         _splitCommaList(_soundTypeController.text) ?? const <String>[];
+    _externalLinkEdits
+        .addAll(_buildInitialExternalLinkEdits(_item.trailerUrls));
     _coverController = _draft.coverController;
     _thumbnailController = _draft.thumbnailController;
     _synopsisController = _draft.synopsisController;
@@ -380,6 +384,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _collectionStatusController.dispose();
     _genresController.dispose();
     _disposeTrackEditingState();
+    _disposeExternalLinkEditingState();
     _draft.dispose();
     super.dispose();
   }
@@ -656,6 +661,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     }
   }
 
+  void _disposeExternalLinkEditingState() {
+    for (final edit in _externalLinkEdits) {
+      edit.dispose();
+    }
+  }
+
   _MusicDiscDraft _discDraftFor(int discNumber) {
     return _discDrafts.putIfAbsent(
       discNumber,
@@ -821,6 +832,134 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         }
       }
     });
+  }
+
+  List<_MusicExternalLinkEdit> _buildInitialExternalLinkEdits(
+    List<TrailerLink> links,
+  ) {
+    final externalLinks =
+        links.where((link) => link.isExternalLink).toList(growable: false);
+    return [
+      for (final link in externalLinks)
+        _MusicExternalLinkEdit(
+          url: link.url,
+          description: link.description ?? link.title ?? '',
+        ),
+    ];
+  }
+
+  void _addExternalLink() {
+    setState(() {
+      _externalLinkEdits.add(_MusicExternalLinkEdit());
+    });
+  }
+
+  void _removeExternalLinkAt(int index) {
+    setState(() {
+      final removed = _externalLinkEdits.removeAt(index);
+      removed.dispose();
+    });
+  }
+
+  void _moveExternalLink(int fromIndex, int toIndex) {
+    if (toIndex < 0 || toIndex >= _externalLinkEdits.length) {
+      return;
+    }
+    setState(() {
+      final entry = _externalLinkEdits.removeAt(fromIndex);
+      _externalLinkEdits.insert(toIndex, entry);
+    });
+  }
+
+  Widget _buildExternalLinkRow(int index) {
+    final link = _externalLinkEdits[index];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: kEditPanelRaised,
+        border: Border.all(color: kEditDivider),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+        child: Column(
+          children: [
+            _denseFields([
+              TextFormField(
+                key: ValueKey('musicExternalLinkUrlField_$index'),
+                controller: link.urlController,
+                decoration: const InputDecoration(
+                  labelText: 'URL',
+                  hintText: 'https://example.com',
+                ),
+              ),
+              TextFormField(
+                key: ValueKey('musicExternalLinkDescriptionField_$index'),
+                controller: link.descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'Spotify, Discogs, etc.',
+                ),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                IconButton(
+                  tooltip: 'Move up',
+                  icon: const Icon(Icons.arrow_upward, size: 18),
+                  onPressed: index > 0
+                      ? () => _moveExternalLink(index, index - 1)
+                      : null,
+                ),
+                IconButton(
+                  tooltip: 'Move down',
+                  icon: const Icon(Icons.arrow_downward, size: 18),
+                  onPressed: index < _externalLinkEdits.length - 1
+                      ? () => _moveExternalLink(index, index + 1)
+                      : null,
+                ),
+                const Spacer(),
+                IconButton(
+                  tooltip: 'Remove link',
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  onPressed: () => _removeExternalLinkAt(index),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<TrailerLink> _buildUpdatedLinks() {
+    final preservedTrailers = _item.trailerUrls
+        .where((link) => !link.isExternalLink)
+        .toList(growable: false);
+    final external = <TrailerLink>[];
+    for (final edit in _externalLinkEdits) {
+      final url = edit.urlController.text.trim();
+      if (url.isEmpty) {
+        continue;
+      }
+      final uri = Uri.tryParse(url);
+      final scheme = uri?.scheme.toLowerCase();
+      if (uri == null || (scheme != 'http' && scheme != 'https')) {
+        continue;
+      }
+      final description = edit.descriptionController.text.trim();
+      external.add(
+        TrailerLink(
+          url: url,
+          title: description.isEmpty ? null : description,
+          description: description.isEmpty ? null : description,
+          source: 'External Link',
+          isAutomatic: false,
+          kind: 'external',
+        ),
+      );
+    }
+    return [...preservedTrailers, ...external];
   }
 
   String _toTitleCase(String value) {
@@ -2270,6 +2409,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           genres: _splitCommaList(_genresController.text),
           country: emptyToNull(_countryController.text),
           language: emptyToNull(_languageController.text),
+          trailerUrls: _buildUpdatedLinks(),
         ),
         personal: !_isOwned
             ? null
@@ -2495,5 +2635,23 @@ class _MusicDiscDraft {
     slotController.dispose();
     matrixSideAController.dispose();
     matrixSideBController.dispose();
+  }
+}
+
+class _MusicExternalLinkEdit {
+  _MusicExternalLinkEdit({
+    String url = '',
+    String description = '',
+  }) {
+    urlController.text = url;
+    descriptionController.text = description;
+  }
+
+  final TextEditingController urlController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+
+  void dispose() {
+    urlController.dispose();
+    descriptionController.dispose();
   }
 }

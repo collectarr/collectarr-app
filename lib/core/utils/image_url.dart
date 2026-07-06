@@ -1,3 +1,5 @@
+import 'dart:io';
+
 String? normalizeNetworkImageUrl(String? value) {
   final url = value?.trim();
   if (url == null || url.isEmpty) {
@@ -16,6 +18,31 @@ String? normalizeNetworkImageUrl(String? value) {
     return null;
   }
   return url;
+}
+
+Future<bool> isLikelyImageUrl(String url) async {
+  final uri = Uri.tryParse(url.trim());
+  if (uri == null || !uri.hasScheme) {
+    return false;
+  }
+  if (uri.scheme != 'http' && uri.scheme != 'https') {
+    return false;
+  }
+
+  final client = HttpClient()..connectionTimeout = const Duration(seconds: 5);
+  try {
+    final request = await client.headUrl(uri);
+    final response = await request.close();
+    final contentType = response.headers.contentType;
+    return response.statusCode >= 200 &&
+        response.statusCode < 300 &&
+        contentType != null &&
+        contentType.mimeType.toLowerCase().startsWith('image/');
+  } catch (_) {
+    return false;
+  } finally {
+    client.close(force: true);
+  }
 }
 
 bool _isInvalidOpenLibraryCoverId(Uri uri) {

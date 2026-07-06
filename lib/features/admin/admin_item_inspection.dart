@@ -195,9 +195,11 @@ class _CanonicalItemSummary extends StatelessWidget {
                         value: item.publishing!.pageCount.toString(),
                       ),
                     if (item.coverDate != null)
-                      _Fact(label: 'Cover', value: _formatDate(item.coverDate!)),
+                      _Fact(
+                          label: 'Cover', value: _formatDate(item.coverDate!)),
                     if (item.storeDate != null)
-                      _Fact(label: 'Store', value: _formatDate(item.storeDate!)),
+                      _Fact(
+                          label: 'Store', value: _formatDate(item.storeDate!)),
                     if (variant?.coverPriceCents != null)
                       _Fact(
                         label: 'Cover price',
@@ -234,7 +236,11 @@ class _CanonicalItemSummary extends StatelessWidget {
             }
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [cover, const SizedBox(width: 12), Expanded(child: details)],
+              children: [
+                cover,
+                const SizedBox(width: 12),
+                Expanded(child: details)
+              ],
             );
           },
         ),
@@ -281,7 +287,8 @@ class _BundleReleaseSummaryList extends StatelessWidget {
                             runSpacing: 6,
                             children: [
                               _MiniChip(
-                                label: '${bundle.contentSummary.totalItems} members',
+                                label:
+                                    '${bundle.contentSummary.totalItems} members',
                               ),
                               if (bundle.bundleType != null)
                                 _MiniChip(label: bundle.bundleType!),
@@ -542,7 +549,8 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
               : () => Navigator.of(context).pop(
                     _CoverUpdate(
                       coverImageUrl: _coverController.text.trim(),
-                      thumbnailImageUrl: _emptyToNull(_thumbnailController.text),
+                      thumbnailImageUrl:
+                          _emptyToNull(_thumbnailController.text),
                     ),
                   ),
           icon: const Icon(Icons.save_outlined),
@@ -563,9 +571,13 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
       _checkMessage = null;
     });
     try {
-      await precacheImage(NetworkImage(url), context);
-      if (mounted) {
-        setState(() => _checkMessage = 'URL is reachable in this client.');
+      if (await isLikelyImageUrl(url)) {
+        if (mounted) {
+          setState(() => _checkMessage = 'URL is reachable in this client.');
+        }
+      } else if (mounted) {
+        setState(
+            () => _checkMessage = 'URL check failed: not a valid image URL.');
       }
     } catch (error) {
       if (mounted) {
@@ -717,7 +729,8 @@ class _ItemAuditTimeline extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Item audit history', style: Theme.of(context).textTheme.labelLarge),
+        Text('Item audit history',
+            style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 6),
         for (final log in logs.take(5))
           Padding(

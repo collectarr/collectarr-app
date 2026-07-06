@@ -32,25 +32,29 @@ void main() {
       expect(
         definitionModes.length,
         uniqueDefinitionModes.length,
-        reason: '${entry.key} presentation has duplicate group mode definitions.',
+        reason:
+            '${entry.key} presentation has duplicate group mode definitions.',
       );
       expect(
         uniqueDefinitionModes,
         configuredModes,
-        reason: '${entry.key} presentation groupModeDefinitions must match groupModes exactly.',
+        reason:
+            '${entry.key} presentation groupModeDefinitions must match groupModes exactly.',
       );
 
       for (final mode in entry.value.groupModes) {
         expect(
           () => entry.value.groupModeDefinitionFor(mode),
           returnsNormally,
-          reason: '${entry.key} presentation is missing a definition for $mode.',
+          reason:
+              '${entry.key} presentation is missing a definition for $mode.',
         );
       }
     }
   });
 
-  test('all library presentations declare complete sort column definitions', () {
+  test('all library presentations declare complete sort column definitions',
+      () {
     final presentations = <String, LibraryMediaPresentation>{
       'generic': genericLibraryMediaPresentation,
       'books': booksLibraryMediaPresentation,
@@ -81,21 +85,31 @@ void main() {
       expect(
         definitionColumns.length,
         uniqueDefinitionColumns.length,
-        reason: '${entry.key} presentation has duplicate sort column definitions.',
+        reason:
+            '${entry.key} presentation has duplicate sort column definitions.',
       );
       expect(
         uniqueDefinitionColumns,
         expectedColumns,
-        reason: '${entry.key} presentation sortColumnDefinitions must match available sort columns exactly.',
+        reason:
+            '${entry.key} presentation sortColumnDefinitions must match available sort columns exactly.',
       );
 
       for (final column in expectedColumns) {
         expect(
           () => entry.value.sortColumnDefinitionFor(column),
           returnsNormally,
-          reason: '${entry.key} presentation is missing a sort definition for $column.',
+          reason:
+              '${entry.key} presentation is missing a sort definition for $column.',
         );
       }
     }
+  });
+
+  test('fallback sort column labels stay readable for unknown columns', () {
+    expect(librarySortColumnFallbackLabel(LibrarySortColumn.keyComic),
+        'Key Comic');
+    expect(librarySortColumnFallbackLabel(LibrarySortColumn.rawOrSlabbed),
+        'Raw Or Slabbed');
   });
 }

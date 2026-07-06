@@ -2174,8 +2174,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       for (final value in urls)
         if (normalizeNetworkImageUrl(value) case final normalized?) normalized,
     };
+    final cacheableUrls = <String>[];
+    for (final url in uniqueUrls) {
+      if (await isLikelyImageUrl(url)) {
+        cacheableUrls.add(url);
+      }
+    }
     await Future.wait([
-      for (final url in uniqueUrls)
+      for (final url in cacheableUrls)
         precacheImage(
           CachedNetworkImageProvider(url),
           context,
