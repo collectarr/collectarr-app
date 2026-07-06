@@ -1,8 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sections.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -24,34 +25,44 @@ class BoardGameInspectorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entry = request.inspector.entry;
-    final ownedItem = request.inspector.ownedItem;
     final accent = request.inspector.accent;
 
-    return LibraryInspectorPanelLayout(
-      entry: entry,
-      ownedItem: ownedItem,
+    return LibraryDetailPanelScaffold(
       accent: accent,
-      children: [
-        InspectorUnifiedToolbar(
-          entry: entry,
-          detailsLayout: request.inspector.detailsLayout,
-          onEdit: request.onEdit,
-          onShare: request.onShare,
-          onDuplicate: request.onDuplicate,
-          onToggleOwned: request.onToggleOwned,
-          onLoan: request.onLoan,
-          onRefreshMetadata: request.onRefreshMetadata,
-          onUnlinkFromCore: request.onUnlinkFromCore,
-          onDetailsLayoutChanged: request.onDetailsLayoutChanged,
+      toolbar: InspectorUnifiedToolbar(
+        entry: entry,
+        detailsLayout: request.inspector.detailsLayout,
+        onEdit: request.onEdit,
+        onShare: request.onShare,
+        onDuplicate: request.onDuplicate,
+        onToggleOwned: request.onToggleOwned,
+        onLoan: request.onLoan,
+        onRefreshMetadata: request.onRefreshMetadata,
+        onUnlinkFromCore: request.onUnlinkFromCore,
+        onDetailsLayoutChanged: request.onDetailsLayoutChanged,
+      ),
+      hero: _BoardGameInspectorHeader(inspector: request.inspector),
+      sections: [
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.identity,
+          title: 'Details',
+          children: [
+            _BoardGameInspectorMain(inspector: request.inspector),
+          ],
         ),
-        const SizedBox(height: 8),
-        _BoardGameInspectorHeader(inspector: request.inspector),
-        const SizedBox(height: 10),
-        _BoardGameInspectorMain(inspector: request.inspector),
-        const SizedBox(height: 10),
-        BoardGamePlayStatsSection(request: request.inspector),
-        const SizedBox(height: 10),
-        ...buildLibraryInspectorSectionList(request.trailingSections),
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.people,
+          title: 'Play stats',
+          children: [
+            BoardGamePlayStatsSection(request: request.inspector),
+          ],
+        ),
+        if (request.trailingSections.isNotEmpty)
+          LibraryDetailSectionSpec(
+            slot: LibraryDetailSectionSlot.activityHistory,
+            title: 'More',
+            children: request.trailingSections,
+          ),
       ],
     );
   }

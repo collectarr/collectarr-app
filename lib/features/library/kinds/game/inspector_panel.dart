@@ -1,6 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
@@ -21,19 +24,10 @@ List<Widget> buildGameInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
-  final creditRows = _buildCreditsRows(inspector.entry.creators);
-  if (creditRows.isEmpty) {
-    return const <Widget>[];
-  }
-  return [
-    LibraryInspectorSection(
-      title: 'Credits',
-      accentColor: inspector.accent,
-      children: [
-        _GameInspectorFactRows(rows: creditRows),
-      ],
-    ),
-  ];
+  return buildLibraryDetailSectionWidgets(
+    _buildGameSectionSpecs(context, inspector),
+    accentColor: inspector.accent,
+  );
 }
 
 class GameInspectorPanel extends StatelessWidget {
@@ -44,39 +38,67 @@ class GameInspectorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entry = request.inspector.entry;
-    final ownedItem = request.inspector.ownedItem;
     final accent = request.inspector.accent;
 
-    return LibraryInspectorPanelLayout(
-      entry: entry,
-      ownedItem: ownedItem,
+    return LibraryDetailPanelScaffold(
       accent: accent,
-      children: [
-        InspectorUnifiedToolbar(
-          entry: entry,
-          detailsLayout: request.inspector.detailsLayout,
-          onEdit: request.onEdit,
-          onShare: request.onShare,
-          onDuplicate: request.onDuplicate,
-          onToggleOwned: request.onToggleOwned,
-          onLoan: request.onLoan,
-          onRefreshMetadata: request.onRefreshMetadata,
-          onUnlinkFromCore: request.onUnlinkFromCore,
-          onDetailsLayoutChanged: request.onDetailsLayoutChanged,
-        ),
-        const SizedBox(height: 8),
-        _GameInspectorHeader(inspector: request.inspector),
-        const SizedBox(height: 10),
-        _GameInspectorMain(inspector: request.inspector),
-        const SizedBox(height: 10),
-        _GameInspectorDetailsPersonal(inspector: request.inspector),
-        ...buildLibraryInspectorSectionFlow(
-          bodySections: request.primarySections,
-          afterBodySections: request.trailingSections,
-        ),
+      toolbar: InspectorUnifiedToolbar(
+        entry: entry,
+        detailsLayout: request.inspector.detailsLayout,
+        onEdit: request.onEdit,
+        onShare: request.onShare,
+        onDuplicate: request.onDuplicate,
+        onToggleOwned: request.onToggleOwned,
+        onLoan: request.onLoan,
+        onRefreshMetadata: request.onRefreshMetadata,
+        onUnlinkFromCore: request.onUnlinkFromCore,
+        onDetailsLayoutChanged: request.onDetailsLayoutChanged,
+      ),
+      hero: _GameInspectorHeader(inspector: request.inspector),
+      sections: [
+        ..._buildGameSectionSpecs(context, request.inspector),
+        if (request.primarySections.isNotEmpty)
+          LibraryDetailSectionSpec(
+            slot: LibraryDetailSectionSlot.formatEditionRelease,
+            title: 'Primary',
+            children: request.primarySections,
+          ),
+        if (request.trailingSections.isNotEmpty)
+          LibraryDetailSectionSpec(
+            slot: LibraryDetailSectionSlot.activityHistory,
+            title: 'More',
+            children: request.trailingSections,
+          ),
       ],
     );
   }
+}
+
+List<LibraryDetailSectionSpec> _buildGameSectionSpecs(
+  BuildContext context,
+  LibraryInspectorRequest inspector,
+) {
+  final creditRows = _buildCreditsRows(inspector.entry.creators);
+  final sections = <LibraryDetailSectionSpec>[
+    LibraryDetailSectionSpec(
+      slot: LibraryDetailSectionSlot.identity,
+      title: 'Details',
+      children: [
+        _GameInspectorMain(inspector: inspector),
+        const SizedBox(height: 10),
+        _GameInspectorDetailsPersonal(inspector: inspector),
+      ],
+    ),
+    if (creditRows.isNotEmpty)
+      LibraryDetailSectionSpec(
+        slot: LibraryDetailSectionSlot.people,
+        title: 'Credits',
+        children: [
+          _GameInspectorFactRows(rows: creditRows),
+        ],
+      ),
+  ];
+  return sections;
 }
 
 class _GameInspectorHeader extends StatelessWidget {
