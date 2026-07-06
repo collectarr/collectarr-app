@@ -1,23 +1,14 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
-import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/detail/activity_timeline_section.dart';
 import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/detail/metadata_corrections_section.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
-import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -108,8 +99,6 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       trackingEntries,
       activeOwnedItem,
     );
-    final activeBundleReleaseId =
-        activeOwnedItem?.bundleReleaseId ?? widget.entry.referenceBundleReleaseId;
     final isOwned = ownedCopies.isNotEmpty || activeOwnedItem != null || widget.entry.isOwned;
     final palette = appPalette(context);
     return Theme(
@@ -165,8 +154,6 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
             ),
             Expanded(
               child: LibraryDetailPanelScaffold(
-                typeLabel: widget.type.singularLabel,
-                entryTitle: widget.entry.resolvedTitle,
                 accent: widget.accent,
                 variant: LibraryDetailPanelVariant.fullPage,
                 hero: LibraryDetailHero(
@@ -177,104 +164,16 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   accent: widget.accent,
                   isOwned: isOwned,
                 ),
-                sections: [
-                  if (activeOwnedItem != null || activeTrackingEntry != null)
-                    LibraryDetailPersonalSection(
-                      entry: widget.entry,
-                      ownedItem: activeOwnedItem,
-                      ownedCopies: ownedCopies,
-                      trackingEntry: activeTrackingEntry,
-                      accent: widget.accent,
-                      onFilterByValue: widget.onFilterByValue,
-                    ),
-                  if (activeOwnedItem != null || activeTrackingEntry != null)
-                    const SizedBox(height: 12),
-                  if (activeOwnedItem != null || activeTrackingEntry != null)
-                    ...buildLibraryInspectorEditorSections(
-                      type: widget.type,
-                      entry: widget.entry,
-                      accent: widget.accent,
-                      ownedItem: activeOwnedItem,
-                      trackingEntry: activeTrackingEntry,
-                    ),
-                  if (activeOwnedItem != null || activeTrackingEntry != null)
-                    const SizedBox(height: 12),
-                  if (activeBundleReleaseId != null) ...[
-                    BundleReleaseContentsSection(
-                      bundleReleaseId: activeBundleReleaseId,
-                      accent: widget.accent,
-                    ),
-                    const SizedBox(height: 12),
-                  ] else ...[
-                    ItemBundleReleaseBrowserSection(
-                      itemId: widget.entry.titleItemId ?? widget.entry.id,
-                      accent: widget.accent,
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  ...buildLibraryDetailCatalogSections(
-                    context: context,
-                    type: widget.type,
-                    entry: widget.entry,
-                    accent: widget.accent,
-                    onFilterByValue: widget.onFilterByValue,
-                  ),
-                  LibraryDetailTrailersSection(
-                    trailerUrls: widget.entry.trailerUrls,
-                    accent: widget.accent,
-                  ),
-                  ...buildLibraryInspectorKindSections(
-                    context: context,
-                    type: widget.type,
-                    entry: widget.entry,
-                    accent: widget.accent,
-                    onFilterByValue: widget.onFilterByValue,
-                  ),
-                  LibraryDetailProvenanceSection(
-                    type: widget.type,
-                    entry: widget.entry,
-                    accent: widget.accent,
-                  ),
-                  LibraryDetailMetadataHealthSection(
-                    type: widget.type,
-                    entry: widget.entry,
-                    accent: widget.accent,
-                  ),
-                  LibraryDetailCoverStatusSection(
-                    entry: widget.entry,
-                    accent: widget.accent,
-                  ),
-                  WatchHistorySection(
-                    itemId: widget.entry.id,
-                    accent: widget.accent,
-                    labels: sessionHistoryLabelsForKind(
-                      widget.type.workspace.kind.apiValue,
-                    ),
-                    defaultTargetRef: CatalogEntityRef(
-                      kind: widget.type.workspace.kind.apiValue,
-                      entityType: CatalogEntityType.work,
-                      id: widget.entry.id,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  ActivityTimelineSection(
-                    itemId: widget.entry.id,
-                    ownedItemIds: ownedCopies.map((c) => c.id).toList(),
-                    accent: widget.accent,
-                  ),
-                  MetadataCorrectionsSection(
-                    itemId: widget.entry.id,
-                    accent: widget.accent,
-                  ),
-                  LibraryDetailProviderSection(
-                    type: widget.type,
-                    accent: widget.accent,
-                  ),
-                  LibraryDetailLocalSnapshotSection(
-                    entry: widget.entry,
-                    ownedItem: activeOwnedItem,
-                  ),
-                ],
+                sections: buildLibraryDetailSectionSpecs(
+                  context: context,
+                  type: widget.type,
+                  entry: widget.entry,
+                  accent: widget.accent,
+                  ownedItem: activeOwnedItem,
+                  trackingEntry: activeTrackingEntry,
+                  ownedCopies: ownedCopies,
+                  onFilterByValue: widget.onFilterByValue,
+                ),
               ),
             ),
           ],

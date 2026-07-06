@@ -1,5 +1,7 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 
 enum LibraryDetailPanelVariant {
   sidePanel,
@@ -9,8 +11,6 @@ enum LibraryDetailPanelVariant {
 class LibraryDetailPanelScaffold extends StatelessWidget {
   const LibraryDetailPanelScaffold({
     super.key,
-    required this.typeLabel,
-    required this.entryTitle,
     required this.accent,
     required this.hero,
     required this.sections,
@@ -18,11 +18,9 @@ class LibraryDetailPanelScaffold extends StatelessWidget {
     this.variant = LibraryDetailPanelVariant.sidePanel,
   });
 
-  final String typeLabel;
-  final String entryTitle;
   final Color accent;
   final Widget hero;
-  final List<Widget> sections;
+  final List<LibraryDetailSectionSpec> sections;
   final Widget? toolbar;
   final LibraryDetailPanelVariant variant;
 
@@ -48,7 +46,9 @@ class LibraryDetailPanelScaffold extends StatelessWidget {
           ],
           hero,
           const SizedBox(height: 10),
-          ...sections,
+          for (final section in sections) ...[
+            LibraryDetailSection.fromSpec(section, accentColor: accent),
+          ],
         ],
       ),
     );
