@@ -62,7 +62,6 @@ import 'package:collectarr_app/features/library/kinds/comic/missing_comics_dialo
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -101,7 +100,6 @@ part 'page_dialogs.dart';
 part 'page_collection_actions.dart';
 part 'hooks/page_kind_hooks.dart';
 part 'hooks/page_sidebar_hooks.dart';
-part 'hooks/page_video_hooks.dart';
 part 'controllers/page_facet_controller.dart';
 part 'controllers/page_scope_controller.dart';
 part 'controllers/page_view_state_controller.dart';
@@ -1102,7 +1100,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @protected
   bool canOpenDefaultVideoShelfDrilldown(LibraryProjectionItem item) {
-    return _canOpenVideoShelfDrilldown(item);
+    return _kindBrowserDelegate.canOpenItemDetailDrilldown(widget.type, item);
   }
 
   @protected
@@ -1112,11 +1110,33 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @protected
   void openDefaultVideoShelfDrilldown(LibraryProjectionItem item) {
-    _openVideoShelfDrilldown(item);
+    _kindBrowserDelegate.openItemDetailDrilldown(widget.type, item);
   }
 
   @protected
   void openItemDetailDrilldown(LibraryProjectionItem item) {}
+
+  Future<void> _refreshVideoTitleFromCore(
+    LibraryProjectionItem item,
+  ) async {
+    final result = await showLibraryMetadataRefreshDialog(
+      context: context,
+      type: widget.type,
+      accent: widget.accent,
+      allEntries: [item.entry],
+      shownEntries: [item.entry],
+      selectedEntry: item.entry,
+    );
+    if (result == null || !mounted) {
+      return;
+    }
+    ref.invalidate(shelfProvider);
+    showAppToast(
+      context,
+      'Metadata refresh finished: ${result.matched}/${result.targets} matched, ${result.cached} cached, ${result.failed} failed.',
+      tone: AppToastTone.success,
+    );
+  }
 
   @protected
   Widget? buildDefaultVideoShelfWorkspaceOverride(
@@ -1125,9 +1145,44 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    return _buildVideoShelfDrilldown(
-      projection,
-      viewState,
+    final selectedItem = projection.selectedItem;
+    if (selectedItem == null) {
+      return null;
+    }
+    return _kindBrowserDelegate.buildWorkspaceOverride(
+      context: context,
+      type: widget.type,
+      projection: projection,
+      selectedItem: selectedItem,
+      viewState: viewState,
+      accent: widget.accent,
+      onRefreshFromCore: () => _refreshVideoTitleFromCore(selectedItem),
+      onOpenTitleDetails: () => showLibraryDetailPage(
+            context: context,
+            request: LibraryDetailPageRequest(
+              type: widget.type,
+              entry: selectedItem.entry,
+              ownedItem: selectedItem.source.ownedItem,
+              accent: widget.accent,
+              onAddOwned: () => runCollectionAction(
+                (actions) => actions.addOwned(selectedItem),
+              ),
+              onRemoveOwned: selectedItem.source.ownedItem == null
+                  ? null
+                  : () => confirmAndRemoveOwned(selectedItem),
+              onAddWishlist: () => runCollectionAction(
+                (actions) => actions.addWishlist(selectedItem),
+              ),
+              onRemoveWishlist: selectedItem.source.isWishlisted
+                  ? () => runCollectionAction(
+                        (actions) => actions.removeWishlist(selectedItem),
+                      )
+                  : null,
+              onEdit: (ownedItem) =>
+                  unawaited(showEditDialog(selectedItem, ownedItem)),
+              onFilterByValue: _toggleLinkedMetadataFilter,
+            ),
+          ),
       allOwnedCopies: allOwnedCopies,
       allWishlistItems: allWishlistItems,
     );

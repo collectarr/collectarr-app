@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_detail_page.dart';
@@ -47,6 +48,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
   editDialogBuilder: buildMovieLibraryEditDialog,
   detailPageBuilder: buildVideoLibraryDetailPage,
   presentation: moviesLibraryMediaPresentation,
+  kindBrowserDelegateBuilder: buildMovieBrowserDelegate,
   addChrome: LibraryAddChromeConfig(
     videoKindFilterOptions: [
       LibraryAddVideoKindFilterOption(

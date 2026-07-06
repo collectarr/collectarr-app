@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
 abstract class LibraryKindBrowserDelegate {
@@ -41,6 +42,33 @@ abstract class LibraryKindBrowserDelegate {
   void closeVideoShelfDrilldown() {
     videoShelfDrilldownTitleItemId = null;
     videoShelfDrilldownReleaseId = null;
+  }
+
+  bool canOpenItemDetailDrilldown(
+    LibraryTypeConfig type,
+    LibraryProjectionItem item,
+  ) {
+    return false;
+  }
+
+  void openItemDetailDrilldown(
+    LibraryTypeConfig type,
+    LibraryProjectionItem item,
+  ) {}
+
+  Widget? buildWorkspaceOverride({
+    required BuildContext context,
+    required LibraryTypeConfig type,
+    required LibraryProjection projection,
+    required LibraryProjectionItem selectedItem,
+    required LibraryWorkspaceViewState viewState,
+    required Color accent,
+    required Future<void> Function() onRefreshFromCore,
+    required VoidCallback onOpenTitleDetails,
+    required List<OwnedItem> allOwnedCopies,
+    required List<WishlistItem> allWishlistItems,
+  }) {
+    return null;
   }
 
   Widget? buildDrilldown({
