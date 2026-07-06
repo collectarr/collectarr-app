@@ -124,6 +124,8 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
           PopupMenuItem<Object>(
             value: _LibraryUtilityQuickViewSelection<T>(view.value),
             height: kLibraryToolbarPopupItemHeight,
+          child: Material(
+            type: MaterialType.transparency,
             child: ListTile(
               dense: true,
               minLeadingWidth: 18,
@@ -135,6 +137,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
                   : null,
             ),
           ),
+        ),
         );
       }
     }
@@ -158,21 +161,24 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
           enabled: action.enabled && action.onSelected != null,
           height:
               action.description == null ? kLibraryToolbarPopupItemHeight : 42,
-          child: ListTile(
-            dense: true,
-            minLeadingWidth: 18,
-            horizontalTitleGap: 8,
-            leading: Icon(action.icon, size: 18),
-            title: Text(action.label, style: const TextStyle(fontSize: 13)),
-            subtitle: action.description == null
-                ? null
-                : Text(
-                    action.description!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                        ),
-                  ),
-            trailing: action.trailing,
+          child: Material(
+            type: MaterialType.transparency,
+            child: ListTile(
+              dense: true,
+              minLeadingWidth: 18,
+              horizontalTitleGap: 8,
+              leading: Icon(action.icon, size: 18),
+              title: Text(action.label, style: const TextStyle(fontSize: 13)),
+              subtitle: action.description == null
+                  ? null
+                  : Text(
+                      action.description!,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: 11,
+                          ),
+                    ),
+              trailing: action.trailing,
+            ),
           ),
         ),
       );

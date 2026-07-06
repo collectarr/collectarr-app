@@ -176,55 +176,73 @@ class LibrarySelectionControls extends StatelessWidget {
             PopupMenuItem(
               value: _BulkAction.exportCsvTxt,
               enabled: callbacks.onExportCsvTxt != null,
-              child: ListTile(
-                leading: const Icon(Icons.table_view_outlined),
-                title: const Text('Export to CSV / TXT'),
-                dense: true,
+              child: const Material(
+                type: MaterialType.transparency,
+                child: ListTile(
+                  leading: Icon(Icons.table_view_outlined),
+                  title: Text('Export to CSV / TXT'),
+                  dense: true,
+                ),
               ),
             ),
             const PopupMenuItem(
               value: _BulkAction.exportXml,
               enabled: false,
-              child: ListTile(
-                leading: Icon(Icons.data_object_outlined),
-                title: Text('Export to XML'),
-                dense: true,
+              child: Material(
+                type: MaterialType.transparency,
+                child: ListTile(
+                  leading: Icon(Icons.data_object_outlined),
+                  title: Text('Export to XML'),
+                  dense: true,
+                ),
               ),
             ),
             const PopupMenuItem(
               value: _BulkAction.exportCovrPrice,
               enabled: false,
-              child: ListTile(
-                leading: Icon(Icons.sell_outlined),
-                title: Text('Export for CovrPrice'),
-                dense: true,
+              child: Material(
+                type: MaterialType.transparency,
+                child: ListTile(
+                  leading: Icon(Icons.sell_outlined),
+                  title: Text('Export for CovrPrice'),
+                  dense: true,
+                ),
               ),
             ),
             PopupMenuItem(
               value: _BulkAction.transferFieldData,
               enabled: callbacks.onTransferFieldData != null,
-              child: ListTile(
-                leading: const Icon(Icons.swap_horiz),
-                title: const Text('Transfer Field Data'),
-                dense: true,
+              child: const Material(
+                type: MaterialType.transparency,
+                child: ListTile(
+                  leading: Icon(Icons.swap_horiz),
+                  title: Text('Transfer Field Data'),
+                  dense: true,
+                ),
               ),
             ),
             PopupMenuItem(
               value: _BulkAction.updateKeyInfo,
               enabled: callbacks.onBulkUpdateKeyInfo != null,
-              child: ListTile(
-                leading: Icon(Icons.key_outlined),
-                title: Text('Update Key Info'),
-                dense: true,
+              child: Material(
+                type: MaterialType.transparency,
+                child: ListTile(
+                  leading: Icon(Icons.key_outlined),
+                  title: Text('Update Key Info'),
+                  dense: true,
+                ),
               ),
             ),
             PopupMenuItem(
               value: _BulkAction.updateFromCore,
               enabled: callbacks.onBulkRefreshMetadata != null,
-              child: ListTile(
-                leading: const Icon(Icons.sync),
-                title: const Text('Update from Core'),
-                dense: true,
+              child: const Material(
+                type: MaterialType.transparency,
+                child: ListTile(
+                  leading: Icon(Icons.sync),
+                  title: Text('Update from Core'),
+                  dense: true,
+                ),
               ),
             ),
           ],

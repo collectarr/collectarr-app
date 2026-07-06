@@ -396,41 +396,53 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                   PopupMenuItem<InspectorToolbarMenuAction>(
                     value: InspectorToolbarMenuAction.duplicate,
                     enabled: onDuplicate != null,
-                    child: const ListTile(
-                      dense: true,
-                      leading: Icon(Icons.copy_all_outlined),
-                      title: Text('Duplicate'),
+                    child: const Material(
+                      type: MaterialType.transparency,
+                      child: ListTile(
+                        dense: true,
+                        leading: Icon(Icons.copy_all_outlined),
+                        title: Text('Duplicate'),
+                      ),
                     ),
                   ),
                   PopupMenuItem<InspectorToolbarMenuAction>(
                     value: InspectorToolbarMenuAction.removeOrCollect,
                     enabled: onToggleOwned != null,
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(
-                        entry.isOwned
-                            ? Icons.delete_outline
-                            : Icons.add_circle_outline,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: ListTile(
+                        dense: true,
+                        leading: Icon(
+                          entry.isOwned
+                              ? Icons.delete_outline
+                              : Icons.add_circle_outline,
+                        ),
+                        title: Text(entry.isOwned ? 'Remove' : 'Collect'),
                       ),
-                      title: Text(entry.isOwned ? 'Remove' : 'Collect'),
                     ),
                   ),
                   PopupMenuItem<InspectorToolbarMenuAction>(
                     value: InspectorToolbarMenuAction.loan,
                     enabled: onLoan != null,
-                    child: const ListTile(
-                      dense: true,
-                      leading: Icon(Icons.handshake_outlined),
-                      title: Text('Loan'),
+                    child: const Material(
+                      type: MaterialType.transparency,
+                      child: ListTile(
+                        dense: true,
+                        leading: Icon(Icons.handshake_outlined),
+                        title: Text('Loan'),
+                      ),
                     ),
                   ),
                   PopupMenuItem<InspectorToolbarMenuAction>(
                     value: InspectorToolbarMenuAction.refreshMetadata,
                     enabled: onRefreshMetadata != null,
-                    child: const ListTile(
-                      dense: true,
-                      leading: Icon(Icons.cloud_download_outlined),
-                      title: Text('Update from Core'),
+                    child: const Material(
+                      type: MaterialType.transparency,
+                      child: ListTile(
+                        dense: true,
+                        leading: Icon(Icons.cloud_download_outlined),
+                        title: Text('Update from Core'),
+                      ),
                     ),
                   ),
                 ],
