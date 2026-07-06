@@ -35,6 +35,7 @@ class LibraryInspectorSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.children,
+    this.headerActions = const [],
     this.accentColor,
     this.mutedTextColor,
     this.collapsible = true,
@@ -43,6 +44,7 @@ class LibraryInspectorSection extends StatelessWidget {
 
   final String title;
   final List<Widget> children;
+  final List<Widget> headerActions;
   final Color? accentColor;
   final Color? mutedTextColor;
   final bool collapsible;
@@ -55,6 +57,7 @@ class LibraryInspectorSection extends StatelessWidget {
       collapsible: collapsible,
       initiallyExpanded: initiallyExpanded,
       accentColor: accentColor,
+      headerActions: headerActions,
       children: children,
     );
   }
@@ -113,16 +116,19 @@ class LibraryInspectorChipSection extends StatelessWidget {
     required this.title,
     required this.values,
     this.onValueTap,
+    this.headerActions = const [],
   });
 
   final String title;
   final List<String> values;
   final ValueChanged<String>? onValueTap;
+  final List<Widget> headerActions;
 
   @override
   Widget build(BuildContext context) {
     return LibraryDetailSection(
       title: title,
+      headerActions: headerActions,
       children: [
         LibraryDetailChipGroupWidget(
           values: values,

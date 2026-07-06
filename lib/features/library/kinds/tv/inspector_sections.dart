@@ -142,6 +142,13 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.formatEditionRelease,
       title: 'Episodes',
+      headerActions: [
+        if (request.onEdit != null)
+          _editSectionAction(
+            request.onEdit!,
+            tooltip: 'Edit TV series',
+          ),
+      ],
       children: [
         InspectorEpisodeGridSection(
           seriesRef: seriesRef,
@@ -159,6 +166,13 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.people,
       title: 'Contributors',
+      headerActions: [
+        if (request.onEdit != null)
+          _editSectionAction(
+            request.onEdit!,
+            tooltip: 'Edit cast and crew',
+          ),
+      ],
       children: [InspectorContributorsSection(request: request)],
     ),
     LibraryDetailSectionSpec(
@@ -178,6 +192,27 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ],
     ),
   ];
+}
+
+Widget _editSectionAction(
+  VoidCallback onPressed, {
+  required String tooltip,
+}) {
+  return Tooltip(
+    message: tooltip,
+    child: SizedBox(
+      width: 30,
+      height: 30,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.compact,
+        ),
+        onPressed: onPressed,
+        child: const Icon(Icons.edit_outlined, size: 16),
+      ),
+    ),
+  );
 }
 
 Widget buildTvInspectorPanel(

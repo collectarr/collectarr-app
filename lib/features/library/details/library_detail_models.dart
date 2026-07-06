@@ -64,6 +64,7 @@ class LibraryDetailSectionSpec {
     this.fields = const [],
     this.chips = const [],
     this.children = const [],
+    this.headerActions = const [],
     this.initiallyExpanded = true,
   });
 
@@ -73,6 +74,6 @@ class LibraryDetailSectionSpec {
   final List<LibraryDetailField> fields;
   final List<LibraryDetailChipGroup> chips;
   final List<Widget> children;
+  final List<Widget> headerActions;
   final bool initiallyExpanded;
 }
-

@@ -140,6 +140,10 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
         title: 'Characters',
         values: request.entry.characters ?? const <String>[],
         onValueTap: request.onFilterByValue,
+        headerActions: [
+          if (request.onEdit != null)
+            _editSectionAction(request.onEdit!, tooltip: 'Edit characters'),
+        ],
       ),
     ),
     _ComicInspectorTab(
@@ -149,6 +153,10 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
         creators: request.entry.creators ?? const <Map<String, dynamic>>[],
         accent: request.accent,
         onValueTap: request.onFilterByValue,
+        headerActions: [
+          if (request.onEdit != null)
+            _editSectionAction(request.onEdit!, tooltip: 'Edit creators'),
+        ],
       ),
     ),
     _ComicInspectorTab(
@@ -198,6 +206,27 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
       ),
     ),
   ];
+}
+
+Widget _editSectionAction(
+  VoidCallback onPressed, {
+  required String tooltip,
+}) {
+  return Tooltip(
+    message: tooltip,
+    child: SizedBox(
+      width: 30,
+      height: 30,
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.compact,
+        ),
+        onPressed: onPressed,
+        child: const Icon(Icons.edit_outlined, size: 16),
+      ),
+    ),
+  );
 }
 
 List<Widget> buildComicInspectorSections(
@@ -290,11 +319,13 @@ class _ComicCreatorsGroupedSection extends StatelessWidget {
     required this.creators,
     required this.accent,
     required this.onValueTap,
+    this.headerActions = const [],
   });
 
   final List<Map<String, dynamic>> creators;
   final Color accent;
   final ValueChanged<String>? onValueTap;
+  final List<Widget> headerActions;
 
   @override
   Widget build(BuildContext context) {
@@ -321,6 +352,7 @@ class _ComicCreatorsGroupedSection extends StatelessWidget {
           LibraryInspectorSection(
             title: entries[i].key,
             accentColor: accent,
+            headerActions: headerActions,
             children: [
               Wrap(
                 spacing: 6,

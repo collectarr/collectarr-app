@@ -225,6 +225,7 @@ class LibraryInspectorRequest {
     required this.type,
     required this.entry,
     required this.ownedItem,
+    this.onEdit,
     this.ownedCopies = const [],
     required this.trackingEntry,
     required this.accent,
@@ -237,6 +238,7 @@ class LibraryInspectorRequest {
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
   final OwnedItem? ownedItem;
+  final VoidCallback? onEdit;
   final List<OwnedItem> ownedCopies;
   final TrackingEntry? trackingEntry;
   final Color accent;

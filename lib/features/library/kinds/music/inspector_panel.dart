@@ -87,6 +87,13 @@ class MusicInspectorPanel extends StatelessWidget {
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.people,
           title: 'Credits',
+          headerActions: [
+            if (request.onEdit != null)
+              _editSectionAction(
+                request.onEdit!,
+                tooltip: 'Edit credits',
+              ),
+          ],
           children: [
             _MusicInspectorCredits(inspector: inspector),
           ],
@@ -99,6 +106,27 @@ class MusicInspectorPanel extends StatelessWidget {
             initiallyExpanded: false,
           ),
       ],
+    );
+  }
+
+  Widget _editSectionAction(
+    VoidCallback onPressed, {
+    required String tooltip,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: SizedBox(
+        width: 30,
+        height: 30,
+        child: OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+          ),
+          onPressed: onPressed,
+          child: const Icon(Icons.edit_outlined, size: 16),
+        ),
+      ),
     );
   }
 }

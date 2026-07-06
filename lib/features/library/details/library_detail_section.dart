@@ -13,6 +13,7 @@ class LibraryDetailSection extends StatefulWidget {
     this.fields = const [],
     this.chips = const [],
     this.children = const [],
+    this.headerActions = const [],
     this.collapsible = true,
     this.initiallyExpanded = true,
     this.accentColor,
@@ -30,6 +31,7 @@ class LibraryDetailSection extends StatefulWidget {
       collapsible: true,
       initiallyExpanded: spec.initiallyExpanded,
       accentColor: accentColor,
+      headerActions: spec.headerActions,
       children: spec.children,
     );
   }
@@ -39,6 +41,7 @@ class LibraryDetailSection extends StatefulWidget {
   final List<LibraryDetailField> fields;
   final List<LibraryDetailChipGroup> chips;
   final List<Widget> children;
+  final List<Widget> headerActions;
   final bool collapsible;
   final bool initiallyExpanded;
   final Color? accentColor;
@@ -134,7 +137,15 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
                             ],
                           ),
                         ),
-                        if (widget.collapsible)
+                        if (widget.headerActions.isNotEmpty) ...[
+                          const SizedBox(width: 8),
+                          Wrap(
+                            spacing: 4,
+                            children: widget.headerActions,
+                          ),
+                        ],
+                        if (widget.collapsible) ...[
+                          const SizedBox(width: 4),
                           Icon(
                             _expanded
                                 ? Icons.keyboard_arrow_down
@@ -142,6 +153,7 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
                             size: 16,
                             color: palette.textMuted,
                           ),
+                        ],
                       ],
                     ),
                   ),
