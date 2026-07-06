@@ -1078,11 +1078,15 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           ],
           const SizedBox(height: 10),
           _responsiveFields([
-            _field(
-              controller: _releaseDateController,
+            _datePickerField(
               label: 'Release date',
-              hint: 'YYYY-MM-DD',
-              validator: optionalDateValidator,
+              value: parseDate(_releaseDateController.text),
+              onChanged: (picked) {
+                setState(() {
+                  _releaseDateController.text =
+                      picked == null ? '' : formatDate(picked);
+                });
+              },
             ),
             _field(
               controller: _releaseYearController,
@@ -1154,7 +1158,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       purchaseStoreController: _purchaseStoreController,
       marketValueController: _marketValueController,
       sellPriceController: _sellPriceController,
-      onPickPurchaseDate: _pickPurchaseDate,
       lastBagBoardDate: _lastBagBoardDate,
       onLastBagBoardDateChanged: (value) =>
           setState(() => _lastBagBoardDate = value),
@@ -1188,13 +1191,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       accent: widget.accent,
       buildResponsiveFields: _responsiveFields,
       buildField: _field,
+      buildDatePickerField: _datePickerField,
       soldAt: _soldAt,
       onSoldChanged: (value) {
         setState(() {
           _soldAt = value ? DateTime.now() : null;
         });
       },
-      onPickSoldDate: _pickSoldDate,
+      onSoldDateChanged: (value) => setState(() => _soldAt = value),
       sellPriceController: _sellPriceController,
       soldToController: _soldToController,
       priceController: _priceController,
@@ -2431,30 +2435,6 @@ ORDER BY owner_label COLLATE NOCASE
       _selectedLocationId = result.isEmpty ? null : result;
       _availableLocations = locations;
     });
-  }
-
-  Future<void> _pickPurchaseDate() async {
-    final picked = await showLibraryDateEntryDialog(
-      context,
-      label: 'Purchase date',
-      initialDate: parseDate(_purchaseDateController.text),
-    );
-    if (picked != null && mounted) {
-      setState(() {
-        _purchaseDateController.text = formatDate(picked);
-      });
-    }
-  }
-
-  Future<void> _pickSoldDate() async {
-    final picked = await showLibraryDateEntryDialog(
-      context,
-      label: 'Sold date',
-      initialDate: _soldAt,
-    );
-    if (picked != null && mounted) {
-      setState(() => _soldAt = picked);
-    }
   }
 
   List<PhysicalMediaFormat> get _effectivePhysicalFormats {

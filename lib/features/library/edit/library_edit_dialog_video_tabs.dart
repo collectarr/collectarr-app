@@ -522,11 +522,15 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                 ]),
                 const SizedBox(height: 10),
                 _responsiveFields([
-                  _field(
-                    controller: _purchaseDateController,
+                  _datePickerField(
                     label: 'Purchase date',
-                    hint: 'YYYY-MM-DD',
-                    validator: optionalDateValidator,
+                    value: parseDate(_purchaseDateController.text),
+                    onChanged: (picked) {
+                      _mutateDialogState(() {
+                        _purchaseDateController.text =
+                            picked == null ? '' : formatDate(picked);
+                      });
+                    },
                   ),
                   _field(
                     controller: _purchaseStoreController,

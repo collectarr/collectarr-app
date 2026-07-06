@@ -34,7 +34,6 @@ class LibraryEditValueTab extends StatelessWidget {
     required this.purchaseStoreController,
     required this.marketValueController,
     required this.sellPriceController,
-    required this.onPickPurchaseDate,
     required this.lastBagBoardDate,
     required this.onLastBagBoardDateChanged,
     this.isGameKind = false,
@@ -62,7 +61,6 @@ class LibraryEditValueTab extends StatelessWidget {
   final TextEditingController purchaseStoreController;
   final TextEditingController marketValueController;
   final TextEditingController sellPriceController;
-  final VoidCallback onPickPurchaseDate;
   final DateTime? lastBagBoardDate;
   final ValueChanged<DateTime?> onLastBagBoardDateChanged;
   final bool isGameKind;
@@ -97,14 +95,13 @@ class LibraryEditValueTab extends StatelessWidget {
                 buildField(controller: currencyController, label: 'Currency'),
               ]),
               const SizedBox(height: 10),
-              OutlinedButton.icon(
-                onPressed: onPickPurchaseDate,
-                icon: const Icon(Icons.event),
-                label: Text(
-                  purchaseDateController.text.isEmpty
-                      ? 'Set purchase date'
-                      : 'Purchase date: ${purchaseDateController.text}',
-                ),
+              buildDatePickerField(
+                label: 'Purchase date',
+                value: parseDate(purchaseDateController.text),
+                onChanged: (picked) {
+                  purchaseDateController.text =
+                      picked == null ? '' : formatDate(picked);
+                },
               ),
               const SizedBox(height: 10),
               TextFormField(
@@ -293,9 +290,10 @@ Widget buildLibraryEditSoldTab({
   required Color accent,
   required LibraryEditResponsiveFieldsBuilder buildResponsiveFields,
   required LibraryEditFieldBuilder buildField,
+  required LibraryEditDatePickerFieldBuilder buildDatePickerField,
   required DateTime? soldAt,
   required ValueChanged<bool> onSoldChanged,
-  required VoidCallback onPickSoldDate,
+  required ValueChanged<DateTime?> onSoldDateChanged,
   required TextEditingController sellPriceController,
   required TextEditingController soldToController,
   required TextEditingController priceController,
@@ -325,10 +323,10 @@ Widget buildLibraryEditSoldTab({
             ),
             if (soldAt != null) ...[
               const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: onPickSoldDate,
-                icon: const Icon(Icons.event),
-                label: Text('Sold date: ${formatDate(soldAt)}'),
+              buildDatePickerField(
+                label: 'Sold date',
+                value: soldAt,
+                onChanged: onSoldDateChanged,
               ),
               const SizedBox(height: 12),
               buildResponsiveFields([

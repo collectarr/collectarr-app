@@ -299,13 +299,27 @@ class _ManualPaneState extends State<_ManualPane> {
                                           labelText: 'Purchase Price'))),
                               const SizedBox(width: 8),
                               Expanded(
-                                  child: TextField(
-                                      controller: _kindSpecificController(
+                                  child: ValueListenableBuilder<
+                                      TextEditingValue>(
+                                valueListenable: _kindSpecificController(
+                                  'purchaseDateController',
+                                  _fallbackPurchaseDateController,
+                                ),
+                                builder: (context, value, _) {
+                                  return LibraryDateFieldButton(
+                                    label: 'Purchase date',
+                                    value: parseDate(value.text),
+                                    onChanged: (picked) {
+                                      _kindSpecificController(
                                         'purchaseDateController',
                                         _fallbackPurchaseDateController,
-                                      ),
-                                      decoration: const InputDecoration(
-                                          labelText: 'Purchase Date'))),
+                                      ).text = picked == null
+                                          ? ''
+                                          : formatDate(picked);
+                                    },
+                                  );
+                                },
+                              )),
                             ]),
                             const SizedBox(height: 8),
                             Row(children: [

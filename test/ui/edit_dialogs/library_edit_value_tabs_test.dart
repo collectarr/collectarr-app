@@ -61,7 +61,6 @@ void main() {
             purchaseStoreController: purchaseStoreController,
             marketValueController: marketValueController,
             sellPriceController: sellPriceController,
-            onPickPurchaseDate: () {},
             lastBagBoardDate: null,
             onLastBagBoardDateChanged: (_) {},
           ),
@@ -73,7 +72,7 @@ void main() {
     expect(find.text('Last bag & board date'), findsOneWidget);
     expect(find.text('Manual estimate: '), findsOneWidget);
     expect(find.text('Insurance: '), findsOneWidget);
-    expect(find.text('Purchase date: 2024-01-02'), findsOneWidget);
+    expect(find.text('Purchase date'), findsWidgets);
     expect(find.text('USD 12.50'), findsOneWidget);
     expect(find.text('USD 25.00'), findsOneWidget);
     expect(find.text('USD 20.00'), findsWidgets);
@@ -101,9 +100,10 @@ void main() {
               accent: Colors.blue,
               buildResponsiveFields: buildResponsiveFields,
               buildField: buildField,
+              buildDatePickerField: buildDatePickerField,
               soldAt: DateTime(2024, 1, 2),
               onSoldChanged: (_) {},
-              onPickSoldDate: () {},
+              onSoldDateChanged: (_) {},
               sellPriceController: sellPriceController,
               soldToController: soldToController,
               priceController: priceController,
@@ -119,5 +119,6 @@ void main() {
     expect(find.text('Sold for: '), findsOneWidget);
     expect(find.text('+\$12.50'), findsOneWidget);
     expect(find.textContaining('Sold on 2024-01-02'), findsOneWidget);
+    expect(find.text('Sold date'), findsOneWidget);
   });
 }
