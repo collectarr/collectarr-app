@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

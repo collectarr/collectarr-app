@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
-import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

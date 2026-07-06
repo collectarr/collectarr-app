@@ -1,5 +1,5 @@
-import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
-import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
+import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

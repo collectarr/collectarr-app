@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/add/library_add_content_scope.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_content_scope.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -108,4 +108,3 @@ void main() {
     );
   });
 }
-

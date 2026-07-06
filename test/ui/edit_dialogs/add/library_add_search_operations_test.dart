@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/library_add_search_operations.dart';
+import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/core/api/api_client.dart';

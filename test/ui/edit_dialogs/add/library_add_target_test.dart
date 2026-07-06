@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
