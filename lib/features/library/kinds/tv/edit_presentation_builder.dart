@@ -51,6 +51,12 @@ const _tvMediaTabs = [
     label: 'Links',
     sectionIds: ['external_links'],
   ),
+  LibraryEditTabSpec(
+    id: 'episode_map',
+    icon: Icons.route_outlined,
+    label: 'Episodes',
+    sectionIds: ['tv_episode_disc_map'],
+  ),
 ];
 
 const _tvReleaseTabs = [
@@ -65,12 +71,6 @@ const _tvReleaseTabs = [
     icon: Icons.album_outlined,
     label: 'Edition Details',
     sectionIds: ['release_details', 'video_specs'],
-  ),
-  LibraryEditTabSpec(
-    id: 'episode_map',
-    icon: Icons.route_outlined,
-    label: 'Disc / episode nesting',
-    sectionIds: ['tv_episode_disc_map'],
   ),
   LibraryEditTabSpec(
     id: 'personal',
@@ -123,12 +123,6 @@ const _tvAllTabs = [
     icon: Icons.album_outlined,
     label: 'Edition Details',
     sectionIds: ['release_details', 'video_specs'],
-  ),
-  LibraryEditTabSpec(
-    id: 'episode_map',
-    icon: Icons.route_outlined,
-    label: 'Disc / episode nesting',
-    sectionIds: ['tv_episode_disc_map'],
   ),
 ];
 

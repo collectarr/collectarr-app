@@ -71,16 +71,6 @@ class BookInspectorPanel extends StatelessWidget {
             statusLabel: statusLabel,
           ),
           const SizedBox(height: 10),
-          InspectorActionBar(
-            type: request.inspector.type,
-            entry: entry,
-            onToggleOwned: request.onToggleOwned,
-            onToggleWishlist: request.onToggleWishlist,
-            onEdit: request.onEdit,
-            onCorrectMetadata: request.onCorrectMetadata,
-            extraActions: request.extraActions,
-            onOpenDetails: request.onOpenDetails,
-          ),
         ],
       ),
       sections: [

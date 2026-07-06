@@ -7,10 +7,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
@@ -18,8 +15,6 @@ import 'package:collectarr_app/features/library/inspector/metadata_correction_di
 import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_loan_section.dart';
-import 'package:collectarr_app/features/library/inspector/inspector_location_section.dart';
-import 'package:collectarr_app/features/library/inspector/inspector_folder_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
@@ -293,7 +288,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       ),
       usesCustomInspectorPanel: false,
       activeBundleReleaseId: null,
-      extraActions: const [],
       onToggleOwned: onToggleOwned,
       onToggleWishlist: onToggleWishlist,
       onEdit: onEdit,
@@ -317,7 +311,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryInspectorRequest inspectorRequest, {
     required bool usesCustomInspectorPanel,
     required String? activeBundleReleaseId,
-    required List<Widget> extraActions,
     required VoidCallback? onToggleOwned,
     required VoidCallback? onToggleWishlist,
     required VoidCallback? onEdit,
@@ -507,16 +500,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               children: [
                 hero,
                 SizedBox(height: density.inspectorOuterGap),
-                InspectorActionBar(
-                  type: widget.type,
-                  entry: selected,
-                  onToggleOwned: onToggleOwned,
-                  onToggleWishlist: onToggleWishlist,
-                  onEdit: onEdit,
-                  onCorrectMetadata: onCorrectMetadata,
-                  extraActions: extraActions,
-                  onOpenDetails: onOpenDetails,
-                ),
               ],
             ),
           ),
@@ -811,27 +794,6 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-}
-
-class _InspectorDialogActionButton extends StatelessWidget {
-  const _InspectorDialogActionButton({
-    required this.tooltip,
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final String tooltip;
-  final IconData icon;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return InspectorToolIconButton(
-      tooltip: tooltip,
-      icon: icon,
-      onPressed: onPressed,
     );
   }
 }
