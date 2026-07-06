@@ -77,6 +77,29 @@ void main() {
     expect(find.text('0-9'), findsOneWidget);
   });
 
+  testWidgets('alphabet row selected button uses library accent', (
+    tester,
+  ) async {
+    const selectedLetter = 'A';
+    final accent = moviesLibraryConfig.workspace.accent;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryToolbarAlphabetRow(
+            letters: const {'A', 'B'},
+            selectedLetter: selectedLetter,
+            accent: accent,
+            onLetterSelected: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    final selectedText = tester.widget<Text>(find.text(selectedLetter));
+    expect(selectedText.style?.color, accent);
+  });
+
   test('alpha jump bar groups symbol and numeric titles separately', () {
     expect(
       LibraryAlphaJumpBar.lettersFromTitles([

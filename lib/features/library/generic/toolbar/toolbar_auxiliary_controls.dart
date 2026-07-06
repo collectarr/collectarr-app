@@ -1038,11 +1038,13 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
     super.key,
     required this.letters,
     required this.selectedLetter,
+    required this.accent,
     required this.onLetterSelected,
   });
 
   final Set<String> letters;
   final String? selectedLetter;
+  final Color accent;
   final ValueChanged<String?> onLetterSelected;
 
   @override
@@ -1096,17 +1098,20 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
       required VoidCallback? onTap,
     }) {
       final foreground = selected
-          ? Colors.white
+          ? accent
           : enabled
               ? palette.textPrimary
               : palette.textMuted.withValues(alpha: 0.38);
       final background = selected
-          ? palette.selection
+          ? Color.alphaBlend(
+              accent.withValues(alpha: 0.14),
+              palette.panelRaised,
+            )
           : enabled
               ? palette.surfaceSubtle.withValues(alpha: 0.42)
               : Colors.transparent;
       final borderColor = selected
-          ? palette.selection.withValues(alpha: 0.9)
+          ? accent.withValues(alpha: 0.9)
           : enabled
               ? palette.divider.withValues(alpha: 0.7)
               : palette.divider.withValues(alpha: 0.24);
@@ -1137,7 +1142,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                   color: foreground,
                 ),
               ),

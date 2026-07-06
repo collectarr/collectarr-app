@@ -766,6 +766,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                 child: LibraryToolbarAlphabetRow(
                   letters: availableLetters,
                   selectedLetter: selectedLetter,
+                  accent: accent,
                   onLetterSelected: onLetterSelected!,
                 ),
               ),
@@ -1264,6 +1265,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
           LibraryToolbarAlphabetRow(
             letters: availableLetters,
             selectedLetter: selectedLetter,
+            accent: accent,
             onLetterSelected: onLetterSelected!,
           ),
         ],
