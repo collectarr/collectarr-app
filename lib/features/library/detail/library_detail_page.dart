@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/detail/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -163,19 +164,21 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               ),
             ),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
-                children: [
-                  LibraryDetailHero(
-                    type: widget.type,
-                    entry: widget.entry,
-                    ownedItem: activeOwnedItem,
-                    ownedCopies: ownedCopies,
-                    accent: widget.accent,
-                    isOwned: isOwned,
-                  ),
-                  const SizedBox(height: 10),
-                  if (activeOwnedItem != null || activeTrackingEntry != null) ...[
+              child: LibraryDetailPanelScaffold(
+                typeLabel: widget.type.singularLabel,
+                entryTitle: widget.entry.resolvedTitle,
+                accent: widget.accent,
+                variant: LibraryDetailPanelVariant.fullPage,
+                hero: LibraryDetailHero(
+                  type: widget.type,
+                  entry: widget.entry,
+                  ownedItem: activeOwnedItem,
+                  ownedCopies: ownedCopies,
+                  accent: widget.accent,
+                  isOwned: isOwned,
+                ),
+                sections: [
+                  if (activeOwnedItem != null || activeTrackingEntry != null)
                     LibraryDetailPersonalSection(
                       entry: widget.entry,
                       ownedItem: activeOwnedItem,
@@ -184,6 +187,9 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                       accent: widget.accent,
                       onFilterByValue: widget.onFilterByValue,
                     ),
+                  if (activeOwnedItem != null || activeTrackingEntry != null)
+                    const SizedBox(height: 12),
+                  if (activeOwnedItem != null || activeTrackingEntry != null)
                     ...buildLibraryInspectorEditorSections(
                       type: widget.type,
                       entry: widget.entry,
@@ -191,8 +197,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                       ownedItem: activeOwnedItem,
                       trackingEntry: activeTrackingEntry,
                     ),
+                  if (activeOwnedItem != null || activeTrackingEntry != null)
                     const SizedBox(height: 12),
-                  ],
                   if (activeBundleReleaseId != null) ...[
                     BundleReleaseContentsSection(
                       bundleReleaseId: activeBundleReleaseId,

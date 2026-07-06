@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,15 +8,19 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) {
-              return LibraryDialogScaffold(
-                title: const Text('Inspector'),
-                onClose: () {},
-                child: const Text('Body'),
-              );
-            },
+        home: LibraryAccentScope(
+          accent: Colors.deepPurple,
+          animationsEnabled: false,
+          child: Scaffold(
+            body: Builder(
+              builder: (context) {
+                return LibraryDialogScaffold(
+                  title: const Text('Inspector'),
+                  onClose: () {},
+                  child: const Text('Body'),
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -24,5 +29,14 @@ void main() {
     expect(find.text('Inspector'), findsOneWidget);
     expect(find.text('Body'), findsOneWidget);
     expect(find.byIcon(Icons.close), findsOneWidget);
+
+    final headerContainer = tester.widgetList<Container>(find.byType(Container))
+        .firstWhere(
+          (container) =>
+              container.decoration is BoxDecoration &&
+              (container.decoration as BoxDecoration).color ==
+                  Colors.deepPurple,
+        );
+    expect(headerContainer, isNotNull);
   });
 }

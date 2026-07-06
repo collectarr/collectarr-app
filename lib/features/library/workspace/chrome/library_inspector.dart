@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 const Color _kDefaultAccent = kAppAccent;
 const Color _kDefaultMutedText = kAppTextMuted;
-const double _kTwoColumnBreakpoint = 420;
+const double _kMinFactCellWidth = 220;
 
 class LibraryInspectorFactData {
   const LibraryInspectorFactData(
@@ -150,8 +150,9 @@ class LibraryInspectorFactGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final density = LibraryWorkspaceDensityScope.of(context);
-        final twoColumns = constraints.maxWidth >= _kTwoColumnBreakpoint;
-        if (!twoColumns) {
+        final columns =
+            (constraints.maxWidth / _kMinFactCellWidth).floor().clamp(1, 3);
+        if (columns == 1) {
           return Column(
             children: [
               for (final fact in facts)
@@ -164,15 +165,15 @@ class LibraryInspectorFactGrid extends StatelessWidget {
             ],
           );
         }
+        final gap = density.inspectorSectionSpacing;
+        final cellWidth = (constraints.maxWidth - gap * (columns - 1)) / columns;
         return Wrap(
-          spacing: density.inspectorSectionSpacing,
+          spacing: gap,
           runSpacing: 0,
           children: [
             for (final fact in facts)
               SizedBox(
-                width:
-                    (constraints.maxWidth - density.inspectorSectionSpacing) /
-                        2,
+                width: cellWidth,
                 child: LibraryInspectorFact(
                   fact.label,
                   fact.value,

@@ -432,7 +432,7 @@ class _LibraryMetadataCompareDialogState
     return LibraryDialogScaffold(
       title: Row(
         children: [
-          Icon(Icons.compare_arrows, color: widget.accent),
+          const Icon(Icons.compare_arrows, color: Colors.white),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
