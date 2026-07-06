@@ -1,1 +1,1 @@
-export 'coordinators/page_dialog_coordinator.dart';
+export 'generic_library_page.dart';

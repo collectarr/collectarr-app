@@ -29,7 +29,6 @@ export 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
@@ -467,10 +466,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _pendingProviderPreviewIds.contains(selectedCandidate.localCatalogId) &&
         !_providerPreviews.containsKey(selectedCandidate.localCatalogId);
     final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
-    final movieDesktopWidth =
-        _isMovieDesktopChrome ? 1540.0 : _defaultDialogWidth;
-    final movieDesktopHeight =
-        _isMovieDesktopChrome ? 920.0 : _defaultDialogHeight;
     final headerRequest = LibraryAddHeaderRequest(
       type: widget.type,
       accent: accent,
