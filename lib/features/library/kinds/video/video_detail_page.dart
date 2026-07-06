@@ -27,6 +27,8 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -735,6 +737,13 @@ class _TvReleaseTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final density = LibraryDensityScope.maybeOf(context)?.density ??
+        LibraryDensity.comfortable;
+    final tilePadding = switch (density) {
+      LibraryDensity.comfortable => const EdgeInsets.all(12),
+      LibraryDensity.compact => const EdgeInsets.all(10),
+      LibraryDensity.dense => const EdgeInsets.all(8),
+    };
     return Material(
       color: selected ? accent.withValues(alpha: 0.16) : palette.panel,
       borderRadius: BorderRadius.circular(16),
@@ -748,7 +757,7 @@ class _TvReleaseTile extends StatelessWidget {
               color: selected ? accent.withValues(alpha: 0.85) : palette.divider,
             ),
           ),
-          padding: const EdgeInsets.all(12),
+          padding: tilePadding,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -813,6 +822,13 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final density = LibraryDensityScope.maybeOf(context)?.density ??
+        LibraryDensity.comfortable;
+    final tilePadding = switch (density) {
+      LibraryDensity.comfortable => const EdgeInsets.all(12),
+      LibraryDensity.compact => const EdgeInsets.all(10),
+      LibraryDensity.dense => const EdgeInsets.all(8),
+    };
     final selectedMedia = release.media.isEmpty
         ? null
         : release.media.firstWhere(
@@ -826,7 +842,7 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
         border: Border.all(color: accent.withValues(alpha: 0.28)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: tilePadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

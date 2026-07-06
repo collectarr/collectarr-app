@@ -579,13 +579,20 @@ class _MovieSearchResultsGrid extends StatelessWidget {
         _MovieSearchGridEntry.provider(candidate),
     ];
     final palette = appPalette(context);
+    final density = LibraryDensityScope.maybeOf(context)?.density ??
+        LibraryDensity.comfortable;
+    final densityScale = switch (density) {
+      LibraryDensity.comfortable => 1.0,
+      LibraryDensity.compact => 0.9,
+      LibraryDensity.dense => 0.82,
+    };
     return GridView.builder(
-      padding: const EdgeInsets.all(12),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+      padding: EdgeInsets.all(12 * densityScale),
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 174,
-        mainAxisExtent: 292,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
+        mainAxisExtent: 292 * densityScale,
+        mainAxisSpacing: 10 * densityScale,
+        crossAxisSpacing: 10 * densityScale,
       ),
       itemCount: entries.length,
       itemBuilder: (context, index) {
@@ -670,7 +677,7 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8 * densityScale),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -750,7 +757,7 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8 * densityScale),
                     Text(
                       title,
                       maxLines: 2,
@@ -762,7 +769,7 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                       ),
                     ),
                     if (subtitle.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4 * densityScale),
                       Text(
                         subtitle,
                         maxLines: 2,
@@ -775,7 +782,7 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                       ),
                     ],
                     if (matchSummary != null) ...[
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4 * densityScale),
                       Text(
                         'Matched on: $matchSummary',
                         maxLines: 2,
@@ -788,7 +795,7 @@ class _MovieSearchResultsGrid extends StatelessWidget {
                       ),
                     ],
                     if (isOwned) ...[
-                      const SizedBox(height: 5),
+                      SizedBox(height: 5 * densityScale),
                       LibraryAddResultBadge(
                         'Already in collection',
                         icon: Icons.playlist_add_check_rounded,
@@ -988,6 +995,13 @@ class _SearchResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final density = LibraryDensityScope.maybeOf(context)?.density ??
+        LibraryDensity.comfortable;
+    final densityScale = switch (density) {
+      LibraryDensity.comfortable => 1.0,
+      LibraryDensity.compact => 0.9,
+      LibraryDensity.dense => 0.82,
+    };
     final matchSummary = _metadataItemMatchSummary(
       type: type,
       item: item,
@@ -1045,7 +1059,10 @@ class _SearchResultTile extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          padding: EdgeInsets.symmetric(
+            horizontal: 8 * densityScale,
+            vertical: 5 * densityScale,
+          ),
           child: Row(
             children: [
               SizedBox(
@@ -1067,7 +1084,7 @@ class _SearchResultTile extends StatelessWidget {
                   imageUrl: item.displayCoverUrl,
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10 * densityScale),
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -1103,7 +1120,7 @@ class _SearchResultTile extends StatelessWidget {
                           ),
                         ),
                         if (subtitle.isNotEmpty) ...[
-                          const SizedBox(height: 3),
+                          SizedBox(height: 3 * densityScale),
                           Text(
                             subtitle,
                             maxLines: compact ? 1 : 2,
@@ -1116,7 +1133,7 @@ class _SearchResultTile extends StatelessWidget {
                           ),
                         ],
                         if (showDetailLine) ...[
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2 * densityScale),
                           Text(
                             detailLine,
                             maxLines: compact ? 1 : 2,
@@ -1129,7 +1146,7 @@ class _SearchResultTile extends StatelessWidget {
                           ),
                         ],
                         if (showMatchSummary) ...[
-                          const SizedBox(height: 3),
+                          SizedBox(height: 3 * densityScale),
                           Text(
                             'Matched on: $matchSummary',
                             maxLines: compact ? 1 : 2,
@@ -1141,7 +1158,7 @@ class _SearchResultTile extends StatelessWidget {
                             ),
                           ),
                         ],
-                        const SizedBox(height: 5),
+                        SizedBox(height: 5 * densityScale),
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
@@ -1263,6 +1280,13 @@ class _ProviderCandidateTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final density = LibraryDensityScope.maybeOf(context)?.density ??
+        LibraryDensity.comfortable;
+    final densityScale = switch (density) {
+      LibraryDensity.comfortable => 1.0,
+      LibraryDensity.compact => 0.9,
+      LibraryDensity.dense => 0.82,
+    };
     final matchSummary = _providerCandidateMatchSummary(
       type: type,
       candidate: candidate,
@@ -1373,7 +1397,7 @@ class _ProviderCandidateTile extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8 * densityScale),
               Icon(
                 selected ? Icons.check_circle : Icons.chevron_right,
                 color: selected ? accent : palette.textMuted,

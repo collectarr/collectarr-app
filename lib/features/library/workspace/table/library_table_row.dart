@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:flutter/material.dart';
 
 class LibraryTableInkRow extends StatelessWidget {
@@ -18,6 +20,7 @@ class LibraryTableInkRow extends StatelessWidget {
     this.selectionRailWidth = 2,
     this.horizontalMargin = 6,
     this.verticalPadding = 1,
+    this.density,
   });
 
   final bool selected;
@@ -35,9 +38,21 @@ class LibraryTableInkRow extends StatelessWidget {
   final double selectionRailWidth;
   final double horizontalMargin;
   final double verticalPadding;
+  final LibraryDensity? density;
 
   @override
   Widget build(BuildContext context) {
+    final resolvedDensity = density ?? LibraryDensityScope.of(context);
+    final resolvedHorizontalMargin = switch (resolvedDensity) {
+      LibraryDensity.comfortable => horizontalMargin,
+      LibraryDensity.compact => horizontalMargin * 0.82,
+      LibraryDensity.dense => horizontalMargin * 0.68,
+    };
+    final resolvedVerticalPadding = switch (resolvedDensity) {
+      LibraryDensity.comfortable => verticalPadding,
+      LibraryDensity.compact => verticalPadding * 0.8,
+      LibraryDensity.dense => verticalPadding * 0.66,
+    };
     final baseColor = odd ? oddColor : evenColor;
     final resolvedSelectedColor = Color.alphaBlend(
       selectedColor.withValues(alpha: 0.52),
@@ -65,10 +80,10 @@ class LibraryTableInkRow extends StatelessWidget {
           hoverColor: hoverColor,
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-              horizontalMargin,
-              verticalPadding,
-              horizontalMargin - selectionRailWidth,
-              verticalPadding,
+            resolvedHorizontalMargin,
+            resolvedVerticalPadding,
+            resolvedHorizontalMargin - selectionRailWidth,
+            resolvedVerticalPadding,
             ),
             child: child,
           ),

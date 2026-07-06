@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/workspace/table/library_table_row.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -53,6 +55,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
     this.bottomBorderColor = kAppTableBottomBorder,
     this.hoverColor = kAppTableHover,
     this.accentColor = kAppAccent,
+    this.density,
     super.key,
   });
 
@@ -89,6 +92,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final Color bottomBorderColor;
   final Color hoverColor;
   final Color accentColor;
+  final LibraryDensity? density;
 
   @override
   State<LibraryWorkspaceTable<T>> createState() =>
@@ -106,6 +110,16 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedDensity = widget.density ?? LibraryDensityScope.of(context);
+    final densityScale = switch (resolvedDensity) {
+      LibraryDensity.comfortable => 1.0,
+      LibraryDensity.compact => 0.9,
+      LibraryDensity.dense => 0.8,
+    };
+    final resolvedHeaderHeight = widget.headerHeight * densityScale;
+    final resolvedRowHeight = widget.rowHeight * densityScale;
+    final resolvedColumnSpacing = widget.columnSpacing * densityScale;
+    final resolvedHorizontalMargin = widget.horizontalMargin * densityScale;
     final palette = appPalette(context);
     final tableBorderRadius = BorderRadius.circular(2);
     final resolvedHeaderColor = widget.headerColor == kAppSurface
@@ -156,9 +170,9 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
               onSortChanged: widget.onSortChanged,
               onColumnWidthChanged: widget.onColumnWidthChanged,
               onColumnReordered: widget.onColumnReordered,
-              headerHeight: widget.headerHeight,
-              columnSpacing: widget.columnSpacing,
-              horizontalMargin: widget.horizontalMargin,
+              headerHeight: resolvedHeaderHeight,
+              columnSpacing: resolvedColumnSpacing,
+              horizontalMargin: resolvedHorizontalMargin,
               headerColor: resolvedHeaderColor,
               dividerColor: resolvedDividerColor,
               accentColor: widget.accentColor,
@@ -172,7 +186,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
                     controller: _scrollController,
                     primary: false,
                     itemCount: widget.entries.length,
-                    itemExtent: widget.rowHeight,
+                    itemExtent: resolvedRowHeight,
                     itemBuilder: (context, index) {
                       final entry = widget.entries[index];
                       return _LibraryWorkspaceTableRow<T>(
@@ -191,9 +205,9 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
                         columnWidthFor: widget.columnWidthFor,
                         columnIsNumeric: widget.columnIsNumeric,
                         cellBuilder: widget.cellBuilder,
-                        rowHeight: widget.rowHeight,
-                        columnSpacing: widget.columnSpacing,
-                        horizontalMargin: widget.horizontalMargin,
+                        rowHeight: resolvedRowHeight,
+                        columnSpacing: resolvedColumnSpacing,
+                        horizontalMargin: resolvedHorizontalMargin,
                         selectionRailWidth: widget.selectionRailWidth,
                         selectedColor: resolvedSelectedColor,
                         oddColor: resolvedOddColor,

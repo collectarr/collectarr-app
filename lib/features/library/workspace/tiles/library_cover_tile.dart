@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
@@ -74,6 +76,8 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final entry = widget.entry;
     final active = widget.active;
     final selected = widget.selected;
+    final density = LibraryDensityScope.maybeOf(context)?.density ??
+        LibraryDensity.comfortable;
     final uiPrefs = ref.watch(uiPreferencesProvider);
     final palette = appPalette(context);
     final flat = uiPrefs.flatCovers;
@@ -98,11 +102,26 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
         (widget.coverSize * 0.032).clamp(3.0, 6.0).toDouble();
     final activeBorderWidth =
         (widget.coverSize * 0.02).clamp(2.0, 3.5).toDouble();
+    final tilePadding = switch (density) {
+      LibraryDensity.comfortable => const EdgeInsets.all(2),
+      LibraryDensity.compact => const EdgeInsets.all(1),
+      LibraryDensity.dense => EdgeInsets.zero,
+    };
+    final badgeTop = switch (density) {
+      LibraryDensity.comfortable => 6.0,
+      LibraryDensity.compact => 5.0,
+      LibraryDensity.dense => 4.0,
+    };
+    final badgeBottom = switch (density) {
+      LibraryDensity.comfortable => 5.0,
+      LibraryDensity.compact => 4.0,
+      LibraryDensity.dense => 3.0,
+    };
 
     return RepaintBoundary(
       child: Container(
         clipBehavior: Clip.antiAlias,
-        padding: flat ? EdgeInsets.zero : const EdgeInsets.all(2),
+        padding: flat ? EdgeInsets.zero : tilePadding,
         decoration: BoxDecoration(
           color: selected
               ? resolvedSelectedColor
@@ -196,7 +215,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
               ),
               if (auxiliaryBadges.isNotEmpty)
                 Positioned(
-                  top: showEditButton ? 34 : 6,
+                  top: showEditButton ? 34 : badgeTop,
                   right: 6,
                   child: Wrap(
                     spacing: 4,
@@ -218,7 +237,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
               if (showSelectionToggle)
                 Positioned(
                   left: 5,
-                  bottom: 5,
+                  bottom: badgeBottom,
                   child: LibraryTileSelectionToggleButton(
                     onTap: widget.onSelectionToggleTap,
                     child: LibraryTileSelectionToggle(

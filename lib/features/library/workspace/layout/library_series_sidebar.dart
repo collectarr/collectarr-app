@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -204,6 +206,13 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final filtered = _filteredSorted;
+    final density = LibraryDensityScope.maybeOf(context)?.density ??
+        LibraryDensity.comfortable;
+    final densityScale = switch (density) {
+      LibraryDensity.comfortable => 1.0,
+      LibraryDensity.compact => 0.9,
+      LibraryDensity.dense => 0.8,
+    };
     final resolvedBackgroundColor = widget.backgroundColor == kAppPanel
       ? palette.panel
       : widget.backgroundColor;
@@ -228,9 +237,9 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
         children: [
           widget.headerOverride ??
               Container(
-                height: 32,
+                height: 32 * densityScale,
                 alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: EdgeInsets.symmetric(horizontal: 8 * densityScale),
                 decoration: BoxDecoration(
                   color: resolvedHeaderColor,
                   border:
@@ -322,7 +331,8 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                         leadingInset: widget.ancestorScopeLabels.isEmpty
                             ? 0
                             : 14.0 + widget.ancestorScopeLabels.length * 12.0,
-                        extraVerticalPadding: rowPadding.clamp(1.0, 3.0),
+                        extraVerticalPadding:
+                            (rowPadding * densityScale).clamp(0.8, 3.0),
                       );
                     },
                   ),

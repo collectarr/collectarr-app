@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/ui/library_surface.dart';
 import 'package:flutter/material.dart';
 
@@ -26,15 +27,18 @@ class LibraryPanelChrome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibrarySurface(
-      header: header,
-      body: body,
-      footer: footer,
-      maxWidth: maxWidth,
-      maxHeight: maxHeight,
-      backgroundColor: backgroundColor,
-      bodyPadding: bodyPadding ?? libraryPanelInsets(density),
+    return LibraryDensityScope(
       density: density,
+      child: LibrarySurface(
+        header: header,
+        body: body,
+        footer: footer,
+        maxWidth: maxWidth,
+        maxHeight: maxHeight,
+        backgroundColor: backgroundColor,
+        bodyPadding: bodyPadding ?? libraryPanelInsets(density),
+        density: density,
+      ),
     );
   }
 }

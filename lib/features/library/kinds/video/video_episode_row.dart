@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/video/video_progress_summary.dart';
+import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +20,7 @@ class VideoEpisodeRow extends StatelessWidget {
     this.onEdit,
     this.onDuplicate,
     this.extraActions = const <Widget>[],
+    this.density,
   });
 
   final VideoEpisodeProgressSummary episode;
@@ -33,12 +36,24 @@ class VideoEpisodeRow extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDuplicate;
   final List<Widget> extraActions;
+  final LibraryDensity? density;
 
   @override
   Widget build(BuildContext context) {
+    final resolvedDensity = density ?? LibraryDensityScope.of(context);
+    final resolvedOuterPadding = switch (resolvedDensity) {
+      LibraryDensity.comfortable => const EdgeInsets.only(bottom: 8),
+      LibraryDensity.compact => const EdgeInsets.only(bottom: 6),
+      LibraryDensity.dense => const EdgeInsets.only(bottom: 4),
+    };
+    final resolvedInnerPadding = switch (resolvedDensity) {
+      LibraryDensity.comfortable => const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      LibraryDensity.compact => const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      LibraryDensity.dense => const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    };
     final palette = appPalette(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: resolvedOuterPadding,
       child: Material(
         color: palette.surfaceSubtle.withValues(alpha: 0.82),
         shape: RoundedRectangleBorder(
@@ -48,7 +63,7 @@ class VideoEpisodeRow extends StatelessWidget {
         child: InkWell(
           onTap: busy ? null : onToggleWatched,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: resolvedInnerPadding,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
