@@ -41,6 +41,52 @@ class LibraryBucketScopeFilter {
   final String bucket;
 }
 
+class LibraryFolderTreeNode {
+  const LibraryFolderTreeNode({
+    required this.id,
+    required this.label,
+    required this.count,
+    required this.cumulativeCount,
+    required this.groupMode,
+    this.bucketValue,
+    required this.children,
+    required this.isExpanded,
+  });
+
+  final String id;
+  final String label;
+  final int count;
+  final int cumulativeCount;
+  final LibraryGroupMode groupMode;
+  final String? bucketValue;
+  final List<LibraryFolderTreeNode> children;
+  final bool isExpanded;
+
+  bool get hasChildren => children.isNotEmpty;
+
+  LibraryFolderTreeNode copyWith({
+    String? id,
+    String? label,
+    int? count,
+    int? cumulativeCount,
+    LibraryGroupMode? groupMode,
+    String? bucketValue,
+    List<LibraryFolderTreeNode>? children,
+    bool? isExpanded,
+  }) {
+    return LibraryFolderTreeNode(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      count: count ?? this.count,
+      cumulativeCount: cumulativeCount ?? this.cumulativeCount,
+      groupMode: groupMode ?? this.groupMode,
+      bucketValue: bucketValue ?? this.bucketValue,
+      children: children ?? this.children,
+      isExpanded: isExpanded ?? this.isExpanded,
+    );
+  }
+}
+
 class LibraryFolderPreset {
   LibraryFolderPreset({required Iterable<LibraryGroupMode> modes})
       : modes = List<LibraryGroupMode>.unmodifiable(modes) {
@@ -418,6 +464,104 @@ String genericBucketForItemMode(
 
 String genericAllBucketLabel(LibraryTypeConfig type) {
   return '[All ${type.pluralLabel}]';
+}
+
+String libraryFolderTreeNodeId({
+  required List<LibraryGroupMode> modes,
+  required List<String> buckets,
+}) {
+  final segments = <String>[];
+  for (var index = 0; index < buckets.length; index += 1) {
+    segments.add(
+      '${modes[index].name}=${Uri.encodeComponent(buckets[index])}',
+    );
+  }
+  return segments.join('|');
+}
+
+List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
+  List<LibraryProjectionItem> items,
+  LibraryTypeConfig type,
+  LibraryFolderPreset preset, {
+  Set<String> expandedNodeIds = const {},
+  String? selectedNodeId,
+}) {
+  final nodes = _buildFolderTreeNodes(
+    items,
+    type: type,
+    modes: preset.modes,
+    depth: 0,
+    pathBuckets: const <String>[],
+    expandedNodeIds: expandedNodeIds,
+    selectedNodeId: selectedNodeId,
+  );
+  return [
+    LibraryFolderTreeNode(
+      id: 'root',
+      label: genericAllBucketLabel(type),
+      count: items.length,
+      cumulativeCount: items.length,
+      groupMode: preset.primaryMode,
+      children: nodes,
+      isExpanded: true,
+    ),
+  ];
+}
+
+List<LibraryFolderTreeNode> _buildFolderTreeNodes(
+  List<LibraryProjectionItem> items, {
+  required LibraryTypeConfig type,
+  required List<LibraryGroupMode> modes,
+  required int depth,
+  required List<String> pathBuckets,
+  required Set<String> expandedNodeIds,
+  required String? selectedNodeId,
+}) {
+  if (depth >= modes.length) {
+    return const <LibraryFolderTreeNode>[];
+  }
+
+  final groupMode = modes[depth];
+  final buckets = libraryBucketsForItems(items, type, groupMode)
+      .where((bucket) => bucket.title != genericAllBucketLabel(type));
+  final children = <LibraryFolderTreeNode>[];
+
+  for (final bucket in buckets) {
+    final nextPath = [...pathBuckets, bucket.title];
+    final childItems = [
+      for (final item in items)
+        if (genericBucketForItemMode(item, type, groupMode) == bucket.title)
+          item,
+    ];
+    final subtree = _buildFolderTreeNodes(
+      childItems,
+      type: type,
+      modes: modes,
+      depth: depth + 1,
+      pathBuckets: nextPath,
+      expandedNodeIds: expandedNodeIds,
+      selectedNodeId: selectedNodeId,
+    );
+    final id = libraryFolderTreeNodeId(modes: modes, buckets: nextPath);
+    final descendantSelected =
+        selectedNodeId != null && selectedNodeId.startsWith('$id|');
+    children.add(
+      LibraryFolderTreeNode(
+        id: id,
+        label: bucket.title,
+        count: bucket.count,
+        cumulativeCount: bucket.count,
+        groupMode: groupMode,
+        bucketValue: bucket.title,
+        children: subtree,
+        isExpanded: expandedNodeIds.contains(id) ||
+            descendantSelected ||
+            subtree.isNotEmpty && subtree.any((node) => node.isExpanded),
+      ),
+    );
+  }
+
+  return children;
 }
 
 bool _matchesBucket(

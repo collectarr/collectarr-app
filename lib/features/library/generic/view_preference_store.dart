@@ -18,6 +18,10 @@ class LibraryViewPreferenceStore {
       <String, Set<LibraryWorkspacePreset>>{};
   static final _cachedPinnedSortFavoriteIds = <String, Set<String>>{};
   static final _cachedPinnedColumnFavoriteKeys = <String, Set<String>>{};
+  static final _cachedFolderDisplayModes =
+      <String, LibraryFolderDisplayMode>{};
+  static final _cachedFolderTreeExpandedNodeIds = <String, Set<String>>{};
+  static final _cachedFolderTreeSelectedNodeIds = <String, String?>{};
 
   final Object? kind;
 
@@ -32,6 +36,25 @@ class LibraryViewPreferenceStore {
 
   LibraryFolderPreset? get cachedFolderPreset => _cachedFolderPresets[_cacheKey];
 
+  LibraryFolderDisplayMode? cachedFolderDisplayMode(
+    LibraryFolderPreset preset,
+  ) {
+    return _cachedFolderDisplayModes[_folderTreeCacheKey(preset)];
+  }
+
+  Set<String> cachedFolderTreeExpandedNodeIds(
+    LibraryFolderPreset preset,
+  ) {
+    return _cachedFolderTreeExpandedNodeIds[_folderTreeCacheKey(preset)] ??
+        const <String>{};
+  }
+
+  String? cachedFolderTreeSelectedNodeId(
+    LibraryFolderPreset preset,
+  ) {
+    return _cachedFolderTreeSelectedNodeIds[_folderTreeCacheKey(preset)];
+  }
+
   static void resetCachedPreferencesForTesting() {
     _cachedQuickViews.clear();
     _cachedGroupModes.clear();
@@ -41,6 +64,9 @@ class LibraryViewPreferenceStore {
     _cachedPinnedViewPresets.clear();
     _cachedPinnedSortFavoriteIds.clear();
     _cachedPinnedColumnFavoriteKeys.clear();
+    _cachedFolderDisplayModes.clear();
+    _cachedFolderTreeExpandedNodeIds.clear();
+    _cachedFolderTreeSelectedNodeIds.clear();
   }
 
   Future<LibraryQuickView?> readQuickView() async {
@@ -332,6 +358,108 @@ class LibraryViewPreferenceStore {
     );
   }
 
+  Future<LibraryFolderDisplayMode?> readFolderDisplayMode(
+    LibraryFolderPreset preset,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString(_folderTreeKey(preset, 'displayMode'));
+    if (name == null) {
+      _cachedFolderDisplayModes.remove(_folderTreeCacheKey(preset));
+      return null;
+    }
+    for (final mode in LibraryFolderDisplayMode.values) {
+      if (mode.name == name) {
+        _cachedFolderDisplayModes[_folderTreeCacheKey(preset)] = mode;
+        return mode;
+      }
+    }
+    _cachedFolderDisplayModes.remove(_folderTreeCacheKey(preset));
+    return null;
+  }
+
+  Future<void> writeFolderDisplayMode(
+    LibraryFolderPreset preset,
+    LibraryFolderDisplayMode? mode,
+  ) async {
+    final cacheKey = _folderTreeCacheKey(preset);
+    if (mode == null) {
+      _cachedFolderDisplayModes.remove(cacheKey);
+    } else {
+      _cachedFolderDisplayModes[cacheKey] = mode;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    if (mode == null) {
+      await prefs.remove(_folderTreeKey(preset, 'displayMode'));
+    } else {
+      await prefs.setString(_folderTreeKey(preset, 'displayMode'), mode.name);
+    }
+  }
+
+  Future<Set<String>> readFolderTreeExpandedNodeIds(
+    LibraryFolderPreset preset,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final values = prefs.getStringList(_folderTreeKey(preset, 'expandedNodeIds'));
+    if (values == null) {
+      _cachedFolderTreeExpandedNodeIds.remove(_folderTreeCacheKey(preset));
+      return const <String>{};
+    }
+    final ids = _orderedUniqueStrings(values);
+    _cachedFolderTreeExpandedNodeIds[_folderTreeCacheKey(preset)] = ids;
+    return ids;
+  }
+
+  Future<void> writeFolderTreeExpandedNodeIds(
+    LibraryFolderPreset preset,
+    Set<String> ids,
+  ) async {
+    final cacheKey = _folderTreeCacheKey(preset);
+    final normalizedIds = _orderedUniqueStrings(ids);
+    _cachedFolderTreeExpandedNodeIds[cacheKey] = normalizedIds;
+    final prefs = await SharedPreferences.getInstance();
+    if (normalizedIds.isEmpty) {
+      await prefs.remove(_folderTreeKey(preset, 'expandedNodeIds'));
+    } else {
+      await prefs.setStringList(
+        _folderTreeKey(preset, 'expandedNodeIds'),
+        normalizedIds.toList(growable: false),
+      );
+    }
+  }
+
+  Future<String?> readFolderTreeSelectedNodeId(
+    LibraryFolderPreset preset,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_folderTreeKey(preset, 'selectedNodeId'));
+    final normalized = value?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      _cachedFolderTreeSelectedNodeIds.remove(_folderTreeCacheKey(preset));
+      return null;
+    }
+    _cachedFolderTreeSelectedNodeIds[_folderTreeCacheKey(preset)] = normalized;
+    return normalized;
+  }
+
+  Future<void> writeFolderTreeSelectedNodeId(
+    LibraryFolderPreset preset,
+    String? nodeId,
+  ) async {
+    final cacheKey = _folderTreeCacheKey(preset);
+    final normalized = nodeId?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      _cachedFolderTreeSelectedNodeIds.remove(cacheKey);
+    } else {
+      _cachedFolderTreeSelectedNodeIds[cacheKey] = normalized;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    if (normalized == null || normalized.isEmpty) {
+      await prefs.remove(_folderTreeKey(preset, 'selectedNodeId'));
+    } else {
+      await prefs.setString(_folderTreeKey(preset, 'selectedNodeId'), normalized);
+    }
+  }
+
   Set<String> _orderedUniqueStrings(Iterable<String> values) {
     final normalized = <String>{};
     for (final value in values) {
@@ -355,5 +483,13 @@ class LibraryViewPreferenceStore {
     } on ArgumentError {
       return null;
     }
+  }
+
+  String _folderTreeCacheKey(LibraryFolderPreset preset) {
+    return '$_cacheKey|${preset.storageValue}';
+  }
+
+  String _folderTreeKey(LibraryFolderPreset preset, String suffix) {
+    return 'library.${catalogMediaKindFromValue(kind).apiValue}.folderTree.${preset.storageValue}.$suffix';
   }
 }

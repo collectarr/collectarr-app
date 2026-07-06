@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/library_group_mode_menu.
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,8 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.onManageBuckets,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
+    this.folderDisplayMode = LibraryFolderDisplayMode.drilldown,
+    this.onFolderDisplayModeChanged,
   });
 
   final LibraryTypeConfig type;
@@ -76,6 +79,8 @@ class LibrarySidebarHeader extends StatelessWidget {
   final VoidCallback? onManageBuckets;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
+  final LibraryFolderDisplayMode folderDisplayMode;
+  final ValueChanged<LibraryFolderDisplayMode>? onFolderDisplayModeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -149,6 +154,24 @@ class LibrarySidebarHeader extends StatelessWidget {
                   }
                 },
                 active: pinnedFolderPresets.isNotEmpty,
+                activeColor: accent,
+              ),
+            ],
+            if (onFolderDisplayModeChanged != null) ...[
+              const SizedBox(width: 4),
+              _LibrarySidebarToolbarButton(
+                tooltip: folderDisplayMode == LibraryFolderDisplayMode.drilldown
+                    ? 'Switch to tree view'
+                    : 'Switch to drilldown view',
+                icon: folderDisplayMode == LibraryFolderDisplayMode.drilldown
+                    ? Icons.account_tree_outlined
+                    : Icons.segment_outlined,
+                onPressed: () => onFolderDisplayModeChanged!(
+                  folderDisplayMode == LibraryFolderDisplayMode.drilldown
+                      ? LibraryFolderDisplayMode.tree
+                      : LibraryFolderDisplayMode.drilldown,
+                ),
+                active: folderDisplayMode == LibraryFolderDisplayMode.tree,
                 activeColor: accent,
               ),
             ],

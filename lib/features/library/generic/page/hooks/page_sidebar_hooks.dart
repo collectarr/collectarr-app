@@ -110,6 +110,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     }
     unawaited(_viewPrefs.writeFolderPreset(sanitized));
     unawaited(_viewPrefs.writeGroupMode(sanitized.primaryMode));
+    unawaited(_loadFolderTreePreferencesForActivePreset());
   }
 
   LibraryRouteState _buildRouteState() {

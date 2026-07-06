@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_header.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:flutter/material.dart';
 
@@ -48,6 +49,13 @@ class LibrarySidebar extends StatelessWidget {
     this.folderPreset,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
+    this.folderDisplayMode = LibraryFolderDisplayMode.drilldown,
+    this.treeRoots = const <LibraryFolderTreeNode>[],
+    this.selectedTreeNodeId,
+    this.expandedTreeNodeIds = const <String>{},
+    this.onFolderDisplayModeChanged,
+    this.onSelectTreeNodePath,
+    this.onToggleTreeNodeExpanded,
   });
 
   final LibraryTypeConfig type;
@@ -88,6 +96,13 @@ class LibrarySidebar extends StatelessWidget {
   final VoidCallback? onManageBuckets;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
+  final LibraryFolderDisplayMode folderDisplayMode;
+  final List<LibraryFolderTreeNode> treeRoots;
+  final String? selectedTreeNodeId;
+  final Set<String> expandedTreeNodeIds;
+  final ValueChanged<LibraryFolderDisplayMode>? onFolderDisplayModeChanged;
+  final ValueChanged<List<LibraryFolderTreeNode>>? onSelectTreeNodePath;
+  final ValueChanged<String>? onToggleTreeNodeExpanded;
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +162,16 @@ class LibrarySidebar extends StatelessWidget {
         onManageBuckets: onManageBuckets,
         pinnedFolderPresets: pinnedFolderPresets,
         onPinnedFolderPresetsChanged: onPinnedFolderPresetsChanged,
+        folderDisplayMode: folderDisplayMode,
+        onFolderDisplayModeChanged: onFolderDisplayModeChanged,
       ),
+      folderDisplayMode: folderDisplayMode,
+      treeRoots: treeRoots,
+      selectedTreeNodeId: selectedTreeNodeId,
+      expandedTreeNodeIds: expandedTreeNodeIds,
+      onFolderDisplayModeChanged: onFolderDisplayModeChanged,
+      onSelectTreeNodePath: onSelectTreeNodePath,
+      onToggleTreeNodeExpanded: onToggleTreeNodeExpanded,
     );
   }
 }

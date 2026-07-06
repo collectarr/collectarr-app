@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -109,6 +110,50 @@ void main() {
         LibraryFolderPreset.single(LibraryGroupMode.director),
         LibraryFolderPreset.single(LibraryGroupMode.releaseYear),
       ],
+    );
+  });
+
+  test('folder tree state is cached per preset', () async {
+    final preset = LibraryFolderPreset.single(LibraryGroupMode.series);
+
+    await movieStore.writeFolderDisplayMode(
+      preset,
+      LibraryFolderDisplayMode.tree,
+    );
+    await movieStore.writeFolderTreeExpandedNodeIds(
+      preset,
+      <String>{'root', 'root|series=Batman'},
+    );
+    await movieStore.writeFolderTreeSelectedNodeId(
+      preset,
+      'root|series=Batman',
+    );
+
+    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
+    expect(
+      reloadedStore.cachedFolderDisplayMode(preset),
+      LibraryFolderDisplayMode.tree,
+    );
+    expect(
+      reloadedStore.cachedFolderTreeExpandedNodeIds(preset),
+      <String>{'root', 'root|series=Batman'},
+    );
+    expect(
+      reloadedStore.cachedFolderTreeSelectedNodeId(preset),
+      'root|series=Batman',
+    );
+
+    expect(
+      await movieStore.readFolderDisplayMode(preset),
+      LibraryFolderDisplayMode.tree,
+    );
+    expect(
+      await movieStore.readFolderTreeExpandedNodeIds(preset),
+      <String>{'root', 'root|series=Batman'},
+    );
+    expect(
+      await movieStore.readFolderTreeSelectedNodeId(preset),
+      'root|series=Batman',
     );
   });
 

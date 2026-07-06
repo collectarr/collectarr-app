@@ -145,6 +145,12 @@ class LibraryBody extends StatelessWidget {
     this.onManageBuckets,
     this.inspectorContextLabel,
     this.desktopToolbarBand,
+    this.folderDisplayMode = LibraryFolderDisplayMode.drilldown,
+    this.folderTreeExpandedNodeIds = const <String>{},
+    this.folderTreeSelectedNodeId,
+    this.onFolderDisplayModeChanged,
+    this.onFolderTreeNodeSelected,
+    this.onFolderTreeNodeExpandedToggled,
   });
 
   final LibraryTypeConfig type;
@@ -223,6 +229,12 @@ class LibraryBody extends StatelessWidget {
   final VoidCallback? onManageBuckets;
   final String? inspectorContextLabel;
   final Widget? desktopToolbarBand;
+  final LibraryFolderDisplayMode folderDisplayMode;
+  final Set<String> folderTreeExpandedNodeIds;
+  final String? folderTreeSelectedNodeId;
+  final ValueChanged<LibraryFolderDisplayMode>? onFolderDisplayModeChanged;
+  final ValueChanged<List<LibraryFolderTreeNode>>? onFolderTreeNodeSelected;
+  final ValueChanged<String>? onFolderTreeNodeExpandedToggled;
 
   @override
   Widget build(BuildContext context) {
@@ -424,6 +436,21 @@ class LibraryBody extends StatelessWidget {
           onManageBuckets: onManageBuckets,
           pinnedFolderPresets: pinnedFolderPresets,
           onPinnedFolderPresetsChanged: onPinnedFolderPresetsChanged,
+          folderDisplayMode: folderDisplayMode,
+          treeRoots: folderPreset == null
+              ? const <LibraryFolderTreeNode>[]
+              : libraryFolderTreeNodesForItems(
+                  projection.allItems,
+                  type,
+                  folderPreset!,
+                  expandedNodeIds: folderTreeExpandedNodeIds,
+                  selectedNodeId: folderTreeSelectedNodeId,
+                ),
+          selectedTreeNodeId: folderTreeSelectedNodeId,
+          expandedTreeNodeIds: folderTreeExpandedNodeIds,
+          onFolderDisplayModeChanged: onFolderDisplayModeChanged,
+          onSelectTreeNodePath: onFolderTreeNodeSelected,
+          onToggleTreeNodeExpanded: onFolderTreeNodeExpandedToggled,
         );
         final detailsLayoutWidget = LibraryDetailsAwareLayout(
           content: workspaceContent,

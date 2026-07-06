@@ -23,6 +23,24 @@ extension LibraryViewModeCoverSizeSupport on LibraryViewMode {
 
 enum LibraryDetailsLayout { right, bottom, hidden }
 
+enum LibraryFolderDisplayMode { drilldown, tree }
+
+extension LibraryFolderDisplayModeLabels on LibraryFolderDisplayMode {
+  String get label {
+    return switch (this) {
+      LibraryFolderDisplayMode.drilldown => 'Drilldown',
+      LibraryFolderDisplayMode.tree => 'Tree',
+    };
+  }
+
+  IconData get icon {
+    return switch (this) {
+      LibraryFolderDisplayMode.drilldown => Icons.segment,
+      LibraryFolderDisplayMode.tree => Icons.account_tree_outlined,
+    };
+  }
+}
+
 enum LibraryGroupMode {
   // ── Main ──
   series,

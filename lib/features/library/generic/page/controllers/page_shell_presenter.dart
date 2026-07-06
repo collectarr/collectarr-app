@@ -285,6 +285,12 @@ abstract final class _LibraryPageShellPresenter {
           ? () => unawaited(state._showBucketManagerFlow(projection))
           : null,
       onPinnedFolderPresetsChanged: state._setPinnedFolderPresets,
+      folderDisplayMode: state._folderDisplayMode,
+      folderTreeExpandedNodeIds: state._folderTreeExpandedNodeIds,
+      folderTreeSelectedNodeId: state._folderTreeSelectedNodeId,
+      onFolderDisplayModeChanged: state._setFolderDisplayMode,
+      onFolderTreeNodeSelected: state._selectFolderTreePath,
+      onFolderTreeNodeExpandedToggled: state._toggleFolderTreeNodeExpanded,
       inspectorContextLabel: releasePositionLabel,
       desktopToolbarBand: LibraryDesktopSecondaryToolbar(
         type: state.widget.type,

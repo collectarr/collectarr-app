@@ -149,6 +149,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   var _seriesCompletionScope = LibrarySeriesCompletionScope.all;
   LibraryGroupMode? _groupMode;
   LibraryFolderPreset? _folderPreset;
+  LibraryFolderDisplayMode _folderDisplayMode =
+      LibraryFolderDisplayMode.drilldown;
+  Set<String> _folderTreeExpandedNodeIds = const <String>{};
+  String? _folderTreeSelectedNodeId;
   var _selection = LibrarySelectionState.empty();
   String? _selectionAnchorId;
   var _filterSelection = LibraryFilterSelection.none;
@@ -166,6 +170,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   bool _isScanningCover = false;
   int _viewStateLoadToken = 0;
   int _viewPreferenceLoadToken = 0;
+  int _folderTreePreferenceLoadToken = 0;
   int _columnFavoritesLoadToken = 0;
   int _activeLoanIdsLoadToken = 0;
   Timer? _viewStateSaveDebounce;
@@ -436,6 +441,106 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     setState(() => _pinnedFolderPresets = updated);
     unawaited(_viewPrefs.writePinnedFolderPresets(updated));
+  }
+
+  Future<void> _loadFolderTreePreferencesForActivePreset() async {
+    final preset = _activeFolderPreset;
+    try {
+      final loadToken = ++_folderTreePreferenceLoadToken;
+      final expectedKind = widget.type.workspace.kind;
+      final displayModeFuture = _viewPrefs.readFolderDisplayMode(preset);
+      final expandedNodeIdsFuture =
+          _viewPrefs.readFolderTreeExpandedNodeIds(preset);
+      final selectedNodeIdFuture =
+          _viewPrefs.readFolderTreeSelectedNodeId(preset);
+      final (displayMode, expandedNodeIds, selectedNodeId) =
+          await (displayModeFuture, expandedNodeIdsFuture, selectedNodeIdFuture)
+              .wait;
+      if (!mounted ||
+          loadToken != _folderTreePreferenceLoadToken ||
+          widget.type.workspace.kind != expectedKind) {
+        return;
+      }
+      _mutateState(() {
+        _folderDisplayMode =
+            displayMode ?? LibraryFolderDisplayMode.drilldown;
+        _folderTreeExpandedNodeIds = expandedNodeIds;
+        _folderTreeSelectedNodeId = selectedNodeId;
+      });
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_page',
+        message: 'Failed to load folder tree preferences.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  void _setFolderDisplayMode(LibraryFolderDisplayMode mode) {
+    final preset = _activeFolderPreset;
+    _mutateState(() {
+      _folderDisplayMode = mode;
+      if (mode == LibraryFolderDisplayMode.drilldown) {
+        _folderTreeExpandedNodeIds = const <String>{};
+        _folderTreeSelectedNodeId = null;
+      }
+    });
+    unawaited(_viewPrefs.writeFolderDisplayMode(preset, mode));
+    if (mode == LibraryFolderDisplayMode.drilldown) {
+      unawaited(_viewPrefs.writeFolderTreeExpandedNodeIds(preset, const {}));
+      unawaited(_viewPrefs.writeFolderTreeSelectedNodeId(preset, null));
+    }
+  }
+
+  void _toggleFolderTreeNodeExpanded(String nodeId) {
+    final preset = _activeFolderPreset;
+    final next = Set<String>.from(_folderTreeExpandedNodeIds);
+    if (!next.add(nodeId)) {
+      next.remove(nodeId);
+    }
+    _mutateState(() {
+      _folderTreeExpandedNodeIds = next;
+    });
+    unawaited(_viewPrefs.writeFolderTreeExpandedNodeIds(preset, next));
+  }
+
+  void _selectFolderTreePath(List<LibraryFolderTreeNode> path) {
+    if (path.isEmpty) {
+      return;
+    }
+    final preset = _activeFolderPreset;
+    final leaf = path.last;
+    final expanded = Set<String>.from(_folderTreeExpandedNodeIds);
+    for (final node in path) {
+      expanded.add(node.id);
+    }
+    _mutateState(() {
+      _folderTreeExpandedNodeIds = expanded;
+      _folderTreeSelectedNodeId = leaf.id;
+    });
+    unawaited(_viewPrefs.writeFolderTreeExpandedNodeIds(preset, expanded));
+    unawaited(_viewPrefs.writeFolderTreeSelectedNodeId(preset, leaf.id));
+    final bucketPath = [
+      for (final node in path)
+        if (node.bucketValue != null) node.bucketValue!,
+    ];
+    if (bucketPath.isEmpty) {
+      _setSelectedBucket(null);
+      return;
+    }
+    _mutateState(() {
+      _selectedBucket = null;
+      _selectedLetter = null;
+      _linkedMetadataFilter = null;
+      _activeSmartListId = null;
+      _activeSmartListName = null;
+      _scopeHistory = const [];
+      _groupMode = preset.primaryMode;
+    });
+    for (final bucket in bucketPath) {
+      _setSelectedBucket(bucket);
+    }
   }
 
   String? get _activeColumnFavoriteLabel {

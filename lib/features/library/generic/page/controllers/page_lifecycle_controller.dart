@@ -87,6 +87,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
           !setEquals(state._pinnedColumnFavoriteKeys, pinnedColumnFavoriteKeys);
 
       if (!preferencesChanged) {
+        unawaited(state._loadFolderTreePreferencesForActivePreset());
         return;
       }
 
@@ -103,6 +104,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
         state._pinnedColumnFavoriteKeys = pinnedColumnFavoriteKeys;
         state._applyRouteStateFromUri(state.widget.routeUri);
       });
+      unawaited(state._loadFolderTreePreferencesForActivePreset());
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',
@@ -131,8 +133,11 @@ abstract final class _LibraryPageLifecycleControllerOps {
             ? null
             : LibraryFolderPreset.single(cachedGroupMode));
     state._groupMode = state._folderPreset?.primaryMode ?? cachedGroupMode;
+    state._folderDisplayMode = LibraryFolderDisplayMode.drilldown;
+    state._folderTreeExpandedNodeIds = const <String>{};
+    state._folderTreeSelectedNodeId = null;
     state._pinnedFolderPresets = state._viewPrefs.cachedPinnedFolderPresets
-        .map(
+      .map(
           (preset) => sanitizeLibraryFolderPreset(
             preset,
             allowedModes: allowedGroupModes,
@@ -173,6 +178,9 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._pinnedColumnFavoriteKeys = const {};
       state._savedColumnFavoritePresets = const [];
       state._scopeHistory = const [];
+      state._folderDisplayMode = LibraryFolderDisplayMode.drilldown;
+      state._folderTreeExpandedNodeIds = const <String>{};
+      state._folderTreeSelectedNodeId = null;
       state._selectionAnchorId = null;
       state._kindBrowserDelegate.closeReleaseFolder();
       state.ref

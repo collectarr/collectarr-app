@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -62,6 +64,13 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
     this.onSeriesCompletionScopeChanged,
     this.ancestorScopeLabels = const <String>[],
     this.onNavigateToAncestorScope,
+    this.folderDisplayMode = LibraryFolderDisplayMode.drilldown,
+    this.treeRoots = const <LibraryFolderTreeNode>[],
+    this.selectedTreeNodeId,
+    this.expandedTreeNodeIds = const <String>{},
+    this.onFolderDisplayModeChanged,
+    this.onSelectTreeNodePath,
+    this.onToggleTreeNodeExpanded,
   });
 
   final List<LibrarySeriesBucket> series;
@@ -87,6 +96,13 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
       onSeriesCompletionScopeChanged;
   final List<String> ancestorScopeLabels;
   final ValueChanged<int>? onNavigateToAncestorScope;
+  final LibraryFolderDisplayMode folderDisplayMode;
+  final List<LibraryFolderTreeNode> treeRoots;
+  final String? selectedTreeNodeId;
+  final Set<String> expandedTreeNodeIds;
+  final ValueChanged<LibraryFolderDisplayMode>? onFolderDisplayModeChanged;
+  final ValueChanged<List<LibraryFolderTreeNode>>? onSelectTreeNodePath;
+  final ValueChanged<String>? onToggleTreeNodeExpanded;
 
   @override
   ConsumerState<LibrarySeriesSidebar> createState() => _LibrarySeriesSidebarState();
@@ -126,6 +142,62 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
         items.sort((a, b) => b.count.compareTo(a.count));
     }
     return items;
+  }
+
+  List<LibraryFolderTreeNode> _filteredSortedTree(
+    List<LibraryFolderTreeNode> nodes,
+  ) {
+    final query = _searchController.text.trim().toLowerCase();
+    final filtered = _filterTreeNodes(nodes, query);
+    return _sortTreeNodes(filtered);
+  }
+
+  List<LibraryFolderTreeNode> _filterTreeNodes(
+    List<LibraryFolderTreeNode> nodes,
+    String query,
+  ) {
+    return [
+      for (final node in nodes)
+        if (_nodeMatchesQuery(node, query)) _filterTreeNode(node, query),
+    ];
+  }
+
+  bool _nodeMatchesQuery(LibraryFolderTreeNode node, String query) {
+    if (query.isEmpty) {
+      return true;
+    }
+    if (node.label.toLowerCase().contains(query)) {
+      return true;
+    }
+    return node.children.any((child) => _nodeMatchesQuery(child, query));
+  }
+
+  LibraryFolderTreeNode _filterTreeNode(
+    LibraryFolderTreeNode node,
+    String query,
+  ) {
+    final filteredChildren = _filterTreeNodes(node.children, query);
+    final expanded = query.isNotEmpty || node.isExpanded || filteredChildren.isNotEmpty;
+    return node.copyWith(
+      children: _sortTreeNodes(filteredChildren),
+      isExpanded: expanded,
+    );
+  }
+
+  List<LibraryFolderTreeNode> _sortTreeNodes(List<LibraryFolderTreeNode> nodes) {
+    final sorted = nodes.toList(growable: true);
+    switch (_sortMode) {
+      case _SidebarSortMode.alphabetical:
+        sorted.sort((a, b) => a.label.compareTo(b.label));
+        break;
+      case _SidebarSortMode.byCount:
+        sorted.sort((a, b) => b.cumulativeCount.compareTo(a.cumulativeCount));
+        break;
+    }
+    return [
+      for (final node in sorted)
+        node.copyWith(children: _sortTreeNodes(node.children)),
+    ];
   }
 
   @override
@@ -201,42 +273,59 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
             }),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: widget.ancestorScopeLabels.length + filtered.length,
-              itemBuilder: (context, index) {
-                if (index < widget.ancestorScopeLabels.length) {
-                  return _SidebarAncestorScopeRow(
-                    label: widget.ancestorScopeLabels[index],
-                    depth: index,
+            child: widget.folderDisplayMode == LibraryFolderDisplayMode.tree
+                ? _FolderTreePane(
+                    roots: _filteredSortedTree(widget.treeRoots),
+                    selectedNodeId: widget.selectedTreeNodeId,
+                    expandedNodeIds: widget.expandedTreeNodeIds,
                     dividerColor: resolvedDividerColor,
-                    accentColor: widget.accentColor,
+                    selectionColor: resolvedSelectionColor,
+                    selectedBadgeColor: widget.selectedBadgeColor,
+                    badgeColor: resolvedBadgeColor,
                     mutedTextColor: resolvedMutedTextColor,
-                    onTap: widget.onNavigateToAncestorScope == null
-                        ? null
-                        : () => widget.onNavigateToAncestorScope!(index),
-                  );
-                }
-                final bucket = filtered[index - widget.ancestorScopeLabels.length];
-                final selected = bucket.title == widget.selectedSeries;
-                final rowPadding = ref.watch(
-                  uiPreferencesProvider.select((p) => p.sidebarRowPadding),
-                );
-                return _LibrarySeriesRow(
-                  bucket: bucket,
-                  selected: selected,
-                  onTap: () => widget.onSelectSeries(bucket.title),
-                  dividerColor: resolvedDividerColor,
-                  selectionColor: resolvedSelectionColor,
-                  selectedBadgeColor: widget.selectedBadgeColor,
-                  badgeColor: resolvedBadgeColor,
-                  mutedTextColor: resolvedMutedTextColor,
-                  leadingInset: widget.ancestorScopeLabels.isEmpty
-                      ? 0
-                      : 14.0 + widget.ancestorScopeLabels.length * 12.0,
-                  extraVerticalPadding: rowPadding.clamp(1.0, 3.0),
-                );
-              },
-            ),
+                    accentColor: widget.accentColor,
+                    rowPadding: ref.watch(
+                      uiPreferencesProvider.select((p) => p.sidebarRowPadding),
+                    ),
+                    onSelectPath: widget.onSelectTreeNodePath,
+                    onToggleExpanded: widget.onToggleTreeNodeExpanded,
+                  )
+                : ListView.builder(
+                    itemCount: widget.ancestorScopeLabels.length + filtered.length,
+                    itemBuilder: (context, index) {
+                      if (index < widget.ancestorScopeLabels.length) {
+                        return _SidebarAncestorScopeRow(
+                          label: widget.ancestorScopeLabels[index],
+                          depth: index,
+                          dividerColor: resolvedDividerColor,
+                          accentColor: widget.accentColor,
+                          mutedTextColor: resolvedMutedTextColor,
+                          onTap: widget.onNavigateToAncestorScope == null
+                              ? null
+                              : () => widget.onNavigateToAncestorScope!(index),
+                        );
+                      }
+                      final bucket = filtered[index - widget.ancestorScopeLabels.length];
+                      final selected = bucket.title == widget.selectedSeries;
+                      final rowPadding = ref.watch(
+                        uiPreferencesProvider.select((p) => p.sidebarRowPadding),
+                      );
+                      return _LibrarySeriesRow(
+                        bucket: bucket,
+                        selected: selected,
+                        onTap: () => widget.onSelectSeries(bucket.title),
+                        dividerColor: resolvedDividerColor,
+                        selectionColor: resolvedSelectionColor,
+                        selectedBadgeColor: widget.selectedBadgeColor,
+                        badgeColor: resolvedBadgeColor,
+                        mutedTextColor: resolvedMutedTextColor,
+                        leadingInset: widget.ancestorScopeLabels.isEmpty
+                            ? 0
+                            : 14.0 + widget.ancestorScopeLabels.length * 12.0,
+                        extraVerticalPadding: rowPadding.clamp(1.0, 3.0),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -521,6 +610,198 @@ class _SidebarSortModeIcon extends StatelessWidget {
           color: selected ? accentColor : mutedTextColor,
         ),
       ),
+    );
+  }
+}
+
+class _FolderTreePane extends StatelessWidget {
+  const _FolderTreePane({
+    required this.roots,
+    required this.selectedNodeId,
+    required this.expandedNodeIds,
+    required this.dividerColor,
+    required this.selectionColor,
+    required this.selectedBadgeColor,
+    required this.badgeColor,
+    required this.mutedTextColor,
+    required this.accentColor,
+    required this.rowPadding,
+    this.onSelectPath,
+    this.onToggleExpanded,
+  });
+
+  final List<LibraryFolderTreeNode> roots;
+  final String? selectedNodeId;
+  final Set<String> expandedNodeIds;
+  final Color dividerColor;
+  final Color selectionColor;
+  final Color selectedBadgeColor;
+  final Color badgeColor;
+  final Color mutedTextColor;
+  final Color accentColor;
+  final double rowPadding;
+  final ValueChanged<List<LibraryFolderTreeNode>>? onSelectPath;
+  final ValueChanged<String>? onToggleExpanded;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        for (final node in roots)
+          _FolderTreeNodeView(
+            node: node,
+            path: const <LibraryFolderTreeNode>[],
+            selectedNodeId: selectedNodeId,
+            expandedNodeIds: expandedNodeIds,
+            dividerColor: dividerColor,
+            selectionColor: selectionColor,
+            selectedBadgeColor: selectedBadgeColor,
+            badgeColor: badgeColor,
+            mutedTextColor: mutedTextColor,
+            accentColor: accentColor,
+            rowPadding: rowPadding,
+            onSelectPath: onSelectPath,
+            onToggleExpanded: onToggleExpanded,
+          ),
+      ],
+    );
+  }
+}
+
+class _FolderTreeNodeView extends StatelessWidget {
+  const _FolderTreeNodeView({
+    required this.node,
+    required this.path,
+    required this.selectedNodeId,
+    required this.expandedNodeIds,
+    required this.dividerColor,
+    required this.selectionColor,
+    required this.selectedBadgeColor,
+    required this.badgeColor,
+    required this.mutedTextColor,
+    required this.accentColor,
+    required this.rowPadding,
+    this.onSelectPath,
+    this.onToggleExpanded,
+  });
+
+  final LibraryFolderTreeNode node;
+  final List<LibraryFolderTreeNode> path;
+  final String? selectedNodeId;
+  final Set<String> expandedNodeIds;
+  final Color dividerColor;
+  final Color selectionColor;
+  final Color selectedBadgeColor;
+  final Color badgeColor;
+  final Color mutedTextColor;
+  final Color accentColor;
+  final double rowPadding;
+  final ValueChanged<List<LibraryFolderTreeNode>>? onSelectPath;
+  final ValueChanged<String>? onToggleExpanded;
+
+  @override
+  Widget build(BuildContext context) {
+    final nextPath = [...path, node];
+    final isSelected = node.id == selectedNodeId;
+    final isExpanded = expandedNodeIds.contains(node.id) || node.isExpanded;
+    final hasChildren = node.children.isNotEmpty;
+    final selectedTextColor = ThemeData.estimateBrightnessForColor(
+              selectionColor,
+            ) ==
+            Brightness.dark
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurface;
+    final bgColor = isSelected
+        ? selectionColor.withValues(alpha: 0.26)
+        : Colors.transparent;
+    final indentation = path.length * 14.0;
+    final row = DecoratedBox(
+      decoration: BoxDecoration(
+        color: bgColor,
+        border: Border(bottom: BorderSide(color: dividerColor)),
+      ),
+      child: SizedBox(
+        height: 30 + rowPadding * 2,
+        child: Padding(
+          padding: EdgeInsets.only(left: 6 + indentation, right: 8),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 18,
+                child: hasChildren
+                    ? IconButton(
+                        tooltip: isExpanded ? 'Collapse' : 'Expand',
+                        onPressed:
+                            onToggleExpanded == null ? null : () => onToggleExpanded!(node.id),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                        visualDensity: VisualDensity.compact,
+                        iconSize: 16,
+                        icon: Icon(
+                          isExpanded ? Icons.expand_more : Icons.chevron_right,
+                            color: isSelected ? accentColor : mutedTextColor,
+                        ),
+                      )
+                    : Icon(Icons.fiber_manual_record, size: 8, color: mutedTextColor.withValues(alpha: 0.6)),
+              ),
+              const SizedBox(width: 4),
+              SizedBox(
+                width: 20,
+                child: Text(
+                  node.count.toString(),
+                  textAlign: TextAlign.left,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isSelected ? selectedBadgeColor : badgeColor,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onSelectPath == null ? null : () => onSelectPath!(nextPath),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Text(
+                      node.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: isSelected ? selectedTextColor : null,
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        row,
+        if (isExpanded)
+          for (final child in node.children)
+            _FolderTreeNodeView(
+              node: child,
+              path: nextPath,
+              selectedNodeId: selectedNodeId,
+              expandedNodeIds: expandedNodeIds,
+              dividerColor: dividerColor,
+              selectionColor: selectionColor,
+              selectedBadgeColor: selectedBadgeColor,
+              badgeColor: badgeColor,
+              mutedTextColor: mutedTextColor,
+              accentColor: accentColor,
+              rowPadding: rowPadding,
+              onSelectPath: onSelectPath,
+              onToggleExpanded: onToggleExpanded,
+            ),
+      ],
     );
   }
 }
