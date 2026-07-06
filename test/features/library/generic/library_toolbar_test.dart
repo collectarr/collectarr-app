@@ -100,6 +100,28 @@ void main() {
     expect(selectedText.style?.color, accent);
   });
 
+  testWidgets('alphabet buttons have a slightly wider touch target', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryToolbarAlphabetRow(
+            letters: const {'A', 'B'},
+            selectedLetter: null,
+            accent: moviesLibraryConfig.workspace.accent,
+            onLetterSelected: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    final aButton = find
+        .ancestor(of: find.text('A'), matching: find.byType(InkWell))
+        .first;
+    expect(tester.getSize(aButton).width, greaterThanOrEqualTo(28));
+  });
+
   test('alpha jump bar groups symbol and numeric titles separately', () {
     expect(
       LibraryAlphaJumpBar.lettersFromTitles([

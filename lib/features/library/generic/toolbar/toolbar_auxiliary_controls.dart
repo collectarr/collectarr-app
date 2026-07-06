@@ -1126,11 +1126,11 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
             child: Container(
               constraints: BoxConstraints(
-                minWidth: label == 'All' ? 36 : 24,
+                minWidth: label == 'All' ? 40 : 28,
                 minHeight: 24,
               ),
               padding: EdgeInsets.symmetric(
-                horizontal: label == 'All' ? 9 : 2,
+                horizontal: label == 'All' ? 10 : 4,
                 vertical: 4,
               ),
               decoration: BoxDecoration(
