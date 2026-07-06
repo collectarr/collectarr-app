@@ -399,12 +399,20 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                 ),
                 if (ebayUri != null) ...[
                   const SizedBox(width: 6),
-                  InspectorToolIconButton(
-                    tooltip: 'Find sold listings on eBay',
-                    icon: Icons.shopping_bag_outlined,
+                  OutlinedButton.icon(
                     onPressed: () => launchUrl(
                       ebayUri,
                       mode: LaunchMode.externalApplication,
+                    ),
+                    icon: const Icon(Icons.shopping_bag_outlined, size: 16),
+                    label: const Text('eBay'),
+                    style: OutlinedButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                      minimumSize: const Size(0, 30),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 6,
+                      ),
                     ),
                   ),
                 ],

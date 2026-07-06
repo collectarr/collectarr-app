@@ -897,4 +897,65 @@ void main() {
 
     expect(find.byType(LibraryDetailsLayoutDropdown), findsOneWidget);
   });
+
+  testWidgets('inspector eBay action expands with width and collapses compactly',
+      (tester) async {
+    final wideToolbar = MaterialApp(
+      home: Scaffold(
+        body: SizedBox(
+          width: 420,
+          child: InspectorUnifiedToolbar(
+            entry: LibraryWorkspaceEntry(
+              id: 'music-ebay-wide',
+              mediaType: 'music',
+              title: 'The Black Parade',
+              barcode: '1234567890123',
+              updatedAt: DateTime.utc(2026, 5, 23),
+            ),
+            detailsLayout: LibraryDetailsLayout.right,
+            onEdit: () {},
+            onShare: () {},
+            onDuplicate: () {},
+            onToggleOwned: () {},
+            onLoan: () {},
+            onRefreshMetadata: () {},
+            onDetailsLayoutChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpWidget(wideToolbar);
+
+    expect(find.widgetWithText(OutlinedButton, 'eBay'), findsOneWidget);
+    expect(find.byIcon(Icons.shopping_bag_outlined), findsOneWidget);
+
+    final compactToolbar = MaterialApp(
+      home: Scaffold(
+        body: SizedBox(
+          width: 260,
+          child: InspectorUnifiedToolbar(
+            entry: LibraryWorkspaceEntry(
+              id: 'music-ebay-compact',
+              mediaType: 'music',
+              title: 'The Black Parade',
+              barcode: '1234567890123',
+              updatedAt: DateTime.utc(2026, 5, 23),
+            ),
+            detailsLayout: LibraryDetailsLayout.right,
+            onEdit: () {},
+            onShare: () {},
+            onDuplicate: () {},
+            onToggleOwned: () {},
+            onLoan: () {},
+            onRefreshMetadata: () {},
+            onDetailsLayoutChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpWidget(compactToolbar);
+
+    expect(find.text('eBay'), findsNothing);
+    expect(find.byIcon(Icons.shopping_bag_outlined), findsOneWidget);
+  });
 }
