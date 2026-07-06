@@ -96,19 +96,22 @@ class LibraryGroupedShelfView extends StatelessWidget {
   Widget _buildFolderGrid(BuildContext context) {
     final defaultCoverSize = viewState.coverSize;
     final tileExtent = math.max(208.0, defaultCoverSize * 1.45);
-    return LibraryWorkspaceGrid<GroupShelfEntry>(
-      items: groups,
+    final folderEntries = [
+      for (final group in groups) FolderShelfEntry.fromGroup(group),
+    ];
+    return LibraryWorkspaceGrid<FolderShelfEntry>(
+      items: folderEntries,
       emptyBuilder: emptyBuilder,
       maxCrossAxisExtent: tileExtent,
       mainAxisExtent: tileExtent * 1.08,
       selectionEnabled: false,
       itemIdOf: (item) => item.id,
       backgroundColor: kAppGridCanvas,
-      itemBuilder: (context, group) => LibraryGroupFolderTile(
-        group: group,
+      itemBuilder: (context, folder) => LibraryGroupFolderTile(
+        group: folder.group,
         accent: accent,
-        onTap: () => onSelectGroupBucket(group.bucket),
-        onOpenDetails: () => onOpenGroupDetails(group),
+        onTap: () => onSelectGroupBucket(folder.bucket),
+        onOpenDetails: () => onOpenGroupDetails(folder.group),
       ),
     );
   }

@@ -45,3 +45,24 @@ final class GroupShelfEntry extends ShelfPresentationEntry {
   int get ownedCount =>
       items.where((item) => item.entry.isOwned).length;
 }
+
+final class FolderShelfEntry extends ShelfPresentationEntry {
+  FolderShelfEntry({required this.group})
+      : super(
+          id: group.id,
+          label: group.label,
+        );
+
+  factory FolderShelfEntry.fromGroup(GroupShelfEntry group) =>
+      FolderShelfEntry(group: group);
+
+  final GroupShelfEntry group;
+
+  LibraryGroupMode get groupMode => group.groupMode;
+  String get bucket => group.bucket;
+  LibraryGroupPresentation get presentation => group.presentation;
+  List<LibraryProjectionItem> get items => group.items;
+  LibraryProjectionItem get representativeItem => group.representativeItem;
+  int get count => group.count;
+  int get ownedCount => group.ownedCount;
+}

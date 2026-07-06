@@ -61,5 +61,10 @@ void main() {
     expect(groups.first.label, 'Example Show');
     expect(groups.first.presentation, LibraryGroupPresentation.folderGrid);
     expect(groups.first.count, 2);
+
+    final folderEntry = FolderShelfEntry.fromGroup(groups.first);
+    expect(folderEntry.bucket, 'Example Show');
+    expect(folderEntry.count, 2);
+    expect(folderEntry.presentation, LibraryGroupPresentation.folderGrid);
   });
 }
