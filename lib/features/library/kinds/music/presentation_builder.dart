@@ -228,8 +228,6 @@ class MusicLibraryMediaPresentationBuilder
           tracks: tracks,
           trackCount: music?.trackCount,
           accent: accent,
-          coverUrl: entry.displayCoverUrl,
-          title: entry.title,
         ),
       );
     } else if (music?.trackCount != null) {
