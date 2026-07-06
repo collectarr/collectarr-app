@@ -186,6 +186,10 @@ String plannedMediaTableColumnLabelForType(
   LibraryTypeConfig type,
   LibraryTableColumn column,
 ) {
+  if (type.workspace.kind.apiValue == 'tv' &&
+      column == LibraryTableColumn.completion) {
+    return 'Progress';
+  }
   return switch (column) {
     LibraryTableColumn.issue => type.mediaFields.numberLabel,
     LibraryTableColumn.variant => type.releaseFields.variantLabel,
@@ -351,6 +355,9 @@ Widget plannedMediaTableCell(
   LibraryTableColumn column,
   PlannedMediaEntryAccessors accessors,
 ) {
+  if (entry.mediaType == 'tv' && column == LibraryTableColumn.completion) {
+    return VideoWorkspaceProgressCell(entry: entry);
+  }
   return switch (column) {
     LibraryTableColumn.status => LibraryItemStatusIcons(
         isOwned: entry.isOwned,

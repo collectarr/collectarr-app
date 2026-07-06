@@ -4,4 +4,8 @@ final tvMediaAdapter = plannedMediaAdapter(
   tvLibraryConfig,
   entryAccessors: movieEntryAccessors,
   compareEntriesByColumn: compareMovieEntriesByColumn,
+  workspaceCardBuilder: (context, entry, child) => VideoWorkspaceProgressCard(
+    entry: entry,
+    child: child,
+  ),
 );

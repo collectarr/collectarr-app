@@ -177,26 +177,31 @@ class LibraryWorkspace extends ConsumerWidget {
             maxCrossAxisExtent: viewState.coverSize,
             mainAxisExtent: coverMainAxisExtent,
             onSelectionChanged: onBoxSelectionChanged,
-            itemBuilder: (context, item) => LibraryCoverTile(
-              key: ValueKey(item.entry.id),
-              entry: item.entry,
-              customFieldBadges: item.customFieldBadges,
-              active: _isActive(item),
-              selected: _isSelectionSelected(item),
-              selectionMode: selectionEnabled,
-              onTap: _selectionTap(item),
-              onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
-              onDoubleTap: () => onOpenItem(item),
-              onEditTap: () => onEditItem(item),
-              onSecondaryTapUp: onItemContextMenu == null
-                  ? null
-                  : (d) => onItemContextMenu!(item, d.globalPosition),
-              coverSize: viewState.coverSize,
-              selectedColor: palette.selection,
-              accentColor: accent,
-              selectionColor: accent,
-              mutedTextColor: palette.textMuted,
-            ),
+            itemBuilder: (context, item) {
+              final child = LibraryCoverTile(
+                key: ValueKey(item.entry.id),
+                entry: item.entry,
+                customFieldBadges: item.customFieldBadges,
+                active: _isActive(item),
+                selected: _isSelectionSelected(item),
+                selectionMode: selectionEnabled,
+                onTap: _selectionTap(item),
+                onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
+                onDoubleTap: () => onOpenItem(item),
+                onEditTap: () => onEditItem(item),
+                onSecondaryTapUp: onItemContextMenu == null
+                    ? null
+                    : (d) => onItemContextMenu!(item, d.globalPosition),
+                coverSize: viewState.coverSize,
+                selectedColor: palette.selection,
+                accentColor: accent,
+                selectionColor: accent,
+                mutedTextColor: palette.textMuted,
+              );
+              return adapter.workspaceCardBuilder == null
+                  ? child
+                  : adapter.workspaceCardBuilder!(context, item.entry, child);
+            },
           ),
         LibraryViewMode.card => _GroupedGrid(
             items: items,
@@ -214,28 +219,34 @@ class LibraryWorkspace extends ConsumerWidget {
                 ? musicVerticalTileHeight
                 : standardVerticalTileHeight,
             onSelectionChanged: onBoxSelectionChanged,
-            itemBuilder: (context, item) => LibraryWorkspaceCard(
-              key: ValueKey(item.entry.id),
-              entry: item.entry,
-              customFieldBadges: item.customFieldBadges,
-              selected: _isHighlighted(item),
-              onTap: _selectionTap(item),
-              onDoubleTap: () => onOpenItem(item),
-              onSecondaryTapUp: onItemContextMenu == null
-                  ? null
-                  : (d) => onItemContextMenu!(item, d.globalPosition),
-              dateFormatter: formatDate,
-              moneyFormatter: formatMoney,
-              selectedColor: palette.selection,
-              accentColor: accent,
-              mutedTextColor: palette.textMuted,
-              coverWidth: isMusicLibrary ? viewState.coverSize : cardCoverWidth,
-              musicLayout: LibraryMusicCardLayout.vertical,
-              cardLayout: LibraryCardLayout.vertical,
-              selectionMode: selectionEnabled,
-              onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
-              onEditTap: () => onEditItem(item),
-            ),
+            itemBuilder: (context, item) {
+              final child = LibraryWorkspaceCard(
+                key: ValueKey(item.entry.id),
+                entry: item.entry,
+                customFieldBadges: item.customFieldBadges,
+                selected: _isHighlighted(item),
+                onTap: _selectionTap(item),
+                onDoubleTap: () => onOpenItem(item),
+                onSecondaryTapUp: onItemContextMenu == null
+                    ? null
+                    : (d) => onItemContextMenu!(item, d.globalPosition),
+                dateFormatter: formatDate,
+                moneyFormatter: formatMoney,
+                selectedColor: palette.selection,
+                accentColor: accent,
+                mutedTextColor: palette.textMuted,
+                coverWidth:
+                    isMusicLibrary ? viewState.coverSize : cardCoverWidth,
+                musicLayout: LibraryMusicCardLayout.vertical,
+                cardLayout: LibraryCardLayout.vertical,
+                selectionMode: selectionEnabled,
+                onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
+                onEditTap: () => onEditItem(item),
+              );
+              return adapter.workspaceCardBuilder == null
+                  ? child
+                  : adapter.workspaceCardBuilder!(context, item.entry, child);
+            },
           ),
         LibraryViewMode.horizontalCards => _GroupedGrid(
             items: items,
@@ -249,28 +260,33 @@ class LibraryWorkspace extends ConsumerWidget {
             maxCrossAxisExtent: cardTileWidth,
             mainAxisExtent: cardTileHeight,
             onSelectionChanged: onBoxSelectionChanged,
-            itemBuilder: (context, item) => LibraryWorkspaceCard(
-              key: ValueKey(item.entry.id),
-              entry: item.entry,
-              customFieldBadges: item.customFieldBadges,
-              selected: _isHighlighted(item),
-              onTap: _selectionTap(item),
-              onDoubleTap: () => onOpenItem(item),
-              onSecondaryTapUp: onItemContextMenu == null
-                  ? null
-                  : (d) => onItemContextMenu!(item, d.globalPosition),
-              dateFormatter: formatDate,
-              moneyFormatter: formatMoney,
-              selectedColor: palette.selection,
-              accentColor: accent,
-              mutedTextColor: palette.textMuted,
-              coverWidth: cardCoverWidth,
-              musicLayout: LibraryMusicCardLayout.horizontal,
-              cardLayout: LibraryCardLayout.horizontal,
-              selectionMode: selectionEnabled,
-              onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
-              onEditTap: () => onEditItem(item),
-            ),
+            itemBuilder: (context, item) {
+              final child = LibraryWorkspaceCard(
+                key: ValueKey(item.entry.id),
+                entry: item.entry,
+                customFieldBadges: item.customFieldBadges,
+                selected: _isHighlighted(item),
+                onTap: _selectionTap(item),
+                onDoubleTap: () => onOpenItem(item),
+                onSecondaryTapUp: onItemContextMenu == null
+                    ? null
+                    : (d) => onItemContextMenu!(item, d.globalPosition),
+                dateFormatter: formatDate,
+                moneyFormatter: formatMoney,
+                selectedColor: palette.selection,
+                accentColor: accent,
+                mutedTextColor: palette.textMuted,
+                coverWidth: cardCoverWidth,
+                musicLayout: LibraryMusicCardLayout.horizontal,
+                cardLayout: LibraryCardLayout.horizontal,
+                selectionMode: selectionEnabled,
+                onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
+                onEditTap: () => onEditItem(item),
+              );
+              return adapter.workspaceCardBuilder == null
+                  ? child
+                  : adapter.workspaceCardBuilder!(context, item.entry, child);
+            },
           ),
         LibraryViewMode.cardFlow => _GroupedGrid(
             items: items,

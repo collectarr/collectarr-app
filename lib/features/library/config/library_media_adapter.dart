@@ -36,6 +36,11 @@ typedef LibraryTableCellBuilder = Widget Function(
   LibraryWorkspaceEntry entry,
   LibraryTableColumn column,
 );
+typedef LibraryWorkspaceCardBuilder = Widget Function(
+  BuildContext context,
+  LibraryWorkspaceEntry entry,
+  Widget child,
+);
 typedef LibraryEntryColumnComparator = int Function(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
@@ -89,6 +94,7 @@ class LibraryMediaAdapter {
     required this.entryLinkedMetadataCandidatesBuilder,
     required this.entrySubgroupKeyBuilder,
     required this.compareSubgroupKeys,
+    this.workspaceCardBuilder,
   });
 
   final LibraryTypeConfig type;
@@ -110,6 +116,7 @@ class LibraryMediaAdapter {
       entryLinkedMetadataCandidatesBuilder;
   final LibraryEntrySubgroupKeyBuilder entrySubgroupKeyBuilder;
   final LibraryEntrySubgroupKeyComparator compareSubgroupKeys;
+  final LibraryWorkspaceCardBuilder? workspaceCardBuilder;
 
   Set<LibraryTableColumn> defaultTableColumns() {
     return Set.of(type.workspace.defaultVisibleColumns);
