@@ -1,6 +1,6 @@
 // ignore_for_file: invalid_use_of_protected_member
 
-part of 'library_add_dialog.dart';
+part of '../library_add_dialog.dart';
 
 extension _LibraryAddDialogSelectionState on _LibraryAddDialogState {
   List<BundleReleaseSummary> _bundleReleasesForItem(LibraryMetadataItem? item) {

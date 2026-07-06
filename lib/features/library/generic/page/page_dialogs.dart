@@ -1,4 +1,4 @@
-part of 'page.dart';
+part of 'library_page.dart';
 
 /// Dialog launchers for the library page: filters, smart lists, sort, reading
 /// queue, pick-list editors, column chooser, metadata refresh, share, print.

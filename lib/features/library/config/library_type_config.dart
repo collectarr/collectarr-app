@@ -208,6 +208,7 @@ class LibraryInspectorRequest {
     this.ownedCopies = const [],
     required this.trackingEntry,
     required this.accent,
+    this.detailsLayout = LibraryDetailsLayout.hidden,
     this.onFilterByValue,
     this.searchQuery,
     this.searchTarget = LibrarySearchTarget.all,
@@ -219,6 +220,7 @@ class LibraryInspectorRequest {
   final List<OwnedItem> ownedCopies;
   final TrackingEntry? trackingEntry;
   final Color accent;
+  final LibraryDetailsLayout detailsLayout;
   final ValueChanged<String>? onFilterByValue;
   final String? searchQuery;
   final LibrarySearchTarget searchTarget;

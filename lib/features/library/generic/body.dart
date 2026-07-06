@@ -324,6 +324,7 @@ class LibraryBody extends StatelessWidget {
           type: type,
           entry: selected?.entry,
           ownedItem: selected?.source.ownedItem,
+          detailsLayout: viewState.detailsLayout,
           densityPreset: viewState.densityPreset,
           accent: accent,
           contextLabel: inspectorContextLabel,

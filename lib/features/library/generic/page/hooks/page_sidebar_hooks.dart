@@ -1,4 +1,4 @@
-part of '../../page.dart';
+part of '../library_page.dart';
 
 // ignore_for_file: invalid_use_of_protected_member
 

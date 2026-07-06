@@ -1,4 +1,4 @@
-part of 'library_add_dialog.dart';
+part of '../library_add_dialog.dart';
 
 // Pluggable pane builder typedefs and their request payloads for the
 // library add dialog. Extracted from library_add_dialog.dart to keep the

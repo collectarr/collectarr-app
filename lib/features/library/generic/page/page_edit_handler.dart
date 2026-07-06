@@ -1,4 +1,4 @@
-part of 'page.dart';
+part of 'library_page.dart';
 
 // ---------------------------------------------------------------------------
 // Edit dialog launch + result persistence

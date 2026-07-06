@@ -1,4 +1,4 @@
-part of 'library_add_dialog.dart';
+part of '../library_add_dialog.dart';
 
 // Comic candidate helper utilities (used by unified search and legacy code)
 
@@ -70,4 +70,3 @@ int _compareComicIssueNumbers(String? left, String? right) {
   }
   return normalizedLeft.toLowerCase().compareTo(normalizedRight.toLowerCase());
 }
-

@@ -54,6 +54,7 @@ class GameInspectorPanel extends StatelessWidget {
       children: [
         InspectorUnifiedToolbar(
           entry: entry,
+          detailsLayout: request.inspector.detailsLayout,
           onEdit: request.onEdit,
           onShare: request.onShare,
           onDuplicate: request.onDuplicate,

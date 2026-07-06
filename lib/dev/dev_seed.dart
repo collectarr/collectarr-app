@@ -40,6 +40,7 @@ const String _seedCoverImageData =
 
 CatalogItem _enrichSeedItem(CatalogItem item) {
   final payload = Map<String, dynamic>.from(item.toSyncPayload());
+  payload.putIfAbsent('id', () => item.id);
 
   payload.putIfAbsent('localized_title', () => item.displayTitle ?? item.title);
   payload.putIfAbsent('original_title', () => item.originalTitle ?? item.title);

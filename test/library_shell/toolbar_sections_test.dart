@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -91,6 +92,88 @@ void main() {
     await tester.pump();
 
     expect(appliedSortFavorite, 'series_issue');
+  });
+
+  testWidgets(
+      'desktop secondary toolbar hides details layout control when the details panel is visible',
+      (tester) async {
+    final type = collectarrLibraryTypes.byKind('comic')!;
+    final adapter = collectarrMediaAdapters.byKind('comic')!;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 1200,
+            child: LibraryDesktopSecondaryToolbar(
+              type: type,
+              viewState: adapter.viewProfile.defaults().copyWith(
+                    viewMode: LibraryViewMode.list,
+                    detailsLayout: LibraryDetailsLayout.right,
+                  ),
+              adapter: adapter,
+              counts: const LibraryToolbarCounts(shown: 18, total: 42),
+              onEditColumns: () {},
+              onSidebarVisibilityChanged: (_) {},
+              onViewModeChanged: (_) {},
+              onDetailsLayoutChanged: (_) {},
+              onCoverSizeChanged: (_) {},
+              selectedBucket: null,
+              onClearBucket: () {},
+              quickView: null,
+              hasActiveFilters: false,
+              onQuickViewSelected: (_) {},
+              onClearFilters: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LibraryDetailsLayoutDropdown), findsNothing);
+  });
+
+  testWidgets(
+      'desktop secondary toolbar shows details layout control when the details panel is hidden',
+      (tester) async {
+    final type = collectarrLibraryTypes.byKind('comic')!;
+    final adapter = collectarrMediaAdapters.byKind('comic')!;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 1200,
+            child: LibraryDesktopSecondaryToolbar(
+              type: type,
+              viewState: adapter.viewProfile.defaults().copyWith(
+                    viewMode: LibraryViewMode.list,
+                    detailsLayout: LibraryDetailsLayout.hidden,
+                  ),
+              adapter: adapter,
+              counts: const LibraryToolbarCounts(shown: 18, total: 42),
+              onEditColumns: () {},
+              onSidebarVisibilityChanged: (_) {},
+              onViewModeChanged: (_) {},
+              onDetailsLayoutChanged: (_) {},
+              onCoverSizeChanged: (_) {},
+              selectedBucket: null,
+              onClearBucket: () {},
+              quickView: null,
+              hasActiveFilters: false,
+              onQuickViewSelected: (_) {},
+              onClearFilters: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LibraryDetailsLayoutDropdown), findsOneWidget);
   });
 
   testWidgets('desktop secondary toolbar exposes a split column launcher', (

@@ -757,9 +757,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       onClose: () => Navigator.of(context).pop(),
       onCancel: () => Navigator.of(context).pop(),
       onSave: () => _submit(LibraryEditSubmitAction.save),
-      onSaveAndNext: widget.onNext == null
-          ? null
-          : () => _submit(LibraryEditSubmitAction.saveAndNext),
       onPrevious: widget.onPrevious,
       onNext: widget.onNext,
       footerContent: _isOwned ? _ownedSharedFooterRow() : null,

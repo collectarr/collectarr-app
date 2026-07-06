@@ -23,6 +23,7 @@ class ComicInspectorPanel extends StatelessWidget {
     final children = <Widget>[
       InspectorUnifiedToolbar(
         entry: entry,
+        detailsLayout: request.inspector.detailsLayout,
         onEdit: request.onEdit,
         onShare: request.onShare,
         onDuplicate: request.onDuplicate,

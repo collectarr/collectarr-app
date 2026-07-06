@@ -1,4 +1,4 @@
-part of '../../page.dart';
+part of '../library_page.dart';
 
 extension _PageToolbarBuilder on GenericLibraryPageState {
   Widget _buildToolbar({

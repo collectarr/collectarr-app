@@ -96,6 +96,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.type,
     required this.entry,
     required this.ownedItem,
+    this.detailsLayout = LibraryDetailsLayout.hidden,
     this.densityPreset = LibraryWorkspaceDensityPreset.compact,
     required this.accent,
     required this.onAddOwned,
@@ -114,6 +115,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry? entry;
   final OwnedItem? ownedItem;
+  final LibraryDetailsLayout detailsLayout;
   final LibraryWorkspaceDensityPreset densityPreset;
   final Color accent;
   final VoidCallback? onAddOwned;
@@ -206,6 +208,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       ownedCopies: ownedCopies,
       trackingEntry: activeTrackingEntry,
       accent: widget.accent,
+      detailsLayout: widget.detailsLayout,
       onFilterByValue: widget.onFilterByValue,
       searchQuery: widget.searchQuery,
       searchTarget: widget.searchTarget,
@@ -592,6 +595,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             onLoan: onLoan,
             onRefreshMetadata: onRefreshMetadata,
             onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
+            detailsLayout: widget.detailsLayout,
           ),
           SizedBox(height: density.inspectorOuterGap),
           Padding(

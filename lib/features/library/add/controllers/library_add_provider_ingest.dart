@@ -1,4 +1,4 @@
-part of 'library_add_dialog.dart';
+part of '../library_add_dialog.dart';
 
 // ---------------------------------------------------------------------------
 // Provider ingest pipeline: preview → edit → ingest → corrections → add

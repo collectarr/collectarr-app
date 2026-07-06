@@ -267,12 +267,15 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 ),
                               ),
                             ],
-                            const _LibraryDesktopToolbarSeparator(),
-                            LibraryDetailsLayoutDropdown(
-                              detailsLayout: viewState.detailsLayout,
-                              onChanged: onDetailsLayoutChanged,
-                              iconOnly: true,
-                            ),
+                            if (viewState.detailsLayout ==
+                                LibraryDetailsLayout.hidden) ...[
+                              const _LibraryDesktopToolbarSeparator(),
+                              LibraryDetailsLayoutDropdown(
+                                detailsLayout: viewState.detailsLayout,
+                                onChanged: onDetailsLayoutChanged,
+                                iconOnly: true,
+                              ),
+                            ],
                             const _LibraryDesktopToolbarSeparator(),
                             LibraryWorkspaceDensityDropdown(
                               densityPreset: viewState.densityPreset,

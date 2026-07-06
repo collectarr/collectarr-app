@@ -63,6 +63,7 @@ class _MusicInspectorPanelState extends State<MusicInspectorPanel> {
       children: [
         InspectorUnifiedToolbar(
           entry: entry,
+          detailsLayout: widget.request.inspector.detailsLayout,
           onEdit: widget.request.onEdit,
           onShare: widget.request.onShare,
           onDuplicate: widget.request.onDuplicate,

@@ -2,6 +2,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -297,6 +298,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
   const InspectorUnifiedToolbar({
     super.key,
     required this.entry,
+    required this.detailsLayout,
     this.onEdit,
     this.onShare,
     this.onDuplicate,
@@ -310,6 +312,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
   });
 
   final LibraryWorkspaceEntry entry;
+  final LibraryDetailsLayout detailsLayout;
   final VoidCallback? onEdit;
   final VoidCallback? onShare;
   final VoidCallback? onDuplicate;
@@ -474,27 +477,10 @@ class InspectorUnifiedToolbar extends StatelessWidget {
               ),
               if (includeLayoutControl && onDetailsLayoutChanged != null) ...[
                 const SizedBox(width: 4),
-                PopupMenuButton<LibraryDetailsLayout>(
-                  tooltip: 'Layout',
-                  onSelected: onDetailsLayoutChanged,
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(
-                      value: LibraryDetailsLayout.bottom,
-                      child: Text('Horizontal Split'),
-                    ),
-                    PopupMenuItem(
-                      value: LibraryDetailsLayout.right,
-                      child: Text('Vertical Split'),
-                    ),
-                    PopupMenuItem(
-                      value: LibraryDetailsLayout.hidden,
-                      child: Text('No Details'),
-                    ),
-                  ],
-                  child: const Padding(
-                    padding: EdgeInsets.all(4),
-                    child: Icon(Icons.view_sidebar_outlined, size: 18),
-                  ),
+                LibraryDetailsLayoutDropdown(
+                  detailsLayout: detailsLayout,
+                  onChanged: onDetailsLayoutChanged!,
+                  iconOnly: true,
                 ),
               ],
             ],

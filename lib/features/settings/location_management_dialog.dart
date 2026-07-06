@@ -471,7 +471,10 @@ class _LocationListTile extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(left: depth * 16.0),
           child: Material(
-            color: Colors.transparent,
+            color: appPalette(context).panelRaised,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: ListTile(
               dense: true,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

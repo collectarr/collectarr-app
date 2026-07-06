@@ -74,16 +74,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
-part 'library_add_mode_bar.dart';
-part 'library_add_search_pane.dart';
-part 'library_add_search_comic.dart';
-part 'library_add_search_unified.dart';
-part 'library_add_preview_pane.dart';
-part 'library_add_bottom_bar.dart';
-part 'library_add_manual_pane.dart';
-part 'library_add_dialog_selection_state.dart';
-part 'library_add_provider_ingest.dart';
-part 'library_add_dialog_requests.dart';
+part 'panes/library_add_mode_bar.dart';
+part 'panes/library_add_search_pane.dart';
+part 'panes/library_add_search_comic.dart';
+part 'panes/library_add_search_unified.dart';
+part 'panes/library_add_preview_pane.dart';
+part 'panes/library_add_bottom_bar.dart';
+part 'panes/library_add_manual_pane.dart';
+part 'controllers/library_add_dialog_selection_state.dart';
+part 'controllers/library_add_provider_ingest.dart';
+part 'controllers/library_add_dialog_requests.dart';
 
 String buildPreviewCatalogItemId({
   required String kind,

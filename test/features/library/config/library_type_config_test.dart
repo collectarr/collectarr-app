@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
@@ -156,6 +157,32 @@ void main() {
     expect(tvLibraryConfig.supportsMetadataProvider('tmdb'), isTrue);
     expect(tvLibraryConfig.capabilities.videoSeriesEntryTypes, {'tv'});
     expect(tvLibraryConfig.editDialogBuilder, isNotNull);
+  });
+
+  test('tv edit presentation splits media and release tabs', () {
+    const context = LibraryEditPresentationContext(
+      isOwned: false,
+      isTrackingOnly: false,
+      hasTrackingContext: false,
+      hasWishlistContext: false,
+      isDigitalFormat: false,
+      hasPhysicalFormats: true,
+      hasEditionAnchors: true,
+      hasBundleReleaseAnchors: false,
+      hasCustomFields: false,
+    );
+
+    final mediaTabs = tvLibraryConfig.editPresentation
+        .builderForScope(LibraryEditScope.media)
+        .buildTabs(context: context);
+    final releaseTabs = tvLibraryConfig.editPresentation
+        .builderForScope(LibraryEditScope.release)
+        .buildTabs(context: context);
+
+    expect(mediaTabs.any((tab) => tab.id == 'release_media'), isFalse);
+    expect(mediaTabs.any((tab) => tab.id == 'episode_map'), isFalse);
+    expect(releaseTabs.any((tab) => tab.id == 'release_media'), isTrue);
+    expect(releaseTabs.any((tab) => tab.id == 'episode_map'), isTrue);
   });
 
   test('index reassignment capability is kind-owned', () {
@@ -555,6 +582,7 @@ void main() {
       LibraryGroupMode.releaseDate,
       LibraryGroupMode.releaseMonth,
       LibraryGroupMode.releaseYear,
+      LibraryGroupMode.title,
       LibraryGroupMode.boxSet,
       LibraryGroupMode.country,
       LibraryGroupMode.extras,

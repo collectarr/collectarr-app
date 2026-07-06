@@ -16,6 +16,8 @@ import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart
 import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
@@ -866,5 +868,33 @@ void main() {
 
     expect(find.widgetWithText(FilledButton, 'Front'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'Back'), findsNothing);
+  });
+
+  testWidgets('inspector toolbar uses the shared details layout dropdown',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: InspectorUnifiedToolbar(
+            entry: LibraryWorkspaceEntry(
+              id: 'music-3',
+              mediaType: 'music',
+              title: 'The Black Parade',
+              updatedAt: DateTime.utc(2026, 5, 23),
+            ),
+            detailsLayout: LibraryDetailsLayout.right,
+            onEdit: () {},
+            onShare: () {},
+            onDuplicate: () {},
+            onToggleOwned: () {},
+            onLoan: () {},
+            onRefreshMetadata: () {},
+            onDetailsLayoutChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(LibraryDetailsLayoutDropdown), findsOneWidget);
   });
 }

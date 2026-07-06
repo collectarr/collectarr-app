@@ -1,4 +1,4 @@
-part of 'library_add_dialog.dart';
+part of '../library_add_dialog.dart';
 
 class _LibraryAddBottomBar extends StatelessWidget {
   const _LibraryAddBottomBar({

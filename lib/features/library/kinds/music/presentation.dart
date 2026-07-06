@@ -42,6 +42,7 @@ const musicLibraryGroupModes = [
   LibraryGroupMode.releaseDate,
   LibraryGroupMode.releaseMonth,
   LibraryGroupMode.releaseYear,
+  LibraryGroupMode.title,
   // Details
   LibraryGroupMode.boxSet,
   LibraryGroupMode.country,
@@ -121,6 +122,12 @@ const musicLibraryGroupModeDefinitions = [
     sidebarTitle: 'Labels',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.title,
+    label: 'Title',
+    sidebarTitle: 'Titles',
+    icon: Icons.sort_by_alpha,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.originalReleaseDate,
