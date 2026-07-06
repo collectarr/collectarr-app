@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -10,14 +11,12 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
     super.key,
     required this.type,
     required this.entry,
-    required this.accent,
     required this.ownedReleaseCount,
     this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
   final LibraryWorkspaceEntry entry;
-  final Color accent;
   final int ownedReleaseCount;
   final ValueChanged<String>? onFilterByValue;
 
@@ -47,9 +46,8 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
     }
     final hasRoles = creatorsByRole.keys.any((r) => r != 'Creator') ||
         creatorsByRole.length > 1;
-    return LibraryInspectorSection(
-      title: 'Title metadata',
-      accentColor: accent,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LibraryInspectorFactGrid(
           facts: [
@@ -162,8 +160,7 @@ Widget _buildEditionFormatBadges(LibraryWorkspaceEntry entry) {
   );
 }
 
-List<Widget> buildVideoInspectorSections(
-  BuildContext context,
+List<LibraryDetailSectionSpec> buildVideoInspectorSections(
   LibraryInspectorRequest request,
 ) {
   final ownedReleaseIds = <String>{};
@@ -180,12 +177,17 @@ List<Widget> buildVideoInspectorSections(
     }
   }
   return [
-    InspectorVideoTitleMetadataSection(
-      type: request.type,
-      entry: request.entry,
-      accent: request.accent,
-      ownedReleaseCount: ownedReleaseIds.length,
-      onFilterByValue: request.onFilterByValue,
+    LibraryDetailSectionSpec(
+      slot: LibraryDetailSectionSlot.identity,
+      title: 'Title metadata',
+      children: [
+        InspectorVideoTitleMetadataSection(
+          type: request.type,
+          entry: request.entry,
+          ownedReleaseCount: ownedReleaseIds.length,
+          onFilterByValue: request.onFilterByValue,
+        ),
+      ],
     ),
   ];
 }

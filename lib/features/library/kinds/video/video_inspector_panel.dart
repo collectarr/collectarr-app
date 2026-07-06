@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
@@ -22,7 +24,7 @@ class VideoInspectorPanel extends StatelessWidget {
     final entry = request.inspector.entry;
     final ownedItem = request.inspector.ownedItem;
     final accent = request.inspector.accent;
-    final sections = buildVideoInspectorSections(context, request.inspector);
+    final sections = buildVideoInspectorSections(request.inspector);
 
     return LibraryInspectorPanelLayout(
       entry: entry,
@@ -48,14 +50,38 @@ class VideoInspectorPanel extends StatelessWidget {
           ownedItem: ownedItem,
           accent: accent,
         ),
-        ...buildLibraryInspectorSectionFlow(
-          bodySections: [
-            request.ownedCopiesSection,
-            request.bundleSection,
-            request.conditionGradeSection,
+        ...buildLibraryDetailSectionWidgets(
+          [
             ...sections,
+            if (request.ownedCopiesSection != null ||
+                request.conditionGradeSection != null)
+              LibraryDetailSectionSpec(
+                slot: LibraryDetailSectionSlot.personalStatus,
+                title: 'Collection',
+                children: [
+                  if (request.ownedCopiesSection != null)
+                    request.ownedCopiesSection!,
+                  if (request.conditionGradeSection != null) ...[
+                    if (request.ownedCopiesSection != null)
+                      const SizedBox(height: 8),
+                    request.conditionGradeSection!,
+                  ],
+                ],
+              ),
+            if (request.bundleSection != null)
+              LibraryDetailSectionSpec(
+                slot: LibraryDetailSectionSlot.progressOwnership,
+                title: 'Bundle',
+                children: [request.bundleSection!],
+              ),
+            if (request.trailingSections.isNotEmpty)
+              LibraryDetailSectionSpec(
+                slot: LibraryDetailSectionSlot.activityHistory,
+                title: 'More',
+                children: request.trailingSections,
+              ),
           ],
-          afterBodySections: request.trailingSections,
+          accentColor: accent,
         ),
       ],
     );

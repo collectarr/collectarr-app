@@ -289,7 +289,6 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
             InspectorVideoTitleMetadataSection(
               type: request.type,
               entry: request.entry,
-              accent: request.accent,
               ownedReleaseCount: releases.where((release) => release.ownedCopies.isNotEmpty).length,
               onFilterByValue: request.onFilterByValue,
             ),
