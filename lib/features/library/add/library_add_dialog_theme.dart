@@ -21,7 +21,7 @@ ThemeData libraryAddDialogTheme(
             ThemeData.estimateBrightnessForColor(accent) == Brightness.dark
                 ? Colors.white
                 : palette.textPrimary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        shape: kLibraryDialogFooterButtonShape,
         visualDensity: VisualDensity.compact,
       ),
     ),
