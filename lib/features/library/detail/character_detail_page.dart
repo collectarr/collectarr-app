@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -106,12 +107,12 @@ class _CharacterDetailBody extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _MetaStatChip(
+                      LibraryInfoChip(
                         icon: Icons.auto_stories_outlined,
                         label: '$appearanceCount appearances',
                       ),
                       if (aliases.isNotEmpty)
-                        _MetaStatChip(
+                        LibraryInfoChip(
                           icon: Icons.badge_outlined,
                           label: '${aliases.length} aliases',
                         ),
@@ -250,24 +251,6 @@ class _CharacterAppearanceTile extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-    );
-  }
-}
-
-class _MetaStatChip extends StatelessWidget {
-  const _MetaStatChip({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      avatar: Icon(icon, size: 16),
-      label: Text(label),
     );
   }
 }

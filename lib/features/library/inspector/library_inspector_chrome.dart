@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -113,7 +114,7 @@ class InspectorActionBar extends StatelessWidget {
                     letterSpacing: 0.35,
                   ),
             ),
-            _InspectorStatusChip(
+            LibraryStatusChip(
               icon: entry.isOwned
                   ? Icons.check_circle_outline
                   : Icons.inventory_2_outlined,
@@ -123,7 +124,7 @@ class InspectorActionBar extends StatelessWidget {
               borderColor: palette.divider,
             ),
             if (entry.isWishlisted)
-              _InspectorStatusChip(
+              LibraryStatusChip(
                 icon: Icons.star,
                 label: 'Wish list',
                 foreground: palette.textPrimary,
@@ -201,51 +202,6 @@ class _InspectorActionPillButton extends StatelessWidget {
           visualDensity: VisualDensity.compact,
           minimumSize: const Size(0, 30),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        ),
-      ),
-    );
-  }
-}
-
-class _InspectorStatusChip extends StatelessWidget {
-  const _InspectorStatusChip({
-    required this.icon,
-    required this.label,
-    required this.foreground,
-    required this.background,
-    required this.borderColor,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color foreground;
-  final Color background;
-  final Color borderColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: borderColor),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14, color: foreground),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: TextStyle(
-                color: foreground,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -502,7 +458,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.surface.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.zero,
         border: Border.all(color: palette.divider),
       ),
       child: content,

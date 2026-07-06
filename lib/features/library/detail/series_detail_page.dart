@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';
@@ -97,26 +98,26 @@ class _SeriesDetailBody extends ConsumerWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _SeriesStatChip(
+            LibraryInfoChip(
               icon: Icons.auto_stories_outlined,
               label: '$itemCount items',
             ),
-            _SeriesStatChip(
+            LibraryInfoChip(
               icon: Icons.layers_outlined,
               label: '$volumeCount volumes',
             ),
             if (status != null && status.trim().isNotEmpty)
-              _SeriesStatChip(
+              LibraryInfoChip(
                 icon: Icons.timeline_outlined,
                 label: status,
               ),
             if (country != null && country.trim().isNotEmpty)
-              _SeriesStatChip(
+              LibraryInfoChip(
                 icon: Icons.public_outlined,
                 label: country,
               ),
             if (language != null && language.trim().isNotEmpty)
-              _SeriesStatChip(
+              LibraryInfoChip(
                 icon: Icons.translate_outlined,
                 label: language,
               ),
@@ -407,24 +408,6 @@ class _SeriesRelationCard extends StatelessWidget {
   }
 }
 
-class _SeriesStatChip extends StatelessWidget {
-  const _SeriesStatChip({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      avatar: Icon(icon, size: 16),
-      label: Text(label),
-    );
-  }
-}
-
 final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
 
 /// Computes missing issue numbers between the min and max owned issues.
@@ -459,4 +442,3 @@ List<int> _computeMissingIssues(
   }
   return missing;
 }
-

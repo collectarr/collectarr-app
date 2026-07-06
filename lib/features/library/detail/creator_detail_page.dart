@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -107,12 +108,12 @@ class _CreatorDetailBody extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _CreatorStatChip(
+                      LibraryInfoChip(
                         icon: Icons.edit_note_outlined,
                         label: '$itemCount credits',
                       ),
                       for (final entry in roleCounts.entries)
-                        _CreatorStatChip(
+                        LibraryInfoChip(
                           icon: Icons.badge_outlined,
                           label: '${entry.key} ${entry.value}',
                         ),
@@ -241,23 +242,6 @@ class _CreatorCreditTile extends StatelessWidget {
   }
 }
 
-class _CreatorStatChip extends StatelessWidget {
-  const _CreatorStatChip({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      avatar: Icon(icon, size: 16),
-      label: Text(label),
-    );
-  }
-}
 
 Map<String, dynamic> _pickBestCreator(
   List<Map<String, dynamic>> results,
