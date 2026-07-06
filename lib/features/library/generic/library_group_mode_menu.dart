@@ -43,6 +43,7 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
     required this.onChanged,
     this.sidebarVisible = true,
     this.onSidebarVisibilityChanged,
+    this.onClearBucket,
     this.pinnedFolderPresets = const [],
     this.onPinnedPresetsChanged,
     this.iconOnly = false,
@@ -56,6 +57,7 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
   final ValueChanged<LibraryFolderPreset> onChanged;
   final bool sidebarVisible;
   final ValueChanged<bool>? onSidebarVisibilityChanged;
+  final VoidCallback? onClearBucket;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedPresetsChanged;
   final bool iconOnly;
@@ -113,6 +115,7 @@ class _LibraryGroupModeMenuButtonState
       }
     } else if (value == LibraryGroupModeMenuAction.disableFolders &&
         widget.onSidebarVisibilityChanged != null) {
+      widget.onClearBucket?.call();
       widget.onSidebarVisibilityChanged!(false);
     }
   }

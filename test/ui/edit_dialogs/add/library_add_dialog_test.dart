@@ -2053,7 +2053,7 @@ void main() {
     await tester.tap(find.byTooltip('Search').first);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.text('Provider result Daft Punk'));
+    await tester.tap(find.text('Provider result Daft Punk').last);
     await pumpUntilSettled(tester);
 
     await tester.tap(find.byType(FilledButton).last);

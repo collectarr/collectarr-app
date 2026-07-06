@@ -164,6 +164,40 @@ void main() {
     );
   });
 
+  testWidgets('no folders clears the active bucket before hiding folders', (
+    tester,
+  ) async {
+    var clearedBucket = false;
+    var sidebarVisible = true;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryGroupModeMenuButton(
+            type: moviesLibraryConfig,
+            folderPreset: LibraryFolderPreset.single(
+              LibraryGroupMode.releaseYear,
+            ),
+            accent: Colors.cyan,
+            icon: Icons.account_tree_outlined,
+            onChanged: (_) {},
+            sidebarVisible: sidebarVisible,
+            onSidebarVisibilityChanged: (value) => sidebarVisible = value,
+            onClearBucket: () => clearedBucket = true,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byTooltip('Group by'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('No folders'));
+    await tester.pumpAndSettle();
+
+    expect(clearedBucket, isTrue);
+    expect(sidebarVisible, isFalse);
+  });
+
   testWidgets('add favorite button opens the editor pane', (tester) async {
     await tester.pumpWidget(
       MaterialApp(

@@ -71,6 +71,7 @@ const tvLibraryConfig = LibraryTypeConfig(
     showsSynopsis: true,
     supportsVideoKindFilters: true,
     supportsMediaReleaseSplit: true,
+    contentHierarchy: LibraryContentHierarchy.seasons,
     wideDialog: true,
     videoSeriesEntryTypes: {'tv'},
     videoShelfDrilldownEntryTypes: {'tv'},

@@ -207,6 +207,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 sidebarVisible: viewState.isSidebarVisible,
                                 onSidebarVisibilityChanged:
                                     onSidebarVisibilityChanged,
+                                onClearBucket: onClearBucket,
                                 pinnedFolderPresets: pinnedFolderPresets,
                                 onPinnedPresetsChanged:
                                     onPinnedFolderPresetsChanged,

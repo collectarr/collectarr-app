@@ -311,6 +311,7 @@ class LibraryAddSearchPaneRequest {
     required this.showCoreResults,
     required this.showProviderResults,
     required this.showMediaResults,
+    required this.showSeasonResults,
     required this.showReleaseResults,
     required this.hideComicOwnedResults,
     required this.hideComicVariantResults,
@@ -322,6 +323,7 @@ class LibraryAddSearchPaneRequest {
     required this.onShowCoreResultsChanged,
     required this.onShowProviderResultsChanged,
     required this.onShowMediaResultsChanged,
+    required this.onShowSeasonResultsChanged,
     required this.onShowReleaseResultsChanged,
     required this.onHideComicOwnedResultsChanged,
     required this.onHideComicVariantResultsChanged,
@@ -353,6 +355,7 @@ class LibraryAddSearchPaneRequest {
   final bool showCoreResults;
   final bool showProviderResults;
   final bool showMediaResults;
+  final bool showSeasonResults;
   final bool showReleaseResults;
   final bool hideComicOwnedResults;
   final bool hideComicVariantResults;
@@ -364,6 +367,7 @@ class LibraryAddSearchPaneRequest {
   final ValueChanged<bool> onShowCoreResultsChanged;
   final ValueChanged<bool> onShowProviderResultsChanged;
   final ValueChanged<bool> onShowMediaResultsChanged;
+  final ValueChanged<bool> onShowSeasonResultsChanged;
   final ValueChanged<bool> onShowReleaseResultsChanged;
   final ValueChanged<bool> onHideComicOwnedResultsChanged;
   final ValueChanged<bool> onHideComicVariantResultsChanged;

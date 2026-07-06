@@ -635,7 +635,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Future<TvSeries?> _loadTvSeriesSnapshot() async {
     final api = ref.read(apiClientProvider);
-    final dto = await api.getTvSeriesDto(widget.item.id);
+    final seriesId = widget.item.series?.seriesId ?? widget.item.id;
+    final dto = await api.getTvSeriesDto(seriesId);
     return TvSeries.fromDto(dto);
   }
 

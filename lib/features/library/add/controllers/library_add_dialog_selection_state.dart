@@ -120,30 +120,17 @@ extension _LibraryAddDialogSelectionState on _LibraryAddDialogState {
 
   bool get _isMovieDesktopChrome => widget.type.capabilities.wideDialog;
 
-  bool _isCoreReleaseResult(LibraryMetadataItem item) {
-    final itemNumber = item.itemNumber?.trim();
-    final editionTitle = item.editionTitle?.trim();
-    final physicalFormat = item.physicalFormat?.trim();
-    final physicalFormatLabel = item.physicalFormatLabel?.trim();
-    final barcode = item.barcode?.trim();
-    final variant = item.variant?.trim();
-    return (itemNumber != null && itemNumber.isNotEmpty) ||
-        (editionTitle != null && editionTitle.isNotEmpty) ||
-        (physicalFormat != null && physicalFormat.isNotEmpty) ||
-        (physicalFormatLabel != null && physicalFormatLabel.isNotEmpty) ||
-        (barcode != null && barcode.isNotEmpty) ||
-        (variant != null && variant.isNotEmpty);
-  }
-
   bool _isProviderReleaseResult(ProviderCandidate candidate) =>
       !_isSeriesCandidate(candidate);
 
   bool _matchesEntityScopeForCore(LibraryMetadataItem item) {
-    if (_showMediaResults && _showReleaseResults) {
-      return true;
-    }
-    final isRelease = _isCoreReleaseResult(item);
-    return isRelease ? _showReleaseResults : _showMediaResults;
+    return libraryAddMatchesContentScope(
+      type: widget.type,
+      item: item,
+      showSeriesResults: _showMediaResults,
+      showSeasonResults: _showSeasonResults,
+      showReleaseResults: _showReleaseResults,
+    );
   }
 
   bool _matchesEntityScopeForProvider(ProviderCandidate candidate) {

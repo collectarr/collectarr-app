@@ -155,7 +155,9 @@ extension _LibraryEditRendererTvEpisodeDiscMapTab on _LibraryEditRendererState {
     final customEpisodes = customEpisodesAsync.maybeWhen(
       data: (grouped) => grouped.values.expand((episodes) => episodes).toList(),
       orElse: () => const <CustomEpisode>[],
-    )..sort((a, b) {
+    )
+        .toList(growable: true)
+      ..sort((a, b) {
         final seasonCompare = a.seasonNumber.compareTo(b.seasonNumber);
         if (seasonCompare != 0) return seasonCompare;
         return a.episodeNumber.compareTo(b.episodeNumber);

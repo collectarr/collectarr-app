@@ -26,6 +26,7 @@ class _SearchPane extends StatelessWidget {
     required this.showCoreResults,
     required this.showProviderResults,
     required this.showMediaResults,
+    required this.showSeasonResults,
     required this.showReleaseResults,
     required this.hideComicOwnedResults,
     required this.hideComicVariantResults,
@@ -37,6 +38,7 @@ class _SearchPane extends StatelessWidget {
     required this.onShowCoreResultsChanged,
     required this.onShowProviderResultsChanged,
     required this.onShowMediaResultsChanged,
+    required this.onShowSeasonResultsChanged,
     required this.onShowReleaseResultsChanged,
     required this.onHideComicOwnedResultsChanged,
     required this.onHideComicVariantResultsChanged,
@@ -68,6 +70,7 @@ class _SearchPane extends StatelessWidget {
   final bool showCoreResults;
   final bool showProviderResults;
   final bool showMediaResults;
+  final bool showSeasonResults;
   final bool showReleaseResults;
   final bool hideComicOwnedResults;
   final bool hideComicVariantResults;
@@ -79,6 +82,7 @@ class _SearchPane extends StatelessWidget {
   final ValueChanged<bool> onShowCoreResultsChanged;
   final ValueChanged<bool> onShowProviderResultsChanged;
   final ValueChanged<bool> onShowMediaResultsChanged;
+  final ValueChanged<bool> onShowSeasonResultsChanged;
   final ValueChanged<bool> onShowReleaseResultsChanged;
   final ValueChanged<bool> onHideComicOwnedResultsChanged;
   final ValueChanged<bool> onHideComicVariantResultsChanged;
@@ -129,23 +133,29 @@ class _SearchPane extends StatelessWidget {
 
 class _SearchSourceToggles extends StatelessWidget {
   const _SearchSourceToggles({
+    required this.type,
     required this.showCoreResults,
     required this.showProviderResults,
     required this.showMediaResults,
+    required this.showSeasonResults,
     required this.showReleaseResults,
     required this.onShowCoreResultsChanged,
     required this.onShowProviderResultsChanged,
     required this.onShowMediaResultsChanged,
+    required this.onShowSeasonResultsChanged,
     required this.onShowReleaseResultsChanged,
   });
 
+  final LibraryTypeConfig type;
   final bool showCoreResults;
   final bool showProviderResults;
   final bool showMediaResults;
+  final bool showSeasonResults;
   final bool showReleaseResults;
   final ValueChanged<bool> onShowCoreResultsChanged;
   final ValueChanged<bool> onShowProviderResultsChanged;
   final ValueChanged<bool> onShowMediaResultsChanged;
+  final ValueChanged<bool> onShowSeasonResultsChanged;
   final ValueChanged<bool> onShowReleaseResultsChanged;
 
   @override
@@ -175,10 +185,16 @@ class _SearchSourceToggles extends StatelessWidget {
               onChanged: onShowProviderResultsChanged,
             ),
             _SearchSourceToggle(
-              label: 'Media',
+              label: type.capabilities.usesSeasonHierarchy ? 'Series' : 'Media',
               value: showMediaResults,
               onChanged: onShowMediaResultsChanged,
             ),
+            if (type.capabilities.usesSeasonHierarchy)
+              _SearchSourceToggle(
+                label: 'Seasons',
+                value: showSeasonResults,
+                onChanged: onShowSeasonResultsChanged,
+              ),
             _SearchSourceToggle(
               label: 'Releases',
               value: showReleaseResults,

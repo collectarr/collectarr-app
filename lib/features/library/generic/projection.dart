@@ -232,6 +232,20 @@ LibraryGroupMode? genericGroupModeDrilldownChildMode(
   return libraryGroupModeDefinitionOrNull(mode, type)?.drilldownChildMode;
 }
 
+bool libraryAllowsGroupDrilldown({
+  required LibraryGroupMode currentMode,
+  required LibraryGroupMode? childMode,
+}) {
+  if (childMode == null || childMode == currentMode) {
+    return false;
+  }
+  if (currentMode == LibraryGroupMode.series &&
+      childMode == LibraryGroupMode.title) {
+    return false;
+  }
+  return true;
+}
+
 String genericGroupModeFolderSetLabel(
   LibraryGroupMode mode,
   LibraryTypeConfig type,

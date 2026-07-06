@@ -271,6 +271,33 @@ void main() {
     );
   });
 
+  test('series grouping does not drill into title buckets', () {
+    expect(
+      libraryAllowsGroupDrilldown(
+        currentMode: LibraryGroupMode.series,
+        childMode: LibraryGroupMode.title,
+      ),
+      isFalse,
+    );
+    expect(
+      libraryAllowsGroupDrilldown(
+        currentMode: LibraryGroupMode.series,
+        childMode: null,
+      ),
+      isFalse,
+    );
+  });
+
+  test('other drilldowns still remain enabled', () {
+    expect(
+      libraryAllowsGroupDrilldown(
+        currentMode: LibraryGroupMode.publisher,
+        childMode: LibraryGroupMode.title,
+      ),
+      isTrue,
+    );
+  });
+
   test('music grouping fallbacks use unknown artist and label buckets', () {
     final item = _projectionItem(
       source: const ShelfEntry(itemId: 'music-1'),

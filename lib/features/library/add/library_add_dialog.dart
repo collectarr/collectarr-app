@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/add/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
+import 'package:collectarr_app/features/library/add/library_add_content_scope.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
@@ -211,6 +212,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   bool _showCoreResults = true;
   bool _showProviderResults = true;
   bool _showMediaResults = true;
+  bool _showSeasonResults = true;
   bool _showReleaseResults = true;
   bool _hideComicOwnedResults = false;
   bool _hideComicVariantResults = false;
@@ -617,6 +619,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         showCoreResults: _showCoreResults,
                         showProviderResults: _showProviderResults,
                         showMediaResults: _showMediaResults,
+                        showSeasonResults: _showSeasonResults,
                         showReleaseResults: _showReleaseResults,
                         hideComicOwnedResults: _hideComicOwnedResults,
                         hideComicVariantResults: _hideComicVariantResults,
@@ -640,6 +643,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onShowCoreResultsChanged: (_) {},
                         onShowProviderResultsChanged: (_) {},
                         onShowMediaResultsChanged: (_) {},
+                        onShowSeasonResultsChanged: (_) {},
                         onShowReleaseResultsChanged: (_) {},
                         onHideComicOwnedResultsChanged: (value) => setState(() {
                           _hideComicOwnedResults = value;
@@ -706,6 +710,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 searchPaneRequest.showProviderResults,
                             showMediaResults:
                                 searchPaneRequest.showMediaResults,
+                            showSeasonResults:
+                                searchPaneRequest.showSeasonResults,
                             showReleaseResults:
                                 searchPaneRequest.showReleaseResults,
                             hideComicOwnedResults:
@@ -727,6 +733,8 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 searchPaneRequest.onShowProviderResultsChanged,
                             onShowMediaResultsChanged:
                                 searchPaneRequest.onShowMediaResultsChanged,
+                            onShowSeasonResultsChanged:
+                                searchPaneRequest.onShowSeasonResultsChanged,
                             onShowReleaseResultsChanged:
                                 searchPaneRequest.onShowReleaseResultsChanged,
                             onHideComicOwnedResultsChanged: searchPaneRequest
@@ -744,6 +752,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                       CrossAxisAlignment.stretch,
                                   children: [
                                     _SearchSourceToggles(
+                                      type: widget.type,
                                       showCoreResults: _showCoreResults,
                                       showProviderResults: _showProviderResults,
                                       onShowCoreResultsChanged: (value) =>
@@ -763,10 +772,13 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                         }
                                       }),
                                       showMediaResults: _showMediaResults,
+                                      showSeasonResults: _showSeasonResults,
                                       showReleaseResults: _showReleaseResults,
                                       onShowMediaResultsChanged: (value) =>
                                           setState(() {
-                                        if (!value && !_showReleaseResults) {
+                                        if (!value &&
+                                            !_showSeasonResults &&
+                                            !_showReleaseResults) {
                                           return;
                                         }
                                         _showMediaResults = value;
@@ -776,9 +788,25 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                               _visibleProviderResults(),
                                         );
                                       }),
+                                      onShowSeasonResultsChanged: (value) =>
+                                          setState(() {
+                                        if (!value &&
+                                            !_showMediaResults &&
+                                            !_showReleaseResults) {
+                                          return;
+                                        }
+                                        _showSeasonResults = value;
+                                        _pruneSelectionsForVisibility(
+                                          visibleResults: _visibleCoreResults(),
+                                          visibleProviderResults:
+                                              _visibleProviderResults(),
+                                        );
+                                      }),
                                       onShowReleaseResultsChanged: (value) =>
                                           setState(() {
-                                        if (!value && !_showMediaResults) {
+                                        if (!value &&
+                                            !_showMediaResults &&
+                                            !_showSeasonResults) {
                                           return;
                                         }
                                         _showReleaseResults = value;
