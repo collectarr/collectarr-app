@@ -1,17 +1,31 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/session_history_section.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_inspector_panel.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildTvInspectorSections(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) {
+  return buildLibraryDetailSectionWidgets(
+    _buildTvInspectorSectionSpecs(context, request),
+    accentColor: request.accent,
+  );
+}
+
+List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -88,51 +102,81 @@ List<Widget> buildTvInspectorSections(
       ),
   ];
 
-  return [
-    InspectorMetadataFactsSection(
+  return <LibraryDetailSectionSpec>[
+    LibraryDetailSectionSpec(
+      slot: LibraryDetailSectionSlot.identity,
       title: 'Series metadata',
-      accent: request.accent,
-      facts: facts,
       children: [
-        if (genreValues.isNotEmpty) ...[
-          LibraryInspectorChipWrap(
-            label: 'Genres',
-            values: genreValues,
-            onValueTap: request.onFilterByValue,
-          ),
-        ],
-        if (creatorNames.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
-            label: 'Cast / credits',
-            values: creatorNames,
-            onValueTap: request.onFilterByValue,
-          ),
-        ],
-        if (aliases.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
-            label: 'Search aliases',
-            values: aliases,
-            onValueTap: request.onFilterByValue,
-          ),
-        ],
+        InspectorMetadataFactsSection(
+          title: 'Series metadata',
+          accent: request.accent,
+          facts: facts,
+          children: [
+            if (genreValues.isNotEmpty) ...[
+              LibraryInspectorChipWrap(
+                label: 'Genres',
+                values: genreValues,
+                onValueTap: request.onFilterByValue,
+              ),
+            ],
+            if (creatorNames.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              LibraryInspectorChipWrap(
+                label: 'Cast / credits',
+                values: creatorNames,
+                onValueTap: request.onFilterByValue,
+              ),
+            ],
+            if (aliases.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              LibraryInspectorChipWrap(
+                label: 'Search aliases',
+                values: aliases,
+                onValueTap: request.onFilterByValue,
+              ),
+            ],
+          ],
+        ),
       ],
     ),
-    InspectorEpisodeGridSection(
-      seriesRef: seriesRef,
-      kind: request.type.workspace.kind.apiValue,
-      accent: request.accent,
-      itemId: request.entry.id,
+    LibraryDetailSectionSpec(
+      slot: LibraryDetailSectionSlot.formatEditionRelease,
+      title: 'Episodes',
+      children: [
+        InspectorEpisodeGridSection(
+          seriesRef: seriesRef,
+          kind: request.type.workspace.kind.apiValue,
+          accent: request.accent,
+          itemId: request.entry.id,
+        ),
+      ],
     ),
-    InspectorSessionHistorySection(
-      request: request,
-      seriesRef: seriesRef,
-      releaseOptions: releaseOptions,
+    LibraryDetailSectionSpec(
+      slot: LibraryDetailSectionSlot.progressOwnership,
+      title: 'Releases',
+      children: [InspectorReleasesSection(request: request)],
     ),
-    InspectorReleasesSection(request: request),
-    InspectorContributorsSection(request: request),
-    InspectorLinksTrailersSection(request: request),
+    LibraryDetailSectionSpec(
+      slot: LibraryDetailSectionSlot.people,
+      title: 'Contributors',
+      children: [InspectorContributorsSection(request: request)],
+    ),
+    LibraryDetailSectionSpec(
+      slot: LibraryDetailSectionSlot.seriesLinks,
+      title: 'Links / trailers',
+      children: [InspectorLinksTrailersSection(request: request)],
+    ),
+    LibraryDetailSectionSpec(
+      slot: LibraryDetailSectionSlot.activityHistory,
+      title: 'History',
+      children: [
+        InspectorSessionHistorySection(
+          request: request,
+          seriesRef: seriesRef,
+          releaseOptions: releaseOptions,
+        ),
+      ],
+    ),
   ];
 }
 
@@ -140,5 +184,37 @@ Widget buildTvInspectorPanel(
   BuildContext context,
   LibraryInspectorPanelRequest request,
 ) {
-  return buildVideoInspectorPanel(context, request);
+  final entry = request.inspector.entry;
+  final accent = request.inspector.accent;
+  final statusIcon =
+      entry.isOwned ? Icons.inventory_2_outlined : Icons.star_border;
+  final statusLabel = entry.isOwned
+      ? 'In collection'
+      : entry.isWishlisted
+          ? 'Wishlist'
+          : 'Catalog';
+
+  return LibraryDetailPanelScaffold(
+    accent: accent,
+    toolbar: InspectorUnifiedToolbar(
+      entry: entry,
+      detailsLayout: request.inspector.detailsLayout,
+      onEdit: request.onEdit,
+      onShare: request.onShare,
+      onDuplicate: request.onDuplicate,
+      onToggleOwned: request.onToggleOwned,
+      onLoan: request.onLoan,
+      onRefreshMetadata: request.onRefreshMetadata,
+      onUnlinkFromCore: request.onUnlinkFromCore,
+      onDetailsLayoutChanged: request.onDetailsLayoutChanged,
+    ),
+    hero: LibraryInspectorTitleStatusCard(
+      eyebrow: entry.series?.seriesTitle?.trim(),
+      title: entry.resolvedTitle,
+      accent: accent,
+      statusIcon: statusIcon,
+      statusLabel: statusLabel,
+    ),
+    sections: _buildTvInspectorSectionSpecs(context, request.inspector),
+  );
 }

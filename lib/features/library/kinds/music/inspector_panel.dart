@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
@@ -53,41 +55,42 @@ class _MusicInspectorPanelState extends State<MusicInspectorPanel> {
   @override
   Widget build(BuildContext context) {
     final entry = widget.request.inspector.entry;
-    final ownedItem = widget.request.inspector.ownedItem;
     final accent = widget.request.inspector.accent;
 
-    return LibraryInspectorPanelLayout(
-      entry: entry,
-      ownedItem: ownedItem,
+    return LibraryDetailPanelScaffold(
       accent: accent,
-      children: [
-        InspectorUnifiedToolbar(
-          entry: entry,
-          detailsLayout: widget.request.inspector.detailsLayout,
-          onEdit: widget.request.onEdit,
-          onShare: widget.request.onShare,
-          onDuplicate: widget.request.onDuplicate,
-          onToggleOwned: widget.request.onToggleOwned,
-          onLoan: widget.request.onLoan,
-          onRefreshMetadata: widget.request.onRefreshMetadata,
-          onUnlinkFromCore: widget.request.onUnlinkFromCore,
-          onDetailsLayoutChanged: widget.request.onDetailsLayoutChanged,
+      toolbar: InspectorUnifiedToolbar(
+        entry: entry,
+        detailsLayout: widget.request.inspector.detailsLayout,
+        onEdit: widget.request.onEdit,
+        onShare: widget.request.onShare,
+        onDuplicate: widget.request.onDuplicate,
+        onToggleOwned: widget.request.onToggleOwned,
+        onLoan: widget.request.onLoan,
+        onRefreshMetadata: widget.request.onRefreshMetadata,
+        onUnlinkFromCore: widget.request.onUnlinkFromCore,
+        onDetailsLayoutChanged: widget.request.onDetailsLayoutChanged,
+      ),
+      hero: _MusicInspectorHeader(inspector: widget.request.inspector),
+      sections: [
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.identity,
+          title: 'Details',
+          children: [
+            _MusicInspectorTabsHeader(
+              tabs: _tabs,
+              selectedIndex: _selectedTabIndex,
+              accent: accent,
+              onChanged: (index) => setState(() => _selectedTabIndex = index),
+            ),
+            const SizedBox(height: 10),
+            _buildSelectedTab(),
+            if (widget.request.trailingSections.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              ...widget.request.trailingSections,
+            ],
+          ],
         ),
-        const SizedBox(height: 8),
-        _MusicInspectorHeader(inspector: widget.request.inspector),
-        const SizedBox(height: 10),
-        _MusicInspectorTabsHeader(
-          tabs: _tabs,
-          selectedIndex: _selectedTabIndex,
-          accent: accent,
-          onChanged: (index) => setState(() => _selectedTabIndex = index),
-        ),
-        const SizedBox(height: 10),
-        _buildSelectedTab(),
-        if (widget.request.trailingSections.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          ...widget.request.trailingSections,
-        ],
       ],
     );
   }
