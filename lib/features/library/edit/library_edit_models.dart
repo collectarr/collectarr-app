@@ -15,7 +15,7 @@ class LibraryEditSelection {
   const LibraryEditSelection({
     required this.item,
     required this.personal,
-    this.scope = LibraryEditScope.all,
+    this.scope = LibraryEditScope.media,
     this.wishlist,
     this.tracking,
     this.customFieldEdits = const {},

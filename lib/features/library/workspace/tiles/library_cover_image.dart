@@ -388,30 +388,9 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   }
 
   Future<void> _warmPreviewImage() async {
-    for (final imageUrl in [
-      normalizeNetworkImageUrl(widget.imageUrl),
-      normalizeNetworkImageUrl(widget.secondaryImageUrl),
-    ]) {
-      if (imageUrl == null || imageUrl.isEmpty) {
-        continue;
-      }
-      if (!await isLikelyImageUrl(imageUrl)) {
-        continue;
-      }
-      try {
-        final provider = kIsWeb
-            ? NetworkImage(imageUrl) as ImageProvider<Object>
-            : CachedNetworkImageProvider(imageUrl);
-        await precacheImage(provider, context);
-      } catch (error, stackTrace) {
-        logRecoverableError(
-          source: 'library_cover_image',
-          message: 'Failed to precache cover preview image.',
-          error: error,
-          stackTrace: stackTrace,
-        );
-      }
-    }
+    // Skip eager precache here: malformed or stale URLs can trigger noisy
+    // decode exceptions while the normal image widgets still fall back safely.
+    return;
   }
 
   void _maybeWarmPreviewImage() {

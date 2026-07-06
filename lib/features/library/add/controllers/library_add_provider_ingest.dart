@@ -44,6 +44,7 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
             item: previewItem,
             ownedItem: null,
             accent: LibraryAccentScope.accentOf(context),
+            scope: LibraryEditScope.all,
             physicalFormats: physicalMediaFormatsForKind(
               catalog,
               widget.type.workspace.kind,

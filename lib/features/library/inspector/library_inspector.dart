@@ -524,7 +524,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           accent: widget.accent,
         ),
       ...?(!usesCustomInspectorPanel
-            ? buildLibraryDetailEditorSections(
+            ? buildLibraryInspectorEditorSections(
               type: widget.type,
               entry: selected,
               accent: widget.accent,
@@ -533,7 +533,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             )
           : null),
       ...?(!usesCustomInspectorPanel
-            ? buildLibraryDetailKindSections(
+            ? buildLibraryInspectorKindSections(
               context: context,
               type: widget.type,
               entry: selected,

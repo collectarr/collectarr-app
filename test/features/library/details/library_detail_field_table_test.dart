@@ -32,6 +32,8 @@ void main() {
     expect(find.byType(LibraryDetailFieldRow), findsNWidgets(2));
     expect(find.byKey(const ValueKey('library-detail-field-table-1')),
         findsOneWidget);
+    expect(find.text('Field'), findsOneWidget);
+    expect(find.text('Value'), findsOneWidget);
   });
 
   testWidgets('detail field table wraps to two columns when wider',
@@ -60,5 +62,7 @@ void main() {
     expect(find.byType(LibraryDetailFieldRow), findsNWidgets(2));
     expect(find.byKey(const ValueKey('library-detail-field-table-3')),
         findsOneWidget);
+    expect(find.text('Field'), findsOneWidget);
+    expect(find.text('Value'), findsOneWidget);
   });
 }

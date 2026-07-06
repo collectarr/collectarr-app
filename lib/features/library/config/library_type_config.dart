@@ -27,7 +27,15 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
-const kDefaultTransferableFieldKeys = [
+const kTransferableMediaFieldKeys = <String>[];
+
+const kTransferableReleaseFieldKeys = <String>[
+  'features',
+  'boxSetName',
+  'coverPriceCents',
+];
+
+const kTransferablePersonalFieldKeys = <String>[
   'condition',
   'grade',
   'personalNotes',
@@ -36,11 +44,8 @@ const kDefaultTransferableFieldKeys = [
   'currency',
   'readStatus',
   'soldTo',
-  'features',
   'purchaseStore',
-  'boxSetName',
   'pricePaidCents',
-  'coverPriceCents',
   'sellPriceCents',
   'quantity',
   'indexNumber',
@@ -49,6 +54,11 @@ const kDefaultTransferableFieldKeys = [
   'startedAt',
   'finishedAt',
   'soldAt',
+];
+
+const kDefaultTransferableFieldKeys = <String>[
+  ...kTransferableReleaseFieldKeys,
+  ...kTransferablePersonalFieldKeys,
 ];
 
 const kComicTransferableFieldKeys = [
@@ -95,7 +105,7 @@ class LibraryEditDialogRequest {
     required this.item,
     required this.ownedItem,
     required this.accent,
-    this.scope = LibraryEditScope.all,
+    this.scope,
     this.wishlistItem,
     this.trackingEntry,
     this.availableBundleReleases = const [],
@@ -112,7 +122,17 @@ class LibraryEditDialogRequest {
   final LibraryMetadataItem item;
   final OwnedItem? ownedItem;
   final Color accent;
-  final LibraryEditScope scope;
+  final LibraryEditScope? scope;
+
+  LibraryEditScope get resolvedScope {
+    final explicitScope = scope;
+    if (explicitScope != null) {
+      return explicitScope;
+    }
+    return ownedItem != null || trackingEntry != null || wishlistItem != null
+        ? LibraryEditScope.all
+        : LibraryEditScope.media;
+  }
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
   final List<BundleReleaseSummary> availableBundleReleases;
@@ -231,6 +251,7 @@ typedef LibraryInspectorSectionsBuilder = List<Widget> Function(
   LibraryInspectorRequest request,
 );
 
+@Deprecated('Use detailPageBuilder and LibraryDetail* wrappers instead.')
 typedef LibraryInspectorHeroBuilder = Widget Function(
   BuildContext context,
   LibraryInspectorRequest request,
@@ -793,6 +814,7 @@ class LibraryTypeConfig {
     this.mediaEditDialogBuilder,
     this.releaseEditDialogBuilder,
     this.detailPageBuilder,
+    @Deprecated('Use detailPageBuilder and LibraryDetail* wrappers instead.')
     this.inspectorPanelBuilder,
     this.inspectorHeroBuilder,
     this.inspectorSectionsBuilder,
@@ -828,6 +850,7 @@ class LibraryTypeConfig {
   final LibraryEditDialogBuilder? mediaEditDialogBuilder;
   final LibraryEditDialogBuilder? releaseEditDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
+  @Deprecated('Use detailPageBuilder and LibraryDetail* wrappers instead.')
   final LibraryInspectorPanelBuilder? inspectorPanelBuilder;
   final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
@@ -841,6 +864,24 @@ class LibraryTypeConfig {
     return TransferableField.withCustomFields(
       definitions,
       fieldKeys: transferableFieldKeys,
+    );
+  }
+
+  List<String> transferableFieldKeysForScope(LibraryEditScope scope) {
+    return switch (scope) {
+      LibraryEditScope.media => kTransferableMediaFieldKeys,
+      LibraryEditScope.release => kTransferableReleaseFieldKeys,
+      LibraryEditScope.all => kDefaultTransferableFieldKeys,
+    };
+  }
+
+  List<TransferableField> transferableFieldsWithCustomFieldsForScope(
+    List<CustomFieldDefinition> definitions,
+    LibraryEditScope scope,
+  ) {
+    return TransferableField.withCustomFields(
+      definitions,
+      fieldKeys: transferableFieldKeysForScope(scope),
     );
   }
 

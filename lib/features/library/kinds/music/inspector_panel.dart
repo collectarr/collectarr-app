@@ -25,126 +25,78 @@ Widget buildMusicInspectorPanel(
   return MusicInspectorPanel(request: request);
 }
 
-class MusicInspectorPanel extends StatefulWidget {
+class MusicInspectorPanel extends StatelessWidget {
   const MusicInspectorPanel({super.key, required this.request});
 
   final LibraryInspectorPanelRequest request;
 
   @override
-  State<MusicInspectorPanel> createState() => _MusicInspectorPanelState();
-}
-
-class _MusicInspectorPanelState extends State<MusicInspectorPanel> {
-  static const _tabs = <_MusicInspectorTab>[
-    _MusicInspectorTab.overview,
-    _MusicInspectorTab.tracks,
-    _MusicInspectorTab.discs,
-    _MusicInspectorTab.product,
-  ];
-  late int _selectedTabIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedTabIndex = widget.request.inspector.searchTarget ==
-            LibrarySearchTarget.tracksOnly
-        ? 1
-        : 0;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final entry = widget.request.inspector.entry;
-    final accent = widget.request.inspector.accent;
-
+    final inspector = request.inspector;
     return LibraryDetailPanelScaffold(
-      accent: accent,
+      accent: inspector.accent,
       toolbar: InspectorUnifiedToolbar(
-        entry: entry,
-        detailsLayout: widget.request.inspector.detailsLayout,
-        onEdit: widget.request.onEdit,
-        onShare: widget.request.onShare,
-        onDuplicate: widget.request.onDuplicate,
-        onToggleOwned: widget.request.onToggleOwned,
-        onLoan: widget.request.onLoan,
-        onRefreshMetadata: widget.request.onRefreshMetadata,
-        onUnlinkFromCore: widget.request.onUnlinkFromCore,
-        onDetailsLayoutChanged: widget.request.onDetailsLayoutChanged,
+        entry: inspector.entry,
+        detailsLayout: inspector.detailsLayout,
+        onEdit: request.onEdit,
+        onShare: request.onShare,
+        onDuplicate: request.onDuplicate,
+        onToggleOwned: request.onToggleOwned,
+        onLoan: request.onLoan,
+        onRefreshMetadata: request.onRefreshMetadata,
+        onUnlinkFromCore: request.onUnlinkFromCore,
+        onDetailsLayoutChanged: request.onDetailsLayoutChanged,
       ),
-      hero: _MusicInspectorHeader(inspector: widget.request.inspector),
+      hero: _MusicInspectorHeader(inspector: inspector),
       sections: [
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.identity,
-          title: 'Details',
-          children: [
-            _MusicInspectorTabsHeader(
-              tabs: _tabs,
-              selectedIndex: _selectedTabIndex,
-              accent: accent,
-              onChanged: (index) => setState(() => _selectedTabIndex = index),
-            ),
-            const SizedBox(height: 10),
-            _buildSelectedTab(),
-            if (widget.request.trailingSections.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              ...widget.request.trailingSections,
-            ],
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSelectedTab() {
-    final inspector = widget.request.inspector;
-    return switch (_tabs[_selectedTabIndex]) {
-      _MusicInspectorTab.overview => Column(
+          title: 'Overview',
           children: [
             _MusicInspectorMain(inspector: inspector),
-            const SizedBox(height: 10),
+          ],
+        ),
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.imagesMedia,
+          title: 'Track List',
+          children: [
+            _MusicInspectorTracks(inspector: inspector),
+          ],
+        ),
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.formatEditionRelease,
+          title: 'Disc Details',
+          children: [
+            _MusicDiscDetails(inspector: inspector),
+          ],
+        ),
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.notesCustomFields,
+          title: 'Product',
+          children: [
+            _MusicProductDetails(inspector: inspector),
+          ],
+        ),
+        LibraryDetailSectionSpec(
+          title: 'Personal',
+          slot: LibraryDetailSectionSlot.personalStatus,
+          children: [
             _MusicInspectorDetailsPersonal(inspector: inspector),
           ],
         ),
-      _MusicInspectorTab.tracks => _MusicInspectorTracks(inspector: inspector),
-      _MusicInspectorTab.discs => _MusicDiscDetails(inspector: inspector),
-      _MusicInspectorTab.product => _MusicProductDetails(inspector: inspector),
-    };
-  }
-}
-
-enum _MusicInspectorTab { overview, tracks, discs, product }
-
-class _MusicInspectorTabsHeader extends StatelessWidget {
-  const _MusicInspectorTabsHeader({
-    required this.tabs,
-    required this.selectedIndex,
-    required this.accent,
-    required this.onChanged,
-  });
-
-  final List<_MusicInspectorTab> tabs;
-  final int selectedIndex;
-  final Color accent;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final labels = <_MusicInspectorTab, String>{
-      _MusicInspectorTab.overview: 'Overview',
-      _MusicInspectorTab.tracks: 'Track List',
-      _MusicInspectorTab.discs: 'Disc Details',
-      _MusicInspectorTab.product: 'Product',
-    };
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (var index = 0; index < tabs.length; index++)
-          ChoiceChip(
-            label: Text(labels[tabs[index]]!),
-            selected: selectedIndex == index,
-            selectedColor: accent.withValues(alpha: 0.22),
-            onSelected: (_) => onChanged(index),
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.people,
+          title: 'Credits',
+          children: [
+            _MusicInspectorCredits(inspector: inspector),
+          ],
+        ),
+        if (request.trailingSections.isNotEmpty)
+          LibraryDetailSectionSpec(
+            slot: LibraryDetailSectionSlot.activityHistory,
+            title: 'More',
+            children: [...request.trailingSections],
+            initiallyExpanded: false,
           ),
       ],
     );
@@ -362,9 +314,8 @@ class _MusicInspectorTracks extends StatelessWidget {
         ? _musicSearchTerms(rawQuery)
         : const <String>[];
 
-    return LibraryInspectorSection(
-      title: 'Tracks',
-      accentColor: inspector.accent,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
           spacing: 6,
@@ -418,9 +369,8 @@ class _MusicDiscDetails extends StatelessWidget {
     final entry = inspector.entry;
     final music = entry.music;
     final discs = music?.discs ?? const <CatalogDisc>[];
-    return LibraryInspectorSection(
-      title: 'Disc Details',
-      accentColor: inspector.accent,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LibraryInspectorFactGrid(
           facts: [
@@ -499,15 +449,9 @@ class _MusicProductDetails extends StatelessWidget {
       if (music?.localThumbnailImagePath?.trim().isNotEmpty == true)
         ('Local thumbnail', music!.localThumbnailImagePath!),
     ];
-    return LibraryInspectorSection(
-      title: 'Product Details',
-      accentColor: inspector.accent,
-      children: [
-        LibraryInspectorFactGrid(
-          facts: [
-            for (final row in rows) LibraryInspectorFactData(row.$1, row.$2),
-          ],
-        ),
+    return LibraryInspectorFactGrid(
+      facts: [
+        for (final row in rows) LibraryInspectorFactData(row.$1, row.$2),
       ],
     );
   }
@@ -545,38 +489,38 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
       if (owned?.createdAt != null) ('Added', formatDate(owned!.createdAt!)),
       ('Modified', formatNullableDate(owned?.updatedAt) ?? '-'),
     ];
-    final creditRows = _buildCreditsRows(entry.creators);
     List<LibraryInspectorFactData> asFacts(List<(String, String)> rows) {
       return [
         for (final row in rows) LibraryInspectorFactData(row.$1, row.$2),
       ];
     }
 
-    return Column(
-      children: [
-        LibraryInspectorSection(
-          title: 'Personal',
-          accentColor: inspector.accent,
-          children: [
-            LibraryInspectorFactGrid(facts: asFacts(personalRows)),
-          ],
-        ),
-        LibraryInspectorSection(
-          title: 'Credits',
-          accentColor: inspector.accent,
-          children: [
-            if (creditRows.isEmpty)
-              Text(
-                '-',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: appPalette(context).textMuted,
-                      fontWeight: FontWeight.w600,
-                    ),
-              )
-            else
-              LibraryInspectorFactGrid(facts: asFacts(creditRows)),
-          ],
-        ),
+    return LibraryInspectorFactGrid(
+      facts: asFacts(personalRows),
+    );
+  }
+}
+
+class _MusicInspectorCredits extends StatelessWidget {
+  const _MusicInspectorCredits({required this.inspector});
+
+  final LibraryInspectorRequest inspector;
+
+  @override
+  Widget build(BuildContext context) {
+    final creditRows = _buildCreditsRows(inspector.entry.creators);
+    if (creditRows.isEmpty) {
+      return Text(
+        '-',
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: appPalette(context).textMuted,
+              fontWeight: FontWeight.w600,
+            ),
+      );
+    }
+    return LibraryInspectorFactGrid(
+      facts: [
+        for (final row in creditRows) LibraryInspectorFactData(row.$1, row.$2),
       ],
     );
   }

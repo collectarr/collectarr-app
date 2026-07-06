@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 
 class EditableNameListField extends StatefulWidget {
@@ -113,97 +114,16 @@ class EditableChipField extends StatefulWidget {
 }
 
 class _EditableChipFieldState extends State<EditableChipField> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _addValue([String? initial]) {
-    final raw = (initial ?? _controller.text).trim();
-    if (raw.isEmpty) {
-      return;
-    }
-    final exists = widget.values.any(
-      (value) => value.toLowerCase() == raw.toLowerCase(),
-    );
-    if (!exists) {
-      widget.onChanged([...widget.values, raw]);
-    }
-    _controller.clear();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final values = widget.values;
-    final suggestions = widget.suggestions
-        .where(
-          (candidate) => !values.any(
-            (value) => value.toLowerCase() == candidate.toLowerCase(),
-          ),
-        )
-        .toList(growable: false);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (values.isNotEmpty)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (var index = 0; index < values.length; index++)
-                InputChip(
-                  label: Text(values[index]),
-                  onDeleted: () {
-                    final updated = List<String>.from(values)..removeAt(index);
-                    widget.onChanged(updated);
-                  },
-                ),
-            ],
-          ),
-        if (values.isNotEmpty) const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                onSubmitted: (_) => _addValue(),
-                decoration: InputDecoration(
-                  labelText: 'Add ${widget.label}',
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.icon(
-              onPressed: _addValue,
-              icon: const Icon(Icons.add),
-              label: const Text('Add'),
-            ),
-          ],
-        ),
-        if (suggestions.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final suggestion in suggestions)
-                ActionChip(
-                  label: Text(suggestion),
-                  onPressed: () => _addValue(suggestion),
-                ),
-            ],
-          ),
-        ],
-      ],
+    return MultiSelectPickListField(
+      label: widget.label,
+      values: widget.values,
+      options: widget.suggestions,
+      onChanged: widget.onChanged,
+      emptyHint: 'Select ${widget.label.toLowerCase()}',
+      pickerTitle: widget.label,
+      pickerSearchHint: 'Search ${widget.label.toLowerCase()}',
     );
   }
 }

@@ -61,6 +61,8 @@ final booksLibraryConfig = LibraryTypeConfig(
   kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
   mediaFields: MediaEditFields.print(
     numberLabel: 'Volume',
+    publisherLabel: 'Publisher',
+    releaseDateLabel: 'First published',
   ),
   releaseFields: ReleaseEditFields(
     variantLabel: 'Edition / Binding',

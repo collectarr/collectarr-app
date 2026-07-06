@@ -30,6 +30,22 @@ List<Widget> buildLibraryDetailEditorSections({
   ];
 }
 
+List<Widget> buildLibraryInspectorEditorSections({
+  required LibraryTypeConfig type,
+  required LibraryWorkspaceEntry entry,
+  required Color accent,
+  OwnedItem? ownedItem,
+  TrackingEntry? trackingEntry,
+}) {
+  return buildLibraryDetailEditorSections(
+    type: type,
+    entry: entry,
+    accent: accent,
+    ownedItem: ownedItem,
+    trackingEntry: trackingEntry,
+  );
+}
+
 List<Widget> buildLibraryDetailKindSections({
   required BuildContext context,
   required LibraryTypeConfig type,
@@ -39,6 +55,22 @@ List<Widget> buildLibraryDetailKindSections({
 }) {
   return type.presentation.builder.buildInspectorSections(
     context: context,
+    entry: entry,
+    accent: accent,
+    onFilterByValue: onFilterByValue,
+  );
+}
+
+List<Widget> buildLibraryInspectorKindSections({
+  required BuildContext context,
+  required LibraryTypeConfig type,
+  required LibraryWorkspaceEntry entry,
+  required Color accent,
+  ValueChanged<String>? onFilterByValue,
+}) {
+  return buildLibraryDetailKindSections(
+    context: context,
+    type: type,
     entry: entry,
     accent: accent,
     onFilterByValue: onFilterByValue,

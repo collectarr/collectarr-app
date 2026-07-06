@@ -607,10 +607,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                   label: 'Target price',
                   validator: optionalMoneyValidator,
                 ),
-                _field(
-                  controller: _wishlistCurrencyController,
-                  label: 'Currency',
-                ),
+                LibraryCurrencyField(controller: _wishlistCurrencyController),
               ]),
               const SizedBox(height: 10),
               TextFormField(
@@ -637,7 +634,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                   label: 'Price paid',
                   validator: optionalMoneyValidator,
                 ),
-                _field(controller: _currencyController, label: 'Currency'),
+                LibraryCurrencyField(controller: _currencyController),
                 _field(
                   controller: _sellPriceController,
                   label: 'Current / sell value',

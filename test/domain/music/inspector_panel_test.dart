@@ -83,10 +83,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(MusicInspectorPanel), findsOneWidget);
+    expect(find.byType(ChoiceChip), findsNothing);
     expect(find.text('Powerwolf'), findsOneWidget);
     expect(find.text('Lupus Dei'), findsWidgets);
-    expect(find.text('Disc #1'), findsOneWidget);
-    expect(find.text('Disc #2'), findsOneWidget);
+    expect(find.text('Disc #1'), findsWidgets);
+    expect(find.text('Disc #2'), findsWidgets);
     expect(find.text('Front cover'), findsOneWidget);
     expect(find.text('Back cover'), findsOneWidget);
     expect(find.text('Back cover not in metadata'), findsOneWidget);

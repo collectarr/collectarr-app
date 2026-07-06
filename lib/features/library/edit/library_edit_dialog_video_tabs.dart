@@ -97,10 +97,11 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
-                _field(
-                    controller: _genresEditController,
-                    label: 'Genres',
-                    hint: 'Comma-separated'),
+                TagPickListField(
+                  controller: _genresEditController,
+                  options: _genreOptions,
+                  label: 'Genres',
+                ),
               ]),
             ],
           ),
@@ -488,10 +489,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                     label: 'Target price',
                     validator: optionalMoneyValidator,
                   ),
-                  _field(
-                    controller: _wishlistCurrencyController,
-                    label: 'Currency',
-                  ),
+                  LibraryCurrencyField(controller: _wishlistCurrencyController),
                 ]),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -518,7 +516,7 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                     label: 'Purchase price',
                     validator: optionalMoneyValidator,
                   ),
-                  _field(controller: _currencyController, label: 'Currency'),
+                  LibraryCurrencyField(controller: _currencyController),
                 ]),
                 const SizedBox(height: 10),
                 _responsiveFields([

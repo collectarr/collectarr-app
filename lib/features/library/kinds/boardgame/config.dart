@@ -52,6 +52,7 @@ const boardGamesLibraryConfig = LibraryTypeConfig(
   mediaFields: MediaEditFields(
     numberLabel: 'Edition',
     publisherLabel: 'Publisher / Designer',
+    releaseDateLabel: 'Release date',
   ),
   releaseFields: ReleaseEditFields(
     variantLabel: 'Expansion / Edition',

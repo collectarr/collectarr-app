@@ -50,10 +50,10 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
                           validator: optionalIntValidator,
                         ),
                         const SizedBox(height: 10),
-                        _field(
+                        TagPickListField(
                           controller: _genresEditController,
-                          label: 'Genre',
-                          hint: 'Comma-separated',
+                          options: _genreOptions,
+                          label: 'Genres',
                         ),
                       ],
                     );
@@ -83,10 +83,10 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: _field(
+                        child:                         TagPickListField(
                           controller: _genresEditController,
-                          label: 'Genre',
-                          hint: 'Comma-separated',
+                          options: _genreOptions,
+                          label: 'Genres',
                         ),
                       ),
                     ],
@@ -670,7 +670,7 @@ extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
-                _field(controller: _currencyController, label: 'Currency'),
+                LibraryCurrencyField(controller: _currencyController),
                 _field(
                   controller: _marketValueController,
                   label: 'My value',

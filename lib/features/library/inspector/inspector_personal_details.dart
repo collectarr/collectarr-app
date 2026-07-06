@@ -10,6 +10,8 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart'
+    hide formatDate;
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -227,14 +229,9 @@ class _InspectorPersonalDetailsEditorState
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: TextField(
+                child: LibraryCurrencyField(
                   controller: _currencyController,
-                  textCapitalization: TextCapitalization.characters,
-                  decoration: const InputDecoration(
-                    hintText: 'Currency',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
+                  label: 'Currency',
                 ),
               ),
             ],

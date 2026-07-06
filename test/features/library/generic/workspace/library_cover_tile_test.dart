@@ -191,6 +191,45 @@ void main() {
     expect(tileTapped, isFalse);
   });
 
+  testWidgets('selection toggle activates on mouse down even if pointer leaves',
+      (tester) async {
+    var toggleTapped = false;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: SizedBox(
+            width: 140,
+            height: 220,
+            child: LibraryCoverTile(
+              entry: LibraryWorkspaceEntry(
+                id: 'music-3',
+                mediaType: 'music',
+                title: 'Gods of War',
+                updatedAt: DateTime.utc(2026),
+              ),
+              active: false,
+              selected: false,
+              selectionMode: true,
+              onTap: () {},
+              onSelectionToggleTap: () => toggleTapped = true,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await gesture.addPointer();
+    final toggleCenter = tester.getCenter(find.byType(LibraryTileSelectionToggle));
+    await gesture.down(toggleCenter);
+    await gesture.moveBy(const Offset(80, 0));
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(toggleTapped, isTrue);
+  });
+
   testWidgets('edit action fires on mouse down even when pointer leaves button',
       (tester) async {
     var editTapped = false;

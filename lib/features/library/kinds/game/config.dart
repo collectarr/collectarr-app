@@ -55,6 +55,7 @@ const gamesLibraryConfig = LibraryTypeConfig(
   mediaFields: MediaEditFields(
     numberLabel: 'Version',
     publisherLabel: 'Publisher / Studio',
+    releaseDateLabel: 'Release date',
   ),
   releaseFields: ReleaseEditFields(
     variantLabel: 'Platform / Edition',

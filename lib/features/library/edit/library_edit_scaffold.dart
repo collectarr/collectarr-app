@@ -451,41 +451,59 @@ class _LibraryEditFooter extends StatelessWidget {
       minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
       visualDensity: VisualDensity.compact,
     );
+    final compactIconButtonStyle = OutlinedButton.styleFrom(
+      shape: kLibraryDialogFooterButtonShape,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      minimumSize: const Size(44, kLibraryDialogFooterButtonHeight),
+      visualDensity: VisualDensity.compact,
+    );
     return LibraryActionFooter(
       backgroundColor: appPalette(context).toolbar,
       borderColor: appPalette(context).divider,
       child: Row(
         children: [
           SizedBox(
-            width: 112,
-            child: OutlinedButton.icon(
-              style: navButtonStyle,
-              onPressed: onPrevious,
-              icon: const Icon(Icons.chevron_left),
-              label: const Text('Previous'),
-            ),
+            width: isMovieDesktop ? 44 : 112,
+            child: isMovieDesktop
+                ? OutlinedButton(
+                    style: compactIconButtonStyle,
+                    onPressed: onPrevious,
+                    child: const Icon(Icons.chevron_left, size: 16),
+                  )
+                : OutlinedButton.icon(
+                    style: navButtonStyle,
+                    onPressed: onPrevious,
+                    icon: const Icon(Icons.chevron_left),
+                    label: const Text('Previous'),
+                  ),
           ),
           const SizedBox(width: 8),
           SizedBox(
-            width: 112,
-            child: OutlinedButton(
-              style: navButtonStyle,
-              onPressed: onNext,
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Next'),
-                  SizedBox(width: 4),
-                  Icon(Icons.chevron_right),
-                ],
-              ),
-            ),
+            width: isMovieDesktop ? 44 : 112,
+            child: isMovieDesktop
+                ? OutlinedButton(
+                    style: compactIconButtonStyle,
+                    onPressed: onNext,
+                    child: const Icon(Icons.chevron_right, size: 16),
+                  )
+                : OutlinedButton(
+                    style: navButtonStyle,
+                    onPressed: onNext,
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Next'),
+                        SizedBox(width: 4),
+                        Icon(Icons.chevron_right),
+                      ],
+                    ),
+                  ),
           ),
           const Spacer(),
           SizedBox(
-            width: 112,
+            width: isMovieDesktop ? 44 : 112,
             child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
+              style: isMovieDesktop ? compactIconButtonStyle : OutlinedButton.styleFrom(
                 shape: kLibraryDialogFooterButtonShape,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
@@ -493,7 +511,9 @@ class _LibraryEditFooter extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
               ),
               onPressed: onCancel,
-              child: const Text('Cancel'),
+              child: isMovieDesktop
+                  ? const Icon(Icons.close, size: 16)
+                  : const Text('Cancel'),
             ),
           ),
           const SizedBox(width: 8),

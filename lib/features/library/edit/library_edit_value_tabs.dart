@@ -92,7 +92,7 @@ class LibraryEditValueTab extends StatelessWidget {
                   label: 'Price paid',
                   validator: optionalMoneyValidator,
                 ),
-                buildField(controller: currencyController, label: 'Currency'),
+                LibraryCurrencyField(controller: currencyController),
               ]),
               const SizedBox(height: 10),
               buildDatePickerField(

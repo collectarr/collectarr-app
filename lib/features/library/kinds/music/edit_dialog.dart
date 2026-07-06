@@ -184,13 +184,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       hasEditionAnchors: widget.request.item.editions.isNotEmpty,
       hasBundleReleaseAnchors: false,
       hasCustomFields: widget.request.customFieldDefinitions.isNotEmpty,
-      scope: widget.request.scope,
+      scope: widget.request.resolvedScope,
     );
   }
 
   List<LibraryEditTabSpec> get _tabSpecs {
     return widget.request.type.editPresentation
-        .builderForScope(widget.request.scope)
+        .builderForScope(widget.request.resolvedScope)
         .buildTabs(
           context: _editPresentationContext,
         );
@@ -422,7 +422,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   List<String> _tabSectionIds(String tabId) {
     return widget.request.type.editPresentation
-        .builderForScope(widget.request.scope)
+        .builderForScope(widget.request.resolvedScope)
         .buildTabSectionIds(
           context: _editPresentationContext,
           tabId: tabId,

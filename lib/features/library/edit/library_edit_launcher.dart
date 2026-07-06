@@ -12,7 +12,7 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   required LibraryEditDialogRequest request,
   LibraryEditDialogRequestLoader? requestLoader,
 }) {
-  final builder = switch (request.scope) {
+  final builder = switch (request.resolvedScope) {
     LibraryEditScope.media =>
       request.type.mediaEditDialogBuilder ?? request.type.editDialogBuilder,
     LibraryEditScope.release =>

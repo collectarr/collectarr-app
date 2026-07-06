@@ -1,11 +1,12 @@
 /// Declares which fields appear in the **Media** section of the edit dialog
-/// (the abstract work: title, publisher, release date, etc.).
+/// (the abstract work: title, publisher, work release date, etc.).
 ///
 /// Each media kind provides its own instance with appropriate labels.
 class MediaEditFields {
   const MediaEditFields({
     this.numberLabel = 'Number',
     this.publisherLabel = 'Publisher',
+    this.releaseDateLabel = 'Release date',
     this.showPageCount = false,
     this.showImprint = false,
     this.showSeriesGroup = false,
@@ -16,9 +17,11 @@ class MediaEditFields {
   const MediaEditFields.print({
     required String numberLabel,
     String publisherLabel = 'Publisher',
+    String releaseDateLabel = 'Release date',
   }) : this(
           numberLabel: numberLabel,
           publisherLabel: publisherLabel,
+          releaseDateLabel: releaseDateLabel,
           showPageCount: true,
           showImprint: true,
           showSeriesGroup: true,
@@ -29,6 +32,9 @@ class MediaEditFields {
 
   /// Label for the publisher/studio/label field.
   final String publisherLabel;
+
+  /// Label for the work-level release date field.
+  final String releaseDateLabel;
 
   /// Whether to show page count (books, comics, manga).
   final bool showPageCount;

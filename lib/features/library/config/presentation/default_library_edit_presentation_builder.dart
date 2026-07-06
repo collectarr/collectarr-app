@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter/material.dart';
 
 class DefaultLibraryEditPresentationBuilder
@@ -74,12 +75,22 @@ class DefaultLibraryEditPresentationBuilder
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   }) {
-    final tabs = context.isOwned
+    if (context.scope == LibraryEditScope.media) {
+      return [
+        ...catalogTabs,
+        if (context.hasCustomFields)
+          const LibraryEditTabSpec(
+            id: 'custom',
+            icon: Icons.tune,
+            label: 'Custom',
+          ),
+      ];
+    }
+    return context.isOwned
         ? ownedTabs
         : context.isTrackingOnly || context.hasWishlistContext
             ? trackedTabs
             : catalogTabs;
-    return tabs;
   }
 
   @override

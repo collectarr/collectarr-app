@@ -45,6 +45,7 @@ import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -2170,24 +2171,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (!mounted) {
       return;
     }
-    final uniqueUrls = <String>{
-      for (final value in urls)
-        if (normalizeNetworkImageUrl(value) case final normalized?) normalized,
-    };
-    final cacheableUrls = <String>[];
-    for (final url in uniqueUrls) {
-      if (await isLikelyImageUrl(url)) {
-        cacheableUrls.add(url);
-      }
-    }
-    await Future.wait([
-      for (final url in cacheableUrls)
-        precacheImage(
-          CachedNetworkImageProvider(url),
-          context,
-          onError: (_, __) {},
-        ).catchError((_) {}),
-    ]);
+    // Best-effort warm-up was causing noisy decode errors for malformed or
+    // stale image URLs. Let the normal image widgets load and fall back.
+    return;
   }
 
   bool _isMissingBearerTokenError(Object error) {

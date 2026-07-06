@@ -157,24 +157,24 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
         ),
         child: Material(
           color: Colors.transparent,
-          child: InkWell(
-            onTap: widget.onTap,
-            onDoubleTap: widget.onDoubleTap,
-            onSecondaryTapUp: widget.onSecondaryTapUp,
-            onHover: (value) {
-              if (_hovered == value) {
-                return;
-              }
-              setState(() => _hovered = value);
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      SlabFrameOverlay.maybeWrap(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              InkWell(
+                onTap: widget.onTap,
+                onDoubleTap: widget.onDoubleTap,
+                onSecondaryTapUp: widget.onSecondaryTapUp,
+                onHover: (value) {
+                  if (_hovered == value) {
+                    return;
+                  }
+                  setState(() => _hovered = value);
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: SlabFrameOverlay.maybeWrap(
                         rawOrSlabbed: comic?.rawOrSlabbed,
                         gradingCompany: comic?.gradingCompany,
                         grade: entry.grade,
@@ -190,51 +190,51 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                           enableSecondaryControl: false,
                         ),
                       ),
-                      if (auxiliaryBadges.isNotEmpty)
-                        Positioned(
-                          top: showEditButton ? 34 : 6,
-                          right: 6,
-                          child: Wrap(
-                            spacing: 4,
-                            runSpacing: 4,
-                            alignment: WrapAlignment.end,
-                            children: auxiliaryBadges,
-                          ),
-                        ),
-                      if (showEditButton)
-                        Positioned(
-                          top: 6,
-                          right: 6,
-                          child: LibraryTileHoverActionButton(
-                            icon: Icons.edit_outlined,
-                            tooltip: 'Edit item',
-                            onTap: widget.onEditTap!,
-                          ),
-                        ),
-                      if (showSelectionToggle)
-                        Positioned(
-                          left: 5,
-                          bottom: 5,
-                          child: LibraryTileSelectionToggleButton(
-                            onTap: widget.onSelectionToggleTap,
-                            child: LibraryTileSelectionToggle(
-                              selected: selected,
-                              accentColor: resolvedSelectionColor,
-                              coverSize: widget.coverSize,
-                            ),
-                          ),
-                        ),
-                      if (scopeBadge != null)
-                        Positioned(
-                          right: 5,
-                          bottom: 5,
-                          child: scopeBadge,
-                        ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+              if (auxiliaryBadges.isNotEmpty)
+                Positioned(
+                  top: showEditButton ? 34 : 6,
+                  right: 6,
+                  child: Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    alignment: WrapAlignment.end,
+                    children: auxiliaryBadges,
                   ),
                 ),
-              ],
-            ),
+              if (showEditButton)
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: LibraryTileHoverActionButton(
+                    icon: Icons.edit_outlined,
+                    tooltip: 'Edit item',
+                    onTap: widget.onEditTap!,
+                  ),
+                ),
+              if (showSelectionToggle)
+                Positioned(
+                  left: 5,
+                  bottom: 5,
+                  child: LibraryTileSelectionToggleButton(
+                    onTap: widget.onSelectionToggleTap,
+                    child: LibraryTileSelectionToggle(
+                      selected: selected,
+                      accentColor: resolvedSelectionColor,
+                      coverSize: widget.coverSize,
+                    ),
+                  ),
+                ),
+              if (scopeBadge != null)
+                Positioned(
+                  right: 5,
+                  bottom: 5,
+                  child: scopeBadge,
+                ),
+            ],
           ),
         ),
       ),
@@ -385,20 +385,15 @@ class LibraryTileSelectionToggleButton extends StatelessWidget {
     if (onTap == null) {
       return child;
     }
-    final palette = appPalette(context);
-    final shape =
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(4));
     return Material(
       color: Colors.transparent,
-      shape: shape,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        customBorder: shape,
-        hoverColor: palette.textPrimary.withValues(alpha: 0.06),
-        highlightColor: palette.textPrimary.withValues(alpha: 0.04),
-        splashColor: Colors.transparent,
+      child: Semantics(
+        button: true,
+        child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => onTap!(),
         child: child,
+        ),
       ),
     );
   }

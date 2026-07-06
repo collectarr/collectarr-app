@@ -47,10 +47,11 @@ extension _BookSections on _BookLibraryEditDialogState {
                       label: 'Box set',
                     ),
                     const SizedBox(height: 10),
-                    EditTokenListField(
+                    TagPickListField(
                       controller: _genresController,
-                      label: 'Genre',
-                      hint: 'Add genre',
+                      options: _genreOptions,
+                      label: 'Genres',
+                      hint: 'Select genres',
                     ),
                     const SizedBox(height: 10),
                     EditTokenListField(
@@ -113,10 +114,11 @@ extension _BookSections on _BookLibraryEditDialogState {
                           hint: 'Add author',
                         ),
                         const SizedBox(height: 10),
-                        EditTokenListField(
+                        TagPickListField(
                           controller: _genresController,
-                          label: 'Genre',
-                          hint: 'Add genre',
+                          options: _genreOptions,
+                          label: 'Genres',
+                          hint: 'Select genres',
                         ),
                         const SizedBox(height: 10),
                         EditTokenListField(
@@ -502,7 +504,7 @@ extension _BookSections on _BookLibraryEditDialogState {
                   label: 'Purchase price',
                   validator: optionalMoneyValidator,
                 ),
-                _field(controller: _currencyController, label: 'Currency'),
+                LibraryCurrencyField(controller: _currencyController),
                 _field(
                   controller: _sellPriceController,
                   label: 'Sold price',
@@ -630,10 +632,7 @@ extension _BookSections on _BookLibraryEditDialogState {
                   label: 'Target price',
                   validator: optionalMoneyValidator,
                 ),
-                _field(
-                  controller: _wishlistCurrencyController,
-                  label: 'Currency',
-                ),
+                LibraryCurrencyField(controller: _wishlistCurrencyController),
               ]),
               const SizedBox(height: 10),
               TextFormField(

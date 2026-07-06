@@ -4,9 +4,16 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
 import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -23,6 +30,109 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+  });
+
+  testWidgets(
+      'media scope hides release and personal tabs on default edit builder',
+      (tester) async {
+    tester.view.physicalSize = const Size(1100, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final type = LibraryTypeConfig(
+      workspace: const LibraryWorkspaceConfig(
+        kind: CatalogMediaKind.movie,
+        title: 'Movies',
+        icon: Icons.movie_outlined,
+        accent: Colors.red,
+        preferencePrefix: 'movies-test',
+        defaultSortColumn: LibrarySortColumn.title,
+        defaultVisibleColumns: {LibraryTableColumn.title},
+      ),
+      singularLabel: 'Movie',
+      pluralLabel: 'Movies',
+      defaultMetadataProvider: 'tmdb',
+      metadataProviders: const [],
+      trackingProfile: videoTrackingProfile,
+      presentation: genericLibraryMediaPresentation,
+      editPresentation: const LibraryEditPresentation(
+        builder: DefaultLibraryEditPresentationBuilder(),
+      ),
+      mediaFields: const MediaEditFields(
+        numberLabel: 'Edition no.',
+        publisherLabel: 'Studio',
+        releaseDateLabel: 'Work release date',
+      ),
+      releaseFields: const ReleaseEditFields(
+        variantLabel: 'Format / Edition',
+        barcodeLabel: 'UPC / Barcode',
+      ),
+      capabilities: const LibraryTypeCapabilities(
+        supportsMediaReleaseSplit: true,
+      ),
+    );
+
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'movie-default-1',
+        kind: 'movie',
+        title: 'Blade Runner',
+        releaseDate: DateTime.utc(1982, 6, 25),
+      ),
+    );
+    final ownedItem = testOwnedItem(
+      id: 'owned-default-1',
+      itemId: 'movie-default-1',
+      condition: 'Good',
+      pricePaidCents: 1999,
+      currency: 'USD',
+      quantity: 1,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) => LibraryEditRenderer(
+                      type: type,
+                      item: item,
+                      ownedItem: ownedItem,
+                      accent: Colors.red,
+                      scope: LibraryEditScope.media,
+                    ),
+                  );
+                },
+                child: const Text('Open media scope'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open media scope'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Cover'), findsOneWidget);
+    expect(find.text('Synopsis'), findsOneWidget);
+    expect(find.text('Value'), findsNothing);
+    expect(find.text('Personal'), findsNothing);
+    expect(find.text('Sold'), findsNothing);
+    expect(find.text('Tracking'), findsNothing);
+    expect(find.text('Condition'), findsNothing);
+    expect(find.text('Purchase date'), findsNothing);
+    expect(find.text('Work release date'), findsOneWidget);
   });
 
   testWidgets(
@@ -1404,7 +1514,13 @@ void main() {
     await pumpUntilSettled(tester);
     await tester.enterText(
         find.widgetWithText(TextField, 'Target price'), '54.99');
-    await tester.enterText(find.widgetWithText(TextField, 'Currency'), 'USD');
+    final currencyField = find.byWidgetPredicate((widget) =>
+        widget is DropdownButtonFormField &&
+        (widget.decoration as InputDecoration?)?.labelText == 'Currency');
+    await tester.tap(currencyField);
+    await pumpUntilSettled(tester);
+    await tester.tap(find.text('USD', skipOffstage: false).last);
+    await pumpUntilSettled(tester);
     await tester.enterText(find.widgetWithText(TextFormField, 'Wishlist notes'),
         'Need the collector box.');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
@@ -1599,21 +1715,15 @@ void main() {
     expect(find.text('Description'), findsOneWidget);
     expect(find.text('Links'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'Sort title'), findsOneWidget);
-    expect(find.widgetWithText(TextField, 'Platform'), findsOneWidget);
+    expect(find.text('Platform'), findsWidgets);
     await tester.tap(find.text('Links'));
     await pumpUntilSettled(tester);
     expect(find.textContaining('Read-only: external links'), findsOneWidget);
     await tester.tap(find.text('Main'));
     await pumpUntilSettled(tester);
-
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Platform').first,
-      'PlayStation 5, Nintendo Switch',
-    );
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(
-        selection?.item.game?.platforms, ['PlayStation 5', 'Nintendo Switch']);
+    expect(selection?.item.game?.platforms, ['PlayStation 5']);
   });
 }

@@ -473,6 +473,121 @@ class ValueContextChip extends StatelessWidget {
   }
 }
 
+const List<String> kLibraryCurrencyCodes = <String>[
+  'USD',
+  'EUR',
+  'GBP',
+  'RON',
+  'CHF',
+  'JPY',
+  'CAD',
+  'AUD',
+  'NZD',
+  'SEK',
+  'NOK',
+  'DKK',
+  'PLN',
+  'CZK',
+  'HUF',
+  'TRY',
+  'INR',
+  'BRL',
+  'MXN',
+];
+
+String libraryCurrencySymbol(String? currency) {
+  final normalized = currency?.trim().toUpperCase() ?? '';
+  return switch (normalized) {
+    'USD' => r'$',
+    'EUR' => '€',
+    'GBP' => '£',
+    'RON' => 'lei',
+    'CHF' => 'CHF',
+    'JPY' => '¥',
+    'CAD' => r'$',
+    'AUD' => r'$',
+    'NZD' => r'$',
+    'SEK' => 'kr',
+    'NOK' => 'kr',
+    'DKK' => 'kr',
+    'PLN' => 'zł',
+    'CZK' => 'Kč',
+    'HUF' => 'Ft',
+    'TRY' => '₺',
+    'INR' => '₹',
+    'BRL' => 'R\$',
+    'MXN' => r'$',
+    _ when normalized.isNotEmpty => normalized,
+    _ => '¤',
+  };
+}
+
+class LibraryCurrencyField extends StatelessWidget {
+  const LibraryCurrencyField({
+    super.key,
+    required this.controller,
+    this.label = 'Currency',
+    this.enabled = true,
+    this.onChanged,
+    this.currencyCodes = kLibraryCurrencyCodes,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final bool enabled;
+  final ValueChanged<String?>? onChanged;
+  final List<String> currencyCodes;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) {
+        final normalized = value.text.trim().toUpperCase();
+        final items = <String>{
+          for (final code in currencyCodes) code.trim().toUpperCase(),
+          if (normalized.isNotEmpty) normalized,
+        }.toList(growable: false);
+        return DropdownButtonFormField<String>(
+          key: ValueKey(normalized.isEmpty ? 'currency-empty' : normalized),
+          isExpanded: true,
+          initialValue: normalized.isEmpty ? null : normalized,
+          dropdownColor: appPalette(context).panelRaised,
+          borderRadius: kEditMenuBorderRadius,
+          decoration: InputDecoration(labelText: label),
+          items: [
+            for (final code in items)
+              DropdownMenuItem<String>(
+                value: code,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 34,
+                      child: Text(
+                        libraryCurrencySymbol(code),
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    Expanded(child: Text(code)),
+                  ],
+                ),
+              ),
+          ],
+          onChanged: enabled
+              ? (selected) {
+                  final next = selected?.trim().toUpperCase() ?? '';
+                  if (controller.text != next) {
+                    controller.text = next;
+                  }
+                  onChanged?.call(selected);
+                }
+              : null,
+        );
+      },
+    );
+  }
+}
+
 class LibraryDateFieldButton extends StatefulWidget {
   const LibraryDateFieldButton({
     super.key,

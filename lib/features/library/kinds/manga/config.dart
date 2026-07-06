@@ -59,6 +59,7 @@ const mangaLibraryConfig = LibraryTypeConfig(
   mediaFields: MediaEditFields.print(
     numberLabel: 'Chapter / Vol.',
     publisherLabel: 'Publisher / Studio / Creator',
+    releaseDateLabel: 'First published',
   ),
   collectionExportTitleLabel: 'Series',
   manualAddUsesTitleAsSeries: true,

@@ -12,7 +12,7 @@ class LibraryEditPresentationContext {
     required this.hasEditionAnchors,
     required this.hasBundleReleaseAnchors,
     required this.hasCustomFields,
-    this.scope = LibraryEditScope.all,
+    this.scope = LibraryEditScope.media,
   });
 
   final bool isOwned;

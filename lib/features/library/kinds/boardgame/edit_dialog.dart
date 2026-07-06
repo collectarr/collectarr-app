@@ -16,7 +16,7 @@ class BoardGameLibraryEditDialog extends StatelessWidget {
       draft: resolvedDraft,
       onPrevious: request.onPrevious,
       onNext: request.onNext,
-      scope: request.scope,
+      scope: request.resolvedScope,
     );
   }
 }

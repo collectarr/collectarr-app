@@ -74,6 +74,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
   mediaFields: MediaEditFields.print(
     numberLabel: 'No. / Vol.',
     publisherLabel: 'Publisher / Studio / Creator',
+    releaseDateLabel: 'Cover date',
   ),
   collectionExportTitleLabel: 'Series',
   mediaReleaseScopeLabel: 'Series',

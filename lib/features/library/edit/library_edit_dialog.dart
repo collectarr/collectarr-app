@@ -235,6 +235,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _tagsController => _draft.tagsController;
   List<String> get _tagOptions => _draft.tagOptions;
   set _tagOptions(List<String> value) => _draft.tagOptions = value;
+  List<String> _genreOptions = const [];
   List<String> _publisherOptions = const [];
   List<String> _imprintOptions = const [];
   List<String> _seriesGroupOptions = const [];
@@ -388,6 +389,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   bool get _isOwned => widget.ownedItem != null;
 
+  bool get _isMediaScope => widget.scope == LibraryEditScope.media;
+
+  bool get _isReleaseScope => widget.scope == LibraryEditScope.release;
+
+  bool get _isAllScope => widget.scope == LibraryEditScope.all;
+
+  bool get _canShowMediaFields => _isMediaScope || _isAllScope;
+
+  bool get _canShowReleaseFields => _isReleaseScope || _isAllScope;
+
+  bool get _canShowPersonalFields => _isReleaseScope || _isAllScope;
+
   bool get _hasTrackingContext => _isOwned || widget.trackingEntry != null;
 
   bool get _isTrackingOnly => !_isOwned && widget.trackingEntry != null;
@@ -424,6 +437,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   /// are visible when editing a catalog-only item or when the ownership
   /// anchor targets a specific release rather than the abstract media work.
   bool get _showsReleaseSection {
+    if (!_canShowReleaseFields) return false;
     if (!_hasTrackingContext) return true; // catalog-only: always show
     return _hasReleaseAnchor;
   }
@@ -846,9 +860,23 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _genericMediaTab() {
+    if (_isMediaScope) {
+      return EditTabShell(
+        children: [
+          if (_canShowMediaFields) _buildMediaSection(),
+        ],
+      );
+    }
+    if (_isReleaseScope) {
+      return EditTabShell(
+        children: [
+          if (_showsReleaseSection) _buildReleaseDetailsSection(),
+        ],
+      );
+    }
     return EditTabShell(
       children: [
-        _buildMediaSection(),
+        if (_canShowMediaFields) _buildMediaSection(),
         if (_showsReleaseSection) _buildReleaseDetailsSection(),
       ],
     );
@@ -868,10 +896,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return EditTabShell(
       children: [
         if (!_hasMediaTab) ...[
-          _buildMediaSection(),
+          if (_canShowMediaFields) _buildMediaSection(),
           if (_showsReleaseSection) _buildReleaseDetailsSection(),
         ],
-        if (_hasTrackingContext)
+        if (_canShowPersonalFields && _hasTrackingContext)
           EditSection(
             title: editPresentation.trackingSectionTitle,
             accent: widget.accent,
@@ -900,7 +928,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               ],
             ),
           ),
-        if (editPresentation.showsOwnershipReferenceSection && !_hasEditionTab)
+        if (_canShowPersonalFields &&
+            editPresentation.showsOwnershipReferenceSection &&
+            !_hasEditionTab)
           EditSection(
             title: editPresentation.ownershipReferenceTitle,
             accent: widget.accent,
@@ -937,7 +967,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               ],
             ),
           ),
-        if (editPresentation.showsOwnedGradingSection) ...[
+        if (_canShowPersonalFields && editPresentation.showsOwnedGradingSection) ...[
           EditSection(
             title: editPresentation.ownedGradingSectionTitle,
             accent: widget.accent,
@@ -1071,15 +1101,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               TagPickListField(
                 controller: _genresEditController,
                 options: _gameGenreOptions,
-                label: 'Genre',
-                hint: 'Comma-separated genres',
+                label: 'Genres',
               ),
             ]),
           ],
           const SizedBox(height: 10),
           _responsiveFields([
             _datePickerField(
-              label: 'Release date',
+              label: widget.type.mediaFields.releaseDateLabel,
               value: parseDate(_releaseDateController.text),
               onChanged: (picked) {
                 setState(() {
@@ -1211,6 +1240,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   // -------------------------------------------------------------------------
 
   Widget _personalTab() {
+    if (!_canShowPersonalFields) {
+      return const SizedBox.shrink();
+    }
     if (_isVideoKind) {
       return _LibraryEditRendererVideoTabs(this)._videoPersonalTab();
     }
@@ -1438,10 +1470,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               label: 'Target price',
               validator: optionalMoneyValidator,
             ),
-            _field(
-              controller: _wishlistCurrencyController,
-              label: 'Currency',
-            ),
+            LibraryCurrencyField(controller: _wishlistCurrencyController),
           ]),
           const SizedBox(height: 10),
           TextFormField(
@@ -1576,7 +1605,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         children: [
           _responsiveFields([
             _field(controller: _priceController, label: 'Purchase price'),
-            _field(controller: _currencyController, label: 'Currency'),
+            LibraryCurrencyField(controller: _currencyController),
           ]),
           const SizedBox(height: 10),
           _responsiveFields([
@@ -1969,6 +1998,7 @@ ORDER BY owner_label COLLATE NOCASE
         results[10] as List<SeriesRegistryEntry>,
       );
     });
+    await _loadGenreOptions();
   }
 
   Future<void> _loadTagOptions() async {
@@ -1981,6 +2011,19 @@ ORDER BY owner_label COLLATE NOCASE
       return;
     }
     setState(() => _tagOptions = tagOptions);
+  }
+
+  Future<void> _loadGenreOptions() async {
+    final genreOptions = await loadMultiValuePickListOptions(
+      ref.read(localDatabaseProvider),
+      listName: kGenrePickListName,
+      mediaKind: widget.type.workspace.kind.apiValue,
+      selectedValues: splitPickListValues(_genresEditController.text),
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(() => _genreOptions = genreOptions);
   }
 
   Future<void> _manageSingleValuePickList({

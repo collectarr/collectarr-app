@@ -67,6 +67,7 @@ const musicLibraryConfig = LibraryTypeConfig(
   mediaFields: MediaEditFields(
     numberLabel: 'Disc / Volume',
     publisherLabel: 'Label',
+    releaseDateLabel: 'Original release date',
   ),
   collectionExportTitleLabel: 'Release',
   releaseFields: ReleaseEditFields(

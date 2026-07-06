@@ -16,7 +16,6 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
@@ -36,14 +35,9 @@ Widget buildBookLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) {
-  final resolvedRequest = request.scope == LibraryEditScope.all
-      ? request.copyWith(
-          scope: LibraryEditScope.media,
-        )
-      : request;
   return BookLibraryEditDialog(
-    request: resolvedRequest,
-    draft: LibraryEditDraft.fromRequest(resolvedRequest),
+    request: request,
+    draft: LibraryEditDraft.fromRequest(request),
   );
 }
 
@@ -140,6 +134,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
   late final TextEditingController _wishlistNotesController;
 
   List<String> _tagOptions = const [];
+  List<String> _genreOptions = const [];
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
   String? _selectedEditionId;
@@ -189,13 +184,13 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       hasEditionAnchors: _bookEditions.isNotEmpty,
       hasBundleReleaseAnchors: false,
       hasCustomFields: widget.request.customFieldDefinitions.isNotEmpty,
-      scope: widget.request.scope,
+      scope: widget.request.resolvedScope,
     );
   }
 
   List<LibraryEditTabSpec> get _tabSpecs {
     return _type.editPresentation
-        .builderForScope(widget.request.scope)
+        .builderForScope(widget.request.resolvedScope)
         .buildTabs(
           context: _tabPresentationContext,
         );
@@ -462,7 +457,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   List<String> _tabSectionIds(String tabId) {
     return _type.editPresentation
-        .builderForScope(widget.request.scope)
+        .builderForScope(widget.request.resolvedScope)
         .buildTabSectionIds(
           context: _tabPresentationContext,
           tabId: tabId,
@@ -901,10 +896,19 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       mediaKind: widget.request.type.workspace.kind.apiValue,
       selectedTags: splitPickListValues(_tagsController.text),
     );
+    final genreOptions = await loadMultiValuePickListOptions(
+      ref.read(localDatabaseProvider),
+      listName: kGenrePickListName,
+      mediaKind: widget.request.type.workspace.kind.apiValue,
+      selectedValues: splitPickListValues(_genresController.text),
+    );
     if (!mounted) {
       return;
     }
-    setState(() => _tagOptions = tagOptions);
+    setState(() {
+      _tagOptions = tagOptions;
+      _genreOptions = genreOptions;
+    });
   }
 
   Future<void> _pickLocation() async {
@@ -1248,7 +1252,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
     Navigator.of(context).pop(
       LibraryEditSelection(
-        scope: widget.request.scope,
+        scope: widget.request.resolvedScope,
         item: widget.request.item.copyWith(
           title: _titleController.text.trim(),
           sortKey: emptyToNull(_sortKeyController.text),
