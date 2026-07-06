@@ -54,7 +54,6 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
       mediaEditDialogBuilder: mediaEditDialogBuilder,
       releaseEditDialogBuilder: releaseEditDialogBuilder,
       detailPageBuilder: detailPageBuilder,
-      inspectorPanelBuilder: inspectorPanelBuilder,
       inspectorHeroBuilder: inspectorHeroBuilder,
       inspectorSectionsBuilder: inspectorSectionsBuilder,
       showsDefaultInspectorPersonalSection:

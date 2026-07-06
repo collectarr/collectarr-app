@@ -456,7 +456,7 @@ class LibraryBody extends StatelessWidget {
           content: workspaceContent,
           detailsLayout: detailsLayout,
           inspector: details,
-          frameInspector: type.inspectorPanelBuilder == null,
+          frameInspector: false,
           rightWidth: viewState.detailsWidth,
           bottomHeight: viewState.detailsHeight,
           maxRightWidth: maxDetailsWidth,

@@ -7,7 +7,10 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
@@ -166,7 +169,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (selected == null) {
       return EmptyInspector(type: widget.type, accent: widget.accent);
     }
-    final usesCustomInspectorPanel = widget.type.inspectorPanelBuilder != null;
     final ownedCopies = ref.watch(collectionProvider).maybeWhen(
           data: (items) {
             final matches = items
@@ -202,78 +204,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       trackingEntries,
       activeOwnedItem,
     );
-    final inspectorRequest = LibraryInspectorRequest(
-      type: widget.type,
-      entry: selected,
-      ownedItem: activeOwnedItem,
-      ownedCopies: ownedCopies,
-      trackingEntry: activeTrackingEntry,
-      accent: widget.accent,
-      detailsLayout: widget.detailsLayout,
-      onFilterByValue: widget.onFilterByValue,
-      searchQuery: widget.searchQuery,
-      searchTarget: widget.searchTarget,
-    );
-    final activeBundleReleaseId =
-        activeOwnedItem?.bundleReleaseId ?? selected.referenceBundleReleaseId;
-    final extraActions = <Widget>[
-      if (selected.isOwned)
-        _InspectorDialogActionButton(
-          tooltip: 'Add another copy',
-          icon: Icons.copy_all_outlined,
-          onPressed: () => _addOwnedCopy(selected, ownedItem: activeOwnedItem),
-        ),
-      if (activeOwnedItem != null && widget.db != null)
-        _InspectorDialogActionButton(
-          tooltip: 'Manage location',
-          icon: Icons.place_outlined,
-          onPressed: () => _showOwnedSectionDialog(
-            context,
-            title: 'Location',
-            child: InspectorLocationSection(
-              ownedItemId: activeOwnedItem.id,
-              db: widget.db!,
-              accent: widget.accent,
-            ),
-          ),
-        ),
-      if (activeOwnedItem != null && widget.db != null)
-        _InspectorDialogActionButton(
-          tooltip: 'Manage folders',
-          icon: Icons.folder_open_outlined,
-          onPressed: () => _showOwnedSectionDialog(
-            context,
-            title: 'Folders',
-            child: InspectorFolderSection(
-              ownedItemId: activeOwnedItem.id,
-              db: widget.db!,
-              accent: widget.accent,
-            ),
-          ),
-        ),
-      if (activeOwnedItem != null && widget.db != null)
-        _InspectorDialogActionButton(
-          tooltip: 'Manage loans',
-          icon: Icons.handshake_outlined,
-          onPressed: () => _showOwnedSectionDialog(
-            context,
-            title: 'Loans',
-            child: InspectorLoanSection(
-              ownedItemId: activeOwnedItem.id,
-              db: widget.db!,
-              accent: widget.accent,
-            ),
-          ),
-        ),
-      if (activeOwnedItem != null &&
-          widget.db != null &&
-          libraryShowsReadingQueue(widget.type.workspace.kind))
-        _InspectorReadingQueueActionButton(
-          ownedItemId: activeOwnedItem.id,
-          db: widget.db!,
-          accent: widget.accent,
-        ),
-    ];
     final onToggleOwned = selected.isOwned
         ? activeOwnedItem == null
             ? widget.onRemoveOwned
@@ -342,32 +272,38 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
       );
     }
-
-    final density = widget.densityPreset;
-    return LibraryWorkspaceDensityScope(
-      densityPreset: widget.densityPreset,
-      child: _buildContent(
-        context,
-        ref,
-        selected,
-        activeOwnedItem,
-        ownedCopies,
-        activeTrackingEntry,
-        inspectorRequest,
-        usesCustomInspectorPanel: usesCustomInspectorPanel,
-        activeBundleReleaseId: activeBundleReleaseId,
-        extraActions: extraActions,
-        onToggleOwned: onToggleOwned,
-        onToggleWishlist: onToggleWishlist,
-        onEdit: onEdit,
-        onCorrectMetadata: onCorrectMetadata,
-        onDuplicate: onDuplicate,
-        onLoan: onLoan,
-        onRefreshMetadata: onRefreshMetadata,
-        onShare: onShare,
-        onOpenDetails: onOpenDetails,
-        density: density,
+    return _buildContent(
+      context,
+      ref,
+      selected,
+      activeOwnedItem,
+      ownedCopies,
+      activeTrackingEntry,
+      LibraryInspectorRequest(
+        type: widget.type,
+        entry: selected,
+        ownedItem: activeOwnedItem,
+        ownedCopies: ownedCopies,
+        trackingEntry: activeTrackingEntry,
+        accent: widget.accent,
+        detailsLayout: widget.detailsLayout,
+        onFilterByValue: widget.onFilterByValue,
+        searchQuery: widget.searchQuery,
+        searchTarget: widget.searchTarget,
       ),
+      usesCustomInspectorPanel: false,
+      activeBundleReleaseId: null,
+      extraActions: const [],
+      onToggleOwned: onToggleOwned,
+      onToggleWishlist: onToggleWishlist,
+      onEdit: onEdit,
+      onCorrectMetadata: onCorrectMetadata,
+      onDuplicate: onDuplicate,
+      onLoan: onLoan,
+      onRefreshMetadata: onRefreshMetadata,
+      onShare: onShare,
+      onOpenDetails: onOpenDetails,
+      density: widget.densityPreset,
     );
   }
 
@@ -542,40 +478,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             )
           : null),
     ];
-    if (widget.type.inspectorPanelBuilder != null) {
-      return widget.type.inspectorPanelBuilder!(
-        context,
-        LibraryInspectorPanelRequest(
-          inspector: inspectorRequest,
-          hero: hero,
-          primarySections: effectivePrimarySections,
-          trailingSections: trailingSections,
-          ownedCopies: ownedCopies,
-          selectedOwnedItemId: activeOwnedItem?.id,
-          extraActions: extraActions,
-          onAddCopy: () => _addOwnedCopy(
-            selected,
-            ownedItem: activeOwnedItem,
-          ),
-          onOpenDetails: onOpenDetails,
-          onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
-          ownedCopiesSection: ownedCopiesSection,
-          bundleSection: bundleSection,
-          conditionGradeSection: conditionGradeSection,
-          onSelectOwnedItem: ownedCopies.length < 2
-              ? null
-              : (value) => setState(() => _selectedOwnedItemId = value),
-          onToggleOwned: onToggleOwned,
-          onToggleWishlist: onToggleWishlist,
-          onEdit: onEdit,
-          onCorrectMetadata: onCorrectMetadata,
-          onDuplicate: onDuplicate,
-          onLoan: onLoan,
-          onRefreshMetadata: onRefreshMetadata,
-          onShare: onShare,
-        ),
-      );
-    }
     final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(

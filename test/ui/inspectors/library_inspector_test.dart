@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_sect
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
-import 'package:collectarr_app/features/library/kinds/comic/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
@@ -262,18 +261,12 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.byType(ComicInspectorPanel), findsOneWidget);
     expect(find.byType(ComicInspectorHero), findsOneWidget);
     expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')),
         findsOneWidget);
-    expect(find.text('Quick actions'), findsNothing);
-    expect(find.text('Collect'), findsNothing);
-    expect(find.text('Remove'), findsNothing);
     expect(find.byIcon(Icons.check_circle), findsWidgets);
     expect(find.text('Overview'), findsWidgets);
     expect(find.text('Collection tools'), findsNothing);
-
-    expect(find.byType(ComicInspectorPanel), findsOneWidget);
   });
 
   testWidgets('comic inspector keeps copy selection in the toolbar menu', (

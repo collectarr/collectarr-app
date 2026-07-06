@@ -4,9 +4,9 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
+import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 Future<void> showReadingQueueDialog({
   required BuildContext context,
@@ -179,8 +179,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final filteredEntries = _filteredEntries;
-    return AccentAlertDialog(
-      backgroundColor: palette.panel,
+    return LibraryDialogScaffold(
       title: Row(
         children: [
           const Icon(Icons.bookmarks_outlined, size: 20),
@@ -193,7 +192,14 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
             ),
         ],
       ),
-      content: SizedBox(
+      accent: Theme.of(context).colorScheme.primary,
+      maxWidth: 620,
+      maxHeight: 560,
+      footer: TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text('Close'),
+      ),
+      child: SizedBox(
         width: 560,
         height: 460,
         child: _loading
@@ -265,43 +271,46 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                   }
                                   final queuePosition =
                                       _entries.indexWhere((e) => e.ownedItem.id == entry.ownedItem.id) + 1;
-                                  return ListTile(
+                                  return Material(
                                     key: ValueKey(entry.ownedItem.id),
-                                    leading: CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: palette.panelRaised,
-                                      child: Text(
-                                        '$queuePosition',
-                                        style: const TextStyle(fontSize: 12),
+                                    color: Colors.transparent,
+                                    child: ListTile(
+                                      leading: CircleAvatar(
+                                        radius: 14,
+                                        backgroundColor: palette.panelRaised,
+                                        child: Text(
+                                          '$queuePosition',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
                                       ),
-                                    ),
-                                    title: Text(entry.label),
-                                    subtitle: details.isEmpty
-                                        ? null
-                                        : Text(
-                                            details.join(' · '),
-                                            style: TextStyle(
-                                              color: palette.textMuted,
-                                              fontSize: 12,
+                                      title: Text(entry.label),
+                                      subtitle: details.isEmpty
+                                          ? null
+                                          : Text(
+                                              details.join(' · '),
+                                              style: TextStyle(
+                                                color: palette.textMuted,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                      onTap: () => _openItem(entry),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ReorderableDragStartListener(
+                                            index: index,
+                                            child: const Padding(
+                                              padding: EdgeInsets.symmetric(horizontal: 8),
+                                              child: Icon(Icons.drag_indicator),
                                             ),
                                           ),
-                                    onTap: () => _openItem(entry),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        ReorderableDragStartListener(
-                                          index: index,
-                                          child: const Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 8),
-                                            child: Icon(Icons.drag_indicator),
+                                          IconButton(
+                                            tooltip: 'Remove from queue',
+                                            onPressed: () => _remove(entry),
+                                            icon: const Icon(Icons.remove_circle_outline),
                                           ),
-                                        ),
-                                        IconButton(
-                                          tooltip: 'Remove from queue',
-                                          onPressed: () => _remove(entry),
-                                          icon: const Icon(Icons.remove_circle_outline),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   );
                                 },
@@ -310,12 +319,6 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                     ],
                   ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
     );
   }
 }

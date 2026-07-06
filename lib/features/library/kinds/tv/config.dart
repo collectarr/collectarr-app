@@ -45,7 +45,6 @@ const tvLibraryConfig = LibraryTypeConfig(
   presentation: tvLibraryMediaPresentation,
   editPresentation: tvLibraryEditPresentation,
   editDialogBuilder: buildTvLibraryEditDialog,
-  inspectorPanelBuilder: buildTvInspectorPanel,
   inspectorSectionsBuilder: buildTvInspectorSections,
   addChrome: LibraryAddChromeConfig(
     videoKindFilterOptions: [

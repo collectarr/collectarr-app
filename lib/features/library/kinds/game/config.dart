@@ -48,7 +48,6 @@ const gamesLibraryConfig = LibraryTypeConfig(
   trackingProfile: gameTrackingProfile,
   editDialogBuilder: buildGameLibraryEditDialog,
   editPresentation: gameLibraryEditPresentation,
-  inspectorPanelBuilder: buildGameInspectorPanel,
   inspectorSectionsBuilder: buildGameInspectorSections,
   kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
   presentation: gamesLibraryMediaPresentation,

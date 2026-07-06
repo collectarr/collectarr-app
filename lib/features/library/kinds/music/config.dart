@@ -52,7 +52,6 @@ const musicLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: listeningTrackingProfile,
   editDialogBuilder: buildMusicLibraryEditDialog,
-  inspectorPanelBuilder: buildMusicInspectorPanel,
   showsDefaultInspectorPersonalSection: false,
   presentation: musicLibraryMediaPresentation,
   editPresentation: musicLibraryEditPresentation,

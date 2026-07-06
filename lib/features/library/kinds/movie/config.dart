@@ -63,7 +63,6 @@ const moviesLibraryConfig = LibraryTypeConfig(
     defaultVideoKindFilters: {'movie'},
   ),
   editPresentation: movieLibraryEditPresentation,
-  inspectorPanelBuilder: buildMovieInspectorPanel,
   inspectorSectionsBuilder: buildMovieInspectorSections,
   mediaFields: MediaEditFields(
     numberLabel: 'Edition no.',

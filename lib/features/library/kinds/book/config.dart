@@ -57,7 +57,6 @@ final booksLibraryConfig = LibraryTypeConfig(
     releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
   ),
   editDialogBuilder: buildBookLibraryEditDialog,
-  inspectorPanelBuilder: buildBookInspectorPanel,
   kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
   mediaFields: MediaEditFields.print(
     numberLabel: 'Volume',

@@ -309,11 +309,6 @@ class LibraryInspectorPanelRequest {
   final VoidCallback? onUnlinkFromCore;
 }
 
-typedef LibraryInspectorPanelBuilder = Widget Function(
-  BuildContext context,
-  LibraryInspectorPanelRequest request,
-);
-
 class LibraryMetadataProviderOption {
   const LibraryMetadataProviderOption({
     required this.id,
@@ -815,7 +810,6 @@ class LibraryTypeConfig {
     this.releaseEditDialogBuilder,
     this.detailPageBuilder,
     @Deprecated('Use detailPageBuilder and LibraryDetail* wrappers instead.')
-    this.inspectorPanelBuilder,
     this.inspectorHeroBuilder,
     this.inspectorSectionsBuilder,
     this.showsDefaultInspectorPersonalSection = true,
@@ -852,13 +846,13 @@ class LibraryTypeConfig {
   final LibraryDetailPageBuilder? detailPageBuilder;
   @Deprecated('Use detailPageBuilder and LibraryDetail* wrappers instead.')
   @Deprecated('Use inspectorSectionsBuilder + LibraryDetailPanelScaffold.')
-  final LibraryInspectorPanelBuilder? inspectorPanelBuilder;
   final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
   final bool showsDefaultInspectorPersonalSection;
   final LibraryKindBrowserDelegate Function()? kindBrowserDelegateBuilder;
   final LibraryKindUiAdapter kindUiAdapter;
 
+  @Deprecated('Use transferableFieldsWithCustomFieldsForScope instead.')
   List<TransferableField> transferableFieldsWithCustomFields(
     List<CustomFieldDefinition> definitions,
   ) {

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
@@ -77,8 +78,9 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
   @override
   void initState() {
     super.initState();
-    _fields = widget.type.transferableFieldsWithCustomFields(
+    _fields = widget.type.transferableFieldsWithCustomFieldsForScope(
       widget.customFieldDefinitions,
+      LibraryEditScope.all,
     );
   }
 

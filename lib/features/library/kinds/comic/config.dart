@@ -59,7 +59,6 @@ const comicsLibraryConfig = LibraryTypeConfig(
   addDialogLauncher: showComicLibraryAddDialog,
   trackingProfile: comicTrackingProfile,
   editDialogBuilder: buildComicLibraryEditDialog,
-  inspectorPanelBuilder: buildComicInspectorPanel,
   inspectorHeroBuilder: buildComicInspectorHero,
   inspectorSectionsBuilder: buildComicInspectorSections,
   showsDefaultInspectorPersonalSection: false,

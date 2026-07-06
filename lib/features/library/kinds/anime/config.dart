@@ -43,7 +43,6 @@ const animeLibraryConfig = LibraryTypeConfig(
   trackingProfile: videoTrackingProfile,
   presentation: moviesLibraryMediaPresentation,
   editDialogBuilder: buildMovieLibraryEditDialog,
-  inspectorPanelBuilder: buildVideoInspectorPanel,
   addChrome: LibraryAddChromeConfig(
     videoKindFilterOptions: [
       LibraryAddVideoKindFilterOption(

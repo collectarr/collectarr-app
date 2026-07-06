@@ -49,7 +49,6 @@ const mangaLibraryConfig = LibraryTypeConfig(
   trackingProfile: comicTrackingProfile,
   presentation: comicsLibraryMediaPresentation,
   editDialogBuilder: buildComicLibraryEditDialog,
-  inspectorPanelBuilder: buildComicInspectorPanel,
   editChrome: LibraryEditChromeConfig(
     titleUsesItemTitle: true,
     synopsisLabel: 'Plot',
