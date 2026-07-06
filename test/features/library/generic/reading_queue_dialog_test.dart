@@ -6,8 +6,8 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../helpers/test_constants.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../../helpers/test_constants.dart';
+import '../../../helpers/test_data_factories.dart';
 
 void main() {
   late LocalDatabase db;

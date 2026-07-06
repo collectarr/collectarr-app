@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../../helpers/test_data_factories.dart';
 
 void main() {
   test('library projection prefers structured location path', () {

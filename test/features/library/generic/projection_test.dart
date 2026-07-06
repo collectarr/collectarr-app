@@ -23,7 +23,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../../helpers/test_data_factories.dart';
 
 LibraryProjectionItem _projectionItem({
   required ShelfEntry source,

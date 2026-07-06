@@ -4,7 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../helpers/test_constants.dart';
+import '../../../../helpers/test_constants.dart';
 
 DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
   final candidates = tester.widgetList<DecoratedBox>(
