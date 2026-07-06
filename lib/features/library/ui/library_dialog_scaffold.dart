@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 class LibraryDialogScaffold extends StatelessWidget {
   const LibraryDialogScaffold({
     super.key,
-    required this.title,
+    this.header,
+    this.title,
     this.accent,
     this.footer,
     this.onClose,
@@ -17,9 +18,10 @@ class LibraryDialogScaffold extends StatelessWidget {
     this.padding = const EdgeInsets.all(12),
     this.density = LibraryDensity.comfortable,
     required this.child,
-  });
+  }) : assert(header != null || title != null);
 
-  final Widget title;
+  final Widget? header;
+  final Widget? title;
   final Widget child;
   final Color? accent;
   final Widget? footer;
@@ -37,15 +39,16 @@ class LibraryDialogScaffold extends StatelessWidget {
       backgroundColor: palette.panel,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: LibraryPanelChrome(
-        header: LibraryPanelHeader(
-          backgroundColor: resolvedAccent,
-          foregroundColor: Colors.white,
-          borderColor: resolvedAccent.withValues(alpha: 0.92),
-          onClose: onClose,
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-          density: density,
-          child: title,
-        ),
+        header: header ??
+            LibraryPanelHeader(
+              backgroundColor: resolvedAccent,
+              foregroundColor: Colors.white,
+              borderColor: resolvedAccent.withValues(alpha: 0.92),
+              onClose: onClose,
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+              density: density,
+              child: title!,
+            ),
         body: Padding(
           padding: padding,
           child: child,

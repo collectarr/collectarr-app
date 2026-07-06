@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
+import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -154,114 +156,84 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
         ? (viewport.width > 1440 ? 1220.0 : 1140.0)
         : (viewport.width > 1440 ? 1180.0 : 1100.0);
     final maxHeight = viewport.height > 900 ? 850.0 : viewport.height - 24;
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
+    final p = appPalette(context);
+    return Theme(
+      data: editDialogTheme(
+        seedColor: widget.accent,
+        palette: p,
+        compactDesktop: isMovieDesktop,
       ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      clipBehavior: Clip.antiAlias,
-      child: Theme(
-        data: editDialogTheme(
-          seedColor: widget.accent,
-          palette: appPalette(context),
-          compactDesktop: isMovieDesktop,
+      child: LibraryDialogScaffold(
+        header: _LibraryEditTitleBar(
+          accent: widget.accent,
+          icon: widget.icon,
+          title: widget.title,
+          badges: widget.badges,
+          onClose: widget.onClose,
+          chromeVariant: widget.chromeVariant,
         ),
-        child: Builder(builder: (context) {
-          final p = appPalette(context);
-          return DecoratedBox(
-            decoration: BoxDecoration(
-              color: p.panel,
-              borderRadius: BorderRadius.zero,
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x80000000),
-                  blurRadius: 15,
-                  offset: Offset(0, 5),
-                ),
-              ],
-            ),
-            child: AnimatedSize(
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOutCubic,
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
-                child: Form(
-                  key: widget.formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _LibraryEditTitleBar(
-                        accent: widget.accent,
-                        icon: widget.icon,
-                        title: widget.title,
-                        badges: widget.badges,
-                        onClose: widget.onClose,
-                        chromeVariant: widget.chromeVariant,
-                      ),
-                      if (hasTabStrip)
-                        LibraryEditTabStripFrame(
-                          child: _ReorderableTabStrip(
-                            tabController: widget.tabController!,
-                            tabs: orderedTabs,
-                            accent: widget.accent,
-                            allowReorder: widget.allowTabReorder,
-                            longPressDelay: widget.tabReorderLongPressDelay,
-                            onReorderItem: _onReorderItem,
-                          ),
-                        ),
-                      Flexible(
-                        fit: FlexFit.loose,
-                        child: ColoredBox(
-                          color: p.panel,
-                          child: hasTabStrip
-                              ? AnimatedBuilder(
-                                  animation: widget.tabController!,
-                                  builder: (context, _) {
-                                    final rawIndex =
-                                        widget.tabController!.index;
-                                    final currentIndex = rawIndex < 0
-                                        ? 0
-                                        : rawIndex >= orderedViews.length
-                                            ? orderedViews.length - 1
-                                            : rawIndex;
-                                    return orderedViews[currentIndex];
-                                  },
-                                )
-                              : widget.body!,
-                        ),
-                      ),
-                      if (widget.footerContent != null)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                          decoration: BoxDecoration(
-                            color: p.panelRaised,
-                            border: Border(
-                              top: BorderSide(color: p.divider),
-                            ),
-                          ),
-                          child: widget.footerContent!,
-                        ),
-                      _LibraryEditFooter(
-                        onCancel: widget.onCancel,
-                        onSave: widget.onSave,
-                        onPrevious: widget.onPrevious,
-                        onNext: widget.onNext,
-                        chromeVariant: widget.chromeVariant,
-                        accent: widget.accent,
-                      ),
-                    ],
+        footer: _LibraryEditFooter(
+          onCancel: widget.onCancel,
+          onSave: widget.onSave,
+          onPrevious: widget.onPrevious,
+          onNext: widget.onNext,
+          chromeVariant: widget.chromeVariant,
+          accent: widget.accent,
+        ),
+        maxWidth: maxWidth,
+        maxHeight: maxHeight,
+        density: LibraryDensity.comfortable,
+        child: Form(
+          key: widget.formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (hasTabStrip)
+                LibraryEditTabStripFrame(
+                  child: _ReorderableTabStrip(
+                    tabController: widget.tabController!,
+                    tabs: orderedTabs,
+                    accent: widget.accent,
+                    allowReorder: widget.allowTabReorder,
+                    longPressDelay: widget.tabReorderLongPressDelay,
+                    onReorderItem: _onReorderItem,
                   ),
                 ),
+              Flexible(
+                fit: FlexFit.loose,
+                child: ColoredBox(
+                  color: p.panel,
+                  child: hasTabStrip
+                      ? AnimatedBuilder(
+                          animation: widget.tabController!,
+                          builder: (context, _) {
+                            final rawIndex = widget.tabController!.index;
+                            final currentIndex = rawIndex < 0
+                                ? 0
+                                : rawIndex >= orderedViews.length
+                                    ? orderedViews.length - 1
+                                    : rawIndex;
+                            return orderedViews[currentIndex];
+                          },
+                        )
+                      : widget.body!,
+                ),
               ),
-            ),
-          );
-        }),
+              if (widget.footerContent != null)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                  decoration: BoxDecoration(
+                    color: p.panelRaised,
+                    border: Border(
+                      top: BorderSide(color: p.divider),
+                    ),
+                  ),
+                  child: widget.footerContent!,
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

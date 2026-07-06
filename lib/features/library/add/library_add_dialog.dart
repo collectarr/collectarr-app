@@ -29,6 +29,7 @@ export 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_target.dart';
+import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/add/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
@@ -530,21 +531,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     return LibraryAddShell(
       accent: accent,
-      width: _dialogWidth ?? movieDesktopWidth,
-      height: _dialogHeight ?? movieDesktopHeight,
-      minWidth: _minDialogWidth,
       maxWidth: _maxDialogWidth,
-      minHeight: _minDialogHeight,
       maxHeight: _maxDialogHeight,
-      onResizeWidth: (delta) => setState(() {
-        _dialogWidth = ((_dialogWidth ?? movieDesktopWidth) + delta)
-            .clamp(_minDialogWidth, _maxDialogWidth);
-      }),
-      onResizeHeight: (delta) => setState(() {
-        _dialogHeight = ((_dialogHeight ?? movieDesktopHeight) + delta)
-            .clamp(_minDialogHeight, _maxDialogHeight);
-      }),
-      child: Column(
+      header: const SizedBox.shrink(),
+      body: Column(
               children: [
                 widget.headerBuilder?.call(context, headerRequest) ??
                     LibraryAddRegistry.headerBuilderFor(
