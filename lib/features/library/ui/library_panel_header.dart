@@ -5,7 +5,12 @@ import 'package:flutter/material.dart';
 class LibraryPanelHeader extends StatelessWidget {
   const LibraryPanelHeader({
     super.key,
-    required this.child,
+    this.child,
+    this.title,
+    this.subtitle,
+    this.count,
+    this.primaryAction,
+    this.menuActions = const [],
     this.leading,
     this.trailing,
     this.onClose,
@@ -15,9 +20,32 @@ class LibraryPanelHeader extends StatelessWidget {
     this.padding,
     this.minHeight,
     this.density = LibraryDensity.comfortable,
-  });
+  }) : assert(child != null || title != null);
 
-  final Widget child;
+  const LibraryPanelHeader.bar({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.count,
+    this.primaryAction,
+    this.menuActions = const [],
+    this.leading,
+    this.trailing,
+    this.onClose,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.borderColor,
+    this.padding,
+    this.minHeight,
+    this.density = LibraryDensity.comfortable,
+  }) : child = null;
+
+  final Widget? child;
+  final String? title;
+  final String? subtitle;
+  final int? count;
+  final Widget? primaryAction;
+  final List<Widget> menuActions;
   final Widget? leading;
   final Widget? trailing;
   final VoidCallback? onClose;
@@ -69,10 +97,18 @@ class LibraryPanelHeader extends StatelessWidget {
                 leading!,
                 const SizedBox(width: 10),
               ],
-              Expanded(child: child),
+              Expanded(child: child ?? _buildTextContent(context, fg)),
               if (trailing != null) ...[
                 const SizedBox(width: 10),
                 trailing!,
+              ],
+              if (primaryAction != null) ...[
+                const SizedBox(width: 10),
+                primaryAction!,
+              ],
+              if (menuActions.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                ...menuActions,
               ],
               if (onClose != null) ...[
                 const SizedBox(width: 10),
@@ -87,6 +123,40 @@ class LibraryPanelHeader extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextContent(BuildContext context, Color foregroundColor) {
+    final titleText = title ?? '';
+    final subtitleText = subtitle?.trim();
+    final countText = count == null ? null : '($count)';
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          [titleText, if (countText != null) countText].join(' '),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: foregroundColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        if (subtitleText != null && subtitleText.isNotEmpty)
+          Text(
+            subtitleText,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: foregroundColor.withValues(alpha: 0.82),
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+      ],
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/ui/library_surface.dart';
 import 'package:flutter/material.dart';
 
 class LibraryPanelChrome extends StatelessWidget {
@@ -26,34 +26,15 @@ class LibraryPanelChrome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        header,
-        Expanded(
-          child: Padding(
-            padding: bodyPadding ?? libraryPanelInsets(density),
-            child: body,
-          ),
-        ),
-        if (footer != null) footer!,
-      ],
-    );
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: backgroundColor ?? palette.panel,
-        borderRadius: BorderRadius.zero,
-        border: Border.all(color: palette.divider),
-      ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: maxWidth ?? double.infinity,
-          maxHeight: maxHeight ?? double.infinity,
-        ),
-        child: content,
-      ),
+    return LibrarySurface(
+      header: header,
+      body: body,
+      footer: footer,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight,
+      backgroundColor: backgroundColor,
+      bodyPadding: bodyPadding ?? libraryPanelInsets(density),
+      density: density,
     );
   }
 }
