@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_title_status_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
@@ -191,6 +192,11 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
         VideoExternalLinksSection(
           title: 'External links',
           links: request.entry.trailerUrls,
+          accent: request.accent,
+        ),
+        const SizedBox(height: 8),
+        LibraryDetailUserLinksSection(
+          itemId: request.entry.id,
           accent: request.accent,
         ),
         const SizedBox(height: 8),

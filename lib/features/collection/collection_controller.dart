@@ -6,10 +6,12 @@ import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -219,9 +221,15 @@ final metadataOverridesByItemProvider =
   );
 });
 
+final userExternalLinksByItemProvider =
+  FutureProvider.family<List<UserExternalLink>, String>((ref, itemId) async {
+final db = ref.watch(localDatabaseProvider);
+return UserExternalLinksCacheRepository(db).listByItemId(itemId);
+});
+
 final customEpisodesByItemProvider =
-    FutureProvider.family<Map<int, List<CustomEpisode>>, String>(
-        (ref, itemId) async {
+  FutureProvider.family<Map<int, List<CustomEpisode>>, String>(
+      (ref, itemId) async {
   final db = ref.watch(localDatabaseProvider);
   return CustomEpisodesCacheRepository(db).listByItemIdGrouped(itemId);
 });

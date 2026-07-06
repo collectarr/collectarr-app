@@ -873,143 +873,176 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
   }
 
   Widget _linksTab() {
-    final trailers = widget.item.trailerUrls
-        .where((link) => link.isTrailerLink)
-        .toList(growable: false);
     final providerLinks = widget.item.trailerUrls
         .where((link) => link.isExternalLink && link.isAutomatic)
         .toList(growable: false);
     return EditTabShell(
       children: [
-        if (trailers.isNotEmpty)
-          EditSection(
-            title: 'YouTube Trailers',
-            accent: widget.accent,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (final trailer in trailers) ...[
-                  InkWell(
-                    onTap: () => _launchUrl(trailer.url),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.play_circle_outline, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            trailer.title ?? trailer.url,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              decoration: TextDecoration.underline,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (trailer.source != null) ...[
-                          const SizedBox(width: 8),
-                          Text(
-                            trailer.source!,
-                            style: TextStyle(
-                              color: appPalette(context).textMuted,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-              ],
-            ),
-          ),
         if (providerLinks.isNotEmpty)
           VideoExternalLinksSection(
             title: 'Provider links',
             links: providerLinks,
             accent: widget.accent,
           ),
-        EditSection(
+        _buildEditableLinkSection(
           title: 'User links',
-          accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const EditSectionStateMessage(
-                message:
-                    'Local overrides stay on this device and do not replace provider links.',
-                icon: Icons.edit_outlined,
-              ),
-              const SizedBox(height: 10),
-              if (_videoEdit.externalLinkEdits.isEmpty)
-                const EditSectionStateMessage(
-                  message: 'No local links yet.',
-                  icon: Icons.link_outlined,
-                )
-              else
-                Column(
-                  children: [
-                    for (var index = 0;
-                        index < _videoEdit.externalLinkEdits.length;
-                        index++)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: _responsiveFields([
-                                TextFormField(
-                                  controller: _videoEdit
-                                      .externalLinkEdits[index]
-                                      .titleController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Title',
-                                  ),
-                                ),
-                                TextFormField(
-                                  controller: _videoEdit
-                                      .externalLinkEdits[index]
-                                      .urlController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'URL',
-                                  ),
-                                ),
-                              ]),
-                            ),
-                            const SizedBox(width: 8),
-                            IconButton(
-                              tooltip: 'Remove link',
-                              onPressed: () => _mutateDialogState(() {
-                                _videoEdit.externalLinkEdits[index].dispose();
-                                _videoEdit.externalLinkEdits.removeAt(index);
-                              }),
-                              icon: const Icon(Icons.delete_outline),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: () => _mutateDialogState(() {
-                  _videoEdit.externalLinkEdits.add(
-                    EditableVideoLink(
-                      titleController: TextEditingController(),
-                      urlController: TextEditingController(),
-                      source: 'manual',
-                      isAutomatic: false,
-                    ),
-                  );
-                }),
-                icon: const Icon(Icons.add),
-                label: const Text('Add link'),
-              ),
-            ],
-          ),
+          message:
+              'Local overrides stay on this device and do not replace provider links.',
+          emptyMessage: 'No local links yet.',
+          addLabel: 'Add link',
+          icon: Icons.link_outlined,
+          links: _videoEdit.userLinkEdits,
+          kindOptions: const ['review', 'store', 'wiki', 'custom'],
+          allowKindSelection: true,
+        ),
+        const SizedBox(height: 12),
+        _buildEditableLinkSection(
+          title: 'Trailers',
+          message: 'Only user-created trailer links can be edited locally.',
+          emptyMessage: 'No local trailers yet.',
+          addLabel: 'Add trailer',
+          icon: Icons.play_circle_outline,
+          links: _videoEdit.userTrailerEdits,
+          kindOptions: const ['trailer'],
+          allowKindSelection: false,
         ),
       ],
+    );
+  }
+
+  Widget _buildEditableLinkSection({
+    required String title,
+    required String message,
+    required String emptyMessage,
+    required String addLabel,
+    required IconData icon,
+    required List<EditableUserExternalLink> links,
+    required List<String> kindOptions,
+    required bool allowKindSelection,
+  }) {
+    return EditSection(
+      title: title,
+      accent: widget.accent,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          EditSectionStateMessage(
+            message: message,
+            icon: Icons.edit_outlined,
+          ),
+          const SizedBox(height: 10),
+          if (links.isEmpty)
+            EditSectionStateMessage(
+              message: emptyMessage,
+              icon: icon,
+            )
+          else
+            Column(
+              children: [
+                for (var index = 0; index < links.length; index++)
+                  _buildEditableLinkRow(
+                    links: links,
+                    index: index,
+                    kindOptions: kindOptions,
+                    allowKindSelection: allowKindSelection,
+                  ),
+              ],
+            ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => _mutateDialogState(() {
+              links.add(
+                EditableUserExternalLink(
+                  labelController: TextEditingController(),
+                  urlController: TextEditingController(),
+                  kind: kindOptions.first,
+                ),
+              );
+            }),
+            icon: const Icon(Icons.add),
+            label: Text(addLabel),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditableLinkRow({
+    required List<EditableUserExternalLink> links,
+    required int index,
+    required List<String> kindOptions,
+    required bool allowKindSelection,
+  }) {
+    final link = links[index];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: TextFormField(
+              controller: link.labelController,
+              decoration: const InputDecoration(
+                labelText: 'Label',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 3,
+            child: TextFormField(
+              controller: link.urlController,
+              decoration: const InputDecoration(
+                labelText: 'URL',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          if (allowKindSelection)
+            SizedBox(
+              width: 140,
+              child: DropdownButtonFormField<String>(
+                initialValue: link.kind,
+                items: [
+                  for (final kind in kindOptions)
+                    DropdownMenuItem<String>(
+                      value: kind,
+                      child: Text(kind),
+                    ),
+                ],
+                onChanged: (value) {
+                  if (value == null) return;
+                  _mutateDialogState(() => link.kind = value);
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Kind',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            )
+          else
+            SizedBox(
+              width: 140,
+              child: InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Kind',
+                  border: OutlineInputBorder(),
+                ),
+                child: Text(link.kind),
+              ),
+            ),
+          IconButton(
+            tooltip: 'Remove link',
+            onPressed: () => _mutateDialogState(() {
+              links[index].dispose();
+              links.removeAt(index);
+            }),
+            icon: const Icon(Icons.delete_outline),
+          ),
+        ],
+      ),
     );
   }
 }

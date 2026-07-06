@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder.dart';
@@ -322,6 +323,12 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
               VideoExternalLinksSection(
                 title: 'External links',
                 links: request.entry.trailerUrls,
+                accent: request.accent,
+              ),
+            if (_isTvKind) const SizedBox(height: 16),
+            if (_isTvKind)
+              LibraryDetailUserLinksSection(
+                itemId: request.entry.id,
                 accent: request.accent,
               ),
             if (_isTvKind) const SizedBox(height: 16),

@@ -15,7 +15,8 @@ class VideoEditController {
 
   final List<EditableVideoCredit> castCredits = [];
   final List<EditableVideoCredit> crewCredits = [];
-  final List<EditableVideoLink> externalLinkEdits = [];
+  final List<EditableUserExternalLink> userLinkEdits = [];
+  final List<EditableUserExternalLink> userTrailerEdits = [];
   Future<TvSeries?>? tvSeriesFuture;
   TvSeries? tvSeriesSnapshot;
   List<TvReleaseMedia> tvReleaseMediaDraft = const <TvReleaseMedia>[];
@@ -49,13 +50,40 @@ class VideoEditController {
     crewCredits.addAll(
       splitVideoCredits(creators, kind: VideoCreditKind.crew),
     );
-    externalLinkEdits.addAll(
-      [
-        for (final link in item.trailerUrls)
-          if (link.isExternalLink && !link.isAutomatic)
-            EditableVideoLink.fromTrailerLink(link),
-      ],
-    );
+  }
+
+  Future<void> loadUserExternalLinks() async {
+    if (!isVideoKind) {
+      return;
+    }
+    final db = ref.read(localDatabaseProvider);
+    final repo = UserExternalLinksCacheRepository(db);
+    final links = [
+      ...await repo.listByItemId(item.id),
+      for (final link in item.trailerUrls.where((link) => !link.isAutomatic))
+        UserExternalLink(
+          id: 'seed-${item.id}-${link.kind}-${link.url.hashCode}',
+          itemId: item.id,
+          label: link.title ?? link.description ?? link.url,
+          url: link.url,
+          kind: link.kind == 'trailer' ? 'trailer' : 'custom',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+    ];
+    final seen = <String>{};
+    for (final link in links) {
+      final key = '${link.kind}|${link.label}|${link.url}';
+      if (!seen.add(key)) {
+        continue;
+      }
+      final editable = EditableUserExternalLink.fromUserExternalLink(link);
+      if (editable.kind == 'trailer') {
+        userTrailerEdits.add(editable);
+      } else {
+        userLinkEdits.add(editable);
+      }
+    }
   }
 
   void dispose() {
@@ -65,7 +93,10 @@ class VideoEditController {
     for (final credit in crewCredits) {
       credit.dispose();
     }
-    for (final link in externalLinkEdits) {
+    for (final link in userLinkEdits) {
+      link.dispose();
+    }
+    for (final link in userTrailerEdits) {
       link.dispose();
     }
   }
@@ -103,21 +134,38 @@ class VideoEditController {
 
   List<TrailerLink>? buildUpdatedTrailerUrls(List<TrailerLink> existing) {
     final preservedTrailers = existing
-        .where((link) => link.isTrailerLink)
+        .where((link) => link.isTrailerLink && link.isAutomatic)
         .toList(growable: false);
     final providerExternalLinks = existing
         .where((link) => link.isExternalLink && link.isAutomatic)
         .toList(growable: false);
-    final userExternalLinks = [
-      for (final link in externalLinkEdits)
-        if (!link.isAutomatic) link.toTrailerLink(),
-    ].whereType<TrailerLink>().toList(growable: false);
     final merged = <TrailerLink>[
       ...preservedTrailers,
       ...providerExternalLinks,
-      ...userExternalLinks,
     ];
     return merged.isEmpty ? null : List<TrailerLink>.unmodifiable(merged);
+  }
+
+  Future<void> persistUserExternalLinks() async {
+    if (!isVideoKind) {
+      return;
+    }
+    final db = ref.read(localDatabaseProvider);
+    final repo = UserExternalLinksCacheRepository(db);
+    final links = <UserExternalLink>[];
+    for (final link in userLinkEdits) {
+      final resolved = link.toUserExternalLink(itemId: item.id);
+      if (resolved != null) {
+        links.add(resolved);
+      }
+    }
+    for (final link in userTrailerEdits) {
+      final resolved = link.toUserExternalLink(itemId: item.id);
+      if (resolved != null) {
+        links.add(resolved);
+      }
+    }
+    await repo.replaceForItem(item.id, links);
   }
 
   Future<TvSeries?> loadTvSeriesSnapshot() async {

@@ -10211,6 +10211,476 @@ class CustomEpisodesCacheCompanion
   }
 }
 
+class $UserExternalLinksCacheTable extends UserExternalLinksCache
+    with TableInfo<$UserExternalLinksCacheTable, UserExternalLinksCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserExternalLinksCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _editionIdMeta =
+      const VerificationMeta('editionId');
+  @override
+  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
+      'edition_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _variantIdMeta =
+      const VerificationMeta('variantId');
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+      'variant_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+      'label', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        itemId,
+        editionId,
+        variantId,
+        label,
+        url,
+        kind,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_external_links_cache';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<UserExternalLinksCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('edition_id')) {
+      context.handle(_editionIdMeta,
+          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
+    }
+    if (data.containsKey('variant_id')) {
+      context.handle(_variantIdMeta,
+          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+          _labelMeta, label.isAcceptableOrUnknown(data['label']!, _labelMeta));
+    } else if (isInserting) {
+      context.missing(_labelMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserExternalLinksCacheData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserExternalLinksCacheData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      editionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
+      variantId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
+      label: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}label'])!,
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $UserExternalLinksCacheTable createAlias(String alias) {
+    return $UserExternalLinksCacheTable(attachedDatabase, alias);
+  }
+}
+
+class UserExternalLinksCacheData extends DataClass
+    implements Insertable<UserExternalLinksCacheData> {
+  final String id;
+  final String itemId;
+  final String? editionId;
+  final String? variantId;
+  final String label;
+  final String url;
+  final String kind;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const UserExternalLinksCacheData(
+      {required this.id,
+      required this.itemId,
+      this.editionId,
+      this.variantId,
+      required this.label,
+      required this.url,
+      required this.kind,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || editionId != null) {
+      map['edition_id'] = Variable<String>(editionId);
+    }
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    map['label'] = Variable<String>(label);
+    map['url'] = Variable<String>(url);
+    map['kind'] = Variable<String>(kind);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  UserExternalLinksCacheCompanion toCompanion(bool nullToAbsent) {
+    return UserExternalLinksCacheCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      editionId: editionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(editionId),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
+      label: Value(label),
+      url: Value(url),
+      kind: Value(kind),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory UserExternalLinksCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserExternalLinksCacheData(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      editionId: serializer.fromJson<String?>(json['editionId']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      label: serializer.fromJson<String>(json['label']),
+      url: serializer.fromJson<String>(json['url']),
+      kind: serializer.fromJson<String>(json['kind']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'editionId': serializer.toJson<String?>(editionId),
+      'variantId': serializer.toJson<String?>(variantId),
+      'label': serializer.toJson<String>(label),
+      'url': serializer.toJson<String>(url),
+      'kind': serializer.toJson<String>(kind),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  UserExternalLinksCacheData copyWith(
+          {String? id,
+          String? itemId,
+          Value<String?> editionId = const Value.absent(),
+          Value<String?> variantId = const Value.absent(),
+          String? label,
+          String? url,
+          String? kind,
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      UserExternalLinksCacheData(
+        id: id ?? this.id,
+        itemId: itemId ?? this.itemId,
+        editionId: editionId.present ? editionId.value : this.editionId,
+        variantId: variantId.present ? variantId.value : this.variantId,
+        label: label ?? this.label,
+        url: url ?? this.url,
+        kind: kind ?? this.kind,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  UserExternalLinksCacheData copyWithCompanion(
+      UserExternalLinksCacheCompanion data) {
+    return UserExternalLinksCacheData(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      editionId: data.editionId.present ? data.editionId.value : this.editionId,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      label: data.label.present ? data.label.value : this.label,
+      url: data.url.present ? data.url.value : this.url,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserExternalLinksCacheData(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('label: $label, ')
+          ..write('url: $url, ')
+          ..write('kind: $kind, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, itemId, editionId, variantId, label, url, kind, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserExternalLinksCacheData &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.editionId == this.editionId &&
+          other.variantId == this.variantId &&
+          other.label == this.label &&
+          other.url == this.url &&
+          other.kind == this.kind &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class UserExternalLinksCacheCompanion
+    extends UpdateCompanion<UserExternalLinksCacheData> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String?> editionId;
+  final Value<String?> variantId;
+  final Value<String> label;
+  final Value<String> url;
+  final Value<String> kind;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const UserExternalLinksCacheCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.label = const Value.absent(),
+    this.url = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserExternalLinksCacheCompanion.insert({
+    required String id,
+    required String itemId,
+    this.editionId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    required String label,
+    required String url,
+    required String kind,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        itemId = Value(itemId),
+        label = Value(label),
+        url = Value(url),
+        kind = Value(kind),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<UserExternalLinksCacheData> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? editionId,
+    Expression<String>? variantId,
+    Expression<String>? label,
+    Expression<String>? url,
+    Expression<String>? kind,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (editionId != null) 'edition_id': editionId,
+      if (variantId != null) 'variant_id': variantId,
+      if (label != null) 'label': label,
+      if (url != null) 'url': url,
+      if (kind != null) 'kind': kind,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserExternalLinksCacheCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? itemId,
+      Value<String?>? editionId,
+      Value<String?>? variantId,
+      Value<String>? label,
+      Value<String>? url,
+      Value<String>? kind,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return UserExternalLinksCacheCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      label: label ?? this.label,
+      url: url ?? this.url,
+      kind: kind ?? this.kind,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (editionId.present) {
+      map['edition_id'] = Variable<String>(editionId.value);
+    }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserExternalLinksCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('editionId: $editionId, ')
+          ..write('variantId: $variantId, ')
+          ..write('label: $label, ')
+          ..write('url: $url, ')
+          ..write('kind: $kind, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $CustomFieldDefinitionsCacheTable extends CustomFieldDefinitionsCache
     with
         TableInfo<$CustomFieldDefinitionsCacheTable,
@@ -14125,6 +14595,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $UserMetadataOverridesCacheTable(this);
   late final $CustomEpisodesCacheTable customEpisodesCache =
       $CustomEpisodesCacheTable(this);
+  late final $UserExternalLinksCacheTable userExternalLinksCache =
+      $UserExternalLinksCacheTable(this);
   late final $CustomFieldDefinitionsCacheTable customFieldDefinitionsCache =
       $CustomFieldDefinitionsCacheTable(this);
   late final $CustomFieldValuesCacheTable customFieldValuesCache =
@@ -14159,6 +14631,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         syncQueue,
         userMetadataOverridesCache,
         customEpisodesCache,
+        userExternalLinksCache,
         customFieldDefinitionsCache,
         customFieldValuesCache,
         itemImagesCache,
@@ -18436,6 +18909,246 @@ typedef $$CustomEpisodesCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     CustomEpisodesCacheData,
     PrefetchHooks Function()>;
+typedef $$UserExternalLinksCacheTableCreateCompanionBuilder
+    = UserExternalLinksCacheCompanion Function({
+  required String id,
+  required String itemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  required String label,
+  required String url,
+  required String kind,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$UserExternalLinksCacheTableUpdateCompanionBuilder
+    = UserExternalLinksCacheCompanion Function({
+  Value<String> id,
+  Value<String> itemId,
+  Value<String?> editionId,
+  Value<String?> variantId,
+  Value<String> label,
+  Value<String> url,
+  Value<String> kind,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$UserExternalLinksCacheTableFilterComposer
+    extends Composer<_$LocalDatabase, $UserExternalLinksCacheTable> {
+  $$UserExternalLinksCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get label => $composableBuilder(
+      column: $table.label, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$UserExternalLinksCacheTableOrderingComposer
+    extends Composer<_$LocalDatabase, $UserExternalLinksCacheTable> {
+  $$UserExternalLinksCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get editionId => $composableBuilder(
+      column: $table.editionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get variantId => $composableBuilder(
+      column: $table.variantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get label => $composableBuilder(
+      column: $table.label, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$UserExternalLinksCacheTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $UserExternalLinksCacheTable> {
+  $$UserExternalLinksCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get editionId =>
+      $composableBuilder(column: $table.editionId, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $UserExternalLinksCacheTable,
+    UserExternalLinksCacheData,
+    $$UserExternalLinksCacheTableFilterComposer,
+    $$UserExternalLinksCacheTableOrderingComposer,
+    $$UserExternalLinksCacheTableAnnotationComposer,
+    $$UserExternalLinksCacheTableCreateCompanionBuilder,
+    $$UserExternalLinksCacheTableUpdateCompanionBuilder,
+    (
+      UserExternalLinksCacheData,
+      BaseReferences<_$LocalDatabase, $UserExternalLinksCacheTable,
+          UserExternalLinksCacheData>
+    ),
+    UserExternalLinksCacheData,
+    PrefetchHooks Function()> {
+  $$UserExternalLinksCacheTableTableManager(
+      _$LocalDatabase db, $UserExternalLinksCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserExternalLinksCacheTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserExternalLinksCacheTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserExternalLinksCacheTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            Value<String> label = const Value.absent(),
+            Value<String> url = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserExternalLinksCacheCompanion(
+            id: id,
+            itemId: itemId,
+            editionId: editionId,
+            variantId: variantId,
+            label: label,
+            url: url,
+            kind: kind,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String itemId,
+            Value<String?> editionId = const Value.absent(),
+            Value<String?> variantId = const Value.absent(),
+            required String label,
+            required String url,
+            required String kind,
+            required DateTime createdAt,
+            required DateTime updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserExternalLinksCacheCompanion.insert(
+            id: id,
+            itemId: itemId,
+            editionId: editionId,
+            variantId: variantId,
+            label: label,
+            url: url,
+            kind: kind,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UserExternalLinksCacheTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $UserExternalLinksCacheTable,
+        UserExternalLinksCacheData,
+        $$UserExternalLinksCacheTableFilterComposer,
+        $$UserExternalLinksCacheTableOrderingComposer,
+        $$UserExternalLinksCacheTableAnnotationComposer,
+        $$UserExternalLinksCacheTableCreateCompanionBuilder,
+        $$UserExternalLinksCacheTableUpdateCompanionBuilder,
+        (
+          UserExternalLinksCacheData,
+          BaseReferences<_$LocalDatabase, $UserExternalLinksCacheTable,
+              UserExternalLinksCacheData>
+        ),
+        UserExternalLinksCacheData,
+        PrefetchHooks Function()>;
 typedef $$CustomFieldDefinitionsCacheTableCreateCompanionBuilder
     = CustomFieldDefinitionsCacheCompanion Function({
   required String id,
@@ -20567,6 +21280,9 @@ class $LocalDatabaseManager {
               _db, _db.userMetadataOverridesCache);
   $$CustomEpisodesCacheTableTableManager get customEpisodesCache =>
       $$CustomEpisodesCacheTableTableManager(_db, _db.customEpisodesCache);
+  $$UserExternalLinksCacheTableTableManager get userExternalLinksCache =>
+      $$UserExternalLinksCacheTableTableManager(
+          _db, _db.userExternalLinksCache);
   $$CustomFieldDefinitionsCacheTableTableManager
       get customFieldDefinitionsCache =>
           $$CustomFieldDefinitionsCacheTableTableManager(

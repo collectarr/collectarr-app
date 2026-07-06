@@ -182,6 +182,21 @@ class ItemImagesCache extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class UserExternalLinksCache extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  TextColumn get editionId => text().nullable()();
+  TextColumn get variantId => text().nullable()();
+  TextColumn get label => text()();
+  TextColumn get url => text()();
+  TextColumn get kind => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class WishlistItemsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
@@ -414,6 +429,7 @@ class SeriesRegistryCache extends Table {
   SyncQueue,
   UserMetadataOverridesCache,
   CustomEpisodesCache,
+  UserExternalLinksCache,
   CustomFieldDefinitionsCache,
   CustomFieldValuesCache,
   ItemImagesCache,
@@ -431,7 +447,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {

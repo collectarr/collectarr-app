@@ -10,10 +10,12 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -56,7 +58,7 @@ import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show QueryRow;
-import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 part 'library_edit_dialog_anchor_widgets.dart';
 part 'library_edit_dialog_video_models.dart';
@@ -551,6 +553,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       draft: _draft,
     );
     _initializeKindSpecificEditors();
+    if (_videoEdit.isVideoKind) {
+      unawaited(_videoEdit.loadUserExternalLinks().then((_) {
+        if (mounted) {
+          setState(() {});
+        }
+      }));
+    }
 
     if (_videoEdit.isTvKind) {
       _videoEdit.tvSeriesFuture = _videoEdit.loadTvSeriesSnapshot().then((series) {
@@ -1631,18 +1640,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   // Tab: Links (external links — TMDb, IMDb, etc.)
   // -------------------------------------------------------------------------
 
-  Future<void> _launchUrl(String url) async {
-    final uri = Uri.tryParse(url);
-    if (uri == null) return;
-    final scheme = uri.scheme.toLowerCase();
-    if (scheme != 'http' && scheme != 'https') return;
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      return;
-    }
-  }
-
   // -------------------------------------------------------------------------
   // Helpers
   // -------------------------------------------------------------------------
@@ -2651,7 +2648,7 @@ ORDER BY owner_label COLLATE NOCASE
     setState(mutation);
   }
 
-  void _submit(LibraryEditSubmitAction submitAction) {
+  Future<void> _submit(LibraryEditSubmitAction submitAction) async {
     if (!_formKey.currentState!.validate()) return;
     _submitAction = submitAction;
     var selection = _draft.buildSelection(submitAction: _submitAction);
@@ -2659,6 +2656,8 @@ ORDER BY owner_label COLLATE NOCASE
     selection = _applyComicSelectionEdits(selection);
     selection = _applyGameSelection(selection);
     selection = _normalizeSelectionScope(selection);
+    await _videoEdit.persistUserExternalLinks();
+    if (!mounted) return;
     Navigator.of(context).pop(selection);
   }
 
