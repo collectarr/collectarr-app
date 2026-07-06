@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
+import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -80,50 +81,64 @@ class LibraryDetailHero extends StatelessWidget {
       ),
     ];
     final primaryChips = <Widget>[
-      _DetailHeaderChip(
+      LibraryInfoChip(
         icon: Icons.inventory_2,
         label: resolvedIsOwned ? 'Owned' : 'Not owned',
-        accent: accent,
+        foreground: accent,
+        background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+        borderColor: palette.divider.withValues(alpha: 0.9),
       ),
       if (entry.isWishlisted)
-        _DetailHeaderChip(
+        LibraryInfoChip(
           icon: Icons.star,
           label: 'Wishlisted',
-          accent: accent,
+          foreground: accent,
+          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (referenceLabel != null)
-        _DetailHeaderChip(
+        LibraryInfoChip(
           icon: Icons.link_outlined,
           label: referenceLabel,
-          accent: accent,
+          foreground: accent,
+          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (ownedItem?.condition != null)
-        _DetailHeaderChip(
+        LibraryInfoChip(
           icon: Icons.fact_check_outlined,
           label: ownedItem!.condition!,
-          accent: accent,
+          foreground: accent,
+          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (ownedItem?.grade != null)
-        _DetailHeaderChip(
+        LibraryInfoChip(
           icon: Icons.workspace_premium,
           label: ownedItem!.grade!,
-          accent: accent,
+          foreground: accent,
+          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (ownedItem?.keyComic == true)
-        _DetailHeaderChip(
+        LibraryInfoChip(
           icon: Icons.label_important,
           label: ownedItem!.keyReason ?? 'Key item',
-          accent: accent,
+          foreground: accent,
+          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (ownedItem?.rawOrSlabbed != null || ownedItem?.gradingCompany != null)
-        _DetailHeaderChip(
+        LibraryInfoChip(
           icon: Icons.verified_outlined,
           label: librarySlabMarkerLabel(
                 ownedItem?.rawOrSlabbed,
                 ownedItem?.gradingCompany,
               ) ??
               'Collector copy',
-          accent: accent,
+          foreground: accent,
+          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          borderColor: palette.divider.withValues(alpha: 0.9),
         ),
     ];
     return DecoratedBox(
@@ -405,49 +420,6 @@ String? _detailHeroValueCurrency(
     return entryCurrency;
   }
   return null;
-}
-
-class _DetailHeaderChip extends StatelessWidget {
-  const _DetailHeaderChip({
-    required this.icon,
-    required this.label,
-    required this.accent,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(
-          color: palette.divider.withValues(alpha: 0.9),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 12, color: accent.withValues(alpha: 0.92)),
-            const SizedBox(width: 5),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: palette.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _DetailSummaryFact extends StatelessWidget {
