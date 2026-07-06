@@ -228,81 +228,141 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
               color: palette.panelRaised,
               child: Container(
                 decoration: BoxDecoration(
-                border: Border(right: BorderSide(color: palette.divider)),
+                  border: Border(right: BorderSide(color: palette.divider)),
                 ),
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        labelText: 'Search lists',
-                        prefixIcon: Icon(Icons.search),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          labelText: 'Search lists',
+                          prefixIcon: Icon(Icons.search),
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: DropdownButtonFormField<String>(
-                      initialValue: _selectedKind,
-                      decoration: const InputDecoration(labelText: 'Kind'),
-                      items: const [
-                        DropdownMenuItem(value: 'all', child: Text('All kinds')),
-                        DropdownMenuItem(value: 'comic', child: Text('Comics')),
-                        DropdownMenuItem(value: 'manga', child: Text('Manga')),
-                        DropdownMenuItem(value: 'anime', child: Text('Anime')),
-                        DropdownMenuItem(value: 'book', child: Text('Books')),
-                        DropdownMenuItem(value: 'game', child: Text('Games')),
-                        DropdownMenuItem(value: 'boardgame', child: Text('Board games')),
-                        DropdownMenuItem(value: 'movie', child: Text('Movies')),
-                        DropdownMenuItem(value: 'tv', child: Text('TV')),
-                        DropdownMenuItem(value: 'music', child: Text('Music')),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedKind = value ?? 'all';
-                          _selectedListName = null;
-                        });
-                        unawaited(_load());
-                      },
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: DropdownButtonFormField<String>(
+                        initialValue: _selectedKind,
+                        decoration: const InputDecoration(labelText: 'Kind'),
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'all',
+                            child: Text('All kinds'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'comic',
+                            child: Text('Comics'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'manga',
+                            child: Text('Manga'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'anime',
+                            child: Text('Anime'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'book',
+                            child: Text('Books'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'game',
+                            child: Text('Games'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'boardgame',
+                            child: Text('Board games'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'movie',
+                            child: Text('Movies'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'tv',
+                            child: Text('TV'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'music',
+                            child: Text('Music'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedKind = value ?? 'all';
+                            _selectedListName = null;
+                          });
+                          unawaited(_load());
+                        },
+                      ),
                     ),
-                  ),
-                  SwitchListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                    value: _includeGlobalValues,
-                    onChanged: (value) {
-                      setState(() => _includeGlobalValues = value);
-                      unawaited(_load());
-                    },
-                    title: const Text('Include global values'),
-                  ),
-                  const Divider(height: 1),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _definitions.length,
-                      itemBuilder: (context, index) {
-                        final item = _definitions[index];
-                        final selected = item.listName == definition?.listName;
-                        return Material(
-                          color:
-                              selected ? palette.surface : Colors.transparent,
-                          child: ListTile(
-                            dense: true,
-                            selected: selected,
-                            title: Text(item.label),
-                            subtitle: Text(item.listName),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(child: const Text('Include global values')),
+                          Switch(
+                            value: _includeGlobalValues,
+                            onChanged: (value) {
+                              setState(() => _includeGlobalValues = value);
+                              unawaited(_load());
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: _definitions.length,
+                        itemBuilder: (context, index) {
+                          final item = _definitions[index];
+                          final selected = item.listName == definition?.listName;
+                          return InkWell(
                             onTap: () {
                               setState(() => _selectedListName = item.listName);
                               unawaited(_load());
                             },
-                          ),
-                        );
-                      },
+                            child: Container(
+                              color: selected ? palette.surface : Colors.transparent,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.label,
+                                    style: TextStyle(
+                                      fontWeight:
+                                          selected ? FontWeight.w800 : FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    item.listName,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: palette.textMuted,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
               ),
               ),
             ),

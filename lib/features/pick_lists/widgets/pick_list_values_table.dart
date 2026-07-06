@@ -34,23 +34,31 @@ class PickListValuesTable extends StatelessWidget {
         return Material(
           key: ValueKey(value.id),
           color: Theme.of(context).colorScheme.surface,
-          child: ListTile(
-            dense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            leading: ReorderableDragStartListener(
-              index: index,
-              child: const Icon(Icons.drag_indicator, size: 18),
-            ),
-            title: Text(value.effectiveLabel),
-            subtitle: Text(
-              [
-                if (value.isGlobal) 'Global' else value.mediaKind ?? 'Kind',
-                'Used $count',
-              ].join(' · '),
-            ),
-            trailing: Wrap(
-              spacing: 4,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
               children: [
+                ReorderableDragStartListener(
+                  index: index,
+                  child: const Icon(Icons.drag_indicator, size: 18),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(value.effectiveLabel),
+                      const SizedBox(height: 2),
+                      Text(
+                        [
+                          if (value.isGlobal) 'Global' else value.mediaKind ?? 'Kind',
+                          'Used $count',
+                        ].join(' · '),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, size: 18),
                   tooltip: 'Edit',

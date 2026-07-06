@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -98,16 +97,23 @@ class LibraryCoverImage extends ConsumerWidget {
             ),
           );
         }
-        final provider = CachedNetworkImageProvider(url);
         return ClipRRect(
           borderRadius: BorderRadius.circular(borderRadius),
-          child: Image(
-            image: provider,
+          child: CachedNetworkImage(
+            imageUrl: url,
             fit: fit,
-            gaplessPlayback: true,
-            filterQuality: FilterQuality.high,
-            frameBuilder: (context, child, _, __) => child,
-            errorBuilder: (_, __, ___) => placeholder,
+            fadeInDuration: Duration.zero,
+            fadeOutDuration: Duration.zero,
+            placeholderFadeInDuration: Duration.zero,
+            memCacheWidth: cacheWidth,
+            placeholder: (_, __) => placeholder,
+            errorWidget: (_, __, ___) => placeholder,
+            imageBuilder: (_, imageProvider) => Image(
+              image: imageProvider,
+              fit: fit,
+              gaplessPlayback: true,
+              filterQuality: FilterQuality.high,
+            ),
           ),
         );
       },
