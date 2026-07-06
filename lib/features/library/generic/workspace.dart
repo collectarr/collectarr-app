@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/empty_state.dart';
@@ -25,6 +26,13 @@ typedef LibraryItemContextMenuCallback = void Function(
   LibraryProjectionItem item,
   Offset globalPosition,
 );
+
+double libraryWorkspaceGridMainAxisExtent({
+  required LibraryMediaAdapter adapter,
+  required double coverSize,
+}) {
+  return coverSize * adapter.viewProfile.coverGridHeightFactor;
+}
 
 class LibraryWorkspace extends ConsumerWidget {
   const LibraryWorkspace({
@@ -161,8 +169,10 @@ class LibraryWorkspace extends ConsumerWidget {
             (1.38 + ((density.cardScaleFactor - 0.86) * 0.5)))
         .clamp(224.0, 360.0)
         .toDouble();
-    final coverMainAxisExtent =
-        viewState.coverSize * density.coverGridHeightFactor;
+    final coverMainAxisExtent = libraryWorkspaceGridMainAxisExtent(
+      adapter: adapter,
+      coverSize: viewState.coverSize,
+    );
     if (_showGrouped && items.isNotEmpty) {
       return switch (viewState.viewMode) {
         LibraryViewMode.grid => _GroupedGrid(
@@ -645,7 +655,7 @@ class _GroupedGridState extends State<_GroupedGrid> {
     }
     final sortedKeys = groups.keys.toList()..sort();
 
-    final useSubGroups = widget.groupMode == LibraryGroupMode.series;
+    final useSubGroups = libraryShouldUseSeriesSubgroups(widget.type);
 
     return ColoredBox(
       color: kAppGridCanvas,
@@ -755,6 +765,13 @@ class _GroupedGridState extends State<_GroupedGrid> {
       ),
     );
   }
+}
+
+bool libraryShouldUseSeriesSubgroups(LibraryTypeConfig type) {
+  return switch (type.workspace.kind) {
+    CatalogMediaKind.tv || CatalogMediaKind.comic => false,
+    _ => true,
+  };
 }
 
 bool isLibraryRangeModifierPressed() {
