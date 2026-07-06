@@ -27,7 +27,13 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Analyze
-        run: flutter analyze
+        run: |
+          set -euo pipefail
+          output="$(flutter analyze 2>&1 || true)"
+          printf '%s\n' "$output"
+          if printf '%s\n' "$output" | grep -q 'error •'; then
+            exit 1
+          fi
 
       - name: Run tests
         run: flutter test
