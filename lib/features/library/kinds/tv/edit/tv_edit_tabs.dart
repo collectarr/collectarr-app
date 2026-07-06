@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/providers/seasons_provider.dart'
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:io';
 
 class TvEpisodesTab extends ConsumerWidget {
   const TvEpisodesTab({
@@ -41,7 +42,8 @@ class TvEpisodesTab extends ConsumerWidget {
     final trackedUnits = ref.watch(trackingUnitsByCatalogRefProvider(seriesRef));
     final watchSessions = ref.watch(watchSessionsByCatalogRefProvider(seriesRef));
     final ratingMap = <String, int>{};
-    final future = videoEdit.tvSeriesFuture ??= videoEdit.loadTvSeriesSnapshot();
+    final future =
+        videoEdit.tvSeriesFuture ??= videoEdit.loadTvSeriesSnapshot();
 
     return EditTabShell(
       children: [
@@ -52,76 +54,52 @@ class TvEpisodesTab extends ConsumerWidget {
             future: future,
             builder: (context, snapshot) {
               final series = snapshot.data ?? videoEdit.tvSeriesSnapshot;
-              if (snapshot.connectionState == ConnectionState.waiting &&
-                  series == null) {
+              final providerEpisodes =
+                  series == null ? const <TvEpisode>[] : videoEdit.flattenTvEpisodes(series);
+              final customEpisodes = _sortedCustomEpisodes(customEpisodesAsync);
+              final rows = _mergedEpisodeRows(
+                providerEpisodes: providerEpisodes,
+                customEpisodes: customEpisodes,
+                trackedUnits: trackedUnits,
+                watchSessions: watchSessions,
+                ratingMap: ratingMap,
+                videoEdit: videoEdit,
+                series: series,
+              );
+              final isLoading = snapshot.connectionState == ConnectionState.waiting &&
+                  series == null &&
+                  customEpisodesAsync.isLoading &&
+                  rows.isEmpty;
+              if (isLoading) {
                 return const EditSectionStateMessage(
                   message: 'Loading TV episodes...',
                   icon: Icons.hourglass_empty,
                 );
               }
-              final seasons = _resolvedTvSeasons(series, videoEdit);
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (series == null)
-                    const EditSectionStateMessage(
-                      message:
-                          'No provider TV series data is available yet. Use custom episodes below.',
-                      icon: Icons.edit_note,
-                    )
-                  else ...[
-                    Text(
-                      'Provider episodes',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
-                    ),
-                    const SizedBox(height: 10),
-                    if (seasons.isEmpty)
-                      const EditSectionStateMessage(
-                        message:
-                            'No provider episodes found for this series yet.',
-                        icon: Icons.info_outline,
-                      )
-                    else
-                      for (final season in seasons)
-                        _tvSeasonEpisodeGroup(
-                          context,
-                          accent: accent,
-                          seasonTitle: 'Season ${season.seasonNumber}',
-                          imageUrl: season.posterUrl ??
-                              series.posterUrl ??
-                              series.backdropUrl,
-                          providerEpisodes: season.episodes,
-                          customEpisodes: const <TvEpisode>[],
-                          customEpisodeModels: const <CustomEpisode>[],
-                          seasonNumber: season.seasonNumber,
-                          series: series,
-                          trackedUnits: trackedUnits,
-                          watchSessions: watchSessions,
-                          ratingMap: ratingMap,
-                          videoEdit: videoEdit,
-                        ),
-                  ],
-                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
                         child: Text(
-                          'Custom episodes',
-                          style:
-                              Theme.of(context).textTheme.labelLarge?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                          series == null
+                              ? 'Local episode overrides'
+                              : 'Episodes',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                       ),
                       OutlinedButton.icon(
-                        onPressed: () => _showManualCustomEpisodeDialog(
+                        onPressed: () => _showUnifiedEpisodeEditor(
                           context,
                           ref: ref,
                           type: type,
-                          itemId: item.id as String,
+                          itemId: item.id,
                           accent: accent,
+                          videoEdit: videoEdit,
                         ),
                         icon: const Icon(Icons.add),
                         label: const Text('Add episode'),
@@ -129,60 +107,31 @@ class TvEpisodesTab extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  customEpisodesAsync.when(
-                    loading: () => const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      child: LinearProgressIndicator(minHeight: 2),
-                    ),
-                    error: (_, __) => const EditSectionStateMessage(
-                      message: 'Unable to load custom episodes.',
-                      icon: Icons.error_outline,
-                    ),
-                    data: (grouped) {
-                      final customEpisodes = grouped.values
-                          .expand((episodes) => episodes)
-                          .toList(growable: false)
-                        ..sort((a, b) {
-                          final seasonCompare =
-                              a.seasonNumber.compareTo(b.seasonNumber);
-                          if (seasonCompare != 0) return seasonCompare;
-                          return a.episodeNumber.compareTo(b.episodeNumber);
-                        });
-                      if (customEpisodes.isEmpty) {
-                        return const EditSectionStateMessage(
-                          message: 'No custom episodes yet.',
-                          icon: Icons.playlist_add,
-                        );
-                      }
-                      final groupedCustomEpisodes = <int, List<CustomEpisode>>{};
-                      for (final episode in customEpisodes) {
-                        groupedCustomEpisodes
-                            .putIfAbsent(episode.seasonNumber, () => <CustomEpisode>[])
-                            .add(episode);
-                      }
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for (final entry in groupedCustomEpisodes.entries)
-                            _tvSeasonEpisodeGroup(
-                              context,
-                              accent: accent,
-                              seasonTitle: 'Season ${entry.key}',
-                              imageUrl: _seriesFallbackImage(series),
-                              providerEpisodes: const <TvEpisode>[],
-                              customEpisodes: const <TvEpisode>[],
-                              customEpisodeModels: entry.value,
-                              seasonNumber: entry.key,
-                              series: series,
-                              trackedUnits: trackedUnits,
-                              watchSessions: watchSessions,
-                              ratingMap: ratingMap,
-                              videoEdit: videoEdit,
-                            ),
-                        ],
-                      );
-                    },
-                  ),
+                  if (rows.isEmpty)
+                    EditSectionStateMessage(
+                      message: series == null
+                          ? 'No local episodes yet.'
+                          : 'No episodes found for this series yet.',
+                      icon: Icons.play_circle_outline,
+                    )
+                  else
+                    for (final season in _groupUnifiedEpisodeRows(rows))
+                      _UnifiedTvSeasonEpisodeGroup(
+                        context,
+                        accent: accent,
+                        seasonTitle: 'Season ${season.seasonNumber}',
+                        imageUrl: season.posterUrl ??
+                            series?.posterUrl ??
+                            series?.backdropUrl,
+                        episodes: season.episodes,
+                        trackedUnits: trackedUnits,
+                        watchSessions: watchSessions,
+                        ratingMap: ratingMap,
+                        videoEdit: videoEdit,
+                        type: type,
+                        itemId: item.id,
+                        ref: ref,
+                      ),
                 ],
               );
             },
@@ -191,6 +140,253 @@ class TvEpisodesTab extends ConsumerWidget {
       ],
     );
   }
+}
+
+class _UnifiedTvEpisodeRow {
+  const _UnifiedTvEpisodeRow({
+    required this.seasonNumber,
+    required this.episodeNumber,
+    required this.title,
+    required this.overview,
+    required this.airDate,
+    required this.runtimeMinutes,
+    required this.stillImageUrl,
+    required this.localImagePath,
+    required this.thumbnailImageUrl,
+    required this.discNumber,
+    required this.watched,
+    required this.rating,
+    required this.customEpisode,
+    required this.sourceEpisodeId,
+  });
+
+  final int seasonNumber;
+  final int episodeNumber;
+  final String title;
+  final String? overview;
+  final String? airDate;
+  final int? runtimeMinutes;
+  final String? stillImageUrl;
+  final String? localImagePath;
+  final String? thumbnailImageUrl;
+  final int? discNumber;
+  final bool watched;
+  final int? rating;
+  final CustomEpisode? customEpisode;
+  final String? sourceEpisodeId;
+
+  String get code =>
+      'S${seasonNumber.toString().padLeft(2, '0')}E${episodeNumber.toString().padLeft(2, '0')}';
+}
+
+class _UnifiedTvSeasonGroup {
+  const _UnifiedTvSeasonGroup({
+    required this.seasonNumber,
+    required this.posterUrl,
+    required this.episodes,
+  });
+
+  final int seasonNumber;
+  final String? posterUrl;
+  final List<_UnifiedTvEpisodeRow> episodes;
+}
+
+List<CustomEpisode> _sortedCustomEpisodes(
+  AsyncValue<Map<int, List<CustomEpisode>>> customEpisodesAsync,
+) {
+  final episodes = customEpisodesAsync.maybeWhen(
+    data: (grouped) => grouped.values.expand((episodes) => episodes).toList(),
+    orElse: () => const <CustomEpisode>[],
+  ).toList(growable: true)
+    ..sort((a, b) {
+      final seasonCompare = a.seasonNumber.compareTo(b.seasonNumber);
+      if (seasonCompare != 0) return seasonCompare;
+      return a.episodeNumber.compareTo(b.episodeNumber);
+    });
+  return episodes;
+}
+
+List<_UnifiedTvEpisodeRow> _mergedEpisodeRows({
+  required List<TvEpisode> providerEpisodes,
+  required List<CustomEpisode> customEpisodes,
+  required List<TrackingUnit> trackedUnits,
+  required List<WatchSession> watchSessions,
+  required Map<String, int> ratingMap,
+  required VideoEditController videoEdit,
+  required TvSeries? series,
+}) {
+  final rowsByKey = <String, _UnifiedTvEpisodeRow>{};
+  for (final episode in providerEpisodes) {
+    final key = '${episode.seasonNumber}:${episode.episodeNumber}';
+    rowsByKey[key] = _UnifiedTvEpisodeRow(
+      seasonNumber: episode.seasonNumber,
+      episodeNumber: episode.episodeNumber,
+      title: episode.title ?? 'Untitled',
+      overview: episode.overview,
+      airDate: _formatDate(episode.airDate),
+      runtimeMinutes: episode.runtimeMinutes,
+      stillImageUrl: episode.stillUrl,
+      localImagePath: null,
+      thumbnailImageUrl: null,
+      discNumber: videoEdit.discAssignmentForEpisode(
+        episodeId: episode.id,
+        seasonNumber: episode.seasonNumber,
+        episodeNumber: episode.episodeNumber,
+      ),
+      watched: _episodeWatched(
+        trackedUnits: trackedUnits,
+        watchSessions: watchSessions,
+        seasonNumber: episode.seasonNumber,
+        episodeNumber: episode.episodeNumber,
+      ),
+      rating: ratingMap[_episodeRatingKey(
+        episode.seasonNumber,
+        episode.episodeNumber,
+      )],
+      customEpisode: null,
+      sourceEpisodeId: episode.id,
+    );
+  }
+  for (final episode in customEpisodes) {
+    final key = '${episode.seasonNumber}:${episode.episodeNumber}';
+    rowsByKey[key] = _UnifiedTvEpisodeRow(
+      seasonNumber: episode.seasonNumber,
+      episodeNumber: episode.episodeNumber,
+      title: episode.title,
+      overview: episode.overview,
+      airDate: episode.airDate,
+      runtimeMinutes: episode.runtimeMinutes,
+      stillImageUrl: episode.stillImageUrl,
+      localImagePath: episode.localImagePath,
+      thumbnailImageUrl: episode.thumbnailImageUrl,
+      discNumber: videoEdit.discAssignmentForEpisode(
+        episodeId: episode.id,
+        seasonNumber: episode.seasonNumber,
+        episodeNumber: episode.episodeNumber,
+      ),
+      watched: _episodeWatched(
+        trackedUnits: trackedUnits,
+        watchSessions: watchSessions,
+        seasonNumber: episode.seasonNumber,
+        episodeNumber: episode.episodeNumber,
+      ),
+      rating: ratingMap[_episodeRatingKey(
+        episode.seasonNumber,
+        episode.episodeNumber,
+      )],
+      customEpisode: episode,
+      sourceEpisodeId: episode.id,
+    );
+  }
+  final rows = rowsByKey.values.toList(growable: true)
+    ..sort((a, b) {
+      final seasonCompare = a.seasonNumber.compareTo(b.seasonNumber);
+      if (seasonCompare != 0) return seasonCompare;
+      return a.episodeNumber.compareTo(b.episodeNumber);
+    });
+  return rows;
+}
+
+List<_UnifiedTvSeasonGroup> _groupUnifiedEpisodeRows(
+  List<_UnifiedTvEpisodeRow> rows,
+) {
+  final grouped = <int, List<_UnifiedTvEpisodeRow>>{};
+  for (final row in rows) {
+    grouped.putIfAbsent(row.seasonNumber, () => <_UnifiedTvEpisodeRow>[]).add(row);
+  }
+  return [
+    for (final entry in grouped.entries)
+      _UnifiedTvSeasonGroup(
+        seasonNumber: entry.key,
+        posterUrl: null,
+        episodes: entry.value,
+      ),
+  ];
+}
+
+Widget _UnifiedTvSeasonEpisodeGroup(
+  BuildContext context, {
+  required String seasonTitle,
+  required String? imageUrl,
+  required List<_UnifiedTvEpisodeRow> episodes,
+  required List<TrackingUnit> trackedUnits,
+  required List<WatchSession> watchSessions,
+  required Map<String, int> ratingMap,
+  required VideoEditController videoEdit,
+  required Color accent,
+  required LibraryTypeConfig type,
+  required String itemId,
+  required WidgetRef ref,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: Card(
+      elevation: 0,
+      color: appPalette(context).panelRaised,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              seasonTitle,
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 10),
+            if (episodes.isEmpty)
+              Text(
+                'No episodes in this season.',
+                style: TextStyle(color: appPalette(context).textMuted),
+              )
+            else
+              for (final episode in episodes)
+                _tvEpisodeCard(
+                  context,
+                  accent: accent,
+                  seasonNumber: episode.seasonNumber,
+                  episodeNumber: episode.episodeNumber,
+                  title: episode.title,
+                  overview: episode.overview,
+                  airDate: episode.airDate,
+                  runtimeMinutes: episode.runtimeMinutes,
+                  imageUrl: episode.stillImageUrl,
+                  fallbackImageUrl: imageUrl,
+                  localImagePath: episode.localImagePath,
+                  thumbnailImageUrl: episode.thumbnailImageUrl,
+                  discNumber: episode.discNumber,
+                  watched: episode.watched,
+                  rating: episode.rating,
+                  onEdit: () => _showUnifiedEpisodeEditor(
+                    context,
+                    ref: ref,
+                    type: type,
+                    itemId: itemId,
+                    accent: accent,
+                    videoEdit: videoEdit,
+                    existingEpisode: episode.customEpisode,
+                    seasonNumber: episode.seasonNumber,
+                    episodeNumber: episode.episodeNumber,
+                    title: episode.title,
+                    overview: episode.overview,
+                    airDate: episode.airDate,
+                    runtimeMinutes: episode.runtimeMinutes,
+                    stillImageUrl: episode.stillImageUrl,
+                    localImagePath: episode.localImagePath,
+                    thumbnailImageUrl: episode.thumbnailImageUrl,
+                  ),
+                  onDelete: episode.customEpisode == null
+                      ? null
+                      : () async {
+                          await ref
+                              .read(collectionMutationsProvider)
+                              .removeCustomEpisode(episode.customEpisode!);
+                        },
+                ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class TvReleaseMediaTab extends ConsumerWidget {
@@ -354,7 +550,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                   accent: accent,
                   customEpisodesAsync: customEpisodesAsync,
                   type: type,
-                  itemId: item.id as String,
+                  itemId: item.id,
                   ref: ref,
                 );
               }
@@ -365,7 +561,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                   accent: accent,
                   customEpisodesAsync: customEpisodesAsync,
                   type: type,
-                  itemId: item.id as String,
+                  itemId: item.id,
                   ref: ref,
                 );
               }
@@ -457,7 +653,9 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                             }
                                             videoEdit.updateTvEpisodeDiscAssignment(
                                               episode.id,
-                                              value,
+                                              seasonNumber: episode.seasonNumber,
+                                              episodeNumber: episode.episodeNumber,
+                                              discNumber: value,
                                             );
                                           },
                                         ),
@@ -646,11 +844,39 @@ Widget _tvEpisodeCard(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            SizedBox(
               width: 52,
               height: 78,
-              color: appPalette(context).surface,
-              child: resolvedImage == null ? const Icon(Icons.image_outlined) : null,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: resolvedImage == null
+                    ? ColoredBox(
+                        color: appPalette(context).surface,
+                        child: const Icon(Icons.image_outlined),
+                      )
+                    : localImagePath != null && localImagePath.trim().isNotEmpty
+                        ? Image.file(
+                            File(localImagePath),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Image.network(
+                              resolvedImage,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) =>
+                                  const ColoredBox(
+                                    color: Colors.transparent,
+                                    child: Icon(Icons.broken_image_outlined),
+                                  ),
+                            ),
+                          )
+                        : Image.network(
+                            resolvedImage,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const ColoredBox(
+                              color: Colors.transparent,
+                              child: Icon(Icons.broken_image_outlined),
+                            ),
+                          ),
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -691,6 +917,23 @@ Widget _tvEpisodeCard(
                 ],
               ),
             ),
+            const SizedBox(width: 10),
+            Column(
+              children: [
+                if (onEdit != null)
+                  IconButton(
+                    tooltip: 'Edit episode',
+                    onPressed: onEdit,
+                    icon: const Icon(Icons.edit_outlined),
+                  ),
+                if (onDelete != null)
+                  IconButton(
+                    tooltip: 'Delete override',
+                    onPressed: onDelete,
+                    icon: const Icon(Icons.delete_outline),
+                  ),
+              ],
+            ),
           ],
         ),
       ),
@@ -710,6 +953,181 @@ Widget _pill(BuildContext context, String label) {
       child: Text(label, style: const TextStyle(fontSize: 11)),
     ),
   );
+}
+
+Future<void> _showUnifiedEpisodeEditor(
+  BuildContext context, {
+  required WidgetRef ref,
+  required LibraryTypeConfig type,
+  required String itemId,
+  required Color accent,
+  required VideoEditController videoEdit,
+  CustomEpisode? existingEpisode,
+  int seasonNumber = 1,
+  int episodeNumber = 1,
+  String title = '',
+  String? overview,
+  String? airDate,
+  int? runtimeMinutes,
+  String? stillImageUrl,
+  String? localImagePath,
+  String? thumbnailImageUrl,
+}) async {
+  final seasonController =
+      TextEditingController(text: seasonNumber.toString());
+  final episodeController =
+      TextEditingController(text: episodeNumber.toString());
+  final titleController = TextEditingController(text: title);
+  final overviewController = TextEditingController(text: overview ?? '');
+  final airDateController = TextEditingController(text: airDate ?? '');
+  final runtimeController =
+      TextEditingController(text: runtimeMinutes?.toString() ?? '');
+  final stillController = TextEditingController(text: stillImageUrl ?? '');
+  final localImageController =
+      TextEditingController(text: localImagePath ?? '');
+  final thumbnailController =
+      TextEditingController(text: thumbnailImageUrl ?? '');
+  try {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(existingEpisode == null ? 'Add episode' : 'Edit episode'),
+          content: SingleChildScrollView(
+            child: SizedBox(
+              width: 520,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: seasonController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(labelText: 'Season'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: episodeController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(labelText: 'Episode'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(labelText: 'Title'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: overviewController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(labelText: 'Overview'),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: airDateController,
+                          decoration:
+                              const InputDecoration(labelText: 'Air date'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: runtimeController,
+                          keyboardType: TextInputType.number,
+                          decoration:
+                              const InputDecoration(labelText: 'Runtime (min)'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: stillController,
+                    decoration:
+                        const InputDecoration(labelText: 'Still image URL'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: thumbnailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Thumbnail image URL',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: localImageController,
+                    decoration:
+                        const InputDecoration(labelText: 'Local image path'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+    if (result != true) {
+      return;
+    }
+    final parsedSeason = int.tryParse(seasonController.text.trim()) ?? seasonNumber;
+    final parsedEpisode =
+        int.tryParse(episodeController.text.trim()) ?? episodeNumber;
+    final parsedRuntime = int.tryParse(runtimeController.text.trim());
+    await ref.read(collectionMutationsProvider).upsertCustomEpisode(
+          id: existingEpisode?.id,
+          catalogRef: CatalogEntityRef(
+            kind: type.workspace.kind.apiValue,
+            entityType: CatalogEntityType.work,
+            id: itemId,
+          ),
+          seasonNumber: parsedSeason,
+          episodeNumber: parsedEpisode,
+          title: titleController.text.trim().isEmpty
+              ? 'Untitled'
+              : titleController.text.trim(),
+          overview: _nullIfBlank(overviewController.text),
+          airDate: _nullIfBlank(airDateController.text),
+          runtimeMinutes: parsedRuntime,
+          stillImageUrl: _nullIfBlank(stillController.text),
+          localImagePath: _nullIfBlank(localImageController.text),
+          thumbnailImageUrl: _nullIfBlank(thumbnailController.text),
+        );
+  } finally {
+    seasonController.dispose();
+    episodeController.dispose();
+    titleController.dispose();
+    overviewController.dispose();
+    airDateController.dispose();
+    runtimeController.dispose();
+    stillController.dispose();
+    localImageController.dispose();
+    thumbnailController.dispose();
+  }
+}
+
+String? _nullIfBlank(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
 }
 
 bool _episodeWatched({

@@ -732,6 +732,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         return _mainTab();
       case 'media':
         return _mediaTab();
+      case 'episodes':
       case 'tv_episodes':
         return TvEpisodesTab(
           type: widget.type,

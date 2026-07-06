@@ -60,7 +60,7 @@ const _tvMediaTabs = [
   LibraryEditTabSpec(
     id: 'episode_map',
     icon: Icons.route_outlined,
-    label: 'Episodes',
+    label: 'Disc map',
     sectionIds: ['tv_episode_disc_map'],
   ),
 ];

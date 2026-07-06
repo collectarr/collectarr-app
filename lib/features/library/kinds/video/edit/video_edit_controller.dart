@@ -206,8 +206,14 @@ class VideoEditController {
   Future<TvSeries?> loadTvSeriesSnapshot() async {
     final api = ref.read(apiClientProvider);
     final seriesId = item.series?.seriesId ?? item.id;
-    final dto = await api.getTvSeriesDto(seriesId);
-    return TvSeries.fromDto(dto);
+    try {
+      final dto = await api
+          .getTvSeriesDto(seriesId)
+          .timeout(const Duration(seconds: 20));
+      return TvSeries.fromDto(dto);
+    } on TimeoutException {
+      return null;
+    }
   }
 
   void primeTvSeriesDraft(TvSeries series) {
@@ -217,7 +223,11 @@ class VideoEditController {
         : List<TvReleaseMedia>.from(series.media);
     tvEpisodeDiscAssignments = {
       for (final media in tvReleaseMediaDraft)
-        for (final episode in media.episodes) episode.id: media.discNumber ?? 1,
+        for (final episode in media.episodes) ...{
+          episode.id: media.discNumber ?? 1,
+          '${episode.seasonNumber}:${episode.episodeNumber}':
+              media.discNumber ?? 1,
+        },
     };
     if (tvEpisodeDiscAssignments.isEmpty) {
       final fallbackDisc = tvReleaseMediaDraft.isEmpty
@@ -225,12 +235,29 @@ class VideoEditController {
           : (tvReleaseMediaDraft.first.discNumber ?? 1);
       for (final episode in flattenTvEpisodes(series)) {
         tvEpisodeDiscAssignments[episode.id] = fallbackDisc;
+        tvEpisodeDiscAssignments['${episode.seasonNumber}:${episode.episodeNumber}'] =
+            fallbackDisc;
       }
     }
   }
 
-  void updateTvEpisodeDiscAssignment(String episodeId, int discNumber) {
+  void updateTvEpisodeDiscAssignment(
+    String episodeId, {
+    required int seasonNumber,
+    required int episodeNumber,
+    required int discNumber,
+  }) {
     tvEpisodeDiscAssignments[episodeId] = discNumber;
+    tvEpisodeDiscAssignments['$seasonNumber:$episodeNumber'] = discNumber;
+  }
+
+  int? discAssignmentForEpisode({
+    required String episodeId,
+    required int seasonNumber,
+    required int episodeNumber,
+  }) {
+    return tvEpisodeDiscAssignments[episodeId] ??
+        tvEpisodeDiscAssignments['$seasonNumber:$episodeNumber'];
   }
 
   List<TvReleaseMedia> buildFallbackTvReleaseMedia(TvSeries series) {
