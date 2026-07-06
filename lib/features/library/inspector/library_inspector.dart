@@ -30,7 +30,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/library_square_close_button.dart';
+import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -689,34 +689,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }) {
     return showDialog<void>(
       context: context,
-      builder: (context) => Dialog(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420, maxHeight: 560),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    LibrarySquareCloseButton(
-                      tooltip: 'Close',
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Expanded(child: SingleChildScrollView(child: child)),
-              ],
-            ),
-          ),
+      builder: (context) => LibraryDialogScaffold(
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium,
         ),
+        onClose: () => Navigator.of(context).pop(),
+        child: SingleChildScrollView(child: child),
       ),
     );
   }
