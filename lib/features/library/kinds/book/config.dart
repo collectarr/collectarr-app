@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/config/collection_defaults.dart'
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -58,6 +57,7 @@ final booksLibraryConfig = LibraryTypeConfig(
   ),
   editDialogBuilder: buildBookLibraryEditDialog,
   kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
+  inspectorSectionsBuilder: (_, __) => const [],
   mediaFields: MediaEditFields.print(
     numberLabel: 'Volume',
     publisherLabel: 'Publisher',

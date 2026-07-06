@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortc
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -415,6 +416,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       onReset: () => ref
                           .read(libraryNavPreferencesProvider.notifier)
                           .reset(),
+                    ),
+                  ),
+                  _SettingsPanel(
+                    icon: Icons.view_list_outlined,
+                    title: 'Library customization',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Manage reusable pick lists for edit dialogs, custom fields, filters, and cleanup flows.',
+                        ),
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: OutlinedButton.icon(
+                            onPressed: () => showPickListManagerDialog(
+                              context: context,
+                              db: ref.read(localDatabaseProvider),
+                            ),
+                            icon: const Icon(Icons.tune),
+                            label: const Text('Manage pick lists'),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   if (!isAndroidPlatform)

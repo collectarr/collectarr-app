@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -45,6 +44,7 @@ const boardGamesLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: gameTrackingProfile,
   editDialogBuilder: buildBoardGameLibraryEditDialog,
+  inspectorSectionsBuilder: _emptyInspectorSectionsBuilder,
   editPresentation: boardGamesLibraryEditPresentation,
   kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
   presentation: boardGamesLibraryMediaPresentation,
@@ -62,3 +62,9 @@ const boardGamesLibraryConfig = LibraryTypeConfig(
   ),
   showsDefaultInspectorPersonalSection: false,
 );
+
+List<Widget> _emptyInspectorSectionsBuilder(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    const [];

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
@@ -52,6 +51,7 @@ const musicLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: listeningTrackingProfile,
   editDialogBuilder: buildMusicLibraryEditDialog,
+  inspectorSectionsBuilder: _emptyInspectorSectionsBuilder,
   showsDefaultInspectorPersonalSection: false,
   presentation: musicLibraryMediaPresentation,
   editPresentation: musicLibraryEditPresentation,
@@ -80,3 +80,9 @@ const musicLibraryConfig = LibraryTypeConfig(
     prefersSquareCovers: true,
   ),
 );
+
+List<Widget> _emptyInspectorSectionsBuilder(
+  BuildContext context,
+  LibraryInspectorRequest request,
+) =>
+    const [];

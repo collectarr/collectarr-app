@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
@@ -128,6 +129,14 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
     ref.invalidate(_collectionSchemaSnapshotProvider);
   }
 
+  Future<void> _openPickListManager(BuildContext context, WidgetRef ref) async {
+    await showPickListManagerDialog(
+      context: context,
+      db: db,
+    );
+    ref.invalidate(_collectionSchemaSnapshotProvider);
+  }
+
   Future<void> _createCustomField(BuildContext context, WidgetRef ref) async {
     await showCustomFieldsManagementDialog(
       context: context,
@@ -221,13 +230,35 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
                   ],
                 ),
               ),
+              Expanded(
+                child: _CollectionSchemaCard(
+                  icon: Icons.view_list_outlined,
+                  title: 'Pick lists',
+                  description:
+                      'Manage shared lists for built-in fields, custom select fields, filters, and cleanup flows.',
+                  stats: const [
+                    'Global + kind values',
+                    'CLZ-style dictionaries',
+                  ],
+                  loading: loading,
+                  actions: [
+                    _CollectionSchemaAction(
+                      icon: Icons.open_in_new_outlined,
+                      label: 'Manage pick lists',
+                      onPressed: () => _openPickListManager(context, ref),
+                    ),
+                  ],
+                ),
+              ),
             ];
-            if (constraints.maxWidth < 760) {
+            if (constraints.maxWidth < 1120) {
               return Column(
                 children: [
                   cards[0],
                   const SizedBox(height: 12),
                   cards[1],
+                  const SizedBox(height: 12),
+                  cards[2],
                 ],
               );
             }
@@ -237,6 +268,8 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
                 cards[0],
                 const SizedBox(width: 12),
                 cards[1],
+                const SizedBox(width: 12),
+                cards[2],
               ],
             );
           },

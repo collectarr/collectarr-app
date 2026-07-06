@@ -848,6 +848,11 @@ class LibraryTypeConfig {
   @Deprecated('Use inspectorSectionsBuilder + LibraryDetailPanelScaffold.')
   final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
   final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
+
+  @Deprecated('Use inspectorSectionsBuilder + LibraryDetailPanelScaffold.')
+  LibraryInspectorSectionsBuilder? get inspectorPanelBuilder =>
+      inspectorSectionsBuilder;
+
   final bool showsDefaultInspectorPersonalSection;
   final LibraryKindBrowserDelegate Function()? kindBrowserDelegateBuilder;
   final LibraryKindUiAdapter kindUiAdapter;
