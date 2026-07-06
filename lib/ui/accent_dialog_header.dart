@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:flutter/material.dart';
 
 /// Uniform accent-colored header strip for all modal dialogs.
@@ -59,11 +60,11 @@ class AccentDialogHeader extends StatelessWidget {
           ),
           if (trailing != null) trailing!,
           if (onClose != null)
-            IconButton(
+            LibrarySquareCloseButton(
               tooltip: 'Close',
-              onPressed: onClose,
-              icon: const Icon(Icons.close, size: 18, color: Colors.white),
-              visualDensity: VisualDensity.compact,
+              onPressed: onClose!,
+              borderColor: Colors.white.withValues(alpha: 0.8),
+              foregroundColor: Colors.white,
             ),
         ],
       ),

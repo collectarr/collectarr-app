@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/add/add_bottom_bar.dart';
+import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -36,11 +37,11 @@ Widget buildComicAddHeader(
               ),
             ),
           ),
-          IconButton(
+          LibrarySquareCloseButton(
             tooltip: 'Close',
             onPressed: request.onClose,
-            icon: const Icon(Icons.close, size: 18, color: Colors.white),
-            visualDensity: VisualDensity.compact,
+            borderColor: Colors.white.withValues(alpha: 0.8),
+            foregroundColor: Colors.white,
           ),
         ],
       ),

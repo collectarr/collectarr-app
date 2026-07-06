@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -454,10 +455,9 @@ class _LibraryMetadataCompareDialogState
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  IconButton(
+                  LibrarySquareCloseButton(
                     tooltip: 'Close',
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close),
                   ),
                 ],
               ),

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -418,11 +419,11 @@ class _LibraryEditTitleBar extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
+          LibrarySquareCloseButton(
             tooltip: 'Close',
             onPressed: onClose,
-            visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.close, size: 18, color: Colors.white),
+            borderColor: Colors.white.withValues(alpha: 0.8),
+            foregroundColor: Colors.white,
           ),
         ],
       ),
