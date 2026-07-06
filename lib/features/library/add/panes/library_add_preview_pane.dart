@@ -2160,3 +2160,4 @@ class _VariantChip extends StatelessWidget {
     );
   }
 }
+

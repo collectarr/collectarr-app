@@ -32,3 +32,4 @@ class _LibraryAddSelectionController {
   void handleBundleReleaseSelected(String bundleReleaseId) =>
       state._handleBundleReleaseSelected(bundleReleaseId);
 }
+

@@ -1,4 +1,4 @@
-part of '../../edit/library_edit_dialog.dart';
+part of '../../../edit/shell/library_edit_dialog.dart';
 
 extension _LibraryEditRendererComicTabs on _LibraryEditRendererState {
   Widget _ownedComicDetailsTab() {

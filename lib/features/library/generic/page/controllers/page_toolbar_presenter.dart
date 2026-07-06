@@ -1,4 +1,4 @@
-part of '../library_page.dart';
+part of '../generic_library_page.dart';
 
 Widget buildLibraryToolbar(LibraryToolbarPresentation presentation) {
   return LibraryToolbar.grouped(

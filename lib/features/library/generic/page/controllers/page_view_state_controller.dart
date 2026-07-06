@@ -1,4 +1,4 @@
-part of '../library_page.dart';
+part of '../generic_library_page.dart';
 
 abstract final class _LibraryViewStateControllerOps {
   static Future<void> loadViewState(GenericLibraryPageState state) async {

@@ -14,6 +14,7 @@ class LibraryPanelChrome extends StatelessWidget {
     this.backgroundColor,
     this.bodyPadding,
     this.density = LibraryDensity.comfortable,
+    this.expandBody = true,
   });
 
   final Widget header;
@@ -24,6 +25,7 @@ class LibraryPanelChrome extends StatelessWidget {
   final Color? backgroundColor;
   final EdgeInsets? bodyPadding;
   final LibraryDensity density;
+  final bool expandBody;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,7 @@ class LibraryPanelChrome extends StatelessWidget {
         backgroundColor: backgroundColor,
         bodyPadding: bodyPadding ?? libraryPanelInsets(density),
         density: density,
+        expandBody: expandBody,
       ),
     );
   }

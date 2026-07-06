@@ -4,18 +4,28 @@ class LibraryAddShell extends StatelessWidget {
   const LibraryAddShell({
     super.key,
     required this.accent,
+    required this.width,
+    required this.height,
+    required this.minWidth,
+    required this.maxWidth,
+    required this.minHeight,
+    required this.maxHeight,
+    required this.onResizeWidth,
+    required this.onResizeHeight,
     required this.header,
     required this.body,
     this.footer,
-    this.maxWidth = 1320,
-    this.maxHeight = 860,
-    this.density = LibraryDensity.comfortable,
   });
 
   final Color accent;
+  final double width;
+  final double height;
+  final double minWidth;
   final double maxWidth;
+  final double minHeight;
   final double maxHeight;
-  final LibraryDensity density;
+  final ValueChanged<double> onResizeWidth;
+  final ValueChanged<double> onResizeHeight;
   final Widget header;
   final Widget body;
   final Widget? footer;
@@ -25,15 +35,33 @@ class LibraryAddShell extends StatelessWidget {
     final palette = appPalette(context);
     return Theme(
       data: buildLibraryAddDialogTheme(accent, palette),
-      child: LibraryDialogScaffold(
-        header: header,
-        footer: footer,
-        accent: accent,
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
-        density: density,
-        child: body,
+      child: Dialog(
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.sizeOf(context).width < 720 ? 10 : 32,
+          vertical: 24,
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: width.clamp(minWidth, maxWidth),
+            maxHeight: height.clamp(minHeight, maxHeight),
+          ),
+          child: _ResizableDialogShell(
+            accent: accent,
+            onResizeWidth: onResizeWidth,
+            onResizeHeight: onResizeHeight,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                header,
+                Expanded(child: body),
+                if (footer != null) footer!,
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 }
+

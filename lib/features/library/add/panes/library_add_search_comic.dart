@@ -70,3 +70,4 @@ int _compareComicIssueNumbers(String? left, String? right) {
   }
   return normalizedLeft.toLowerCase().compareTo(normalizedRight.toLowerCase());
 }
+

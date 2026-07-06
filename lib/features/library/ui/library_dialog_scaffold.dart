@@ -17,6 +17,7 @@ class LibraryDialogScaffold extends StatelessWidget {
     this.maxHeight = 560,
     this.padding = const EdgeInsets.all(12),
     this.density = LibraryDensity.comfortable,
+    this.expandBody = true,
     required this.child,
   }) : assert(header != null || title != null);
 
@@ -30,6 +31,7 @@ class LibraryDialogScaffold extends StatelessWidget {
   final double maxHeight;
   final EdgeInsets padding;
   final LibraryDensity density;
+  final bool expandBody;
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +60,7 @@ class LibraryDialogScaffold extends StatelessWidget {
         maxHeight: maxHeight,
         backgroundColor: palette.panel,
         density: density,
+        expandBody: expandBody,
       ),
     );
   }

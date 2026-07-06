@@ -1,0 +1,22 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_external_links_section.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/ui/tag_pick_list_field.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+part 'video_edit_tab_helpers.dart';
+part 'video_media_tab.dart';
+part 'video_edition_tab.dart';
+part 'video_specs_tab.dart';
+part 'video_cast_tab.dart';
+part 'video_crew_tab.dart';
+part 'video_discs_tab.dart';
+part 'video_links_tab.dart';

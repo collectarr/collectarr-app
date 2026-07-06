@@ -80,8 +80,14 @@ class _EditScaffoldHarnessState extends State<_EditScaffoldHarness>
             EditTab(icon: Icons.tune, label: 'Details'),
           ],
           views: const [
-            SizedBox.expand(child: Text('Main tab')),
-            SizedBox.expand(child: Text('Details tab')),
+            Padding(
+              padding: EdgeInsets.all(12),
+              child: Text('Main tab'),
+            ),
+            Padding(
+              padding: EdgeInsets.all(12),
+              child: Text('Details tab'),
+            ),
           ],
           onClose: () {},
           onCancel: () {},

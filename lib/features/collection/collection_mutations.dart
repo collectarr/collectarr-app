@@ -618,6 +618,7 @@ class CollectionMutations {
 
   Future<void> addLocalOnlyTrackingEntry(
     CatalogItem item, {
+    String? anchorType,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -650,7 +651,7 @@ class CollectionMutations {
     final entry = TrackingEntry(
       id: existingEntry?.id ??
           _trackingEntryIdForItem(item.id, sourceType: normalizedSourceType),
-      catalogRef: _catalogRefForItem(item.id, item),
+      catalogRef: _catalogRefForItem(item.id, item, anchorType: anchorType),
       sourceType: normalizedSourceType,
       status: _normalizeTrackingStatusValue(status),
       rating: rating,
@@ -1537,8 +1538,9 @@ class CollectionMutations {
     );
     final entityType = switch (resolvedAnchorType) {
       'edition' => CatalogEntityType.edition,
-      'variant' || 'bundle_release' => CatalogEntityType.release,
-      _ => CatalogEntityType.work,
+    'season' => CatalogEntityType.season,
+    'variant' || 'bundle_release' => CatalogEntityType.release,
+    _ => CatalogEntityType.work,
     };
     return CatalogEntityRef(
       kind: item.kind,

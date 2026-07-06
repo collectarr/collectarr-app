@@ -2,7 +2,7 @@
 
 part of '../library_add_dialog.dart';
 
-extension _LibraryAddDialogSelectionState on _LibraryAddDialogState {
+extension LibraryAddDialogSelectionStateMixin on _LibraryAddDialogState {
   List<BundleReleaseSummary> _bundleReleasesForItem(LibraryMetadataItem? item) {
     if (item == null) {
       return const <BundleReleaseSummary>[];
@@ -204,3 +204,7 @@ extension _LibraryAddDialogSelectionState on _LibraryAddDialogState {
     _checkedProviderIds.removeWhere((id) => !visibleProviderIds.contains(id));
   }
 }
+
+
+
+

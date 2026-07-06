@@ -11,3 +11,4 @@ class _LibraryAddController {
   final _LibraryAddSelectionController selection;
   final _LibraryAddPreviewController preview;
 }
+

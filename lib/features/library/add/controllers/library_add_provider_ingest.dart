@@ -4,7 +4,7 @@ part of '../library_add_dialog.dart';
 // Provider ingest pipeline: preview → edit → ingest → corrections → add
 // ---------------------------------------------------------------------------
 
-extension _LibraryAddProviderIngest on _LibraryAddDialogState {
+extension LibraryAddProviderIngestMixin on _LibraryAddDialogState {
   Future<void> addProviderCandidate(
     ProviderCandidate candidate,
     LibraryAddTarget target,
@@ -753,3 +753,7 @@ extension _LibraryAddProviderIngest on _LibraryAddDialogState {
     return 'Couldn\'t send the metadata proposal. $text';
   }
 }
+
+
+
+

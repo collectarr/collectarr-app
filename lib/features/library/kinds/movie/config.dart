@@ -69,7 +69,7 @@ const moviesLibraryConfig = LibraryTypeConfig(
   mediaFields: MediaEditFields(
     numberLabel: 'Edition no.',
     publisherLabel: 'Studio',
-    releaseDateLabel: 'Release date',
+    releaseDateLabel: 'Release Date',
   ),
   releaseFields: ReleaseEditFields(
     variantLabel: 'Format / Edition',

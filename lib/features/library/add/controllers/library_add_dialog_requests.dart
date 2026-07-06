@@ -436,3 +436,4 @@ class LibraryAddBottomBarRequest {
   final VoidCallback? onQueueIngest;
   final VoidCallback? onPropose;
 }
+

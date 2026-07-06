@@ -706,7 +706,9 @@ class TmdbImportService {
   CatalogItem localSyntheticCatalogItem(TmdbImportEntry entry) {
     return CatalogItem(
       id: localSyntheticItemId(entry),
-      kind: CatalogMediaKind.movie.apiValue,
+      kind: entry.mediaType == TmdbMediaType.tv
+          ? CatalogMediaKind.tv.apiValue
+          : CatalogMediaKind.movie.apiValue,
       title: entry.title,
       displayTitle: entry.title,
       localizedTitle: entry.title,
@@ -722,6 +724,58 @@ class TmdbImportService {
       releaseDate: entry.releaseDate,
       releaseYear: entry.releaseYear,
     );
+  }
+
+  String localSyntheticSeasonItemId(
+    TmdbImportEntry seriesEntry,
+    TmdbImportEntry seasonEntry,
+  ) {
+    final seasonNumber =
+        (seasonEntry.rawPayload['season_number'] as num?)?.toInt() ??
+            seasonEntry.tmdbId;
+    return 'tmdb-local:${seriesEntry.mediaType.name}:${seriesEntry.tmdbId}:season:$seasonNumber';
+  }
+
+  CatalogItem localSyntheticSeasonCatalogItem(
+    TmdbImportEntry seriesEntry,
+    TmdbImportEntry seasonEntry,
+  ) {
+    final seasonNumber =
+        (seasonEntry.rawPayload['season_number'] as num?)?.toInt() ??
+            seasonEntry.tmdbId;
+    return CatalogItem(
+      id: localSyntheticSeasonItemId(seriesEntry, seasonEntry),
+      kind: CatalogMediaKind.tv.apiValue,
+      title: seasonEntry.title,
+      displayTitle: seasonEntry.title,
+      localizedTitle: seasonEntry.title,
+      originalTitle: seasonEntry.originalTitle,
+      searchAliases: [
+        seasonEntry.title,
+        if (seasonEntry.originalTitle?.trim().isNotEmpty == true)
+          seasonEntry.originalTitle!,
+        'Season $seasonNumber',
+      ],
+      itemNumber: 'Season $seasonNumber',
+      synopsis: seasonEntry.overview,
+      coverImageUrl: seasonEntry.posterUrl,
+      thumbnailImageUrl: seasonEntry.posterUrl,
+      releaseDate: seasonEntry.releaseDate,
+      releaseYear: seasonEntry.releaseYear,
+    );
+  }
+
+  List<TmdbImportEntry> seasonEntriesFor(TmdbImportEntry entry) {
+    final rawSeasons = entry.rawPayload['seasons'];
+    if (rawSeasons is! List) {
+      return const <TmdbImportEntry>[];
+    }
+    return rawSeasons
+        .whereType<Map>()
+        .map((season) => Map<String, dynamic>.from(season))
+        .map((season) => _seasonEntryFromJson(entry, season))
+        .whereType<TmdbImportEntry>()
+        .toList(growable: false);
   }
 
   static String? _firstNonEmptyText(String? first, [String? second, String? third]) {
@@ -826,6 +880,40 @@ class TmdbImportService {
       ),
       rating: json['rating'] as num?,
       rawPayload: Map<String, dynamic>.from(json),
+    );
+  }
+
+  TmdbImportEntry? _seasonEntryFromJson(
+    TmdbImportEntry seriesEntry,
+    Map<String, dynamic> json,
+  ) {
+    final seasonNumber = (json['season_number'] as num?)?.toInt();
+    if (seasonNumber == null) {
+      return null;
+    }
+    final id = (json['id'] as num?)?.toInt() ??
+        seriesEntry.tmdbId * 1000 + seasonNumber;
+    final title = ((json['title'] ?? json['name']) as String?)?.trim();
+    return TmdbImportEntry(
+      tmdbId: id,
+      mediaType: TmdbMediaType.tv,
+      collection: seriesEntry.collection,
+      title: title == null || title.isEmpty ? 'Season $seasonNumber' : title,
+      originalTitle:
+          ((json['original_title'] ?? json['original_name']) as String?)?.trim(),
+      overview: (json['overview'] as String?)?.trim(),
+      posterPath: (json['poster_path'] as String?)?.trim(),
+      releaseDate: _parseDate(
+        (json['air_date'] ?? json['release_date']) as String?,
+      ),
+      rating: seriesEntry.rating,
+      rawPayload: {
+        ...json,
+        'id': id,
+        'series_id': seriesEntry.tmdbId,
+        'media_type': 'tv',
+        'season_number': seasonNumber,
+      },
     );
   }
 

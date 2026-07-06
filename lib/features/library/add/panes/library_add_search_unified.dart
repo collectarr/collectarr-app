@@ -839,3 +839,4 @@ String _providerChildDisplayTitle(ProviderCandidate candidate) {
   }
   return candidate.title;
 }
+

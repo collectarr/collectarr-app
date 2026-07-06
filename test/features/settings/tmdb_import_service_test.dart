@@ -62,6 +62,39 @@ void main() {
       expect(item.displayCoverUrl, isNotNull);
     });
 
+    test('builds tv synthetic items and expands seasons', () {
+      final entry = TmdbImportEntry(
+        tmdbId: 1399,
+        mediaType: TmdbMediaType.tv,
+        collection: TmdbImportCollection.ratedTv,
+        title: 'Game of Thrones',
+        rawPayload: const <String, dynamic>{
+          'id': 1399,
+          'title': 'Game of Thrones',
+          'seasons': [
+            {
+              'id': 3624,
+              'season_number': 1,
+              'name': 'Season 1',
+              'overview': 'Season one overview.',
+              'air_date': '2011-04-17',
+              'poster_path': '/season1.jpg',
+            },
+          ],
+        },
+      );
+
+      final syntheticItem = service.localSyntheticCatalogItem(entry);
+      final seasons = service.seasonEntriesFor(entry);
+
+      expect(syntheticItem.kind, 'tv');
+      expect(seasons, hasLength(1));
+      expect(seasons.single.mediaType, TmdbMediaType.tv);
+      expect(seasons.single.title, 'Season 1');
+      expect(seasons.single.releaseYear, 2011);
+      expect(seasons.single.rawPayload['season_number'], 1);
+    });
+
     test('matches on exact title and year before falling back', () async {
       final entry = TmdbImportEntry(
         tmdbId: 11,

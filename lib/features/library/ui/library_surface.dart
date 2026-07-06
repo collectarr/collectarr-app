@@ -14,6 +14,7 @@ class LibrarySurface extends StatelessWidget {
     this.backgroundColor,
     this.bodyPadding,
     this.density = LibraryDensity.comfortable,
+    this.expandBody = true,
   });
 
   final Widget? header;
@@ -24,6 +25,7 @@ class LibrarySurface extends StatelessWidget {
   final Color? backgroundColor;
   final EdgeInsets? bodyPadding;
   final LibraryDensity density;
+  final bool expandBody;
 
   @override
   Widget build(BuildContext context) {
@@ -42,15 +44,25 @@ class LibrarySurface extends StatelessWidget {
             maxHeight: maxHeight ?? double.infinity,
           ),
           child: Column(
+            mainAxisSize: expandBody ? MainAxisSize.max : MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (header != null) header!,
-              Expanded(
-                child: Padding(
-                  padding: bodyPadding ?? libraryPanelInsets(density),
-                  child: body,
+              if (expandBody)
+                Expanded(
+                  child: Padding(
+                    padding: bodyPadding ?? libraryPanelInsets(density),
+                    child: body,
+                  ),
+                )
+              else
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Padding(
+                    padding: bodyPadding ?? libraryPanelInsets(density),
+                    child: body,
+                  ),
                 ),
-              ),
               if (footer != null) footer!,
             ],
           ),

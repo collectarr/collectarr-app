@@ -30,3 +30,4 @@ class _LibraryAddSearchController {
   Future<void> ensureBundleReleaseDetailLoaded(String bundleReleaseId) =>
       state._ensureBundleReleaseDetailLoaded(bundleReleaseId);
 }
+

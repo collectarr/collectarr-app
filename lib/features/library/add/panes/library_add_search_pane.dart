@@ -1522,3 +1522,4 @@ class _NoSearchResults extends StatelessWidget {
     return 'Search Core, lookup a barcode, search ${type.metadataProviderLabel(selectedProvider)}, or add a manual item if Core is offline.';
   }
 }
+

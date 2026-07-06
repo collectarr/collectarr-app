@@ -453,8 +453,8 @@ void main() {
     await tester.tap(find.text('Open movie publishing test'));
     await pumpUntilSettled(tester);
 
-    await tester.ensureVisible(find.text('Media', skipOffstage: false).last);
-    await tester.tap(find.text('Media').last);
+    await tester.ensureVisible(find.text('Media', skipOffstage: false).first);
+    await tester.tap(find.text('Media').first);
     await pumpUntilSettled(tester);
 
     expect(find.text('Release Date'), findsOneWidget);
@@ -520,7 +520,8 @@ void main() {
 
     final castTab = find.text('Cast', skipOffstage: false);
     if (castTab.evaluate().isNotEmpty) {
-      await tester.tap(castTab.first);
+      await tester.ensureVisible(castTab.last);
+      await tester.tap(castTab.last);
       await pumpUntilSettled(tester);
       expect(find.text('Add Cast'), findsOneWidget);
       expect(find.text('Harrison Ford'), findsOneWidget);
@@ -528,7 +529,8 @@ void main() {
 
     final crewTab = find.text('Crew', skipOffstage: false);
     if (crewTab.evaluate().isNotEmpty) {
-      await tester.tap(crewTab.first);
+      await tester.ensureVisible(crewTab.last);
+      await tester.tap(crewTab.last);
       await pumpUntilSettled(tester);
       expect(find.text('Add Crew'), findsOneWidget);
       expect(find.text('Ridley Scott'), findsOneWidget);
@@ -536,7 +538,8 @@ void main() {
 
     final discsTab = find.text('Discs', skipOffstage: false);
     if (discsTab.evaluate().isNotEmpty) {
-      await tester.tap(discsTab.first);
+      await tester.ensureVisible(discsTab.last);
+      await tester.tap(discsTab.last);
       await pumpUntilSettled(tester);
       expect(find.textContaining('Read-only: disc contents'), findsOneWidget);
     }

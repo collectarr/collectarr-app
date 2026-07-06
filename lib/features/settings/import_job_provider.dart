@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -329,6 +330,11 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         } else {
           await mutations.addToWishlist(item.id);
         }
+        await _importTvSeasons(
+          mutations: mutations,
+          seriesEntry: enriched,
+          apiKey: apiKey,
+        );
         importedCount += 1;
       } else if (keepUnmatchedLocally) {
         unmatchedMatches.add(match);
@@ -383,6 +389,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             if (enriched.collection.isRated) {
               await mutations.addLocalOnlyTrackingEntry(
                 localItem,
+                anchorType: 'season',
                 sourceType: TrackingSourceType.streaming,
                 status: MediaTrackingStatus.completed,
                 rating: _normalizedRating(enriched.rating),
@@ -391,6 +398,11 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             } else {
               await mutations.addLocalOnlyWishlistItem(localItem);
             }
+            await _importTvSeasons(
+              mutations: mutations,
+              seriesEntry: enriched,
+              apiKey: apiKey,
+            );
             await _pendingStore.upsert(
               TmdbPendingImportRecord(
                 localItemId: localItem.id,
@@ -493,9 +505,69 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         ? moviesLibraryConfig
         : switch (entry.mediaType) {
             TmdbMediaType.movie => moviesLibraryConfig,
-            TmdbMediaType.tv => moviesLibraryConfig,
+            TmdbMediaType.tv => tvLibraryConfig,
           };
     return ref.read(resolvedLibraryTypeProvider(config));
+  }
+
+  Future<void> _importTvSeasons({
+    required CollectionMutations mutations,
+    required TmdbImportEntry seriesEntry,
+    required String? apiKey,
+  }) async {
+    if (seriesEntry.mediaType != TmdbMediaType.tv) {
+      return;
+    }
+    final seasonEntries = await _seasonEntriesFor(seriesEntry, apiKey);
+    if (seasonEntries.isEmpty) {
+      return;
+    }
+    for (final seasonEntry in seasonEntries) {
+      final seasonItem = _service.localSyntheticSeasonCatalogItem(
+        seriesEntry,
+        seasonEntry,
+      );
+      final seasonNumber =
+          (seasonEntry.rawPayload['season_number'] as num?)?.toInt();
+      if (seriesEntry.collection.isRated) {
+        await mutations.addLocalOnlyTrackingEntry(
+          seasonItem,
+          anchorType: 'season',
+          sourceType: TrackingSourceType.streaming,
+          status: MediaTrackingStatus.completed,
+          rating: _normalizedRating(seriesEntry.rating),
+          timesCompleted: 1,
+          seasonNumber: seasonNumber,
+        );
+      } else {
+        await mutations.addLocalOnlyWishlistItem(
+          seasonItem,
+          anchorType: 'season',
+        );
+      }
+    }
+  }
+
+  Future<List<TmdbImportEntry>> _seasonEntriesFor(
+    TmdbImportEntry entry,
+    String? apiKey,
+  ) async {
+    final direct = _service.seasonEntriesFor(entry);
+    if (direct.isNotEmpty || apiKey == null || apiKey.trim().isEmpty) {
+      return direct;
+    }
+    try {
+      final detailed = await _service.enrichEntry(apiKey: apiKey, entry: entry);
+      return _service.seasonEntriesFor(detailed);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'tmdb_import',
+        message: 'Failed to load seasons for ${entry.title}.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return const <TmdbImportEntry>[];
+    }
   }
 
   int? _normalizedRating(num? value) {
