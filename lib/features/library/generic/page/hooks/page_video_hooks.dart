@@ -82,6 +82,41 @@ extension _PageVideoHooks on GenericLibraryPageState {
     final ownedCopies = ownedCopiesByItemId[titleItemId] ?? const <OwnedItem>[];
     final wishlistItems =
         wishlistByItemId[titleItemId] ?? const <WishlistItem>[];
+    if (titleItem.entry.mediaType == 'tv') {
+      return TvShelfSeasonDrilldown(
+        titleEntry: titleItem.entry,
+        coverSize: viewState.coverSize,
+        accent: widget.accent,
+        onBack: () => setState(_kindBrowserDelegate.closeVideoShelfDrilldown),
+        onRefreshFromCore: () => _refreshVideoTitleFromCore(titleItem),
+        onOpenTitleDetails: () => showLibraryDetailPage(
+          context: context,
+          request: LibraryDetailPageRequest(
+            type: widget.type,
+            entry: titleItem.entry,
+            ownedItem: titleItem.source.ownedItem,
+            accent: widget.accent,
+            onAddOwned: () => runCollectionAction(
+              (actions) => actions.addOwned(titleItem),
+            ),
+            onRemoveOwned: titleItem.source.ownedItem == null
+                ? null
+                : () => confirmAndRemoveOwned(titleItem),
+            onAddWishlist: () => runCollectionAction(
+              (actions) => actions.addWishlist(titleItem),
+            ),
+            onRemoveWishlist: titleItem.source.isWishlisted
+                ? () => runCollectionAction(
+                      (actions) => actions.removeWishlist(titleItem),
+                    )
+                : null,
+            onEdit: (ownedItem) =>
+                unawaited(showEditDialog(titleItem, ownedItem)),
+            onFilterByValue: _toggleLinkedMetadataFilter,
+          ),
+        ),
+      );
+    }
     final drilldownItems = buildVideoShelfReleaseItems(
       titleItem: titleItem,
       ownedCopies: ownedCopies,
