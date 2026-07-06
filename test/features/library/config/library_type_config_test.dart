@@ -12,10 +12,12 @@ import 'package:collectarr_app/features/library/add/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
+import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
@@ -33,6 +35,22 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/add/library_add_reference_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+class _TestPresentationBuilder extends LibraryMediaPresentationBuilder {
+  const _TestPresentationBuilder();
+
+  @override
+  LibraryMetadataPresentation buildMetadataPresentation({
+    required String singularLabel,
+    required MediaEditFields mediaFields,
+    required ReleaseEditFields releaseFields,
+    required LibraryWorkspaceEntry entry,
+    required bool includeIdentityFacts,
+    required LibraryMetadataFactTapResolver tapFor,
+  }) {
+    throw UnimplementedError();
+  }
+}
 
 void main() {
   test('comics library config groups reusable media behavior', () {
@@ -143,6 +161,47 @@ void main() {
     ]) {
       expect(config.inspectorPanelBuilder, isNotNull);
     }
+  });
+
+  test('missing group mode definitions fall back safely', () {
+    final presentation = LibraryMediaPresentation(
+      searchFieldLabels: const LibraryMediaSearchFieldLabels(
+        queryHint: 'Query',
+        emptySearchMessage: 'Empty',
+        seriesHint: 'Series',
+        numberHint: 'Number',
+        publisherHint: 'Publisher',
+      ),
+      filterLabels: const LibraryMediaFilterLabels(
+        series: 'Series',
+        anySeries: 'Any series',
+        publisher: 'Publisher',
+        anyPublisher: 'Any publisher',
+      ),
+      groupLabels: const LibraryMediaGroupLabels(
+        series: 'Series',
+        seriesPlural: 'Series',
+        unknownSeries: 'Unknown series',
+        publisher: 'Publisher',
+        publisherPlural: 'Publishers',
+        unknownPublisher: 'Unknown publisher',
+      ),
+      builder: const _TestPresentationBuilder(),
+      workspaceEntryBuilder: (source) => throw UnimplementedError(),
+      releaseEntryBuilder: (request) => throw UnimplementedError(),
+      bucketLabelBuilder: (context) => 'bucket',
+      sortColumnDefinitions: const [],
+      groupModeDefinitions: const [],
+      groupModes: const [LibraryGroupMode.title],
+    );
+
+    final definition = presentation.groupModeDefinitionFor(
+      LibraryGroupMode.title,
+    );
+
+    expect(definition.mode, LibraryGroupMode.title);
+    expect(definition.label, 'Title');
+    expect(definition.sidebarTitle, 'Titles');
   });
 
   test('anime and tv library configs are first-class video kinds', () {

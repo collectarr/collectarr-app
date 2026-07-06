@@ -788,10 +788,7 @@ class LibraryMediaPresentation {
         return definition;
       }
     }
-    throw StateError(
-      'Missing group mode definition for $mode. '
-      'Ensure groupModeDefinitions declares every mode from groupModes.',
-    );
+    return _fallbackGroupModeDefinition(mode);
   }
 
   LibrarySortColumnDefinition sortColumnDefinitionFor(
@@ -807,4 +804,35 @@ class LibraryMediaPresentation {
       'Ensure sortColumnDefinitions declares every available sort column.',
     );
   }
+}
+
+LibraryGroupModeDefinition _fallbackGroupModeDefinition(
+  LibraryGroupMode mode,
+) {
+  final label = _fallbackGroupModeLabel(mode);
+  return LibraryGroupModeDefinition(
+    mode: mode,
+    label: label,
+    sidebarTitle: _fallbackGroupModeSidebarTitle(label),
+    icon: Icons.account_tree_outlined,
+  );
+}
+
+String _fallbackGroupModeLabel(LibraryGroupMode mode) {
+  final raw = mode.name;
+  final words = raw.replaceAllMapped(
+    RegExp(r'([a-z0-9])([A-Z])'),
+    (match) => '${match.group(1)} ${match.group(2)}',
+  );
+  return words[0].toUpperCase() + words.substring(1);
+}
+
+String _fallbackGroupModeSidebarTitle(String label) {
+  if (label.endsWith('s')) {
+    return label;
+  }
+  if (label.endsWith('y')) {
+    return '${label.substring(0, label.length - 1)}ies';
+  }
+  return '${label}s';
 }
