@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_section_registry.dart';
 import 'package:collectarr_app/features/library/detail/activity_timeline_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
@@ -193,14 +194,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
 List<LibraryDetailSectionSpec> orderLibraryDetailSections(
   Iterable<LibraryDetailSectionSpec> sections,
 ) {
-  final bySlot = <LibraryDetailSectionSlot, LibraryDetailSectionSpec>{};
-  for (final section in sections) {
-    bySlot[section.slot] = section;
-  }
-  return [
-    for (final slot in libraryDetailSectionOrder)
-      if (bySlot.containsKey(slot)) bySlot[slot]!,
-  ];
+  return LibraryDetailSectionRegistry.instance.orderSections(sections);
 }
 
 List<Widget> buildLibraryDetailSectionWidgets(
