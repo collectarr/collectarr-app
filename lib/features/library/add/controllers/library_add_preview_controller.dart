@@ -9,11 +9,11 @@ class _LibraryAddPreviewController {
     ProviderCandidate candidate,
     LibraryAddTarget target,
   ) =>
-      state.addProviderCandidate(candidate, target);
+      state._addProviderCandidate(candidate, target);
 
   Future<void> proposeCandidate(ProviderCandidate candidate) =>
-      state.proposeCandidate(candidate);
+      state._proposeCandidate(candidate);
 
   Future<void> queueProviderIngest(ProviderCandidate candidate) =>
-      state.queueProviderIngest(candidate);
+      state._queueProviderIngest(candidate);
 }
