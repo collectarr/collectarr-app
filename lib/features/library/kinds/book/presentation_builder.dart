@@ -5,9 +5,10 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/volumes_section.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -192,7 +193,8 @@ class BookLibraryMediaPresentationBuilder
     final bookEntry = entry is BookWorkspaceEntry ? entry : null;
     final originalDetails = bookEntry?.originalDetails;
     final physicalDetails = bookEntry?.physicalDetails;
-    final sectionSpecs = <LibraryInspectorSectionSpec>[];
+    final sectionSpecs = <LibraryDetailSectionSpec>[];
+
     final originalFacts = <LibraryInspectorFactData>[
       if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Series', entry.series!.seriesTitle!.trim()),
@@ -215,9 +217,9 @@ class BookLibraryMediaPresentationBuilder
     ];
     if (originalFacts.isNotEmpty) {
       sectionSpecs.add(
-        LibraryInspectorSectionSpec(
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.identity,
           title: 'Original Details',
-          accentColor: accent,
           children: [LibraryInspectorFactGrid(facts: originalFacts)],
         ),
       );
@@ -238,7 +240,9 @@ class BookLibraryMediaPresentationBuilder
         LibraryInspectorFactData('Age Rating', entry.ageRating!.trim()),
       if (entry.publishing?.pageCount != null)
         LibraryInspectorFactData(
-            'Pages', entry.publishing!.pageCount.toString()),
+          'Pages',
+          entry.publishing!.pageCount.toString(),
+        ),
       if (physicalDetails?.dimensions?.trim().isNotEmpty == true)
         LibraryInspectorFactData(
           'Dimensions',
@@ -261,9 +265,9 @@ class BookLibraryMediaPresentationBuilder
     ];
     if (productFacts.isNotEmpty) {
       sectionSpecs.add(
-        LibraryInspectorSectionSpec(
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.formatEditionRelease,
           title: 'Product Details',
-          accentColor: accent,
           children: [LibraryInspectorFactGrid(facts: productFacts)],
         ),
       );
@@ -275,11 +279,16 @@ class BookLibraryMediaPresentationBuilder
           creator['name']!.toString().trim(),
     ];
     if (creatorNames.isNotEmpty) {
-      sections.add(
-        LibraryInspectorChipSection(
+      sectionSpecs.add(
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.people,
           title: 'Contributors',
-          values: creatorNames,
-          onValueTap: onFilterByValue,
+          chips: [
+            LibraryDetailChipGroup(
+              values: creatorNames,
+              onValueTap: onFilterByValue,
+            ),
+          ],
         ),
       );
     }
@@ -310,9 +319,9 @@ class BookLibraryMediaPresentationBuilder
     ];
     if (imageFacts.isNotEmpty) {
       sectionSpecs.add(
-        LibraryInspectorSectionSpec(
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.imagesMedia,
           title: 'Images',
-          accentColor: accent,
           children: [LibraryInspectorFactGrid(facts: imageFacts)],
         ),
       );
@@ -328,11 +337,16 @@ class BookLibraryMediaPresentationBuilder
         'Bundle release: ${entry.referenceBundleReleaseId!.trim()}',
     ];
     if (identifierValues.isNotEmpty) {
-      sections.add(
-        LibraryInspectorChipSection(
+      sectionSpecs.add(
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.sourceCorrections,
           title: 'Identifiers',
-          values: identifierValues,
-          onValueTap: onFilterByValue,
+          chips: [
+            LibraryDetailChipGroup(
+              values: identifierValues,
+              onValueTap: onFilterByValue,
+            ),
+          ],
         ),
       );
     }
@@ -344,7 +358,9 @@ class BookLibraryMediaPresentationBuilder
         LibraryInspectorFactData('Grade', entry.grade!.trim()),
       if (entry.collectionStatus?.trim().isNotEmpty == true)
         LibraryInspectorFactData(
-            'Collection Status', entry.collectionStatus!.trim()),
+          'Collection Status',
+          entry.collectionStatus!.trim(),
+        ),
       if (entry.readStatus?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Read It', entry.readStatus!.trim()),
       if (entry.rating != null)
@@ -353,7 +369,9 @@ class BookLibraryMediaPresentationBuilder
         LibraryInspectorFactData('Location', entry.locationPath!.trim()),
       if (entry.pricePaidCents != null)
         LibraryInspectorFactData(
-            'Price Paid', entry.pricePaidCents!.toString()),
+          'Price Paid',
+          entry.pricePaidCents!.toString(),
+        ),
       if (entry.notes?.trim().isNotEmpty == true)
         LibraryInspectorFactData('Notes', entry.notes!.trim()),
       if (entry.tags?.trim().isNotEmpty == true)
@@ -361,15 +379,20 @@ class BookLibraryMediaPresentationBuilder
     ];
     if (personalFacts.isNotEmpty) {
       sectionSpecs.add(
-        LibraryInspectorSectionSpec(
+        LibraryDetailSectionSpec(
+          slot: LibraryDetailSectionSlot.personalStatus,
           title: 'Personal Details',
-          accentColor: accent,
           children: [LibraryInspectorFactGrid(facts: personalFacts)],
         ),
       );
     }
 
-    sections.addAll(buildLibraryInspectorSectionWidgets(sectionSpecs));
+    sections.addAll(
+      buildLibraryDetailSectionWidgets(
+        sectionSpecs,
+        accentColor: accent,
+      ),
+    );
     return sections;
   }
 

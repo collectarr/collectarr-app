@@ -7,9 +7,10 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/detail/activity_timeline_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
-import 'package:collectarr_app/features/library/detail/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
+import 'package:collectarr_app/features/library/detail/metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -201,3 +202,24 @@ List<LibraryDetailSectionSpec> orderLibraryDetailSections(
       if (bySlot.containsKey(slot)) bySlot[slot]!,
   ];
 }
+
+List<Widget> buildLibraryDetailSectionWidgets(
+  Iterable<LibraryDetailSectionSpec> sections, {
+  double spacing = 8,
+  Color? accentColor,
+}) {
+  final resolved = <Widget>[];
+  for (final section in orderLibraryDetailSections(sections)) {
+    if (resolved.isNotEmpty) {
+      resolved.add(SizedBox(height: spacing));
+    }
+    resolved.add(
+      LibraryDetailSection.fromSpec(
+        section,
+        accentColor: accentColor,
+      ),
+    );
+  }
+  return resolved;
+}
+
