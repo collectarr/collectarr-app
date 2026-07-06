@@ -83,6 +83,12 @@ part 'panes/library_add_search_unified.dart';
 part 'panes/library_add_preview_pane.dart';
 part 'panes/library_add_bottom_bar.dart';
 part 'panes/library_add_manual_pane.dart';
+part 'controllers/library_add_controller.dart';
+part 'controllers/library_add_search_controller.dart';
+part 'controllers/library_add_selection_controller.dart';
+part 'controllers/library_add_preview_controller.dart';
+part 'controllers/library_add_kind_adapter.dart';
+part 'shell/library_add_shell.dart';
 part 'controllers/library_add_dialog_selection_state.dart';
 part 'controllers/library_add_provider_ingest.dart';
 part 'controllers/library_add_dialog_requests.dart';
@@ -135,6 +141,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   @override
   ConsumerState<LibraryAddDialog> createState() => _LibraryAddDialogState();
 }
+
 
 class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   /// Wrapper so part-file extensions can call setState without triggering
@@ -285,6 +292,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   /// Video-kind filter for movie library: allows searching across releases and box sets.
   late final Set<String> _videoKindFilters;
+  late final _LibraryAddController _controller;
+  late final _LibraryAddSearchController _searchController;
+  late final _LibraryAddSelectionController _selectionController;
+  late final _LibraryAddPreviewController _previewController;
 
   @override
   void initState() {
@@ -299,6 +310,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             _canonicalVideoSearchKind(widget.type.workspace.kind.apiValue),
           }
         : defaultFilters;
+    _searchController = _LibraryAddSearchController(this);
+    _selectionController = _LibraryAddSelectionController(this);
+    _previewController = _LibraryAddPreviewController(this);
+    _controller = _LibraryAddController(
+      search: _searchController,
+      selection: _selectionController,
+      preview: _previewController,
+    );
     if (_isMovieDesktopChrome) {
       _resultsPaneWidth = 720;
     }
@@ -448,7 +467,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _pendingProviderPreviewIds.contains(selectedCandidate.localCatalogId) &&
         !_providerPreviews.containsKey(selectedCandidate.localCatalogId);
     final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
-    final palette = appPalette(context);
     final movieDesktopWidth =
         _isMovieDesktopChrome ? 1540.0 : _defaultDialogWidth;
     final movieDesktopHeight =
@@ -476,18 +494,18 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         setState(() => _mode = mode);
       },
       onSearch: () {
-        _dismissSuggestions();
-        _search();
+        _controller.search.dismissSuggestions();
+        _controller.search.search();
       },
-      onQueryChanged: _onQueryChanged,
+      onQueryChanged: _controller.search.onQueryChanged,
       suggestions: _suggestions,
       showSuggestions: _showSuggestions,
-      onSelectSuggestion: _selectSuggestion,
-      onDismissSuggestions: _dismissSuggestions,
+      onSelectSuggestion: _controller.search.selectSuggestion,
+      onDismissSuggestions: _controller.search.dismissSuggestions,
       canScanCover: widget.type.capabilities.canScanCover,
       isScanningCover: _isScanningCover,
-      onScanCover: _scanCover,
-      onLookupBarcode: _lookupBarcode,
+      onScanCover: _controller.search.scanCover,
+      onLookupBarcode: _controller.search.lookupBarcode,
       onManual: () => setState(() => _mode = LibraryAddDialogMode.manual),
       showAdvanced: _showAdvancedSearch,
       onToggleAdvanced: () =>
@@ -510,31 +528,23 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             }
           : null,
     );
-    return Theme(
-      data: buildLibraryAddDialogTheme(accent, palette),
-      child: Dialog(
-        insetPadding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.sizeOf(context).width < 720 ? 10 : 32,
-          vertical: 24,
-        ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: (_dialogWidth ?? movieDesktopWidth)
-                .clamp(_minDialogWidth, _maxDialogWidth),
-            maxHeight: (_dialogHeight ?? movieDesktopHeight)
-                .clamp(_minDialogHeight, _maxDialogHeight),
-          ),
-          child: _ResizableDialogShell(
-            accent: accent,
-            onResizeWidth: (delta) => setState(() {
-              _dialogWidth = ((_dialogWidth ?? movieDesktopWidth) + delta)
-                  .clamp(_minDialogWidth, _maxDialogWidth);
-            }),
-            onResizeHeight: (delta) => setState(() {
-              _dialogHeight = ((_dialogHeight ?? movieDesktopHeight) + delta)
-                  .clamp(_minDialogHeight, _maxDialogHeight);
-            }),
-            child: Column(
+    return LibraryAddShell(
+      accent: accent,
+      width: _dialogWidth ?? movieDesktopWidth,
+      height: _dialogHeight ?? movieDesktopHeight,
+      minWidth: _minDialogWidth,
+      maxWidth: _maxDialogWidth,
+      minHeight: _minDialogHeight,
+      maxHeight: _maxDialogHeight,
+      onResizeWidth: (delta) => setState(() {
+        _dialogWidth = ((_dialogWidth ?? movieDesktopWidth) + delta)
+            .clamp(_minDialogWidth, _maxDialogWidth);
+      }),
+      onResizeHeight: (delta) => setState(() {
+        _dialogHeight = ((_dialogHeight ?? movieDesktopHeight) + delta)
+            .clamp(_minDialogHeight, _maxDialogHeight);
+      }),
+      child: Column(
               children: [
                 widget.headerBuilder?.call(context, headerRequest) ??
                     LibraryAddRegistry.headerBuilderFor(
@@ -624,12 +634,9 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         hideComicOwnedResults: _hideComicOwnedResults,
                         hideComicVariantResults: _hideComicVariantResults,
                         compactComicIssues: _compactComicIssues,
-                        onSelectResult: (id) {
-                          _selectCoreResult(id);
-                        },
-                        onSelectProviderCandidate: (id) {
-                          _selectProviderCandidate(id);
-                        },
+                        onSelectResult: _controller.selection.selectCoreResult,
+                        onSelectProviderCandidate:
+                            _controller.selection.selectProviderCandidate,
                         onToggleResultCheck: (id) => setState(() {
                           if (!_checkedResultIds.remove(id)) {
                             _checkedResultIds.add(id);
@@ -662,7 +669,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         }),
                         onCompactComicIssuesChanged: (value) =>
                             setState(() => _compactComicIssues = value),
-                        onSearchCore: _search,
+                        onSearchCore: _controller.search.search,
                       );
                       final searchPane = widget.searchPaneBuilder
                               ?.call(context, searchPaneRequest) ??
@@ -1149,7 +1156,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 }
                                 final candidate = selectedCandidate;
                                 if (candidate != null) {
-                                  await _addProviderCandidate(
+                                  await _controller.preview.addProviderCandidate(
                                     candidate,
                                     _addTarget,
                                   );
@@ -1157,10 +1164,14 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                               },
                         onQueueIngest: selectedCandidate == null
                             ? null
-                            : () => _queueProviderIngest(selectedCandidate),
+                            : () => _controller.preview.queueProviderIngest(
+                                  selectedCandidate,
+                                ),
                         onPropose: selectedCandidate == null
                             ? null
-                            : () => _proposeCandidate(selectedCandidate),
+                            : () => _controller.preview.proposeCandidate(
+                                  selectedCandidate,
+                                ),
                       );
                       return widget.bottomBarBuilder
                               ?.call(context, bottomBarRequest) ??
@@ -1212,9 +1223,6 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   ),
               ],
             ),
-          ),
-        ),
-      ),
     );
   }
 
