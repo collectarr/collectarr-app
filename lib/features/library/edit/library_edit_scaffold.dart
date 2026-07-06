@@ -1,7 +1,8 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
-import 'package:collectarr_app/ui/library_square_close_button.dart';
+import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
+import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -381,17 +382,16 @@ class _LibraryEditTitleBar extends StatelessWidget {
     final isMovieDesktop =
         chromeVariant == LibraryEditChromeVariant.movieDesktop;
     final headerMinHeight = isMovieDesktop ? 46.0 : 48.0;
-    return Container(
-      constraints: BoxConstraints(minHeight: headerMinHeight),
+    return LibraryPanelHeader(
+      backgroundColor: accent,
+      foregroundColor: Colors.white,
+      borderColor: accent.withValues(alpha: 0.92),
+      onClose: onClose,
+      minHeight: headerMinHeight,
       padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
-      decoration: BoxDecoration(
-        color: accent,
-        border:
-            Border(bottom: BorderSide(color: accent.withValues(alpha: 0.92))),
-      ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white, size: 16),
+          Icon(icon, size: 16),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -418,12 +418,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
                 ],
               ],
             ),
-          ),
-          LibrarySquareCloseButton(
-            tooltip: 'Close',
-            onPressed: onClose,
-            borderColor: Colors.white.withValues(alpha: 0.8),
-            foregroundColor: Colors.white,
           ),
         ],
       ),
@@ -457,15 +451,9 @@ class _LibraryEditFooter extends StatelessWidget {
       minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
       visualDensity: VisualDensity.compact,
     );
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: kLibraryDialogFooterHorizontalPadding,
-        vertical: kLibraryDialogFooterVerticalPadding,
-      ),
-      decoration: BoxDecoration(
-        color: appPalette(context).toolbar,
-        border: Border(top: BorderSide(color: appPalette(context).divider)),
-      ),
+    return LibraryActionFooter(
+      backgroundColor: appPalette(context).toolbar,
+      borderColor: appPalette(context).divider,
       child: Row(
         children: [
           SizedBox(
