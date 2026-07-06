@@ -48,6 +48,7 @@ class LibraryWorkspace extends ConsumerWidget {
     required this.selectedIds,
     required this.groupMode,
     required this.selectedBucket,
+    required this.onBucketChanged,
     required this.accent,
     required this.hasActiveFilter,
     required this.onAdd,
@@ -74,6 +75,7 @@ class LibraryWorkspace extends ConsumerWidget {
   final Set<String> selectedIds;
   final LibraryGroupMode groupMode;
   final String? selectedBucket;
+  final ValueChanged<String?> onBucketChanged;
   final Color accent;
   final bool hasActiveFilter;
   final VoidCallback onAdd;

@@ -335,19 +335,21 @@ class LibraryGroupFolderTile extends ConsumerWidget {
                       child: Column(
                         children: [
                           Expanded(
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: palette.surface,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: palette.divider),
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: LibraryCoverImage(
-                                title: entry.resolvedTitle,
-                                imageUrl:
-                                    entry.coverImageUrl ?? entry.thumbnailImageUrl,
-                                borderRadius: 8,
-                                fit: BoxFit.cover,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  color: palette.surface,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: palette.divider),
+                                ),
+                                child: LibraryCoverImage(
+                                  title: entry.resolvedTitle,
+                                  imageUrl:
+                                      entry.coverImageUrl ?? entry.thumbnailImageUrl,
+                                  borderRadius: 8,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ),

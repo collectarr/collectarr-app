@@ -315,6 +315,7 @@ class LibraryBody extends StatelessWidget {
                 selectedIds: selectedItemIds,
                 groupMode: groupMode,
                 selectedBucket: selectedBucket,
+                onBucketChanged: onBucketChanged,
                 accent: accent,
                 hasActiveFilter: hasActiveFilter,
                 onAdd: onAdd,
