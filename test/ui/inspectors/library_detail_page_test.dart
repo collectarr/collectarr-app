@@ -214,10 +214,12 @@ void main() {
     await tester.scrollUntilVisible(
       saveButton,
       300,
-      scrollable: find.byWidgetPredicate(
-        (widget) =>
-            widget is Scrollable && widget.axisDirection == AxisDirection.down,
-      ),
+      scrollable: find
+          .descendant(
+            of: find.byType(LibraryDetailPage),
+            matching: find.byType(Scrollable),
+          )
+          .last,
     );
     await pumpUntilSettled(tester);
 

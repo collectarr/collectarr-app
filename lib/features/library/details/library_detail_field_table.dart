@@ -24,22 +24,24 @@ class LibraryDetailFieldTable extends StatelessWidget {
         final gap = 12.0;
         final cellWidth =
             (constraints.maxWidth - gap * (columns - 1)) / columns;
-        return Wrap(
-          spacing: gap,
-          runSpacing: 2,
-          children: [
-            for (final field in ordered)
-              SizedBox(
-                width: cellWidth,
-                child: LibraryDetailFieldRow(
-                  field: field,
-                  labelWidth: labelWidth,
+        return KeyedSubtree(
+          key: ValueKey('library-detail-field-table-$columns'),
+          child: Wrap(
+            spacing: gap,
+            runSpacing: 2,
+            children: [
+              for (final field in ordered)
+                SizedBox(
+                  width: cellWidth,
+                  child: LibraryDetailFieldRow(
+                    field: field,
+                    labelWidth: labelWidth,
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         );
       },
     );
   }
 }
-
