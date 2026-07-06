@@ -64,6 +64,50 @@ class EditableVideoCredit {
   }
 }
 
+class EditableVideoLink {
+  EditableVideoLink({
+    required this.titleController,
+    required this.urlController,
+    required this.source,
+    required this.isAutomatic,
+  });
+
+  factory EditableVideoLink.fromTrailerLink(TrailerLink link) {
+    return EditableVideoLink(
+      titleController: TextEditingController(text: link.title ?? ''),
+      urlController: TextEditingController(text: link.url),
+      source: link.source,
+      isAutomatic: link.isAutomatic,
+    );
+  }
+
+  final TextEditingController titleController;
+  final TextEditingController urlController;
+  final String? source;
+  final bool isAutomatic;
+
+  TrailerLink? toTrailerLink() {
+    final url = urlController.text.trim();
+    if (url.isEmpty) {
+      return null;
+    }
+    final title = titleController.text.trim();
+    return TrailerLink(
+      url: url,
+      title: title.isEmpty ? null : title,
+      description: title.isEmpty ? null : title,
+      source: source ?? 'manual',
+      isAutomatic: isAutomatic,
+      kind: 'external',
+    );
+  }
+
+  void dispose() {
+    titleController.dispose();
+    urlController.dispose();
+  }
+}
+
 bool _isVideoCastRole(String? role) {
   final normalized = role?.trim().toLowerCase() ?? '';
   if (normalized.isEmpty) {

@@ -15,6 +15,7 @@ class VideoEditController {
 
   final List<EditableVideoCredit> castCredits = [];
   final List<EditableVideoCredit> crewCredits = [];
+  final List<EditableVideoLink> externalLinkEdits = [];
   Future<TvSeries?>? tvSeriesFuture;
   TvSeries? tvSeriesSnapshot;
   List<TvReleaseMedia> tvReleaseMediaDraft = const <TvReleaseMedia>[];
@@ -48,6 +49,13 @@ class VideoEditController {
     crewCredits.addAll(
       splitVideoCredits(creators, kind: VideoCreditKind.crew),
     );
+    externalLinkEdits.addAll(
+      [
+        for (final link in item.trailerUrls)
+          if (link.isExternalLink && !link.isAutomatic)
+            EditableVideoLink.fromTrailerLink(link),
+      ],
+    );
   }
 
   void dispose() {
@@ -56,6 +64,9 @@ class VideoEditController {
     }
     for (final credit in crewCredits) {
       credit.dispose();
+    }
+    for (final link in externalLinkEdits) {
+      link.dispose();
     }
   }
 
@@ -69,6 +80,7 @@ class VideoEditController {
       scope: selection.scope,
       item: selection.item.copyWith(
         creators: buildUpdatedVideoCreators(),
+        trailerUrls: buildUpdatedTrailerUrls(selection.item.trailerUrls),
       ),
       personal: selection.personal,
       wishlist: selection.wishlist,
@@ -87,6 +99,25 @@ class VideoEditController {
     return merged.isEmpty
         ? null
         : List<Map<String, dynamic>>.unmodifiable(merged);
+  }
+
+  List<TrailerLink>? buildUpdatedTrailerUrls(List<TrailerLink> existing) {
+    final preservedTrailers = existing
+        .where((link) => link.isTrailerLink)
+        .toList(growable: false);
+    final providerExternalLinks = existing
+        .where((link) => link.isExternalLink && link.isAutomatic)
+        .toList(growable: false);
+    final userExternalLinks = [
+      for (final link in externalLinkEdits)
+        if (!link.isAutomatic) link.toTrailerLink(),
+    ].whereType<TrailerLink>().toList(growable: false);
+    final merged = <TrailerLink>[
+      ...preservedTrailers,
+      ...providerExternalLinks,
+      ...userExternalLinks,
+    ];
+    return merged.isEmpty ? null : List<TrailerLink>.unmodifiable(merged);
   }
 
   Future<TvSeries?> loadTvSeriesSnapshot() async {

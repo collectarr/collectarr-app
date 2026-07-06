@@ -41,33 +41,22 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                   validator: (value) =>
                       emptyToNull(value ?? '') == null ? 'Enter a title' : null,
                 ),
-                _field(controller: _sortKeyController, label: 'Sort title'),
+                _field(
+                  controller: _sortKeyController,
+                  label: 'Sort title (advanced)',
+                ),
               ]),
               const SizedBox(height: 10),
               _responsiveFields([
                 _field(
-                    controller: _videoEdit.titleExtensionController,
-                    label: 'Title extension',
-                    hint: 'e.g. Collector\'s Edition, Director\'s Cut'),
-                _field(
                     controller: _originalTitleController,
                     label: 'Original title'),
               ]),
-              if (widget.item.series != null) ...[
-                const SizedBox(height: 10),
-                _responsiveFields([
-                  InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Series',
-                      border: OutlineInputBorder(),
-                    ),
-                    child: Text(
-                      widget.item.series!.seriesTitle ?? '—',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                ]),
-              ],
+              const SizedBox(height: 10),
+              Text(
+                'Use the Edition tab for edition title / variant details.',
+                style: TextStyle(color: appPalette(context).textMuted),
+              ),
               const SizedBox(height: 10),
               _responsiveFields([
                 _releaseDatePartsField(),
@@ -146,14 +135,14 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
     return EditTabShell(
       children: [
         EditSection(
-          title: 'Disc contents',
+          title: 'Provider disc metadata',
           accent: widget.accent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const EditSectionStateMessage(
                 message:
-                    'Read-only: disc contents are currently synced from provider/Core metadata.',
+                    'Read-only: disc metadata is synced from provider/Core metadata.',
                 icon: Icons.lock_outline,
               ),
               const SizedBox(height: 10),
@@ -202,6 +191,15 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
                   ],
                 ),
             ],
+          ),
+        ),
+        EditSection(
+          title: 'Local disc notes',
+          accent: widget.accent,
+          child: const EditSectionStateMessage(
+            message:
+                'Use the release details tab for package/disc notes and the episode map tab for disc assignments.',
+            icon: Icons.edit_note,
           ),
         ),
       ],
@@ -878,6 +876,9 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
     final trailers = widget.item.trailerUrls
         .where((link) => link.isTrailerLink)
         .toList(growable: false);
+    final providerLinks = widget.item.trailerUrls
+        .where((link) => link.isExternalLink && link.isAutomatic)
+        .toList(growable: false);
     return EditTabShell(
       children: [
         if (trailers.isNotEmpty)
@@ -923,13 +924,89 @@ extension _LibraryEditRendererVideoTabs on _LibraryEditRendererState {
               ],
             ),
           ),
+        if (providerLinks.isNotEmpty)
+          VideoExternalLinksSection(
+            title: 'Provider links',
+            links: providerLinks,
+            accent: widget.accent,
+          ),
         EditSection(
-          title: 'External Links',
+          title: 'User links',
           accent: widget.accent,
-          child: const EditSectionStateMessage(
-            message:
-                'Read-only: external links (TMDb, IMDb, etc.) are synced from provider/Core metadata. Editing will be available in a future update.',
-            icon: Icons.lock_outline,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const EditSectionStateMessage(
+                message:
+                    'Local overrides stay on this device and do not replace provider links.',
+                icon: Icons.edit_outlined,
+              ),
+              const SizedBox(height: 10),
+              if (_videoEdit.externalLinkEdits.isEmpty)
+                const EditSectionStateMessage(
+                  message: 'No local links yet.',
+                  icon: Icons.link_outlined,
+                )
+              else
+                Column(
+                  children: [
+                    for (var index = 0;
+                        index < _videoEdit.externalLinkEdits.length;
+                        index++)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _responsiveFields([
+                                TextFormField(
+                                  controller: _videoEdit
+                                      .externalLinkEdits[index]
+                                      .titleController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Title',
+                                  ),
+                                ),
+                                TextFormField(
+                                  controller: _videoEdit
+                                      .externalLinkEdits[index]
+                                      .urlController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'URL',
+                                  ),
+                                ),
+                              ]),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              tooltip: 'Remove link',
+                              onPressed: () => _mutateDialogState(() {
+                                _videoEdit.externalLinkEdits[index].dispose();
+                                _videoEdit.externalLinkEdits.removeAt(index);
+                              }),
+                              icon: const Icon(Icons.delete_outline),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () => _mutateDialogState(() {
+                  _videoEdit.externalLinkEdits.add(
+                    EditableVideoLink(
+                      titleController: TextEditingController(),
+                      urlController: TextEditingController(),
+                      source: 'manual',
+                      isAutomatic: false,
+                    ),
+                  );
+                }),
+                icon: const Icon(Icons.add),
+                label: const Text('Add link'),
+              ),
+            ],
           ),
         ),
       ],

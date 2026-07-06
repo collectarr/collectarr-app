@@ -40,6 +40,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_external_links_section.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -193,6 +194,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _draft.originalTitleController;
   TextEditingController get _titleExtensionController =>
       _videoEdit.titleExtensionController;
+  TextEditingController get _seriesTitleController =>
+      _draft.seriesTitleController;
   TextEditingController get _audienceRatingController =>
       _draft.audienceRatingController;
   TextEditingController get _countryController => _draft.countryController;
@@ -202,8 +205,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _draft.genresEditController;
   TextEditingController get _crossoverController => _draft.crossoverController;
   TextEditingController get _storyArcsController => _draft.storyArcsController;
-  TextEditingController get _seriesTitleController =>
-      _draft.seriesTitleController;
   TextEditingController get _developersController =>
       _draft.developersController;
   TextEditingController get _ownerLabelController =>
@@ -996,7 +997,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           _responsiveFields([
             _publisherField(label: mediaFields.publisherLabel),
           ]),
-          if (_isGameKind) ...[
+          if (_videoEdit.isVideoKind) ...[
+            const SizedBox(height: 10),
+            _responsiveFields([
+              _videoSeriesField(),
+            ]),
+          ] else if (_isGameKind) ...[
             const SizedBox(height: 10),
             _responsiveFields([
               _field(controller: _seriesTitleController, label: 'Series'),
@@ -2171,7 +2177,7 @@ ORDER BY owner_label COLLATE NOCASE
       context: context,
       db: ref.read(localDatabaseProvider),
       mediaKind: widget.type.workspace.kind.apiValue,
-      selectedTitle: _titleController.text,
+      selectedTitle: _seriesTitleController.text,
       selectedSeriesId: _selectedSeriesId,
     );
     if (!mounted || selected == null) {
@@ -2246,6 +2252,30 @@ ORDER BY owner_label COLLATE NOCASE
         listName: kSeriesGroupPickListName,
         label: label,
       ),
+    );
+  }
+
+  Widget _videoSeriesField() {
+    return _pickField(
+      controller: _seriesTitleController,
+      options: [for (final entry in _seriesEntries) entry.title],
+      label: 'Series display',
+      hint: 'Select or type a series name',
+      onChanged: (value) {
+        final normalized = emptyToNull(value ?? '');
+        final matchingEntry = _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+              (entry) =>
+                  entry != null &&
+                  entry.title.trim().toLowerCase() ==
+                      (normalized?.toLowerCase() ?? ''),
+              orElse: () => null,
+            );
+        setState(() {
+          _selectedSeriesId = matchingEntry?.coreSeriesId;
+        });
+      },
+      onManage: _openSeriesPicker,
+      manageTooltip: 'Select or manage series',
     );
   }
 
