@@ -186,6 +186,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const bottomNavHeight = 36.0;
     final duration = animationsEnabled ? kAppAnimNormal : Duration.zero;
     final palette = appPalette(context);
     return TweenAnimationBuilder<Color?>(
@@ -223,7 +224,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
             data: NavigationBarTheme.of(context).copyWith(
               backgroundColor: Colors.transparent,
               indicatorColor: indicatorColor,
-              height: 58,
+              height: bottomNavHeight,
               labelTextStyle: WidgetStatePropertyAll(
                 TextStyle(
                   color: chromeTextColor,
@@ -274,9 +275,9 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
                     onTap: onToggleCollapsed,
                     child: SizedBox(
                       width: 44,
-                      height: 58,
+                      height: bottomNavHeight,
                       child: Icon(
-                        Icons.expand_less,
+                        Icons.expand_more,
                         color: chromeTextColor,
                         size: 20,
                       ),
@@ -307,7 +308,7 @@ class _BottomNavCollapsedStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final duration = animationsEnabled ? kAppAnimNormal : Duration.zero;
     final palette = appPalette(context);
-    const collapsedBarHeight = 36.0;
+    const collapsedBarHeight = 6.0;
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: accent),
       duration: duration,
@@ -351,15 +352,15 @@ class _BottomNavCollapsedStrip extends StatelessWidget {
                     child: Container(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 2,
-                        vertical: 6,
+                        vertical: 0,
                       ),
                       decoration: BoxDecoration(
                         color: handleBackground,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Icon(
-                        Icons.expand_more,
-                        size: 20,
+                        Icons.expand_less,
+                        size: 6,
                         color: foregroundColor,
                       ),
                     ),

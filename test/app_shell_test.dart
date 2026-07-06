@@ -96,6 +96,42 @@ void main() {
     expect(syncController.onlineFirstRequests, 1);
   });
 
+  testWidgets('app shell keeps bottom nav aligned with the library bar',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
+    _setDesktopViewport(tester);
+
+    await tester.pumpWidget(
+      _shellTestApp(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          ..._baseShellOverrides(),
+        ],
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    final navBarSize = tester.getSize(find.byType(NavigationBar));
+    expect(navBarSize.height, 36);
+
+    await tester.tap(find.byTooltip('Hide bottom navigation'));
+    await pumpUntilSettled(tester);
+
+    expect(find.byType(NavigationBar), findsNothing);
+    final collapsedHandle = find.byTooltip('Show bottom navigation');
+    final handleSize = tester.getSize(collapsedHandle);
+    expect(handleSize.height, lessThanOrEqualTo(6));
+    expect(handleSize.width, 44);
+  });
+
   testWidgets('app shell tints bottom navigation with active library color',
       (tester) async {
     SharedPreferences.setMockInitialValues({
