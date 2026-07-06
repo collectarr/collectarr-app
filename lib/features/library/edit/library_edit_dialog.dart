@@ -187,6 +187,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _sortKeyController => _draft.sortKeyController;
   TextEditingController get _originalTitleController =>
       _draft.originalTitleController;
+  TextEditingController get _titleExtensionController =>
+      _videoEdit.titleExtensionController;
   TextEditingController get _audienceRatingController =>
       _draft.audienceRatingController;
   TextEditingController get _countryController => _draft.countryController;

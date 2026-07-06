@@ -210,14 +210,41 @@ void main() {
     expect(animeLibraryConfig.defaultMetadataProvider, 'anilist');
     expect(animeLibraryConfig.supportsMetadataProvider('anilist'), isTrue);
     expect(animeLibraryConfig.capabilities.videoSeriesEntryTypes, {'anime'});
+    expect(
+      animeLibraryConfig.capabilities.resolvedVideoDisplayLevel,
+      VideoDisplayLevel.season,
+    );
+    expect(
+      animeLibraryConfig.capabilities.resolvedVideoGrouping,
+      VideoGroupingDefault.bySeries,
+    );
     expect(animeLibraryConfig.editDialogBuilder, isNotNull);
 
     expect(tvLibraryConfig.workspace.kind, CatalogMediaKind.tv);
     expect(tvLibraryConfig.defaultMetadataProvider, 'tmdb');
     expect(tvLibraryConfig.supportsMetadataProvider('tmdb'), isTrue);
     expect(tvLibraryConfig.capabilities.videoSeriesEntryTypes, {'tv'});
+    expect(
+      tvLibraryConfig.capabilities.resolvedVideoDisplayLevel,
+      VideoDisplayLevel.season,
+    );
+    expect(
+      tvLibraryConfig.capabilities.resolvedVideoGrouping,
+      VideoGroupingDefault.bySeries,
+    );
     expect(tvLibraryConfig.editDialogBuilder, isNotNull);
     expect(tvLibraryConfig.detailPageBuilder, same(buildVideoLibraryDetailPage));
+  });
+
+  test('movie library config keeps flat title/work defaults', () {
+    expect(
+      moviesLibraryConfig.capabilities.resolvedVideoDisplayLevel,
+      VideoDisplayLevel.titleWork,
+    );
+    expect(
+      moviesLibraryConfig.capabilities.resolvedVideoGrouping,
+      VideoGroupingDefault.none,
+    );
   });
 
   test('tv edit presentation splits media and release tabs', () {

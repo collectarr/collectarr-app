@@ -356,6 +356,19 @@ enum LibraryContentHierarchy {
   seasons,
 }
 
+enum VideoDisplayLevel {
+  titleWork,
+  series,
+  season,
+  episode,
+  release,
+}
+
+enum VideoGroupingDefault {
+  none,
+  bySeries,
+}
+
 class LibraryTypeCapabilities {
   const LibraryTypeCapabilities({
     this.showsSynopsis = false,
@@ -379,6 +392,8 @@ class LibraryTypeCapabilities {
     this.prefersSquareCovers = false,
     this.usesGameCompletenessFields = false,
     this.usesComicCollectorFields = false,
+    this.defaultVideoDisplayLevel,
+    this.defaultVideoGrouping = VideoGroupingDefault.none,
   });
 
   final bool showsSynopsis;
@@ -418,6 +433,32 @@ class LibraryTypeCapabilities {
   /// Whether the edit dialog shows comic collector fields (grading, key issue,
   /// bag/board date).
   final bool usesComicCollectorFields;
+  final VideoDisplayLevel? defaultVideoDisplayLevel;
+  final VideoGroupingDefault defaultVideoGrouping;
+
+  VideoDisplayLevel get resolvedVideoDisplayLevel {
+    final explicit = defaultVideoDisplayLevel;
+    if (explicit != null) {
+      return explicit;
+    }
+    return switch (contentHierarchy) {
+      LibraryContentHierarchy.seasons => VideoDisplayLevel.season,
+      LibraryContentHierarchy.volumes => VideoDisplayLevel.titleWork,
+      LibraryContentHierarchy.flat => VideoDisplayLevel.titleWork,
+    };
+  }
+
+  VideoGroupingDefault get resolvedVideoGrouping {
+    final explicit = defaultVideoGrouping;
+    if (explicit != VideoGroupingDefault.none) {
+      return explicit;
+    }
+    return switch (contentHierarchy) {
+      LibraryContentHierarchy.seasons => VideoGroupingDefault.bySeries,
+      LibraryContentHierarchy.volumes => VideoGroupingDefault.none,
+      LibraryContentHierarchy.flat => VideoGroupingDefault.none,
+    };
+  }
 
   /// Whether this type narrows group modes / sort columns by browser mode
   /// (media vs releases). Driven entirely by the scoped sets above.

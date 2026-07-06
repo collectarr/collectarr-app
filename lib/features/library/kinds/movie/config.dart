@@ -78,6 +78,8 @@ const moviesLibraryConfig = LibraryTypeConfig(
     canScanCover: true,
     supportsVideoKindFilters: true,
     supportsMediaReleaseSplit: true,
+    defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
+    defaultVideoGrouping: VideoGroupingDefault.none,
     wideDialog: true,
     videoSeriesEntryTypes: {'tv'},
     videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},
