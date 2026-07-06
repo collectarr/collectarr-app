@@ -2,7 +2,9 @@ import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/state/sync_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -71,4 +73,42 @@ void main() {
     expect(firstRect.left, greaterThanOrEqualTo(stripRect.left));
     expect(lastRect.right, lessThanOrEqualTo(stripRect.right));
   });
+
+  testWidgets('home sync button is icon only', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          syncControllerProvider.overrideWith(
+            (ref) => _FakeSyncController(ref),
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: MediaLibraryNav(
+              types: const [
+                CatalogMediaType(
+                  kind: 'comic',
+                  singularLabel: 'Comic',
+                  pluralLabel: 'Comics',
+                  routeSegments: ['comics'],
+                ),
+              ],
+              counts: const {},
+              selectedLabel: 'Libraries',
+              registry: collectarrLibraryTypes,
+              selectedKind: 'comic',
+              onSelected: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Sync'), findsNothing);
+    expect(find.byIcon(Icons.sync_outlined), findsOneWidget);
+  });
+}
+
+class _FakeSyncController extends SyncController {
+  _FakeSyncController(super.ref);
 }

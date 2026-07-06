@@ -319,17 +319,38 @@ class _LibraryTopNavSyncButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sync = ref.watch(syncControllerProvider);
-    return _HeaderActionButton(
-      tooltip: sync.isSyncing
+    return Tooltip(
+      message: sync.isSyncing
           ? 'Personal sync is running'
           : sync.pendingCount > 0
               ? 'Run personal sync now (${sync.pendingCount} pending)'
               : 'Run personal sync now',
-      label: 'Sync',
-      icon: sync.isOffline ? Icons.cloud_off_outlined : Icons.sync_outlined,
-      onPressed: sync.isSyncing
-          ? null
-          : () => ref.read(syncControllerProvider.notifier).syncNow(),
+      child: SizedBox.square(
+        dimension: kLibraryToolbarControlHeight,
+        child: IconButton(
+          onPressed: sync.isSyncing
+              ? null
+              : () => ref.read(syncControllerProvider.notifier).syncNow(),
+          icon: Icon(
+            sync.isOffline ? Icons.cloud_off_outlined : Icons.sync_outlined,
+            size: 18,
+          ),
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints.tightFor(
+            width: kLibraryToolbarControlHeight,
+            height: kLibraryToolbarControlHeight,
+          ),
+          style: IconButton.styleFrom(
+            foregroundColor: appPalette(context).textMuted,
+            backgroundColor: appPalette(context).surface,
+            side: BorderSide(color: appPalette(context).divider),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
