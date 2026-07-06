@@ -395,6 +395,9 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
       if (imageUrl == null || imageUrl.isEmpty) {
         continue;
       }
+      if (!await isLikelyImageUrl(imageUrl)) {
+        continue;
+      }
       try {
         final provider = kIsWeb
             ? NetworkImage(imageUrl) as ImageProvider<Object>
