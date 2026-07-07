@@ -7,8 +7,7 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
@@ -57,21 +56,25 @@ final class MusicPersonalOverlay {
 LibraryWorkspaceEntry buildMusicLibraryWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
+  final catalogItem = source.catalogItem;
+  if (catalogItem == null) {
+    throw StateError('Expected catalog item for music workspace entry');
+  }
   return buildMusicWorkspaceEntry(
-    source.catalogItem!,
+    MusicWork.fromMetadataItem(catalogItem),
     MusicPersonalOverlay.fromShelf(source),
   );
 }
 
 LibraryWorkspaceEntry buildMusicWorkspaceEntry(
-  LibraryMetadataItem item,
+  MusicWork work,
   MusicPersonalOverlay overlay,
 ) {
   return MusicWorkspaceEntry(
-    common: _buildShelfWorkspaceEntryData(item, overlay, mediaType: 'music'),
-    series: item.series,
-    publishing: item.publishing,
-    music: item.music,
+    common: _buildShelfWorkspaceEntryData(work, overlay, mediaType: 'music'),
+    series: work.series,
+    publishing: work.publishing,
+    music: work.music,
   );
 }
 
@@ -88,50 +91,42 @@ LibraryWorkspaceEntry buildMusicLibraryReleaseEntry(
 }
 
 LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
-  LibraryMetadataItem item,
+  MusicWork work,
   MusicPersonalOverlay overlay, {
   String? mediaType,
 }) {
-  final normalizedMediaType = (mediaType ?? item.kind).trim().toLowerCase();
-  final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
-    item,
-    ownedItems: overlay.ownedItem == null
-        ? const <OwnedItem>[]
-        : [overlay.ownedItem!],
-    wishlistItems: overlay.wishlistItem == null
-        ? const <WishlistItem>[]
-        : [overlay.wishlistItem!],
-  );
+  final normalizedMediaType = (mediaType ?? 'music').trim().toLowerCase();
+  final resolvedEditions = work.editions;
   return LibraryWorkspaceEntryData(
-    id: item.id,
+    id: work.id,
     browseScope: LibraryBrowserScope.title,
-    titleItemId: item.id,
+    titleItemId: work.id,
     releaseId: null,
     copyId: null,
     ownedItemId: overlay.ownedItem?.id,
     mediaType: normalizedMediaType,
-    title: item.title,
-    displayTitle: item.displayTitle,
-    localizedTitle: item.localizedTitle,
-    originalTitle: item.originalTitle,
-    searchAliases: _copyStringList(item.searchAliases),
-    itemNumber: item.itemNumber,
-    synopsis: item.synopsis,
-    coverImageUrl: item.coverImageUrl,
-    thumbnailImageUrl: item.thumbnailImageUrl,
+    title: work.title,
+    displayTitle: work.displayTitle,
+    localizedTitle: work.localizedTitle,
+    originalTitle: work.originalTitle,
+    searchAliases: _copyStringList(work.searchAliases),
+    itemNumber: work.itemNumber,
+    synopsis: work.synopsis,
+    coverImageUrl: work.coverImageUrl,
+    thumbnailImageUrl: work.thumbnailImageUrl,
     itemImages: overlay.itemImages,
-    publisher: item.publisher,
-    coverDate: item.coverDate,
-    releaseDate: item.releaseDate,
-    releaseYear: item.releaseYear,
-    barcode: item.barcode,
-    variant: item.displayEditionLabel,
-    crossover: item.crossover,
+    publisher: work.publisher,
+    coverDate: work.coverDate,
+    releaseDate: work.releaseDate,
+    releaseYear: work.releaseYear,
+    barcode: work.barcode,
+    variant: work.displayEditionLabel,
+    crossover: work.crossover,
     isOwned: overlay.isOwned,
     isTracked: overlay.isTracked,
     isWishlisted: overlay.isWishlisted,
-    hasMissingCover: item.displayCoverUrl == null,
-    hasMissingMetadata: _hasMissingCoreMetadata(item),
+    hasMissingCover: work.displayCoverUrl == null,
+    hasMissingMetadata: work.hasMissingCoreMetadata,
     condition: overlay.ownedItem?.condition,
     grade: overlay.ownedItem?.grade,
     primaryReferenceLabel: libraryPrimaryReferenceLabel(
@@ -148,14 +143,14 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
       ownedItem: overlay.ownedItem,
       wishlistItem: overlay.wishlistItem,
       editions: resolvedEditions,
-      fallbackFormatLabel: item.physicalFormatLabel,
+      fallbackFormatLabel: work.displayEditionLabel,
     ),
     referenceEditionId:
         overlay.ownedItem?.editionId ?? overlay.wishlistItem?.editionId,
     referenceVariantId:
         overlay.ownedItem?.variantId ?? overlay.wishlistItem?.variantId,
-    referenceBundleReleaseId:
-        overlay.ownedItem?.bundleReleaseId ?? overlay.wishlistItem?.bundleReleaseId,
+    referenceBundleReleaseId: overlay.ownedItem?.bundleReleaseId ??
+        overlay.wishlistItem?.bundleReleaseId,
     notes: overlay.ownedItem?.personalNotes ?? overlay.wishlistItem?.notes,
     tags: overlay.ownedItem?.tags,
     collectionStatus: overlay.ownedItem?.collectionStatus,
@@ -166,18 +161,18 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
     addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
     editions: _copyEditionList(resolvedEditions),
     updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
-    trailerUrls: _copyTrailerList(item.trailerUrls),
-    plotSummary: item.plotSummary,
-    plotDescription: item.plotDescription,
-    creators: _copyCreatorList(item.creators),
-    characters: _copyStringList(item.characters),
-    storyArcs: _copyStringList(item.storyArcs),
-    genres: _copyStringList(item.genres),
-    country: item.country,
-    language: item.language,
-    ageRating: item.ageRating,
-    audienceRating: item.audienceRating,
-    rawPlatforms: _copyStringList(item.game?.platforms),
+    trailerUrls: _copyTrailerList(work.trailerUrls),
+    plotSummary: work.synopsis,
+    plotDescription: null,
+    creators: _copyCreatorList(work.creators),
+    characters: _copyStringList(work.characters),
+    storyArcs: _copyStringList(work.storyArcs),
+    genres: _copyStringList(work.genres),
+    country: work.country,
+    language: work.language,
+    ageRating: work.ageRating,
+    audienceRating: work.audienceRating,
+    rawPlatforms: null,
   );
 }
 
@@ -186,7 +181,8 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
   String? mediaType,
 }) {
   final entry = request.titleEntry;
-  final normalizedMediaType = (mediaType ?? entry.mediaType).trim().toLowerCase();
+  final normalizedMediaType =
+      (mediaType ?? entry.mediaType).trim().toLowerCase();
   CatalogVariant? primaryVariant;
   for (final variant in request.edition.variants) {
     if (variant.isPrimary) {
@@ -233,8 +229,8 @@ LibraryWorkspaceEntryData _buildReleaseEntryData(
     grade: null,
     primaryReferenceLabel: null,
     referenceScopeLabel: null,
-    referenceFormatLabel:
-        primaryVariant?.physicalFormatLabel ?? request.edition.physicalFormatLabel,
+    referenceFormatLabel: primaryVariant?.physicalFormatLabel ??
+        request.edition.physicalFormatLabel,
     referenceEditionId: request.referenceEditionId ?? request.edition.id,
     referenceVariantId: request.referenceVariantId ?? primaryVariant?.id,
     referenceBundleReleaseId: request.referenceBundleReleaseId,
@@ -284,12 +280,4 @@ List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
 List<TrailerLink> _copyTrailerList(List<TrailerLink>? values) {
   if (values == null) return const <TrailerLink>[];
   return List<TrailerLink>.unmodifiable(values);
-}
-
-bool _hasMissingCoreMetadata(LibraryMetadataItem item) {
-  return item.publisher == null &&
-      item.releaseDate == null &&
-      item.releaseYear == null &&
-      item.displayCoverUrl == null &&
-      item.displayEditionLabel == null;
 }

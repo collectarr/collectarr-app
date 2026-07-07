@@ -1,5 +1,126 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+
+final class MusicWork {
+  const MusicWork({
+    required this.id,
+    required this.title,
+    this.displayTitle,
+    this.localizedTitle,
+    this.originalTitle,
+    this.searchAliases = const <String>[],
+    this.itemNumber,
+    this.synopsis,
+    this.coverImageUrl,
+    this.thumbnailImageUrl,
+    this.publisher,
+    this.coverDate,
+    this.releaseDate,
+    this.releaseYear,
+    this.barcode,
+    this.variant,
+    this.crossover,
+    this.series,
+    this.publishing,
+    this.music,
+    this.trailerUrls = const <TrailerLink>[],
+    this.creators,
+    this.characters = const <String>[],
+    this.storyArcs = const <String>[],
+    this.editions = const <CatalogEdition>[],
+    this.genres = const <String>[],
+    this.country,
+    this.language,
+    this.ageRating,
+    this.audienceRating,
+  });
+
+  final String id;
+  final String title;
+  final String? displayTitle;
+  final String? localizedTitle;
+  final String? originalTitle;
+  final List<String> searchAliases;
+  final String? itemNumber;
+  final String? synopsis;
+  final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+  final String? publisher;
+  final DateTime? coverDate;
+  final DateTime? releaseDate;
+  final int? releaseYear;
+  final String? barcode;
+  final String? variant;
+  final String? crossover;
+  final CatalogSeriesDetails? series;
+  final CatalogPublishingDetails? publishing;
+  final MusicCatalogDetails? music;
+  final List<TrailerLink> trailerUrls;
+  final List<Map<String, dynamic>>? creators;
+  final List<String> characters;
+  final List<String> storyArcs;
+  final List<CatalogEdition> editions;
+  final List<String> genres;
+  final String? country;
+  final String? language;
+  final String? ageRating;
+  final String? audienceRating;
+
+  String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
+
+  String? get displayEditionLabel =>
+      variant ?? music?.catalogNumber ?? music?.releaseStatus;
+
+  bool get hasMissingCoreMetadata =>
+      publisher == null &&
+      releaseDate == null &&
+      releaseYear == null &&
+      displayCoverUrl == null &&
+      displayEditionLabel == null;
+
+  factory MusicWork.fromMetadataItem(LibraryMetadataItem item) {
+    return MusicWork(
+      id: item.id,
+      title: item.title,
+      displayTitle: item.displayTitle,
+      localizedTitle: item.localizedTitle,
+      originalTitle: item.originalTitle,
+      searchAliases:
+          List<String>.unmodifiable(item.searchAliases ?? const <String>[]),
+      itemNumber: item.itemNumber,
+      synopsis: item.synopsis,
+      coverImageUrl: item.coverImageUrl,
+      thumbnailImageUrl: item.thumbnailImageUrl,
+      publisher: item.publisher,
+      coverDate: item.coverDate,
+      releaseDate: item.releaseDate,
+      releaseYear: item.releaseYear,
+      barcode: item.barcode,
+      variant: item.variant,
+      crossover: item.crossover,
+      series: item.series,
+      publishing: item.publishing,
+      music: item.music,
+      trailerUrls: List<TrailerLink>.unmodifiable(item.trailerUrls),
+      creators: item.creators == null
+          ? null
+          : List<Map<String, dynamic>>.unmodifiable(
+              item.creators!
+                  .map((entry) => Map<String, dynamic>.unmodifiable(entry)),
+            ),
+      characters:
+          List<String>.unmodifiable(item.characters ?? const <String>[]),
+      storyArcs: List<String>.unmodifiable(item.storyArcs ?? const <String>[]),
+      editions: List<CatalogEdition>.unmodifiable(item.editions),
+      genres: List<String>.unmodifiable(item.genres ?? const <String>[]),
+      country: item.country,
+      language: item.language,
+      ageRating: item.ageRating,
+      audienceRating: item.audienceRating,
+    );
+  }
+}
 
 final class MusicTrack {
   const MusicTrack({
@@ -153,14 +274,16 @@ final class MusicMedia {
       rpm: rpm,
       vinylColor: vinylColor,
       vinylWeight: vinylWeight,
-      tracks: [for (final track in tracks) track.toCatalogTrack(discNumber: mediaNumber)],
+      tracks: [
+        for (final track in tracks)
+          track.toCatalogTrack(discNumber: mediaNumber)
+      ],
     );
   }
 
   List<CatalogTrack> toCatalogTracks() {
     return [
-      for (final track in tracks)
-        track.toCatalogTrack(discNumber: mediaNumber),
+      for (final track in tracks) track.toCatalogTrack(discNumber: mediaNumber),
     ];
   }
 }
@@ -289,9 +412,10 @@ final class MusicRelease {
       artist: _artistFromContributions(contributors),
       subtitle: dto.subtitle,
       publisher: dto.publisher,
-      catalogNumber: dto.raw['catalog_number']?.toString().trim().isNotEmpty == true
-          ? dto.raw['catalog_number'].toString().trim()
-          : dto.extras,
+      catalogNumber:
+          dto.raw['catalog_number']?.toString().trim().isNotEmpty == true
+              ? dto.raw['catalog_number'].toString().trim()
+              : dto.extras,
       upc: _stringOrNull(dto.raw['upc']) ?? _stringOrNull(dto.raw['barcode']),
       recordingDate: dto.recordingDate,
       originalReleaseDate: dto.releaseDate,
@@ -322,7 +446,8 @@ final class MusicRelease {
       expectedMediaCount: _parseInt(
         dto.raw['expected_media_count']?.toString() ?? '',
       ),
-      ownedMediaCount: _parseInt(dto.raw['owned_media_count']?.toString() ?? ''),
+      ownedMediaCount:
+          _parseInt(dto.raw['owned_media_count']?.toString() ?? ''),
       missingMediaCount: _parseInt(
         dto.raw['missing_media_count']?.toString() ?? '',
       ),
