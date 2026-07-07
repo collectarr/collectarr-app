@@ -1,31 +1,25 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 LibraryWorkspaceEntry buildComicsLibraryWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
-  final item = source.catalogItem!;
-  final ownedItem = source.ownedItem;
+  final work = ComicWork.fromMetadataItem(source.catalogItem!);
+  final overlay = ComicPersonalOverlay.fromShelf(source);
   return ComicWorkspaceEntry(
-    common: _buildShelfWorkspaceEntryData(source, mediaType: 'comic'),
-    comic: ComicWorkspaceDetails(
-      rawOrSlabbed: ownedItem?.rawOrSlabbed,
-      gradingCompany: ownedItem?.gradingCompany,
-      labelType: ownedItem?.labelType,
-      certificationNumber: ownedItem?.certificationNumber,
-      keyComic: ownedItem?.keyComic ?? false,
-      keyReason: ownedItem?.keyReason,
+    common: _buildShelfWorkspaceEntryData(
+      source,
+      work: work,
+      overlay: overlay,
     ),
-    series: item.series,
-    publishing: item.publishing,
+    comic: overlay.toWorkspaceDetails(),
+    series: work.series,
+    publishing: work.publishing,
   );
 }
 
@@ -33,29 +27,23 @@ LibraryWorkspaceEntry buildComicsLibraryReleaseEntry(
   LibraryReleaseEntryRequest request,
 ) {
   final entry = request.titleEntry;
+  final work = ComicWork.fromWorkspaceEntry(entry);
   return ComicWorkspaceEntry(
     common: _buildReleaseEntryData(request, mediaType: 'comic'),
     comic: entry.comic,
-    series: entry.series,
-    publishing: entry.publishing,
+    series: work.series ?? entry.series,
+    publishing: work.publishing ?? entry.publishing,
   );
 }
 
 LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
   ShelfEntry source, {
+  required ComicWork work,
+  required ComicPersonalOverlay overlay,
   String? mediaType,
 }) {
   final item = source.catalogItem!;
   final normalizedMediaType = (mediaType ?? item.kind).trim().toLowerCase();
-  final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
-    item,
-    ownedItems: source.ownedItem == null
-        ? const <OwnedItem>[]
-        : [source.ownedItem!],
-    wishlistItems: source.wishlistItem == null
-        ? const <WishlistItem>[]
-        : [source.wishlistItem!],
-  );
   return LibraryWorkspaceEntryData(
     id: item.id,
     browseScope: LibraryBrowserScope.title,
@@ -64,33 +52,33 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
     copyId: null,
     ownedItemId: source.ownedItem?.id,
     mediaType: normalizedMediaType,
-    title: item.title,
-    displayTitle: item.displayTitle,
-    localizedTitle: item.localizedTitle,
-    originalTitle: item.originalTitle,
+    title: work.title,
+    displayTitle: work.displayTitle,
+    localizedTitle: work.localizedTitle,
+    originalTitle: work.originalTitle,
     searchAliases: _copyStringList(item.searchAliases),
-    itemNumber: item.itemNumber,
-    synopsis: item.synopsis,
-    coverImageUrl: item.coverImageUrl,
-    thumbnailImageUrl: item.thumbnailImageUrl,
+    itemNumber: work.itemNumber,
+    synopsis: work.synopsis,
+    coverImageUrl: work.coverImageUrl,
+    thumbnailImageUrl: work.thumbnailImageUrl,
     itemImages: source.itemImages,
-    publisher: item.publisher,
-    coverDate: item.coverDate,
-    releaseDate: item.releaseDate,
-    releaseYear: item.releaseYear,
-    barcode: item.barcode,
-    variant: item.displayEditionLabel,
-    crossover: item.crossover,
+    publisher: work.publisher,
+    coverDate: work.coverDate,
+    releaseDate: work.releaseDate,
+    releaseYear: work.releaseYear,
+    barcode: work.barcode,
+    variant: work.variant ?? item.displayEditionLabel,
+    crossover: work.crossover,
     isOwned: source.isOwned,
     isTracked: source.isTracked,
     isWishlisted: source.isWishlisted,
-    hasMissingCover: item.displayCoverUrl == null,
-    hasMissingMetadata: _hasMissingCoreMetadata(item),
-    condition: source.ownedItem?.condition,
-    grade: source.ownedItem?.grade,
-    signedBy: source.ownedItem?.signedBy,
-    marketValueCents: source.ownedItem?.marketValueCents,
-    marketValueCurrency: source.ownedItem?.currency,
+    hasMissingCover: work.displayCoverUrl == null,
+    hasMissingMetadata: work.hasMissingCoreMetadata,
+    condition: overlay.ownedItem?.condition,
+    grade: overlay.ownedItem?.grade,
+    signedBy: overlay.signedBy ?? overlay.ownedItem?.signedBy,
+    marketValueCents: overlay.ownedItem?.marketValueCents,
+    marketValueCurrency: overlay.ownedItem?.currency,
     primaryReferenceLabel: libraryPrimaryReferenceLabel(
       ownedItem: source.ownedItem,
       wishlistItem: source.wishlistItem,
@@ -104,7 +92,7 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
     referenceFormatLabel: libraryReferenceFormatLabel(
       ownedItem: source.ownedItem,
       wishlistItem: source.wishlistItem,
-      editions: resolvedEditions,
+      editions: item.editions,
       fallbackFormatLabel: item.physicalFormatLabel,
     ),
     referenceEditionId:
@@ -113,27 +101,27 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
         source.ownedItem?.variantId ?? source.wishlistItem?.variantId,
     referenceBundleReleaseId:
         source.ownedItem?.bundleReleaseId ?? source.wishlistItem?.bundleReleaseId,
-    notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
-    tags: source.ownedItem?.tags,
-    collectionStatus: source.ownedItem?.collectionStatus,
-    lastBagBoardDate: source.ownedItem?.lastBagBoardDate,
-    pricePaidCents: source.ownedItem?.pricePaidCents,
-    currency: source.ownedItem?.currency,
-    locationPath: source.locationPath,
-    addedAt: source.ownedItem?.createdAt ?? source.wishlistItem?.createdAt,
-    editions: _copyEditionList(resolvedEditions),
+    notes: overlay.ownedItem?.personalNotes ?? overlay.wishlistItem?.notes,
+    tags: overlay.ownedItem?.tags,
+    collectionStatus: overlay.ownedItem?.collectionStatus,
+    lastBagBoardDate: overlay.lastBagBoardDate,
+    pricePaidCents: overlay.ownedItem?.pricePaidCents,
+    currency: overlay.ownedItem?.currency,
+    locationPath: overlay.locationPath,
+    addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
+    editions: _copyEditionList(item.editions),
     updatedAt: source.updatedAt,
-    trailerUrls: _copyTrailerList(item.trailerUrls),
-    plotSummary: item.plotSummary,
-    plotDescription: item.plotDescription,
-    creators: _copyCreatorList(item.creators),
-    characters: _copyStringList(item.characters),
-    storyArcs: _copyStringList(item.storyArcs),
-    genres: _copyStringList(item.genres),
-    country: item.country,
-    language: item.language,
-    ageRating: item.ageRating,
-    audienceRating: item.audienceRating,
+    trailerUrls: _copyTrailerList(work.trailerUrls),
+    plotSummary: work.plotSummary ?? item.plotSummary,
+    plotDescription: work.plotDescription ?? item.plotDescription,
+    creators: _copyCreatorList(work.creators ?? item.creators),
+    characters: _copyStringList(work.characters.isEmpty ? item.characters : work.characters),
+    storyArcs: _copyStringList(work.storyArcs.isEmpty ? item.storyArcs : work.storyArcs),
+    genres: _copyStringList(work.genres.isEmpty ? item.genres : work.genres),
+    country: work.country ?? item.country,
+    language: work.language ?? item.language,
+    ageRating: work.ageRating ?? item.ageRating,
+    audienceRating: work.audienceRating ?? item.audienceRating,
     rawPlatforms: _copyStringList(item.game?.platforms),
   );
 }
@@ -244,12 +232,4 @@ List<CatalogEdition> _copyEditionList(List<CatalogEdition> values) {
 List<TrailerLink> _copyTrailerList(List<TrailerLink>? values) {
   if (values == null) return const <TrailerLink>[];
   return List<TrailerLink>.unmodifiable(values);
-}
-
-bool _hasMissingCoreMetadata(LibraryMetadataItem item) {
-  return item.publisher == null &&
-      item.releaseDate == null &&
-      item.releaseYear == null &&
-      item.displayCoverUrl == null &&
-      item.displayEditionLabel == null;
 }
