@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/utils/image_url.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
@@ -29,6 +33,7 @@ class LibraryHomePage extends ConsumerStatefulWidget {
 class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   final Map<String, Widget> _cachedKindPages = <String, Widget>{};
   final List<String> _cachedKindOrder = <String>[];
+  String? _lastPrewarmedKind;
 
   String? _routeKind() {
     return canonicalLibraryNavKind(widget.routeUri.queryParameters['kind']);
@@ -54,6 +59,70 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     required String previousKind,
     required String nextKind,
   }) {}
+
+  void _requestCoverPrewarm(
+    BuildContext context,
+    ShelfState shelfState,
+    String kind, {
+    int maxUrls = 32,
+  }) {
+    if (!mounted ||
+        ref.read(uiPreferencesProvider).animationsEnabled == false ||
+        _lastPrewarmedKind == kind) {
+      return;
+    }
+    final urls = _firstCoverUrlsForKind(
+      shelfState,
+      kind,
+      maxUrls: maxUrls,
+    );
+    if (urls.isEmpty) {
+      return;
+    }
+    _lastPrewarmedKind = kind;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      for (final url in urls) {
+        unawaited(
+          precacheImage(
+            CachedNetworkImageProvider(url),
+            context,
+          ),
+        );
+      }
+    });
+  }
+
+  List<String> _firstCoverUrlsForKind(
+    ShelfState shelfState,
+    String kind, {
+    int maxUrls = 32,
+  }) {
+    final urls = <String>[];
+    final seen = <String>{};
+    for (final entry in shelfState.entries) {
+      final catalogItem = entry.catalogItem;
+      if (catalogItem == null || catalogItem.kind != kind) {
+        continue;
+      }
+      final candidates = [
+        normalizeNetworkImageUrl(catalogItem.coverImageUrl),
+        normalizeNetworkImageUrl(catalogItem.thumbnailImageUrl),
+      ];
+      for (final url in candidates.whereType<String>()) {
+        if (url.isEmpty || !seen.add(url)) {
+          continue;
+        }
+        urls.add(url);
+        if (urls.length >= maxUrls) {
+          return urls;
+        }
+      }
+    }
+    return urls;
+  }
 
   Widget _buildCachedKindBody({
     required CatalogMediaType selected,
@@ -210,6 +279,11 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
           data: libraryCountsByKind,
           orElse: () => const <String, LibraryKindCount>{},
         )));
+    final shelfState = ref.watch(shelfProvider);
+    final loadedShelf = shelfState.maybeWhen(
+      data: (value) => value,
+      orElse: () => null,
+    );
     final overdueLoanOwnedItemIds = ref
         .watch(overdueLoanOwnedItemIdsProvider)
         .maybeWhen(data: (value) => value, orElse: () => const <String>{});
@@ -256,10 +330,32 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         : null;
     final collapsed = navPreferences.collapsed;
     final accent = LibraryAccentScope.of(context).accent;
+    if (loadedShelf != null && uiPreferences.animationsEnabled) {
+      _requestCoverPrewarm(context, loadedShelf, selected.kind);
+    }
     final Widget resolvedTopBar;
     if (navPreferences.placement == LibraryNavPlacement.top) {
-      resolvedTopBar =
-          collapsed ? MediaLibraryCollapsedStrip(accent: accent) : topBar;
+      resolvedTopBar = collapsed
+          ? _CoverPrewarmTrigger(
+              onIntent: loadedShelf == null
+                  ? null
+                  : () => _requestCoverPrewarm(
+                        context,
+                        loadedShelf,
+                        selected.kind,
+                      ),
+              child: MediaLibraryCollapsedStrip(accent: accent),
+            )
+          : _CoverPrewarmTrigger(
+              onIntent: loadedShelf == null
+                  ? null
+                  : () => _requestCoverPrewarm(
+                        context,
+                        loadedShelf,
+                        selected.kind,
+                      ),
+              child: topBar,
+            );
     } else {
       // Left-rail mode owns the whole library chrome, so no top bar.
       resolvedTopBar = const SizedBox.shrink();
@@ -287,14 +383,32 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         child: Row(
           children: [
             if (collapsed)
-              MediaLibraryCollapsedRailStrip(accent: accent)
+              _CoverPrewarmTrigger(
+                onIntent: loadedShelf == null
+                    ? null
+                    : () => _requestCoverPrewarm(
+                          context,
+                          loadedShelf,
+                          selected.kind,
+                        ),
+                child: MediaLibraryCollapsedRailStrip(accent: accent),
+              )
             else
-              MediaLibraryRail(
-                types: visibleTypes,
-                counts: counts,
-                registry: registry,
-                selectedKind: selected.kind,
-                onSelected: (type) => _replaceLibraryKind(type.kind),
+              _CoverPrewarmTrigger(
+                onIntent: loadedShelf == null
+                    ? null
+                    : () => _requestCoverPrewarm(
+                          context,
+                          loadedShelf,
+                          selected.kind,
+                        ),
+                child: MediaLibraryRail(
+                  types: visibleTypes,
+                  counts: counts,
+                  registry: registry,
+                  selectedKind: selected.kind,
+                  onSelected: (type) => _replaceLibraryKind(type.kind),
+                ),
               ),
             Expanded(child: content),
           ],
@@ -303,6 +417,38 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     }
 
     return content;
+  }
+}
+
+class _CoverPrewarmTrigger extends StatelessWidget {
+  const _CoverPrewarmTrigger({
+    required this.child,
+    this.onIntent,
+  });
+
+  final Widget child;
+  final VoidCallback? onIntent;
+
+  @override
+  Widget build(BuildContext context) {
+    if (onIntent == null) {
+      return child;
+    }
+    return Focus(
+      onFocusChange: (hasFocus) {
+        if (hasFocus) {
+          onIntent!();
+        }
+      },
+      child: MouseRegion(
+        onEnter: (_) => onIntent!(),
+        child: Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (_) => onIntent!(),
+          child: child,
+        ),
+      ),
+    );
   }
 }
 
