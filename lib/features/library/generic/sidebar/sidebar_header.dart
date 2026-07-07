@@ -101,88 +101,100 @@ class LibrarySidebarHeader extends StatelessWidget {
       ),
       child: SizedBox(
         height: kLibraryToolbarBandHeight,
-        child: Row(
-          children: [
-            Expanded(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: palette.surface,
-                  border: Border.all(color: palette.divider),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 3),
-                  child: LibraryGroupModeMenuButton(
-                    type: type,
-                    folderPreset:
-                        folderPreset ?? LibraryFolderPreset.single(groupMode),
-                    availableModes: availableGroupModes,
-                    accent: accent,
-                    icon: icon,
-                    onChanged: onChanged,
-                    sidebarVisible: true,
-                    onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                    pinnedFolderPresets: pinnedFolderPresets,
-                    onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // During the library-switch fade the sidebar is briefly constrained
+            // to a few pixels wide; the Expanded group menu plus fixed-width
+            // action buttons can't fit there, so skip the toolbar row until it
+            // has a usable width. No effect at normal sidebar widths.
+            if (constraints.maxWidth < 64) {
+              return const SizedBox.shrink();
+            }
+            return Row(
+              children: [
+                Expanded(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: palette.surface,
+                      border: Border.all(color: palette.divider),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: LibraryGroupModeMenuButton(
+                        type: type,
+                        folderPreset: folderPreset ??
+                            LibraryFolderPreset.single(groupMode),
+                        availableModes: availableGroupModes,
+                        accent: accent,
+                        icon: icon,
+                        onChanged: onChanged,
+                        sidebarVisible: true,
+                        onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                        pinnedFolderPresets: pinnedFolderPresets,
+                        onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            if (groupLoading) ...[
-              const SizedBox(width: 6),
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            ],
-            if (manageFavorites != null) ...[
-              const SizedBox(width: 4),
-              _LibrarySidebarToolbarButton(
-                tooltip: 'Manage favorites',
-                icon: Icons.list_alt_outlined,
-                onPressed: () async {
-                  final updated = await showLibraryFolderFavoritesDialog(
-                    context: context,
-                    type: type,
-                    availableModes:
-                        availableGroupModes ?? libraryGroupModesForType(type),
-                    initialFavorites: pinnedFolderPresets,
-                  );
-                  if (updated != null && context.mounted) {
-                    manageFavorites(updated);
-                  }
-                },
-                active: pinnedFolderPresets.isNotEmpty,
-                activeColor: accent,
-              ),
-            ],
-            if (onFolderDisplayModeChanged != null) ...[
-              const SizedBox(width: 4),
-              _LibrarySidebarToolbarButton(
-                tooltip: folderDisplayMode == LibraryFolderDisplayMode.drilldown
-                    ? 'Switch to tree view'
-                    : 'Switch to drilldown view',
-                icon: folderDisplayMode == LibraryFolderDisplayMode.drilldown
-                    ? Icons.account_tree_outlined
-                    : Icons.segment_outlined,
-                onPressed: () => onFolderDisplayModeChanged!(
-                  folderDisplayMode == LibraryFolderDisplayMode.drilldown
-                      ? LibraryFolderDisplayMode.tree
-                      : LibraryFolderDisplayMode.drilldown,
-                ),
-                active: folderDisplayMode == LibraryFolderDisplayMode.tree,
-                activeColor: accent,
-              ),
-            ],
-            if (manageBuckets != null &&
-                libraryGroupModeSupportsBucketManagement(type, groupMode)) ...[
-              const SizedBox(width: 4),
-              _LibrarySidebarToolbarButton(
-                tooltip:
-                    'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
-                icon: Icons.edit_outlined,
-                onPressed: manageBuckets,
+                if (groupLoading) ...[
+                  const SizedBox(width: 6),
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ],
+                if (manageFavorites != null) ...[
+                  const SizedBox(width: 4),
+                  _LibrarySidebarToolbarButton(
+                    tooltip: 'Manage favorites',
+                    icon: Icons.list_alt_outlined,
+                    onPressed: () async {
+                      final updated = await showLibraryFolderFavoritesDialog(
+                        context: context,
+                        type: type,
+                        availableModes: availableGroupModes ??
+                            libraryGroupModesForType(type),
+                        initialFavorites: pinnedFolderPresets,
+                      );
+                      if (updated != null && context.mounted) {
+                        manageFavorites(updated);
+                      }
+                    },
+                    active: pinnedFolderPresets.isNotEmpty,
+                    activeColor: accent,
+                  ),
+                ],
+                if (onFolderDisplayModeChanged != null) ...[
+                  const SizedBox(width: 4),
+                  _LibrarySidebarToolbarButton(
+                    tooltip:
+                        folderDisplayMode == LibraryFolderDisplayMode.drilldown
+                            ? 'Switch to tree view'
+                            : 'Switch to drilldown view',
+                    icon:
+                        folderDisplayMode == LibraryFolderDisplayMode.drilldown
+                            ? Icons.account_tree_outlined
+                            : Icons.segment_outlined,
+                    onPressed: () => onFolderDisplayModeChanged!(
+                      folderDisplayMode == LibraryFolderDisplayMode.drilldown
+                          ? LibraryFolderDisplayMode.tree
+                          : LibraryFolderDisplayMode.drilldown,
+                    ),
+                    active: folderDisplayMode == LibraryFolderDisplayMode.tree,
+                    activeColor: accent,
+                  ),
+                ],
+                if (manageBuckets != null &&
+                    libraryGroupModeSupportsBucketManagement(
+                        type, groupMode)) ...[
+                  const SizedBox(width: 4),
+                  _LibrarySidebarToolbarButton(
+                    tooltip:
+                        'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
+                    icon: Icons.edit_outlined,
+                    onPressed: manageBuckets,
                 active: false,
               ),
             ],
@@ -241,7 +253,9 @@ class LibrarySidebarHeader extends StatelessWidget {
                 active: false,
               ),
             ],
-          ],
+              ],
+            );
+          },
         ),
       ),
     );

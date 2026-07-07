@@ -55,11 +55,19 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
   Timer? _rightPersistDebounce;
   Timer? _bottomPersistDebounce;
 
+  /// The last non-hidden layout, so a transition to [LibraryDetailsLayout.hidden]
+  /// can collapse the panel along the axis it was shown in (and reappearing
+  /// expands from the same axis) instead of popping instantly.
+  LibraryDetailsLayout _lastVisibleLayout = LibraryDetailsLayout.right;
+
   @override
   void initState() {
     super.initState();
     _rightWidth = widget.rightWidth;
     _bottomHeight = widget.bottomHeight;
+    if (widget.detailsLayout != LibraryDetailsLayout.hidden) {
+      _lastVisibleLayout = widget.detailsLayout;
+    }
   }
 
   @override
@@ -70,6 +78,9 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
     }
     if (!_draggingBottom && widget.bottomHeight != oldWidget.bottomHeight) {
       _bottomHeight = widget.bottomHeight;
+    }
+    if (widget.detailsLayout != LibraryDetailsLayout.hidden) {
+      _lastVisibleLayout = widget.detailsLayout;
     }
   }
 
@@ -148,58 +159,129 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
             child: widget.inspector,
           )
         : widget.inspector;
-    return switch (widget.detailsLayout) {
-      LibraryDetailsLayout.right => Row(
-          children: [
-            Expanded(child: widget.content),
-            if (widget.onRightWidthChanged == null)
-              const VerticalDivider(width: 1)
-            else
-              LibraryResizableDivider(
-                accentColor: widget.accentColor,
-                onDragStart: () => _draggingRight = true,
-                onDragEnd: () {
-                  _draggingRight = false;
-                  _flushRightWidthPersist();
-                },
-                onDragDelta: _handleRightDrag,
-              ),
-            AnimatedContainer(
-              duration:
-                  _draggingRight ? Duration.zero : widget.transitionDuration,
-              curve: Curves.easeOutCubic,
-              width: effectiveRightWidth,
-              child: inspectorPane,
-            ),
-          ],
+
+    final isHidden = widget.detailsLayout == LibraryDetailsLayout.hidden;
+    // When hidden, keep the last visible orientation so the panel collapses
+    // (and later expands) along the same axis instead of popping.
+    final panelLayout = isHidden ? _lastVisibleLayout : widget.detailsLayout;
+    final duration = widget.transitionDuration;
+
+    final Widget layout = switch (panelLayout) {
+      LibraryDetailsLayout.bottom => _buildBottomLayout(
+          inspectorPane: inspectorPane,
+          height: effectiveBottomHeight,
+          collapsed: isHidden,
+          duration: duration,
         ),
-      LibraryDetailsLayout.bottom => Column(
-          children: [
-            Expanded(child: widget.content),
-            if (widget.onBottomHeightChanged == null)
-              const Divider(height: 1)
-            else
-              LibraryResizableDivider(
-                axis: Axis.vertical,
-                accentColor: widget.accentColor,
-                onDragStart: () => _draggingBottom = true,
-                onDragEnd: () {
-                  _draggingBottom = false;
-                  _flushBottomHeightPersist();
-                },
-                onDragDelta: _handleBottomDrag,
-              ),
-            AnimatedContainer(
-              duration:
-                  _draggingBottom ? Duration.zero : widget.transitionDuration,
-              curve: Curves.easeOutCubic,
-              height: effectiveBottomHeight,
-              child: inspectorPane,
-            ),
-          ],
+      // right, plus the hidden fallback which never resolves here because
+      // panelLayout is derived from the last visible orientation.
+      LibraryDetailsLayout.right ||
+      LibraryDetailsLayout.hidden =>
+        _buildRightLayout(
+          inspectorPane: inspectorPane,
+          width: effectiveRightWidth,
+          collapsed: isHidden,
+          duration: duration,
         ),
-      LibraryDetailsLayout.hidden => widget.content,
     };
+
+    // Cross-fade when the orientation itself flips (right <-> bottom); the
+    // axis-collapse animation alone can't morph between a Row and a Column.
+    return AnimatedSwitcher(
+      duration: duration,
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        fit: StackFit.expand,
+        children: [
+          ...previousChildren,
+          if (currentChild != null) currentChild,
+        ],
+      ),
+      child: KeyedSubtree(
+        key: ValueKey(panelLayout),
+        child: layout,
+      ),
+    );
+  }
+
+  Widget _buildRightLayout({
+    required Widget inspectorPane,
+    required double width,
+    required bool collapsed,
+    required Duration duration,
+  }) {
+    return Row(
+      children: [
+        Expanded(child: widget.content),
+        if (!collapsed)
+          if (widget.onRightWidthChanged == null)
+            const VerticalDivider(width: 1)
+          else
+            LibraryResizableDivider(
+              accentColor: widget.accentColor,
+              onDragStart: () => _draggingRight = true,
+              onDragEnd: () {
+                _draggingRight = false;
+                _flushRightWidthPersist();
+              },
+              onDragDelta: _handleRightDrag,
+            ),
+        AnimatedContainer(
+          duration: _draggingRight ? Duration.zero : duration,
+          curve: Curves.easeOutCubic,
+          width: collapsed ? 0.0 : width,
+          child: ClipRect(
+            child: OverflowBox(
+              minWidth: 0,
+              maxWidth: width,
+              alignment: Alignment.centerLeft,
+              child: SizedBox(width: width, child: inspectorPane),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomLayout({
+    required Widget inspectorPane,
+    required double height,
+    required bool collapsed,
+    required Duration duration,
+  }) {
+    return Column(
+      children: [
+        Expanded(child: widget.content),
+        if (!collapsed)
+          if (widget.onBottomHeightChanged == null)
+            const Divider(height: 1)
+          else
+            LibraryResizableDivider(
+              axis: Axis.vertical,
+              accentColor: widget.accentColor,
+              onDragStart: () => _draggingBottom = true,
+              onDragEnd: () {
+                _draggingBottom = false;
+                _flushBottomHeightPersist();
+              },
+              onDragDelta: _handleBottomDrag,
+            ),
+        AnimatedContainer(
+          duration: _draggingBottom ? Duration.zero : duration,
+          curve: Curves.easeOutCubic,
+          height: collapsed ? 0.0 : height,
+          child: ClipRect(
+            child: OverflowBox(
+              minHeight: 0,
+              maxHeight: height,
+              alignment: Alignment.topCenter,
+              child: SizedBox(height: height, child: inspectorPane),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

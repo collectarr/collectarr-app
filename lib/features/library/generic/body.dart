@@ -491,6 +491,7 @@ class LibraryBody extends StatelessWidget {
           onRightWidthChanged: onDetailsWidthChanged,
           onBottomHeightChanged: onDetailsHeightChanged,
           accentColor: accent,
+          transitionDuration: kAppAnimNormal,
         );
         _postLayoutSnapshotIfNeeded(
           context,
