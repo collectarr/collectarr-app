@@ -326,28 +326,5 @@ class LibraryExternalLinksEditor extends StatelessWidget {
 }
 
 Widget _responsiveFields(List<Widget> children) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      final twoColumns = constraints.maxWidth >= 620;
-      if (!twoColumns) {
-        return Column(
-          children: [
-            for (var index = 0; index < children.length; index++) ...[
-              if (index > 0) const SizedBox(height: 10),
-              children[index],
-            ],
-          ],
-        );
-      }
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (var index = 0; index < children.length; index++) ...[
-            if (index > 0) const SizedBox(width: 10),
-            Expanded(child: children[index]),
-          ],
-        ],
-      );
-    },
-  );
+  return LibraryEditResponsiveRow(children: children);
 }

@@ -355,6 +355,49 @@ class LibraryEditTextField extends StatelessWidget {
   }
 }
 
+/// A responsive form row that stacks its [children] into a single column on
+/// narrow layouts and lays them out as equal-width [Expanded] columns once the
+/// available width reaches [breakpoint]. Consolidates the identical private
+/// `_responsiveFields` helpers that several edit dialogs used to declare.
+class LibraryEditResponsiveRow extends StatelessWidget {
+  const LibraryEditResponsiveRow({
+    super.key,
+    required this.children,
+    this.breakpoint = 620,
+  });
+
+  final List<Widget> children;
+  final double breakpoint;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final twoColumns = constraints.maxWidth >= breakpoint;
+        if (!twoColumns) {
+          return Column(
+            children: [
+              for (var index = 0; index < children.length; index++) ...[
+                if (index > 0) const SizedBox(height: 10),
+                children[index],
+              ],
+            ],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var index = 0; index < children.length; index++) ...[
+              if (index > 0) const SizedBox(width: 10),
+              Expanded(child: children[index]),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Two-column grid for form fields
 // ---------------------------------------------------------------------------
