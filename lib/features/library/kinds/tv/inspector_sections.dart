@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/details/library_detail_title_status_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
@@ -247,13 +247,6 @@ Widget buildTvInspectorPanel(
 ) {
   final entry = request.inspector.entry;
   final accent = request.inspector.accent;
-  final statusIcon =
-      entry.isOwned ? Icons.inventory_2_outlined : Icons.star_border;
-  final statusLabel = entry.isOwned
-      ? 'In collection'
-      : entry.isWishlisted
-          ? 'Wishlist'
-          : 'Catalog';
 
   return LibraryDetailPanelScaffold(
     accent: accent,
@@ -269,12 +262,10 @@ Widget buildTvInspectorPanel(
       onUnlinkFromCore: request.onUnlinkFromCore,
       onDetailsLayoutChanged: request.onDetailsLayoutChanged,
     ),
-    hero: LibraryDetailTitleStatusCard(
+    hero: LibraryInspectorTitleCard(
+      entry: entry,
       eyebrow: entry.series?.seriesTitle?.trim(),
-      title: entry.resolvedTitle,
       accent: accent,
-      statusIcon: statusIcon,
-      statusLabel: statusLabel,
     ),
     sections: _buildTvInspectorSectionSpecs(context, request.inspector),
   );

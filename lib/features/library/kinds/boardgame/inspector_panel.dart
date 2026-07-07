@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sections.dart';
@@ -76,77 +77,10 @@ class _BoardGameInspectorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entry = inspector.entry;
-    final series = entry.series?.seriesTitle?.trim();
-    final palette = appPalette(context);
-    final statusIcon =
-        entry.isOwned ? Icons.inventory_2_outlined : Icons.star_border;
-    final statusLabel = entry.isOwned
-        ? 'In collection'
-        : entry.isWishlisted
-            ? 'Wishlist'
-            : 'Catalog';
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.surface.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: palette.divider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (series != null && series.isNotEmpty)
-              Text(
-                series,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: inspector.accent,
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    entry.resolvedTitle,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          height: 1.05,
-                        ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: palette.panel,
-                    borderRadius: BorderRadius.circular(3),
-                    border: Border.all(color: palette.divider),
-                  ),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(statusIcon, size: 14, color: inspector.accent),
-                        const SizedBox(width: 4),
-                        Text(
-                          statusLabel,
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return LibraryInspectorTitleCard(
+      entry: entry,
+      eyebrow: entry.series?.seriesTitle?.trim(),
+      accent: inspector.accent,
     );
   }
 }

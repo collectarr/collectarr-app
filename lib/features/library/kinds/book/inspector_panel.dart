@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/details/library_detail_title_status_card.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:flutter/material.dart';
@@ -24,13 +24,6 @@ class BookInspectorPanel extends StatelessWidget {
     final entry = request.inspector.entry;
     final accent = request.inspector.accent;
     final series = entry.series?.seriesTitle?.trim();
-    final statusIcon =
-        entry.isOwned ? Icons.inventory_2_outlined : Icons.star_border;
-    final statusLabel = entry.isOwned
-        ? 'In collection'
-        : entry.isWishlisted
-            ? 'Wishlist'
-            : 'Catalog';
     final sections = const BookLibraryMediaPresentationBuilder(
       showSummary: true,
     ).buildInspectorSections(
@@ -63,12 +56,10 @@ class BookInspectorPanel extends StatelessWidget {
             accent: accent,
           ),
           const SizedBox(height: 6),
-          LibraryDetailTitleStatusCard(
+          LibraryInspectorTitleCard(
+            entry: entry,
             eyebrow: series,
-            title: entry.resolvedTitle,
             accent: accent,
-            statusIcon: statusIcon,
-            statusLabel: statusLabel,
           ),
           const SizedBox(height: 10),
         ],

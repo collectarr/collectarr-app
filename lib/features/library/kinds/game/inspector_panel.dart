@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/details/library_detail_title_status_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
@@ -110,19 +110,10 @@ class _GameInspectorHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final entry = inspector.entry;
     final series = entry.series?.seriesTitle?.trim();
-    final statusIcon =
-        entry.isOwned ? Icons.inventory_2_outlined : Icons.star_border;
-    final statusLabel = entry.isOwned
-        ? 'In collection'
-        : entry.isWishlisted
-            ? 'Wishlist'
-            : 'Catalog';
-    return LibraryDetailTitleStatusCard(
+    return LibraryInspectorTitleCard(
+      entry: entry,
       eyebrow: series,
-      title: entry.resolvedTitle,
       accent: inspector.accent,
-      statusIcon: statusIcon,
-      statusLabel: statusLabel,
     );
   }
 }
