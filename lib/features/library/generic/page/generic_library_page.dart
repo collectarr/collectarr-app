@@ -78,6 +78,8 @@ import 'package:collectarr_app/features/library/workspace/layout/library_alpha_j
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot_provider.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
@@ -120,12 +122,14 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
     required this.topBar,
     required this.accent,
     required this.routeUri,
+    this.switchLayoutSnapshot,
   });
 
   final LibraryTypeConfig type;
   final Widget topBar;
   final Color accent;
   final Uri routeUri;
+  final LibraryLayoutSnapshot? switchLayoutSnapshot;
 
   @override
   ConsumerState<GenericLibraryPage> createState() => GenericLibraryPageState();
@@ -451,17 +455,18 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           _viewPrefs.readFolderTreeExpandedNodeIds(preset);
       final selectedNodeIdFuture =
           _viewPrefs.readFolderTreeSelectedNodeId(preset);
-      final (displayMode, expandedNodeIds, selectedNodeId) =
-          await (displayModeFuture, expandedNodeIdsFuture, selectedNodeIdFuture)
-              .wait;
+      final (displayMode, expandedNodeIds, selectedNodeId) = await (
+        displayModeFuture,
+        expandedNodeIdsFuture,
+        selectedNodeIdFuture
+      ).wait;
       if (!mounted ||
           loadToken != _folderTreePreferenceLoadToken ||
           widget.type.workspace.kind != expectedKind) {
         return;
       }
       _mutateState(() {
-        _folderDisplayMode =
-            displayMode ?? LibraryFolderDisplayMode.drilldown;
+        _folderDisplayMode = displayMode ?? LibraryFolderDisplayMode.drilldown;
         _folderTreeExpandedNodeIds = expandedNodeIds;
         _folderTreeSelectedNodeId = selectedNodeId;
       });
@@ -1095,7 +1100,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @protected
   bool supportsBucketManagement(LibraryGroupMode mode) {
-    return widget.type.kindUiAdapter.supportsBucketManagement(widget.type, mode);
+    return widget.type.kindUiAdapter
+        .supportsBucketManagement(widget.type, mode);
   }
 
   @protected
@@ -1158,31 +1164,31 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       accent: widget.accent,
       onRefreshFromCore: () => _refreshVideoTitleFromCore(selectedItem),
       onOpenTitleDetails: () => showLibraryDetailPage(
-            context: context,
-            request: LibraryDetailPageRequest(
-              type: widget.type,
-              entry: selectedItem.entry,
-              ownedItem: selectedItem.source.ownedItem,
-              accent: widget.accent,
-              onAddOwned: () => runCollectionAction(
-                (actions) => actions.addOwned(selectedItem),
-              ),
-              onRemoveOwned: selectedItem.source.ownedItem == null
-                  ? null
-                  : () => confirmAndRemoveOwned(selectedItem),
-              onAddWishlist: () => runCollectionAction(
-                (actions) => actions.addWishlist(selectedItem),
-              ),
-              onRemoveWishlist: selectedItem.source.isWishlisted
-                  ? () => runCollectionAction(
-                        (actions) => actions.removeWishlist(selectedItem),
-                      )
-                  : null,
-              onEdit: (ownedItem) =>
-                  unawaited(showEditDialog(selectedItem, ownedItem)),
-              onFilterByValue: _toggleLinkedMetadataFilter,
-            ),
+        context: context,
+        request: LibraryDetailPageRequest(
+          type: widget.type,
+          entry: selectedItem.entry,
+          ownedItem: selectedItem.source.ownedItem,
+          accent: widget.accent,
+          onAddOwned: () => runCollectionAction(
+            (actions) => actions.addOwned(selectedItem),
           ),
+          onRemoveOwned: selectedItem.source.ownedItem == null
+              ? null
+              : () => confirmAndRemoveOwned(selectedItem),
+          onAddWishlist: () => runCollectionAction(
+            (actions) => actions.addWishlist(selectedItem),
+          ),
+          onRemoveWishlist: selectedItem.source.isWishlisted
+              ? () => runCollectionAction(
+                    (actions) => actions.removeWishlist(selectedItem),
+                  )
+              : null,
+          onEdit: (ownedItem) =>
+              unawaited(showEditDialog(selectedItem, ownedItem)),
+          onFilterByValue: _toggleLinkedMetadataFilter,
+        ),
+      ),
       allOwnedCopies: allOwnedCopies,
       allWishlistItems: allWishlistItems,
     );

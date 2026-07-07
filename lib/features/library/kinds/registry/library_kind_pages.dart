@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/manga/page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/page.dart';
 import 'package:collectarr_app/features/library/kinds/music/page.dart';
 import 'package:collectarr_app/features/library/kinds/tv/page.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:flutter/material.dart';
 
 Widget buildLibraryKindPage({
@@ -16,6 +17,7 @@ Widget buildLibraryKindPage({
   required Widget topBar,
   required Color accent,
   required Uri routeUri,
+  LibraryLayoutSnapshot? switchLayoutSnapshot,
 }) {
   return switch (type.workspace.kind.apiValue) {
     'book' => BookLibraryPage(
@@ -23,60 +25,70 @@ Widget buildLibraryKindPage({
         topBar: topBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
     'boardgame' => BoardGameLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
     'comic' => ComicLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
     'manga' => MangaLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
     'game' => GameLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
     'movie' => MovieLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
     'tv' => TvLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
     'anime' => AnimeLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
     'music' => MusicLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
     _ => GenericLibraryPage(
         type: type,
         topBar: topBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
   };
 }

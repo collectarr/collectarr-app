@@ -13,8 +13,8 @@ class MovieLibraryPage extends GenericLibraryPage {
     required super.topBar,
     required super.accent,
     required super.routeUri,
-  }) : super(
-        );
+    super.switchLayoutSnapshot,
+  });
 
   @override
   ConsumerState<GenericLibraryPage> createState() => MovieLibraryPageState();

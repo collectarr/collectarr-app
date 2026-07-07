@@ -19,6 +19,7 @@ class LibraryWorkspaceGrid<T> extends StatefulWidget {
     required this.emptyBuilder,
     required this.maxCrossAxisExtent,
     required this.mainAxisExtent,
+    this.initialCrossAxisCount,
     this.selectionEnabled = false,
     this.selectedIds = const {},
     this.itemIdOf,
@@ -37,6 +38,7 @@ class LibraryWorkspaceGrid<T> extends StatefulWidget {
   final WidgetBuilder emptyBuilder;
   final double maxCrossAxisExtent;
   final double mainAxisExtent;
+  final int? initialCrossAxisCount;
   final bool selectionEnabled;
   final Set<String> selectedIds;
   final LibraryGridItemId<T>? itemIdOf;
@@ -57,8 +59,16 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
   final _scrollController = ScrollController();
   final _selectionRectNotifier = ValueNotifier<Rect?>(null);
   int? _stableCrossAxisCount;
+  bool _freezeCrossAxisCount = false;
   Offset? _dragStart;
   Set<String> _dragBaseSelection = const {};
+
+  @override
+  void initState() {
+    super.initState();
+    _stableCrossAxisCount = widget.initialCrossAxisCount;
+    _freezeCrossAxisCount = widget.initialCrossAxisCount != null;
+  }
 
   @override
   void dispose() {
@@ -75,6 +85,14 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
         oldWidget.mainAxisExtent != widget.mainAxisExtent ||
         oldWidget.padding != widget.padding) {
       _stableCrossAxisCount = null;
+    }
+    if (oldWidget.initialCrossAxisCount != widget.initialCrossAxisCount) {
+      if (widget.initialCrossAxisCount != null) {
+        _stableCrossAxisCount = widget.initialCrossAxisCount;
+        _freezeCrossAxisCount = true;
+      } else if (oldWidget.initialCrossAxisCount != null) {
+        _freezeCrossAxisCount = false;
+      }
     }
   }
 
@@ -210,6 +228,9 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
   }
 
   int _resolveStableCrossAxisCount(double gridWidth) {
+    if (_freezeCrossAxisCount && _stableCrossAxisCount != null) {
+      return _stableCrossAxisCount!;
+    }
     final spacing = widget.crossAxisSpacing;
     final cellAndGap = widget.maxCrossAxisExtent + spacing;
     final computed = math.max(1, ((gridWidth + spacing) / cellAndGap).floor());

@@ -63,6 +63,7 @@ class LibraryWorkspace extends ConsumerWidget {
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
     this.onItemContextMenu,
+    this.initialCrossAxisCount,
   });
 
   final LibraryTypeConfig type;
@@ -93,6 +94,7 @@ class LibraryWorkspace extends ConsumerWidget {
           LibraryTableColumn column, LibraryTableColumn? beforeColumn)
       onColumnReordered;
   final LibraryItemContextMenuCallback? onItemContextMenu;
+  final int? initialCrossAxisCount;
 
   bool get _showGrouped =>
       viewState.viewMode != LibraryViewMode.horizontalCards &&
@@ -204,6 +206,7 @@ class LibraryWorkspace extends ConsumerWidget {
           emptyBuilder: _emptyBuilder,
           maxCrossAxisExtent: viewState.coverSize,
           mainAxisExtent: coverMainAxisExtent,
+          initialCrossAxisCount: initialCrossAxisCount,
           crossAxisSpacing: gridSpacing,
           mainAxisSpacing: gridSpacing,
           padding: gridPadding,

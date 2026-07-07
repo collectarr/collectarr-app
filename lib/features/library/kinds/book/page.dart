@@ -8,6 +8,7 @@ class BookLibraryPage extends GenericLibraryPage {
     required super.topBar,
     required super.accent,
     required super.routeUri,
+    super.switchLayoutSnapshot,
   }) : super();
 
   @override

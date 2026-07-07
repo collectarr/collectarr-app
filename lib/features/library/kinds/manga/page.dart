@@ -8,8 +8,8 @@ class MangaLibraryPage extends GenericLibraryPage {
     required super.topBar,
     required super.accent,
     required super.routeUri,
-  }) : super(
-        );
+    super.switchLayoutSnapshot,
+  }) : super();
 
   @override
   ConsumerState<GenericLibraryPage> createState() => MangaLibraryPageState();

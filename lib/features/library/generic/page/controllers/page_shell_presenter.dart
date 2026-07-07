@@ -8,7 +8,12 @@ abstract final class _LibraryPageShellPresenter {
     final shelf = state.ref.watch(shelfProvider);
     final ownedCopiesValue = state.ref.watch(collectionProvider);
     final wishlistValue = state.ref.watch(wishlistProvider);
-    final viewState = state._viewState ?? state._adapter.viewProfile.defaults();
+    final switchSnapshot = state.widget.switchLayoutSnapshot;
+    final baseViewState =
+        state._viewState ?? state._adapter.viewProfile.defaults();
+    final viewState = switchSnapshot == null
+        ? baseViewState
+        : baseViewState.withLayoutSnapshot(switchSnapshot);
     final shelfState = shelf.asData?.value;
     final allOwnedCopies = state._activeOwnedCopies(ownedCopiesValue);
     final allWishlistItems = state._activeWishlistItems(wishlistValue);
@@ -232,6 +237,9 @@ abstract final class _LibraryPageShellPresenter {
       onDetailsHeightChanged: (height) => state._updateViewChrome(
         (stateValue) => stateValue.copyWith(detailsHeight: height),
       ),
+      onLayoutSnapshotChanged: (snapshot) {
+        state.ref.read(libraryLayoutSnapshotProvider.notifier).update(snapshot);
+      },
       onAddOwned: (item) => state.runCollectionAction(
         (actions) => actions.addOwned(item),
       ),
@@ -310,23 +318,26 @@ abstract final class _LibraryPageShellPresenter {
         browserMode: state._activeBrowserMode,
         supportsMediaReleaseSplit: state._supportsMediaReleaseSplit,
         onBrowserModeChanged: state._setBrowserMode,
-        showReleaseFolderBack: state.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
+        showReleaseFolderBack:
+            state.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
           state.widget.type,
           browserMode: state._activeBrowserMode,
           releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
         ),
-        releaseFolderLabel: state.widget.type.kindUiAdapter.releaseFolderLabelForProjection(
+        releaseFolderLabel:
+            state.widget.type.kindUiAdapter.releaseFolderLabelForProjection(
           state.widget.type,
           projection,
           releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
         ),
-        onReleaseFolderBack: state.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
+        onReleaseFolderBack:
+            state.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
           state.widget.type,
           browserMode: state._activeBrowserMode,
           releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
         )
-            ? state._closeReleaseFolder
-            : null,
+                ? state._closeReleaseFolder
+                : null,
         onDetailsLayoutChanged: (layout) => state._updateViewState(
           (stateValue) => stateValue.copyWith(detailsLayout: layout),
         ),

@@ -26,6 +26,7 @@ class LibraryDetailsAwareLayout extends StatefulWidget {
     this.maxRightWidth = kLibraryDetailsMaxWidth,
     this.maxBottomHeight = kLibraryPaneStoredMaxWidth,
     this.accentColor = kAppAccent,
+    this.transitionDuration = kAppAnimNormal,
   });
 
   final Widget content;
@@ -39,6 +40,7 @@ class LibraryDetailsAwareLayout extends StatefulWidget {
   final double maxRightWidth;
   final double maxBottomHeight;
   final Color accentColor;
+  final Duration transitionDuration;
 
   @override
   State<LibraryDetailsAwareLayout> createState() =>
@@ -162,7 +164,10 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
                 },
                 onDragDelta: _handleRightDrag,
               ),
-            SizedBox(
+            AnimatedContainer(
+              duration:
+                  _draggingRight ? Duration.zero : widget.transitionDuration,
+              curve: Curves.easeOutCubic,
               width: effectiveRightWidth,
               child: inspectorPane,
             ),
@@ -184,7 +189,10 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
                 },
                 onDragDelta: _handleBottomDrag,
               ),
-            SizedBox(
+            AnimatedContainer(
+              duration:
+                  _draggingBottom ? Duration.zero : widget.transitionDuration,
+              curve: Curves.easeOutCubic,
               height: effectiveBottomHeight,
               child: inspectorPane,
             ),

@@ -9,12 +9,15 @@ import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_rail.dart';
+import 'package:collectarr_app/features/library/home/library_switch_transition.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot_provider.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +37,8 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   final Map<String, Widget> _cachedKindPages = <String, Widget>{};
   final List<String> _cachedKindOrder = <String>[];
   String? _lastPrewarmedKind;
+  LibraryLayoutSnapshot? _switchLayoutSnapshot;
+  Timer? _switchLayoutSnapshotReset;
 
   String? _routeKind() {
     return canonicalLibraryNavKind(widget.routeUri.queryParameters['kind']);
@@ -43,6 +48,8 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     final normalized = canonicalLibraryNavKind(kind) ?? 'comic';
     final previousKind = ref.read(selectedLibraryKindProvider);
     if (previousKind != normalized) {
+      _switchLayoutSnapshotReset?.cancel();
+      _switchLayoutSnapshot = ref.read(libraryLayoutSnapshotProvider);
       _recordSwitchMetrics(previousKind: previousKind, nextKind: normalized);
     }
     ref.read(selectedLibraryKindProvider.notifier).select(normalized);
@@ -53,12 +60,40 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         GoRouter.maybeOf(context) != null) {
       context.replace(nextUri.toString());
     }
+    final animationDuration = ref.read(uiPreferencesProvider).animationsEnabled
+        ? kAppAnimNormal
+        : Duration.zero;
+    if (animationDuration == Duration.zero) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _switchLayoutSnapshot = null;
+        });
+      });
+      return;
+    }
+    _switchLayoutSnapshotReset = Timer(animationDuration, () {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _switchLayoutSnapshot = null;
+      });
+    });
   }
 
   void _recordSwitchMetrics({
     required String previousKind,
     required String nextKind,
   }) {}
+
+  @override
+  void dispose() {
+    _switchLayoutSnapshotReset?.cancel();
+    super.dispose();
+  }
 
   void _requestCoverPrewarm(
     BuildContext context,
@@ -132,6 +167,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     required Uri routeUri,
     required List<CatalogMediaType> visibleTypes,
     required Duration animationDuration,
+    required LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     _cachedKindPages[selected.kind] = KeyedSubtree(
       key: ValueKey('library-kind-${selected.kind}'),
@@ -140,6 +176,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         topBar: resolvedTopBar,
         accent: accent,
         routeUri: routeUri,
+        switchLayoutSnapshot: switchLayoutSnapshot,
       ),
     );
 
@@ -189,39 +226,8 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       return stack;
     }
 
-    return AnimatedSwitcher(
+    return LibrarySwitchTransition(
       duration: animationDuration,
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      layoutBuilder: (currentChild, previousChildren) {
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            ...previousChildren,
-            if (currentChild != null) currentChild,
-          ],
-        );
-      },
-      transitionBuilder: (child, animation) {
-        final slide = Tween<Offset>(
-          begin: const Offset(0.02, 0.01),
-          end: Offset.zero,
-        ).animate(animation);
-        final fade = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOut,
-        );
-        return FadeTransition(
-          opacity: fade,
-          child: SlideTransition(
-            position: slide,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.985, end: 1).animate(animation),
-              child: child,
-            ),
-          ),
-        );
-      },
       child: KeyedSubtree(
         key: ValueKey('library-kind-stack-${selected.kind}'),
         child: stack,
@@ -372,6 +378,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
             routeUri: widget.routeUri,
             visibleTypes: visibleTypes,
             animationDuration: animationDuration,
+            switchLayoutSnapshot: _switchLayoutSnapshot,
           ),
         ),
       ],

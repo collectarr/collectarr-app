@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -17,6 +18,7 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_ctrl_scroll_zoom.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_resizable_pane.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
@@ -126,6 +128,7 @@ class LibraryBody extends StatelessWidget {
     required this.onDetailsLayoutChanged,
     required this.onDetailsWidthChanged,
     required this.onDetailsHeightChanged,
+    this.onLayoutSnapshotChanged,
     required this.onAddOwned,
     required this.onRemoveOwned,
     required this.onAddWishlist,
@@ -209,6 +212,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<double> onDetailsWidthChanged;
   final ValueChanged<double> onDetailsHeightChanged;
+  final ValueChanged<LibraryLayoutSnapshot>? onLayoutSnapshotChanged;
   final ValueChanged<LibraryProjectionItem> onAddOwned;
   final ValueChanged<LibraryProjectionItem> onRemoveOwned;
   final ValueChanged<LibraryProjectionItem> onAddWishlist;
@@ -282,7 +286,7 @@ class LibraryBody extends StatelessWidget {
         final maxDetailsWidth = resolveLibraryDetailsMaxWidth(
           viewportWidth: constraints.maxWidth,
           workspaceMinWidth: workspaceMinWidth,
-          hasSidebar: showSidebar,
+          hasSidebar: canShowSidebar,
           sidebarWidth: sidebarWidth,
         );
         final maxDetailsHeight = resolveLibraryDetailsMaxHeight(
@@ -331,6 +335,17 @@ class LibraryBody extends StatelessWidget {
                 onColumnWidthChanged: onColumnWidthChanged,
                 onColumnReordered: onColumnReordered,
                 onItemContextMenu: onItemContextMenu,
+                initialCrossAxisCount: _estimateGridColumnCount(
+                  workspaceWidth: constraints.maxWidth -
+                      (showSidebar
+                          ? sidebarWidth + kLibraryPaneDividerWidth
+                          : 0) -
+                      (detailsLayout == LibraryDetailsLayout.right
+                          ? requestedDetailsWidth + kLibraryPaneDividerWidth
+                          : 0),
+                  coverSize: viewState.coverSize,
+                  viewMode: viewState.viewMode,
+                ),
               ),
             );
         final details = LibraryInspector(
@@ -466,9 +481,31 @@ class LibraryBody extends StatelessWidget {
           onBottomHeightChanged: onDetailsHeightChanged,
           accentColor: accent,
         );
+        _postLayoutSnapshotIfNeeded(
+          context,
+          snapshot: LibraryLayoutSnapshot(
+            sidebarWidth: sidebarWidth,
+            inspectorWidth: requestedDetailsWidth,
+            detailsHeight: viewState.detailsHeight,
+            toolbarHeight: kLibraryToolbarBandHeight,
+            coverSize: viewState.coverSize,
+            gridColumnCount: _estimateGridColumnCount(
+              workspaceWidth: constraints.maxWidth -
+                  (showSidebar ? sidebarWidth + kLibraryPaneDividerWidth : 0) -
+                  (detailsLayout == LibraryDetailsLayout.right
+                      ? requestedDetailsWidth + kLibraryPaneDividerWidth
+                      : 0),
+              coverSize: viewState.coverSize,
+              viewMode: viewState.viewMode,
+            ),
+            isSidebarVisible: showSidebar,
+            detailsLayout: detailsLayout,
+          ),
+          onLayoutSnapshotChanged: onLayoutSnapshotChanged,
+        );
         return ColoredBox(
           color: palette.canvas,
-          child: showSidebar
+          child: canShowSidebar
               ? _LibrarySidebarResizableLayout(
                   sidebar: sidebar,
                   content: detailsLayoutWidget,
@@ -477,12 +514,44 @@ class LibraryBody extends StatelessWidget {
                   maxWidth: maxSidebarWidth,
                   accentColor: accent,
                   onSidebarWidthChanged: onSidebarWidthChanged,
+                  visible: viewState.isSidebarVisible,
                 )
               : detailsLayoutWidget,
         );
       },
     );
   }
+}
+
+void _postLayoutSnapshotIfNeeded(
+  BuildContext context, {
+  required LibraryLayoutSnapshot snapshot,
+  ValueChanged<LibraryLayoutSnapshot>? onLayoutSnapshotChanged,
+}) {
+  if (onLayoutSnapshotChanged == null) {
+    return;
+  }
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!context.mounted) {
+      return;
+    }
+    onLayoutSnapshotChanged(snapshot);
+  });
+}
+
+int _estimateGridColumnCount({
+  required double workspaceWidth,
+  required double coverSize,
+  required LibraryViewMode viewMode,
+}) {
+  if (workspaceWidth <= 0) {
+    return 1;
+  }
+  if (!viewMode.supportsCoverSize) {
+    return 1;
+  }
+  final tileWidth = coverSize + 10;
+  return math.max(1, ((workspaceWidth + 10) / tileWidth).floor());
 }
 
 class _LibrarySidebarResizableLayout extends StatefulWidget {
@@ -494,6 +563,7 @@ class _LibrarySidebarResizableLayout extends StatefulWidget {
     required this.maxWidth,
     required this.accentColor,
     required this.onSidebarWidthChanged,
+    required this.visible,
   });
 
   final Widget sidebar;
@@ -503,6 +573,7 @@ class _LibrarySidebarResizableLayout extends StatefulWidget {
   final double maxWidth;
   final Color accentColor;
   final ValueChanged<double> onSidebarWidthChanged;
+  final bool visible;
 
   @override
   State<_LibrarySidebarResizableLayout> createState() =>
@@ -566,18 +637,32 @@ class _LibrarySidebarResizableLayoutState
 
   @override
   Widget build(BuildContext context) {
+    final sidebarWidth = widget.visible ? _width : 0.0;
     return Row(
       children: [
-        SizedBox(width: _width, child: widget.sidebar),
-        LibraryResizableDivider(
-          accentColor: widget.accentColor,
-          onDragStart: () => _dragging = true,
-          onDragEnd: () {
-            _dragging = false;
-            _flushSidebarWidthPersist();
-          },
-          onDragDelta: _handleDrag,
+        AnimatedContainer(
+          duration: _dragging ? Duration.zero : kAppAnimNormal,
+          curve: Curves.easeOutCubic,
+          width: sidebarWidth,
+          child: AnimatedOpacity(
+            duration: _dragging ? Duration.zero : kAppAnimNormal,
+            opacity: widget.visible ? 1 : 0,
+            child: IgnorePointer(
+              ignoring: !widget.visible,
+              child: widget.sidebar,
+            ),
+          ),
         ),
+        if (widget.visible)
+          LibraryResizableDivider(
+            accentColor: widget.accentColor,
+            onDragStart: () => _dragging = true,
+            onDragEnd: () {
+              _dragging = false;
+              _flushSidebarWidthPersist();
+            },
+            onDragDelta: _handleDrag,
+          ),
         Expanded(child: widget.content),
       ],
     );
