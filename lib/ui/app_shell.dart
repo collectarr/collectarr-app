@@ -179,7 +179,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const bottomNavHeight = 36.0;
+    const bottomNavHeight = 44.0;
     final palette = appPalette(context);
     final accentData = LibraryAccentScope.of(context);
     return AnimatedLibraryChromeGradient(
@@ -207,14 +207,15 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
           labelTextStyle: WidgetStatePropertyAll(
             TextStyle(
               color: palette.isDark ? Colors.white : palette.textPrimary,
-              fontSize: 12,
+              fontSize: 10,
               fontWeight: FontWeight.w800,
+              height: 1,
             ),
           ),
           iconTheme: WidgetStatePropertyAll(
             IconThemeData(
               color: palette.isDark ? Colors.white : palette.textPrimary,
-              size: 20,
+              size: 16,
             ),
           ),
         ),
@@ -266,7 +267,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
                   child: Icon(
                     Icons.expand_more,
                     color: palette.isDark ? Colors.white : palette.textPrimary,
-                    size: 20,
+                    size: 16,
                   ),
                 ),
               ),
