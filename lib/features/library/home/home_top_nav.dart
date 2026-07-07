@@ -45,66 +45,60 @@ class MediaLibraryNav extends ConsumerWidget {
     final selectedGroup = selectedLibraryNavGroup(groups, selectedKind);
     final selected = selectedLibraryHomeType(types, selectedKind);
     final accent = libraryAccentForKind(selectedGroup.primaryType.kind);
-    final palette = appPalette(context);
 
-    return AnimatedContainer(
-      duration: Duration.zero,
-      curve: Curves.linear,
-      height: 36,
-      decoration: BoxDecoration(
-        gradient: libraryChromeGradient(
-          accent,
-          brightness: palette.brightness,
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        border: Border(
-          top: BorderSide(
-            color: libraryChromeBorderColor(
-              accent,
-              brightness: palette.brightness,
-            ),
+    return AnimatedLibraryChromeGradient(
+      accent: accent,
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      borderBuilder: (animatedAccent, brightness) => Border(
+        top: BorderSide(
+          color: libraryChromeBorderColor(
+            animatedAccent,
+            brightness: brightness,
           ),
-          bottom: BorderSide(
-            color: libraryChromeBorderColor(
-              accent,
-              brightness: palette.brightness,
-            ),
+        ),
+        bottom: BorderSide(
+          color: libraryChromeBorderColor(
+            animatedAccent,
+            brightness: brightness,
           ),
         ),
       ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 6, right: 4),
-            child: _MediaLibraryOverdueActions(
-              overdueLoanCount: overdueLoanCount,
-              selectedOverdueLoanCount: selectedOverdueLoanCount,
-              selectedLabel: selectedLabel,
+      child: SizedBox(
+        height: 36,
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 6, right: 4),
+              child: _MediaLibraryOverdueActions(
+                overdueLoanCount: overdueLoanCount,
+                selectedOverdueLoanCount: selectedOverdueLoanCount,
+                selectedLabel: selectedLabel,
+              ),
             ),
-          ),
-          Expanded(
-            child: MediaLibraryNavStrip(
-              types: types,
-              counts: counts,
-              registry: registry,
-              selectedKind: selected.kind,
-              onSelected: onSelected,
-              animationDuration: animationDuration,
+            Expanded(
+              child: MediaLibraryNavStrip(
+                types: types,
+                counts: counts,
+                registry: registry,
+                selectedKind: selected.kind,
+                onSelected: onSelected,
+                animationDuration: animationDuration,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 4, right: 6),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const _LibraryTopNavSyncButton(),
-                const SizedBox(width: 4),
-                const _LibraryNavCollapseButton(),
-              ],
+            Padding(
+              padding: const EdgeInsets.only(left: 4, right: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const _LibraryTopNavSyncButton(),
+                  const SizedBox(width: 4),
+                  const _LibraryNavCollapseButton(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -118,7 +112,6 @@ class MediaLibraryTitleBar extends ConsumerWidget {
     this.selectedOverdueLoanCount = 0,
     required this.selectedLabel,
     required this.registry,
-    this.animationDuration = kAppAnimNormal,
   });
 
   final CatalogMediaType type;
@@ -126,7 +119,6 @@ class MediaLibraryTitleBar extends ConsumerWidget {
   final int selectedOverdueLoanCount;
   final String selectedLabel;
   final LibraryTypeRegistry registry;
-  final Duration animationDuration;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -134,76 +126,71 @@ class MediaLibraryTitleBar extends ConsumerWidget {
     final palette = appPalette(context);
     final icon = registry.byKind(type.kind)?.workspace.icon ??
         libraryIconForKind(type.kind);
-    return AnimatedContainer(
-      duration: Duration.zero,
-      curve: Curves.linear,
-      height: 36,
-      decoration: BoxDecoration(
-        gradient: libraryChromeGradient(
-          accent,
-          brightness: palette.brightness,
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        border: Border(
-          top: BorderSide(
-            color: libraryChromeBorderColor(
-              accent,
-              brightness: palette.brightness,
-            ),
+    return AnimatedLibraryChromeGradient(
+      accent: accent,
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      borderBuilder: (animatedAccent, brightness) => Border(
+        top: BorderSide(
+          color: libraryChromeBorderColor(
+            animatedAccent,
+            brightness: brightness,
           ),
-          bottom: BorderSide(
-            color: libraryChromeBorderColor(
-              accent,
-              brightness: palette.brightness,
-            ),
+        ),
+        bottom: BorderSide(
+          color: libraryChromeBorderColor(
+            animatedAccent,
+            brightness: brightness,
           ),
         ),
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final titleWidth = _headerTitleWidth(
-            labels: [type.pluralLabel],
-            maxWidth: constraints.maxWidth,
-          );
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border(right: BorderSide(color: palette.divider)),
-                  ),
-                  child: SizedBox(
-                    width: titleWidth,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: _MediaLibraryTitle(
-                        icon: icon,
-                        label: type.pluralLabel,
+      child: SizedBox(
+        height: 36,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final titleWidth = _headerTitleWidth(
+              labels: [type.pluralLabel],
+              maxWidth: constraints.maxWidth,
+            );
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border(right: BorderSide(color: palette.divider)),
+                    ),
+                    child: SizedBox(
+                      width: titleWidth,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: _MediaLibraryTitle(
+                          icon: icon,
+                          label: type.pluralLabel,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const Spacer(),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _MediaLibraryOverdueActions(
-                      overdueLoanCount: overdueLoanCount,
-                      selectedOverdueLoanCount: selectedOverdueLoanCount,
-                      selectedLabel: selectedLabel,
-                    ),
-                    const SizedBox(width: 6),
-                    const _LibraryTopNavSyncButton(),
-                    const SizedBox(width: 4),
-                    const _LibraryNavCollapseButton(),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
+                  const Spacer(),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _MediaLibraryOverdueActions(
+                        overdueLoanCount: overdueLoanCount,
+                        selectedOverdueLoanCount: selectedOverdueLoanCount,
+                        selectedLabel: selectedLabel,
+                      ),
+                      const SizedBox(width: 6),
+                      const _LibraryTopNavSyncButton(),
+                      const SizedBox(width: 4),
+                      const _LibraryNavCollapseButton(),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -678,34 +665,31 @@ class MediaLibraryCollapsedStrip extends ConsumerWidget {
                 Brightness.dark
             ? Colors.white
             : palette.textPrimary;
-    return Container(
-      height: 6,
-      decoration: BoxDecoration(
-        gradient: libraryChromeGradient(
-          accent,
-          brightness: palette.brightness,
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-      ),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Material(
-          color: Colors.transparent,
-          child: Tooltip(
-            message: 'Show library selector',
-            child: InkWell(
-              onTap: () => ref
-                  .read(libraryNavPreferencesProvider.notifier)
-                  .toggleCollapsed(),
-              child: Container(
-                width: 42,
-                height: 6,
-                color: handleBackground,
-                child: Icon(
-                  Icons.expand_more,
-                  size: 6,
-                  color: handleForeground,
+    return AnimatedLibraryChromeGradient(
+      accent: accent,
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      child: SizedBox(
+        height: 6,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: Material(
+            color: Colors.transparent,
+            child: Tooltip(
+              message: 'Show library selector',
+              child: InkWell(
+                onTap: () => ref
+                    .read(libraryNavPreferencesProvider.notifier)
+                    .toggleCollapsed(),
+                child: Container(
+                  width: 42,
+                  height: 6,
+                  color: handleBackground,
+                  child: Icon(
+                    Icons.expand_more,
+                    size: 6,
+                    color: handleForeground,
+                  ),
                 ),
               ),
             ),
@@ -736,34 +720,31 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
                 Brightness.dark
             ? Colors.white
             : palette.textPrimary;
-    return Container(
-      width: 10,
-      decoration: BoxDecoration(
-        gradient: libraryChromeGradient(
-          accent,
-          brightness: palette.brightness,
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Material(
-          color: Colors.transparent,
-          child: Tooltip(
-            message: 'Show library selector',
-            child: InkWell(
-              onTap: () => ref
-                  .read(libraryNavPreferencesProvider.notifier)
-                  .toggleCollapsed(),
-              child: Container(
-                width: 10,
-                height: 36,
-                color: handleBackground,
-                child: Icon(
-                  Icons.chevron_right,
-                  size: 14,
-                  color: handleForeground,
+    return AnimatedLibraryChromeGradient(
+      accent: accent,
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      child: SizedBox(
+        width: 10,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: Tooltip(
+              message: 'Show library selector',
+              child: InkWell(
+                onTap: () => ref
+                    .read(libraryNavPreferencesProvider.notifier)
+                    .toggleCollapsed(),
+                child: Container(
+                  width: 10,
+                  height: 36,
+                  color: handleBackground,
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 14,
+                    color: handleForeground,
+                  ),
                 ),
               ),
             ),

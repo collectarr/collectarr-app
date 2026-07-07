@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -54,6 +55,53 @@ Color libraryChromeBorderColor(
         : Colors.white.withValues(alpha: 0.46),
     accent,
   );
+}
+
+class AnimatedLibraryChromeGradient extends StatelessWidget {
+  const AnimatedLibraryChromeGradient({
+    super.key,
+    required this.accent,
+    required this.child,
+    this.curve = Curves.easeOutCubic,
+    this.begin = Alignment.topLeft,
+    this.end = Alignment.bottomRight,
+    this.borderBuilder,
+  });
+
+  final Color accent;
+  final Curve curve;
+  final AlignmentGeometry begin;
+  final AlignmentGeometry end;
+  final Widget child;
+  final BoxBorder Function(Color animatedAccent, Brightness brightness)?
+      borderBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    final duration = LibraryAccentScope.animationDurationOf(context);
+    return TweenAnimationBuilder<Color?>(
+      tween: ColorTween(end: accent),
+      duration: duration,
+      curve: curve,
+      child: child,
+      builder: (context, color, child) {
+        final animatedAccent = color ?? accent;
+        final palette = appPalette(context);
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: libraryChromeGradient(
+              animatedAccent,
+              brightness: palette.brightness,
+              begin: begin,
+              end: end,
+            ),
+            border: borderBuilder?.call(animatedAccent, palette.brightness),
+          ),
+          child: child,
+        );
+      },
+    );
+  }
 }
 
 IconData libraryIconForKind(Object? kind) {
