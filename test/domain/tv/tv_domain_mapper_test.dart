@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -64,7 +65,7 @@ void main() {
       'kind': 'tv',
     });
 
-    final series = TvSeries.fromDto(seriesDto);
+    final series = tvSeriesFromDto(seriesDto);
     expect(series.id, 'series-1');
     expect(series.title, 'Cowboy Bebop');
     expect(series.seasons, isEmpty);
@@ -95,23 +96,24 @@ void main() {
     expect(season.episodes.single.title, 'Asteroid Blues');
 
     final Map<String, dynamic> raw = seriesDto.raw;
-    final releaseJson = (raw['releases'] as List<dynamic>).cast<Map<String, dynamic>>()[0];
-    final release = TvRelease.fromJson(releaseJson);
+    final releaseJson =
+        (raw['releases'] as List<dynamic>).cast<Map<String, dynamic>>()[0];
+    final release = tvReleaseFromDto(TvReleaseDto.fromJson(releaseJson));
     expect(release.media, hasLength(1));
     expect(release.media.single.episodes, hasLength(1));
 
-    final media = TvReleaseMedia.fromJson(mediaJson);
+    final media = tvReleaseMediaFromDto(TvReleaseMediaDto.fromJson(mediaJson));
     expect(media.discNumber, 1);
     expect(media.episodes, hasLength(1));
 
-    final map = TvReleaseEpisodeMap.fromJson({
+    final map = tvReleaseEpisodeMapFromDto(TvReleaseEpisodeMapDto.fromJson({
       'id': 'map-1',
       'release_id': 'release-1',
       'media_id': 'media-1',
       'episode_id': 'episode-1',
       'disc_number': 1,
       'sequence_number': 1,
-    });
+    }));
     expect(map.releaseId, 'release-1');
     expect(map.mediaId, 'media-1');
     expect(map.episodeId, 'episode-1');

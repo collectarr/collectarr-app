@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
+import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder.dart';
@@ -50,9 +51,11 @@ class VideoLibraryDetailPage extends ConsumerStatefulWidget {
       _VideoLibraryDetailPageState();
 }
 
-class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage> {
+class _VideoLibraryDetailPageState
+    extends ConsumerState<VideoLibraryDetailPage> {
   String? _selectedReleaseNodeId;
-  final Map<String, String?> _selectedOwnedItemIdByRelease = <String, String?>{};
+  final Map<String, String?> _selectedOwnedItemIdByRelease =
+      <String, String?>{};
   Future<TvSeries?>? _tvSeriesFuture;
   TvSeries? _tvSeriesSnapshot;
 
@@ -91,7 +94,7 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
     }
     final api = ref.read(apiClientProvider);
     final dto = await api.getTvSeriesDto(widget.request.entry.canonicalItemId);
-    return TvSeries.fromDto(dto);
+    return tvSeriesFromDto(dto);
   }
 
   Future<void> _addCopyForRelease(_ResolvedVideoRelease release) async {
@@ -207,8 +210,7 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
                 ref: CatalogEntityRef(
                   kind: seriesRef.kind,
                   entityType: CatalogEntityType.episode,
-                  id:
-                      '${seriesRef.id}:season:${season.seasonNumber}:episode:${episode.episodeNumber}',
+                  id: '${seriesRef.id}:season:${season.seasonNumber}:episode:${episode.episodeNumber}',
                 ),
                 label: episode.title,
                 subtitle:
@@ -240,9 +242,8 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
       }
     }
     selectedRelease ??= releases.isEmpty ? null : releases.first;
-    final selectedOwnedCopy = selectedRelease == null
-        ? null
-        : _selectedOwnedCopyFor(selectedRelease);
+    final selectedOwnedCopy =
+        selectedRelease == null ? null : _selectedOwnedCopyFor(selectedRelease);
     final tvReleaseBrowser = _isTvKind
         ? FutureBuilder<TvSeries?>(
             future: _tvSeriesFuture,
@@ -295,7 +296,9 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
             InspectorVideoTitleMetadataSection(
               type: request.type,
               entry: request.entry,
-              ownedReleaseCount: releases.where((release) => release.ownedCopies.isNotEmpty).length,
+              ownedReleaseCount: releases
+                  .where((release) => release.ownedCopies.isNotEmpty)
+                  .length,
               onFilterByValue: request.onFilterByValue,
             ),
             const SizedBox(height: 16),
@@ -363,9 +366,10 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
                     onRemoveWishlist: activeRelease.wishlistItem == null
                         ? null
                         : () => _removeWishlistForRelease(activeRelease),
-                    onEditCopy: request.onEdit == null || selectedOwnedCopy == null
-                        ? null
-                        : () => request.onEdit!(selectedOwnedCopy),
+                    onEditCopy:
+                        request.onEdit == null || selectedOwnedCopy == null
+                            ? null
+                            : () => request.onEdit!(selectedOwnedCopy),
                     onRemoveCopy: selectedOwnedCopy == null
                         ? null
                         : () => _removeSelectedCopy(activeRelease),
@@ -376,8 +380,8 @@ class _VideoLibraryDetailPageState extends ConsumerState<VideoLibraryDetailPage>
               _VideoReleaseBrowserSection(
                 accent: request.accent,
                 releases: releases,
-                selectedReleaseId:
-                    _selectedReleaseNodeId ?? (releases.isEmpty ? null : releases.first.node.id),
+                selectedReleaseId: _selectedReleaseNodeId ??
+                    (releases.isEmpty ? null : releases.first.node.id),
                 selectedOwnedItemId: null,
                 onSelectRelease: (value) =>
                     setState(() => _selectedReleaseNodeId = value),
@@ -574,7 +578,8 @@ class _ResolvedVideoRelease {
   final WishlistItem? wishlistItem;
   final String sourceLabel;
 
-  int get totalQuantity => ownedCopies.fold<int>(0, (sum, item) => sum + item.quantity);
+  int get totalQuantity =>
+      ownedCopies.fold<int>(0, (sum, item) => sum + item.quantity);
 
   String get ownershipLabel {
     if (ownedCopies.isEmpty) {
@@ -619,13 +624,16 @@ class _TvReleaseBrowserSectionState extends State<_TvReleaseBrowserSection> {
   void didUpdateWidget(covariant _TvReleaseBrowserSection oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.series.id != widget.series.id) {
-      _selectedReleaseId =
-          widget.series.releases.isEmpty ? null : widget.series.releases.first.id;
+      _selectedReleaseId = widget.series.releases.isEmpty
+          ? null
+          : widget.series.releases.first.id;
       _selectedMediaIdByRelease.clear();
     } else if (_selectedReleaseId != null &&
-        widget.series.releases.every((release) => release.id != _selectedReleaseId)) {
-      _selectedReleaseId =
-          widget.series.releases.isEmpty ? null : widget.series.releases.first.id;
+        widget.series.releases
+            .every((release) => release.id != _selectedReleaseId)) {
+      _selectedReleaseId = widget.series.releases.isEmpty
+          ? null
+          : widget.series.releases.first.id;
     }
   }
 
@@ -650,7 +658,8 @@ class _TvReleaseBrowserSectionState extends State<_TvReleaseBrowserSection> {
     }
     selectedRelease ??= releases.isEmpty ? null : releases.first;
     if (selectedReleaseEntry == null && selectedRelease != null) {
-      final selectedIndex = releases.indexWhere((release) => release.id == selectedRelease!.id);
+      final selectedIndex =
+          releases.indexWhere((release) => release.id == selectedRelease!.id);
       if (selectedIndex >= 0 && selectedIndex < releaseEntries.length) {
         selectedReleaseEntry = releaseEntries[selectedIndex];
       }
@@ -754,7 +763,8 @@ class _TvReleaseTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: selected ? accent.withValues(alpha: 0.85) : palette.divider,
+              color:
+                  selected ? accent.withValues(alpha: 0.85) : palette.divider,
             ),
           ),
           padding: tilePadding,
@@ -784,7 +794,8 @@ class _TvReleaseTile extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 [
-                  if (entry.itemNumber?.trim().isNotEmpty == true) entry.itemNumber!,
+                  if (entry.itemNumber?.trim().isNotEmpty == true)
+                    entry.itemNumber!,
                   '${release.media.length} media',
                   '${release.episodeMappings.length} maps',
                 ].join(' • '),
@@ -857,9 +868,15 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
             Text(
               [
                 if (release.releaseDate != null)
-                  release.releaseDate!.toLocal().toIso8601String().split('T').first,
-                if (release.country?.trim().isNotEmpty == true) release.country!,
-                if (release.language?.trim().isNotEmpty == true) release.language!,
+                  release.releaseDate!
+                      .toLocal()
+                      .toIso8601String()
+                      .split('T')
+                      .first,
+                if (release.country?.trim().isNotEmpty == true)
+                  release.country!,
+                if (release.language?.trim().isNotEmpty == true)
+                  release.language!,
               ].join(' • '),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: palette.textMuted,
@@ -873,7 +890,9 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
                 for (final media in release.media)
                   ChoiceChip(
                     label: Text(
-                      media.title ?? media.formatLabel ?? 'Disc ${media.discNumber ?? 1}',
+                      media.title ??
+                          media.formatLabel ??
+                          'Disc ${media.discNumber ?? 1}',
                     ),
                     selected: selectedMedia?.id == media.id,
                     selectedColor: accent.withValues(alpha: 0.24),
@@ -884,7 +903,9 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
             const SizedBox(height: 12),
             if (selectedMedia != null) ...[
               Text(
-                selectedMedia.title ?? selectedMedia.formatLabel ?? 'Disc ${selectedMedia.discNumber ?? 1}',
+                selectedMedia.title ??
+                    selectedMedia.formatLabel ??
+                    'Disc ${selectedMedia.discNumber ?? 1}',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: palette.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -974,8 +995,10 @@ class _TvEpisodeMapList extends StatelessWidget {
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 label: Text(
                   [
-                    if (mapping.discNumber != null) 'Disc ${mapping.discNumber}',
-                    if (mapping.sequenceNumber != null) 'Seq ${mapping.sequenceNumber}',
+                    if (mapping.discNumber != null)
+                      'Disc ${mapping.discNumber}',
+                    if (mapping.sequenceNumber != null)
+                      'Seq ${mapping.sequenceNumber}',
                     _episodeTitleForId(series, mapping.episodeId),
                   ].where((value) => value.trim().isNotEmpty).join(' • '),
                 ),
@@ -1178,7 +1201,8 @@ class _VideoReleaseTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final palette = appPalette(context);
-    final borderColor = selected ? accent.withValues(alpha: 0.85) : palette.divider;
+    final borderColor =
+        selected ? accent.withValues(alpha: 0.85) : palette.divider;
     return Material(
       color: selected ? accent.withValues(alpha: 0.16) : palette.panel,
       borderRadius: BorderRadius.circular(16),
@@ -1306,10 +1330,9 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
             if (release.ownedCopies.isNotEmpty) ...[
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                initialValue:
-                    release.ownedCopies.any(
-                      (copy) => copy.id == selectedOwnedItemId,
-                    )
+                initialValue: release.ownedCopies.any(
+                  (copy) => copy.id == selectedOwnedItemId,
+                )
                     ? selectedOwnedItemId
                     : release.ownedCopies.first.id,
                 isExpanded: true,
@@ -1317,7 +1340,9 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
                   labelText: 'Selected copy',
                 ),
                 items: [
-                  for (var index = 0; index < release.ownedCopies.length; index += 1)
+                  for (var index = 0;
+                      index < release.ownedCopies.length;
+                      index += 1)
                     DropdownMenuItem<String>(
                       value: release.ownedCopies[index].id,
                       child: Text(

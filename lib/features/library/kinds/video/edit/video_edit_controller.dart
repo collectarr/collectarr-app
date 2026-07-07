@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
@@ -42,7 +43,8 @@ class VideoEditController {
       draft.seasonNumberController;
   TextEditingController get episodeNumberController =>
       draft.episodeNumberController;
-  TextEditingController get audioTracksController => draft.audioTracksController;
+  TextEditingController get audioTracksController =>
+      draft.audioTracksController;
   TextEditingController get subtitlesController => draft.subtitlesController;
   TextEditingController get layersController => draft.layersController;
   TextEditingController get colorController => draft.colorController;
@@ -188,7 +190,7 @@ class VideoEditController {
       final dto = await api
           .getTvSeriesDto(seriesId)
           .timeout(const Duration(seconds: 20));
-      return TvSeries.fromDto(dto);
+      return tvSeriesFromDto(dto);
     } on TimeoutException {
       return null;
     }
@@ -213,8 +215,8 @@ class VideoEditController {
           : (tvReleaseMediaDraft.first.discNumber ?? 1);
       for (final episode in flattenTvEpisodes(series)) {
         tvEpisodeDiscAssignments[episode.id] = fallbackDisc;
-        tvEpisodeDiscAssignments['${episode.seasonNumber}:${episode.episodeNumber}'] =
-            fallbackDisc;
+        tvEpisodeDiscAssignments[
+            '${episode.seasonNumber}:${episode.episodeNumber}'] = fallbackDisc;
       }
     }
   }

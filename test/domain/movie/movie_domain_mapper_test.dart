@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/api/mappers/movie_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -63,7 +64,7 @@ void main() {
       'kind': 'movie',
     });
 
-    final work = MovieWork.fromDto(dto);
+    final work = movieWorkFromDto(dto);
 
     expect(work.title, 'The Matrix');
     expect(work.releases, hasLength(1));
