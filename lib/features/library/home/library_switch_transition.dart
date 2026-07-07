@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-class LibrarySwitchTransition extends StatelessWidget {
+class LibrarySwitchTransition extends StatefulWidget {
   const LibrarySwitchTransition({
     super.key,
     required this.child,
@@ -13,47 +15,107 @@ class LibrarySwitchTransition extends StatelessWidget {
   final bool enabled;
 
   @override
-  Widget build(BuildContext context) {
-    if (!enabled || duration == Duration.zero) {
-      return child;
+  State<LibrarySwitchTransition> createState() =>
+      _LibrarySwitchTransitionState();
+}
+
+class _LibrarySwitchTransitionState extends State<LibrarySwitchTransition>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scrimOpacity;
+  Duration _pulseDuration = Duration.zero;
+  int _switchToken = 0;
+  Timer? _resetTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseDuration = Duration(
+      milliseconds: (widget.duration.inMilliseconds / 2).round().clamp(1, 250),
+    );
+    _controller = AnimationController(vsync: this, duration: _pulseDuration);
+    _scrimOpacity = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant LibrarySwitchTransition oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final nextPulseDuration = Duration(
+      milliseconds: (widget.duration.inMilliseconds / 2).round().clamp(1, 250),
+    );
+    if (oldWidget.duration != widget.duration) {
+      _pulseDuration = nextPulseDuration;
+      _controller.duration = nextPulseDuration;
     }
-    return AnimatedSwitcher(
-      duration: duration,
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      layoutBuilder: (currentChild, previousChildren) {
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            ...previousChildren,
-            if (currentChild != null) currentChild,
-          ],
-        );
-      },
-      transitionBuilder: (child, animation) {
-        final fade = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOut,
-        );
-        final slide = Tween<Offset>(
-          begin: const Offset(0.015, 0.01),
-          end: Offset.zero,
-        ).animate(animation);
-        return FadeTransition(
-          opacity: fade,
-          child: SlideTransition(
-            position: slide,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.99, end: 1).animate(animation),
-              child: child,
-            ),
+    if (!widget.enabled || widget.duration == Duration.zero) {
+      _resetTimer?.cancel();
+      _controller.value = 0;
+      return;
+    }
+    if (oldWidget.child.key != widget.child.key) {
+      _startOverlayPulse();
+    }
+  }
+
+  void _startOverlayPulse() {
+    _resetTimer?.cancel();
+    final token = ++_switchToken;
+    _controller
+      ..stop()
+      ..value = 0
+      ..forward();
+    _resetTimer = Timer(_pulseDuration, () {
+      if (!mounted || token != _switchToken) {
+        return;
+      }
+      _controller.reverse();
+    });
+  }
+
+  @override
+  void dispose() {
+    _resetTimer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.enabled || widget.duration == Duration.zero) {
+      return widget.child;
+    }
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        widget.child,
+        IgnorePointer(
+          child: AnimatedBuilder(
+            animation: _scrimOpacity,
+            builder: (context, _) {
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.transparent,
+                      Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.08 * _scrimOpacity.value),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
-        );
-      },
-      child: KeyedSubtree(
-        key: ValueKey(child.key ?? child.runtimeType),
-        child: child,
-      ),
+        ),
+      ],
     );
   }
 }

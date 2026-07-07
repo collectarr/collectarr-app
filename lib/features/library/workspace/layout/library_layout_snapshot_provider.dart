@@ -12,6 +12,9 @@ class LibraryLayoutSnapshotController extends Notifier<LibraryLayoutSnapshot?> {
   LibraryLayoutSnapshot? build() => null;
 
   void update(LibraryLayoutSnapshot? snapshot) {
+    if (state == snapshot) {
+      return;
+    }
     state = snapshot;
   }
 }

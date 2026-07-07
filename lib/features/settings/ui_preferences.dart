@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UiPreferences {
   const UiPreferences({
     this.animationsEnabled = true,
+    this.disableLibrarySwitchAnimation = false,
+    this.disableLibraryCoverPrewarm = false,
     this.flatCovers = false,
     this.gridSpacing = 10.0,
     this.showCoverTitles = true,
@@ -14,6 +16,8 @@ class UiPreferences {
   });
 
   final bool animationsEnabled;
+  final bool disableLibrarySwitchAnimation;
+  final bool disableLibraryCoverPrewarm;
 
   /// Remove shadows and borders from cover tiles for a flatter look.
   final bool flatCovers;
@@ -37,6 +41,8 @@ class UiPreferences {
 
   UiPreferences copyWith({
     bool? animationsEnabled,
+    bool? disableLibrarySwitchAnimation,
+    bool? disableLibraryCoverPrewarm,
     bool? flatCovers,
     double? gridSpacing,
     bool? showCoverTitles,
@@ -47,6 +53,10 @@ class UiPreferences {
   }) {
     return UiPreferences(
       animationsEnabled: animationsEnabled ?? this.animationsEnabled,
+      disableLibrarySwitchAnimation:
+          disableLibrarySwitchAnimation ?? this.disableLibrarySwitchAnimation,
+      disableLibraryCoverPrewarm:
+          disableLibraryCoverPrewarm ?? this.disableLibraryCoverPrewarm,
       flatCovers: flatCovers ?? this.flatCovers,
       gridSpacing: gridSpacing ?? this.gridSpacing,
       showCoverTitles: showCoverTitles ?? this.showCoverTitles,
@@ -63,6 +73,10 @@ class UiPreferencesStore {
 
   static const _prefix = 'collectarr.ui';
   static const animationsEnabledKey = '$_prefix.animations_enabled';
+  static const disableLibrarySwitchAnimationKey =
+      '$_prefix.disable_library_switch_animation';
+  static const disableLibraryCoverPrewarmKey =
+      '$_prefix.disable_library_cover_prewarm';
   static const flatCoversKey = '$_prefix.flat_covers';
   static const gridSpacingKey = '$_prefix.grid_spacing';
   static const showCoverTitlesKey = '$_prefix.show_cover_titles';
@@ -74,6 +88,10 @@ class UiPreferencesStore {
     final prefs = await SharedPreferences.getInstance();
     return UiPreferences(
       animationsEnabled: prefs.getBool(animationsEnabledKey) ?? true,
+      disableLibrarySwitchAnimation:
+          prefs.getBool(disableLibrarySwitchAnimationKey) ?? false,
+      disableLibraryCoverPrewarm:
+          prefs.getBool(disableLibraryCoverPrewarmKey) ?? false,
       flatCovers: prefs.getBool(flatCoversKey) ?? false,
       gridSpacing: prefs.getDouble(gridSpacingKey) ?? 10.0,
       showCoverTitles: prefs.getBool(showCoverTitlesKey) ?? true,
@@ -87,6 +105,14 @@ class UiPreferencesStore {
   Future<void> write(UiPreferences preferences) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(animationsEnabledKey, preferences.animationsEnabled);
+    await prefs.setBool(
+      disableLibrarySwitchAnimationKey,
+      preferences.disableLibrarySwitchAnimation,
+    );
+    await prefs.setBool(
+      disableLibraryCoverPrewarmKey,
+      preferences.disableLibraryCoverPrewarm,
+    );
     await prefs.setBool(flatCoversKey, preferences.flatCovers);
     await prefs.setDouble(gridSpacingKey, preferences.gridSpacing);
     await prefs.setBool(showCoverTitlesKey, preferences.showCoverTitles);

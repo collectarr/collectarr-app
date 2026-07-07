@@ -17,6 +17,27 @@ class LibraryLayoutSnapshot {
   final double coverSize;
   final bool isSidebarVisible;
   final LibraryDetailsLayout detailsLayout;
+
+  @override
+  bool operator ==(Object other) {
+    return other is LibraryLayoutSnapshot &&
+        other.sidebarWidth == sidebarWidth &&
+        other.inspectorWidth == inspectorWidth &&
+        other.detailsHeight == detailsHeight &&
+        other.coverSize == coverSize &&
+        other.isSidebarVisible == isSidebarVisible &&
+        other.detailsLayout == detailsLayout;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        sidebarWidth,
+        inspectorWidth,
+        detailsHeight,
+        coverSize,
+        isSidebarVisible,
+        detailsLayout,
+      );
 }
 
 extension LibraryLayoutSnapshotViewState on LibraryWorkspaceViewState {

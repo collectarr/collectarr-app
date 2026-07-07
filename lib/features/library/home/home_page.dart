@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
@@ -39,6 +41,10 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   String? _lastPrewarmedKind;
   LibraryLayoutSnapshot? _switchLayoutSnapshot;
   Timer? _switchLayoutSnapshotReset;
+  Timer? _coverPrewarmTimer;
+  int _coverPrewarmToken = 0;
+  developer.TimelineTask? _switchTimelineTask;
+  Stopwatch? _switchStopwatch;
 
   String? _routeKind() {
     return canonicalLibraryNavKind(widget.routeUri.queryParameters['kind']);
@@ -47,9 +53,29 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   void _replaceLibraryKind(String kind) {
     final normalized = canonicalLibraryNavKind(kind) ?? 'comic';
     final previousKind = ref.read(selectedLibraryKindProvider);
+    final uiPreferences = ref.read(uiPreferencesProvider);
+    final switchAnimationDuration = uiPreferences.animationsEnabled &&
+            !uiPreferences.disableLibrarySwitchAnimation
+        ? const Duration(milliseconds: 140)
+        : Duration.zero;
     if (previousKind != normalized) {
       _switchLayoutSnapshotReset?.cancel();
       _switchLayoutSnapshot = ref.read(libraryLayoutSnapshotProvider);
+      _coverPrewarmTimer?.cancel();
+      _coverPrewarmToken++;
+      _switchStopwatch?.stop();
+      _switchStopwatch = Stopwatch()..start();
+      if (kDebugMode) {
+        _switchTimelineTask?.finish();
+        _switchTimelineTask = developer.TimelineTask()
+          ..start(
+            'library kind switch',
+            arguments: <String, Object?>{
+              'from': previousKind,
+              'to': normalized,
+            },
+          );
+      }
       _recordSwitchMetrics(previousKind: previousKind, nextKind: normalized);
     }
     ref.read(selectedLibraryKindProvider.notifier).select(normalized);
@@ -60,10 +86,11 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         GoRouter.maybeOf(context) != null) {
       context.replace(nextUri.toString());
     }
-    final animationDuration = ref.read(uiPreferencesProvider).animationsEnabled
-        ? kAppAnimNormal
-        : Duration.zero;
-    if (animationDuration == Duration.zero) {
+    final shelfState = ref.read(shelfProvider).maybeWhen(
+          data: (value) => value,
+          orElse: () => null,
+        );
+    if (switchAnimationDuration == Duration.zero) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) {
           return;
@@ -74,13 +101,61 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       });
       return;
     }
-    _switchLayoutSnapshotReset = Timer(animationDuration, () {
+    _scheduleDelayedCoverPrewarm(
+      context: context,
+      shelfState: shelfState,
+      kind: normalized,
+      delay: switchAnimationDuration + const Duration(milliseconds: 120),
+    );
+    _switchLayoutSnapshotReset = Timer(
+      switchAnimationDuration + const Duration(milliseconds: 120),
+      () {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _switchLayoutSnapshot = null;
+        });
+        if (kDebugMode) {
+          _switchStopwatch?.stop();
+          developer.log(
+            'library switch $previousKind -> $normalized in ${_switchStopwatch?.elapsedMilliseconds ?? 0}ms',
+            name: 'collectarr.library',
+          );
+          _switchTimelineTask?.finish();
+          _switchTimelineTask = null;
+        }
+      },
+    );
+  }
+
+  void _scheduleDelayedCoverPrewarm({
+    required BuildContext context,
+    required ShelfState? shelfState,
+    required String kind,
+    required Duration delay,
+  }) {
+    if (!mounted ||
+        shelfState == null ||
+        ref.read(uiPreferencesProvider).disableLibraryCoverPrewarm) {
+      return;
+    }
+    final requestToken = ++_coverPrewarmToken;
+    _coverPrewarmTimer?.cancel();
+    _coverPrewarmTimer = Timer(delay, () {
       if (!mounted) {
         return;
       }
-      setState(() {
-        _switchLayoutSnapshot = null;
-      });
+      if (requestToken != _coverPrewarmToken) {
+        return;
+      }
+      _prewarmCoverUrls(
+        context,
+        shelfState,
+        kind,
+        maxUrls: 12,
+        skip: 12,
+      );
     });
   }
 
@@ -92,6 +167,8 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   @override
   void dispose() {
     _switchLayoutSnapshotReset?.cancel();
+    _coverPrewarmTimer?.cancel();
+    _switchTimelineTask?.finish();
     super.dispose();
   }
 
@@ -99,41 +176,51 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     BuildContext context,
     ShelfState shelfState,
     String kind, {
-    int maxUrls = 32,
+    int maxUrls = 12,
   }) {
     if (!mounted ||
-        ref.read(uiPreferencesProvider).animationsEnabled == false ||
+        ref.read(uiPreferencesProvider).disableLibraryCoverPrewarm ||
         _lastPrewarmedKind == kind) {
       return;
     }
-    final urls = _firstCoverUrlsForKind(
+    _lastPrewarmedKind = kind;
+    _prewarmCoverUrls(
+      context,
       shelfState,
       kind,
       maxUrls: maxUrls,
     );
-    if (urls.isEmpty) {
+  }
+
+  void _prewarmCoverUrls(
+    BuildContext context,
+    ShelfState shelfState,
+    String kind, {
+    required int maxUrls,
+    int skip = 0,
+  }) {
+    final urls = _firstCoverUrlsForKind(
+      shelfState,
+      kind,
+      maxUrls: maxUrls + skip,
+    );
+    if (urls.isEmpty || skip >= urls.length) {
       return;
     }
-    _lastPrewarmedKind = kind;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      for (final url in urls) {
-        unawaited(
-          precacheImage(
-            CachedNetworkImageProvider(url),
-            context,
-          ),
-        );
-      }
-    });
+    for (final url in urls.skip(skip).take(maxUrls)) {
+      unawaited(
+        precacheImage(
+          CachedNetworkImageProvider(url),
+          context,
+        ),
+      );
+    }
   }
 
   List<String> _firstCoverUrlsForKind(
     ShelfState shelfState,
     String kind, {
-    int maxUrls = 32,
+    int maxUrls = 24,
   }) {
     final urls = <String>[];
     final seen = <String>{};
@@ -246,8 +333,10 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final selectedKind = ref.watch(selectedLibraryKindProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
-    final animationDuration =
-        uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero;
+    final switchAnimationDuration = uiPreferences.animationsEnabled &&
+            !uiPreferences.disableLibrarySwitchAnimation
+        ? const Duration(milliseconds: 140)
+        : Duration.zero;
     final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
     final visibleTypes = _ensureCoreKindsVisible(
       visibleLibraryHomeTypes(allTypes, navPreferences),
@@ -309,7 +398,8 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       selectedLabel: selected.pluralLabel,
       registry: registry,
       selectedKind: selected.kind,
-      animationDuration: animationDuration,
+      animationDuration:
+          uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
       onSelected: (type) => _replaceLibraryKind(type.kind),
     );
     final selectedConfig = libraryConfigForCatalogType(selected, registry);
@@ -336,9 +426,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         : null;
     final collapsed = navPreferences.collapsed;
     final accent = LibraryAccentScope.of(context).accent;
-    if (loadedShelf != null && uiPreferences.animationsEnabled) {
-      _requestCoverPrewarm(context, loadedShelf, selected.kind);
-    }
     final Widget resolvedTopBar;
     if (navPreferences.placement == LibraryNavPlacement.top) {
       resolvedTopBar = collapsed
@@ -377,7 +464,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
             accent: accent,
             routeUri: widget.routeUri,
             visibleTypes: visibleTypes,
-            animationDuration: animationDuration,
+            animationDuration: switchAnimationDuration,
             switchLayoutSnapshot: _switchLayoutSnapshot,
           ),
         ),
