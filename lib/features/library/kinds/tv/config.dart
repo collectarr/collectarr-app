@@ -71,6 +71,7 @@ const tvLibraryConfig = LibraryTypeConfig(
     showsSynopsis: true,
     supportsVideoKindFilters: true,
     supportsMediaReleaseSplit: true,
+    showsSeasonGroupProgress: true,
     contentHierarchy: LibraryContentHierarchy.seasons,
     defaultVideoDisplayLevel: tvDefaultVideoDisplayLevel,
     defaultVideoGrouping: tvDefaultVideoGrouping,

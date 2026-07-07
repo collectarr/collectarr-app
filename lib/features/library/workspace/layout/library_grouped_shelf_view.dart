@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_progress_presenter.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_progress_summary.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
@@ -265,7 +266,9 @@ class LibraryGroupFolderTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
     final entry = group.representativeItem.entry;
-    final isTv = entry.mediaType == 'tv';
+    final isTv = collectarrLibraryTypes
+        .capabilitiesForKind(entry.mediaType)
+        .showsSeasonGroupProgress;
     final catalogRef = CatalogEntityRef(
       kind: entry.mediaType,
       entityType: CatalogEntityType.work,
