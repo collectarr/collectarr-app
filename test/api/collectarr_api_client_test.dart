@@ -248,27 +248,27 @@ void main() {
         interceptor.onGet('/metadata/comics/works/comic-1', {
           'id': 'comic-1',
           'title': 'Saga',
-          'issues': [],
+          'issues': <dynamic>[],
         });
         interceptor.onGet('/metadata/manga/works/manga-1', {
           'id': 'manga-1',
           'title': 'Berserk',
-          'chapters': [],
+          'chapters': <dynamic>[],
         });
         interceptor.onGet('/metadata/anime/series/anime-1', {
           'id': 'anime-1',
           'title': 'Naruto',
-          'episodes': [],
+          'episodes': <dynamic>[],
         });
         interceptor.onGet('/metadata/movies/works/movie-1', {
           'id': 'movie-1',
           'title': 'Alien',
-          'releases': [],
+          'releases': <dynamic>[],
         });
         interceptor.onGet('/metadata/tv/series/tv-1', {
           'id': 'tv-1',
           'title': 'Breaking Bad',
-          'seasons': [],
+          'seasons': <dynamic>[],
         });
         final client = _createTestClient(interceptor);
 

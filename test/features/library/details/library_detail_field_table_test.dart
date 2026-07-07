@@ -11,6 +11,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: LibraryAccentScope(
+          kind: 'comic',
           accent: Colors.orange,
           animationsEnabled: false,
           child: const Material(
@@ -41,6 +42,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: LibraryAccentScope(
+          kind: 'comic',
           accent: Colors.orange,
           animationsEnabled: false,
           child: const Material(

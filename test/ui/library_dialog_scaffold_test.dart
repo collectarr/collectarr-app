@@ -9,6 +9,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: LibraryAccentScope(
+          kind: 'comic',
           accent: Colors.deepPurple,
           animationsEnabled: false,
           child: Scaffold(
