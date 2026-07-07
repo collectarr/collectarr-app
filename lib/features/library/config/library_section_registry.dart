@@ -160,6 +160,7 @@ class LibraryEditSectionRegistry {
     'profit_loss': LibrarySectionCategory.activityHistory,
     'value_summary': LibrarySectionCategory.collectionStatus,
     'release_details': LibrarySectionCategory.releaseEditionFormat,
+    'release_identity': LibrarySectionCategory.releaseEditionFormat,
     'video_specs': LibrarySectionCategory.releaseEditionFormat,
     'hdr': LibrarySectionCategory.releaseEditionFormat,
     'audio_subtitles': LibrarySectionCategory.releaseEditionFormat,

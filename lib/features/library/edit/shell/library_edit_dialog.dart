@@ -699,6 +699,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         return _mainTab();
       case 'media':
         return _mediaTab();
+      case 'release':
+        return _releaseTab();
       case 'episodes':
       case 'tv_episodes':
         return TvEpisodesTab(
@@ -832,6 +834,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return _genericMediaTab();
   }
 
+  Widget _releaseTab() {
+    return EditTabShell(
+      children: [
+        if (_showsReleaseSection) _buildReleaseDetailsSection(),
+      ],
+    );
+  }
+
   Widget _genericMediaTab() {
     if (_isMediaScope) {
       return EditTabShell(
@@ -856,6 +866,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   bool get _hasMediaTab => _tabSpecs.any((t) => t.id == 'media');
+  bool get _hasReleaseTab => _tabSpecs.any((t) => t.id == 'release');
   bool get _hasEditionTab => _tabSpecs.any((t) => t.id == 'edition');
   bool get _hasSpecsTab => _tabSpecs.any((t) => t.id == 'specs');
   bool get _hasMainTab => _tabSpecs.any((t) => t.id == 'main');
@@ -870,7 +881,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       children: [
         if (!_hasMediaTab) ...[
           if (_canShowMediaFields) _buildMediaSection(),
-          if (_showsReleaseSection) _buildReleaseDetailsSection(),
+          if (!_hasReleaseTab && _showsReleaseSection)
+            _buildReleaseDetailsSection(),
         ],
         if (_canShowPersonalFields && _hasTrackingContext)
           EditSection(

@@ -1727,4 +1727,71 @@ void main() {
 
     expect(selection?.item.game?.platforms, ['PlayStation 5']);
   });
+
+  testWidgets('game all scope exposes release identity on its own tab',
+      (tester) async {
+    tester.view.physicalSize = const Size(1600, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('game')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'game-1',
+        kind: 'game',
+        title: 'LEGO Batman',
+        sortKey: 'lego-batman',
+        releaseDate: DateTime.utc(2026, 5, 19),
+        publisher: 'Warner Bros Interactive',
+        game: const GameCatalogDetails(
+          platforms: ['PlayStation 5'],
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  await showLibraryEditDialog(
+                    context: context,
+                    request: LibraryEditDialogRequest(
+                      type: type,
+                      item: item,
+                      ownedItem: null,
+                      accent: Colors.red,
+                      scope: LibraryEditScope.all,
+                    ),
+                  );
+                },
+                child: const Text('Open game'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open game'));
+    await pumpUntilSettled(tester);
+
+    // Release identity now lives on its own dedicated tab, separated from the
+    // Main tab that keeps the media/work fields.
+    expect(find.text('Release'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Sort title'), findsOneWidget);
+    expect(find.text('Edition title'), findsNothing);
+
+    await tester.tap(find.text('Release'));
+    await pumpUntilSettled(tester);
+    expect(find.widgetWithText(TextField, 'Sort title'), findsNothing);
+    expect(find.text('Edition title'), findsOneWidget);
+    expect(find.text('UPC / Barcode'), findsOneWidget);
+  });
 }

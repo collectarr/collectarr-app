@@ -2,18 +2,19 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:flutter/material.dart';
 
-const _gameMediaTabs = [
-  LibraryEditTabSpec(
-    id: 'main',
-    icon: Icons.sports_esports,
-    label: 'Main',
-    sectionIds: [
-      'catalog_snapshot',
-      'tracking_context',
-      'ownership_reference',
-      'owned_grading',
-    ],
-  ),
+const _gameMainTab = LibraryEditTabSpec(
+  id: 'main',
+  icon: Icons.sports_esports,
+  label: 'Main',
+  sectionIds: [
+    'catalog_snapshot',
+    'tracking_context',
+    'ownership_reference',
+    'owned_grading',
+  ],
+);
+
+const _gameMediaSecondaryTabs = [
   LibraryEditTabSpec(
     id: 'synopsis',
     icon: Icons.description_outlined,
@@ -38,6 +39,11 @@ const _gameMediaTabs = [
     label: 'My Images',
     sectionIds: ['photos'],
   ),
+];
+
+const _gameMediaTabs = [
+  _gameMainTab,
+  ..._gameMediaSecondaryTabs,
 ];
 
 const _gameReleaseTabs = [
@@ -78,8 +84,17 @@ const _gameReleaseTabs = [
   ),
 ];
 
+const _gameReleaseIdentityTab = LibraryEditTabSpec(
+  id: 'release',
+  icon: Icons.album_outlined,
+  label: 'Release',
+  sectionIds: ['release_identity'],
+);
+
 const _gameCombinedTabs = [
-  ..._gameMediaTabs,
+  _gameMainTab,
+  _gameReleaseIdentityTab,
+  ..._gameMediaSecondaryTabs,
   ..._gameReleaseTabs,
 ];
 
