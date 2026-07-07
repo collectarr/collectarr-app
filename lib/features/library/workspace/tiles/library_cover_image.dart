@@ -39,15 +39,17 @@ class LibraryCoverImage extends ConsumerWidget {
     // there is no usable remote URL to avoid first-load source swapping.
     var local = localBytes;
     if (local == null && ownedItemId != null && url == null) {
-      local = ref.watch(
-        localItemImageProvider((
-          ownedItemId: ownedItemId!,
-          imageType: localImageType,
-        )),
-      ).value;
+      local = ref
+          .watch(
+            localItemImageProvider((
+              ownedItemId: ownedItemId!,
+              imageType: localImageType,
+            )),
+          )
+          .value;
     }
 
-    final placeholder = LibraryGeneratedCover(
+    final fallbackCover = LibraryGeneratedCover(
       title: title,
       itemNumber: itemNumber,
       borderRadius: borderRadius,
@@ -75,12 +77,12 @@ class LibraryCoverImage extends ConsumerWidget {
               cacheWidth: cacheWidth,
               gaplessPlayback: true,
               filterQuality: FilterQuality.high,
-              errorBuilder: (_, __, ___) => placeholder,
+              errorBuilder: (_, __, ___) => fallbackCover,
             ),
           );
         }
         if (url == null) {
-          return placeholder;
+          return fallbackCover;
         }
         if (kIsWeb) {
           return ClipRRect(
@@ -88,12 +90,19 @@ class LibraryCoverImage extends ConsumerWidget {
             child: Image.network(
               url,
               fit: fit,
-              // Keep a stable decoded image across layout switches.
               cacheWidth: null,
               gaplessPlayback: true,
               filterQuality: FilterQuality.high,
               webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
-              errorBuilder: (_, __, ___) => placeholder,
+              loadingBuilder: (_, child, progress) {
+                if (progress == null) {
+                  return child;
+                }
+                return _CoverLoadingShell(
+                  borderRadius: borderRadius,
+                );
+              },
+              errorBuilder: (_, __, ___) => fallbackCover,
             ),
           );
         }
@@ -106,8 +115,10 @@ class LibraryCoverImage extends ConsumerWidget {
             fadeOutDuration: Duration.zero,
             placeholderFadeInDuration: Duration.zero,
             memCacheWidth: cacheWidth,
-            placeholder: (_, __) => placeholder,
-            errorWidget: (_, __, ___) => placeholder,
+            placeholder: (_, __) => _CoverLoadingShell(
+              borderRadius: borderRadius,
+            ),
+            errorWidget: (_, __, ___) => fallbackCover,
             imageBuilder: (_, imageProvider) => Image(
               image: imageProvider,
               fit: fit,
@@ -165,6 +176,64 @@ class LibraryCoverImage extends ConsumerWidget {
         bytes[10] == 0x42 &&
         bytes[11] == 0x50;
     return isWebp;
+  }
+}
+
+class _CoverLoadingShell extends StatelessWidget {
+  const _CoverLoadingShell({
+    required this.borderRadius,
+  });
+
+  final double borderRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final base = palette.surfaceSubtle;
+    final accent = Color.alphaBlend(
+      palette.accent.withValues(alpha: palette.isDark ? 0.12 : 0.08),
+      base,
+    );
+    final line = Color.alphaBlend(
+      palette.divider.withValues(alpha: 0.9),
+      base,
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: base,
+        borderRadius: BorderRadius.circular(borderRadius),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  base,
+                  accent,
+                  base,
+                ],
+              ),
+            ),
+          ),
+          Center(
+            child: FractionallySizedBox(
+              widthFactor: 0.72,
+              heightFactor: 0.18,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: line,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
