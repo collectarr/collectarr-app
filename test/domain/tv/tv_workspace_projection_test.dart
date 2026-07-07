@@ -1,10 +1,14 @@
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('tv workspace projections build series season episode and release nodes', () {
+  test('tv workspace projections build series season episode and release nodes',
+      () {
     final overlay = TvPersonalOverlay(updatedAt: DateTime.utc(2026, 7, 5));
     final series = TvSeries(
       id: 'series-1',
@@ -119,5 +123,38 @@ void main() {
     expect(mediaEntry.itemNumber, 'Disc 1');
     expect(mapEntry.id, 'release-1:media:media-1:map:map-1');
     expect(mapEntry.displayTitle, 'Episode map 1');
+  });
+
+  test('tv shelf entries map through the from-shelf adapter', () {
+    final shelfEntry = ShelfEntry(
+      itemId: 'series-2',
+      catalogItem: LibraryMetadataItem(
+        id: 'series-2',
+        kind: 'tv',
+        title: 'Samurai Champloo',
+        displayTitle: 'Samurai Champloo',
+        originalTitle: 'サムライチャンプルー',
+        synopsis: 'A wanderer story.',
+        coverImageUrl: 'https://example.com/tv.jpg',
+        thumbnailImageUrl: 'https://example.com/tv-thumb.jpg',
+        publisher: 'Fuji TV',
+        releaseDate: DateTime.utc(2004, 5, 20),
+        series: const CatalogSeriesDetails(
+          seriesId: 'series-2',
+          seriesTitle: 'Samurai Champloo',
+        ),
+        publishing: const CatalogPublishingDetails(
+          subtitle: 'Broadcast',
+          originalCountry: 'JP',
+        ),
+      ),
+    );
+
+    final entry = buildTvWorkspaceEntryFromShelf(shelfEntry);
+
+    expect(entry.browseScope, LibraryBrowserScope.title);
+    expect(entry.title, 'Samurai Champloo');
+    expect(entry.series?.seriesTitle, 'Samurai Champloo');
+    expect(entry.publishing?.subtitle, 'Broadcast');
   });
 }

@@ -1,7 +1,10 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final class TvEpisode {
   const TvEpisode({
@@ -43,10 +46,12 @@ final class TvEpisode {
       episodeNumber:
           _intOrZero(json['episode_number'] ?? json['episodeNumber']),
       title: _stringOrNull(json['title']),
-      originalTitle: _stringOrNull(json['original_title'] ?? json['originalTitle']),
+      originalTitle:
+          _stringOrNull(json['original_title'] ?? json['originalTitle']),
       overview: _stringOrNull(json['overview']),
       airDate: _dateOrNull(json['air_date'] ?? json['airDate']),
-      runtimeMinutes: _intOrNull(json['runtime_minutes'] ?? json['runtimeMinutes']),
+      runtimeMinutes:
+          _intOrNull(json['runtime_minutes'] ?? json['runtimeMinutes']),
       stillUrl: _stringOrNull(json['still_url'] ?? json['stillUrl']),
       productionCode:
           _stringOrNull(json['production_code'] ?? json['productionCode']),
@@ -72,8 +77,8 @@ final class TvEpisode {
       airDate: dto.releaseDate,
       runtimeMinutes: dto.runtimeMinutes,
       stillUrl: _stringOrNull(dto.coverImageUrl),
-      productionCode:
-          _stringOrNull(dto.raw['production_code'] ?? dto.raw['productionCode']),
+      productionCode: _stringOrNull(
+          dto.raw['production_code'] ?? dto.raw['productionCode']),
       metadata: _metadataMap(dto.raw),
     );
   }
@@ -122,8 +127,7 @@ final class TvSeason {
           _stringOrNull(json['original_title'] ?? json['originalTitle']),
       overview: _stringOrNull(json['overview']),
       airDate: _dateOrNull(json['air_date'] ?? json['airDate']),
-      episodeCount:
-          _intOrNull(json['episode_count'] ?? json['episodeCount']),
+      episodeCount: _intOrNull(json['episode_count'] ?? json['episodeCount']),
       posterUrl: _stringOrNull(json['poster_url'] ?? json['posterUrl']),
       episodes: [
         for (final entry in _mapList(json['episodes']))
@@ -200,16 +204,38 @@ final class TvReleaseMedia {
       releaseId: dto.releaseId,
       title: _stringOrNull(dto.title),
       formatLabel: _stringOrNull(dto.mediaType) ?? _stringOrNull(dto.title),
-      discNumber:
-          _intOrNull(dto.raw['disc_number'] ?? dto.raw['discNumber'] ?? dto.mediaNumber),
+      discNumber: _intOrNull(
+          dto.raw['disc_number'] ?? dto.raw['discNumber'] ?? dto.mediaNumber),
       sequenceNumber: _intOrNull(
-        dto.raw['sequence_number'] ?? dto.raw['sequenceNumber'] ?? dto.mediaNumber,
+        dto.raw['sequence_number'] ??
+            dto.raw['sequenceNumber'] ??
+            dto.mediaNumber,
       ),
       features: _stringList(dto.raw['features']),
       episodes: [
-        for (final entry in _mapList(dto.raw['episodes'])) TvEpisode.fromJson(entry),
+        for (final entry in _mapList(dto.raw['episodes']))
+          TvEpisode.fromJson(entry),
       ],
       metadata: _metadataMap(dto.raw),
+    );
+  }
+
+  factory TvReleaseMedia.fromCatalogDisc(
+    CatalogDisc disc, {
+    required String releaseId,
+  }) {
+    return TvReleaseMedia(
+      id: '$releaseId:disc:${disc.discNumber}',
+      releaseId: releaseId,
+      title: disc.discName,
+      formatLabel: disc.discFormat,
+      discNumber: disc.discNumber,
+      metadata: {
+        if (disc.storageDevice != null) 'storage_device': disc.storageDevice,
+        if (disc.slot != null) 'slot': disc.slot,
+        if (disc.matrixSideA != null) 'matrix_side_a': disc.matrixSideA,
+        if (disc.matrixSideB != null) 'matrix_side_b': disc.matrixSideB,
+      },
     );
   }
 }
@@ -323,6 +349,25 @@ final class TvRelease {
       metadata: _metadataMap(dto.raw),
     );
   }
+
+  factory TvRelease.fromCatalogEdition(
+    CatalogEdition edition, {
+    required String seriesId,
+  }) {
+    return TvRelease(
+      id: edition.id,
+      seriesId: seriesId,
+      title: edition.title,
+      releaseDate: edition.releaseDate,
+      country: edition.region,
+      language: edition.language,
+      media: [
+        for (final disc in edition.discs)
+          TvReleaseMedia.fromCatalogDisc(disc, releaseId: edition.id),
+      ],
+      metadata: edition.metadata ?? const <String, dynamic>{},
+    );
+  }
 }
 
 final class TvSeries {
@@ -339,6 +384,8 @@ final class TvSeries {
     this.originalLanguage,
     this.country,
     this.runtimeMinutes,
+    this.seriesDetails,
+    this.publishingDetails,
     this.seasonCount,
     this.episodeCount,
     this.posterUrl,
@@ -365,6 +412,8 @@ final class TvSeries {
   final String? originalLanguage;
   final String? country;
   final int? runtimeMinutes;
+  final CatalogSeriesDetails? seriesDetails;
+  final CatalogPublishingDetails? publishingDetails;
   final int? seasonCount;
   final int? episodeCount;
   final String? posterUrl;
@@ -393,13 +442,16 @@ final class TvSeries {
       originalLanguage: _stringOrNull(dto.raw['original_language']),
       country: _stringOrNull(dto.raw['country']),
       runtimeMinutes: _intOrNull(dto.raw['runtime_minutes']),
+      seriesDetails: null,
+      publishingDetails: null,
       seasonCount: dto.seasonCount,
       episodeCount: dto.episodeCount,
       posterUrl: _stringOrNull(dto.raw['poster_url'] ?? dto.raw['posterUrl']),
       backdropUrl:
           _stringOrNull(dto.raw['backdrop_url'] ?? dto.raw['backdropUrl']),
       seasons: [
-        for (final season in dto.seasons) TvSeason.fromDto(season as TvSeasonDto),
+        for (final season in dto.seasons)
+          TvSeason.fromDto(season as TvSeasonDto),
       ],
       releases: [
         for (final entry in _mapList(dto.raw['releases']))
@@ -417,6 +469,38 @@ final class TvSeries {
       identifiers: _mapList(dto.raw['identifiers']),
       characterAppearances: _mapList(dto.raw['character_appearances']),
       metadata: _metadataMap(dto.raw),
+    );
+  }
+
+  factory TvSeries.fromMetadataItem(LibraryMetadataItem item) {
+    return TvSeries(
+      id: item.id,
+      title: item.title,
+      originalTitle: item.originalTitle,
+      overview: item.synopsis ?? item.plotSummary ?? item.plotDescription,
+      firstAirDate: item.coverDate ?? item.releaseDate,
+      lastAirDate: null,
+      status: item.publishing?.subtitle,
+      type: item.video?.layers,
+      network: item.publisher,
+      originalLanguage: item.language,
+      country: item.country,
+      runtimeMinutes: item.video?.runtimeMinutes,
+      seriesDetails: item.series,
+      publishingDetails: item.publishing,
+      seasonCount: null,
+      episodeCount: null,
+      posterUrl: item.coverImageUrl,
+      backdropUrl: item.thumbnailImageUrl,
+      seasons: const <TvSeason>[],
+      releases: const <TvRelease>[],
+      media: const <TvReleaseMedia>[],
+      releaseEpisodeMaps: const <TvReleaseEpisodeMap>[],
+      contributions: item.creators ?? const <Map<String, dynamic>>[],
+      identifiers: const <Map<String, dynamic>>[],
+      characterAppearances:
+          item.characterDetails ?? const <Map<String, dynamic>>[],
+      metadata: const <String, dynamic>{},
     );
   }
 }
@@ -445,6 +529,16 @@ final class TvPersonalOverlay {
   bool get isOwned => ownedItem != null || isOwnedOverride;
   bool get isTracked => trackingEntry != null || isTrackedOverride;
   bool get isWishlisted => wishlistItem != null || isWishlistedOverride;
+
+  factory TvPersonalOverlay.fromShelf(ShelfEntry source) {
+    return TvPersonalOverlay(
+      ownedItem: source.ownedItem,
+      trackingEntry: source.trackingEntry,
+      wishlistItem: source.wishlistItem,
+      locationPath: source.locationPath,
+      updatedAt: source.updatedAt,
+    );
+  }
 }
 
 enum TvWorkspaceNodeType {

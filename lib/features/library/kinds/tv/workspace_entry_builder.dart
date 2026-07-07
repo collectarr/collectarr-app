@@ -1,39 +1,151 @@
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+
+LibraryWorkspaceEntry buildTvWorkspaceEntry(
+  TvSeries series,
+  TvPersonalOverlay overlay,
+) {
+  return TvWorkspaceEntry(
+    common: LibraryWorkspaceEntryData(
+      id: series.id,
+      browseScope: LibraryBrowserScope.title,
+      titleItemId: series.id,
+      releaseId: null,
+      copyId: null,
+      ownedItemId: overlay.ownedItem?.id,
+      mediaType: 'tv',
+      title: series.title,
+      displayTitle: series.title,
+      localizedTitle: null,
+      originalTitle: series.originalTitle,
+      searchAliases: const <String>[],
+      itemNumber: null,
+      synopsis: series.overview,
+      coverImageUrl: series.posterUrl,
+      thumbnailImageUrl: series.posterUrl ?? series.backdropUrl,
+      itemImages: const <ItemImage>[],
+      publisher: series.network,
+      coverDate: series.firstAirDate,
+      releaseDate: series.firstAirDate,
+      releaseYear: series.firstAirDate?.year,
+      barcode: null,
+      variant: null,
+      crossover: null,
+      isOwned: overlay.isOwned,
+      isTracked: overlay.isTracked,
+      isWishlisted: overlay.isWishlisted,
+      hasMissingCover: series.posterUrl == null,
+      hasMissingMetadata: false,
+      condition: null,
+      grade: null,
+      primaryReferenceLabel: null,
+      referenceScopeLabel: null,
+      referenceFormatLabel: null,
+      referenceEditionId: null,
+      referenceVariantId: null,
+      referenceBundleReleaseId: null,
+      notes: null,
+      tags: null,
+      collectionStatus: null,
+      lastBagBoardDate: null,
+      pricePaidCents: null,
+      currency: null,
+      locationPath: overlay.locationPath,
+      addedAt: overlay.updatedAt,
+      updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+      editions: const <CatalogEdition>[],
+      trailerUrls: const <TrailerLink>[],
+      plotSummary: series.overview,
+      plotDescription: null,
+      creators: series.contributions,
+      characters: const <String>[],
+      storyArcs: const <String>[],
+      genres: const <String>[],
+      country: series.country,
+      language: series.originalLanguage,
+      ageRating: null,
+      audienceRating: null,
+      rawPlatforms: null,
+    ),
+    series: series.seriesDetails,
+    publishing: series.publishingDetails,
+    video: VideoCatalogDetails(runtimeMinutes: series.runtimeMinutes),
+  );
+}
+
+LibraryWorkspaceEntry buildTvWorkspaceEntryFromShelf(ShelfEntry source) {
+  final catalogItem = source.catalogItem;
+  if (catalogItem == null) {
+    throw StateError('Expected catalog item for TV workspace entry');
+  }
+  return buildTvWorkspaceEntry(
+    TvSeries.fromMetadataItem(catalogItem),
+    TvPersonalOverlay.fromShelf(source),
+  );
+}
+
+LibraryWorkspaceEntry buildTvLibraryReleaseEntry(
+  LibraryReleaseEntryRequest request,
+) {
+  final entry = request.titleEntry;
+  final series = TvSeries(
+    id: entry.titleItemId ?? entry.id,
+    title: entry.title,
+    originalTitle: entry.originalTitle,
+    overview: entry.synopsis,
+    firstAirDate: entry.releaseDate,
+    lastAirDate: null,
+    status: entry.collectionStatus,
+    type: null,
+    network: entry.publisher,
+    originalLanguage: entry.language,
+    country: entry.country,
+    runtimeMinutes: entry.video?.runtimeMinutes,
+    seriesDetails: entry.series,
+    publishingDetails: entry.publishing,
+    seasonCount: null,
+    episodeCount: null,
+    posterUrl: entry.coverImageUrl,
+    backdropUrl: entry.thumbnailImageUrl,
+    seasons: const <TvSeason>[],
+    releases: const <TvRelease>[],
+    media: const <TvReleaseMedia>[],
+    releaseEpisodeMaps: const <TvReleaseEpisodeMap>[],
+    contributions: entry.creators ?? const <Map<String, dynamic>>[],
+    identifiers: const <Map<String, dynamic>>[],
+    characterAppearances: entry.characters == null
+        ? const <Map<String, dynamic>>[]
+        : [
+            for (final character in entry.characters!) {'name': character},
+          ],
+    metadata: const <String, dynamic>{},
+  );
+  final release = TvRelease.fromCatalogEdition(
+    request.edition,
+    seriesId: series.id,
+  );
+  return buildTvReleaseWorkspaceEntry(
+    series: series,
+    release: release,
+    overlay: TvPersonalOverlay(
+      updatedAt: request.updatedAt,
+      isOwnedOverride: request.isOwned,
+      isWishlistedOverride: request.isWishlisted,
+      isTrackedOverride: request.isTracked,
+    ),
+  );
+}
 
 LibraryWorkspaceEntry buildTvSeriesWorkspaceEntry(
   TvSeries series,
   TvPersonalOverlay overlay,
 ) {
-  return LibraryWorkspaceEntry(
-    id: series.id,
-    mediaType: 'tv',
-    title: series.title,
-    browseScope: LibraryBrowserScope.title,
-    titleItemId: series.id,
-    displayTitle: series.title,
-    originalTitle: series.originalTitle,
-    synopsis: series.overview,
-    coverImageUrl: series.posterUrl,
-    thumbnailImageUrl: series.posterUrl ?? series.backdropUrl,
-    publisher: series.network,
-    coverDate: series.firstAirDate,
-    releaseDate: series.firstAirDate,
-    releaseYear: series.firstAirDate?.year,
-    isOwned: overlay.isOwned,
-    isTracked: overlay.isTracked,
-    isWishlisted: overlay.isWishlisted,
-    hasMissingCover: series.posterUrl == null,
-    hasMissingMetadata: false,
-    locationPath: overlay.locationPath,
-    addedAt: overlay.updatedAt,
-    updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
-    editions: const <CatalogEdition>[],
-    video: VideoCatalogDetails(runtimeMinutes: series.runtimeMinutes),
-    creators: series.contributions,
-  );
+  return buildTvWorkspaceEntry(series, overlay);
 }
 
 LibraryWorkspaceEntry buildTvSeasonWorkspaceEntry({
@@ -57,7 +169,8 @@ LibraryWorkspaceEntry buildTvSeasonWorkspaceEntry({
     itemNumber: 'Season ${season.seasonNumber}',
     synopsis: season.overview ?? series.overview,
     coverImageUrl: season.posterUrl ?? series.posterUrl,
-    thumbnailImageUrl: season.posterUrl ?? series.posterUrl ?? series.backdropUrl,
+    thumbnailImageUrl:
+        season.posterUrl ?? series.posterUrl ?? series.backdropUrl,
     publisher: series.network,
     coverDate: season.airDate,
     releaseDate: season.airDate,
@@ -100,8 +213,10 @@ LibraryWorkspaceEntry buildTvEpisodeWorkspaceEntry({
     itemNumber: 'E${episode.episodeNumber.toString().padLeft(2, '0')}',
     synopsis: episode.overview ?? season.overview ?? series.overview,
     coverImageUrl: episode.stillUrl ?? season.posterUrl ?? series.posterUrl,
-    thumbnailImageUrl:
-        episode.stillUrl ?? season.posterUrl ?? series.posterUrl ?? series.backdropUrl,
+    thumbnailImageUrl: episode.stillUrl ??
+        season.posterUrl ??
+        series.posterUrl ??
+        series.backdropUrl,
     publisher: series.network,
     coverDate: episode.airDate,
     releaseDate: episode.airDate,
@@ -109,8 +224,9 @@ LibraryWorkspaceEntry buildTvEpisodeWorkspaceEntry({
     isOwned: overlay.isOwned,
     isTracked: overlay.isTracked,
     isWishlisted: overlay.isWishlisted,
-    hasMissingCover:
-        episode.stillUrl == null && season.posterUrl == null && series.posterUrl == null,
+    hasMissingCover: episode.stillUrl == null &&
+        season.posterUrl == null &&
+        series.posterUrl == null,
     hasMissingMetadata: false,
     locationPath: overlay.locationPath,
     addedAt: overlay.updatedAt,
@@ -136,7 +252,8 @@ LibraryWorkspaceEntry buildTvReleaseWorkspaceEntry({
     releaseId: release.id,
     displayTitle: release.title ?? series.title,
     originalTitle: series.originalTitle,
-    itemNumber: primaryMedia == null ? null : 'Disc ${primaryMedia.discNumber ?? 1}',
+    itemNumber:
+        primaryMedia == null ? null : 'Disc ${primaryMedia.discNumber ?? 1}',
     synopsis: series.overview,
     coverImageUrl: series.posterUrl,
     thumbnailImageUrl: series.posterUrl ?? series.backdropUrl,

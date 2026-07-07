@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/generic_library_media_workspace_builder.dart';
 import 'package:collectarr_app/features/library/kinds/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -215,7 +215,8 @@ const tvLibraryGroupModeDefinitions = [
 ];
 
 const tvLibrarySortColumnDefinitions = [
-  LibrarySortColumnDefinition(column: LibrarySortColumn.series, label: 'Series'),
+  LibrarySortColumnDefinition(
+      column: LibrarySortColumn.series, label: 'Series'),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.publisher,
     label: 'Network',
@@ -274,9 +275,9 @@ const tvLibraryMediaPresentation = LibraryMediaPresentation(
   groupLabels: tvLibraryGroupLabels,
   builder: TvLibraryMediaPresentationBuilder(),
   // intentional shared adapter, not canonical domain path
-  workspaceEntryBuilder: buildGenericLibraryWorkspaceEntryFromShelf,
+  workspaceEntryBuilder: buildTvWorkspaceEntryFromShelf,
   // intentional shared adapter, not canonical domain path
-  releaseEntryBuilder: buildGenericLibraryReleaseEntry,
+  releaseEntryBuilder: buildTvLibraryReleaseEntry,
   bucketLabelBuilder: tvLibraryBucketLabelBuilder,
   previewLabels: tvPreviewLabels,
   statsLabels: tvStatsLabels,
