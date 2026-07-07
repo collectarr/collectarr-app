@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/core/models/calendar_event.dart';
+import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/calendar/calendar_ics.dart';
 import 'package:collectarr_app/features/calendar/calendar_provider.dart';
@@ -11,6 +12,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 const _kMonthNames = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -123,6 +125,11 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
           animationDuration: animationDuration,
         ),
         actions: [
+          IconButton(
+            tooltip: 'Activity',
+            onPressed: () => context.push(AppRoutes.activity),
+            icon: const Icon(Icons.timeline_outlined),
+          ),
           IconButton(
             tooltip: 'Export to calendar (.ics)',
             onPressed: () => unawaited(_exportIcs()),

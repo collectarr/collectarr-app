@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/activity/global_activity_page.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/auth/auth_page.dart';
 import 'package:collectarr_app/features/calendar/calendar_page.dart';
@@ -28,6 +29,7 @@ abstract final class AppRoutes {
   static const shelf = '/shelf';
   static const loans = '/loans';
   static const calendar = '/calendar';
+  static const activity = '/activity';
   static const admin = '/admin';
   static const settings = '/settings';
   static const detail = '/detail';
@@ -155,6 +157,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               request.type.detailPageBuilder ?? _buildDefaultDetailPage;
           return builder(context, request);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.activity,
+        builder: (context, state) => const GlobalActivityPage(),
       ),
       GoRoute(
         path: AppRoutes.series,
