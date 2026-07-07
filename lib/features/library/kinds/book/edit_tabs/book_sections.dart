@@ -25,7 +25,7 @@ extension _BookSections on _BookLibraryEditDialogState {
                     const SizedBox(height: 10),
                     _field(controller: _subtitleController, label: 'Subtitle'),
                     const SizedBox(height: 10),
-                    EditTokenListField(
+                    LibraryContributionEditor(
                       controller: _authorController,
                       label: 'Author',
                       hint: 'Add author',
@@ -54,7 +54,7 @@ extension _BookSections on _BookLibraryEditDialogState {
                       hint: 'Select genres',
                     ),
                     const SizedBox(height: 10),
-                    EditTokenListField(
+                    LibraryContributionEditor(
                       controller: _subjectsController,
                       label: 'Subject',
                       hint: 'Add subject',
@@ -108,7 +108,7 @@ extension _BookSections on _BookLibraryEditDialogState {
                   Expanded(
                     child: Column(
                       children: [
-                        EditTokenListField(
+                        LibraryContributionEditor(
                           controller: _authorController,
                           label: 'Author',
                           hint: 'Add author',
@@ -121,7 +121,7 @@ extension _BookSections on _BookLibraryEditDialogState {
                           hint: 'Select genres',
                         ),
                         const SizedBox(height: 10),
-                        EditTokenListField(
+                        LibraryContributionEditor(
                           controller: _subjectsController,
                           label: 'Subject',
                           hint: 'Add subject',
@@ -140,73 +140,73 @@ extension _BookSections on _BookLibraryEditDialogState {
           accent: _accent,
           child: Column(
             children: [
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _authorController,
                 label: 'Author',
                 hint: 'Add author',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _editorController,
                 label: 'Editor',
                 hint: 'Add editor',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _illustratorController,
                 label: 'Illustrator',
                 hint: 'Add illustrator',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _coverArtistController,
                 label: 'Cover artist',
                 hint: 'Add cover artist',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _photographerController,
                 label: 'Photographer',
                 hint: 'Add photographer',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _forewordAuthorController,
                 label: 'Foreword author',
                 hint: 'Add foreword author',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _translatorController,
                 label: 'Translator',
                 hint: 'Add translator',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _ghostWriterController,
                 label: 'Ghost writer',
                 hint: 'Add ghost writer',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _narratorController,
                 label: 'Narrator',
                 hint: 'Add narrator',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _charactersController,
                 label: 'Characters',
                 hint: 'Add character',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _storyArcsController,
                 label: 'Story arcs',
                 hint: 'Add story arc',
               ),
               const SizedBox(height: 10),
-              EditTokenListField(
+              LibraryContributionEditor(
                 controller: _seriesTagsController,
                 label: 'Series tags',
                 hint: 'Add tag',
@@ -243,11 +243,9 @@ extension _BookSections on _BookLibraryEditDialogState {
                   label: 'Page count',
                   validator: optionalIntValidator,
                 ),
-                _field(
-                  controller: _releaseDateController,
+                LibraryDateEditField(
                   label: 'Release date',
-                  hint: 'YYYY-MM-DD',
-                  validator: optionalDateValidator,
+                  controller: _releaseDateController,
                 ),
                 _field(
                   controller: _releaseYearController,

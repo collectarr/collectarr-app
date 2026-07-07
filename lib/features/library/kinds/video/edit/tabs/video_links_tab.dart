@@ -32,8 +32,7 @@ class VideoEditLinksTab extends ConsumerWidget {
         EditSection(
           title: 'User links',
           accent: accent,
-          child: _EditableLinkList(
-            accent: accent,
+          child: LibraryExternalLinksEditor(
             title: 'User links',
             items: videoEdit.userLinkEdits,
             onAdd: () => videoEdit.userLinkEdits.add(
@@ -52,8 +51,7 @@ class VideoEditLinksTab extends ConsumerWidget {
         EditSection(
           title: 'Trailers',
           accent: accent,
-          child: _EditableLinkList(
-            accent: accent,
+          child: LibraryExternalLinksEditor(
             title: 'Trailers',
             items: videoEdit.userTrailerEdits,
             onAdd: () => videoEdit.userTrailerEdits.add(

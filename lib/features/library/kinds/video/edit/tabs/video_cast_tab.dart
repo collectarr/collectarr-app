@@ -13,13 +13,11 @@ class VideoEditCastTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _creditsTab(
-      context: context,
       title: 'Cast',
       emptyMessage: 'No cast data yet.',
       addLabel: 'Add Cast',
       accent: accent,
       credits: videoEdit.castCredits,
-      defaultRole: 'Actor',
       onAdd: () => videoEdit.castCredits.add(EditableVideoCredit.custom(role: 'Actor')),
     );
   }

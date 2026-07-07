@@ -13,13 +13,11 @@ class VideoEditCrewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _creditsTab(
-      context: context,
       title: 'Crew',
       emptyMessage: 'No crew data yet.',
       addLabel: 'Add Crew',
       accent: accent,
       credits: videoEdit.crewCredits,
-      defaultRole: 'Director',
       onAdd: () => videoEdit.crewCredits.add(EditableVideoCredit.custom(role: 'Director')),
     );
   }

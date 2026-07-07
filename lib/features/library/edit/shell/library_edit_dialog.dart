@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.da
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_value_tabs.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -238,7 +239,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   List<String> _gradeOptions = const [];
   List<String> _ownerOptions = const [];
   List<String> _countryOptions = const [];
+  List<String> _languageOptions = const [];
+  List<String> _ageRatingOptions = const [];
   List<String> _audienceRatingOptions = const [];
+  List<String> _regionOptions = const [];
+  List<String> _packagingOptions = const [];
+  List<String> _distributorOptions = const [];
+  List<String> _screenRatioOptions = const [];
+  List<String> _audioTrackOptions = const [];
+  List<String> _subtitleOptions = const [];
+  List<String> _layersOptions = const [];
+  List<String> _colorOptions = const [];
   List<String> _crossoverOptions = const [];
   List<String> _storyArcOptions = const [];
   List<String> _pageQualityOptions = const [];
@@ -588,18 +599,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _splitPickList(_genresEditController.text),
       widget.item.genres ?? const <String>[],
     );
-    _gamePlatformOptions = _mergePickListOptions(
-      _splitPickList(_gamePlatformsController.text),
-      widget.item.game?.platforms ?? const <String>[],
-      const <String>[
-        'PlayStation 5',
-        'PlayStation 4',
-        'Xbox Series X|S',
-        'Xbox One',
-        'Nintendo Switch',
-        'PC',
-      ],
-    );
+    _gamePlatformOptions = _splitPickList(_gamePlatformsController.text);
   }
 
   void _initializeComicEditors() {
@@ -741,13 +741,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           type: widget.type,
           draft: _draft,
           accent: widget.accent,
-          physicalFormats: widget.physicalFormats,
+          physicalFormats: _effectivePhysicalFormats,
         );
       case 'specs':
         return VideoEditSpecsTab(
           draft: _draft,
           videoEdit: _videoEdit,
           accent: widget.accent,
+          audioTrackOptions: _audioTrackOptions,
+          subtitleOptions: _subtitleOptions,
+          layersOptions: _layersOptions,
+          colorOptions: _colorOptions,
         );
       case 'cast':
         return VideoEditCastTab(
@@ -814,10 +818,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget _mediaTab() {
     if (_videoEdit.isVideoKind) {
       return VideoEditMediaTab(
-        type: widget.type,
         draft: _draft,
         videoEdit: _videoEdit,
         accent: widget.accent,
+        countryOptions: _countryOptions,
+        languageOptions: _languageOptions,
+        ageRatingOptions: _ageRatingOptions,
+        audienceRatingOptions: _audienceRatingOptions,
         genreOptions: _genreOptions,
       );
     }
@@ -1071,24 +1078,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               ),
             ]),
           ],
-          const SizedBox(height: 10),
-          _responsiveFields([
-            _datePickerField(
-              label: widget.type.mediaFields.releaseDateLabel,
-              value: parseDate(_releaseDateController.text),
-              onChanged: (picked) {
-                setState(() {
-                  _releaseDateController.text =
-                      picked == null ? '' : formatDate(picked);
-                });
-              },
-            ),
-            _field(
-              controller: _releaseYearController,
-              label: 'Release year',
-              validator: optionalIntValidator,
-            ),
-          ]),
           if (mediaFields.showPageCount ||
               mediaFields.showImprint ||
               mediaFields.showSeriesGroup) ...[
@@ -1118,24 +1107,50 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _responsiveFields([
-            _field(
-                controller: _editionTitleController,
-                label: releaseFields.editionTitleLabel),
-            _field(
-                controller: _variantController,
-                label: releaseFields.variantLabel),
-            _field(
-                controller: _barcodeController,
-                label: releaseFields.barcodeLabel),
-          ]),
-          if (releaseFields.showPhysicalFormat &&
-              (_effectivePhysicalFormats.isNotEmpty ||
-                  _physicalFormatOptions.isNotEmpty ||
-                  _physicalFormatLabelController.text.trim().isNotEmpty)) ...[
-            const SizedBox(height: 10),
-            _physicalFormatField(label: 'Physical format'),
-          ],
+          LibraryReleaseIdentityFields(
+            editionTitleController: _editionTitleController,
+            variantController: _variantController,
+            barcodeController: _barcodeController,
+            releaseDateController: _releaseDateController,
+            releaseYearController: _releaseYearController,
+            physicalFormatController: _physicalFormatLabelController,
+            physicalFormatOptions: mergePickListValues(
+              builtInValues: [
+                for (final format in _effectivePhysicalFormats) format.label,
+              ],
+              customValues: _physicalFormatOptions,
+              selectedValues: [_physicalFormatLabelController.text],
+            ),
+            onPhysicalFormatChanged: (value) {
+              final normalized = emptyToNull(value ?? '');
+              final format = physicalMediaFormatByLabelOrId(
+                normalized,
+                formats: _effectivePhysicalFormats,
+              );
+              final previousFormat = _physicalFormatForId(_physicalFormatId);
+              final variant = _variantController.text.trim();
+              final shouldReplaceVariant =
+                  variant.isEmpty || previousFormat?.label == variant;
+              setState(() {
+                _physicalFormatId = format?.id;
+                if (format != null && shouldReplaceVariant) {
+                  _variantController.text = format.label;
+                }
+              });
+            },
+            onPhysicalFormatManage: () => _manageSingleValuePickList(
+              listName: kPhysicalFormatPickListName,
+              label: 'Physical format',
+              builtInValues: [
+                for (final format in _effectivePhysicalFormats) format.label,
+              ],
+            ),
+            showPhysicalFormat: releaseFields.showPhysicalFormat,
+            editionTitleLabel: releaseFields.editionTitleLabel,
+            variantLabel: releaseFields.variantLabel,
+            barcodeLabel: releaseFields.barcodeLabel,
+            releaseDateLabel: widget.type.mediaFields.releaseDateLabel,
+          ),
         ],
       ),
     );
@@ -1522,6 +1537,48 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             ],
           ),
           const SizedBox(height: 12),
+          _responsiveFields([
+            LibraryVocabularyField(
+              label: 'Region',
+              controller: _regionController,
+              options: _regionOptions,
+              onManage: () => _manageSingleValuePickList(
+                listName: kRegionPickListName,
+                label: 'Region',
+              ),
+            ),
+            LibraryVocabularyField(
+              label: 'Packaging',
+              controller: _packagingController,
+              options: _packagingOptions,
+              onManage: () => _manageSingleValuePickList(
+                listName: kPackagingPickListName,
+                label: 'Packaging',
+              ),
+            ),
+          ]),
+          const SizedBox(height: 10),
+          _responsiveFields([
+            LibraryVocabularyField(
+              label: 'Distributor',
+              controller: _distributorController,
+              options: _distributorOptions,
+              onManage: () => _manageSingleValuePickList(
+                listName: kDistributorPickListName,
+                label: 'Distributor',
+              ),
+            ),
+            LibraryVocabularyField(
+              label: 'Screen ratio',
+              controller: _screenRatioController,
+              options: _screenRatioOptions,
+              onManage: () => _manageSingleValuePickList(
+                listName: kScreenRatioPickListName,
+                label: 'Screen ratio',
+              ),
+            ),
+          ]),
+          const SizedBox(height: 12),
           TextFormField(
             controller: _featuresController,
             minLines: 3,
@@ -1576,11 +1633,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           ]),
           const SizedBox(height: 10),
           _responsiveFields([
-            _field(
-              controller: _purchaseDateController,
+            LibraryDateEditField(
               label: 'Purchase date',
-              hint: 'YYYY-MM-DD',
-              validator: optionalDateValidator,
+              controller: _purchaseDateController,
             ),
             _field(
                 controller: _purchaseStoreController, label: 'Purchase store'),
@@ -1986,6 +2041,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         mediaKind: widget.type.workspace.kind.apiValue,
         selectedValue: _screenRatioController.text,
       ),
+      loadMultiValuePickListOptions(
+        db,
+        listName: kAudioTrackPickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValues: splitPickListValues(_videoEdit.audioTracksController.text),
+      ),
+      loadMultiValuePickListOptions(
+        db,
+        listName: kSubtitlePickListName,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedValues: splitPickListValues(_videoEdit.subtitlesController.text),
+      ),
       loadSingleValuePickListOptions(
         db,
         listName: kLayersPickListName,
@@ -1998,17 +2065,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         mediaKind: widget.type.workspace.kind.apiValue,
         selectedValue: _videoEdit.colorController.text,
       ),
-      loadSingleValuePickListOptions(
+      loadMultiValuePickListOptions(
         db,
-        listName: kAudioTrackPickListName,
+        listName: kGamePlatformPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _videoEdit.audioTracksController.text,
-      ),
-      loadSingleValuePickListOptions(
-        db,
-        listName: kSubtitlePickListName,
-        mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _videoEdit.subtitlesController.text,
+        selectedValues: splitPickListValues(_gamePlatformsController.text),
       ),
       loadSingleValuePickListOptions(
         db,
@@ -2075,17 +2136,28 @@ ORDER BY owner_label COLLATE NOCASE
       _conditionOptions = conditionGrade.conditions;
       _gradeOptions = conditionGrade.grades;
       _countryOptions = List<String>.from(results[5] as List<String>);
+      _languageOptions = List<String>.from(results[6] as List<String>);
+      _ageRatingOptions = List<String>.from(results[7] as List<String>);
       _audienceRatingOptions = List<String>.from(results[8] as List<String>);
-      _crossoverOptions = List<String>.from(results[17] as List<String>);
-      _storyArcOptions = List<String>.from(results[18] as List<String>);
-      _pageQualityOptions = List<String>.from(results[19] as List<String>);
-      _keyCategoryOptions = List<String>.from(results[20] as List<String>);
+      _regionOptions = List<String>.from(results[9] as List<String>);
+      _packagingOptions = List<String>.from(results[10] as List<String>);
+      _distributorOptions = List<String>.from(results[11] as List<String>);
+      _screenRatioOptions = List<String>.from(results[12] as List<String>);
+      _audioTrackOptions = List<String>.from(results[13] as List<String>);
+      _subtitleOptions = List<String>.from(results[14] as List<String>);
+      _layersOptions = List<String>.from(results[15] as List<String>);
+      _colorOptions = List<String>.from(results[16] as List<String>);
+      _gamePlatformOptions = List<String>.from(results[17] as List<String>);
+      _crossoverOptions = List<String>.from(results[18] as List<String>);
+      _storyArcOptions = List<String>.from(results[19] as List<String>);
+      _pageQualityOptions = List<String>.from(results[20] as List<String>);
+      _keyCategoryOptions = List<String>.from(results[21] as List<String>);
       _ownerOptions = [
-        for (final row in (results[21] as List<QueryRow>))
+        for (final row in (results[22] as List<QueryRow>))
           row.read<String>('owner_label'),
       ];
       _seriesEntries = List<SeriesRegistryEntry>.from(
-        results[22] as List<SeriesRegistryEntry>,
+        results[23] as List<SeriesRegistryEntry>,
       );
     });
     await _loadGenreOptions();
@@ -2156,32 +2228,6 @@ ORDER BY owner_label COLLATE NOCASE
     await _loadCatalogVocabularyOptions();
   }
 
-  Widget _seriesField() {
-    return _pickField(
-      controller: _titleController,
-      options: [for (final entry in _seriesEntries) entry.title],
-      label: 'Series',
-      validator: (value) =>
-          emptyToNull(value ?? '') == null ? 'Enter a title' : null,
-      onChanged: (value) {
-        final normalized = emptyToNull(value ?? '');
-        final matchingEntry =
-            _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
-                  (entry) =>
-                      entry != null &&
-                      entry.title.trim().toLowerCase() ==
-                          (normalized?.toLowerCase() ?? ''),
-                  orElse: () => null,
-                );
-        setState(() {
-          _selectedSeriesId = matchingEntry?.coreSeriesId;
-        });
-      },
-      onManage: _openSeriesPicker,
-      manageTooltip: 'Select or manage series',
-    );
-  }
-
   Widget _publisherField({String label = 'Publisher'}) {
     return _pickField(
       controller: _publisherController,
@@ -2239,44 +2285,6 @@ ORDER BY owner_label COLLATE NOCASE
       },
       onManage: _openSeriesPicker,
       manageTooltip: 'Select or manage series',
-    );
-  }
-
-  Widget _physicalFormatField({String label = 'Format'}) {
-    return _pickField(
-      controller: _physicalFormatLabelController,
-      options: mergePickListValues(
-        builtInValues: [
-          for (final format in _effectivePhysicalFormats) format.label,
-        ],
-        customValues: _physicalFormatOptions,
-        selectedValues: [_physicalFormatLabelController.text],
-      ),
-      label: label,
-      onChanged: (value) {
-        final normalized = emptyToNull(value ?? '');
-        final format = physicalMediaFormatByLabelOrId(
-          normalized,
-          formats: _effectivePhysicalFormats,
-        );
-        final previousFormat = _physicalFormatForId(_physicalFormatId);
-        final variant = _variantController.text.trim();
-        final shouldReplaceVariant =
-            variant.isEmpty || previousFormat?.label == variant;
-        setState(() {
-          _physicalFormatId = format?.id;
-          if (format != null && shouldReplaceVariant) {
-            _variantController.text = format.label;
-          }
-        });
-      },
-      onManage: () => _manageSingleValuePickList(
-        listName: kPhysicalFormatPickListName,
-        label: label,
-        builtInValues: [
-          for (final format in _effectivePhysicalFormats) format.label,
-        ],
-      ),
     );
   }
 
@@ -2349,6 +2357,70 @@ ORDER BY owner_label COLLATE NOCASE
           'Death',
           'Cameo',
           'Classic cover',
+        ],
+      ),
+    );
+  }
+
+  Widget _seriesField() {
+    return _pickField(
+      controller: _titleController,
+      options: [for (final entry in _seriesEntries) entry.title],
+      label: 'Series',
+      validator: (value) =>
+          emptyToNull(value ?? '') == null ? 'Enter a title' : null,
+      onChanged: (value) {
+        final normalized = emptyToNull(value ?? '');
+        final matchingEntry =
+            _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+                  (entry) =>
+                      entry != null &&
+                      entry.title.trim().toLowerCase() ==
+                          (normalized?.toLowerCase() ?? ''),
+                  orElse: () => null,
+                );
+        setState(() {
+          _selectedSeriesId = matchingEntry?.coreSeriesId;
+        });
+      },
+      onManage: _openSeriesPicker,
+      manageTooltip: 'Select or manage series',
+    );
+  }
+
+  Widget _physicalFormatField({String label = 'Format'}) {
+    return _pickField(
+      controller: _physicalFormatLabelController,
+      options: mergePickListValues(
+        builtInValues: [
+          for (final format in _effectivePhysicalFormats) format.label,
+        ],
+        customValues: _physicalFormatOptions,
+        selectedValues: [_physicalFormatLabelController.text],
+      ),
+      label: label,
+      onChanged: (value) {
+        final normalized = emptyToNull(value ?? '');
+        final format = physicalMediaFormatByLabelOrId(
+          normalized,
+          formats: _effectivePhysicalFormats,
+        );
+        final previousFormat = _physicalFormatForId(_physicalFormatId);
+        final variant = _variantController.text.trim();
+        final shouldReplaceVariant =
+            variant.isEmpty || previousFormat?.label == variant;
+        setState(() {
+          _physicalFormatId = format?.id;
+          if (format != null && shouldReplaceVariant) {
+            _variantController.text = format.label;
+          }
+        });
+      },
+      onManage: () => _manageSingleValuePickList(
+        listName: kPhysicalFormatPickListName,
+        label: label,
+        builtInValues: [
+          for (final format in _effectivePhysicalFormats) format.label,
         ],
       ),
     );

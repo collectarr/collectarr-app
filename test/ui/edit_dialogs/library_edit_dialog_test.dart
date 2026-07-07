@@ -132,7 +132,7 @@ void main() {
     expect(find.text('Tracking'), findsNothing);
     expect(find.text('Condition'), findsNothing);
     expect(find.text('Purchase date'), findsNothing);
-    expect(find.text('Work release date'), findsOneWidget);
+    expect(find.text('Work release date'), findsNothing);
   });
 
   testWidgets(
@@ -457,7 +457,7 @@ void main() {
     await tester.tap(find.text('Media').first);
     await pumpUntilSettled(tester);
 
-    expect(find.text('Release Date'), findsOneWidget);
+    expect(find.text('Release Date'), findsNothing);
     expect(find.text('Release year'), findsNothing);
     expect(find.text('Page count'), findsNothing);
     expect(find.text('Imprint'), findsNothing);

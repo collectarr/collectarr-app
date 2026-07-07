@@ -1,13 +1,11 @@
 part of 'video_edit_tabs.dart';
 
 Widget _creditsTab({
-  required BuildContext context,
   required String title,
   required String emptyMessage,
   required String addLabel,
   required Color accent,
   required List<EditableVideoCredit> credits,
-  required String defaultRole,
   required VoidCallback onAdd,
 }) {
   return EditTabShell(
@@ -60,66 +58,6 @@ Widget _creditsTab({
       ),
     ],
   );
-}
-
-class _EditableLinkList extends StatelessWidget {
-  const _EditableLinkList({
-    required this.accent,
-    required this.title,
-    required this.items,
-    required this.onAdd,
-  });
-
-  final Color accent;
-  final String title;
-  final List<EditableUserExternalLink> items;
-  final VoidCallback onAdd;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (items.isEmpty)
-          const EditSectionStateMessage(
-            message: 'No entries yet.',
-            icon: Icons.link_outlined,
-          )
-        else
-          Column(
-            children: [
-              for (final item in items)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: item.labelController,
-                          decoration: const InputDecoration(labelText: 'Label'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextFormField(
-                          controller: item.urlController,
-                          decoration: const InputDecoration(labelText: 'URL'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: onAdd,
-          icon: const Icon(Icons.add),
-          label: Text('Add $title'),
-        ),
-      ],
-    );
-  }
 }
 
 Widget _responsiveFields(List<Widget> children) {

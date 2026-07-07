@@ -49,11 +49,9 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                 _field(
                     controller: _catalogNumberController,
                     label: 'Catalog number'),
-                _field(
-                  controller: _releaseDateController,
+                LibraryDateEditField(
                   label: 'Release date',
-                  hint: 'YYYY-MM-DD',
-                  validator: optionalDateValidator,
+                  controller: _releaseDateController,
                 ),
                 _field(
                   controller: _releaseYearController,
@@ -63,17 +61,13 @@ extension _MusicSections on _MusicLibraryEditDialogState {
               ]),
               const SizedBox(height: 10),
               _denseFields([
-                _field(
-                  controller: _originalReleaseDateController,
+                LibraryDateEditField(
                   label: 'Original release date',
-                  hint: 'YYYY-MM-DD',
-                  validator: optionalDateValidator,
+                  controller: _originalReleaseDateController,
                 ),
-                _field(
-                  controller: _recordingDateController,
+                LibraryDateEditField(
                   label: 'Recording date',
-                  hint: 'YYYY-MM-DD',
-                  validator: optionalDateValidator,
+                  controller: _recordingDateController,
                 ),
                 _field(controller: _studioController, label: 'Studio'),
               ]),
