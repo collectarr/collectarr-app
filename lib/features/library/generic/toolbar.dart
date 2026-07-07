@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
@@ -109,10 +110,12 @@ class LibraryToolbar extends StatelessWidget {
     this.onCompareMetadataWithServer,
     this.groupMode,
     this.folderPreset,
+    this.groupPresentation,
     this.availableGroupModes,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
+    this.onGroupPresentationChanged,
     this.includeDesktopSecondaryBand = true,
   });
 
@@ -206,10 +209,12 @@ class LibraryToolbar extends StatelessWidget {
         onCompareMetadataWithServer = actions.onCompareMetadataWithServer,
         groupMode = state.groupMode,
         folderPreset = state.folderPreset,
+        groupPresentation = state.groupPresentation,
         availableGroupModes = state.availableGroupModes,
         pinnedFolderPresets = state.pinnedFolderPresets,
         onPinnedFolderPresetsChanged = actions.onPinnedFolderPresetsChanged,
         onGroupModeChanged = actions.onGroupModeChanged,
+        onGroupPresentationChanged = actions.onGroupPresentationChanged,
         includeDesktopSecondaryBand = config.includeDesktopSecondaryBand;
 
   final LibraryTypeConfig type;
@@ -297,10 +302,12 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onCompareMetadataWithServer;
   final LibraryGroupMode? groupMode;
   final LibraryFolderPreset? folderPreset;
+  final LibraryGroupPresentation? groupPresentation;
   final List<LibraryGroupMode>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
+  final ValueChanged<LibraryGroupPresentation>? onGroupPresentationChanged;
   final bool includeDesktopSecondaryBand;
 
   @override
@@ -477,11 +484,13 @@ class LibraryToolbar extends StatelessWidget {
                       onCompareMetadataWithServer: onCompareMetadataWithServer,
                       groupMode: groupMode,
                       folderPreset: folderPreset,
+                      groupPresentation: groupPresentation,
                       availableGroupModes: availableGroupModes,
                       pinnedFolderPresets: pinnedFolderPresets,
                       onPinnedFolderPresetsChanged:
                           onPinnedFolderPresetsChanged,
                       onGroupModeChanged: onGroupModeChanged,
+                      onGroupPresentationChanged: onGroupPresentationChanged,
                       selectionCallbacks: selectionCallbacks,
                       selectedCount: selectedCount,
                       totalSelectableCount: totalSelectableCount,

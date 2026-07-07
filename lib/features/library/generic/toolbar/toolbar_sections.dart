@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
@@ -77,10 +78,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onCompareMetadataWithServer,
     this.groupMode,
     this.folderPreset,
+    this.groupPresentation,
     this.availableGroupModes,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
+    this.onGroupPresentationChanged,
     this.selectionCallbacks,
     this.selectedCount = 0,
     this.totalSelectableCount = 0,
@@ -139,10 +142,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onCompareMetadataWithServer;
   final LibraryFolderPreset? folderPreset;
   final LibraryGroupMode? groupMode;
+  final LibraryGroupPresentation? groupPresentation;
   final List<LibraryGroupMode>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
+  final ValueChanged<LibraryGroupPresentation>? onGroupPresentationChanged;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final int selectedCount;
   final int totalSelectableCount;
@@ -233,6 +238,15 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                               onChanged: onViewModeChanged,
                               iconOnly: true,
                             ),
+                            if (groupMode != null &&
+                                groupPresentation != null &&
+                                onGroupPresentationChanged != null) ...[
+                              const _LibraryDesktopToolbarSeparator(),
+                              LibraryGroupPresentationToggle(
+                                groupPresentation: groupPresentation!,
+                                onChanged: onGroupPresentationChanged!,
+                              ),
+                            ],
                             if (supportsMediaReleaseSplit) ...[
                               const _LibraryDesktopToolbarSeparator(),
                               _LibraryDesktopToolbarSection(

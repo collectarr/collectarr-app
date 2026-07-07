@@ -3,10 +3,14 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:csv/csv.dart';
 import 'package:dio/dio.dart';
+import 'package:collectarr_app/features/imports/framework/import_models.dart';
+import 'package:collectarr_app/features/imports/framework/import_runner.dart';
+import 'package:collectarr_app/features/settings/provider_import_models.dart';
 
 /// The TMDB media type for import entries.
 enum TmdbMediaType {
@@ -151,6 +155,8 @@ class TmdbImportEntry {
 
   int? get releaseYear => releaseDate?.year;
 
+  String get providerItemId => mediaType.providerItemId(tmdbId);
+
   /// Whether this entry looks like anime based on TMDB metadata.
   ///
   /// Checks for Animation genre (ID 16) combined with Japanese origin
@@ -201,6 +207,24 @@ class TmdbImportEntry {
       return null;
     }
     return 'https://image.tmdb.org/t/p/w500$path';
+  }
+
+  ImportRow toImportRow() {
+    return ImportRow(
+      sourceId: providerItemId,
+      title: title,
+      mediaKind: looksLikeAnime ? 'anime' : mediaType.name,
+      status: collection.isRated
+          ? ImportItemStatus.completed
+          : ImportItemStatus.planned,
+      rating: rating == null
+          ? null
+          : (rating!.toDouble() * 10).round().clamp(0, 100).toInt(),
+      externalIds: <String, String>{
+        'tmdb': tmdbId.toString(),
+      },
+      raw: toJson(),
+    );
   }
 
   TmdbImportEntry copyWith({
@@ -295,6 +319,22 @@ class TmdbImportMatch {
   final List<CatalogItem> candidates;
 
   bool get isMatched => catalogItem != null;
+}
+
+class TmdbImportSource implements ImportSource {
+  const TmdbImportSource({required this.entries});
+
+  final List<TmdbImportEntry> entries;
+
+  @override
+  ProviderImportId get provider => ProviderImportId.tmdb;
+
+  @override
+  Future<List<ImportRow>> readRows() async {
+    return [
+      for (final entry in entries) entry.toImportRow(),
+    ];
+  }
 }
 
 class TmdbImportPreview {
@@ -681,21 +721,58 @@ class TmdbImportService {
         importMatch,
     required Future<void> Function(TmdbImportEntry entry) proposeUnmatched,
   }) async {
-    var importedCount = 0;
-    var proposedCount = 0;
-    for (final match in preview.matches) {
-      final item = match.catalogItem;
-      if (item != null) {
+    final source = TmdbImportSource(
+      entries: [
+        for (final match in preview.matches) match.entry,
+      ],
+    );
+    final matchesBySourceId = <String, TmdbImportMatch>{
+      for (final match in preview.matches) match.entry.providerItemId: match,
+    };
+    final runner = ImportRunner(
+      matcher: (row) async {
+        final match = matchesBySourceId[row.sourceId];
+        final item = match?.catalogItem;
+        if (item == null) {
+          return ImportMapping.unmatched(row);
+        }
+        return ImportMapping.matched(
+          row,
+          CatalogEntityRef(
+            kind: item.kind,
+            entityType: CatalogEntityType.work,
+            id: item.id,
+          ),
+        );
+      },
+      applier: (mapping, config) async {
+        final match = matchesBySourceId[mapping.row.sourceId];
+        final item = match?.catalogItem;
+        if (match == null || item == null) {
+          return ImportRowOutcome.skipped;
+        }
         await importMatch(item, match.entry);
-        importedCount += 1;
-        continue;
-      }
-      await proposeUnmatched(match.entry);
-      proposedCount += 1;
-    }
+        return ImportRowOutcome.imported;
+      },
+      unmatchedHandler: (row, config) async {
+        final match = matchesBySourceId[row.sourceId];
+        if (match != null) {
+          await proposeUnmatched(match.entry);
+        }
+      },
+    );
+    final result = await runner.runSource(
+      source,
+      ImportRunConfig(
+        provider: ProviderImportId.tmdb,
+        collectionLabel: preview.collection.label,
+        sourceLabel: 'TMDB import',
+        proposeUnmatched: true,
+      ),
+    );
     return TmdbImportExecutionResult(
-      importedCount: importedCount,
-      proposedCount: proposedCount,
+      importedCount: result.imported,
+      proposedCount: result.proposed,
     );
   }
 

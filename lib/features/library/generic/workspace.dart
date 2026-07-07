@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/empty_state.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -47,8 +48,11 @@ class LibraryWorkspace extends ConsumerWidget {
     required this.selectionEnabled,
     required this.selectedIds,
     required this.groupMode,
+    required this.groupPresentation,
     required this.selectedBucket,
     required this.onBucketChanged,
+    required this.collapsedGroupBuckets,
+    required this.onGroupBucketCollapsedToggled,
     required this.accent,
     required this.hasActiveFilter,
     required this.onAdd,
@@ -75,8 +79,11 @@ class LibraryWorkspace extends ConsumerWidget {
   final bool selectionEnabled;
   final Set<String> selectedIds;
   final LibraryGroupMode groupMode;
+  final LibraryGroupPresentation groupPresentation;
   final String? selectedBucket;
   final ValueChanged<String?> onBucketChanged;
+  final Set<String> collapsedGroupBuckets;
+  final ValueChanged<String> onGroupBucketCollapsedToggled;
   final Color accent;
   final bool hasActiveFilter;
   final VoidCallback onAdd;
@@ -179,7 +186,12 @@ class LibraryWorkspace extends ConsumerWidget {
       coverSize: viewState.coverSize,
     );
     if (_showGrouped && items.isNotEmpty) {
-      final groups = libraryGroupEntriesForItems(items, type, groupMode);
+      final groups = libraryGroupEntriesForItems(
+        items,
+        type,
+        groupMode,
+        presentationOverride: groupPresentation,
+      );
       return LibraryGroupedShelfView(
         type: type,
         adapter: adapter,
@@ -190,6 +202,8 @@ class LibraryWorkspace extends ConsumerWidget {
         selectedIds: selectedIds,
         accent: accent,
         onSelectGroupBucket: onBucketChanged,
+        collapsedGroupBuckets: collapsedGroupBuckets,
+        onGroupBucketCollapsedToggled: onGroupBucketCollapsedToggled,
         onOpenGroupDetails: (group) => onOpenItem(group.representativeItem),
         onActivateItem: onActivateItem,
         onToggleSelectionItem: onToggleSelectionItem,

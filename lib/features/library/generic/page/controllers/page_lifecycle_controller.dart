@@ -77,10 +77,26 @@ abstract final class _LibraryPageLifecycleControllerOps {
       }
 
       final nextGroupMode = folderPreset?.primaryMode ?? groupMode;
+      final effectiveFolderPreset = folderPreset ??
+          (nextGroupMode == null
+              ? null
+              : LibraryFolderPreset.single(nextGroupMode));
+      final groupPresentationOverride = effectiveFolderPreset == null
+          ? null
+          : await state._viewPrefs.readGroupPresentationOverride(
+              effectiveFolderPreset,
+            );
+      final collapsedGroupBuckets = effectiveFolderPreset == null
+          ? const <String>{}
+          : await state._viewPrefs.readCollapsedGroupBuckets(
+              effectiveFolderPreset,
+            );
       final preferencesChanged = state._quickView !=
               sanitizeLibraryQuickViewForType(quickView, state.widget.type) ||
           state._folderPreset != folderPreset ||
           state._groupMode != nextGroupMode ||
+          state._groupPresentationOverride != groupPresentationOverride ||
+          !setEquals(state._collapsedGroupBuckets, collapsedGroupBuckets) ||
           !listEquals(state._pinnedFolderPresets, pinnedPresets) ||
           !setEquals(state._pinnedViewPresets, pinnedViewPresets) ||
           !setEquals(state._pinnedSortFavoriteIds, pinnedSortFavoriteIds) ||
@@ -98,6 +114,8 @@ abstract final class _LibraryPageLifecycleControllerOps {
         );
         state._folderPreset = folderPreset;
         state._groupMode = nextGroupMode;
+        state._groupPresentationOverride = groupPresentationOverride;
+        state._collapsedGroupBuckets = collapsedGroupBuckets;
         state._pinnedFolderPresets = pinnedPresets;
         state._pinnedViewPresets = pinnedViewPresets;
         state._pinnedSortFavoriteIds = pinnedSortFavoriteIds;
@@ -136,6 +154,8 @@ abstract final class _LibraryPageLifecycleControllerOps {
     state._folderDisplayMode = LibraryFolderDisplayMode.drilldown;
     state._folderTreeExpandedNodeIds = const <String>{};
     state._folderTreeSelectedNodeId = null;
+    state._groupPresentationOverride = null;
+    state._collapsedGroupBuckets = const <String>{};
     state._pinnedFolderPresets = state._viewPrefs.cachedPinnedFolderPresets
       .map(
           (preset) => sanitizeLibraryFolderPreset(
@@ -181,6 +201,8 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._folderDisplayMode = LibraryFolderDisplayMode.drilldown;
       state._folderTreeExpandedNodeIds = const <String>{};
       state._folderTreeSelectedNodeId = null;
+      state._groupPresentationOverride = null;
+      state._collapsedGroupBuckets = const <String>{};
       state._selectionAnchorId = null;
       state._kindBrowserDelegate.closeReleaseFolder();
       state.ref

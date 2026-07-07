@@ -1298,7 +1298,6 @@ class _ProviderCandidateTile extends StatelessWidget {
     );
     final subtitle = [
       providerLabel,
-      if (candidate.isStub) 'Stub result',
       candidate.summary,
       candidate.providerItemId,
     ].whereType<String>().join(' | ');
@@ -1379,10 +1378,6 @@ class _ProviderCandidateTile extends StatelessWidget {
                           child: Row(
                             children: [
                               LibraryAddResultBadge(providerLabel),
-                              if (candidate.isStub) ...[
-                                const SizedBox(width: 5),
-                                const LibraryAddResultBadge('stub'),
-                              ],
                               if (queuedIngest != null) ...[
                                 const SizedBox(width: 5),
                                 LibraryAddResultBadge(
@@ -1522,4 +1517,3 @@ class _NoSearchResults extends StatelessWidget {
     return 'Search Core, lookup a barcode, search ${type.metadataProviderLabel(selectedProvider)}, or add a manual item if Core is offline.';
   }
 }
-

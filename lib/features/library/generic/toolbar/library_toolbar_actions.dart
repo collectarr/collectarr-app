@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
@@ -57,6 +58,7 @@ class LibraryToolbarActions {
     this.onCompareMetadataWithServer,
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
+    this.onGroupPresentationChanged,
   });
 
   final VoidCallback onAdd;
@@ -110,4 +112,5 @@ class LibraryToolbarActions {
   final VoidCallback? onCompareMetadataWithServer;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
+  final ValueChanged<LibraryGroupPresentation>? onGroupPresentationChanged;
 }

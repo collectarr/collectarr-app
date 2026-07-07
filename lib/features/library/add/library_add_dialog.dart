@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/add/compact_controls.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
+import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_content_scope.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
@@ -49,7 +50,6 @@ import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart'
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -297,6 +297,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final _LibraryAddSearchController _searchController;
   late final _LibraryAddSelectionController _selectionController;
   late final _LibraryAddPreviewController _previewController;
+  late final LibraryProviderActionService _providerActionService;
 
   @override
   void initState() {
@@ -314,6 +315,7 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _searchController = _LibraryAddSearchController(this);
     _selectionController = _LibraryAddSelectionController(this);
     _previewController = _LibraryAddPreviewController(this);
+    _providerActionService = const LibraryProviderActionService();
     _controller = _LibraryAddController(
       search: _searchController,
       selection: _selectionController,
@@ -1058,10 +1060,22 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         for (final item in _results)
                           if (_checkedResultIds.contains(item.id)) item,
                       ];
+                      final checkedProviderCandidates = [
+                        for (final candidate in _providerResults)
+                          if (_checkedProviderIds
+                              .contains(candidate.localCatalogId))
+                            candidate,
+                      ];
                       final addItems = checkedItems.isNotEmpty
                           ? checkedItems
                           : [if (selectedResult != null) selectedResult];
-                      final addCount = addItems.length;
+                      final addCount = addItems.isNotEmpty
+                          ? addItems.length
+                          : checkedProviderCandidates.isNotEmpty
+                              ? checkedProviderCandidates.length
+                              : selectedCandidate != null
+                                  ? 1
+                                  : 0;
                       final selectedEditionSelection = selectedResult == null
                           ? null
                           : _selectedEditionSelectionForItem(selectedResult);
@@ -1119,11 +1133,24 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         onDefaultPurchaseDateChanged: (value) =>
                             setState(() => _defaultPurchaseDate = value),
                         onAdd: (addItems.isEmpty &&
-                                    selectedCandidate == null) ||
-                                !canAddBundleSelection ||
-                                !canAddEditionSelection
+                                    selectedCandidate == null &&
+                                    checkedProviderCandidates.isEmpty) ||
+                                (checkedProviderCandidates.isEmpty &&
+                                    (!canAddBundleSelection ||
+                                        !canAddEditionSelection))
                             ? null
                             : () async {
+                                if (selectedCandidate == null &&
+                                    checkedProviderCandidates.isNotEmpty) {
+                                  for (final candidate
+                                      in checkedProviderCandidates) {
+                                    await _controller.preview.addProviderCandidate(
+                                      candidate,
+                                      _addTarget,
+                                    );
+                                  }
+                                  return;
+                                }
                                 if (addItems.isNotEmpty) {
                                   final resolvedItems =
                                       await _resolveCoreItemsForAdd(addItems);
@@ -2731,10 +2758,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     var currentCandidate = candidate;
     try {
       while (mounted) {
-        final preview = await ref.read(apiClientProvider).adminProviderPreview(
-              provider: currentCandidate.provider,
-              providerItemId: currentCandidate.providerItemId,
-            );
+        final preview = await _providerActionService.fetchPreview(
+          api: ref.read(apiClientProvider),
+          candidate: currentCandidate,
+        );
         if (!mounted) return;
 
         final previewItem = metadataItemFromPreview(preview);
@@ -2782,10 +2809,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         }
         if (result == null) return;
 
-        final ingest = await ref.read(apiClientProvider).adminProviderIngest(
-              provider: currentCandidate.provider,
-              providerItemId: currentCandidate.providerItemId,
-            );
+        final ingest = await _providerActionService.ingestCandidate(
+          api: ref.read(apiClientProvider),
+          candidate: currentCandidate,
+        );
 
         final edited = result.item;
         final ingested = metadataItemFromIngestResult(ingest.item);
@@ -2873,17 +2900,11 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     });
     try {
       final proposalItem = result.item;
-      await createAndRecordLibraryMetadataProposal(
+      await _providerActionService.proposeMetadata(
         api: ref.read(apiClientProvider),
         type: widget.type,
-        provider: currentCandidate.provider,
-        providerItemId: currentCandidate.providerItemId,
-        query: _providerQuery,
-        title: proposalItem.title,
-        summary: proposalItem.synopsis ?? currentCandidate.summary,
-        imageUrl: proposalItem.displayCoverUrl,
-        metadataPayload: proposalItem.toSyncPayload(),
-        source: 'Add ${widget.type.pluralLabel} provider result',
+        candidate: currentCandidate,
+        proposalItem: proposalItem,
       );
       if (!mounted) {
         return;
@@ -2924,11 +2945,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _error = null;
     });
     try {
-      final job =
-          await ref.read(apiClientProvider).adminCreateProviderIngestJob(
-                provider: candidate.provider,
-                providerItemId: candidate.providerItemId,
-              );
+      final job = await _providerActionService.queueIngest(
+        api: ref.read(apiClientProvider),
+        candidate: candidate,
+      );
       if (!mounted) {
         return;
       }

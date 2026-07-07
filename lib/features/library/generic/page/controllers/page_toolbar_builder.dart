@@ -66,6 +66,7 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
         shelfState: shelfState,
         groupMode: _activeSidebarGroupMode,
         folderPreset: _activeFolderPreset,
+        groupPresentation: _activeGroupPresentation,
         availableGroupModes: _scopeAvailableGroupModes,
         pinnedFolderPresets: _pinnedFolderPresets,
         selectionCallbacks: viewState.viewMode == LibraryViewMode.cardFlow
@@ -188,6 +189,7 @@ extension _PageToolbarBuilder on GenericLibraryPageState {
         })(),
         onPinnedFolderPresetsChanged: _setPinnedFolderPresets,
         onGroupModeChanged: _setFolderPreset,
+        onGroupPresentationChanged: _setGroupPresentationOverride,
       ),
     );
 

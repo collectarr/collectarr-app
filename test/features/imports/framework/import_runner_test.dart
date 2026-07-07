@@ -20,6 +20,18 @@ CatalogEntityRef _ref(String id) => CatalogEntityRef(
       id: id,
     );
 
+class _Source implements ImportSource {
+  _Source(this.rows);
+
+  final List<ImportRow> rows;
+
+  @override
+  ProviderImportId get provider => ProviderImportId.myAnimeList;
+
+  @override
+  Future<List<ImportRow>> readRows() async => rows;
+}
+
 void main() {
   const config = ImportRunConfig(
     provider: ProviderImportId.myAnimeList,
@@ -83,6 +95,27 @@ void main() {
     expect(result.unmatched, 1);
     expect(result.proposed, 1);
     expect(result.imported, 0);
+  });
+
+  test('runner can read rows from a source and call unmatched handler',
+      () async {
+    final handled = <String>[];
+    final runner = ImportRunner(
+      matcher: (row) async => ImportMapping.unmatched(row),
+      applier: (mapping, cfg) async => ImportRowOutcome.imported,
+      unmatchedHandler: (row, cfg) async {
+        handled.add(row.sourceId);
+      },
+    );
+
+    final result = await runner.runSource(
+      _Source([_row('7', 'Baki')]),
+      config,
+    );
+
+    expect(handled, ['7']);
+    expect(result.rows, 1);
+    expect(result.proposed, 1);
   });
 
   test('result maps onto a provider history entry', () async {

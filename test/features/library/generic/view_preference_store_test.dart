@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -154,6 +155,38 @@ void main() {
     expect(
       await movieStore.readFolderTreeSelectedNodeId(preset),
       'root|series=Batman',
+    );
+  });
+
+  test('group presentation override and collapsed groups are cached per preset',
+      () async {
+    final preset = LibraryFolderPreset.single(LibraryGroupMode.series);
+
+    await movieStore.writeGroupPresentationOverride(
+      preset,
+      LibraryGroupPresentation.folderGrid,
+    );
+    await movieStore.writeCollapsedGroupBuckets(
+      preset,
+      <String>{'Batman', 'Superman'},
+    );
+
+    const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
+    expect(
+      reloadedStore.cachedGroupPresentationOverride(preset),
+      LibraryGroupPresentation.folderGrid,
+    );
+    expect(
+      reloadedStore.cachedCollapsedGroupBuckets(preset),
+      <String>{'Batman', 'Superman'},
+    );
+    expect(
+      await reloadedStore.readGroupPresentationOverride(preset),
+      LibraryGroupPresentation.folderGrid,
+    );
+    expect(
+      await reloadedStore.readCollapsedGroupBuckets(preset),
+      <String>{'Batman', 'Superman'},
     );
   });
 

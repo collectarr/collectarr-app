@@ -20,6 +20,12 @@ typedef ImportConflictDetector = Future<List<ImportConflict>> Function(
   ImportMapping mapping,
 );
 
+/// Handles rows that did not resolve to a catalog target.
+typedef ImportUnmatchedHandler = Future<void> Function(
+  ImportRow row,
+  ImportRunConfig config,
+);
+
 /// Applies a matched mapping to local data, returning what happened.
 typedef ImportApplier = Future<ImportRowOutcome> Function(
   ImportMapping mapping,
@@ -36,11 +42,20 @@ class ImportRunner {
     required this.matcher,
     required this.applier,
     this.conflictDetector,
+    this.unmatchedHandler,
   });
 
   final ImportMatcher matcher;
   final ImportApplier applier;
   final ImportConflictDetector? conflictDetector;
+  final ImportUnmatchedHandler? unmatchedHandler;
+
+  Future<ImportResult> runSource(
+    ImportSource source,
+    ImportRunConfig config,
+  ) async {
+    return run(await source.readRows(), config);
+  }
 
   Future<ImportResult> run(
     List<ImportRow> rows,
@@ -59,6 +74,9 @@ class ImportRunner {
         result.record(outcome);
       } else {
         result.unmatched++;
+        if (unmatchedHandler != null) {
+          await unmatchedHandler!(row, config);
+        }
         if (config.proposeUnmatched) {
           result.record(ImportRowOutcome.proposed);
         }

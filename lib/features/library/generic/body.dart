@@ -7,6 +7,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
@@ -85,6 +86,7 @@ class LibraryBody extends StatelessWidget {
     required this.selectedAnchorId,
     required this.selectedBucket,
     required this.groupMode,
+    required this.groupPresentation,
     this.groupLoading = false,
     required this.accent,
     required this.hasActiveFilter,
@@ -142,6 +144,8 @@ class LibraryBody extends StatelessWidget {
     this.onLetterSelected,
     this.db,
     this.folderPreset,
+    this.collapsedGroupBuckets = const <String>{},
+    this.onGroupBucketCollapsedToggled,
     this.availableGroupModes,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
@@ -164,6 +168,7 @@ class LibraryBody extends StatelessWidget {
   final String? selectedAnchorId;
   final String? selectedBucket;
   final LibraryGroupMode groupMode;
+  final LibraryGroupPresentation groupPresentation;
   final bool groupLoading;
   final Color accent;
   final bool hasActiveFilter;
@@ -227,6 +232,8 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<String?>? onLetterSelected;
   final LocalDatabase? db;
   final LibraryFolderPreset? folderPreset;
+  final Set<String> collapsedGroupBuckets;
+  final ValueChanged<String>? onGroupBucketCollapsedToggled;
   final List<LibraryGroupMode>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
@@ -318,6 +325,7 @@ class LibraryBody extends StatelessWidget {
                 selectionEnabled: selectionEnabled,
                 selectedIds: selectedItemIds,
                 groupMode: groupMode,
+                groupPresentation: groupPresentation,
                 selectedBucket: selectedBucket,
                 onBucketChanged: onBucketChanged,
                 accent: accent,
@@ -331,6 +339,9 @@ class LibraryBody extends StatelessWidget {
                 onOpenItem: onOpenItem,
                 onEditItem: (item) => onEditItem(item, item.source.ownedItem),
                 onBoxSelectionChanged: onBoxSelectionChanged,
+                collapsedGroupBuckets: collapsedGroupBuckets,
+                onGroupBucketCollapsedToggled:
+                    onGroupBucketCollapsedToggled ?? (_) {},
                 onSortChanged: onSortChanged,
                 onColumnWidthChanged: onColumnWidthChanged,
                 onColumnReordered: onColumnReordered,

@@ -8,11 +8,19 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config.dart';
+import 'package:collectarr_app/features/library/kinds/book/config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config.dart';
+import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/imports/framework/import_models.dart';
+import 'package:collectarr_app/features/settings/anime_list_import_service.dart';
+import 'package:collectarr_app/features/settings/provider_csv_import_service.dart';
 import 'package:collectarr_app/features/settings/provider_import_history_store.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
@@ -126,6 +134,9 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
 
   static const _unmatchedConcurrency = 4;
   final TmdbImportService _service = TmdbImportService();
+  final AnimeListImportService _animeListService = const AnimeListImportService();
+  final ProviderCsvImportService _providerCsvService =
+      const ProviderCsvImportService();
   final TmdbPendingImportStore _pendingStore = const TmdbPendingImportStore();
   final ProviderImportHistoryStore _historyStore =
       const ProviderImportHistoryStore();
@@ -240,6 +251,222 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
                 finishedAt: DateTime.now(),
               ));
     }
+  }
+
+  Future<void> startAnimeListFileImport({
+    required Uint8List bytes,
+    required String fileName,
+    required ProviderImportId provider,
+    required bool keepUnmatchedLocally,
+  }) async {
+    final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
+    state = [
+      ...state,
+      ImportJobState(
+        id: jobId,
+        provider: provider,
+        label: '${provider.label} · $fileName',
+        startedAt: DateTime.now(),
+      ),
+    ];
+
+    try {
+      final rows = _animeListService.parseFileBytes(
+        bytes,
+        fileName: fileName,
+        provider: provider,
+      );
+      _updateJob(
+        jobId,
+        (j) => j.copyWith(
+          phase: ImportJobPhase.matching,
+          total: rows.length,
+        ),
+      );
+      await _matchAndImportImportRows(
+        jobId: jobId,
+        provider: provider,
+        rows: rows,
+        sourceLabel: fileName,
+        keepUnmatchedLocally: keepUnmatchedLocally,
+      );
+    } catch (error) {
+      _updateJob(
+        jobId,
+        (j) => j.copyWith(
+          phase: ImportJobPhase.failed,
+          error: _describeError(error),
+          finishedAt: DateTime.now(),
+        ),
+      );
+    }
+  }
+
+  Future<void> startProviderCsvFileImport({
+    required Uint8List bytes,
+    required String fileName,
+    required ProviderImportId provider,
+    required bool keepUnmatchedLocally,
+  }) async {
+    final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
+    state = [
+      ...state,
+      ImportJobState(
+        id: jobId,
+        provider: provider,
+        label: '${provider.label} · $fileName',
+        startedAt: DateTime.now(),
+      ),
+    ];
+
+    try {
+      final rows = _providerCsvService.parseFileBytes(
+        bytes,
+        fileName: fileName,
+        provider: provider,
+      );
+      _updateJob(
+        jobId,
+        (j) => j.copyWith(
+          phase: ImportJobPhase.matching,
+          total: rows.length,
+        ),
+      );
+      await _matchAndImportImportRows(
+        jobId: jobId,
+        provider: provider,
+        rows: rows,
+        sourceLabel: fileName,
+        keepUnmatchedLocally: keepUnmatchedLocally,
+      );
+    } catch (error) {
+      _updateJob(
+        jobId,
+        (j) => j.copyWith(
+          phase: ImportJobPhase.failed,
+          error: _describeError(error),
+          finishedAt: DateTime.now(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _matchAndImportImportRows({
+    required String jobId,
+    required ProviderImportId provider,
+    required List<ImportRow> rows,
+    required String sourceLabel,
+    required bool keepUnmatchedLocally,
+  }) async {
+    final api = ref.read(apiClientProvider);
+    final mutations = ref.read(collectionMutationsProvider);
+    final matches = <_GenericImportMatch>[];
+
+    for (final row in rows) {
+      final type = _resolvedTypeForImportRow(row);
+      if (type == null) {
+        matches.add(_GenericImportMatch(row: row, catalogItem: null));
+        continue;
+      }
+      final year = row.startedAt?.year ?? row.finishedAt?.year;
+      final candidates = await searchLibraryMetadata(
+        api,
+        type,
+        query: row.title,
+        year: year,
+        limit: 10,
+      );
+      matches.add(
+        _GenericImportMatch(
+          row: row,
+          catalogItem: _bestImportMatch(row, candidates.map((item) => item.toCatalogItem()).toList(growable: false)),
+        ),
+      );
+    }
+
+    final matchedCount = matches.where((match) => match.catalogItem != null).length;
+    final unmatchedCount = matches.length - matchedCount;
+    _updateJob(
+      jobId,
+      (j) => j.copyWith(
+        phase: ImportJobPhase.importing,
+        total: matches.length,
+        matched: matchedCount,
+        unmatched: unmatchedCount,
+        processed: 0,
+      ),
+    );
+
+    var importedCount = 0;
+    var keptLocalCount = 0;
+    var skippedCount = 0;
+
+    for (final match in matches) {
+      final item = match.catalogItem;
+      if (item != null) {
+        await _applyImportRow(
+          mutations: mutations,
+          item: item,
+          row: match.row,
+        );
+        importedCount += 1;
+      } else if (keepUnmatchedLocally) {
+        final localItem = _syntheticImportCatalogItem(provider, match.row);
+        await _applyLocalOnlyImportRow(
+          mutations: mutations,
+          item: localItem,
+          row: match.row,
+        );
+        keptLocalCount += 1;
+      } else {
+        skippedCount += 1;
+      }
+
+      _updateJob(
+        jobId,
+        (j) => j.copyWith(
+          processed: importedCount + keptLocalCount + skippedCount,
+          imported: importedCount,
+          keptLocal: keptLocalCount,
+          skipped: skippedCount,
+        ),
+      );
+    }
+
+    await _historyStore.append(
+      ProviderImportHistoryEntry(
+        id: DateTime.now().toUtc().microsecondsSinceEpoch.toString(),
+        provider: provider,
+        status: ProviderImportHistoryStatus.success,
+        collectionLabel: '${provider.label} import',
+        sourceLabel: sourceLabel,
+        message: _buildResultMessage(
+          importedCount,
+          0,
+          keptLocalCount,
+          skippedCount,
+        ),
+        createdAt: DateTime.now().toUtc(),
+        rows: matches.length,
+        matched: matchedCount,
+        unmatched: unmatchedCount,
+        imported: importedCount,
+        proposed: 0,
+        keptLocal: keptLocalCount,
+      ),
+    );
+
+    _updateJob(
+      jobId,
+      (j) => j.copyWith(
+        phase: ImportJobPhase.done,
+        processed: matches.length,
+        imported: importedCount,
+        keptLocal: keptLocalCount,
+        skipped: skippedCount,
+        finishedAt: DateTime.now(),
+      ),
+    );
   }
 
   Future<void> _matchAndImport({
@@ -575,6 +802,135 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     return value.round().clamp(1, 10);
   }
 
+  LibraryTypeConfig? _resolvedTypeForImportRow(ImportRow row) {
+    final kind = row.mediaKind?.trim().toLowerCase();
+    final config = switch (kind) {
+      'anime' => animeLibraryConfig,
+      'manga' => mangaLibraryConfig,
+      'book' => booksLibraryConfig,
+      'game' => gamesLibraryConfig,
+      'boardgame' => boardGamesLibraryConfig,
+      'movie' => moviesLibraryConfig,
+      'tv' => tvLibraryConfig,
+      _ => null,
+    };
+    if (config == null) {
+      return null;
+    }
+    return ref.read(resolvedLibraryTypeProvider(config));
+  }
+
+  CatalogItem? _bestImportMatch(ImportRow row, List<CatalogItem> candidates) {
+    if (candidates.isEmpty) {
+      return null;
+    }
+    final normalizedTitle = row.title.trim().toLowerCase();
+    for (final candidate in candidates) {
+      final names = <String?>[
+        candidate.title,
+        candidate.displayTitle,
+        candidate.localizedTitle,
+        candidate.originalTitle,
+        ...?candidate.searchAliases,
+      ];
+      if (names.whereType<String>().any(
+            (name) => name.trim().toLowerCase() == normalizedTitle,
+          )) {
+        return candidate;
+      }
+    }
+    return candidates.first;
+  }
+
+  Future<void> _applyImportRow({
+    required CollectionMutations mutations,
+    required CatalogItem item,
+    required ImportRow row,
+  }) async {
+    final trackingStatus = _trackingStatusForImportRow(row);
+    if (trackingStatus == null) {
+      await mutations.addToWishlist(item.id);
+      return;
+    }
+    await mutations.upsertTrackingEntry(
+      item.id,
+      sourceType: TrackingSourceType.streaming,
+      status: trackingStatus,
+      rating: row.rating == null || row.rating == 0
+          ? null
+          : (row.rating! / 10).round().clamp(1, 10),
+      startedAt: row.startedAt,
+      finishedAt: row.finishedAt,
+      progressCurrent: row.progress,
+      timesCompleted: trackingStatus == MediaTrackingStatus.completed ? 1 : null,
+    );
+  }
+
+  Future<void> _applyLocalOnlyImportRow({
+    required CollectionMutations mutations,
+    required CatalogItem item,
+    required ImportRow row,
+  }) async {
+    final trackingStatus = _trackingStatusForImportRow(row);
+    if (trackingStatus == null) {
+      await mutations.addLocalOnlyWishlistItem(item);
+      return;
+    }
+    await mutations.addLocalOnlyTrackingEntry(
+      item,
+      sourceType: TrackingSourceType.streaming,
+      status: trackingStatus,
+      rating: row.rating == null || row.rating == 0
+          ? null
+          : (row.rating! / 10).round().clamp(1, 10),
+      startedAt: row.startedAt,
+      finishedAt: row.finishedAt,
+      progressCurrent: row.progress,
+      timesCompleted: trackingStatus == MediaTrackingStatus.completed ? 1 : null,
+      allowEmpty: true,
+    );
+  }
+
+  CatalogItem _syntheticImportCatalogItem(
+    ProviderImportId provider,
+    ImportRow row,
+  ) {
+    final kind = switch (row.mediaKind?.trim().toLowerCase()) {
+      'manga' => CatalogMediaKind.manga,
+      'anime' => CatalogMediaKind.anime,
+      _ => CatalogMediaKind.anime,
+    };
+    final sourceKey = row.sourceId.trim().isEmpty
+        ? row.title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        : row.sourceId.trim();
+    return CatalogItem(
+      id: '${provider.storageValue}-local:$sourceKey',
+      kind: kind.apiValue,
+      title: row.title,
+      displayTitle: row.title,
+      localizedTitle: row.title,
+      originalTitle: row.title,
+      searchAliases: [row.title],
+      releaseDate: row.startedAt ?? row.finishedAt,
+      releaseYear: row.startedAt?.year ?? row.finishedAt?.year,
+    );
+  }
+
+  MediaTrackingStatus? _trackingStatusForImportRow(ImportRow row) {
+    return switch (row.status) {
+      ImportItemStatus.completed => MediaTrackingStatus.completed,
+      ImportItemStatus.inProgress => MediaTrackingStatus.inProgress,
+      ImportItemStatus.paused => MediaTrackingStatus.paused,
+      ImportItemStatus.dropped => MediaTrackingStatus.dropped,
+      ImportItemStatus.planned ||
+      ImportItemStatus.wishlist ||
+      ImportItemStatus.unknown =>
+        row.progress != null && row.progress! > 0
+            ? MediaTrackingStatus.inProgress
+            : null,
+    };
+  }
+
   bool _shouldUpdateCatalogSnapshot(CatalogItem current, CatalogItem next) {
     return current.displayTitle != next.displayTitle ||
         current.localizedTitle != next.localizedTitle ||
@@ -626,3 +982,13 @@ final importJobsProvider =
     NotifierProvider<ImportJobsNotifier, List<ImportJobState>>(
   ImportJobsNotifier.new,
 );
+
+class _GenericImportMatch {
+  const _GenericImportMatch({
+    required this.row,
+    required this.catalogItem,
+  });
+
+  final ImportRow row;
+  final CatalogItem? catalogItem;
+}

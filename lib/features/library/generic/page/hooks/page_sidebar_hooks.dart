@@ -67,6 +67,11 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       ) ??
       LibraryFolderPreset.single(_activeGroupMode);
 
+  LibraryGroupPresentation get _activeGroupPresentation {
+    return _groupPresentationOverride ??
+        genericGroupPresentationForMode(_activeGroupMode, widget.type);
+  }
+
   bool get _hasActiveFilter =>
       _LibraryPageSearchControllerOps.thisState(this).query.trim().isNotEmpty ||
       _linkedMetadataFilter != null ||
@@ -111,6 +116,30 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     unawaited(_viewPrefs.writeFolderPreset(sanitized));
     unawaited(_viewPrefs.writeGroupMode(sanitized.primaryMode));
     unawaited(_loadFolderTreePreferencesForActivePreset());
+  }
+
+  void _setGroupPresentationOverride(LibraryGroupPresentation? presentation) {
+    final preset = _activeFolderPreset;
+    _mutateState(() {
+      _groupPresentationOverride = presentation;
+    });
+    unawaited(_viewPrefs.writeGroupPresentationOverride(preset, presentation));
+  }
+
+  void _toggleCollapsedGroupBucket(String bucket) {
+    final preset = _activeFolderPreset;
+    final next = Set<String>.from(_collapsedGroupBuckets);
+    if (!next.add(bucket)) {
+      next.remove(bucket);
+    }
+    _mutateState(() {
+      _collapsedGroupBuckets = next;
+    });
+    unawaited(_viewPrefs.writeCollapsedGroupBuckets(preset, next));
+  }
+
+  bool _isGroupBucketCollapsed(String bucket) {
+    return _collapsedGroupBuckets.contains(bucket);
   }
 
   LibraryRouteState _buildRouteState() {

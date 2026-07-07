@@ -49,6 +49,8 @@ class LibraryGroupedShelfView extends StatelessWidget {
     required this.accent,
     required this.onSelectGroupBucket,
     required this.onOpenGroupDetails,
+    required this.collapsedGroupBuckets,
+    required this.onGroupBucketCollapsedToggled,
     required this.onActivateItem,
     required this.onToggleSelectionItem,
     required this.onOpenItem,
@@ -68,6 +70,8 @@ class LibraryGroupedShelfView extends StatelessWidget {
   final Color accent;
   final ValueChanged<String> onSelectGroupBucket;
   final ValueChanged<GroupShelfEntry> onOpenGroupDetails;
+  final Set<String> collapsedGroupBuckets;
+  final ValueChanged<String> onGroupBucketCollapsedToggled;
   final ValueChanged<String> onActivateItem;
   final ValueChanged<String> onToggleSelectionItem;
   final ValueChanged<LibraryProjectionItem> onOpenItem;
@@ -124,68 +128,89 @@ class LibraryGroupedShelfView extends StatelessWidget {
       color: appPalette(context).gridCanvas,
       child: CustomScrollView(
         slivers: [
-          for (final group in groups) ...[
-            SliverToBoxAdapter(
-              child: _GroupHeader(
-                title: group.label,
-                count: group.items.length,
-                accent: accent,
-                onTap: () => onSelectGroupBucket(group.bucket),
-                onOpenDetails: () => onOpenGroupDetails(group),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: LibraryWorkspaceGrid<ItemShelfEntry>(
-                  items: [
-                    for (final item in group.items)
-                      ItemShelfEntry(item: item),
-                  ],
-                  emptyBuilder: emptyBuilder,
-                  maxCrossAxisExtent: viewState.coverSize,
-                  mainAxisExtent: mainAxisExtent,
-                  selectionEnabled: selectionEnabled,
-                  selectedIds: selectedIds,
-                  itemIdOf: (item) => item.item.entry.id,
-                  onSelectionChanged: onBoxSelectionChanged,
-                  shrinkWrap: true,
-                  scrollable: false,
-                  itemBuilder: (context, shelfItem) {
-                    final item = shelfItem.item;
-                    final child = LibraryCoverTile(
-                      key: ValueKey(item.entry.id),
-                      entry: item.entry,
-                      customFieldBadges: item.customFieldBadges,
-                      active: _isActive(item),
-                      selected: _isSelected(item),
-                      selectionMode: selectionEnabled,
-                      onTap: () => onActivateItem(item.entry.id),
-                      onSelectionToggleTap: () =>
-                          onToggleSelectionItem(item.entry.id),
-                      onDoubleTap: () => onOpenItem(item),
-                      onEditTap: () => onEditItem(item),
-                      onSecondaryTapUp: onItemContextMenu == null
-                          ? null
-                          : (d) => onItemContextMenu!(item, d.globalPosition),
-                      coverSize: viewState.coverSize,
-                      selectedColor: appPalette(context).selection,
-                      accentColor: accent,
-                      selectionColor: accent,
-                      mutedTextColor: appPalette(context).textMuted,
-                    );
-                    return adapter.workspaceCardBuilder == null
-                        ? child
-                        : adapter.workspaceCardBuilder!(context, item.entry, child);
-                  },
-                ),
-              ),
-            ),
-          ],
+          for (final group in groups) ..._buildInlineGroupSlivers(
+            context,
+            group,
+            mainAxisExtent,
+          ),
           const SliverPadding(padding: EdgeInsets.only(bottom: 10)),
         ],
       ),
     );
+  }
+
+  List<Widget> _buildInlineGroupSlivers(
+    BuildContext context,
+    GroupShelfEntry group,
+    double mainAxisExtent,
+  ) {
+    final isExpanded = !collapsedGroupBuckets.contains(group.bucket);
+    return [
+      SliverToBoxAdapter(
+        child: _GroupHeader(
+          title: group.label,
+          count: group.items.length,
+          accent: accent,
+          isExpanded: isExpanded,
+          onToggleExpanded: () => onGroupBucketCollapsedToggled(group.bucket),
+          onOpenDetails: () => onOpenGroupDetails(group),
+        ),
+      ),
+      if (isExpanded)
+        SliverToBoxAdapter(
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: LibraryWorkspaceGrid<ItemShelfEntry>(
+                items: [for (final item in group.items) ItemShelfEntry(item: item)],
+                emptyBuilder: emptyBuilder,
+                maxCrossAxisExtent: viewState.coverSize,
+                mainAxisExtent: mainAxisExtent,
+                selectionEnabled: selectionEnabled,
+                selectedIds: selectedIds,
+                itemIdOf: (item) => item.item.entry.id,
+                onSelectionChanged: onBoxSelectionChanged,
+                shrinkWrap: true,
+                scrollable: false,
+                itemBuilder: (context, shelfItem) {
+                  final item = shelfItem.item;
+                  final child = LibraryCoverTile(
+                    key: ValueKey(item.entry.id),
+                    entry: item.entry,
+                    customFieldBadges: item.customFieldBadges,
+                    active: _isActive(item),
+                    selected: _isSelected(item),
+                    selectionMode: selectionEnabled,
+                    onTap: () => onActivateItem(item.entry.id),
+                    onSelectionToggleTap: () =>
+                        onToggleSelectionItem(item.entry.id),
+                    onDoubleTap: () => onOpenItem(item),
+                    onEditTap: () => onEditItem(item),
+                    onSecondaryTapUp: onItemContextMenu == null
+                        ? null
+                        : (d) => onItemContextMenu!(item, d.globalPosition),
+                    coverSize: viewState.coverSize,
+                    selectedColor: appPalette(context).selection,
+                    accentColor: accent,
+                    selectionColor: accent,
+                    mutedTextColor: appPalette(context).textMuted,
+                  );
+                  return adapter.workspaceCardBuilder == null
+                      ? child
+                      : adapter.workspaceCardBuilder!(
+                          context,
+                          item.entry,
+                          child,
+                        );
+                },
+              ),
+            ),
+          ),
+        ),
+    ];
   }
 }
 
@@ -194,14 +219,16 @@ class _GroupHeader extends StatelessWidget {
     required this.title,
     required this.count,
     required this.accent,
-    required this.onTap,
+    required this.isExpanded,
+    required this.onToggleExpanded,
     required this.onOpenDetails,
   });
 
   final String title;
   final int count;
   final Color accent;
-  final VoidCallback onTap;
+  final bool isExpanded;
+  final VoidCallback onToggleExpanded;
   final VoidCallback onOpenDetails;
 
   @override
@@ -213,7 +240,7 @@ class _GroupHeader extends StatelessWidget {
         children: [
           Expanded(
             child: InkWell(
-              onTap: onTap,
+              onTap: onToggleExpanded,
               child: Row(
                 children: [
                   Icon(Icons.folder_outlined, color: accent, size: 20),
@@ -232,6 +259,11 @@ class _GroupHeader extends StatelessWidget {
                   Text(
                     '$count',
                     style: TextStyle(color: palette.textMuted),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: palette.textMuted,
                   ),
                 ],
               ),

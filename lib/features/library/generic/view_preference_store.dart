@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,6 +23,9 @@ class LibraryViewPreferenceStore {
       <String, LibraryFolderDisplayMode>{};
   static final _cachedFolderTreeExpandedNodeIds = <String, Set<String>>{};
   static final _cachedFolderTreeSelectedNodeIds = <String, String?>{};
+  static final _cachedGroupPresentationOverrides =
+      <String, LibraryGroupPresentation>{};
+  static final _cachedCollapsedGroupBuckets = <String, Set<String>>{};
 
   final Object? kind;
 
@@ -40,6 +44,19 @@ class LibraryViewPreferenceStore {
     LibraryFolderPreset preset,
   ) {
     return _cachedFolderDisplayModes[_folderTreeCacheKey(preset)];
+  }
+
+  LibraryGroupPresentation? cachedGroupPresentationOverride(
+    LibraryFolderPreset preset,
+  ) {
+    return _cachedGroupPresentationOverrides[_folderTreeCacheKey(preset)];
+  }
+
+  Set<String> cachedCollapsedGroupBuckets(
+    LibraryFolderPreset preset,
+  ) {
+    return _cachedCollapsedGroupBuckets[_folderTreeCacheKey(preset)] ??
+        const <String>{};
   }
 
   Set<String> cachedFolderTreeExpandedNodeIds(
@@ -67,6 +84,8 @@ class LibraryViewPreferenceStore {
     _cachedFolderDisplayModes.clear();
     _cachedFolderTreeExpandedNodeIds.clear();
     _cachedFolderTreeSelectedNodeIds.clear();
+    _cachedGroupPresentationOverrides.clear();
+    _cachedCollapsedGroupBuckets.clear();
   }
 
   Future<LibraryQuickView?> readQuickView() async {
@@ -457,6 +476,80 @@ class LibraryViewPreferenceStore {
       await prefs.remove(_folderTreeKey(preset, 'selectedNodeId'));
     } else {
       await prefs.setString(_folderTreeKey(preset, 'selectedNodeId'), normalized);
+    }
+  }
+
+  Future<LibraryGroupPresentation?> readGroupPresentationOverride(
+    LibraryFolderPreset preset,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString(_folderTreeKey(preset, 'groupPresentation'));
+    if (name == null) {
+      _cachedGroupPresentationOverrides.remove(_folderTreeCacheKey(preset));
+      return null;
+    }
+    for (final presentation in LibraryGroupPresentation.values) {
+      if (presentation.name == name) {
+        _cachedGroupPresentationOverrides[_folderTreeCacheKey(preset)] =
+            presentation;
+        return presentation;
+      }
+    }
+    _cachedGroupPresentationOverrides.remove(_folderTreeCacheKey(preset));
+    return null;
+  }
+
+  Future<void> writeGroupPresentationOverride(
+    LibraryFolderPreset preset,
+    LibraryGroupPresentation? presentation,
+  ) async {
+    final cacheKey = _folderTreeCacheKey(preset);
+    if (presentation == null) {
+      _cachedGroupPresentationOverrides.remove(cacheKey);
+    } else {
+      _cachedGroupPresentationOverrides[cacheKey] = presentation;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    if (presentation == null) {
+      await prefs.remove(_folderTreeKey(preset, 'groupPresentation'));
+    } else {
+      await prefs.setString(
+        _folderTreeKey(preset, 'groupPresentation'),
+        presentation.name,
+      );
+    }
+  }
+
+  Future<Set<String>> readCollapsedGroupBuckets(
+    LibraryFolderPreset preset,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final values =
+        prefs.getStringList(_folderTreeKey(preset, 'collapsedGroupBuckets'));
+    if (values == null) {
+      _cachedCollapsedGroupBuckets.remove(_folderTreeCacheKey(preset));
+      return const <String>{};
+    }
+    final buckets = _orderedUniqueStrings(values);
+    _cachedCollapsedGroupBuckets[_folderTreeCacheKey(preset)] = buckets;
+    return buckets;
+  }
+
+  Future<void> writeCollapsedGroupBuckets(
+    LibraryFolderPreset preset,
+    Set<String> buckets,
+  ) async {
+    final cacheKey = _folderTreeCacheKey(preset);
+    final normalized = _orderedUniqueStrings(buckets);
+    _cachedCollapsedGroupBuckets[cacheKey] = normalized;
+    final prefs = await SharedPreferences.getInstance();
+    if (normalized.isEmpty) {
+      await prefs.remove(_folderTreeKey(preset, 'collapsedGroupBuckets'));
+    } else {
+      await prefs.setStringList(
+        _folderTreeKey(preset, 'collapsedGroupBuckets'),
+        normalized.toList(growable: false),
+      );
     }
   }
 

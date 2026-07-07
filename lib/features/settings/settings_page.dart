@@ -19,9 +19,14 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/import_job_provider.dart';
+import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
+import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
@@ -687,6 +692,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         ),
                         const SizedBox(height: 12),
                         const _ImportJobsPanel(),
+                        const SizedBox(height: 12),
+                        const _TmdbPendingImportsPanel(),
+                        const SizedBox(height: 12),
                         _ImportSourcesGrid(
                           tmdbSettings: tmdbImportSettings,
                         ),

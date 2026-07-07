@@ -87,9 +87,28 @@ class _ImportSourcesGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final availableDescriptors = providerImportDescriptors
+        .where(
+          (d) => d.availability == ProviderImportAvailability.available,
+        )
+        .where(
+          (d) =>
+              d.id != ProviderImportId.myAnimeList &&
+              d.id != ProviderImportId.aniList,
+        )
+        .toList(growable: false);
     final comingSoonDescriptors = providerImportDescriptors
         .where(
           (d) => d.availability == ProviderImportAvailability.comingSoon,
+        )
+        .where(
+          (d) =>
+              d.id != ProviderImportId.trakt &&
+              d.id != ProviderImportId.simkl &&
+              d.id != ProviderImportId.kitsu &&
+              d.id != ProviderImportId.imdb &&
+              d.id != ProviderImportId.goodReads &&
+              d.id != ProviderImportId.howLongToBeat,
         )
         .toList(growable: false);
     return LayoutBuilder(
@@ -106,6 +125,19 @@ class _ImportSourcesGrid extends ConsumerWidget {
               width: cardWidth,
               child: _TmdbImportInlineCard(tmdbSettings: tmdbSettings),
             ),
+            SizedBox(
+              width: cardWidth,
+              child: const _AnimeListImportCard(),
+            ),
+            SizedBox(
+              width: cardWidth,
+              child: const _ProviderCsvImportCard(),
+            ),
+            for (final descriptor in availableDescriptors)
+              SizedBox(
+                width: cardWidth,
+                child: _AvailableImportCard(descriptor: descriptor),
+              ),
             for (final descriptor in comingSoonDescriptors)
               SizedBox(
                 width: cardWidth,
@@ -117,6 +149,458 @@ class _ImportSourcesGrid extends ConsumerWidget {
     );
   }
 }
+
+class _AnimeListImportCard extends ConsumerStatefulWidget {
+  const _AnimeListImportCard();
+
+  @override
+  ConsumerState<_AnimeListImportCard> createState() =>
+      _AnimeListImportCardState();
+}
+
+class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
+  ProviderImportId _provider = ProviderImportId.myAnimeList;
+  bool _keepUnmatchedLocally = true;
+  bool _isWorking = false;
+
+  Future<void> _pickAndImportFile() async {
+    final file = await openFile(
+      acceptedTypeGroups: const [
+        XTypeGroup(
+          label: 'Anime list export',
+          extensions: ['xml'],
+        ),
+      ],
+    );
+    if (file == null) return;
+    setState(() => _isWorking = true);
+    try {
+      final bytes = await file.readAsBytes();
+      unawaited(
+        ref.read(importJobsProvider.notifier).startAnimeListFileImport(
+              bytes: bytes,
+              fileName: file.name,
+              provider: _provider,
+              keepUnmatchedLocally: _keepUnmatchedLocally,
+            ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isWorking = false);
+      }
+    }
+    if (!mounted) return;
+    showAppToast(
+      context,
+      'Importing ${file.name} as ${_provider.label}.',
+      tone: AppToastTone.info,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  providerImportIcon(_provider),
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Anime list XML',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    'Available',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Import anime and manga list exports from MyAnimeList or AniList XML files.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.hintColor,
+                fontSize: 11,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<ProviderImportId>(
+              initialValue: _provider,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Provider',
+                isDense: true,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              ),
+              style: theme.textTheme.bodySmall,
+              items: const [
+                ProviderImportId.myAnimeList,
+                ProviderImportId.aniList,
+              ].map((provider) {
+                return DropdownMenuItem(
+                  value: provider,
+                  child: Text(provider.label),
+                );
+              }).toList(growable: false),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() => _provider = value);
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Checkbox.adaptive(
+                    value: _keepUnmatchedLocally,
+                    visualDensity: VisualDensity.compact,
+                    onChanged: (value) =>
+                        setState(() => _keepUnmatchedLocally = value ?? false),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    'Keep unmatched locally',
+                    style: theme.textTheme.bodySmall?.copyWith(fontSize: 11),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              onPressed: _isWorking ? null : _pickAndImportFile,
+              icon: const Icon(Icons.folder_open_outlined, size: 14),
+              label: const Text('Select XML File'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                textStyle: const TextStyle(fontSize: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProviderCsvImportCard extends ConsumerStatefulWidget {
+  const _ProviderCsvImportCard();
+
+  @override
+  ConsumerState<_ProviderCsvImportCard> createState() =>
+      _ProviderCsvImportCardState();
+}
+
+class _ProviderCsvImportCardState extends ConsumerState<_ProviderCsvImportCard> {
+  ProviderImportId _provider = ProviderImportId.trakt;
+  bool _keepUnmatchedLocally = true;
+  bool _isWorking = false;
+
+  static const _csvProviders = <ProviderImportId>[
+    ProviderImportId.trakt,
+    ProviderImportId.simkl,
+    ProviderImportId.kitsu,
+    ProviderImportId.imdb,
+    ProviderImportId.goodReads,
+    ProviderImportId.howLongToBeat,
+  ];
+
+  Future<void> _pickAndImportFile() async {
+    final file = await openFile(
+      acceptedTypeGroups: const [
+        XTypeGroup(
+          label: 'Provider CSV export',
+          extensions: ['csv'],
+        ),
+      ],
+    );
+    if (file == null) return;
+    setState(() => _isWorking = true);
+    try {
+      final bytes = await file.readAsBytes();
+      unawaited(
+        ref.read(importJobsProvider.notifier).startProviderCsvFileImport(
+              bytes: bytes,
+              fileName: file.name,
+              provider: _provider,
+              keepUnmatchedLocally: _keepUnmatchedLocally,
+            ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isWorking = false);
+      }
+    }
+    if (!mounted) return;
+    showAppToast(
+      context,
+      'Importing ${file.name} as ${_provider.label}.',
+      tone: AppToastTone.info,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  providerImportIcon(_provider),
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Provider CSV export',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    'Available',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Import CSV exports from Trakt, Simkl, Kitsu, IMDb, Goodreads, or HowLongToBeat.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.hintColor,
+                fontSize: 11,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<ProviderImportId>(
+              initialValue: _provider,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Provider',
+                isDense: true,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              ),
+              style: theme.textTheme.bodySmall,
+              items: _csvProviders.map((provider) {
+                return DropdownMenuItem(
+                  value: provider,
+                  child: Text(provider.label),
+                );
+              }).toList(growable: false),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() => _provider = value);
+                }
+              },
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Checkbox.adaptive(
+                    value: _keepUnmatchedLocally,
+                    visualDensity: VisualDensity.compact,
+                    onChanged: (value) =>
+                        setState(() => _keepUnmatchedLocally = value ?? false),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    'Keep unmatched locally',
+                    style: theme.textTheme.bodySmall?.copyWith(fontSize: 11),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              onPressed: _isWorking ? null : _pickAndImportFile,
+              icon: const Icon(Icons.folder_open_outlined, size: 14),
+              label: const Text('Select CSV File'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                textStyle: const TextStyle(fontSize: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AvailableImportCard extends StatelessWidget {
+  const _AvailableImportCard({required this.descriptor});
+
+  final ProviderImportDescriptor descriptor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: theme.dividerColor),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(providerImportIcon(descriptor.id), size: 20),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    descriptor.title,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    'Available',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              descriptor.summary,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.hintColor,
+                fontSize: 11,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => showLibraryAddDialog(
+                    context: context,
+                    type: animeLibraryConfig,
+                  ),
+                  icon: const Icon(Icons.auto_awesome_outlined, size: 14),
+                  label: const Text('Open Anime add flow'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => showLibraryAddDialog(
+                    context: context,
+                    type: mangaLibraryConfig,
+                  ),
+                  icon: const Icon(Icons.import_contacts_outlined, size: 14),
+                  label: const Text('Open Manga add flow'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+final _tmdbPendingImportsProvider =
+    FutureProvider.autoDispose<List<TmdbPendingImportRecord>>((ref) async {
+  return const TmdbPendingImportStore().read(limit: 10);
+});
 
 class _ComingSoonImportCard extends StatelessWidget {
   const _ComingSoonImportCard({required this.descriptor});
@@ -607,6 +1091,53 @@ class _ImportJobsPanel extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _TmdbPendingImportsPanel extends ConsumerWidget {
+  const _TmdbPendingImportsPanel();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pending = ref.watch(_tmdbPendingImportsProvider);
+    return pending.when(
+      data: (records) {
+        final store = const TmdbPendingImportStore();
+        return ImportReviewPanel(
+          title: 'Pending TMDB imports',
+          emptyLabel: 'No queued local TMDB proposals.',
+          items: [
+            for (final record in records)
+              ImportReviewItem(
+                title: record.entry.title,
+                description:
+                    '${record.entry.mediaType.label} · ${record.entry.collection.label}',
+                trailingLabel: record.proposalServerId == null
+                    ? 'Local only'
+                    : 'Proposal ${record.proposalServerId}',
+                severity: ImportReviewSeverity.info,
+                actions: [
+                  ImportReviewAction(
+                    label: 'Remove',
+                    onPressed: () async {
+                      await store.remove(record.localItemId);
+                      ref.invalidate(_tmdbPendingImportsProvider);
+                    },
+                  ),
+                ],
+              ),
+          ],
+          onClearAll: records.isEmpty
+              ? null
+              : () async {
+                  await store.clear();
+                  ref.invalidate(_tmdbPendingImportsProvider);
+                },
+        );
+      },
+      loading: () => const LinearProgressIndicator(),
+      error: (error, _) => Text('Failed to load pending imports: $error'),
     );
   }
 }

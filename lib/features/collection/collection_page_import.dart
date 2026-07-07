@@ -425,21 +425,38 @@ class _ImportPreviewPanel extends StatelessWidget {
             ),
             if (preview.conflictRows.isNotEmpty) ...[
               const SizedBox(height: 10),
-              Text(
-                'Existing local items',
-                style: Theme.of(context)
-                    .textTheme
-                    .labelLarge
-                    ?.copyWith(fontWeight: FontWeight.w900),
+              ImportReviewPanel(
+                title: 'Existing local items',
+                emptyLabel: 'No conflicts.',
+                items: [
+                  for (final row in preview.conflictRows.take(8))
+                    ImportReviewItem(
+                      title: row.title ?? 'Catalog item ${row.itemId}',
+                      description: [
+                        if (row.itemNumber != null) '#${row.itemNumber}',
+                        if (row.publisher != null) row.publisher,
+                        if (row.grade != null) 'grade ${row.grade}',
+                        if (row.condition != null) row.condition,
+                      ].join(' | '),
+                      severity: ImportReviewSeverity.warning,
+                      actions: [
+                        ImportReviewAction(
+                          label: 'Update',
+                          isPrimary: true,
+                          onPressed: () => onUpdateConflict(row),
+                        ),
+                        ImportReviewAction(
+                          label: 'Wishlist',
+                          onPressed: () => onWishlistConflict(row),
+                        ),
+                        ImportReviewAction(
+                          label: 'Skip',
+                          onPressed: () => onSkipConflict(row),
+                        ),
+                      ],
+                    ),
+                ],
               ),
-              const SizedBox(height: 6),
-              for (final row in preview.conflictRows.take(8))
-                _ConflictImportRow(
-                  row: row,
-                  onUpdate: onUpdateConflict,
-                  onWishlist: onWishlistConflict,
-                  onSkip: onSkipConflict,
-                ),
               if (preview.conflictRows.length > 8)
                 Text('+${preview.conflictRows.length - 8} more conflicts'),
             ],
@@ -476,55 +493,27 @@ class _ImportPreviewPanel extends StatelessWidget {
             ],
             if (preview.duplicateRows.isNotEmpty) ...[
               const SizedBox(height: 10),
-              Text(
-                'Duplicate CSV rows',
-                style: Theme.of(context)
-                    .textTheme
-                    .labelLarge
-                    ?.copyWith(fontWeight: FontWeight.w900),
+              ImportReviewPanel(
+                title: 'Duplicate CSV rows',
+                emptyLabel: 'No duplicates.',
+                items: [
+                  for (final row in preview.duplicateRows.take(8))
+                    ImportReviewItem(
+                      title: row.title ?? 'Catalog item ${row.itemId}',
+                      description: [
+                        if (row.itemNumber != null) '#${row.itemNumber}',
+                        if (row.publisher != null) row.publisher,
+                        if (row.barcode != null) row.barcode,
+                      ].join(' | '),
+                      severity: ImportReviewSeverity.info,
+                    ),
+                ],
               ),
-              const SizedBox(height: 6),
-              for (final row in preview.duplicateRows.take(8))
-                _DuplicateImportRow(row: row),
               if (preview.duplicateRows.length > 8)
                 Text('+${preview.duplicateRows.length - 8} more duplicates'),
             ],
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _DuplicateImportRow extends StatelessWidget {
-  const _DuplicateImportRow({required this.row});
-
-  final CollectionCsvRow row;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = [
-      row.title ?? 'Catalog item ${row.itemId}',
-      if (row.itemNumber != null) '#${row.itemNumber}',
-      if (row.publisher != null) row.publisher,
-      if (row.barcode != null) row.barcode,
-    ].join(' | ');
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: Row(
-        children: [
-          const Icon(Icons.content_copy, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Text('Skipped duplicate target'),
-        ],
       ),
     );
   }
@@ -573,62 +562,6 @@ class _UnresolvedImportRow extends StatelessWidget {
             onPressed: onPropose == null ? null : () => onPropose!(row),
             icon: const Icon(Icons.outbox, size: 18),
             label: const Text('Propose'),
-          ),
-          const SizedBox(width: 6),
-          TextButton(
-            onPressed: () => onSkip(row),
-            child: const Text('Skip'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ConflictImportRow extends StatelessWidget {
-  const _ConflictImportRow({
-    required this.row,
-    required this.onUpdate,
-    required this.onWishlist,
-    required this.onSkip,
-  });
-
-  final CollectionCsvRow row;
-  final ValueChanged<CollectionCsvRow> onUpdate;
-  final ValueChanged<CollectionCsvRow> onWishlist;
-  final ValueChanged<CollectionCsvRow> onSkip;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = [
-      row.title ?? 'Catalog item ${row.itemId}',
-      if (row.itemNumber != null) '#${row.itemNumber}',
-      if (row.publisher != null) row.publisher,
-      if (row.grade != null) 'grade ${row.grade}',
-      if (row.condition != null) row.condition,
-    ].join(' | ');
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              text,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 8),
-          FilledButton.tonalIcon(
-            onPressed: () => onUpdate(row),
-            icon: const Icon(Icons.update, size: 18),
-            label: const Text('Update'),
-          ),
-          const SizedBox(width: 6),
-          OutlinedButton.icon(
-            onPressed: () => onWishlist(row),
-            icon: const Icon(Icons.bookmark_add_outlined, size: 18),
-            label: const Text('Wishlist'),
           ),
           const SizedBox(width: 6),
           TextButton(

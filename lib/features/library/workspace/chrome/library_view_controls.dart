@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:flutter/material.dart';
@@ -176,6 +177,62 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
           iconOnly: iconOnly,
         ),
       ),
+    );
+  }
+}
+
+class LibraryGroupPresentationToggle extends StatelessWidget {
+  const LibraryGroupPresentationToggle({
+    super.key,
+    required this.groupPresentation,
+    required this.onChanged,
+  });
+
+  final LibraryGroupPresentation groupPresentation;
+  final ValueChanged<LibraryGroupPresentation> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = libraryToolbarMenuText(context);
+    final muted = libraryToolbarMenuMutedText(context);
+    return SegmentedButton<LibraryGroupPresentation>(
+      style: SegmentedButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        minimumSize: const Size(72, 34),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+      ),
+      segments: [
+        ButtonSegment<LibraryGroupPresentation>(
+          value: LibraryGroupPresentation.inlineHeaders,
+          icon: Icon(
+            LibraryGroupPresentation.inlineHeaders.icon,
+            size: 17,
+            color: groupPresentation == LibraryGroupPresentation.inlineHeaders
+                ? palette
+                : muted,
+          ),
+          tooltip: LibraryGroupPresentation.inlineHeaders.label,
+        ),
+        ButtonSegment<LibraryGroupPresentation>(
+          value: LibraryGroupPresentation.folderGrid,
+          icon: Icon(
+            LibraryGroupPresentation.folderGrid.icon,
+            size: 17,
+            color: groupPresentation == LibraryGroupPresentation.folderGrid
+                ? palette
+                : muted,
+          ),
+          tooltip: LibraryGroupPresentation.folderGrid.label,
+        ),
+      ],
+      selected: {groupPresentation},
+      onSelectionChanged: (selected) {
+        if (selected.isEmpty) {
+          return;
+        }
+        onChanged(selected.first);
+      },
     );
   }
 }

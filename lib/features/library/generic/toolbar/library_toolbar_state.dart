@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -36,6 +37,7 @@ class LibraryToolbarState {
     this.shelfState,
     this.groupMode,
     this.folderPreset,
+    this.groupPresentation,
     this.availableGroupModes,
     this.pinnedFolderPresets = const <LibraryFolderPreset>[],
     this.selectionCallbacks,
@@ -72,6 +74,7 @@ class LibraryToolbarState {
   final ShelfState? shelfState;
   final LibraryGroupMode? groupMode;
   final LibraryFolderPreset? folderPreset;
+  final LibraryGroupPresentation? groupPresentation;
   final List<LibraryGroupMode>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final LibrarySelectionCallbacks? selectionCallbacks;

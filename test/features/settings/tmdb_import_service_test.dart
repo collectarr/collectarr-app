@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -93,6 +94,31 @@ void main() {
       expect(seasons.single.title, 'Season 1');
       expect(seasons.single.releaseYear, 2011);
       expect(seasons.single.rawPayload['season_number'], 1);
+    });
+
+    test('normalizes TMDB entries into import rows', () async {
+      final entry = TmdbImportEntry(
+        tmdbId: 603,
+        mediaType: TmdbMediaType.movie,
+        collection: TmdbImportCollection.ratedMovies,
+        title: 'The Matrix',
+        rating: 9,
+        rawPayload: const <String, dynamic>{
+          'id': 603,
+          'title': 'The Matrix',
+        },
+      );
+
+      final source = TmdbImportSource(entries: [entry]);
+      final rows = await source.readRows();
+
+      expect(rows, hasLength(1));
+      expect(rows.single.sourceId, 'movie:603');
+      expect(rows.single.mediaKind, 'movie');
+      expect(rows.single.status, ImportItemStatus.completed);
+      expect(rows.single.rating, 90);
+      expect(rows.single.externalIds, containsPair('tmdb', '603'));
+      expect(rows.single.raw['tmdb_id'], 603);
     });
 
     test('matches on exact title and year before falling back', () async {

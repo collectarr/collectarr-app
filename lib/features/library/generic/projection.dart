@@ -443,8 +443,12 @@ List<GroupShelfEntry> libraryGroupEntriesForItems(
   List<LibraryProjectionItem> items,
   LibraryTypeConfig type,
   LibraryGroupMode groupMode,
-) {
+  {
+  LibraryGroupPresentation? presentationOverride,
+}) {
   final grouped = <String, List<LibraryProjectionItem>>{};
+  final presentation = presentationOverride ??
+      genericGroupPresentationForMode(groupMode, type);
   for (final item in items) {
     final bucket = genericBucketForItemMode(item, type, groupMode);
     (grouped[bucket] ??= []).add(item);
@@ -455,7 +459,7 @@ List<GroupShelfEntry> libraryGroupEntriesForItems(
       GroupShelfEntry(
         groupMode: groupMode,
         bucket: bucket,
-        presentation: genericGroupPresentationForMode(groupMode, type),
+        presentation: presentation,
         items: List<LibraryProjectionItem>.unmodifiable(grouped[bucket]!),
         representativeItem: grouped[bucket]!.first,
       ),

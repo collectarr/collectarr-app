@@ -63,6 +63,7 @@ import 'package:collectarr_app/features/library/sharing/collection_share_dialog.
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -151,6 +152,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   var _seriesCompletionScope = LibrarySeriesCompletionScope.all;
   LibraryGroupMode? _groupMode;
   LibraryFolderPreset? _folderPreset;
+  LibraryGroupPresentation? _groupPresentationOverride;
+  Set<String> _collapsedGroupBuckets = const <String>{};
   LibraryFolderDisplayMode _folderDisplayMode =
       LibraryFolderDisplayMode.drilldown;
   Set<String> _folderTreeExpandedNodeIds = const <String>{};
@@ -455,11 +458,17 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           _viewPrefs.readFolderTreeExpandedNodeIds(preset);
       final selectedNodeIdFuture =
           _viewPrefs.readFolderTreeSelectedNodeId(preset);
+      final groupPresentationFuture =
+          _viewPrefs.readGroupPresentationOverride(preset);
+      final collapsedGroupBucketsFuture =
+          _viewPrefs.readCollapsedGroupBuckets(preset);
       final (displayMode, expandedNodeIds, selectedNodeId) = await (
         displayModeFuture,
         expandedNodeIdsFuture,
         selectedNodeIdFuture
       ).wait;
+      final groupPresentationOverride = await groupPresentationFuture;
+      final collapsedGroupBuckets = await collapsedGroupBucketsFuture;
       if (!mounted ||
           loadToken != _folderTreePreferenceLoadToken ||
           widget.type.workspace.kind != expectedKind) {
@@ -469,6 +478,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         _folderDisplayMode = displayMode ?? LibraryFolderDisplayMode.drilldown;
         _folderTreeExpandedNodeIds = expandedNodeIds;
         _folderTreeSelectedNodeId = selectedNodeId;
+        _groupPresentationOverride = groupPresentationOverride;
+        _collapsedGroupBuckets = collapsedGroupBuckets;
       });
     } catch (error, stackTrace) {
       logRecoverableError(

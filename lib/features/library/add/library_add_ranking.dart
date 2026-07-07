@@ -198,6 +198,13 @@ int _scoreTextHint(
       normalizedHint.contains(normalizedCandidate)) {
     return containsWeight;
   }
+  final candidateTokens = _tokenizeHint(normalizedCandidate);
+  final hintTokens = _tokenizeHint(normalizedHint);
+  if (candidateTokens.isNotEmpty &&
+      hintTokens.isNotEmpty &&
+      candidateTokens.any(hintTokens.contains)) {
+    return (containsWeight / 2).round().clamp(1, containsWeight);
+  }
   return 0;
 }
 
@@ -209,4 +216,11 @@ String _normalizeHint(String? value) {
           .replaceAll(RegExp(r'\s+'), ' ')
           .trim() ??
       '';
+}
+
+List<String> _tokenizeHint(String value) {
+  if (value.isEmpty) {
+    return const <String>[];
+  }
+  return value.split(' ').where((token) => token.isNotEmpty).toList(growable: false);
 }

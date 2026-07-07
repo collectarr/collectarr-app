@@ -171,6 +171,7 @@ abstract final class _LibraryPageShellPresenter {
       selectedAnchorId: state._selectionAnchorId,
       selectedBucket: state._selectedBucket,
       groupMode: activeProjectionGroupMode,
+      groupPresentation: state._activeGroupPresentation,
       groupLoading: state._isFacetLoadInFlight(activeFacetLoadKey),
       accent: state.widget.accent,
       hasActiveFilter: state._hasActiveFilter,
@@ -203,6 +204,8 @@ abstract final class _LibraryPageShellPresenter {
         }
       }),
       onBucketChanged: state._setSelectedBucket,
+      collapsedGroupBuckets: state._collapsedGroupBuckets,
+      onGroupBucketCollapsedToggled: state._toggleCollapsedGroupBucket,
       onGroupModeChanged: state._setGroupMode,
       onSortChanged: (column) => state._updateViewState(
         (stateValue) =>

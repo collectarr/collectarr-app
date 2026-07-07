@@ -85,6 +85,12 @@ void main() {
     await _scrollToText(tester, 'Metadata proposals');
     expect(find.text('Metadata proposals'), findsOneWidget);
     expect(find.text('No local proposal submissions yet.'), findsOneWidget);
+    await _scrollToText(tester, 'Pending TMDB imports');
+    expect(find.text('Pending TMDB imports'), findsOneWidget);
+    expect(find.text('No queued local TMDB proposals.'), findsOneWidget);
+    await _scrollToText(tester, 'AniList');
+    expect(find.text('AniList'), findsOneWidget);
+    expect(find.text('Available'), findsWidgets);
 
     await _openSettingsTab(tester, 'Account');
     expect(find.text('Device identity'), findsOneWidget);
