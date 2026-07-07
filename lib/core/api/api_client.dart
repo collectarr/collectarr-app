@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/auth_session.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
@@ -54,7 +55,7 @@ class ApiClient {
     _dio.interceptors.add(interceptor);
   }
 
-  Future<Map<String, dynamic>> register({
+  Future<AuthSession> register({
     required String email,
     required String password,
     String? displayName,
@@ -67,12 +68,12 @@ class ApiClient {
         'display_name': displayName,
       },
     );
-    final data = response.data!;
-    setToken(data['access_token'] as String);
-    return data;
+    final session = AuthSession.fromJson(response.data!);
+    setToken(session.token);
+    return session;
   }
 
-  Future<Map<String, dynamic>> login({
+  Future<AuthSession> login({
     required String email,
     required String password,
   }) async {
@@ -83,18 +84,18 @@ class ApiClient {
         'password': password,
       },
     );
-    final data = response.data!;
-    setToken(data['access_token'] as String);
-    return data;
+    final session = AuthSession.fromJson(response.data!);
+    setToken(session.token);
+    return session;
   }
 
-  Future<Map<String, dynamic>> currentUser() async {
+  Future<AuthUser> currentUser() async {
     final response = await _dio.get<Map<String, dynamic>>('/auth/me');
     final data = response.data;
     if (data == null) {
       throw StateError('/auth/me returned an empty response.');
     }
-    return data;
+    return AuthUser.fromJson(data);
   }
 
   Future<List<Map<String, dynamic>>> search(

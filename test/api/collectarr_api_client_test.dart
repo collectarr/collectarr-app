@@ -86,7 +86,7 @@ void main() {
           password: 'secret',
         );
 
-        expect(result['access_token'], 'test-jwt-token-123');
+        expect(result.token, 'test-jwt-token-123');
         expect(client.authorizationHeader, 'Bearer test-jwt-token-123');
       });
     });
@@ -106,7 +106,7 @@ void main() {
           displayName: 'Test User',
         );
 
-        expect(result['access_token'], 'new-token-456');
+        expect(result.token, 'new-token-456');
         expect(client.authorizationHeader, 'Bearer new-token-456');
       });
     });
@@ -123,8 +123,8 @@ void main() {
 
         final result = await client.currentUser();
 
-        expect(result['email'], 'test@example.com');
-        expect(result['display_name'], 'Test User');
+        expect(result.email, 'test@example.com');
+        expect(result.displayName, 'Test User');
       });
 
       test('throws on null response', () async {

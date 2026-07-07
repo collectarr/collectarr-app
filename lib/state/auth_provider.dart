@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'package:collectarr_app/core/models/auth_session.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -100,9 +101,9 @@ class AuthController extends StateNotifier<AuthState> {
           .read(apiClientProvider)
           .login(email: email, password: password);
       await _persistSession(
-        token: result['access_token'] as String,
+        session: result,
         fallbackEmail: email,
-        user: _asJsonMap(result['user']),
+
       );
     } catch (error) {
       state = AuthState(
@@ -119,9 +120,9 @@ class AuthController extends StateNotifier<AuthState> {
           .read(apiClientProvider)
           .register(email: email, password: password);
       await _persistSession(
-        token: result['access_token'] as String,
+        session: result,
         fallbackEmail: email,
-        user: _asJsonMap(result['user']),
+
       );
     } catch (error) {
       state = AuthState(
@@ -140,9 +141,9 @@ class AuthController extends StateNotifier<AuthState> {
         password: _devAuthPassword,
       );
       await _persistSession(
-        token: result['access_token'] as String,
+        session: result,
         fallbackEmail: _devAuthEmail,
-        user: _asJsonMap(result['user']),
+
       );
       return;
     } catch (error) {
@@ -155,9 +156,9 @@ class AuthController extends StateNotifier<AuthState> {
               password: _devAuthPassword,
             );
             await _persistSession(
-              token: result['access_token'] as String,
+              session: result,
               fallbackEmail: _devAuthEmail,
-              user: _asJsonMap(result['user']),
+
             );
             return;
           } catch (registerError) {
@@ -169,9 +170,9 @@ class AuthController extends StateNotifier<AuthState> {
                   password: _devAuthPassword,
                 );
                 await _persistSession(
-                  token: retry['access_token'] as String,
+                  session: retry,
                   fallbackEmail: _devAuthEmail,
-                  user: _asJsonMap(retry['user']),
+
                 );
                 return;
               } catch (retryError) {
@@ -221,9 +222,9 @@ class AuthController extends StateNotifier<AuthState> {
       return;
     }
     final user = await ref.read(apiClientProvider).currentUser();
-    final userId = _stringFromJson(user['id']) ?? state.userId;
-    final email = _stringFromJson(user['email']) ?? state.email;
-    final isAdmin = _boolFromJson(user['is_admin']);
+    final userId = user.id ?? state.userId;
+    final email = user.email ?? state.email;
+    final isAdmin = user.isAdmin;
     final prefs = await SharedPreferences.getInstance();
     if (userId != null && userId.isNotEmpty) {
       await prefs.setString(_authUserIdKey, userId);
@@ -293,13 +294,13 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> _persistSession({
-    required String token,
+    required AuthSession session,
     required String fallbackEmail,
-    required Map<String, dynamic>? user,
   }) async {
-    final userId = _stringFromJson(user?['id']);
-    final email = _stringFromJson(user?['email']) ?? fallbackEmail;
-    final isAdmin = _boolFromJson(user?['is_admin']);
+    final token = session.token;
+    final userId = session.user.id;
+    final email = session.user.email ?? fallbackEmail;
+    final isAdmin = session.user.isAdmin;
     final prefs = await SharedPreferences.getInstance();
     try {
       await _authSecureStorage.write(key: _authTokenKey, value: token);
@@ -394,31 +395,6 @@ class AuthController extends StateNotifier<AuthState> {
     }
     return legacyToken;
   }
-}
-
-Map<String, dynamic>? _asJsonMap(Object? value) {
-  return value is Map<String, dynamic> ? value : null;
-}
-
-String? _stringFromJson(Object? value) {
-  final text = value?.toString().trim();
-  if (text == null || text.isEmpty) {
-    return null;
-  }
-  return text;
-}
-
-bool _boolFromJson(Object? value) {
-  if (value is bool) {
-    return value;
-  }
-  if (value is num) {
-    return value != 0;
-  }
-  if (value is String) {
-    return {'1', 'true', 'yes', 'admin'}.contains(value.trim().toLowerCase());
-  }
-  return false;
 }
 
 DateTime? _jwtExpiresAt(String token) {

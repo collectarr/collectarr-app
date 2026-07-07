@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/auth_session.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
@@ -314,7 +315,7 @@ class _RejectedLoginClient extends ApiClient {
   _RejectedLoginClient() : super(baseUrl: 'http://metadata.local');
 
   @override
-  Future<Map<String, dynamic>> login({
+  Future<AuthSession> login({
     required String email,
     required String password,
   }) async {
@@ -365,11 +366,11 @@ class _AdminLoginClient extends ApiClient {
   final String token;
 
   @override
-  Future<Map<String, dynamic>> login({
+  Future<AuthSession> login({
     required String email,
     required String password,
   }) async {
-    return {
+    return AuthSession.fromJson({
       'access_token': token,
       'token_type': 'bearer',
       'user': {
@@ -378,7 +379,7 @@ class _AdminLoginClient extends ApiClient {
         'display_name': null,
         'is_admin': true,
       },
-    };
+    });
   }
 }
 
@@ -388,7 +389,7 @@ class _DevBootstrapClient extends ApiClient {
   bool _loggedInAfterBootstrap = false;
 
   @override
-  Future<Map<String, dynamic>> login({
+  Future<AuthSession> login({
     required String email,
     required String password,
   }) async {
@@ -402,7 +403,7 @@ class _DevBootstrapClient extends ApiClient {
         ),
       );
     }
-    return {
+    return AuthSession.fromJson({
       'access_token': _jwtExpiringAt(
         DateTime.now().toUtc().add(const Duration(hours: 1)),
       ),
@@ -413,17 +414,17 @@ class _DevBootstrapClient extends ApiClient {
         'display_name': null,
         'is_admin': false,
       },
-    };
+    });
   }
 
   @override
-  Future<Map<String, dynamic>> register({
+  Future<AuthSession> register({
     required String email,
     required String password,
     String? displayName,
   }) async {
     _loggedInAfterBootstrap = true;
-    return {
+    return AuthSession.fromJson({
       'access_token': _jwtExpiringAt(
         DateTime.now().toUtc().add(const Duration(hours: 1)),
       ),
@@ -434,7 +435,7 @@ class _DevBootstrapClient extends ApiClient {
         'display_name': null,
         'is_admin': false,
       },
-    };
+    });
   }
 }
 
@@ -444,7 +445,7 @@ class _DevConflictBootstrapClient extends ApiClient {
   int _loginCalls = 0;
 
   @override
-  Future<Map<String, dynamic>> login({
+  Future<AuthSession> login({
     required String email,
     required String password,
   }) async {
@@ -459,7 +460,7 @@ class _DevConflictBootstrapClient extends ApiClient {
         ),
       );
     }
-    return {
+    return AuthSession.fromJson({
       'access_token': _jwtExpiringAt(
         DateTime.now().toUtc().add(const Duration(hours: 1)),
       ),
@@ -470,11 +471,11 @@ class _DevConflictBootstrapClient extends ApiClient {
         'display_name': null,
         'is_admin': false,
       },
-    };
+    });
   }
 
   @override
-  Future<Map<String, dynamic>> register({
+  Future<AuthSession> register({
     required String email,
     required String password,
     String? displayName,
