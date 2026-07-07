@@ -257,7 +257,7 @@ final class BookWork {
       genres: List<String>.unmodifiable(dto.genres),
       series: dto.series.isEmpty
           ? null
-          : CatalogSeriesDetails(seriesTitle: dto.series.first),
+          : CatalogSeriesDetails(seriesTitle: dto.series.first as String),
       publishing: editions.isEmpty && dto.physicalFormatLabelValue == null
           ? null
           : CatalogPublishingDetails(

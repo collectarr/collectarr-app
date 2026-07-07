@@ -118,7 +118,7 @@ class _AssetsApiClient {
   }
 
   Future<void> deleteEntityImage(String imageId) async {
-    await _client._dio.delete('/images/$imageId');
+    await _client._dio.delete<void>('/images/$imageId');
   }
 
   Future<Map<String, dynamic>> setImagePrimary(String imageId) async {

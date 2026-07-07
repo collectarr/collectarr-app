@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
@@ -9,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -177,9 +180,9 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     Future<void> expectScanCover({
-      required dynamic type,
-      required dynamic adapter,
-      required dynamic viewState,
+      required LibraryTypeConfig type,
+      required LibraryMediaAdapter adapter,
+      required LibraryWorkspaceViewState viewState,
       required bool expected,
     }) async {
       await tester.pumpWidget(

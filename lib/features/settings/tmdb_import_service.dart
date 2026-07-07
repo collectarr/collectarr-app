@@ -771,7 +771,7 @@ class TmdbImportService {
       return const <TmdbImportEntry>[];
     }
     return rawSeasons
-        .whereType<Map>()
+        .whereType<Map<dynamic, dynamic>>()
         .map((season) => Map<String, dynamic>.from(season))
         .map((season) => _seasonEntryFromJson(entry, season))
         .whereType<TmdbImportEntry>()
@@ -812,7 +812,7 @@ class TmdbImportService {
       return const <String>[];
     }
     return _distinctNonEmptyStrings(
-      value.whereType<Map>().map(
+      value.whereType<Map<dynamic, dynamic>>().map(
         (row) => _normalizedText(row['name'] as String?),
       ),
     );

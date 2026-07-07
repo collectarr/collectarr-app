@@ -256,7 +256,7 @@ extension _GenericLibraryPageEditHandlerExt on GenericLibraryPageState {
   Future<void> _persistEditResult(
     LibraryEditSelection result, {
     required OwnedItem? owned,
-    required dynamic wishlist,
+    required WishlistItem? wishlist,
     required TrackingEntry? activeTrackingEntry,
     required CatalogItem catalogItem,
     required CustomFieldRepository customFieldRepo,

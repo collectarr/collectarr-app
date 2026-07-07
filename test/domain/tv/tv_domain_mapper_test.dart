@@ -33,8 +33,8 @@ void main() {
       'episode_count': 2,
       'network': 'Sunrise',
       'original_language': 'ja',
-      'media': const [],
-      'seasons': const [],
+      'media': const <dynamic>[],
+      'seasons': const <dynamic>[],
       'releases': [
         {
           'id': 'release-1',
@@ -59,8 +59,8 @@ void main() {
       'contributions': [
         {'name': 'Shinichiro Watanabe', 'role': 'Director'},
       ],
-      'character_appearances': const [],
-      'identifiers': const [],
+      'character_appearances': const <dynamic>[],
+      'identifiers': const <dynamic>[],
       'kind': 'tv',
     });
 

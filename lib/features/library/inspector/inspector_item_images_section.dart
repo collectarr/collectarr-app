@@ -250,7 +250,7 @@ class _InspectorThumbnail extends StatelessWidget {
 
   void _showFullImage(BuildContext context) {
     final palette = appPalette(context);
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (context) => Dialog(

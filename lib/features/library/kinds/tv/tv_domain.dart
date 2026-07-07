@@ -399,7 +399,7 @@ final class TvSeries {
       backdropUrl:
           _stringOrNull(dto.raw['backdrop_url'] ?? dto.raw['backdropUrl']),
       seasons: [
-        for (final season in dto.seasons) TvSeason.fromDto(season),
+        for (final season in dto.seasons) TvSeason.fromDto(season as TvSeasonDto),
       ],
       releases: [
         for (final entry in _mapList(dto.raw['releases']))
@@ -407,7 +407,7 @@ final class TvSeries {
       ],
       media: [
         for (final releaseMedia in dto.media)
-          TvReleaseMedia.fromDto(releaseMedia),
+          TvReleaseMedia.fromDto(releaseMedia as TvReleaseMediaDto),
       ],
       releaseEpisodeMaps: [
         for (final entry in _mapList(dto.raw['episode_mappings']))

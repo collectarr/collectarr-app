@@ -23,7 +23,7 @@ class LibrarySortPresetStore {
     for (final value in decoded) {
       final json = switch (value) {
         Map<String, dynamic> typed => typed,
-        Map map => Map<String, dynamic>.from(map),
+        Map<dynamic, dynamic> map => Map<String, dynamic>.from(map),
         _ => null,
       };
       if (json == null) {
@@ -112,7 +112,7 @@ class LibrarySortPresetStore {
     for (final value in rawRules) {
       final json = switch (value) {
         Map<String, dynamic> typed => typed,
-        Map map => Map<String, dynamic>.from(map),
+        Map<dynamic, dynamic> map => Map<String, dynamic>.from(map),
         _ => null,
       };
       if (json == null) {

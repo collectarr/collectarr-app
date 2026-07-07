@@ -228,7 +228,7 @@ class MultiSelectPickListField extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         TextButton(
-                          onPressed: () => Navigator.of(context).pop(const []),
+                          onPressed: () => Navigator.of(context).pop(const <String>[]),
                           child: const Text('Clear'),
                         ),
                         const SizedBox(width: 8),

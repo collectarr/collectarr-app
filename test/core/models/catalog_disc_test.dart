@@ -55,7 +55,7 @@ void main() {
           {'disc_number': 1, 'disc_name': 'Feature Film', 'disc_format': '4K UHD'},
           {'disc_number': 2, 'disc_name': 'Bonus', 'disc_format': 'Blu-ray'},
         ],
-        'variants': [],
+        'variants': <dynamic>[],
       });
       expect(edition.discs.length, 2);
       expect(edition.discs[0].discName, 'Feature Film');
@@ -77,7 +77,7 @@ void main() {
         discs: [CatalogDisc(discNumber: 1, discName: 'Main')],
       );
       final json = edition.toJson();
-      expect(json['discs'], isA<List>());
+      expect(json['discs'], isA<List<dynamic>>());
       expect((json['discs'] as List).length, 1);
     });
 
