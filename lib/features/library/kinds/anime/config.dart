@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -40,8 +40,8 @@ const animeLibraryConfig = LibraryTypeConfig(
     anilistMetadataProvider,
   ],
   trackingProfile: videoTrackingProfile,
-  presentation: moviesLibraryMediaPresentation,
-  editDialogBuilder: buildMovieLibraryEditDialog,
+  presentation: animeLibraryMediaPresentation,
+  editDialogBuilder: buildAnimeLibraryEditDialog,
   inspectorSectionsBuilder: _emptyInspectorSectionsBuilder,
   addChrome: LibraryAddChromeConfig(
     videoKindFilterOptions: [

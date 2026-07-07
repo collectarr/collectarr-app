@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -46,8 +46,8 @@ const mangaLibraryConfig = LibraryTypeConfig(
     mangadexMetadataProvider,
   ],
   trackingProfile: comicTrackingProfile,
-  presentation: comicsLibraryMediaPresentation,
-  editDialogBuilder: buildComicLibraryEditDialog,
+  presentation: mangaLibraryMediaPresentation,
+  editDialogBuilder: buildMangaLibraryEditDialog,
   inspectorSectionsBuilder: _emptyInspectorSectionsBuilder,
   editChrome: LibraryEditChromeConfig(
     titleUsesItemTitle: true,
