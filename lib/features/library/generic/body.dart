@@ -487,17 +487,7 @@ class LibraryBody extends StatelessWidget {
             sidebarWidth: sidebarWidth,
             inspectorWidth: requestedDetailsWidth,
             detailsHeight: viewState.detailsHeight,
-            toolbarHeight: kLibraryToolbarBandHeight,
             coverSize: viewState.coverSize,
-            gridColumnCount: _estimateGridColumnCount(
-              workspaceWidth: constraints.maxWidth -
-                  (showSidebar ? sidebarWidth + kLibraryPaneDividerWidth : 0) -
-                  (detailsLayout == LibraryDetailsLayout.right
-                      ? requestedDetailsWidth + kLibraryPaneDividerWidth
-                      : 0),
-              coverSize: viewState.coverSize,
-              viewMode: viewState.viewMode,
-            ),
             isSidebarVisible: showSidebar,
             detailsLayout: detailsLayout,
           ),

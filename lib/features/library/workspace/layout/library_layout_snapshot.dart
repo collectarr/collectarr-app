@@ -6,9 +6,7 @@ class LibraryLayoutSnapshot {
     required this.sidebarWidth,
     required this.inspectorWidth,
     required this.detailsHeight,
-    required this.toolbarHeight,
     required this.coverSize,
-    required this.gridColumnCount,
     required this.isSidebarVisible,
     required this.detailsLayout,
   });
@@ -16,9 +14,7 @@ class LibraryLayoutSnapshot {
   final double sidebarWidth;
   final double inspectorWidth;
   final double detailsHeight;
-  final double toolbarHeight;
   final double coverSize;
-  final int gridColumnCount;
   final bool isSidebarVisible;
   final LibraryDetailsLayout detailsLayout;
 }

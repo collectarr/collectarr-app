@@ -89,11 +89,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final gradeLabel = entry.grade?.trim();
     final strongSelection =
         selected && entry.browseScope != LibraryBrowserScope.title;
+    final coverCacheWidth = _targetCacheWidth(context);
     if (entry.mediaType == 'music') {
       return _buildMusicCard(
         context: context,
         selectedTitleColor: selectedTitleColor,
         mutedColor: resolvedMutedTextColor,
+        coverCacheWidth: coverCacheWidth,
       );
     }
     if (cardLayout == LibraryCardLayout.vertical) {
@@ -102,6 +104,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         selectedTitleColor: selectedTitleColor,
         mutedColor: resolvedMutedTextColor,
         strongSelection: strongSelection,
+        coverCacheWidth: coverCacheWidth,
       );
     }
     return RepaintBoundary(
@@ -392,7 +395,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 ..._gameCompactBadges(entry, accentColor),
                               ],
                             ),
-                              const Spacer(),
+                            const Spacer(),
                             if (entry.browseScope != LibraryBrowserScope.title)
                               Text(
                                 entry.barcode == null || entry.barcode!.isEmpty
@@ -454,6 +457,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required Color selectedTitleColor,
     required Color mutedColor,
     required bool strongSelection,
+    required int? coverCacheWidth,
   }) {
     final palette = appPalette(context);
     final comic = entry.comic;
@@ -533,6 +537,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 itemNumber: entry.itemNumber,
                                 imageUrl: entry.displayCoverUrl,
                                 ownedItemId: entry.ownedItemId,
+                                targetCacheWidth: coverCacheWidth,
                                 accentColor: accentColor,
                                 fit: BoxFit.cover,
                                 borderRadius: 0,
@@ -660,17 +665,20 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required BuildContext context,
     required Color selectedTitleColor,
     required Color mutedColor,
+    required int? coverCacheWidth,
   }) {
     return switch (musicLayout) {
       LibraryMusicCardLayout.horizontal => _buildMusicHorizontalCard(
           context: context,
           selectedTitleColor: selectedTitleColor,
           mutedColor: mutedColor,
+          coverCacheWidth: coverCacheWidth,
         ),
       LibraryMusicCardLayout.vertical => _buildMusicVerticalCard(
           context: context,
           selectedTitleColor: selectedTitleColor,
           mutedColor: mutedColor,
+          coverCacheWidth: coverCacheWidth,
         ),
     };
   }
@@ -679,6 +687,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required BuildContext context,
     required Color selectedTitleColor,
     required Color mutedColor,
+    required int? coverCacheWidth,
   }) {
     final palette = appPalette(context);
     final background = selected
@@ -745,6 +754,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                           title: entry.resolvedTitle,
                           itemNumber: entry.itemNumber,
                           imageUrl: entry.displayCoverUrl,
+                          targetCacheWidth: coverCacheWidth,
                           ownedItemId: entry.ownedItemId,
                           accentColor: accentColor,
                           fit: BoxFit.cover,
@@ -799,12 +809,14 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                       fontWeight: FontWeight.w800,
                                     ),
                               ),
-                            if (_videoCompactBadges(entry, accentColor).isNotEmpty) ...[
+                            if (_videoCompactBadges(entry, accentColor)
+                                .isNotEmpty) ...[
                               const SizedBox(height: 6),
                               Wrap(
                                 spacing: 6,
                                 runSpacing: 6,
-                                children: _videoCompactBadges(entry, accentColor),
+                                children:
+                                    _videoCompactBadges(entry, accentColor),
                               ),
                             ],
                             if (customFieldBadges.isNotEmpty) ...[
@@ -899,6 +911,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required BuildContext context,
     required Color selectedTitleColor,
     required Color mutedColor,
+    required int? coverCacheWidth,
   }) {
     final palette = appPalette(context);
     final background = selected
@@ -944,6 +957,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                           itemNumber: entry.itemNumber,
                           imageUrl: entry.displayCoverUrl,
                           ownedItemId: entry.ownedItemId,
+                          targetCacheWidth: coverCacheWidth,
                           accentColor: accentColor,
                           fit: BoxFit.cover,
                           borderRadius: 0,
@@ -1116,6 +1130,15 @@ class LibraryWorkspaceCard extends StatelessWidget {
       ),
     );
   }
+
+  int? _targetCacheWidth(BuildContext context) {
+    final pixelRatio = MediaQuery.devicePixelRatioOf(context);
+    if (pixelRatio <= 0) {
+      return null;
+    }
+    final rawWidth = coverWidth * pixelRatio;
+    return ((rawWidth / 64).ceil() * 64).toInt();
+  }
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
@@ -1197,7 +1220,8 @@ List<Widget> _videoCompactBadges(
   final audio = video.audioTracks?.trim();
   final subtitles = video.subtitles?.trim();
   final layers = video.layers?.trim();
-  final trailerCount = entry.trailerUrls.where((link) => link.isTrailerLink).length;
+  final trailerCount =
+      entry.trailerUrls.where((link) => link.isTrailerLink).length;
   if (format != null && format.isNotEmpty) {
     badges.add(
       _LibraryCompactMetaPill(
@@ -1265,9 +1289,7 @@ List<Widget> _videoCompactBadges(
     badges.add(
       _LibraryCompactMetaPill(
         icon: Icons.ondemand_video_outlined,
-        label: trailerCount == 1
-            ? 'Trailer'
-            : '$trailerCount trailers',
+        label: trailerCount == 1 ? 'Trailer' : '$trailerCount trailers',
         accentColor: accentColor,
       ),
     );

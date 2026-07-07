@@ -43,7 +43,8 @@ class LibraryDetailHero extends StatelessWidget {
             entry.primaryReferenceLabel;
     final releaseLabel =
         formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString();
-    final totalCopies = ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
+    final totalCopies =
+        ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
         ? (ownedItem?.quantity ?? 0)
         : ownedCopies.fold<int>(0, (sum, item) => sum + item.quantity);
@@ -55,7 +56,8 @@ class LibraryDetailHero extends StatelessWidget {
       ownedCopies,
       (item) => item.marketValueCents,
     );
-    final totalsCurrency = _detailHeroValueCurrency(ownedCopies, ownedItem, entry);
+    final totalsCurrency =
+        _detailHeroValueCurrency(ownedCopies, ownedItem, entry);
     final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
         ? null
         : ownedCopies.indexWhere((item) => item.id == ownedItem!.id);
@@ -77,7 +79,8 @@ class LibraryDetailHero extends StatelessWidget {
         (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
       (
         label: 'Updated',
-        value: formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-',
+        value:
+            formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-',
       ),
     ];
     final primaryChips = <Widget>[
@@ -85,7 +88,8 @@ class LibraryDetailHero extends StatelessWidget {
         icon: Icons.inventory_2,
         label: resolvedIsOwned ? 'Owned' : 'Not owned',
         foreground: accent,
-        background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+        background: palette.surfaceSubtle
+            .withValues(alpha: palette.isDark ? 0.42 : 0.72),
         borderColor: palette.divider.withValues(alpha: 0.9),
       ),
       if (entry.isWishlisted)
@@ -93,7 +97,8 @@ class LibraryDetailHero extends StatelessWidget {
           icon: Icons.star,
           label: 'Wishlisted',
           foreground: accent,
-          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          background: palette.surfaceSubtle
+              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (referenceLabel != null)
@@ -101,7 +106,8 @@ class LibraryDetailHero extends StatelessWidget {
           icon: Icons.link_outlined,
           label: referenceLabel,
           foreground: accent,
-          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          background: palette.surfaceSubtle
+              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (ownedItem?.condition != null)
@@ -109,7 +115,8 @@ class LibraryDetailHero extends StatelessWidget {
           icon: Icons.fact_check_outlined,
           label: ownedItem!.condition!,
           foreground: accent,
-          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          background: palette.surfaceSubtle
+              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (ownedItem?.grade != null)
@@ -117,7 +124,8 @@ class LibraryDetailHero extends StatelessWidget {
           icon: Icons.workspace_premium,
           label: ownedItem!.grade!,
           foreground: accent,
-          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          background: palette.surfaceSubtle
+              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (ownedItem?.keyComic == true)
@@ -125,7 +133,8 @@ class LibraryDetailHero extends StatelessWidget {
           icon: Icons.label_important,
           label: ownedItem!.keyReason ?? 'Key item',
           foreground: accent,
-          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          background: palette.surfaceSubtle
+              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
       if (ownedItem?.rawOrSlabbed != null || ownedItem?.gradingCompany != null)
@@ -137,7 +146,8 @@ class LibraryDetailHero extends StatelessWidget {
               ) ??
               'Collector copy',
           foreground: accent,
-          background: palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.42 : 0.72),
+          background: palette.surfaceSubtle
+              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
     ];
@@ -155,6 +165,11 @@ class LibraryDetailHero extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= 680;
+            final coverWidth = wide ? 164.0 : 138.0;
+            final coverCacheWidth = _targetCacheWidth(
+              context,
+              coverWidth: coverWidth,
+            );
             final cover = Consumer(
               builder: (context, ref, _) {
                 final ownedItemId = resolvedOwnedItemId;
@@ -180,7 +195,7 @@ class LibraryDetailHero extends StatelessWidget {
                         )
                         .value;
                 return SizedBox(
-                  width: wide ? 164 : 138,
+                  width: coverWidth,
                   child: SlabFrameOverlay.maybeWrap(
                     rawOrSlabbed: ownedItem?.rawOrSlabbed,
                     gradingCompany: ownedItem?.gradingCompany,
@@ -193,12 +208,14 @@ class LibraryDetailHero extends StatelessWidget {
                       localBytes: localFront,
                       secondaryLocalBytes: localBack,
                       ownedItemId: ownedItemId,
+                      targetCacheWidth: coverCacheWidth,
                       accentColor: accent,
-                        enableSecondaryControl: false,
+                      enableSecondaryControl: false,
                       onMissingSecondaryPressed: ownedItemId == null
                           ? null
                           : () async {
-                              final savedType = await pickAndStoreOwnedItemImage(
+                              final savedType =
+                                  await pickAndStoreOwnedItemImage(
                                 context: context,
                                 db: db,
                                 ownedItemId: ownedItemId,
@@ -213,8 +230,8 @@ class LibraryDetailHero extends StatelessWidget {
                                 );
                               }
                             },
-                      ),
                     ),
+                  ),
                 );
               },
             );
@@ -247,7 +264,7 @@ class LibraryDetailHero extends StatelessWidget {
                   textAlign: wide ? TextAlign.start : TextAlign.center,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         color: palette.textMuted,
-                    fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                       ),
                 ),
                 if (type.capabilities.showsCreatorSpotlight &&
@@ -264,7 +281,8 @@ class LibraryDetailHero extends StatelessWidget {
                   Wrap(
                     spacing: 5,
                     runSpacing: 5,
-                    alignment: wide ? WrapAlignment.start : WrapAlignment.center,
+                    alignment:
+                        wide ? WrapAlignment.start : WrapAlignment.center,
                     children: primaryChips,
                   ),
                 ],
@@ -297,7 +315,8 @@ class LibraryDetailHero extends StatelessWidget {
                         value: trackCount,
                       ),
                     if ((_metadataFactValue(metadataPresentation, 'Platform') ??
-                            _metadataFactValue(metadataPresentation, 'Platforms'))
+                            _metadataFactValue(
+                                metadataPresentation, 'Platforms'))
                         case final platformLabel?)
                       _DetailSummaryFact(
                         label: 'Platform',
@@ -351,6 +370,18 @@ class LibraryDetailHero extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  int? _targetCacheWidth(
+    BuildContext context, {
+    required double coverWidth,
+  }) {
+    final pixelRatio = MediaQuery.devicePixelRatioOf(context);
+    if (pixelRatio <= 0) {
+      return null;
+    }
+    final rawWidth = coverWidth * pixelRatio;
+    return ((rawWidth / 64).ceil() * 64).toInt();
   }
 }
 

@@ -40,6 +40,7 @@ class LibraryCardFlowTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final coverCacheWidth = _targetCacheWidth(context);
     final capabilities = collectarrLibraryTypes.capabilitiesForKind(
       entry.mediaType,
     );
@@ -119,6 +120,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             itemNumber: entry.itemNumber,
                             imageUrl: entry.displayCoverUrl,
                             ownedItemId: entry.ownedItemId,
+                            targetCacheWidth: coverCacheWidth,
                             accentColor: accentColor,
                             enableFullscreen: false,
                             enableSecondaryControl: false,
@@ -375,6 +377,16 @@ class LibraryCardFlowTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  int? _targetCacheWidth(BuildContext context) {
+    final pixelRatio = MediaQuery.devicePixelRatioOf(context);
+    if (pixelRatio <= 0) {
+      return null;
+    }
+    const coverWidth = 120.0;
+    final rawWidth = coverWidth * pixelRatio;
+    return ((rawWidth / 64).ceil() * 64).toInt();
   }
 }
 
