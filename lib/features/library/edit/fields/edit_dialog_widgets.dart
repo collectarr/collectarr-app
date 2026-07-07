@@ -398,6 +398,53 @@ class LibraryEditResponsiveRow extends StatelessWidget {
   }
 }
 
+/// A responsive dense grid of form fields laid out with a [Wrap] so ragged
+/// trailing rows stay left-aligned at a fixed column width. Column counts and
+/// their breakpoints are configurable so each kind keeps its own density while
+/// sharing this single mechanism.
+class LibraryEditDenseFields extends StatelessWidget {
+  const LibraryEditDenseFields({
+    super.key,
+    required this.children,
+    this.wideColumns = 2,
+    this.ultraWideColumns = 3,
+    this.wideBreakpoint = kAppStackedBreakpoint,
+    this.ultraWideBreakpoint = 780,
+    this.spacing = 10,
+  });
+
+  final List<Widget> children;
+  final int wideColumns;
+  final int ultraWideColumns;
+  final double wideBreakpoint;
+  final double ultraWideBreakpoint;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= ultraWideBreakpoint
+            ? ultraWideColumns
+            : constraints.maxWidth >= wideBreakpoint
+                ? wideColumns
+                : 1;
+        final fieldWidth = columns == 1
+            ? constraints.maxWidth
+            : (constraints.maxWidth - (spacing * (columns - 1))) / columns;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final child in children)
+              SizedBox(width: fieldWidth, child: child),
+          ],
+        );
+      },
+    );
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Two-column grid for form fields
 // ---------------------------------------------------------------------------

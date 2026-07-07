@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/ui/theme/theme_palette.dart';
+
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_links_tab.dart';
@@ -637,25 +637,10 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     int wideColumns = 2,
     int ultraWideColumns = 3,
   }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 780
-            ? ultraWideColumns
-            : constraints.maxWidth >= kAppStackedBreakpoint
-                ? wideColumns
-                : 1;
-        final fieldWidth = columns == 1
-            ? constraints.maxWidth
-            : (constraints.maxWidth - (10 * (columns - 1))) / columns;
-        return Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            for (final child in children)
-              SizedBox(width: fieldWidth, child: child),
-          ],
-        );
-      },
+    return LibraryEditDenseFields(
+      wideColumns: wideColumns,
+      ultraWideColumns: ultraWideColumns,
+      children: children,
     );
   }
 

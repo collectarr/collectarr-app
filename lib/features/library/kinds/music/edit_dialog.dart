@@ -1267,46 +1267,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   Widget _denseFields(List<Widget> children) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 900
-            ? 4
-            : constraints.maxWidth >= 620
-                ? 2
-                : 1;
-        if (columns == 1) {
-          return Column(
-            children: [
-              for (var index = 0; index < children.length; index++) ...[
-                if (index > 0) const SizedBox(height: 10),
-                children[index],
-              ],
-            ],
-          );
-        }
-        final rows = <Widget>[];
-        for (var index = 0; index < children.length; index += columns) {
-          rows.add(
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (var offset = 0; offset < columns; offset++) ...[
-                  if (offset > 0) const SizedBox(width: 10),
-                  Expanded(
-                    child: index + offset < children.length
-                        ? children[index + offset]
-                        : const SizedBox.shrink(),
-                  ),
-                ],
-              ],
-            ),
-          );
-          if (index + columns < children.length) {
-            rows.add(const SizedBox(height: 10));
-          }
-        }
-        return Column(children: rows);
-      },
+    return LibraryEditDenseFields(
+      wideColumns: 2,
+      ultraWideColumns: 4,
+      wideBreakpoint: 620,
+      ultraWideBreakpoint: 900,
+      children: children,
     );
   }
 
