@@ -688,10 +688,11 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     String? hint,
     String? Function(String?)? validator,
   }) {
-    return TextFormField(
+    return LibraryEditTextField(
       controller: controller,
+      label: label,
+      hint: hint,
       validator: validator,
-      decoration: InputDecoration(labelText: label, hintText: hint),
     );
   }
 

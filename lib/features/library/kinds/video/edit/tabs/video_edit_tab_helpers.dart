@@ -82,9 +82,9 @@ Widget _field({
   required String label,
   String? Function(String?)? validator,
 }) {
-  return TextFormField(
+  return LibraryEditTextField(
     controller: controller,
-    decoration: InputDecoration(labelText: label),
+    label: label,
     validator: validator,
   );
 }

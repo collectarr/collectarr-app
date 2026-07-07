@@ -323,6 +323,39 @@ class EditTab extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
+// Shared single-line text field primitive
+// ---------------------------------------------------------------------------
+
+/// The canonical labelled text field used across every library edit dialog.
+///
+/// Kinds previously each declared a private `_field` helper that produced an
+/// identical [TextFormField]; this widget is the single source of truth so
+/// styling, validation wiring and hint behaviour stay uniform everywhere.
+class LibraryEditTextField extends StatelessWidget {
+  const LibraryEditTextField({
+    super.key,
+    required this.controller,
+    required this.label,
+    this.hint,
+    this.validator,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final String? hint;
+  final String? Function(String?)? validator;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      decoration: InputDecoration(labelText: label, hintText: hint),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Two-column grid for form fields
 // ---------------------------------------------------------------------------
 

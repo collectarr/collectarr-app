@@ -1316,10 +1316,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     String? hint,
     String? Function(String?)? validator,
   }) {
-    return TextFormField(
+    return LibraryEditTextField(
       controller: controller,
+      label: label,
+      hint: hint,
       validator: validator,
-      decoration: InputDecoration(labelText: label, hintText: hint),
     );
   }
 

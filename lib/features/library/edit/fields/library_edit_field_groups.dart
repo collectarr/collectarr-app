@@ -137,10 +137,10 @@ class LibraryTitleMetadataFields extends StatelessWidget {
     String label, {
     String? Function(String?)? validator,
   }) {
-    return TextFormField(
+    return LibraryEditTextField(
       controller: controller,
+      label: label,
       validator: validator,
-      decoration: InputDecoration(labelText: label),
     );
   }
 
@@ -233,10 +233,10 @@ class LibraryReleaseIdentityFields extends StatelessWidget {
     String label, {
     String? Function(String?)? validator,
   }) {
-    return TextFormField(
+    return LibraryEditTextField(
       controller: controller,
+      label: label,
       validator: validator,
-      decoration: InputDecoration(labelText: label),
     );
   }
 }
