@@ -528,7 +528,7 @@ class _MusicInspectorCredits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final creditRows = _buildCreditsRows(inspector.entry.creators);
+    final creditRows = libraryCreatorsGroupedByRole(inspector.entry.creators);
     if (creditRows.isEmpty) {
       return Text(
         '-',
@@ -1056,11 +1056,6 @@ bool _matchesTrackTerms(CatalogTrack track, List<String> terms) {
   ].join(' ').toLowerCase();
   return terms.every(searchable.contains);
 }
-
-List<(String, String)> _buildCreditsRows(List<Map<String, dynamic>>? creators) {
-  return libraryCreatorsGroupedByRole(creators);
-}
-
 Uri? _ebayUri(LibraryWorkspaceEntry entry) {
   final barcode = entry.barcode?.trim();
   if (barcode == null || barcode.isEmpty) {

@@ -79,7 +79,7 @@ List<LibraryDetailSectionSpec> _buildGameSectionSpecs(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
-  final creditRows = _buildCreditsRows(inspector.entry.creators);
+  final creditRows = libraryCreatorsGroupedByRole(inspector.entry.creators);
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.identity,
@@ -307,7 +307,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
       if (entry.addedAt != null) ('Added', formatDate(entry.addedAt!)),
       ('Modified', formatDate(entry.updatedAt)),
     ];
-    final creditRows = _buildCreditsRows(entry.creators);
+    final creditRows = libraryCreatorsGroupedByRole(entry.creators);
 
     return Column(
       children: [
@@ -391,33 +391,6 @@ class _GameInspectorFactRows extends StatelessWidget {
     );
   }
 }
-List<(String, String)> _buildCreditsRows(List<Map<String, dynamic>>? creators) {
-  if (creators == null || creators.isEmpty) {
-    return const <(String, String)>[];
-  }
-  final grouped = <String, List<String>>{};
-  for (final entry in creators) {
-    final role = (entry['role']?.toString().trim().isNotEmpty == true)
-        ? entry['role']!.toString().trim()
-        : 'Credit';
-    final name = entry['name']?.toString().trim();
-    if (name == null || name.isEmpty) {
-      continue;
-    }
-    grouped.putIfAbsent(role, () => <String>[]).add(name);
-  }
-  if (grouped.isEmpty) {
-    return const <(String, String)>[];
-  }
-  final rows = <(String, String)>[];
-  final sortedRoles = grouped.keys.toList(growable: false)..sort();
-  for (final role in sortedRoles) {
-    final names = grouped[role]!..sort();
-    rows.add((role, names.join(', ')));
-  }
-  return rows;
-}
-
 Uri? _ebayUri(LibraryWorkspaceEntry entry) {
   final query = <String>[
     if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
