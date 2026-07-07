@@ -118,9 +118,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final accentScope = LibraryAccentScope.maybeOf(context);
     final accent =
         accentScope?.accent ?? libraryAccentForKind(selectedLibraryKind);
-    final animationDuration = accentScope?.animationDuration ??
+    final animationDuration = accentScope?.data.animationDuration ??
         (uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero);
-    final isAndroidPlatform = Theme.of(context).platform == TargetPlatform.android;
+    final isAndroidPlatform =
+        Theme.of(context).platform == TargetPlatform.android;
     _syncTextControllers(settings);
 
     return Theme(
