@@ -1607,35 +1607,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     required DateTime? value,
     required ValueChanged<DateTime?> onChanged,
   }) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(8),
-      onTap: () async {
-        final picked = await showLibraryDateEntryDialog(
-          context,
-          label: label,
-          initialDate: value,
-        );
-        if (picked != null && mounted) {
-          onChanged(picked);
-        }
-      },
-      onLongPress: value != null ? () => onChanged(null) : null,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          suffixIcon: value != null
-              ? IconButton(
-                  tooltip: 'Clear date',
-                  icon: const Icon(Icons.clear, size: 18),
-                  onPressed: () => onChanged(null),
-                )
-              : const Icon(Icons.calendar_today, size: 18),
-        ),
-        child: Text(
-          value != null ? formatDate(value) : '',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      ),
+    return LibraryDateFieldButton(
+      label: label,
+      value: value,
+      onChanged: onChanged,
     );
   }
 
