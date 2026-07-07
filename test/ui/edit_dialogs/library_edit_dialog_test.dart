@@ -1794,4 +1794,65 @@ void main() {
     expect(find.text('Edition title'), findsOneWidget);
     expect(find.text('UPC / Barcode'), findsOneWidget);
   });
+
+  testWidgets('boardgame all scope exposes release identity on its own tab',
+      (tester) async {
+    tester.view.physicalSize = const Size(1600, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind('boardgame')!;
+    final item = LibraryMetadataItem.fromCatalogItem(
+      CatalogItem(
+        id: 'bg-1',
+        kind: 'boardgame',
+        title: 'Gloomhaven',
+        sortKey: 'gloomhaven',
+        releaseDate: DateTime.utc(2017, 1, 1),
+        publisher: 'Cephalofair Games',
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () async {
+                  await showLibraryEditDialog(
+                    context: context,
+                    request: LibraryEditDialogRequest(
+                      type: type,
+                      item: item,
+                      ownedItem: null,
+                      accent: Colors.brown,
+                      scope: LibraryEditScope.all,
+                    ),
+                  );
+                },
+                child: const Text('Open bg'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open bg'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Release'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Title'), findsOneWidget);
+    expect(find.text('Edition title'), findsNothing);
+
+    await tester.tap(find.text('Release'));
+    await pumpUntilSettled(tester);
+    expect(find.widgetWithText(TextField, 'Title'), findsNothing);
+    expect(find.text('Edition title'), findsOneWidget);
+  });
 }

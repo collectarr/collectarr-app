@@ -2,18 +2,19 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:flutter/material.dart';
 
-const _boardGameTabs = [
-  LibraryEditTabSpec(
-    id: 'main',
-    icon: Icons.casino_outlined,
-    label: 'Main',
-    sectionIds: [
-      'catalog_snapshot',
-      'tracking_context',
-      'ownership_reference',
-      'owned_grading',
-    ],
-  ),
+const _boardGameTabs0 = LibraryEditTabSpec(
+  id: 'main',
+  icon: Icons.casino_outlined,
+  label: 'Main',
+  sectionIds: [
+    'catalog_snapshot',
+    'tracking_context',
+    'ownership_reference',
+    'owned_grading',
+  ],
+);
+
+const _boardGameSecondaryTabs = [
   LibraryEditTabSpec(
     id: 'synopsis',
     icon: Icons.description_outlined,
@@ -40,6 +41,24 @@ const _boardGameTabs = [
   ),
 ];
 
+const _boardGameTabs = [
+  _boardGameTabs0,
+  ..._boardGameSecondaryTabs,
+];
+
+const _boardGameReleaseIdentityTab = LibraryEditTabSpec(
+  id: 'release',
+  icon: Icons.album_outlined,
+  label: 'Release',
+  sectionIds: ['release_identity'],
+);
+
+const _boardGameCombinedTabs = [
+  _boardGameTabs0,
+  _boardGameReleaseIdentityTab,
+  ..._boardGameSecondaryTabs,
+];
+
 class BoardGameLibraryEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const BoardGameLibraryEditPresentationBuilder()
@@ -50,8 +69,18 @@ class BoardGameLibraryEditPresentationBuilder
         );
 }
 
+class BoardGameLibraryCombinedEditPresentationBuilder
+    extends DefaultLibraryEditPresentationBuilder {
+  const BoardGameLibraryCombinedEditPresentationBuilder()
+      : super(
+          ownedTabs: _boardGameCombinedTabs,
+          trackedTabs: _boardGameCombinedTabs,
+          catalogTabs: _boardGameCombinedTabs,
+        );
+}
+
 const boardGamesLibraryEditPresentation = LibraryEditPresentation(
-  builder: BoardGameLibraryEditPresentationBuilder(),
+  builder: BoardGameLibraryCombinedEditPresentationBuilder(),
   mediaBuilder: BoardGameLibraryEditPresentationBuilder(),
   releaseBuilder: BoardGameLibraryEditPresentationBuilder(),
 );
