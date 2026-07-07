@@ -87,6 +87,22 @@ BookWorkDto / BookEditionDto
 
 Repeat the pattern for Game and BoardGame after Book.
 
+## Edit dialog conventions
+Two families: the shared shell renderer `LibraryEditRenderer` (routes tabs by tab id) for most kinds,
+and bespoke dialogs for book/music (`buildBookLibraryEditDialog`/`buildMusicLibraryEditDialog`);
+movie/tv use the video edit path (`VideoEditMediaTab`).
+
+- Scope: `LibraryEditScope { media, release, all }`; owned/tracking/wishlist resolve to `all`. The
+  kind's `LibraryEditPresentation` exposes media/release/combined builders via `builderForScope`.
+- Media vs release separation: release-identity fields (edition title/variant/barcode/physical format,
+  via `LibraryReleaseIdentityFields`) get their own `release` tab in the **combined (all-scope) builder
+  only**; register new sectionIds in `LibraryEditSectionRegistry` or tabs sort last. Comic is excluded
+  by design (kind-owned edit dialog).
+- Reuse shared field primitives; do not declare per-kind `_field`/date/grid helpers:
+  `LibraryEditTextField`, `LibraryEditResponsiveRow`, `LibraryEditDenseFields` (density via params),
+  `LibraryDateFieldButton` (canonical inline date + calendar; no modal date pickers),
+  `SingleValuePickField`. See `.github/copilot-instructions.md` for details.
+
 ## GenericLibraryPage
 GenericLibraryPage should become shell + wiring only.
 

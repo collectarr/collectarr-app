@@ -36,6 +36,55 @@
 - Shared inspector and detail surfaces live under `lib/features/library/inspector/` and `lib/features/library/detail/`.
 - Kind-specific presentation hooks compose into those shared shells through `LibraryMediaPresentation`, `LibraryEditPresentation`, and `LibraryTypeConfig` builders.
 
+### Workspace group presentation (main panel)
+- The main grid panel supports a **user toggle** between `folderGrid` (hierarchical folder tiles that
+  navigate on tap) and `inlineHeaders` (collapsible sections that expand/collapse in place). Both follow
+  the active group mode. Enum: `LibraryGroupPresentation` (`library_media_presentation_models.dart`).
+- Toggle UI: `LibraryGroupPresentationToggle` (SegmentedButton) in the toolbar, shown only when grouping
+  is active. The user override is stored per-preset via `LibraryViewPreferenceStore.writeGroupPresentationOverride`
+  and applied through `libraryGroupEntriesForItems(presentationOverride: ...)`.
+- `inlineHeaders` groups are collapsible: `_GroupHeader` chevron `onToggleExpanded` (expand in place) is
+  separate from `onOpenDetails` (open the group). Collapsed buckets persist per-preset
+  (`read/writeCollapsedGroupBuckets`). Bulk "Expand all / Collapse all" is driven by
+  `onSetCollapsedGroupBuckets` (one state mutation + one write), threaded body → workspace → shelf view.
+
+### Edit dialogs
+- **Two dialog families.** Most kinds use the shared shell renderer `LibraryEditRenderer`
+  (`lib/features/library/edit/shell/library_edit_dialog.dart`), which routes tabs **by tab id** via
+  `_tabViewFor(tab.id)` (its `default:` case throws — only known ids render). Book and music use fully
+  bespoke dialogs (`buildBookLibraryEditDialog`, `buildMusicLibraryEditDialog`); movie/tv render their
+  media tab through `VideoEditMediaTab` (video edit path).
+- **Edit scope.** `LibraryEditScope { media, release, all }`. `LibraryEditDialogRequest.scope` defaults
+  to `media`; owned/tracking/wishlist items resolve to `all`. `builderForScope` picks the kind's
+  media / release / combined (all-scope) `LibraryEditPresentation` builder. Field visibility:
+  `_canShowMediaFields` (media|all), `_canShowReleaseFields` (release|all), `_showsReleaseSection`.
+- **Tab ordering.** `LibraryEditSectionRegistry.orderTabs` sorts tabs by category using
+  `sectionCategoryById`. Any **new sectionId must be registered** there or its tab sorts last.
+- **Media/release field separation.** Release-identity fields (edition title/variant/barcode/physical
+  format) live in `LibraryReleaseIdentityFields` and must not share the Main tab with media/work fields.
+  To separate for a shell-renderer kind: add a `release` tab (`sectionIds: ['release_identity']`) to the
+  kind's **combined (all-scope) builder only** (keep media/release builders clean); the renderer's
+  `_releaseTab()`/`_hasReleaseTab` then move the section off Main and show a placeholder when no release
+  anchor applies. Done for **game, boardgame**. Movie (`edition` tab) and tv (`Edition Details` tab)
+  already separate. **Comic is intentionally excluded** — its edit dialog is kind-owned
+  (`_ownedComicMainTab`, ownership-anchor edition handling) and the generic tab breaks its tests.
+
+### Shared edit field primitives (use these — do NOT reimplement)
+Canonical widgets in `lib/features/library/edit/fields/edit_dialog_widgets.dart` (+ `library_edit_field_groups.dart`).
+New edit UI must reuse them instead of declaring private `_field`/layout helpers:
+- `LibraryEditTextField` — labelled `TextFormField` (label/hint/validator). Replaces every ad-hoc `_field`.
+- `LibraryEditResponsiveRow` — responsive 1↔2 column row (breakpoint 620), equal `Expanded` columns.
+- `LibraryEditDenseFields` — `Wrap`-based dense grid; density is configurable per kind via
+  `wideColumns`/`ultraWideColumns` + `wideBreakpoint`/`ultraWideBreakpoint` (book 1/2/3 @560/780,
+  music 1/2/4 @620/900, video 2 @600). Prefer this over bespoke `Wrap`/`Row`-of-`Row`s grids.
+- `LibraryDateFieldButton` — **canonical date field**: inline YYYY/MM/DD entry + a calendar picker button.
+  Do **not** add modal single-field date pickers (`showLibraryDateEntryDialog` is legacy for this use).
+- `SingleValuePickField` — canonical single-value pick/vocabulary field (with manage/pick-list actions).
+- `EditSection` (section wrapper — note: its `title` is decorative/not rendered, so tests should assert on
+  field labels, not section titles), `EditTabShell` (scrollable tab body), `EditTab` (icon+label tab).
+- Tab views are **lazy** (only the active tab is mounted). In tests, open all-scope dialogs with
+  `scope: LibraryEditScope.all`; tab labels are found via `find.text(label)`.
+
 ## Database (Drift)
 
 - DB file: `collectarr.sqlite` in `getApplicationDocumentsDirectory()` (Documents folder on Windows).
@@ -66,8 +115,17 @@
 - Add dialogs have resizable panes: `_resultsPaneWidth`, `_clampedResultsPaneWidth()`, `_resizeResultsPane()`.
 - Prefer `flutter_riverpod` for state; do not introduce other state management.
 - Keep type annotations on public APIs.
+- **Reuse shared edit field primitives** (`LibraryEditTextField`, `LibraryEditResponsiveRow`,
+  `LibraryEditDenseFields`, `LibraryDateFieldButton`, `SingleValuePickField`) — see the "Shared edit
+  field primitives" section. Do not add private `_field`/date/grid helpers per kind.
 - Avoid broad `catch` except at UI boundaries where errors are logged.
 - Use `SingleChildScrollView` to wrap long dialog content (prevents overflow in tests with small screen sizes).
+- **Analyzer is strict** (`strict-casts`, `strict-inference`, `strict-raw-types` in `analysis_options.yaml`).
+  New code must pass `flutter analyze` with no new issues.
+- **Splitting large files**: big dialogs/state classes are split with `part`/`part of` + private
+  `extension _Name on _StateClass { ... }` in a sibling file. `setState` is protected inside extensions —
+  mutate through the existing wrappers (`_rebuild` / `_updateState` / `_mutateDialogState`), not `setState`
+  directly. Files are CRLF.
 
 ## Testing
 
