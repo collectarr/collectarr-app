@@ -146,6 +146,7 @@ class LibraryBody extends StatelessWidget {
     this.folderPreset,
     this.collapsedGroupBuckets = const <String>{},
     this.onGroupBucketCollapsedToggled,
+    this.onSetCollapsedGroupBuckets,
     this.availableGroupModes,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
@@ -234,6 +235,7 @@ class LibraryBody extends StatelessWidget {
   final LibraryFolderPreset? folderPreset;
   final Set<String> collapsedGroupBuckets;
   final ValueChanged<String>? onGroupBucketCollapsedToggled;
+  final ValueChanged<Set<String>>? onSetCollapsedGroupBuckets;
   final List<LibraryGroupMode>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
@@ -342,6 +344,7 @@ class LibraryBody extends StatelessWidget {
                 collapsedGroupBuckets: collapsedGroupBuckets,
                 onGroupBucketCollapsedToggled:
                     onGroupBucketCollapsedToggled ?? (_) {},
+                onSetCollapsedGroupBuckets: onSetCollapsedGroupBuckets,
                 onSortChanged: onSortChanged,
                 onColumnWidthChanged: onColumnWidthChanged,
                 onColumnReordered: onColumnReordered,

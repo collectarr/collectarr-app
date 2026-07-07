@@ -120,6 +120,70 @@ void main() {
     expect(find.byType(LibraryCoverTile), findsNothing);
   });
 
+  testWidgets('collapse all and expand all toggle every group', (tester) async {
+    var collapsed = <String>{};
+    final items1 = [_item(id: 'm1', title: 'Alpha', bucket: 'Batman')];
+    final items2 = [_item(id: 'm2', title: 'Beta', bucket: 'Superman')];
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          home: StatefulBuilder(
+            builder: (context, setState) {
+              return Scaffold(
+                body: LibraryGroupedShelfView(
+                  type: moviesLibraryConfig,
+                  adapter: moviesMediaAdapter,
+                  groups: [
+                    _group(
+                      bucket: 'Batman',
+                      presentation: LibraryGroupPresentation.inlineHeaders,
+                      items: items1,
+                    ),
+                    _group(
+                      bucket: 'Superman',
+                      presentation: LibraryGroupPresentation.inlineHeaders,
+                      items: items2,
+                    ),
+                  ],
+                  viewState: _viewState,
+                  selectedId: null,
+                  selectionEnabled: false,
+                  selectedIds: const {},
+                  accent: moviesLibraryConfig.workspace.accent,
+                  collapsedGroupBuckets: collapsed,
+                  onGroupBucketCollapsedToggled: (_) {},
+                  onSetCollapsedGroupBuckets: (buckets) {
+                    setState(() => collapsed = buckets.toSet());
+                  },
+                  onSelectGroupBucket: (_) {},
+                  onOpenGroupDetails: (_) {},
+                  onActivateItem: (_) {},
+                  onToggleSelectionItem: (_) {},
+                  onOpenItem: (_) {},
+                  onEditItem: (_) {},
+                  emptyBuilder: (_) => const SizedBox.shrink(),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(LibraryCoverTile), findsNWidgets(2));
+
+    await tester.tap(find.text('Collapse all'));
+    await tester.pump();
+    expect(collapsed, {'Batman', 'Superman'});
+    expect(find.byType(LibraryCoverTile), findsNothing);
+
+    await tester.tap(find.text('Expand all'));
+    await tester.pump();
+    expect(collapsed, isEmpty);
+    expect(find.byType(LibraryCoverTile), findsNWidgets(2));
+  });
+
   testWidgets('folder grid still activates navigation on tap', (tester) async {
     String? selectedBucket;
 

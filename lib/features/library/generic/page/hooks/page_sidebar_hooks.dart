@@ -138,6 +138,18 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     unawaited(_viewPrefs.writeCollapsedGroupBuckets(preset, next));
   }
 
+  void _setCollapsedGroupBuckets(Set<String> buckets) {
+    final preset = _activeFolderPreset;
+    final next = Set<String>.unmodifiable(buckets);
+    if (setEquals(next, _collapsedGroupBuckets)) {
+      return;
+    }
+    _mutateState(() {
+      _collapsedGroupBuckets = next;
+    });
+    unawaited(_viewPrefs.writeCollapsedGroupBuckets(preset, next));
+  }
+
   bool _isGroupBucketCollapsed(String bucket) {
     return _collapsedGroupBuckets.contains(bucket);
   }

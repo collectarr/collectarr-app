@@ -51,6 +51,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
     required this.onOpenGroupDetails,
     required this.collapsedGroupBuckets,
     required this.onGroupBucketCollapsedToggled,
+    this.onSetCollapsedGroupBuckets,
     required this.onActivateItem,
     required this.onToggleSelectionItem,
     required this.onOpenItem,
@@ -72,6 +73,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
   final ValueChanged<GroupShelfEntry> onOpenGroupDetails;
   final Set<String> collapsedGroupBuckets;
   final ValueChanged<String> onGroupBucketCollapsedToggled;
+  final ValueChanged<Set<String>>? onSetCollapsedGroupBuckets;
   final ValueChanged<String> onActivateItem;
   final ValueChanged<String> onToggleSelectionItem;
   final ValueChanged<LibraryProjectionItem> onOpenItem;
@@ -128,12 +130,57 @@ class LibraryGroupedShelfView extends StatelessWidget {
       color: appPalette(context).gridCanvas,
       child: CustomScrollView(
         slivers: [
+          if (_showsBulkCollapseControls)
+            SliverToBoxAdapter(child: _buildBulkCollapseBar(context)),
           for (final group in groups) ..._buildInlineGroupSlivers(
             context,
             group,
             mainAxisExtent,
           ),
           const SliverPadding(padding: EdgeInsets.only(bottom: 10)),
+        ],
+      ),
+    );
+  }
+
+  bool get _showsBulkCollapseControls =>
+      onSetCollapsedGroupBuckets != null && groups.length > 1;
+
+  Widget _buildBulkCollapseBar(BuildContext context) {
+    final palette = appPalette(context);
+    final allBuckets = {for (final group in groups) group.bucket};
+    final anyExpanded =
+        allBuckets.any((bucket) => !collapsedGroupBuckets.contains(bucket));
+    final anyCollapsed =
+        allBuckets.any((bucket) => collapsedGroupBuckets.contains(bucket));
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton.icon(
+            onPressed: anyCollapsed
+                ? () => onSetCollapsedGroupBuckets!(const <String>{})
+                : null,
+            icon: const Icon(Icons.unfold_more, size: 16),
+            label: const Text('Expand all'),
+            style: TextButton.styleFrom(
+              foregroundColor: palette.textMuted,
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+          const SizedBox(width: 4),
+          TextButton.icon(
+            onPressed: anyExpanded
+                ? () => onSetCollapsedGroupBuckets!(allBuckets)
+                : null,
+            icon: const Icon(Icons.unfold_less, size: 16),
+            label: const Text('Collapse all'),
+            style: TextButton.styleFrom(
+              foregroundColor: palette.textMuted,
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
         ],
       ),
     );

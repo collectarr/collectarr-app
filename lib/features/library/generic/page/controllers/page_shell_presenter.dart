@@ -206,6 +206,7 @@ abstract final class _LibraryPageShellPresenter {
       onBucketChanged: state._setSelectedBucket,
       collapsedGroupBuckets: state._collapsedGroupBuckets,
       onGroupBucketCollapsedToggled: state._toggleCollapsedGroupBucket,
+      onSetCollapsedGroupBuckets: state._setCollapsedGroupBuckets,
       onGroupModeChanged: state._setGroupMode,
       onSortChanged: (column) => state._updateViewState(
         (stateValue) =>

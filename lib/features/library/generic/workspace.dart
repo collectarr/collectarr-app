@@ -53,6 +53,7 @@ class LibraryWorkspace extends ConsumerWidget {
     required this.onBucketChanged,
     required this.collapsedGroupBuckets,
     required this.onGroupBucketCollapsedToggled,
+    this.onSetCollapsedGroupBuckets,
     required this.accent,
     required this.hasActiveFilter,
     required this.onAdd,
@@ -84,6 +85,7 @@ class LibraryWorkspace extends ConsumerWidget {
   final ValueChanged<String?> onBucketChanged;
   final Set<String> collapsedGroupBuckets;
   final ValueChanged<String> onGroupBucketCollapsedToggled;
+  final ValueChanged<Set<String>>? onSetCollapsedGroupBuckets;
   final Color accent;
   final bool hasActiveFilter;
   final VoidCallback onAdd;
@@ -204,6 +206,7 @@ class LibraryWorkspace extends ConsumerWidget {
         onSelectGroupBucket: onBucketChanged,
         collapsedGroupBuckets: collapsedGroupBuckets,
         onGroupBucketCollapsedToggled: onGroupBucketCollapsedToggled,
+        onSetCollapsedGroupBuckets: onSetCollapsedGroupBuckets,
         onOpenGroupDetails: (group) => onOpenItem(group.representativeItem),
         onActivateItem: onActivateItem,
         onToggleSelectionItem: onToggleSelectionItem,
