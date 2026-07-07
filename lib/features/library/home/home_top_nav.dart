@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/library_type_registry.dar
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -41,13 +42,11 @@ class MediaLibraryNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final groups = buildLibraryNavGroups(types);
-    final selectedGroup = selectedLibraryNavGroup(groups, selectedKind);
     final selected = selectedLibraryHomeType(types, selectedKind);
-    final accent = libraryAccentForKind(selectedGroup.primaryType.kind);
+    final accentData = LibraryAccentScope.of(context);
 
     return AnimatedLibraryChromeGradient(
-      accent: accent,
+      accent: accentData.accent,
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
       borderBuilder: (animatedAccent, brightness) => Border(
@@ -122,12 +121,12 @@ class MediaLibraryTitleBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accent = libraryAccentForKind(type.kind);
+    final accentData = LibraryAccentScope.of(context);
     final palette = appPalette(context);
     final icon = registry.byKind(type.kind)?.workspace.icon ??
         libraryIconForKind(type.kind);
     return AnimatedLibraryChromeGradient(
-      accent: accent,
+      accent: accentData.accent,
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
       borderBuilder: (animatedAccent, brightness) => Border(
@@ -656,8 +655,9 @@ class MediaLibraryCollapsedStrip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
+    final accentData = LibraryAccentScope.of(context);
     final handleBackground = Color.alphaBlend(
-      accent.withValues(alpha: 0.14),
+      accentData.accent.withValues(alpha: 0.14),
       palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
     );
     final handleForeground =
@@ -666,7 +666,7 @@ class MediaLibraryCollapsedStrip extends ConsumerWidget {
             ? Colors.white
             : palette.textPrimary;
     return AnimatedLibraryChromeGradient(
-      accent: accent,
+      accent: accentData.accent,
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
       child: SizedBox(
@@ -711,8 +711,9 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
+    final accentData = LibraryAccentScope.of(context);
     final handleBackground = Color.alphaBlend(
-      accent.withValues(alpha: 0.14),
+      accentData.accent.withValues(alpha: 0.14),
       palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
     );
     final handleForeground =
@@ -721,7 +722,7 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
             ? Colors.white
             : palette.textPrimary;
     return AnimatedLibraryChromeGradient(
-      accent: accent,
+      accent: accentData.accent,
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       child: SizedBox(

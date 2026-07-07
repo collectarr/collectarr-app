@@ -85,45 +85,44 @@ class _AppShellState extends ConsumerState<AppShell> {
       const _ShellPage(label: 'Settings', icon: Icons.settings_outlined),
     ];
 
-    final shell = Scaffold(
-      body: LibraryAccentScope(
-        accent: accent,
-        animationsEnabled: uiPreferences.animationsEnabled,
-        child: AnimatedTheme(
+    final shell = LibraryAccentScope(
+      kind: activeLibrary,
+      accent: accent,
+      animationsEnabled: uiPreferences.animationsEnabled,
+      child: Scaffold(
+        body: AnimatedTheme(
           data: accentTheme,
           duration:
               uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
           curve: Curves.easeOutCubic,
           child: widget.navigationShell,
         ),
+        bottomNavigationBar: _bottomNavCollapsed
+            ? _BottomNavCollapsedStrip(
+                onExpand: () {
+                  setState(() {
+                    _bottomNavCollapsed = false;
+                  });
+                },
+              )
+            : _LibraryAwareNavigationBar(
+                pages: pages,
+                selectedIndex: selectedVisualIndex,
+                onToggleCollapsed: () {
+                  setState(() {
+                    _bottomNavCollapsed = true;
+                  });
+                },
+                onDestinationSelected: (visualIndex) {
+                  final branchIndex = visibleBranches[visualIndex];
+                  widget.navigationShell.goBranch(
+                    branchIndex,
+                    initialLocation:
+                        branchIndex == widget.navigationShell.currentIndex,
+                  );
+                },
+              ),
       ),
-      bottomNavigationBar: _bottomNavCollapsed
-          ? _BottomNavCollapsedStrip(
-              accent: accent,
-              onExpand: () {
-                setState(() {
-                  _bottomNavCollapsed = false;
-                });
-              },
-            )
-          : _LibraryAwareNavigationBar(
-              pages: pages,
-              selectedIndex: selectedVisualIndex,
-              accent: accent,
-              onToggleCollapsed: () {
-                setState(() {
-                  _bottomNavCollapsed = true;
-                });
-              },
-              onDestinationSelected: (visualIndex) {
-                final branchIndex = visibleBranches[visualIndex];
-                widget.navigationShell.goBranch(
-                  branchIndex,
-                  initialLocation:
-                      branchIndex == widget.navigationShell.currentIndex,
-                );
-              },
-            ),
     );
     if (mediaQuery == null) {
       return shell;
@@ -169,14 +168,12 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
   const _LibraryAwareNavigationBar({
     required this.pages,
     required this.selectedIndex,
-    required this.accent,
     required this.onToggleCollapsed,
     required this.onDestinationSelected,
   });
 
   final List<_ShellPage> pages;
   final int selectedIndex;
-  final Color accent;
   final VoidCallback onToggleCollapsed;
   final ValueChanged<int> onDestinationSelected;
 
@@ -184,8 +181,9 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     const bottomNavHeight = 36.0;
     final palette = appPalette(context);
+    final accentData = LibraryAccentScope.of(context);
     return AnimatedLibraryChromeGradient(
-      accent: accent,
+      accent: accentData.accent,
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       borderBuilder: (animatedAccent, brightness) => Border(
@@ -200,9 +198,9 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
         data: NavigationBarTheme.of(context).copyWith(
           backgroundColor: Colors.transparent,
           indicatorColor: palette.isDark
-              ? accent.withValues(alpha: 0.52)
+              ? accentData.accent.withValues(alpha: 0.52)
               : Color.alphaBlend(
-                  accent.withValues(alpha: 0.14),
+                  accentData.accent.withValues(alpha: 0.14),
                   palette.selection,
                 ),
           height: bottomNavHeight,
@@ -226,9 +224,9 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
               child: NavigationBar(
                 backgroundColor: Colors.transparent,
                 indicatorColor: palette.isDark
-                    ? accent.withValues(alpha: 0.52)
+                    ? accentData.accent.withValues(alpha: 0.52)
                     : Color.alphaBlend(
-                        accent.withValues(alpha: 0.14),
+                        accentData.accent.withValues(alpha: 0.14),
                         palette.selection,
                       ),
                 selectedIndex: selectedIndex,
@@ -282,24 +280,23 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
 
 class _BottomNavCollapsedStrip extends StatelessWidget {
   const _BottomNavCollapsedStrip({
-    required this.accent,
     required this.onExpand,
   });
 
-  final Color accent;
   final VoidCallback onExpand;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final accentData = LibraryAccentScope.of(context);
     const collapsedBarHeight = 6.0;
     final foregroundColor = palette.isDark ? Colors.white : palette.textPrimary;
     final handleBackground = Color.alphaBlend(
-      accent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
+      accentData.accent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
       palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
     );
     return AnimatedLibraryChromeGradient(
-      accent: accent,
+      accent: accentData.accent,
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       borderBuilder: (animatedAccent, brightness) => Border(

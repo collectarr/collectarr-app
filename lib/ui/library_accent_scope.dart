@@ -2,22 +2,72 @@ import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-class LibraryAccentScope extends InheritedWidget {
-  const LibraryAccentScope({
-    super.key,
+class LibraryAccentData {
+  const LibraryAccentData({
+    required this.kind,
     required this.accent,
     required this.animationsEnabled,
-    required super.child,
   });
 
+  final String kind;
   final Color accent;
   final bool animationsEnabled;
 
   Duration get animationDuration =>
       animationsEnabled ? kAppAnimNormal : Duration.zero;
 
+  Color get actionAccent => libraryAccentActionColor(accent);
+
+  LinearGradient chromeGradient({
+    AlignmentGeometry begin = Alignment.topLeft,
+    AlignmentGeometry end = Alignment.bottomRight,
+    Brightness brightness = Brightness.dark,
+  }) {
+    return libraryChromeGradient(
+      accent,
+      begin: begin,
+      end: end,
+      brightness: brightness,
+    );
+  }
+
+  Color chromeBorderColor({Brightness brightness = Brightness.dark}) {
+    return libraryChromeBorderColor(accent, brightness: brightness);
+  }
+
+  Color get selectedFill => accent.withValues(alpha: 0.16);
+}
+
+class LibraryAccentScope extends InheritedWidget {
+  const LibraryAccentScope({
+    super.key,
+    required this.kind,
+    required this.accent,
+    required this.animationsEnabled,
+    required super.child,
+  });
+
+  final String kind;
+  final Color accent;
+  final bool animationsEnabled;
+
+  LibraryAccentData get data => LibraryAccentData(
+        kind: kind,
+        accent: accent,
+        animationsEnabled: animationsEnabled,
+      );
+
   static LibraryAccentScope? maybeOf(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<LibraryAccentScope>();
+  }
+
+  static LibraryAccentData of(BuildContext context) {
+    return maybeOf(context)?.data ??
+        LibraryAccentData(
+          kind: '',
+          accent: Theme.of(context).colorScheme.primary,
+          animationsEnabled: true,
+        );
   }
 
   static Color accentOf(BuildContext context, {Color? fallback}) {
@@ -27,12 +77,13 @@ class LibraryAccentScope extends InheritedWidget {
   }
 
   static Duration animationDurationOf(BuildContext context) {
-    return maybeOf(context)?.animationDuration ?? kAppAnimNormal;
+    return maybeOf(context)?.data.animationDuration ?? kAppAnimNormal;
   }
 
   @override
   bool updateShouldNotify(LibraryAccentScope oldWidget) {
-    return accent != oldWidget.accent ||
+    return kind != oldWidget.kind ||
+        accent != oldWidget.accent ||
         animationsEnabled != oldWidget.animationsEnabled;
   }
 }
