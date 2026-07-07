@@ -1,11 +1,9 @@
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
+import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
-import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/add/add_bottom_bar.dart';
-import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -14,237 +12,26 @@ Widget buildComicAddHeader(
   BuildContext context,
   LibraryAddHeaderRequest request,
 ) {
-  return SizedBox(
-    height: 46,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: request.accent,
-        border: Border(
-            bottom: BorderSide(color: request.accent.withValues(alpha: 0.92))),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 14),
-          const Icon(Icons.library_books, size: 20, color: Colors.white),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'Add Comics',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          LibrarySquareCloseButton(
-            tooltip: 'Close',
-            onPressed: request.onClose,
-            borderColor: Colors.white.withValues(alpha: 0.8),
-            foregroundColor: Colors.white,
-          ),
-        ],
-      ),
-    ),
-  );
+  return buildLibraryAddHeader(context, request, title: 'Add Comics');
 }
 
 Widget buildComicAddModeBar(
   BuildContext context,
   LibraryAddModeBarRequest request,
 ) {
-  final palette = appPalette(context);
-  final isBusy = request.isSearching || request.isSearchingProvider;
-  final isBarcode = request.mode == LibraryAddDialogMode.barcode;
-  final isSearch = request.mode == LibraryAddDialogMode.search;
-  return DecoratedBox(
-    decoration: BoxDecoration(
-      color: palette.panelRaised,
-      border: Border(bottom: BorderSide(color: palette.divider)),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  key: ValueKey(
-                    isBarcode
-                        ? 'library-add-barcode-field'
-                        : 'library-add-query-field',
-                  ),
-                  controller: isBarcode
-                      ? request.barcodeController
-                      : request.queryController,
-                  onChanged: isSearch ? request.onQueryChanged : null,
-                  onSubmitted: (_) => isBarcode
-                      ? request.onLookupBarcode()
-                      : request.onSearch(),
-                  decoration: InputDecoration(
-                    labelText: isBarcode
-                        ? 'Barcode / UPC / ISBN'
-                        : 'Series, issue or title',
-                    hintText: isBarcode
-                        ? 'Scan or enter barcode...'
-                        : 'Search comics by series, issue, or exact title...',
-                    prefixIcon: Icon(
-                      isBarcode ? Icons.qr_code_2 : Icons.search,
-                    ),
-                    suffixIcon: isSearch && request.canScanCover
-                        ? IconButton(
-                            tooltip: 'Scan cover',
-                            onPressed: isBusy || request.isScanningCover
-                                ? null
-                                : request.onScanCover,
-                            icon: request.isScanningCover
-                                ? const SizedBox.square(
-                                    dimension: 16,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2),
-                                  )
-                                : const Icon(Icons.photo_camera_outlined),
-                          )
-                        : null,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              FilledButton.icon(
-                onPressed: isBusy
-                    ? null
-                    : (isBarcode ? request.onLookupBarcode : request.onSearch),
-                style: libraryAddFilledButtonStyle(request.accent),
-                icon:
-                    Icon(isBarcode ? Icons.qr_code_2 : Icons.search, size: 18),
-                label: Text(isBarcode ? 'Lookup' : 'Search Comics'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: SegmentedButton<LibraryAddDialogMode>(
-                  showSelectedIcon: false,
-                  segments: const [
-                    ButtonSegment<LibraryAddDialogMode>(
-                      value: LibraryAddDialogMode.search,
-                      label: Text('Search'),
-                      icon: Icon(Icons.search, size: 18),
-                    ),
-                    ButtonSegment<LibraryAddDialogMode>(
-                      value: LibraryAddDialogMode.barcode,
-                      label: Text('Barcode'),
-                      icon: Icon(Icons.qr_code_2, size: 18),
-                    ),
-                    ButtonSegment<LibraryAddDialogMode>(
-                      value: LibraryAddDialogMode.manual,
-                      label: Text('Manual'),
-                      icon: Icon(Icons.edit_note, size: 18),
-                    ),
-                  ],
-                  selected: {request.mode},
-                  onSelectionChanged: (selection) {
-                    if (selection.isNotEmpty) {
-                      final value = selection.first;
-                      request.onModeChanged(value);
-                      if (value == LibraryAddDialogMode.manual) {
-                        request.onManual();
-                      }
-                    }
-                  },
-                ),
-              ),
-              if (isSearch) ...[
-                const SizedBox(width: 8),
-                OutlinedButton.icon(
-                  key: const ValueKey('library-add-filters-toggle'),
-                  onPressed: request.onToggleAdvanced,
-                  style: libraryAddOutlinedButtonStyle(request.accent),
-                  icon: Icon(
-                    request.showAdvanced ? Icons.tune : Icons.tune_outlined,
-                    size: 18,
-                  ),
-                  label: const Text('Filters'),
-                ),
-              ],
-            ],
-          ),
-          if (isSearch && request.showAdvanced) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    key: const ValueKey('library-add-series-field'),
-                    controller: request.seriesController,
-                    decoration: const InputDecoration(labelText: 'Series'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    key: const ValueKey('library-add-number-field'),
-                    controller: request.numberController,
-                    decoration: const InputDecoration(labelText: 'Issue'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    key: const ValueKey('library-add-publisher-field'),
-                    controller: request.publisherController,
-                    decoration: const InputDecoration(labelText: 'Publisher'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 120,
-                  child: TextField(
-                    key: const ValueKey('library-add-year-field'),
-                    controller: request.yearController,
-                    decoration: const InputDecoration(labelText: 'Year'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-          if (isSearch &&
-              request.showSuggestions &&
-              request.suggestions.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Material(
-              color: palette.panel,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(color: palette.divider),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 180),
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    for (final suggestion in request.suggestions)
-                      ListTile(
-                        dense: true,
-                        title: Text(suggestion.title),
-                        subtitle:
-                            suggestion.itemNumber?.trim().isNotEmpty == true
-                                ? Text('Issue ${suggestion.itemNumber}')
-                                : null,
-                        onTap: () => request.onSelectSuggestion(suggestion),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
+  return buildLibraryAddModeBar(
+    context,
+    request,
+    const LibraryAddChromeLabels(
+      searchFieldLabel: 'Series, issue or title',
+      searchFieldHint: 'Search comics by series, issue, or exact title...',
+      searchButtonLabel: 'Search Comics',
+      showCoverScanSuffix: true,
+      showSuggestions: true,
+      seriesFieldLabel: 'Series',
+      issueFieldLabel: 'Issue',
+      publisherFieldLabel: 'Publisher',
+      yearFieldLabel: 'Year',
     ),
   );
 }
