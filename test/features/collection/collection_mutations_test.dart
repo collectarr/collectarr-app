@@ -349,13 +349,19 @@ void main() {
     final queued = await db.select(db.syncQueue).get();
     final snapshot =
         queued.where((row) => row.entityType == 'library_item_snapshot').single;
-    expect(queued, hasLength(2));
+    // addItem enqueues the owned item, the catalog snapshot, and auto-registers
+    // the publisher as a pick-list value.
+    expect(queued, hasLength(3));
+    expect(
+      queued.where((row) => row.entityType == 'pick_list_value').length,
+      1,
+    );
     expect(snapshot.entityId, 'comic-1');
     expect(snapshot.payloadJson, contains('Absolute Batman'));
     expect(snapshot.payloadJson, contains('https://cdn.example/absolute.jpg'));
     expect(snapshot.payloadJson,
         contains('https://cdn.example/absolute-thumb.jpg'));
-    expect(container.read(syncControllerProvider).pendingCount, 2);
+    expect(container.read(syncControllerProvider).pendingCount, 3);
   });
 
   test('collection updates can clear nullable personal details', () async {
