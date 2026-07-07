@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_rail.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
@@ -16,6 +15,7 @@ import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 
 class LibraryHomePage extends ConsumerStatefulWidget {
   const LibraryHomePage({super.key, required this.routeUri});
@@ -84,7 +84,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
     _cachedKindOrder.removeWhere((kind) => !visibleKindOrder.contains(kind));
 
-    const maxCachedKinds = 2;
+    const maxCachedKinds = 4;
     while (_cachedKindOrder.length > maxCachedKinds) {
       final removeIndex = _cachedKindOrder.indexWhere(
         (kind) => kind != selected.kind,
@@ -120,15 +120,43 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       return stack;
     }
 
-    return TweenAnimationBuilder<double>(
-      key: ValueKey('library-kind-fade-${selected.kind}'),
-      tween: Tween<double>(begin: 0.96, end: 1),
+    return AnimatedSwitcher(
       duration: animationDuration,
-      curve: Curves.easeOut,
-      child: stack,
-      builder: (context, value, child) {
-        return Opacity(opacity: value, child: child);
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      layoutBuilder: (currentChild, previousChildren) {
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            ...previousChildren,
+            if (currentChild != null) currentChild,
+          ],
+        );
       },
+      transitionBuilder: (child, animation) {
+        final slide = Tween<Offset>(
+          begin: const Offset(0.02, 0.01),
+          end: Offset.zero,
+        ).animate(animation);
+        final fade = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOut,
+        );
+        return FadeTransition(
+          opacity: fade,
+          child: SlideTransition(
+            position: slide,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.985, end: 1).animate(animation),
+              child: child,
+            ),
+          ),
+        );
+      },
+      child: KeyedSubtree(
+        key: ValueKey('library-kind-stack-${selected.kind}'),
+        child: stack,
+      ),
     );
   }
 
@@ -136,28 +164,28 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
   Widget build(BuildContext context) {
     final catalogState = ref.watch(mediaCatalogProvider);
     final catalog = catalogState.maybeWhen(
-          data: (value) => value,
-          orElse: () => fallbackMediaCatalog,
-        );
+      data: (value) => value,
+      orElse: () => fallbackMediaCatalog,
+    );
     final isCatalogOffline = catalogState.hasError;
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final selectedKind = ref.watch(selectedLibraryKindProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
-    final animationDuration = uiPreferences.animationsEnabled
-        ? kAppAnimNormal
-        : Duration.zero;
+    final animationDuration =
+        uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero;
     final allTypes = orderedLibraryHomeTypes(catalog, navPreferences);
     final visibleTypes = _ensureCoreKindsVisible(
       visibleLibraryHomeTypes(allTypes, navPreferences),
       allTypes,
     );
-    final rawRouteKind = widget.routeUri.queryParameters['kind']?.trim().toLowerCase();
+    final rawRouteKind =
+        widget.routeUri.queryParameters['kind']?.trim().toLowerCase();
     final routeKind = _routeKind();
     final routeSelected = routeKind == null
         ? null
         : visibleTypes.where((type) => type.kind == routeKind).firstOrNull;
-    final selected = routeSelected ??
-        selectedLibraryHomeType(visibleTypes, selectedKind);
+    final selected =
+        routeSelected ?? selectedLibraryHomeType(visibleTypes, selectedKind);
     if (routeKind != null && rawRouteKind != routeKind) {
       final normalizedRouteKind = routeKind;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -179,10 +207,11 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       });
     }
     final counts = ref.watch(shelfProvider.select((shelf) => shelf.maybeWhen(
-      data: libraryCountsByKind,
-      orElse: () => const <String, LibraryKindCount>{},
-    )));
-    final overdueLoanOwnedItemIds = ref.watch(overdueLoanOwnedItemIdsProvider)
+          data: libraryCountsByKind,
+          orElse: () => const <String, LibraryKindCount>{},
+        )));
+    final overdueLoanOwnedItemIds = ref
+        .watch(overdueLoanOwnedItemIdsProvider)
         .maybeWhen(data: (value) => value, orElse: () => const <String>{});
     final shelfForOverdue = ref.watch(shelfProvider);
     final overdueCounts = shelfForOverdue.maybeWhen(
@@ -211,12 +240,14 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
             color: kAppSurfaceSubtle,
             child: Row(
               children: [
-                Icon(Icons.cloud_off, size: 14, color: appPalette(context).textSecondary),
+                Icon(Icons.cloud_off,
+                    size: 14, color: appPalette(context).textSecondary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Using offline catalog — server unreachable',
-                    style: TextStyle(fontSize: 12, color: appPalette(context).textSecondary),
+                    style: TextStyle(
+                        fontSize: 12, color: appPalette(context).textSecondary),
                   ),
                 ),
               ],
@@ -224,12 +255,11 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
           )
         : null;
     final collapsed = navPreferences.collapsed;
-    final accent = libraryAccentForKind(selected.kind);
+    final accent = LibraryAccentScope.of(context).accent;
     final Widget resolvedTopBar;
     if (navPreferences.placement == LibraryNavPlacement.top) {
-      resolvedTopBar = collapsed
-          ? MediaLibraryCollapsedStrip(accent: accent)
-          : topBar;
+      resolvedTopBar =
+          collapsed ? MediaLibraryCollapsedStrip(accent: accent) : topBar;
     } else {
       // Left-rail mode owns the whole library chrome, so no top bar.
       resolvedTopBar = const SizedBox.shrink();
