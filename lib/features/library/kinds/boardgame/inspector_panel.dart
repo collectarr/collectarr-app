@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
@@ -144,17 +145,17 @@ class _BoardGameInspectorMain extends StatelessWidget {
                   const SizedBox(height: 8),
                   if (entry.referenceFormatLabel?.trim().isNotEmpty == true ||
                       entry.variant?.trim().isNotEmpty == true)
-                    _BoardGameInspectorInfoLine(
+                    LibraryInspectorInfoLine(
                       icon: Icons.casino_outlined,
                       text: entry.referenceFormatLabel ?? entry.variant ?? '-',
                     ),
                   if (designerText != null)
-                    _BoardGameInspectorInfoLine(
+                    LibraryInspectorInfoLine(
                       icon: Icons.design_services_outlined,
                       text: designerText,
                     ),
                   if (entry.barcode?.trim().isNotEmpty == true)
-                    _BoardGameInspectorInfoLine(
+                    LibraryInspectorInfoLine(
                       icon: Icons.qr_code_2,
                       text: entry.barcode!,
                     ),
@@ -210,41 +211,6 @@ class _BoardGameInspectorMain extends StatelessWidget {
     );
   }
 }
-
-class _BoardGameInspectorInfoLine extends StatelessWidget {
-  const _BoardGameInspectorInfoLine({
-    required this.icon,
-    required this.text,
-  });
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 15, color: palette.textMuted),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: palette.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 Uri? _ebayUri(LibraryWorkspaceEntry entry) {
   final title = entry.resolvedTitle.trim();
   if (title.isEmpty) {

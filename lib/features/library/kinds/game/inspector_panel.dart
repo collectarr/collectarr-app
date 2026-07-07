@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -189,22 +190,22 @@ class _GameInspectorMain extends StatelessWidget {
                   const SizedBox(height: 8),
                   if (entry.referenceFormatLabel?.trim().isNotEmpty == true ||
                       entry.variant?.trim().isNotEmpty == true)
-                    _GameInspectorInfoLine(
+                    LibraryInspectorInfoLine(
                       icon: Icons.album_outlined,
                       text: entry.referenceFormatLabel ?? entry.variant ?? '-',
                     ),
                   if (platforms.isNotEmpty)
-                    _GameInspectorInfoLine(
+                    LibraryInspectorInfoLine(
                       icon: Icons.sports_esports_outlined,
                       text: platforms.join(' | '),
                     ),
                   if (entry.audienceRating?.trim().isNotEmpty == true)
-                    _GameInspectorInfoLine(
+                    LibraryInspectorInfoLine(
                       icon: Icons.shield_outlined,
                       text: 'Audience: ${entry.audienceRating!}',
                     ),
                   if (entry.barcode?.trim().isNotEmpty == true)
-                    _GameInspectorInfoLine(
+                    LibraryInspectorInfoLine(
                       icon: Icons.qr_code_2,
                       text: entry.barcode!,
                     ),
@@ -390,40 +391,6 @@ class _GameInspectorFactRows extends StatelessWidget {
     );
   }
 }
-
-class _GameInspectorInfoLine extends StatelessWidget {
-  const _GameInspectorInfoLine({
-    required this.icon,
-    required this.text,
-  });
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 14, color: palette.textMuted),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 List<(String, String)> _buildCreditsRows(List<Map<String, dynamic>>? creators) {
   if (creators == null || creators.isEmpty) {
     return const <(String, String)>[];

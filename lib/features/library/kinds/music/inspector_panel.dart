@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -223,11 +224,11 @@ class _MusicInspectorMain extends StatelessWidget {
                   ],
                   const SizedBox(height: 8),
                   if (entry.barcode?.isNotEmpty == true)
-                    _MusicInspectorInfoLine(
+                    LibraryInspectorInfoLine(
                       icon: Icons.qr_code_2,
                       text: entry.barcode!,
                     ),
-                  _MusicInspectorInfoLine(
+                  LibraryInspectorInfoLine(
                     icon: Icons.album_outlined,
                     text: [
                       formatLabel,
@@ -239,7 +240,7 @@ class _MusicInspectorMain extends StatelessWidget {
                     ].join(' | '),
                   ),
                   if (music?.catalogNumber?.isNotEmpty == true)
-                    _MusicInspectorInfoLine(
+                    LibraryInspectorInfoLine(
                       icon: Icons.confirmation_number_outlined,
                       text: 'Cat No ${music!.catalogNumber!}',
                     ),
@@ -818,40 +819,6 @@ String _tracksToCsv(List<List<String>> rows) {
       )
       .join('\n');
 }
-
-class _MusicInspectorInfoLine extends StatelessWidget {
-  const _MusicInspectorInfoLine({
-    required this.icon,
-    required this.text,
-  });
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 14, color: palette.textMuted),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _MusicDiscCard extends StatelessWidget {
   const _MusicDiscCard({
     required this.discNumber,
