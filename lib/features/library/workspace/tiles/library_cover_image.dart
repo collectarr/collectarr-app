@@ -16,6 +16,7 @@ class LibraryCoverImage extends ConsumerWidget {
     this.imageUrl,
     this.localBytes,
     this.ownedItemId,
+    this.targetCacheWidth,
     this.localImageType = 'front_cover',
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
@@ -27,6 +28,7 @@ class LibraryCoverImage extends ConsumerWidget {
   final String? imageUrl;
   final Uint8List? localBytes;
   final String? ownedItemId;
+  final int? targetCacheWidth;
   final String localImageType;
   final double borderRadius;
   final BoxFit fit;
@@ -58,12 +60,8 @@ class LibraryCoverImage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-        // Quantize to 32-pixel steps to keep sharper cover caches while
-        // still avoiding excessive re-decodes during layout resizing.
         final resolvedCacheWidth =
-            constraints.hasBoundedWidth && constraints.maxWidth > 0
-                ? (((constraints.maxWidth * pixelRatio) / 32).ceil() * 32)
-                : null;
+            targetCacheWidth ?? _resolveCacheWidth(constraints, pixelRatio);
         final cacheWidth = kIsWeb ? null : resolvedCacheWidth;
 
         // Prefer local offline bytes when available
@@ -176,6 +174,17 @@ class LibraryCoverImage extends ConsumerWidget {
         bytes[10] == 0x42 &&
         bytes[11] == 0x50;
     return isWebp;
+  }
+
+  int? _resolveCacheWidth(
+    BoxConstraints constraints,
+    double pixelRatio,
+  ) {
+    if (!constraints.hasBoundedWidth || constraints.maxWidth <= 0) {
+      return null;
+    }
+    final rawWidth = constraints.maxWidth * pixelRatio;
+    return ((rawWidth / 64).ceil() * 64).toInt();
   }
 }
 
@@ -387,6 +396,7 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.itemNumber,
     this.imageUrl,
     this.localBytes,
+    this.targetCacheWidth,
     this.secondaryImageUrl,
     this.secondaryLocalBytes,
     this.ownedItemId,
@@ -404,6 +414,7 @@ class LibraryInteractiveCover extends StatefulWidget {
   final String? itemNumber;
   final String? imageUrl;
   final Uint8List? localBytes;
+  final int? targetCacheWidth;
   final String? secondaryImageUrl;
   final Uint8List? secondaryLocalBytes;
   final String? ownedItemId;
@@ -574,6 +585,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                   imageUrl: imageUrl,
                                   localBytes: localBytes,
                                   ownedItemId: ownedItemId,
+                                  targetCacheWidth: widget.targetCacheWidth,
                                   borderRadius: 0,
                                   fit: BoxFit.contain,
                                 ),
@@ -789,6 +801,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         imageUrl: _activeImageUrl,
                         localBytes: _activeLocalBytes,
                         ownedItemId: widget.ownedItemId,
+                        targetCacheWidth: widget.targetCacheWidth,
                         borderRadius: widget.borderRadius,
                         fit: widget.fit,
                       ),

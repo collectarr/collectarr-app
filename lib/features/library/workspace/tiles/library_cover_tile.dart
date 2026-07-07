@@ -102,6 +102,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
         (widget.coverSize * 0.032).clamp(3.0, 6.0).toDouble();
     final activeBorderWidth =
         (widget.coverSize * 0.02).clamp(2.0, 3.5).toDouble();
+    final targetCacheWidth = _targetCacheWidth(context);
     final tilePadding = switch (density) {
       LibraryDensity.comfortable => const EdgeInsets.all(2),
       LibraryDensity.compact => const EdgeInsets.all(1),
@@ -203,6 +204,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                           itemNumber: entry.itemNumber,
                           imageUrl: entry.displayCoverUrl,
                           ownedItemId: entry.ownedItemId,
+                          targetCacheWidth: targetCacheWidth,
                           accentColor: widget.accentColor,
                           fit: BoxFit.cover,
                           enableFullscreen: false,
@@ -295,7 +297,8 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
           icon: Icons.verified_outlined,
           label: label,
         ),
-      if (libraryValueMarkerLabel(entry.marketValueCents, entry.marketValueCurrency)
+      if (libraryValueMarkerLabel(
+              entry.marketValueCents, entry.marketValueCurrency)
           case final label?)
         LibraryCoverBadge(
           icon: Icons.sell_outlined,
@@ -332,6 +335,15 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
       label: scope.label,
       color: iconColor,
     );
+  }
+
+  int? _targetCacheWidth(BuildContext context) {
+    final pixelRatio = MediaQuery.devicePixelRatioOf(context);
+    if (widget.coverSize <= 0 || pixelRatio <= 0) {
+      return null;
+    }
+    final rawWidth = widget.coverSize * pixelRatio;
+    return ((rawWidth / 64).ceil() * 64).toInt();
   }
 }
 
@@ -409,9 +421,9 @@ class LibraryTileSelectionToggleButton extends StatelessWidget {
       child: Semantics(
         button: true,
         child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapDown: (_) => onTap!(),
-        child: child,
+          behavior: HitTestBehavior.opaque,
+          onTapDown: (_) => onTap!(),
+          child: child,
         ),
       ),
     );
