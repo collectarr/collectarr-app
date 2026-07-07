@@ -1,6 +1,9 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -9,12 +12,63 @@ import 'package:collectarr_app/features/library/kinds/video/video_release_source
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
+/// Personal (app-owned) overlay for a music shelf entry, kept separate from the
+/// catalog metadata so the workspace-entry builder mirrors the kind-first
+/// pattern (catalog data + personal overlay) used by the book reference kind.
+final class MusicPersonalOverlay {
+  const MusicPersonalOverlay({
+    this.ownedItem,
+    this.trackingEntry,
+    this.wishlistItem,
+    this.locationPath,
+    this.watchSessions = const <WatchSession>[],
+    this.itemImages = const <ItemImage>[],
+    this.updatedAt,
+    this.fallbackOwnerLabel,
+  });
+
+  factory MusicPersonalOverlay.fromShelf(ShelfEntry source) {
+    return MusicPersonalOverlay(
+      ownedItem: source.ownedItem,
+      trackingEntry: source.trackingEntry,
+      wishlistItem: source.wishlistItem,
+      locationPath: source.locationPath,
+      watchSessions: source.watchSessions,
+      itemImages: source.itemImages,
+      updatedAt: source.updatedAt,
+      fallbackOwnerLabel: source.fallbackOwnerLabel,
+    );
+  }
+
+  final OwnedItem? ownedItem;
+  final TrackingEntry? trackingEntry;
+  final WishlistItem? wishlistItem;
+  final String? locationPath;
+  final List<WatchSession> watchSessions;
+  final List<ItemImage> itemImages;
+  final DateTime? updatedAt;
+  final String? fallbackOwnerLabel;
+
+  bool get isOwned => ownedItem != null;
+  bool get isTracked => trackingEntry != null;
+  bool get isWishlisted => wishlistItem != null;
+}
+
 LibraryWorkspaceEntry buildMusicLibraryWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
-  final item = source.catalogItem!;
+  return buildMusicWorkspaceEntry(
+    source.catalogItem!,
+    MusicPersonalOverlay.fromShelf(source),
+  );
+}
+
+LibraryWorkspaceEntry buildMusicWorkspaceEntry(
+  LibraryMetadataItem item,
+  MusicPersonalOverlay overlay,
+) {
   return MusicWorkspaceEntry(
-    common: _buildShelfWorkspaceEntryData(source, mediaType: 'music'),
+    common: _buildShelfWorkspaceEntryData(item, overlay, mediaType: 'music'),
     series: item.series,
     publishing: item.publishing,
     music: item.music,
@@ -34,19 +88,19 @@ LibraryWorkspaceEntry buildMusicLibraryReleaseEntry(
 }
 
 LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
-  ShelfEntry source, {
+  LibraryMetadataItem item,
+  MusicPersonalOverlay overlay, {
   String? mediaType,
 }) {
-  final item = source.catalogItem!;
   final normalizedMediaType = (mediaType ?? item.kind).trim().toLowerCase();
   final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
     item,
-    ownedItems: source.ownedItem == null
+    ownedItems: overlay.ownedItem == null
         ? const <OwnedItem>[]
-        : [source.ownedItem!],
-    wishlistItems: source.wishlistItem == null
+        : [overlay.ownedItem!],
+    wishlistItems: overlay.wishlistItem == null
         ? const <WishlistItem>[]
-        : [source.wishlistItem!],
+        : [overlay.wishlistItem!],
   );
   return LibraryWorkspaceEntryData(
     id: item.id,
@@ -54,7 +108,7 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
     titleItemId: item.id,
     releaseId: null,
     copyId: null,
-    ownedItemId: source.ownedItem?.id,
+    ownedItemId: overlay.ownedItem?.id,
     mediaType: normalizedMediaType,
     title: item.title,
     displayTitle: item.displayTitle,
@@ -65,7 +119,7 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
     synopsis: item.synopsis,
     coverImageUrl: item.coverImageUrl,
     thumbnailImageUrl: item.thumbnailImageUrl,
-    itemImages: source.itemImages,
+    itemImages: overlay.itemImages,
     publisher: item.publisher,
     coverDate: item.coverDate,
     releaseDate: item.releaseDate,
@@ -73,45 +127,45 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
     barcode: item.barcode,
     variant: item.displayEditionLabel,
     crossover: item.crossover,
-    isOwned: source.isOwned,
-    isTracked: source.isTracked,
-    isWishlisted: source.isWishlisted,
+    isOwned: overlay.isOwned,
+    isTracked: overlay.isTracked,
+    isWishlisted: overlay.isWishlisted,
     hasMissingCover: item.displayCoverUrl == null,
     hasMissingMetadata: _hasMissingCoreMetadata(item),
-    condition: source.ownedItem?.condition,
-    grade: source.ownedItem?.grade,
+    condition: overlay.ownedItem?.condition,
+    grade: overlay.ownedItem?.grade,
     primaryReferenceLabel: libraryPrimaryReferenceLabel(
-      ownedItem: source.ownedItem,
-      wishlistItem: source.wishlistItem,
+      ownedItem: overlay.ownedItem,
+      wishlistItem: overlay.wishlistItem,
       mediaType: normalizedMediaType,
     ),
     referenceScopeLabel: libraryReferenceScopeLabel(
-      ownedItem: source.ownedItem,
-      wishlistItem: source.wishlistItem,
+      ownedItem: overlay.ownedItem,
+      wishlistItem: overlay.wishlistItem,
       mediaType: normalizedMediaType,
     ),
     referenceFormatLabel: libraryReferenceFormatLabel(
-      ownedItem: source.ownedItem,
-      wishlistItem: source.wishlistItem,
+      ownedItem: overlay.ownedItem,
+      wishlistItem: overlay.wishlistItem,
       editions: resolvedEditions,
       fallbackFormatLabel: item.physicalFormatLabel,
     ),
     referenceEditionId:
-        source.ownedItem?.editionId ?? source.wishlistItem?.editionId,
+        overlay.ownedItem?.editionId ?? overlay.wishlistItem?.editionId,
     referenceVariantId:
-        source.ownedItem?.variantId ?? source.wishlistItem?.variantId,
+        overlay.ownedItem?.variantId ?? overlay.wishlistItem?.variantId,
     referenceBundleReleaseId:
-        source.ownedItem?.bundleReleaseId ?? source.wishlistItem?.bundleReleaseId,
-    notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
-    tags: source.ownedItem?.tags,
-    collectionStatus: source.ownedItem?.collectionStatus,
-    lastBagBoardDate: source.ownedItem?.lastBagBoardDate,
-    pricePaidCents: source.ownedItem?.pricePaidCents,
-    currency: source.ownedItem?.currency,
-    locationPath: source.locationPath,
-    addedAt: source.ownedItem?.createdAt ?? source.wishlistItem?.createdAt,
+        overlay.ownedItem?.bundleReleaseId ?? overlay.wishlistItem?.bundleReleaseId,
+    notes: overlay.ownedItem?.personalNotes ?? overlay.wishlistItem?.notes,
+    tags: overlay.ownedItem?.tags,
+    collectionStatus: overlay.ownedItem?.collectionStatus,
+    lastBagBoardDate: overlay.ownedItem?.lastBagBoardDate,
+    pricePaidCents: overlay.ownedItem?.pricePaidCents,
+    currency: overlay.ownedItem?.currency,
+    locationPath: overlay.locationPath,
+    addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
     editions: _copyEditionList(resolvedEditions),
-    updatedAt: source.updatedAt,
+    updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
     trailerUrls: _copyTrailerList(item.trailerUrls),
     plotSummary: item.plotSummary,
     plotDescription: item.plotDescription,
