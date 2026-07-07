@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_external_links_section.dart';

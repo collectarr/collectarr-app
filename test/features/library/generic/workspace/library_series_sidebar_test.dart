@@ -78,7 +78,7 @@ void main() {
                         cumulativeCount: 2,
                         groupMode: LibraryGroupMode.series,
                         bucketValue: 'Batman',
-                        children: const [],
+                        children: [],
                         isExpanded: false,
                       ),
                     ],

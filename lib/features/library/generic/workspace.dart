@@ -504,7 +504,7 @@ class _GroupedGrid extends StatefulWidget {
     required this.maxCrossAxisExtent,
     required this.mainAxisExtent,
     required this.itemBuilder,
-    this.onSelectionChanged,
+    required this.onSelectionChanged,
   });
 
   final List<LibraryProjectionItem> items;

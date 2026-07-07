@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -10,7 +9,6 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
-import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -116,7 +114,7 @@ class TvEpisodesTab extends ConsumerWidget {
                     )
                   else
                     for (final season in _groupUnifiedEpisodeRows(rows))
-                      _UnifiedTvSeasonEpisodeGroup(
+                      _unifiedTvSeasonEpisodeGroup(
                         context,
                         accent: accent,
                         seasonTitle: 'Season ${season.seasonNumber}',
@@ -304,7 +302,7 @@ List<_UnifiedTvSeasonGroup> _groupUnifiedEpisodeRows(
   ];
 }
 
-Widget _UnifiedTvSeasonEpisodeGroup(
+Widget _unifiedTvSeasonEpisodeGroup(
   BuildContext context, {
   required String seasonTitle,
   required String? imageUrl,
@@ -676,137 +674,6 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
       ],
     );
   }
-}
-
-List<TvSeason> _resolvedTvSeasons(TvSeries? series, VideoEditController videoEdit) {
-  if (series == null) {
-    return const <TvSeason>[];
-  }
-  if (series.seasons.isNotEmpty) {
-    return series.seasons;
-  }
-  final episodes = videoEdit.flattenTvEpisodes(series);
-  if (episodes.isEmpty) {
-    return const <TvSeason>[];
-  }
-  final grouped = <int, List<TvEpisode>>{};
-  for (final episode in episodes) {
-    grouped.putIfAbsent(episode.seasonNumber, () => <TvEpisode>[]).add(episode);
-  }
-  return [
-    for (final entry in grouped.entries)
-      TvSeason(
-        id: '${series.id}:season:${entry.key}',
-        seriesId: series.id,
-        seasonNumber: entry.key,
-        episodes: entry.value,
-        posterUrl: series.posterUrl,
-      ),
-  ];
-}
-
-String? _seriesFallbackImage(TvSeries? series) {
-  if (series == null) {
-    return null;
-  }
-  return series.posterUrl ?? series.backdropUrl;
-}
-
-Widget _tvSeasonEpisodeGroup(
-  BuildContext context, {
-  required String seasonTitle,
-  required String? imageUrl,
-  required List<TvEpisode> providerEpisodes,
-  required List<TvEpisode> customEpisodes,
-  required List<CustomEpisode> customEpisodeModels,
-  required int seasonNumber,
-  required TvSeries? series,
-  required List<TrackingUnit> trackedUnits,
-  required List<WatchSession> watchSessions,
-  required Map<String, int> ratingMap,
-  required VideoEditController videoEdit,
-  required Color accent,
-}) {
-  final episodeItems = <Widget>[
-    for (final episode in providerEpisodes)
-      _tvEpisodeCard(
-        context,
-        accent: accent,
-        seasonNumber: seasonNumber,
-        episodeNumber: episode.episodeNumber,
-        title: episode.title ?? 'Untitled',
-        overview: episode.overview,
-        airDate: _formatDate(episode.airDate),
-        runtimeMinutes: episode.runtimeMinutes,
-        imageUrl: episode.stillUrl,
-        fallbackImageUrl: imageUrl,
-        localImagePath: null,
-        thumbnailImageUrl: null,
-        discNumber: videoEdit.tvEpisodeDiscAssignments[episode.id],
-        watched: _episodeWatched(
-          trackedUnits: trackedUnits,
-          watchSessions: watchSessions,
-          seasonNumber: seasonNumber,
-          episodeNumber: episode.episodeNumber,
-        ),
-        rating: ratingMap[_episodeRatingKey(seasonNumber, episode.episodeNumber)],
-        onEdit: null,
-        onDelete: null,
-      ),
-    for (final episode in customEpisodeModels)
-      _tvEpisodeCard(
-        context,
-        accent: accent,
-        seasonNumber: episode.seasonNumber,
-        episodeNumber: episode.episodeNumber,
-        title: episode.title,
-        overview: episode.overview,
-        airDate: episode.airDate,
-        runtimeMinutes: episode.runtimeMinutes,
-        imageUrl: episode.stillImageUrl,
-        fallbackImageUrl: _seriesFallbackImage(series),
-        localImagePath: episode.localImagePath,
-        thumbnailImageUrl: episode.thumbnailImageUrl,
-        discNumber: null,
-        watched: _episodeWatched(
-          trackedUnits: trackedUnits,
-          watchSessions: watchSessions,
-          seasonNumber: episode.seasonNumber,
-          episodeNumber: episode.episodeNumber,
-        ),
-        rating: ratingMap[_episodeRatingKey(episode.seasonNumber, episode.episodeNumber)],
-        onEdit: () {},
-        onDelete: () {},
-      ),
-  ];
-
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 14),
-    child: Card(
-      elevation: 0,
-      color: appPalette(context).panelRaised,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              seasonTitle,
-              style: const TextStyle(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 10),
-            if (episodeItems.isEmpty)
-              Text(
-                'No episodes in this season.',
-                style: TextStyle(color: appPalette(context).textMuted),
-              )
-            else
-              Column(children: episodeItems),
-          ],
-        ),
-      ),
-    ),
-  );
 }
 
 Widget _tvEpisodeCard(
@@ -1228,24 +1095,5 @@ Widget _manualEpisodeFallbackSection(
             ),
           ),
     ],
-  );
-}
-
-Future<void> _showManualCustomEpisodeDialog(
-  BuildContext context, {
-  required WidgetRef ref,
-  required LibraryTypeConfig type,
-  required String itemId,
-  required Color accent,
-}) async {
-  await showDialog<void>(
-    context: context,
-    builder: (_) => AlertDialog(
-      title: const Text('Add episode'),
-      content: const Text('Use the existing edit dialog flow to add custom episodes.'),
-      actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close')),
-      ],
-    ),
   );
 }

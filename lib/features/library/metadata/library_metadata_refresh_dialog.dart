@@ -109,6 +109,7 @@ class _LibraryMetadataRefreshDialogState
       maxWidth: 720,
       maxHeight: 820,
       padding: const EdgeInsets.all(12),
+      // ignore: sort_child_properties_last
       child: SizedBox(
         width: 680,
         child: SingleChildScrollView(

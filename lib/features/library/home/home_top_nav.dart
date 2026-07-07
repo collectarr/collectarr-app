@@ -416,47 +416,6 @@ class _OverdueLoanChip extends StatelessWidget {
   }
 }
 
-class _HeaderActionButton extends StatelessWidget {
-  const _HeaderActionButton({
-    required this.tooltip,
-    required this.label,
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final String tooltip;
-  final String label;
-  final IconData icon;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Tooltip(
-      message: tooltip,
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          visualDensity: VisualDensity.compact,
-          minimumSize: const Size(
-            kLibraryToolbarControlHeight,
-            kLibraryToolbarControlHeight,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          foregroundColor: palette.textMuted,
-          side: BorderSide(color: palette.divider),
-          backgroundColor: palette.surface,
-          textStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-        ),
-        icon: Icon(icon, size: 15),
-        label: Text(label),
-      ),
-    );
-  }
-}
-
 double _headerTitleWidth({
   required Iterable<String> labels,
   required double maxWidth,

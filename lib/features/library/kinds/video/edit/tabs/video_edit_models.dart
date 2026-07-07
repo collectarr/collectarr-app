@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 

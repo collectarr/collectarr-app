@@ -1,28 +1,19 @@
-import 'dart:io';
 import 'dart:async';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
-import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
-import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_list_fields.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_value_tabs.dart';
@@ -30,11 +21,9 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_tabs.dart';
@@ -45,7 +34,6 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_external_links_section.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -61,7 +49,6 @@ import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show QueryRow;
-import 'package:uuid/uuid.dart';
 
 part '../anchors/library_edit_dialog_anchor_widgets.dart';
 part '../../kinds/comic/edit/library_edit_dialog_comic_tabs.dart';
@@ -149,17 +136,6 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
       _LibraryEditRendererState();
 }
 
-Widget _readHistoryTab() {
-  return EditTabShell(
-    children: [
-      const EditSectionStateMessage(
-        message: 'Read history is managed in the personal tab.',
-        icon: Icons.history,
-      ),
-    ],
-  );
-}
-
 class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
@@ -199,8 +175,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get _coverController => _draft.coverController;
   TextEditingController get _thumbnailController => _draft.thumbnailController;
   TextEditingController get _synopsisController => _draft.synopsisController;
-  TextEditingController get _displayTitleController =>
-      _draft.displayTitleController;
   TextEditingController get _sortKeyController => _draft.sortKeyController;
   TextEditingController get _originalTitleController =>
       _draft.originalTitleController;
@@ -264,15 +238,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   List<String> _gradeOptions = const [];
   List<String> _ownerOptions = const [];
   List<String> _countryOptions = const [];
-  List<String> _languageOptions = const [];
-  List<String> _ageRatingOptions = const [];
   List<String> _audienceRatingOptions = const [];
-  List<String> _regionOptions = const [];
-  List<String> _packagingOptions = const [];
-  List<String> _distributorOptions = const [];
-  List<String> _screenRatioOptions = const [];
-  List<String> _layersOptions = const [];
-  List<String> _colorOptions = const [];
   List<String> _crossoverOptions = const [];
   List<String> _storyArcOptions = const [];
   List<String> _pageQualityOptions = const [];
@@ -1838,75 +1804,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     );
   }
 
-  Widget _languagePickField({String label = 'Language'}) {
-    return _pickField(
-      controller: _languageController,
-      label: label,
-      options: _languageOptions,
-    );
-  }
-
-  Widget _ageRatingPickField({String label = 'Age rating'}) {
-    return _pickField(
-      controller: _ageRatingController,
-      label: label,
-      options: _ageRatingOptions,
-    );
-  }
-
   Widget _audienceRatingPickField({String label = 'Audience rating'}) {
     return _pickField(
       controller: _audienceRatingController,
       label: label,
       options: _audienceRatingOptions,
-    );
-  }
-
-  Widget _regionPickField({String label = 'Region'}) {
-    return _pickField(
-      controller: _regionController,
-      label: label,
-      options: _regionOptions,
-    );
-  }
-
-  Widget _packagingPickField({String label = 'Packaging'}) {
-    return _pickField(
-      controller: _packagingController,
-      label: label,
-      options: _packagingOptions,
-    );
-  }
-
-  Widget _distributorPickField({String label = 'Distributor'}) {
-    return _pickField(
-      controller: _distributorController,
-      label: label,
-      options: _distributorOptions,
-    );
-  }
-
-  Widget _screenRatioPickField({String label = 'Screen ratio'}) {
-    return _pickField(
-      controller: _screenRatioController,
-      label: label,
-      options: _screenRatioOptions,
-    );
-  }
-
-  Widget _layersPickField({String label = 'Layers'}) {
-    return _pickField(
-      controller: _videoEdit.layersController,
-      label: label,
-      options: _layersOptions,
-    );
-  }
-
-  Widget _colorPickField({String label = 'Color'}) {
-    return _pickField(
-      controller: _videoEdit.colorController,
-      label: label,
-      options: _colorOptions,
     );
   }
 
@@ -2173,15 +2075,7 @@ ORDER BY owner_label COLLATE NOCASE
       _conditionOptions = conditionGrade.conditions;
       _gradeOptions = conditionGrade.grades;
       _countryOptions = List<String>.from(results[5] as List<String>);
-      _languageOptions = List<String>.from(results[6] as List<String>);
-      _ageRatingOptions = List<String>.from(results[7] as List<String>);
       _audienceRatingOptions = List<String>.from(results[8] as List<String>);
-      _regionOptions = List<String>.from(results[9] as List<String>);
-      _packagingOptions = List<String>.from(results[10] as List<String>);
-      _distributorOptions = List<String>.from(results[11] as List<String>);
-      _screenRatioOptions = List<String>.from(results[12] as List<String>);
-      _layersOptions = List<String>.from(results[13] as List<String>);
-      _colorOptions = List<String>.from(results[14] as List<String>);
       _crossoverOptions = List<String>.from(results[17] as List<String>);
       _storyArcOptions = List<String>.from(results[18] as List<String>);
       _pageQualityOptions = List<String>.from(results[19] as List<String>);
