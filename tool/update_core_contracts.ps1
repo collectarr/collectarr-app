@@ -35,3 +35,25 @@ foreach ($file in $files) {
   }
   Copy-Item -Force $source (Join-Path $TargetDir $file)
 }
+
+# Validate that the copied payload matches the hashes recorded in the manifest.
+# This catches partial copies or a stale manifest before they reach the app.
+$manifestPath = Join-Path $TargetDir "contract-manifest.json"
+$manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
+$hashKeyByFile = @{
+  "openapi.json"               = "openApiHash"
+  "metadata-field-schema.json" = "fieldSchemaHash"
+  "active-kinds.json"          = "activeKindsHash"
+  "provider-support.json"      = "providerSupportHash"
+}
+
+foreach ($entry in $hashKeyByFile.GetEnumerator()) {
+  $target = Join-Path $TargetDir $entry.Key
+  $actual = (Get-FileHash $target -Algorithm SHA256).Hash.ToLower()
+  $expected = ([string]$manifest.$($entry.Value)).ToLower()
+  if ($actual -ne $expected) {
+    throw "Contract drift: $($entry.Key) hash $actual does not match manifest.$($entry.Value) $expected"
+  }
+}
+
+Write-Host "Core contracts synced and verified against contract-manifest.json"
