@@ -1,56 +1,68 @@
 import 'package:collectarr_app/core/sync/sync_change.dart';
+import 'package:collectarr_app/core/sync/sync_retry.dart';
 import 'package:dio/dio.dart';
 
 class CollectarrSyncClient {
   CollectarrSyncClient({
     required String baseUrl,
     required String syncKey,
+    SyncRetryPolicy retryPolicy = const SyncRetryPolicy(),
   })  : _syncKey = syncKey,
+        _retryPolicy = retryPolicy,
         _dio = Dio(BaseOptions(baseUrl: baseUrl));
 
   final Dio _dio;
   final String _syncKey;
+  final SyncRetryPolicy _retryPolicy;
 
   Future<Map<String, dynamic>> push({
     required String deviceId,
     required List<SyncChange> changes,
   }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/sync/push',
-      data: {
-        'device_id': deviceId,
-        'changes': changes.map((change) => change.toWireJson()).toList(),
-      },
-      options: _options(),
-    );
-    return _responseData(response, '/sync/push');
+    return _retryPolicy.run(() async {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/sync/push',
+        data: {
+          'device_id': deviceId,
+          'changes': changes.map((change) => change.toWireJson()).toList(),
+        },
+        options: _options(),
+      );
+      return _responseData(response, '/sync/push');
+    });
   }
 
   Future<Map<String, dynamic>> pull({DateTime? since}) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/sync/pull',
-      data: {
-        if (since != null) 'since': since.toUtc().toIso8601String(),
-      },
-      options: _options(),
-    );
-    return _responseData(response, '/sync/pull');
+    return _retryPolicy.run(() async {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/sync/pull',
+        data: {
+          if (since != null) 'since': since.toUtc().toIso8601String(),
+        },
+        options: _options(),
+      );
+      return _responseData(response, '/sync/pull');
+    });
   }
 
   Future<Map<String, dynamic>> health() async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/health',
-      options: _options(),
-    );
-    return _responseData(response, '/health');
+    return _retryPolicy.run(() async {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/health',
+        options: _options(),
+      );
+      return _responseData(response, '/health');
+    });
   }
 
   Future<Map<String, dynamic>> status() async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/sync/status',
-      options: _options(),
-    );
-    return _responseData(response, '/sync/status');
+    return _retryPolicy.run(() async {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/sync/status',
+        options: _options(),
+      );
+      return _responseData(response, '/sync/status');
+    });
   }
 
   Future<List<Map<String, dynamic>>> devices() async {

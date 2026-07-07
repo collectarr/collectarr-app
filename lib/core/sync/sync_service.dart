@@ -339,7 +339,7 @@ class SyncService {
       );
     }
     return accepted
-        .whereType<Map>()
+        .whereType<Map<dynamic, dynamic>>()
         .map((item) => item.cast<String, dynamic>())
         .where(
           (item) =>
@@ -365,7 +365,7 @@ class SyncService {
     final pendingByKey = {
       for (final change in pending) _changeKey(change): change,
     };
-    return rejected.whereType<Map>().map((item) {
+    return rejected.whereType<Map<dynamic, dynamic>>().map((item) {
       final json = item.cast<String, dynamic>();
       final key = '${json['entity_type']}:${json['entity_id']}';
       return SyncRejectedChange.fromJson(
@@ -381,7 +381,7 @@ class SyncService {
       throw const FormatException('Sync pull response is missing entities');
     }
     return entities
-        .whereType<Map>()
+        .whereType<Map<dynamic, dynamic>>()
         .map((item) => item.cast<String, dynamic>())
         .toList(growable: false);
   }

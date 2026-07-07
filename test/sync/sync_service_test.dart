@@ -174,7 +174,7 @@ class _FakeSyncClient extends CollectarrSyncClient {
             'entity_id': change.entityId,
           },
       ],
-      'rejected': [],
+      'rejected': <dynamic>[],
     };
   }
 
@@ -276,7 +276,7 @@ class _FakeSyncClient extends CollectarrSyncClient {
           },
         },
       ],
-      'changes': [],
+      'changes': <dynamic>[],
     };
   }
 }
@@ -291,7 +291,7 @@ class _RejectedSyncClient extends CollectarrSyncClient {
   }) async {
     return {
       'server_time': '2026-05-12T09:00:00.000Z',
-      'accepted': [],
+      'accepted': <dynamic>[],
       'rejected': [
         {
           'entity_type': 'owned_item',
@@ -325,7 +325,7 @@ class _RejectedSyncClient extends CollectarrSyncClient {
           },
         },
       ],
-      'changes': [],
+      'changes': <dynamic>[],
     };
   }
 }
@@ -352,7 +352,7 @@ class _CapturingSyncClient extends CollectarrSyncClient {
             'entity_id': change.entityId,
           },
       ],
-      'rejected': [],
+      'rejected': <dynamic>[],
     };
   }
 
@@ -360,8 +360,8 @@ class _CapturingSyncClient extends CollectarrSyncClient {
   Future<Map<String, dynamic>> pull({DateTime? since}) async {
     return {
       'server_time': '2026-05-12T09:00:00.000Z',
-      'entities': const [],
-      'changes': const [],
+      'entities': const <dynamic>[],
+      'changes': const <dynamic>[],
     };
   }
 }

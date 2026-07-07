@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/core/sync/sync_retry.dart';
 import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
@@ -185,7 +186,7 @@ class SyncController extends StateNotifier<SyncState> {
       ));
       state = SyncState(
         pendingCount: count,
-        isOffline: true,
+        isOffline: isOfflineSyncError(error),
         lastSyncedAt: state.lastSyncedAt,
         errorMessage: error.toString(),
         rejectedChanges: state.rejectedChanges,
