@@ -61,19 +61,12 @@ Widget _creditsTab({
 }
 
 Widget _responsiveFields(List<Widget> children) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      final width = constraints.maxWidth;
-      final itemWidth = width < 600 ? width : (width - 10) / 2;
-      return Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: [
-          for (final child in children)
-            SizedBox(width: itemWidth, child: child),
-        ],
-      );
-    },
+  return LibraryEditDenseFields(
+    wideColumns: 2,
+    ultraWideColumns: 2,
+    wideBreakpoint: 600,
+    ultraWideBreakpoint: 600,
+    children: children,
   );
 }
 
