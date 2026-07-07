@@ -82,8 +82,16 @@ const _comicReleaseTabs = [
   ),
 ];
 
+const _comicReleaseIdentityTab = LibraryEditTabSpec(
+  id: 'release',
+  icon: Icons.album_outlined,
+  label: 'Release',
+  sectionIds: ['release_identity'],
+);
+
 const _comicCombinedTabs = [
   ..._comicMediaTabs,
+  _comicReleaseIdentityTab,
   ..._comicReleaseTabs,
 ];
 

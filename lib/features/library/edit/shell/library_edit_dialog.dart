@@ -837,7 +837,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget _releaseTab() {
     return EditTabShell(
       children: [
-        if (_showsReleaseSection) _buildReleaseDetailsSection(),
+        if (_showsReleaseSection)
+          _buildReleaseDetailsSection()
+        else
+          const EditSectionStateMessage(
+            icon: Icons.album_outlined,
+            message: 'Release details apply to a specific edition, printing or '
+                'variant. Pick a release anchor on the Main tab to edit them.',
+          ),
       ],
     );
   }
