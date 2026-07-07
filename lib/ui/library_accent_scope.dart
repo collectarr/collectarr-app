@@ -27,8 +27,7 @@ class LibraryAccentScope extends InheritedWidget {
   }
 
   static Duration animationDurationOf(BuildContext context) {
-    return maybeOf(context)?.animationDuration ??
-        kAppAnimNormal;
+    return maybeOf(context)?.animationDuration ?? kAppAnimNormal;
   }
 
   @override
@@ -270,32 +269,20 @@ class LibraryAccentChrome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<Color?>(
-      tween: ColorTween(end: accent),
+    return AnimatedLibraryChromeGradient(
+      accent: accent,
       duration: animationDuration,
-      curve: Curves.easeOutCubic,
-      builder: (context, color, child) {
-        final animatedAccent = color ?? accent;
-        return SizedBox.expand(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: libraryChromeGradient(
-                animatedAccent,
-                begin: begin,
-                end: end,
-              ),
-              border: Border(
-                bottom: BorderSide(
-                  color: Color.alphaBlend(
-                    Colors.white.withValues(alpha: 0.12),
-                    animatedAccent,
-                  ),
-                ),
-              ),
-            ),
+      begin: begin,
+      end: end,
+      borderBuilder: (animatedAccent, _) => Border(
+        bottom: BorderSide(
+          color: Color.alphaBlend(
+            Colors.white.withValues(alpha: 0.12),
+            animatedAccent,
           ),
-        );
-      },
+        ),
+      ),
+      child: const SizedBox.expand(),
     );
   }
 }

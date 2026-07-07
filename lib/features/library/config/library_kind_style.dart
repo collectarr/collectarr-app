@@ -62,6 +62,7 @@ class AnimatedLibraryChromeGradient extends StatelessWidget {
     super.key,
     required this.accent,
     required this.child,
+    this.duration,
     this.curve = Curves.easeOutCubic,
     this.begin = Alignment.topLeft,
     this.end = Alignment.bottomRight,
@@ -69,6 +70,7 @@ class AnimatedLibraryChromeGradient extends StatelessWidget {
   });
 
   final Color accent;
+  final Duration? duration;
   final Curve curve;
   final AlignmentGeometry begin;
   final AlignmentGeometry end;
@@ -78,10 +80,11 @@ class AnimatedLibraryChromeGradient extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final duration = LibraryAccentScope.animationDurationOf(context);
+    final resolvedDuration =
+        duration ?? LibraryAccentScope.animationDurationOf(context);
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: accent),
-      duration: duration,
+      duration: resolvedDuration,
       curve: curve,
       child: child,
       builder: (context, color, child) {

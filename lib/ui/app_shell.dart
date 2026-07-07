@@ -100,7 +100,6 @@ class _AppShellState extends ConsumerState<AppShell> {
       bottomNavigationBar: _bottomNavCollapsed
           ? _BottomNavCollapsedStrip(
               accent: accent,
-              animationsEnabled: uiPreferences.animationsEnabled,
               onExpand: () {
                 setState(() {
                   _bottomNavCollapsed = false;
@@ -111,7 +110,6 @@ class _AppShellState extends ConsumerState<AppShell> {
               pages: pages,
               selectedIndex: selectedVisualIndex,
               accent: accent,
-              animationsEnabled: uiPreferences.animationsEnabled,
               onToggleCollapsed: () {
                 setState(() {
                   _bottomNavCollapsed = true;
@@ -172,7 +170,6 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
     required this.pages,
     required this.selectedIndex,
     required this.accent,
-    required this.animationsEnabled,
     required this.onToggleCollapsed,
     required this.onDestinationSelected,
   });
@@ -180,115 +177,105 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
   final List<_ShellPage> pages;
   final int selectedIndex;
   final Color accent;
-  final bool animationsEnabled;
   final VoidCallback onToggleCollapsed;
   final ValueChanged<int> onDestinationSelected;
 
   @override
   Widget build(BuildContext context) {
     const bottomNavHeight = 36.0;
-    final duration = animationsEnabled ? kAppAnimNormal : Duration.zero;
     final palette = appPalette(context);
-    return TweenAnimationBuilder<Color?>(
-      tween: ColorTween(end: accent),
-      duration: duration,
-      curve: Curves.easeOutCubic,
-      builder: (context, color, child) {
-        final animatedAccent = color ?? accent;
-        final indicatorColor = palette.isDark
-            ? animatedAccent.withValues(alpha: 0.52)
-            : Color.alphaBlend(
-                animatedAccent.withValues(alpha: 0.14),
-                palette.selection,
-              );
-        final chromeTextColor =
-            palette.isDark ? Colors.white : palette.textPrimary;
-        return DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: libraryChromeGradient(
-              animatedAccent,
-              brightness: palette.brightness,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            border: Border(
-              top: BorderSide(
-                color: libraryChromeBorderColor(
-                  animatedAccent,
-                  brightness: palette.brightness,
+    return AnimatedLibraryChromeGradient(
+      accent: accent,
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      borderBuilder: (animatedAccent, brightness) => Border(
+        top: BorderSide(
+          color: libraryChromeBorderColor(
+            animatedAccent,
+            brightness: brightness,
+          ),
+        ),
+      ),
+      child: NavigationBarTheme(
+        data: NavigationBarTheme.of(context).copyWith(
+          backgroundColor: Colors.transparent,
+          indicatorColor: palette.isDark
+              ? accent.withValues(alpha: 0.52)
+              : Color.alphaBlend(
+                  accent.withValues(alpha: 0.14),
+                  palette.selection,
                 ),
-              ),
+          height: bottomNavHeight,
+          labelTextStyle: WidgetStatePropertyAll(
+            TextStyle(
+              color: palette.isDark ? Colors.white : palette.textPrimary,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          child: NavigationBarTheme(
-            data: NavigationBarTheme.of(context).copyWith(
-              backgroundColor: Colors.transparent,
-              indicatorColor: indicatorColor,
-              height: bottomNavHeight,
-              labelTextStyle: WidgetStatePropertyAll(
-                TextStyle(
-                  color: chromeTextColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              iconTheme: WidgetStatePropertyAll(
-                IconThemeData(color: chromeTextColor, size: 20),
-              ),
+          iconTheme: WidgetStatePropertyAll(
+            IconThemeData(
+              color: palette.isDark ? Colors.white : palette.textPrimary,
+              size: 20,
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: NavigationBar(
-                    backgroundColor: Colors.transparent,
-                    indicatorColor: indicatorColor,
-                    selectedIndex: selectedIndex,
-                    onDestinationSelected: onDestinationSelected,
-                    destinations: [
-                      for (final page in pages)
-                        NavigationDestination(
-                          icon: page.adminOnly
-                              ? Badge(
-                                  label: const Text(
-                                    'ADMIN',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                  backgroundColor: Colors.deepOrange.shade700,
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 4),
-                                  child: Icon(page.icon),
-                                )
-                              : Icon(page.icon),
-                          label: page.label,
-                        ),
-                    ],
-                  ),
-                ),
-                Tooltip(
-                  message: 'Hide bottom navigation',
-                  child: InkWell(
-                    onTap: onToggleCollapsed,
-                    child: SizedBox(
-                      width: 44,
-                      height: bottomNavHeight,
-                      child: Icon(
-                        Icons.expand_more,
-                        color: chromeTextColor,
-                        size: 20,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: NavigationBar(
+                backgroundColor: Colors.transparent,
+                indicatorColor: palette.isDark
+                    ? accent.withValues(alpha: 0.52)
+                    : Color.alphaBlend(
+                        accent.withValues(alpha: 0.14),
+                        palette.selection,
                       ),
+                selectedIndex: selectedIndex,
+                onDestinationSelected: onDestinationSelected,
+                destinations: [
+                  for (final page in pages)
+                    NavigationDestination(
+                      icon: page.adminOnly
+                          ? Badge(
+                              label: const Text(
+                                'ADMIN',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              backgroundColor: Colors.deepOrange.shade700,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: Icon(page.icon),
+                            )
+                          : Icon(page.icon),
+                      label: page.label,
                     ),
+                ],
+              ),
+            ),
+            Tooltip(
+              message: 'Hide bottom navigation',
+              child: InkWell(
+                onTap: onToggleCollapsed,
+                child: SizedBox(
+                  width: 44,
+                  height: bottomNavHeight,
+                  child: Icon(
+                    Icons.expand_more,
+                    color: palette.isDark ? Colors.white : palette.textPrimary,
+                    size: 20,
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }
@@ -296,81 +283,66 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
 class _BottomNavCollapsedStrip extends StatelessWidget {
   const _BottomNavCollapsedStrip({
     required this.accent,
-    required this.animationsEnabled,
     required this.onExpand,
   });
 
   final Color accent;
-  final bool animationsEnabled;
   final VoidCallback onExpand;
 
   @override
   Widget build(BuildContext context) {
-    final duration = animationsEnabled ? kAppAnimNormal : Duration.zero;
     final palette = appPalette(context);
     const collapsedBarHeight = 6.0;
-    return TweenAnimationBuilder<Color?>(
-      tween: ColorTween(end: accent),
-      duration: duration,
-      curve: Curves.easeOutCubic,
-      builder: (context, color, child) {
-        final animatedAccent = color ?? accent;
-        final foregroundColor =
-            palette.isDark ? Colors.white : palette.textPrimary;
-        final handleBackground = Color.alphaBlend(
-          animatedAccent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
-          palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
-        );
-        return Container(
-          height: collapsedBarHeight,
-          decoration: BoxDecoration(
-            gradient: libraryChromeGradient(
-              animatedAccent,
-              brightness: palette.brightness,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            border: Border(
-              top: BorderSide(
-                color: libraryChromeBorderColor(
-                  animatedAccent,
-                  brightness: palette.brightness,
-                ),
-              ),
-            ),
+    final foregroundColor = palette.isDark ? Colors.white : palette.textPrimary;
+    final handleBackground = Color.alphaBlend(
+      accent.withValues(alpha: palette.isDark ? 0.2 : 0.12),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
+    );
+    return AnimatedLibraryChromeGradient(
+      accent: accent,
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      borderBuilder: (animatedAccent, brightness) => Border(
+        top: BorderSide(
+          color: libraryChromeBorderColor(
+            animatedAccent,
+            brightness: brightness,
           ),
-          child: Row(
-            children: [
-              const Spacer(),
-              Tooltip(
-                message: 'Show bottom navigation',
-                child: InkWell(
-                  onTap: onExpand,
-                  child: SizedBox(
-                    width: 44,
-                    height: collapsedBarHeight,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 2,
-                        vertical: 0,
-                      ),
-                      decoration: BoxDecoration(
-                        color: handleBackground,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Icon(
-                        Icons.expand_less,
-                        size: 6,
-                        color: foregroundColor,
-                      ),
+        ),
+      ),
+      child: SizedBox(
+        height: collapsedBarHeight,
+        child: Row(
+          children: [
+            const Spacer(),
+            Tooltip(
+              message: 'Show bottom navigation',
+              child: InkWell(
+                onTap: onExpand,
+                child: SizedBox(
+                  width: 44,
+                  height: collapsedBarHeight,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 2,
+                      vertical: 0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: handleBackground,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Icon(
+                      Icons.expand_less,
+                      size: 6,
+                      color: foregroundColor,
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
-        );
-      },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
