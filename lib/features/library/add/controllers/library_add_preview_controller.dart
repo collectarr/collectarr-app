@@ -15,13 +15,49 @@ class LibraryAddPreviewController {
   final pendingProviderPreviewIds = <String>{};
   bool isQueueingIngest = false;
 
-  void clearSelectionCaches() {
-    hydratedResults.clear();
-    bundleReleasesByItemId.clear();
-    bundleReleaseDetailsById.clear();
-    pendingHydratedResultIds.clear();
-    pendingBundleReleaseItemIds.clear();
-    pendingBundleReleaseDetailIds.clear();
+  AdminProviderPreview? providerPreviewFor(String candidateId) {
+    return providerPreviews[candidateId];
+  }
+
+  void setProviderPreview(String candidateId, AdminProviderPreview preview) {
+    providerPreviews[candidateId] = preview;
+    pendingProviderPreviewIds.remove(candidateId);
+  }
+
+  void markProviderPreviewPending(String candidateId) {
+    pendingProviderPreviewIds.add(candidateId);
+  }
+
+  bool isProviderPreviewPending(String candidateId) {
+    return pendingProviderPreviewIds.contains(candidateId);
+  }
+
+  LibraryQueuedProviderIngest? queuedProviderIngestFor(String candidateId) {
+    return queuedProviderIngests[candidateId];
+  }
+
+  void setQueuedProviderIngest(
+    String candidateId,
+    LibraryQueuedProviderIngest ingest,
+  ) {
+    queuedProviderIngests[candidateId] = ingest;
+  }
+
+  bool hasHydratedResult(String itemId) {
+    return hydratedResults.containsKey(itemId);
+  }
+
+  LibraryMetadataItem? hydratedResultFor(String itemId) {
+    return hydratedResults[itemId];
+  }
+
+  void setHydratedResult(String itemId, LibraryMetadataItem item) {
+    hydratedResults[itemId] = item;
+    pendingHydratedResultIds.remove(itemId);
+  }
+
+  bool isHydratedResultPending(String itemId) {
+    return pendingHydratedResultIds.contains(itemId);
   }
 
   List<BundleReleaseSummary> bundleReleasesForItem(
@@ -33,10 +69,54 @@ class LibraryAddPreviewController {
     return bundleReleasesByItemId[item.id] ?? const <BundleReleaseSummary>[];
   }
 
+  void setBundleReleases(
+    String itemId,
+    List<BundleReleaseSummary> releases,
+  ) {
+    bundleReleasesByItemId[itemId] = releases;
+    pendingBundleReleaseItemIds.remove(itemId);
+  }
+
+  bool isBundleReleasesPending(String itemId) {
+    return pendingBundleReleaseItemIds.contains(itemId);
+  }
+
   BundleReleaseDetail? bundleReleaseDetailForId(String? bundleReleaseId) {
     if (bundleReleaseId == null) {
       return null;
     }
     return bundleReleaseDetailsById[bundleReleaseId];
+  }
+
+  void setBundleReleaseDetail(
+    String bundleReleaseId,
+    BundleReleaseDetail detail,
+  ) {
+    bundleReleaseDetailsById[bundleReleaseId] = detail;
+    pendingBundleReleaseDetailIds.remove(bundleReleaseId);
+  }
+
+  bool isBundleReleaseDetailPending(String bundleReleaseId) {
+    return pendingBundleReleaseDetailIds.contains(bundleReleaseId);
+  }
+
+  void clearProviderCaches() {
+    providerPreviews.clear();
+    queuedProviderIngests.clear();
+    pendingProviderPreviewIds.clear();
+  }
+
+  void clearSelectionCaches() {
+    hydratedResults.clear();
+    bundleReleasesByItemId.clear();
+    bundleReleaseDetailsById.clear();
+    pendingHydratedResultIds.clear();
+    pendingBundleReleaseItemIds.clear();
+    pendingBundleReleaseDetailIds.clear();
+  }
+
+  void clearAllCaches() {
+    clearProviderCaches();
+    clearSelectionCaches();
   }
 }

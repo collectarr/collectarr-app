@@ -385,8 +385,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _previewState.hydratedResults;
   Map<String, List<BundleReleaseSummary>> get _bundleReleasesByItemId =>
       _previewState.bundleReleasesByItemId;
-  Map<String, BundleReleaseDetail> get _bundleReleaseDetailsById =>
-      _previewState.bundleReleaseDetailsById;
   Map<String, LibraryQueuedProviderIngest> get _queuedProviderIngests =>
       _previewState.queuedProviderIngests;
   Set<String> get _pendingHydratedResultIds =>
@@ -2070,13 +2068,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
   }
 
-  List<BundleReleaseSummary> _bundleReleasesForItem(LibraryMetadataItem? item) {
-    if (item == null) {
-      return const <BundleReleaseSummary>[];
-    }
-    return _bundleReleasesByItemId[item.id] ?? const <BundleReleaseSummary>[];
-  }
-
   void _resetReferenceSelection() {
     _selectedBundleReleaseId = null;
     _selectedReferenceEditionId = null;
@@ -2084,14 +2075,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _referenceType = LibraryAddReferenceType.media;
   }
 
-  void _clearSelectionCaches() {
-    _hydratedResults.clear();
-    _bundleReleasesByItemId.clear();
-    _bundleReleaseDetailsById.clear();
-    _pendingHydratedResultIds.clear();
-    _pendingBundleReleaseItemIds.clear();
-    _pendingBundleReleaseDetailIds.clear();
-  }
+  void _clearSelectionCaches() => _previewState.clearSelectionCaches();
 
   void _selectCoreResult(String id) {
     setState(() {
@@ -2119,7 +2103,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (_addTarget == LibraryAddTarget.track) {
       return;
     }
-    final bundles = _bundleReleasesForItem(selectedResult);
+    final bundles = _previewState.bundleReleasesForItem(selectedResult);
     setState(() {
       _referenceType = value;
       if (value != LibraryAddReferenceType.bundleRelease) {
@@ -2388,8 +2372,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   Future<void> _ensureProviderPreviewLoaded(String candidateId) async {
-    if (_providerPreviews.containsKey(candidateId) ||
-        _pendingProviderPreviewIds.contains(candidateId)) {
+    if (_previewState.providerPreviewFor(candidateId) != null ||
+        _previewState.isProviderPreviewPending(candidateId)) {
       return;
     }
     ProviderCandidate? candidate;
@@ -2404,7 +2388,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
     final searchGeneration = _providerSearchGeneration;
     setState(() {
-      _pendingProviderPreviewIds.add(candidateId);
+      _previewState.markProviderPreviewPending(candidateId);
     });
     try {
       final api = ref.read(apiClientProvider);
@@ -2416,8 +2400,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         return;
       }
       setState(() {
-        _providerPreviews[candidateId] = preview;
-        _pendingProviderPreviewIds.remove(candidateId);
+        _previewState.setProviderPreview(candidateId, preview);
       });
       _precacheProviderPreviewCovers([preview]);
     } catch (error, stackTrace) {
@@ -2432,14 +2415,14 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         return;
       }
       setState(() {
-        _pendingProviderPreviewIds.remove(candidateId);
+        _previewState.pendingProviderPreviewIds.remove(candidateId);
       });
     }
   }
 
   Future<void> _ensureSelectedResultLoaded(String itemId) async {
-    if (_hydratedResults.containsKey(itemId) ||
-        _pendingHydratedResultIds.contains(itemId)) {
+    if (_previewState.hasHydratedResult(itemId) ||
+        _previewState.isHydratedResultPending(itemId)) {
       return;
     }
     LibraryMetadataItem? selected;
@@ -2454,7 +2437,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
     final searchGeneration = _coreSearchGeneration;
     setState(() {
-      _pendingHydratedResultIds.add(itemId);
+      _previewState.pendingHydratedResultIds.add(itemId);
     });
     try {
       final hydrated = await ref
@@ -2502,8 +2485,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             : selected.thumbnailImageUrl ?? selected.coverImageUrl,
       );
       setState(() {
-        _hydratedResults[itemId] = mergedItem;
-        _pendingHydratedResultIds.remove(itemId);
+        _previewState.setHydratedResult(itemId, mergedItem);
       });
       _precacheMetadataCovers([mergedItem]);
     } catch (error, stackTrace) {
@@ -2517,19 +2499,19 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         return;
       }
       setState(() {
-        _pendingHydratedResultIds.remove(itemId);
+        _previewState.pendingHydratedResultIds.remove(itemId);
       });
     }
   }
 
   Future<void> _ensureBundleReleasesLoaded(String itemId) async {
-    if (_bundleReleasesByItemId.containsKey(itemId) ||
-        _pendingBundleReleaseItemIds.contains(itemId)) {
+    if (_previewState.bundleReleasesByItemId.containsKey(itemId) ||
+        _previewState.isBundleReleasesPending(itemId)) {
       return;
     }
     final searchGeneration = _coreSearchGeneration;
     setState(() {
-      _pendingBundleReleaseItemIds.add(itemId);
+      _previewState.pendingBundleReleaseItemIds.add(itemId);
     });
     try {
       final bundleReleases =
@@ -2540,8 +2522,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final firstBundleId = _selectedBundleReleaseId ??
           (bundleReleases.isNotEmpty ? bundleReleases.first.id : null);
       setState(() {
-        _bundleReleasesByItemId[itemId] = bundleReleases;
-        _pendingBundleReleaseItemIds.remove(itemId);
+        _previewState.setBundleReleases(itemId, bundleReleases);
         if (_referenceType == LibraryAddReferenceType.bundleRelease) {
           _selectedBundleReleaseId = firstBundleId;
         }
@@ -2561,20 +2542,19 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         return;
       }
       setState(() {
-        _bundleReleasesByItemId[itemId] = const <BundleReleaseSummary>[];
-        _pendingBundleReleaseItemIds.remove(itemId);
+        _previewState.setBundleReleases(itemId, const <BundleReleaseSummary>[]);
       });
     }
   }
 
   Future<void> _ensureBundleReleaseDetailLoaded(String bundleReleaseId) async {
-    if (_bundleReleaseDetailsById.containsKey(bundleReleaseId) ||
-        _pendingBundleReleaseDetailIds.contains(bundleReleaseId)) {
+    if (_previewState.bundleReleaseDetailsById.containsKey(bundleReleaseId) ||
+        _previewState.isBundleReleaseDetailPending(bundleReleaseId)) {
       return;
     }
     final searchGeneration = _coreSearchGeneration;
     setState(() {
-      _pendingBundleReleaseDetailIds.add(bundleReleaseId);
+      _previewState.pendingBundleReleaseDetailIds.add(bundleReleaseId);
     });
     try {
       final bundleRelease =
@@ -2583,8 +2563,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         return;
       }
       setState(() {
-        _bundleReleaseDetailsById[bundleReleaseId] = bundleRelease;
-        _pendingBundleReleaseDetailIds.remove(bundleReleaseId);
+        _previewState.setBundleReleaseDetail(bundleReleaseId, bundleRelease);
       });
     } catch (error, stackTrace) {
       logRecoverableError(
@@ -2597,7 +2576,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         return;
       }
       setState(() {
-        _pendingBundleReleaseDetailIds.remove(bundleReleaseId);
+        _previewState.pendingBundleReleaseDetailIds.remove(bundleReleaseId);
       });
     }
   }
@@ -2682,7 +2661,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (candidate.isStub) {
       return candidate.placeholderItem();
     }
-    final cachedPreview = _providerPreviews[candidate.localCatalogId];
+    final cachedPreview =
+        _previewState.providerPreviewFor(candidate.localCatalogId);
     if (cachedPreview != null) {
       return metadataItemFromPreview(cachedPreview);
     }
@@ -2693,7 +2673,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           );
       if (mounted) {
         _rebuild(() {
-          _providerPreviews[candidate.localCatalogId] = preview;
+          _previewState.setProviderPreview(candidate.localCatalogId, preview);
         });
       }
       return metadataItemFromPreview(preview);
@@ -3254,7 +3234,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (id == null) {
       return null;
     }
-    final hydrated = _hydratedResults[id];
+    final hydrated = _previewState.hydratedResultFor(id);
     if (hydrated != null) {
       return hydrated;
     }
@@ -3271,7 +3251,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (bundleReleaseId == null) {
       return null;
     }
-    return _bundleReleaseDetailsById[bundleReleaseId];
+    return _previewState.bundleReleaseDetailForId(bundleReleaseId);
   }
 
   LibraryAddEditionSelection? _selectedEditionSelectionForItem(
@@ -3349,7 +3329,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final api = ref.read(apiClientProvider);
     final resolved = await Future.wait(
       items.map((item) async {
-        final hydrated = _hydratedResults[item.id];
+        final hydrated = _previewState.hydratedResultFor(item.id);
         if (hydrated != null) {
           return hydrated;
         }
