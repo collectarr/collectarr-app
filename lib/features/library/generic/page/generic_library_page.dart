@@ -81,6 +81,7 @@ part 'hooks/page_sidebar_hooks.dart';
 part 'controllers/page_facet_controller.dart';
 part 'controllers/page_scope_controller.dart';
 part 'controllers/page_view_state_controller.dart';
+part 'controllers/page_preferences_controller.dart';
 part 'controllers/page_projection_controller.dart';
 part 'controllers/page_projection_provider.dart';
 part 'controllers/page_lifecycle_controller.dart';
@@ -437,25 +438,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   Future<void> _loadColumnFavoritePresets() async {
-    try {
-      final loadToken = ++_columnFavoritesLoadToken;
-      final expectedKind = widget.type.workspace.kind;
-      final presets =
-          await LibraryColumnPresetStore(widget.type.workspace).read();
-      if (!mounted ||
-          loadToken != _columnFavoritesLoadToken ||
-          widget.type.workspace.kind != expectedKind) {
-        return;
-      }
-      setState(() => _savedColumnFavoritePresets = presets);
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_page',
-        message: 'Failed to load column favorites.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
+    return LibraryPagePreferencesControllerOps.loadColumnFavoritePresets(this);
   }
 
   List<LibraryTableColumnPreset> get _columnFavoritePresets {
@@ -475,206 +458,72 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _setPinnedFolderPresets(List<LibraryFolderPreset> presets) {
-    final updated = <LibraryFolderPreset>[];
-    for (final preset in presets) {
-      final sanitized = sanitizeLibraryFolderPreset(
-        preset,
-        allowedModes: _scopeAvailableGroupModes,
-      );
-      if (sanitized != null && !updated.contains(sanitized)) {
-        updated.add(sanitized);
-      }
-    }
-    setState(() => _pinnedFolderPresets = updated);
-    unawaited(_viewPrefs.writePinnedFolderPresets(updated));
+    LibraryPagePreferencesControllerOps.setPinnedFolderPresets(this, presets);
   }
 
   Future<void> _loadFolderTreePreferencesForActivePreset() async {
-    final preset = _activeFolderPreset;
-    try {
-      final loadToken = ++_folderTreePreferenceLoadToken;
-      final expectedKind = widget.type.workspace.kind;
-      final displayModeFuture = _viewPrefs.readFolderDisplayMode(preset);
-      final expandedNodeIdsFuture =
-          _viewPrefs.readFolderTreeExpandedNodeIds(preset);
-      final selectedNodeIdFuture =
-          _viewPrefs.readFolderTreeSelectedNodeId(preset);
-      final groupPresentationFuture =
-          _viewPrefs.readGroupPresentationOverride(preset);
-      final collapsedGroupBucketsFuture =
-          _viewPrefs.readCollapsedGroupBuckets(preset);
-      final (displayMode, expandedNodeIds, selectedNodeId) = await (
-        displayModeFuture,
-        expandedNodeIdsFuture,
-        selectedNodeIdFuture
-      ).wait;
-      final groupPresentationOverride = await groupPresentationFuture;
-      final collapsedGroupBuckets = await collapsedGroupBucketsFuture;
-      if (!mounted ||
-          loadToken != _folderTreePreferenceLoadToken ||
-          widget.type.workspace.kind != expectedKind) {
-        return;
-      }
-      _mutateState(() {
-        _folderDisplayMode = displayMode ?? LibraryFolderDisplayMode.drilldown;
-        _folderTreeExpandedNodeIds = expandedNodeIds;
-        _folderTreeSelectedNodeId = selectedNodeId;
-        _groupPresentationOverride = groupPresentationOverride;
-        _collapsedGroupBuckets = collapsedGroupBuckets;
-      });
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'library_page',
-        message: 'Failed to load folder tree preferences.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
+    return LibraryPagePreferencesControllerOps
+        .loadFolderTreePreferencesForActivePreset(this);
   }
 
   void _setFolderDisplayMode(LibraryFolderDisplayMode mode) {
-    final preset = _activeFolderPreset;
-    _mutateState(() {
-      _folderDisplayMode = mode;
-      if (mode == LibraryFolderDisplayMode.drilldown) {
-        _folderTreeExpandedNodeIds = const <String>{};
-        _folderTreeSelectedNodeId = null;
-      }
-    });
-    unawaited(_viewPrefs.writeFolderDisplayMode(preset, mode));
-    if (mode == LibraryFolderDisplayMode.drilldown) {
-      unawaited(_viewPrefs.writeFolderTreeExpandedNodeIds(preset, const {}));
-      unawaited(_viewPrefs.writeFolderTreeSelectedNodeId(preset, null));
-    }
+    LibraryPagePreferencesControllerOps.setFolderDisplayMode(this, mode);
   }
 
   void _toggleFolderTreeNodeExpanded(String nodeId) {
-    final preset = _activeFolderPreset;
-    final next = Set<String>.from(_folderTreeExpandedNodeIds);
-    if (!next.add(nodeId)) {
-      next.remove(nodeId);
-    }
-    _mutateState(() {
-      _folderTreeExpandedNodeIds = next;
-    });
-    unawaited(_viewPrefs.writeFolderTreeExpandedNodeIds(preset, next));
+    LibraryPagePreferencesControllerOps.toggleFolderTreeNodeExpanded(
+      this,
+      nodeId,
+    );
   }
 
   void _selectFolderTreePath(List<LibraryFolderTreeNode> path) {
-    if (path.isEmpty) {
-      return;
-    }
-    final preset = _activeFolderPreset;
-    final leaf = path.last;
-    final expanded = Set<String>.from(_folderTreeExpandedNodeIds);
-    for (final node in path) {
-      expanded.add(node.id);
-    }
-    _mutateState(() {
-      _folderTreeExpandedNodeIds = expanded;
-      _folderTreeSelectedNodeId = leaf.id;
-    });
-    unawaited(_viewPrefs.writeFolderTreeExpandedNodeIds(preset, expanded));
-    unawaited(_viewPrefs.writeFolderTreeSelectedNodeId(preset, leaf.id));
-    final bucketPath = [
-      for (final node in path)
-        if (node.bucketValue != null) node.bucketValue!,
-    ];
-    if (bucketPath.isEmpty) {
-      _setSelectedBucket(null);
-      return;
-    }
-    _mutateState(() {
-      _selectedBucket = null;
-      _selectedLetter = null;
-      _linkedMetadataFilter = null;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-      _scopeHistory = const [];
-      _groupMode = preset.primaryMode;
-    });
-    for (final bucket in bucketPath) {
-      _setSelectedBucket(bucket);
-    }
+    LibraryPagePreferencesControllerOps.selectFolderTreePath(this, path);
   }
 
   String? get _activeColumnFavoriteLabel {
-    final viewState = _viewState ?? _adapter.viewProfile.defaults();
-    for (final preset in _columnFavoritePresets) {
-      if (setEquals(preset.columns, viewState.visibleColumns)) {
-        return preset.label;
-      }
-    }
-    return null;
+    return LibraryPagePreferencesControllerOps.activeColumnFavoriteLabel(this);
   }
 
   List<LibrarySortFavorite> get _sortFavorites =>
       librarySortFavoritesForType(widget.type);
 
   LibrarySortFavorite? get _activeSortFavorite {
-    final viewState = _viewState ?? _adapter.viewProfile.defaults();
-    for (final favorite in _sortFavorites) {
-      if (_sameSortRules(favorite.rules, viewState.sortRules)) {
-        return favorite;
-      }
-    }
-    return null;
+    return LibraryPagePreferencesControllerOps.activeSortFavorite(this);
   }
 
   LibraryWorkspacePreset? get _activeViewPreset {
-    final viewState = _viewState ?? _adapter.viewProfile.defaults();
-    for (final preset in LibraryWorkspacePreset.values) {
-      final config = _adapter.viewProfile.presetConfig(preset);
-      if (viewState.viewMode == config.viewMode &&
-          viewState.detailsLayout == config.detailsLayout &&
-          viewState.coverSize == config.coverSize &&
-          setEquals(viewState.visibleColumns, config.visibleColumns)) {
-        return preset;
-      }
-    }
-    return null;
+    return LibraryPagePreferencesControllerOps.activeViewPreset(this);
   }
 
   void _applyViewPreset(LibraryWorkspacePreset preset) {
-    _updateViewState((state) => state.withPreset(preset, _adapter.viewProfile));
+    LibraryPagePreferencesControllerOps.applyViewPreset(this, preset);
   }
 
   void _togglePinnedViewPreset(LibraryWorkspacePreset preset) {
-    final next = Set<LibraryWorkspacePreset>.from(_pinnedViewPresets);
-    if (!next.add(preset)) {
-      next.remove(preset);
-    }
-    setState(() => _pinnedViewPresets = next);
-    unawaited(_viewPrefs.writePinnedViewPresets(next));
+    LibraryPagePreferencesControllerOps.togglePinnedViewPreset(this, preset);
   }
 
   void _applySortFavorite(LibrarySortFavorite favorite) {
-    _updateViewState(
-      (state) => state.withSortRules(favorite.rules, _adapter.viewProfile),
-    );
+    LibraryPagePreferencesControllerOps.applySortFavorite(this, favorite);
   }
 
   void _togglePinnedSortFavorite(LibrarySortFavorite favorite) {
-    final next = Set<String>.from(_pinnedSortFavoriteIds);
-    if (!next.add(favorite.id)) {
-      next.remove(favorite.id);
-    }
-    setState(() => _pinnedSortFavoriteIds = next);
-    unawaited(_viewPrefs.writePinnedSortFavoriteIds(next));
+    LibraryPagePreferencesControllerOps.togglePinnedSortFavorite(
+      this,
+      favorite,
+    );
   }
 
   void _applyColumnFavorite(LibraryTableColumnPreset preset) {
-    _updateViewState((state) => state.copyWith(visibleColumns: preset.columns));
+    LibraryPagePreferencesControllerOps.applyColumnFavorite(this, preset);
   }
 
   void _togglePinnedColumnFavorite(LibraryTableColumnPreset preset) {
-    final key = libraryColumnFavoriteKey(preset);
-    final next = Set<String>.from(_pinnedColumnFavoriteKeys);
-    if (!next.add(key)) {
-      next.remove(key);
-    }
-    setState(() => _pinnedColumnFavoriteKeys = next);
-    unawaited(_viewPrefs.writePinnedColumnFavoriteKeys(next));
+    LibraryPagePreferencesControllerOps.togglePinnedColumnFavorite(
+      this,
+      preset,
+    );
   }
 
   void _setCollectionStatusScope(LibraryCollectionStatusScope scope) {
