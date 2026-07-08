@@ -114,13 +114,6 @@ class LibraryDetailSectionRegistry {
   }
 }
 
-class LibraryDetailSectionRegistry {
-  const LibraryDetailSectionRegistry();
-
-  static const LibraryDetailSectionRegistry instance =
-      LibraryDetailSectionRegistry();
-}
-
 class LibraryEditSectionRegistry {
   const LibraryEditSectionRegistry();
 
@@ -235,4 +228,3 @@ class _IndexedEditTab {
   final int index;
   final LibraryEditTabSpec tab;
 }
-

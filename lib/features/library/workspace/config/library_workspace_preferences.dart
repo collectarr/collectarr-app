@@ -373,3 +373,15 @@ class LibraryWorkspacePreferences {
     return value.clamp(min, max).toDouble();
   }
 }
+
+T? _enumByName<T extends Enum>(List<T> values, Object? rawValue) {
+  if (rawValue is! String || rawValue.isEmpty) {
+    return null;
+  }
+  for (final value in values) {
+    if (value.name == rawValue) {
+      return value;
+    }
+  }
+  return null;
+}
