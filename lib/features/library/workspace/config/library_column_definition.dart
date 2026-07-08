@@ -27,7 +27,6 @@ class LibraryColumnDefinition {
     required this.id,
     required this.label,
     required this.scope,
-    required this.kinds,
     this.value,
     this.sortable = true,
     this.filterable = true,
@@ -38,16 +37,11 @@ class LibraryColumnDefinition {
   final String id;
   final String label;
   final LibraryColumnScope scope;
-  final Set<CatalogMediaKind> kinds;
   final LibraryColumnValueBuilder? value;
   final bool sortable;
   final bool filterable;
   final bool groupable;
   final double? defaultWidth;
-
-  bool supportsKind(CatalogMediaKind kind) {
-    return kinds.contains(kind);
-  }
 }
 
 class LibraryColumnRegistry {
@@ -62,13 +56,6 @@ class LibraryColumnRegistry {
       }
     }
     return null;
-  }
-
-  List<LibraryColumnDefinition> forKind(CatalogMediaKind kind) {
-    return [
-      for (final definition in definitions)
-        if (definition.supportsKind(kind)) definition,
-    ];
   }
 
   List<LibraryColumnDefinition> get workColumns => [

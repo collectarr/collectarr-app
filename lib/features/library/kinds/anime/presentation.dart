@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/shared/movie/presentation.dart'
     as movie_presentation;
@@ -150,7 +149,6 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.tv_outlined,
   columnRegistry: libraryColumnRegistryFromFieldDefinitions(
-    CatalogMediaKind.anime,
     animeLibraryFieldDefinitions,
   ),
   fieldDefinitions: animeLibraryFieldDefinitions,

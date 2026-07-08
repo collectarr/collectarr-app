@@ -10,7 +10,10 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/registry/media_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart'
+    show moviesMediaAdapter;
+import 'package:collectarr_app/features/library/kinds/music/music_media_adapter.dart'
+    show musicMediaAdapter;
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';

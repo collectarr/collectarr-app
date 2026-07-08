@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
@@ -290,7 +289,6 @@ final tvLibraryMediaPresentation = LibraryMediaPresentation(
   compactBucketIcon: Icons.tv_outlined,
   emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
   columnRegistry: libraryColumnRegistryFromFieldDefinitions(
-    CatalogMediaKind.tv,
     tvLibraryFieldDefinitions,
   ),
   fieldDefinitions: tvLibraryFieldDefinitions,

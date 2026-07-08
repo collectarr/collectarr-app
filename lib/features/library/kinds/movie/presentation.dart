@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace_entry_builder.dart';
@@ -598,7 +597,6 @@ final moviesLibraryMediaPresentation = LibraryMediaPresentation(
   compactBucketIcon: Icons.movie_filter_outlined,
   emptyStateProviderSummarySuffix: ' Physical formats are tracked as editions.',
   columnRegistry: libraryColumnRegistryFromFieldDefinitions(
-    CatalogMediaKind.movie,
     moviesLibraryFieldDefinitions,
   ),
   fieldDefinitions: moviesLibraryFieldDefinitions,

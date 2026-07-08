@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/shared/comic/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart'
@@ -173,7 +172,6 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.import_contacts_outlined,
   columnRegistry: libraryColumnRegistryFromFieldDefinitions(
-    CatalogMediaKind.manga,
     mangaLibraryFieldDefinitions,
   ),
   fieldDefinitions: mangaLibraryFieldDefinitions,

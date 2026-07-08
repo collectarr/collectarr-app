@@ -572,8 +572,7 @@ class LibraryKindUiAdapter {
   }
 
   List<LibraryColumnDefinition> tableColumns(LibraryTypeConfig type) {
-    return type.presentation.columnRegistry?.forKind(type.workspace.kind) ??
-        const [];
+    return type.presentation.columnRegistry?.definitions ?? const [];
   }
 
   List<Widget> inspectorSections(

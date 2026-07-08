@@ -1,9 +1,0 @@
-export 'package:collectarr_app/features/library/kinds/registry/library_media_adapter_builder.dart';
-export 'package:collectarr_app/features/library/kinds/book/book_media_adapter.dart';
-export 'package:collectarr_app/features/library/kinds/game/game_media_adapter.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/boardgame_media_adapter.dart';
-export 'package:collectarr_app/features/library/kinds/manga/manga_media_adapter.dart';
-export 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
-export 'package:collectarr_app/features/library/kinds/tv/tv_media_adapter.dart';
-export 'package:collectarr_app/features/library/kinds/anime/anime_media_adapter.dart';
-export 'package:collectarr_app/features/library/kinds/music/music_media_adapter.dart';

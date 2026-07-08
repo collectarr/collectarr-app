@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/registry/media_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 

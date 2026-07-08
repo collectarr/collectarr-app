@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_item_types.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -594,7 +593,6 @@ final gamesLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: gamesPreviewLabels,
   statsLabels: gamesStatsLabels,
   columnRegistry: libraryColumnRegistryFromFieldDefinitions(
-    CatalogMediaKind.game,
     gamesLibraryFieldDefinitions,
   ),
   fieldDefinitions: gamesLibraryFieldDefinitions,
