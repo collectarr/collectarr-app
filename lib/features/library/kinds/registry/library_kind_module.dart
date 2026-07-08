@@ -92,9 +92,6 @@ class DefaultLibraryKindProviderMapper extends LibraryKindProviderMapper {
       variant: preview.variantName,
       series: series,
       publishing: publishing,
-      music: preview.music,
-      video: preview.video,
-      game: preview.game,
       country: preview.country,
       language: preview.language,
       ageRating: preview.ageRating,
@@ -177,9 +174,6 @@ class DefaultLibraryKindProviderMapper extends LibraryKindProviderMapper {
     if (edited.publishing?.seriesGroup != preview.publishing?.seriesGroup) {
       corrections['series_group'] = edited.publishing?.seriesGroup;
     }
-    if (edited.video?.runtimeMinutes != preview.video?.runtimeMinutes) {
-      corrections['runtime_minutes'] = edited.video?.runtimeMinutes;
-    }
     if (edited.physicalFormat != preview.physicalFormat) {
       corrections['physical_format'] = edited.physicalFormat;
     }
@@ -198,12 +192,6 @@ class DefaultLibraryKindProviderMapper extends LibraryKindProviderMapper {
     if (!sameStringList(edited.genres, preview.genres)) {
       corrections['genres'] = edited.genres;
     }
-    if (!sameStringList(edited.game?.platforms, preview.game?.platforms)) {
-      corrections['platforms'] = edited.game?.platforms;
-    }
-    if (!sameTracks(edited.music?.tracks, preview.music?.tracks)) {
-      corrections['tracks'] = edited.music?.tracks;
-    }
     if (!sameCreators(edited.creators, preview.creators)) {
       corrections['creators'] = edited.creators;
     }
@@ -213,32 +201,8 @@ class DefaultLibraryKindProviderMapper extends LibraryKindProviderMapper {
     if (!sameStringList(edited.storyArcs, preview.storyArcs)) {
       corrections['story_arcs'] = edited.storyArcs;
     }
-    if (edited.video?.color != preview.video?.color) {
-      corrections['color'] = edited.video?.color;
-    }
-    if (edited.video?.nrDiscs != preview.video?.nrDiscs) {
-      corrections['nr_discs'] = edited.video?.nrDiscs;
-    }
-    if (edited.video?.screenRatio != preview.video?.screenRatio) {
-      corrections['screen_ratio'] = edited.video?.screenRatio;
-    }
-    if (edited.video?.audioTracks != preview.video?.audioTracks) {
-      corrections['audio_tracks'] = edited.video?.audioTracks;
-    }
-    if (edited.video?.subtitles != preview.video?.subtitles) {
-      corrections['subtitles'] = edited.video?.subtitles;
-    }
-    if (edited.video?.layers != preview.video?.layers) {
-      corrections['layers'] = edited.video?.layers;
-    }
     if (!sameTrailerLinks(edited.trailerUrls, preview.trailerUrls)) {
       corrections['external_links'] = edited.trailerUrls;
-    }
-    if (edited.music?.catalogNumber != preview.music?.catalogNumber) {
-      corrections['catalog_number'] = edited.music?.catalogNumber;
-    }
-    if (edited.music?.releaseStatus != preview.music?.releaseStatus) {
-      corrections['release_status'] = edited.music?.releaseStatus;
     }
     if (edited.coverImageUrl != preview.coverImageUrl) {
       corrections['cover_image_url'] = edited.coverImageUrl;
