@@ -184,6 +184,7 @@ const comicsLibraryGroupModeDefinitions = [
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.storyArc,
+    id: 'comic.story_arc',
     label: 'Story Arc',
     sidebarTitle: 'Story Arcs',
     icon: Icons.auto_stories_outlined,
@@ -209,6 +210,7 @@ const comicsLibraryGroupModeDefinitions = [
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.character,
+    id: 'comic.character',
     label: 'Character',
     sidebarTitle: 'Characters',
     icon: Icons.groups_2_outlined,

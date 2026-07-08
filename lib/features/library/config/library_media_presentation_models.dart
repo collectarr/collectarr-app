@@ -120,14 +120,16 @@ class LibraryGroupModeDefinition {
     required this.label,
     required this.sidebarTitle,
     required this.icon,
+    String? id,
     this.presentation = LibraryGroupPresentation.inlineHeaders,
     this.supportsBucketManagement = false,
     this.bucketManagerListLabel,
     this.drilldownChildMode,
     this.folderSetLabel,
-  });
+  }) : _id = id;
 
   final LibraryGroupMode mode;
+  final String? _id;
   final String label;
   final String sidebarTitle;
   final IconData icon;
@@ -137,8 +139,18 @@ class LibraryGroupModeDefinition {
   final LibraryGroupMode? drilldownChildMode;
   final String? folderSetLabel;
 
+  String get id => _id ?? _stableToken(mode.name);
   String get resolvedBucketManagerListLabel =>
       bucketManagerListLabel ?? '$label list';
+
+  static String _stableToken(String value) {
+    return value
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+  }
 }
 
 class LibrarySortColumnDefinition {
