@@ -66,8 +66,8 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/generic/page/controllers/page_toolbar_presenter.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/library_toolbar_action_registry.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_search_controller.dart';
-import 'package:collectarr_app/features/library/generic/page/controllers/page_selection_controller.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_shell_presenter.dart';
+import 'package:collectarr_app/features/library/generic/page/controllers/page_selection_controller.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/foundation.dart';
