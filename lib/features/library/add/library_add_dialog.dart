@@ -65,6 +65,7 @@ import 'controllers/library_add_manual_draft.dart';
 import 'controllers/library_add_preview_controller.dart';
 import 'controllers/library_add_search_controller.dart';
 import 'controllers/library_add_selection_controller.dart';
+import 'services/library_add_workflow_service.dart';
 import 'panes/library_add_bottom_bar.dart';
 import 'panes/library_add_manual_pane.dart';
 import 'panes/library_add_mode_bar.dart';
@@ -148,6 +149,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryAddSelectionController _selectionState;
   late final LibraryAddPreviewController _previewState;
   late final LibraryAddController _addController;
+  late final LibraryAddWorkflowService _workflowService;
   final _uuid = const Uuid();
 
   bool _isAdding = false;
@@ -428,6 +430,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       selection: _selectionState,
       preview: _previewState,
     );
+    _workflowService = const LibraryAddWorkflowService();
     _providerActionService = const LibraryProviderActionService();
     if (_isMovieDesktopChrome) {
       _resultsPaneWidth = 720;
@@ -2672,7 +2675,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final cachedPreview =
         _previewState.providerPreviewFor(candidate.localCatalogId);
     if (cachedPreview != null) {
-      return metadataItemFromPreview(cachedPreview);
+      return _workflowService.metadataItemFromPreview(cachedPreview);
     }
     try {
       final preview = await ref.read(apiClientProvider).providerPreview(
@@ -2684,7 +2687,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _previewState.setProviderPreview(candidate.localCatalogId, preview);
         });
       }
-      return metadataItemFromPreview(preview);
+      return _workflowService.metadataItemFromPreview(preview);
     } catch (error) {
       if (mounted && _isMissingBearerTokenError(error)) {
         _rebuild(
@@ -2695,55 +2698,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       }
       rethrow;
     }
-  }
-
-  LibraryMetadataItem metadataItemFromPreview(AdminProviderPreview preview) {
-    final series = preview.series;
-    final publishing = preview.publishing;
-    final music = preview.music;
-    final video = preview.video;
-    final game = preview.game;
-    return LibraryMetadataItem(
-      id: buildPreviewCatalogItemId(
-        kind: preview.kind,
-        provider: preview.provider,
-        providerItemId: preview.providerItemId,
-      ),
-      kind: preview.kind,
-      title: preview.title,
-      itemNumber: preview.itemNumber,
-      synopsis: preview.synopsis,
-      coverImageUrl: preview.coverImageUrl,
-      thumbnailImageUrl: preview.coverImageUrl,
-      editionTitle: preview.editionTitle,
-      physicalFormat: preview.physicalFormat,
-      physicalFormatLabel: preview.physicalFormatLabel,
-      publisher: preview.publisher,
-      releaseDate: preview.releaseDate,
-      releaseYear: preview.releaseDate?.year ?? preview.series?.volumeStartYear,
-      barcode: preview.barcode,
-      variant: preview.variantName,
-      series: series,
-      publishing: publishing,
-      music: music,
-      video: video,
-      game: game,
-      country: preview.country,
-      language: preview.language,
-      ageRating: preview.ageRating,
-      audienceRating: preview.audienceRating,
-      creators: [
-        for (final creator in preview.creators)
-          {
-            'name': creator.name,
-            if (creator.role != null) 'role': creator.role,
-            if (creator.imageUrl != null) 'image_url': creator.imageUrl,
-          },
-      ],
-      characters: preview.characters,
-      storyArcs: preview.storyArcs,
-      genres: preview.genres,
-    );
   }
 
   Future<void> applyIngestCorrections({
@@ -2969,7 +2923,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
         if (!mounted) return;
 
-        final previewItem = metadataItemFromPreview(preview);
+        final previewItem = _workflowService.metadataItemFromPreview(preview);
         final catalog = ref.read(mediaCatalogProvider).maybeWhen(
               data: (value) => value,
               orElse: () => fallbackMediaCatalog,
@@ -3418,7 +3372,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _error = null;
     });
     try {
-      await addLibraryItemsToTarget(
+      await _workflowService.addItems(
         catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
         mutations: ref.read(collectionMutationsProvider),
         items: items,
