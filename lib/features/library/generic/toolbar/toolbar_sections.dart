@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/generic/tools_menu.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -73,9 +74,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
-    this.onMissingSequenceReport,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
+    this.extraActions = const [],
     this.groupMode,
     this.folderPreset,
     this.groupPresentation,
@@ -137,9 +138,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
-  final VoidCallback? onMissingSequenceReport;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
+  final List<LibraryUtilityMenuAction> extraActions;
   final LibraryFolderPreset? folderPreset;
   final LibraryGroupMode? groupMode;
   final LibraryGroupPresentation? groupPresentation;
@@ -393,9 +394,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     onTransferFieldData: onTransferFieldData,
                     onReassignIndex: onReassignIndex,
                     onPrintReport: onPrintReport,
-                    onMissingSequenceReport: onMissingSequenceReport,
                     onShareCollection: onShareCollection,
                     onCompareMetadataWithServer: onCompareMetadataWithServer,
+                    extraActions: extraActions,
                   ),
                 ],
               ),
@@ -998,6 +999,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.onEditTagPickList,
     this.onEditSort,
     this.onCompareMetadataWithServer,
+    this.extraActions = const [],
     this.availableLetters = const {},
     this.selectedLetter,
     this.onLetterSelected,
@@ -1063,6 +1065,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final VoidCallback? onEditTagPickList;
   final VoidCallback? onEditSort;
   final VoidCallback? onCompareMetadataWithServer;
+  final List<LibraryUtilityMenuAction> extraActions;
   final Set<String> availableLetters;
   final String? selectedLetter;
   final ValueChanged<String?>? onLetterSelected;
@@ -1196,6 +1199,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 onEditTagPickList: onEditTagPickList,
                 onEditSort: onEditSort,
                 onCompareMetadataWithServer: onCompareMetadataWithServer,
+                extraActions: extraActions,
               ),
             ],
           ),

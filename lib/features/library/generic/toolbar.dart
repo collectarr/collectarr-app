@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
@@ -105,9 +106,9 @@ class LibraryToolbar extends StatelessWidget {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
-    this.onMissingSequenceReport,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
+    this.extraUtilityActions = const [],
     this.groupMode,
     this.folderPreset,
     this.groupPresentation,
@@ -204,9 +205,9 @@ class LibraryToolbar extends StatelessWidget {
         onTransferFieldData = actions.onTransferFieldData,
         onReassignIndex = actions.onReassignIndex,
         onPrintReport = actions.onPrintReport,
-        onMissingSequenceReport = actions.onMissingSequenceReport,
         onShareCollection = actions.onShareCollection,
         onCompareMetadataWithServer = actions.onCompareMetadataWithServer,
+        extraUtilityActions = actions.extraUtilityActions,
         groupMode = state.groupMode,
         folderPreset = state.folderPreset,
         groupPresentation = state.groupPresentation,
@@ -297,9 +298,9 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
-  final VoidCallback? onMissingSequenceReport;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
+  final List<LibraryUtilityMenuAction> extraUtilityActions;
   final LibraryGroupMode? groupMode;
   final LibraryFolderPreset? folderPreset;
   final LibraryGroupPresentation? groupPresentation;
@@ -390,6 +391,7 @@ class LibraryToolbar extends StatelessWidget {
                   onEditTagPickList: onEditTagPickList,
                   onEditSort: onEditSort,
                   onCompareMetadataWithServer: onCompareMetadataWithServer,
+                  extraActions: extraUtilityActions,
                   availableLetters: availableLetters,
                   selectedLetter: selectedLetter,
                   onLetterSelected: onLetterSelected,
@@ -482,6 +484,7 @@ class LibraryToolbar extends StatelessWidget {
                       onPrintReport: onPrintReport,
                       onShareCollection: onShareCollection,
                       onCompareMetadataWithServer: onCompareMetadataWithServer,
+                      extraActions: extraUtilityActions,
                       groupMode: groupMode,
                       folderPreset: folderPreset,
                       groupPresentation: groupPresentation,

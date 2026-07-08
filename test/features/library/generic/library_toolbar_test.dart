@@ -1,8 +1,10 @@
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
@@ -700,5 +702,25 @@ void main() {
             'reassign-index gate mismatch for ${type.workspace.kind.apiValue}',
       );
     }
+  });
+
+  test('comic kind exposes a module-owned missing issues toolbar action', () {
+    final descriptor = comicKindModule.toolbar.actions.single;
+    expect(descriptor.id, 'comic.missing_issues');
+    expect(descriptor.label, 'Missing issues report...');
+    expect(descriptor.icon, Icons.find_in_page_outlined);
+
+    final action = descriptor.buildAction(
+      LibraryToolbarActionContext(
+        type: comicsLibraryConfig,
+        projection: null,
+        onMissingSequenceReport: null,
+      ),
+    );
+
+    expect(action.label, 'Missing issues report...');
+    expect(action.section, 'Collection');
+    expect(action.enabled, isFalse);
+    expect(action.onSelected, isNull);
   });
 }

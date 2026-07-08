@@ -32,9 +32,9 @@ class LibraryToolsButton extends StatelessWidget {
     this.onReassignIndex,
     this.onTransferFieldData,
     this.onPrintReport,
-    this.onMissingSequenceReport,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
+    this.extraActions = const [],
   });
 
   final LibraryTypeConfig type;
@@ -57,9 +57,9 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onPrintReport;
-  final VoidCallback? onMissingSequenceReport;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
+  final List<LibraryUtilityMenuAction> extraActions;
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +154,7 @@ class LibraryToolsButton extends StatelessWidget {
             section: 'Collection',
             onSelected: onCompareMetadataWithServer!,
           ),
+        ...extraActions,
         LibraryUtilityMenuAction(
           icon: Icons.auto_fix_high,
           label: 'Pre-fill settings...',
@@ -225,13 +226,6 @@ class LibraryToolsButton extends StatelessWidget {
             label: 'Print / PDF report',
             section: 'Share',
             onSelected: onPrintReport!,
-          ),
-        if (onMissingSequenceReport != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.find_in_page_outlined,
-            label: 'Missing sequence report...',
-            section: 'Collection',
-            onSelected: onMissingSequenceReport!,
           ),
         if (onShareCollection != null)
           LibraryUtilityMenuAction(

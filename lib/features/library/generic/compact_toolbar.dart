@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -30,6 +31,7 @@ class CompactLibraryToolbar extends StatelessWidget {
     this.onEditGradePickList,
     this.onEditTagPickList,
     this.onEditSort,
+    this.extraActions = const [],
   });
 
   final LibraryTypeConfig type;
@@ -53,6 +55,7 @@ class CompactLibraryToolbar extends StatelessWidget {
   final VoidCallback? onEditGradePickList;
   final VoidCallback? onEditTagPickList;
   final VoidCallback? onEditSort;
+  final List<LibraryUtilityMenuAction> extraActions;
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +117,7 @@ class CompactLibraryToolbar extends StatelessWidget {
                 onEditGradePickList: onEditGradePickList,
                 onEditTagPickList: onEditTagPickList,
                 onEditSort: onEditSort,
+                extraActions: extraActions,
               ),
               Tooltip(
                 message: 'Cover size',

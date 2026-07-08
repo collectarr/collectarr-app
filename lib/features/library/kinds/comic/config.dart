@@ -93,7 +93,6 @@ final comicsLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     supportsIndexReassignment: true,
     supportsMetadataCompare: true,
-    supportsMissingSequenceReport: true,
     supportsSeriesIssueJump: true,
     issueSortNumber: comicIssueSortNumber,
     groupModeCategoriesBuilder: buildComicGroupModeCategories,

@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -53,12 +54,12 @@ class LibraryToolbarActions {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
-    this.onMissingSequenceReport,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.onPinnedFolderPresetsChanged,
     this.onGroupModeChanged,
     this.onGroupPresentationChanged,
+    this.extraUtilityActions = const [],
   });
 
   final VoidCallback onAdd;
@@ -107,10 +108,10 @@ class LibraryToolbarActions {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
-  final VoidCallback? onMissingSequenceReport;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;
   final ValueChanged<LibraryGroupPresentation>? onGroupPresentationChanged;
+  final List<LibraryUtilityMenuAction> extraUtilityActions;
 }

@@ -385,7 +385,6 @@ class LibraryTypeCapabilities {
     this.supportsReadingQueue = false,
     this.supportsIndexReassignment = false,
     this.supportsTrackSearch = false,
-    this.supportsMissingSequenceReport = false,
     this.supportsSeriesIssueJump = false,
     this.wideDialog = false,
     this.videoSeriesEntryTypes = const {},
@@ -413,7 +412,6 @@ class LibraryTypeCapabilities {
   final bool supportsReadingQueue;
   final bool supportsIndexReassignment;
   final bool supportsTrackSearch;
-  final bool supportsMissingSequenceReport;
   final bool supportsSeriesIssueJump;
   final bool wideDialog;
   final Set<String> videoSeriesEntryTypes;
@@ -586,10 +584,6 @@ class LibraryKindUiAdapter {
     return type.supportsMetadataCompareWithServer;
   }
 
-  bool supportsReportAction(LibraryTypeConfig type) {
-    return type.capabilities.supportsMissingSequenceReport;
-  }
-
   LibraryWorkspaceBrowserMode browserModeForViewState(
     LibraryTypeConfig type,
     LibraryWorkspaceViewState viewState, {
@@ -625,7 +619,6 @@ class LibraryKindUiAdapter {
     required String? selectedBucket,
   }) {
     if (projection == null ||
-        !type.capabilities.supportsSeriesIssueJump ||
         activeGroupMode != LibraryGroupMode.series ||
         selectedBucket == null) {
       return false;

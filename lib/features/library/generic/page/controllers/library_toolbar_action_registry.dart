@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -130,20 +131,20 @@ class LibraryToolbarCollectionActionsContext {
     required this.onTransferFieldData,
     required this.onReassignIndex,
     required this.onPrintReport,
-    required this.onMissingSequenceReport,
     required this.onShareCollection,
     required this.onCompareMetadataWithServer,
+    required this.onMissingSequenceReport,
   });
 
   final ValueChanged<LibraryProjection?> onTransferFieldData;
   final ValueChanged<LibraryProjection?> onReassignIndex;
   final ValueChanged<LibraryProjection?> onPrintReport;
-  final ValueChanged<LibraryProjection?> onMissingSequenceReport;
   final ValueChanged<LibraryProjection?> onShareCollection;
   final Future<void> Function(
     LibraryProjection projection, {
     LibraryProjectionItem? item,
   }) onCompareMetadataWithServer;
+  final ValueChanged<LibraryProjection?> onMissingSequenceReport;
 }
 
 class LibraryToolbarAdminActionsContext {
@@ -191,7 +192,22 @@ class LibraryToolbarActionRegistry {
   }) {
     final availability = context.view.type.toolbarActionAvailability;
     final kindCapabilities = availability.capabilities;
+    final kindToolbarActions = libraryKindModuleForType(context.view.type)
+        .toolbar
+        .actions;
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
+    final extraUtilityActions = kindToolbarActions
+        .map(
+          (descriptor) => descriptor.buildAction(
+            LibraryToolbarActionContext(
+              type: context.view.type,
+              projection: projection,
+              onMissingSequenceReport:
+                  context.collectionActions.onMissingSequenceReport,
+            ),
+          ),
+        )
+        .toList(growable: false);
 
     return LibraryToolbarActions(
       onAdd: enabled(LibraryToolbarActionId.add)
@@ -289,11 +305,6 @@ class LibraryToolbarActionRegistry {
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty
           ? () => context.collectionActions.onPrintReport(projection)
           : null,
-      onMissingSequenceReport: projection != null &&
-              kindCapabilities.canMissingSequenceReport &&
-              context.view.type.capabilities.supportsMissingSequenceReport
-          ? () => context.collectionActions.onMissingSequenceReport(projection)
-          : null,
       onShareCollection:
           projection != null && projection.filteredItems.isNotEmpty
               ? () => context.collectionActions.onShareCollection(projection)
@@ -321,6 +332,7 @@ class LibraryToolbarActionRegistry {
       onPinnedFolderPresetsChanged: (_) {},
       onGroupModeChanged: (_) {},
       onGroupPresentationChanged: (_) {},
+      extraUtilityActions: extraUtilityActions,
     );
   }
 }

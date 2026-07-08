@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -61,7 +62,11 @@ class LibraryKindDetailModule {
 }
 
 class LibraryKindToolbarModule {
-  const LibraryKindToolbarModule();
+  const LibraryKindToolbarModule({
+    this.actions = const [],
+  });
+
+  final List<LibraryToolbarActionDescriptor> actions;
 }
 
 abstract class LibraryKindProviderMapper {

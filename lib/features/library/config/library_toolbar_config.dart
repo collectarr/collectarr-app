@@ -1,4 +1,37 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
+import 'package:flutter/material.dart';
+
+class LibraryToolbarActionContext {
+  const LibraryToolbarActionContext({
+    required this.type,
+    required this.projection,
+    required this.onMissingSequenceReport,
+  });
+
+  final LibraryTypeConfig type;
+  final LibraryProjection? projection;
+  final ValueChanged<LibraryProjection?>? onMissingSequenceReport;
+}
+
+class LibraryToolbarActionDescriptor {
+  const LibraryToolbarActionDescriptor({
+    required this.id,
+    required this.label,
+    required this.icon,
+    required this.buildAction,
+    this.section,
+  });
+
+  final String id;
+  final String label;
+  final IconData icon;
+  final String? section;
+  final LibraryUtilityMenuAction Function(
+    LibraryToolbarActionContext context,
+  ) buildAction;
+}
 
 enum LibraryToolbarActionId {
   add,
@@ -95,7 +128,6 @@ class KindToolbarCapabilities {
     this.canReadingQueue = false,
     this.canReassignIndex = false,
     this.canCompareMetadataWithServer = false,
-    this.canMissingSequenceReport = false,
   });
 
   final bool canScanCover;
@@ -103,7 +135,6 @@ class KindToolbarCapabilities {
   final bool canReadingQueue;
   final bool canReassignIndex;
   final bool canCompareMetadataWithServer;
-  final bool canMissingSequenceReport;
 }
 
 class LibraryToolbarActionAvailability {
@@ -129,7 +160,6 @@ extension LibraryTypeConfigToolbarAvailability on LibraryTypeConfig {
         canReadingQueue: capabilities.supportsReadingQueue,
         canReassignIndex: capabilities.supportsIndexReassignment,
         canCompareMetadataWithServer: capabilities.supportsMetadataCompare,
-        canMissingSequenceReport: workspace.kind.apiValue == 'comic',
       ),
     );
   }
