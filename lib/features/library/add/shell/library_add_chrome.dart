@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
 import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_chrome_scope.dart';
 import 'package:flutter/material.dart';
 
 /// Kind-specific copy for the shared add-dialog chrome (header + mode bar).
@@ -99,6 +100,7 @@ Widget buildLibraryAddModeBar(
   final isBusy = request.isSearching || request.isSearchingProvider;
   final isBarcode = request.mode == LibraryAddDialogMode.barcode;
   final isSearch = request.mode == LibraryAddDialogMode.search;
+  final movieScope = MovieAddChromeScope.maybeOf(context);
   final searchButtonLabel =
       labels.searchButtonLabel ?? 'Search ${request.type.pluralLabel}';
   return DecoratedBox(
@@ -215,23 +217,24 @@ Widget buildLibraryAddModeBar(
               ],
             ],
           ),
-          if (isSearch && request.videoKindFilters != null) ...[
+          if (isSearch && movieScope?.showVideoKindFilters == true) ...[
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
                 FilterChip(
-                  selected: request.videoKindFilters!.contains('movie'),
+                  selected: movieScope!.videoKindFilters.contains('movie'),
                   label: const Text('Movies'),
                   onSelected: (value) =>
-                      request.onVideoKindFilterChanged?.call('movie', value),
+                      movieScope.onVideoKindFilterChanged('movie', value),
                 ),
                 FilterChip(
-                  selected: request.videoKindFilters!.contains('collection'),
+                  selected:
+                      movieScope.videoKindFilters.contains('collection'),
                   label: const Text('Box Sets'),
-                  onSelected: (value) => request.onVideoKindFilterChanged
-                      ?.call('collection', value),
+                  onSelected: (value) =>
+                      movieScope.onVideoKindFilterChanged('collection', value),
                 ),
               ],
             ),

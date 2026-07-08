@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/add/library_add_result_badge.dar
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/shared/add/add_bottom_bar.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_search_options_scope.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -151,6 +152,7 @@ class _ComicFilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final options = ComicAddSearchOptionsScope.maybeOf(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -164,20 +166,20 @@ class _ComicFilterBar extends StatelessWidget {
           children: [
             FilterChip(
               label: const Text('Hide owned'),
-              selected: request.hideComicOwnedResults,
-              onSelected: request.onHideComicOwnedResultsChanged,
+              selected: options?.hideOwnedResults ?? false,
+              onSelected: options?.onHideOwnedResultsChanged,
               visualDensity: VisualDensity.compact,
             ),
             FilterChip(
               label: const Text('Hide variants'),
-              selected: request.hideComicVariantResults,
-              onSelected: request.onHideComicVariantResultsChanged,
+              selected: options?.hideVariantResults ?? false,
+              onSelected: options?.onHideVariantResultsChanged,
               visualDensity: VisualDensity.compact,
             ),
             FilterChip(
               label: const Text('Compact issues'),
-              selected: request.compactComicIssues,
-              onSelected: request.onCompactComicIssuesChanged,
+              selected: options?.compactIssues ?? false,
+              onSelected: options?.onCompactIssuesChanged,
               visualDensity: VisualDensity.compact,
             ),
           ],
@@ -232,6 +234,7 @@ class _ComicSearchRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final options = ComicAddSearchOptionsScope.maybeOf(context);
     final selected = entry.item != null
         ? request.selectedResultId == entry.item!.id
         : request.selectedProviderCandidateId ==
@@ -260,7 +263,7 @@ class _ComicSearchRow extends StatelessWidget {
             : () => request
                 .onSelectProviderCandidate(entry.candidate!.localCatalogId),
         child: Container(
-          height: request.compactComicIssues ? 64 : 72,
+          height: options?.compactIssues == true ? 64 : 72,
           decoration: BoxDecoration(
             color: background,
             border: Border(
@@ -360,11 +363,12 @@ class _ComicSearchRow extends StatelessWidget {
 
   Widget _issueCell(BuildContext context) {
     final palette = appPalette(context);
+    final options = ComicAddSearchOptionsScope.maybeOf(context);
     return SizedBox(
       width: _ComicAddSearchPane._issueWidth,
       child: Align(
         alignment: Alignment.centerLeft,
-        child: request.compactComicIssues
+        child: options?.compactIssues == true
             ? Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                 decoration: BoxDecoration(

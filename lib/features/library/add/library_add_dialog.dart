@@ -31,6 +31,8 @@ import 'package:collectarr_app/features/library/add/library_add_registry.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_search_options_scope.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_chrome_scope.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -750,7 +752,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final headerRequest = LibraryAddHeaderRequest(
       type: widget.type,
       accent: accent,
-      isMovieDesktopChrome: _isMovieDesktopChrome,
       onClose: () => Navigator.of(context).pop(),
     );
     final modeBarRequest = LibraryAddModeBarRequest(
@@ -790,19 +791,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       numberController: _searchNumberController,
       publisherController: _searchPublisherController,
       yearController: _searchYearController,
-      videoKindFilters: _showsVideoKindFilters ? _videoKindFilters : null,
-      onVideoKindFilterChanged: _showsVideoKindFilters
-          ? (kind, checked) {
-              final canonicalKind = _canonicalVideoSearchKind(kind);
-              setState(() {
-                if (checked) {
-                  _videoKindFilters.add(canonicalKind);
-                } else {
-                  _videoKindFilters.remove(canonicalKind);
-                }
-              });
-            }
-          : null,
     );
     return LibraryAddShell(
       accent: accent,
@@ -835,36 +823,63 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           widget.modeBarBuilder?.call(context, modeBarRequest) ??
               LibraryAddRegistry.modeBarBuilderFor(widget.type.workspace.kind)
                   ?.call(context, modeBarRequest) ??
-              LibraryAddModeBar(
-                type: modeBarRequest.type,
-                accent: modeBarRequest.accent,
-                isMovieDesktopChrome: modeBarRequest.isMovieDesktopChrome,
-                mode: modeBarRequest.mode,
-                queryController: modeBarRequest.queryController,
-                barcodeController: modeBarRequest.barcodeController,
-                isSearching: modeBarRequest.isSearching,
-                isSearchingProvider: modeBarRequest.isSearchingProvider,
-                onModeChanged: modeBarRequest.onModeChanged,
-                onSearch: modeBarRequest.onSearch,
-                onQueryChanged: modeBarRequest.onQueryChanged,
-                suggestions: modeBarRequest.suggestions,
-                showSuggestions: modeBarRequest.showSuggestions,
-                onSelectSuggestion: modeBarRequest.onSelectSuggestion,
-                onDismissSuggestions: modeBarRequest.onDismissSuggestions,
-                canScanCover: modeBarRequest.canScanCover,
-                isScanningCover: modeBarRequest.isScanningCover,
-                onScanCover: modeBarRequest.onScanCover,
-                onLookupBarcode: modeBarRequest.onLookupBarcode,
-                onManual: modeBarRequest.onManual,
-                showAdvanced: modeBarRequest.showAdvanced,
-                onToggleAdvanced: modeBarRequest.onToggleAdvanced,
-                seriesController: modeBarRequest.seriesController,
-                numberController: modeBarRequest.numberController,
-                publisherController: modeBarRequest.publisherController,
-                yearController: modeBarRequest.yearController,
-                videoKindFilters: modeBarRequest.videoKindFilters,
-                onVideoKindFilterChanged:
-                    modeBarRequest.onVideoKindFilterChanged,
+              MovieAddChromeScope(
+                isWideChrome: _isMovieDesktopChrome,
+                videoKindFilters: _videoKindFilters,
+                showVideoKindFilters: _showsVideoKindFilters,
+                onVideoKindFilterChanged: (kind, checked) {
+                  final canonicalKind = _canonicalVideoSearchKind(kind);
+                  setState(() {
+                    if (checked) {
+                      _videoKindFilters.add(canonicalKind);
+                    } else {
+                      _videoKindFilters.remove(canonicalKind);
+                    }
+                  });
+                },
+                child: LibraryAddModeBar(
+                  type: modeBarRequest.type,
+                  accent: modeBarRequest.accent,
+                  isMovieDesktopChrome: _isMovieDesktopChrome,
+                  mode: modeBarRequest.mode,
+                  queryController: modeBarRequest.queryController,
+                  barcodeController: modeBarRequest.barcodeController,
+                  isSearching: modeBarRequest.isSearching,
+                  isSearchingProvider: modeBarRequest.isSearchingProvider,
+                  onModeChanged: modeBarRequest.onModeChanged,
+                  onSearch: modeBarRequest.onSearch,
+                  onQueryChanged: modeBarRequest.onQueryChanged,
+                  suggestions: modeBarRequest.suggestions,
+                  showSuggestions: modeBarRequest.showSuggestions,
+                  onSelectSuggestion: modeBarRequest.onSelectSuggestion,
+                  onDismissSuggestions: modeBarRequest.onDismissSuggestions,
+                  canScanCover: modeBarRequest.canScanCover,
+                  isScanningCover: modeBarRequest.isScanningCover,
+                  onScanCover: modeBarRequest.onScanCover,
+                  onLookupBarcode: modeBarRequest.onLookupBarcode,
+                  onManual: modeBarRequest.onManual,
+                  showAdvanced: modeBarRequest.showAdvanced,
+                  onToggleAdvanced: modeBarRequest.onToggleAdvanced,
+                  seriesController: modeBarRequest.seriesController,
+                  numberController: modeBarRequest.numberController,
+                  publisherController: modeBarRequest.publisherController,
+                  yearController: modeBarRequest.yearController,
+                  videoKindFilters:
+                      _showsVideoKindFilters ? _videoKindFilters : null,
+                  onVideoKindFilterChanged: _showsVideoKindFilters
+                      ? (kind, checked) {
+                          final canonicalKind =
+                              _canonicalVideoSearchKind(kind);
+                          setState(() {
+                            if (checked) {
+                              _videoKindFilters.add(canonicalKind);
+                            } else {
+                              _videoKindFilters.remove(canonicalKind);
+                            }
+                          });
+                        }
+                      : null,
+                ),
               ),
           if (_barcodeController.text.trim().isNotEmpty)
             LibraryAddBarcodePrefillBanner(
@@ -881,7 +896,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 final searchPaneRequest = LibraryAddSearchPaneRequest(
                   type: widget.type,
                   isBusy: isBusy,
-                  isMovieDesktopChrome: _isMovieDesktopChrome,
                   error: _error,
                   accent: accent,
                   results: visibleResults,
@@ -905,9 +919,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   showMediaResults: _showMediaResults,
                   showSeasonResults: _showSeasonResults,
                   showReleaseResults: _showReleaseResults,
-                  hideComicOwnedResults: _hideComicOwnedResults,
-                  hideComicVariantResults: _hideComicVariantResults,
-                  compactComicIssues: _compactComicIssues,
                   onSelectResult: _selectCoreResult,
                   onSelectProviderCandidate: _selectProviderCandidate,
                   onToggleResultCheck: (id) =>
@@ -920,22 +931,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   onShowMediaResultsChanged: (_) {},
                   onShowSeasonResultsChanged: (_) {},
                   onShowReleaseResultsChanged: (_) {},
-                  onHideComicOwnedResultsChanged: (value) => setState(() {
-                    _hideComicOwnedResults = value;
-                    _pruneSelectionsForVisibility(
-                      visibleResults: _visibleCoreResults(),
-                      visibleProviderResults: _visibleProviderResults(),
-                    );
-                  }),
-                  onHideComicVariantResultsChanged: (value) => setState(() {
-                    _hideComicVariantResults = value;
-                    _pruneSelectionsForVisibility(
-                      visibleResults: _visibleCoreResults(),
-                      visibleProviderResults: _visibleProviderResults(),
-                    );
-                  }),
-                  onCompactComicIssuesChanged: (value) =>
-                      setState(() => _compactComicIssues = value),
                   onSearchCore: _search,
                 );
                 final searchPane = widget.searchPaneBuilder
@@ -943,68 +938,96 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     LibraryAddRegistry.searchBuilderFor(
                             widget.type.workspace.kind)
                         ?.call(context, searchPaneRequest) ??
-                    LibraryAddSearchPane(
-                      type: searchPaneRequest.type,
-                      isBusy: searchPaneRequest.isBusy,
-                      isMovieDesktopChrome:
-                          searchPaneRequest.isMovieDesktopChrome,
-                      error: searchPaneRequest.error,
-                      accent: searchPaneRequest.accent,
-                      results: searchPaneRequest.results,
-                      providerResults: searchPaneRequest.providerResults,
-                      queuedProviderIngests:
-                          searchPaneRequest.queuedProviderIngests,
-                      selectedProvider: searchPaneRequest.selectedProvider,
-                      searchedProvider: searchPaneRequest.searchedProvider,
-                      selectedResultId: searchPaneRequest.selectedResultId,
-                      selectedProviderCandidateId:
-                          searchPaneRequest.selectedProviderCandidateId,
-                      checkedResultIds: searchPaneRequest.checkedResultIds,
-                      checkedProviderIds: searchPaneRequest.checkedProviderIds,
-                      ownedCatalogItemIds:
-                          searchPaneRequest.ownedCatalogItemIds,
-                      providerQueryText: searchPaneRequest.providerQueryText,
-                      providerSeriesText: searchPaneRequest.providerSeriesText,
-                      providerNumberText: searchPaneRequest.providerNumberText,
-                      providerPublisherText:
-                          searchPaneRequest.providerPublisherText,
-                      providerYearText: searchPaneRequest.providerYearText,
-                      isWideLayout: searchPaneRequest.isWideLayout,
-                      showCoreResults: searchPaneRequest.showCoreResults,
-                      showProviderResults:
-                          searchPaneRequest.showProviderResults,
-                      showMediaResults: searchPaneRequest.showMediaResults,
-                      showSeasonResults: searchPaneRequest.showSeasonResults,
-                      showReleaseResults: searchPaneRequest.showReleaseResults,
-                      hideComicOwnedResults:
-                          searchPaneRequest.hideComicOwnedResults,
-                      hideComicVariantResults:
-                          searchPaneRequest.hideComicVariantResults,
-                      compactComicIssues: searchPaneRequest.compactComicIssues,
-                      onSelectResult: searchPaneRequest.onSelectResult,
-                      onSelectProviderCandidate:
-                          searchPaneRequest.onSelectProviderCandidate,
-                      onToggleResultCheck:
-                          searchPaneRequest.onToggleResultCheck,
-                      onToggleProviderCheck:
-                          searchPaneRequest.onToggleProviderCheck,
-                      onShowCoreResultsChanged:
-                          searchPaneRequest.onShowCoreResultsChanged,
-                      onShowProviderResultsChanged:
-                          searchPaneRequest.onShowProviderResultsChanged,
-                      onShowMediaResultsChanged:
-                          searchPaneRequest.onShowMediaResultsChanged,
-                      onShowSeasonResultsChanged:
-                          searchPaneRequest.onShowSeasonResultsChanged,
-                      onShowReleaseResultsChanged:
-                          searchPaneRequest.onShowReleaseResultsChanged,
-                      onHideComicOwnedResultsChanged:
-                          searchPaneRequest.onHideComicOwnedResultsChanged,
-                      onHideComicVariantResultsChanged:
-                          searchPaneRequest.onHideComicVariantResultsChanged,
-                      onCompactComicIssuesChanged:
-                          searchPaneRequest.onCompactComicIssuesChanged,
-                      onSearchCore: searchPaneRequest.onSearchCore,
+                    ComicAddSearchOptionsScope(
+                      hideOwnedResults: _hideComicOwnedResults,
+                      hideVariantResults: _hideComicVariantResults,
+                      compactIssues: _compactComicIssues,
+                      onHideOwnedResultsChanged: (value) => setState(() {
+                        _hideComicOwnedResults = value;
+                        _pruneSelectionsForVisibility(
+                          visibleResults: _visibleCoreResults(),
+                          visibleProviderResults: _visibleProviderResults(),
+                        );
+                      }),
+                      onHideVariantResultsChanged: (value) => setState(() {
+                        _hideComicVariantResults = value;
+                        _pruneSelectionsForVisibility(
+                          visibleResults: _visibleCoreResults(),
+                          visibleProviderResults: _visibleProviderResults(),
+                        );
+                      }),
+                      onCompactIssuesChanged: (value) =>
+                          setState(() => _compactComicIssues = value),
+                      child: LibraryAddSearchPane(
+                        type: searchPaneRequest.type,
+                        isBusy: searchPaneRequest.isBusy,
+                        isMovieDesktopChrome: _isMovieDesktopChrome,
+                        error: searchPaneRequest.error,
+                        accent: searchPaneRequest.accent,
+                        results: searchPaneRequest.results,
+                        providerResults: searchPaneRequest.providerResults,
+                        queuedProviderIngests:
+                            searchPaneRequest.queuedProviderIngests,
+                        selectedProvider: searchPaneRequest.selectedProvider,
+                        searchedProvider: searchPaneRequest.searchedProvider,
+                        selectedResultId: searchPaneRequest.selectedResultId,
+                        selectedProviderCandidateId:
+                            searchPaneRequest.selectedProviderCandidateId,
+                        checkedResultIds: searchPaneRequest.checkedResultIds,
+                        checkedProviderIds: searchPaneRequest.checkedProviderIds,
+                        ownedCatalogItemIds:
+                            searchPaneRequest.ownedCatalogItemIds,
+                        providerQueryText: searchPaneRequest.providerQueryText,
+                        providerSeriesText: searchPaneRequest.providerSeriesText,
+                        providerNumberText: searchPaneRequest.providerNumberText,
+                        providerPublisherText:
+                            searchPaneRequest.providerPublisherText,
+                        providerYearText: searchPaneRequest.providerYearText,
+                        isWideLayout: searchPaneRequest.isWideLayout,
+                        showCoreResults: searchPaneRequest.showCoreResults,
+                        showProviderResults:
+                            searchPaneRequest.showProviderResults,
+                        showMediaResults: searchPaneRequest.showMediaResults,
+                        showSeasonResults: searchPaneRequest.showSeasonResults,
+                        showReleaseResults: searchPaneRequest.showReleaseResults,
+                        hideComicOwnedResults: _hideComicOwnedResults,
+                        hideComicVariantResults: _hideComicVariantResults,
+                        compactComicIssues: _compactComicIssues,
+                        onSelectResult: searchPaneRequest.onSelectResult,
+                        onSelectProviderCandidate:
+                            searchPaneRequest.onSelectProviderCandidate,
+                        onToggleResultCheck:
+                            searchPaneRequest.onToggleResultCheck,
+                        onToggleProviderCheck:
+                            searchPaneRequest.onToggleProviderCheck,
+                        onShowCoreResultsChanged:
+                            searchPaneRequest.onShowCoreResultsChanged,
+                        onShowProviderResultsChanged:
+                            searchPaneRequest.onShowProviderResultsChanged,
+                        onShowMediaResultsChanged:
+                            searchPaneRequest.onShowMediaResultsChanged,
+                        onShowSeasonResultsChanged:
+                            searchPaneRequest.onShowSeasonResultsChanged,
+                        onShowReleaseResultsChanged:
+                            searchPaneRequest.onShowReleaseResultsChanged,
+                        onHideComicOwnedResultsChanged: (value) => setState(() {
+                          _hideComicOwnedResults = value;
+                          _pruneSelectionsForVisibility(
+                            visibleResults: _visibleCoreResults(),
+                            visibleProviderResults: _visibleProviderResults(),
+                          );
+                        }),
+                        onHideComicVariantResultsChanged: (value) => setState(() {
+                          _hideComicVariantResults = value;
+                          _pruneSelectionsForVisibility(
+                            visibleResults: _visibleCoreResults(),
+                            visibleProviderResults: _visibleProviderResults(),
+                          );
+                        }),
+                        onCompactComicIssuesChanged: (value) =>
+                            setState(() => _compactComicIssues = value),
+                        onSearchCore: searchPaneRequest.onSearchCore,
+                      ),
                     );
                 final searchPaneWithSourceToggles = (_results.isNotEmpty ||
                         _providerResults.isNotEmpty)
@@ -1338,7 +1361,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         selectedEditionSelection != null);
                 final bottomBarRequest = LibraryAddBottomBarRequest(
                   type: widget.type,
-                  isMovieDesktopChrome: _isMovieDesktopChrome,
                   conditions: _conditionOptions,
                   grades: _gradeOptions,
                   defaultTags: _defaultTags,
@@ -1444,8 +1466,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         ?.call(context, bottomBarRequest) ??
                     LibraryAddBottomBar(
                       type: bottomBarRequest.type,
-                      isMovieDesktopChrome:
-                          bottomBarRequest.isMovieDesktopChrome,
+                      isMovieDesktopChrome: _isMovieDesktopChrome,
                       conditions: bottomBarRequest.conditions,
                       grades: bottomBarRequest.grades,
                       defaultTags: bottomBarRequest.defaultTags,

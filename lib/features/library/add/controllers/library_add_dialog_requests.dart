@@ -219,13 +219,11 @@ class LibraryAddHeaderRequest {
   const LibraryAddHeaderRequest({
     required this.type,
     required this.accent,
-    required this.isMovieDesktopChrome,
     required this.onClose,
   });
 
   final LibraryTypeConfig type;
   final Color accent;
-  final bool isMovieDesktopChrome;
   final VoidCallback onClose;
 }
 
@@ -257,8 +255,6 @@ class LibraryAddModeBarRequest {
     required this.numberController,
     required this.publisherController,
     required this.yearController,
-    required this.videoKindFilters,
-    required this.onVideoKindFilterChanged,
   });
 
   final LibraryTypeConfig type;
@@ -287,15 +283,12 @@ class LibraryAddModeBarRequest {
   final TextEditingController numberController;
   final TextEditingController publisherController;
   final TextEditingController yearController;
-  final Set<String>? videoKindFilters;
-  final void Function(String kind, bool checked)? onVideoKindFilterChanged;
 }
 
 class LibraryAddSearchPaneRequest {
   const LibraryAddSearchPaneRequest({
     required this.type,
     required this.isBusy,
-    required this.isMovieDesktopChrome,
     required this.error,
     required this.accent,
     required this.results,
@@ -319,9 +312,6 @@ class LibraryAddSearchPaneRequest {
     required this.showMediaResults,
     required this.showSeasonResults,
     required this.showReleaseResults,
-    required this.hideComicOwnedResults,
-    required this.hideComicVariantResults,
-    required this.compactComicIssues,
     required this.onSelectResult,
     required this.onSelectProviderCandidate,
     required this.onToggleResultCheck,
@@ -331,15 +321,11 @@ class LibraryAddSearchPaneRequest {
     required this.onShowMediaResultsChanged,
     required this.onShowSeasonResultsChanged,
     required this.onShowReleaseResultsChanged,
-    required this.onHideComicOwnedResultsChanged,
-    required this.onHideComicVariantResultsChanged,
-    required this.onCompactComicIssuesChanged,
     required this.onSearchCore,
   });
 
   final LibraryTypeConfig type;
   final bool isBusy;
-  final bool isMovieDesktopChrome;
   final String? error;
   final Color accent;
   final List<LibraryMetadataItem> results;
@@ -363,9 +349,6 @@ class LibraryAddSearchPaneRequest {
   final bool showMediaResults;
   final bool showSeasonResults;
   final bool showReleaseResults;
-  final bool hideComicOwnedResults;
-  final bool hideComicVariantResults;
-  final bool compactComicIssues;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
@@ -375,16 +358,12 @@ class LibraryAddSearchPaneRequest {
   final ValueChanged<bool> onShowMediaResultsChanged;
   final ValueChanged<bool> onShowSeasonResultsChanged;
   final ValueChanged<bool> onShowReleaseResultsChanged;
-  final ValueChanged<bool> onHideComicOwnedResultsChanged;
-  final ValueChanged<bool> onHideComicVariantResultsChanged;
-  final ValueChanged<bool> onCompactComicIssuesChanged;
   final VoidCallback onSearchCore;
 }
 
 class LibraryAddBottomBarRequest {
   const LibraryAddBottomBarRequest({
     required this.type,
-    required this.isMovieDesktopChrome,
     required this.conditions,
     required this.grades,
     required this.defaultTags,
@@ -414,7 +393,6 @@ class LibraryAddBottomBarRequest {
   });
 
   final LibraryTypeConfig type;
-  final bool isMovieDesktopChrome;
   final List<String> conditions;
   final List<String> grades;
   final String? defaultTags;
@@ -442,4 +420,3 @@ class LibraryAddBottomBarRequest {
   final VoidCallback? onQueueIngest;
   final VoidCallback? onPropose;
 }
-
