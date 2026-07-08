@@ -1,19 +1,32 @@
-part of '../library_add_dialog.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 
-class _LibraryAddPreviewController {
-  _LibraryAddPreviewController(this.state);
+/// Façade that routes preview/ingest actions back into [_LibraryAddDialogState]
+/// via stored callbacks. No reference to the private state class is required.
+class LibraryAddPreviewController {
+  LibraryAddPreviewController({
+    required Future<void> Function(ProviderCandidate, LibraryAddTarget)
+        addProviderCandidate,
+    required Future<void> Function(ProviderCandidate) proposeCandidate,
+    required Future<void> Function(ProviderCandidate) queueProviderIngest,
+  })  : _fnAddProviderCandidate = addProviderCandidate,
+        _fnProposeCandidate = proposeCandidate,
+        _fnQueueProviderIngest = queueProviderIngest;
 
-  final _LibraryAddDialogState state;
+  final Future<void> Function(ProviderCandidate, LibraryAddTarget)
+      _fnAddProviderCandidate;
+  final Future<void> Function(ProviderCandidate) _fnProposeCandidate;
+  final Future<void> Function(ProviderCandidate) _fnQueueProviderIngest;
 
   Future<void> addProviderCandidate(
     ProviderCandidate candidate,
     LibraryAddTarget target,
   ) =>
-      state._addProviderCandidate(candidate, target);
+      _fnAddProviderCandidate(candidate, target);
 
   Future<void> proposeCandidate(ProviderCandidate candidate) =>
-      state._proposeCandidate(candidate);
+      _fnProposeCandidate(candidate);
 
   Future<void> queueProviderIngest(ProviderCandidate candidate) =>
-      state._queueProviderIngest(candidate);
+      _fnQueueProviderIngest(candidate);
 }

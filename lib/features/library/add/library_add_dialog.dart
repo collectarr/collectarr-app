@@ -76,6 +76,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
+import 'controllers/library_add_controller.dart';
+import 'controllers/library_add_dialog_requests.dart';
+import 'controllers/library_add_preview_controller.dart';
+import 'controllers/library_add_search_controller.dart';
+import 'controllers/library_add_selection_controller.dart';
+import 'shell/library_add_shell.dart';
+
+// Re-export request/builder types so callers that import library_add_dialog.dart
+// continue to see LibraryAddManualPaneRequest, LibraryAddBottomBarRequest, etc.
+export 'controllers/library_add_dialog_requests.dart';
+// Standalone classes available for external consumers.
+export 'controllers/library_add_kind_adapter.dart';
+export 'controllers/library_add_manual_draft.dart';
+
 part 'panes/library_add_mode_bar.dart';
 part 'panes/library_add_search_pane.dart';
 part 'panes/library_add_search_comic.dart';
@@ -83,14 +97,6 @@ part 'panes/library_add_search_unified.dart';
 part 'panes/library_add_preview_pane.dart';
 part 'panes/library_add_bottom_bar.dart';
 part 'panes/library_add_manual_pane.dart';
-part 'controllers/library_add_controller.dart';
-part 'controllers/library_add_search_controller.dart';
-part 'controllers/library_add_selection_controller.dart';
-part 'controllers/library_add_preview_controller.dart';
-part 'controllers/library_add_kind_adapter.dart';
-part 'controllers/library_add_manual_draft.dart';
-part 'shell/library_add_shell.dart';
-part 'controllers/library_add_dialog_requests.dart';
 part 'controllers/library_add_comparisons.dart';
 part 'controllers/library_add_prefill.dart';
 
@@ -101,6 +107,13 @@ String buildPreviewCatalogItemId({
 }) {
   final previewKey = '$kind:$provider:$providerItemId';
   return 'preview-$kind-${const Uuid().v5(Namespace.url.value, previewKey)}';
+}
+
+/// Default manual pane builder: delegates to the generic tabbed manual UI.
+/// Registered by kinds that want the standard manual-add interface.
+Widget buildDefaultManualPane(
+    BuildContext context, LibraryAddManualPaneRequest request) {
+  return _ManualPane(request: request);
 }
 
 class LibraryAddDialog extends ConsumerStatefulWidget {
@@ -293,10 +306,10 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   /// Video-kind filter for movie library: allows searching across releases and box sets.
   late final Set<String> _videoKindFilters;
-  late final _LibraryAddController _controller;
-  late final _LibraryAddSearchController _searchController;
-  late final _LibraryAddSelectionController _selectionController;
-  late final _LibraryAddPreviewController _previewController;
+  late final LibraryAddController _controller;
+  late final LibraryAddSearchController _searchController;
+  late final LibraryAddSelectionController _selectionController;
+  late final LibraryAddPreviewController _previewController;
   late final LibraryProviderActionService _providerActionService;
 
   @override
@@ -312,11 +325,35 @@ class _LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             _canonicalVideoSearchKind(widget.type.workspace.kind.apiValue),
           }
         : defaultFilters;
-    _searchController = _LibraryAddSearchController(this);
-    _selectionController = _LibraryAddSelectionController(this);
-    _previewController = _LibraryAddPreviewController(this);
+    _searchController = LibraryAddSearchController(
+      search: _search,
+      onQueryChanged: _onQueryChanged,
+      selectSuggestion: _selectSuggestion,
+      dismissSuggestions: _dismissSuggestions,
+      scanCover: _scanCover,
+      lookupBarcode: _lookupBarcode,
+      ensureSelectedResultLoaded: _ensureSelectedResultLoaded,
+      ensureBundleReleasesLoaded: _ensureBundleReleasesLoaded,
+      ensureProviderPreviewLoaded: _ensureProviderPreviewLoaded,
+      ensureBundleReleaseDetailLoaded: _ensureBundleReleaseDetailLoaded,
+    );
+    _selectionController = LibraryAddSelectionController(
+      resetReferenceSelection: _resetReferenceSelection,
+      clearSelectionCaches: _clearSelectionCaches,
+      selectCoreResult: _selectCoreResult,
+      selectProviderCandidate: _selectProviderCandidate,
+      handleReferenceTypeChanged: _handleReferenceTypeChanged,
+      handleReferenceEditionSelected: _handleReferenceEditionSelected,
+      handleReferenceVariantSelected: _handleReferenceVariantSelected,
+      handleBundleReleaseSelected: _handleBundleReleaseSelected,
+    );
+    _previewController = LibraryAddPreviewController(
+      addProviderCandidate: _addProviderCandidate,
+      proposeCandidate: _proposeCandidate,
+      queueProviderIngest: _queueProviderIngest,
+    );
     _providerActionService = const LibraryProviderActionService();
-    _controller = _LibraryAddController(
+    _controller = LibraryAddController(
       search: _searchController,
       selection: _selectionController,
       preview: _previewController,

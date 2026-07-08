@@ -1,4 +1,17 @@
-part of '../library_add_dialog.dart';
+import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/features/library/add/library_add_shared.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
+import 'package:flutter/material.dart';
 
 // Pluggable pane builder typedefs and their request payloads for the
 // library add dialog. Extracted from library_add_dialog.dart to keep the
@@ -152,13 +165,6 @@ class LibraryAddManualPaneRequest {
   final ValueChanged<List<ItemImageEdit>> onItemImagesChanged;
 
   // (kindSpecific declared above)
-}
-
-// Public default manual pane builder so kinds can register a fallback that
-// delegates to the generic tabbed manual UI implemented in this library.
-Widget buildDefaultManualPane(
-    BuildContext context, LibraryAddManualPaneRequest request) {
-  return _ManualPane(request: request);
 }
 
 class LibraryAddPreviewPaneRequest {

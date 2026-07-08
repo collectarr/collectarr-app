@@ -119,8 +119,8 @@
 	- Support comfortable, compact, and dense modes consistently across cards, rows, inspectors, add results, comparison rows, and sidebars.
 - [ ] Standardize inspector/detail/edit section ordering
 	- Keep the same section order everywhere: identity, personal status, progress/ownership, format/edition/release, people, series links, images/media, notes/custom fields, source/corrections, activity/history.
-- [ ] Split `LibraryAddDialog` into controller, layout, and kind adapter
-	- Separate state, responsive shell, and kind-specific labels/search/preview/manual-entry groups.
+- [x] Split `LibraryAddDialog` into controller, layout, and kind adapter
+	- Shell, request types, controller facades, manual draft, and kind adapter are now normal imported classes (not parts). Extensions over the private state (`_LibraryAddDialogComparisons`, `_LibraryAddDialogPrefill`) and the seven pane widgets remain as `part of` the dialog compilation unit for now.
 
 ### 🧭 Admin UX Consistency
 - [ ] Align app-side admin proposal/editor UX with shared-field architecture
