@@ -29,13 +29,13 @@ import 'package:collectarr_app/features/library/generic/page/collection_tabs.dar
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_collection_action_coordinator.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_cover_coordinator.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_bucket_coordinator.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_dialog_coordinator.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_metadata_coordinator.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_report_coordinator.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_sharing_coordinator.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
-import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
@@ -123,6 +123,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   late final LibraryPageSharingCoordinator _sharingCoordinator;
   late final LibraryPageReportCoordinator _reportCoordinator;
   late final LibraryPageCoverCoordinator _coverCoordinator;
+  late final LibraryPageBucketCoordinator _bucketCoordinator;
   late final LibraryPageToolbarController _toolbarController;
   late final LibraryPageSearchController _searchControllerOps;
 
@@ -218,6 +219,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _sharingCoordinator = LibraryPageSharingCoordinator(coordinatorContext);
     _reportCoordinator = LibraryPageReportCoordinator(coordinatorContext);
     _coverCoordinator = LibraryPageCoverCoordinator(coordinatorContext);
+    _bucketCoordinator = LibraryPageBucketCoordinator(coordinatorContext);
     _toolbarController = LibraryPageToolbarController(this);
     _searchControllerOps = LibraryPageSearchController(
       ref: ref,
@@ -417,82 +419,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   Future<void> _showBucketManagerFlow(LibraryProjection projection) async {
-    final mode = _activeGroupMode;
-    if (!supportsBucketManagement(mode)) {
-      return;
-    }
-    final entries = [
-      for (final bucket in projection.buckets)
-        if (bucket.title != genericAllBucketLabel(widget.type))
-          LibraryBucketManagerEntry(label: bucket.title, count: bucket.count),
-    ];
-    if (entries.isEmpty) {
-      return;
-    }
-    await showLibraryBucketManagerDialog(
-      context: context,
-      type: widget.type,
-      groupMode: mode,
-      accent: widget.accent,
-      entries: entries,
-      onRenameBucket: (currentLabel, nextLabel) => _mutateBucketValues(
-        projection,
-        mode,
-        currentLabel,
-        replacement: nextLabel,
-      ),
-      onMergeBucket: (currentLabel, targetLabel) => _mutateBucketValues(
-        projection,
-        mode,
-        currentLabel,
-        replacement: targetLabel,
-      ),
-      onDeleteBucket: (currentLabel) =>
-          _mutateBucketValues(projection, mode, currentLabel),
+    await _bucketCoordinator.showBucketManagerFlow(
+      projection,
+      mode: _activeGroupMode,
     );
-  }
-
-  Future<int> _mutateBucketValues(
-    LibraryProjection projection,
-    LibraryGroupMode mode,
-    String currentLabel, {
-    String? replacement,
-  }) async {
-    final updates = <CatalogItem>[];
-    for (final item in projection.allItems) {
-      final catalogItem = item.source.catalogItem;
-      if (catalogItem == null ||
-          genericBucketForItemMode(item, widget.type, mode) != currentLabel) {
-        continue;
-      }
-      final updated = replacement == null
-          ? deleteLibraryGroupBucketValue(catalogItem, mode, currentLabel)
-          : renameLibraryGroupBucketValue(
-              catalogItem,
-              mode,
-              currentLabel,
-              replacement,
-            );
-      if (updated != null) {
-        updates.add(updated);
-      }
-    }
-    if (updates.isEmpty) {
-      return 0;
-    }
-    final mutations = ref.read(collectionMutationsProvider);
-    await mutations.updateCatalogSnapshots(updates);
-    if (!mounted) {
-      return updates.length;
-    }
-    setState(() {
-      if (_selectedBucket == currentLabel) {
-        final nextBucket = replacement?.trim();
-        _selectedBucket =
-            nextBucket == null || nextBucket.isEmpty ? null : nextBucket;
-      }
-    });
-    return updates.length;
   }
 
   LibraryProjection _projectionForShelf(
