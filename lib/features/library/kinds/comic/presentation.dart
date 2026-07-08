@@ -753,10 +753,10 @@ final comicsLibraryMediaPresentation = LibraryMediaPresentation(
   defaultVisibleColumns: comicsIssueVisibleColumns,
   previewLabels: comicsPreviewLabels,
   usesTreeProviderCandidates: true,
-  externalFacetBucketModes: [
-    LibraryGroupMode.storyArc,
-    LibraryGroupMode.character,
-  ],
+  externalFacetBucketIdsByMode: {
+    LibraryGroupMode.storyArc: LibraryFacetId.comicStoryArc,
+    LibraryGroupMode.character: LibraryFacetId.comicCharacter,
+  },
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
   sortFavorites: comicLibrarySortFavorites,

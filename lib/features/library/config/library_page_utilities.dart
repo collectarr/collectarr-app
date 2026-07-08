@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 
@@ -7,7 +8,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -115,7 +116,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   /// Fetch facet rows from the API and build [FacetBuckets].
   Future<FacetBuckets> fetchFacetBuckets({
     required LibraryTypeConfig type,
-    required LibraryGroupMode groupMode,
+    required String facetId,
     required Set<String> itemIds,
     required String signature,
     String? allBucketLabel,
@@ -124,12 +125,47 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
       LibraryFacetRequest(
         api: ref.read(apiClientProvider),
         type: type,
-        groupMode: groupMode,
+        facetId: facetId,
         itemIds: itemIds,
         signature: signature,
         allBucketLabel: allBucketLabel,
       ),
     );
+  }
+
+  /// Fetch rows for the stable character facet IDs used across modules.
+  static Future<List<Map<String, dynamic>>> libraryCharacterFacetRows({
+    required ApiClient api,
+    required Set<String> itemIds,
+  }) {
+    return api.characterFacets(itemIds);
+  }
+
+  /// Fetch rows for the comic story-arc facet.
+  static Future<List<Map<String, dynamic>>> libraryStoryArcFacetRows({
+    required ApiClient api,
+    required Set<String> itemIds,
+  }) {
+    return api.storyArcFacets(itemIds);
+  }
+
+  static Future<List<Map<String, dynamic>>> libraryFacetRowsForId({
+    required ApiClient api,
+    required String facetId,
+    required Set<String> itemIds,
+  }) {
+    return switch (facetId) {
+      LibraryFacetId.comicStoryArc => libraryStoryArcFacetRows(
+          api: api,
+          itemIds: itemIds,
+        ),
+      LibraryFacetId.comicCharacter || LibraryFacetId.mediaCharacter =>
+        libraryCharacterFacetRows(
+          api: api,
+          itemIds: itemIds,
+        ),
+      _ => Future.value(const <Map<String, dynamic>>[]),
+    };
   }
 
   // ---------------------------------------------------------------------------

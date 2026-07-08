@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -131,9 +130,11 @@ class LibraryFacetModule {
   final LibraryFacetRowsLoader loadRows;
 }
 
-typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function(
-  LibraryFacetRequest request,
-);
+typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
+  required ApiClient api,
+  required String facetId,
+  required Set<String> itemIds,
+});
 
 class LibraryFacetModuleProvider extends LibraryFacetProvider {
   const LibraryFacetModuleProvider(this.module);
@@ -142,7 +143,11 @@ class LibraryFacetModuleProvider extends LibraryFacetProvider {
 
   @override
   Future<FacetBuckets> load(LibraryFacetRequest request) async {
-    final rows = await module.loadRows(request);
+    final rows = await module.loadRows(
+      api: request.api,
+      facetId: request.facetId,
+      itemIds: request.itemIds,
+    );
     final byBucket = LibraryPageUtilities.parseFacetRows(rows, request.itemIds);
     return LibraryPageUtilities.buildFacetBuckets(
       signature: request.signature,
@@ -153,9 +158,11 @@ class LibraryFacetModuleProvider extends LibraryFacetProvider {
   }
 }
 
-Future<List<Map<String, dynamic>>> _emptyFacetRows(
-  LibraryFacetRequest request,
-) async {
+Future<List<Map<String, dynamic>>> _emptyFacetRows({
+  required ApiClient api,
+  required String facetId,
+  required Set<String> itemIds,
+}) async {
   return const <Map<String, dynamic>>[];
 }
 
@@ -163,7 +170,7 @@ class LibraryFacetRequest {
   const LibraryFacetRequest({
     required this.api,
     required this.type,
-    required this.groupMode,
+    required this.facetId,
     required this.itemIds,
     required this.signature,
     this.allBucketLabel,
@@ -171,7 +178,7 @@ class LibraryFacetRequest {
 
   final ApiClient api;
   final LibraryTypeConfig type;
-  final LibraryGroupMode groupMode;
+  final String facetId;
   final Set<String> itemIds;
   final String signature;
   final String? allBucketLabel;

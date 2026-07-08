@@ -154,10 +154,13 @@ abstract final class LibraryPageShellPresenter {
       });
     }
     final activeProjectionGroupMode = state._projectionGroupMode;
-    final activeFacetLoadKey = state._facetLoadKey(
-      activeProjectionGroupMode,
-      state._genericShelfSignature(shelfState),
-    );
+    final activeFacetId = state._facetIdForMode(activeProjectionGroupMode);
+    final activeFacetLoadKey = activeFacetId == null
+        ? null
+        : state._facetLoadKey(
+            activeFacetId,
+            state._genericShelfSignature(shelfState),
+          );
     final canUseSeriesCompletionScope =
         state._activeGroupMode == LibraryGroupMode.series;
     final effectiveSeriesCompletionScope = canUseSeriesCompletionScope
@@ -173,7 +176,8 @@ abstract final class LibraryPageShellPresenter {
       selectedBucket: state._selectedBucket,
       groupMode: activeProjectionGroupMode,
       groupPresentation: state._activeGroupPresentation,
-      groupLoading: state._isFacetLoadInFlight(activeFacetLoadKey),
+      groupLoading: activeFacetLoadKey != null &&
+          state._isFacetLoadInFlight(activeFacetLoadKey),
       accent: state.widget.accent,
       hasActiveFilter: state._hasActiveFilter,
       onAdd: () => state._dialogCoordinator.showAddDialogFlow(),

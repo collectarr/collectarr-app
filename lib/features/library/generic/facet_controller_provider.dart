@@ -1,22 +1,21 @@
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryFacetControllerState {
   const LibraryFacetControllerState({
-    this.bucketsByMode = const {},
+    this.bucketsByFacetId = const {},
     this.loadsInFlight = const {},
   });
 
-  final Map<LibraryGroupMode, FacetBuckets> bucketsByMode;
+  final Map<String, FacetBuckets> bucketsByFacetId;
   final Set<String> loadsInFlight;
 
   LibraryFacetControllerState copyWith({
-    Map<LibraryGroupMode, FacetBuckets>? bucketsByMode,
+    Map<String, FacetBuckets>? bucketsByFacetId,
     Set<String>? loadsInFlight,
   }) {
     return LibraryFacetControllerState(
-      bucketsByMode: bucketsByMode ?? this.bucketsByMode,
+      bucketsByFacetId: bucketsByFacetId ?? this.bucketsByFacetId,
       loadsInFlight: loadsInFlight ?? this.loadsInFlight,
     );
   }
@@ -53,10 +52,10 @@ class LibraryFacetControllerNotifier
     state = state.copyWith(loadsInFlight: next);
   }
 
-  void setBuckets(LibraryGroupMode mode, FacetBuckets buckets) {
-    final next = Map<LibraryGroupMode, FacetBuckets>.from(state.bucketsByMode)
-      ..[mode] = buckets;
-    state = state.copyWith(bucketsByMode: next);
+  void setBuckets(String facetId, FacetBuckets buckets) {
+    final next = Map<String, FacetBuckets>.from(state.bucketsByFacetId)
+      ..[facetId] = buckets;
+    state = state.copyWith(bucketsByFacetId: next);
   }
 }
 

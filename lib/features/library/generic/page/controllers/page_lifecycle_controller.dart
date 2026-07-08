@@ -11,7 +11,9 @@ abstract final class _LibraryPageLifecycleControllerOps {
         final shelfState = next.asData?.value;
         if (shelfState != null) {
           state._maybeEnsureFacetBucketsLoaded(
-              shelfState, state._activeGroupMode);
+            shelfState,
+            state._activeGroupMode,
+          );
         }
       },
     );
@@ -209,7 +211,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
           )
           .clearAll();
       state._lastFacetEnsureSignature = null;
-      state._lastFacetEnsureMode = null;
+      state._lastFacetEnsureFacetId = null;
       state._searchController.clear();
       state._searchControllerOps.clearSearch();
       state._primeCachedViewPreferences();

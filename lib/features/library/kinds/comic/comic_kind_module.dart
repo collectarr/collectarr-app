@@ -4,10 +4,10 @@ import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
+import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:flutter/material.dart';
 
@@ -66,16 +66,10 @@ final comicKindModule = LibraryKindModule(
     ],
   ),
   providerMapper: const ComicLibraryKindProviderMapper(),
-  facets: const LibraryFacetModule(loadRows: _loadComicFacetRows),
+  facets: const LibraryFacetModule(
+    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+  ),
 );
-
-Future<List<Map<String, dynamic>>> _loadComicFacetRows(
-  LibraryFacetRequest request,
-) async {
-  return request.groupMode == LibraryGroupMode.storyArc
-      ? request.api.storyArcFacets(request.itemIds)
-      : request.api.characterFacets(request.itemIds);
-}
 
 Future<void> _showJumpToIssueDialog(
   BuildContext context, {

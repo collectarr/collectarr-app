@@ -163,10 +163,10 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: mangaPreviewLabels,
   statsLabels: mangaStatsLabels,
   usesTreeProviderCandidates: true,
-  externalFacetBucketModes: [
-    LibraryGroupMode.storyArc,
-    LibraryGroupMode.character,
-  ],
+  externalFacetBucketIdsByMode: {
+    LibraryGroupMode.storyArc: LibraryFacetId.comicStoryArc,
+    LibraryGroupMode.character: LibraryFacetId.mediaCharacter,
+  },
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.import_contacts_outlined,

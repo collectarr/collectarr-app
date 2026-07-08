@@ -25,20 +25,33 @@ abstract final class _LibraryFacetControllerOps {
     LibraryGroupMode mode,
   ) {
     final signature = genericShelfSignature(state, shelf);
+    final facetId = facetIdForMode(state, mode);
+    if (facetId == null) {
+      state._lastFacetEnsureSignature = signature;
+      state._lastFacetEnsureFacetId = null;
+      return;
+    }
     if (state._lastFacetEnsureSignature == signature &&
-        state._lastFacetEnsureMode == mode) {
+        state._lastFacetEnsureFacetId == facetId) {
       return;
     }
     state._lastFacetEnsureSignature = signature;
-    state._lastFacetEnsureMode = mode;
-    ensureFacetBucketsLoaded(state, shelf, mode);
+    state._lastFacetEnsureFacetId = facetId;
+    ensureFacetBucketsLoaded(state, shelf, mode, facetId);
   }
 
   static bool usesExternalFacetBuckets(
     GenericLibraryPageState state,
     LibraryGroupMode mode,
   ) {
-    return state.widget.type.presentation.externalFacetBucketModes.contains(mode);
+    return facetIdForMode(state, mode) != null;
+  }
+
+  static String? facetIdForMode(
+    GenericLibraryPageState state,
+    LibraryGroupMode mode,
+  ) {
+    return state.widget.type.presentation.externalFacetBucketIdsByMode[mode];
   }
 
   static FacetBuckets? facetBucketsForMode(
@@ -46,11 +59,12 @@ abstract final class _LibraryFacetControllerOps {
     LibraryGroupMode mode,
     ShelfState shelf,
   ) {
-    if (!usesExternalFacetBuckets(state, mode)) {
+    final facetId = facetIdForMode(state, mode);
+    if (facetId == null) {
       return null;
     }
     final signature = genericShelfSignature(state, shelf);
-    final cached = _controllerState(state).bucketsByMode[mode];
+    final cached = _controllerState(state).bucketsByFacetId[facetId];
     if (cached != null && cached.shelfSignature == signature) {
       return cached;
     }
@@ -70,16 +84,14 @@ abstract final class _LibraryFacetControllerOps {
     GenericLibraryPageState state,
     ShelfState shelf,
     LibraryGroupMode mode,
+    String facetId,
   ) {
-    if (!usesExternalFacetBuckets(state, mode)) {
-      return;
-    }
     final signature = genericShelfSignature(state, shelf);
-    final cached = _controllerState(state).bucketsByMode[mode];
+    final cached = _controllerState(state).bucketsByFacetId[facetId];
     if (cached != null && cached.shelfSignature == signature) {
       return;
     }
-    final loadKey = facetLoadKey(state, mode, signature);
+    final loadKey = facetLoadKey(state, facetId, signature);
     if (_controllerState(state).loadsInFlight.contains(loadKey)) {
       return;
     }
@@ -87,16 +99,17 @@ abstract final class _LibraryFacetControllerOps {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       state._mutateState(() {});
     });
-    unawaited(loadFacetBuckets(state, mode, shelf, signature));
+    unawaited(loadFacetBuckets(state, mode, facetId, shelf, signature));
   }
 
   static Future<void> loadFacetBuckets(
     GenericLibraryPageState state,
     LibraryGroupMode mode,
+    String facetId,
     ShelfState shelf,
     String signature,
   ) async {
-    final loadKey = facetLoadKey(state, mode, signature);
+    final loadKey = facetLoadKey(state, facetId, signature);
     final shelfItemIds = {
       for (final item in libraryItemsForShelf(shelf, state.widget.type))
         item.entry.id,
@@ -104,7 +117,7 @@ abstract final class _LibraryFacetControllerOps {
     try {
       final buckets = await state.fetchFacetBuckets(
         type: state.widget.type,
-        groupMode: mode,
+        facetId: facetId,
         itemIds: shelfItemIds,
         signature: signature,
         allBucketLabel: genericAllBucketLabel(state.widget.type),
@@ -115,7 +128,7 @@ abstract final class _LibraryFacetControllerOps {
           genericShelfSignature(state, latestShelf) != signature) {
         return;
       }
-      _controllerNotifier(state).setBuckets(mode, buckets);
+      _controllerNotifier(state).setBuckets(facetId, buckets);
       state._mutateState(() {
         if (state._selectedBucket != null &&
             !buckets.buckets.any((b) => b.title == state._selectedBucket)) {
@@ -147,7 +160,7 @@ abstract final class _LibraryFacetControllerOps {
         ],
         itemIdsByBucket: const {},
       );
-      _controllerNotifier(state).setBuckets(mode, fallback);
+      _controllerNotifier(state).setBuckets(facetId, fallback);
       state._mutateState(() {
         state._selectedBucket = null;
       });
@@ -168,10 +181,10 @@ abstract final class _LibraryFacetControllerOps {
 
   static String facetLoadKey(
     GenericLibraryPageState state,
-    LibraryGroupMode mode,
+    String facetId,
     String signature,
   ) {
-    return '${state.widget.type.workspace.kind.apiValue}|$mode|$signature';
+    return '${state.widget.type.workspace.kind.apiValue}|$facetId|$signature';
   }
 
   static String genericShelfSignature(

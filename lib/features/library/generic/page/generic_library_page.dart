@@ -174,7 +174,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Timer? _selectionHydrationDebounce;
   ProviderSubscription<AsyncValue<ShelfState>>? _shelfSubscription;
   String? _lastFacetEnsureSignature;
-  LibraryGroupMode? _lastFacetEnsureMode;
+  String? _lastFacetEnsureFacetId;
   LibraryKindBrowserDelegate _kindBrowserDelegate =
       LibraryNoopBrowserDelegate();
 
@@ -364,6 +364,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return _LibraryFacetControllerOps.usesExternalFacetBuckets(this, mode);
   }
 
+  String? _facetIdForMode(LibraryGroupMode mode) {
+    return _LibraryFacetControllerOps.facetIdForMode(this, mode);
+  }
+
   FacetBuckets? _facetBucketsForMode(
     LibraryGroupMode mode,
     ShelfState shelf,
@@ -371,8 +375,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return _LibraryFacetControllerOps.facetBucketsForMode(this, mode, shelf);
   }
 
-  String _facetLoadKey(LibraryGroupMode mode, String signature) {
-    return _LibraryFacetControllerOps.facetLoadKey(this, mode, signature);
+  String _facetLoadKey(String facetId, String signature) {
+    return _LibraryFacetControllerOps.facetLoadKey(this, facetId, signature);
   }
 
   bool _isFacetLoadInFlight(String loadKey) {

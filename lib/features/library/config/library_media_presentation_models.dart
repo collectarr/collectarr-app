@@ -760,7 +760,7 @@ class LibraryMediaPresentation {
     ),
     this.statsLabels = const LibraryMediaStatsLabels(),
     this.usesTreeProviderCandidates = false,
-    this.externalFacetBucketModes = const [],
+    this.externalFacetBucketIdsByMode = const {},
     this.supportsSeriesIssueJump = false,
     this.usesTrackListCard = false,
     this.showsSeasonGroupProgress = false,
@@ -795,7 +795,7 @@ class LibraryMediaPresentation {
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final bool usesTreeProviderCandidates;
-  final List<LibraryGroupMode> externalFacetBucketModes;
+  final Map<LibraryGroupMode, String> externalFacetBucketIdsByMode;
   final bool supportsSeriesIssueJump;
   final bool usesTrackListCard;
   final bool showsSeasonGroupProgress;
@@ -853,7 +853,6 @@ class LibraryMediaPresentation {
     );
   }
 }
-
 LibraryGroupModeDefinition _fallbackGroupModeDefinition(
   LibraryGroupMode mode,
 ) {
@@ -883,4 +882,10 @@ String _fallbackGroupModeSidebarTitle(String label) {
     return '${label.substring(0, label.length - 1)}ies';
   }
   return '${label}s';
+}
+
+abstract final class LibraryFacetId {
+  static const comicStoryArc = 'comic.story_arc';
+  static const comicCharacter = 'comic.character';
+  static const mediaCharacter = 'media.character';
 }
