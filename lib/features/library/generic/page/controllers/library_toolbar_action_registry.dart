@@ -13,18 +13,30 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
-class LibraryPageToolbarActionContext {
-  const LibraryPageToolbarActionContext({
-    required this.type,
-    required this.activeBrowserMode,
-    required this.activeReleaseFolderTitleItemId,
-    required this.adapter,
+class LibraryToolbarSearchContext {
+  const LibraryToolbarSearchContext({
     required this.supportsMusicTrackSearch,
     required this.onSearchChanged,
     required this.onSearchInputChanged,
     required this.onSearchTargetChanged,
     required this.onClearSearch,
     required this.onSearchSuggestionSelected,
+  });
+
+  final bool supportsMusicTrackSearch;
+  final ValueChanged<String> onSearchChanged;
+  final ValueChanged<String> onSearchInputChanged;
+  final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
+  final VoidCallback onClearSearch;
+  final ValueChanged<LibraryToolbarSearchSuggestion> onSearchSuggestionSelected;
+}
+
+class LibraryToolbarViewContext {
+  const LibraryToolbarViewContext({
+    required this.type,
+    required this.activeBrowserMode,
+    required this.activeReleaseFolderTitleItemId,
+    required this.adapter,
     required this.onShowAddDialogFlow,
     required this.onShowColumnChooserFlow,
     required this.onShowSortDialogFlow,
@@ -33,8 +45,6 @@ class LibraryPageToolbarActionContext {
     required this.onSetBrowserMode,
     required this.onCloseReleaseFolder,
     required this.onClearToolbarSearchChip,
-    required this.onRefreshMetadata,
-    required this.onSetCollectionStatusScope,
     required this.onQuickViewSelected,
     required this.onSetSelectedLetter,
     required this.onApplyViewPreset,
@@ -44,38 +54,12 @@ class LibraryPageToolbarActionContext {
     required this.onShowSortFavoritesManagerFlow,
     required this.onApplyColumnFavorite,
     required this.onTogglePinnedColumnFavorite,
-    required this.onJumpToIssueSubmitted,
-    required this.onClearFilters,
-    required this.onEditFilters,
-    required this.onRandomPick,
-    required this.onScanCover,
-    required this.onDownloadAllCovers,
-    required this.onSmartLists,
-    required this.onShowUserFoldersFlow,
-    required this.onShowReadingQueueFlow,
-    required this.onShowConditionPickListEditorFlow,
-    required this.onShowGradePickListEditorFlow,
-    required this.onShowTagPickListEditorFlow,
-    required this.onTransferFieldData,
-    required this.onReassignIndex,
-    required this.onPrintReport,
-    required this.onMissingComics,
-    required this.onShareCollection,
-    required this.onCompareMetadataWithServer,
-    required this.selectedProjectionItemFor,
-    required this.canCompareMetadataWithServerItem,
   });
 
   final LibraryTypeConfig type;
   final LibraryWorkspaceBrowserMode activeBrowserMode;
   final String? activeReleaseFolderTitleItemId;
   final LibraryMediaAdapter adapter;
-  final bool supportsMusicTrackSearch;
-  final ValueChanged<String> onSearchChanged;
-  final ValueChanged<String> onSearchInputChanged;
-  final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
-  final VoidCallback onClearSearch;
-  final ValueChanged<LibraryToolbarSearchSuggestion> onSearchSuggestionSelected;
   final VoidCallback onShowAddDialogFlow;
   final VoidCallback onShowColumnChooserFlow;
   final VoidCallback onShowSortDialogFlow;
@@ -86,8 +70,6 @@ class LibraryPageToolbarActionContext {
   final ValueChanged<LibraryWorkspaceBrowserMode> onSetBrowserMode;
   final VoidCallback onCloseReleaseFolder;
   final VoidCallback onClearToolbarSearchChip;
-  final ValueChanged<LibraryProjection?> onRefreshMetadata;
-  final ValueChanged<LibraryCollectionStatusScope> onSetCollectionStatusScope;
   final ValueChanged<LibraryQuickView?> onQuickViewSelected;
   final ValueChanged<String?> onSetSelectedLetter;
   final ValueChanged<LibraryWorkspacePreset> onApplyViewPreset;
@@ -97,19 +79,62 @@ class LibraryPageToolbarActionContext {
   final VoidCallback onShowSortFavoritesManagerFlow;
   final ValueChanged<LibraryTableColumnPreset> onApplyColumnFavorite;
   final ValueChanged<LibraryTableColumnPreset> onTogglePinnedColumnFavorite;
-  final void Function(LibraryProjection projection, String value)
-      onJumpToIssueSubmitted;
+
+  bool get showReleaseFolderBack =>
+      type.kindUiAdapter.shouldShowReleaseFolderBack(
+        type,
+        browserMode: activeBrowserMode,
+        releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
+      );
+}
+
+class LibraryToolbarGroupingContext {
+  const LibraryToolbarGroupingContext({
+    required this.onClearFilters,
+    required this.onEditFilters,
+    required this.onRandomPick,
+    required this.onSmartLists,
+    required this.onShowUserFoldersFlow,
+    required this.onShowReadingQueueFlow,
+  });
+
   final VoidCallback onClearFilters;
   final ValueChanged<LibraryProjection?> onEditFilters;
   final ValueChanged<LibraryProjection?> onRandomPick;
-  final VoidCallback onScanCover;
-  final ValueChanged<ShelfState> onDownloadAllCovers;
   final ValueChanged<ShelfState?> onSmartLists;
   final VoidCallback onShowUserFoldersFlow;
   final VoidCallback onShowReadingQueueFlow;
-  final VoidCallback? onShowConditionPickListEditorFlow;
-  final VoidCallback? onShowGradePickListEditorFlow;
-  final VoidCallback onShowTagPickListEditorFlow;
+}
+
+class LibraryToolbarMetadataContext {
+  const LibraryToolbarMetadataContext({
+    required this.onRefreshMetadata,
+    required this.onSetCollectionStatusScope,
+    required this.onJumpToIssueSubmitted,
+    required this.selectedProjectionItemFor,
+    required this.canCompareMetadataWithServerItem,
+  });
+
+  final ValueChanged<LibraryProjection?> onRefreshMetadata;
+  final ValueChanged<LibraryCollectionStatusScope> onSetCollectionStatusScope;
+  final void Function(LibraryProjection projection, String value)
+      onJumpToIssueSubmitted;
+  final LibraryProjectionItem? Function(LibraryProjection projection)
+      selectedProjectionItemFor;
+  final bool Function(LibraryProjectionItem item)
+      canCompareMetadataWithServerItem;
+}
+
+class LibraryToolbarCollectionActionsContext {
+  const LibraryToolbarCollectionActionsContext({
+    required this.onTransferFieldData,
+    required this.onReassignIndex,
+    required this.onPrintReport,
+    required this.onMissingComics,
+    required this.onShareCollection,
+    required this.onCompareMetadataWithServer,
+  });
+
   final ValueChanged<LibraryProjection?> onTransferFieldData;
   final ValueChanged<LibraryProjection?> onReassignIndex;
   final ValueChanged<LibraryProjection?> onPrintReport;
@@ -119,17 +144,40 @@ class LibraryPageToolbarActionContext {
     LibraryProjection projection, {
     LibraryProjectionItem? item,
   }) onCompareMetadataWithServer;
-  final LibraryProjectionItem? Function(LibraryProjection projection)
-      selectedProjectionItemFor;
-  final bool Function(LibraryProjectionItem item)
-      canCompareMetadataWithServerItem;
+}
 
-  bool get showReleaseFolderBack =>
-      type.kindUiAdapter.shouldShowReleaseFolderBack(
-        type,
-        browserMode: activeBrowserMode,
-        releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
-      );
+class LibraryToolbarAdminActionsContext {
+  const LibraryToolbarAdminActionsContext({
+    required this.onScanCover,
+    required this.onDownloadAllCovers,
+    required this.onShowConditionPickListEditorFlow,
+    required this.onShowGradePickListEditorFlow,
+    required this.onShowTagPickListEditorFlow,
+  });
+
+  final VoidCallback onScanCover;
+  final ValueChanged<ShelfState> onDownloadAllCovers;
+  final VoidCallback? onShowConditionPickListEditorFlow;
+  final VoidCallback? onShowGradePickListEditorFlow;
+  final VoidCallback onShowTagPickListEditorFlow;
+}
+
+class LibraryPageToolbarActionContext {
+  const LibraryPageToolbarActionContext({
+    required this.search,
+    required this.view,
+    required this.grouping,
+    required this.metadata,
+    required this.collectionActions,
+    required this.adminActions,
+  });
+
+  final LibraryToolbarSearchContext search;
+  final LibraryToolbarViewContext view;
+  final LibraryToolbarGroupingContext grouping;
+  final LibraryToolbarMetadataContext metadata;
+  final LibraryToolbarCollectionActionsContext collectionActions;
+  final LibraryToolbarAdminActionsContext adminActions;
 }
 
 class LibraryToolbarActionRegistry {
@@ -141,120 +189,132 @@ class LibraryToolbarActionRegistry {
     required LibraryWorkspaceViewState viewState,
     required ShelfState? shelfState,
   }) {
-    final availability = context.type.toolbarActionAvailability;
+    final availability = context.view.type.toolbarActionAvailability;
     final kindCapabilities = availability.capabilities;
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
 
     return LibraryToolbarActions(
       onAdd: enabled(LibraryToolbarActionId.add)
-          ? context.onShowAddDialogFlow
+          ? context.view.onShowAddDialogFlow
           : () {},
-      onScan:
-          enabled(LibraryToolbarActionId.scan) ? context.onScanCover : () {},
-      onSearchChanged: context.onSearchChanged,
-      onSearchInputChanged: context.onSearchInputChanged,
-      onSearchTargetChanged: context.supportsMusicTrackSearch
-          ? context.onSearchTargetChanged
+      onScan: enabled(LibraryToolbarActionId.scan)
+          ? context.adminActions.onScanCover
+          : () {},
+      onSearchChanged: context.search.onSearchChanged,
+      onSearchInputChanged: context.search.onSearchInputChanged,
+      onSearchTargetChanged: context.search.supportsMusicTrackSearch
+          ? context.search.onSearchTargetChanged
           : null,
-      onClearSearch: context.onClearSearch,
-      onSearchSuggestionSelected: context.onSearchSuggestionSelected,
+      onClearSearch: context.search.onClearSearch,
+      onSearchSuggestionSelected: context.search.onSearchSuggestionSelected,
       onEditColumns: enabled(LibraryToolbarActionId.editColumns)
-          ? context.onShowColumnChooserFlow
+          ? context.view.onShowColumnChooserFlow
           : () {},
-      onSortChanged: (LibrarySortColumn column) => context.onUpdateViewState(
+      onSortChanged: (LibrarySortColumn column) =>
+          context.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) =>
-            next.withSortColumn(column, context.adapter.viewProfile),
+            next.withSortColumn(column, context.view.adapter.viewProfile),
       ),
-      onEditSort: context.onShowSortDialogFlow,
-      onSidebarVisibilityChanged: context.onSetGroupingPanelVisibility,
-      onViewModeChanged: (LibraryViewMode mode) => context.onUpdateViewState(
+      onEditSort: context.view.onShowSortDialogFlow,
+      onSidebarVisibilityChanged: context.view.onSetGroupingPanelVisibility,
+      onViewModeChanged: (LibraryViewMode mode) =>
+          context.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.copyWith(viewMode: mode),
       ),
-      onBrowserModeChanged: context.onSetBrowserMode,
-      onReleaseFolderBack:
-          context.showReleaseFolderBack ? context.onCloseReleaseFolder : null,
+      onBrowserModeChanged: context.view.onSetBrowserMode,
+      onReleaseFolderBack: context.view.showReleaseFolderBack
+          ? context.view.onCloseReleaseFolder
+          : null,
       onDetailsLayoutChanged: (LibraryDetailsLayout layout) =>
-          context.onUpdateViewState(
+          context.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) =>
             next.copyWith(detailsLayout: layout),
       ),
       onDensityPresetChanged: (LibraryWorkspaceDensityPreset densityPreset) =>
-          context.onUpdateViewState(
+          context.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) =>
             next.copyWith(densityPreset: densityPreset),
       ),
-      onCoverSizeChanged: (double size) => context.onUpdateViewState(
+      onCoverSizeChanged: (double size) => context.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.copyWith(coverSize: size),
       ),
-      onClearBucket: context.onClearToolbarSearchChip,
-      onRefreshMetadata: () => context.onRefreshMetadata(projection),
-      onCollectionStatusScopeChanged: context.onSetCollectionStatusScope,
-      onQuickViewSelected: context.onQuickViewSelected,
-      onLetterSelected: context.onSetSelectedLetter,
-      onViewPresetSelected: context.onApplyViewPreset,
-      onTogglePinnedViewPreset: context.onTogglePinnedViewPreset,
-      onSortFavoriteSelected: context.onApplySortFavorite,
-      onTogglePinnedSortFavorite: context.onTogglePinnedSortFavorite,
-      onManageSortFavorites: context.onShowSortFavoritesManagerFlow,
-      onColumnFavoriteSelected: context.onApplyColumnFavorite,
-      onTogglePinnedColumnFavorite: context.onTogglePinnedColumnFavorite,
+      onClearBucket: context.view.onClearToolbarSearchChip,
+      onRefreshMetadata: () => context.metadata.onRefreshMetadata(projection),
+      onCollectionStatusScopeChanged:
+          context.metadata.onSetCollectionStatusScope,
+      onQuickViewSelected: context.view.onQuickViewSelected,
+      onLetterSelected: context.view.onSetSelectedLetter,
+      onViewPresetSelected: context.view.onApplyViewPreset,
+      onTogglePinnedViewPreset: context.view.onTogglePinnedViewPreset,
+      onSortFavoriteSelected: context.view.onApplySortFavorite,
+      onTogglePinnedSortFavorite: context.view.onTogglePinnedSortFavorite,
+      onManageSortFavorites: context.view.onShowSortFavoritesManagerFlow,
+      onColumnFavoriteSelected: context.view.onApplyColumnFavorite,
+      onTogglePinnedColumnFavorite: context.view.onTogglePinnedColumnFavorite,
       onJumpToIssueSubmitted: projection == null
           ? null
-          : (String value) => context.onJumpToIssueSubmitted(projection, value),
-      onClearFilters: context.onClearFilters,
-      onEditFilters:
-          projection == null ? null : () => context.onEditFilters(projection),
-      onRandomPick:
-          projection == null ? null : () => context.onRandomPick(projection),
-      onScanCover: kindCapabilities.canScanCover ? context.onScanCover : null,
+          : (String value) =>
+              context.metadata.onJumpToIssueSubmitted(projection, value),
+      onClearFilters: context.grouping.onClearFilters,
+      onEditFilters: projection == null
+          ? null
+          : () => context.grouping.onEditFilters(projection),
+      onRandomPick: projection == null
+          ? null
+          : () => context.grouping.onRandomPick(projection),
+      onScanCover: kindCapabilities.canScanCover
+          ? context.adminActions.onScanCover
+          : null,
       onDownloadAllCovers:
           kindCapabilities.canDownloadAllCovers && shelfState != null
-              ? () => context.onDownloadAllCovers(shelfState)
+              ? () => context.adminActions.onDownloadAllCovers(shelfState)
               : null,
-      onSmartLists:
-          shelfState == null ? null : () => context.onSmartLists(shelfState),
-      onFolders: context.onShowUserFoldersFlow,
+      onSmartLists: shelfState == null
+          ? null
+          : () => context.grouping.onSmartLists(shelfState),
+      onFolders: context.grouping.onShowUserFoldersFlow,
       onReadingQueue: kindCapabilities.canReadingQueue
-          ? context.onShowReadingQueueFlow
+          ? context.grouping.onShowReadingQueueFlow
           : null,
-      onEditConditionPickList: context.onShowConditionPickListEditorFlow,
-      onEditGradePickList: context.onShowGradePickListEditorFlow,
-      onEditTagPickList: context.onShowTagPickListEditorFlow,
+      onEditConditionPickList:
+          context.adminActions.onShowConditionPickListEditorFlow,
+      onEditGradePickList: context.adminActions.onShowGradePickListEditorFlow,
+      onEditTagPickList: context.adminActions.onShowTagPickListEditorFlow,
       onTransferFieldData: projection == null
           ? null
-          : () => context.onTransferFieldData(projection),
+          : () => context.collectionActions.onTransferFieldData(projection),
       onReassignIndex: projection == null || !kindCapabilities.canReassignIndex
           ? null
-          : () => context.onReassignIndex(projection),
+          : () => context.collectionActions.onReassignIndex(projection),
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty
-          ? () => context.onPrintReport(projection)
+          ? () => context.collectionActions.onPrintReport(projection)
           : null,
       onMissingComics: projection != null &&
               kindCapabilities.canMissingComicsReport &&
-              context.type.kindUiAdapter.supportsMissingComicsReport(
-                context.type,
+              context.view.type.kindUiAdapter.supportsMissingComicsReport(
+                context.view.type,
               )
-          ? () => context.onMissingComics(projection)
+          ? () => context.collectionActions.onMissingComics(projection)
           : null,
       onShareCollection:
           projection != null && projection.filteredItems.isNotEmpty
-              ? () => context.onShareCollection(projection)
+              ? () => context.collectionActions.onShareCollection(projection)
               : null,
       onCompareMetadataWithServer: (() {
         if (projection == null ||
             !kindCapabilities.canCompareMetadataWithServer ||
-            !context.type.kindUiAdapter.supportsMetadataCompareWithServer(
-              context.type,
+            !context.view.type.kindUiAdapter.supportsMetadataCompareWithServer(
+              context.view.type,
             )) {
           return null;
         }
-        final selected = context.selectedProjectionItemFor(projection);
+        final selected = context.metadata.selectedProjectionItemFor(projection);
         if (selected == null ||
-            !context.canCompareMetadataWithServerItem(selected)) {
+            !context.metadata.canCompareMetadataWithServerItem(selected)) {
           return null;
         }
         return () async {
-          await context.onCompareMetadataWithServer(
+          await context.collectionActions.onCompareMetadataWithServer(
             projection,
             item: selected,
           );
