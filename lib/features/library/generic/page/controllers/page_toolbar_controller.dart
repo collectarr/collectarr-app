@@ -137,12 +137,13 @@ class LibraryPageToolbarController {
             ? 0
             : _s._selection.selectedCount,
         totalSelectableCount: projection?.filteredItems.length ?? 0,
-        showReleaseFolderBack: _s._kindBrowserDelegate.hasReleaseFolderTitleItemId &&
-            _s.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
-              _s.widget.type,
-              browserMode: _s._activeBrowserMode,
-              releaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
-            ),
+        showReleaseFolderBack:
+            _s._kindBrowserDelegate.hasReleaseFolderTitleItemId &&
+                _s.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
+                  _s.widget.type,
+                  browserMode: _s._activeBrowserMode,
+                  releaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
+                ),
         releaseFolderLabel:
             _s.widget.type.kindUiAdapter.releaseFolderLabelForProjection(
           _s.widget.type,
@@ -151,7 +152,96 @@ class LibraryPageToolbarController {
         ),
       ),
       actions: const LibraryToolbarActionRegistry().build(
-        state: _s,
+        context: LibraryPageToolbarActionContext(
+          type: _s.widget.type,
+          activeBrowserMode: _s._activeBrowserMode,
+          activeReleaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
+          adapter: _s._adapter,
+          supportsMusicTrackSearch: _s._supportsMusicTrackSearch,
+          onSearchChanged: _s._onSearchChanged,
+          onSearchInputChanged: _s._onSearchInputChanged,
+          onSearchTargetChanged:
+              _s._supportsMusicTrackSearch ? _s._onSearchTargetChanged : null,
+          onClearSearch: _s._clearSearch,
+          onSearchSuggestionSelected: _s._applySearchSuggestion,
+          onShowAddDialogFlow: _s._dialogCoordinator.showAddDialogFlow,
+          onShowColumnChooserFlow: _s._dialogCoordinator.showColumnChooserFlow,
+          onShowSortDialogFlow: _s._dialogCoordinator.showSortDialogFlow,
+          onSetGroupingPanelVisibility: _s._setGroupingPanelVisibility,
+          onUpdateViewState: _s._updateViewState,
+          onSetBrowserMode: _s._setBrowserMode,
+          onCloseReleaseFolder: _s._closeReleaseFolder,
+          onClearToolbarSearchChip: _s._clearToolbarSearchChip,
+          onRefreshMetadata: (value) =>
+              _s._metadataCoordinator.showMetadataRefreshFlow(value),
+          onSetCollectionStatusScope: _s._setCollectionStatusScope,
+          onQuickViewSelected: (value) => _s._setQuickView(
+            _s._quickView == value ? null : value,
+          ),
+          onSetSelectedLetter: _s._setSelectedLetter,
+          onApplyViewPreset: _s._applyViewPreset,
+          onTogglePinnedViewPreset: _s._togglePinnedViewPreset,
+          onApplySortFavorite: _s._applySortFavorite,
+          onTogglePinnedSortFavorite: _s._togglePinnedSortFavorite,
+          onShowSortFavoritesManagerFlow:
+              _s._dialogCoordinator.showSortFavoritesManagerFlow,
+          onApplyColumnFavorite: _s._applyColumnFavorite,
+          onTogglePinnedColumnFavorite: _s._togglePinnedColumnFavorite,
+          onJumpToIssueSubmitted: (proj, value) => _s._jumpToIssue(
+            proj,
+            value,
+          ),
+          onClearFilters: _s._clearFilters,
+          onEditFilters: (value) =>
+              _s._dialogCoordinator.showFilterDialogFlow(value),
+          onRandomPick: (value) {
+            if (value == null) return;
+            _s._collectionActionCoordinator.pickRandomItemFlow(value);
+          },
+          onScanCover: _s._coverCoordinator.scanCoverFlow,
+          onDownloadAllCovers: _s._coverCoordinator.downloadAllCoversFlow,
+          onSmartLists: (value) => _s._dialogCoordinator.showSmartListsFlow(
+            value,
+          ),
+          onShowUserFoldersFlow: _s._dialogCoordinator.showUserFoldersFlow,
+          onShowReadingQueueFlow: _s._dialogCoordinator.showReadingQueueFlow,
+          onShowConditionPickListEditorFlow: _s.widget.type.hasConditionPickList
+              ? _s._dialogCoordinator.showConditionPickListEditorFlow
+              : null,
+          onShowGradePickListEditorFlow: _s.widget.type.hasGradePickList
+              ? _s._dialogCoordinator.showGradePickListEditorFlow
+              : null,
+          onShowTagPickListEditorFlow:
+              _s._dialogCoordinator.showTagPickListEditorFlow,
+          onTransferFieldData: (value) =>
+              _s._dialogCoordinator.showTransferFieldDataFlow(value),
+          onReassignIndex: (value) {
+            if (value == null) return;
+            _s._dialogCoordinator.reassignIndexFlow(value);
+          },
+          onPrintReport: (value) {
+            if (value == null) return;
+            _s._reportCoordinator.printReportFlow(value);
+          },
+          onMissingComics: (value) {
+            if (value == null) return;
+            _s._reportCoordinator.showMissingComicsFlow(value);
+          },
+          onShareCollection: (value) {
+            if (value == null) return;
+            _s._sharingCoordinator.shareCollectionFlow(value);
+          },
+          onCompareMetadataWithServer: (projectionValue,
+                  {LibraryProjectionItem? item}) =>
+              _s._metadataCoordinator.compareMetadataWithServerFlow(
+            projectionValue,
+            item: item,
+          ),
+          selectedProjectionItemFor:
+              _s._collectionActionCoordinator.selectedProjectionItemFor,
+          canCompareMetadataWithServerItem:
+              _s._collectionActionCoordinator.canCompareMetadataWithServerItem,
+        ),
         projection: projection,
         viewState: viewState,
         shelfState: shelfState,
@@ -167,9 +257,9 @@ typedef LibraryToolbarSearchSuggestionsInput = ({
   String query,
 });
 
-final libraryToolbarSearchSuggestionsProvider = Provider.autoDispose
-    .family<List<LibraryToolbarSearchSuggestion>,
-        LibraryToolbarSearchSuggestionsInput>((ref, input) {
+final libraryToolbarSearchSuggestionsProvider = Provider.autoDispose.family<
+    List<LibraryToolbarSearchSuggestion>,
+    LibraryToolbarSearchSuggestionsInput>((ref, input) {
   final projection = input.projection;
   if (projection == null) {
     return const <LibraryToolbarSearchSuggestion>[];
