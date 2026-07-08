@@ -123,24 +123,18 @@ class LibraryToolbarActionAvailability {
       declaredActions.contains(action);
 }
 
-extension LibraryTypeCapabilitiesToolbar on LibraryTypeCapabilities {
-  KindToolbarCapabilities get toolbarCapabilities {
-    return KindToolbarCapabilities(
-      canScanCover: canScanCover,
-      canDownloadAllCovers: canScanCover,
-      canReadingQueue: supportsReadingQueue,
-      canReassignIndex: supportsIndexReassignment,
-      canCompareMetadataWithServer: supportsMetadataCompare,
-      canMissingSequenceReport: usesComicCollectorFields,
-    );
-  }
-}
-
 extension LibraryTypeConfigToolbarAvailability on LibraryTypeConfig {
   LibraryToolbarActionAvailability get toolbarActionAvailability {
     return LibraryToolbarActionAvailability(
       declaredActions: workspace.toolbarActions.toSet(),
-      capabilities: capabilities.toolbarCapabilities,
+      capabilities: KindToolbarCapabilities(
+        canScanCover: capabilities.canScanCover,
+        canDownloadAllCovers: capabilities.canScanCover,
+        canReadingQueue: capabilities.supportsReadingQueue,
+        canReassignIndex: capabilities.supportsIndexReassignment,
+        canCompareMetadataWithServer: capabilities.supportsMetadataCompare,
+        canMissingSequenceReport: workspace.kind.apiValue == 'comic',
+      ),
     );
   }
 }

@@ -95,7 +95,6 @@ final comicsLibraryConfig = LibraryTypeConfig(
     supportsMetadataCompare: true,
     supportsMissingSequenceReport: true,
     supportsSeriesIssueJump: true,
-    usesComicCollectorFields: true,
     issueSortNumber: comicIssueSortNumber,
     groupModeCategoriesBuilder: buildComicGroupModeCategories,
   ),

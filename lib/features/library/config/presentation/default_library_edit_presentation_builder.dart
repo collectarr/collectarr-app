@@ -8,6 +8,8 @@ class DefaultLibraryEditPresentationBuilder
   const DefaultLibraryEditPresentationBuilder({
     this.showOwnershipReferenceSection = true,
     this.showOwnedGradingSection = false,
+    this.showsComicCollectorFields = false,
+    this.showsGameCompletenessFields = false,
     this.useOwnedMainArtworkLayout = false,
     this.useDetailsTab = false,
     this.useArtworkCoverTab = false,
@@ -52,6 +54,8 @@ class DefaultLibraryEditPresentationBuilder
 
   final bool showOwnershipReferenceSection;
   final bool showOwnedGradingSection;
+  final bool showsComicCollectorFields;
+  final bool showsGameCompletenessFields;
   final bool useOwnedMainArtworkLayout;
   final bool useDetailsTab;
   final bool useArtworkCoverTab;
@@ -161,6 +165,8 @@ class DefaultLibraryEditPresentationBuilder
           context.isOwned &&
           (context.hasEditionAnchors || context.hasBundleReleaseAnchors),
       showsOwnedGradingSection: showOwnedGradingSection && context.isOwned,
+      showsComicCollectorFields: showsComicCollectorFields,
+      showsGameCompletenessFields: showsGameCompletenessFields,
       usesOwnedMainArtworkLayout: useOwnedMainArtworkLayout && context.isOwned,
       usesDetailsTab: useDetailsTab,
       usesArtworkCoverTab: useArtworkCoverTab,

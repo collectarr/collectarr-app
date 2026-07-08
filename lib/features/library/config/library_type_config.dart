@@ -398,8 +398,6 @@ class LibraryTypeCapabilities {
     this.prefersSquareCovers = false,
     this.usesTrackListCard = false,
     this.showsSeasonGroupProgress = false,
-    this.usesGameCompletenessFields = false,
-    this.usesComicCollectorFields = false,
     this.groupModeCategoriesBuilder,
     this.issueSortNumber,
     this.defaultVideoDisplayLevel,
@@ -446,13 +444,6 @@ class LibraryTypeCapabilities {
 
   /// Whether grouped shelf headers show season ownership/progress (e.g. TV).
   final bool showsSeasonGroupProgress;
-
-  /// Whether the edit dialog shows game completeness (loose/CIB/new) fields.
-  final bool usesGameCompletenessFields;
-
-  /// Whether the edit dialog shows comic collector fields (grading, key issue,
-  /// bag/board date).
-  final bool usesComicCollectorFields;
   final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
   final int? Function(String? raw)? issueSortNumber;
   final VideoDisplayLevel? defaultVideoDisplayLevel;

@@ -377,11 +377,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   bool get _isMovieKind => widget.type.workspace.kind.apiValue == 'movie';
 
   bool get _isGameKind {
-    return widget.type.capabilities.usesGameCompletenessFields;
+    return _editPresentation.showsGameCompletenessFields;
   }
 
   bool get _isComicKind {
-    return widget.type.capabilities.usesComicCollectorFields;
+    return _editPresentation.showsComicCollectorFields;
   }
 
   bool get _hasReleaseAnchor {

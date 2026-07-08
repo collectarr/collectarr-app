@@ -92,6 +92,7 @@ class ComicLibraryCombinedEditPresentationBuilder
   const ComicLibraryCombinedEditPresentationBuilder()
       : super(
           showOwnedGradingSection: true,
+          showsComicCollectorFields: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,

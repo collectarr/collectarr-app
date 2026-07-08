@@ -58,6 +58,8 @@ class LibraryEditPresentationState {
   const LibraryEditPresentationState({
     required this.showsOwnershipReferenceSection,
     required this.showsOwnedGradingSection,
+    required this.showsComicCollectorFields,
+    required this.showsGameCompletenessFields,
     required this.usesOwnedMainArtworkLayout,
     required this.usesDetailsTab,
     required this.usesArtworkCoverTab,
@@ -75,6 +77,8 @@ class LibraryEditPresentationState {
 
   final bool showsOwnershipReferenceSection;
   final bool showsOwnedGradingSection;
+  final bool showsComicCollectorFields;
+  final bool showsGameCompletenessFields;
   final bool usesOwnedMainArtworkLayout;
   final bool usesDetailsTab;
   final bool usesArtworkCoverTab;
