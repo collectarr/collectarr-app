@@ -9,7 +9,6 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
@@ -38,6 +37,7 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/edit/vocabulary/library_edit_vocabulary_controller.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -51,10 +51,8 @@ import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart' show QueryRow;
 
 part '../anchors/library_edit_dialog_anchor_widgets.dart';
-part 'library_edit_dialog_vocabulary.dart';
 
 class LibraryEditRenderer extends ConsumerStatefulWidget {
   const LibraryEditRenderer({
@@ -126,6 +124,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final ComicEditController _comicEdit;
   late final GameEditController _gameEdit;
   late final VideoEditController _videoEdit;
+  late final LibraryEditVocabularyController _vocabularyController;
 
   TextEditingController get _titleController => _draft.titleController;
   TextEditingController get _numberController => _draft.numberController;
@@ -538,11 +537,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       });
     }
 
-    unawaited(_loadCatalogVocabularyOptions());
+    _vocabularyController = const LibraryEditVocabularyController();
+
+    unawaited(_loadVocabularyOptions());
 
     if (_isOwned) {
       unawaited(_loadAvailableLocations());
-      unawaited(_loadTagOptions());
     }
   }
 
@@ -555,6 +555,124 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _tabController.dispose();
     _draft.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadAvailableLocations() async {
+    final locations = await _vocabularyController
+        .loadAvailableLocations(ref.read(localDatabaseProvider));
+    if (!mounted) {
+      return;
+    }
+    _mutateDialogState(() => _availableLocations = locations);
+  }
+
+  Future<void> _loadVocabularyOptions() async {
+    final options = await _vocabularyController.loadVocabularyOptions(
+      LibraryEditVocabularyRequest(
+        db: ref.read(localDatabaseProvider),
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedPublisher: _publisherController.text,
+        selectedImprint: _imprintController.text,
+        selectedSeriesGroup: _seriesGroupController.text,
+        selectedPhysicalFormat: _physicalFormatLabelController.text,
+        selectedCondition: _conditionController.text,
+        selectedGrade: _gradeController.text,
+        selectedCountry: _countryController.text,
+        selectedLanguage: _languageController.text,
+        selectedAgeRating: _ageRatingController.text,
+        selectedAudienceRating: _audienceRatingController.text,
+        selectedRegion: _regionController.text,
+        selectedPackaging: _packagingController.text,
+        selectedDistributor: _distributorController.text,
+        selectedScreenRatio: _screenRatioController.text,
+        selectedAudioTracks: _videoEdit.audioTracksController.text,
+        selectedSubtitles: _videoEdit.subtitlesController.text,
+        selectedLayers: _videoEdit.layersController.text,
+        selectedColor: _videoEdit.colorController.text,
+        selectedGamePlatforms: _gameEdit.platformsController.text,
+        selectedCrossover: _crossoverController.text,
+        selectedStoryArc: _storyArcsController.text,
+        selectedPageQuality: _pageQualityController.text,
+        selectedKeyCategory: _keyCategoryController.text,
+        selectedGenreValues: _genresEditController.text,
+        selectedTagValues: _tagsController.text,
+        selectedSeriesTitle: _titleController.text,
+        selectedSeriesId: _selectedSeriesId,
+        builtInPhysicalFormats: _effectivePhysicalFormats,
+      ),
+    );
+    if (!mounted) {
+      return;
+    }
+    _mutateDialogState(() {
+      _publisherOptions = options.publisherOptions;
+      _imprintOptions = options.imprintOptions;
+      _seriesGroupOptions = options.seriesGroupOptions;
+      _physicalFormatOptions = options.physicalFormatOptions;
+      _conditionOptions = options.conditionOptions;
+      _gradeOptions = options.gradeOptions;
+      _countryOptions = options.countryOptions;
+      _languageOptions = options.languageOptions;
+      _ageRatingOptions = options.ageRatingOptions;
+      _audienceRatingOptions = options.audienceRatingOptions;
+      _regionOptions = options.regionOptions;
+      _packagingOptions = options.packagingOptions;
+      _distributorOptions = options.distributorOptions;
+      _screenRatioOptions = options.screenRatioOptions;
+      _audioTrackOptions = options.audioTrackOptions;
+      _subtitleOptions = options.subtitleOptions;
+      _layersOptions = options.layersOptions;
+      _colorOptions = options.colorOptions;
+      _gameEdit.platformOptions = options.gamePlatformOptions;
+      _crossoverOptions = options.crossoverOptions;
+      _storyArcOptions = options.storyArcOptions;
+      _pageQualityOptions = options.pageQualityOptions;
+      _keyCategoryOptions = options.keyCategoryOptions;
+      _ownerOptions = options.ownerOptions;
+      _seriesEntries = options.seriesEntries;
+      _genreOptions = options.genreOptions;
+      _tagOptions = options.tagOptions;
+    });
+  }
+
+  Future<void> _manageSingleValuePickList({
+    required String listName,
+    required String label,
+    List<String> builtInValues = const [],
+  }) async {
+    await showPickListEditorDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      listName: listName,
+      label: label,
+      mediaKind: widget.type.workspace.kind.apiValue,
+      builtInValues: builtInValues,
+    );
+    if (!mounted) {
+      return;
+    }
+    await _loadVocabularyOptions();
+  }
+
+  Future<void> _openSeriesPicker() async {
+    final selected = await showSeriesPickerDialog(
+      context: context,
+      db: ref.read(localDatabaseProvider),
+      mediaKind: widget.type.workspace.kind.apiValue,
+      selectedTitle: _titleController.text,
+      selectedSeriesId: _selectedSeriesId,
+    );
+    if (!mounted || selected == null) {
+      return;
+    }
+    _mutateDialogState(() {
+      _selectedSeriesId = selected.coreSeriesId;
+      _titleController.value = TextEditingValue(
+        text: selected.title,
+        selection: TextSelection.collapsed(offset: selected.title.length),
+      );
+    });
+    await _loadVocabularyOptions();
   }
 
   void _initializeGameChipEditors() {
@@ -2282,8 +2400,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     if (result == null) {
       return;
     }
-    final locations =
-        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    final locations = await _vocabularyController.loadAvailableLocations(
+      ref.read(localDatabaseProvider),
+    );
     if (!mounted) {
       return;
     }
