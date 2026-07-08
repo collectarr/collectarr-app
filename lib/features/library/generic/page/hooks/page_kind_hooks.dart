@@ -11,7 +11,7 @@ extension _PageKindHooks on GenericLibraryPageState {
       widget.type.kindUiAdapter.supportsMusicTrackSearch(widget.type);
 
   LibrarySearchTarget get _effectiveSearchTarget => _supportsMusicTrackSearch
-      ? _LibraryPageSearchControllerOps.thisState(this).target
+      ? _searchControllerOps.state.target
       : LibrarySearchTarget.all;
 
   LibraryViewPreferenceStore get _viewPrefs =>

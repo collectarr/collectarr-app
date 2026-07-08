@@ -65,6 +65,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_series_
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_toolbar_presenter.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/library_toolbar_action_registry.dart';
+import 'package:collectarr_app/features/library/generic/page/controllers/page_search_controller.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -82,7 +83,6 @@ part 'controllers/page_scope_controller.dart';
 part 'controllers/page_view_state_controller.dart';
 part 'controllers/page_projection_controller.dart';
 part 'controllers/page_projection_provider.dart';
-part 'controllers/page_search_controller.dart';
 part 'controllers/page_lifecycle_controller.dart';
 part 'controllers/page_toolbar_controller.dart';
 part 'controllers/page_selection_controller.dart';
@@ -124,6 +124,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   late final LibraryPageReportCoordinator _reportCoordinator;
   late final LibraryPageCoverCoordinator _coverCoordinator;
   late final LibraryPageToolbarController _toolbarController;
+  late final LibraryPageSearchController _searchControllerOps;
 
   // ---------------------------------------------------------------------------
   // State fields
@@ -218,6 +219,17 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _reportCoordinator = LibraryPageReportCoordinator(coordinatorContext);
     _coverCoordinator = LibraryPageCoverCoordinator(coordinatorContext);
     _toolbarController = LibraryPageToolbarController(this);
+    _searchControllerOps = LibraryPageSearchController(
+      ref: ref,
+      searchStateKey: _searchStateKey,
+      searchController: _searchController,
+      supportsMusicTrackSearch: _supportsMusicTrackSearch,
+      clearActiveSmartLists: () => _mutateState(() {
+        _activeSmartListId = null;
+        _activeSmartListName = null;
+      }),
+      syncRouteState: _syncRouteState,
+    );
     _LibraryPageLifecycleControllerOps.initState(this);
   }
 
@@ -233,6 +245,20 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     super.dispose();
   }
 
+  void _onSearchChanged(String value) =>
+      _searchControllerOps.onSearchChanged(value);
+
+  void _onSearchInputChanged(String value) =>
+      _searchControllerOps.onSearchInputChanged(value);
+
+  void _clearSearch() => _searchControllerOps.clearSearch();
+
+  void _applySearchSuggestion(LibraryToolbarSearchSuggestion suggestion) =>
+      _searchControllerOps.applySearchSuggestion(suggestion);
+
+  void _onSearchTargetChanged(LibrarySearchTarget target) =>
+      _searchControllerOps.onSearchTargetChanged(target);
+
   LibraryPageCoordinatorContext _createCoordinatorContext() {
     return LibraryPageCoordinatorContext(
       context: context,
@@ -242,16 +268,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       getMounted: () => mounted,
       getAdapter: () => _adapter,
       getViewPrefs: () => _viewPrefs,
-      getSearchQuery: () =>
-          _LibraryPageSearchControllerOps.thisState(this).query,
+      getSearchQuery: () => _searchControllerOps.state.query,
       setSearchQuery: (query) {
         if (query == null) {
           _searchController.clear();
-          _LibraryPageSearchControllerOps.clearSearch(this);
+          _searchControllerOps.clearSearch();
           return;
         }
         _searchController.text = query;
-        _LibraryPageSearchControllerOps.setQuery(this, query);
+        _searchControllerOps.state.setQuery(query);
       },
       getViewState: () => _viewState,
       setViewState: (value) => _viewState = value,
@@ -782,7 +807,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _activeSmartListName = null;
       _searchController.clear();
     });
-    _LibraryPageSearchControllerOps.clearSearch(this);
+    _searchControllerOps.clearSearch();
     _selectItem(match.entry.id);
   }
 

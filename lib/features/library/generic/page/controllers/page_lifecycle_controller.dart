@@ -10,7 +10,8 @@ abstract final class _LibraryPageLifecycleControllerOps {
       (_, next) {
         final shelfState = next.asData?.value;
         if (shelfState != null) {
-          state._maybeEnsureFacetBucketsLoaded(shelfState, state._activeGroupMode);
+          state._maybeEnsureFacetBucketsLoaded(
+              shelfState, state._activeGroupMode);
         }
       },
     );
@@ -157,7 +158,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
     state._groupPresentationOverride = null;
     state._collapsedGroupBuckets = const <String>{};
     state._pinnedFolderPresets = state._viewPrefs.cachedPinnedFolderPresets
-      .map(
+        .map(
           (preset) => sanitizeLibraryFolderPreset(
             preset,
             allowedModes: allowedGroupModes,
@@ -165,9 +166,10 @@ abstract final class _LibraryPageLifecycleControllerOps {
         )
         .whereType<LibraryFolderPreset>()
         .toList(growable: false);
-    state._pinnedViewPresets = state._viewPrefs.cachedPinnedViewPresets.isNotEmpty
-        ? state._viewPrefs.cachedPinnedViewPresets
-        : libraryDefaultPinnedViewPresetsForType(state.widget.type);
+    state._pinnedViewPresets =
+        state._viewPrefs.cachedPinnedViewPresets.isNotEmpty
+            ? state._viewPrefs.cachedPinnedViewPresets
+            : libraryDefaultPinnedViewPresetsForType(state.widget.type);
     state._pinnedSortFavoriteIds =
         state._viewPrefs.cachedPinnedSortFavoriteIds.isNotEmpty
             ? state._viewPrefs.cachedPinnedSortFavoriteIds
@@ -222,7 +224,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._lastFacetEnsureSignature = null;
       state._lastFacetEnsureMode = null;
       state._searchController.clear();
-      _LibraryPageSearchControllerOps.clearSearch(state);
+      state._searchControllerOps.clearSearch();
       state._primeCachedViewPreferences();
       // Start from the next kind's own cached defaults/chrome to avoid
       // a one-frame layout jump (e.g. right -> bottom details panel).
@@ -231,7 +233,8 @@ abstract final class _LibraryPageLifecycleControllerOps {
       unawaited(state._loadViewPreferences());
       unawaited(state._loadColumnFavoritePresets());
       unawaited(state._loadActiveLoanIds());
-    } else if (oldWidget.routeUri.toString() != state.widget.routeUri.toString()) {
+    } else if (oldWidget.routeUri.toString() !=
+        state.widget.routeUri.toString()) {
       state._applyRouteStateFromUri(state.widget.routeUri);
     }
   }

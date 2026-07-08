@@ -12,7 +12,7 @@ abstract final class _LibraryProjectionControllerOps {
         (state._usesExternalFacetBuckets(mode) && state._selectedBucket != null)
             ? facetBuckets?.itemIdsByBucket[state._selectedBucket!]
             : null;
-    final searchState = _LibraryPageSearchControllerOps.thisState(state);
+    final searchState = state._searchControllerOps.state;
     final searchPinnedItemIds = searchState.pinnedItemId == null
         ? null
         : <String>{searchState.pinnedItemId!};
@@ -32,8 +32,8 @@ abstract final class _LibraryProjectionControllerOps {
     final projectionCache = state.ref.watch(
       libraryProjectionCacheProvider(state.widget.type.workspace.kind.apiValue),
     );
-    final customFieldValues =
-        projectionCache.asData?.value.valuesByItem ?? const <String, List<String>>{};
+    final customFieldValues = projectionCache.asData?.value.valuesByItem ??
+        const <String, List<String>>{};
     final customFieldValuesByDefinition =
         projectionCache.asData?.value.valuesByDefinitionByItem ??
             const <String, Map<String, String>>{};

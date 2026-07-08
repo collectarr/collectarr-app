@@ -152,7 +152,7 @@ abstract final class _LibraryScopeControllerOps {
   static LibrarySidebarScopeSnapshot captureSidebarScope(
     GenericLibraryPageState state,
   ) {
-    final searchState = _LibraryPageSearchControllerOps.thisState(state);
+    final searchState = state._searchControllerOps.state;
     return LibrarySidebarScopeSnapshot(
       groupMode: state._activeGroupMode,
       selectedBucket: state._selectedBucket,
@@ -187,7 +187,7 @@ abstract final class _LibraryScopeControllerOps {
       selection: TextSelection.collapsed(offset: snapshot.searchQuery.length),
       composing: TextRange.empty,
     );
-    _LibraryPageSearchControllerOps.setQuery(state, snapshot.searchQuery);
+    state._searchControllerOps.state.setQuery(snapshot.searchQuery);
   }
 
   static void navigateSidebarBack(GenericLibraryPageState state) {
@@ -236,7 +236,7 @@ abstract final class _LibraryScopeControllerOps {
       state._searchController.clear();
       state._selectionAnchorId = null;
     });
-    _LibraryPageSearchControllerOps.clearSearch(state);
+    state._searchControllerOps.clearSearch();
     state._syncRouteState();
   }
 
@@ -249,10 +249,10 @@ abstract final class _LibraryScopeControllerOps {
       state._quickView = smartList.quickView;
       if (smartList.searchQuery != null) {
         state._searchController.text = smartList.searchQuery!;
-        _LibraryPageSearchControllerOps.setQuery(state, smartList.searchQuery!);
+        state._searchControllerOps.state.setQuery(smartList.searchQuery!);
       } else {
         state._searchController.clear();
-        _LibraryPageSearchControllerOps.clearSearch(state);
+        state._searchControllerOps.clearSearch();
       }
       if (state._viewState != null) {
         if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
@@ -291,7 +291,7 @@ abstract final class _LibraryScopeControllerOps {
       state._linkedMetadataFilter = null;
       state._scopeHistory = const [];
     });
-    _LibraryPageSearchControllerOps.clearSearch(state);
+    state._searchControllerOps.clearSearch();
     state._syncRouteState();
   }
 

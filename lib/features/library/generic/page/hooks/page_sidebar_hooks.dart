@@ -73,7 +73,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
   }
 
   bool get _hasActiveFilter =>
-      _LibraryPageSearchControllerOps.thisState(this).query.trim().isNotEmpty ||
+      _searchControllerOps.state.query.trim().isNotEmpty ||
       _linkedMetadataFilter != null ||
       _selectedBucket != null ||
       _selectedLetter != null ||
@@ -118,14 +118,6 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     unawaited(_loadFolderTreePreferencesForActivePreset());
   }
 
-  void _setGroupPresentationOverride(LibraryGroupPresentation? presentation) {
-    final preset = _activeFolderPreset;
-    _mutateState(() {
-      _groupPresentationOverride = presentation;
-    });
-    unawaited(_viewPrefs.writeGroupPresentationOverride(preset, presentation));
-  }
-
   void _toggleCollapsedGroupBucket(String bucket) {
     final preset = _activeFolderPreset;
     final next = Set<String>.from(_collapsedGroupBuckets);
@@ -150,10 +142,6 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     unawaited(_viewPrefs.writeCollapsedGroupBuckets(preset, next));
   }
 
-  bool _isGroupBucketCollapsed(String bucket) {
-    return _collapsedGroupBuckets.contains(bucket);
-  }
-
   LibraryRouteState _buildRouteState() {
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
     final allowedSortColumns = _scopeAvailableSortColumns.toSet();
@@ -161,7 +149,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       for (final rule in viewState.sortRules)
         if (allowedSortColumns.contains(rule.column)) rule,
     ];
-    final searchState = _LibraryPageSearchControllerOps.thisState(this);
+    final searchState = _searchControllerOps.state;
     return LibraryRouteState(
       kind: widget.type.workspace.kind.apiValue,
       searchQuery: _trimmedQuery(searchState.query),
@@ -252,7 +240,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       selection: TextSelection.collapsed(offset: routeQuery.length),
       composing: TextRange.empty,
     );
-    _LibraryPageSearchControllerOps.setQuery(this, routeQuery);
+    _searchControllerOps.state.setQuery(routeQuery);
     final shelfState = ref.read(shelfProvider).asData?.value;
     if (shelfState != null) {
       _maybeEnsureFacetBucketsLoaded(shelfState, _activeGroupMode);

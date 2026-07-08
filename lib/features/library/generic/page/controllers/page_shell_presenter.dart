@@ -133,7 +133,7 @@ abstract final class _LibraryPageShellPresenter {
         });
       }
     }
-    final searchState = _LibraryPageSearchControllerOps.thisState(state);
+    final searchState = state._searchControllerOps.state;
     final trimmedSearchQuery = searchState.query.trim();
     final seriesStatusSummary =
         state._seriesStatusSummaryForProjection(projection);
@@ -177,7 +177,8 @@ abstract final class _LibraryPageShellPresenter {
       hasActiveFilter: state._hasActiveFilter,
       onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
       onClearFilters: state._clearFilters,
-      onEditFilters: () => state._dialogCoordinator.showFilterDialogFlow(projection),
+      onEditFilters: () =>
+          state._dialogCoordinator.showFilterDialogFlow(projection),
       selectionEnabled: state._selection.enabled &&
           viewState.viewMode != LibraryViewMode.cardFlow,
       selectedItemIds: state._selection.itemIds,
@@ -244,21 +245,24 @@ abstract final class _LibraryPageShellPresenter {
       onLayoutSnapshotChanged: (snapshot) {
         state.ref.read(libraryLayoutSnapshotProvider.notifier).update(snapshot);
       },
-      onAddOwned: (item) => state._collectionActionCoordinator.runCollectionAction(
+      onAddOwned: (item) =>
+          state._collectionActionCoordinator.runCollectionAction(
         (actions) => actions.addOwned(item),
       ),
       onRemoveOwned: state._collectionActionCoordinator.confirmAndRemoveOwned,
-      onAddWishlist: (item) => state._collectionActionCoordinator.runCollectionAction(
+      onAddWishlist: (item) =>
+          state._collectionActionCoordinator.runCollectionAction(
         (actions) => actions.addWishlist(item),
       ),
-      onRemoveWishlist: (item) => state._collectionActionCoordinator.runCollectionAction(
+      onRemoveWishlist: (item) =>
+          state._collectionActionCoordinator.runCollectionAction(
         (actions) => actions.removeWishlist(item),
       ),
       onEditItem: (item, ownedItem) =>
           unawaited(state._editCoordinator.showEditDialog(item, ownedItem)),
       workspaceOverride: workspaceOverride,
-      onItemContextMenu: (item, position) =>
-          state._collectionActionCoordinator.handleItemContextMenu(projection, item, position),
+      onItemContextMenu: (item, position) => state._collectionActionCoordinator
+          .handleItemContextMenu(projection, item, position),
       sidebarBreadcrumbs: state._sidebarBreadcrumbs,
       sidebarAncestorScopeLabels: state._sidebarAncestorScopeLabels,
       onSidebarNavigateBack:
@@ -360,19 +364,24 @@ abstract final class _LibraryPageShellPresenter {
         onSortFavoriteSelected: state._applySortFavorite,
         pinnedSortFavoriteIds: state._pinnedSortFavoriteIds,
         onTogglePinnedSortFavorite: state._togglePinnedSortFavorite,
-        onManageSortFavorites: state._dialogCoordinator.showSortFavoritesManagerFlow,
+        onManageSortFavorites:
+            state._dialogCoordinator.showSortFavoritesManagerFlow,
         hasActiveFilters: state._hasActiveFilter,
         onQuickViewSelected: (view) =>
             state._setQuickView(state._quickView == view ? null : view),
         onClearFilters: state._clearFilters,
-        onEditFilters: () => state._dialogCoordinator.showFilterDialogFlow(projection),
+        onEditFilters: () =>
+            state._dialogCoordinator.showFilterDialogFlow(projection),
         activeFilterCount: state._filterSelection.activeFilterCount,
         onRandomPick: projection.filteredItems.isNotEmpty
-            ? () => state._collectionActionCoordinator.pickRandomItemFlow(projection)
+            ? () => state._collectionActionCoordinator
+                .pickRandomItemFlow(projection)
             : null,
-        onDownloadAllCovers: () => state._coverCoordinator.downloadAllCoversFlow(shelfState),
+        onDownloadAllCovers: () =>
+            state._coverCoordinator.downloadAllCoversFlow(shelfState),
         shelfState: shelfState,
-        onSmartLists: () => state._dialogCoordinator.showSmartListsFlow(shelfState),
+        onSmartLists: () =>
+            state._dialogCoordinator.showSmartListsFlow(shelfState),
         onFolders: state._dialogCoordinator.showUserFoldersFlow,
         onReadingQueue: state.widget.type.supportsReadingQueue
             ? state._dialogCoordinator.showReadingQueueFlow
@@ -385,7 +394,8 @@ abstract final class _LibraryPageShellPresenter {
             : null,
         onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,
         onTransferFieldData: state._hasOwnedItemsInProjection(projection)
-            ? () => state._dialogCoordinator.showTransferFieldDataFlow(projection)
+            ? () =>
+                state._dialogCoordinator.showTransferFieldDataFlow(projection)
             : null,
         onReassignIndex: state.widget.type.supportsIndexReassignment &&
                 state._hasOwnedItemsInProjection(projection)
@@ -401,9 +411,11 @@ abstract final class _LibraryPageShellPresenter {
           if (!state.widget.type.supportsMetadataCompareWithServer) {
             return null;
           }
-          final selected = state._collectionActionCoordinator.selectedProjectionItemFor(projection);
+          final selected = state._collectionActionCoordinator
+              .selectedProjectionItemFor(projection);
           if (selected == null ||
-              !state._collectionActionCoordinator.canCompareMetadataWithServerItem(selected)) {
+              !state._collectionActionCoordinator
+                  .canCompareMetadataWithServerItem(selected)) {
             return null;
           }
           return () => unawaited(
@@ -451,26 +463,31 @@ abstract final class _LibraryPageShellPresenter {
           ? () => state._reportCoordinator.printSelectedReportFlow(projection)
           : null,
       onExportCsvTxt: state._hasSelectedItemsInSelection(projection)
-          ? () => state._sharingCoordinator.shareSelectedCollectionFlow(projection)
+          ? () =>
+              state._sharingCoordinator.shareSelectedCollectionFlow(projection)
           : null,
       onBulkDuplicate: state._hasOwnedItemsInSelection(projection)
-          ? () => state._collectionActionCoordinator.bulkDuplicateFlow(projection)
+          ? () =>
+              state._collectionActionCoordinator.bulkDuplicateFlow(projection)
           : null,
       onBulkLoan: state._hasLoanableOwnedItemsInSelection(projection)
           ? () => state._dialogCoordinator.showLoanSelectionFlow(projection)
           : null,
       onTransferFieldData: state._hasOwnedItemsInSelection(projection)
-          ? () => state._dialogCoordinator.showTransferFieldDataForSelectionFlow(projection)
+          ? () => state._dialogCoordinator
+              .showTransferFieldDataForSelectionFlow(projection)
           : null,
       onBulkUpdateValues: null,
       onBulkUpdateKeyInfo: null,
-      onBulkMoveToOwned:
-          state._hasMoveToOwnedEligibleItemsInSelection(projection)
-              ? () => state._collectionActionCoordinator.bulkMoveToOwnedFlow(projection)
-              : null,
+      onBulkMoveToOwned: state
+              ._hasMoveToOwnedEligibleItemsInSelection(projection)
+          ? () =>
+              state._collectionActionCoordinator.bulkMoveToOwnedFlow(projection)
+          : null,
       onBulkMoveToWishlist:
           state._hasMoveToWishlistEligibleItemsInSelection(projection)
-              ? () => state._collectionActionCoordinator.bulkMoveToWishlistFlow(projection)
+              ? () => state._collectionActionCoordinator
+                  .bulkMoveToWishlistFlow(projection)
               : null,
       onBulkRemove: state._hasRemovableItemsInSelection(projection)
           ? () => state._collectionActionCoordinator.bulkRemoveFlow(projection)

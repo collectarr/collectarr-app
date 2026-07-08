@@ -1,89 +1,72 @@
-part of '../generic_library_page.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/generic/page_search_state.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-abstract final class _LibraryPageSearchControllerOps {
-  static void setQuery(GenericLibraryPageState state, String query) {
-    state.ref
-        .read(libraryPageSearchStateProvider(state._searchStateKey))
-        .setQuery(query);
-  }
+class LibraryPageSearchController {
+  LibraryPageSearchController({
+    required this.ref,
+    required this.searchStateKey,
+    required this.searchController,
+    required this.supportsMusicTrackSearch,
+    required this.clearActiveSmartLists,
+    required this.syncRouteState,
+  });
 
-  static void applySuggestion(
-    GenericLibraryPageState state,
-    LibraryToolbarSearchSuggestion suggestion,
-  ) {
-    state.ref
-        .read(libraryPageSearchStateProvider(state._searchStateKey))
-        .applySuggestion(title: suggestion.title, id: suggestion.id);
-  }
+  final WidgetRef ref;
+  final String searchStateKey;
+  final TextEditingController searchController;
+  final bool supportsMusicTrackSearch;
+  final VoidCallback clearActiveSmartLists;
+  final VoidCallback syncRouteState;
 
-  static void clearSearch(GenericLibraryPageState state) {
-    state.ref
-        .read(libraryPageSearchStateProvider(state._searchStateKey))
-        .clearSearch();
-  }
+  LibraryPageSearchState get state => ref.read(
+        libraryPageSearchStateProvider(searchStateKey),
+      );
 
-  static LibraryPageSearchState thisState(GenericLibraryPageState state) {
-    return state.ref.read(
-      libraryPageSearchStateProvider(state._searchStateKey),
-    );
-  }
-}
-
-extension _LibraryPageSearchStateHandlers on GenericLibraryPageState {
-  void _onSearchChanged(String value) {
+  void onSearchChanged(String value) {
     final trimmed = value.trim();
     final searchState = ref.watch(
-      libraryPageSearchStateProvider(_searchStateKey),
+      libraryPageSearchStateProvider(searchStateKey),
     );
     if (searchState.query == trimmed && searchState.pinnedItemId == null) {
       return;
     }
-    _LibraryPageSearchControllerOps.setQuery(this, trimmed);
-    _mutateState(() {
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
-    _syncRouteState();
+    state.setQuery(trimmed);
+    clearActiveSmartLists();
+    syncRouteState();
   }
 
-  void _onSearchInputChanged(String value) {
-    _onSearchChanged(value);
+  void onSearchInputChanged(String value) {
+    onSearchChanged(value);
   }
 
-  void _clearSearch() {
-    _searchController.clear();
-    _LibraryPageSearchControllerOps.clearSearch(this);
-    _mutateState(() {
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
-    _syncRouteState();
+  void clearSearch() {
+    searchController.clear();
+    state.clearSearch();
+    clearActiveSmartLists();
+    syncRouteState();
   }
 
-  void _applySearchSuggestion(LibraryToolbarSearchSuggestion suggestion) {
-    _searchController.value = _searchController.value.copyWith(
+  void applySearchSuggestion(LibraryToolbarSearchSuggestion suggestion) {
+    searchController.value = searchController.value.copyWith(
       text: suggestion.title,
       selection: TextSelection.collapsed(offset: suggestion.title.length),
       composing: TextRange.empty,
     );
-    _LibraryPageSearchControllerOps.applySuggestion(this, suggestion);
-    _mutateState(() {
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
-    _syncRouteState();
+    state.applySuggestion(title: suggestion.title, id: suggestion.id);
+    clearActiveSmartLists();
+    syncRouteState();
   }
 
-  void _onSearchTargetChanged(LibrarySearchTarget target) {
-    final searchState = _LibraryPageSearchControllerOps.thisState(this);
-    if (!_supportsMusicTrackSearch || searchState.target == target) {
+  void onSearchTargetChanged(LibrarySearchTarget target) {
+    final searchState = state;
+    if (!supportsMusicTrackSearch || searchState.target == target) {
       return;
     }
     searchState.setTarget(target);
-    _mutateState(() {
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-    });
-    _syncRouteState();
+    clearActiveSmartLists();
+    syncRouteState();
   }
 }
