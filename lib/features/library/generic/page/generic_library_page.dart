@@ -64,6 +64,7 @@ import 'package:collectarr_app/features/library/config/library_media_adapter.dar
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -114,6 +115,7 @@ part 'controllers/page_projection_controller.dart';
 part 'controllers/page_projection_provider.dart';
 part 'controllers/page_search_controller.dart';
 part 'controllers/page_lifecycle_controller.dart';
+part 'controllers/library_toolbar_action_registry.dart';
 part 'controllers/page_toolbar_controller.dart';
 part 'controllers/page_toolbar_presenter.dart';
 part 'controllers/page_selection_controller.dart';

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_definition.dart';
+import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryViewMode { grid, card, horizontalCards, cardFlow, list, shelves }
@@ -505,6 +506,7 @@ class LibraryWorkspaceConfig {
       LibraryWorkspaceDensityPreset.ultraCompact,
     ],
     this.columnRegistry = const LibraryColumnRegistry([]),
+    this.toolbarActions = kDefaultLibraryToolbarActions,
   });
 
   final CatalogMediaKind kind;
@@ -519,6 +521,7 @@ class LibraryWorkspaceConfig {
   final List<LibraryTableColumn> availableTableColumns;
   final List<LibraryWorkspaceDensityPreset> availableDensityPresets;
   final LibraryColumnRegistry columnRegistry;
+  final List<LibraryToolbarActionId> toolbarActions;
 
   bool supportsSortColumn(LibrarySortColumn column) {
     return availableSortColumns.contains(column);

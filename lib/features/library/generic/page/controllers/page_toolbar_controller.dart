@@ -79,13 +79,6 @@ class LibraryPageToolbarController {
         query: searchState.query,
       )),
     );
-    final showReleaseFolderBack =
-        _s.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
-      _s.widget.type,
-      browserMode: _s._activeBrowserMode,
-      releaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
-    );
-
     final presentation = LibraryToolbarPresentation(
       config: LibraryToolbarConfig(
         type: _s.widget.type,
@@ -144,7 +137,12 @@ class LibraryPageToolbarController {
             ? 0
             : _s._selection.selectedCount,
         totalSelectableCount: projection?.filteredItems.length ?? 0,
-        showReleaseFolderBack: showReleaseFolderBack,
+        showReleaseFolderBack: _s._kindBrowserDelegate.hasReleaseFolderTitleItemId &&
+            _s.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
+              _s.widget.type,
+              browserMode: _s._activeBrowserMode,
+              releaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
+            ),
         releaseFolderLabel:
             _s.widget.type.kindUiAdapter.releaseFolderLabelForProjection(
           _s.widget.type,
@@ -152,127 +150,11 @@ class LibraryPageToolbarController {
           releaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
         ),
       ),
-      actions: LibraryToolbarActions(
-        onAdd: () => _s._dialogCoordinator.showAddDialogFlow(),
-        onScan: _s._collectionActionCoordinator.scanBarcodeFlow,
-        onSearchChanged: _s._onSearchChanged,
-        onSearchInputChanged: _s._onSearchInputChanged,
-        onSearchTargetChanged:
-            _s._supportsMusicTrackSearch ? _s._onSearchTargetChanged : null,
-        onClearSearch: _s._clearSearch,
-        onSearchSuggestionSelected: _s._applySearchSuggestion,
-        onEditColumns: _s._dialogCoordinator.showColumnChooserFlow,
-        onSortChanged: (column) => _s._updateViewState(
-          (state) => state.withSortColumn(column, _s._adapter.viewProfile),
-        ),
-        onEditSort: _s._dialogCoordinator.showSortDialogFlow,
-        onSidebarVisibilityChanged: _s._setGroupingPanelVisibility,
-        onViewModeChanged: (mode) =>
-            _s._updateViewState((state) => state.copyWith(viewMode: mode)),
-        onBrowserModeChanged: _s._setBrowserMode,
-        onReleaseFolderBack:
-            showReleaseFolderBack ? _s._closeReleaseFolder : null,
-        onDetailsLayoutChanged: (layout) => _s._updateViewState(
-          (state) => state.copyWith(detailsLayout: layout),
-        ),
-        onDensityPresetChanged: (densityPreset) => _s._updateViewState(
-          (state) => state.copyWith(densityPreset: densityPreset),
-        ),
-        onCoverSizeChanged: (size) => _s._updateViewState(
-          (state) => state.copyWith(coverSize: size),
-        ),
-        onClearBucket: _s._clearToolbarSearchChip,
-        onRefreshMetadata: () =>
-            _s._metadataCoordinator.showMetadataRefreshFlow(projection),
-        onCollectionStatusScopeChanged: _s._setCollectionStatusScope,
-        onQuickViewSelected: (view) =>
-            _s._setQuickView(_s._quickView == view ? null : view),
-        onLetterSelected: _s._setSelectedLetter,
-        onViewPresetSelected: _s._applyViewPreset,
-        onTogglePinnedViewPreset: _s._togglePinnedViewPreset,
-        onSortFavoriteSelected: _s._applySortFavorite,
-        onTogglePinnedSortFavorite: _s._togglePinnedSortFavorite,
-        onManageSortFavorites:
-            _s._dialogCoordinator.showSortFavoritesManagerFlow,
-        onColumnFavoriteSelected: _s._applyColumnFavorite,
-        onTogglePinnedColumnFavorite: _s._togglePinnedColumnFavorite,
-        onJumpToIssueSubmitted: projection == null
-            ? null
-            : (value) => _s._jumpToIssue(projection, value),
-        onClearFilters: _s._clearFilters,
-        onEditFilters: () =>
-            _s._dialogCoordinator.showFilterDialogFlow(projection),
-        onRandomPick: projection == null
-            ? null
-            : () =>
-                _s._collectionActionCoordinator.pickRandomItemFlow(projection),
-        onScanCover: () => _s._coverCoordinator.scanCoverFlow(),
-        onDownloadAllCovers: shelfState != null
-            ? () => _s._coverCoordinator.downloadAllCoversFlow(shelfState)
-            : null,
-        onSmartLists: () =>
-            _s._dialogCoordinator.showSmartListsFlow(shelfState),
-        onFolders: _s._dialogCoordinator.showUserFoldersFlow,
-        onReadingQueue: _s.showsReadingQueue()
-            ? _s._dialogCoordinator.showReadingQueueFlow
-            : null,
-        onEditConditionPickList: _s.widget.type.hasConditionPickList
-            ? _s._dialogCoordinator.showConditionPickListEditorFlow
-            : null,
-        onEditGradePickList: _s.widget.type.hasGradePickList
-            ? _s._dialogCoordinator.showGradePickListEditorFlow
-            : null,
-        onEditTagPickList: _s._dialogCoordinator.showTagPickListEditorFlow,
-        onTransferFieldData: projection != null &&
-                _s._hasOwnedItemsInProjection(projection)
-            ? () =>
-                _s._dialogCoordinator.showTransferFieldDataFlow(projection)
-            : null,
-        onReassignIndex: projection != null &&
-                _s.widget.type.capabilities.supportsIndexReassignment &&
-                _s._hasOwnedItemsInProjection(projection)
-            ? () => _s._dialogCoordinator.reassignIndexFlow(projection)
-            : null,
-        onPrintReport:
-            projection != null && projection.filteredItems.isNotEmpty
-                ? () => _s._reportCoordinator.printReportFlow(projection)
-                : null,
-        onMissingComics: projection != null &&
-                _s.widget.type.kindUiAdapter.supportsMissingComicsReport(
-                  _s.widget.type,
-                )
-            ? () => _s._reportCoordinator.showMissingComicsFlow(projection)
-            : null,
-        onShareCollection:
-            projection != null && projection.filteredItems.isNotEmpty
-                ? () => _s._sharingCoordinator.shareCollectionFlow(projection)
-                : null,
-        onCompareMetadataWithServer: (() {
-          if (projection == null ||
-              !_s.widget.type.kindUiAdapter.supportsMetadataCompareWithServer(
-                _s.widget.type,
-              )) {
-            return null;
-          }
-          final selected =
-              _s._collectionActionCoordinator.selectedProjectionItemFor(
-            projection,
-          );
-          if (selected == null ||
-              !_s._collectionActionCoordinator
-                  .canCompareMetadataWithServerItem(selected)) {
-            return null;
-          }
-          return () => unawaited(
-                _s._metadataCoordinator.compareMetadataWithServerFlow(
-                  projection,
-                  item: selected,
-                ),
-              );
-        })(),
-        onPinnedFolderPresetsChanged: _s._setPinnedFolderPresets,
-        onGroupModeChanged: _s._setFolderPreset,
-        onGroupPresentationChanged: _s._setGroupPresentationOverride,
+      actions: const LibraryToolbarActionRegistry().build(
+        state: _s,
+        projection: projection,
+        viewState: viewState,
+        shelfState: shelfState,
       ),
     );
 
