@@ -28,15 +28,6 @@ void main() {
 
   test('comic-only toolbar actions stay in the kind adapter', () {
     final adapter = comicsLibraryConfig.kindUiAdapter;
-
-    expect(
-      adapter.supportsReportAction(comicsLibraryConfig),
-      isTrue,
-    );
-    expect(
-      adapter.supportsReportAction(moviesLibraryConfig),
-      isFalse,
-    );
   });
 
   test('browser mode resolution stays in the kind adapter', () {

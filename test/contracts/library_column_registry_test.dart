@@ -11,7 +11,6 @@ void main() {
         id: 'title',
         label: 'Title',
         scope: LibraryColumnScope.work,
-        kinds: {CatalogMediaKind.book},
       ),
     ]);
 

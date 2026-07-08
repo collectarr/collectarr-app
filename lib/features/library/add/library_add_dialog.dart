@@ -2791,7 +2791,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         if (mounted) {
           await _providerOrchestrationService.applyIngestCorrections(
             api: ref.read(apiClientProvider),
-            providerMapper: _providerMapper,
+            providerMapper: _providerMapper.buildCorrections,
             kind: ingested.kind,
             itemId: ingest.itemId,
             preview: previewItem,

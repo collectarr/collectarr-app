@@ -2,10 +2,14 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+
+typedef BuildProviderCorrections = Map<String, Object?> Function({
+  required LibraryMetadataItem preview,
+  required LibraryMetadataItem edited,
+});
 
 class LibraryProviderOrchestrationService {
   const LibraryProviderOrchestrationService();
@@ -32,13 +36,13 @@ class LibraryProviderOrchestrationService {
 
   Future<void> applyIngestCorrections({
     required ApiClient api,
-    required LibraryKindProviderMapper providerMapper,
+    required BuildProviderCorrections providerMapper,
     required String kind,
     required String itemId,
     required LibraryMetadataItem preview,
     required LibraryMetadataItem edited,
   }) async {
-    final corrections = providerMapper.buildCorrections(
+    final corrections = providerMapper(
       preview: preview,
       edited: edited,
     );
