@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
-import 'package:collectarr_app/features/library/kinds/video/edit/tabs/video_edit_tab_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
 import 'package:flutter/material.dart';
 
@@ -45,16 +44,30 @@ class VideoEditMediaTab extends StatelessWidget {
                 searchAliasesController: draft.searchAliasesController,
               ),
               const SizedBox(height: 10),
-              buildVideoResponsiveFields([
-                buildVideoField(
+              LibraryEditDenseFields(
+                wideColumns: 2,
+                ultraWideColumns: 2,
+                wideBreakpoint: 600,
+                ultraWideBreakpoint: 600,
+                children: [
+                  LibraryEditTextField(
                   controller: draft.displayTitleController,
                   label: 'Custom display title',
                 ),
-                buildVideoField(controller: draft.publisherController, label: 'Studios'),
-              ]),
+                  LibraryEditTextField(
+                    controller: draft.publisherController,
+                    label: 'Studios',
+                  ),
+                ],
+              ),
               const SizedBox(height: 10),
-              buildVideoResponsiveFields([
-                buildVideoField(
+              LibraryEditDenseFields(
+                wideColumns: 2,
+                ultraWideColumns: 2,
+                wideBreakpoint: 600,
+                ultraWideBreakpoint: 600,
+                children: [
+                  LibraryEditTextField(
                   controller: videoEdit.runtimeController,
                   label: 'Runtime (min)',
                   validator: optionalIntValidator,
@@ -65,7 +78,8 @@ class VideoEditMediaTab extends StatelessWidget {
                   label: 'Genres',
                   multiSelect: true,
                 ),
-              ]),
+                ],
+              ),
             ],
           ),
         ),
@@ -75,7 +89,12 @@ class VideoEditMediaTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildVideoResponsiveFields([
+              LibraryEditDenseFields(
+                wideColumns: 2,
+                ultraWideColumns: 2,
+                wideBreakpoint: 600,
+                ultraWideBreakpoint: 600,
+                children: [
                 LibraryVocabularyField(
                   label: 'Age rating',
                   controller: draft.ageRatingController,
@@ -86,9 +105,15 @@ class VideoEditMediaTab extends StatelessWidget {
                   controller: draft.audienceRatingController,
                   options: audienceRatingOptions,
                 ),
-              ]),
+                ],
+              ),
               const SizedBox(height: 10),
-              buildVideoResponsiveFields([
+              LibraryEditDenseFields(
+                wideColumns: 2,
+                ultraWideColumns: 2,
+                wideBreakpoint: 600,
+                ultraWideBreakpoint: 600,
+                children: [
                 LibraryVocabularyField(
                   label: 'Country',
                   controller: draft.countryController,
@@ -99,7 +124,8 @@ class VideoEditMediaTab extends StatelessWidget {
                   controller: draft.languageController,
                   options: languageOptions,
                 ),
-              ]),
+                ],
+              ),
             ],
           ),
         ),

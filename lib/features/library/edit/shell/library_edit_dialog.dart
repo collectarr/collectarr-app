@@ -696,8 +696,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         );
       case 'release_media':
         return TvReleaseMediaTab(
-          type: widget.type,
-          item: widget.item,
           accent: widget.accent,
           videoEdit: _videoEdit,
         );
