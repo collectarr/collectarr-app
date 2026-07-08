@@ -8,9 +8,9 @@
 - Added admin proposal tooling, stats, health checks, barcode lookup, and contract drift gating.
 
 ### Bug Fixes
-- Aligned the generic library, inspector, and edit-dialog flows with typed metadata and shared field primitives.
-- Stabilized cover loading, cache sizing, navigation chrome, grouped workspace layout, and sync-related UI paths.
-- Cleaned analyzer leftovers, removed legacy item-season lookups, and fixed assorted TV, video, and comic editor issues.
+- Aligned generic library, inspector, and edit-dialog flows with typed metadata and shared field primitives.
+- Stabilized cover loading and cache widths, grouped workspace layout, navigation chrome, and sync connection handling.
+- Fixed TV, video, and comic editor issues, removed legacy item-season lookups, and cleared analyzer leftovers.
 
 ### Maintenance
-- Refreshed add-dialog, toolbar, bottom-navigation, and app-shell polish.
+- Refined add-dialog, toolbar, bottom-nav, and shell chrome polish.
