@@ -632,6 +632,7 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: musicLibraryBucketLabelBuilder,
   previewLabels: musicPreviewLabels,
   statsLabels: musicStatsLabels,
+  usesTrackListCard: true,
   referenceLabels: LibraryReferenceLabels(itemScope: 'Album'),
   compactBucketIcon: Icons.person_2_outlined,
   columnRegistry: libraryColumnRegistryFromFieldDefinitions(

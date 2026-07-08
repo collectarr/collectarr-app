@@ -286,6 +286,7 @@ final tvLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: tvLibraryBucketLabelBuilder,
   previewLabels: tvPreviewLabels,
   statsLabels: tvStatsLabels,
+  showsSeasonGroupProgress: true,
   compactBucketIcon: Icons.tv_outlined,
   emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
   columnRegistry: libraryColumnRegistryFromFieldDefinitions(

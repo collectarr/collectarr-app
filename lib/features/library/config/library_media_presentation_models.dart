@@ -764,6 +764,8 @@ class LibraryMediaPresentation {
     this.usesTreeProviderCandidates = false,
     this.externalFacetBucketModes = const [],
     this.supportsSeriesIssueJump = false,
+    this.usesTrackListCard = false,
+    this.showsSeasonGroupProgress = false,
     this.usesCompactTableLayout = false,
     this.compactBucketIcon = Icons.folder,
     this.emptyStateProviderSummarySuffix = '',
@@ -794,6 +796,8 @@ class LibraryMediaPresentation {
   final bool usesTreeProviderCandidates;
   final List<LibraryGroupMode> externalFacetBucketModes;
   final bool supportsSeriesIssueJump;
+  final bool usesTrackListCard;
+  final bool showsSeasonGroupProgress;
   final bool usesCompactTableLayout;
   final IconData compactBucketIcon;
   final String emptyStateProviderSummarySuffix;
@@ -876,4 +880,3 @@ String _fallbackGroupModeSidebarTitle(String label) {
   }
   return '${label}s';
 }
-

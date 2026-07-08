@@ -93,13 +93,20 @@ class LibraryGroupedShelfView extends StatelessWidget {
       return emptyBuilder(context);
     }
     final presentation = groups.first.presentation;
+    final showSeasonGroupProgress =
+        type.presentation.showsSeasonGroupProgress;
     return switch (presentation) {
-      LibraryGroupPresentation.folderGrid => _buildFolderGrid(context),
-      LibraryGroupPresentation.inlineHeaders => _buildInlineHeaders(context),
+      LibraryGroupPresentation.folderGrid =>
+        _buildFolderGrid(context, showSeasonGroupProgress),
+      LibraryGroupPresentation.inlineHeaders =>
+        _buildInlineHeaders(context, showSeasonGroupProgress),
     };
   }
 
-  Widget _buildFolderGrid(BuildContext context) {
+  Widget _buildFolderGrid(
+    BuildContext context,
+    bool showSeasonGroupProgress,
+  ) {
     final defaultCoverSize = viewState.coverSize;
     final tileExtent = math.max(208.0, defaultCoverSize * 1.45);
     final folderEntries = [
@@ -116,13 +123,17 @@ class LibraryGroupedShelfView extends StatelessWidget {
       itemBuilder: (context, folder) => LibraryGroupFolderTile(
         group: folder.group,
         accent: accent,
+        showSeasonGroupProgress: showSeasonGroupProgress,
         onTap: () => onSelectGroupBucket(folder.bucket),
         onOpenDetails: () => onOpenGroupDetails(folder.group),
       ),
     );
   }
 
-  Widget _buildInlineHeaders(BuildContext context) {
+  Widget _buildInlineHeaders(
+    BuildContext context,
+    bool showSeasonGroupProgress,
+  ) {
     final defaultCoverSize = viewState.coverSize;
     final mainAxisExtent =
         defaultCoverSize * adapter.viewProfile.coverGridHeightFactor;
@@ -332,12 +343,14 @@ class LibraryGroupFolderTile extends ConsumerWidget {
     super.key,
     required this.group,
     required this.accent,
+    required this.showSeasonGroupProgress,
     required this.onTap,
     required this.onOpenDetails,
   });
 
   final GroupShelfEntry group;
   final Color accent;
+  final bool showSeasonGroupProgress;
   final VoidCallback onTap;
   final VoidCallback onOpenDetails;
 
@@ -345,9 +358,7 @@ class LibraryGroupFolderTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
     final entry = group.representativeItem.entry;
-    final isTv = collectarrLibraryTypes
-        .capabilitiesForKind(entry.mediaType)
-        .showsSeasonGroupProgress;
+    final isTv = showSeasonGroupProgress;
     final catalogRef = CatalogEntityRef(
       kind: entry.mediaType,
       entityType: CatalogEntityType.work,

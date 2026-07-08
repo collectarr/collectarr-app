@@ -79,7 +79,6 @@ final musicLibraryConfig = LibraryTypeConfig(
     supportsMetadataCompare: true,
     supportsTrackSearch: true,
     prefersSquareCovers: true,
-    usesTrackListCard: true,
   ),
 );
 

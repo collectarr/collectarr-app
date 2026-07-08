@@ -396,8 +396,6 @@ class LibraryTypeCapabilities {
     this.releaseScopeSortColumns,
     this.supportsMetadataCompare = false,
     this.prefersSquareCovers = false,
-    this.usesTrackListCard = false,
-    this.showsSeasonGroupProgress = false,
     this.groupModeCategoriesBuilder,
     this.issueSortNumber,
     this.defaultVideoDisplayLevel,
@@ -437,13 +435,6 @@ class LibraryTypeCapabilities {
   /// Whether this type's covers are square (e.g. music albums) and the grid
   /// should use square-tile sizing.
   final bool prefersSquareCovers;
-
-  /// Whether the workspace card uses the track-list layout (e.g. music albums)
-  /// instead of the default cover card.
-  final bool usesTrackListCard;
-
-  /// Whether grouped shelf headers show season ownership/progress (e.g. TV).
-  final bool showsSeasonGroupProgress;
   final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
   final int? Function(String? raw)? issueSortNumber;
   final VideoDisplayLevel? defaultVideoDisplayLevel;

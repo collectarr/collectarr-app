@@ -91,8 +91,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
         selected && entry.browseScope != LibraryBrowserScope.title;
     final coverCacheWidth = _targetCacheWidth(context);
     if (collectarrLibraryTypes
-        .capabilitiesForKind(entry.mediaType)
-        .usesTrackListCard) {
+        .byKind(entry.mediaType)
+        ?.presentation
+        .usesTrackListCard ==
+        true) {
       return _buildMusicCard(
         context: context,
         selectedTitleColor: selectedTitleColor,
