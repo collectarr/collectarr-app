@@ -1,32 +1,42 @@
-import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/features/library/add/library_add_shared.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-/// Façade that routes preview/ingest actions back into [_LibraryAddDialogState]
-/// via stored callbacks. No reference to the private state class is required.
 class LibraryAddPreviewController {
-  LibraryAddPreviewController({
-    required Future<void> Function(ProviderCandidate, LibraryAddTarget)
-        addProviderCandidate,
-    required Future<void> Function(ProviderCandidate) proposeCandidate,
-    required Future<void> Function(ProviderCandidate) queueProviderIngest,
-  })  : _fnAddProviderCandidate = addProviderCandidate,
-        _fnProposeCandidate = proposeCandidate,
-        _fnQueueProviderIngest = queueProviderIngest;
+  final providerPreviews = <String, AdminProviderPreview>{};
+  final hydratedResults = <String, LibraryMetadataItem>{};
+  final bundleReleasesByItemId = <String, List<BundleReleaseSummary>>{};
+  final bundleReleaseDetailsById = <String, BundleReleaseDetail>{};
+  final queuedProviderIngests = <String, LibraryQueuedProviderIngest>{};
+  final pendingHydratedResultIds = <String>{};
+  final pendingBundleReleaseItemIds = <String>{};
+  final pendingBundleReleaseDetailIds = <String>{};
+  final pendingProviderPreviewIds = <String>{};
+  bool isQueueingIngest = false;
 
-  final Future<void> Function(ProviderCandidate, LibraryAddTarget)
-      _fnAddProviderCandidate;
-  final Future<void> Function(ProviderCandidate) _fnProposeCandidate;
-  final Future<void> Function(ProviderCandidate) _fnQueueProviderIngest;
+  void clearSelectionCaches() {
+    hydratedResults.clear();
+    bundleReleasesByItemId.clear();
+    bundleReleaseDetailsById.clear();
+    pendingHydratedResultIds.clear();
+    pendingBundleReleaseItemIds.clear();
+    pendingBundleReleaseDetailIds.clear();
+  }
 
-  Future<void> addProviderCandidate(
-    ProviderCandidate candidate,
-    LibraryAddTarget target,
-  ) =>
-      _fnAddProviderCandidate(candidate, target);
+  List<BundleReleaseSummary> bundleReleasesForItem(
+    LibraryMetadataItem? item,
+  ) {
+    if (item == null) {
+      return const <BundleReleaseSummary>[];
+    }
+    return bundleReleasesByItemId[item.id] ?? const <BundleReleaseSummary>[];
+  }
 
-  Future<void> proposeCandidate(ProviderCandidate candidate) =>
-      _fnProposeCandidate(candidate);
-
-  Future<void> queueProviderIngest(ProviderCandidate candidate) =>
-      _fnQueueProviderIngest(candidate);
+  BundleReleaseDetail? bundleReleaseDetailForId(String? bundleReleaseId) {
+    if (bundleReleaseId == null) {
+      return null;
+    }
+    return bundleReleaseDetailsById[bundleReleaseId];
+  }
 }

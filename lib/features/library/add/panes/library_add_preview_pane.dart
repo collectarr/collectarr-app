@@ -1,7 +1,7 @@
-part of '../library_add_dialog.dart';
+import 'library_add_pane_dependencies.dart';
 
-class _LibraryAddPaneResizeDivider extends StatelessWidget {
-  const _LibraryAddPaneResizeDivider({this.onDragDelta});
+class LibraryAddPaneResizeDivider extends StatelessWidget {
+  const LibraryAddPaneResizeDivider({super.key, this.onDragDelta});
 
   final ValueChanged<double>? onDragDelta;
 
@@ -29,8 +29,9 @@ class _LibraryAddPaneResizeDivider extends StatelessWidget {
   }
 }
 
-class _LibraryAddPreviewPane extends ConsumerWidget {
-  const _LibraryAddPreviewPane({
+class LibraryAddPreviewPane extends ConsumerWidget {
+  const LibraryAddPreviewPane({
+    super.key,
     required this.type,
     required this.accent,
     required this.isMovieDesktopChrome,
@@ -768,8 +769,8 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     final editionAvailable = item.editions.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
-    final selectedEdition = _previewEditionForItem(item, selectedEditionId);
-    final selectedVariant = _selectedVariantForEdition(
+    final selectedEdition = previewEditionForItem(item, selectedEditionId);
+    final selectedVariant = selectedVariantForEdition(
       selectedEdition,
       selectedVariantId,
     );
@@ -1089,7 +1090,7 @@ String _editionSummaryForSelection(
   return parts.join(' • ');
 }
 
-CatalogEdition? _previewEditionForItem(
+CatalogEdition? previewEditionForItem(
   LibraryMetadataItem item,
   String? editionId,
 ) {
@@ -1104,7 +1105,7 @@ CatalogEdition? _previewEditionForItem(
   return _previewPrimaryEditionForItem(item);
 }
 
-CatalogVariant? _selectedVariantForEdition(
+CatalogVariant? selectedVariantForEdition(
   CatalogEdition? edition,
   String? variantId,
 ) {
@@ -2078,4 +2079,3 @@ class _VariantChip extends StatelessWidget {
     );
   }
 }
-

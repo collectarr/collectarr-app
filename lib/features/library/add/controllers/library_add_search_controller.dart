@@ -1,64 +1,58 @@
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'dart:async';
 
-/// Façade that routes search-plane actions back into [_LibraryAddDialogState]
-/// via stored callbacks. No reference to the private state class is required.
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:flutter/material.dart';
+
 class LibraryAddSearchController {
   LibraryAddSearchController({
-    required Future<void> Function() search,
-    required void Function(String) onQueryChanged,
-    required void Function(LibraryMetadataItem) selectSuggestion,
-    required void Function() dismissSuggestions,
-    required Future<void> Function() scanCover,
-    required Future<void> Function() lookupBarcode,
-    required Future<void> Function(String) ensureSelectedResultLoaded,
-    required Future<void> Function(String) ensureBundleReleasesLoaded,
-    required Future<void> Function(String) ensureProviderPreviewLoaded,
-    required Future<void> Function(String) ensureBundleReleaseDetailLoaded,
-  })  : _fnSearch = search,
-        _fnQueryChanged = onQueryChanged,
-        _fnSelectSuggestion = selectSuggestion,
-        _fnDismissSuggestions = dismissSuggestions,
-        _fnScanCover = scanCover,
-        _fnLookupBarcode = lookupBarcode,
-        _fnEnsureSelectedResultLoaded = ensureSelectedResultLoaded,
-        _fnEnsureBundleReleasesLoaded = ensureBundleReleasesLoaded,
-        _fnEnsureProviderPreviewLoaded = ensureProviderPreviewLoaded,
-        _fnEnsureBundleReleaseDetailLoaded = ensureBundleReleaseDetailLoaded;
+    required this.selectedProvider,
+    Iterable<String> initialVideoKindFilters = const [],
+  }) : videoKindFilters = <String>{...initialVideoKindFilters};
 
-  final Future<void> Function() _fnSearch;
-  final void Function(String) _fnQueryChanged;
-  final void Function(LibraryMetadataItem) _fnSelectSuggestion;
-  final void Function() _fnDismissSuggestions;
-  final Future<void> Function() _fnScanCover;
-  final Future<void> Function() _fnLookupBarcode;
-  final Future<void> Function(String) _fnEnsureSelectedResultLoaded;
-  final Future<void> Function(String) _fnEnsureBundleReleasesLoaded;
-  final Future<void> Function(String) _fnEnsureProviderPreviewLoaded;
-  final Future<void> Function(String) _fnEnsureBundleReleaseDetailLoaded;
+  final queryController = TextEditingController();
+  final barcodeController = TextEditingController();
+  final searchSeriesController = TextEditingController();
+  final searchNumberController = TextEditingController();
+  final searchPublisherController = TextEditingController();
+  final searchYearController = TextEditingController();
 
-  Future<void> search() => _fnSearch();
+  List<LibraryMetadataItem> results = const [];
+  List<ProviderCandidate> providerResults = const [];
+  String? error;
+  String selectedProvider;
+  bool searchedProvider = false;
+  bool isSearching = false;
+  bool isSearchingProvider = false;
+  bool showAdvancedSearch = false;
+  bool isScanningCover = false;
+  DateTime? lastProviderSearchAt;
+  String? lastProviderSearchSignature;
+  int coreSearchGeneration = 0;
+  int providerSearchGeneration = 0;
+  Timer? autocompleteTimer;
+  List<LibraryMetadataItem> suggestions = const [];
+  bool showSuggestions = false;
+  final Set<String> videoKindFilters;
 
-  void onQueryChanged(String value) => _fnQueryChanged(value);
+  bool get isBusy => isSearching || isSearchingProvider;
 
-  void selectSuggestion(LibraryMetadataItem item) =>
-      _fnSelectSuggestion(item);
+  void clearSuggestions() {
+    suggestions = const [];
+    showSuggestions = false;
+  }
 
-  void dismissSuggestions() => _fnDismissSuggestions();
+  void dismissSuggestions() {
+    showSuggestions = false;
+  }
 
-  Future<void> scanCover() => _fnScanCover();
-
-  Future<void> lookupBarcode() => _fnLookupBarcode();
-
-  Future<void> ensureSelectedResultLoaded(String itemId) =>
-      _fnEnsureSelectedResultLoaded(itemId);
-
-  Future<void> ensureBundleReleasesLoaded(String itemId) =>
-      _fnEnsureBundleReleasesLoaded(itemId);
-
-  Future<void> ensureProviderPreviewLoaded(String candidateId) =>
-      _fnEnsureProviderPreviewLoaded(candidateId);
-
-  Future<void> ensureBundleReleaseDetailLoaded(String bundleReleaseId) =>
-      _fnEnsureBundleReleaseDetailLoaded(bundleReleaseId);
+  void dispose() {
+    autocompleteTimer?.cancel();
+    queryController.dispose();
+    barcodeController.dispose();
+    searchSeriesController.dispose();
+    searchNumberController.dispose();
+    searchPublisherController.dispose();
+    searchYearController.dispose();
+  }
 }
-

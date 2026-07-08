@@ -1,7 +1,9 @@
-part of '../library_add_dialog.dart';
+import 'library_add_pane_dependencies.dart';
+import 'library_add_search_unified.dart';
 
-class _SearchPane extends StatelessWidget {
-  const _SearchPane({
+class LibraryAddSearchPane extends StatelessWidget {
+  const LibraryAddSearchPane({
+    super.key,
     required this.type,
     required this.isBusy,
     required this.isMovieDesktopChrome,
@@ -131,8 +133,9 @@ class _SearchPane extends StatelessWidget {
   }
 }
 
-class _SearchSourceToggles extends StatelessWidget {
-  const _SearchSourceToggles({
+class LibraryAddSearchSourceToggles extends StatelessWidget {
+  const LibraryAddSearchSourceToggles({
+    super.key,
     required this.type,
     required this.showCoreResults,
     required this.showProviderResults,
@@ -464,7 +467,7 @@ class _SearchResultsList extends StatelessWidget {
     final fallbackProviderLabel = _fallbackProviderLabel();
     // Hide mixed-provider summary; provider badges are sufficient.
     // final mixedProviderSummary = _mixedProviderSummary();
-    final groups = _buildUnifiedGroups(
+    final groups = buildUnifiedGroups(
       coreResults: results,
       providerResults: providerResults,
     );
@@ -479,7 +482,7 @@ class _SearchResultsList extends StatelessWidget {
           ),
         // mixed provider summary removed per UX preference.
         for (var i = 0; i < groups.length; i++) ...[
-          _UnifiedGroupNode(
+          LibraryAddUnifiedGroupNode(
             key: ValueKey(groups[i].key),
             type: type,
             group: groups[i],
@@ -961,8 +964,9 @@ class _ResultSectionHeader extends StatelessWidget {
   }
 }
 
-class _SearchResultTile extends StatelessWidget {
-  const _SearchResultTile({
+class SearchResultTile extends StatelessWidget {
+  const SearchResultTile({
+    super.key,
     required this.type,
     required this.item,
     required this.accent,
@@ -1248,8 +1252,9 @@ String? _metadataItemMatchSummary({
   return reasons.isEmpty ? null : reasons.join(', ');
 }
 
-class _ProviderCandidateTile extends StatelessWidget {
-  const _ProviderCandidateTile({
+class ProviderCandidateTile extends StatelessWidget {
+  const ProviderCandidateTile({
+    super.key,
     required this.type,
     required this.candidate,
     required this.accent,

@@ -1,4 +1,6 @@
-part of '../library_add_dialog.dart';
+import 'library_add_pane_dependencies.dart';
+import 'library_add_search_comic.dart';
+import 'library_add_search_pane.dart';
 
 // ---------------------------------------------------------------------------
 // Unified series-first search results.
@@ -10,8 +12,8 @@ part of '../library_add_dialog.dart';
 
 // -- Data model --------------------------------------------------------------
 
-class _UnifiedSearchGroup {
-  const _UnifiedSearchGroup({
+class LibraryAddUnifiedSearchGroup {
+  const LibraryAddUnifiedSearchGroup({
     required this.key,
     required this.title,
     this.publisher,
@@ -35,7 +37,10 @@ class _UnifiedSearchGroup {
 
   int get childCount => coreItems.length + providerItems.length;
   bool get isSingleton =>
-      coreItems.length + providerItems.length + (seriesCandidate != null ? 1 : 0) == 1;
+      coreItems.length +
+          providerItems.length +
+          (seriesCandidate != null ? 1 : 0) ==
+      1;
 }
 
 // -- Grouping logic ----------------------------------------------------------
@@ -55,7 +60,7 @@ String _providerGroupTitle(ProviderCandidate candidate) {
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }
-  final titleMeta = _comicTitleIssueMetadata(candidate.title);
+  final titleMeta = comicTitleIssueMetadata(candidate.title);
   if (titleMeta != null) {
     return titleMeta.seriesTitle;
   }
@@ -64,7 +69,7 @@ String _providerGroupTitle(ProviderCandidate candidate) {
 
 /// Returns true when the candidate represents a series rather than an
 /// individual item (issue, episode, etc.).
-bool _isSeriesCandidate(ProviderCandidate candidate) {
+bool isSeriesCandidate(ProviderCandidate candidate) {
   if (candidate.candidateType == 'series') {
     return true;
   }
@@ -75,14 +80,14 @@ bool _isSeriesCandidate(ProviderCandidate candidate) {
   if (issueNumber != null && issueNumber.isNotEmpty) {
     return false;
   }
-  return _comicTitleIssueMetadata(candidate.title) == null;
+  return comicTitleIssueMetadata(candidate.title) == null;
 }
 
 /// Builds a unified list of [_UnifiedSearchGroup] from Core and Provider
 /// results.  Provider groups are created first (preserving search order),
 /// then Core items are merged into matching groups or added as new groups
 /// at the top.
-List<_UnifiedSearchGroup> _buildUnifiedGroups({
+List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   required List<LibraryMetadataItem> coreResults,
   required List<ProviderCandidate> providerResults,
 }) {
@@ -122,7 +127,7 @@ List<_UnifiedSearchGroup> _buildUnifiedGroups({
     years[key] ??= candidate.series?.volumeStartYear;
     coverUrls[key] ??= candidate.imageUrl;
 
-    if (_isSeriesCandidate(candidate)) {
+    if (isSeriesCandidate(candidate)) {
       seriesCandidates.putIfAbsent(key, () => candidate);
     } else {
       providerItemsMap[key]!.add(candidate);
@@ -165,13 +170,13 @@ List<_UnifiedSearchGroup> _buildUnifiedGroups({
 
   // Sort provider items within each group (numeric by issue number).
   for (final key in finalKeys) {
-    providerItemsMap[key]?.sort(_compareComicIssueCandidates);
+    providerItemsMap[key]?.sort(compareComicIssueCandidates);
   }
 
   return [
     for (final key in finalKeys)
       if (titles.containsKey(key))
-        _UnifiedSearchGroup(
+        LibraryAddUnifiedSearchGroup(
           key: key,
           title: titles[key]!,
           publisher: publishers[key],
@@ -187,8 +192,8 @@ List<_UnifiedSearchGroup> _buildUnifiedGroups({
 
 // -- Widgets -----------------------------------------------------------------
 
-class _UnifiedGroupNode extends StatefulWidget {
-  const _UnifiedGroupNode({
+class LibraryAddUnifiedGroupNode extends StatefulWidget {
+  const LibraryAddUnifiedGroupNode({
     super.key,
     required this.type,
     required this.group,
@@ -211,7 +216,7 @@ class _UnifiedGroupNode extends StatefulWidget {
   });
 
   final LibraryTypeConfig type;
-  final _UnifiedSearchGroup group;
+  final LibraryAddUnifiedSearchGroup group;
   final Color accent;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
@@ -230,10 +235,12 @@ class _UnifiedGroupNode extends StatefulWidget {
   final String yearText;
 
   @override
-  State<_UnifiedGroupNode> createState() => _UnifiedGroupNodeState();
+  State<LibraryAddUnifiedGroupNode> createState() =>
+      LibraryAddUnifiedGroupNodeState();
 }
 
-class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
+class LibraryAddUnifiedGroupNodeState
+    extends State<LibraryAddUnifiedGroupNode> {
   late bool _expanded;
 
   @override
@@ -243,12 +250,12 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
   }
 
   @override
-  void didUpdateWidget(_UnifiedGroupNode oldWidget) {
+  void didUpdateWidget(LibraryAddUnifiedGroupNode oldWidget) {
     super.didUpdateWidget(oldWidget);
     final selectionChanged =
         widget.selectedResultId != oldWidget.selectedResultId ||
-        widget.selectedProviderCandidateId !=
-            oldWidget.selectedProviderCandidateId;
+            widget.selectedProviderCandidateId !=
+                oldWidget.selectedProviderCandidateId;
     if (selectionChanged && _hasSelectedChild && !_expanded) {
       _expanded = true;
     }
@@ -277,7 +284,7 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
     // Singleton groups (one item, no series candidate) — show inline.
     if (group.isSingleton) {
       if (group.coreItems.length == 1) {
-        return _SearchResultTile(
+        return SearchResultTile(
           type: widget.type,
           item: group.coreItems.first,
           accent: widget.accent,
@@ -299,7 +306,7 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
         final candidate = group.providerItems.first;
         return KeyedSubtree(
           key: ValueKey(candidate.localCatalogId),
-          child: _ProviderCandidateTile(
+          child: ProviderCandidateTile(
             type: widget.type,
             candidate: candidate,
             accent: widget.accent,
@@ -322,7 +329,7 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
         final candidate = group.seriesCandidate!;
         return KeyedSubtree(
           key: ValueKey(candidate.localCatalogId),
-          child: _ProviderCandidateTile(
+          child: ProviderCandidateTile(
             type: widget.type,
             candidate: candidate,
             accent: widget.accent,
@@ -469,12 +476,10 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
               item: group.coreItems[i],
               accent: widget.accent,
               selected: group.coreItems[i].id == widget.selectedResultId,
-              checked:
-                  widget.checkedResultIds.contains(group.coreItems[i].id),
+              checked: widget.checkedResultIds.contains(group.coreItems[i].id),
               isOwned:
                   widget.ownedCatalogItemIds.contains(group.coreItems[i].id),
-              onSelect: () =>
-                  widget.onSelectResult(group.coreItems[i].id),
+              onSelect: () => widget.onSelectResult(group.coreItems[i].id),
               onToggleCheck: () =>
                   widget.onToggleResultCheck(group.coreItems[i].id),
             ),
@@ -489,8 +494,8 @@ class _UnifiedGroupNodeState extends State<_UnifiedGroupNode> {
               accent: widget.accent,
               providerLabel:
                   widget.providerLabel(group.providerItems[i].provider),
-              queuedIngest: widget.queuedProviderIngests[
-                  group.providerItems[i].localCatalogId],
+              queuedIngest: widget
+                  .queuedProviderIngests[group.providerItems[i].localCatalogId],
               selected: group.providerItems[i].localCatalogId ==
                   widget.selectedProviderCandidateId,
               onSelect: () => widget.onSelectProviderCandidate(
@@ -531,7 +536,8 @@ class _UnifiedChildTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final selectedForeground =
-        ThemeData.estimateBrightnessForColor(palette.selection) == Brightness.dark
+        ThemeData.estimateBrightnessForColor(palette.selection) ==
+                Brightness.dark
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
@@ -561,7 +567,8 @@ class _UnifiedChildTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: selected ? selectedForeground : palette.textPrimary,
+                        color:
+                            selected ? selectedForeground : palette.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -579,7 +586,9 @@ class _UnifiedChildTile extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: selected ? selectedSecondary : palette.textMuted,
+                              color: selected
+                                  ? selectedSecondary
+                                  : palette.textMuted,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -590,8 +599,7 @@ class _UnifiedChildTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (selected)
-                Icon(Icons.check_circle, color: accent, size: 18),
+              if (selected) Icon(Icons.check_circle, color: accent, size: 18),
             ],
           ),
         ),
@@ -625,7 +633,8 @@ class _UnifiedCoreChildTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final selectedForeground =
-        ThemeData.estimateBrightnessForColor(palette.selection) == Brightness.dark
+        ThemeData.estimateBrightnessForColor(palette.selection) ==
+                Brightness.dark
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
@@ -673,7 +682,8 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: selected ? selectedForeground : palette.textPrimary,
+                        color:
+                            selected ? selectedForeground : palette.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -685,8 +695,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                           const LibraryAddResultBadge('Core'),
                           const SizedBox(width: 4),
                           if (isOwned) ...[
-                            Icon(Icons.inventory_2,
-                                size: 12, color: accent),
+                            Icon(Icons.inventory_2, size: 12, color: accent),
                             const SizedBox(width: 4),
                           ],
                           Expanded(
@@ -695,7 +704,9 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: selected ? selectedSecondary : palette.textMuted,
+                                color: selected
+                                    ? selectedSecondary
+                                    : palette.textMuted,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -707,8 +718,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (selected)
-                Icon(Icons.check_circle, color: accent, size: 18),
+              if (selected) Icon(Icons.check_circle, color: accent, size: 18),
             ],
           ),
         ),
@@ -745,15 +755,15 @@ class _UnifiedProviderChildTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final selectedForeground =
-        ThemeData.estimateBrightnessForColor(palette.selection) == Brightness.dark
+        ThemeData.estimateBrightnessForColor(palette.selection) ==
+                Brightness.dark
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
     final displayTitle = _providerChildDisplayTitle(candidate);
     final subtitleParts = <String>[
       providerLabel,
-      if (candidate.publisher != null &&
-          candidate.publisher!.trim().isNotEmpty)
+      if (candidate.publisher != null && candidate.publisher!.trim().isNotEmpty)
         candidate.publisher!,
       if (candidate.variantName != null &&
           candidate.variantName!.trim().isNotEmpty)
@@ -785,7 +795,8 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: selected ? selectedForeground : palette.textPrimary,
+                        color:
+                            selected ? selectedForeground : palette.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -808,7 +819,9 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: selected ? selectedSecondary : palette.textMuted,
+                            color: selected
+                                ? selectedSecondary
+                                : palette.textMuted,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -818,8 +831,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (selected)
-                Icon(Icons.check_circle, color: accent, size: 18),
+              if (selected) Icon(Icons.check_circle, color: accent, size: 18),
             ],
           ),
         ),
@@ -839,4 +851,3 @@ String _providerChildDisplayTitle(ProviderCandidate candidate) {
   }
   return candidate.title;
 }
-

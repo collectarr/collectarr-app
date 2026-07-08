@@ -1,4 +1,4 @@
-part of '../library_add_dialog.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 
 class LibraryAddSelectionState {
   String? selectedResultId;
@@ -6,10 +6,9 @@ class LibraryAddSelectionState {
   String? selectedBundleReleaseId;
   String? selectedReferenceEditionId;
   String? selectedReferenceVariantId;
-  String? error;
-  bool searchedProvider = false;
-  bool isSearching = false;
-  bool isSearchingProvider = false;
+  final checkedResultIds = <String>{};
+  final checkedProviderIds = <String>{};
+  LibraryAddReferenceType referenceType = LibraryAddReferenceType.media;
   bool showCoreResults = true;
   bool showProviderResults = true;
   bool showMediaResults = true;
@@ -19,4 +18,3 @@ class LibraryAddSelectionState {
   bool hideComicVariantResults = false;
   bool compactComicIssues = true;
 }
-

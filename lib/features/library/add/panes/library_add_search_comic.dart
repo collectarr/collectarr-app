@@ -1,9 +1,9 @@
-part of '../library_add_dialog.dart';
+import 'library_add_pane_dependencies.dart';
 
 // Comic candidate helper utilities (used by unified search and legacy code)
 
-class _ComicTitleIssueMetadata {
-  const _ComicTitleIssueMetadata({
+class LibraryAddComicTitleIssueMetadata {
+  const LibraryAddComicTitleIssueMetadata({
     required this.seriesTitle,
     required this.issueNumber,
   });
@@ -12,7 +12,7 @@ class _ComicTitleIssueMetadata {
   final String issueNumber;
 }
 
-_ComicTitleIssueMetadata? _comicTitleIssueMetadata(String title) {
+LibraryAddComicTitleIssueMetadata? comicTitleIssueMetadata(String title) {
   final trimmed = title.trim();
   if (trimmed.isEmpty) {
     return null;
@@ -26,17 +26,17 @@ _ComicTitleIssueMetadata? _comicTitleIssueMetadata(String title) {
   if (seriesTitle.isEmpty || issueNumber.isEmpty) {
     return null;
   }
-  return _ComicTitleIssueMetadata(
+  return LibraryAddComicTitleIssueMetadata(
     seriesTitle: seriesTitle,
     issueNumber: issueNumber,
   );
 }
 
-int _compareComicIssueCandidates(
+int compareComicIssueCandidates(
   ProviderCandidate left,
   ProviderCandidate right,
 ) {
-  final byIssue = _compareComicIssueNumbers(
+  final byIssue = compareComicIssueNumbers(
     left.issueNumber,
     right.issueNumber,
   );
@@ -46,7 +46,7 @@ int _compareComicIssueCandidates(
   return left.title.toLowerCase().compareTo(right.title.toLowerCase());
 }
 
-int _compareComicIssueNumbers(String? left, String? right) {
+int compareComicIssueNumbers(String? left, String? right) {
   final normalizedLeft = left?.trim();
   final normalizedRight = right?.trim();
   if (normalizedLeft == null || normalizedLeft.isEmpty) {
@@ -70,4 +70,3 @@ int _compareComicIssueNumbers(String? left, String? right) {
   }
   return normalizedLeft.toLowerCase().compareTo(normalizedRight.toLowerCase());
 }
-

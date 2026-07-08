@@ -1,7 +1,8 @@
-part of '../library_add_dialog.dart';
+import 'library_add_pane_dependencies.dart';
 
-class _LibraryAddBottomBar extends StatelessWidget {
-  const _LibraryAddBottomBar({
+class LibraryAddBottomBar extends StatelessWidget {
+  const LibraryAddBottomBar({
+    super.key,
     required this.type,
     required this.isMovieDesktopChrome,
     required this.conditions,
@@ -425,4 +426,3 @@ class _LibraryAddTargetMenu extends StatelessWidget {
     );
   }
 }
-

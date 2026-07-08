@@ -1,7 +1,8 @@
-part of '../library_add_dialog.dart';
+import 'library_add_pane_dependencies.dart';
 
-class _BarcodePrefillBanner extends StatelessWidget {
-  const _BarcodePrefillBanner({
+class LibraryAddBarcodePrefillBanner extends StatelessWidget {
+  const LibraryAddBarcodePrefillBanner({
+    super.key,
     required this.type,
     required this.barcode,
   });
@@ -42,8 +43,9 @@ class _BarcodePrefillBanner extends StatelessWidget {
   }
 }
 
-class _LibraryAddModeBar extends StatelessWidget {
-  const _LibraryAddModeBar({
+class LibraryAddModeBar extends StatelessWidget {
+  const LibraryAddModeBar({
+    super.key,
     required this.type,
     required this.accent,
     required this.isMovieDesktopChrome,
@@ -1002,4 +1004,3 @@ class _VideoKindCheckbox extends StatelessWidget {
     );
   }
 }
-

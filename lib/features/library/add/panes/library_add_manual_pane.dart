@@ -1,17 +1,18 @@
-part of '../library_add_dialog.dart';
+import 'library_add_pane_dependencies.dart';
 
-class _ManualPane extends StatefulWidget {
-  const _ManualPane({
+class LibraryAddManualPane extends StatefulWidget {
+  const LibraryAddManualPane({
+    super.key,
     required this.request,
   });
 
   final LibraryAddManualPaneRequest request;
 
   @override
-  State<_ManualPane> createState() => _ManualPaneState();
+  State<LibraryAddManualPane> createState() => LibraryAddManualPaneState();
 }
 
-class _ManualPaneState extends State<_ManualPane> {
+class LibraryAddManualPaneState extends State<LibraryAddManualPane> {
   static const _tabs = [
     EditTab(icon: Icons.book, label: 'Main'),
     EditTab(icon: Icons.search, label: 'Details'),
@@ -299,8 +300,8 @@ class _ManualPaneState extends State<_ManualPane> {
                                           labelText: 'Purchase Price'))),
                               const SizedBox(width: 8),
                               Expanded(
-                                  child: ValueListenableBuilder<
-                                      TextEditingValue>(
+                                  child:
+                                      ValueListenableBuilder<TextEditingValue>(
                                 valueListenable: _kindSpecificController(
                                   'purchaseDateController',
                                   _fallbackPurchaseDateController,
@@ -629,9 +630,3 @@ class _ManualSectionHeader extends StatelessWidget {
     );
   }
 }
-
-String? _emptyToNull(String value) {
-  final trimmed = value.trim();
-  return trimmed.isEmpty ? null : trimmed;
-}
-
