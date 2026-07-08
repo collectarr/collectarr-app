@@ -252,12 +252,11 @@ class LibraryInspectorRequest {
   final LibrarySearchTarget searchTarget;
 }
 
-typedef LibraryInspectorSectionsBuilder = List<Widget> Function(
+typedef LibraryDetailSectionsBuilder = List<Widget> Function(
   BuildContext context,
   LibraryInspectorRequest request,
 );
 
-@Deprecated('Use detailPageBuilder and LibraryDetail* wrappers instead.')
 typedef LibraryInspectorHeroBuilder = Widget Function(
   BuildContext context,
   LibraryInspectorRequest request,
@@ -806,7 +805,6 @@ class LibraryTypeConfig {
     this.mediaEditDialogBuilder,
     this.releaseEditDialogBuilder,
     this.detailPageBuilder,
-    @Deprecated('Use detailPageBuilder and LibraryDetail* wrappers instead.')
     this.inspectorHeroBuilder,
     this.inspectorSectionsBuilder,
     this.showsDefaultInspectorPersonalSection = true,
@@ -841,28 +839,12 @@ class LibraryTypeConfig {
   final LibraryEditDialogBuilder? mediaEditDialogBuilder;
   final LibraryEditDialogBuilder? releaseEditDialogBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
-  @Deprecated('Use detailPageBuilder and LibraryDetail* wrappers instead.')
-  @Deprecated('Use inspectorSectionsBuilder + LibraryDetailPanelScaffold.')
   final LibraryInspectorHeroBuilder? inspectorHeroBuilder;
-  final LibraryInspectorSectionsBuilder? inspectorSectionsBuilder;
-
-  @Deprecated('Use inspectorSectionsBuilder + LibraryDetailPanelScaffold.')
-  LibraryInspectorSectionsBuilder? get inspectorPanelBuilder =>
-      inspectorSectionsBuilder;
+  final LibraryDetailSectionsBuilder? inspectorSectionsBuilder;
 
   final bool showsDefaultInspectorPersonalSection;
   final LibraryKindBrowserDelegate Function()? kindBrowserDelegateBuilder;
   final LibraryKindUiAdapter kindUiAdapter;
-
-  @Deprecated('Use transferableFieldsWithCustomFieldsForScope instead.')
-  List<TransferableField> transferableFieldsWithCustomFields(
-    List<CustomFieldDefinition> definitions,
-  ) {
-    return TransferableField.withCustomFields(
-      definitions,
-      fieldKeys: transferableFieldKeys,
-    );
-  }
 
   List<String> transferableFieldKeysForScope(LibraryEditScope scope) {
     return switch (scope) {

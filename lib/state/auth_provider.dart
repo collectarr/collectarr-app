@@ -8,7 +8,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _authTokenKey = 'collectarr.auth.token';
@@ -100,11 +99,7 @@ class AuthController extends StateNotifier<AuthState> {
       final result = await ref
           .read(apiClientProvider)
           .login(email: email, password: password);
-      await _persistSession(
-        session: result,
-        fallbackEmail: email,
-
-      );
+      await _persistSession(session: result);
     } catch (error) {
       state = AuthState(
         email: email,
@@ -119,11 +114,7 @@ class AuthController extends StateNotifier<AuthState> {
       final result = await ref
           .read(apiClientProvider)
           .register(email: email, password: password);
-      await _persistSession(
-        session: result,
-        fallbackEmail: email,
-
-      );
+      await _persistSession(session: result);
     } catch (error) {
       state = AuthState(
         email: email,
@@ -140,11 +131,7 @@ class AuthController extends StateNotifier<AuthState> {
         email: _devAuthEmail,
         password: _devAuthPassword,
       );
-      await _persistSession(
-        session: result,
-        fallbackEmail: _devAuthEmail,
-
-      );
+      await _persistSession(session: result);
       return;
     } catch (error) {
       if (error is DioException) {
@@ -155,11 +142,7 @@ class AuthController extends StateNotifier<AuthState> {
               email: _devAuthEmail,
               password: _devAuthPassword,
             );
-            await _persistSession(
-              session: result,
-              fallbackEmail: _devAuthEmail,
-
-            );
+            await _persistSession(session: result);
             return;
           } catch (registerError) {
             if (registerError is DioException &&
@@ -169,11 +152,7 @@ class AuthController extends StateNotifier<AuthState> {
                   email: _devAuthEmail,
                   password: _devAuthPassword,
                 );
-                await _persistSession(
-                  session: retry,
-                  fallbackEmail: _devAuthEmail,
-
-                );
+                await _persistSession(session: retry);
                 return;
               } catch (retryError) {
                 state = AuthState(
@@ -295,30 +274,19 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> _persistSession({
     required AuthSession session,
-    required String fallbackEmail,
   }) async {
     final token = session.token;
     final userId = session.user.id;
-    final email = session.user.email ?? fallbackEmail;
+    final email = session.user.email;
     final isAdmin = session.user.isAdmin;
     final prefs = await SharedPreferences.getInstance();
-    try {
-      await _authSecureStorage.write(key: _authTokenKey, value: token);
-      await prefs.remove(_authTokenKey);
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'auth',
-        message:
-            'Failed to write secure token; falling back to shared preferences.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      await prefs.setString(_authTokenKey, token);
-    }
+    await _authSecureStorage.write(key: _authTokenKey, value: token);
     if (userId != null && userId.isNotEmpty) {
       await prefs.setString(_authUserIdKey, userId);
     }
-    await prefs.setString(_authEmailKey, email);
+    if (email != null && email.isNotEmpty) {
+      await prefs.setString(_authEmailKey, email);
+    }
     await prefs.setBool(_authIsAdminKey, isAdmin);
     ref.read(apiAuthTokenProvider.notifier).set(token);
     ref.read(apiClientProvider).setToken(token);
@@ -348,8 +316,8 @@ class AuthController extends StateNotifier<AuthState> {
         stackTrace: stackTrace,
       );
     }
-    await prefs.remove(_authTokenKey);
     await prefs.remove(_authUserIdKey);
+    await prefs.remove(_authEmailKey);
     await prefs.remove(_authIsAdminKey);
     ref.read(apiAuthTokenProvider.notifier).set(null);
     ref.read(apiClientProvider).clearToken();
@@ -366,34 +334,18 @@ class AuthController extends StateNotifier<AuthState> {
       final secureToken = await _authSecureStorage
           .read(key: _authTokenKey)
           .timeout(_secureStorageReadTimeout);
-      if (secureToken != null && secureToken.isNotEmpty) {
-        return secureToken;
-      }
+      return secureToken != null && secureToken.isNotEmpty
+          ? secureToken
+          : null;
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'auth',
-        message:
-            'Failed to read secure token within the restore window; falling back to legacy token.',
+        message: 'Failed to read secure token within the restore window.',
         error: error,
         stackTrace: stackTrace,
       );
-    }
-    final legacyToken = prefs.getString(_authTokenKey);
-    if (legacyToken == null || legacyToken.isEmpty) {
       return null;
     }
-    try {
-      await _authSecureStorage.write(key: _authTokenKey, value: legacyToken);
-      await prefs.remove(_authTokenKey);
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'auth',
-        message: 'Failed to migrate legacy token into secure storage.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
-    return legacyToken;
   }
 }
 

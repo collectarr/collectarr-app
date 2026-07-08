@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final connectionSettingsProvider =
     StateNotifierProvider<ConnectionSettingsController, ConnectionSettings>(
@@ -53,9 +53,7 @@ class ConnectionSettingsController extends StateNotifier<ConnectionSettings> {
   bool _shouldResetFromLaunchUri() {
     final fragmentQueryParameters = _fragmentQueryParameters();
     final value = _launchUri.queryParameters['resetConnection'] ??
-        _launchUri.queryParameters['resetLocalSettings'] ??
-        fragmentQueryParameters['resetConnection'] ??
-        fragmentQueryParameters['resetLocalSettings'];
+        fragmentQueryParameters['resetConnection'];
     return switch (value?.toLowerCase()) {
       '1' || 'true' || 'yes' => true,
       _ => false,

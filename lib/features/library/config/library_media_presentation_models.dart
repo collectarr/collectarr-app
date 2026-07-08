@@ -7,7 +7,12 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -458,15 +463,15 @@ class LibraryMetadataPresentation {
     this.labels = const LibraryMetadataLabels(),
   });
 
-  final List<LibraryInspectorFactData> identityFacts;
-  final List<LibraryInspectorFactData> contextFacts;
+  final List<LibraryDetailField> identityFacts;
+  final List<LibraryDetailField> contextFacts;
   final List<Map<String, dynamic>> creators;
   final List<String> characters;
   final List<String> storyArcs;
   final List<String> genres;
   final LibraryMetadataLabels labels;
 
-  List<LibraryInspectorFactData> get allFacts => [
+  List<LibraryDetailField> get allFacts => [
         ...identityFacts,
         ...contextFacts,
       ];
@@ -606,9 +611,9 @@ abstract class LibraryMediaPresentationBuilder {
           series!.seriesId!.trim().isNotEmpty &&
           series.seriesTitle != null &&
           series.seriesTitle!.trim().isNotEmpty) {
-        return LibraryInspectorFactData(
-          fact.label,
-          fact.value,
+        return LibraryDetailField(
+          label: fact.label,
+          value: fact.value,
           onTap: () => context.push(
             '/series/${Uri.encodeComponent(series.seriesId!)}?title=${Uri.encodeQueryComponent(series.seriesTitle!)}',
           ),
@@ -616,11 +621,11 @@ abstract class LibraryMediaPresentationBuilder {
       }
       return fact;
     }).toList(growable: false);
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: presentation.labels.identitySectionTitle,
       accentColor: accent,
       children: [
-        LibraryInspectorFactGrid(facts: identityFacts),
+        LibraryDetailFieldTable(fields: identityFacts),
       ],
     );
   }
@@ -642,14 +647,14 @@ abstract class LibraryMediaPresentationBuilder {
       includeIdentityFacts: false,
       tapFor: _tapResolver(onFilterByValue),
     );
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: presentation.labels.contextSectionTitle,
       accentColor: accent,
       children: [
-        LibraryInspectorFactGrid(facts: presentation.contextFacts),
+        LibraryDetailFieldTable(fields: presentation.contextFacts),
         if (presentation.genres.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
+          LibraryDetailChipGroupWidget(
             label: presentation.labels.genres,
             values: presentation.genres,
             onValueTap: onFilterByValue,
@@ -679,7 +684,7 @@ abstract class LibraryMediaPresentationBuilder {
     if (!presentation.hasCredits) {
       return const SizedBox.shrink();
     }
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: presentation.labels.creditsSectionTitle,
       accentColor: accent,
       children: [
@@ -693,7 +698,7 @@ abstract class LibraryMediaPresentationBuilder {
           ),
         if (presentation.characters.isNotEmpty) ...[
           if (presentation.creators.isNotEmpty) const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
+          LibraryDetailChipGroupWidget(
             label: presentation.labels.characters,
             values: presentation.characters,
             onValueTap: (value) => context.push(
@@ -705,7 +710,7 @@ abstract class LibraryMediaPresentationBuilder {
           if (presentation.creators.isNotEmpty ||
               presentation.characters.isNotEmpty)
             const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
+          LibraryDetailChipGroupWidget(
             label: presentation.labels.storyArcs,
             values: presentation.storyArcs,
             onValueTap: (value) => context.push(
@@ -871,3 +876,4 @@ String _fallbackGroupModeSidebarTitle(String label) {
   }
   return '${label}s';
 }
+

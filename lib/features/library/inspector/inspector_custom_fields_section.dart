@@ -1,7 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -67,16 +72,16 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
       }
     }
     if (resolved.isEmpty) return const SizedBox.shrink();
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Custom fields',
       accentColor: accent,
       children: [
-        LibraryInspectorFactGrid(
-          facts: [
+        LibraryDetailFieldTable(
+          fields: [
             for (final f in resolved)
-              LibraryInspectorFactData(
-                f.label,
-                f.value,
+              LibraryDetailField(
+                label: f.label,
+                value: f.value,
                 onTap: onFilterByValue == null || f.value.trim().isEmpty
                     ? null
                     : () => onFilterByValue!(f.value),
@@ -100,3 +105,5 @@ class _ResolvedField {
   final String label;
   final String value;
 }
+
+

@@ -3,7 +3,12 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class GameLibraryMediaPresentationBuilder
@@ -31,52 +36,34 @@ class GameLibraryMediaPresentationBuilder
       labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
-          LibraryInspectorFactData('Kind', singularLabel),
-          LibraryInspectorFactData('ID', entry.id),
-          LibraryInspectorFactData('Title', entry.title),
+          LibraryDetailField(label: 'Kind', value: singularLabel),
+          LibraryDetailField(label: 'ID', value: entry.id),
+          LibraryDetailField(label: 'Title', value: entry.title),
         ],
         if (entry.variant != null)
-          LibraryInspectorFactData(
-            releaseFields.variantLabel,
-            entry.variant!,
-            onTap: tapFor(entry.variant),
-          ),
+          LibraryDetailField(label: releaseFields.variantLabel, value: entry.variant!, onTap: tapFor(entry.variant)),
         if (entry.barcode != null)
-          LibraryInspectorFactData(releaseFields.barcodeLabel, entry.barcode!),
+          LibraryDetailField(label: releaseFields.barcodeLabel, value: entry.barcode!),
         if (entry.ageRating != null)
-          LibraryInspectorFactData('Age Rating', entry.ageRating!),
+          LibraryDetailField(label: 'Age Rating', value: entry.ageRating!),
       ],
       contextFacts: [
         if (referencePlatforms.isNotEmpty)
-          LibraryInspectorFactData(
-            referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
-            referencePlatforms.join(', '),
-          ),
+          LibraryDetailField(label: referencePlatforms.length == 1 ? 'Platform' : 'Platforms', value: referencePlatforms.join(', ')),
         if (entry.publisher != null)
-          LibraryInspectorFactData(
-            mediaFields.publisherLabel,
-            entry.publisher!,
-            onTap: tapFor(entry.publisher),
-          ),
-        LibraryInspectorFactData(
-          'Released',
-          genericLibraryDash(
+          LibraryDetailField(label: mediaFields.publisherLabel, value: entry.publisher!, onTap: tapFor(entry.publisher)),
+        LibraryDetailField(label: 'Released', value: genericLibraryDash(
             formatPresentationNullableDate(entry.releaseDate) ??
                 entry.releaseYear?.toString(),
-          ),
-        ),
+          )),
         if (entry.country != null)
-          LibraryInspectorFactData('Country', entry.country!),
+          LibraryDetailField(label: 'Country', value: entry.country!),
         if (entry.language != null)
-          LibraryInspectorFactData('Language', entry.language!),
+          LibraryDetailField(label: 'Language', value: entry.language!),
         if (entry.audienceRating != null)
-          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
-        LibraryInspectorFactData(
-            'Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
-        LibraryInspectorFactData(
-          'Metadata',
-          entry.hasMissingMetadata ? 'Missing' : 'Ready',
-        ),
+          LibraryDetailField(label: 'Audience Rating', value: entry.audienceRating!),
+        LibraryDetailField(label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
+        LibraryDetailField(label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
       ],
       creators: entry.creators ?? const <Map<String, dynamic>>[],
       characters: entry.characters ?? const <String>[],
@@ -114,3 +101,4 @@ List<String> _gameReferencePlatforms(
   }
   return values;
 }
+

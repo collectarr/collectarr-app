@@ -5,12 +5,16 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/volumes_section.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -50,121 +54,70 @@ class BookLibraryMediaPresentationBuilder
       labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
-          LibraryInspectorFactData('Kind', singularLabel),
-          LibraryInspectorFactData('ID', entry.id),
-          LibraryInspectorFactData('Title', entry.title),
+          LibraryDetailField(label: 'Kind', value: singularLabel),
+          LibraryDetailField(label: 'ID', value: entry.id),
+          LibraryDetailField(label: 'Title', value: entry.title),
         ],
         if (series?.seriesTitle != null)
-          LibraryInspectorFactData(
-            'Series',
-            series!.seriesTitle!,
-            onTap: tapFor(series.seriesTitle),
-          ),
+          LibraryDetailField(label: 'Series', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
         if (hasVolume && !hasSeason)
-          LibraryInspectorFactData(
-            'Volume',
-            series!.volumeName ?? libraryVolumeLabel(series.volumeNumber),
-          ),
+          LibraryDetailField(label: 'Volume', value: series!.volumeName ?? libraryVolumeLabel(series.volumeNumber)),
         if (hasSeason && hasEpisode)
-          LibraryInspectorFactData(
-            'Season / Episode',
-            'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}',
-          ),
+          LibraryDetailField(label: 'Season / Episode', value: 'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}'),
         if (hasSeason && !hasEpisode)
-          LibraryInspectorFactData('Season', 'Season ${series!.seasonNumber}'),
+          LibraryDetailField(label: 'Season', value: 'Season ${series!.seasonNumber}'),
         if (hasEpisode && !hasSeason)
-          LibraryInspectorFactData('Episode', 'Ep. ${series!.episodeNumber}'),
-        LibraryInspectorFactData(
-          mediaFields.numberLabel,
-          genericLibraryDash(entry.itemNumber),
-          onTap: tapFor(entry.itemNumber),
-        ),
-        LibraryInspectorFactData(
-          releaseFields.variantLabel,
-          genericLibraryDash(entry.variant),
-          onTap: tapFor(entry.variant),
-        ),
-        LibraryInspectorFactData(
-          releaseFields.barcodeLabel,
-          genericLibraryDash(entry.barcode),
-        ),
+          LibraryDetailField(label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
+        LibraryDetailField(label: mediaFields.numberLabel, value: genericLibraryDash(entry.itemNumber), onTap: tapFor(entry.itemNumber)),
+        LibraryDetailField(label: releaseFields.variantLabel, value: genericLibraryDash(entry.variant), onTap: tapFor(entry.variant)),
+        LibraryDetailField(label: releaseFields.barcodeLabel, value: genericLibraryDash(entry.barcode)),
       ],
       contextFacts: [
-        LibraryInspectorFactData(
-          mediaFields.publisherLabel,
-          genericLibraryDash(entry.publisher),
-          onTap: tapFor(entry.publisher),
-        ),
-        LibraryInspectorFactData(
-          'Released',
-          genericLibraryDash(
+        LibraryDetailField(label: mediaFields.publisherLabel, value: genericLibraryDash(entry.publisher), onTap: tapFor(entry.publisher)),
+        LibraryDetailField(label: 'Released', value: genericLibraryDash(
             formatPresentationNullableDate(entry.releaseDate) ??
                 entry.releaseYear?.toString(),
-          ),
-        ),
+          )),
         if (publishing?.pageCount != null)
-          LibraryInspectorFactData('Pages', publishing!.pageCount.toString()),
+          LibraryDetailField(label: 'Pages', value: publishing!.pageCount.toString()),
         if (music?.catalogNumber != null)
-          LibraryInspectorFactData('Catalog No.', music!.catalogNumber!),
+          LibraryDetailField(label: 'Catalog No.', value: music!.catalogNumber!),
         if (publishing?.coverPriceCents != null)
-          LibraryInspectorFactData(
-            'Cover Price',
-            formatPresentationMoney(
+          LibraryDetailField(label: 'Cover Price', value: formatPresentationMoney(
               publishing!.coverPriceCents,
               publishing.currency,
-            ),
-          ),
+            )),
         if (publishing?.imprint != null)
-          LibraryInspectorFactData(
-            'Imprint',
-            publishing!.imprint!,
-            onTap: tapFor(publishing.imprint),
-          ),
+          LibraryDetailField(label: 'Imprint', value: publishing!.imprint!, onTap: tapFor(publishing.imprint)),
         if (publishing?.seriesGroup != null)
-          LibraryInspectorFactData(
-            'Series Group',
-            publishing!.seriesGroup!,
-            onTap: tapFor(publishing.seriesGroup),
-          ),
+          LibraryDetailField(label: 'Series Group', value: publishing!.seriesGroup!, onTap: tapFor(publishing.seriesGroup)),
         if (publishing?.subtitle != null)
-          LibraryInspectorFactData('Subtitle', publishing!.subtitle!),
+          LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
         if (entry.country != null)
-          LibraryInspectorFactData('Country', entry.country!),
+          LibraryDetailField(label: 'Country', value: entry.country!),
         if (music?.releaseStatus != null)
-          LibraryInspectorFactData('Release Status', music!.releaseStatus!),
+          LibraryDetailField(label: 'Release Status', value: music!.releaseStatus!),
         if (entry.language != null)
-          LibraryInspectorFactData('Language', entry.language!),
+          LibraryDetailField(label: 'Language', value: entry.language!),
         if (entry.ageRating != null)
-          LibraryInspectorFactData('Age Rating', entry.ageRating!),
+          LibraryDetailField(label: 'Age Rating', value: entry.ageRating!),
         if (entry.audienceRating != null)
-          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
+          LibraryDetailField(label: 'Audience Rating', value: entry.audienceRating!),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
-          LibraryInspectorFactData('Variant Type', variantType.trim()),
+          LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
         if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
-          LibraryInspectorFactData('SKU', sku.trim()),
+          LibraryDetailField(label: 'SKU', value: sku.trim()),
         if (referenceRelease.edition != null)
-          LibraryInspectorFactData(
-            'Primary release',
-            [
+          LibraryDetailField(label: 'Primary release', value: [
               referenceRelease.edition!.title,
               if (referenceVariant?.name.trim().isNotEmpty == true)
                 referenceVariant!.name.trim(),
-            ].join(' · '),
-          ),
+            ].join(' · ')),
         if (referencePlatforms.isNotEmpty)
-          LibraryInspectorFactData(
-            referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
-            referencePlatforms.join(', '),
-          ),
-        LibraryInspectorFactData(
-          'Cover',
-          entry.hasMissingCover ? 'Missing' : 'Ready',
-        ),
-        LibraryInspectorFactData(
-          'Metadata',
-          entry.hasMissingMetadata ? 'Missing' : 'Ready',
-        ),
+          LibraryDetailField(label: referencePlatforms.length == 1 ? 'Platform' : 'Platforms', value: referencePlatforms.join(', ')),
+        LibraryDetailField(label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
+        LibraryDetailField(label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
       ],
       creators: entry.creators ?? const <Map<String, dynamic>>[],
       characters: entry.characters ?? const <String>[],
@@ -195,80 +148,62 @@ class BookLibraryMediaPresentationBuilder
     final physicalDetails = bookEntry?.physicalDetails;
     final sectionSpecs = <LibraryDetailSectionSpec>[];
 
-    final originalFacts = <LibraryInspectorFactData>[
+    final originalFacts = <LibraryDetailField>[
       if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Series', entry.series!.seriesTitle!.trim()),
+        LibraryDetailField(label: 'Series', value: entry.series!.seriesTitle!.trim()),
       if (entry.synopsis != null && entry.synopsis!.trim().isNotEmpty)
-        LibraryInspectorFactData('Summary', entry.synopsis!.trim()),
+        LibraryDetailField(label: 'Summary', value: entry.synopsis!.trim()),
       if (originalDetails?.publisher?.trim().isNotEmpty == true)
-        LibraryInspectorFactData(
-          'Original publisher',
-          originalDetails!.publisher!.trim(),
-        ),
+        LibraryDetailField(label: 'Original publisher', value: originalDetails!.publisher!.trim()),
       if (originalDetails?.dewey?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Dewey', originalDetails!.dewey!.trim()),
+        LibraryDetailField(label: 'Dewey', value: originalDetails!.dewey!.trim()),
       if (originalDetails?.lccn?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('LCCN', originalDetails!.lccn!.trim()),
+        LibraryDetailField(label: 'LCCN', value: originalDetails!.lccn!.trim()),
       if (originalDetails?.locControlNumber?.trim().isNotEmpty == true)
-        LibraryInspectorFactData(
-          'LoC control number',
-          originalDetails!.locControlNumber!.trim(),
-        ),
+        LibraryDetailField(label: 'LoC control number', value: originalDetails!.locControlNumber!.trim()),
     ];
     if (originalFacts.isNotEmpty) {
       sectionSpecs.add(
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.identity,
           title: 'Original Details',
-          children: [LibraryInspectorFactGrid(facts: originalFacts)],
+          children: [LibraryDetailFieldTable(fields: originalFacts)],
         ),
       );
     }
 
-    final productFacts = <LibraryInspectorFactData>[
+    final productFacts = <LibraryDetailField>[
       if (entry.referenceFormatLabel?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Format', entry.referenceFormatLabel!.trim()),
+        LibraryDetailField(label: 'Format', value: entry.referenceFormatLabel!.trim()),
       if (entry.publisher?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Publisher', entry.publisher!.trim()),
+        LibraryDetailField(label: 'Publisher', value: entry.publisher!.trim()),
       if (entry.barcode?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('ISBN / Barcode', entry.barcode!.trim()),
+        LibraryDetailField(label: 'ISBN / Barcode', value: entry.barcode!.trim()),
       if (entry.country?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Country', entry.country!.trim()),
+        LibraryDetailField(label: 'Country', value: entry.country!.trim()),
       if (entry.language?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Language', entry.language!.trim()),
+        LibraryDetailField(label: 'Language', value: entry.language!.trim()),
       if (entry.ageRating?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Age Rating', entry.ageRating!.trim()),
+        LibraryDetailField(label: 'Age Rating', value: entry.ageRating!.trim()),
       if (entry.publishing?.pageCount != null)
-        LibraryInspectorFactData(
-          'Pages',
-          entry.publishing!.pageCount.toString(),
-        ),
+        LibraryDetailField(label: 'Pages', value: entry.publishing!.pageCount.toString()),
       if (physicalDetails?.dimensions?.trim().isNotEmpty == true)
-        LibraryInspectorFactData(
-          'Dimensions',
-          physicalDetails!.dimensions!.trim(),
-        ),
+        LibraryDetailField(label: 'Dimensions', value: physicalDetails!.dimensions!.trim()),
       if (physicalDetails?.printing?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Printing', physicalDetails!.printing!.trim()),
+        LibraryDetailField(label: 'Printing', value: physicalDetails!.printing!.trim()),
       if (physicalDetails?.firstEdition == true)
-        const LibraryInspectorFactData('First edition', 'Yes'),
+        const LibraryDetailField(label: 'First edition', value: 'Yes'),
       if (physicalDetails?.dustJacket != null)
-        LibraryInspectorFactData(
-          'Dust jacket',
-          physicalDetails!.dustJacket! ? 'Yes' : 'No',
-        ),
+        LibraryDetailField(label: 'Dust jacket', value: physicalDetails!.dustJacket! ? 'Yes' : 'No'),
       if (physicalDetails?.numberLine?.trim().isNotEmpty == true)
-        LibraryInspectorFactData(
-          'Number line',
-          physicalDetails!.numberLine!.trim(),
-        ),
+        LibraryDetailField(label: 'Number line', value: physicalDetails!.numberLine!.trim()),
     ];
     if (productFacts.isNotEmpty) {
       sectionSpecs.add(
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.formatEditionRelease,
           title: 'Product Details',
-          children: [LibraryInspectorFactGrid(facts: productFacts)],
+          children: [LibraryDetailFieldTable(fields: productFacts)],
         ),
       );
     }
@@ -293,36 +228,27 @@ class BookLibraryMediaPresentationBuilder
       );
     }
 
-    final imageFacts = <LibraryInspectorFactData>[
+    final imageFacts = <LibraryDetailField>[
       if (entry.displayCoverUrl?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Cover', entry.displayCoverUrl!.trim()),
+        LibraryDetailField(label: 'Cover', value: entry.displayCoverUrl!.trim()),
       if (entry.frontCoverUrl?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Front cover', entry.frontCoverUrl!.trim()),
+        LibraryDetailField(label: 'Front cover', value: entry.frontCoverUrl!.trim()),
       if (entry.backCoverUrl?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Back cover', entry.backCoverUrl!.trim()),
+        LibraryDetailField(label: 'Back cover', value: entry.backCoverUrl!.trim()),
       if (bookEntry?.physicalDetails?.coverImagePath?.trim().isNotEmpty == true)
-        LibraryInspectorFactData(
-          'Local cover path',
-          bookEntry!.physicalDetails!.coverImagePath!.trim(),
-        ),
+        LibraryDetailField(label: 'Local cover path', value: bookEntry!.physicalDetails!.coverImagePath!.trim()),
       if (bookEntry?.physicalDetails?.thumbnailImagePath?.trim().isNotEmpty ==
           true)
-        LibraryInspectorFactData(
-          'Local thumbnail path',
-          bookEntry!.physicalDetails!.thumbnailImagePath!.trim(),
-        ),
+        LibraryDetailField(label: 'Local thumbnail path', value: bookEntry!.physicalDetails!.thumbnailImagePath!.trim()),
       if (bookEntry?.physicalDetails?.backImagePath?.trim().isNotEmpty == true)
-        LibraryInspectorFactData(
-          'Local back path',
-          bookEntry!.physicalDetails!.backImagePath!.trim(),
-        ),
+        LibraryDetailField(label: 'Local back path', value: bookEntry!.physicalDetails!.backImagePath!.trim()),
     ];
     if (imageFacts.isNotEmpty) {
       sectionSpecs.add(
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.imagesMedia,
           title: 'Images',
-          children: [LibraryInspectorFactGrid(facts: imageFacts)],
+          children: [LibraryDetailFieldTable(fields: imageFacts)],
         ),
       );
     }
@@ -351,38 +277,32 @@ class BookLibraryMediaPresentationBuilder
       );
     }
 
-    final personalFacts = <LibraryInspectorFactData>[
+    final personalFacts = <LibraryDetailField>[
       if (entry.condition?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Condition', entry.condition!.trim()),
+        LibraryDetailField(label: 'Condition', value: entry.condition!.trim()),
       if (entry.grade?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Grade', entry.grade!.trim()),
+        LibraryDetailField(label: 'Grade', value: entry.grade!.trim()),
       if (entry.collectionStatus?.trim().isNotEmpty == true)
-        LibraryInspectorFactData(
-          'Collection Status',
-          entry.collectionStatus!.trim(),
-        ),
+        LibraryDetailField(label: 'Collection Status', value: entry.collectionStatus!.trim()),
       if (entry.readStatus?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Read It', entry.readStatus!.trim()),
+        LibraryDetailField(label: 'Read It', value: entry.readStatus!.trim()),
       if (entry.rating != null)
-        LibraryInspectorFactData('Rating', entry.rating!.toString()),
+        LibraryDetailField(label: 'Rating', value: entry.rating!.toString()),
       if (entry.locationPath?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Location', entry.locationPath!.trim()),
+        LibraryDetailField(label: 'Location', value: entry.locationPath!.trim()),
       if (entry.pricePaidCents != null)
-        LibraryInspectorFactData(
-          'Price Paid',
-          entry.pricePaidCents!.toString(),
-        ),
+        LibraryDetailField(label: 'Price Paid', value: entry.pricePaidCents!.toString()),
       if (entry.notes?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Notes', entry.notes!.trim()),
+        LibraryDetailField(label: 'Notes', value: entry.notes!.trim()),
       if (entry.tags?.trim().isNotEmpty == true)
-        LibraryInspectorFactData('Tags', entry.tags!.trim()),
+        LibraryDetailField(label: 'Tags', value: entry.tags!.trim()),
     ];
     if (personalFacts.isNotEmpty) {
       sectionSpecs.add(
         LibraryDetailSectionSpec(
           slot: LibraryDetailSectionSlot.personalStatus,
           title: 'Personal Details',
-          children: [LibraryInspectorFactGrid(facts: personalFacts)],
+          children: [LibraryDetailFieldTable(fields: personalFacts)],
         ),
       );
     }
@@ -918,3 +838,5 @@ List<String> _bookDiscoveryTagsForSelection({
   );
   return tags;
 }
+
+

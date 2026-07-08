@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:flutter/material.dart';
 
-class LibraryInspectorSectionSpec {
-  const LibraryInspectorSectionSpec({
+class LibraryDetailSectionSpec {
+  const LibraryDetailSectionSpec({
     required this.title,
     this.children = const [],
     this.initiallyExpanded = true,
@@ -13,8 +13,8 @@ class LibraryInspectorSectionSpec {
   final bool initiallyExpanded;
 }
 
-List<Widget> buildLibraryInspectorSectionWidgets(
-  List<LibraryInspectorSectionSpec> sections,
+List<Widget> buildLibraryDetailSectionWidgets(
+  List<LibraryDetailSectionSpec> sections,
 ) {
   return [
     for (final section in sections)
@@ -26,7 +26,7 @@ List<Widget> buildLibraryInspectorSectionWidgets(
   ];
 }
 
-List<Widget> buildLibraryInspectorSectionFlow({
+List<Widget> buildLibraryDetailSectionFlow({
   required List<Widget> beforeBodySections,
   required List<Widget> bodySections,
   required List<Widget> afterBodySections,
@@ -82,3 +82,4 @@ class LibraryInspectorTitleStatusCard extends StatelessWidget {
     );
   }
 }
+

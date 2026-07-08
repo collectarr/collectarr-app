@@ -4,7 +4,12 @@ import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -77,7 +82,7 @@ void main() {
         musicSections.whereType<InspectorTrackListUnavailable>(), hasLength(1));
     expect(
       movieSections
-          .whereType<LibraryInspectorSection>()
+          .whereType<LibraryDetailSection>()
           .map((section) => section.title),
       contains('Summary'),
     );
@@ -119,7 +124,7 @@ void main() {
 
     expect(
       sections
-          .whereType<LibraryInspectorSection>()
+          .whereType<LibraryDetailSection>()
           .map((section) => section.title),
       containsAll(<String>[
         'Original Details',
@@ -130,9 +135,11 @@ void main() {
     );
     expect(
       sections
-          .whereType<LibraryInspectorChipSection>()
+          .whereType<LibraryDetailSection>()
           .map((section) => section.title),
       containsAll(<String>['Identifiers']),
     );
   });
 }
+
+

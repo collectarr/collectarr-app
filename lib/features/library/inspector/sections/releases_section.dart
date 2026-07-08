@@ -1,5 +1,10 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:flutter/material.dart';
 
 class InspectorReleasesSection extends StatelessWidget {
@@ -22,19 +27,16 @@ class InspectorReleasesSection extends StatelessWidget {
     if (discCount == 0 && editions.isEmpty) {
       return const SizedBox.shrink();
     }
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Releases / discs',
       accentColor: request.accent,
       children: [
-        LibraryInspectorFactGrid(
-          facts: [
-            LibraryInspectorFactData('Releases', editions.length.toString()),
-            LibraryInspectorFactData('Discs', discCount.toString()),
+        LibraryDetailFieldTable(
+          fields: [
+            LibraryDetailField(label: 'Releases', value: editions.length.toString()),
+            LibraryDetailField(label: 'Discs', value: discCount.toString()),
             if (video?.runtimeMinutes != null)
-              LibraryInspectorFactData(
-                'Runtime',
-                '${video!.runtimeMinutes} min',
-              ),
+              LibraryDetailField(label: 'Runtime', value: '${video!.runtimeMinutes} min'),
           ],
         ),
         if (editions.isNotEmpty) ...[
@@ -100,3 +102,6 @@ class InspectorReleasesSection extends StatelessWidget {
     );
   }
 }
+
+
+

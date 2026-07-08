@@ -1,4 +1,9 @@
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:flutter/material.dart';
 
 class InspectorMetadataFactsSection extends StatelessWidget {
@@ -12,7 +17,7 @@ class InspectorMetadataFactsSection extends StatelessWidget {
 
   final String title;
   final Color accent;
-  final List<LibraryInspectorFactData> facts;
+  final List<LibraryDetailField> facts;
   final List<Widget> children;
 
   @override
@@ -20,11 +25,11 @@ class InspectorMetadataFactsSection extends StatelessWidget {
     if (facts.isEmpty && children.isEmpty) {
       return const SizedBox.shrink();
     }
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: title,
       accentColor: accent,
       children: [
-        if (facts.isNotEmpty) LibraryInspectorFactGrid(facts: facts),
+        if (facts.isNotEmpty) LibraryDetailFieldTable(fields: facts),
         if (children.isNotEmpty) ...[
           if (facts.isNotEmpty) const SizedBox(height: 8),
           ...children,
@@ -33,3 +38,5 @@ class InspectorMetadataFactsSection extends StatelessWidget {
     );
   }
 }
+
+

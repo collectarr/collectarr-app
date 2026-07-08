@@ -3,7 +3,12 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class BoardGameLibraryMediaPresentationBuilder
@@ -36,123 +41,59 @@ class BoardGameLibraryMediaPresentationBuilder
       labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
-          LibraryInspectorFactData('Kind', singularLabel),
-          LibraryInspectorFactData('ID', entry.id),
-          LibraryInspectorFactData('Title', entry.title),
+          LibraryDetailField(label: 'Kind', value: singularLabel),
+          LibraryDetailField(label: 'ID', value: entry.id),
+          LibraryDetailField(label: 'Title', value: entry.title),
         ],
         if (series?.seriesTitle != null)
-          LibraryInspectorFactData(
-            'Series',
-            series!.seriesTitle!,
-            onTap: tapFor(series.seriesTitle),
-          ),
-        LibraryInspectorFactData(
-          mediaFields.numberLabel,
-          genericLibraryDash(entry.itemNumber),
-          onTap: tapFor(entry.itemNumber),
-        ),
-        LibraryInspectorFactData(
-          releaseFields.variantLabel,
-          genericLibraryDash(entry.variant),
-          onTap: tapFor(entry.variant),
-        ),
-        LibraryInspectorFactData(
-          releaseFields.barcodeLabel,
-          genericLibraryDash(entry.barcode),
-        ),
+          LibraryDetailField(label: 'Series', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
+        LibraryDetailField(label: mediaFields.numberLabel, value: genericLibraryDash(entry.itemNumber), onTap: tapFor(entry.itemNumber)),
+        LibraryDetailField(label: releaseFields.variantLabel, value: genericLibraryDash(entry.variant), onTap: tapFor(entry.variant)),
+        LibraryDetailField(label: releaseFields.barcodeLabel, value: genericLibraryDash(entry.barcode)),
       ],
       contextFacts: [
-        LibraryInspectorFactData(
-          mediaFields.publisherLabel,
-          genericLibraryDash(entry.publisher),
-          onTap: tapFor(entry.publisher),
-        ),
-        LibraryInspectorFactData(
-          'Released',
-          genericLibraryDash(
+        LibraryDetailField(label: mediaFields.publisherLabel, value: genericLibraryDash(entry.publisher), onTap: tapFor(entry.publisher)),
+        LibraryDetailField(label: 'Released', value: genericLibraryDash(
             formatPresentationNullableDate(entry.releaseDate) ??
                 entry.releaseYear?.toString(),
-          ),
-        ),
+          )),
         if (selectedEdition?.minPlayers != null ||
             selectedEdition?.maxPlayers != null)
-          LibraryInspectorFactData(
-            'Players',
-            _playersLabel(selectedEdition),
-          ),
+          LibraryDetailField(label: 'Players', value: _playersLabel(selectedEdition)),
         if (selectedEdition?.playingTimeMinutes != null)
-          LibraryInspectorFactData(
-            'Playing Time',
-            '${selectedEdition!.playingTimeMinutes} min',
-          ),
+          LibraryDetailField(label: 'Playing Time', value: '${selectedEdition!.playingTimeMinutes} min'),
         if (selectedEdition?.minAge != null)
-          LibraryInspectorFactData('Age', '${selectedEdition!.minAge}+'),
+          LibraryDetailField(label: 'Age', value: '${selectedEdition!.minAge}+'),
         if (selectedEdition?.country != null)
-          LibraryInspectorFactData('Country', selectedEdition!.country!),
+          LibraryDetailField(label: 'Country', value: selectedEdition!.country!),
         if (selectedEdition?.language != null)
-          LibraryInspectorFactData('Language', selectedEdition!.language!),
+          LibraryDetailField(label: 'Language', value: selectedEdition!.language!),
         if (selectedEdition?.releaseStatus != null)
-          LibraryInspectorFactData(
-            'Release Status',
-            selectedEdition!.releaseStatus!,
-          ),
+          LibraryDetailField(label: 'Release Status', value: selectedEdition!.releaseStatus!),
         if (boardGameWork?.contributors.isNotEmpty == true)
-          LibraryInspectorFactData(
-            'Designers',
-            boardGameWork!.contributors.join(', '),
-          ),
+          LibraryDetailField(label: 'Designers', value: boardGameWork!.contributors.join(', ')),
         if (boardGameWork?.categories.isNotEmpty == true)
-          LibraryInspectorFactData(
-            boardGameWork!.categories.length == 1 ? 'Category' : 'Categories',
-            boardGameWork.categories.join(', '),
-          ),
+          LibraryDetailField(label: boardGameWork!.categories.length == 1 ? 'Category' : 'Categories', value: boardGameWork.categories.join(', ')),
         if (boardGameWork?.mechanics.isNotEmpty == true)
-          LibraryInspectorFactData(
-            boardGameWork!.mechanics.length == 1 ? 'Mechanic' : 'Mechanics',
-            boardGameWork.mechanics.join(', '),
-          ),
+          LibraryDetailField(label: boardGameWork!.mechanics.length == 1 ? 'Mechanic' : 'Mechanics', value: boardGameWork.mechanics.join(', ')),
         if (boardGameWork?.expansions.isNotEmpty == true)
-          LibraryInspectorFactData(
-            boardGameWork!.expansions.length == 1 ? 'Expansion' : 'Expansions',
-            boardGameWork.expansions.join(', '),
-          ),
+          LibraryDetailField(label: boardGameWork!.expansions.length == 1 ? 'Expansion' : 'Expansions', value: boardGameWork.expansions.join(', ')),
         if (selectedEdition?.audienceRating != null)
-          LibraryInspectorFactData(
-            'Audience Rating',
-            selectedEdition!.audienceRating!,
-          ),
+          LibraryDetailField(label: 'Audience Rating', value: selectedEdition!.audienceRating!),
         if (playStats?.bggRank != null)
-          LibraryInspectorFactData('BGG Rank', '#${playStats!.bggRank}'),
+          LibraryDetailField(label: 'BGG Rank', value: '#${playStats!.bggRank}'),
         if (playStats?.bggRating != null)
-          LibraryInspectorFactData(
-            'BGG Rating',
-            playStats!.bggRating!.toStringAsFixed(2),
-          ),
+          LibraryDetailField(label: 'BGG Rating', value: playStats!.bggRating!.toStringAsFixed(2)),
         if (playStats?.playCount != null)
-          LibraryInspectorFactData(
-            'Play Count',
-            playStats!.playCount.toString(),
-          ),
+          LibraryDetailField(label: 'Play Count', value: playStats!.playCount.toString()),
         if (playStats?.lastPlayed != null)
-          LibraryInspectorFactData(
-            'Last Played',
-            _dateLabel(playStats!.lastPlayed!),
-          ),
+          LibraryDetailField(label: 'Last Played', value: _dateLabel(playStats!.lastPlayed!)),
         if (playStats?.favoritePlayerCount != null)
-          LibraryInspectorFactData(
-            'Favorite Players',
-            playStats!.favoritePlayerCount.toString(),
-          ),
+          LibraryDetailField(label: 'Favorite Players', value: playStats!.favoritePlayerCount.toString()),
         if (entry.barcode?.trim().isNotEmpty == true)
-          LibraryInspectorFactData('Barcode', entry.barcode!),
-        LibraryInspectorFactData(
-          'Cover',
-          entry.hasMissingCover ? 'Missing' : 'Ready',
-        ),
-        LibraryInspectorFactData(
-          'Metadata',
-          entry.hasMissingMetadata ? 'Missing' : 'Ready',
-        ),
+          LibraryDetailField(label: 'Barcode', value: entry.barcode!),
+        LibraryDetailField(label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
+        LibraryDetailField(label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
       ],
       creators: entry.creators ?? const <Map<String, dynamic>>[],
       characters: entry.characters ?? const <String>[],
@@ -186,3 +127,4 @@ String _dateLabel(DateTime value) {
   final d = value.day.toString().padLeft(2, '0');
   return '$y-$m-$d';
 }
+

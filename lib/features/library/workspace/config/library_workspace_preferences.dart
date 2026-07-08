@@ -256,9 +256,7 @@ class LibraryWorkspacePreferences {
     final columns = {
       for (final value in values)
         if (config.tableColumnFromFieldId(value) != null)
-          config.tableColumnFromFieldId(value)!
-        else if (_enumByName(config.availableTableColumns, value) != null)
-          _enumByName(config.availableTableColumns, value)!,
+          config.tableColumnFromFieldId(value)!,
     };
     if (config.supportsTableColumn(LibraryTableColumn.title) &&
         !columns.contains(LibraryTableColumn.title)) {
@@ -295,8 +293,7 @@ class LibraryWorkspacePreferences {
         continue;
       }
       final column =
-          config.sortColumnFromFieldId(parts.first) ??
-          _enumByName(config.availableSortColumns, parts.first);
+          config.sortColumnFromFieldId(parts.first);
       if (column == null) {
         continue;
       }
@@ -321,8 +318,7 @@ class LibraryWorkspacePreferences {
         continue;
       }
       final column =
-          config.tableColumnFromFieldId(parts[0]) ??
-          _enumByName(config.availableTableColumns, parts[0]);
+          config.tableColumnFromFieldId(parts[0]);
       final width = double.tryParse(parts[1]);
       if (column != null && width != null) {
         widths[column] = width;
@@ -368,18 +364,6 @@ class LibraryWorkspacePreferences {
       normalized.add(rule);
     }
     return normalized.isEmpty ? null : normalized;
-  }
-
-  T? _enumByName<T extends Enum>(List<T> values, String? name) {
-    if (name == null) {
-      return null;
-    }
-    for (final value in values) {
-      if (value.name == name) {
-        return value;
-      }
-    }
-    return null;
   }
 
   double _clamp(double value, double? min, double? max) {

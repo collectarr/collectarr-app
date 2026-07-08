@@ -14,7 +14,9 @@ import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -388,7 +390,7 @@ void main() {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: LibraryInspectorSection(
+          body: LibraryDetailSection(
             title: 'Personal',
             children: [Text('Location')],
           ),
@@ -407,10 +409,10 @@ void main() {
         home: Scaffold(
           body: SizedBox(
             width: 500,
-            child: LibraryInspectorFactGrid(
-              facts: [
-                LibraryInspectorFactData('Grade', '9.8'),
-                LibraryInspectorFactData('Condition', 'Near Mint'),
+            child: LibraryDetailFieldTable(
+              fields: [
+                LibraryDetailField(label: 'Grade', value: '9.8'),
+                LibraryDetailField(label: 'Condition', value: 'Near Mint'),
               ],
             ),
           ),

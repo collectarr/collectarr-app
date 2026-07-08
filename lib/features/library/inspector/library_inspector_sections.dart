@@ -7,7 +7,12 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
-import 'package:collectarr_app/features/library/details/library_detail_inspector_compat.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +83,7 @@ class InspectorPersonalSection extends StatelessWidget {
     final trackingStartedAt = trackingEntry?.startedAt ?? ownedItem?.startedAt;
     final trackingFinishedAt =
         trackingEntry?.finishedAt ?? ownedItem?.finishedAt;
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Personal',
       accentColor: accent,
       children: [
@@ -88,126 +93,79 @@ class InspectorPersonalSection extends StatelessWidget {
             child: MediaRatingDisplay(rating: trackingRating),
           ),
         ],
-        LibraryInspectorFactGrid(
-          facts: [
-            LibraryInspectorFactData(
-              'Status',
-              genericLibraryStatusLabel(entry),
-            ),
+        LibraryDetailFieldTable(
+          fields: [
+            LibraryDetailField(label: 'Status', value: genericLibraryStatusLabel(entry)),
             if (ownedCopyTypeLabel != null)
-              LibraryInspectorFactData('Ownership', ownedCopyTypeLabel),
+              LibraryDetailField(label: 'Ownership', value: ownedCopyTypeLabel),
             if (trackingStatus != null && trackingStatus.trim().isNotEmpty)
-              LibraryInspectorFactData('Tracking', trackingStatus),
+              LibraryDetailField(label: 'Tracking', value: trackingStatus),
             if (trackingStartedAt != null)
-              LibraryInspectorFactData(
-                'Started',
-                formatNullableDate(trackingStartedAt) ?? '-',
-              ),
+              LibraryDetailField(label: 'Started', value: formatNullableDate(trackingStartedAt) ?? '-'),
             if (trackingFinishedAt != null)
-              LibraryInspectorFactData(
-                'Finished',
-                formatNullableDate(trackingFinishedAt) ?? '-',
-              ),
+              LibraryDetailField(label: 'Finished', value: formatNullableDate(trackingFinishedAt) ?? '-'),
             if (ownedIsDigital != true)
-              LibraryInspectorFactData(
-                'Condition',
-                genericLibraryDash(entry.condition),
-              ),
+              LibraryDetailField(label: 'Condition', value: genericLibraryDash(entry.condition)),
             if (ownedIsDigital != true)
-              LibraryInspectorFactData(
-                  'Grade', genericLibraryDash(entry.grade)),
-            LibraryInspectorFactData(
-              'Quantity',
-              ownedItem == null ? '-' : ownedItem!.quantity.toString(),
-            ),
+              LibraryDetailField(label: 'Grade', value: genericLibraryDash(entry.grade)),
+            LibraryDetailField(label: 'Quantity', value: ownedItem == null ? '-' : ownedItem!.quantity.toString()),
             if (ownedIsDigital != true)
-              LibraryInspectorFactData(
-                'Location',
-                genericLibraryDash(entry.locationPath),
-              ),
-            LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
+              LibraryDetailField(label: 'Location', value: genericLibraryDash(entry.locationPath)),
+            LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
             if (valueSnapshot.providerValueCents != null)
-              LibraryInspectorFactData(
-                'Provider value',
-                formatMoney(
+              LibraryDetailField(label: 'Provider value', value: formatMoney(
                   valueSnapshot.providerValueCents,
                   valueSnapshot.currency,
-                ),
-              ),
+                )),
             if (valueSnapshot.manualEstimatedValueCents != null)
-              LibraryInspectorFactData(
-                'Manual value',
-                formatMoney(
+              LibraryDetailField(label: 'Manual value', value: formatMoney(
                   valueSnapshot.manualEstimatedValueCents,
                   valueSnapshot.currency,
-                ),
-              ),
+                )),
             if (valueSnapshot.currentValueCents != null)
-              LibraryInspectorFactData(
-                'Current value',
-                formatMoney(
+              LibraryDetailField(label: 'Current value', value: formatMoney(
                   valueSnapshot.currentValueCents,
                   valueSnapshot.currency,
-                ),
-              ),
+                )),
             if (valueSnapshot.insuranceValueCents != null)
-              LibraryInspectorFactData(
-                'Insurance',
-                formatMoney(
+              LibraryDetailField(label: 'Insurance', value: formatMoney(
                   valueSnapshot.insuranceValueCents,
                   valueSnapshot.currency,
-                ),
-              ),
-            LibraryInspectorFactData(
-              'Purchased',
-              genericLibraryDash(
+                )),
+            LibraryDetailField(label: 'Purchased', value: genericLibraryDash(
                 formatNullableDate(ownedItem?.purchaseDate),
-              ),
-            ),
+              )),
             if (ownedIsDigital != true && ownedItem?.coverPriceCents != null)
-              LibraryInspectorFactData(
-                'Cover price',
-                formatMoney(ownedItem!.coverPriceCents, ownedItem!.currency),
-              ),
+              LibraryDetailField(label: 'Cover price', value: formatMoney(ownedItem!.coverPriceCents, ownedItem!.currency)),
             if (ownedItem?.isSold ?? false) ...[
-              LibraryInspectorFactData(
-                'Sold',
-                formatNullableDate(ownedItem?.soldAt) ?? 'Yes',
-              ),
-              LibraryInspectorFactData(
-                'Sell price',
-                ownedItem?.sellPriceCents != null
+              LibraryDetailField(label: 'Sold', value: formatNullableDate(ownedItem?.soldAt) ?? 'Yes'),
+              LibraryDetailField(label: 'Sell price', value: ownedItem?.sellPriceCents != null
                     ? formatMoney(
                         ownedItem!.sellPriceCents, ownedItem!.currency)
-                    : '-',
-              ),
+                    : '-'),
               if (valueSnapshot.profitLossCents != null)
-                LibraryInspectorFactData(
-                  'Profit / Loss',
-                  formatMoney(
+                LibraryDetailField(label: 'Profit / Loss', value: formatMoney(
                     valueSnapshot.profitLossCents,
                     valueSnapshot.currency,
-                  ),
-                ),
-              LibraryInspectorFactData(
-                'Sold to',
-                genericLibraryDash(ownedItem?.soldTo),
-              ),
+                  )),
+              LibraryDetailField(label: 'Sold to', value: genericLibraryDash(ownedItem?.soldTo)),
             ],
-            LibraryInspectorFactData(
-              'Updated',
-              formatNullableDate(entry.updatedAt) ?? '-',
-            ),
+            LibraryDetailField(label: 'Updated', value: formatNullableDate(entry.updatedAt) ?? '-'),
           ],
         ),
         if (ownedItem?.personalNotes != null &&
             ownedItem!.personalNotes!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorFact('Notes', ownedItem!.personalNotes!),
+          LibraryDetailFieldRow(
+            field: LibraryDetailField(
+              label: 'Notes',
+              value: ownedItem!.personalNotes!,
+            ),
+          ),
         ],
         if (ownedItem?.tags != null && ownedItem!.tags!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
+          LibraryDetailChipGroupWidget(
             onValueTap: onFilterByValue,
             values: [
               for (final tag in ownedItem!.tags!.split(','))
@@ -233,12 +191,14 @@ class EmptyInspector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return LibraryEmptyInspector(
-      icon: type.workspace.icon,
-      label: type.singularLabel.toLowerCase(),
-      accent: accent,
-      mutedTextColor: palette.textMuted,
-      backgroundColor: palette.panel,
+    return Center(
+      child: Text(
+        'No ${type.singularLabel.toLowerCase()} selected',
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: palette.textMuted,
+            ),
+      ),
     );
   }
 }
+

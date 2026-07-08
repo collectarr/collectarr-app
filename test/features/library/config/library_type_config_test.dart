@@ -160,7 +160,7 @@ void main() {
       animeLibraryConfig,
       musicLibraryConfig,
     ]) {
-      expect(config.inspectorPanelBuilder, isNotNull);
+      expect(config.inspectorSectionsBuilder, isNotNull);
     }
   });
 

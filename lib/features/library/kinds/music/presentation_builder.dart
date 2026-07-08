@@ -9,7 +9,12 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_medi
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -135,76 +140,51 @@ class MusicLibraryMediaPresentationBuilder
       labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
-          LibraryInspectorFactData('Kind', singularLabel),
-          LibraryInspectorFactData('ID', entry.id),
-          LibraryInspectorFactData('Title', entry.title),
+          LibraryDetailField(label: 'Kind', value: singularLabel),
+          LibraryDetailField(label: 'ID', value: entry.id),
+          LibraryDetailField(label: 'Title', value: entry.title),
         ],
         if (series?.seriesTitle != null)
-          LibraryInspectorFactData(
-            'Artist',
-            series!.seriesTitle!,
-            onTap: tapFor(series.seriesTitle),
-          ),
+          LibraryDetailField(label: 'Artist', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
         if (series?.volumeName != null || series?.volumeNumber != null)
-          LibraryInspectorFactData(
-            'Disc',
-            series?.volumeName ?? 'Disc ${series?.volumeNumber}',
-          ),
+          LibraryDetailField(label: 'Disc', value: series?.volumeName ?? 'Disc ${series?.volumeNumber}'),
         if (entry.variant != null)
-          LibraryInspectorFactData(
-            releaseFields.variantLabel,
-            entry.variant!,
-            onTap: tapFor(entry.variant),
-          ),
+          LibraryDetailField(label: releaseFields.variantLabel, value: entry.variant!, onTap: tapFor(entry.variant)),
         if (entry.barcode != null)
-          LibraryInspectorFactData(releaseFields.barcodeLabel, entry.barcode!),
+          LibraryDetailField(label: releaseFields.barcodeLabel, value: entry.barcode!),
       ],
       contextFacts: [
         if (series?.seriesTitle != null)
-          LibraryInspectorFactData(
-            'Artist',
-            series!.seriesTitle!,
-            onTap: tapFor(series.seriesTitle),
-          ),
-        LibraryInspectorFactData('Album', entry.resolvedTitle),
+          LibraryDetailField(label: 'Artist', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
+        LibraryDetailField(label: 'Album', value: entry.resolvedTitle),
         if (entry.publisher != null)
-          LibraryInspectorFactData(
-            'Label',
-            entry.publisher!,
-            onTap: tapFor(entry.publisher),
-          ),
-        LibraryInspectorFactData(
-          'Released',
-          genericLibraryDash(
+          LibraryDetailField(label: 'Label', value: entry.publisher!, onTap: tapFor(entry.publisher)),
+        LibraryDetailField(label: 'Released', value: genericLibraryDash(
             formatPresentationNullableDate(entry.releaseDate) ??
                 entry.releaseYear?.toString(),
-          ),
-        ),
+          )),
         if (music?.trackCount != null)
-          LibraryInspectorFactData('Tracks', music!.trackCount.toString()),
+          LibraryDetailField(label: 'Tracks', value: music!.trackCount.toString()),
         if (music?.discCount case final discCount?)
-          LibraryInspectorFactData('Disc count', discCount.toString()),
+          LibraryDetailField(label: 'Disc count', value: discCount.toString()),
         if (music?.catalogNumber != null)
-          LibraryInspectorFactData('Catalog #', music!.catalogNumber!),
+          LibraryDetailField(label: 'Catalog #', value: music!.catalogNumber!),
         if (music?.releaseStatus != null)
-          LibraryInspectorFactData('Release Status', music!.releaseStatus!),
+          LibraryDetailField(label: 'Release Status', value: music!.releaseStatus!),
         if (entry.country != null)
-          LibraryInspectorFactData('Country', entry.country!),
+          LibraryDetailField(label: 'Country', value: entry.country!),
         if (entry.language != null)
-          LibraryInspectorFactData('Language', entry.language!),
+          LibraryDetailField(label: 'Language', value: entry.language!),
         if (music?.length != null)
-          LibraryInspectorFactData('Length', music!.length!),
+          LibraryDetailField(label: 'Length', value: music!.length!),
         if (music?.vinylColor != null)
-          LibraryInspectorFactData('Vinyl color', music!.vinylColor!),
+          LibraryDetailField(label: 'Vinyl color', value: music!.vinylColor!),
         if (music?.rpm != null)
-          LibraryInspectorFactData('RPM', music!.rpm!),
+          LibraryDetailField(label: 'RPM', value: music!.rpm!),
         if (entry.audienceRating != null)
-          LibraryInspectorFactData('Audience Rating', entry.audienceRating!),
-        LibraryInspectorFactData('Cover', entry.hasMissingCover ? 'Missing' : 'Ready'),
-        LibraryInspectorFactData(
-          'Metadata',
-          entry.hasMissingMetadata ? 'Missing' : 'Ready',
-        ),
+          LibraryDetailField(label: 'Audience Rating', value: entry.audienceRating!),
+        LibraryDetailField(label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
+        LibraryDetailField(label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
       ],
       creators: entry.creators ?? const <Map<String, dynamic>>[],
       characters: entry.characters ?? const <String>[],
@@ -959,3 +939,4 @@ String? _musicTotalDurationLabel(List<_MusicPreviewTrackData> tracks) {
   }
   return '$minutes:${seconds.toString().padLeft(2, '0')}';
 }
+

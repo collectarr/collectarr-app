@@ -17,7 +17,12 @@ import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -173,12 +178,16 @@ class _InspectorPersonalDetailsEditorState
   Widget build(BuildContext context) {
     final accent = widget.accent;
     final palette = appPalette(context);
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Personal details',
       accentColor: accent,
       children: [
-        const LibraryInspectorFact(
-            'Mode', 'Draft edits. Apply changes to save.'),
+        const LibraryDetailFieldRow(
+          field: LibraryDetailField(
+            label: 'Mode',
+            value: 'Draft edits. Apply changes to save.',
+          ),
+        ),
         _InspectorEditorRow(
           label: 'Purchased',
           child: Row(
@@ -529,13 +538,15 @@ class _InspectorTrackingDetailsEditorState
   @override
   Widget build(BuildContext context) {
     final accent = widget.accent;
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Tracking details',
       accentColor: accent,
       children: [
-        const LibraryInspectorFact(
-          'Mode',
-          'Quick actions save immediately. Editor changes save when applied.',
+        const LibraryDetailFieldRow(
+          field: LibraryDetailField(
+            label: 'Mode',
+            value: 'Quick actions save immediately. Editor changes save when applied.',
+          ),
         ),
         if (widget.editions.isNotEmpty) ...[
           _InspectorEditorRow(

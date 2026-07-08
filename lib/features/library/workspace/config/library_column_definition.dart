@@ -76,24 +76,3 @@ class LibraryColumnRegistry {
           if (definition.scope == LibraryColumnScope.work) definition,
       ];
 }
-
-LibraryColumnDefinition legacyLibraryColumnDefinition(
-  Enum column, {
-  required Set<CatalogMediaKind> kinds,
-}) {
-  return LibraryColumnDefinition(
-    id: column.name,
-    label: column.name,
-    scope: LibraryColumnScope.work,
-    kinds: kinds,
-    sortable: true,
-    filterable: true,
-    groupable: true,
-  );
-}
-
-LibraryColumnRegistry defaultLibraryColumnRegistry({
-  required Set<CatalogMediaKind> kinds,
-}) {
-  return const LibraryColumnRegistry([]);
-}

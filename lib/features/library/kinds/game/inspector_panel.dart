@@ -3,11 +3,14 @@ import 'package:collectarr_app/features/library/details/library_inspector_info_l
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -311,21 +314,21 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
 
     return Column(
       children: [
-        LibraryInspectorSection(
+        LibraryDetailSection(
           title: 'Info',
           accentColor: inspector.accent,
           children: [
             _GameInspectorFactRows(rows: detailRows),
           ],
         ),
-        LibraryInspectorSection(
+        LibraryDetailSection(
           title: 'Personal',
           accentColor: inspector.accent,
           children: [
             _GameInspectorFactRows(rows: personalRows),
           ],
         ),
-        LibraryInspectorSection(
+        LibraryDetailSection(
           title: 'Credits',
           accentColor: inspector.accent,
           children: [
@@ -408,3 +411,4 @@ Uri? _ebayUri(LibraryWorkspaceEntry entry) {
     soldOnly: true,
   );
 }
+

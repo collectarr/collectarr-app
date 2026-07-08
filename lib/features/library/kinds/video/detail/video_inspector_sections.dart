@@ -1,8 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
@@ -49,33 +50,24 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        LibraryInspectorFactGrid(
-          facts: [
-            LibraryInspectorFactData('Display title', entry.resolvedTitle),
+        LibraryDetailFieldTable(
+          fields: [
+            LibraryDetailField(label: 'Display title', value: entry.resolvedTitle),
             if (entry.originalTitle?.trim().isNotEmpty == true)
-              LibraryInspectorFactData('Original title', entry.originalTitle!),
+              LibraryDetailField(label: 'Original title', value: entry.originalTitle!),
             if (entry.publisher?.trim().isNotEmpty == true)
-              LibraryInspectorFactData('Studio', entry.publisher!),
+              LibraryDetailField(label: 'Studio', value: entry.publisher!),
             if (_metadataFactValue(metadataPresentation, 'Runtime')
                 case final runtime?)
-              LibraryInspectorFactData(
-                'Runtime',
-                runtime,
-              ),
-            LibraryInspectorFactData(
-              'Releases',
-              entry.editions.length.toString(),
-            ),
-            LibraryInspectorFactData(
-              'Owned releases',
-              ownedReleaseCount.toString(),
-            ),
+              LibraryDetailField(label: 'Runtime', value: runtime),
+            LibraryDetailField(label: 'Releases', value: entry.editions.length.toString()),
+            LibraryDetailField(label: 'Owned releases', value: ownedReleaseCount.toString()),
           ],
         ),
         _buildEditionFormatBadges(entry),
         if (metadataPresentation.genres case final genres when genres.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
+          LibraryDetailChipGroupWidget(
             label: 'Genres',
             values: genres,
             onValueTap: onFilterByValue,
@@ -84,7 +76,7 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
         if (creatorNames.isNotEmpty && hasRoles) ...[
           for (final entry in creatorsByRole.entries) ...[
             const SizedBox(height: 8),
-            LibraryInspectorChipWrap(
+            LibraryDetailChipGroupWidget(
               label: entry.key,
               values: entry.value,
               onValueTap: onFilterByValue,
@@ -92,7 +84,7 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
           ],
         ] else if (creatorNames.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
+          LibraryDetailChipGroupWidget(
             label: 'Cast / credits',
             values: creatorNames,
             onValueTap: onFilterByValue,
@@ -100,7 +92,7 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
         ],
         if (aliasValues.isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
+          LibraryDetailChipGroupWidget(
             label: 'Search aliases',
             values: aliasValues,
             onValueTap: onFilterByValue,

@@ -11,14 +11,14 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 
 void main() {
-  group('LibraryInspectorSectionSpec', () {
+  group('LibraryDetailSectionSpec', () {
     testWidgets('builds a standard inspector section wrapper', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Column(
-              children: buildLibraryInspectorSectionWidgets([
-                const LibraryInspectorSectionSpec(
+              children: buildLibraryDetailSectionWidgets([
+                const LibraryDetailSectionSpec(
                   title: 'Example',
                   children: [Text('Section body')],
                 ),
@@ -33,14 +33,14 @@ void main() {
     });
   });
 
-  group('LibraryInspectorSectionFlow', () {
+  group('LibraryDetailSectionFlow', () {
     testWidgets('keeps section groups in order and skips empty groups',
         (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: Column(
-              children: buildLibraryInspectorSectionFlow(
+              children: buildLibraryDetailSectionFlow(
                 beforeBodySections: const [Text('Before')],
                 bodySections: const [Text('Body')],
                 afterBodySections: const [Text('After')],
@@ -437,3 +437,4 @@ void main() {
     });
   });
 }
+

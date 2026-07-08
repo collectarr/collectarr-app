@@ -1,14 +1,13 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/personal_status_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildMovieInspectorSections(
@@ -18,50 +17,41 @@ List<Widget> buildMovieInspectorSections(
   final entry = request.entry;
   final video = entry.video;
   final editionCount = entry.editions.length;
-  final facts = <LibraryInspectorFactData>[
-    LibraryInspectorFactData('Title', entry.resolvedTitle),
+  final facts = <LibraryDetailField>[
+    LibraryDetailField(label: 'Title', value: entry.resolvedTitle),
     if (entry.originalTitle?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Original title', entry.originalTitle!),
+      LibraryDetailField(label: 'Original title', value: entry.originalTitle!),
     if (entry.publisher?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Studio', entry.publisher!),
+      LibraryDetailField(label: 'Studio', value: entry.publisher!),
     if (entry.releaseDate != null)
-      LibraryInspectorFactData('Release date', _formatDate(entry.releaseDate!)),
+      LibraryDetailField(label: 'Release date', value: _formatDate(entry.releaseDate!)),
     if (video?.runtimeMinutes != null)
-      LibraryInspectorFactData('Runtime', '${video!.runtimeMinutes} min'),
+      LibraryDetailField(label: 'Runtime', value: '${video!.runtimeMinutes} min'),
     if (video?.color?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('HDR / color', video!.color!),
+      LibraryDetailField(label: 'HDR / color', value: video!.color!),
     if (video?.screenRatio?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Screen ratio', video!.screenRatio!),
+      LibraryDetailField(label: 'Screen ratio', value: video!.screenRatio!),
     if (video?.audioTracks?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Audio', video!.audioTracks!),
+      LibraryDetailField(label: 'Audio', value: video!.audioTracks!),
     if (video?.subtitles?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Subtitles', video!.subtitles!),
+      LibraryDetailField(label: 'Subtitles', value: video!.subtitles!),
     if (video?.layers?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Layers', video!.layers!),
-    LibraryInspectorFactData('Releases', editionCount.toString()),
+      LibraryDetailField(label: 'Layers', value: video!.layers!),
+    LibraryDetailField(label: 'Releases', value: editionCount.toString()),
     if (entry.barcode?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Barcode', entry.barcode!),
+      LibraryDetailField(label: 'Barcode', value: entry.barcode!),
     if (entry.country?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Country', entry.country!),
+      LibraryDetailField(label: 'Country', value: entry.country!),
     if (entry.language?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Language', entry.language!),
+      LibraryDetailField(label: 'Language', value: entry.language!),
     if (entry.ageRating?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Age rating', entry.ageRating!),
+      LibraryDetailField(label: 'Age rating', value: entry.ageRating!),
     if (entry.audienceRating?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Audience rating', entry.audienceRating!),
+      LibraryDetailField(label: 'Audience rating', value: entry.audienceRating!),
     if (entry.trailerUrls.isNotEmpty)
-      LibraryInspectorFactData(
-        'Trailers',
-        entry.trailerUrls.length.toString(),
-      ),
-    LibraryInspectorFactData(
-      'Cover',
-      entry.hasMissingCover ? 'Missing' : 'Ready',
-    ),
-    LibraryInspectorFactData(
-      'Metadata',
-      entry.hasMissingMetadata ? 'Missing' : 'Ready',
-    ),
+      LibraryDetailField(label: 'Trailers', value: entry.trailerUrls.length.toString()),
+    LibraryDetailField(label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
+    LibraryDetailField(label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
   ];
 
   final sections = <Widget>[

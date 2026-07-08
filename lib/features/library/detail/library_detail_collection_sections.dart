@@ -4,7 +4,12 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
-import 'package:collectarr_app/features/library/details/library_detail_inspector_compat.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
@@ -65,131 +70,47 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
     final trackingProgress = _detailTrackingProgressLabel(trackingEntry);
     final trackingEpisode = _detailTrackingEpisodeLabel(trackingEntry);
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Local collection',
       accentColor: accent,
       children: [
-        LibraryInspectorFactGrid(
-          facts: [
-            LibraryInspectorFactData(
-              'Status',
-              genericLibraryStatusLabel(entry),
-            ),
-            LibraryInspectorFactData(
-              'Owned ID',
-              genericLibraryDash(ownedItem?.id),
-            ),
-            LibraryInspectorFactData(
-              'Condition',
-              genericLibraryDash(ownedItem?.condition ?? entry.condition),
-            ),
-            LibraryInspectorFactData(
-              'Grade',
-              genericLibraryDash(ownedItem?.grade ?? entry.grade),
-            ),
-            LibraryInspectorFactData(
-              'Quantity',
-              ownedItem == null ? '-' : ownedItem!.quantity.toString(),
-            ),
-            LibraryInspectorFactData(
-              'Location',
-              genericLibraryDash(entry.locationPath),
-            ),
-            LibraryInspectorFactData('Paid', paid.isEmpty ? '-' : paid),
-            LibraryInspectorFactData(
-              'Current value',
-              currentValue.isEmpty ? '-' : currentValue,
-            ),
+        LibraryDetailFieldTable(
+          fields: [
+            LibraryDetailField(label: 'Status', value: genericLibraryStatusLabel(entry)),
+            LibraryDetailField(label: 'Owned ID', value: genericLibraryDash(ownedItem?.id)),
+            LibraryDetailField(label: 'Condition', value: genericLibraryDash(ownedItem?.condition ?? entry.condition)),
+            LibraryDetailField(label: 'Grade', value: genericLibraryDash(ownedItem?.grade ?? entry.grade)),
+            LibraryDetailField(label: 'Quantity', value: ownedItem == null ? '-' : ownedItem!.quantity.toString()),
+            LibraryDetailField(label: 'Location', value: genericLibraryDash(entry.locationPath)),
+            LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
+            LibraryDetailField(label: 'Current value', value: currentValue.isEmpty ? '-' : currentValue),
             if (effectiveOwnedCopies.length > 1)
-              LibraryInspectorFactData(
-                'Total paid',
-                totalPaid.isEmpty ? '-' : totalPaid,
-              ),
+              LibraryDetailField(label: 'Total paid', value: totalPaid.isEmpty ? '-' : totalPaid),
             if (effectiveOwnedCopies.length > 1)
-              LibraryInspectorFactData(
-                'Total current value',
-                totalCurrentValue.isEmpty ? '-' : totalCurrentValue,
-              ),
-            LibraryInspectorFactData(
-              'Cover price',
-              coverPrice.isEmpty ? '-' : coverPrice,
-            ),
-            LibraryInspectorFactData(
-              'Purchased',
-              genericLibraryDash(
+              LibraryDetailField(label: 'Total current value', value: totalCurrentValue.isEmpty ? '-' : totalCurrentValue),
+            LibraryDetailField(label: 'Cover price', value: coverPrice.isEmpty ? '-' : coverPrice),
+            LibraryDetailField(label: 'Purchased', value: genericLibraryDash(
                 formatNullableDate(ownedItem?.purchaseDate),
-              ),
-            ),
-            LibraryInspectorFactData(
-              'Sell price',
-              sellPrice.isEmpty ? '-' : sellPrice,
-            ),
-            LibraryInspectorFactData(
-              'Profit / Loss',
-              profitLoss ?? '-',
-            ),
-            LibraryInspectorFactData(
-              'Sold to',
-              genericLibraryDash(ownedItem?.soldTo),
-            ),
-            LibraryInspectorFactData(
-              'Updated',
-              formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-',
-            ),
-            LibraryInspectorFactData(
-              'Read status',
-              genericLibraryDash(trackingStatus),
-            ),
-            LibraryInspectorFactData(
-              'Progress',
-              genericLibraryDash(trackingProgress),
-            ),
-            LibraryInspectorFactData(
-              'Episode',
-              genericLibraryDash(trackingEpisode),
-            ),
-            LibraryInspectorFactData(
-              'Rating',
-              trackingRating?.toString() ?? '-',
-            ),
-            LibraryInspectorFactData(
-              'Features',
-              genericLibraryDash(ownedItem?.features),
-            ),
-            LibraryInspectorFactData(
-              'HDR Formats',
-              ownedItem?.hdrFormats.isEmpty ?? true
+              )),
+            LibraryDetailField(label: 'Sell price', value: sellPrice.isEmpty ? '-' : sellPrice),
+            LibraryDetailField(label: 'Profit / Loss', value: profitLoss ?? '-'),
+            LibraryDetailField(label: 'Sold to', value: genericLibraryDash(ownedItem?.soldTo)),
+            LibraryDetailField(label: 'Updated', value: formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-'),
+            LibraryDetailField(label: 'Read status', value: genericLibraryDash(trackingStatus)),
+            LibraryDetailField(label: 'Progress', value: genericLibraryDash(trackingProgress)),
+            LibraryDetailField(label: 'Episode', value: genericLibraryDash(trackingEpisode)),
+            LibraryDetailField(label: 'Rating', value: trackingRating?.toString() ?? '-'),
+            LibraryDetailField(label: 'Features', value: genericLibraryDash(ownedItem?.features)),
+            LibraryDetailField(label: 'HDR Formats', value: ownedItem?.hdrFormats.isEmpty ?? true
                   ? '-'
-                  : ownedItem!.hdrFormats.join(', '),
-            ),
-            LibraryInspectorFactData(
-              'Purchase Store',
-              genericLibraryDash(ownedItem?.purchaseStore),
-            ),
-            LibraryInspectorFactData(
-              'Box Set',
-              genericLibraryDash(ownedItem?.boxSetName),
-            ),
-            LibraryInspectorFactData(
-              'Storage Device',
-              genericLibraryDash(ownedItem?.storageDevice),
-            ),
-            LibraryInspectorFactData(
-              'Storage Slot',
-              genericLibraryDash(ownedItem?.storageSlot),
-            ),
-            LibraryInspectorFactData(
-              'Region',
-              genericLibraryDash(ownedItem?.region),
-            ),
-            LibraryInspectorFactData(
-              'Packaging',
-              genericLibraryDash(ownedItem?.packaging),
-            ),
-            LibraryInspectorFactData(
-              'Distributor',
-              genericLibraryDash(ownedItem?.distributor),
-            ),
+                  : ownedItem!.hdrFormats.join(', ')),
+            LibraryDetailField(label: 'Purchase Store', value: genericLibraryDash(ownedItem?.purchaseStore)),
+            LibraryDetailField(label: 'Box Set', value: genericLibraryDash(ownedItem?.boxSetName)),
+            LibraryDetailField(label: 'Storage Device', value: genericLibraryDash(ownedItem?.storageDevice)),
+            LibraryDetailField(label: 'Storage Slot', value: genericLibraryDash(ownedItem?.storageSlot)),
+            LibraryDetailField(label: 'Region', value: genericLibraryDash(ownedItem?.region)),
+            LibraryDetailField(label: 'Packaging', value: genericLibraryDash(ownedItem?.packaging)),
+            LibraryDetailField(label: 'Distributor', value: genericLibraryDash(ownedItem?.distributor)),
           ],
         ),
         if (trackingRating != null && trackingRating > 0) ...[
@@ -199,11 +120,16 @@ class LibraryDetailPersonalSection extends StatelessWidget {
         if (ownedItem?.personalNotes != null &&
             ownedItem!.personalNotes!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorFact('Notes', ownedItem!.personalNotes!),
+          LibraryDetailFieldRow(
+            field: LibraryDetailField(
+              label: 'Notes',
+              value: ownedItem!.personalNotes!,
+            ),
+          ),
         ],
         if (ownedItem?.tags != null && ownedItem!.tags!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryInspectorChipWrap(
+          LibraryDetailChipGroupWidget(
             onValueTap: onFilterByValue,
             values: [
               for (final tag in ownedItem!.tags!.split(','))
@@ -303,7 +229,7 @@ class LibraryDetailLocalSnapshotSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Local snapshot',
       children: [
         SelectableText(
@@ -372,3 +298,5 @@ class _DetailStarRating extends StatelessWidget {
     );
   }
 }
+
+

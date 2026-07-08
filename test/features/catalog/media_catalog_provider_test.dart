@@ -63,8 +63,8 @@ void main() {
       'gcd',
     ]);
     expect(
-      type.inspectorPanelBuilder,
-      same(comicsLibraryConfig.inspectorPanelBuilder),
+      type.inspectorSectionsBuilder,
+      same(comicsLibraryConfig.inspectorSectionsBuilder),
     );
     expect(type.inspectorHeroBuilder, same(comicsLibraryConfig.inspectorHeroBuilder));
     expect(

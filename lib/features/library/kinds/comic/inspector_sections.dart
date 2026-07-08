@@ -3,7 +3,10 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -32,7 +35,7 @@ class _ComicInspectorTabsSectionState
   Widget build(BuildContext context) {
     final tabs = _comicInspectorTabs(widget.request);
     final selectedTab = tabs[_selectedTabIndex.clamp(0, tabs.length - 1)];
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Comic detail',
       accentColor: widget.request.accent,
       children: [
@@ -78,11 +81,11 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
       builder: (context, ref) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LibraryInspectorSection(
+          LibraryDetailSection(
             title: 'Overview',
             accentColor: request.accent,
             children: [
-              LibraryInspectorFactGrid(facts: _detailFacts(request.entry)),
+              LibraryDetailFieldTable(fields: _detailFacts(request.entry)),
               if (request.entry.synopsis?.trim().isNotEmpty == true) ...[
                 const SizedBox(height: 8),
                 Text(
@@ -92,18 +95,28 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
               ],
               if (request.entry.genres?.isNotEmpty == true) ...[
                 const SizedBox(height: 10),
-                LibraryInspectorChipSection(
+                LibraryDetailSection(
                   title: 'Genres',
-                  values: request.entry.genres!,
-                  onValueTap: request.onFilterByValue,
+                  children: [
+                    LibraryDetailChipGroupWidget(
+                      label: 'Genres',
+                      values: request.entry.genres!,
+                      onValueTap: request.onFilterByValue,
+                    ),
+                  ],
                 ),
               ],
               if (request.entry.storyArcs?.isNotEmpty == true) ...[
                 const SizedBox(height: 10),
-                LibraryInspectorChipSection(
+                LibraryDetailSection(
                   title: 'Story arcs',
-                  values: request.entry.storyArcs!,
-                  onValueTap: request.onFilterByValue,
+                  children: [
+                    LibraryDetailChipGroupWidget(
+                      label: 'Story arcs',
+                      values: request.entry.storyArcs!,
+                      onValueTap: request.onFilterByValue,
+                    ),
+                  ],
                 ),
               ],
             ],
@@ -117,17 +130,17 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
       builder: (context, ref) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LibraryInspectorSection(
+          LibraryDetailSection(
             title: 'Value details',
             accentColor: request.accent,
-            children: [LibraryInspectorFactGrid(facts: _valueFacts(request.entry, request.ownedItem, request.ownedCopies))],
+            children: [LibraryDetailFieldTable(fields: _valueFacts(request.entry, request.ownedItem, request.ownedCopies))],
           ),
           if (request.ownedItem != null) ...[
             const SizedBox(height: 8),
-            LibraryInspectorSection(
+            LibraryDetailSection(
               title: 'Collector',
               accentColor: request.accent,
-              children: [LibraryInspectorFactGrid(facts: _collectorFacts(request.ownedItem))],
+              children: [LibraryDetailFieldTable(fields: _collectorFacts(request.ownedItem))],
             ),
           ],
         ],
@@ -136,13 +149,18 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
     _ComicInspectorTab(
       label: 'Characters',
       icon: Icons.groups_2_outlined,
-      builder: (context, ref) => LibraryInspectorChipSection(
+      builder: (context, ref) => LibraryDetailSection(
         title: 'Characters',
-        values: request.entry.characters ?? const <String>[],
-        onValueTap: request.onFilterByValue,
         headerActions: [
           if (request.onEdit != null)
             _editSectionAction(request.onEdit!, tooltip: 'Edit characters'),
+        ],
+        children: [
+          LibraryDetailChipGroupWidget(
+            label: 'Characters',
+            values: request.entry.characters ?? const <String>[],
+            onValueTap: request.onFilterByValue,
+          ),
         ],
       ),
     ),
@@ -165,10 +183,10 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
       builder: (context, ref) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LibraryInspectorSection(
+          LibraryDetailSection(
             title: 'Series metadata',
             accentColor: request.accent,
-            children: [LibraryInspectorFactGrid(facts: _seriesFacts(request.entry))],
+            children: [LibraryDetailFieldTable(fields: _seriesFacts(request.entry))],
           ),
           const SizedBox(height: 8),
           ComicSeriesCompletenessSection(
@@ -185,17 +203,17 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (_noteFacts(request.entry, request.ownedItem).isNotEmpty)
-            LibraryInspectorSection(
+            LibraryDetailSection(
               title: 'Notes',
               accentColor: request.accent,
-              children: [LibraryInspectorFactGrid(facts: _noteFacts(request.entry, request.ownedItem))],
+              children: [LibraryDetailFieldTable(fields: _noteFacts(request.entry, request.ownedItem))],
             ),
           if (_linkFacts(request.entry).isNotEmpty) ...[
             const SizedBox(height: 8),
-            LibraryInspectorSection(
+            LibraryDetailSection(
               title: 'Links',
               accentColor: request.accent,
-              children: [LibraryInspectorFactGrid(facts: _linkFacts(request.entry))],
+              children: [LibraryDetailFieldTable(fields: _linkFacts(request.entry))],
             ),
           ],
           if (request.entry.trailerUrls.isNotEmpty) ...[
@@ -250,7 +268,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final seriesId = request.entry.series?.seriesId;
     if (seriesId == null || seriesId.trim().isEmpty) {
-      return LibraryInspectorSection(
+      return LibraryDetailSection(
         title: 'Series completeness',
         accentColor: accent,
         children: const [
@@ -260,12 +278,12 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
     }
     final itemsAsync = ref.watch(_comicSeriesItemsProvider(seriesId));
     return itemsAsync.when(
-      loading: () => LibraryInspectorSection(
+      loading: () => LibraryDetailSection(
         title: 'Series completeness',
         accentColor: accent,
         children: const [Text('Loading series issues...')],
       ),
-      error: (error, _) => LibraryInspectorSection(
+      error: (error, _) => LibraryDetailSection(
         title: 'Series completeness',
         accentColor: accent,
         children: [Text('Failed to load series issues: $error')],
@@ -278,16 +296,16 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
         final ownedCount = items
             .where((item) => ownedIds.contains(item['id']?.toString()))
             .length;
-        return LibraryInspectorSection(
+        return LibraryDetailSection(
           title: 'Series completeness',
           accentColor: accent,
           children: [
-            LibraryInspectorFactGrid(
-              facts: [
-                LibraryInspectorFactData('Series', request.entry.series?.seriesTitle ?? request.entry.title),
-                LibraryInspectorFactData('Items', items.length.toString()),
-                LibraryInspectorFactData('Owned', ownedCount.toString()),
-                LibraryInspectorFactData('Missing', missingNumbers.length.toString()),
+            LibraryDetailFieldTable(
+              fields: [
+                LibraryDetailField(label: 'Series', value: request.entry.series?.seriesTitle ?? request.entry.title),
+                LibraryDetailField(label: 'Items', value: items.length.toString()),
+                LibraryDetailField(label: 'Owned', value: ownedCount.toString()),
+                LibraryDetailField(label: 'Missing', value: missingNumbers.length.toString()),
               ],
             ),
             if (missingNumbers.isNotEmpty) ...[
@@ -349,7 +367,7 @@ class _ComicCreatorsGroupedSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var i = 0; i < entries.length; i++) ...[
-          LibraryInspectorSection(
+          LibraryDetailSection(
             title: entries[i].key,
             accentColor: accent,
             headerActions: headerActions,
@@ -412,80 +430,74 @@ final _comicSeriesItemsProvider =
   },
 );
 
-List<LibraryInspectorFactData> _detailFacts(LibraryWorkspaceEntry entry) {
-  final rows = <LibraryInspectorFactData>[];
+List<LibraryDetailField> _detailFacts(LibraryWorkspaceEntry entry) {
+  final rows = <LibraryDetailField>[];
   if (entry.referenceFormatLabel?.trim().isNotEmpty == true) {
     rows.add(
-        LibraryInspectorFactData('Format', entry.referenceFormatLabel!.trim()));
+        LibraryDetailField(label: 'Format', value: entry.referenceFormatLabel!.trim()));
   }
   if (entry.country?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Country', entry.country!.trim()));
+    rows.add(LibraryDetailField(label: 'Country', value: entry.country!.trim()));
   }
   if (entry.language?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Language', entry.language!.trim()));
+    rows.add(LibraryDetailField(label: 'Language', value: entry.language!.trim()));
   }
   if (entry.ageRating?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Age', entry.ageRating!.trim()));
+    rows.add(LibraryDetailField(label: 'Age', value: entry.ageRating!.trim()));
   }
   if (entry.publishing?.pageCount != null) {
-    rows.add(LibraryInspectorFactData(
-        'Pages', entry.publishing!.pageCount.toString()));
+    rows.add(LibraryDetailField(label: 'Pages', value: entry.publishing!.pageCount.toString()));
   }
   return rows;
 }
 
-List<LibraryInspectorFactData> _seriesFacts(LibraryWorkspaceEntry entry) {
+List<LibraryDetailField> _seriesFacts(LibraryWorkspaceEntry entry) {
   final series = entry.series;
-  final rows = <LibraryInspectorFactData>[];
+  final rows = <LibraryDetailField>[];
   if (series?.seriesTitle?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Series', series!.seriesTitle!.trim()));
+    rows.add(LibraryDetailField(label: 'Series', value: series!.seriesTitle!.trim()));
   }
   if (series?.seriesId?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Series ID', series!.seriesId!.trim()));
+    rows.add(LibraryDetailField(label: 'Series ID', value: series!.seriesId!.trim()));
   }
   if (series?.volumeName?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Volume', series!.volumeName!.trim()));
+    rows.add(LibraryDetailField(label: 'Volume', value: series!.volumeName!.trim()));
   }
   if (series?.volumeNumber != null) {
-    rows.add(LibraryInspectorFactData('Volume no.', series!.volumeNumber!.toString()));
+    rows.add(LibraryDetailField(label: 'Volume no.', value: series!.volumeNumber!.toString()));
   }
   if (series?.volumeStartYear != null) {
-    rows.add(LibraryInspectorFactData('Start year', series!.volumeStartYear!.toString()));
+    rows.add(LibraryDetailField(label: 'Start year', value: series!.volumeStartYear!.toString()));
   }
   if (series?.tags.isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData('Series tags', series!.tags.join(', ')));
+    rows.add(LibraryDetailField(label: 'Series tags', value: series!.tags.join(', ')));
   }
   return rows;
 }
 
-List<LibraryInspectorFactData> _collectorFacts(OwnedItem? ownedItem) {
+List<LibraryDetailField> _collectorFacts(OwnedItem? ownedItem) {
   if (ownedItem == null) {
     return const [];
   }
-  final rows = <LibraryInspectorFactData>[];
+  final rows = <LibraryDetailField>[];
   if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData(
-        'Raw / Slabbed', ownedItem.rawOrSlabbed!.trim()));
+    rows.add(LibraryDetailField(label: 'Raw / Slabbed', value: ownedItem.rawOrSlabbed!.trim()));
   }
   if (ownedItem.gradingCompany?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData(
-        'Grading Co.', ownedItem.gradingCompany!.trim()));
+    rows.add(LibraryDetailField(label: 'Grading Co.', value: ownedItem.gradingCompany!.trim()));
   }
   if (ownedItem.certificationNumber?.trim().isNotEmpty == true) {
-    rows.add(LibraryInspectorFactData(
-        'Certification', ownedItem.certificationNumber!.trim()));
+    rows.add(LibraryDetailField(label: 'Certification', value: ownedItem.certificationNumber!.trim()));
   }
   if (ownedItem.keyComic == true) {
-    rows.add(LibraryInspectorFactData(
-        'Key',
-        ownedItem.keyReason?.trim().isNotEmpty == true
+    rows.add(LibraryDetailField(label: 'Key', value: ownedItem.keyReason?.trim().isNotEmpty == true
             ? ownedItem.keyReason!.trim()
             : 'Yes'));
   }
   return rows;
 }
 
-List<LibraryInspectorFactData> _valueFacts(
+List<LibraryDetailField> _valueFacts(
   LibraryWorkspaceEntry entry,
   OwnedItem? ownedItem,
   List<OwnedItem> ownedCopies,
@@ -501,51 +513,32 @@ List<LibraryInspectorFactData> _valueFacts(
     providerName: entry.marketValueCents != null ? 'Provider snapshot' : null,
   );
 
-  final rows = <LibraryInspectorFactData>[];
+  final rows = <LibraryDetailField>[];
   if (ownedItem.coverPriceCents != null) {
-    rows.add(LibraryInspectorFactData('Cover Price',
-        formatMoney(ownedItem.coverPriceCents, ownedItem.currency)));
+    rows.add(LibraryDetailField(label: 'Cover Price', value: formatMoney(ownedItem.coverPriceCents, ownedItem.currency)));
   }
   if (snapshot.providerValueCents != null) {
-    rows.add(LibraryInspectorFactData(
-      'Provider Value',
-      formatMoney(snapshot.providerValueCents, snapshot.currency),
-    ));
+    rows.add(LibraryDetailField(label: 'Provider Value', value: formatMoney(snapshot.providerValueCents, snapshot.currency)));
   }
   if (snapshot.manualEstimatedValueCents != null) {
-    rows.add(LibraryInspectorFactData(
-      'Manual Value',
-      formatMoney(snapshot.manualEstimatedValueCents, snapshot.currency),
-    ));
+    rows.add(LibraryDetailField(label: 'Manual Value', value: formatMoney(snapshot.manualEstimatedValueCents, snapshot.currency)));
   }
   if (snapshot.currentValueCents != null) {
-    rows.add(LibraryInspectorFactData(
-      'Current Value',
-      formatMoney(snapshot.currentValueCents, snapshot.currency),
-    ));
+    rows.add(LibraryDetailField(label: 'Current Value', value: formatMoney(snapshot.currentValueCents, snapshot.currency)));
   }
   if (snapshot.insuranceValueCents != null) {
-    rows.add(LibraryInspectorFactData(
-      'Insurance Value',
-      formatMoney(snapshot.insuranceValueCents, snapshot.currency),
-    ));
+    rows.add(LibraryDetailField(label: 'Insurance Value', value: formatMoney(snapshot.insuranceValueCents, snapshot.currency)));
   }
   if (ownedItem.pricePaidCents != null) {
-    rows.add(LibraryInspectorFactData(
-        'Paid', formatMoney(ownedItem.pricePaidCents, ownedItem.currency)));
+    rows.add(LibraryDetailField(label: 'Paid', value: formatMoney(ownedItem.pricePaidCents, ownedItem.currency)));
   }
   if (snapshot.profitLossCents != null) {
-    rows.add(LibraryInspectorFactData(
-      'Profit / Loss',
-      formatMoney(snapshot.profitLossCents, snapshot.currency),
-    ));
+    rows.add(LibraryDetailField(label: 'Profit / Loss', value: formatMoney(snapshot.profitLossCents, snapshot.currency)));
   }
   final history = snapshot.history;
   if (history.isNotEmpty) {
     rows.add(
-      LibraryInspectorFactData(
-        'Value history',
-        history
+      LibraryDetailField(label: 'Value history', value: history
             .map(
               (item) => [
                 item.label,
@@ -554,8 +547,7 @@ List<LibraryInspectorFactData> _valueFacts(
                     : formatMoney(item.valueCents, item.currency),
               ].join(': '),
             )
-            .join(' • '),
-      ),
+            .join(' • ')),
     );
   }
 
@@ -571,12 +563,10 @@ List<LibraryInspectorFactData> _valueFacts(
       (item) => item.pricePaidCents,
     );
     if (totalMarketValue != null) {
-      rows.add(LibraryInspectorFactData(
-          'Total Value', formatMoney(totalMarketValue, totalsCurrency)));
+      rows.add(LibraryDetailField(label: 'Total Value', value: formatMoney(totalMarketValue, totalsCurrency)));
     }
     if (totalPaid != null) {
-      rows.add(LibraryInspectorFactData(
-          'Total Paid', formatMoney(totalPaid, totalsCurrency)));
+      rows.add(LibraryDetailField(label: 'Total Paid', value: formatMoney(totalPaid, totalsCurrency)));
     }
   }
   return rows;
@@ -616,38 +606,34 @@ String? _inspectorValueCurrency(
   return null;
 }
 
-List<LibraryInspectorFactData> _noteFacts(
+List<LibraryDetailField> _noteFacts(
   LibraryWorkspaceEntry entry,
   OwnedItem? ownedItem,
 ) {
-  final rows = <LibraryInspectorFactData>[];
+  final rows = <LibraryDetailField>[];
   final personalNotes = ownedItem?.personalNotes?.trim();
   final catalogNotes = entry.notes?.trim();
   if (personalNotes != null && personalNotes.isNotEmpty) {
-    rows.add(LibraryInspectorFactData('Personal', personalNotes));
+    rows.add(LibraryDetailField(label: 'Personal', value: personalNotes));
   }
   if (catalogNotes != null && catalogNotes.isNotEmpty) {
-    rows.add(LibraryInspectorFactData('Catalog', catalogNotes));
+    rows.add(LibraryDetailField(label: 'Catalog', value: catalogNotes));
   }
   return rows;
 }
 
-List<LibraryInspectorFactData> _linkFacts(LibraryWorkspaceEntry entry) {
+List<LibraryDetailField> _linkFacts(LibraryWorkspaceEntry entry) {
   if (entry.trailerUrls.isEmpty) {
     return const [];
   }
 
   return [
     for (final trailer in entry.trailerUrls)
-      LibraryInspectorFactData(
-        trailer.source?.trim().isNotEmpty == true
+      LibraryDetailField(label: trailer.source?.trim().isNotEmpty == true
             ? trailer.source!.trim()
-            : 'Link',
-        trailer.title?.trim().isNotEmpty == true
+            : 'Link', value: trailer.title?.trim().isNotEmpty == true
             ? trailer.title!.trim()
-            : trailer.url,
-        onTap: () => _launchUrl(trailer.url),
-      ),
+            : trailer.url, onTap: () => _launchUrl(trailer.url)),
   ];
 }
 
@@ -699,3 +685,4 @@ Future<void> _launchUrl(String value) async {
   }
   await launchUrl(uri, mode: LaunchMode.externalApplication);
 }
+

@@ -1,7 +1,12 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -68,7 +73,7 @@ class _InspectorReadingQueueSectionState
     final palette = appPalette(context);
     if (_loading) return const SizedBox.shrink();
 
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Reading Queue',
       accentColor: widget.accent,
       children: [
@@ -122,3 +127,4 @@ class _InspectorReadingQueueSectionState
     );
   }
 }
+

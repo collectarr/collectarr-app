@@ -1,5 +1,10 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -24,45 +29,36 @@ class BoardGamePlayStatsSection extends StatelessWidget {
 
     final edition = _primaryEdition(work);
     final stats = work.playStats;
-    final facts = <LibraryInspectorFactData>[
+    final facts = <LibraryDetailField>[
       if (edition?.minPlayers != null ||
           edition?.maxPlayers != null ||
           edition?.bestPlayers != null)
-        LibraryInspectorFactData('Players', _playersLabel(edition)),
+        LibraryDetailField(label: 'Players', value: _playersLabel(edition)),
       if (edition?.playingTimeMinutes != null)
-        LibraryInspectorFactData(
-          'Play time',
-          '${edition!.playingTimeMinutes} min',
-        ),
+        LibraryDetailField(label: 'Play time', value: '${edition!.playingTimeMinutes} min'),
       if (edition?.minAge != null)
-        LibraryInspectorFactData('Age', '${edition!.minAge}+'),
+        LibraryDetailField(label: 'Age', value: '${edition!.minAge}+'),
       if (stats?.bggRank != null)
-        LibraryInspectorFactData('BGG rank', '#${stats!.bggRank}'),
+        LibraryDetailField(label: 'BGG rank', value: '#${stats!.bggRank}'),
       if (stats?.bggRating != null)
-        LibraryInspectorFactData(
-          'BGG rating',
-          stats!.bggRating!.toStringAsFixed(2),
-        ),
+        LibraryDetailField(label: 'BGG rating', value: stats!.bggRating!.toStringAsFixed(2)),
       if (stats?.playCount != null)
-        LibraryInspectorFactData('Play count', stats!.playCount.toString()),
+        LibraryDetailField(label: 'Play count', value: stats!.playCount.toString()),
       if (stats?.lastPlayed != null)
-        LibraryInspectorFactData('Last played', _formatDate(stats!.lastPlayed!)),
+        LibraryDetailField(label: 'Last played', value: _formatDate(stats!.lastPlayed!)),
       if (stats?.favoritePlayerCount != null)
-        LibraryInspectorFactData(
-          'Favorite players',
-          stats!.favoritePlayerCount.toString(),
-        ),
+        LibraryDetailField(label: 'Favorite players', value: stats!.favoritePlayerCount.toString()),
     ];
 
     final chipSections = <Widget>[
       if (work.mechanics.isNotEmpty)
-        LibraryInspectorChipWrap(
+        LibraryDetailChipGroupWidget(
           label: 'Mechanics',
           values: work.mechanics,
         ),
       if (work.categories.isNotEmpty) ...[
         if (work.mechanics.isNotEmpty) const SizedBox(height: 8),
-        LibraryInspectorChipWrap(
+        LibraryDetailChipGroupWidget(
           label: 'Categories',
           values: work.categories,
         ),
@@ -70,7 +66,7 @@ class BoardGamePlayStatsSection extends StatelessWidget {
       if (work.expansions.isNotEmpty) ...[
         if (work.mechanics.isNotEmpty || work.categories.isNotEmpty)
           const SizedBox(height: 8),
-        LibraryInspectorChipWrap(
+        LibraryDetailChipGroupWidget(
           label: 'Expansions',
           values: work.expansions,
         ),
@@ -80,7 +76,7 @@ class BoardGamePlayStatsSection extends StatelessWidget {
             work.categories.isNotEmpty ||
             work.expansions.isNotEmpty)
           const SizedBox(height: 8),
-        LibraryInspectorChipWrap(
+        LibraryDetailChipGroupWidget(
           label: 'Player stats',
           values: [
             for (final stat in stats!.playerStats) stat.toSummary(),
@@ -93,11 +89,11 @@ class BoardGamePlayStatsSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Play stats',
       accentColor: request.accent,
       children: [
-        if (facts.isNotEmpty) LibraryInspectorFactGrid(facts: facts),
+        if (facts.isNotEmpty) LibraryDetailFieldTable(fields: facts),
         if (chipSections.isNotEmpty) ...[
           if (facts.isNotEmpty) const SizedBox(height: 8),
           ...chipSections,
@@ -140,3 +136,5 @@ String _formatDate(DateTime value) {
   final d = value.day.toString().padLeft(2, '0');
   return '$y-$m-$d';
 }
+
+

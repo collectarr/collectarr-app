@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
@@ -15,7 +13,9 @@ import 'package:collectarr_app/features/library/media/video/video_progress_secti
 import 'package:collectarr_app/features/library/media/video/video_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/media/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildTvInspectorSections(
@@ -70,39 +70,33 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       if (credit['name']?.toString().trim().isNotEmpty == true)
         credit['name'].toString().trim(),
   ];
-  final facts = <LibraryInspectorFactData>[
-    LibraryInspectorFactData('Display title', entry.resolvedTitle),
+  final facts = <LibraryDetailField>[
+    LibraryDetailField(label: 'Display title', value: entry.resolvedTitle),
     if (entry.originalTitle?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Original title', entry.originalTitle!),
+      LibraryDetailField(label: 'Original title', value: entry.originalTitle!),
     if (entry.publisher?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Studio', entry.publisher!),
-    LibraryInspectorFactData('Releases', entry.editions.length.toString()),
+      LibraryDetailField(label: 'Studio', value: entry.publisher!),
+    LibraryDetailField(label: 'Releases', value: entry.editions.length.toString()),
     if (entry.video?.nrDiscs != null)
-      LibraryInspectorFactData('Discs', entry.video!.nrDiscs.toString()),
+      LibraryDetailField(label: 'Discs', value: entry.video!.nrDiscs.toString()),
     if (entry.video?.runtimeMinutes != null)
-      LibraryInspectorFactData('Runtime', '${entry.video!.runtimeMinutes} min'),
+      LibraryDetailField(label: 'Runtime', value: '${entry.video!.runtimeMinutes} min'),
     if (entry.video?.color?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('HDR / color', entry.video!.color!),
+      LibraryDetailField(label: 'HDR / color', value: entry.video!.color!),
     if (entry.video?.screenRatio?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Screen ratio', entry.video!.screenRatio!),
+      LibraryDetailField(label: 'Screen ratio', value: entry.video!.screenRatio!),
     if (entry.video?.audioTracks?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Audio', entry.video!.audioTracks!),
+      LibraryDetailField(label: 'Audio', value: entry.video!.audioTracks!),
     if (entry.video?.subtitles?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Subtitles', entry.video!.subtitles!),
+      LibraryDetailField(label: 'Subtitles', value: entry.video!.subtitles!),
     if (entry.video?.layers?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Layers', entry.video!.layers!),
+      LibraryDetailField(label: 'Layers', value: entry.video!.layers!),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
-      LibraryInspectorFactData('Condition', ownedItem!.condition!),
+      LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
     if (trackingEntry?.episodeRatings.isNotEmpty == true)
-      LibraryInspectorFactData(
-        'Rated episodes',
-        trackingEntry!.episodeRatings.length.toString(),
-      ),
+      LibraryDetailField(label: 'Rated episodes', value: trackingEntry!.episodeRatings.length.toString()),
     if (request.entry.trailerUrls.isNotEmpty)
-      LibraryInspectorFactData(
-        'Trailers',
-        request.entry.trailerUrls.length.toString(),
-      ),
+      LibraryDetailField(label: 'Trailers', value: request.entry.trailerUrls.length.toString()),
   ];
 
   return <LibraryDetailSectionSpec>[
@@ -116,7 +110,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           facts: facts,
           children: [
             if (genreValues.isNotEmpty) ...[
-              LibraryInspectorChipWrap(
+              LibraryDetailChipGroupWidget(
                 label: 'Genres',
                 values: genreValues,
                 onValueTap: request.onFilterByValue,
@@ -124,7 +118,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
             ],
             if (creatorNames.isNotEmpty) ...[
               const SizedBox(height: 8),
-              LibraryInspectorChipWrap(
+              LibraryDetailChipGroupWidget(
                 label: 'Cast / credits',
                 values: creatorNames,
                 onValueTap: request.onFilterByValue,
@@ -132,7 +126,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
             ],
             if (aliases.isNotEmpty) ...[
               const SizedBox(height: 8),
-              LibraryInspectorChipWrap(
+              LibraryDetailChipGroupWidget(
                 label: 'Search aliases',
                 values: aliases,
                 onValueTap: request.onFilterByValue,

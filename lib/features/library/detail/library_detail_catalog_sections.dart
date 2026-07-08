@@ -1,7 +1,12 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/details/library_detail_inspector_compat.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
@@ -123,38 +128,23 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final sourceKind = _sourceKind(entry.id);
     final defaultProvider = type.defaultSupportedMetadataProviderOption;
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Metadata provenance',
       accentColor: accent,
       children: [
-        LibraryInspectorFactGrid(
-          facts: [
-            LibraryInspectorFactData('Source', sourceKind.label),
-            LibraryInspectorFactData(
-              'Snapshot updated',
-              formatNullableDate(entry.updatedAt) ?? '-',
-            ),
-            LibraryInspectorFactData(
-              'Metadata state',
-              entry.hasMissingMetadata ? 'Incomplete' : 'Ready',
-            ),
-            LibraryInspectorFactData(
-              'Cover state',
-              entry.hasMissingCover ? 'Missing' : 'Ready',
-            ),
-            LibraryInspectorFactData(
-              'Image delivery',
-              entry.displayCoverUrl == null
+        LibraryDetailFieldTable(
+          fields: [
+            LibraryDetailField(label: 'Source', value: sourceKind.label),
+            LibraryDetailField(label: 'Snapshot updated', value: formatNullableDate(entry.updatedAt) ?? '-'),
+            LibraryDetailField(label: 'Metadata state', value: entry.hasMissingMetadata ? 'Incomplete' : 'Ready'),
+            LibraryDetailField(label: 'Cover state', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
+            LibraryDetailField(label: 'Image delivery', value: entry.displayCoverUrl == null
                   ? 'Generated fallback'
-                  : 'External provider URL',
-            ),
-            LibraryInspectorFactData(
-              'Preferred provider',
-              defaultProvider?.label ??
+                  : 'External provider URL'),
+            LibraryDetailField(label: 'Preferred provider', value: defaultProvider?.label ??
                   type.metadataProviderLabel(
                     type.defaultSupportedMetadataProvider,
-                  ),
-            ),
+                  )),
           ],
         ),
         const SizedBox(height: 8),
@@ -187,18 +177,15 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final health = _buildMetadataHealth(type, entry);
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Metadata health',
       accentColor: accent,
       children: [
-        LibraryInspectorFactGrid(
-          facts: [
-            LibraryInspectorFactData('Score', '${health.score}/100'),
-            LibraryInspectorFactData('Status', health.label),
-            LibraryInspectorFactData(
-              'Missing signals',
-              health.missingSignals.length.toString(),
-            ),
+        LibraryDetailFieldTable(
+          fields: [
+            LibraryDetailField(label: 'Score', value: '${health.score}/100'),
+            LibraryDetailField(label: 'Status', value: health.label),
+            LibraryDetailField(label: 'Missing signals', value: health.missingSignals.length.toString()),
           ],
         ),
         const SizedBox(height: 8),
@@ -211,7 +198,7 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
         ),
         if (health.missingSignals.isNotEmpty) ...[
           const SizedBox(height: 10),
-          LibraryInspectorChipWrap(
+          LibraryDetailChipGroupWidget(
             label: 'Needs attention',
             values: health.missingSignals,
             onValueTap: onFilterByValue,
@@ -234,26 +221,17 @@ class LibraryDetailCoverStatusSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Cover status',
       accentColor: accent,
       children: [
-        LibraryInspectorFactGrid(
-          facts: [
-            LibraryInspectorFactData(
-              'Display',
-              entry.displayCoverUrl == null
+        LibraryDetailFieldTable(
+          fields: [
+            LibraryDetailField(label: 'Display', value: entry.displayCoverUrl == null
                   ? 'Generated fallback'
-                  : 'External URL',
-            ),
-            LibraryInspectorFactData(
-              'Cover URL',
-              entry.coverImageUrl == null ? '-' : 'Available',
-            ),
-            LibraryInspectorFactData(
-              'Thumbnail URL',
-              entry.thumbnailImageUrl == null ? '-' : 'Available',
-            ),
+                  : 'External URL'),
+            LibraryDetailField(label: 'Cover URL', value: entry.coverImageUrl == null ? '-' : 'Available'),
+            LibraryDetailField(label: 'Thumbnail URL', value: entry.thumbnailImageUrl == null ? '-' : 'Available'),
           ],
         ),
         if (entry.coverImageUrl != null || entry.thumbnailImageUrl != null) ...[
@@ -289,7 +267,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Providers',
       accentColor: accent,
       children: [
@@ -298,7 +276,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
             'No providers are registered for this media type yet. Manual local records still work and will sync as local snapshots.',
           )
         else ...[
-          LibraryInspectorChipWrap(
+          LibraryDetailChipGroupWidget(
             values: [
               for (final provider in type.supportedMetadataProviders)
                 provider.id == type.defaultSupportedMetadataProvider
@@ -308,26 +286,17 @@ class LibraryDetailProviderSection extends StatelessWidget {
             onValueTap: onFilterByValue,
           ),
           const SizedBox(height: 8),
-          LibraryInspectorFactGrid(
-            facts: [
-              LibraryInspectorFactData(
-                'Default provider',
-                type.metadataProviderLabel(
+          LibraryDetailFieldTable(
+            fields: [
+              LibraryDetailField(label: 'Default provider', value: type.metadataProviderLabel(
                   type.defaultSupportedMetadataProvider,
-                ),
-              ),
-              LibraryInspectorFactData(
-                'Provider count',
-                type.supportedMetadataProviders.length.toString(),
-              ),
-              LibraryInspectorFactData(
-                'API keys',
-                type.supportedMetadataProviders.any(
+                )),
+              LibraryDetailField(label: 'Provider count', value: type.supportedMetadataProviders.length.toString()),
+              LibraryDetailField(label: 'API keys', value: type.supportedMetadataProviders.any(
                   (provider) => provider.requiresApiKey,
                 )
                     ? 'Some required'
-                    : 'Not required',
-              ),
+                    : 'Not required'),
             ],
           ),
           const SizedBox(height: 8),
@@ -505,3 +474,5 @@ _MetadataHealth _buildMetadataHealth(
     missingSignals: missingSignals,
   );
 }
+
+

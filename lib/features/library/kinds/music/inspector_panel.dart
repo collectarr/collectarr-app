@@ -5,10 +5,11 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -392,27 +393,27 @@ class _MusicDiscDetails extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        LibraryInspectorFactGrid(
-          facts: [
+        LibraryDetailFieldTable(
+          fields: [
             if (music?.expectedMediaCount != null)
-              LibraryInspectorFactData(
-                'Expected discs',
-                music!.expectedMediaCount.toString(),
+              LibraryDetailField(
+                label: 'Expected discs',
+                value: music!.expectedMediaCount.toString(),
               ),
             if (music?.ownedMediaCount != null)
-              LibraryInspectorFactData(
-                'Owned discs',
-                music!.ownedMediaCount.toString(),
+              LibraryDetailField(
+                label: 'Owned discs',
+                value: music!.ownedMediaCount.toString(),
               ),
             if (music?.missingMediaCount != null)
-              LibraryInspectorFactData(
-                'Missing discs',
-                music!.missingMediaCount.toString(),
+              LibraryDetailField(
+                label: 'Missing discs',
+                value: music!.missingMediaCount.toString(),
               ),
             if (music?.missingDiscNumbers.isNotEmpty == true)
-              LibraryInspectorFactData(
-                'Missing disc #',
-                music!.missingDiscNumbers.join(', '),
+              LibraryDetailField(
+                label: 'Missing disc #',
+                value: music!.missingDiscNumbers.join(', '),
               ),
           ],
         ),
@@ -469,9 +470,10 @@ class _MusicProductDetails extends StatelessWidget {
       if (music?.localThumbnailImagePath?.trim().isNotEmpty == true)
         ('Local thumbnail', music!.localThumbnailImagePath!),
     ];
-    return LibraryInspectorFactGrid(
-      facts: [
-        for (final row in rows) LibraryInspectorFactData(row.$1, row.$2),
+    return LibraryDetailFieldTable(
+      fields: [
+        for (final row in rows)
+          LibraryDetailField(label: row.$1, value: row.$2),
       ],
     );
   }
@@ -509,14 +511,15 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
       if (owned?.createdAt != null) ('Added', formatDate(owned!.createdAt!)),
       ('Modified', formatNullableDate(owned?.updatedAt) ?? '-'),
     ];
-    List<LibraryInspectorFactData> asFacts(List<(String, String)> rows) {
+    List<LibraryDetailField> asFacts(List<(String, String)> rows) {
       return [
-        for (final row in rows) LibraryInspectorFactData(row.$1, row.$2),
+        for (final row in rows)
+          LibraryDetailField(label: row.$1, value: row.$2),
       ];
     }
 
-    return LibraryInspectorFactGrid(
-      facts: asFacts(personalRows),
+    return LibraryDetailFieldTable(
+      fields: asFacts(personalRows),
     );
   }
 }
@@ -538,9 +541,10 @@ class _MusicInspectorCredits extends StatelessWidget {
             ),
       );
     }
-    return LibraryInspectorFactGrid(
-      facts: [
-        for (final row in creditRows) LibraryInspectorFactData(row.$1, row.$2),
+    return LibraryDetailFieldTable(
+      fields: [
+        for (final row in creditRows)
+          LibraryDetailField(label: row.$1, value: row.$2),
       ],
     );
   }
@@ -902,12 +906,15 @@ class _MusicDiscCardSection extends StatelessWidget {
       if (disc.vinylWeight?.trim().isNotEmpty == true)
         ('Vinyl weight', disc.vinylWeight!),
     ];
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Disc #${disc.discNumber}',
       accentColor: accent,
       children: [
-        LibraryInspectorFactGrid(
-          facts: [for (final row in rows) LibraryInspectorFactData(row.$1, row.$2)],
+        LibraryDetailFieldTable(
+          fields: [
+            for (final row in rows)
+              LibraryDetailField(label: row.$1, value: row.$2),
+          ],
         ),
         const SizedBox(height: 10),
         _MusicDiscCard(

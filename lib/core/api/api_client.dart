@@ -245,7 +245,6 @@ class ApiClient {
     return _catalogApi.getMusicTrackDto(id);
   }
 
-  @Deprecated('Use typed model-specific flows instead of legacy item volume lookups.')
   Future<List<Season>> getItemVolumes(
     String itemId, {
     String? kind,

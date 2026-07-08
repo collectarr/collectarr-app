@@ -1,5 +1,10 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
+import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
+import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +37,7 @@ class InspectorContributorsSection extends StatelessWidget {
           );
     }
     final entries = byRole.entries.toList(growable: false);
-    return LibraryInspectorSection(
+    return LibraryDetailSection(
       title: 'Cast & crew',
       accentColor: request.accent,
       children: [
@@ -153,3 +158,4 @@ class _ContributorChip extends StatelessWidget {
     );
   }
 }
+
