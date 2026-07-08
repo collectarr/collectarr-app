@@ -22,14 +22,14 @@ import 'package:flutter/material.dart';
 
 part 'media_entry_accessors.dart';
 part 'media_table_columns.dart';
-part 'book_media_adapter.dart';
-part 'game_media_adapter.dart';
-part 'boardgame_media_adapter.dart';
-part 'manga_media_adapter.dart';
-part 'movie_media_adapter.dart';
-part 'tv_media_adapter.dart';
-part 'anime_media_adapter.dart';
-part 'music_media_adapter.dart';
+part '../../kinds/book/book_media_adapter.dart';
+part '../../kinds/game/game_media_adapter.dart';
+part '../../kinds/boardgame/boardgame_media_adapter.dart';
+part '../../kinds/manga/manga_media_adapter.dart';
+part '../../kinds/movie/movie_media_adapter.dart';
+part '../../kinds/tv/tv_media_adapter.dart';
+part '../../kinds/anime/anime_media_adapter.dart';
+part '../../kinds/music/music_media_adapter.dart';
 
 const double kPlannedMediaMinCoverSize = 96;
 const double kPlannedMediaDefaultCoverSize = 128;
