@@ -38,7 +38,7 @@ class LibraryToolbarActions {
     this.onManageSortFavorites,
     this.onColumnFavoriteSelected,
     this.onTogglePinnedColumnFavorite,
-    this.onJumpToIssueSubmitted,
+    this.onJumpToNumberSubmitted,
     required this.onClearFilters,
     this.onEditFilters,
     this.onRandomPick,
@@ -92,7 +92,7 @@ class LibraryToolbarActions {
   final VoidCallback? onManageSortFavorites;
   final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
   final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
-  final ValueChanged<String>? onJumpToIssueSubmitted;
+  final ValueChanged<String>? onJumpToNumberSubmitted;
   final VoidCallback onClearFilters;
   final VoidCallback? onEditFilters;
   final VoidCallback? onRandomPick;

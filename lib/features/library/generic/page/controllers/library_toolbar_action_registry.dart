@@ -110,7 +110,7 @@ class LibraryToolbarMetadataContext {
   const LibraryToolbarMetadataContext({
     required this.onRefreshMetadata,
     required this.onSetCollectionStatusScope,
-    required this.onJumpToIssueSubmitted,
+    required this.onJumpToNumberSubmitted,
     required this.selectedProjectionItemFor,
     required this.canCompareMetadataWithServerItem,
   });
@@ -118,7 +118,7 @@ class LibraryToolbarMetadataContext {
   final ValueChanged<LibraryProjection?> onRefreshMetadata;
   final ValueChanged<LibraryCollectionStatusScope> onSetCollectionStatusScope;
   final void Function(LibraryProjection projection, String value)
-      onJumpToIssueSubmitted;
+      onJumpToNumberSubmitted;
   final LibraryProjectionItem? Function(LibraryProjection projection)
       selectedProjectionItemFor;
   final bool Function(LibraryProjectionItem item)
@@ -251,10 +251,10 @@ class LibraryToolbarActionRegistry {
       onManageSortFavorites: context.view.onShowSortFavoritesManagerFlow,
       onColumnFavoriteSelected: context.view.onApplyColumnFavorite,
       onTogglePinnedColumnFavorite: context.view.onTogglePinnedColumnFavorite,
-      onJumpToIssueSubmitted: projection == null
+      onJumpToNumberSubmitted: projection == null
           ? null
           : (String value) =>
-              context.metadata.onJumpToIssueSubmitted(projection, value),
+              context.metadata.onJumpToNumberSubmitted(projection, value),
       onClearFilters: context.grouping.onClearFilters,
       onEditFilters: projection == null
           ? null

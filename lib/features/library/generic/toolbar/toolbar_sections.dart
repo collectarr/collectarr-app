@@ -981,8 +981,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.pinnedColumnFavoriteKeys = const {},
     this.onTogglePinnedColumnFavorite,
     required this.onManageColumns,
-    this.canJumpToIssue = false,
-    this.onJumpToIssueSubmitted,
+    this.canJumpToNumber = false,
+    this.onJumpToNumberSubmitted,
     required this.hasActiveFilters,
     required this.onClearFilters,
     required this.onClearBucket,
@@ -1046,8 +1046,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final Set<String> pinnedColumnFavoriteKeys;
   final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
   final VoidCallback onManageColumns;
-  final bool canJumpToIssue;
-  final ValueChanged<String>? onJumpToIssueSubmitted;
+  final bool canJumpToNumber;
+  final ValueChanged<String>? onJumpToNumberSubmitted;
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
   final VoidCallback onClearBucket;
@@ -1272,8 +1272,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
             pinnedColumnFavoriteKeys: pinnedColumnFavoriteKeys,
             onTogglePinnedColumnFavorite: onTogglePinnedColumnFavorite,
             onManageColumns: onManageColumns,
-            canJumpToIssue: canJumpToIssue,
-            onJumpToIssueSubmitted: onJumpToIssueSubmitted,
+            canJumpToNumber: canJumpToNumber,
+            onJumpToNumberSubmitted: onJumpToNumberSubmitted,
           ),
         ],
         if (showAlphabetRow) ...[
@@ -1310,8 +1310,8 @@ class LibraryToolbarChromeRow extends StatelessWidget {
     this.pinnedColumnFavoriteKeys = const {},
     this.onTogglePinnedColumnFavorite,
     required this.onManageColumns,
-    this.canJumpToIssue = false,
-    this.onJumpToIssueSubmitted,
+    this.canJumpToNumber = false,
+    this.onJumpToNumberSubmitted,
   });
 
   final LibraryCollectionStatusScope collectionStatusScope;
@@ -1332,8 +1332,8 @@ class LibraryToolbarChromeRow extends StatelessWidget {
   final Set<String> pinnedColumnFavoriteKeys;
   final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
   final VoidCallback onManageColumns;
-  final bool canJumpToIssue;
-  final ValueChanged<String>? onJumpToIssueSubmitted;
+  final bool canJumpToNumber;
+  final ValueChanged<String>? onJumpToNumberSubmitted;
 
   @override
   Widget build(BuildContext context) {

@@ -82,8 +82,8 @@ class LibraryToolbar extends StatelessWidget {
     this.onColumnFavoriteSelected,
     this.pinnedColumnFavoriteKeys = const {},
     this.onTogglePinnedColumnFavorite,
-    this.canJumpToIssue = false,
-    this.onJumpToIssueSubmitted,
+    this.canJumpToNumber = false,
+    this.onJumpToNumberSubmitted,
     required this.hasActiveFilters,
     required this.onClearFilters,
     this.onEditFilters,
@@ -181,8 +181,8 @@ class LibraryToolbar extends StatelessWidget {
         onColumnFavoriteSelected = actions.onColumnFavoriteSelected,
         pinnedColumnFavoriteKeys = state.pinnedColumnFavoriteKeys,
         onTogglePinnedColumnFavorite = actions.onTogglePinnedColumnFavorite,
-        canJumpToIssue = state.canJumpToIssue,
-        onJumpToIssueSubmitted = actions.onJumpToIssueSubmitted,
+        canJumpToNumber = state.canJumpToNumber,
+        onJumpToNumberSubmitted = actions.onJumpToNumberSubmitted,
         hasActiveFilters = state.hasActiveFilters,
         onClearFilters = actions.onClearFilters,
         onEditFilters = actions.onEditFilters,
@@ -274,8 +274,8 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<LibraryTableColumnPreset>? onColumnFavoriteSelected;
   final Set<String> pinnedColumnFavoriteKeys;
   final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
-  final bool canJumpToIssue;
-  final ValueChanged<String>? onJumpToIssueSubmitted;
+  final bool canJumpToNumber;
+  final ValueChanged<String>? onJumpToNumberSubmitted;
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
   final VoidCallback? onEditFilters;
@@ -373,8 +373,8 @@ class LibraryToolbar extends StatelessWidget {
                   pinnedColumnFavoriteKeys: pinnedColumnFavoriteKeys,
                   onTogglePinnedColumnFavorite: onTogglePinnedColumnFavorite,
                   onManageColumns: onEditColumns,
-                  canJumpToIssue: canJumpToIssue,
-                  onJumpToIssueSubmitted: onJumpToIssueSubmitted,
+                  canJumpToNumber: canJumpToNumber,
+                  onJumpToNumberSubmitted: onJumpToNumberSubmitted,
                   hasActiveFilters: hasActiveFilters,
                   onClearFilters: onClearFilters,
                   onClearBucket: onClearBucket,

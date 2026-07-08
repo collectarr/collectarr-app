@@ -772,7 +772,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     });
   }
 
-  bool _canJumpToSelectedEntry(LibraryProjection? projection) {
+  bool _canJumpToKindDrilldown(LibraryProjection? projection) {
     return widget.type.kindUiAdapter.canJumpToSelectedEntry(
       widget.type,
       projection,
@@ -781,18 +781,18 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     );
   }
 
-  Future<void> _jumpToIssue(
+  Future<void> _jumpToNumber(
     LibraryProjection projection,
-    String rawIssue,
+    String rawNumber,
   ) async {
-    final normalizedIssue = rawIssue.trim();
-    if (normalizedIssue.isEmpty) {
+    final normalizedNumber = rawNumber.trim();
+    if (normalizedNumber.isEmpty) {
       return;
     }
-    final match = _matchIssueInProjection(projection, normalizedIssue);
+    final match = _matchNumberInProjection(projection, normalizedNumber);
     if (match == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Issue #$normalizedIssue was not found.')),
+        SnackBar(content: Text('Number #$normalizedNumber was not found.')),
       );
       return;
     }
@@ -811,11 +811,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _selectItem(match.entry.id);
   }
 
-  LibraryProjectionItem? _matchIssueInProjection(
+  LibraryProjectionItem? _matchNumberInProjection(
     LibraryProjection projection,
-    String rawIssue,
+    String rawNumber,
   ) {
-    final target = int.tryParse(rawIssue.trim());
+    final target = int.tryParse(rawNumber.trim());
     if (target == null) {
       return null;
     }
@@ -973,9 +973,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       onOrderCount: onOrderCount,
       soldCount: soldCount,
       catalogOnlyCount: catalogOnlyCount,
-      missingIssueSummary: selectedBucket.missingNumbers.isEmpty
+      missingSequenceSummary: selectedBucket.missingNumbers.isEmpty
           ? null
-          : _formatIssueRanges(selectedBucket.missingNumbers),
+          : _formatNumberRanges(selectedBucket.missingNumbers),
     );
   }
 
@@ -1002,7 +1002,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return int.tryParse(match.group(1)!);
   }
 
-  String _formatIssueRanges(List<int> numbers) {
+  String _formatNumberRanges(List<int> numbers) {
     if (numbers.isEmpty) {
       return '';
     }

@@ -31,7 +31,7 @@ class LibraryToolbarState {
     this.columnFavoritePresets = const <LibraryTableColumnPreset>[],
     this.activeColumnFavoriteLabel,
     this.pinnedColumnFavoriteKeys = const <String>{},
-    this.canJumpToIssue = false,
+    this.canJumpToNumber = false,
     required this.hasActiveFilters,
     this.activeFilterCount = 0,
     this.shelfState,
@@ -68,7 +68,7 @@ class LibraryToolbarState {
   final List<LibraryTableColumnPreset> columnFavoritePresets;
   final String? activeColumnFavoriteLabel;
   final Set<String> pinnedColumnFavoriteKeys;
-  final bool canJumpToIssue;
+  final bool canJumpToNumber;
   final bool hasActiveFilters;
   final int activeFilterCount;
   final ShelfState? shelfState;

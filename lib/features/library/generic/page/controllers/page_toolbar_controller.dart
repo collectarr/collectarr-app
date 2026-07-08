@@ -119,7 +119,7 @@ class LibraryPageToolbarController {
         columnFavoritePresets: _s._columnFavoritePresets,
         activeColumnFavoriteLabel: _s._activeColumnFavoriteLabel,
         pinnedColumnFavoriteKeys: _s._pinnedColumnFavoriteKeys,
-        canJumpToIssue: _s._canJumpToSelectedEntry(projection),
+        canJumpToNumber: _s._canJumpToKindDrilldown(projection),
         hasActiveFilters: _s._hasActiveFilter,
         activeFilterCount: _s._filterSelection.activeFilterCount,
         shelfState: shelfState,
@@ -206,7 +206,7 @@ class LibraryPageToolbarController {
             onRefreshMetadata: (value) =>
                 _s._metadataCoordinator.showMetadataRefreshFlow(value),
             onSetCollectionStatusScope: _s._setCollectionStatusScope,
-            onJumpToIssueSubmitted: (proj, value) => _s._jumpToIssue(
+            onJumpToNumberSubmitted: (proj, value) => _s._jumpToNumber(
               proj,
               value,
             ),
@@ -228,7 +228,7 @@ class LibraryPageToolbarController {
             },
             onMissingSequenceReport: (value) {
               if (value == null) return;
-              _s._reportCoordinator.showMissingComicsFlow(value);
+              _s._reportCoordinator.showMissingSequenceReportFlow(value);
             },
             onShareCollection: (value) {
               if (value == null) return;

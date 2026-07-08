@@ -79,7 +79,7 @@ class LibrarySeriesStatusSummary {
     required this.onOrderCount,
     required this.soldCount,
     required this.catalogOnlyCount,
-    this.missingIssueSummary,
+    this.missingSequenceSummary,
   });
 
   final String title;
@@ -90,7 +90,7 @@ class LibrarySeriesStatusSummary {
   final int onOrderCount;
   final int soldCount;
   final int catalogOnlyCount;
-  final String? missingIssueSummary;
+  final String? missingSequenceSummary;
 }
 
 String libraryColumnFavoriteKey(LibraryTableColumnPreset preset) {

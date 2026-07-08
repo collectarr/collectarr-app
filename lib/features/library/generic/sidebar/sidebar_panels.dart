@@ -460,10 +460,10 @@ class LibrarySidebarSeriesStatusPanel extends StatelessWidget {
             if (index < rows.length - 1)
               Divider(height: 8, color: appPalette(context).divider),
           ],
-          if (summary.missingIssueSummary != null) ...[
+          if (summary.missingSequenceSummary != null) ...[
             const SizedBox(height: 6),
             Text(
-              'Missing: ${summary.missingIssueSummary}',
+              'Missing: ${summary.missingSequenceSummary}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: appPalette(context).textMuted,
                   ),

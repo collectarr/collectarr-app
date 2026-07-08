@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/shared/comic/missing_comics_dialog.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 
-/// Handles print / PDF report and missing-comics flows.
+/// Handles print / PDF report and missing-sequence flows.
 class LibraryPageReportCoordinator {
   const LibraryPageReportCoordinator(this._page);
 
@@ -32,7 +32,9 @@ class LibraryPageReportCoordinator {
     );
   }
 
-  Future<void> showMissingComicsFlow(LibraryProjection projection) async {
+  Future<void> showMissingSequenceReportFlow(
+    LibraryProjection projection,
+  ) async {
     await showComicMissingComicsDialog(
       context: _page.context,
       type: _page.type,
