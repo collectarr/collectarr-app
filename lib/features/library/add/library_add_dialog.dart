@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
-import 'package:collectarr_app/features/library/add/services/library_add_queue_flow.dart';
+import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
@@ -153,6 +153,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryAddWorkflowService _workflowService;
   late final LibraryKindProviderMapper _providerMapper;
   late final LibraryProviderOrchestrationService _providerOrchestrationService;
+  late final LibraryAddProviderFlowService _providerFlowService;
   final _uuid = const Uuid();
 
   bool _isAdding = false;
@@ -437,6 +438,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _workflowService = const LibraryAddWorkflowService();
     _providerActionService = const LibraryProviderActionService();
     _providerOrchestrationService = const LibraryProviderOrchestrationService();
+    _providerFlowService = const LibraryAddProviderFlowService();
     if (_isMovieDesktopChrome) {
       _resultsPaneWidth = 720;
     }
@@ -2913,7 +2915,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _queuedProviderIngests.containsKey(candidate.localCatalogId)) {
       return;
     }
-    await queueLibraryAddProviderIngestFlow(
+    await _providerFlowService.queueProviderIngest(
       context: context,
       api: ref.read(apiClientProvider),
       candidate: candidate,
