@@ -1,4 +1,7 @@
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:flutter/material.dart';
 
 final gameLibraryFieldDefinitions = [
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
@@ -26,4 +29,384 @@ final gameLibraryFieldDefinitions = [
     label: 'Release date',
     getValue: (dto) => dto.releaseDate,
   ),
+];
+
+const gameLibraryGroupModes = [
+  LibraryGroupMode.audienceRating,
+  LibraryGroupMode.developer,
+  LibraryGroupMode.genre,
+  LibraryGroupMode.platform,
+  LibraryGroupMode.publisher,
+  LibraryGroupMode.releaseDate,
+  LibraryGroupMode.releaseMonth,
+  LibraryGroupMode.releaseYear,
+  LibraryGroupMode.series,
+  LibraryGroupMode.title,
+  LibraryGroupMode.completeness,
+  LibraryGroupMode.condition,
+  LibraryGroupMode.purchaseDate,
+  LibraryGroupMode.purchaseMonth,
+  LibraryGroupMode.purchaseStore,
+  LibraryGroupMode.purchaseYear,
+  LibraryGroupMode.valueLocked,
+  LibraryGroupMode.toySubtype,
+  LibraryGroupMode.toyType,
+  LibraryGroupMode.format,
+  LibraryGroupMode.regions,
+  LibraryGroupMode.addedDate,
+  LibraryGroupMode.addedMonth,
+  LibraryGroupMode.addedYear,
+  LibraryGroupMode.collectionStatus,
+  LibraryGroupMode.completed,
+  LibraryGroupMode.completedDate,
+  LibraryGroupMode.completedMonth,
+  LibraryGroupMode.completedYear,
+  LibraryGroupMode.imageType,
+  LibraryGroupMode.location,
+  LibraryGroupMode.modifiedDate,
+  LibraryGroupMode.modifiedMonth,
+  LibraryGroupMode.myRating,
+  LibraryGroupMode.owner,
+  LibraryGroupMode.storageDevice,
+  LibraryGroupMode.tags,
+];
+
+const gameLibraryGroupModeDefinitions = [
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.title,
+    label: 'Title',
+    sidebarTitle: 'Titles',
+    icon: Icons.sort_by_alpha,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.audienceRating,
+    label: 'Audience Rating',
+    sidebarTitle: 'Audience Ratings',
+    icon: Icons.groups_2_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.developer,
+    label: 'Developer',
+    sidebarTitle: 'Developers',
+    icon: Icons.code_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.genre,
+    label: 'Genre',
+    sidebarTitle: 'Genres',
+    icon: Icons.theater_comedy_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.platform,
+    label: 'Platform',
+    sidebarTitle: 'Platforms',
+    icon: Icons.sports_esports_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.publisher,
+    label: 'Publisher / Studio',
+    sidebarTitle: 'Publishers / Studios',
+    icon: Icons.business_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.releaseDate,
+    label: 'Release Date',
+    sidebarTitle: 'Release Dates',
+    icon: Icons.event_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.releaseMonth,
+    label: 'Release Month',
+    sidebarTitle: 'Release Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.releaseYear,
+    label: 'Release Year',
+    sidebarTitle: 'Release Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.series,
+    label: 'Series',
+    sidebarTitle: 'Series',
+    icon: Icons.collections_bookmark_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.completeness,
+    label: 'Completeness',
+    sidebarTitle: 'Completeness',
+    icon: Icons.checklist_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.condition,
+    label: 'Condition',
+    sidebarTitle: 'Conditions',
+    icon: Icons.verified_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseDate,
+    label: 'Purchase Date',
+    sidebarTitle: 'Purchase Dates',
+    icon: Icons.shopping_bag_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseMonth,
+    label: 'Purchase Month',
+    sidebarTitle: 'Purchase Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseStore,
+    label: 'Purchase Store',
+    sidebarTitle: 'Purchase Stores',
+    icon: Icons.store_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.purchaseYear,
+    label: 'Purchase Year',
+    sidebarTitle: 'Purchase Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.valueLocked,
+    label: 'Value Locked',
+    sidebarTitle: 'Value Locked',
+    icon: Icons.lock_outline,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.toySubtype,
+    label: 'Subtype',
+    sidebarTitle: 'Subtypes',
+    icon: Icons.category_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.toyType,
+    label: 'Type',
+    sidebarTitle: 'Types',
+    icon: Icons.toys_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.format,
+    label: 'Format',
+    sidebarTitle: 'Formats',
+    icon: Icons.album_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.regions,
+    label: 'Region',
+    sidebarTitle: 'Regions',
+    icon: Icons.public_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.addedDate,
+    label: 'Added Date',
+    sidebarTitle: 'Added Dates',
+    icon: Icons.add_circle_outline,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.addedMonth,
+    label: 'Added Month',
+    sidebarTitle: 'Added Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.addedYear,
+    label: 'Added Year',
+    sidebarTitle: 'Added Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.collectionStatus,
+    label: 'Collection Status',
+    sidebarTitle: 'Collection Status',
+    icon: Icons.bookmark_added_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.completed,
+    label: 'Completed',
+    sidebarTitle: 'Completed',
+    icon: Icons.task_alt_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.completedDate,
+    label: 'Completed Date',
+    sidebarTitle: 'Completed Dates',
+    icon: Icons.event_available_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.completedMonth,
+    label: 'Completed Month',
+    sidebarTitle: 'Completed Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.completedYear,
+    label: 'Completed Year',
+    sidebarTitle: 'Completed Years',
+    icon: Icons.calendar_today_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.imageType,
+    label: 'Image Type',
+    sidebarTitle: 'Image Types',
+    icon: Icons.image_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.location,
+    label: 'Location',
+    sidebarTitle: 'Locations',
+    icon: Icons.place_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.modifiedDate,
+    label: 'Modified Date',
+    sidebarTitle: 'Modified Dates',
+    icon: Icons.edit_calendar_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.modifiedMonth,
+    label: 'Modified Month',
+    sidebarTitle: 'Modified Months',
+    icon: Icons.calendar_view_month_outlined,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.myRating,
+    label: 'My Rating',
+    sidebarTitle: 'Ratings',
+    icon: Icons.star_outline,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.owner,
+    label: 'Owner',
+    sidebarTitle: 'Owners',
+    icon: Icons.person_outline,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.storageDevice,
+    label: 'Storage Device',
+    sidebarTitle: 'Storage Devices',
+    icon: Icons.sd_storage_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupModeDefinition(
+    mode: LibraryGroupMode.tags,
+    label: 'Tags',
+    sidebarTitle: 'Tags',
+    icon: Icons.local_offer_outlined,
+    supportsBucketManagement: true,
+  ),
+];
+
+const gameLibrarySortColumnDefinitions = [
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.series,
+    label: 'Series',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.publisher,
+    label: 'Publisher / Studio',
+  ),
+  LibrarySortColumnDefinition(
+      column: LibrarySortColumn.status, label: 'Status'),
+  LibrarySortColumnDefinition(column: LibrarySortColumn.title, label: 'Title'),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.issue,
+    label: 'Issue / number',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.storyArc,
+    label: 'Story arc',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.variant,
+    label: 'Variant',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.format,
+    label: 'Format',
+    group: LibrarySortFieldGroup.edition,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.releaseDate,
+    label: 'Release date',
+    defaultAscending: false,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.barcode,
+    label: 'Barcode',
+    group: LibrarySortFieldGroup.edition,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.grade,
+    label: 'Grade',
+    group: LibrarySortFieldGroup.value,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.condition,
+    label: 'Condition',
+    group: LibrarySortFieldGroup.value,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.price,
+    label: 'Purchase price',
+    group: LibrarySortFieldGroup.value,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.location,
+    label: 'Location',
+    group: LibrarySortFieldGroup.personal,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.collectionStatus,
+    label: 'Collection status',
+    group: LibrarySortFieldGroup.personal,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.wishlist,
+    label: 'Wishlist',
+    group: LibrarySortFieldGroup.personal,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.added,
+    label: 'Added date',
+    group: LibrarySortFieldGroup.personal,
+    defaultAscending: false,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.updated,
+    label: 'Updated',
+    group: LibrarySortFieldGroup.personal,
+    defaultAscending: false,
+  ),
+  LibrarySortColumnDefinition(
+      column: LibrarySortColumn.country, label: 'Country'),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.language,
+    label: 'Language',
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.pageCount,
+    label: 'Page count',
+    group: LibrarySortFieldGroup.edition,
+  ),
+  LibrarySortColumnDefinition(
+    column: LibrarySortColumn.ageRating,
+    label: 'Age rating',
+  ),
+  LibrarySortColumnDefinition(
+      column: LibrarySortColumn.imprint, label: 'Imprint'),
 ];

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart'
+    as movie_workspace;
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 final animeLibraryFieldDefinitions = [
@@ -27,3 +29,11 @@ final animeLibraryFieldDefinitions = [
     getValue: (dto) => dto.releaseDate,
   ),
 ];
+
+const animeLibraryGroupModes = movie_workspace.movieLibraryGroupModes;
+
+const animeLibraryGroupModeDefinitions =
+    movie_workspace.movieLibraryGroupModeDefinitions;
+
+const animeLibrarySortColumnDefinitions =
+    movie_workspace.movieLibrarySortColumnDefinitions;

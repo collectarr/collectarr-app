@@ -5,13 +5,13 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/media/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 import 'edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 
 const tvLibrarySortColumns = [
   LibrarySortColumn.status,

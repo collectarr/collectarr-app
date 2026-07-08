@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart'
+    as comic_workspace;
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 final mangaLibraryFieldDefinitions = [
@@ -27,3 +29,11 @@ final mangaLibraryFieldDefinitions = [
     getValue: (dto) => dto.releaseDate,
   ),
 ];
+
+const mangaLibraryGroupModes = comic_workspace.comicLibraryGroupModes;
+
+const mangaLibraryGroupModeDefinitions =
+    comic_workspace.comicLibraryGroupModeDefinitions;
+
+const mangaLibrarySortColumnDefinitions =
+    comic_workspace.comicLibrarySortColumnDefinitions;
