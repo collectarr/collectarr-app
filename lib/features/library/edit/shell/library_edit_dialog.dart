@@ -24,7 +24,9 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_tabs.dart';
@@ -34,7 +36,6 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -43,7 +44,6 @@ import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_di
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
-import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
@@ -52,32 +52,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' show QueryRow;
 
 part '../anchors/library_edit_dialog_anchor_widgets.dart';
-part '../../kinds/comic/edit/library_edit_dialog_comic_tabs.dart';
-part 'library_edit_dialog_comic_models.dart';
 part 'library_edit_dialog_vocabulary.dart';
-
-const List<String> _commonCreatorRoles = <String>[
-  'Writer',
-  'Artist',
-  'Cover Artist',
-  'Cover Penciller',
-  'Cover Painter',
-  'Cover Inker',
-  'Cover Colorist',
-  'Cover Separator',
-  'Penciller',
-  'Inker',
-  'Colorist',
-  'Painter',
-  'Letterer',
-  'Separator',
-  'Layouts',
-  'Translator',
-  'Plotter',
-  'Scripter',
-  'Editor',
-  'Editor in Chief',
-];
 
 class LibraryEditRenderer extends ConsumerStatefulWidget {
   const LibraryEditRenderer({
@@ -139,7 +114,8 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
 }
 
 class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin
+    implements ComicEditHost {
   final _formKey = GlobalKey<FormState>();
   LibraryEditSubmitAction _submitAction = LibraryEditSubmitAction.save;
   late final LibraryEditDraft _draft;
@@ -261,8 +237,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   List<String> _gameDeveloperOptions = const [];
   List<String> _gameGenreOptions = const [];
   List<String> _gamePlatformOptions = const [];
-  final List<_EditableComicCreator> _comicCreators = [];
-  final List<_EditableComicCharacter> _comicCharacters = [];
+  final List<EditableComicCreator> _comicCreators = [];
+  final List<EditableComicCharacter> _comicCharacters = [];
   final List<Map<String, TextEditingController>> _comicLinks = [];
   final TextEditingController _comicCharacterDraftController =
       TextEditingController();
@@ -604,7 +580,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   void _initializeComicEditors() {
-    _initializeComicEditorsForState();
+    if (!_isComicKind) return;
+    _comicCreators.addAll(initComicCreators(widget.item));
+    _comicCharacters.addAll(initComicCharacters(widget.item));
+    for (final link
+        in widget.item.trailerUrls.where((entry) => entry.isExternalLink)) {
+      _comicLinks.add(_createComicLinkControllers(
+        title: link.title ?? link.description ?? '',
+        url: link.url,
+      ));
+    }
   }
 
   void _initializeVideoEditors() {
@@ -767,9 +752,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           videoEdit: _videoEdit,
         );
       case 'creators':
-        return _comicCreatorsTab();
+        return buildComicCreatorsTab();
       case 'characters':
-        return _comicCharactersTab();
+        return buildComicCharactersTab();
       case 'discs':
         return VideoEditDiscsTab(
           type: widget.type,
@@ -785,14 +770,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _valueTabForKind() {
     if (_isComicKind) {
-      return _ownedComicValueTab();
+      return buildComicValueTab();
     }
     return _valueTab();
   }
 
   Widget _personalTabForKind() {
     if (_isComicKind) {
-      return _ownedComicPersonalTab();
+      return buildComicPersonalTab();
     }
     return _personalTab();
   }
@@ -808,7 +793,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _linksTabForKind() {
     if (_isComicKind) {
-      return _comicLinksTab();
+      return buildComicLinksTab();
     }
     return VideoEditLinksTab(
       type: widget.type,
@@ -881,7 +866,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _mainTab() {
     if (_editPresentation.usesOwnedMainArtworkLayout) {
-      return _ownedComicMainTab();
+      return buildComicMainTab();
     }
     final editPresentation = _editPresentation;
     return EditTabShell(
@@ -1034,7 +1019,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _detailsTab() {
     if (_editPresentation.usesDetailsTab) {
-      return _ownedComicDetailsTab();
+      return buildComicOwnedDetailsTab();
     }
     return const SizedBox.shrink();
   }
@@ -1688,7 +1673,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _photosTab() {
     if (_editPresentation.usesArtworkPhotosTab) {
-      return _comicPhotosTab();
+      return buildComicPhotosTab();
     }
     return EditTabShell(
       children: [
@@ -1707,7 +1692,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _coverTab() {
     if (_editPresentation.usesArtworkCoverTab) {
-      return _comicCoverTab();
+      return buildComicCoverTab();
     }
     return EditTabShell(
       children: [
@@ -2407,7 +2392,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _submitAction = submitAction;
     var selection = _draft.buildSelection(submitAction: _submitAction);
     selection = _videoEdit.applyVideoSelectionEdits(selection);
-    selection = _applyComicSelectionEdits(selection);
+    selection = applyComicSelectionEdits(
+      selection,
+      _comicCreators,
+      _comicCharacters,
+      _comicLinks,
+    );
     selection = _applyGameSelection(selection);
     selection = _normalizeSelectionScope(selection);
     await _videoEdit.persistUserExternalLinks();
@@ -2691,4 +2681,363 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _selectedWishlistBundleReleaseId = state.selectedBundleReleaseId;
     });
   }
+
+
+  // ---------------------------------------------------------------------------
+  // ComicEditHost implementation
+  // ---------------------------------------------------------------------------
+
+  @override
+  BuildContext get comicContext => context;
+
+  @override
+  WidgetRef get comicRef => ref;
+
+  @override
+  Color get comicAccent => widget.accent;
+
+  @override
+  LibraryTypeConfig get comicLibraryType => widget.type;
+
+  @override
+  LibraryMetadataItem get comicLibraryItem => widget.item;
+
+  @override
+  List<ItemImage> get comicItemImages => widget.itemImages;
+
+  @override
+  LibraryEditPresentationState get comicEditPresentation => _editPresentation;
+
+  @override
+  List<EditableComicCreator> get comicCreators => _comicCreators;
+
+  @override
+  List<EditableComicCharacter> get comicCharacters => _comicCharacters;
+
+  @override
+  List<Map<String, TextEditingController>> get comicLinks => _comicLinks;
+
+  @override
+  TextEditingController get comicCharacterDraftController =>
+      _comicCharacterDraftController;
+
+  @override
+  TextEditingController get comicTitleController => _titleController;
+
+  @override
+  TextEditingController get comicOriginalTitleController =>
+      _originalTitleController;
+
+  @override
+  TextEditingController get comicEditionTitleController =>
+      _editionTitleController;
+
+  @override
+  TextEditingController get comicVariantController => _variantController;
+
+  @override
+  TextEditingController get comicNumberController => _numberController;
+
+  @override
+  TextEditingController get comicBarcodeController => _barcodeController;
+
+  @override
+  TextEditingController get comicPhysicalFormatLabelController =>
+      _physicalFormatLabelController;
+
+  @override
+  TextEditingController get comicCoverDateController => _coverDateController;
+
+  @override
+  TextEditingController get comicCoverDateYearPartController =>
+      _coverDateYearPartController;
+
+  @override
+  TextEditingController get comicCoverDateMonthPartController =>
+      _coverDateMonthPartController;
+
+  @override
+  TextEditingController get comicCoverDateDayPartController =>
+      _coverDateDayPartController;
+
+  @override
+  TextEditingController get comicReleaseDateController => _releaseDateController;
+
+  @override
+  TextEditingController get comicReleaseDateYearPartController =>
+      _releaseDateYearPartController;
+
+  @override
+  TextEditingController get comicReleaseDateMonthPartController =>
+      _releaseDateMonthPartController;
+
+  @override
+  TextEditingController get comicReleaseDateDayPartController =>
+      _releaseDateDayPartController;
+
+  @override
+  TextEditingController get comicLocalizedTitleController =>
+      _localizedTitleController;
+
+  @override
+  TextEditingController get comicSearchAliasesController =>
+      _searchAliasesController;
+
+  @override
+  TextEditingController get comicSortKeyController => _sortKeyController;
+
+  @override
+  TextEditingController get comicAgeRatingController => _ageRatingController;
+
+  @override
+  TextEditingController get comicPageCountController => _pageCountController;
+
+  @override
+  TextEditingController get comicGenresEditController => _genresEditController;
+
+  @override
+  TextEditingController get comicLanguageController => _languageController;
+
+  @override
+  TextEditingController get comicOwnerLabelController => _ownerLabelController;
+
+  @override
+  TextEditingController get comicTagsController => _tagsController;
+
+  @override
+  TextEditingController get comicStorageDeviceController =>
+      _storageDeviceController;
+
+  @override
+  TextEditingController get comicStorageSlotController => _storageSlotController;
+
+  @override
+  TextEditingController get comicTrackingNotesController =>
+      _trackingNotesController;
+
+  @override
+  TextEditingController get comicNotesController => _notesController;
+
+  @override
+  TextEditingController get comicTrackingController => _trackingController;
+
+  @override
+  TextEditingController get comicRatingController => _ratingController;
+
+  @override
+  TextEditingController get comicGradeController => _gradeController;
+
+  @override
+  TextEditingController get comicConditionController => _conditionController;
+
+  @override
+  TextEditingController get comicRawOrSlabbedController =>
+      _rawOrSlabbedController;
+
+  @override
+  TextEditingController get comicGradingCompanyController =>
+      _gradingCompanyController;
+
+  @override
+  TextEditingController get comicGraderNotesController =>
+      _graderNotesController;
+
+  @override
+  TextEditingController get comicSignedByController => _signedByController;
+
+  @override
+  TextEditingController get comicLabelTypeController => _labelTypeController;
+
+  @override
+  TextEditingController get comicCertificationNumberController =>
+      _certificationNumberController;
+
+  @override
+  TextEditingController get comicCoverPriceController => _coverPriceController;
+
+  @override
+  TextEditingController get comicKeyReasonController => _keyReasonController;
+
+  @override
+  TextEditingController get comicKeyCategoryController =>
+      _keyCategoryController;
+
+  @override
+  TextEditingController get comicPriceController => _priceController;
+
+  @override
+  TextEditingController get comicCurrencyController => _currencyController;
+
+  @override
+  TextEditingController get comicMarketValueController => _marketValueController;
+
+  @override
+  TextEditingController get comicPurchaseDateController =>
+      _purchaseDateController;
+
+  @override
+  TextEditingController get comicPurchaseStoreController =>
+      _purchaseStoreController;
+
+  @override
+  TextEditingController get comicSellPriceController => _sellPriceController;
+
+  @override
+  TextEditingController get comicSoldToController => _soldToController;
+
+  @override
+  TextEditingController get comicCoverController => _coverController;
+
+  @override
+  TextEditingController get comicThumbnailController => _thumbnailController;
+
+  @override
+  bool get comicKeyComic => _keyComic;
+
+  @override
+  set comicKeyComic(bool value) => _keyComic = value;
+
+  @override
+  DateTime? get comicLastBagBoardDate => _lastBagBoardDate;
+
+  @override
+  set comicLastBagBoardDate(DateTime? value) => _lastBagBoardDate = value;
+
+  @override
+  DateTime? get comicStartedAt => _startedAt;
+
+  @override
+  set comicStartedAt(DateTime? value) => _startedAt = value;
+
+  @override
+  DateTime? get comicFinishedAt => _finishedAt;
+
+  @override
+  set comicFinishedAt(DateTime? value) => _finishedAt = value;
+
+  @override
+  DateTime? get comicSoldAt => _soldAt;
+
+  @override
+  set comicSoldAt(DateTime? value) => _soldAt = value;
+
+  @override
+  String? get comicSelectedBundleReleaseId => _selectedBundleReleaseId;
+
+  @override
+  set comicSelectedBundleReleaseId(String? value) =>
+      _selectedBundleReleaseId = value;
+
+  @override
+  bool get comicShowPhysicalOwnedFields => _showPhysicalOwnedFields;
+
+  @override
+  String get comicSelectedOwnedAnchorType => _selectedOwnedAnchorType;
+
+  @override
+  List<ItemImageEdit> get comicItemImageEdits => _itemImageEdits;
+
+  @override
+  set comicItemImageEdits(List<ItemImageEdit> value) => _itemImageEdits = value;
+
+  @override
+  List<String> get comicGenreOptions => _genreOptions;
+
+  @override
+  List<String> get comicTagOptions => _tagOptions;
+
+  @override
+  List<String> get comicOwnerOptions => _ownerOptions;
+
+  @override
+  void comicMutateState(VoidCallback fn) => _mutateDialogState(fn);
+
+  @override
+  void comicOpenEditTab(String id) => _openEditTab(id);
+
+  @override
+  Map<String, TextEditingController> comicCreateLinkControllers({
+    String title = '',
+    String url = '',
+  }) =>
+      _createComicLinkControllers(title: title, url: url);
+
+  @override
+  Widget buildComicCrossoverPickField({String label = 'Crossover'}) =>
+      _crossoverPickField(label: label);
+
+  @override
+  Widget buildComicStoryArcPickField({String label = 'Story Arc'}) =>
+      _storyArcPickField(label: label);
+
+  @override
+  Widget buildComicCountryPickField({String label = 'Country'}) =>
+      _countryPickField(label: label);
+
+  @override
+  Widget buildComicPageQualityPickField({String label = 'Page quality'}) =>
+      _pageQualityPickField(label: label);
+
+  @override
+  Widget buildComicKeyCategoryPickField({String label = 'Key category'}) =>
+      _keyCategoryPickField(label: label);
+
+  @override
+  Widget buildComicSeriesField() => _seriesField();
+
+  @override
+  Widget buildComicPublisherField({String label = 'Publisher'}) =>
+      _publisherField(label: label);
+
+  @override
+  Widget buildComicImprintField() => _imprintField();
+
+  @override
+  Widget buildComicSeriesGroupField({String label = 'Series Group'}) =>
+      _seriesGroupField(label: label);
+
+  @override
+  Widget buildComicPhysicalFormatField({String label = 'Format'}) =>
+      _physicalFormatField(label: label);
+
+  @override
+  Widget buildComicTagsDropdownField({String label = 'Tags'}) =>
+      _tagsDropdownField(label: label);
+
+  @override
+  Widget buildComicOwnerPickField({String label = 'Owner'}) =>
+      _ownerPickField(label: label);
+
+  @override
+  Widget buildComicOwnershipAnchorSelectionField() =>
+      _ownershipAnchorSelectionField();
+
+  @override
+  Widget buildComicEditionSelectionField() => _editionSelectionField();
+
+  @override
+  Widget buildComicVariantSelectionField() => _variantSelectionField();
+
+  @override
+  Widget buildComicBundleReleaseSelectionField({
+    Key? fieldKey,
+    required String label,
+    required String? selectedBundleReleaseId,
+    required ValueChanged<String?> onChanged,
+  }) =>
+      _bundleReleaseSelectionField(
+        fieldKey: fieldKey,
+        label: label,
+        selectedBundleReleaseId: selectedBundleReleaseId,
+        onChanged: onChanged,
+      );
+
+  @override
+  Widget buildComicFlexRow(
+    List<Widget> children, {
+    required List<int> flexes,
+    double breakpoint = 880,
+  }) =>
+      _flexResponsiveFields(children, flexes: flexes, breakpoint: breakpoint);
+
 }
