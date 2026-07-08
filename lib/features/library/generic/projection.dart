@@ -555,7 +555,7 @@ String libraryFolderTreeNodeId({
   final segments = <String>[];
   for (var index = 0; index < buckets.length; index += 1) {
     segments.add(
-      '${modes[index].name}=${Uri.encodeComponent(buckets[index])}',
+      '${libraryGroupModeStorageValue(modes[index])}=${Uri.encodeComponent(buckets[index])}',
     );
   }
   return segments.join('|');

@@ -245,7 +245,12 @@ class LibraryRouteState {
       return null;
     }
     final candidate = trimmed.split('.').last;
-    return _enumByName(LibrarySortColumn.values, candidate);
+    for (final column in LibrarySortColumn.values) {
+      if (column.name == candidate || _stableToken(column.name) == candidate) {
+        return column;
+      }
+    }
+    return null;
   }
 
   static LibraryFolderPreset? _decodeFolderPreset(String? rawValue) {
@@ -409,4 +414,13 @@ String _normalizeBase64(String rawValue) {
     return rawValue;
   }
   return '$rawValue${'=' * (4 - remainder)}';
+}
+
+String _stableToken(String value) {
+  return value
+      .replaceAllMapped(
+        RegExp(r'([a-z0-9])([A-Z])'),
+        (match) => '${match[1]}_${match[2]}',
+      )
+      .toLowerCase();
 }
