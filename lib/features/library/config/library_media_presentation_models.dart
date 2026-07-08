@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -769,6 +770,7 @@ class LibraryMediaPresentation {
     this.statusLabels = const LibraryStatusLabels(),
     this.bucketLabelOverrides = const LibraryBucketLabelOverrides(),
     this.columnRegistry,
+    this.fieldDefinitions = const [],
     required this.sortColumnDefinitions,
     required this.groupModeDefinitions,
     required this.groupModes,
@@ -798,9 +800,22 @@ class LibraryMediaPresentation {
   final LibraryStatusLabels statusLabels;
   final LibraryBucketLabelOverrides bucketLabelOverrides;
   final LibraryColumnRegistry? columnRegistry;
+  final List<LibraryFieldDefinition<LibraryWorkspaceEntry, Object?>>
+      fieldDefinitions;
   final List<LibraryGroupModeDefinition> groupModeDefinitions;
   final List<LibrarySortColumnDefinition> sortColumnDefinitions;
   final List<LibraryGroupMode> groupModes;
+
+  LibraryFieldDefinition<LibraryWorkspaceEntry, Object?>? fieldDefinitionFor(
+    String id,
+  ) {
+    for (final definition in fieldDefinitions) {
+      if (definition.id.value == id) {
+        return definition;
+      }
+    }
+    return null;
+  }
 
   LibraryGroupModeDefinition groupModeDefinitionFor(LibraryGroupMode mode) {
     for (final definition in groupModeDefinitions) {

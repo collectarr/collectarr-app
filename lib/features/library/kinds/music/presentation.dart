@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace_entry_builder.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -606,7 +607,10 @@ const musicLibrarySortColumnDefinitions = [
       column: LibrarySortColumn.imprint, label: 'Imprint'),
 ];
 
-const musicLibraryMediaPresentation = LibraryMediaPresentation(
+final musicLibraryFieldDefinitions =
+    libraryWorkspaceFieldDefinitionsForKind('music');
+
+final musicLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter album, artist, release, or label...',
     emptySearchMessage: 'Enter an album, artist, release, or label.',
@@ -629,6 +633,7 @@ const musicLibraryMediaPresentation = LibraryMediaPresentation(
   statsLabels: musicStatsLabels,
   referenceLabels: LibraryReferenceLabels(itemScope: 'Album'),
   compactBucketIcon: Icons.person_2_outlined,
+  fieldDefinitions: musicLibraryFieldDefinitions,
   sortColumnDefinitions: musicLibrarySortColumnDefinitions,
   groupModeDefinitions: musicLibraryGroupModeDefinitions,
   groupModes: musicLibraryGroupModes,

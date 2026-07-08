@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation.dart'
     as comic_presentation;
 import 'package:collectarr_app/features/library/kinds/manga/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -129,6 +130,9 @@ const mangaLibraryBucketLabelOverrides = LibraryBucketLabelOverrides(
   character: 'Character',
 );
 
+final mangaLibraryFieldDefinitions =
+    libraryWorkspaceFieldDefinitionsForKind('manga');
+
 String mangaLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   return defaultLibraryBucketLabel(
     context,
@@ -137,7 +141,7 @@ String mangaLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   );
 }
 
-const mangaLibraryMediaPresentation = LibraryMediaPresentation(
+final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
@@ -166,6 +170,7 @@ const mangaLibraryMediaPresentation = LibraryMediaPresentation(
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.import_contacts_outlined,
+  fieldDefinitions: mangaLibraryFieldDefinitions,
   sortColumnDefinitions: comic_presentation.comicsLibrarySortColumnDefinitions,
   groupModeDefinitions: comic_presentation.comicsLibraryGroupModeDefinitions,
   groupModes: comic_presentation.comicsLibraryGroupModes,

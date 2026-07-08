@@ -41,7 +41,7 @@ const musicWorkspaceConfig = LibraryWorkspaceConfig(
   },
 );
 
-const musicLibraryConfig = LibraryTypeConfig(
+final musicLibraryConfig = LibraryTypeConfig(
   workspace: musicWorkspaceConfig,
   singularLabel: 'Music',
   pluralLabel: 'Music',

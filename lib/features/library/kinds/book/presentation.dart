@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/shared/workspace_presentation_su
 import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -687,6 +688,9 @@ const booksLibrarySortColumnDefinitions = [
   ),
 ];
 
+final booksLibraryFieldDefinitions =
+    libraryWorkspaceFieldDefinitionsForKind('book');
+
 final booksLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
@@ -722,6 +726,7 @@ final booksLibraryMediaPresentation = LibraryMediaPresentation(
   releaseEntryBuilder: buildBookReleaseWorkspaceEntry,
   bucketLabelBuilder: booksLibraryBucketLabelBuilder,
   previewLabels: booksPreviewLabels,
+  fieldDefinitions: booksLibraryFieldDefinitions,
   sortColumnDefinitions: booksLibrarySortColumnDefinitions,
   groupModeDefinitions: booksLibraryGroupModeDefinitions,
   groupModes: booksLibraryGroupModes,

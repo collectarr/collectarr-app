@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -568,7 +569,10 @@ const moviesLibrarySortColumnDefinitions = [
   ),
 ];
 
-const moviesLibraryMediaPresentation = LibraryMediaPresentation(
+final moviesLibraryFieldDefinitions =
+    libraryWorkspaceFieldDefinitionsForKind('movie');
+
+final moviesLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
@@ -591,6 +595,7 @@ const moviesLibraryMediaPresentation = LibraryMediaPresentation(
   statsLabels: moviesStatsLabels,
   compactBucketIcon: Icons.movie_filter_outlined,
   emptyStateProviderSummarySuffix: ' Physical formats are tracked as editions.',
+  fieldDefinitions: moviesLibraryFieldDefinitions,
   sortColumnDefinitions: moviesLibrarySortColumnDefinitions,
   groupModeDefinitions: moviesLibraryGroupModeDefinitions,
   groupModes: moviesLibraryGroupModes,

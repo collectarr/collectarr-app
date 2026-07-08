@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -258,7 +259,10 @@ const tvLibrarySortColumnDefinitions = [
   ),
 ];
 
-const tvLibraryMediaPresentation = LibraryMediaPresentation(
+final tvLibraryFieldDefinitions =
+    libraryWorkspaceFieldDefinitionsForKind('tv');
+
+final tvLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter series, episode, or keyword...',
     emptySearchMessage: 'Enter a series, episode, or keyword.',
@@ -283,6 +287,7 @@ const tvLibraryMediaPresentation = LibraryMediaPresentation(
   statsLabels: tvStatsLabels,
   compactBucketIcon: Icons.tv_outlined,
   emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
+  fieldDefinitions: tvLibraryFieldDefinitions,
   sortColumnDefinitions: tvLibrarySortColumnDefinitions,
   groupModeDefinitions: tvLibraryGroupModeDefinitions,
   groupModes: tvLibraryGroupModes,

@@ -34,7 +34,7 @@ const mangaWorkspaceConfig = LibraryWorkspaceConfig(
   },
 );
 
-const mangaLibraryConfig = LibraryTypeConfig(
+final mangaLibraryConfig = LibraryTypeConfig(
   workspace: mangaWorkspaceConfig,
   singularLabel: 'Manga',
   pluralLabel: 'Manga',

@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace_entry_
         buildBoardGameEditionWorkspaceEntry,
         buildBoardGameWorkspaceEntry;
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -263,7 +264,10 @@ const boardGamesLibrarySortColumns = [
   LibrarySortColumn.imprint,
 ];
 
-const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
+final boardGamesLibraryFieldDefinitions =
+    libraryWorkspaceFieldDefinitionsForKind('boardgame');
+
+final boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
@@ -284,6 +288,7 @@ const boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: boardGamesLibraryBucketLabelBuilder,
   previewLabels: boardGamesPreviewLabels,
   statsLabels: boardGamesStatsLabels,
+  fieldDefinitions: boardGamesLibraryFieldDefinitions,
   sortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
   groupModeDefinitions: boardGamesLibraryGroupModeDefinitions,
   groupModes: boardGamesLibraryGroupModes,

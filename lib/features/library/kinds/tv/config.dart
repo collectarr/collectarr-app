@@ -34,7 +34,7 @@ const tvWorkspaceConfig = LibraryWorkspaceConfig(
   },
 );
 
-const tvLibraryConfig = LibraryTypeConfig(
+final tvLibraryConfig = LibraryTypeConfig(
   workspace: tvWorkspaceConfig,
   singularLabel: 'TV Show',
   pluralLabel: 'TV Shows',

@@ -34,7 +34,7 @@ const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
   },
 );
 
-const boardGamesLibraryConfig = LibraryTypeConfig(
+final boardGamesLibraryConfig = LibraryTypeConfig(
   workspace: boardGamesWorkspaceConfig,
   singularLabel: 'Board Game',
   pluralLabel: 'Board Games',

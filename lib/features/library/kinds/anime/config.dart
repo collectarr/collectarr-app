@@ -31,7 +31,7 @@ const animeWorkspaceConfig = LibraryWorkspaceConfig(
   },
 );
 
-const animeLibraryConfig = LibraryTypeConfig(
+final animeLibraryConfig = LibraryTypeConfig(
   workspace: animeWorkspaceConfig,
   singularLabel: 'Anime',
   pluralLabel: 'Anime',

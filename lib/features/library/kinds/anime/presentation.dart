@@ -118,7 +118,7 @@ String animeLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   );
 }
 
-const animeLibraryMediaPresentation = LibraryMediaPresentation(
+final animeLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',

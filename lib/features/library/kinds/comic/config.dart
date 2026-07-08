@@ -43,7 +43,7 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   },
 );
 
-const comicsLibraryConfig = LibraryTypeConfig(
+final comicsLibraryConfig = LibraryTypeConfig(
   workspace: comicsWorkspaceConfig,
   singularLabel: 'Comic',
   pluralLabel: 'Comics',

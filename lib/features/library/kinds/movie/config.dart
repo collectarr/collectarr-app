@@ -35,7 +35,7 @@ const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   },
 );
 
-const moviesLibraryConfig = LibraryTypeConfig(
+final moviesLibraryConfig = LibraryTypeConfig(
   workspace: moviesWorkspaceConfig,
   singularLabel: 'Movie',
   pluralLabel: 'Movies',

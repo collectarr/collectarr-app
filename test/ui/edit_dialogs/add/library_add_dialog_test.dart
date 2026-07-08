@@ -208,7 +208,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: gamesLibraryConfig,
@@ -267,7 +267,7 @@ void main() {
           ),
           localDatabaseProvider.overrideWithValue(db),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicsLibraryConfig,
@@ -1041,7 +1041,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicsLibraryConfig,
@@ -1083,7 +1083,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: moviesLibraryConfig,
@@ -1164,7 +1164,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicsLibraryConfig,
@@ -1478,7 +1478,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: moviesLibraryConfig,
@@ -1529,7 +1529,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicsLibraryConfig,
@@ -1584,7 +1584,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicsLibraryConfig,
@@ -1644,7 +1644,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicsLibraryConfig,
@@ -1693,7 +1693,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicsLibraryConfig,
@@ -1747,7 +1747,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicsLibraryConfig,
@@ -1812,7 +1812,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicsLibraryConfig,
@@ -1883,7 +1883,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: musicLibraryConfig,
@@ -1937,7 +1937,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: musicLibraryConfig,
@@ -1985,7 +1985,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: musicLibraryConfig,
@@ -2033,7 +2033,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: musicLibraryConfig,
@@ -2084,7 +2084,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: moviesLibraryConfig,

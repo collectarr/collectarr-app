@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/game/presentation_builder.
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -566,7 +567,10 @@ const gamesLibrarySortColumnDefinitions = [
       column: LibrarySortColumn.imprint, label: 'Imprint'),
 ];
 
-const gamesLibraryMediaPresentation = LibraryMediaPresentation(
+final gamesLibraryFieldDefinitions =
+    libraryWorkspaceFieldDefinitionsForKind('game');
+
+final gamesLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
@@ -587,6 +591,7 @@ const gamesLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: gamesLibraryBucketLabelBuilder,
   previewLabels: gamesPreviewLabels,
   statsLabels: gamesStatsLabels,
+  fieldDefinitions: gamesLibraryFieldDefinitions,
   sortColumnDefinitions: gamesLibrarySortColumnDefinitions,
   groupModeDefinitions: gamesLibraryGroupModeDefinitions,
   groupModes: gamesLibraryGroupModes,

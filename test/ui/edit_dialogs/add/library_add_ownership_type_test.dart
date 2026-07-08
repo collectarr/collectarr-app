@@ -27,7 +27,7 @@ void main() {
             (ref) async => const <String, AdminProviderStatus>{},
           ),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
               type: moviesLibraryConfig,
