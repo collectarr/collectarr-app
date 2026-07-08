@@ -9,17 +9,15 @@ class LibraryToolbarActionRegistry {
     required LibraryWorkspaceViewState viewState,
     required ShelfState? shelfState,
   }) {
+    final availability = state.widget.type.toolbarActionAvailability;
+    final kindCapabilities = availability.capabilities;
     final showReleaseFolderBack =
         state.widget.type.kindUiAdapter.shouldShowReleaseFolderBack(
       state.widget.type,
       browserMode: state._activeBrowserMode,
       releaseFolderTitleItemId: state.activeReleaseFolderTitleItemId,
     );
-
-    final declaredActions = state.widget.type.workspace.toolbarActions.toSet();
-    final kindCapabilities = state.widget.type.capabilities.toolbarCapabilities;
-
-    bool enabled(LibraryToolbarActionId id) => declaredActions.contains(id);
+    bool enabled(LibraryToolbarActionId id) => availability.allows(id);
 
     return LibraryToolbarActions(
       onAdd: enabled(LibraryToolbarActionId.add)
@@ -30,9 +28,8 @@ class LibraryToolbarActionRegistry {
           : () {},
       onSearchChanged: state._onSearchChanged,
       onSearchInputChanged: state._onSearchInputChanged,
-      onSearchTargetChanged: state._supportsMusicTrackSearch
-          ? state._onSearchTargetChanged
-          : null,
+      onSearchTargetChanged:
+          state._supportsMusicTrackSearch ? state._onSearchTargetChanged : null,
       onClearSearch: state._clearSearch,
       onSearchSuggestionSelected: state._applySearchSuggestion,
       onEditColumns: enabled(LibraryToolbarActionId.editColumns)
@@ -68,15 +65,17 @@ class LibraryToolbarActionRegistry {
       onTogglePinnedViewPreset: state._togglePinnedViewPreset,
       onSortFavoriteSelected: state._applySortFavorite,
       onTogglePinnedSortFavorite: state._togglePinnedSortFavorite,
-      onManageSortFavorites: state._dialogCoordinator.showSortFavoritesManagerFlow,
+      onManageSortFavorites:
+          state._dialogCoordinator.showSortFavoritesManagerFlow,
       onColumnFavoriteSelected: state._applyColumnFavorite,
       onTogglePinnedColumnFavorite: state._togglePinnedColumnFavorite,
       onJumpToIssueSubmitted: projection == null
           ? null
           : (value) => state._jumpToIssue(projection, value),
       onClearFilters: state._clearFilters,
-      onEditFilters:
-          projection == null ? null : () => state._dialogCoordinator.showFilterDialogFlow(projection),
+      onEditFilters: projection == null
+          ? null
+          : () => state._dialogCoordinator.showFilterDialogFlow(projection),
       onRandomPick: projection == null
           ? null
           : () =>
@@ -84,9 +83,10 @@ class LibraryToolbarActionRegistry {
       onScanCover: kindCapabilities.canScanCover
           ? () => state._coverCoordinator.scanCoverFlow()
           : null,
-      onDownloadAllCovers: kindCapabilities.canDownloadAllCovers && shelfState != null
-          ? () => state._coverCoordinator.downloadAllCoversFlow(shelfState)
-          : null,
+      onDownloadAllCovers:
+          kindCapabilities.canDownloadAllCovers && shelfState != null
+              ? () => state._coverCoordinator.downloadAllCoversFlow(shelfState)
+              : null,
       onSmartLists: shelfState == null
           ? null
           : () => state._dialogCoordinator.showSmartListsFlow(shelfState),
@@ -110,10 +110,9 @@ class LibraryToolbarActionRegistry {
               state._hasOwnedItemsInProjection(projection)
           ? () => state._dialogCoordinator.reassignIndexFlow(projection)
           : null,
-      onPrintReport:
-          projection != null && projection.filteredItems.isNotEmpty
-              ? () => state._reportCoordinator.printReportFlow(projection)
-              : null,
+      onPrintReport: projection != null && projection.filteredItems.isNotEmpty
+          ? () => state._reportCoordinator.printReportFlow(projection)
+          : null,
       onMissingComics: projection != null &&
               kindCapabilities.canMissingComicsReport &&
               state.widget.type.kindUiAdapter.supportsMissingComicsReport(

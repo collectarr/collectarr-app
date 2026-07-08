@@ -110,6 +110,19 @@ class KindToolbarCapabilities {
   final bool canMissingComicsReport;
 }
 
+class LibraryToolbarActionAvailability {
+  const LibraryToolbarActionAvailability({
+    required this.declaredActions,
+    required this.capabilities,
+  });
+
+  final Set<LibraryToolbarActionId> declaredActions;
+  final KindToolbarCapabilities capabilities;
+
+  bool allows(LibraryToolbarActionId action) =>
+      declaredActions.contains(action);
+}
+
 extension LibraryTypeCapabilitiesToolbar on LibraryTypeCapabilities {
   KindToolbarCapabilities get toolbarCapabilities {
     return KindToolbarCapabilities(
@@ -119,6 +132,15 @@ extension LibraryTypeCapabilitiesToolbar on LibraryTypeCapabilities {
       canReassignIndex: supportsIndexReassignment,
       canCompareMetadataWithServer: supportsMetadataCompare,
       canMissingComicsReport: usesComicCollectorFields,
+    );
+  }
+}
+
+extension LibraryTypeConfigToolbarAvailability on LibraryTypeConfig {
+  LibraryToolbarActionAvailability get toolbarActionAvailability {
+    return LibraryToolbarActionAvailability(
+      declaredActions: workspace.toolbarActions.toSet(),
+      capabilities: capabilities.toolbarCapabilities,
     );
   }
 }
