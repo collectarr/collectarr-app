@@ -98,17 +98,23 @@ class LibraryColumnPresetStore {
     return {
       'id': preset.id,
       'label': preset.label,
-      'columns': [for (final column in preset.columns) column.name],
+      'columns': [
+        for (final column in preset.columns)
+          config.tableColumnFieldId(column),
+      ],
     };
   }
 
   LibraryTableColumn? _columnByName(String name) {
-    for (final column in config.availableTableColumns) {
-      if (column.name == name) {
-        return column;
-      }
-    }
-    return null;
+    return config.tableColumnFromFieldId(name) ??
+        (() {
+          for (final column in config.availableTableColumns) {
+            if (column.name == name) {
+              return column;
+            }
+          }
+          return null;
+        })();
   }
 
   String _slug(String value) {

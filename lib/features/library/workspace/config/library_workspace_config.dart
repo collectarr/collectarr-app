@@ -536,4 +536,50 @@ class LibraryWorkspaceConfig {
   }
 
   String preferenceKey(String suffix) => '$preferencePrefix.$suffix';
+
+  String sortColumnFieldId(LibrarySortColumn column) {
+    return '${kind.apiValue}.${column.name}';
+  }
+
+  String tableColumnFieldId(LibraryTableColumn column) {
+    return '${kind.apiValue}.${column.name}';
+  }
+
+  LibrarySortColumn? sortColumnFromFieldId(String? fieldId) {
+    if (fieldId == null || fieldId.trim().isEmpty) {
+      return null;
+    }
+    final normalized = fieldId.trim();
+    final legacyName = normalized.contains('.')
+        ? normalized.substring(normalized.lastIndexOf('.') + 1)
+        : normalized;
+    for (final column in availableSortColumns) {
+      if (column.name == normalized || column.name == legacyName) {
+        return column;
+      }
+      if (sortColumnFieldId(column) == normalized) {
+        return column;
+      }
+    }
+    return null;
+  }
+
+  LibraryTableColumn? tableColumnFromFieldId(String? fieldId) {
+    if (fieldId == null || fieldId.trim().isEmpty) {
+      return null;
+    }
+    final normalized = fieldId.trim();
+    final legacyName = normalized.contains('.')
+        ? normalized.substring(normalized.lastIndexOf('.') + 1)
+        : normalized;
+    for (final column in availableTableColumns) {
+      if (column.name == normalized || column.name == legacyName) {
+        return column;
+      }
+      if (tableColumnFieldId(column) == normalized) {
+        return column;
+      }
+    }
+    return null;
+  }
 }

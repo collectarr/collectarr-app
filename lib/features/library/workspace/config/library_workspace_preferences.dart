@@ -219,7 +219,9 @@ class LibraryWorkspacePreferences {
     await prefs.setBool(
         _key('sidebar_visible'), normalizedSnapshot.isSidebarVisible);
     await prefs.setString(
-        _key('sort_column'), normalizedSnapshot.sortColumn.name);
+        _key('sort_column'),
+        config.sortColumnFieldId(normalizedSnapshot.sortColumn),
+    );
     await prefs.setBool(
         _key('sort_ascending'), normalizedSnapshot.sortAscending);
     await prefs.setStringList(
@@ -236,7 +238,7 @@ class LibraryWorkspacePreferences {
     await prefs.setStringList(
       _key('visible_columns'),
       normalizedSnapshot.visibleColumns
-          .map((column) => column.name)
+          .map((column) => config.tableColumnFieldId(column))
           .toList(growable: false),
     );
     await prefs.setStringList(
@@ -253,7 +255,9 @@ class LibraryWorkspacePreferences {
     }
     final columns = {
       for (final value in values)
-        if (_enumByName(config.availableTableColumns, value) != null)
+        if (config.tableColumnFromFieldId(value) != null)
+          config.tableColumnFromFieldId(value)!
+        else if (_enumByName(config.availableTableColumns, value) != null)
           _enumByName(config.availableTableColumns, value)!,
     };
     if (config.supportsTableColumn(LibraryTableColumn.title) &&
@@ -266,7 +270,7 @@ class LibraryWorkspacePreferences {
   List<String> _encodeColumnWidths(Map<LibraryTableColumn, double> widths) {
     return [
       for (final entry in widths.entries)
-        '${entry.key.name}:${entry.value.round()}',
+        '${config.tableColumnFieldId(entry.key)}:${entry.value.round()}',
     ];
   }
 
@@ -276,7 +280,7 @@ class LibraryWorkspacePreferences {
     }
     return [
       for (final rule in rules)
-        '${rule.column.name}:${rule.ascending ? 'asc' : 'desc'}',
+        '${config.sortColumnFieldId(rule.column)}:${rule.ascending ? 'asc' : 'desc'}',
     ];
   }
 
@@ -290,7 +294,9 @@ class LibraryWorkspacePreferences {
       if (parts.length != 2) {
         continue;
       }
-      final column = _enumByName(config.availableSortColumns, parts.first);
+      final column =
+          config.sortColumnFromFieldId(parts.first) ??
+          _enumByName(config.availableSortColumns, parts.first);
       if (column == null) {
         continue;
       }
@@ -314,7 +320,9 @@ class LibraryWorkspacePreferences {
       if (parts.length != 2) {
         continue;
       }
-      final column = _enumByName(config.availableTableColumns, parts[0]);
+      final column =
+          config.tableColumnFromFieldId(parts[0]) ??
+          _enumByName(config.availableTableColumns, parts[0]);
       final width = double.tryParse(parts[1]);
       if (column != null && width != null) {
         widths[column] = width;
