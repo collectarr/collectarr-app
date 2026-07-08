@@ -97,7 +97,7 @@ class LibrarySortPresetStore {
       'rules': [
         for (final rule in _dedupeRules(preset.rules))
           {
-            'column': rule.column.name,
+            'column': config.sortColumnFieldId(rule.column),
             'ascending': rule.ascending,
           },
       ],
@@ -119,13 +119,7 @@ class LibrarySortPresetStore {
         continue;
       }
       final columnName = json['column']?.toString();
-      LibrarySortColumn? column;
-      for (final candidate in config.availableSortColumns) {
-        if (candidate.name == columnName) {
-          column = candidate;
-          break;
-        }
-      }
+      final column = config.sortColumnFromFieldId(columnName);
       if (column == null) {
         continue;
       }

@@ -110,7 +110,10 @@ class LibraryWorkspacePreferences {
         prefs.getDouble(_key('details_width')) ?? defaultDetailsWidth;
     final detailsHeight =
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
-    final sortColumn = _enumByName(
+    final sortColumn = config.sortColumnFromFieldId(
+          prefs.getString(_key('sort_column')),
+        ) ??
+        _enumByName(
           config.availableSortColumns,
           prefs.getString(_key('sort_column')),
         ) ??

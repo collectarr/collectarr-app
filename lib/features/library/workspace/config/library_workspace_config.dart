@@ -551,7 +551,7 @@ class LibraryWorkspaceConfig {
     }
     final normalized = fieldId.trim();
     for (final column in availableSortColumns) {
-      if (sortColumnFieldId(column) == normalized) {
+      if (sortColumnFieldId(column) == normalized || column.name == normalized) {
         return column;
       }
     }
@@ -564,7 +564,7 @@ class LibraryWorkspaceConfig {
     }
     final normalized = fieldId.trim();
     for (final column in availableTableColumns) {
-      if (tableColumnFieldId(column) == normalized) {
+      if (tableColumnFieldId(column) == normalized || column.name == normalized) {
         return column;
       }
     }

@@ -112,6 +112,41 @@ void main() {
     expect(restored.columnWidths[LibraryTableColumn.grade], 120);
   });
 
+  test('library workspace preferences migrate legacy enum names', () async {
+    SharedPreferences.setMockInitialValues({
+      'comics.sort_column': 'grade',
+      'comics.sort_rules': ['grade:desc', 'updated:asc'],
+      'comics.visible_columns': ['title', 'grade'],
+      'comics.column_widths': ['title:320', 'grade:120'],
+    });
+
+    final store = LibraryWorkspacePreferences(config);
+    final restored = await store.read(
+      defaultCoverSize: 128,
+      defaultDensityPreset: LibraryWorkspaceDensityPreset.compact,
+      minCoverSize: 104,
+      maxCoverSize: 188,
+    );
+
+    expect(restored.sortColumn, LibrarySortColumn.grade);
+    expect(restored.sortRules, [
+      const LibrarySortRule(
+        column: LibrarySortColumn.grade,
+        ascending: false,
+      ),
+      const LibrarySortRule(
+        column: LibrarySortColumn.updated,
+        ascending: true,
+      ),
+    ]);
+    expect(restored.visibleColumns, {
+      LibraryTableColumn.title,
+      LibraryTableColumn.grade,
+    });
+    expect(restored.columnWidths[LibraryTableColumn.title], 320);
+    expect(restored.columnWidths[LibraryTableColumn.grade], 120);
+  });
+
   test('workspace chrome size and position are retained per library',
       () async {
     final comicsStore = LibraryWorkspacePreferences(config);
