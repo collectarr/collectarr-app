@@ -77,35 +77,3 @@ class LibraryGroupDefinition<TDto, TValue> {
   final String label;
   final LibraryFieldValueGetter<TDto, TValue> getValue;
 }
-
-class LibraryColumnDefinition<TDto, TValue> {
-  const LibraryColumnDefinition({
-    required this.id,
-    required this.label,
-    required this.getValue,
-    this.cellValue,
-    this.sortable = true,
-    this.groupable = true,
-  });
-
-  final LibraryFieldId<TValue> id;
-  final String label;
-  final LibraryFieldValueGetter<TDto, TValue> getValue;
-  final LibraryCellValue Function(TValue value)? cellValue;
-  final bool sortable;
-  final bool groupable;
-}
-
-class LibrarySortDefinition<TDto, TValue> {
-  const LibrarySortDefinition({
-    required this.id,
-    required this.label,
-    required this.compare,
-    this.defaultAscending = true,
-  });
-
-  final LibraryFieldId<TValue> id;
-  final String label;
-  final int Function(TDto left, TDto right) compare;
-  final bool defaultAscending;
-}

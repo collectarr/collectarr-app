@@ -302,9 +302,7 @@ LibraryGroupMode? libraryGroupModeFromStorageValue(String value) {
       normalized.startsWith('group.') ? normalized.substring(6) : normalized;
   for (final mode in LibraryGroupMode.values) {
     final definition = libraryGroupModeDefinitionOrNull(mode);
-    if (mode.name == candidate ||
-        _stableToken(mode.name) == candidate ||
-        definition?.id == candidate) {
+    if (_stableToken(mode.name) == candidate || definition?.id == candidate) {
       return mode;
     }
   }

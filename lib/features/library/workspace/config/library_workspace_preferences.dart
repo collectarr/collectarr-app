@@ -103,7 +103,6 @@ class LibraryWorkspacePreferences {
     double defaultDetailsHeight = kLibraryDetailsDefaultHeight,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    await _migrateLegacyPreferenceKeys(prefs);
     final coverSize = prefs.getDouble(_key('cover_size')) ?? defaultCoverSize;
     final sidebarWidth =
         prefs.getDouble(_key('sidebar_width')) ?? defaultSidebarWidth;
@@ -111,14 +110,9 @@ class LibraryWorkspacePreferences {
         prefs.getDouble(_key('details_width')) ?? defaultDetailsWidth;
     final detailsHeight =
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
-    final sortColumn = config.sortColumnFromFieldId(
-          prefs.getString(_key('sort_column')),
-        ) ??
-        _enumByName(
-          config.availableSortColumns,
-          prefs.getString(_key('sort_column')),
-        ) ??
-        config.defaultSortColumn;
+    final sortColumn =
+        config.sortColumnFromFieldId(prefs.getString(_key('sort_column'))) ??
+            config.defaultSortColumn;
     final sortRules = _decodeSortRules(prefs.getStringList(_key('sort_rules')));
     final visibleColumns = _decodeVisibleColumns(
       prefs.getStringList(_key('visible_columns')),
@@ -329,101 +323,6 @@ class LibraryWorkspacePreferences {
       }
     }
     return widths;
-  }
-
-  Future<void> _migrateLegacyPreferenceKeys(SharedPreferences prefs) async {
-    final legacySortColumn = prefs.getString(_key('sort_column'));
-    final migratedSortColumn = _migrateSortColumnToken(legacySortColumn);
-    if (migratedSortColumn != legacySortColumn) {
-      await prefs.setString(_key('sort_column'), migratedSortColumn);
-    }
-
-    final legacyVisibleColumns = prefs.getStringList(_key('visible_columns'));
-    final migratedVisibleColumns = legacyVisibleColumns == null
-        ? null
-        : [
-            for (final value in legacyVisibleColumns)
-              _migrateTableColumnToken(value),
-          ];
-    if (migratedVisibleColumns != null &&
-        migratedVisibleColumns.join('|') != legacyVisibleColumns!.join('|')) {
-      await prefs.setStringList(_key('visible_columns'), migratedVisibleColumns);
-    }
-
-    final legacySortRules = prefs.getStringList(_key('sort_rules'));
-    final migratedSortRules = legacySortRules == null
-        ? null
-        : [
-            for (final value in legacySortRules)
-              _migrateSortRuleToken(value),
-          ];
-    if (migratedSortRules != null &&
-        migratedSortRules.join('|') != legacySortRules!.join('|')) {
-      await prefs.setStringList(_key('sort_rules'), migratedSortRules);
-    }
-
-    final legacyColumnWidths = prefs.getStringList(_key('column_widths'));
-    final migratedColumnWidths = legacyColumnWidths == null
-        ? null
-        : [
-            for (final value in legacyColumnWidths)
-              _migrateColumnWidthToken(value),
-          ];
-    if (migratedColumnWidths != null &&
-        migratedColumnWidths.join('|') != legacyColumnWidths!.join('|')) {
-      await prefs.setStringList(_key('column_widths'), migratedColumnWidths);
-    }
-  }
-
-  String _migrateSortColumnToken(String? token) {
-    if (token == null || token.trim().isEmpty) {
-      return token ?? '';
-    }
-    final column = config.sortColumnFromFieldId(token) ??
-        _sortColumnFromLegacyName(token);
-    return column == null ? token : config.sortColumnFieldId(column);
-  }
-
-  String _migrateTableColumnToken(String token) {
-    final column = config.tableColumnFromFieldId(token) ??
-        _tableColumnFromLegacyName(token);
-    return column == null ? token : config.tableColumnFieldId(column);
-  }
-
-  String _migrateSortRuleToken(String token) {
-    final parts = token.split(':');
-    if (parts.length != 2) {
-      return token;
-    }
-    final migratedColumn = _migrateSortColumnToken(parts.first);
-    return '$migratedColumn:${parts[1]}';
-  }
-
-  String _migrateColumnWidthToken(String token) {
-    final parts = token.split(':');
-    if (parts.length != 2) {
-      return token;
-    }
-    final migratedColumn = _migrateTableColumnToken(parts.first);
-    return '$migratedColumn:${parts[1]}';
-  }
-
-  LibrarySortColumn? _sortColumnFromLegacyName(String token) {
-    for (final column in config.availableSortColumns) {
-      if (column.name == token) {
-        return column;
-      }
-    }
-    return null;
-  }
-
-  LibraryTableColumn? _tableColumnFromLegacyName(String token) {
-    for (final column in config.availableTableColumns) {
-      if (column.name == token) {
-        return column;
-      }
-    }
-    return null;
   }
 
   Set<LibraryTableColumn> _normalizeVisibleColumns(

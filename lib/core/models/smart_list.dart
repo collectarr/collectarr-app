@@ -73,10 +73,7 @@ class SmartList {
     final decodedSortRules = _sortRulesFromJson(json['sort_rules']);
     final primarySortColumn = decodedSortRules.isNotEmpty
         ? decodedSortRules.first.column
-        : _enumByNameOrNull(
-            LibrarySortColumn.values.asNameMap(),
-            _sortColumnTokenFromJson(json['sort_column']),
-          );
+        : _sortColumnFromToken(json['sort_column']);
     final primarySortAscending = decodedSortRules.isNotEmpty
         ? decodedSortRules.first.ascending
         : json['sort_ascending'] as bool?;
@@ -189,10 +186,7 @@ class SmartList {
       if (entry is! Map) {
         continue;
       }
-      final column = _enumByNameOrNull(
-        LibrarySortColumn.values.asNameMap(),
-        _sortColumnTokenFromJson(entry['column']),
-      );
+      final column = _sortColumnFromToken(entry['column']);
       if (column == null) {
         continue;
       }
@@ -217,6 +211,19 @@ class SmartList {
       return null;
     }
     return _stableToken(rawValue.split('.').last);
+  }
+
+  static LibrarySortColumn? _sortColumnFromToken(Object? rawValue) {
+    final candidate = _sortColumnTokenFromJson(rawValue);
+    if (candidate == null) {
+      return null;
+    }
+    for (final column in LibrarySortColumn.values) {
+      if (_stableToken(column.name) == candidate) {
+        return column;
+      }
+    }
+    return null;
   }
 
   static String _stableToken(String value) {

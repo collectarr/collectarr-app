@@ -106,16 +106,7 @@ class LibraryColumnPresetStore {
   }
 
   LibraryTableColumn? _columnById(String id) {
-    return config.tableColumnFromFieldId(id) ?? _columnByLegacyName(id);
-  }
-
-  LibraryTableColumn? _columnByLegacyName(String name) {
-    for (final column in config.availableTableColumns) {
-      if (column.name == name) {
-        return column;
-      }
-    }
-    return null;
+    return config.tableColumnFromFieldId(id);
   }
 
   String _slug(String value) {

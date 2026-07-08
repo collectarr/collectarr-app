@@ -213,26 +213,20 @@ class LibraryRouteState {
     final decoded = <LibrarySortRule>[];
     for (final segment in trimmedValue.split(',')) {
       final separatorIndex = segment.lastIndexOf(':');
-      final columnToken = separatorIndex == -1
-          ? null
-          : segment.substring(0, separatorIndex).trim();
-      final direction = separatorIndex == -1
-          ? null
-          : segment.substring(separatorIndex + 1).trim().toLowerCase();
-      final legacyParts = segment.split('.');
-      final legacyColumnToken =
-          legacyParts.length == 2 ? legacyParts.first.trim() : null;
-      final resolvedColumn = _sortColumnFromToken(
-        columnToken ?? legacyColumnToken,
-      );
+      if (separatorIndex == -1) {
+        continue;
+      }
+      final columnToken = segment.substring(0, separatorIndex).trim();
+      final direction =
+          segment.substring(separatorIndex + 1).trim().toLowerCase();
+      final resolvedColumn = _sortColumnFromToken(columnToken);
       if (resolvedColumn == null) {
         continue;
       }
       decoded.add(
         LibrarySortRule(
           column: resolvedColumn,
-          ascending: (direction ?? legacyParts.last.trim().toLowerCase()) !=
-              'desc',
+          ascending: direction != 'desc',
         ),
       );
     }
@@ -246,7 +240,7 @@ class LibraryRouteState {
     }
     final candidate = trimmed.split('.').last;
     for (final column in LibrarySortColumn.values) {
-      if (column.name == candidate || _stableToken(column.name) == candidate) {
+      if (_stableToken(column.name) == candidate) {
         return column;
       }
     }

@@ -419,7 +419,6 @@ class LibraryWorkspaceConfig {
     final normalized = fieldId.trim();
     for (final column in availableSortColumns) {
       if (sortColumnFieldId(column) == normalized ||
-          column.name == normalized ||
           _stableToken(column.name) == normalized.split('.').last) {
         return column;
       }
@@ -434,7 +433,6 @@ class LibraryWorkspaceConfig {
     final normalized = fieldId.trim();
     for (final column in availableTableColumns) {
       if (tableColumnFieldId(column) == normalized ||
-          column.name == normalized ||
           _stableToken(column.name) == normalized.split('.').last) {
         return column;
       }
