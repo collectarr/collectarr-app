@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/shared/movie/presentation.dart'
 import 'package:collectarr_app/features/library/kinds/anime/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/shared/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -36,9 +36,6 @@ const animeStatsLabels = LibraryMediaStatsLabels(
   topSeries: 'Top Series',
   topPublisher: 'Top Studios',
 );
-
-final animeLibraryFieldDefinitions =
-    libraryWorkspaceFieldDefinitionsForKind('anime');
 
 const animeLibraryGroupModes = [
   LibraryGroupMode.series,

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation.dart'
     as comic_presentation;
 import 'package:collectarr_app/features/library/kinds/manga/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -134,9 +134,6 @@ const mangaLibraryBucketLabelOverrides = LibraryBucketLabelOverrides(
   storyArc: 'Story arc',
   character: 'Character',
 );
-
-final mangaLibraryFieldDefinitions =
-    libraryWorkspaceFieldDefinitionsForKind('manga');
 
 String mangaLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   return defaultLibraryBucketLabel(

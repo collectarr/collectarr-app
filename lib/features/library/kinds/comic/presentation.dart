@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -730,9 +730,6 @@ const comicsLibrarySortColumnDefinitions = [
   ),
 ];
 
-final comicsLibraryFieldDefinitions =
-    libraryWorkspaceFieldDefinitionsForKind('comic');
-
 final comicsLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
@@ -763,7 +760,7 @@ final comicsLibraryMediaPresentation = LibraryMediaPresentation(
   usesCompactTableLayout: true,
   sortFavorites: comicLibrarySortFavorites,
   columnFavorites: comicsTableColumnPresets,
-  fieldDefinitions: comicsLibraryFieldDefinitions,
+  fieldDefinitions: comicLibraryFieldDefinitions,
   sortColumnDefinitions: comicsLibrarySortColumnDefinitions,
   groupModeDefinitions: comicsLibraryGroupModeDefinitions,
   groupModes: comicsLibraryGroupModes,

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -293,8 +293,6 @@ const tvLibrarySortColumnDefinitions = [
     defaultAscending: false,
   ),
 ];
-
-final tvLibraryFieldDefinitions = libraryWorkspaceFieldDefinitionsForKind('tv');
 
 final tvLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
