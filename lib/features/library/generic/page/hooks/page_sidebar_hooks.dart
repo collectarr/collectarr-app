@@ -114,7 +114,6 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       _maybeEnsureFacetBucketsLoaded(shelfState, sanitized.primaryMode);
     }
     unawaited(_viewPrefs.writeFolderPreset(sanitized));
-    unawaited(_viewPrefs.writeGroupMode(sanitized.primaryMode));
     unawaited(_loadFolderTreePreferencesForActivePreset());
   }
 

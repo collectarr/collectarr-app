@@ -21,6 +21,10 @@ void main() {
     const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
     expect(reloadedStore.cachedQuickView, LibraryQuickView.wishlist);
     expect(reloadedStore.cachedGroupMode, LibraryGroupMode.publisher);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('library.movie.groupMode'), isNull);
+    expect(prefs.getString('library.movie.folderPreset'), 'publisher');
   });
 
   test('read populates cache and clearing removes cached values', () async {
