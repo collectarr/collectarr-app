@@ -157,14 +157,27 @@ class LibrarySortColumnDefinition {
   const LibrarySortColumnDefinition({
     required this.column,
     required this.label,
+    String? id,
     this.group = LibrarySortFieldGroup.main,
     this.defaultAscending = true,
-  });
+  }) : _id = id;
 
   final LibrarySortColumn column;
+  final String? _id;
   final String label;
   final LibrarySortFieldGroup group;
   final bool defaultAscending;
+
+  String get id => _id ?? _stableToken(column.name);
+
+  static String _stableToken(String value) {
+    return value
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+  }
 }
 
 String librarySortColumnFallbackLabel(LibrarySortColumn column) {
@@ -842,6 +855,15 @@ class LibraryMediaPresentation {
     return null;
   }
 
+  LibraryGroupModeDefinition? groupModeDefinitionForId(String id) {
+    for (final definition in groupModeDefinitions) {
+      if (definition.id == id) {
+        return definition;
+      }
+    }
+    return null;
+  }
+
   LibraryGroupModeDefinition groupModeDefinitionFor(LibraryGroupMode mode) {
     for (final definition in groupModeDefinitions) {
       if (definition.mode == mode) {
@@ -849,6 +871,15 @@ class LibraryMediaPresentation {
       }
     }
     return _fallbackGroupModeDefinition(mode);
+  }
+
+  LibrarySortColumnDefinition? sortColumnDefinitionForId(String id) {
+    for (final definition in sortColumnDefinitions) {
+      if (definition.id == id) {
+        return definition;
+      }
+    }
+    return null;
   }
 
   LibrarySortColumnDefinition sortColumnDefinitionFor(
