@@ -405,11 +405,11 @@ class LibraryWorkspaceConfig {
   String preferenceKey(String suffix) => '$preferencePrefix.$suffix';
 
   String sortColumnFieldId(LibrarySortColumn column) {
-    return '${kind.apiValue}.${column.name}';
+    return '${kind.apiValue}.${_stableToken(column.name)}';
   }
 
   String tableColumnFieldId(LibraryTableColumn column) {
-    return '${kind.apiValue}.${column.name}';
+    return '${kind.apiValue}.${_stableToken(column.name)}';
   }
 
   LibrarySortColumn? sortColumnFromFieldId(String? fieldId) {
@@ -419,7 +419,8 @@ class LibraryWorkspaceConfig {
     final normalized = fieldId.trim();
     for (final column in availableSortColumns) {
       if (sortColumnFieldId(column) == normalized ||
-          column.name == normalized) {
+          column.name == normalized ||
+          _stableToken(column.name) == normalized.split('.').last) {
         return column;
       }
     }
@@ -433,10 +434,20 @@ class LibraryWorkspaceConfig {
     final normalized = fieldId.trim();
     for (final column in availableTableColumns) {
       if (tableColumnFieldId(column) == normalized ||
-          column.name == normalized) {
+          column.name == normalized ||
+          _stableToken(column.name) == normalized.split('.').last) {
         return column;
       }
     }
     return null;
+  }
+
+  String _stableToken(String value) {
+    return value
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
   }
 }
