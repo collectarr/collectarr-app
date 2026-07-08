@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,24 @@ class LibraryAddSearchController {
   final Set<String> videoKindFilters;
 
   bool get isBusy => isSearching || isSearchingProvider;
+
+  void setInitialInput({
+    String? query,
+    String? barcode,
+  }) {
+    queryController.text = query?.trim() ?? '';
+    barcodeController.text = barcode?.trim() ?? '';
+  }
+
+  LibraryAddLocalRerankHints buildLocalRerankHints() {
+    return LibraryAddLocalRerankHints(
+      query: queryController.text,
+      series: searchSeriesController.text,
+      issueNumber: searchNumberController.text,
+      publisher: searchPublisherController.text,
+      year: int.tryParse(searchYearController.text.trim()),
+    );
+  }
 
   void clearSuggestions() {
     suggestions = const [];

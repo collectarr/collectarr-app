@@ -20,7 +20,6 @@ import 'package:collectarr_app/features/library/add/services/library_provider_ac
 import 'package:collectarr_app/features/library/add/models/library_add_content_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 export 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -432,8 +431,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _loadAvailableLocations();
     _loadPickListOptions();
     _loadPrefillDefaults();
-    _queryController.text = widget.initialQuery?.trim() ?? '';
-    _barcodeController.text = widget.initialBarcode?.trim() ?? '';
+    _searchState.setInitialInput(
+      query: widget.initialQuery,
+      barcode: widget.initialBarcode,
+    );
     _titleController.text = _queryController.text;
     _soldDateController.text = '';
     if (_barcodeController.text.isNotEmpty && widget.autoLookupInitialBarcode) {
@@ -481,16 +482,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _rebuild(() {
       _availableLocations = locations;
     });
-  }
-
-  LibraryAddLocalRerankHints _currentLocalRerankHints() {
-    return LibraryAddLocalRerankHints(
-      query: _queryController.text.trim(),
-      series: _searchSeriesController.text.trim(),
-      issueNumber: _searchNumberController.text.trim(),
-      publisher: _searchPublisherController.text.trim(),
-      year: int.tryParse(_searchYearController.text.trim()),
-    );
   }
 
   Future<void> _loadPrefillDefaults() async {
@@ -901,16 +892,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   compactComicIssues: _compactComicIssues,
                   onSelectResult: _selectCoreResult,
                   onSelectProviderCandidate: _selectProviderCandidate,
-                  onToggleResultCheck: (id) => setState(() {
-                    if (!_checkedResultIds.remove(id)) {
-                      _checkedResultIds.add(id);
-                    }
-                  }),
-                  onToggleProviderCheck: (id) => setState(() {
-                    if (!_checkedProviderIds.remove(id)) {
-                      _checkedProviderIds.add(id);
-                    }
-                  }),
+                  onToggleResultCheck: (id) =>
+                      setState(() => _selectionState.toggleCheckedResult(id)),
+                  onToggleProviderCheck: (id) => setState(
+                    () => _selectionState.toggleCheckedProvider(id),
+                  ),
                   onShowCoreResultsChanged: (_) {},
                   onShowProviderResultsChanged: (_) {},
                   onShowMediaResultsChanged: (_) {},
@@ -1539,7 +1525,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           limit: 20,
         ),
         timeout: _coreSearchTimeout,
-        rerankHints: _currentLocalRerankHints(),
+        rerankHints: _searchState.buildLocalRerankHints(),
         providerSearchAvailable:
             widget.type.supportedMetadataProviders.isNotEmpty,
       );
@@ -2320,7 +2306,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final yearValue = _searchYearController.text.trim().isNotEmpty
           ? int.tryParse(_searchYearController.text.trim())
           : null;
-      final rerankHints = _currentLocalRerankHints();
+      final rerankHints = _searchState.buildLocalRerankHints();
 
       List<ProviderCandidate> results;
       if (kindsToSearch.length > 1) {

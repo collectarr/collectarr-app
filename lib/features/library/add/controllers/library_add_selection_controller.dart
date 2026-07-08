@@ -60,6 +60,18 @@ class LibraryAddSelectionController {
   bool get compactComicIssues => state.compactComicIssues;
   set compactComicIssues(bool value) => state.compactComicIssues = value;
 
+  void toggleCheckedResult(String id) {
+    if (!checkedResultIds.remove(id)) {
+      checkedResultIds.add(id);
+    }
+  }
+
+  void toggleCheckedProvider(String id) {
+    if (!checkedProviderIds.remove(id)) {
+      checkedProviderIds.add(id);
+    }
+  }
+
   void resetReferenceSelection() {
     selectedBundleReleaseId = null;
     selectedReferenceEditionId = null;
