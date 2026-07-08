@@ -67,18 +67,21 @@ const animeLibraryGroupModes = [
 const animeLibraryGroupModeDefinitions = [
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.series,
+    id: 'series',
     label: 'Series',
     sidebarTitle: 'Series',
     icon: Icons.tv_outlined,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.title,
+    id: 'title',
     label: 'Title',
     sidebarTitle: 'Titles',
     icon: Icons.sort_by_alpha,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.publisher,
+    id: 'publisher',
     label: 'Studio',
     sidebarTitle: 'Studios',
     icon: Icons.business_outlined,
@@ -86,6 +89,7 @@ const animeLibraryGroupModeDefinitions = [
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.genre,
+    id: 'genre',
     label: 'Genres',
     sidebarTitle: 'Genres',
     icon: Icons.theater_comedy_outlined,
@@ -93,6 +97,7 @@ const animeLibraryGroupModeDefinitions = [
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.country,
+    id: 'country',
     label: 'Country',
     sidebarTitle: 'Countries',
     icon: Icons.flag_outlined,
