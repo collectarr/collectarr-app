@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_workspace_progress.dart';
+import 'package:collectarr_app/features/library/media/video/video_workspace_progress.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';

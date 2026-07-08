@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/features/library/shared/video/video_episode_identity.dart';
-import 'package:collectarr_app/features/library/shared/video/video_progress_summary.dart';
+import 'package:collectarr_app/features/library/media/video/video_episode_identity.dart';
+import 'package:collectarr_app/features/library/media/video/video_progress_summary.dart';
 
 class VideoProgressPresenter {
   const VideoProgressPresenter();

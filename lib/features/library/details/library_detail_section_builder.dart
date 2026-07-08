@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/detail/metadata_corrections_sect
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
-import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
+import 'package:collectarr_app/features/library/media/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
