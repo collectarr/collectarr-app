@@ -1,4 +1,7 @@
-part of 'video_edit_tabs.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/tabs/video_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/tabs/video_edit_tab_helpers.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
+import 'package:flutter/material.dart';
 
 class VideoEditCrewTab extends StatelessWidget {
   const VideoEditCrewTab({
@@ -12,7 +15,7 @@ class VideoEditCrewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _creditsTab(
+    return buildVideoCreditsTab(
       title: 'Crew',
       emptyMessage: 'No crew data yet.',
       addLabel: 'Add Crew',

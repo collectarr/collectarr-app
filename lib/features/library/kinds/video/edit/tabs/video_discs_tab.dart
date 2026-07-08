@@ -1,14 +1,16 @@
-part of 'video_edit_tabs.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
 
 class VideoEditDiscsTab extends StatelessWidget {
   const VideoEditDiscsTab({
     super.key,
-    required this.type,
     required this.item,
     required this.accent,
   });
 
-  final LibraryTypeConfig type;
   final LibraryMetadataItem item;
   final Color accent;
 

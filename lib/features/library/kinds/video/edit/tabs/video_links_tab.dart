@@ -1,15 +1,21 @@
-part of 'video_edit_tabs.dart';
+import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/tabs/video_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/video/detail/video_external_links_section.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class VideoEditLinksTab extends ConsumerWidget {
   const VideoEditLinksTab({
     super.key,
-    required this.type,
     required this.item,
     required this.accent,
     required this.videoEdit,
   });
 
-  final LibraryTypeConfig type;
   final LibraryMetadataItem item;
   final Color accent;
   final VideoEditController videoEdit;

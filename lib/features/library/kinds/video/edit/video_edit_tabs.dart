@@ -1,1 +1,9 @@
-export 'tabs/video_edit_tabs.dart';
+export 'tabs/video_edit_models.dart';
+export 'tabs/video_edit_tab_helpers.dart';
+export 'tabs/video_cast_tab.dart';
+export 'tabs/video_crew_tab.dart';
+export 'tabs/video_discs_tab.dart';
+export 'tabs/video_edition_tab.dart';
+export 'tabs/video_links_tab.dart';
+export 'tabs/video_media_tab.dart';
+export 'tabs/video_specs_tab.dart';

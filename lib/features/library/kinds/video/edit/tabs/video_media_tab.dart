@@ -1,4 +1,9 @@
-part of 'video_edit_tabs.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/tabs/video_edit_tab_helpers.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
+import 'package:flutter/material.dart';
 
 class VideoEditMediaTab extends StatelessWidget {
   const VideoEditMediaTab({
@@ -40,16 +45,16 @@ class VideoEditMediaTab extends StatelessWidget {
                 searchAliasesController: draft.searchAliasesController,
               ),
               const SizedBox(height: 10),
-              _responsiveFields([
-                _field(
+              buildVideoResponsiveFields([
+                buildVideoField(
                   controller: draft.displayTitleController,
                   label: 'Custom display title',
                 ),
-                _field(controller: draft.publisherController, label: 'Studios'),
+                buildVideoField(controller: draft.publisherController, label: 'Studios'),
               ]),
               const SizedBox(height: 10),
-              _responsiveFields([
-                _field(
+              buildVideoResponsiveFields([
+                buildVideoField(
                   controller: videoEdit.runtimeController,
                   label: 'Runtime (min)',
                   validator: optionalIntValidator,
@@ -70,7 +75,7 @@ class VideoEditMediaTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _responsiveFields([
+              buildVideoResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Age rating',
                   controller: draft.ageRatingController,
@@ -83,7 +88,7 @@ class VideoEditMediaTab extends StatelessWidget {
                 ),
               ]),
               const SizedBox(height: 10),
-              _responsiveFields([
+              buildVideoResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Country',
                   controller: draft.countryController,

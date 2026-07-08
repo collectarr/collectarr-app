@@ -1,6 +1,8 @@
-part of 'video_edit_tabs.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/tabs/video_edit_models.dart';
+import 'package:flutter/material.dart';
 
-Widget _creditsTab({
+Widget buildVideoCreditsTab({
   required String title,
   required String emptyMessage,
   required String addLabel,
@@ -60,7 +62,7 @@ Widget _creditsTab({
   );
 }
 
-Widget _responsiveFields(List<Widget> children) {
+Widget buildVideoResponsiveFields(List<Widget> children) {
   return LibraryEditDenseFields(
     wideColumns: 2,
     ultraWideColumns: 2,
@@ -70,7 +72,7 @@ Widget _responsiveFields(List<Widget> children) {
   );
 }
 
-Widget _field({
+Widget buildVideoField({
   required TextEditingController controller,
   required String label,
   String? Function(String?)? validator,

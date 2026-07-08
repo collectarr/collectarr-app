@@ -1,4 +1,9 @@
-part of 'video_edit_tabs.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/tabs/video_edit_tab_helpers.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
+import 'package:flutter/material.dart';
 
 class VideoEditSpecsTab extends StatelessWidget {
   const VideoEditSpecsTab({
@@ -30,7 +35,7 @@ class VideoEditSpecsTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _responsiveFields([
+        buildVideoResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Audio tracks',
                   controller: videoEdit.audioTracksController,
@@ -45,7 +50,7 @@ class VideoEditSpecsTab extends StatelessWidget {
                 ),
               ]),
               const SizedBox(height: 10),
-              _responsiveFields([
+              buildVideoResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Layers',
                   controller: videoEdit.layersController,
@@ -56,7 +61,11 @@ class VideoEditSpecsTab extends StatelessWidget {
                   controller: videoEdit.colorController,
                   options: colorOptions,
                 ),
-                _field(controller: videoEdit.nrDiscsController, label: 'Discs', validator: optionalIntValidator),
+                buildVideoField(
+                  controller: videoEdit.nrDiscsController,
+                  label: 'Discs',
+                  validator: optionalIntValidator,
+                ),
               ]),
             ],
           ),

@@ -757,7 +757,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         return buildComicCharactersTab();
       case 'discs':
         return VideoEditDiscsTab(
-          type: widget.type,
           item: widget.item,
           accent: widget.accent,
         );
@@ -796,7 +795,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       return buildComicLinksTab();
     }
     return VideoEditLinksTab(
-      type: widget.type,
       item: widget.item,
       accent: widget.accent,
       videoEdit: _videoEdit,
