@@ -29,13 +29,9 @@ abstract final class _LibraryPageLifecycleControllerOps {
     try {
       final loadToken = ++state._viewPreferenceLoadToken;
       final expectedKind = state.widget.type.workspace.kind;
-      final allowedGroupModes = state._scopeAvailableGroupModes;
       final quickViewFuture = state._viewPrefs.readQuickView();
-      final groupModeFuture = state._viewPrefs.readGroupMode(
-        allowedModes: allowedGroupModes,
-      );
       final folderPresetFuture = state._viewPrefs.readFolderPreset(
-        allowedModes: allowedGroupModes,
+        allowedModes: state._scopeAvailableGroupModes,
       );
       final pinnedPresetsFuture = state._viewPrefs.readPinnedFolderPresets(
         allowedModes: allowedGroupModes,
@@ -56,7 +52,6 @@ abstract final class _LibraryPageLifecycleControllerOps {
 
       final (
         quickView,
-        groupMode,
         folderPreset,
         pinnedPresets,
         pinnedViewPresets,
@@ -64,7 +59,6 @@ abstract final class _LibraryPageLifecycleControllerOps {
         pinnedColumnFavoriteKeys,
       ) = await (
         quickViewFuture,
-        groupModeFuture,
         folderPresetFuture,
         pinnedPresetsFuture,
         pinnedViewPresetsFuture,
@@ -77,7 +71,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
         return;
       }
 
-      final nextGroupMode = folderPreset?.primaryMode ?? groupMode;
+      final nextGroupMode = folderPreset?.primaryMode;
       final effectiveFolderPreset = folderPreset ??
           (nextGroupMode == null
               ? null
@@ -140,18 +134,11 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._viewPrefs.cachedQuickView,
       state.widget.type,
     );
-    final cachedGroupMode =
-        allowedGroupModes.contains(state._viewPrefs.cachedGroupMode)
-            ? state._viewPrefs.cachedGroupMode
-            : null;
     state._folderPreset = sanitizeLibraryFolderPreset(
           state._viewPrefs.cachedFolderPreset,
           allowedModes: allowedGroupModes,
-        ) ??
-        (cachedGroupMode == null
-            ? null
-            : LibraryFolderPreset.single(cachedGroupMode));
-    state._groupMode = state._folderPreset?.primaryMode ?? cachedGroupMode;
+        );
+    state._groupMode = state._folderPreset?.primaryMode;
     state._folderDisplayMode = LibraryFolderDisplayMode.drilldown;
     state._folderTreeExpandedNodeIds = const <String>{};
     state._folderTreeSelectedNodeId = null;

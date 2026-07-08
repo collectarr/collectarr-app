@@ -10,7 +10,6 @@ class LibraryViewPreferenceStore {
   const LibraryViewPreferenceStore(this.kind);
 
   static final _cachedQuickViews = <String, LibraryQuickView>{};
-  static final _cachedGroupModes = <String, LibraryGroupMode>{};
   static final _cachedFolderPresets = <String, LibraryFolderPreset>{};
   static final _cachedPinnedGroupModes = <String, Set<LibraryGroupMode>>{};
   static final _cachedPinnedFolderPresets =
@@ -35,8 +34,6 @@ class LibraryViewPreferenceStore {
   String get _cacheKey => _key('');
 
   LibraryQuickView? get cachedQuickView => _cachedQuickViews[_cacheKey];
-
-  LibraryGroupMode? get cachedGroupMode => _cachedGroupModes[_cacheKey];
 
   LibraryFolderPreset? get cachedFolderPreset => _cachedFolderPresets[_cacheKey];
 
@@ -74,7 +71,6 @@ class LibraryViewPreferenceStore {
 
   static void resetCachedPreferencesForTesting() {
     _cachedQuickViews.clear();
-    _cachedGroupModes.clear();
     _cachedFolderPresets.clear();
     _cachedPinnedGroupModes.clear();
     _cachedPinnedFolderPresets.clear();
@@ -119,46 +115,6 @@ class LibraryViewPreferenceStore {
     }
   }
 
-  Future<LibraryGroupMode?> readGroupMode({
-    Iterable<LibraryGroupMode>? allowedModes,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final folderPresetRaw = prefs.getString(_key('folderPreset'));
-    if (folderPresetRaw != null && folderPresetRaw.trim().isNotEmpty) {
-      final folderPreset = _tryParsePreset(
-        folderPresetRaw,
-        allowedModes: allowedModes,
-      );
-      if (folderPreset == null) {
-        _cachedGroupModes.remove(_cacheKey);
-        return null;
-      }
-      final mode = folderPreset.primaryMode;
-      _cachedGroupModes[_cacheKey] = mode;
-      return mode;
-    }
-    final name = prefs.getString(_key('groupMode'));
-    if (name == null) {
-      _cachedGroupModes.remove(_cacheKey);
-      return null;
-    }
-    final allowed = allowedModes == null
-        ? null
-        : Set<LibraryGroupMode>.from(allowedModes);
-    for (final mode in LibraryGroupMode.values) {
-      if (mode.name == name) {
-        if (allowed != null && !allowed.contains(mode)) {
-          _cachedGroupModes.remove(_cacheKey);
-          return null;
-        }
-        _cachedGroupModes[_cacheKey] = mode;
-        return mode;
-      }
-    }
-    _cachedGroupModes.remove(_cacheKey);
-    return null;
-  }
-
   List<LibraryFolderPreset> get cachedPinnedFolderPresets =>
       _cachedPinnedFolderPresets[_cacheKey] ?? const [];
 
@@ -168,14 +124,8 @@ class LibraryViewPreferenceStore {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_key('folderPreset'));
     if (raw == null || raw.trim().isEmpty) {
-      final fallbackMode = await readGroupMode(allowedModes: allowedModes);
-      if (fallbackMode == null) {
-        _cachedFolderPresets.remove(_cacheKey);
-        return null;
-      }
-      final preset = LibraryFolderPreset.single(fallbackMode);
-      _cachedFolderPresets[_cacheKey] = preset;
-      return preset;
+      _cachedFolderPresets.remove(_cacheKey);
+      return null;
     }
     final preset = _tryParsePreset(raw, allowedModes: allowedModes);
     if (preset == null) {
@@ -183,17 +133,14 @@ class LibraryViewPreferenceStore {
       return null;
     }
     _cachedFolderPresets[_cacheKey] = preset;
-    _cachedGroupModes[_cacheKey] = preset.primaryMode;
     return preset;
   }
 
   Future<void> writeFolderPreset(LibraryFolderPreset? preset) async {
     if (preset == null) {
       _cachedFolderPresets.remove(_cacheKey);
-      _cachedGroupModes.remove(_cacheKey);
     } else {
       _cachedFolderPresets[_cacheKey] = preset;
-      _cachedGroupModes[_cacheKey] = preset.primaryMode;
     }
     final prefs = await SharedPreferences.getInstance();
     if (preset == null) {

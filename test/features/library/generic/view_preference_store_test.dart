@@ -22,10 +22,9 @@ void main() {
 
     const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
     expect(reloadedStore.cachedQuickView, LibraryQuickView.wishlist);
-    expect(reloadedStore.cachedGroupMode, LibraryGroupMode.publisher);
+    expect(reloadedStore.cachedFolderPreset, LibraryFolderPreset.single(LibraryGroupMode.publisher));
 
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('library.movie.groupMode'), isNull);
     expect(prefs.getString('library.movie.folderPreset'), 'publisher');
   });
 
@@ -36,15 +35,18 @@ void main() {
     });
 
     expect(await movieStore.readQuickView(), LibraryQuickView.owned);
-    expect(await movieStore.readGroupMode(), LibraryGroupMode.year);
+    expect(
+      await movieStore.readFolderPreset(),
+      LibraryFolderPreset.single(LibraryGroupMode.year),
+    );
     expect(movieStore.cachedQuickView, LibraryQuickView.owned);
-    expect(movieStore.cachedGroupMode, LibraryGroupMode.year);
+    expect(movieStore.cachedFolderPreset, LibraryFolderPreset.single(LibraryGroupMode.year));
 
     await movieStore.writeQuickView(null);
     await movieStore.writeFolderPreset(null);
 
     expect(movieStore.cachedQuickView, isNull);
-    expect(movieStore.cachedGroupMode, isNull);
+    expect(movieStore.cachedFolderPreset, isNull);
   });
 
   test('pinned group modes preserve persisted order', () async {
