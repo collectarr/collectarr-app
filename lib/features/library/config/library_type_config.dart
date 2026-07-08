@@ -782,8 +782,17 @@ class LibraryTypeConfig {
 
   List<LibraryGroupMode> get availableGroupModes => presentation.groupModes;
 
+  List<LibrarySortColumnDefinition> get availableSortColumnDefinitions =>
+      workspace.availableSortColumnDefinitions;
+
   List<LibrarySortColumn> get availableSortColumns =>
       workspace.availableSortColumns;
+
+  LibrarySortColumnDefinition sortColumnDefinitionFor(
+    LibrarySortColumn column,
+  ) {
+    return workspace.sortColumnDefinitionFor(column);
+  }
 
   bool get supportsMediaReleaseSplit => capabilities.supportsMediaReleaseSplit;
 

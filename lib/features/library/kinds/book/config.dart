@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
 const booksLibrarySortColumns = [
   LibrarySortColumn.status,
@@ -63,6 +64,7 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   preferencePrefix: 'books',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: booksLibrarySortColumns,
+  availableSortColumnDefinitions: bookLibrarySortColumnDefinitions,
   availableTableColumns: booksLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
@@ -92,7 +94,7 @@ final booksLibraryConfig = LibraryTypeConfig(
     hardcoverMetadataProvider,
   ],
   trackingProfile: readingTrackingProfile,
-  presentation: booksLibraryMediaPresentation,
+  presentation: bookLibraryMediaPresentation,
   editPresentation: LibraryEditPresentation(
     builder: BookLibraryMediaEditPresentationBuilder(),
     mediaBuilder: BookLibraryMediaEditPresentationBuilder(),

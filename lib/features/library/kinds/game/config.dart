@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 
 const gamesLibrarySortColumns = [
   LibrarySortColumn.series,
@@ -61,6 +62,7 @@ const gamesWorkspaceConfig = LibraryWorkspaceConfig(
   preferencePrefix: 'games',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: gamesLibrarySortColumns,
+  availableSortColumnDefinitions: gameLibrarySortColumnDefinitions,
   availableTableColumns: gamesLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,

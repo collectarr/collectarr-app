@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 import 'edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 
 const tvLibrarySortColumns = [
   LibrarySortColumn.status,
@@ -50,6 +51,7 @@ const tvWorkspaceConfig = LibraryWorkspaceConfig(
   preferencePrefix: 'tv',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: tvLibrarySortColumns,
+  availableSortColumnDefinitions: tvLibrarySortColumnDefinitions,
   availableTableColumns: tvLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,

@@ -97,7 +97,7 @@ class LibrarySortPresetStore {
       'rules': [
         for (final rule in _dedupeRules(preset.rules))
           {
-            'column': config.sortColumnFieldId(rule.column),
+            'column': config.sortColumnDefinitionFor(rule.column).id,
             'ascending': rule.ascending,
           },
       ],

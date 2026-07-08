@@ -276,7 +276,7 @@ class LibraryWorkspacePreferences {
     }
     return [
       for (final rule in rules)
-        '${config.sortColumnFieldId(rule.column)}:${rule.ascending ? 'asc' : 'desc'}',
+        '${config.sortColumnDefinitionFor(rule.column).id}:${rule.ascending ? 'asc' : 'desc'}',
     ];
   }
 

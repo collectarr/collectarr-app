@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 
 const animeLibrarySortColumns = [
   LibrarySortColumn.status,
@@ -47,6 +48,7 @@ const animeWorkspaceConfig = LibraryWorkspaceConfig(
   preferencePrefix: 'anime',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: animeLibrarySortColumns,
+  availableSortColumnDefinitions: animeLibrarySortColumnDefinitions,
   availableTableColumns: animeLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,

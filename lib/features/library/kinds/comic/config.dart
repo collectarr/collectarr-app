@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 
 const comicsLibrarySortColumns = [
   LibrarySortColumn.status,
@@ -74,6 +75,7 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   preferencePrefix: 'comics',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: comicsLibrarySortColumns,
+  availableSortColumnDefinitions: comicLibrarySortColumnDefinitions,
   availableTableColumns: comicsLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
@@ -114,7 +116,7 @@ final comicsLibraryConfig = LibraryTypeConfig(
   inspectorHeroBuilder: buildComicInspectorHero,
   inspectorSectionsBuilder: buildComicInspectorSections,
   showsDefaultInspectorPersonalSection: false,
-  presentation: comicsLibraryMediaPresentation,
+  presentation: comicLibraryMediaPresentation,
   editPresentation: comicsLibraryEditPresentation,
   editChrome: LibraryEditChromeConfig(
     titleUsesItemTitle: true,

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:flutter/material.dart';
 
 enum LibraryViewMode { grid, card, horizontalCards, cardFlow, list, shelves }
@@ -368,6 +369,7 @@ class LibraryWorkspaceConfig {
     required this.defaultVisibleColumns,
     this.defaultDensityPreset = LibraryWorkspaceDensityPreset.compact,
     this.availableSortColumns = const [],
+    this.availableSortColumnDefinitions = const [],
     this.availableTableColumns = const [],
     this.availableDensityPresets = const [
       LibraryWorkspaceDensityPreset.comfortable,
@@ -386,12 +388,15 @@ class LibraryWorkspaceConfig {
   final Set<LibraryTableColumn> defaultVisibleColumns;
   final LibraryWorkspaceDensityPreset defaultDensityPreset;
   final List<LibrarySortColumn> availableSortColumns;
+  final List<LibrarySortColumnDefinition> availableSortColumnDefinitions;
   final List<LibraryTableColumn> availableTableColumns;
   final List<LibraryWorkspaceDensityPreset> availableDensityPresets;
   final List<LibraryToolbarActionId> toolbarActions;
 
   bool supportsSortColumn(LibrarySortColumn column) {
-    return availableSortColumns.contains(column);
+    return availableSortColumns.contains(column) ||
+        availableSortColumnDefinitions.any((definition) =>
+            definition.column == column);
   }
 
   bool supportsTableColumn(LibraryTableColumn column) {
@@ -405,7 +410,7 @@ class LibraryWorkspaceConfig {
   String preferenceKey(String suffix) => '$preferencePrefix.$suffix';
 
   String sortColumnFieldId(LibrarySortColumn column) {
-    return '${kind.apiValue}.${_stableToken(column.name)}';
+    return sortColumnDefinitionFor(column).id;
   }
 
   String tableColumnFieldId(LibraryTableColumn column) {
@@ -417,13 +422,35 @@ class LibraryWorkspaceConfig {
       return null;
     }
     final normalized = fieldId.trim();
+    final normalizedToken = _stableToken(normalized.split('.').last);
+    for (final definition in availableSortColumnDefinitions) {
+      final definitionToken = _stableToken(definition.id.split('.').last);
+      if (definition.id == normalized ||
+          definitionToken == normalizedToken ||
+          _stableToken(definition.column.name) == normalizedToken) {
+        return definition.column;
+      }
+    }
     for (final column in availableSortColumns) {
-      if (sortColumnFieldId(column) == normalized ||
-          _stableToken(column.name) == normalized.split('.').last) {
+      if (_stableToken(column.name) == normalizedToken) {
         return column;
       }
     }
     return null;
+  }
+
+  LibrarySortColumnDefinition sortColumnDefinitionFor(
+    LibrarySortColumn column,
+  ) {
+    for (final definition in availableSortColumnDefinitions) {
+      if (definition.column == column) {
+        return definition;
+      }
+    }
+    return LibrarySortColumnDefinition(
+      column: column,
+      label: librarySortColumnFallbackLabel(column),
+    );
   }
 
   LibraryTableColumn? tableColumnFromFieldId(String? fieldId) {
