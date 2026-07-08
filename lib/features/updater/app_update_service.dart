@@ -52,7 +52,7 @@ class GitHubRelease {
     required this.msixSize,
   });
 
-  final String version; // e.g. "0.2.0"
+  final String version; // e.g. "0.2.0-beta.1"
   final String tagName;
   final String name;
   final String body; // markdown release notes
@@ -79,8 +79,7 @@ class GitHubRelease {
             json['published_at'] as String? ?? '',
           ) ??
           DateTime.now(),
-      msixDownloadUrl:
-          msixAsset['browser_download_url'] as String? ?? '',
+      msixDownloadUrl: msixAsset['browser_download_url'] as String? ?? '',
       msixSize: msixAsset['size'] as int? ?? 0,
     );
   }
@@ -92,23 +91,62 @@ class GitHubRelease {
 
 /// Returns true when [remote] is strictly newer than [local].
 bool isNewerVersion(String local, String remote) {
-  final lParts = _parseSemver(local);
-  final rParts = _parseSemver(remote);
-  for (var i = 0; i < 3; i++) {
-    if (rParts[i] > lParts[i]) return true;
-    if (rParts[i] < lParts[i]) return false;
-  }
-  return false;
+  return _compareSemver(local, remote) > 0;
 }
 
-List<int> _parseSemver(String v) {
+int _compareSemver(String local, String remote) {
+  final l = _splitSemver(local);
+  final r = _splitSemver(remote);
+
+  for (var i = 0; i < 3; i++) {
+    final cmp = r.core[i].compareTo(l.core[i]);
+    if (cmp != 0) return cmp;
+  }
+
+  if (l.prerelease.isEmpty && r.prerelease.isEmpty) return 0;
+  if (l.prerelease.isEmpty) return -1;
+  if (r.prerelease.isEmpty) return 1;
+
+  final length = l.prerelease.length < r.prerelease.length
+      ? l.prerelease.length
+      : r.prerelease.length;
+  for (var i = 0; i < length; i++) {
+    final left = l.prerelease[i];
+    final right = r.prerelease[i];
+
+    final leftNumber = int.tryParse(left);
+    final rightNumber = int.tryParse(right);
+
+    if (leftNumber != null && rightNumber != null) {
+      final cmp = rightNumber.compareTo(leftNumber);
+      if (cmp != 0) return cmp;
+      continue;
+    }
+
+    if (leftNumber != null) return -1;
+    if (rightNumber != null) return 1;
+
+    final cmp = right.compareTo(left);
+    if (cmp != 0) return cmp;
+  }
+
+  return r.prerelease.length.compareTo(l.prerelease.length);
+}
+
+({List<int> core, List<String> prerelease}) _splitSemver(String v) {
   final cleaned = v.startsWith('v') ? v.substring(1) : v;
-  final parts = cleaned.split('+').first.split('.');
-  return [
-    if (parts.isNotEmpty) int.tryParse(parts[0]) ?? 0 else 0,
-    if (parts.length > 1) int.tryParse(parts[1]) ?? 0 else 0,
-    if (parts.length > 2) int.tryParse(parts[2]) ?? 0 else 0,
-  ];
+  final withoutBuild = cleaned.split('+').first;
+  final parts = withoutBuild.split('-');
+  final coreParts = parts.first.split('.');
+  return (
+    core: [
+      if (coreParts.isNotEmpty) int.tryParse(coreParts[0]) ?? 0 else 0,
+      if (coreParts.length > 1) int.tryParse(coreParts[1]) ?? 0 else 0,
+      if (coreParts.length > 2) int.tryParse(coreParts[2]) ?? 0 else 0,
+    ],
+    prerelease:
+        parts.length > 1 ? parts.sublist(1).join('-').split('.') : const [],
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -216,31 +254,36 @@ class AppUpdateController extends Notifier<AppUpdateState> {
     );
     try {
       final url =
-          'https://api.github.com/repos/$kGitHubOwner/$kGitHubRepo/releases/latest';
-      final response = await _dio.get<Map<String, dynamic>>(url);
+          'https://api.github.com/repos/$kGitHubOwner/$kGitHubRepo/releases?per_page=100';
+      final response = await _dio.get<List<dynamic>>(url);
       if (response.data == null) {
-        state = state.copyWith(status: UpdateStatus.error, errorMessage: 'Empty response from GitHub');
-        return;
-      }
-      final release = GitHubRelease.fromJson(response.data!);
-      if (release.msixDownloadUrl.isEmpty) {
         state = state.copyWith(
           status: UpdateStatus.error,
-          errorMessage: 'No .msix asset found in the latest release',
+          errorMessage: 'Empty response from GitHub',
         );
         return;
       }
-      if (isNewerVersion(state.currentVersion, release.version)) {
-        state = state.copyWith(
-          status: UpdateStatus.updateAvailable,
-          release: release,
-        );
-      } else {
+      GitHubRelease? release;
+      for (final item in response.data!) {
+        if (item is! Map<String, dynamic>) continue;
+        if (item['draft'] as bool? ?? false) continue;
+        final candidate = GitHubRelease.fromJson(item);
+        if (candidate.msixDownloadUrl.isEmpty) continue;
+        if (!isNewerVersion(state.currentVersion, candidate.version)) continue;
+        release = candidate;
+        break;
+      }
+      if (release == null) {
         state = state.copyWith(
           status: UpdateStatus.upToDate,
-          release: release,
+          release: null,
         );
+        return;
       }
+      state = state.copyWith(
+        status: UpdateStatus.updateAvailable,
+        release: release,
+      );
     } on DioException catch (e) {
       state = state.copyWith(
         status: UpdateStatus.error,
@@ -267,8 +310,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
 
     try {
       final tempDir = await getTemporaryDirectory();
-      final fileName =
-          'collectarr-${release.version}.msix';
+      final fileName = 'collectarr-${release.version}.msix';
       final savePath = p.join(tempDir.path, fileName);
 
       await _dio.download(
@@ -336,7 +378,6 @@ class AppUpdateController extends Notifier<AppUpdateState> {
 // Provider
 // ---------------------------------------------------------------------------
 
-final appUpdateProvider =
-    NotifierProvider<AppUpdateController, AppUpdateState>(
+final appUpdateProvider = NotifierProvider<AppUpdateController, AppUpdateState>(
   AppUpdateController.new,
 );

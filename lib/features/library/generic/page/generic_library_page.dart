@@ -1,45 +1,38 @@
 import 'dart:async';
-import 'dart:math' as math;
-
-import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/collection/services/image_download_service.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/body.dart';
-import 'package:collectarr_app/features/library/generic/column_chooser.dart';
-import 'package:collectarr_app/features/library/generic/collection_actions.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
-import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
 import 'package:collectarr_app/features/library/generic/page_search_state.dart';
 import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_collection_action_coordinator.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_cover_coordinator.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_dialog_coordinator.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_metadata_coordinator.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_report_coordinator.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_sharing_coordinator.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
@@ -48,18 +41,10 @@ import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortc
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
-import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
-import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
-import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
-import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
 import 'package:collectarr_app/features/library/generic/facet_controller_provider.dart';
-import 'package:collectarr_app/features/library/reports/collection_report.dart';
-import 'package:collectarr_app/features/library/kinds/comic/missing_comics_dialog.dart';
-import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
@@ -69,43 +54,26 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_compare_dialog.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot_provider.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
-import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
-part 'coordinators/page_dialog_coordinator.dart';
 part 'coordinators/page_edit_coordinator.dart';
-part 'coordinators/page_collection_action_coordinator.dart';
-part 'coordinators/page_metadata_coordinator.dart';
-part 'coordinators/page_sharing_coordinator.dart';
-part 'coordinators/page_report_coordinator.dart';
-part 'coordinators/page_cover_coordinator.dart';
 part 'hooks/page_kind_hooks.dart';
 part 'hooks/page_sidebar_hooks.dart';
 part 'controllers/page_facet_controller.dart';
@@ -150,7 +118,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   // ---------------------------------------------------------------------------
   late final LibraryPageDialogCoordinator _dialogCoordinator;
   late final LibraryPageEditCoordinator _editCoordinator;
-  late final LibraryPageCollectionActionCoordinator _collectionActionCoordinator;
+  late final LibraryPageCollectionActionCoordinator
+      _collectionActionCoordinator;
   late final LibraryPageMetadataCoordinator _metadataCoordinator;
   late final LibraryPageSharingCoordinator _sharingCoordinator;
   late final LibraryPageReportCoordinator _reportCoordinator;
@@ -224,13 +193,31 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void initState() {
     super.initState();
-    _dialogCoordinator = LibraryPageDialogCoordinator(this);
+    final coordinatorContext = _createCoordinatorContext();
+    _dialogCoordinator = LibraryPageDialogCoordinator(coordinatorContext);
     _editCoordinator = LibraryPageEditCoordinator(this);
-    _collectionActionCoordinator = LibraryPageCollectionActionCoordinator(this);
-    _metadataCoordinator = LibraryPageMetadataCoordinator(this);
-    _sharingCoordinator = LibraryPageSharingCoordinator(this);
-    _reportCoordinator = LibraryPageReportCoordinator(this);
-    _coverCoordinator = LibraryPageCoverCoordinator(this);
+    _collectionActionCoordinator = LibraryPageCollectionActionCoordinator(
+      coordinatorContext,
+      showEditDialog: (item, ownedItemOverride) =>
+          _editCoordinator.showEditDialog(item, ownedItemOverride),
+      compareMetadataWithServer: (projection, {item}) =>
+          _metadataCoordinator.compareMetadataWithServerFlow(
+        projection,
+        item: item,
+      ),
+      showAddDialog: ({barcode}) =>
+          _dialogCoordinator.showAddDialogFlow(barcode: barcode),
+    );
+    _metadataCoordinator = LibraryPageMetadataCoordinator(
+      coordinatorContext,
+      selectedProjectionItemFor:
+          _collectionActionCoordinator.selectedProjectionItemFor,
+      canCompareMetadataWithServerItem:
+          _collectionActionCoordinator.canCompareMetadataWithServerItem,
+    );
+    _sharingCoordinator = LibraryPageSharingCoordinator(coordinatorContext);
+    _reportCoordinator = LibraryPageReportCoordinator(coordinatorContext);
+    _coverCoordinator = LibraryPageCoverCoordinator(coordinatorContext);
     _toolbarController = LibraryPageToolbarController(this);
     _LibraryPageLifecycleControllerOps.initState(this);
   }
@@ -245,6 +232,78 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   void dispose() {
     _LibraryPageLifecycleControllerOps.dispose(this);
     super.dispose();
+  }
+
+  LibraryPageCoordinatorContext _createCoordinatorContext() {
+    return LibraryPageCoordinatorContext(
+      context: context,
+      ref: ref,
+      getType: () => widget.type,
+      getAccent: () => widget.accent,
+      getMounted: () => mounted,
+      getAdapter: () => _adapter,
+      getViewPrefs: () => _viewPrefs,
+      getSearchQuery: () =>
+          _LibraryPageSearchControllerOps.thisState(this).query,
+      setSearchQuery: (query) {
+        if (query == null) {
+          _searchController.clear();
+          _LibraryPageSearchControllerOps.clearSearch(this);
+          return;
+        }
+        _searchController.text = query;
+        _LibraryPageSearchControllerOps.setQuery(this, query);
+      },
+      getViewState: () => _viewState,
+      setViewState: (value) => _viewState = value,
+      getSelection: () => _selection,
+      setSelection: (value) => _selection = value,
+      getSelectedId: () => _selectedId,
+      setSelectedId: (value) => _selectedId = value,
+      getSelectionAnchorId: () => _selectionAnchorId,
+      setSelectionAnchorId: (value) => _selectionAnchorId = value,
+      getSelectedBucket: () => _selectedBucket,
+      setSelectedBucket: (value) => _selectedBucket = value,
+      getSelectedLetter: () => _selectedLetter,
+      setSelectedLetter: (value) => _selectedLetter = value,
+      getLinkedMetadataFilter: () => _linkedMetadataFilter,
+      setLinkedMetadataFilter: (value) => _linkedMetadataFilter = value,
+      getCollectionStatusScope: () => _collectionStatusScope,
+      setCollectionStatusScope: (value) => _collectionStatusScope = value,
+      getSeriesCompletionScope: () => _seriesCompletionScope,
+      setSeriesCompletionScope: (value) => _seriesCompletionScope = value,
+      getQuickView: () => _quickView,
+      setQuickView: (value) => _quickView = value,
+      getFilterSelection: () => _filterSelection,
+      setFilterSelection: (value) => _filterSelection = value,
+      getActiveSmartListId: () => _activeSmartListId,
+      setActiveSmartListId: (value) => _activeSmartListId = value,
+      getActiveSmartListName: () => _activeSmartListName,
+      setActiveSmartListName: (value) => _activeSmartListName = value,
+      getScopeHistory: () => _scopeHistory,
+      setScopeHistory: (value) => _scopeHistory = value,
+      getActiveLoanOwnedItemIds: () => _activeLoanOwnedItemIds,
+      getPinnedSortFavoriteIds: () => _pinnedSortFavoriteIds,
+      setPinnedSortFavoriteIds: (value) => _pinnedSortFavoriteIds = value,
+      getPinnedColumnFavoriteKeys: () => _pinnedColumnFavoriteKeys,
+      getSortFavorites: () => _sortFavorites,
+      getActiveSortFavorite: () => _activeSortFavorite,
+      getScopeAvailableSortColumns: () => _scopeAvailableSortColumns,
+      getIsScanningCover: () => _isScanningCover,
+      setIsScanningCover: (value) => _isScanningCover = value,
+      loadColumnFavoritePresets: _loadColumnFavoritePresets,
+      loadActiveLoanIds: _loadActiveLoanIds,
+      togglePinnedColumnFavorite: _togglePinnedColumnFavorite,
+      rebuild: _rebuild,
+      mutateSidebarScope: _mutateSidebarScope,
+      updateViewState: _updateViewState,
+      selectItem: _selectItem,
+      syncRouteState: _syncRouteState,
+      bulkActions: bulkActions,
+      confirmBulkRemove: confirmBulkRemove,
+      confirmSingleRemove: confirmSingleRemove,
+      showBulkEditDialog: showBulkEditDialog,
+    );
   }
 
   void _primeCachedViewPreferences() {

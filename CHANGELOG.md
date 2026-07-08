@@ -1,7 +1,5 @@
 # Changelog
 
-## [1.1.0](https://github.com/collectarr/collectarr-app/compare/v1.0.4...v1.1.0) (2026-07-08)
-
 ## What's Changed
 
 ### ✨ Features
@@ -34,4 +32,4 @@
 ### 🧪 Tests
 - Added and updated coverage for TV routes, contract drift, and editor regressions.
 
-**Full Changelog**: https://github.com/collectarr/collectarr-app/compare/v1.0.4...v1.1.0
+**Full Changelog**: https://github.com/collectarr/collectarr-app/compare/v0.1.4...v0.2.0

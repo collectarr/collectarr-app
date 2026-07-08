@@ -12,6 +12,8 @@
 ![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android-lightgrey)
 
 > A local-first, CLZ-inspired collection manager for serious collectors.
+>
+> Current releases are treated as pre-1.0 beta releases.
 
 Collectarr keeps your personal library local, fast, and offline-friendly, while
 using `collectarr-core` for canonical metadata and `collectarr-sync` for
@@ -101,6 +103,8 @@ Current active tracks:
 ## 🔒 Release policy
 
 Releases are manual (`workflow_dispatch`). Pushes to `main` run CI only.
+
+Release tags and Docker image tags use the beta prerelease line (`v0.x.y-beta.n`) until the app reaches 1.0 stable.
 
 Published release assets include:
 

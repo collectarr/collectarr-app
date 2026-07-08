@@ -1,13 +1,23 @@
-part of '../generic_library_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/collection/services/image_download_service.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
+import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 /// Handles cover scanning (gallery/camera → API) and bulk cover download.
 class LibraryPageCoverCoordinator {
-  LibraryPageCoverCoordinator(this._s);
+  LibraryPageCoverCoordinator(this._page);
 
-  final GenericLibraryPageState _s;
+  final LibraryPageCoordinatorContext _page;
 
   Future<void> downloadAllCoversFlow(ShelfState shelfState) async {
-    final db = _s.ref.read(localDatabaseProvider);
+    final db = _page.ref.read(localDatabaseProvider);
     final imagesRepo = ItemImagesCacheRepository(db);
     final service = ImageDownloadService(imagesRepo: imagesRepo);
 
@@ -19,8 +29,8 @@ class LibraryPageCoverCoordinator {
     }
     if (itemsToCover.isEmpty) return;
 
-    if (!_s.mounted) return;
-    ScaffoldMessenger.of(_s.context).showSnackBar(
+    if (!_page.mounted) return;
+    ScaffoldMessenger.of(_page.context).showSnackBar(
       SnackBar(
         content: Text('Downloading covers for ${itemsToCover.length} items...'),
         duration: const Duration(seconds: 2),
@@ -29,8 +39,8 @@ class LibraryPageCoverCoordinator {
 
     final results = await service.downloadCoversForItems(itemsToCover);
 
-    if (_s.mounted) {
-      ScaffoldMessenger.of(_s.context).showSnackBar(
+    if (_page.mounted) {
+      ScaffoldMessenger.of(_page.context).showSnackBar(
         SnackBar(
           content: Text('Downloaded ${results.length} covers.'),
           duration: const Duration(seconds: 2),
@@ -47,36 +57,35 @@ class LibraryPageCoverCoordinator {
       maxHeight: 1280,
       imageQuality: 85,
     );
-    if (picked == null || !_s.mounted) return;
+    if (picked == null || !_page.mounted) return;
 
     final bytes = await picked.readAsBytes();
-    if (!_s.mounted) return;
+    if (!_page.mounted) return;
 
-    _s._rebuild(() => _s._isScanningCover = true);
+    _page.rebuild(() => _page.isScanningCover = true);
 
     try {
-      final api = _s.ref.read(apiClientProvider);
+      final api = _page.ref.read(apiClientProvider);
       final response = await api.searchByCoverUpload(bytes);
-      if (!_s.mounted) return;
+      if (!_page.mounted) return;
 
-      _s._rebuild(() => _s._isScanningCover = false);
+      _page.rebuild(() => _page.isScanningCover = false);
 
       final results =
           (response['results'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-      final queryPhash = response['query_phash'] as String? ?? '';
 
       if (results.isEmpty) {
-        ScaffoldMessenger.of(_s.context).showSnackBar(
+        ScaffoldMessenger.of(_page.context).showSnackBar(
           const SnackBar(content: Text('No matching covers found.')),
         );
         return;
       }
 
-      await _showCoverScanResults(queryPhash: queryPhash, results: results);
+      await _showCoverScanResults(results: results);
     } catch (e) {
-      if (_s.mounted) {
-        _s._rebuild(() => _s._isScanningCover = false);
-        ScaffoldMessenger.of(_s.context).showSnackBar(
+      if (_page.mounted) {
+        _page.rebuild(() => _page.isScanningCover = false);
+        ScaffoldMessenger.of(_page.context).showSnackBar(
           SnackBar(content: Text('Cover scan failed: $e')),
         );
       }
@@ -84,11 +93,10 @@ class LibraryPageCoverCoordinator {
   }
 
   Future<void> _showCoverScanResults({
-    required String queryPhash,
     required List<Map<String, dynamic>> results,
   }) async {
     await showDialog<void>(
-      context: _s.context,
+      context: _page.context,
       builder: (dialogContext) => AccentAlertDialog(
         backgroundColor: appPalette(dialogContext).panel,
         title: const Text('Cover Matches'),
@@ -120,12 +128,13 @@ class LibraryPageCoverCoordinator {
                       )
                     : const Icon(Icons.image, size: 40),
                 title: Text(
-                    '$entityType / ${entityId.length > 8 ? '${entityId.substring(0, 8)}…' : entityId}'),
+                  '$entityType / ${entityId.length > 8 ? '${entityId.substring(0, 8)}…' : entityId}',
+                ),
                 subtitle: Text('$confidence% match (distance: $distance)'),
                 onTap: () {
                   Navigator.of(dialogContext).pop();
                   if (entityType == 'item') {
-                    _s._selectItem(entityId);
+                    _page.selectItem(entityId);
                   }
                 },
               );

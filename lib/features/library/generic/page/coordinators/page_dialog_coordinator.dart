@@ -1,35 +1,63 @@
-part of '../generic_library_page.dart';
+import 'dart:async';
+
+import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/generic/column_chooser.dart';
+import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
+import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
+import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
+import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
+import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 /// Dialog launchers for the library page: add, filters, smart lists, sort,
 /// reading queue, pick-list editors, column chooser, user folders, transfer,
 /// loans, and index reassignment.
 class LibraryPageDialogCoordinator {
-  LibraryPageDialogCoordinator(this._s);
+  LibraryPageDialogCoordinator(this._page);
 
-  final GenericLibraryPageState _s;
+  final LibraryPageCoordinatorContext _page;
 
   // ---------------------------------------------------------------------------
   // Add / reveal
   // ---------------------------------------------------------------------------
 
   Future<void> showAddDialogFlow({String? barcode}) async {
-    final searchState = _LibraryPageSearchControllerOps.thisState(_s);
     final added = await showLibraryAddDialog(
-      context: _s.context,
-      type: _s.widget.type,
-      accent: _s.widget.accent,
-      initialQuery: searchState.query,
+      context: _page.context,
+      type: _page.type,
+      accent: _page.accent,
+      initialQuery: _page.searchQuery,
       initialBarcode: barcode,
     );
-    if (added != null && _s.mounted) {
-      _s.ref.invalidate(shelfProvider);
+    if (added != null && _page.mounted) {
+      _page.invalidateShelf();
       _revealAddedItems(added.itemIds);
-      ScaffoldMessenger.of(_s.context).showSnackBar(
+      ScaffoldMessenger.of(_page.context).showSnackBar(
         SnackBar(
           content: Text(
             added.target == LibraryAddTarget.track
-                ? '${_s.widget.type.singularLabel} added to tracking'
-                : '${_s.widget.type.singularLabel} added',
+                ? '${_page.type.singularLabel} added to tracking'
+                : '${_page.type.singularLabel} added',
           ),
         ),
       );
@@ -40,22 +68,21 @@ class LibraryPageDialogCoordinator {
     if (itemIds.isEmpty) {
       return;
     }
-    _s._rebuild(() {
-      _s._selectedId = itemIds.first;
-      _s._selectedBucket = null;
-      _s._selectedLetter = null;
-      _s._linkedMetadataFilter = null;
-      _s._collectionStatusScope = LibraryCollectionStatusScope.all;
-      _s._seriesCompletionScope = LibrarySeriesCompletionScope.all;
-      _s._quickView = null;
-      _s._filterSelection = LibraryFilterSelection.none;
-      _s._activeSmartListId = null;
-      _s._activeSmartListName = null;
-      _s._scopeHistory = const [];
-      _s._searchController.clear();
+    _page.rebuild(() {
+      _page.selectedId = itemIds.first;
+      _page.selectedBucket = null;
+      _page.selectedLetter = null;
+      _page.linkedMetadataFilter = null;
+      _page.collectionStatusScope = LibraryCollectionStatusScope.all;
+      _page.seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      _page.quickView = null;
+      _page.filterSelection = LibraryFilterSelection.none;
+      _page.activeSmartListId = null;
+      _page.activeSmartListName = null;
+      _page.scopeHistory = const [];
     });
-    _LibraryPageSearchControllerOps.clearSearch(_s);
-    _s._syncRouteState();
+    _page.clearSearchQuery();
+    _page.syncRouteState();
   }
 
   // ---------------------------------------------------------------------------
@@ -65,15 +92,15 @@ class LibraryPageDialogCoordinator {
   Future<void> showFilterDialogFlow(
     LibraryProjection? projection,
   ) async {
-    await _LibraryPageLifecycleControllerOps.loadActiveLoanIds(_s);
-    if (!_s.mounted) {
+    await _page.loadActiveLoanIds();
+    if (!_page.mounted) {
       return;
     }
-    final customFieldCache = await _s.ref.read(
-      libraryCustomFieldCacheProvider(_s.widget.type.workspace.kind.apiValue)
+    final customFieldCache = await _page.ref.read(
+      libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
           .future,
     );
-    if (!_s.mounted) {
+    if (!_page.mounted) {
       return;
     }
     final allEntries =
@@ -81,92 +108,90 @@ class LibraryPageDialogCoordinator {
             const [];
     final options = LibraryFilterOptions.fromEntries(
       allEntries,
-      adapter: _s._adapter,
+      adapter: _page.adapter,
       customFieldDefinitions: customFieldCache.definitions,
       customFieldValuesByDefinitionByItem:
           customFieldCache.valuesByDefinitionByItem,
     );
     final result = await showLibraryFilterDialog(
-      context: _s.context,
-      type: _s.widget.type,
-      current: _s._filterSelection,
+      context: _page.context,
+      type: _page.type,
+      current: _page.filterSelection,
       options: options,
     );
-    if (result != null && _s.mounted) {
-      _s._mutateSidebarScope(() {
-        _s._filterSelection = result;
-        _s._activeSmartListId = null;
-        _s._activeSmartListName = null;
+    if (result != null && _page.mounted) {
+      _page.mutateSidebarScope(() {
+        _page.filterSelection = result;
+        _page.activeSmartListId = null;
+        _page.activeSmartListName = null;
       });
     }
   }
 
-  Future<void> showSmartListsFlow(ShelfState? shelfState) async {
-    final db = _s.ref.read(localDatabaseProvider);
-    final customFieldCache = await _s.ref.read(
-      libraryCustomFieldCacheProvider(_s.widget.type.workspace.kind.apiValue)
+  Future<void> showSmartListsFlow(ShelfState? ignoredShelfState) async {
+    final db = _page.ref.read(localDatabaseProvider);
+    final customFieldCache = await _page.ref.read(
+      libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
           .future,
     );
-    if (!_s.mounted) {
+    if (!_page.mounted) {
       return;
     }
-    final searchState = _LibraryPageSearchControllerOps.thisState(_s);
     final result = await showSmartListsDialog(
-      context: _s.context,
+      context: _page.context,
       db: db,
-      mediaKind: _s.widget.type.workspace.kind.apiValue,
-      currentFilter: _s._filterSelection,
-      currentQuickView: _s._quickView,
-      currentSortRules: _s._viewState?.sortRules,
-      currentSortColumn: _s._viewState?.sortColumn,
-      currentSortAscending: _s._viewState?.sortAscending,
+      mediaKind: _page.type.workspace.kind.apiValue,
+      currentFilter: _page.filterSelection,
+      currentQuickView: _page.quickView,
+      currentSortRules: _page.viewState?.sortRules,
+      currentSortColumn: _page.viewState?.sortColumn,
+      currentSortAscending: _page.viewState?.sortAscending,
       currentSearchQuery:
-          searchState.query.isNotEmpty ? searchState.query : null,
+          _page.searchQuery.isNotEmpty ? _page.searchQuery : null,
       customFieldDefinitions: customFieldCache.definitions,
     );
-    if (result != null && _s.mounted) {
-      _s._rebuild(() {
-        _s._filterSelection = result.filterSelection;
-        _s._quickView = result.quickView;
+    if (result != null && _page.mounted) {
+      _page.rebuild(() {
+        _page.filterSelection = result.filterSelection;
+        _page.quickView = result.quickView;
         if (result.searchQuery != null) {
-          _s._searchController.text = result.searchQuery!;
-          _LibraryPageSearchControllerOps.setQuery(_s, result.searchQuery!);
+          _page.setSearchQuery(result.searchQuery!);
         } else {
-          _s._searchController.clear();
-          _LibraryPageSearchControllerOps.clearSearch(_s);
+          _page.clearSearchQuery();
         }
-        if (_s._viewState != null) {
+        final viewState = _page.viewState;
+        if (viewState != null) {
           if (result.sortRules != null && result.sortRules!.isNotEmpty) {
-            _s._viewState = _s._viewState!.withSortRules(
+            _page.viewState = viewState.withSortRules(
               result.sortRules!,
-              _s._adapter.viewProfile,
+              _page.adapter.viewProfile,
             );
           } else if (result.sortColumn != null) {
-            _s._viewState = _s._viewState!.copyWith(
+            _page.viewState = viewState.copyWith(
               sortColumn: result.sortColumn,
               sortAscending: result.sortAscending ?? true,
             );
           }
         }
       });
-      _s._syncRouteState();
+      _page.syncRouteState();
     }
   }
 
   Future<void> showSortDialogFlow() async {
-    final viewState = _s._viewState;
+    final viewState = _page.viewState;
     if (viewState == null) {
       return;
     }
     final sortRules = await showLibrarySortDialog(
-      context: _s.context,
-      type: _s.widget.type,
+      context: _page.context,
+      type: _page.type,
       currentRules: viewState.sortRules,
-      defaultAscendingForColumn: _s._adapter.viewProfile.initialSortAscending,
-      availableColumns: _s._scopeAvailableSortColumns,
+      defaultAscendingForColumn: _page.adapter.viewProfile.initialSortAscending,
+      availableColumns: _page.scopeAvailableSortColumns,
     );
-    if (sortRules != null && _s.mounted) {
-      final allowed = _s._scopeAvailableSortColumns.toSet();
+    if (sortRules != null && _page.mounted) {
+      final allowed = _page.scopeAvailableSortColumns.toSet();
       final filteredRules = [
         for (final rule in sortRules)
           if (allowed.contains(rule.column)) rule,
@@ -174,23 +199,24 @@ class LibraryPageDialogCoordinator {
       if (filteredRules.isEmpty) {
         return;
       }
-      _s._updateViewState(
-        (state) => state.withSortRules(filteredRules, _s._adapter.viewProfile),
+      _page.updateViewState(
+        (state) =>
+            state.withSortRules(filteredRules, _page.adapter.viewProfile),
       );
     }
   }
 
   Future<void> showSortFavoritesManagerFlow() async {
     final result = await showSortFavoritesManagerDialog(
-      context: _s.context,
-      type: _s.widget.type,
-      favorites: _s._sortFavorites,
-      initialPinnedIds: _s._pinnedSortFavoriteIds,
-      activeSortFavoriteId: _s._activeSortFavorite?.id,
+      context: _page.context,
+      type: _page.type,
+      favorites: _page.sortFavorites,
+      initialPinnedIds: _page.pinnedSortFavoriteIds,
+      activeSortFavoriteId: _page.activeSortFavorite?.id,
     );
-    if (result != null && _s.mounted) {
-      _s._rebuild(() => _s._pinnedSortFavoriteIds = result);
-      unawaited(_s._viewPrefs.writePinnedSortFavoriteIds(result));
+    if (result != null && _page.mounted) {
+      _page.rebuild(() => _page.pinnedSortFavoriteIds = result);
+      unawaited(_page.viewPrefs.writePinnedSortFavoriteIds(result));
     }
   }
 
@@ -199,70 +225,70 @@ class LibraryPageDialogCoordinator {
   // ---------------------------------------------------------------------------
 
   Future<void> showReadingQueueFlow() async {
-    final db = _s.ref.read(localDatabaseProvider);
+    final db = _page.ref.read(localDatabaseProvider);
     final queueIds = await ReadingQueueRepository(db).getQueue();
-    final ownedItems = await _s.ref.read(collectionProvider.future);
+    final ownedItems = await _page.ref.read(collectionProvider.future);
     final queuedOwnedItems = ownedItems
         .where((item) => !item.isDeleted && queueIds.contains(item.id))
         .toList(growable: false);
     final catalogItemsById = await CatalogCacheRepository(db).findByIds(
       queuedOwnedItems.map((item) => item.itemId),
     );
-    if (!_s.mounted) {
+    if (!_page.mounted) {
       return;
     }
     await showReadingQueueDialog(
-      context: _s.context,
+      context: _page.context,
       db: db,
-      mediaKind: _s.widget.type.workspace.kind.apiValue,
+      mediaKind: _page.type.workspace.kind.apiValue,
       ownedItems: queuedOwnedItems,
       catalogItemsById: catalogItemsById,
-      onSelectItem: _s._selectItem,
+      onSelectItem: _page.selectItem,
     );
   }
 
   Future<void> showConditionPickListEditorFlow() async {
-    final db = _s.ref.read(localDatabaseProvider);
+    final db = _page.ref.read(localDatabaseProvider);
     await showPickListEditorDialog(
-      context: _s.context,
+      context: _page.context,
       db: db,
       listName: kConditionPickListName,
       label: 'Condition',
-      mediaKind: _s.widget.type.workspace.kind.apiValue,
-      builtInValues: _s.widget.type.conditions,
+      mediaKind: _page.type.workspace.kind.apiValue,
+      builtInValues: _page.type.conditions,
     );
-    if (_s.mounted) {
-      _s._rebuild(() {});
+    if (_page.mounted) {
+      _page.rebuild(() {});
     }
   }
 
   Future<void> showGradePickListEditorFlow() async {
-    final db = _s.ref.read(localDatabaseProvider);
+    final db = _page.ref.read(localDatabaseProvider);
     await showPickListEditorDialog(
-      context: _s.context,
+      context: _page.context,
       db: db,
       listName: kGradePickListName,
       label: 'Grade',
-      mediaKind: _s.widget.type.workspace.kind.apiValue,
-      builtInValues: _s.widget.type.grades,
+      mediaKind: _page.type.workspace.kind.apiValue,
+      builtInValues: _page.type.grades,
     );
-    if (_s.mounted) {
-      _s._rebuild(() {});
+    if (_page.mounted) {
+      _page.rebuild(() {});
     }
   }
 
   Future<void> showTagPickListEditorFlow() async {
-    final db = _s.ref.read(localDatabaseProvider);
+    final db = _page.ref.read(localDatabaseProvider);
     await showPickListEditorDialog(
-      context: _s.context,
+      context: _page.context,
       db: db,
       listName: kTagPickListName,
       label: 'Tag',
-      mediaKind: _s.widget.type.workspace.kind.apiValue,
+      mediaKind: _page.type.workspace.kind.apiValue,
       builtInValues: const [],
     );
-    if (_s.mounted) {
-      _s._rebuild(() {});
+    if (_page.mounted) {
+      _page.rebuild(() {});
     }
   }
 
@@ -271,19 +297,20 @@ class LibraryPageDialogCoordinator {
   // ---------------------------------------------------------------------------
 
   Future<void> showColumnChooserFlow() async {
-    final viewState = _s._viewState ?? _s._adapter.viewProfile.defaults();
+    final viewState = _page.viewState ?? _page.adapter.viewProfile.defaults();
     final selected = await showGenericLibraryColumnChooser(
-      context: _s.context,
-      type: _s.widget.type,
-      adapter: _s._adapter,
+      context: _page.context,
+      type: _page.type,
+      adapter: _page.adapter,
       viewState: viewState,
-      pinnedFavoriteKeys: _s._pinnedColumnFavoriteKeys,
-      onTogglePinnedFavorite: _s._togglePinnedColumnFavorite,
+      pinnedFavoriteKeys: _page.pinnedColumnFavoriteKeys,
+      onTogglePinnedFavorite: _page.togglePinnedColumnFavorite,
     );
     if (selected != null) {
-      _s._updateViewState((state) => state.copyWith(visibleColumns: selected));
+      _page
+          .updateViewState((state) => state.copyWith(visibleColumns: selected));
     }
-    await _s._loadColumnFavoritePresets();
+    await _page.loadColumnFavoritePresets();
   }
 
   // ---------------------------------------------------------------------------
@@ -291,20 +318,20 @@ class LibraryPageDialogCoordinator {
   // ---------------------------------------------------------------------------
 
   Future<void> showUserFoldersFlow() async {
-    final db = _s.ref.read(localDatabaseProvider);
-    await showUserFoldersDialog(context: _s.context, db: db);
+    final db = _page.ref.read(localDatabaseProvider);
+    await showUserFoldersDialog(context: _page.context, db: db);
   }
 
   Future<void> showTransferFieldDataFlow(
     LibraryProjection? projection,
   ) async {
     if (projection == null) return;
-    final db = _s.ref.read(localDatabaseProvider);
-    final customFieldCache = await _s.ref.read(
-      libraryCustomFieldCacheProvider(_s.widget.type.workspace.kind.apiValue)
+    final db = _page.ref.read(localDatabaseProvider);
+    final customFieldCache = await _page.ref.read(
+      libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
           .future,
     );
-    final ownedItems = await _s.ref.read(collectionProvider.future);
+    final ownedItems = await _page.ref.read(collectionProvider.future);
     final visibleIds = <String>{
       for (final item in projection.filteredItems)
         if (item.entry.ownedItemId != null) item.entry.ownedItemId!,
@@ -312,24 +339,23 @@ class LibraryPageDialogCoordinator {
     final items = ownedItems
         .where((o) => !o.isDeleted && visibleIds.contains(o.id))
         .toList(growable: false);
-    if (items.isEmpty || !_s.mounted) return;
+    if (items.isEmpty || !_page.mounted) return;
 
-    final mutations = _s.ref.read(collectionMutationsProvider);
+    final mutations = _page.ref.read(collectionMutationsProvider);
     final result = await showTransferFieldDataDialog(
-      context: _s.context,
+      context: _page.context,
       db: db,
-      type: _s.widget.type,
+      type: _page.type,
       items: items,
       mutations: mutations,
       customFieldDefinitions: customFieldCache.definitions,
     );
-    if (result != null && _s.mounted) {
-      _s.ref.invalidate(shelfProvider);
-      _s.ref.invalidate(
-        libraryCustomFieldCacheProvider(
-            _s.widget.type.workspace.kind.apiValue),
+    if (result != null && _page.mounted) {
+      _page.invalidateShelf();
+      _page.ref.invalidate(
+        libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue),
       );
-      ScaffoldMessenger.of(_s.context).showSnackBar(
+      ScaffoldMessenger.of(_page.context).showSnackBar(
         SnackBar(
           content: Text(
             'Transfer complete: ${result.transferred} transferred, '
@@ -343,40 +369,39 @@ class LibraryPageDialogCoordinator {
   Future<void> showTransferFieldDataForSelectionFlow(
     LibraryProjection? projection,
   ) async {
-    if (projection == null || _s._selection.itemIds.isEmpty) return;
-    final db = _s.ref.read(localDatabaseProvider);
-    final customFieldCache = await _s.ref.read(
-      libraryCustomFieldCacheProvider(_s.widget.type.workspace.kind.apiValue)
+    if (projection == null || _page.selection.itemIds.isEmpty) return;
+    final db = _page.ref.read(localDatabaseProvider);
+    final customFieldCache = await _page.ref.read(
+      libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
           .future,
     );
-    final ownedItems = await _s.ref.read(collectionProvider.future);
+    final ownedItems = await _page.ref.read(collectionProvider.future);
     final visibleIds = <String>{
       for (final item in projection.filteredItems)
-        if (_s._selection.itemIds.contains(item.entry.id) &&
+        if (_page.selection.itemIds.contains(item.entry.id) &&
             item.entry.ownedItemId != null)
           item.entry.ownedItemId!,
     };
     final items = ownedItems
         .where((o) => !o.isDeleted && visibleIds.contains(o.id))
         .toList(growable: false);
-    if (items.isEmpty || !_s.mounted) return;
+    if (items.isEmpty || !_page.mounted) return;
 
-    final mutations = _s.ref.read(collectionMutationsProvider);
+    final mutations = _page.ref.read(collectionMutationsProvider);
     final result = await showTransferFieldDataDialog(
-      context: _s.context,
+      context: _page.context,
       db: db,
-      type: _s.widget.type,
+      type: _page.type,
       items: items,
       mutations: mutations,
       customFieldDefinitions: customFieldCache.definitions,
     );
-    if (result != null && _s.mounted) {
-      _s.ref.invalidate(shelfProvider);
-      _s.ref.invalidate(
-        libraryCustomFieldCacheProvider(
-            _s.widget.type.workspace.kind.apiValue),
+    if (result != null && _page.mounted) {
+      _page.invalidateShelf();
+      _page.ref.invalidate(
+        libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue),
       );
-      ScaffoldMessenger.of(_s.context).showSnackBar(
+      ScaffoldMessenger.of(_page.context).showSnackBar(
         SnackBar(
           content: Text(
             'Transfer complete: ${result.transferred} transferred, '
@@ -390,27 +415,26 @@ class LibraryPageDialogCoordinator {
   Future<void> showLoanSelectionFlow(
     LibraryProjection? projection,
   ) async {
-    if (projection == null || _s._selection.itemIds.isEmpty) return;
+    if (projection == null || _page.selection.itemIds.isEmpty) return;
     final ownedItemIds = <String>{
       for (final item in projection.filteredItems)
-        if (_s._selection.itemIds.contains(item.entry.id) &&
+        if (_page.selection.itemIds.contains(item.entry.id) &&
             item.entry.ownedItemId != null &&
-            !_s._activeLoanOwnedItemIds
-                .contains(item.entry.ownedItemId))
+            !_page.activeLoanOwnedItemIds.contains(item.entry.ownedItemId))
           item.entry.ownedItemId!,
     };
-    if (ownedItemIds.isEmpty || !_s.mounted) return;
+    if (ownedItemIds.isEmpty || !_page.mounted) return;
 
     final draft = await showDialog<_BatchLoanDraft>(
-      context: _s.context,
+      context: _page.context,
       builder: (context) => _BatchLoanDialog(
-        accent: _s.widget.accent,
+        accent: _page.accent,
         itemCount: ownedItemIds.length,
       ),
     );
-    if (draft == null || !_s.mounted) return;
+    if (draft == null || !_page.mounted) return;
 
-    final repo = LoanRepository(_s.ref.read(localDatabaseProvider));
+    final repo = LoanRepository(_page.ref.read(localDatabaseProvider));
     for (final ownedItemId in ownedItemIds) {
       await repo.create(
         Loan(
@@ -424,10 +448,10 @@ class LibraryPageDialogCoordinator {
       );
     }
 
-    _s._rebuild(() => _s._selection = _s._selection.clear());
-    await _LibraryPageLifecycleControllerOps.loadActiveLoanIds(_s);
-    if (_s.mounted) {
-      ScaffoldMessenger.of(_s.context).showSnackBar(
+    _page.rebuild(_page.clearSelection);
+    await _page.loadActiveLoanIds();
+    if (_page.mounted) {
+      ScaffoldMessenger.of(_page.context).showSnackBar(
         SnackBar(
           content: Text(
             'Created ${ownedItemIds.length} loan record${ownedItemIds.length == 1 ? '' : 's'}.',
@@ -441,7 +465,7 @@ class LibraryPageDialogCoordinator {
     final items = projection.filteredItems;
     if (items.isEmpty) return;
     final confirmed = await showDialog<bool>(
-      context: _s.context,
+      context: _page.context,
       builder: (ctx) => AccentAlertDialog(
         title: const Text('Re-assign index values'),
         content: Text(
@@ -461,9 +485,9 @@ class LibraryPageDialogCoordinator {
         ],
       ),
     );
-    if (confirmed != true || !_s.mounted) return;
+    if (confirmed != true || !_page.mounted) return;
 
-    final mutations = _s.ref.read(collectionMutationsProvider);
+    final mutations = _page.ref.read(collectionMutationsProvider);
     var count = 0;
     for (var i = 0; i < items.length; i++) {
       final ownedItem = items[i].source.ownedItem;
@@ -475,9 +499,9 @@ class LibraryPageDialogCoordinator {
       );
       count++;
     }
-    _s.ref.invalidate(shelfProvider);
-    if (_s.mounted) {
-      ScaffoldMessenger.of(_s.context).showSnackBar(
+    _page.invalidateShelf();
+    if (_page.mounted) {
+      ScaffoldMessenger.of(_page.context).showSnackBar(
         SnackBar(
           content: Text('Assigned index values to $count items'),
         ),

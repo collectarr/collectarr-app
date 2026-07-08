@@ -1,28 +1,44 @@
-part of '../generic_library_page.dart';
+import 'package:collectarr_app/core/utils/app_toast.dart';
+import 'package:collectarr_app/features/library/generic/metadata_refresh.dart';
+import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_compare_dialog.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_refresh_dialog.dart';
+import 'package:flutter/material.dart';
 
 /// Handles metadata refresh, bulk metadata refresh, and
 /// compare-with-server flows.
 class LibraryPageMetadataCoordinator {
-  const LibraryPageMetadataCoordinator(this._s);
+  const LibraryPageMetadataCoordinator(
+    this._page, {
+    required LibraryPageSelectedProjectionItemResolver
+        selectedProjectionItemFor,
+    required LibraryPageCanCompareMetadataWithServer
+        canCompareMetadataWithServerItem,
+  })  : _selectedProjectionItemFor = selectedProjectionItemFor,
+        _canCompareMetadataWithServerItem = canCompareMetadataWithServerItem;
 
-  final GenericLibraryPageState _s;
+  final LibraryPageCoordinatorContext _page;
+  final LibraryPageSelectedProjectionItemResolver _selectedProjectionItemFor;
+  final LibraryPageCanCompareMetadataWithServer
+      _canCompareMetadataWithServerItem;
 
   Future<void> showMetadataRefreshFlow(LibraryProjection? projection) async {
     if (projection == null) {
-      ScaffoldMessenger.of(_s.context).showSnackBar(
+      ScaffoldMessenger.of(_page.context).showSnackBar(
         const SnackBar(content: Text('Library data is still loading')),
       );
       return;
     }
     final result = await showGenericLibraryMetadataRefreshDialog(
-      context: _s.context,
-      type: _s.widget.type,
-      accent: _s.widget.accent,
+      context: _page.context,
+      type: _page.type,
+      accent: _page.accent,
       projection: projection,
     );
-    if (result == null || !_s.mounted) return;
-    _s.ref.invalidate(shelfProvider);
-    ScaffoldMessenger.of(_s.context).showSnackBar(
+    if (result == null || !_page.mounted) return;
+    _page.invalidateShelf();
+    ScaffoldMessenger.of(_page.context).showSnackBar(
       SnackBar(
         content: Text(
           'Metadata refresh finished: ${result.matched}/${result.targets} matched, '
@@ -33,24 +49,24 @@ class LibraryPageMetadataCoordinator {
   }
 
   Future<void> bulkRefreshMetadataFlow(LibraryProjection? projection) async {
-    if (projection == null || _s._selection.itemIds.isEmpty) return;
-    final selectedEntries = <LibraryWorkspaceEntry>[
+    if (projection == null || _page.selection.itemIds.isEmpty) return;
+    final selectedEntries = [
       for (final item in projection.filteredItems)
-        if (_s._selection.itemIds.contains(item.entry.id)) item.entry,
+        if (_page.selection.itemIds.contains(item.entry.id)) item.entry,
     ];
     if (selectedEntries.isEmpty) return;
     final result = await showLibraryMetadataRefreshDialog(
-      context: _s.context,
-      type: _s.widget.type,
-      accent: _s.widget.accent,
+      context: _page.context,
+      type: _page.type,
+      accent: _page.accent,
       allEntries: selectedEntries,
       shownEntries: selectedEntries,
       selectedEntry: selectedEntries.first,
     );
-    if (result == null || !_s.mounted) return;
-    _s._rebuild(() => _s._selection = _s._selection.clear());
-    _s.ref.invalidate(shelfProvider);
-    ScaffoldMessenger.of(_s.context).showSnackBar(
+    if (result == null || !_page.mounted) return;
+    _page.rebuild(_page.clearSelection);
+    _page.invalidateShelf();
+    ScaffoldMessenger.of(_page.context).showSnackBar(
       SnackBar(
         content: Text(
           'Metadata refresh finished: ${result.matched}/${result.targets} matched, '
@@ -64,25 +80,22 @@ class LibraryPageMetadataCoordinator {
     LibraryProjection projection, {
     LibraryProjectionItem? item,
   }) async {
-    if (!_s.widget.type.kindUiAdapter.supportsMetadataCompareWithServer(
-      _s.widget.type,
+    if (!_page.type.kindUiAdapter.supportsMetadataCompareWithServer(
+      _page.type,
     )) {
       return;
     }
-    final targetItem =
-        item ?? _s._collectionActionCoordinator.selectedProjectionItemFor(projection);
+    final targetItem = item ?? _selectedProjectionItemFor(projection);
     if (targetItem == null) {
-      if (!_s.mounted) return;
-      ScaffoldMessenger.of(_s.context).showSnackBar(
+      if (!_page.mounted) return;
+      ScaffoldMessenger.of(_page.context).showSnackBar(
         const SnackBar(content: Text('Select an item first.')),
       );
       return;
     }
-    if (!_s._collectionActionCoordinator.canCompareMetadataWithServerItem(
-      targetItem,
-    )) {
-      if (!_s.mounted) return;
-      ScaffoldMessenger.of(_s.context).showSnackBar(
+    if (!_canCompareMetadataWithServerItem(targetItem)) {
+      if (!_page.mounted) return;
+      ScaffoldMessenger.of(_page.context).showSnackBar(
         const SnackBar(
           content: Text(
             'This item cannot be compared with server metadata.',
@@ -93,33 +106,33 @@ class LibraryPageMetadataCoordinator {
     }
     final localItem = targetItem.source.catalogItem;
     if (localItem == null) {
-      if (!_s.mounted) return;
-      ScaffoldMessenger.of(_s.context).showSnackBar(
+      if (!_page.mounted) return;
+      ScaffoldMessenger.of(_page.context).showSnackBar(
         const SnackBar(content: Text('Missing local metadata for this item.')),
       );
       return;
     }
     await showLibraryMetadataCompareDialog(
-      context: _s.context,
+      context: _page.context,
       localItem: localItem.toCatalogItem(),
-      accent: _s.widget.accent,
+      accent: _page.accent,
     );
   }
 
   /// Used by the video drilldown workspace to refresh a single title from Core.
   Future<void> refreshVideoTitleFromCore(LibraryProjectionItem item) async {
     final result = await showLibraryMetadataRefreshDialog(
-      context: _s.context,
-      type: _s.widget.type,
-      accent: _s.widget.accent,
+      context: _page.context,
+      type: _page.type,
+      accent: _page.accent,
       allEntries: [item.entry],
       shownEntries: [item.entry],
       selectedEntry: item.entry,
     );
-    if (result == null || !_s.mounted) return;
-    _s.ref.invalidate(shelfProvider);
+    if (result == null || !_page.mounted) return;
+    _page.invalidateShelf();
     showAppToast(
-      _s.context,
+      _page.context,
       'Metadata refresh finished: ${result.matched}/${result.targets} matched, '
       '${result.cached} cached, ${result.failed} failed.',
       tone: AppToastTone.success,
