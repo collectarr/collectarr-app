@@ -26,6 +26,9 @@ jobs:
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Check library kind boundaries
+        run: dart run tool/check_library_kind_boundaries.dart
+
       - name: Analyze
         run: |
           set -euo pipefail
