@@ -38,7 +38,6 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -61,7 +60,6 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-import 'controllers/library_add_comparisons.dart';
 import 'controllers/library_add_controller.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
 import 'controllers/library_add_dialog_requests.dart';
@@ -868,8 +866,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       _showsVideoKindFilters ? _videoKindFilters : null,
                   onVideoKindFilterChanged: _showsVideoKindFilters
                       ? (kind, checked) {
-                          final canonicalKind =
-                              _canonicalVideoSearchKind(kind);
+                          final canonicalKind = _canonicalVideoSearchKind(kind);
                           setState(() {
                             if (checked) {
                               _videoKindFilters.add(canonicalKind);
@@ -974,12 +971,15 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         selectedProviderCandidateId:
                             searchPaneRequest.selectedProviderCandidateId,
                         checkedResultIds: searchPaneRequest.checkedResultIds,
-                        checkedProviderIds: searchPaneRequest.checkedProviderIds,
+                        checkedProviderIds:
+                            searchPaneRequest.checkedProviderIds,
                         ownedCatalogItemIds:
                             searchPaneRequest.ownedCatalogItemIds,
                         providerQueryText: searchPaneRequest.providerQueryText,
-                        providerSeriesText: searchPaneRequest.providerSeriesText,
-                        providerNumberText: searchPaneRequest.providerNumberText,
+                        providerSeriesText:
+                            searchPaneRequest.providerSeriesText,
+                        providerNumberText:
+                            searchPaneRequest.providerNumberText,
                         providerPublisherText:
                             searchPaneRequest.providerPublisherText,
                         providerYearText: searchPaneRequest.providerYearText,
@@ -989,7 +989,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             searchPaneRequest.showProviderResults,
                         showMediaResults: searchPaneRequest.showMediaResults,
                         showSeasonResults: searchPaneRequest.showSeasonResults,
-                        showReleaseResults: searchPaneRequest.showReleaseResults,
+                        showReleaseResults:
+                            searchPaneRequest.showReleaseResults,
                         hideComicOwnedResults: _hideComicOwnedResults,
                         hideComicVariantResults: _hideComicVariantResults,
                         compactComicIssues: _compactComicIssues,
@@ -1017,7 +1018,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                             visibleProviderResults: _visibleProviderResults(),
                           );
                         }),
-                        onHideComicVariantResultsChanged: (value) => setState(() {
+                        onHideComicVariantResultsChanged: (value) =>
+                            setState(() {
                           _hideComicVariantResults = value;
                           _pruneSelectionsForVisibility(
                             visibleResults: _visibleCoreResults(),
@@ -2491,11 +2493,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         final sourceSelection = selected!;
         final raw = mergeHydratedProviderAddResultRaw(
           raw: <String, dynamic>{
-          ...dto.raw,
-          'id': dto.id,
-          'title': dto.title,
-          'kind': dto.kind,
-        },
+            ...dto.raw,
+            'id': dto.id,
+            'title': dto.title,
+            'kind': dto.kind,
+          },
           sourceSelection: sourceSelection,
         );
         return CatalogItem.fromJson(raw);
@@ -2686,160 +2688,58 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     return true;
   }
 
-  Future<LibraryMetadataItem> _providerAddItemForCandidate(
-    ProviderCandidate candidate,
-  ) async {
-    if (candidate.isStub) {
-      return candidate.placeholderItem();
-    }
-    final cachedPreview =
-        _previewState.providerPreviewFor(candidate.localCatalogId);
-    if (cachedPreview != null) {
-      return _providerMapper.metadataItemFromPreview(cachedPreview).copyWith(
-            id: buildPreviewCatalogItemId(
-              kind: cachedPreview.kind,
-              provider: cachedPreview.provider,
-              providerItemId: cachedPreview.providerItemId,
-            ),
-          );
-    }
-    try {
-      final preview = await ref.read(apiClientProvider).providerPreview(
-            provider: candidate.provider,
-            providerItemId: candidate.providerItemId,
-          );
-      if (mounted) {
-        _rebuild(() {
-          _previewState.setProviderPreview(candidate.localCatalogId, preview);
-        });
-      }
-      return _providerMapper.metadataItemFromPreview(preview).copyWith(
-            id: buildPreviewCatalogItemId(
-              kind: preview.kind,
-              provider: preview.provider,
-              providerItemId: preview.providerItemId,
-            ),
-          );
-    } catch (error) {
-      if (mounted && _isMissingBearerTokenError(error)) {
-        _rebuild(
-          () => _error =
-              'Provider preview needs authentication. Adding basic provider metadata only.',
-        );
-        return candidate.placeholderItem();
-      }
-      rethrow;
-    }
-  }
-
   Future<void> _addProviderCandidate(
     ProviderCandidate candidate,
     LibraryAddTarget target,
   ) async {
-    final isAdmin = ref.read(authControllerProvider).isAdmin;
-    if (!isAdmin || candidate.isStub) {
-      final previewItem = await _providerAddItemForCandidate(candidate);
-      await _addItems([previewItem], target);
-      return;
-    }
-    var currentCandidate = candidate;
-    try {
-      while (mounted) {
-        final preview = await _providerActionService.fetchPreview(
-          api: ref.read(apiClientProvider),
-          candidate: currentCandidate,
-        );
-        if (!mounted) return;
-
-        final previewItem = _providerMapper.metadataItemFromPreview(preview).copyWith(
-              id: buildPreviewCatalogItemId(
-                kind: preview.kind,
-                provider: preview.provider,
-                providerItemId: preview.providerItemId,
-              ),
-            );
-        final catalog = ref.read(mediaCatalogProvider).maybeWhen(
-              data: (value) => value,
-              orElse: () => fallbackMediaCatalog,
-            );
-        final visibleCandidates = _visibleProviderResults();
-        final currentIndex = visibleCandidates.indexWhere(
-          (entry) => entry.localCatalogId == currentCandidate.localCatalogId,
-        );
-        ProviderCandidate? navigateCandidate;
-
-        final result = await showLibraryEditDialog(
-          context: context,
-          request: LibraryEditDialogRequest(
-            type: widget.type,
-            item: previewItem,
-            ownedItem: null,
-            accent: LibraryAccentScope.accentOf(context),
-            scope: LibraryEditScope.all,
-            physicalFormats: physicalMediaFormatsForKind(
-              catalog,
-              widget.type.workspace.kind,
-            ),
-            onPrevious: currentIndex > 0
-                ? () {
-                    navigateCandidate = visibleCandidates[currentIndex - 1];
-                    Navigator.of(context).pop();
-                  }
-                : null,
-            onNext:
-                currentIndex >= 0 && currentIndex < visibleCandidates.length - 1
-                    ? () {
-                        navigateCandidate = visibleCandidates[currentIndex + 1];
-                        Navigator.of(context).pop();
-                      }
-                    : null,
+    final catalog = CatalogCacheRepository(ref.read(localDatabaseProvider));
+    final mutations = ref.read(collectionMutationsProvider);
+    final physicalFormats = physicalMediaFormatsForKind(
+      ref.read(mediaCatalogProvider).maybeWhen(
+            data: (value) => value,
+            orElse: () => fallbackMediaCatalog,
           ),
-        );
-        if (!mounted) return;
-        if (navigateCandidate != null) {
-          currentCandidate = navigateCandidate!;
-          continue;
+      widget.type.workspace.kind,
+    );
+    await _workflowService.addProviderCandidate(
+      context: context,
+      api: ref.read(apiClientProvider),
+      isAdmin: ref.read(authControllerProvider).isAdmin,
+      type: widget.type,
+      candidate: candidate,
+      target: target,
+      mounted: mounted,
+      isAdding: _isAdding,
+      rebuild: _rebuild,
+      setIsAdding: (value) => _isAdding = value,
+      setError: (value) => _error = value,
+      onSuccess: (result) {
+        if (mounted && context.mounted) {
+          Navigator.of(context).pop(result);
         }
-        if (result == null) return;
-
-        final ingest = await _providerActionService.ingestCandidate(
-          api: ref.read(apiClientProvider),
-          candidate: currentCandidate,
-        );
-
-        final edited = result.item;
-        final ingested = metadataItemFromIngestResult(ingest.item);
-        if (mounted) {
-          await _providerOrchestrationService.applyIngestCorrections(
-            api: ref.read(apiClientProvider),
-            providerMapper: _providerMapper.buildCorrections,
-            kind: ingested.kind,
-            itemId: ingest.itemId,
-            preview: previewItem,
-            edited: edited,
-          );
-        }
-
-        final finalItem = mergeProviderAddResult(
-          ingested: ingested,
-          edited: edited,
-        );
-        await _addItems([finalItem], target);
-        return;
-      }
-    } catch (error) {
-      if (mounted &&
-          await _clearRejectedMetadataSession(error, 'Provider ingest')) {
-        return;
-      }
-      if (mounted) {
-        final api = ref.read(apiClientProvider);
-        _rebuild(
-          () => _error =
-              'Provider ingest failed: ${ConnectionDiagnostics.metadataError(error, api.baseUrl)}',
-        );
-      }
-    }
+      },
+      isMissingBearerTokenError: _isMissingBearerTokenError,
+      catalog: catalog,
+      mutations: mutations,
+      physicalFormats: physicalFormats,
+      previewState: _previewState,
+      providerActionService: _providerActionService,
+      providerOrchestrationService: _providerOrchestrationService,
+      providerMapper: _providerMapper.buildCorrections,
+      visibleProviderResults: _visibleProviderResults,
+      showEditDialog: (context, request) =>
+          showLibraryEditDialog(context: context, request: request),
+      clearRejectedMetadataSession: _clearRejectedMetadataSession,
+      referenceType: _referenceType,
+      defaults: LibraryAddDefaults(
+        condition: _defaultCondition,
+        grade: _defaultGrade,
+        purchaseDate: _defaultPurchaseDate,
+        locationId: _defaultLocationId,
+        readStatus: _defaultReadStatus,
+        tags: _defaultTags,
+      ),
+    );
   }
 
   Future<void> _proposeCandidate(ProviderCandidate candidate) async {
@@ -2857,8 +2757,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       setError: (String? message) => _error = message,
       visibleProviderResults: _visibleProviderResults,
       currentPhysicalFormats: _currentPhysicalFormats,
-      showEditDialog: (BuildContext context, LibraryEditDialogRequest request) =>
-          showLibraryEditDialog(
+      showEditDialog:
+          (BuildContext context, LibraryEditDialogRequest request) =>
+              showLibraryEditDialog(
         context: context,
         request: request,
       ),
@@ -2971,7 +2872,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   String _canonicalVideoSearchKind(String kind) =>
       catalogMediaKindFromValue(kind).apiValue;
 
-  bool get _isVideoKind => widget.type.addChrome.videoKindFilterOptions.isNotEmpty;
+  bool get _isVideoKind =>
+      widget.type.addChrome.videoKindFilterOptions.isNotEmpty;
 
   bool get _showsVideoKindFilters =>
       _isVideoKind && widget.type.addChrome.videoKindFilterOptions.isNotEmpty;
@@ -3050,49 +2952,34 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         const <String, LibraryAddEditionSelection>{},
     Map<String, String> bundleReleaseIdsByItemId = const <String, String>{},
   }) async {
-    if (items.isEmpty || _isAdding) {
-      return;
-    }
-    setState(() {
-      _isAdding = true;
-      _error = null;
-    });
-    try {
-      await _workflowService.addItems(
-        catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
-        mutations: ref.read(collectionMutationsProvider),
-        items: items,
-        target: target,
-        referenceType: referenceType,
-        defaults: defaults ??
-            LibraryAddDefaults(
-              condition: _defaultCondition,
-              grade: _defaultGrade,
-              purchaseDate: _defaultPurchaseDate,
-              locationId: _defaultLocationId,
-              readStatus: _defaultReadStatus,
-              tags: _defaultTags,
-            ),
-        ownedDetailsByItemId: ownedDetailsByItemId,
-        editionSelectionsByItemId: editionSelectionsByItemId,
-        bundleReleaseIdsByItemId: bundleReleaseIdsByItemId,
-      );
-      if (mounted) {
-        Navigator.of(context).pop(
-          LibraryAddDialogResult(
-            target: target,
-            itemIds: [for (final item in items) item.id],
+    await _workflowService.addItems(
+      mounted: mounted,
+      isAdding: _isAdding,
+      rebuild: _rebuild,
+      setIsAdding: (value) => _isAdding = value,
+      setError: (value) => _error = value,
+      onSuccess: (result) {
+        if (mounted && context.mounted) {
+          Navigator.of(context).pop(result);
+        }
+      },
+      catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
+      mutations: ref.read(collectionMutationsProvider),
+      items: items,
+      target: target,
+      referenceType: referenceType,
+      defaults: defaults ??
+          LibraryAddDefaults(
+            condition: _defaultCondition,
+            grade: _defaultGrade,
+            purchaseDate: _defaultPurchaseDate,
+            locationId: _defaultLocationId,
+            readStatus: _defaultReadStatus,
+            tags: _defaultTags,
           ),
-        );
-      }
-    } catch (error) {
-      if (mounted) {
-        setState(() => _error = 'Add failed: $error');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isAdding = false);
-      }
-    }
+      ownedDetailsByItemId: ownedDetailsByItemId,
+      editionSelectionsByItemId: editionSelectionsByItemId,
+      bundleReleaseIdsByItemId: bundleReleaseIdsByItemId,
+    );
   }
 }
