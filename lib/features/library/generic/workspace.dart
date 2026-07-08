@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -33,6 +34,11 @@ double libraryWorkspaceGridMainAxisExtent({
   required double coverSize,
 }) {
   return coverSize * adapter.viewProfile.coverGridHeightFactor;
+}
+
+bool libraryShouldUseSeriesSubgroups(LibraryTypeConfig type) {
+  final kind = catalogMediaKindFromValue(type.workspace.kind);
+  return kind != CatalogMediaKind.comic && !kind.isVideoLibraryKind;
 }
 
 class LibraryWorkspace extends ConsumerWidget {

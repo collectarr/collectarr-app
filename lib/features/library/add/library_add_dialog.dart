@@ -59,6 +59,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import 'controllers/library_add_comparisons.dart';
+import 'controllers/library_add_controller.dart';
 import 'controllers/library_add_dialog_requests.dart';
 import 'controllers/library_add_manual_draft.dart';
 import 'controllers/library_add_preview_controller.dart';
@@ -146,6 +147,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryAddSearchController _searchState;
   late final LibraryAddSelectionController _selectionState;
   late final LibraryAddPreviewController _previewState;
+  late final LibraryAddController _addController;
   final _uuid = const Uuid();
 
   bool _isAdding = false;
@@ -421,6 +423,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     _selectionState = LibraryAddSelectionController();
     _previewState = LibraryAddPreviewController();
+    _addController = LibraryAddController(
+      search: _searchState,
+      selection: _selectionState,
+      preview: _previewState,
+    );
     _providerActionService = const LibraryProviderActionService();
     if (_isMovieDesktopChrome) {
       _resultsPaneWidth = 720;
@@ -455,7 +462,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   @override
   void dispose() {
-    _searchState.dispose();
+    _addController.search.dispose();
     _manualDraft.dispose();
     super.dispose();
   }
