@@ -7,4 +7,11 @@ final animeKindModule = LibraryKindModule(
   type: animeLibraryConfig,
   mediaAdapter: collectarrMediaAdapter(animeLibraryConfig),
   providerMapper: const AnimeLibraryKindProviderMapper(),
+  facets: const LibraryFacetModule(loadRows: _loadCharacterFacetRows),
 );
+
+Future<List<Map<String, dynamic>>> _loadCharacterFacetRows(
+  LibraryFacetRequest request,
+) {
+  return request.api.characterFacets(request.itemIds);
+}

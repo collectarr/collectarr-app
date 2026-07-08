@@ -104,9 +104,9 @@ abstract final class _LibraryFacetControllerOps {
     try {
       final buckets = await state.fetchFacetBuckets(
         type: state.widget.type,
+        groupMode: mode,
         itemIds: shelfItemIds,
         signature: signature,
-        isStoryArc: mode == LibraryGroupMode.storyArc,
         allBucketLabel: genericAllBucketLabel(state.widget.type),
       ).timeout(const Duration(seconds: 8));
       if (!state.mounted) return;

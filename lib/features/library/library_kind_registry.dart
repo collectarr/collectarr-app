@@ -17,5 +17,5 @@ LibraryKindProviderMapper libraryKindProviderMapperForType(LibraryTypeConfig typ
 }
 
 LibraryFacetProvider libraryFacetProviderForType(LibraryTypeConfig type) {
-  return libraryKindModuleForType(type).facets.provider;
+  return LibraryFacetModuleProvider(libraryKindModuleForType(type).facets);
 }

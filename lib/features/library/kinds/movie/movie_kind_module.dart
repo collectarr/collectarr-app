@@ -10,4 +10,11 @@ final movieKindModule = LibraryKindModule(
   mediaAdapter: collectarrMediaAdapter(moviesLibraryConfig),
   add: LibraryKindAddModule(registerBuilders: movie_add.registerMovieAddBuilders),
   providerMapper: const MovieLibraryKindProviderMapper(),
+  facets: const LibraryFacetModule(loadRows: _loadCharacterFacetRows),
 );
+
+Future<List<Map<String, dynamic>>> _loadCharacterFacetRows(
+  LibraryFacetRequest request,
+) {
+  return request.api.characterFacets(request.itemIds);
+}

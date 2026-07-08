@@ -7,4 +7,11 @@ final musicKindModule = LibraryKindModule(
   type: musicLibraryConfig,
   mediaAdapter: collectarrMediaAdapter(musicLibraryConfig),
   providerMapper: const MusicLibraryKindProviderMapper(),
+  facets: const LibraryFacetModule(loadRows: _loadCharacterFacetRows),
 );
+
+Future<List<Map<String, dynamic>>> _loadCharacterFacetRows(
+  LibraryFacetRequest request,
+) {
+  return request.api.characterFacets(request.itemIds);
+}

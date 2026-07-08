@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -114,18 +115,18 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   /// Fetch facet rows from the API and build [FacetBuckets].
   Future<FacetBuckets> fetchFacetBuckets({
     required LibraryTypeConfig type,
+    required LibraryGroupMode groupMode,
     required Set<String> itemIds,
     required String signature,
-    required bool isStoryArc,
     String? allBucketLabel,
   }) async {
     return libraryFacetProviderForType(type).load(
       LibraryFacetRequest(
         api: ref.read(apiClientProvider),
         type: type,
+        groupMode: groupMode,
         itemIds: itemIds,
         signature: signature,
-        isStoryArc: isStoryArc,
         allBucketLabel: allBucketLabel,
       ),
     );

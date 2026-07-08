@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class LibraryKindModule {
@@ -16,7 +17,9 @@ class LibraryKindModule {
     this.detail = const LibraryKindDetailModule(),
     this.toolbar = const LibraryKindToolbarModule(),
     this.providerMapper = const NoopLibraryKindProviderMapper(),
-    this.facets = const LibraryFacetModule(provider: DefaultLibraryFacetProvider()),
+    this.facets = const LibraryFacetModule(
+      loadRows: _emptyFacetRows,
+    ),
   });
 
   final LibraryTypeConfig type;
@@ -220,46 +223,25 @@ class NoopLibraryKindProviderMapper extends CommonLibraryKindProviderMapper {
 
 class LibraryFacetModule {
   const LibraryFacetModule({
-    required this.provider,
+    required this.loadRows,
   });
 
-  final LibraryFacetProvider provider;
+  final LibraryFacetRowsLoader loadRows;
 }
 
-class LibraryFacetRequest {
-  const LibraryFacetRequest({
-    required this.api,
-    required this.type,
-    required this.itemIds,
-    required this.signature,
-    required this.isStoryArc,
-    this.allBucketLabel,
-  });
+typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function(
+  LibraryFacetRequest request,
+);
 
-  final ApiClient api;
-  final LibraryTypeConfig type;
-  final Set<String> itemIds;
-  final String signature;
-  final bool isStoryArc;
-  final String? allBucketLabel;
-}
+class LibraryFacetModuleProvider extends LibraryFacetProvider {
+  const LibraryFacetModuleProvider(this.module);
 
-abstract class LibraryFacetProvider {
-  const LibraryFacetProvider();
-
-  Future<FacetBuckets> load(LibraryFacetRequest request);
-}
-
-class DefaultLibraryFacetProvider extends LibraryFacetProvider {
-  const DefaultLibraryFacetProvider();
+  final LibraryFacetModule module;
 
   @override
   Future<FacetBuckets> load(LibraryFacetRequest request) async {
-    final rows = request.isStoryArc
-        ? await request.api.storyArcFacets(request.itemIds)
-        : await request.api.characterFacets(request.itemIds);
-    final byBucket =
-        LibraryPageUtilities.parseFacetRows(rows, request.itemIds);
+    final rows = await module.loadRows(request);
+    final byBucket = LibraryPageUtilities.parseFacetRows(rows, request.itemIds);
     return LibraryPageUtilities.buildFacetBuckets(
       signature: request.signature,
       byBucket: byBucket,
@@ -267,4 +249,34 @@ class DefaultLibraryFacetProvider extends LibraryFacetProvider {
       totalItemCount: request.itemIds.length,
     );
   }
+}
+
+Future<List<Map<String, dynamic>>> _emptyFacetRows(
+  LibraryFacetRequest request,
+) async {
+  return const <Map<String, dynamic>>[];
+}
+
+class LibraryFacetRequest {
+  const LibraryFacetRequest({
+    required this.api,
+    required this.type,
+    required this.groupMode,
+    required this.itemIds,
+    required this.signature,
+    this.allBucketLabel,
+  });
+
+  final ApiClient api;
+  final LibraryTypeConfig type;
+  final LibraryGroupMode groupMode;
+  final Set<String> itemIds;
+  final String signature;
+  final String? allBucketLabel;
+}
+
+abstract class LibraryFacetProvider {
+  const LibraryFacetProvider();
+
+  Future<FacetBuckets> load(LibraryFacetRequest request);
 }
