@@ -208,13 +208,23 @@ class SmartList {
 
   static String _sortColumnToken(String? mediaKind, LibrarySortColumn column) {
     final kind = mediaKind?.trim().toLowerCase();
-    return kind == null || kind.isEmpty ? column.name : '$kind.${column.name}';
+    final stableColumn = _stableToken(column.name);
+    return kind == null || kind.isEmpty ? stableColumn : '$kind.$stableColumn';
   }
 
   static String? _sortColumnTokenFromJson(Object? rawValue) {
     if (rawValue is! String || rawValue.isEmpty) {
       return null;
     }
-    return rawValue.split('.').last;
+    return _stableToken(rawValue.split('.').last);
+  }
+
+  static String _stableToken(String value) {
+    return value
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
   }
 }

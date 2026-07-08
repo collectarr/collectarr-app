@@ -290,7 +290,7 @@ LibraryGroupMode libraryDefaultGroupMode(LibraryTypeConfig type) {
 }
 
 String libraryGroupModeStorageValue(LibraryGroupMode mode) {
-  return 'group.${mode.name}';
+  return 'group.${_stableToken(mode.name)}';
 }
 
 LibraryGroupMode? libraryGroupModeFromStorageValue(String value) {
@@ -301,11 +301,20 @@ LibraryGroupMode? libraryGroupModeFromStorageValue(String value) {
   final candidate =
       normalized.startsWith('group.') ? normalized.substring(6) : normalized;
   for (final mode in LibraryGroupMode.values) {
-    if (mode.name == candidate) {
+    if (mode.name == candidate || _stableToken(mode.name) == candidate) {
       return mode;
     }
   }
   return null;
+}
+
+String _stableToken(String value) {
+  return value
+      .replaceAllMapped(
+        RegExp(r'([a-z0-9])([A-Z])'),
+        (match) => '${match[1]}_${match[2]}',
+      )
+      .toLowerCase();
 }
 
 class LibraryProjection {
