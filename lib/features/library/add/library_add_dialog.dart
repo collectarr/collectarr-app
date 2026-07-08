@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/add/services/library_add_queue_flow.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_content_scope.dart';
@@ -3137,48 +3138,21 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _queuedProviderIngests.containsKey(candidate.localCatalogId)) {
       return;
     }
-    _rebuild(() {
-      _isQueueingIngest = true;
-      _error = null;
-    });
-    try {
-      final job = await _providerActionService.queueIngest(
-        api: ref.read(apiClientProvider),
-        candidate: candidate,
-      );
-      if (!mounted) {
-        return;
-      }
-      _rebuild(() {
-        _queuedProviderIngests[candidate.localCatalogId] =
-            LibraryQueuedProviderIngest(id: job.id, status: job.status);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Queued ${candidate.title} ingest job ${job.id} (${job.status}).',
-          ),
-        ),
-      );
-    } catch (error) {
-      if (mounted) {
-        if (await _clearRejectedMetadataSession(
-          error,
-          'Core ingest queue',
-        )) {
-          return;
-        }
-        final api = ref.read(apiClientProvider);
-        _rebuild(
-          () => _error =
-              'Core ingest queue failed: ${ConnectionDiagnostics.metadataError(error, api.baseUrl)} Admin access is required to queue canonical ingest jobs.',
-        );
-      }
-    } finally {
-      if (mounted) {
-        _rebuild(() => _isQueueingIngest = false);
-      }
-    }
+    await queueLibraryAddProviderIngestFlow(
+      context: context,
+      api: ref.read(apiClientProvider),
+      candidate: candidate,
+      providerActionService: _providerActionService,
+      mounted: mounted,
+      isQueueingIngest: _isQueueingIngest,
+      clearRejectedMetadataSession: _clearRejectedMetadataSession,
+      rebuild: _rebuild,
+      setQueueingIngest: (value) => _isQueueingIngest = value,
+      onQueued: (ingest) {
+        _queuedProviderIngests[candidate.localCatalogId] = ingest;
+      },
+      setError: (message) => _error = message,
+    );
   }
 
   LibraryMetadataItem proposalDraftFromCandidate(ProviderCandidate candidate) {
