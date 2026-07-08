@@ -8,7 +8,6 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
-import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -16,6 +15,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
+import 'package:collectarr_app/features/library/add/services/library_add_proposal_flow_service.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
@@ -154,6 +154,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryKindProviderMapper _providerMapper;
   late final LibraryProviderOrchestrationService _providerOrchestrationService;
   late final LibraryAddProviderFlowService _providerFlowService;
+  late final LibraryAddProposalFlowService _proposalFlowService;
   final _uuid = const Uuid();
 
   bool _isAdding = false;
@@ -439,6 +440,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _providerActionService = const LibraryProviderActionService();
     _providerOrchestrationService = const LibraryProviderOrchestrationService();
     _providerFlowService = const LibraryAddProviderFlowService();
+    _proposalFlowService = const LibraryAddProposalFlowService();
     if (_isMovieDesktopChrome) {
       _resultsPaneWidth = 720;
     }
@@ -2820,94 +2822,26 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   Future<void> _proposeCandidate(ProviderCandidate candidate) async {
-    if (_isAdding) {
-      return;
-    }
-    var currentCandidate = candidate;
-    LibraryEditSelection? result;
-    while (mounted) {
-      final visibleCandidates = _visibleProviderResults();
-      final currentIndex = visibleCandidates.indexWhere(
-        (entry) => entry.localCatalogId == currentCandidate.localCatalogId,
-      );
-      ProviderCandidate? navigateCandidate;
-      result = await showLibraryEditDialog(
+    await _proposalFlowService.proposeCandidate(
+      context: context,
+      api: ref.read(apiClientProvider),
+      type: widget.type,
+      candidate: candidate,
+      providerActionService: _providerActionService,
+      orchestrationService: _providerOrchestrationService,
+      mounted: mounted,
+      isAdding: _isAdding,
+      rebuild: _rebuild,
+      setIsAdding: (bool value) => _isAdding = value,
+      setError: (String? message) => _error = message,
+      visibleProviderResults: _visibleProviderResults,
+      currentPhysicalFormats: _currentPhysicalFormats,
+      showEditDialog: (BuildContext context, LibraryEditDialogRequest request) =>
+          showLibraryEditDialog(
         context: context,
-        request: LibraryEditDialogRequest(
-          type: widget.type,
-          item: _providerOrchestrationService.proposalDraftFromCandidate(
-            type: widget.type,
-            candidate: currentCandidate,
-          ),
-          ownedItem: null,
-          accent: LibraryAccentScope.accentOf(context),
-          physicalFormats: _currentPhysicalFormats(),
-          onPrevious: currentIndex > 0
-              ? () {
-                  navigateCandidate = visibleCandidates[currentIndex - 1];
-                  Navigator.of(context).pop();
-                }
-              : null,
-          onNext:
-              currentIndex >= 0 && currentIndex < visibleCandidates.length - 1
-                  ? () {
-                      navigateCandidate = visibleCandidates[currentIndex + 1];
-                      Navigator.of(context).pop();
-                    }
-                  : null,
-        ),
-      );
-      if (!mounted) {
-        return;
-      }
-      if (navigateCandidate != null) {
-        currentCandidate = navigateCandidate!;
-        continue;
-      }
-      break;
-    }
-    if (result == null || !mounted) {
-      return;
-    }
-    _rebuild(() {
-      _isAdding = true;
-      _error = null;
-    });
-    try {
-      final proposalItem = result.item;
-      await _providerActionService.proposeMetadata(
-        api: ref.read(apiClientProvider),
-        type: widget.type,
-        candidate: currentCandidate,
-        proposalItem: proposalItem,
-      );
-      if (!mounted) {
-        return;
-      }
-      showAppToast(
-        context,
-        '${widget.type.singularLabel} metadata proposal sent for review.',
-        tone: AppToastTone.success,
-      );
-      Navigator.of(context).pop(
-        LibraryAddDialogResult(
-          target: LibraryAddTarget.track,
-          itemIds: [result.item.id],
-        ),
-      );
-    } catch (error) {
-      if (mounted) {
-        showAppToast(
-          context,
-          _providerOrchestrationService.describeMetadataProposalError(error),
-          tone: AppToastTone.error,
-        );
-      }
-    } finally {
-      if (mounted) {
-        _rebuild(() => _isAdding = false);
-      }
-    }
+        request: request,
+      ),
+    );
   }
 
   Future<void> _queueProviderIngest(ProviderCandidate candidate) async {
