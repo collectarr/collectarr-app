@@ -1,4 +1,7 @@
-part of 'library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class PlannedMediaEntryAccessors {
   const PlannedMediaEntryAccessors({
@@ -59,6 +62,47 @@ class PlannedMediaEntryAccessors {
   final bool Function(LibraryWorkspaceEntry entry) keyComic;
   final String? Function(LibraryWorkspaceEntry entry) rawOrSlabbed;
   final String? Function(LibraryWorkspaceEntry entry) gradingCompany;
+}
+
+String? _trimmedOrNull(String? value) {
+  final trimmed = value?.trim();
+  return trimmed == null || trimmed.isEmpty ? null : trimmed;
+}
+
+String? _firstStringValue(List<String>? values) {
+  if (values == null) {
+    return null;
+  }
+  for (final value in values) {
+    final trimmed = value.trim();
+    if (trimmed.isNotEmpty) {
+      return trimmed;
+    }
+  }
+  return null;
+}
+
+int? _extractSubgroupNumber(String? value) {
+  if (value == null) {
+    return null;
+  }
+  final match = RegExp(r'(\d+)').firstMatch(value);
+  if (match == null) {
+    return null;
+  }
+  return int.tryParse(match.group(1)!);
+}
+
+Iterable<String> _nonEmptyValues(Iterable<String?>? values) sync* {
+  if (values == null) {
+    return;
+  }
+  for (final value in values) {
+    final trimmed = value?.trim();
+    if (trimmed != null && trimmed.isNotEmpty) {
+      yield trimmed;
+    }
+  }
 }
 
 final defaultEntryAccessors = PlannedMediaEntryAccessors(

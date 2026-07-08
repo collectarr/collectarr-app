@@ -1,19 +1,16 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/media/video/video_workspace_progress.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
-import 'package:flutter/material.dart';
 
-part 'media_entry_accessors.dart';
-part 'media_table_columns.dart';
+import 'media_entry_accessors.dart';
+import 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
+
+export 'media_entry_accessors.dart';
+export 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
 
 const double kPlannedMediaMinCoverSize = 96;
 const double kPlannedMediaDefaultCoverSize = 128;
@@ -336,19 +333,6 @@ double? _numericPrefixSortValue(String? value) {
   return match == null ? null : double.tryParse(match.group(1)!);
 }
 
-String? _firstStringValue(List<String>? values) {
-  if (values == null) {
-    return null;
-  }
-  for (final value in values) {
-    final normalized = value.trim();
-    if (normalized.isNotEmpty) {
-      return normalized;
-    }
-  }
-  return null;
-}
-
 int _compareNullableStrings(String? left, String? right) {
   final leftValue = left?.toLowerCase() ?? '';
   final rightValue = right?.toLowerCase() ?? '';
@@ -388,29 +372,4 @@ int _compareBools(bool left, bool right) {
     return 0;
   }
   return left ? -1 : 1;
-}
-
-String? _trimmedOrNull(String? value) {
-  if (value == null) {
-    return null;
-  }
-  final trimmed = value.trim();
-  return trimmed.isEmpty ? null : trimmed;
-}
-
-Iterable<String> _nonEmptyValues(Iterable<String?>? values) sync* {
-  if (values == null) {
-    return;
-  }
-  for (final value in values) {
-    final trimmed = _trimmedOrNull(value);
-    if (trimmed != null) {
-      yield trimmed;
-    }
-  }
-}
-
-int? _extractSubgroupNumber(String value) {
-  final match = RegExp(r'(\d+)').firstMatch(value);
-  return match == null ? null : int.tryParse(match.group(1)!);
 }

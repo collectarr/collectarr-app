@@ -1,4 +1,20 @@
-part of 'library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/media/video/video_workspace_progress.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/shared/media_entry_accessors.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
+import 'package:flutter/material.dart';
+
+const double kPlannedMediaMinCoverSize = 96;
+const double kPlannedMediaDefaultCoverSize = 128;
+const double kPlannedMediaMaxCoverSize = 188;
+const double kPlannedMediaTableColumnSpacing = 10;
+const double kPlannedMediaTableHorizontalMargin = 8;
 
 double plannedMediaTableWidthForColumns({
   required LibraryWorkspaceConfig config,
