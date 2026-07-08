@@ -98,9 +98,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
-part 'coordinators/page_edit_coordinator.dart';
 part 'coordinators/page_dialog_coordinator.dart';
+part 'coordinators/page_edit_coordinator.dart';
 part 'coordinators/page_collection_action_coordinator.dart';
+part 'coordinators/page_metadata_coordinator.dart';
+part 'coordinators/page_sharing_coordinator.dart';
+part 'coordinators/page_report_coordinator.dart';
+part 'coordinators/page_cover_coordinator.dart';
 part 'hooks/page_kind_hooks.dart';
 part 'hooks/page_sidebar_hooks.dart';
 part 'controllers/page_facet_controller.dart';
@@ -112,7 +116,6 @@ part 'controllers/page_search_controller.dart';
 part 'controllers/page_lifecycle_controller.dart';
 part 'controllers/page_toolbar_controller.dart';
 part 'controllers/page_toolbar_presenter.dart';
-part 'controllers/page_toolbar_builder.dart';
 part 'controllers/page_selection_controller.dart';
 part 'controllers/page_shell_presenter.dart';
 
@@ -140,6 +143,21 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     with LibraryPageUtilities {
   static bool _viewStateCacheWarmupStarted = false;
 
+  // ---------------------------------------------------------------------------
+  // Coordinator instances
+  // ---------------------------------------------------------------------------
+  late final LibraryPageDialogCoordinator _dialogCoordinator;
+  late final LibraryPageEditCoordinator _editCoordinator;
+  late final LibraryPageCollectionActionCoordinator _collectionActionCoordinator;
+  late final LibraryPageMetadataCoordinator _metadataCoordinator;
+  late final LibraryPageSharingCoordinator _sharingCoordinator;
+  late final LibraryPageReportCoordinator _reportCoordinator;
+  late final LibraryPageCoverCoordinator _coverCoordinator;
+  late final LibraryPageToolbarController _toolbarController;
+
+  // ---------------------------------------------------------------------------
+  // State fields
+  // ---------------------------------------------------------------------------
   final _searchStateKey = const Uuid().v4();
   final _searchController = TextEditingController();
   LibraryWorkspaceViewState? _viewState;
@@ -204,6 +222,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @override
   void initState() {
     super.initState();
+    _dialogCoordinator = LibraryPageDialogCoordinator(this);
+    _editCoordinator = LibraryPageEditCoordinator(this);
+    _collectionActionCoordinator = LibraryPageCollectionActionCoordinator(this);
+    _metadataCoordinator = LibraryPageMetadataCoordinator(this);
+    _sharingCoordinator = LibraryPageSharingCoordinator(this);
+    _reportCoordinator = LibraryPageReportCoordinator(this);
+    _coverCoordinator = LibraryPageCoverCoordinator(this);
+    _toolbarController = LibraryPageToolbarController(this);
     _LibraryPageLifecycleControllerOps.initState(this);
   }
 
@@ -1008,52 +1034,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     unawaited(_viewPrefs.writeQuickView(nextView));
   }
 
-  Future<void> showAddDialogFlow({String? barcode}) async {
-    final searchState = _LibraryPageSearchControllerOps.thisState(this);
-    final added = await showLibraryAddDialog(
-      context: context,
-      type: widget.type,
-      accent: widget.accent,
-      initialQuery: searchState.query,
-      initialBarcode: barcode,
-    );
-    if (added != null && mounted) {
-      ref.invalidate(shelfProvider);
-      _revealAddedItems(added.itemIds);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            added.target == LibraryAddTarget.track
-                ? '${widget.type.singularLabel} added to tracking'
-                : '${widget.type.singularLabel} added',
-          ),
-        ),
-      );
-    }
-  }
-
-  void _revealAddedItems(List<String> itemIds) {
-    if (itemIds.isEmpty) {
-      return;
-    }
-    setState(() {
-      _selectedId = itemIds.first;
-      _selectedBucket = null;
-      _selectedLetter = null;
-      _linkedMetadataFilter = null;
-      _collectionStatusScope = LibraryCollectionStatusScope.all;
-      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
-      _quickView = null;
-      _filterSelection = LibraryFilterSelection.none;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-      _scopeHistory = const [];
-      _searchController.clear();
-    });
-    _LibraryPageSearchControllerOps.clearSearch(this);
-    _syncRouteState();
-  }
-
   void _selectItem(String id) {
     _LibrarySelectionControllerOps.selectItem(this, id);
   }
@@ -1133,28 +1113,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   @protected
   void openItemDetailDrilldown(LibraryProjectionItem item) {}
 
-  Future<void> _refreshVideoTitleFromCore(
-    LibraryProjectionItem item,
-  ) async {
-    final result = await showLibraryMetadataRefreshDialog(
-      context: context,
-      type: widget.type,
-      accent: widget.accent,
-      allEntries: [item.entry],
-      shownEntries: [item.entry],
-      selectedEntry: item.entry,
-    );
-    if (result == null || !mounted) {
-      return;
-    }
-    ref.invalidate(shelfProvider);
-    showAppToast(
-      context,
-      'Metadata refresh finished: ${result.matched}/${result.targets} matched, ${result.cached} cached, ${result.failed} failed.',
-      tone: AppToastTone.success,
-    );
-  }
-
   @protected
   Widget? buildDefaultVideoShelfWorkspaceOverride(
     LibraryProjection projection,
@@ -1173,7 +1131,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       selectedItem: selectedItem,
       viewState: viewState,
       accent: widget.accent,
-      onRefreshFromCore: () => _refreshVideoTitleFromCore(selectedItem),
+      onRefreshFromCore: () =>
+          _metadataCoordinator.refreshVideoTitleFromCore(selectedItem),
       onOpenTitleDetails: () => showLibraryDetailPage(
         context: context,
         request: LibraryDetailPageRequest(
@@ -1181,22 +1140,25 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           entry: selectedItem.entry,
           ownedItem: selectedItem.source.ownedItem,
           accent: widget.accent,
-          onAddOwned: () => runCollectionAction(
+          onAddOwned: () => _collectionActionCoordinator.runCollectionAction(
             (actions) => actions.addOwned(selectedItem),
           ),
           onRemoveOwned: selectedItem.source.ownedItem == null
               ? null
-              : () => confirmAndRemoveOwned(selectedItem),
-          onAddWishlist: () => runCollectionAction(
+              : () => _collectionActionCoordinator.confirmAndRemoveOwned(
+                    selectedItem,
+                  ),
+          onAddWishlist: () => _collectionActionCoordinator.runCollectionAction(
             (actions) => actions.addWishlist(selectedItem),
           ),
           onRemoveWishlist: selectedItem.source.isWishlisted
-              ? () => runCollectionAction(
+              ? () => _collectionActionCoordinator.runCollectionAction(
                     (actions) => actions.removeWishlist(selectedItem),
                   )
               : null,
-          onEdit: (ownedItem) =>
-              unawaited(showEditDialog(selectedItem, ownedItem)),
+          onEdit: (ownedItem) => unawaited(
+            _editCoordinator.showEditDialog(selectedItem, ownedItem),
+          ),
           onFilterByValue: _toggleLinkedMetadataFilter,
         ),
       ),

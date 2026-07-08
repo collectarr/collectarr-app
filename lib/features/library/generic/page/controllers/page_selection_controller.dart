@@ -72,7 +72,7 @@ abstract final class _LibrarySelectionControllerOps {
     if (isTextInputFocused(state) || state._selection.itemIds.isEmpty) {
       return;
     }
-    unawaited(state.bulkRemoveFlow(projection));
+    unawaited(state._collectionActionCoordinator.bulkRemoveFlow(projection));
   }
 
   static Set<String> visibleSelectionItemIds(

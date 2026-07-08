@@ -2,9 +2,13 @@ part of '../generic_library_page.dart';
 
 final _random = math.Random();
 
-/// Collection actions, context menu handling, bulk operations, and barcode
-/// scanning for the library page.
-extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
+/// Collection actions, context menu handling, and bulk operations for the
+/// library page.
+class LibraryPageCollectionActionCoordinator {
+  LibraryPageCollectionActionCoordinator(this._s);
+
+  final GenericLibraryPageState _s;
+
   bool _isNonServerMetadataId(String id) {
     final normalized = id.trim().toLowerCase();
     return normalized.startsWith('preview-') ||
@@ -13,8 +17,8 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
   }
 
   bool canCompareMetadataWithServerItem(LibraryProjectionItem item) {
-    if (!widget.type.kindUiAdapter.supportsMetadataCompareWithServer(
-      widget.type,
+    if (!_s.widget.type.kindUiAdapter.supportsMetadataCompareWithServer(
+      _s.widget.type,
     )) {
       return false;
     }
@@ -31,19 +35,19 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
   Future<void> runCollectionAction(
     Future<void> Function(LibraryCollectionActions actions) action,
   ) async {
-    await action(ref.read(genericLibraryCollectionActionsProvider));
-    if (mounted) {
-      ref.invalidate(shelfProvider);
+    await action(_s.ref.read(genericLibraryCollectionActionsProvider));
+    if (_s.mounted) {
+      _s.ref.invalidate(shelfProvider);
     }
   }
 
   Future<void> confirmAndRemoveOwned(LibraryProjectionItem item) async {
-    final confirmed = await confirmSingleRemove(
-      context,
+    final confirmed = await _s.confirmSingleRemove(
+      _s.context,
       title: item.entry.title,
-      itemLabel: widget.type.singularLabel.toLowerCase(),
+      itemLabel: _s.widget.type.singularLabel.toLowerCase(),
     );
-    if (!confirmed || !mounted) {
+    if (!confirmed || !_s.mounted) {
       return;
     }
     await runCollectionAction((actions) => actions.removeOwned(item));
@@ -51,7 +55,7 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
 
   LibraryProjectionItem? selectedProjectionItemFor(
       LibraryProjection projection) {
-    final selectedId = _selectedId;
+    final selectedId = _s._selectedId;
     if (selectedId == null) {
       return null;
     }
@@ -63,55 +67,6 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
     return null;
   }
 
-  Future<void> compareMetadataWithServerFlow(
-    LibraryProjection projection, {
-    LibraryProjectionItem? item,
-  }) async {
-    if (!widget.type.kindUiAdapter.supportsMetadataCompareWithServer(
-      widget.type,
-    )) {
-      return;
-    }
-    final targetItem = item ?? selectedProjectionItemFor(projection);
-    if (targetItem == null) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Select an item first.')),
-      );
-      return;
-    }
-    if (!canCompareMetadataWithServerItem(targetItem)) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'This item cannot be compared with server metadata.',
-          ),
-        ),
-      );
-      return;
-    }
-    final localItem = targetItem.source.catalogItem;
-    if (localItem == null) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Missing local metadata for this item.')),
-      );
-      return;
-    }
-    await showLibraryMetadataCompareDialog(
-      context: context,
-      localItem: localItem.toCatalogItem(),
-      accent: widget.accent,
-    );
-  }
-
   Future<void> handleItemContextMenu(
     LibraryProjection projection,
     LibraryProjectionItem item,
@@ -119,40 +74,43 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
   ) async {
     final contextSelectionIds = <String>{item.entry.id};
     final selectionChanged =
-        contextSelectionIds.length != _selection.itemIds.length ||
-            !contextSelectionIds.containsAll(_selection.itemIds);
-    if (selectionChanged || _selectedId != item.entry.id) {
-      _rebuild(() {
-        _selection = _selection.replace(contextSelectionIds);
-        _selectedId = item.entry.id;
-        if (_selectionAnchorId == null ||
-            !_selection.itemIds.contains(_selectionAnchorId)) {
-          _selectionAnchorId = item.entry.id;
+        contextSelectionIds.length != _s._selection.itemIds.length ||
+            !contextSelectionIds.containsAll(_s._selection.itemIds);
+    if (selectionChanged || _s._selectedId != item.entry.id) {
+      _s._rebuild(() {
+        _s._selection = _s._selection.replace(contextSelectionIds);
+        _s._selectedId = item.entry.id;
+        if (_s._selectionAnchorId == null ||
+            !_s._selection.itemIds.contains(_s._selectionAnchorId)) {
+          _s._selectionAnchorId = item.entry.id;
         }
       });
     }
     final isBatchSelection = contextSelectionIds.length > 1;
     final result = await showLibraryItemContextMenu(
-      context: context,
+      context: _s.context,
       position: position,
       entry: item.entry,
-      accent: widget.accent,
+      accent: _s.widget.accent,
       selectedCount: contextSelectionIds.length,
       supportsMetadataCompare: canCompareMetadataWithServerItem(item),
     );
-    if (result == null || !mounted) return;
+    if (result == null || !_s.mounted) return;
     switch (result.action) {
       case LibraryItemContextAction.edit:
         if (isBatchSelection) {
           await bulkEditFlow(projection);
           return;
         }
-        unawaited(showEditDialog(item, item.source.ownedItem));
+        unawaited(_s._editCoordinator.showEditDialog(item, item.source.ownedItem));
       case LibraryItemContextAction.compareMetadataWithServer:
         if (isBatchSelection) {
           return;
         }
-        await compareMetadataWithServerFlow(projection, item: item);
+        await _s._metadataCoordinator.compareMetadataWithServerFlow(
+          projection,
+          item: item,
+        );
       case LibraryItemContextAction.duplicate:
         if (isBatchSelection) {
           await bulkDuplicateFlow(projection);
@@ -181,7 +139,7 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
         await runCollectionAction((a) => a.removeWishlist(item));
       case LibraryItemContextAction.removeTracking:
         final trackingEntries =
-            ref.read(trackingEntriesByCatalogItemProvider)[item.entry.id] ??
+            _s.ref.read(trackingEntriesByCatalogItemProvider)[item.entry.id] ??
                 const <TrackingEntry>[];
         final active = resolveActiveTrackingEntry(trackingEntries, null);
         if (active != null) {
@@ -191,8 +149,8 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
         }
       case LibraryItemContextAction.copyTitle:
         await Clipboard.setData(ClipboardData(text: item.entry.title));
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+        if (_s.mounted) {
+          ScaffoldMessenger.of(_s.context).showSnackBar(
             const SnackBar(content: Text('Title copied')),
           );
         }
@@ -200,8 +158,8 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
         final barcode = item.entry.barcode;
         if (barcode != null && barcode.isNotEmpty) {
           await Clipboard.setData(ClipboardData(text: barcode));
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
+          if (_s.mounted) {
+            ScaffoldMessenger.of(_s.context).showSnackBar(
               const SnackBar(content: Text('Barcode copied')),
             );
           }
@@ -211,157 +169,124 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
 
   Future<void> scanBarcodeFlow() async {
     final code = await showModalBottomSheet<String>(
-      context: context,
+      context: _s.context,
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) => BarcodeScanSheet(
-        title: 'Scan ${widget.type.singularLabel.toLowerCase()} barcode',
+        title: 'Scan ${_s.widget.type.singularLabel.toLowerCase()} barcode',
         description:
-            'Scan or enter a barcode, UPC, or ISBN. Collectarr will open Add ${widget.type.pluralLabel} with this code prefilled.',
-        manualLabel: '${widget.type.singularLabel} barcode / UPC / ISBN',
-        submitLabel: 'Continue to Add ${widget.type.pluralLabel}',
-        leadingIcon: widget.type.workspace.icon,
+            'Scan or enter a barcode, UPC, or ISBN. Collectarr will open Add ${_s.widget.type.pluralLabel} with this code prefilled.',
+        manualLabel: '${_s.widget.type.singularLabel} barcode / UPC / ISBN',
+        submitLabel: 'Continue to Add ${_s.widget.type.pluralLabel}',
+        leadingIcon: _s.widget.type.workspace.icon,
       ),
     );
-    if (code != null && mounted) {
-      await showAddDialogFlow(barcode: code);
-    }
-  }
-
-  Future<void> downloadAllCoversFlow(ShelfState shelfState) async {
-    final db = ref.read(localDatabaseProvider);
-    final imagesRepo = ItemImagesCacheRepository(db);
-    final service = ImageDownloadService(imagesRepo: imagesRepo);
-
-    final itemsToCover = <String, String?>{};
-    for (final entry in shelfState.entries) {
-      final ownedId = entry.ownedItem?.id;
-      if (ownedId == null) continue;
-      itemsToCover[ownedId] = entry.catalogItem?.displayCoverUrl;
-    }
-    if (itemsToCover.isEmpty) return;
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Downloading covers for ${itemsToCover.length} items...'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-
-    final results = await service.downloadCoversForItems(itemsToCover);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Downloaded ${results.length} covers.'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+    if (code != null && _s.mounted) {
+      await _s._dialogCoordinator.showAddDialogFlow(barcode: code);
     }
   }
 
   void pickRandomItemFlow(LibraryProjection projection) {
     final items = projection.filteredItems;
     if (items.isEmpty) {
-      if (!mounted) {
+      if (!_s.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(_s.context).showSnackBar(
         const SnackBar(content: Text('No items available for random pick.')),
       );
       return;
     }
     final random = items[_random.nextInt(items.length)];
-    _selectItem(random.entry.id);
+    _s._selectItem(random.entry.id);
   }
 
   // ---- Bulk operations ----
 
   Future<void> bulkEditFlow(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
-    final selection = await showBulkEditDialog(
-      context,
-      type: widget.type,
-      selectedCount: _selection.selectedCount,
+    if (projection == null || _s._selection.itemIds.isEmpty) return;
+    final selection = await _s.showBulkEditDialog(
+      _s.context,
+      type: _s.widget.type,
+      selectedCount: _s._selection.selectedCount,
     );
-    if (selection == null || !mounted) return;
+    if (selection == null || !_s.mounted) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
-      _selection.itemIds,
+      _s._selection.itemIds,
     );
-    await bulkActions().editSelected(entries: entries, selection: selection);
-    _rebuild(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
+    await _s.bulkActions().editSelected(entries: entries, selection: selection);
+    _s._rebuild(() => _s._selection = _s._selection.clear());
+    _s.ref.invalidate(shelfProvider);
   }
 
   Future<void> bulkMoveToOwnedFlow(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
+    if (projection == null || _s._selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
-      _selection.itemIds,
+      _s._selection.itemIds,
     );
     final prefill = await PrefillDefaults.load();
-    await bulkActions().moveSelectedToOwned(
+    await _s.bulkActions().moveSelectedToOwned(
       entries,
-      defaultCondition: prefill.condition ?? widget.type.defaultCondition,
-      defaultGrade: prefill.grade ?? widget.type.defaultGrade,
+      defaultCondition: prefill.condition ?? _s.widget.type.defaultCondition,
+      defaultGrade: prefill.grade ?? _s.widget.type.defaultGrade,
       defaultLocationId: prefill.locationId,
       defaultReadStatus: prefill.readStatus,
       defaultTags: prefill.tags,
     );
-    _rebuild(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
+    _s._rebuild(() => _s._selection = _s._selection.clear());
+    _s.ref.invalidate(shelfProvider);
   }
 
   Future<void> bulkMoveToWishlistFlow(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
+    if (projection == null || _s._selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
-      _selection.itemIds,
+      _s._selection.itemIds,
     );
-    await bulkActions().moveSelectedToWishlist(entries);
-    _rebuild(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
+    await _s.bulkActions().moveSelectedToWishlist(entries);
+    _s._rebuild(() => _s._selection = _s._selection.clear());
+    _s.ref.invalidate(shelfProvider);
   }
 
   Future<void> bulkRemoveFlow(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
+    if (projection == null || _s._selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
-      _selection.itemIds,
+      _s._selection.itemIds,
     );
-    final confirmed = await confirmBulkRemove(
-      context,
+    final confirmed = await _s.confirmBulkRemove(
+      _s.context,
       count: entries.length,
-      itemLabel: widget.type.pluralLabel.toLowerCase(),
+      itemLabel: _s.widget.type.pluralLabel.toLowerCase(),
     );
-    if (!confirmed || !mounted) return;
-    await bulkActions().removeSelected(entries);
-    _rebuild(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
+    if (!confirmed || !_s.mounted) return;
+    await _s.bulkActions().removeSelected(entries);
+    _s._rebuild(() => _s._selection = _s._selection.clear());
+    _s.ref.invalidate(shelfProvider);
   }
 
   Future<void> singleDuplicateFlow(LibraryProjectionItem item) async {
     final ownedItem = item.source.ownedItem;
     if (ownedItem == null) return;
-    await bulkActions().duplicateSelected([item.source]);
-    if (mounted) {
-      ref.invalidate(shelfProvider);
-      ScaffoldMessenger.of(context).showSnackBar(
+    await _s.bulkActions().duplicateSelected([item.source]);
+    if (_s.mounted) {
+      _s.ref.invalidate(shelfProvider);
+      ScaffoldMessenger.of(_s.context).showSnackBar(
         SnackBar(content: Text('Duplicated "${item.entry.title}"')),
       );
     }
   }
 
   Future<void> bulkDuplicateFlow(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
+    if (projection == null || _s._selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(
       projection.filteredItems,
-      _selection.itemIds,
+      _s._selection.itemIds,
     );
     final confirmed = await showDialog<bool>(
-      context: context,
+      context: _s.context,
       builder: (ctx) => AccentAlertDialog(
         title: const Text('Duplicate items'),
         content: Text(
@@ -380,149 +305,15 @@ extension _GenericLibraryPageCollectionActions on GenericLibraryPageState {
         ],
       ),
     );
-    if (confirmed != true || !mounted) return;
-    final count = await bulkActions().duplicateSelected(entries);
-    _rebuild(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    if (confirmed != true || !_s.mounted) return;
+    final count = await _s.bulkActions().duplicateSelected(entries);
+    _s._rebuild(() => _s._selection = _s._selection.clear());
+    _s.ref.invalidate(shelfProvider);
+    if (_s.mounted) {
+      ScaffoldMessenger.of(_s.context).showSnackBar(
         SnackBar(
             content: Text('Duplicated $count item${count == 1 ? '' : 's'}')),
       );
     }
-  }
-
-  Future<void> bulkRefreshMetadataFlow(LibraryProjection? projection) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
-    final selectedEntries = <LibraryWorkspaceEntry>[
-      for (final item in projection.filteredItems)
-        if (_selection.itemIds.contains(item.entry.id)) item.entry,
-    ];
-    if (selectedEntries.isEmpty) return;
-    final result = await showLibraryMetadataRefreshDialog(
-      context: context,
-      type: widget.type,
-      accent: widget.accent,
-      allEntries: selectedEntries,
-      shownEntries: selectedEntries,
-      selectedEntry: selectedEntries.first,
-    );
-    if (result == null || !mounted) return;
-    _rebuild(() => _selection = _selection.clear());
-    ref.invalidate(shelfProvider);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Metadata refresh finished: ${result.matched}/${result.targets} matched, '
-          '${result.cached} cached, ${result.failed} failed.',
-        ),
-      ),
-    );
-  }
-
-  Future<void> scanCoverFlow() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1280,
-      maxHeight: 1280,
-      imageQuality: 85,
-    );
-    if (picked == null || !mounted) return;
-
-    final bytes = await picked.readAsBytes();
-    if (!mounted) return;
-
-    _rebuild(() => _isScanningCover = true);
-
-    try {
-      final api = ref.read(apiClientProvider);
-      final response = await api.searchByCoverUpload(bytes);
-      if (!mounted) return;
-
-      _rebuild(() => _isScanningCover = false);
-
-      final results =
-          (response['results'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-      final queryPhash = response['query_phash'] as String? ?? '';
-
-      if (results.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No matching covers found.')),
-        );
-        return;
-      }
-
-      await _showCoverScanResults(
-        queryPhash: queryPhash,
-        results: results,
-      );
-    } catch (e) {
-      if (mounted) {
-        _rebuild(() => _isScanningCover = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Cover scan failed: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _showCoverScanResults({
-    required String queryPhash,
-    required List<Map<String, dynamic>> results,
-  }) async {
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AccentAlertDialog(
-        backgroundColor: appPalette(dialogContext).panel,
-        title: const Text('Cover Matches'),
-        content: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: results.length,
-            itemBuilder: (context, index) {
-              final match = results[index];
-              final entityType = match['entity_type'] as String? ?? '';
-              final entityId = match['entity_id'] as String? ?? '';
-              final distance = match['hamming_distance'] as int? ?? 0;
-              final publicUrl = match['public_url'] as String?;
-              final confidence = ((64 - distance) / 64 * 100).round();
-
-              return ListTile(
-                leading: publicUrl != null && publicUrl.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: CachedNetworkImage(
-                          imageUrl: publicUrl,
-                          width: 40,
-                          height: 56,
-                          fit: BoxFit.cover,
-                          errorWidget: (_, __, ___) =>
-                              const Icon(Icons.broken_image, size: 40),
-                        ),
-                      )
-                    : const Icon(Icons.image, size: 40),
-                title: Text(
-                    '$entityType / ${entityId.length > 8 ? '${entityId.substring(0, 8)}…' : entityId}'),
-                subtitle: Text('$confidence% match (distance: $distance)'),
-                onTap: () {
-                  Navigator.of(dialogContext).pop();
-                  if (entityType == 'item') {
-                    _selectItem(entityId);
-                  }
-                },
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
   }
 }

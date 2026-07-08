@@ -1,19 +1,79 @@
 part of '../generic_library_page.dart';
 
-/// Dialog launchers for the library page: filters, smart lists, sort, reading
-/// queue, pick-list editors, column chooser, metadata refresh, share, print.
-extension _GenericLibraryPageDialogs on GenericLibraryPageState {
+/// Dialog launchers for the library page: add, filters, smart lists, sort,
+/// reading queue, pick-list editors, column chooser, user folders, transfer,
+/// loans, and index reassignment.
+class LibraryPageDialogCoordinator {
+  LibraryPageDialogCoordinator(this._s);
+
+  final GenericLibraryPageState _s;
+
+  // ---------------------------------------------------------------------------
+  // Add / reveal
+  // ---------------------------------------------------------------------------
+
+  Future<void> showAddDialogFlow({String? barcode}) async {
+    final searchState = _LibraryPageSearchControllerOps.thisState(_s);
+    final added = await showLibraryAddDialog(
+      context: _s.context,
+      type: _s.widget.type,
+      accent: _s.widget.accent,
+      initialQuery: searchState.query,
+      initialBarcode: barcode,
+    );
+    if (added != null && _s.mounted) {
+      _s.ref.invalidate(shelfProvider);
+      _revealAddedItems(added.itemIds);
+      ScaffoldMessenger.of(_s.context).showSnackBar(
+        SnackBar(
+          content: Text(
+            added.target == LibraryAddTarget.track
+                ? '${_s.widget.type.singularLabel} added to tracking'
+                : '${_s.widget.type.singularLabel} added',
+          ),
+        ),
+      );
+    }
+  }
+
+  void _revealAddedItems(List<String> itemIds) {
+    if (itemIds.isEmpty) {
+      return;
+    }
+    _s._rebuild(() {
+      _s._selectedId = itemIds.first;
+      _s._selectedBucket = null;
+      _s._selectedLetter = null;
+      _s._linkedMetadataFilter = null;
+      _s._collectionStatusScope = LibraryCollectionStatusScope.all;
+      _s._seriesCompletionScope = LibrarySeriesCompletionScope.all;
+      _s._quickView = null;
+      _s._filterSelection = LibraryFilterSelection.none;
+      _s._activeSmartListId = null;
+      _s._activeSmartListName = null;
+      _s._scopeHistory = const [];
+      _s._searchController.clear();
+    });
+    _LibraryPageSearchControllerOps.clearSearch(_s);
+    _s._syncRouteState();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Filter / smart lists / sort
+  // ---------------------------------------------------------------------------
+
   Future<void> showFilterDialogFlow(
     LibraryProjection? projection,
   ) async {
-    await _loadActiveLoanIds();
-    if (!mounted) {
+    await _LibraryPageLifecycleControllerOps.loadActiveLoanIds(_s);
+    if (!_s.mounted) {
       return;
     }
-    final customFieldCache = await ref.read(
-      libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue).future,
+    final customFieldCache = await _s.ref.read(
+      libraryCustomFieldCacheProvider(_s.widget.type.workspace.kind.apiValue)
+          .future,
     );
-    if (!mounted) {
+    if (!_s.mounted) {
       return;
     }
     final allEntries =
@@ -21,91 +81,92 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
             const [];
     final options = LibraryFilterOptions.fromEntries(
       allEntries,
-      adapter: _adapter,
+      adapter: _s._adapter,
       customFieldDefinitions: customFieldCache.definitions,
       customFieldValuesByDefinitionByItem:
           customFieldCache.valuesByDefinitionByItem,
     );
     final result = await showLibraryFilterDialog(
-      context: context,
-      type: widget.type,
-      current: _filterSelection,
+      context: _s.context,
+      type: _s.widget.type,
+      current: _s._filterSelection,
       options: options,
     );
-    if (result != null && mounted) {
-      _mutateSidebarScope(() {
-        _filterSelection = result;
-        _activeSmartListId = null;
-        _activeSmartListName = null;
+    if (result != null && _s.mounted) {
+      _s._mutateSidebarScope(() {
+        _s._filterSelection = result;
+        _s._activeSmartListId = null;
+        _s._activeSmartListName = null;
       });
     }
   }
 
   Future<void> showSmartListsFlow(ShelfState? shelfState) async {
-    final db = ref.read(localDatabaseProvider);
-    final customFieldCache = await ref.read(
-      libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue).future,
+    final db = _s.ref.read(localDatabaseProvider);
+    final customFieldCache = await _s.ref.read(
+      libraryCustomFieldCacheProvider(_s.widget.type.workspace.kind.apiValue)
+          .future,
     );
-    if (!mounted) {
+    if (!_s.mounted) {
       return;
     }
-    final searchState = _LibraryPageSearchControllerOps.thisState(this);
+    final searchState = _LibraryPageSearchControllerOps.thisState(_s);
     final result = await showSmartListsDialog(
-      context: context,
+      context: _s.context,
       db: db,
-      mediaKind: widget.type.workspace.kind.apiValue,
-      currentFilter: _filterSelection,
-      currentQuickView: _quickView,
-      currentSortRules: _viewState?.sortRules,
-      currentSortColumn: _viewState?.sortColumn,
-      currentSortAscending: _viewState?.sortAscending,
+      mediaKind: _s.widget.type.workspace.kind.apiValue,
+      currentFilter: _s._filterSelection,
+      currentQuickView: _s._quickView,
+      currentSortRules: _s._viewState?.sortRules,
+      currentSortColumn: _s._viewState?.sortColumn,
+      currentSortAscending: _s._viewState?.sortAscending,
       currentSearchQuery:
           searchState.query.isNotEmpty ? searchState.query : null,
       customFieldDefinitions: customFieldCache.definitions,
     );
-    if (result != null && mounted) {
-      _rebuild(() {
-        _filterSelection = result.filterSelection;
-        _quickView = result.quickView;
+    if (result != null && _s.mounted) {
+      _s._rebuild(() {
+        _s._filterSelection = result.filterSelection;
+        _s._quickView = result.quickView;
         if (result.searchQuery != null) {
-          _searchController.text = result.searchQuery!;
-          _LibraryPageSearchControllerOps.setQuery(this, result.searchQuery!);
+          _s._searchController.text = result.searchQuery!;
+          _LibraryPageSearchControllerOps.setQuery(_s, result.searchQuery!);
         } else {
-          _searchController.clear();
-          _LibraryPageSearchControllerOps.clearSearch(this);
+          _s._searchController.clear();
+          _LibraryPageSearchControllerOps.clearSearch(_s);
         }
-        if (_viewState != null) {
+        if (_s._viewState != null) {
           if (result.sortRules != null && result.sortRules!.isNotEmpty) {
-            _viewState = _viewState!.withSortRules(
+            _s._viewState = _s._viewState!.withSortRules(
               result.sortRules!,
-              _adapter.viewProfile,
+              _s._adapter.viewProfile,
             );
           } else if (result.sortColumn != null) {
-            _viewState = _viewState!.copyWith(
+            _s._viewState = _s._viewState!.copyWith(
               sortColumn: result.sortColumn,
               sortAscending: result.sortAscending ?? true,
             );
           }
         }
       });
-      _syncRouteState();
+      _s._syncRouteState();
     }
   }
 
   Future<void> showSortDialogFlow() async {
-    final viewState = _viewState;
+    final viewState = _s._viewState;
     if (viewState == null) {
       return;
     }
     final sortRules = await showLibrarySortDialog(
-      context: context,
-      type: widget.type,
+      context: _s.context,
+      type: _s.widget.type,
       currentRules: viewState.sortRules,
-      defaultAscendingForColumn: _adapter.viewProfile.initialSortAscending,
-      availableColumns: _scopeAvailableSortColumns,
+      defaultAscendingForColumn: _s._adapter.viewProfile.initialSortAscending,
+      availableColumns: _s._scopeAvailableSortColumns,
     );
-    if (sortRules != null && mounted) {
-      final allowed = _scopeAvailableSortColumns.toSet();
+    if (sortRules != null && _s.mounted) {
+      final allowed = _s._scopeAvailableSortColumns.toSet();
       final filteredRules = [
         for (final rule in sortRules)
           if (allowed.contains(rule.column)) rule,
@@ -113,208 +174,137 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
       if (filteredRules.isEmpty) {
         return;
       }
-      _updateViewState(
-        (state) => state.withSortRules(filteredRules, _adapter.viewProfile),
+      _s._updateViewState(
+        (state) => state.withSortRules(filteredRules, _s._adapter.viewProfile),
       );
     }
   }
 
   Future<void> showSortFavoritesManagerFlow() async {
     final result = await showSortFavoritesManagerDialog(
-      context: context,
-      type: widget.type,
-      favorites: _sortFavorites,
-      initialPinnedIds: _pinnedSortFavoriteIds,
-      activeSortFavoriteId: _activeSortFavorite?.id,
+      context: _s.context,
+      type: _s.widget.type,
+      favorites: _s._sortFavorites,
+      initialPinnedIds: _s._pinnedSortFavoriteIds,
+      activeSortFavoriteId: _s._activeSortFavorite?.id,
     );
-    if (result != null && mounted) {
-      _rebuild(() => _pinnedSortFavoriteIds = result);
-      unawaited(_viewPrefs.writePinnedSortFavoriteIds(result));
+    if (result != null && _s.mounted) {
+      _s._rebuild(() => _s._pinnedSortFavoriteIds = result);
+      unawaited(_s._viewPrefs.writePinnedSortFavoriteIds(result));
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Reading queue / pick-list editors
+  // ---------------------------------------------------------------------------
+
   Future<void> showReadingQueueFlow() async {
-    final db = ref.read(localDatabaseProvider);
+    final db = _s.ref.read(localDatabaseProvider);
     final queueIds = await ReadingQueueRepository(db).getQueue();
-    final ownedItems = await ref.read(collectionProvider.future);
+    final ownedItems = await _s.ref.read(collectionProvider.future);
     final queuedOwnedItems = ownedItems
         .where((item) => !item.isDeleted && queueIds.contains(item.id))
         .toList(growable: false);
     final catalogItemsById = await CatalogCacheRepository(db).findByIds(
       queuedOwnedItems.map((item) => item.itemId),
     );
-    if (!mounted) {
+    if (!_s.mounted) {
       return;
     }
     await showReadingQueueDialog(
-      context: context,
+      context: _s.context,
       db: db,
-      mediaKind: widget.type.workspace.kind.apiValue,
+      mediaKind: _s.widget.type.workspace.kind.apiValue,
       ownedItems: queuedOwnedItems,
       catalogItemsById: catalogItemsById,
-      onSelectItem: _selectItem,
+      onSelectItem: _s._selectItem,
     );
   }
 
   Future<void> showConditionPickListEditorFlow() async {
-    final db = ref.read(localDatabaseProvider);
+    final db = _s.ref.read(localDatabaseProvider);
     await showPickListEditorDialog(
-      context: context,
+      context: _s.context,
       db: db,
       listName: kConditionPickListName,
       label: 'Condition',
-      mediaKind: widget.type.workspace.kind.apiValue,
-      builtInValues: widget.type.conditions,
+      mediaKind: _s.widget.type.workspace.kind.apiValue,
+      builtInValues: _s.widget.type.conditions,
     );
-    if (mounted) {
-      _rebuild(() {});
+    if (_s.mounted) {
+      _s._rebuild(() {});
     }
   }
 
   Future<void> showGradePickListEditorFlow() async {
-    final db = ref.read(localDatabaseProvider);
+    final db = _s.ref.read(localDatabaseProvider);
     await showPickListEditorDialog(
-      context: context,
+      context: _s.context,
       db: db,
       listName: kGradePickListName,
       label: 'Grade',
-      mediaKind: widget.type.workspace.kind.apiValue,
-      builtInValues: widget.type.grades,
+      mediaKind: _s.widget.type.workspace.kind.apiValue,
+      builtInValues: _s.widget.type.grades,
     );
-    if (mounted) {
-      _rebuild(() {});
+    if (_s.mounted) {
+      _s._rebuild(() {});
     }
   }
 
   Future<void> showTagPickListEditorFlow() async {
-    final db = ref.read(localDatabaseProvider);
+    final db = _s.ref.read(localDatabaseProvider);
     await showPickListEditorDialog(
-      context: context,
+      context: _s.context,
       db: db,
       listName: kTagPickListName,
       label: 'Tag',
-      mediaKind: widget.type.workspace.kind.apiValue,
+      mediaKind: _s.widget.type.workspace.kind.apiValue,
       builtInValues: const [],
     );
-    if (mounted) {
-      _rebuild(() {});
+    if (_s.mounted) {
+      _s._rebuild(() {});
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Column chooser
+  // ---------------------------------------------------------------------------
 
   Future<void> showColumnChooserFlow() async {
-    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    final viewState = _s._viewState ?? _s._adapter.viewProfile.defaults();
     final selected = await showGenericLibraryColumnChooser(
-      context: context,
-      type: widget.type,
-      adapter: _adapter,
+      context: _s.context,
+      type: _s.widget.type,
+      adapter: _s._adapter,
       viewState: viewState,
-      pinnedFavoriteKeys: _pinnedColumnFavoriteKeys,
-      onTogglePinnedFavorite: _togglePinnedColumnFavorite,
+      pinnedFavoriteKeys: _s._pinnedColumnFavoriteKeys,
+      onTogglePinnedFavorite: _s._togglePinnedColumnFavorite,
     );
     if (selected != null) {
-      _updateViewState((state) => state.copyWith(visibleColumns: selected));
+      _s._updateViewState((state) => state.copyWith(visibleColumns: selected));
     }
-    await _loadColumnFavoritePresets();
+    await _s._loadColumnFavoritePresets();
   }
 
-  Future<void> showMetadataRefreshFlow(
-    LibraryProjection? projection,
-  ) async {
-    if (projection == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Library data is still loading')),
-      );
-      return;
-    }
-    final result = await showGenericLibraryMetadataRefreshDialog(
-      context: context,
-      type: widget.type,
-      accent: widget.accent,
-      projection: projection,
-    );
-    if (result == null || !mounted) {
-      return;
-    }
-    ref.invalidate(shelfProvider);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Metadata refresh finished: ${result.matched}/${result.targets} matched, ${result.cached} cached, ${result.failed} failed.',
-        ),
-      ),
-    );
-  }
-
-  void printReportFlow(LibraryProjection projection) {
-    final items = projection.filteredItems.map((i) => i.entry).toList();
-    printCollectionReport(
-      context: context,
-      title: widget.type.workspace.title,
-      items: items,
-    );
-  }
-
-  Future<void> showMissingComicsFlow(LibraryProjection projection) async {
-    await showComicMissingComicsDialog(
-      context: context,
-      type: widget.type,
-      projection: projection,
-      accent: widget.accent,
-    );
-  }
-
-  void shareCollectionFlow(LibraryProjection projection) {
-    final items = projection.filteredItems.map((i) => i.entry).toList();
-    showCollectionShareDialog(
-      context: context,
-      title: widget.type.workspace.title,
-      items: items,
-    );
-  }
-
-  void printSelectedReportFlow(LibraryProjection? projection) {
-    if (projection == null || _selection.itemIds.isEmpty) return;
-    final items = [
-      for (final item in projection.filteredItems)
-        if (_selection.itemIds.contains(item.entry.id)) item.entry,
-    ];
-    if (items.isEmpty) return;
-    printCollectionReport(
-      context: context,
-      title: widget.type.workspace.title,
-      items: items,
-    );
-  }
-
-  void shareSelectedCollectionFlow(LibraryProjection? projection) {
-    if (projection == null || _selection.itemIds.isEmpty) return;
-    final items = [
-      for (final item in projection.filteredItems)
-        if (_selection.itemIds.contains(item.entry.id)) item.entry,
-    ];
-    if (items.isEmpty) return;
-    showCollectionShareDialog(
-      context: context,
-      title: widget.type.workspace.title,
-      items: items,
-    );
-  }
+  // ---------------------------------------------------------------------------
+  // User folders / transfer field data / index reassignment / loans
+  // ---------------------------------------------------------------------------
 
   Future<void> showUserFoldersFlow() async {
-    final db = ref.read(localDatabaseProvider);
-    await showUserFoldersDialog(context: context, db: db);
+    final db = _s.ref.read(localDatabaseProvider);
+    await showUserFoldersDialog(context: _s.context, db: db);
   }
 
   Future<void> showTransferFieldDataFlow(
     LibraryProjection? projection,
   ) async {
     if (projection == null) return;
-    final db = ref.read(localDatabaseProvider);
-    final customFieldCache = await ref.read(
-      libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue).future,
+    final db = _s.ref.read(localDatabaseProvider);
+    final customFieldCache = await _s.ref.read(
+      libraryCustomFieldCacheProvider(_s.widget.type.workspace.kind.apiValue)
+          .future,
     );
-    final ownedItems = await ref.read(collectionProvider.future);
-    // Intersect with currently visible items.
+    final ownedItems = await _s.ref.read(collectionProvider.future);
     final visibleIds = <String>{
       for (final item in projection.filteredItems)
         if (item.entry.ownedItemId != null) item.entry.ownedItemId!,
@@ -322,23 +312,24 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
     final items = ownedItems
         .where((o) => !o.isDeleted && visibleIds.contains(o.id))
         .toList(growable: false);
-    if (items.isEmpty || !mounted) return;
+    if (items.isEmpty || !_s.mounted) return;
 
-    final mutations = ref.read(collectionMutationsProvider);
+    final mutations = _s.ref.read(collectionMutationsProvider);
     final result = await showTransferFieldDataDialog(
-      context: context,
+      context: _s.context,
       db: db,
-      type: widget.type,
+      type: _s.widget.type,
       items: items,
       mutations: mutations,
       customFieldDefinitions: customFieldCache.definitions,
     );
-    if (result != null && mounted) {
-      ref.invalidate(shelfProvider);
-      ref.invalidate(
-        libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue),
+    if (result != null && _s.mounted) {
+      _s.ref.invalidate(shelfProvider);
+      _s.ref.invalidate(
+        libraryCustomFieldCacheProvider(
+            _s.widget.type.workspace.kind.apiValue),
       );
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(_s.context).showSnackBar(
         SnackBar(
           content: Text(
             'Transfer complete: ${result.transferred} transferred, '
@@ -352,38 +343,40 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
   Future<void> showTransferFieldDataForSelectionFlow(
     LibraryProjection? projection,
   ) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
-    final db = ref.read(localDatabaseProvider);
-    final customFieldCache = await ref.read(
-      libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue).future,
+    if (projection == null || _s._selection.itemIds.isEmpty) return;
+    final db = _s.ref.read(localDatabaseProvider);
+    final customFieldCache = await _s.ref.read(
+      libraryCustomFieldCacheProvider(_s.widget.type.workspace.kind.apiValue)
+          .future,
     );
-    final ownedItems = await ref.read(collectionProvider.future);
+    final ownedItems = await _s.ref.read(collectionProvider.future);
     final visibleIds = <String>{
       for (final item in projection.filteredItems)
-        if (_selection.itemIds.contains(item.entry.id) &&
+        if (_s._selection.itemIds.contains(item.entry.id) &&
             item.entry.ownedItemId != null)
           item.entry.ownedItemId!,
     };
     final items = ownedItems
         .where((o) => !o.isDeleted && visibleIds.contains(o.id))
         .toList(growable: false);
-    if (items.isEmpty || !mounted) return;
+    if (items.isEmpty || !_s.mounted) return;
 
-    final mutations = ref.read(collectionMutationsProvider);
+    final mutations = _s.ref.read(collectionMutationsProvider);
     final result = await showTransferFieldDataDialog(
-      context: context,
+      context: _s.context,
       db: db,
-      type: widget.type,
+      type: _s.widget.type,
       items: items,
       mutations: mutations,
       customFieldDefinitions: customFieldCache.definitions,
     );
-    if (result != null && mounted) {
-      ref.invalidate(shelfProvider);
-      ref.invalidate(
-        libraryCustomFieldCacheProvider(widget.type.workspace.kind.apiValue),
+    if (result != null && _s.mounted) {
+      _s.ref.invalidate(shelfProvider);
+      _s.ref.invalidate(
+        libraryCustomFieldCacheProvider(
+            _s.widget.type.workspace.kind.apiValue),
       );
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(_s.context).showSnackBar(
         SnackBar(
           content: Text(
             'Transfer complete: ${result.transferred} transferred, '
@@ -397,26 +390,27 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
   Future<void> showLoanSelectionFlow(
     LibraryProjection? projection,
   ) async {
-    if (projection == null || _selection.itemIds.isEmpty) return;
+    if (projection == null || _s._selection.itemIds.isEmpty) return;
     final ownedItemIds = <String>{
       for (final item in projection.filteredItems)
-        if (_selection.itemIds.contains(item.entry.id) &&
+        if (_s._selection.itemIds.contains(item.entry.id) &&
             item.entry.ownedItemId != null &&
-            !_activeLoanOwnedItemIds.contains(item.entry.ownedItemId))
+            !_s._activeLoanOwnedItemIds
+                .contains(item.entry.ownedItemId))
           item.entry.ownedItemId!,
     };
-    if (ownedItemIds.isEmpty || !mounted) return;
+    if (ownedItemIds.isEmpty || !_s.mounted) return;
 
     final draft = await showDialog<_BatchLoanDraft>(
-      context: context,
+      context: _s.context,
       builder: (context) => _BatchLoanDialog(
-        accent: widget.accent,
+        accent: _s.widget.accent,
         itemCount: ownedItemIds.length,
       ),
     );
-    if (draft == null || !mounted) return;
+    if (draft == null || !_s.mounted) return;
 
-    final repo = LoanRepository(ref.read(localDatabaseProvider));
+    final repo = LoanRepository(_s.ref.read(localDatabaseProvider));
     for (final ownedItemId in ownedItemIds) {
       await repo.create(
         Loan(
@@ -430,10 +424,10 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
       );
     }
 
-    _rebuild(() => _selection = _selection.clear());
-    await _loadActiveLoanIds();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    _s._rebuild(() => _s._selection = _s._selection.clear());
+    await _LibraryPageLifecycleControllerOps.loadActiveLoanIds(_s);
+    if (_s.mounted) {
+      ScaffoldMessenger.of(_s.context).showSnackBar(
         SnackBar(
           content: Text(
             'Created ${ownedItemIds.length} loan record${ownedItemIds.length == 1 ? '' : 's'}.',
@@ -447,7 +441,7 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
     final items = projection.filteredItems;
     if (items.isEmpty) return;
     final confirmed = await showDialog<bool>(
-      context: context,
+      context: _s.context,
       builder: (ctx) => AccentAlertDialog(
         title: const Text('Re-assign index values'),
         content: Text(
@@ -467,9 +461,9 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
         ],
       ),
     );
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !_s.mounted) return;
 
-    final mutations = ref.read(collectionMutationsProvider);
+    final mutations = _s.ref.read(collectionMutationsProvider);
     var count = 0;
     for (var i = 0; i < items.length; i++) {
       final ownedItem = items[i].source.ownedItem;
@@ -481,9 +475,9 @@ extension _GenericLibraryPageDialogs on GenericLibraryPageState {
       );
       count++;
     }
-    ref.invalidate(shelfProvider);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    _s.ref.invalidate(shelfProvider);
+    if (_s.mounted) {
+      ScaffoldMessenger.of(_s.context).showSnackBar(
         SnackBar(
           content: Text('Assigned index values to $count items'),
         ),
