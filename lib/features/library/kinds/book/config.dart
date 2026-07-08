@@ -12,6 +12,49 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
+const booksLibrarySortColumns = [
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.series,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.issue,
+  LibrarySortColumn.storyArc,
+  LibrarySortColumn.variant,
+  LibrarySortColumn.format,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.barcode,
+  LibrarySortColumn.grade,
+  LibrarySortColumn.condition,
+  LibrarySortColumn.price,
+  LibrarySortColumn.location,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.wishlist,
+  LibrarySortColumn.added,
+  LibrarySortColumn.updated,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.pageCount,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.imprint,
+];
+
+const booksLibraryTableColumns = [
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.author,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.barcode,
+  LibraryTableColumn.readStatus,
+  LibraryTableColumn.rating,
+  LibraryTableColumn.condition,
+  LibraryTableColumn.price,
+  LibraryTableColumn.location,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+];
+
 const booksWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.book,
   title: 'Books',
@@ -19,8 +62,8 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFFBB72B6),
   preferencePrefix: 'books',
   defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: kPlannedLibrarySortColumns,
-  availableTableColumns: kAllLibraryTableColumns,
+  availableSortColumns: booksLibrarySortColumns,
+  availableTableColumns: booksLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

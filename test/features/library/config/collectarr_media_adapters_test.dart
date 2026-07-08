@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_media_adapter.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
 import 'package:flutter_test/flutter_test.dart';
 

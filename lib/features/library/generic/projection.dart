@@ -112,11 +112,11 @@ class LibraryFolderPreset {
         .where((value) => value.isNotEmpty);
     final modes = <LibraryGroupMode>[];
     for (final name in names) {
-      final mode = LibraryGroupMode.values.where((value) => value.name == name);
-      if (mode.isEmpty) {
+      final mode = libraryGroupModeFromStorageValue(name);
+      if (mode == null) {
         throw ArgumentError('Unknown folder preset mode: $name');
       }
-      modes.add(mode.first);
+      modes.add(mode);
     }
     return LibraryFolderPreset(modes: modes);
   }
@@ -125,7 +125,8 @@ class LibraryFolderPreset {
 
   LibraryGroupMode get primaryMode => modes.first;
 
-  String get storageValue => modes.map((mode) => mode.name).join('>');
+  String get storageValue =>
+      modes.map(libraryGroupModeStorageValue).join('>');
 
   LibraryGroupMode? nextModeAfter(LibraryGroupMode mode) {
     final index = modes.indexOf(mode);
@@ -286,6 +287,25 @@ List<LibraryGroupMode> libraryGroupModesForType(
 
 LibraryGroupMode libraryDefaultGroupMode(LibraryTypeConfig type) {
   return libraryGroupModesForType(type).first;
+}
+
+String libraryGroupModeStorageValue(LibraryGroupMode mode) {
+  return 'group.${mode.name}';
+}
+
+LibraryGroupMode? libraryGroupModeFromStorageValue(String value) {
+  final normalized = value.trim();
+  if (normalized.isEmpty) {
+    return null;
+  }
+  final candidate =
+      normalized.startsWith('group.') ? normalized.substring(6) : normalized;
+  for (final mode in LibraryGroupMode.values) {
+    if (mode.name == candidate) {
+      return mode;
+    }
+  }
+  return null;
 }
 
 class LibraryProjection {

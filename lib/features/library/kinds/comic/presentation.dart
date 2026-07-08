@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation_builder
 import 'package:collectarr_app/features/library/kinds/comic/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_field_column_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -753,9 +752,6 @@ final comicsLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: comicsLibraryBucketLabelBuilder,
   defaultVisibleColumns: comicsIssueVisibleColumns,
   previewLabels: comicsPreviewLabels,
-  columnRegistry: libraryColumnRegistryFromFieldDefinitions(
-    comicsLibraryFieldDefinitions,
-  ),
   usesTreeProviderCandidates: true,
   externalFacetBucketModes: [
     LibraryGroupMode.storyArc,

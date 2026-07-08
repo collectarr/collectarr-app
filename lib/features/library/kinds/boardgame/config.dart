@@ -10,6 +10,20 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
+const boardGamesLibraryTableColumns = [
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.barcode,
+  LibraryTableColumn.condition,
+  LibraryTableColumn.price,
+  LibraryTableColumn.location,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+];
+
 const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.boardgame,
   title: 'Board Games',
@@ -18,7 +32,7 @@ const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
   preferencePrefix: 'boardgames',
   defaultSortColumn: LibrarySortColumn.title,
   availableSortColumns: boardGamesLibrarySortColumns,
-  availableTableColumns: kAllLibraryTableColumns,
+  availableTableColumns: boardGamesLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/shared/movie/presentation.dart'
 import 'package:collectarr_app/features/library/kinds/anime/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/shared/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_field_column_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -148,9 +147,6 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.tv_outlined,
-  columnRegistry: libraryColumnRegistryFromFieldDefinitions(
-    animeLibraryFieldDefinitions,
-  ),
   fieldDefinitions: animeLibraryFieldDefinitions,
   sortColumnDefinitions: movie_presentation.moviesLibrarySortColumnDefinitions,
   groupModeDefinitions: movie_presentation.moviesLibraryGroupModeDefinitions,

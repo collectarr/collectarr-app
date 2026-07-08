@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_column_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
@@ -776,7 +775,6 @@ class LibraryMediaPresentation {
     this.referenceLabels = const LibraryReferenceLabels(),
     this.statusLabels = const LibraryStatusLabels(),
     this.bucketLabelOverrides = const LibraryBucketLabelOverrides(),
-    this.columnRegistry,
     this.fieldDefinitions = const [],
     required this.sortColumnDefinitions,
     required this.groupModeDefinitions,
@@ -808,7 +806,6 @@ class LibraryMediaPresentation {
   final LibraryReferenceLabels referenceLabels;
   final LibraryStatusLabels statusLabels;
   final LibraryBucketLabelOverrides bucketLabelOverrides;
-  final LibraryColumnRegistry? columnRegistry;
   final List<LibraryFieldDefinition<LibraryWorkspaceEntry, Object?>>
       fieldDefinitions;
   final List<LibraryGroupModeDefinition> groupModeDefinitions;

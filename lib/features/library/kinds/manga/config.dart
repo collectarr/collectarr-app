@@ -8,6 +8,57 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
+const mangaLibrarySortColumns = [
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.series,
+  LibrarySortColumn.issue,
+  LibrarySortColumn.storyArc,
+  LibrarySortColumn.variant,
+  LibrarySortColumn.format,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.barcode,
+  LibrarySortColumn.grade,
+  LibrarySortColumn.rawOrSlabbed,
+  LibrarySortColumn.gradingCompany,
+  LibrarySortColumn.condition,
+  LibrarySortColumn.price,
+  LibrarySortColumn.location,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.wishlist,
+  LibrarySortColumn.keyComic,
+  LibrarySortColumn.added,
+  LibrarySortColumn.updated,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.pageCount,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.imprint,
+];
+
+const mangaLibraryTableColumns = [
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.frontCover,
+  LibraryTableColumn.backCover,
+  LibraryTableColumn.hasFront,
+  LibraryTableColumn.hasBack,
+  LibraryTableColumn.extraImages,
+  LibraryTableColumn.title,
+  LibraryTableColumn.issue,
+  LibraryTableColumn.variant,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.barcode,
+  LibraryTableColumn.grade,
+  LibraryTableColumn.condition,
+  LibraryTableColumn.price,
+  LibraryTableColumn.location,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+];
+
 const mangaWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.manga,
   title: 'Manga',
@@ -15,8 +66,8 @@ const mangaWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFFFF6F91),
   preferencePrefix: 'manga',
   defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: kComicLibrarySortColumns,
-  availableTableColumns: kAllLibraryTableColumns,
+  availableSortColumns: mangaLibrarySortColumns,
+  availableTableColumns: mangaLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

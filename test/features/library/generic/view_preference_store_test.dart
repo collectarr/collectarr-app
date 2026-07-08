@@ -25,7 +25,7 @@ void main() {
     expect(reloadedStore.cachedFolderPreset, LibraryFolderPreset.single(LibraryGroupMode.publisher));
 
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getString('library.movie.folderPreset'), 'publisher');
+    expect(prefs.getString('library.movie.folderPreset'), 'group.publisher');
   });
 
   test('read populates cache and clearing removes cached values', () async {
@@ -62,6 +62,13 @@ void main() {
       LibraryGroupMode.director,
       LibraryGroupMode.releaseYear,
       LibraryGroupMode.title,
+    ]);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getStringList('library.movie.pinnedGroupModes'), [
+      'group.director',
+      'group.releaseYear',
+      'group.title',
     ]);
   });
 

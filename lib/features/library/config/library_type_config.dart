@@ -20,14 +20,14 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_column_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
-typedef LibraryGroupModeCategoryBuilder = List<LibraryGroupModeCategory> Function(
+typedef LibraryGroupModeCategoryBuilder = List<LibraryGroupModeCategory>
+    Function(
   List<LibraryGroupMode> modes,
 );
 
@@ -137,6 +137,7 @@ class LibraryEditDialogRequest {
         ? LibraryEditScope.all
         : LibraryEditScope.media;
   }
+
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
   final List<BundleReleaseSummary> availableBundleReleases;
@@ -551,10 +552,6 @@ class LibraryKindUiAdapter {
         .buildTabs(context: context);
   }
 
-  List<LibraryColumnDefinition> tableColumns(LibraryTypeConfig type) {
-    return type.presentation.columnRegistry?.definitions ?? const [];
-  }
-
   List<Widget> inspectorSections(
     LibraryTypeConfig type, {
     required BuildContext context,
@@ -623,7 +620,8 @@ class LibraryKindUiAdapter {
         selectedBucket == null) {
       return false;
     }
-    final issueSortNumber = type.capabilities.issueSortNumber ?? _issueSortNumber;
+    final issueSortNumber =
+        type.capabilities.issueSortNumber ?? _issueSortNumber;
     return projection.allItems.any(
       (item) =>
           genericBucketForItemMode(item, type, LibraryGroupMode.series) ==

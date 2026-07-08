@@ -8,6 +8,36 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
+const animeLibrarySortColumns = [
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.condition,
+  LibrarySortColumn.price,
+  LibrarySortColumn.location,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.wishlist,
+  LibrarySortColumn.added,
+  LibrarySortColumn.updated,
+];
+
+const animeLibraryTableColumns = [
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+];
+
 const animeWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.anime,
   title: 'Anime',
@@ -15,8 +45,8 @@ const animeWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFFC94DFF),
   preferencePrefix: 'anime',
   defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: kPlannedLibrarySortColumns,
-  availableTableColumns: kAllLibraryTableColumns,
+  availableSortColumns: animeLibrarySortColumns,
+  availableTableColumns: animeLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

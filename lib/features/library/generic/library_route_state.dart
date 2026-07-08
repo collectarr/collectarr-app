@@ -99,7 +99,11 @@ class LibraryRouteState {
     if (trimmedQuery != null) {
       params[searchKey] = trimmedQuery;
     }
-    final encodedFolderPreset = folderPreset?.storageValue ?? groupMode?.name;
+    final activeGroupMode = groupMode;
+    final encodedFolderPreset = folderPreset?.storageValue ??
+        (activeGroupMode == null
+            ? null
+            : libraryGroupModeStorageValue(activeGroupMode));
     if (encodedFolderPreset != null) {
       params[folderKey] = encodedFolderPreset;
     }

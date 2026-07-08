@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_field_column_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -635,9 +634,6 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   usesTrackListCard: true,
   referenceLabels: LibraryReferenceLabels(itemScope: 'Album'),
   compactBucketIcon: Icons.person_2_outlined,
-  columnRegistry: libraryColumnRegistryFromFieldDefinitions(
-    musicLibraryFieldDefinitions,
-  ),
   fieldDefinitions: musicLibraryFieldDefinitions,
   sortColumnDefinitions: musicLibrarySortColumnDefinitions,
   groupModeDefinitions: musicLibraryGroupModeDefinitions,

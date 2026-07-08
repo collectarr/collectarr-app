@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation.dart'
     as comic_presentation;
 import 'package:collectarr_app/features/library/kinds/manga/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_field_column_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -171,9 +170,6 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.import_contacts_outlined,
-  columnRegistry: libraryColumnRegistryFromFieldDefinitions(
-    mangaLibraryFieldDefinitions,
-  ),
   fieldDefinitions: mangaLibraryFieldDefinitions,
   sortColumnDefinitions: comic_presentation.comicsLibrarySortColumnDefinitions,
   groupModeDefinitions: comic_presentation.comicsLibraryGroupModeDefinitions,

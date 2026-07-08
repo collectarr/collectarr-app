@@ -12,6 +12,45 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
+const moviesLibrarySortColumns = [
+  LibrarySortColumn.series,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.issue,
+  LibrarySortColumn.storyArc,
+  LibrarySortColumn.variant,
+  LibrarySortColumn.format,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.barcode,
+  LibrarySortColumn.grade,
+  LibrarySortColumn.condition,
+  LibrarySortColumn.price,
+  LibrarySortColumn.location,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.wishlist,
+  LibrarySortColumn.added,
+  LibrarySortColumn.updated,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.pageCount,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.imprint,
+];
+
+const moviesLibraryTableColumns = [
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+];
+
 const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.movie,
   title: 'Movies',
@@ -19,8 +58,8 @@ const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFF42AA55),
   preferencePrefix: 'movies',
   defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: kPlannedLibrarySortColumns,
-  availableTableColumns: kAllLibraryTableColumns,
+  availableSortColumns: moviesLibrarySortColumns,
+  availableTableColumns: moviesLibraryTableColumns,
   defaultVisibleColumns: {
     LibraryTableColumn.status,
     LibraryTableColumn.cover,

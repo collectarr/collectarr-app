@@ -1,10 +1,16 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
+import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,13 +71,15 @@ void main() {
       'music': musicLibraryMediaPresentation,
     };
     final configuredSortColumns = <String, Set<LibrarySortColumn>>{
-      'generic': kAllLibrarySortColumns.toSet(),
-      'books': kPlannedLibrarySortColumns.toSet(),
-      'board games': kPlannedLibrarySortColumns.toSet(),
-      'comics': kComicLibrarySortColumns.toSet(),
-      'games': kPlannedLibrarySortColumns.toSet(),
-      'movies': kPlannedLibrarySortColumns.toSet(),
-      'music': kPlannedLibrarySortColumns.toSet(),
+      'generic': genericLibraryMediaPresentation.sortColumnDefinitions
+          .map((definition) => definition.column)
+          .toSet(),
+      'books': booksLibraryConfig.availableSortColumns.toSet(),
+      'board games': boardGamesLibraryConfig.availableSortColumns.toSet(),
+      'comics': comicsLibraryConfig.availableSortColumns.toSet(),
+      'games': gamesLibraryConfig.availableSortColumns.toSet(),
+      'movies': moviesLibraryConfig.availableSortColumns.toSet(),
+      'music': musicLibraryConfig.availableSortColumns.toSet(),
     };
 
     for (final entry in presentations.entries) {

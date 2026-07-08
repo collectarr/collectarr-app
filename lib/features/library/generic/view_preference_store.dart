@@ -176,11 +176,9 @@ class LibraryViewPreferenceStore {
         : Set<LibraryGroupMode>.from(allowedModes);
     final modes = <LibraryGroupMode>{};
     for (final name in names) {
-      for (final mode in LibraryGroupMode.values) {
-        if (mode.name == name && (allowed == null || allowed.contains(mode))) {
-          modes.add(mode);
-          break;
-        }
+      final mode = libraryGroupModeFromStorageValue(name);
+      if (mode != null && (allowed == null || allowed.contains(mode))) {
+        modes.add(mode);
       }
     }
     _cachedPinnedGroupModes[_cacheKey] = modes;
@@ -195,7 +193,7 @@ class LibraryViewPreferenceStore {
     } else {
       await prefs.setStringList(
         _key('pinnedGroupModes'),
-        modes.map((m) => m.name).toList(),
+        modes.map(libraryGroupModeStorageValue).toList(),
       );
     }
   }

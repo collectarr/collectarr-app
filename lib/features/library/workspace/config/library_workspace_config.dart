@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_column_definition.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:flutter/material.dart';
 
@@ -251,90 +250,6 @@ enum LibrarySortColumn {
   imprint,
 }
 
-const kAllLibrarySortColumns = [
-  LibrarySortColumn.status,
-  LibrarySortColumn.title,
-  LibrarySortColumn.series,
-  LibrarySortColumn.issue,
-  LibrarySortColumn.storyArc,
-  LibrarySortColumn.variant,
-  LibrarySortColumn.format,
-  LibrarySortColumn.publisher,
-  LibrarySortColumn.releaseDate,
-  LibrarySortColumn.barcode,
-  LibrarySortColumn.grade,
-  LibrarySortColumn.rawOrSlabbed,
-  LibrarySortColumn.gradingCompany,
-  LibrarySortColumn.condition,
-  LibrarySortColumn.price,
-  LibrarySortColumn.location,
-  LibrarySortColumn.collectionStatus,
-  LibrarySortColumn.wishlist,
-  LibrarySortColumn.keyComic,
-  LibrarySortColumn.added,
-  LibrarySortColumn.updated,
-  LibrarySortColumn.country,
-  LibrarySortColumn.language,
-  LibrarySortColumn.pageCount,
-  LibrarySortColumn.ageRating,
-  LibrarySortColumn.imprint,
-];
-
-const kPlannedLibrarySortColumns = [
-  LibrarySortColumn.status,
-  LibrarySortColumn.title,
-  LibrarySortColumn.series,
-  LibrarySortColumn.issue,
-  LibrarySortColumn.storyArc,
-  LibrarySortColumn.variant,
-  LibrarySortColumn.format,
-  LibrarySortColumn.publisher,
-  LibrarySortColumn.releaseDate,
-  LibrarySortColumn.barcode,
-  LibrarySortColumn.grade,
-  LibrarySortColumn.condition,
-  LibrarySortColumn.price,
-  LibrarySortColumn.location,
-  LibrarySortColumn.collectionStatus,
-  LibrarySortColumn.wishlist,
-  LibrarySortColumn.added,
-  LibrarySortColumn.updated,
-  LibrarySortColumn.country,
-  LibrarySortColumn.language,
-  LibrarySortColumn.pageCount,
-  LibrarySortColumn.ageRating,
-  LibrarySortColumn.imprint,
-];
-
-const kComicLibrarySortColumns = [
-  LibrarySortColumn.status,
-  LibrarySortColumn.title,
-  LibrarySortColumn.series,
-  LibrarySortColumn.issue,
-  LibrarySortColumn.storyArc,
-  LibrarySortColumn.variant,
-  LibrarySortColumn.format,
-  LibrarySortColumn.publisher,
-  LibrarySortColumn.releaseDate,
-  LibrarySortColumn.barcode,
-  LibrarySortColumn.grade,
-  LibrarySortColumn.rawOrSlabbed,
-  LibrarySortColumn.gradingCompany,
-  LibrarySortColumn.condition,
-  LibrarySortColumn.price,
-  LibrarySortColumn.location,
-  LibrarySortColumn.collectionStatus,
-  LibrarySortColumn.wishlist,
-  LibrarySortColumn.keyComic,
-  LibrarySortColumn.added,
-  LibrarySortColumn.updated,
-  LibrarySortColumn.country,
-  LibrarySortColumn.language,
-  LibrarySortColumn.pageCount,
-  LibrarySortColumn.ageRating,
-  LibrarySortColumn.imprint,
-];
-
 class LibrarySortRule {
   const LibrarySortRule({required this.column, required this.ascending});
 
@@ -426,52 +341,6 @@ enum LibraryTableColumn {
   imprint,
 }
 
-const kAllLibraryTableColumns = [
-  LibraryTableColumn.status,
-  LibraryTableColumn.cover,
-  LibraryTableColumn.frontCover,
-  LibraryTableColumn.backCover,
-  LibraryTableColumn.hasFront,
-  LibraryTableColumn.hasBack,
-  LibraryTableColumn.extraImages,
-  LibraryTableColumn.author,
-  LibraryTableColumn.artist,
-  LibraryTableColumn.album,
-  LibraryTableColumn.title,
-  LibraryTableColumn.issue,
-  LibraryTableColumn.variant,
-  LibraryTableColumn.format,
-  LibraryTableColumn.publisher,
-  LibraryTableColumn.label,
-  LibraryTableColumn.catalogNumber,
-  LibraryTableColumn.platform,
-  LibraryTableColumn.developer,
-  LibraryTableColumn.releaseDate,
-  LibraryTableColumn.releasePlatform,
-  LibraryTableColumn.barcode,
-  LibraryTableColumn.discCount,
-  LibraryTableColumn.trackCount,
-  LibraryTableColumn.length,
-  LibraryTableColumn.vinylColor,
-  LibraryTableColumn.rpm,
-  LibraryTableColumn.grade,
-  LibraryTableColumn.condition,
-  LibraryTableColumn.completion,
-  LibraryTableColumn.price,
-  LibraryTableColumn.value,
-  LibraryTableColumn.location,
-  LibraryTableColumn.readStatus,
-  LibraryTableColumn.rating,
-  LibraryTableColumn.wishlist,
-  LibraryTableColumn.added,
-  LibraryTableColumn.updated,
-  LibraryTableColumn.country,
-  LibraryTableColumn.language,
-  LibraryTableColumn.pageCount,
-  LibraryTableColumn.ageRating,
-  LibraryTableColumn.imprint,
-];
-
 enum LibraryTableColumnGroup { main, edition, value, personal }
 
 class LibraryTableColumnPreset {
@@ -498,14 +367,13 @@ class LibraryWorkspaceConfig {
     required this.defaultSortColumn,
     required this.defaultVisibleColumns,
     this.defaultDensityPreset = LibraryWorkspaceDensityPreset.compact,
-    this.availableSortColumns = kAllLibrarySortColumns,
-    this.availableTableColumns = kAllLibraryTableColumns,
+    this.availableSortColumns = const [],
+    this.availableTableColumns = const [],
     this.availableDensityPresets = const [
       LibraryWorkspaceDensityPreset.comfortable,
       LibraryWorkspaceDensityPreset.compact,
       LibraryWorkspaceDensityPreset.ultraCompact,
     ],
-    this.columnRegistry = const LibraryColumnRegistry([]),
     this.toolbarActions = kDefaultLibraryToolbarActions,
   });
 
@@ -520,7 +388,6 @@ class LibraryWorkspaceConfig {
   final List<LibrarySortColumn> availableSortColumns;
   final List<LibraryTableColumn> availableTableColumns;
   final List<LibraryWorkspaceDensityPreset> availableDensityPresets;
-  final LibraryColumnRegistry columnRegistry;
   final List<LibraryToolbarActionId> toolbarActions;
 
   bool supportsSortColumn(LibrarySortColumn column) {
@@ -551,7 +418,8 @@ class LibraryWorkspaceConfig {
     }
     final normalized = fieldId.trim();
     for (final column in availableSortColumns) {
-      if (sortColumnFieldId(column) == normalized || column.name == normalized) {
+      if (sortColumnFieldId(column) == normalized ||
+          column.name == normalized) {
         return column;
       }
     }
@@ -564,7 +432,8 @@ class LibraryWorkspaceConfig {
     }
     final normalized = fieldId.trim();
     for (final column in availableTableColumns) {
-      if (tableColumnFieldId(column) == normalized || column.name == normalized) {
+      if (tableColumnFieldId(column) == normalized ||
+          column.name == normalized) {
         return column;
       }
     }

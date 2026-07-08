@@ -9,13 +9,13 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace_entry_
         buildBoardGameEditionWorkspaceEntry,
         buildBoardGameWorkspaceEntry;
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_field_column_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
-const boardGamesLibraryMediaBuilder = BoardGameLibraryMediaPresentationBuilder();
+const boardGamesLibraryMediaBuilder =
+    BoardGameLibraryMediaPresentationBuilder();
 
 const boardGamesPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Series',
@@ -104,18 +104,18 @@ String _simpleLibraryBucketLabel(
   final publisher = entry.publisher?.trim();
   return switch (context.groupMode) {
     LibraryGroupMode.series => _seriesBucket(entry, labels.unknownSeries),
-    LibraryGroupMode.year =>
-      entry.releaseYear?.toString() ??
-          (entry.releaseDate?.year.toString() ?? 'Unknown year'),
-    LibraryGroupMode.publisher =>
-      publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
+    LibraryGroupMode.year => entry.releaseYear?.toString() ??
+        (entry.releaseDate?.year.toString() ?? 'Unknown year'),
+    LibraryGroupMode.publisher => publisher == null || publisher.isEmpty
+        ? labels.unknownPublisher
+        : publisher,
     LibraryGroupMode.location => _locationBucket(entry.locationPath),
     LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
     LibraryGroupMode.ownership => entry.isOwned
         ? overrides.owned
         : entry.isWishlisted
-        ? overrides.wishlist
-        : overrides.catalogOnly,
+            ? overrides.wishlist
+            : overrides.catalogOnly,
     _ => context.groupMode.name,
   };
 }
@@ -150,7 +150,8 @@ const boardGamesLibrarySortColumnDefinitions = [
     column: LibrarySortColumn.publisher,
     label: 'Publisher / Designer',
   ),
-  LibrarySortColumnDefinition(column: LibrarySortColumn.status, label: 'Status'),
+  LibrarySortColumnDefinition(
+      column: LibrarySortColumn.status, label: 'Status'),
   LibrarySortColumnDefinition(column: LibrarySortColumn.title, label: 'Title'),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.issue,
@@ -221,7 +222,8 @@ const boardGamesLibrarySortColumnDefinitions = [
     group: LibrarySortFieldGroup.personal,
     defaultAscending: false,
   ),
-  LibrarySortColumnDefinition(column: LibrarySortColumn.country, label: 'Country'),
+  LibrarySortColumnDefinition(
+      column: LibrarySortColumn.country, label: 'Country'),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.language,
     label: 'Language',
@@ -235,7 +237,8 @@ const boardGamesLibrarySortColumnDefinitions = [
     column: LibrarySortColumn.ageRating,
     label: 'Age rating',
   ),
-  LibrarySortColumnDefinition(column: LibrarySortColumn.imprint, label: 'Imprint'),
+  LibrarySortColumnDefinition(
+      column: LibrarySortColumn.imprint, label: 'Imprint'),
 ];
 
 const boardGamesLibrarySortColumns = [
@@ -255,7 +258,6 @@ const boardGamesLibrarySortColumns = [
   LibrarySortColumn.location,
   LibrarySortColumn.collectionStatus,
   LibrarySortColumn.wishlist,
-  LibrarySortColumn.keyComic,
   LibrarySortColumn.added,
   LibrarySortColumn.updated,
   LibrarySortColumn.country,
@@ -289,9 +291,6 @@ final boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: boardGamesLibraryBucketLabelBuilder,
   previewLabels: boardGamesPreviewLabels,
   statsLabels: boardGamesStatsLabels,
-  columnRegistry: libraryColumnRegistryFromFieldDefinitions(
-    boardGamesLibraryFieldDefinitions,
-  ),
   fieldDefinitions: boardGamesLibraryFieldDefinitions,
   sortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
   groupModeDefinitions: boardGamesLibraryGroupModeDefinitions,
@@ -312,7 +311,8 @@ LibraryWorkspaceEntry buildBoardGamesLibraryReleaseEntry(
   LibraryReleaseEntryRequest request,
 ) {
   final titleEntry = request.titleEntry;
-  if (titleEntry is! BoardGameWorkspaceEntry || titleEntry.boardGameWork == null) {
+  if (titleEntry is! BoardGameWorkspaceEntry ||
+      titleEntry.boardGameWork == null) {
     throw StateError('BoardGame release entry requires a typed boardGameWork');
   }
   final work = titleEntry.boardGameWork!;
