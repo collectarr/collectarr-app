@@ -92,7 +92,7 @@ class LibraryPageToolbarController {
         viewState: viewState,
         counts: projection?.counts ?? const LibraryToolbarCounts(),
         searchTarget: _s._effectiveSearchTarget,
-        searchTargetOptions: _s._supportsMusicTrackSearch
+        searchTargetOptions: _s._supportsTrackSearch
             ? const <LibrarySearchTarget>[
                 LibrarySearchTarget.all,
                 LibrarySearchTarget.mediaOnly,
@@ -119,7 +119,7 @@ class LibraryPageToolbarController {
         columnFavoritePresets: _s._columnFavoritePresets,
         activeColumnFavoriteLabel: _s._activeColumnFavoriteLabel,
         pinnedColumnFavoriteKeys: _s._pinnedColumnFavoriteKeys,
-        canJumpToIssue: _s._canJumpToIssue(projection),
+        canJumpToIssue: _s._canJumpToSelectedEntry(projection),
         hasActiveFilters: _s._hasActiveFilter,
         activeFilterCount: _s._filterSelection.activeFilterCount,
         shelfState: shelfState,
@@ -154,11 +154,11 @@ class LibraryPageToolbarController {
       actions: const LibraryToolbarActionRegistry().build(
         context: LibraryPageToolbarActionContext(
           search: LibraryToolbarSearchContext(
-            supportsMusicTrackSearch: _s._supportsMusicTrackSearch,
+            supportsTrackSearch: _s._supportsTrackSearch,
             onSearchChanged: _s._onSearchChanged,
             onSearchInputChanged: _s._onSearchInputChanged,
             onSearchTargetChanged:
-                _s._supportsMusicTrackSearch ? _s._onSearchTargetChanged : null,
+                _s._supportsTrackSearch ? _s._onSearchTargetChanged : null,
             onClearSearch: _s._clearSearch,
             onSearchSuggestionSelected: _s._applySearchSuggestion,
           ),

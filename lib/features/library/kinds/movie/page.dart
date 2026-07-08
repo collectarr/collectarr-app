@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -23,12 +24,12 @@ class MovieLibraryPage extends GenericLibraryPage {
 class VideoDrilldownLibraryPageState extends GenericLibraryPageState {
   @override
   bool canOpenItemDetailDrilldown(LibraryProjectionItem item) {
-    return canOpenDefaultVideoShelfDrilldown(item);
+    return canOpenKindDrilldown(widget.type, item.entry);
   }
 
   @override
   void openItemDetailDrilldown(LibraryProjectionItem item) {
-    openDefaultVideoShelfDrilldown(item);
+    openKindDrilldown(item);
   }
 
   @override
@@ -38,7 +39,7 @@ class VideoDrilldownLibraryPageState extends GenericLibraryPageState {
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    return buildDefaultVideoShelfWorkspaceOverride(
+    return buildKindWorkspaceOverride(
       projection,
       viewState,
       allOwnedCopies: allOwnedCopies,

@@ -170,12 +170,12 @@ void main() {
   test('kind ui adapter owns track search and group mode categories', () {
     expect(
       musicLibraryConfig.kindUiAdapter
-          .supportsMusicTrackSearch(musicLibraryConfig),
+          .supportsTrackSearch(musicLibraryConfig),
       isTrue,
     );
     expect(
       moviesLibraryConfig.kindUiAdapter
-          .supportsMusicTrackSearch(moviesLibraryConfig),
+          .supportsTrackSearch(moviesLibraryConfig),
       isFalse,
     );
 

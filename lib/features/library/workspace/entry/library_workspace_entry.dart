@@ -2,9 +2,9 @@
 
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
+import 'package:collectarr_app/features/library/shared/book/book_domain.dart';
+import 'package:collectarr_app/features/library/shared/boardgame/boardgame_domain.dart';
+import 'package:collectarr_app/features/library/shared/game/game_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 
 part 'library_workspace_entry_facets.dart';

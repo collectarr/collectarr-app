@@ -17,7 +17,7 @@ import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
@@ -66,10 +66,9 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/generic/page/controllers/page_toolbar_presenter.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/library_toolbar_action_registry.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_search_controller.dart';
-import 'package:collectarr_app/features/library/generic/page/controllers/page_shell_presenter.dart';
-import 'package:collectarr_app/features/library/generic/page/controllers/page_selection_controller.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,6 +85,8 @@ part 'controllers/page_projection_controller.dart';
 part 'controllers/page_projection_provider.dart';
 part 'controllers/page_lifecycle_controller.dart';
 part 'controllers/page_toolbar_controller.dart';
+part 'controllers/page_shell_presenter.dart';
+part 'controllers/page_selection_controller.dart';
 
 class GenericLibraryPage extends ConsumerStatefulWidget {
   const GenericLibraryPage({
@@ -222,7 +223,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       ref: ref,
       searchStateKey: _searchStateKey,
       searchController: _searchController,
-      supportsMusicTrackSearch: _supportsMusicTrackSearch,
+      supportsTrackSearch: _supportsTrackSearch,
       clearActiveSmartLists: () => _mutateState(() {
         _activeSmartListId = null;
         _activeSmartListName = null;
@@ -771,8 +772,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     });
   }
 
-  bool _canJumpToIssue(LibraryProjection? projection) {
-    return widget.type.kindUiAdapter.canJumpToIssue(
+  bool _canJumpToSelectedEntry(LibraryProjection? projection) {
+    return widget.type.kindUiAdapter.canJumpToSelectedEntry(
       widget.type,
       projection,
       activeGroupMode: _activeGroupMode,
@@ -819,7 +820,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return null;
     }
     for (final item in _seriesBucketItems(projection)) {
-      if (_issueSortNumber(item.entry.itemNumber) == target) {
+      if (_selectionSortNumber(item.entry.itemNumber) == target) {
         return item;
       }
     }
@@ -990,7 +991,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return true;
   }
 
-  int? _issueSortNumber(String? rawValue) {
+  int? _selectionSortNumber(String? rawValue) {
     if (rawValue == null || rawValue.trim().isEmpty) {
       return null;
     }
@@ -1180,7 +1181,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   @protected
-  bool canOpenDefaultVideoShelfDrilldown(LibraryProjectionItem item) {
+  bool canOpenKindDrilldown(LibraryProjectionItem item) {
     return _kindBrowserDelegate.canOpenItemDetailDrilldown(widget.type, item);
   }
 
@@ -1190,7 +1191,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   @protected
-  void openDefaultVideoShelfDrilldown(LibraryProjectionItem item) {
+  void openKindDrilldown(LibraryProjectionItem item) {
     _kindBrowserDelegate.openItemDetailDrilldown(widget.type, item);
   }
 
@@ -1198,7 +1199,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   void openItemDetailDrilldown(LibraryProjectionItem item) {}
 
   @protected
-  Widget? buildDefaultVideoShelfWorkspaceOverride(
+  Widget? buildKindWorkspaceOverride(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
     required List<OwnedItem> allOwnedCopies,

@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
-import 'package:csv/csv.dart';
 
 class ProviderCsvImportService {
   const ProviderCsvImportService();
@@ -124,7 +123,7 @@ class ProviderCsvImportService {
     if (source != null && source.isNotEmpty) {
       return source;
     }
-    return '${provider.storageValue}:${rowIndex}:${title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')}';
+    return '${provider.storageValue}:$rowIndex:${title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')}';
   }
 
   String? _mediaKind(

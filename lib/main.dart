@@ -8,7 +8,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 const _interFontAsset = 'assets/fonts/Inter-Variable.ttf';
 const _monoFontAsset = 'assets/fonts/JetBrainsMono-Variable.ttf';

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/generic/page.dart';
-import 'package:collectarr_app/features/library/kinds/movie/page.dart';
+import 'package:collectarr_app/features/library/shared/movie/page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AnimeLibraryPage extends GenericLibraryPage {

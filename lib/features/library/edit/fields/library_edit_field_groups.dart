@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/kinds/video/edit/tabs/video_edit_models.dart';
+import 'package:collectarr_app/features/library/shared/video/video_edit_models.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';

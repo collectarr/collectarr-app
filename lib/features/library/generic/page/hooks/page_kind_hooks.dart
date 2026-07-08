@@ -7,10 +7,10 @@ extension _PageKindHooks on GenericLibraryPageState {
       collectarrMediaAdapters.byKind(widget.type.workspace.kind) ??
       collectarrMediaAdapter(widget.type);
 
-  bool get _supportsMusicTrackSearch =>
-      widget.type.kindUiAdapter.supportsMusicTrackSearch(widget.type);
+  bool get _supportsTrackSearch =>
+      widget.type.kindUiAdapter.supportsTrackSearch(widget.type);
 
-  LibrarySearchTarget get _effectiveSearchTarget => _supportsMusicTrackSearch
+  LibrarySearchTarget get _effectiveSearchTarget => _supportsTrackSearch
       ? _searchControllerOps.state.target
       : LibrarySearchTarget.all;
 

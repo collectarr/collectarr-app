@@ -93,10 +93,103 @@ const comicsLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     supportsIndexReassignment: true,
     supportsMetadataCompare: true,
+    supportsMissingComicsReport: true,
+    supportsSeriesIssueJump: true,
     usesComicCollectorFields: true,
+    issueSortNumber: comicIssueSortNumber,
+    groupModeCategoriesBuilder: buildComicGroupModeCategories,
   ),
   conditions: kComicConditions,
   grades: kComicGrades,
   defaultCondition: 'Near Mint',
   defaultGrade: 'Ungraded',
 );
+
+List<LibraryGroupModeCategory> buildComicGroupModeCategories(
+  List<LibraryGroupMode> modes,
+) {
+  const mainModes = {
+    LibraryGroupMode.series,
+    LibraryGroupMode.ageRating,
+    LibraryGroupMode.country,
+    LibraryGroupMode.crossover,
+    LibraryGroupMode.genre,
+    LibraryGroupMode.imprint,
+    LibraryGroupMode.language,
+    LibraryGroupMode.publisher,
+    LibraryGroupMode.releaseDate,
+    LibraryGroupMode.releaseMonth,
+    LibraryGroupMode.releaseYear,
+    LibraryGroupMode.seriesGroup,
+    LibraryGroupMode.storyArc,
+  };
+  const valueModes = {
+    LibraryGroupMode.grade,
+    LibraryGroupMode.condition,
+    LibraryGroupMode.isKeyComic,
+    LibraryGroupMode.rawOrSlabbed,
+    LibraryGroupMode.myRating,
+    LibraryGroupMode.purchaseDate,
+    LibraryGroupMode.purchaseMonth,
+    LibraryGroupMode.purchaseYear,
+    LibraryGroupMode.purchaseStore,
+    LibraryGroupMode.owner,
+  };
+  const editionModes = {
+    LibraryGroupMode.coverDate,
+    LibraryGroupMode.coverMonth,
+    LibraryGroupMode.coverYear,
+    LibraryGroupMode.format,
+  };
+  const creatorsAndCharactersModes = {
+    LibraryGroupMode.creator,
+    LibraryGroupMode.artist,
+    LibraryGroupMode.character,
+    LibraryGroupMode.colorist,
+    LibraryGroupMode.coverArtist,
+    LibraryGroupMode.coverColorist,
+    LibraryGroupMode.coverInker,
+    LibraryGroupMode.coverPainter,
+    LibraryGroupMode.coverPenciller,
+    LibraryGroupMode.coverSeparator,
+    LibraryGroupMode.editor,
+    LibraryGroupMode.editorInChief,
+    LibraryGroupMode.inker,
+    LibraryGroupMode.layouts,
+    LibraryGroupMode.letterer,
+    LibraryGroupMode.painter,
+    LibraryGroupMode.penciller,
+    LibraryGroupMode.plotter,
+    LibraryGroupMode.scripter,
+    LibraryGroupMode.separator,
+    LibraryGroupMode.translator,
+    LibraryGroupMode.writer,
+  };
+  final main = modes.where(mainModes.contains).toList();
+  final value = modes.where(valueModes.contains).toList();
+  final edition = modes.where(editionModes.contains).toList();
+  final creatorsAndCharacters =
+      modes.where(creatorsAndCharactersModes.contains).toList();
+  final personal = modes
+      .where((mode) =>
+          !mainModes.contains(mode) &&
+          !valueModes.contains(mode) &&
+          !editionModes.contains(mode) &&
+          !creatorsAndCharactersModes.contains(mode))
+      .toList();
+  return [
+    if (main.isNotEmpty) LibraryGroupModeCategory('Main', main),
+    if (value.isNotEmpty) LibraryGroupModeCategory('Value', value),
+    if (edition.isNotEmpty) LibraryGroupModeCategory('Edition', edition),
+    if (creatorsAndCharacters.isNotEmpty)
+      LibraryGroupModeCategory('Creators & Characters', creatorsAndCharacters),
+    if (personal.isNotEmpty) LibraryGroupModeCategory('Personal', personal),
+  ];
+}
+
+int? comicIssueSortNumber(String? raw) {
+  if (raw == null) {
+    return null;
+  }
+  return int.tryParse(raw.trim());
+}

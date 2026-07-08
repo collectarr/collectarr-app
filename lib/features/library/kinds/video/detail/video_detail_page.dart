@@ -12,8 +12,8 @@ import 'package:collectarr_app/features/library/detail/library_detail_hero.dart'
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder.dart';
+import 'package:collectarr_app/features/library/shared/tv/tv_domain.dart';
+import 'package:collectarr_app/features/library/shared/tv/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';

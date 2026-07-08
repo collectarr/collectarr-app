@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
+import 'package:collectarr_app/features/library/shared/comic/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart'
     as comic_presentation;
 import 'package:collectarr_app/features/library/kinds/manga/workspace_entry_builder.dart';

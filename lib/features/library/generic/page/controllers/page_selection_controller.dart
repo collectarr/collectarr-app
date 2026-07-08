@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/generic/page/generic_library_page.dart';
+part of '../generic_library_page.dart';
 
 abstract final class LibraryPageSelectionControllerOps {
   static void selectItem(GenericLibraryPageState state, String id) {

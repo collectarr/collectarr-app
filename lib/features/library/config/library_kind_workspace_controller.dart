@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/shared/video/tv_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/shared/video/video_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,7 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
     LibraryTypeConfig type,
     LibraryProjectionItem item,
   ) {
-    return canOpenVideoShelfDrilldown(type, item.entry);
+    return canOpenKindDrilldown(type, item.entry);
   }
 
   @override
@@ -48,7 +49,7 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    if (!canOpenVideoShelfDrilldown(type, selectedItem.entry)) {
+    if (!canOpenKindDrilldown(type, selectedItem.entry)) {
       return null;
     }
     final drilldownState = itemDrilldownState;

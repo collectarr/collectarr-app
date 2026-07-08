@@ -23,7 +23,7 @@ export 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 export 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 export 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 export 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-export 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+export 'package:collectarr_app/features/library/library_kind_registry.dart';
 export 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 export 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 export 'package:collectarr_app/features/library/series/series_registry_repository.dart';

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/missing_comics_dialog.dart';
+import 'package:collectarr_app/features/library/shared/comic/missing_comics_dialog.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 
 /// Handles print / PDF report and missing-comics flows.

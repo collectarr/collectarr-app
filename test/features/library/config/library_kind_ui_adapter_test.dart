@@ -30,11 +30,11 @@ void main() {
     final adapter = comicsLibraryConfig.kindUiAdapter;
 
     expect(
-      adapter.supportsMissingComicsReport(comicsLibraryConfig),
+      adapter.supportsReportAction(comicsLibraryConfig),
       isTrue,
     );
     expect(
-      adapter.supportsMissingComicsReport(moviesLibraryConfig),
+      adapter.supportsReportAction(moviesLibraryConfig),
       isFalse,
     );
   });
@@ -64,7 +64,7 @@ void main() {
   test('issue jump gating stays in the kind adapter', () {
     final adapter = comicsLibraryConfig.kindUiAdapter;
     expect(
-      adapter.canJumpToIssue(
+      adapter.canJumpToSelectedEntry(
         comicsLibraryConfig,
         null,
         activeGroupMode: LibraryGroupMode.series,

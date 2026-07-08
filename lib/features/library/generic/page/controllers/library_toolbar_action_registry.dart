@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 
 class LibraryToolbarSearchContext {
   const LibraryToolbarSearchContext({
-    required this.supportsMusicTrackSearch,
+    required this.supportsTrackSearch,
     required this.onSearchChanged,
     required this.onSearchInputChanged,
     required this.onSearchTargetChanged,
@@ -23,7 +23,7 @@ class LibraryToolbarSearchContext {
     required this.onSearchSuggestionSelected,
   });
 
-  final bool supportsMusicTrackSearch;
+  final bool supportsTrackSearch;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<String> onSearchInputChanged;
   final ValueChanged<LibrarySearchTarget>? onSearchTargetChanged;
@@ -202,7 +202,7 @@ class LibraryToolbarActionRegistry {
           : () {},
       onSearchChanged: context.search.onSearchChanged,
       onSearchInputChanged: context.search.onSearchInputChanged,
-      onSearchTargetChanged: context.search.supportsMusicTrackSearch
+      onSearchTargetChanged: context.search.supportsTrackSearch
           ? context.search.onSearchTargetChanged
           : null,
       onClearSearch: context.search.onClearSearch,
@@ -291,9 +291,7 @@ class LibraryToolbarActionRegistry {
           : null,
       onMissingComics: projection != null &&
               kindCapabilities.canMissingComicsReport &&
-              context.view.type.kindUiAdapter.supportsMissingComicsReport(
-                context.view.type,
-              )
+              context.view.type.capabilities.supportsMissingComicsReport
           ? () => context.collectionActions.onMissingComics(projection)
           : null,
       onShareCollection:

@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
@@ -36,9 +37,12 @@ Widget buildBookLibraryEditDialog(
   BuildContext context,
   LibraryEditDialogRequest request,
 ) {
+  final resolvedRequest = request.scope == LibraryEditScope.all
+      ? request.copyWith(scope: LibraryEditScope.media)
+      : request;
   return BookLibraryEditDialog(
-    request: request,
-    draft: LibraryEditDraft.fromRequest(request),
+    request: resolvedRequest,
+    draft: LibraryEditDraft.fromRequest(resolvedRequest),
   );
 }
 
