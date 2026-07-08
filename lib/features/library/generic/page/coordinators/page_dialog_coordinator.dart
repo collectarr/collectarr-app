@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/generic/column_chooser.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/generic/dialogs/batch_loan_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
@@ -25,7 +26,6 @@ import 'package:collectarr_app/features/library/generic/transfer_field_data_dial
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -42,17 +42,18 @@ class LibraryPageDialogCoordinator {
   // ---------------------------------------------------------------------------
 
   Future<void> showAddDialogFlow({String? barcode}) async {
+    final context = _page.context;
     final added = await showLibraryAddDialog(
-      context: _page.context,
+      context: context,
       type: _page.type,
       accent: _page.accent,
       initialQuery: _page.searchQuery,
       initialBarcode: barcode,
     );
-    if (added != null && _page.mounted) {
+    if (added != null && _page.mounted && context.mounted) {
       _page.invalidateShelf();
       _revealAddedItems(added.itemIds);
-      ScaffoldMessenger.of(_page.context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             added.target == LibraryAddTarget.track
@@ -92,6 +93,7 @@ class LibraryPageDialogCoordinator {
   Future<void> showFilterDialogFlow(
     LibraryProjection? projection,
   ) async {
+    final context = _page.context;
     await _page.loadActiveLoanIds();
     if (!_page.mounted) {
       return;
@@ -113,13 +115,16 @@ class LibraryPageDialogCoordinator {
       customFieldValuesByDefinitionByItem:
           customFieldCache.valuesByDefinitionByItem,
     );
+    if (!context.mounted) {
+      return;
+    }
     final result = await showLibraryFilterDialog(
-      context: _page.context,
+      context: context,
       type: _page.type,
       current: _page.filterSelection,
       options: options,
     );
-    if (result != null && _page.mounted) {
+    if (result != null && _page.mounted && context.mounted) {
       _page.mutateSidebarScope(() {
         _page.filterSelection = result;
         _page.activeSmartListId = null;
@@ -129,6 +134,7 @@ class LibraryPageDialogCoordinator {
   }
 
   Future<void> showSmartListsFlow(ShelfState? ignoredShelfState) async {
+    final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
@@ -137,8 +143,11 @@ class LibraryPageDialogCoordinator {
     if (!_page.mounted) {
       return;
     }
+    if (!context.mounted) {
+      return;
+    }
     final result = await showSmartListsDialog(
-      context: _page.context,
+      context: context,
       db: db,
       mediaKind: _page.type.workspace.kind.apiValue,
       currentFilter: _page.filterSelection,
@@ -150,7 +159,7 @@ class LibraryPageDialogCoordinator {
           _page.searchQuery.isNotEmpty ? _page.searchQuery : null,
       customFieldDefinitions: customFieldCache.definitions,
     );
-    if (result != null && _page.mounted) {
+    if (result != null && _page.mounted && context.mounted) {
       _page.rebuild(() {
         _page.filterSelection = result.filterSelection;
         _page.quickView = result.quickView;
@@ -225,6 +234,7 @@ class LibraryPageDialogCoordinator {
   // ---------------------------------------------------------------------------
 
   Future<void> showReadingQueueFlow() async {
+    final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final queueIds = await ReadingQueueRepository(db).getQueue();
     final ownedItems = await _page.ref.read(collectionProvider.future);
@@ -237,8 +247,11 @@ class LibraryPageDialogCoordinator {
     if (!_page.mounted) {
       return;
     }
+    if (!context.mounted) {
+      return;
+    }
     await showReadingQueueDialog(
-      context: _page.context,
+      context: context,
       db: db,
       mediaKind: _page.type.workspace.kind.apiValue,
       ownedItems: queuedOwnedItems,
@@ -326,6 +339,7 @@ class LibraryPageDialogCoordinator {
     LibraryProjection? projection,
   ) async {
     if (projection == null) return;
+    final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
@@ -342,20 +356,23 @@ class LibraryPageDialogCoordinator {
     if (items.isEmpty || !_page.mounted) return;
 
     final mutations = _page.ref.read(collectionMutationsProvider);
+    if (!context.mounted) {
+      return;
+    }
     final result = await showTransferFieldDataDialog(
-      context: _page.context,
+      context: context,
       db: db,
       type: _page.type,
       items: items,
       mutations: mutations,
       customFieldDefinitions: customFieldCache.definitions,
     );
-    if (result != null && _page.mounted) {
+    if (result != null && _page.mounted && context.mounted) {
       _page.invalidateShelf();
       _page.ref.invalidate(
         libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue),
       );
-      ScaffoldMessenger.of(_page.context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             'Transfer complete: ${result.transferred} transferred, '
@@ -370,6 +387,7 @@ class LibraryPageDialogCoordinator {
     LibraryProjection? projection,
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
+    final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue)
@@ -388,20 +406,23 @@ class LibraryPageDialogCoordinator {
     if (items.isEmpty || !_page.mounted) return;
 
     final mutations = _page.ref.read(collectionMutationsProvider);
+    if (!context.mounted) {
+      return;
+    }
     final result = await showTransferFieldDataDialog(
-      context: _page.context,
+      context: context,
       db: db,
       type: _page.type,
       items: items,
       mutations: mutations,
       customFieldDefinitions: customFieldCache.definitions,
     );
-    if (result != null && _page.mounted) {
+    if (result != null && _page.mounted && context.mounted) {
       _page.invalidateShelf();
       _page.ref.invalidate(
         libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue),
       );
-      ScaffoldMessenger.of(_page.context).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             'Transfer complete: ${result.transferred} transferred, '
@@ -416,6 +437,7 @@ class LibraryPageDialogCoordinator {
     LibraryProjection? projection,
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
+    final context = _page.context;
     final ownedItemIds = <String>{
       for (final item in projection.filteredItems)
         if (_page.selection.itemIds.contains(item.entry.id) &&
@@ -425,14 +447,14 @@ class LibraryPageDialogCoordinator {
     };
     if (ownedItemIds.isEmpty || !_page.mounted) return;
 
-    final draft = await showDialog<_BatchLoanDraft>(
-      context: _page.context,
-      builder: (context) => _BatchLoanDialog(
+    final draft = await showDialog<BatchLoanDraft>(
+      context: context,
+      builder: (context) => BatchLoanDialog(
         accent: _page.accent,
         itemCount: ownedItemIds.length,
       ),
     );
-    if (draft == null || !_page.mounted) return;
+    if (draft == null || !_page.mounted || !context.mounted) return;
 
     final repo = LoanRepository(_page.ref.read(localDatabaseProvider));
     for (final ownedItemId in ownedItemIds) {
@@ -450,8 +472,8 @@ class LibraryPageDialogCoordinator {
 
     _page.rebuild(_page.clearSelection);
     await _page.loadActiveLoanIds();
-    if (_page.mounted) {
-      ScaffoldMessenger.of(_page.context).showSnackBar(
+    if (_page.mounted && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             'Created ${ownedItemIds.length} loan record${ownedItemIds.length == 1 ? '' : 's'}.',
@@ -462,10 +484,11 @@ class LibraryPageDialogCoordinator {
   }
 
   Future<void> reassignIndexFlow(LibraryProjection projection) async {
+    final context = _page.context;
     final items = projection.filteredItems;
     if (items.isEmpty) return;
     final confirmed = await showDialog<bool>(
-      context: _page.context,
+      context: context,
       builder: (ctx) => AccentAlertDialog(
         title: const Text('Re-assign index values'),
         content: Text(
@@ -485,7 +508,7 @@ class LibraryPageDialogCoordinator {
         ],
       ),
     );
-    if (confirmed != true || !_page.mounted) return;
+    if (confirmed != true || !_page.mounted || !context.mounted) return;
 
     final mutations = _page.ref.read(collectionMutationsProvider);
     var count = 0;
@@ -500,179 +523,12 @@ class LibraryPageDialogCoordinator {
       count++;
     }
     _page.invalidateShelf();
-    if (_page.mounted) {
-      ScaffoldMessenger.of(_page.context).showSnackBar(
+    if (_page.mounted && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Assigned index values to $count items'),
         ),
       );
     }
-  }
-}
-
-class _BatchLoanDraft {
-  const _BatchLoanDraft({
-    required this.borrowerName,
-    required this.lentDate,
-    this.dueDate,
-    this.notes,
-  });
-
-  final String borrowerName;
-  final DateTime lentDate;
-  final DateTime? dueDate;
-  final String? notes;
-}
-
-class _BatchLoanDialog extends StatefulWidget {
-  const _BatchLoanDialog({
-    required this.accent,
-    required this.itemCount,
-  });
-
-  final Color accent;
-  final int itemCount;
-
-  @override
-  State<_BatchLoanDialog> createState() => _BatchLoanDialogState();
-}
-
-class _BatchLoanDialogState extends State<_BatchLoanDialog> {
-  final _nameController = TextEditingController();
-  final _notesController = TextEditingController();
-  DateTime _lentDate = DateTime.now();
-  DateTime? _dueDate;
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _notesController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return AccentAlertDialog(
-      backgroundColor: palette.panel,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text('Loan ${widget.itemCount} items',
-          style: TextStyle(color: widget.accent)),
-      content: SizedBox(
-        width: 340,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _nameController,
-              autofocus: true,
-              onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(
-                labelText: 'Borrower name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _BatchLoanDatePickerField(
-                    label: 'Lent date',
-                    value: _lentDate,
-                    onChanged: (d) => setState(() => _lentDate = d),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _BatchLoanDatePickerField(
-                    label: 'Due date',
-                    value: _dueDate,
-                    onChanged: (d) => setState(() => _dueDate = d),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _notesController,
-              maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: 'Notes (optional)',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _nameController.text.trim().isEmpty ? null : _submit,
-          style: FilledButton.styleFrom(backgroundColor: widget.accent),
-          child: const Text('Loan'),
-        ),
-      ],
-    );
-  }
-
-  void _submit() {
-    final borrowerName = _nameController.text.trim();
-    if (borrowerName.isEmpty) return;
-    Navigator.pop(
-      context,
-      _BatchLoanDraft(
-        borrowerName: borrowerName,
-        lentDate: _lentDate,
-        dueDate: _dueDate,
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
-      ),
-    );
-  }
-}
-
-class _BatchLoanDatePickerField extends StatelessWidget {
-  const _BatchLoanDatePickerField({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final DateTime? value;
-  final ValueChanged<DateTime> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final display = value != null
-        ? '${value!.year}-${value!.month.toString().padLeft(2, '0')}-${value!.day.toString().padLeft(2, '0')}'
-        : 'Select';
-    return OutlinedButton(
-      onPressed: () async {
-        final initialDate = value ?? DateTime.now();
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: initialDate,
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
-        );
-        if (picked != null) {
-          onChanged(picked);
-        }
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label),
-          const SizedBox(height: 2),
-          Text(display),
-        ],
-      ),
-    );
   }
 }
