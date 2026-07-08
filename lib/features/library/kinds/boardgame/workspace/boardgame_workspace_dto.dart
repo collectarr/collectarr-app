@@ -2,15 +2,32 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
-  const BoardGameWorkspaceDto(this.entry);
+  const BoardGameWorkspaceDto({
+    required this.title,
+    required this.seriesTitle,
+    required this.itemNumber,
+    required this.publisher,
+    required this.releaseDate,
+  });
 
-  final LibraryWorkspaceEntry entry;
+  @override
+  final String title;
+  @override
+  final String? seriesTitle;
+  @override
+  final String? itemNumber;
+  @override
+  final String? publisher;
+  @override
+  final DateTime? releaseDate;
 
   factory BoardGameWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
-    return BoardGameWorkspaceDto(entry);
+    return BoardGameWorkspaceDto(
+      title: entry.resolvedTitle,
+      seriesTitle: entry.series?.seriesTitle,
+      itemNumber: entry.itemNumber,
+      publisher: entry.publisher,
+      releaseDate: entry.releaseDate,
+    );
   }
-
-  String get title => entry.resolvedTitle;
-  String? get publisher => entry.publisher;
-  DateTime? get releaseDate => entry.releaseDate;
 }

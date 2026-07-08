@@ -2,15 +2,32 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
-  const AnimeWorkspaceDto(this.entry);
+  const AnimeWorkspaceDto({
+    required this.title,
+    required this.seriesTitle,
+    required this.itemNumber,
+    required this.publisher,
+    required this.releaseDate,
+  });
 
-  final LibraryWorkspaceEntry entry;
+  @override
+  final String title;
+  @override
+  final String? seriesTitle;
+  @override
+  final String? itemNumber;
+  @override
+  final String? publisher;
+  @override
+  final DateTime? releaseDate;
 
   factory AnimeWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
-    return AnimeWorkspaceDto(entry);
+    return AnimeWorkspaceDto(
+      title: entry.resolvedTitle,
+      seriesTitle: entry.series?.seriesTitle,
+      itemNumber: entry.itemNumber,
+      publisher: entry.publisher,
+      releaseDate: entry.releaseDate,
+    );
   }
-
-  String get title => entry.resolvedTitle;
-  String? get publisher => entry.publisher;
-  DateTime? get releaseDate => entry.releaseDate;
 }

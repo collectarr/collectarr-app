@@ -2,6 +2,12 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 
 abstract interface class LibraryWorkspaceDto {
   const LibraryWorkspaceDto();
+
+  String get title;
+  String? get seriesTitle;
+  String? get itemNumber;
+  String? get publisher;
+  DateTime? get releaseDate;
 }
 
 typedef LibraryWorkspaceDtoBuilder = LibraryWorkspaceDto Function(
