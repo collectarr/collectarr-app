@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/config/library_kind_drilldown.da
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/shared/video/tv_shelf_drilldown.dart';
-import 'package:collectarr_app/features/library/shared/video/video_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/media/video/tv_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/media/video/video_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 

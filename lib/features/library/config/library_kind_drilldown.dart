@@ -3,11 +3,11 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/shared/video/tv_shelf_drilldown.dart';
-import 'package:collectarr_app/features/library/shared/video/video_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/media/video/tv_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/media/video/video_shelf_drilldown.dart';
 import 'package:flutter/material.dart';
 
-export 'package:collectarr_app/features/library/shared/video/video_shelf_drilldown.dart'
+export 'package:collectarr_app/features/library/media/video/video_shelf_drilldown.dart'
     show
         VideoShelfReleaseDrilldownItem,
         buildVideoShelfReleaseItems,

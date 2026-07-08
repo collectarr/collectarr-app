@@ -1,4 +1,4 @@
-part of 'media_adapters.dart';
+part of 'library_media_adapter_builder.dart';
 
 class PlannedMediaEntryAccessors {
   const PlannedMediaEntryAccessors({

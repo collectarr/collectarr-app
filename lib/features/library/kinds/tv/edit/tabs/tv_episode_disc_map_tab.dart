@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
-import 'package:collectarr_app/features/library/shared/video/edit/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/media/video/edit/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

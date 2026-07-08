@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/registry/media_adapters.dart';
 
 final boardGameKindModule = LibraryKindModule(
   type: boardGamesLibraryConfig,
-  mediaAdapter: collectarrMediaAdapter(boardGamesLibraryConfig),
+  mediaAdapter: boardGamesMediaAdapter,
   facets: const LibraryFacetModule(loadRows: _loadCharacterFacetRows),
 );
 

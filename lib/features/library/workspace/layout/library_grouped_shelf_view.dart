@@ -7,8 +7,8 @@ import 'package:collectarr_app/features/library/config/library_media_adapter.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/shared/video/video_progress_presenter.dart';
-import 'package:collectarr_app/features/library/shared/video/video_progress_summary.dart';
+import 'package:collectarr_app/features/library/media/video/video_progress_presenter.dart';
+import 'package:collectarr_app/features/library/media/video/video_progress_summary.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';

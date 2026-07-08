@@ -28,11 +28,11 @@ import 'package:collectarr_app/features/library/shared/comic/edit_controller.dar
 import 'package:collectarr_app/features/library/shared/comic/edit_models.dart';
 import 'package:collectarr_app/features/library/shared/comic/edit_tabs.dart';
 import 'package:collectarr_app/features/library/shared/game/edit_controller.dart';
-import 'package:collectarr_app/features/library/shared/video/edit/video_edit_controller.dart';
-import 'package:collectarr_app/features/library/shared/video/edit/video_edit_tabs.dart';
+import 'package:collectarr_app/features/library/media/video/edit/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/media/video/edit/video_edit_tabs.dart';
 import 'package:collectarr_app/features/library/shared/tv/edit_tabs.dart';
-import 'package:collectarr_app/features/library/shared/video/edit/video_season_tracking_section.dart';
-import 'package:collectarr_app/features/library/shared/video/edit/video_episode_rating_section.dart';
+import 'package:collectarr_app/features/library/media/video/edit/video_season_tracking_section.dart';
+import 'package:collectarr_app/features/library/media/video/edit/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';

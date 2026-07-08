@@ -10,10 +10,10 @@ import 'package:collectarr_app/features/library/inspector/sections/episode_grid_
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/session_history_section.dart';
-import 'package:collectarr_app/features/library/shared/video/video_external_links_section.dart';
-import 'package:collectarr_app/features/library/shared/video/video_progress_section.dart';
-import 'package:collectarr_app/features/library/shared/video/video_upcoming_episodes_section.dart';
-import 'package:collectarr_app/features/library/shared/video/watch_history_section.dart';
+import 'package:collectarr_app/features/library/media/video/video_external_links_section.dart';
+import 'package:collectarr_app/features/library/media/video/video_progress_section.dart';
+import 'package:collectarr_app/features/library/media/video/video_upcoming_episodes_section.dart';
+import 'package:collectarr_app/features/library/media/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_inspector.dart';
 import 'package:flutter/material.dart';
