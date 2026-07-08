@@ -1,6 +1,12 @@
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+
 abstract interface class LibraryWorkspaceDto {
   const LibraryWorkspaceDto();
 }
+
+typedef LibraryWorkspaceDtoBuilder = LibraryWorkspaceDto Function(
+  LibraryWorkspaceEntry entry,
+);
 
 class LibraryFieldId<TValue> {
   const LibraryFieldId(this.value);

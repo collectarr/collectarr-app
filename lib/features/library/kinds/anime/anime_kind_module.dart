@@ -1,11 +1,13 @@
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 final animeKindModule = LibraryKindModule(
   type: animeLibraryConfig,
   mediaAdapter: animeMediaAdapter,
+  workspaceDtoFactory: AnimeWorkspaceDto.fromEntry,
   providerMapper: const AnimeLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(loadRows: _loadCharacterFacetRows),
 );

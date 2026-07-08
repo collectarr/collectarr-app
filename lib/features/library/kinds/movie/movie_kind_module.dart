@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart'
     as movie_add;
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -8,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 final movieKindModule = LibraryKindModule(
   type: moviesLibraryConfig,
   mediaAdapter: moviesMediaAdapter,
+  workspaceDtoFactory: MovieWorkspaceDto.fromEntry,
   add: LibraryKindAddModule(registerBuilders: movie_add.registerMovieAddBuilders),
   providerMapper: const MovieLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(loadRows: _loadCharacterFacetRows),

@@ -6,11 +6,14 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class LibraryKindModule {
   const LibraryKindModule({
     required this.type,
     required this.mediaAdapter,
+    this.workspaceDtoFactory,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.add = const LibraryKindAddModule(),
     this.edit = const LibraryKindEditModule(),
@@ -24,6 +27,8 @@ class LibraryKindModule {
 
   final LibraryTypeConfig type;
   final LibraryMediaAdapter mediaAdapter;
+  final LibraryWorkspaceDto Function(LibraryWorkspaceEntry entry)?
+      workspaceDtoFactory;
   final LibraryKindWorkspaceBehavior workspaceBehavior;
   final LibraryKindAddModule add;
   final LibraryKindEditModule edit;
