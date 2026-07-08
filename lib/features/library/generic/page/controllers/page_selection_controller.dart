@@ -1,6 +1,6 @@
-part of '../generic_library_page.dart';
+import 'package:collectarr_app/features/library/generic/page/generic_library_page.dart';
 
-abstract final class _LibrarySelectionControllerOps {
+abstract final class LibraryPageSelectionControllerOps {
   static void selectItem(GenericLibraryPageState state, String id) {
     state._mutateState(() {
       state._selectedId = id;

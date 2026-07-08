@@ -66,7 +66,8 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/generic/page/controllers/page_toolbar_presenter.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/library_toolbar_action_registry.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_search_controller.dart';
-import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/features/library/generic/page/controllers/page_selection_controller.dart';
+import 'package:collectarr_app/features/library/generic/page/controllers/page_shell_presenter.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -85,8 +86,6 @@ part 'controllers/page_projection_controller.dart';
 part 'controllers/page_projection_provider.dart';
 part 'controllers/page_lifecycle_controller.dart';
 part 'controllers/page_toolbar_controller.dart';
-part 'controllers/page_selection_controller.dart';
-part 'controllers/page_shell_presenter.dart';
 
 class GenericLibraryPage extends ConsumerStatefulWidget {
   const GenericLibraryPage({
@@ -386,7 +385,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   @override
   Widget build(BuildContext context) {
-    return _LibraryPageShellPresenter.build(this, context);
+    return LibraryPageShellPresenter.build(this, context);
   }
 
   List<OwnedItem> _activeOwnedCopies(AsyncValue<List<OwnedItem>> value) {
@@ -410,7 +409,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   LibrarySelectionCallbacks _selectionCallbacksForProjection(
     LibraryProjection? projection,
   ) {
-    return _LibraryPageShellPresenter._selectionCallbacksForProjection(
+    return LibraryPageShellPresenter.selectionCallbacksForProjection(
       this,
       projection,
     );
@@ -1120,27 +1119,27 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _selectItem(String id) {
-    _LibrarySelectionControllerOps.selectItem(this, id);
+    LibraryPageSelectionControllerOps.selectItem(this, id);
   }
 
   void _activateItem(String id) {
-    _LibrarySelectionControllerOps.activateItem(this, id);
+    LibraryPageSelectionControllerOps.activateItem(this, id);
   }
 
   void _toggleSelectionItem(String id) {
-    _LibrarySelectionControllerOps.toggleSelectionItem(this, id);
+    LibraryPageSelectionControllerOps.toggleSelectionItem(this, id);
   }
 
   void _applySelection(Set<String> ids, String focusedId) {
-    _LibrarySelectionControllerOps.applySelection(this, ids, focusedId);
+    LibraryPageSelectionControllerOps.applySelection(this, ids, focusedId);
   }
 
   void _selectAllVisible(LibraryProjection projection) {
-    _LibrarySelectionControllerOps.selectAllVisible(this, projection);
+    LibraryPageSelectionControllerOps.selectAllVisible(this, projection);
   }
 
   void _removeVisibleSelection(LibraryProjection projection) {
-    _LibrarySelectionControllerOps.removeVisibleSelection(this, projection);
+    LibraryPageSelectionControllerOps.removeVisibleSelection(this, projection);
   }
 
   void _navigateKeyboardSelection(LibraryProjection projection, int delta) {

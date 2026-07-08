@@ -1,6 +1,6 @@
-part of '../generic_library_page.dart';
+import 'package:collectarr_app/features/library/generic/page/generic_library_page.dart';
 
-abstract final class _LibraryPageShellPresenter {
+abstract final class LibraryPageShellPresenter {
   static Widget build(
     GenericLibraryPageState state,
     BuildContext context,
@@ -63,7 +63,7 @@ abstract final class _LibraryPageShellPresenter {
                   Expanded(
                     child: shelf.when(
                       data: (stateValue) =>
-                          _LibraryPageShellPresenter._buildBody(
+                          LibraryPageShellPresenter._buildBody(
                         state,
                         projection ??
                             state._projectionForShelf(stateValue, viewState),
@@ -433,7 +433,7 @@ abstract final class _LibraryPageShellPresenter {
         onGroupModeChanged: state._setFolderPreset,
         selectionCallbacks: viewState.viewMode == LibraryViewMode.cardFlow
             ? null
-            : _selectionCallbacksForProjection(state, projection),
+            : selectionCallbacksForProjection(state, projection),
         selectedCount: viewState.viewMode == LibraryViewMode.cardFlow
             ? 0
             : state._selection.selectedCount,
@@ -442,7 +442,7 @@ abstract final class _LibraryPageShellPresenter {
     );
   }
 
-  static LibrarySelectionCallbacks _selectionCallbacksForProjection(
+  static LibrarySelectionCallbacks selectionCallbacksForProjection(
     GenericLibraryPageState state,
     LibraryProjection? projection,
   ) {
