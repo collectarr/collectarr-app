@@ -19,47 +19,56 @@ final comicKindModule = LibraryKindModule(
   type: comicsLibraryConfig,
   mediaAdapter: comicsMediaAdapter,
   add: LibraryKindAddModule(registerBuilders: comic_add.registerComicAddBuilders),
+  providerMapper: const DefaultLibraryKindProviderMapper(),
 );
 
 final mangaKindModule = LibraryKindModule(
   type: mangaLibraryConfig,
   mediaAdapter: mangaMediaAdapter,
+  providerMapper: const DefaultLibraryKindProviderMapper(),
 );
 
 final bookKindModule = LibraryKindModule(
   type: booksLibraryConfig,
   mediaAdapter: booksMediaAdapter,
+  providerMapper: const DefaultLibraryKindProviderMapper(),
 );
 
 final gameKindModule = LibraryKindModule(
   type: gamesLibraryConfig,
   mediaAdapter: gamesMediaAdapter,
+  providerMapper: const DefaultLibraryKindProviderMapper(),
 );
 
 final boardGameKindModule = LibraryKindModule(
   type: boardGamesLibraryConfig,
   mediaAdapter: boardGamesMediaAdapter,
+  providerMapper: const DefaultLibraryKindProviderMapper(),
 );
 
 final movieKindModule = LibraryKindModule(
   type: moviesLibraryConfig,
   mediaAdapter: moviesMediaAdapter,
   add: LibraryKindAddModule(registerBuilders: movie_add.registerMovieAddBuilders),
+  providerMapper: const DefaultLibraryKindProviderMapper(),
 );
 
 final tvKindModule = LibraryKindModule(
   type: tvLibraryConfig,
   mediaAdapter: tvMediaAdapter,
+  providerMapper: const DefaultLibraryKindProviderMapper(),
 );
 
 final animeKindModule = LibraryKindModule(
   type: animeLibraryConfig,
   mediaAdapter: animeMediaAdapter,
+  providerMapper: const DefaultLibraryKindProviderMapper(),
 );
 
 final musicKindModule = LibraryKindModule(
   type: musicLibraryConfig,
   mediaAdapter: musicMediaAdapter,
+  providerMapper: const DefaultLibraryKindProviderMapper(),
 );
 
 final collectarrKindModules = <LibraryKindModule>[

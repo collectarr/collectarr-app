@@ -25,7 +25,6 @@ export 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_kind_adapter.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/add/library_add_registry.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
@@ -79,7 +78,6 @@ import 'shell/library_add_shell.dart';
 // continue to see LibraryAddManualPaneRequest, LibraryAddBottomBarRequest, etc.
 export 'controllers/library_add_dialog_requests.dart';
 // Standalone classes available for external consumers.
-export 'controllers/library_add_kind_adapter.dart';
 export 'controllers/library_add_manual_draft.dart';
 export 'panes/library_add_preview_pane.dart';
 
@@ -151,6 +149,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryAddPreviewController _previewState;
   late final LibraryAddController _addController;
   late final LibraryAddWorkflowService _workflowService;
+  late final LibraryKindProviderMapper _providerMapper;
   final _uuid = const Uuid();
 
   bool _isAdding = false;
@@ -426,6 +425,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     _selectionState = LibraryAddSelectionController();
     _previewState = LibraryAddPreviewController();
+    _providerMapper = libraryKindProviderMapperForType(widget.type);
     _addController = LibraryAddController(
       search: _searchState,
       selection: _selectionState,
@@ -2460,25 +2460,15 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           )
           .then((dto) {
         final sourceSelection = selected!;
-        final raw = <String, dynamic>{
+        final raw = mergeHydratedProviderAddResultRaw(
+          raw: <String, dynamic>{
           ...dto.raw,
           'id': dto.id,
           'title': dto.title,
           'kind': dto.kind,
-          if (!dto.raw.containsKey('editions') &&
-              sourceSelection.editions.isNotEmpty)
-            'editions': [
-              for (final edition in sourceSelection.editions) edition.toJson(),
-            ],
-          if (!dto.raw.containsKey('track_count') &&
-              sourceSelection.music?.trackCount != null)
-            'track_count': sourceSelection.music!.trackCount,
-          if (!dto.raw.containsKey('tracks') &&
-              (sourceSelection.music?.tracks.isNotEmpty ?? false))
-            'tracks': [
-              for (final track in sourceSelection.music!.tracks) track.toJson(),
-            ],
-        };
+        },
+          sourceSelection: sourceSelection,
+        );
         return CatalogItem.fromJson(raw);
       });
       if (!mounted || searchGeneration != _coreSearchGeneration) {
@@ -2676,9 +2666,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final cachedPreview =
         _previewState.providerPreviewFor(candidate.localCatalogId);
     if (cachedPreview != null) {
-      return const LibraryAddKindAdapter().metadataItemFromPreview(
-        cachedPreview,
-      );
+      return _providerMapper.metadataItemFromPreview(cachedPreview).copyWith(
+            id: buildPreviewCatalogItemId(
+              kind: cachedPreview.kind,
+              provider: cachedPreview.provider,
+              providerItemId: cachedPreview.providerItemId,
+            ),
+          );
     }
     try {
       final preview = await ref.read(apiClientProvider).providerPreview(
@@ -2690,7 +2684,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           _previewState.setProviderPreview(candidate.localCatalogId, preview);
         });
       }
-      return const LibraryAddKindAdapter().metadataItemFromPreview(preview);
+      return _providerMapper.metadataItemFromPreview(preview).copyWith(
+            id: buildPreviewCatalogItemId(
+              kind: preview.kind,
+              provider: preview.provider,
+              providerItemId: preview.providerItemId,
+            ),
+          );
     } catch (error) {
       if (mounted && _isMissingBearerTokenError(error)) {
         _rebuild(
@@ -2709,78 +2709,18 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     required LibraryMetadataItem preview,
     required LibraryMetadataItem edited,
   }) async {
-    final corrections = const LibraryAddKindAdapter().buildIngestCorrections(
+    final corrections = _providerMapper.buildCorrections(
       preview: preview,
       edited: edited,
     );
     if (corrections.isEmpty) return;
-    await ref.read(apiClientProvider).adminUpdateCatalogItem(
-          kind: kind,
-          id: itemId,
-          title: corrections['title'] as String?,
-          titleExtension: corrections['title_extension'] as String?,
-          sortKey: corrections['sort_key'] as String?,
-          originalTitle: corrections['original_title'] as String?,
-          localizedTitle: corrections['localized_title'] as String?,
-          searchAliases: corrections.containsKey('search_aliases')
-              ? edited.searchAliases
-              : null,
-          itemNumber: corrections['item_number'] as String?,
-          synopsis: corrections['synopsis'] as String?,
-          editionTitle: corrections['edition_title'] as String?,
-          pageCount: corrections.containsKey('page_count')
-              ? edited.publishing?.pageCount
-              : null,
-          publisher: corrections['publisher'] as String?,
-          releaseDate: corrections.containsKey('release_date')
-              ? edited.releaseDate
-              : null,
-          runtimeMinutes: corrections.containsKey('runtime_minutes')
-              ? edited.video?.runtimeMinutes
-              : null,
-          imprint: corrections['imprint'] as String?,
-          subtitle: corrections['subtitle'] as String?,
-          seriesGroup: corrections['series_group'] as String?,
-          country: corrections['country'] as String?,
-          language: corrections['language'] as String?,
-          ageRating: corrections['age_rating'] as String?,
-          audienceRating: corrections['audience_rating'] as String?,
-          genres: corrections.containsKey('genres') ? edited.genres : null,
-          platforms: corrections.containsKey('platforms')
-              ? edited.game?.platforms
-              : null,
-          tracks:
-              corrections.containsKey('tracks') ? edited.music?.tracks : null,
-          creators: corrections.containsKey('creators')
-              ? normalizeCreators(edited.creators)
-              : null,
-          characters:
-              corrections.containsKey('characters') ? edited.characters : null,
-          storyArcs:
-              corrections.containsKey('story_arcs') ? edited.storyArcs : null,
-          color: corrections['color'] as String?,
-          nrDiscs: corrections.containsKey('nr_discs')
-              ? edited.video?.nrDiscs
-              : null,
-          screenRatio: corrections['screen_ratio'] as String?,
-          audioTracks: corrections['audio_tracks'] as String?,
-          subtitles: corrections['subtitles'] as String?,
-          layers: corrections['layers'] as String?,
-          externalLinks: corrections.containsKey('external_links')
-              ? edited.trailerUrls
-              : null,
-          crossover: corrections['crossover'] as String?,
-          plotSummary: corrections['plot_summary'] as String?,
-          plotDescription: corrections['plot_description'] as String?,
-          catalogNumber: corrections['catalog_number'] as String?,
-          releaseStatus: corrections['release_status'] as String?,
-          barcode: corrections['barcode'] as String?,
-          variantName: corrections['variant_name'] as String?,
-          physicalFormat: corrections['physical_format'] as String?,
-          coverImageUrl: corrections['cover_image_url'] as String?,
-          thumbnailImageUrl: corrections['thumbnail_image_url'] as String?,
-          explicitFields: corrections.keys.toSet(),
-        );
+    await applyProviderIngestCorrections(
+      api: ref.read(apiClientProvider),
+      kind: kind,
+      itemId: itemId,
+      corrections: corrections,
+      edited: edited,
+    );
   }
 
   Future<void> _addProviderCandidate(
@@ -2802,7 +2742,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         );
         if (!mounted) return;
 
-        final previewItem = _workflowService.metadataItemFromPreview(preview);
+        final previewItem = _providerMapper.metadataItemFromPreview(preview).copyWith(
+              id: buildPreviewCatalogItemId(
+                kind: preview.kind,
+                provider: preview.provider,
+                providerItemId: preview.providerItemId,
+              ),
+            );
         final catalog = ref.read(mediaCatalogProvider).maybeWhen(
               data: (value) => value,
               orElse: () => fallbackMediaCatalog,
@@ -3166,57 +3112,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   'kind': dto.kind,
                 }),
               );
-          var fullItem = LibraryMetadataItem.fromCatalogItem(full);
-          if (fullItem.editions.isEmpty && item.editions.isNotEmpty) {
-            fullItem = fullItem.copyWith(editions: item.editions);
-          }
-          final fallbackMusic = item.music;
-          final currentMusic = fullItem.music;
-          if (fallbackMusic != null && currentMusic != null) {
-            final mergedMusic = MusicCatalogDetails(
-              trackCount: currentMusic.trackCount ?? fallbackMusic.trackCount,
-              tracks: currentMusic.tracks.isNotEmpty
-                  ? currentMusic.tracks
-                  : fallbackMusic.tracks,
-              discs: currentMusic.discs.isNotEmpty
-                  ? currentMusic.discs
-                  : fallbackMusic.discs,
-              catalogNumber:
-                  currentMusic.catalogNumber ?? fallbackMusic.catalogNumber,
-              releaseStatus:
-                  currentMusic.releaseStatus ?? fallbackMusic.releaseStatus,
-              originalReleaseDate: currentMusic.originalReleaseDate ??
-                  fallbackMusic.originalReleaseDate,
-              recordingDate:
-                  currentMusic.recordingDate ?? fallbackMusic.recordingDate,
-              studio: currentMusic.studio ?? fallbackMusic.studio,
-              rpm: currentMusic.rpm ?? fallbackMusic.rpm,
-              spars: currentMusic.spars ?? fallbackMusic.spars,
-              soundType: currentMusic.soundType ?? fallbackMusic.soundType,
-              vinylColor: currentMusic.vinylColor ?? fallbackMusic.vinylColor,
-              vinylWeight:
-                  currentMusic.vinylWeight ?? fallbackMusic.vinylWeight,
-              mediaCondition:
-                  currentMusic.mediaCondition ?? fallbackMusic.mediaCondition,
-              instrument: currentMusic.instrument ?? fallbackMusic.instrument,
-              isLive: currentMusic.isLive ?? fallbackMusic.isLive,
-              composition:
-                  currentMusic.composition ?? fallbackMusic.composition,
-            );
-            if (mergedMusic.hasData) {
-              fullItem = fullItem.copyWith(music: mergedMusic);
-            }
-          } else if (currentMusic == null && fallbackMusic != null) {
-            fullItem = fullItem.copyWith(music: fallbackMusic);
-          }
-          final hasCover = fullItem.displayCoverUrl != null;
-          return hasCover
-              ? fullItem
-              : fullItem.copyWith(
-                  coverImageUrl: item.coverImageUrl,
-                  thumbnailImageUrl:
-                      item.thumbnailImageUrl ?? item.coverImageUrl,
-                );
+          return mergeResolvedProviderAddItem(
+            fallback: item,
+            fullItem: LibraryMetadataItem.fromCatalogItem(full),
+          );
         } catch (error, stackTrace) {
           logRecoverableError(
             source: 'library_add',
