@@ -159,12 +159,6 @@ class LibraryViewPreferenceStore {
     return null;
   }
 
-  Future<void> writeGroupMode(LibraryGroupMode? mode) async {
-    await writeFolderPreset(
-      mode == null ? null : LibraryFolderPreset.single(mode),
-    );
-  }
-
   List<LibraryFolderPreset> get cachedPinnedFolderPresets =>
       _cachedPinnedFolderPresets[_cacheKey] ?? const [];
 

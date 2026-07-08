@@ -92,7 +92,8 @@ class LibraryRouteState {
     );
   }
 
-  Uri toUri(Uri baseUri, {required String kind}) {
+  Uri toUri(Uri baseUri, {required LibraryTypeConfig type}) {
+    final kind = type.workspace.kind.apiValue;
     final params = <String, String>{kindKey: kind.trim().toLowerCase()};
     final trimmedQuery = _trimmed(searchQuery);
     if (trimmedQuery != null) {
@@ -127,7 +128,7 @@ class LibraryRouteState {
     if (encodedFilters != null) {
       params[filtersKey] = encodedFilters;
     }
-    final encodedSortRules = _encodeSortRules(sortRules);
+    final encodedSortRules = _encodeSortRules(sortRules, type);
     if (encodedSortRules != null) {
       params[sortKey] = encodedSortRules;
     }
@@ -185,12 +186,18 @@ class LibraryRouteState {
     );
   }
 
-  static String? _encodeSortRules(List<LibrarySortRule>? rules) {
+  static String? _encodeSortRules(
+    List<LibrarySortRule>? rules,
+    LibraryTypeConfig type,
+  ) {
     if (rules == null || rules.isEmpty) {
       return null;
     }
     return rules
-        .map((rule) => '${rule.column.name}.${rule.ascending ? 'asc' : 'desc'}')
+        .map(
+          (rule) =>
+              '${type.workspace.sortColumnFieldId(rule.column)}:${rule.ascending ? 'asc' : 'desc'}',
+        )
         .join(',');
   }
 
@@ -201,20 +208,40 @@ class LibraryRouteState {
     }
     final decoded = <LibrarySortRule>[];
     for (final segment in trimmedValue.split(',')) {
-      final parts = segment.split('.');
-      if (parts.length != 2) {
+      final separatorIndex = segment.lastIndexOf(':');
+      final columnToken = separatorIndex == -1
+          ? null
+          : segment.substring(0, separatorIndex).trim();
+      final direction = separatorIndex == -1
+          ? null
+          : segment.substring(separatorIndex + 1).trim().toLowerCase();
+      final legacyParts = segment.split('.');
+      final legacyColumnToken =
+          legacyParts.length == 2 ? legacyParts.first.trim() : null;
+      final resolvedColumn = _sortColumnFromToken(
+        columnToken ?? legacyColumnToken,
+      );
+      if (resolvedColumn == null) {
         continue;
       }
-      final column = _enumByName(LibrarySortColumn.values, parts.first);
-      if (column == null) {
-        continue;
-      }
-      final direction = parts.last.trim().toLowerCase();
       decoded.add(
-        LibrarySortRule(column: column, ascending: direction != 'desc'),
+        LibrarySortRule(
+          column: resolvedColumn,
+          ascending: (direction ?? legacyParts.last.trim().toLowerCase()) !=
+              'desc',
+        ),
       );
     }
     return decoded.isEmpty ? null : decoded;
+  }
+
+  static LibrarySortColumn? _sortColumnFromToken(String? token) {
+    final trimmed = _trimmed(token);
+    if (trimmed == null) {
+      return null;
+    }
+    final candidate = trimmed.split('.').last;
+    return _enumByName(LibrarySortColumn.values, candidate);
   }
 
   static LibraryFolderPreset? _decodeFolderPreset(String? rawValue) {

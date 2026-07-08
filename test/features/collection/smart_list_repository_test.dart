@@ -109,6 +109,30 @@ void main() {
     expect(global.filterSelection.missingCover, isTrue);
   });
 
+  test('persisted smart list criteria uses kind-qualified sort columns', () async {
+    final created = await repo.create(
+      SmartList(
+        id: 'ignored-books',
+        name: 'Books queue',
+        mediaKind: 'book',
+        sortRules: const [
+          LibrarySortRule(
+            column: LibrarySortColumn.title,
+            ascending: true,
+          ),
+        ],
+      ),
+    );
+
+    final row = await (db.selectOnly(db.smartListsCache)
+          ..addColumns([db.smartListsCache.criteriaJson])
+          ..where(db.smartListsCache.id.equals(created.id)))
+        .getSingle();
+    final criteriaJson = row.read(db.smartListsCache.criteriaJson);
+
+    expect(criteriaJson, contains('book.title'));
+  });
+
   test('update and delete persist changed criteria', () async {
     final created = await repo.create(
       const SmartList(

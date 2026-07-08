@@ -16,7 +16,9 @@ void main() {
 
   test('write caches quick view and group mode for reuse', () async {
     await movieStore.writeQuickView(LibraryQuickView.wishlist);
-    await movieStore.writeGroupMode(LibraryGroupMode.publisher);
+    await movieStore.writeFolderPreset(
+      LibraryFolderPreset.single(LibraryGroupMode.publisher),
+    );
 
     const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
     expect(reloadedStore.cachedQuickView, LibraryQuickView.wishlist);
@@ -30,7 +32,7 @@ void main() {
   test('read populates cache and clearing removes cached values', () async {
     SharedPreferences.setMockInitialValues({
       'library.movie.quickView': LibraryQuickView.owned.name,
-      'library.movie.groupMode': LibraryGroupMode.year.name,
+      'library.movie.folderPreset': LibraryGroupMode.year.name,
     });
 
     expect(await movieStore.readQuickView(), LibraryQuickView.owned);
@@ -39,7 +41,7 @@ void main() {
     expect(movieStore.cachedGroupMode, LibraryGroupMode.year);
 
     await movieStore.writeQuickView(null);
-    await movieStore.writeGroupMode(null);
+    await movieStore.writeFolderPreset(null);
 
     expect(movieStore.cachedQuickView, isNull);
     expect(movieStore.cachedGroupMode, isNull);

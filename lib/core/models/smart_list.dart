@@ -57,11 +57,12 @@ class SmartList {
         'sort_rules': [
           for (final rule in effectiveSortRules)
             {
-              'column': rule.column.name,
+              'column': _sortColumnToken(mediaKind, rule.column),
               'ascending': rule.ascending,
             },
         ],
-      if (sortColumn != null) 'sort_column': sortColumn!.name,
+      if (sortColumn != null)
+        'sort_column': _sortColumnToken(mediaKind, sortColumn!),
       if (sortAscending != null) 'sort_ascending': sortAscending,
       'filter': _filterToJson(filterSelection),
     };
@@ -74,7 +75,7 @@ class SmartList {
         ? decodedSortRules.first.column
         : _enumByNameOrNull(
             LibrarySortColumn.values.asNameMap(),
-            json['sort_column'],
+            _sortColumnTokenFromJson(json['sort_column']),
           );
     final primarySortAscending = decodedSortRules.isNotEmpty
         ? decodedSortRules.first.ascending
@@ -190,7 +191,7 @@ class SmartList {
       }
       final column = _enumByNameOrNull(
         LibrarySortColumn.values.asNameMap(),
-        entry['column'],
+        _sortColumnTokenFromJson(entry['column']),
       );
       if (column == null) {
         continue;
@@ -203,5 +204,17 @@ class SmartList {
       );
     }
     return rules;
+  }
+
+  static String _sortColumnToken(String? mediaKind, LibrarySortColumn column) {
+    final kind = mediaKind?.trim().toLowerCase();
+    return kind == null || kind.isEmpty ? column.name : '$kind.${column.name}';
+  }
+
+  static String? _sortColumnTokenFromJson(Object? rawValue) {
+    if (rawValue is! String || rawValue.isEmpty) {
+      return null;
+    }
+    return rawValue.split('.').last;
   }
 }

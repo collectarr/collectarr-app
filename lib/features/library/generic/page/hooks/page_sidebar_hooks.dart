@@ -177,7 +177,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     }
     final nextUri = _buildRouteState().toUri(
       widget.routeUri,
-      kind: widget.type.workspace.kind.apiValue,
+      type: widget.type,
     );
     if (nextUri.toString() == widget.routeUri.toString()) {
       return;

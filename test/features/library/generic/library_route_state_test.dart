@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -36,13 +37,13 @@ void main() {
       isSidebarVisible: true,
     );
 
-    final uri = state.toUri(Uri.parse('/libraries'), kind: 'movie');
+    final uri = state.toUri(Uri.parse('/libraries'), type: moviesLibraryConfig);
     final parsed = LibraryRouteState.fromUri(uri);
 
     expect(uri.queryParameters['kind'], 'movie');
     expect(uri.queryParameters['folder'], 'genre>releaseYear');
     expect(uri.queryParameters['filterValue'], 'Action');
-    expect(uri.queryParameters['sort'], 'title.asc,updated.desc');
+    expect(uri.queryParameters['sort'], 'movie.title:asc,movie.updated:desc');
     expect(uri.queryParameters['seriesScope'], 'completed');
     expect(parsed.kind, 'movie');
     expect(parsed.searchQuery, 'alien');
@@ -94,6 +95,16 @@ void main() {
     expect(parsed.sortRules, isNull);
     expect(parsed.filterSelection, LibraryFilterSelection.none);
     expect(parsed.isSidebarVisible, isNull);
+  });
+
+  test('legacy sort params still decode', () {
+    final parsed = LibraryRouteState.fromUri(
+      Uri.parse('/libraries?kind=movie&sort=title.asc,updated.desc'),
+    );
+
+    expect(parsed.sortRules, hasLength(2));
+    expect(parsed.sortRules!.first.column, LibrarySortColumn.title);
+    expect(parsed.sortRules!.last.column, LibrarySortColumn.updated);
   });
 
   test('filtered route state drops explicit state when route kind mismatches',
