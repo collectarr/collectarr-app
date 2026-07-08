@@ -45,7 +45,9 @@ bool canOpenVideoShelfDrilldown(
   if (entry.browseScope != LibraryBrowserScope.title) {
     return false;
   }
-  return type.capabilities.supportsVideoShelfDrilldown(entry.mediaType);
+  return type.workspaceBehavior.videoShelfDrilldownEntryTypes.contains(
+    entry.mediaType.trim().toLowerCase(),
+  );
 }
 
 List<VideoShelfReleaseDrilldownItem> buildVideoShelfReleaseItems({

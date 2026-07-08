@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/media/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -117,17 +118,18 @@ final moviesLibraryConfig = LibraryTypeConfig(
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     canScanCover: true,
-    supportsVideoKindFilters: true,
     supportsMediaReleaseSplit: true,
-    defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
-    defaultVideoGrouping: VideoGroupingDefault.none,
     wideDialog: true,
-    videoSeriesEntryTypes: {'tv'},
-    videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},
     mediaScopeGroupModes: _movieMediaGroupModes,
     releaseScopeGroupModes: _movieEditionGroupModes,
     mediaScopeSortColumns: _movieMediaSortColumns,
     releaseScopeSortColumns: _movieEditionSortColumns,
+  ),
+  workspaceBehavior: const LibraryKindWorkspaceBehavior(
+    defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
+    defaultVideoGrouping: VideoGroupingDefault.none,
+    videoSeriesEntryTypes: {'tv'},
+    videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},
   ),
   showsDefaultInspectorPersonalSection: false,
 );

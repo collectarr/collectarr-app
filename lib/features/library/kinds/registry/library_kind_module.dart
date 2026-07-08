@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
@@ -36,10 +37,6 @@ class LibraryKindModule {
   final LibraryKindToolbarModule toolbar;
   final LibraryKindProviderMapper providerMapper;
   final LibraryFacetModule facets;
-}
-
-class LibraryKindWorkspaceBehavior {
-  const LibraryKindWorkspaceBehavior();
 }
 
 class LibraryKindAddModule {

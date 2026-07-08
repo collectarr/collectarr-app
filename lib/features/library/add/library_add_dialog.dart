@@ -31,8 +31,8 @@ import 'package:collectarr_app/features/library/add/library_add_registry.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_search_options_scope.dart';
-import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_chrome_scope.dart';
+import 'package:collectarr_app/features/library/add/models/comic_add_search_options_scope.dart';
+import 'package:collectarr_app/features/library/add/models/movie_add_chrome_scope.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -2971,7 +2971,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   String _canonicalVideoSearchKind(String kind) =>
       catalogMediaKindFromValue(kind).apiValue;
 
-  bool get _isVideoKind => widget.type.capabilities.supportsVideoKindFilters;
+  bool get _isVideoKind => widget.type.addChrome.videoKindFilterOptions.isNotEmpty;
 
   bool get _showsVideoKindFilters =>
       _isVideoKind && widget.type.addChrome.videoKindFilterOptions.isNotEmpty;

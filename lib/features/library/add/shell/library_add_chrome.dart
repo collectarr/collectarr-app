@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
 import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_chrome_scope.dart';
+import 'package:collectarr_app/features/library/add/models/movie_add_chrome_scope.dart';
 import 'package:flutter/material.dart';
 
 /// Kind-specific copy for the shared add-dialog chrome (header + mode bar).

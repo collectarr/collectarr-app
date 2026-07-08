@@ -58,6 +58,7 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
       inspectorSectionsBuilder: inspectorSectionsBuilder,
       showsDefaultInspectorPersonalSection:
           showsDefaultInspectorPersonalSection,
+      workspaceBehavior: workspaceBehavior,
     );
   }
 }

@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/generic/transferable_field.dart'
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -360,19 +361,6 @@ enum LibraryContentHierarchy {
   seasons,
 }
 
-enum VideoDisplayLevel {
-  titleWork,
-  series,
-  season,
-  episode,
-  release,
-}
-
-enum VideoGroupingDefault {
-  none,
-  bySeries,
-}
-
 class LibraryTypeCapabilities {
   const LibraryTypeCapabilities({
     this.showsSynopsis = false,
@@ -381,15 +369,10 @@ class LibraryTypeCapabilities {
     this.contentHierarchy = LibraryContentHierarchy.flat,
     this.canScanCover = false,
     this.supportsOwnedItemImages = true,
-    this.supportsVideoKindFilters = false,
     this.supportsMediaReleaseSplit = false,
     this.supportsReadingQueue = false,
     this.supportsIndexReassignment = false,
-    this.supportsTrackSearch = false,
-    this.supportsSeriesIssueJump = false,
     this.wideDialog = false,
-    this.videoSeriesEntryTypes = const {},
-    this.videoShelfDrilldownEntryTypes = const {},
     this.mediaScopeGroupModes,
     this.releaseScopeGroupModes,
     this.mediaScopeSortColumns,
@@ -397,9 +380,6 @@ class LibraryTypeCapabilities {
     this.supportsMetadataCompare = false,
     this.prefersSquareCovers = false,
     this.groupModeCategoriesBuilder,
-    this.issueSortNumber,
-    this.defaultVideoDisplayLevel,
-    this.defaultVideoGrouping = VideoGroupingDefault.none,
   });
 
   final bool showsSynopsis;
@@ -408,15 +388,10 @@ class LibraryTypeCapabilities {
   final LibraryContentHierarchy contentHierarchy;
   final bool canScanCover;
   final bool supportsOwnedItemImages;
-  final bool supportsVideoKindFilters;
   final bool supportsMediaReleaseSplit;
   final bool supportsReadingQueue;
   final bool supportsIndexReassignment;
-  final bool supportsTrackSearch;
-  final bool supportsSeriesIssueJump;
   final bool wideDialog;
-  final Set<String> videoSeriesEntryTypes;
-  final Set<String> videoShelfDrilldownEntryTypes;
 
   /// Group modes and sort columns available when a media/release split library
   /// is showing the media scope vs the releases scope. When provided, the
@@ -435,33 +410,6 @@ class LibraryTypeCapabilities {
   /// should use square-tile sizing.
   final bool prefersSquareCovers;
   final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
-  final int? Function(String? raw)? issueSortNumber;
-  final VideoDisplayLevel? defaultVideoDisplayLevel;
-  final VideoGroupingDefault defaultVideoGrouping;
-
-  VideoDisplayLevel get resolvedVideoDisplayLevel {
-    final explicit = defaultVideoDisplayLevel;
-    if (explicit != null) {
-      return explicit;
-    }
-    return switch (contentHierarchy) {
-      LibraryContentHierarchy.seasons => VideoDisplayLevel.season,
-      LibraryContentHierarchy.volumes => VideoDisplayLevel.titleWork,
-      LibraryContentHierarchy.flat => VideoDisplayLevel.titleWork,
-    };
-  }
-
-  VideoGroupingDefault get resolvedVideoGrouping {
-    final explicit = defaultVideoGrouping;
-    if (explicit != VideoGroupingDefault.none) {
-      return explicit;
-    }
-    return switch (contentHierarchy) {
-      LibraryContentHierarchy.seasons => VideoGroupingDefault.bySeries,
-      LibraryContentHierarchy.volumes => VideoGroupingDefault.none,
-      LibraryContentHierarchy.flat => VideoGroupingDefault.none,
-    };
-  }
 
   /// Whether this type narrows group modes / sort columns by browser mode
   /// (media vs releases). Driven entirely by the scoped sets above.
@@ -476,15 +424,6 @@ class LibraryTypeCapabilities {
 
   bool get usesVolumeHierarchy =>
       contentHierarchy == LibraryContentHierarchy.volumes;
-
-  bool isVideoSeriesEntryType(String mediaType) {
-    return videoSeriesEntryTypes.contains(mediaType.trim().toLowerCase());
-  }
-
-  bool supportsVideoShelfDrilldown(String mediaType) {
-    return videoShelfDrilldownEntryTypes
-        .contains(mediaType.trim().toLowerCase());
-  }
 }
 
 class LibraryEditChromeConfig {
@@ -561,7 +500,7 @@ class LibraryKindUiAdapter {
   }
 
   bool supportsTrackSearch(LibraryTypeConfig type) {
-    return type.capabilities.supportsTrackSearch;
+    return type.workspaceBehavior.supportsTrackSearch;
   }
 
   bool showsReadingQueue(LibraryTypeConfig type) {
@@ -621,7 +560,7 @@ class LibraryKindUiAdapter {
       return false;
     }
     final issueSortNumber =
-        type.capabilities.issueSortNumber ?? _issueSortNumber;
+        type.workspaceBehavior.issueSortNumber ?? _issueSortNumber;
     return projection.allItems.any(
       (item) =>
           genericBucketForItemMode(item, type, LibraryGroupMode.series) ==
@@ -760,6 +699,7 @@ class LibraryTypeConfig {
     this.defaultCondition,
     this.defaultGrade,
     this.capabilities = const LibraryTypeCapabilities(),
+    this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.presentation = genericLibraryMediaPresentation,
     this.editPresentation = const LibraryEditPresentation(
         builder: DefaultLibraryEditPresentationBuilder()),
@@ -795,6 +735,7 @@ class LibraryTypeConfig {
   final String? defaultCondition;
   final String? defaultGrade;
   final LibraryTypeCapabilities capabilities;
+  final LibraryKindWorkspaceBehavior workspaceBehavior;
   final LibraryMediaPresentation presentation;
   final LibraryEditPresentation editPresentation;
   final LibraryAddChromeConfig addChrome;
@@ -853,7 +794,9 @@ class LibraryTypeConfig {
   bool get supportsMetadataCompareWithServer =>
       capabilities.supportsMetadataCompare;
 
-  bool get supportsSeriesIssueJump => presentation.supportsSeriesIssueJump;
+  bool get supportsSeriesIssueJump =>
+      workspaceBehavior.supportsSeriesIssueJump ||
+      presentation.supportsSeriesIssueJump;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
 

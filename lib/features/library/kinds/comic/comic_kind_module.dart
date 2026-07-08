@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provi
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
@@ -15,6 +16,10 @@ final comicKindModule = LibraryKindModule(
   mediaAdapter: comicsMediaAdapter,
   workspaceDtoFactory: ComicWorkspaceDto.fromEntry,
   add: LibraryKindAddModule(registerBuilders: comic_add.registerComicAddBuilders),
+  workspaceBehavior: LibraryKindWorkspaceBehavior(
+    supportsSeriesIssueJump: true,
+    issueSortNumber: comicIssueSortNumber,
+  ),
   toolbar: LibraryKindToolbarModule(
     actions: [
       LibraryToolbarActionDescriptor(

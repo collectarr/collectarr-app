@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -48,6 +49,8 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
     trackingProfile: catalogTrackingProfileForKind(mediaKind),
     presentation: presentation,
     editPresentation: editPresentation,
+    workspaceBehavior:
+        knownType?.workspaceBehavior ?? const LibraryKindWorkspaceBehavior(),
   );
 }
 

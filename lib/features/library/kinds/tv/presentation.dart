@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder.dart';

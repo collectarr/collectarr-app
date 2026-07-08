@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/add/library_add_result_badge.dar
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/shared/add/add_bottom_bar.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_search_options_scope.dart';
+import 'package:collectarr_app/features/library/add/models/comic_add_search_options_scope.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

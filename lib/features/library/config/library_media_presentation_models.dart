@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -763,6 +764,10 @@ class LibraryMediaPresentation {
     this.supportsSeriesIssueJump = false,
     this.usesTrackListCard = false,
     this.showsSeasonGroupProgress = false,
+    this.defaultVideoDisplayLevel,
+    this.defaultVideoGrouping = VideoGroupingDefault.none,
+    this.videoSeriesEntryTypes = const {},
+    this.videoShelfDrilldownEntryTypes = const {},
     this.usesCompactTableLayout = false,
     this.compactBucketIcon = Icons.folder,
     this.emptyStateProviderSummarySuffix = '',
@@ -794,6 +799,10 @@ class LibraryMediaPresentation {
   final bool supportsSeriesIssueJump;
   final bool usesTrackListCard;
   final bool showsSeasonGroupProgress;
+  final VideoDisplayLevel? defaultVideoDisplayLevel;
+  final VideoGroupingDefault defaultVideoGrouping;
+  final Set<String> videoSeriesEntryTypes;
+  final Set<String> videoShelfDrilldownEntryTypes;
   final bool usesCompactTableLayout;
   final IconData compactBucketIcon;
   final String emptyStateProviderSummarySuffix;

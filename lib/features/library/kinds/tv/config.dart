@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
@@ -99,12 +100,14 @@ final tvLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
-    supportsVideoKindFilters: true,
     supportsMediaReleaseSplit: true,
     contentHierarchy: LibraryContentHierarchy.seasons,
+    wideDialog: true,
+  ),
+  workspaceBehavior: LibraryKindWorkspaceBehavior(
+    showsSeasonGroupProgress: true,
     defaultVideoDisplayLevel: tvDefaultVideoDisplayLevel,
     defaultVideoGrouping: tvDefaultVideoGrouping,
-    wideDialog: true,
     videoSeriesEntryTypes: {'tv'},
     videoShelfDrilldownEntryTypes: {'tv'},
   ),
