@@ -1,4 +1,5 @@
-part of '../generic_library_page.dart';
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/generic/toolbar.dart';
 
 Widget buildLibraryToolbar(LibraryToolbarPresentation presentation) {
   return LibraryToolbar.grouped(
