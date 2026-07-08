@@ -82,6 +82,7 @@ part 'controllers/page_facet_controller.dart';
 part 'controllers/page_scope_controller.dart';
 part 'controllers/page_view_state_controller.dart';
 part 'controllers/page_preferences_controller.dart';
+part 'controllers/page_number_navigation_controller.dart';
 part 'controllers/page_projection_controller.dart';
 part 'controllers/page_projection_provider.dart';
 part 'controllers/page_lifecycle_controller.dart';
@@ -552,11 +553,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   bool _canJumpToKindDrilldown(LibraryProjection? projection) {
-    return widget.type.kindUiAdapter.canJumpToSelectedEntry(
-      widget.type,
+    return LibraryPageNumberNavigationControllerOps.canJumpToKindDrilldown(
+      this,
       projection,
-      activeGroupMode: _activeGroupMode,
-      selectedBucket: _selectedBucket,
     );
   }
 
@@ -564,60 +563,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     LibraryProjection projection,
     String rawNumber,
   ) async {
-    final normalizedNumber = rawNumber.trim();
-    if (normalizedNumber.isEmpty) {
-      return;
-    }
-    final match = _matchNumberInProjection(projection, normalizedNumber);
-    if (match == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Number #$normalizedNumber was not found.')),
-      );
-      return;
-    }
-    _mutateSidebarScope(() {
-      _selectedLetter = null;
-      _linkedMetadataFilter = null;
-      _collectionStatusScope = LibraryCollectionStatusScope.all;
-      _seriesCompletionScope = LibrarySeriesCompletionScope.all;
-      _quickView = null;
-      _filterSelection = LibraryFilterSelection.none;
-      _activeSmartListId = null;
-      _activeSmartListName = null;
-      _searchController.clear();
-    });
-    _searchControllerOps.clearSearch();
-    _selectItem(match.entry.id);
-  }
-
-  LibraryProjectionItem? _matchNumberInProjection(
-    LibraryProjection projection,
-    String rawNumber,
-  ) {
-    final target = int.tryParse(rawNumber.trim());
-    if (target == null) {
-      return null;
-    }
-    for (final item in _seriesBucketItems(projection)) {
-      if (_selectionSortNumber(item.entry.itemNumber) == target) {
-        return item;
-      }
-    }
-    return null;
-  }
-
-  List<LibraryProjectionItem> _seriesBucketItems(LibraryProjection projection) {
-    final selectedBucket = _selectedBucket;
-    if (selectedBucket == null) {
-      return const [];
-    }
-    return [
-      for (final item in projection.allItems)
-        if (genericBucketForItemMode(
-                item, widget.type, LibraryGroupMode.series) ==
-            selectedBucket)
-          item,
-    ];
+    await LibraryPageNumberNavigationControllerOps.jumpToNumber(
+      this,
+      projection,
+      rawNumber,
+    );
   }
 
   bool _hasOwnedItemsInProjection(LibraryProjection? projection) {
@@ -719,7 +669,10 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     var onOrderCount = 0;
     var soldCount = 0;
     var catalogOnlyCount = 0;
-    for (final item in _seriesBucketItems(projection)) {
+    for (final item in LibraryPageNumberNavigationControllerOps.seriesBucketItems(
+      this,
+      projection,
+    )) {
       final ownedItem = item.source.ownedItem;
       final status = item.entry.collectionStatus?.trim().toLowerCase();
       if (ownedItem?.isSold == true) {
@@ -754,7 +707,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       catalogOnlyCount: catalogOnlyCount,
       missingSequenceSummary: selectedBucket.missingNumbers.isEmpty
           ? null
-          : _formatNumberRanges(selectedBucket.missingNumbers),
+          : LibraryPageNumberNavigationControllerOps.formatNumberRanges(
+              selectedBucket.missingNumbers,
+            ),
     );
   }
 
@@ -768,39 +723,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       }
     }
     return true;
-  }
-
-  int? _selectionSortNumber(String? rawValue) {
-    if (rawValue == null || rawValue.trim().isEmpty) {
-      return null;
-    }
-    final match = RegExp(r'^\s*(\d+)').firstMatch(rawValue);
-    if (match == null) {
-      return null;
-    }
-    return int.tryParse(match.group(1)!);
-  }
-
-  String _formatNumberRanges(List<int> numbers) {
-    if (numbers.isEmpty) {
-      return '';
-    }
-    final sorted = numbers.toList(growable: false)..sort();
-    final labels = <String>[];
-    var start = sorted.first;
-    var end = start;
-    for (var index = 1; index < sorted.length; index += 1) {
-      final current = sorted[index];
-      if (current == end + 1) {
-        end = current;
-        continue;
-      }
-      labels.add(start == end ? '#$start' : '#$start-#$end');
-      start = current;
-      end = current;
-    }
-    labels.add(start == end ? '#$start' : '#$start-#$end');
-    return labels.take(8).join(', ');
   }
 
   List<String> get _sidebarBreadcrumbs =>
