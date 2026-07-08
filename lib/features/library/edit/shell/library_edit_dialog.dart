@@ -25,8 +25,10 @@ import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart'
 export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_tabs.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_tabs.dart';
@@ -121,6 +123,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final LibraryEditDraft _draft;
 
   late final TabController _tabController;
+  late final ComicEditController _comicEdit;
+  late final GameEditController _gameEdit;
   late final VideoEditController _videoEdit;
 
   TextEditingController get _titleController => _draft.titleController;
@@ -232,16 +236,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   List<String> _pageQualityOptions = const [];
   List<String> _keyCategoryOptions = const [];
   List<SeriesRegistryEntry> _seriesEntries = const [];
-  late final TextEditingController _gamePlatformsController;
   late final TextEditingController _collectionStatusController;
-  List<String> _gameDeveloperOptions = const [];
-  List<String> _gameGenreOptions = const [];
-  List<String> _gamePlatformOptions = const [];
-  final List<EditableComicCreator> _comicCreators = [];
-  final List<EditableComicCharacter> _comicCharacters = [];
-  final List<Map<String, TextEditingController>> _comicLinks = [];
-  final TextEditingController _comicCharacterDraftController =
-      TextEditingController();
   List<StorageLocation> get _availableLocations => _draft.availableLocations;
   set _availableLocations(List<StorageLocation> value) =>
       _draft.availableLocations = value;
@@ -509,8 +504,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       text: _collectionStatusToLabel(_collectionStatus),
     );
 
-    _gamePlatformsController = TextEditingController(
-      text: (widget.item.game?.platforms ?? const <String>[]).join(', '),
+    _gameEdit = GameEditController(
+      initialPlatforms:
+          (widget.item.game?.platforms ?? const <String>[]).join(', '),
+    );
+    _comicEdit = ComicEditController(
+      item: widget.item,
+      itemImages: widget.itemImages,
     );
     _videoEdit = VideoEditController(
       ref: ref,
@@ -528,7 +528,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     }
 
     if (_videoEdit.isTvKind) {
-      _videoEdit.tvSeriesFuture = _videoEdit.loadTvSeriesSnapshot().then((series) {
+      _videoEdit.tvSeriesFuture =
+          _videoEdit.loadTvSeriesSnapshot().then((series) {
         if (!mounted || series == null) {
           return series;
         }
@@ -548,19 +549,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   @override
   void dispose() {
     _collectionStatusController.dispose();
-    _comicCharacterDraftController.dispose();
-    for (final creator in _comicCreators) {
-      creator.dispose();
-    }
-    for (final character in _comicCharacters) {
-      character.dispose();
-    }
-    for (final link in _comicLinks) {
-      link['title']?.dispose();
-      link['url']?.dispose();
-    }
+    _comicEdit.dispose();
+    _gameEdit.dispose();
     _videoEdit.dispose();
-    _gamePlatformsController.dispose();
     _tabController.dispose();
     _draft.dispose();
     super.dispose();
@@ -570,26 +561,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     if (!_isGameKind) {
       return;
     }
-    _gameDeveloperOptions =
-        _mergePickListOptions(_splitPickList(_developersController.text));
-    _gameGenreOptions = _mergePickListOptions(
-      _splitPickList(_genresEditController.text),
-      widget.item.genres ?? const <String>[],
-    );
-    _gamePlatformOptions = _splitPickList(_gamePlatformsController.text);
+    _gameEdit.initialize(item: widget.item, draft: _draft);
   }
 
   void _initializeComicEditors() {
     if (!_isComicKind) return;
-    _comicCreators.addAll(initComicCreators(widget.item));
-    _comicCharacters.addAll(initComicCharacters(widget.item));
-    for (final link
-        in widget.item.trailerUrls.where((entry) => entry.isExternalLink)) {
-      _comicLinks.add(_createComicLinkControllers(
-        title: link.title ?? link.description ?? '',
-        url: link.url,
-      ));
-    }
+    _comicEdit.initialize();
   }
 
   void _initializeVideoEditors() {
@@ -600,44 +577,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _initializeGameChipEditors();
     _initializeComicEditors();
     _initializeVideoEditors();
-  }
-
-  Map<String, TextEditingController> _createComicLinkControllers({
-    String title = '',
-    String url = '',
-  }) {
-    return <String, TextEditingController>{
-      'title': TextEditingController(text: title),
-      'url': TextEditingController(text: url),
-    };
-  }
-
-  List<String> _splitPickList(String value) {
-    return splitPickListValues(value);
-  }
-
-  List<String> _mergePickListOptions(Iterable<String> seed,
-      [Iterable<String>? b, Iterable<String>? c, Iterable<String>? d]) {
-    final merged = <String>[
-      ...seed,
-      if (b != null) ...b,
-      if (c != null) ...c,
-      if (d != null) ...d,
-    ];
-    final seen = <String>{};
-    final output = <String>[];
-    for (final candidate in merged) {
-      final value = candidate.trim();
-      if (value.isEmpty) {
-        continue;
-      }
-      final key = value.toLowerCase();
-      if (!seen.add(key)) {
-        continue;
-      }
-      output.add(value);
-    }
-    return output;
   }
 
   @override
@@ -939,7 +878,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               ],
             ),
           ),
-        if (_canShowPersonalFields && editPresentation.showsOwnedGradingSection) ...[
+        if (_canShowPersonalFields &&
+            editPresentation.showsOwnedGradingSection) ...[
           EditSection(
             title: editPresentation.ownedGradingSectionTitle,
             accent: widget.accent,
@@ -1058,7 +998,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               _field(controller: _seriesTitleController, label: 'Series'),
               TagPickListField(
                 controller: _developersController,
-                options: _gameDeveloperOptions,
+                options: _gameEdit.developerOptions,
                 label: 'Developer',
                 hint: 'Comma-separated developers',
               ),
@@ -1066,15 +1006,15 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             const SizedBox(height: 10),
             _responsiveFields([
               TagPickListField(
-                controller: _gamePlatformsController,
-                options: _gamePlatformOptions,
+                controller: _gameEdit.platformsController,
+                options: _gameEdit.platformOptions,
                 label: 'Platform',
                 hint: 'Comma-separated platforms',
               ),
               _audienceRatingPickField(),
               TagPickListField(
                 controller: _genresEditController,
-                options: _gameGenreOptions,
+                options: _gameEdit.genreOptions,
                 label: 'Genres',
               ),
             ]),
@@ -1924,7 +1864,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     return null;
   }
 
-
   Widget _publisherField({String label = 'Publisher'}) {
     return _pickField(
       controller: _publisherController,
@@ -1969,13 +1908,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       hint: 'Select or type a series name',
       onChanged: (value) {
         final normalized = emptyToNull(value ?? '');
-        final matchingEntry = _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
-              (entry) =>
-                  entry != null &&
-                  entry.title.trim().toLowerCase() ==
-                      (normalized?.toLowerCase() ?? ''),
-              orElse: () => null,
-            );
+        final matchingEntry =
+            _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+                  (entry) =>
+                      entry != null &&
+                      entry.title.trim().toLowerCase() ==
+                          (normalized?.toLowerCase() ?? ''),
+                  orElse: () => null,
+                );
         setState(() {
           _selectedSeriesId = matchingEntry?.coreSeriesId;
         });
@@ -2388,12 +2328,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _submitAction = submitAction;
     var selection = _draft.buildSelection(submitAction: _submitAction);
     selection = _videoEdit.applyVideoSelectionEdits(selection);
-    selection = applyComicSelectionEdits(
-      selection,
-      _comicCreators,
-      _comicCharacters,
-      _comicLinks,
-    );
+    selection = _comicEdit.applySelectionEdits(selection);
     selection = _applyGameSelection(selection);
     selection = _normalizeSelectionScope(selection);
     await _videoEdit.persistUserExternalLinks();
@@ -2419,24 +2354,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   LibraryEditSelection _applyGameSelection(LibraryEditSelection selection) {
-    final currentGame = selection.item.game;
-    final updatedGame = GameCatalogDetails(
-      platforms: _splitPickList(_gamePlatformsController.text),
-      toySubtype: currentGame?.toySubtype,
-      toyType: currentGame?.toyType,
-    );
-    return LibraryEditSelection(
-      scope: selection.scope,
-      item: selection.item.copyWith(
-        game: updatedGame.hasData ? updatedGame : null,
-      ),
-      personal: selection.personal,
-      wishlist: selection.wishlist,
-      tracking: selection.tracking,
-      customFieldEdits: selection.customFieldEdits,
-      itemImageEdits: selection.itemImageEdits,
-      submitAction: selection.submitAction,
-    );
+    return _gameEdit.applySelectionEdits(selection);
   }
 
   PhysicalMediaFormat? _physicalFormatForId(String? id) {
@@ -2678,7 +2596,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     });
   }
 
-
   // ---------------------------------------------------------------------------
   // ComicEditHost implementation
   // ---------------------------------------------------------------------------
@@ -2705,17 +2622,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   LibraryEditPresentationState get comicEditPresentation => _editPresentation;
 
   @override
-  List<EditableComicCreator> get comicCreators => _comicCreators;
+  List<EditableComicCreator> get comicCreators => _comicEdit.creators;
 
   @override
-  List<EditableComicCharacter> get comicCharacters => _comicCharacters;
+  List<EditableComicCharacter> get comicCharacters => _comicEdit.characters;
 
   @override
-  List<Map<String, TextEditingController>> get comicLinks => _comicLinks;
+  List<Map<String, TextEditingController>> get comicLinks => _comicEdit.links;
 
   @override
   TextEditingController get comicCharacterDraftController =>
-      _comicCharacterDraftController;
+      _comicEdit.characterDraftController;
 
   @override
   TextEditingController get comicTitleController => _titleController;
@@ -2757,7 +2674,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _coverDateDayPartController;
 
   @override
-  TextEditingController get comicReleaseDateController => _releaseDateController;
+  TextEditingController get comicReleaseDateController =>
+      _releaseDateController;
 
   @override
   TextEditingController get comicReleaseDateYearPartController =>
@@ -2805,7 +2723,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       _storageDeviceController;
 
   @override
-  TextEditingController get comicStorageSlotController => _storageSlotController;
+  TextEditingController get comicStorageSlotController =>
+      _storageSlotController;
 
   @override
   TextEditingController get comicTrackingNotesController =>
@@ -2865,7 +2784,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   TextEditingController get comicCurrencyController => _currencyController;
 
   @override
-  TextEditingController get comicMarketValueController => _marketValueController;
+  TextEditingController get comicMarketValueController =>
+      _marketValueController;
 
   @override
   TextEditingController get comicPurchaseDateController =>
@@ -2956,7 +2876,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     String title = '',
     String url = '',
   }) =>
-      _createComicLinkControllers(title: title, url: url);
+      _comicEdit.createLinkControllers(title: title, url: url);
 
   @override
   Widget buildComicCrossoverPickField({String label = 'Crossover'}) =>
@@ -3035,5 +2955,4 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     double breakpoint = 880,
   }) =>
       _flexResponsiveFields(children, flexes: flexes, breakpoint: breakpoint);
-
 }

@@ -101,13 +101,15 @@ extension _LibraryEditVocabulary on _LibraryEditRendererState {
         db,
         listName: kAudioTrackPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValues: splitPickListValues(_videoEdit.audioTracksController.text),
+        selectedValues:
+            splitPickListValues(_videoEdit.audioTracksController.text),
       ),
       loadMultiValuePickListOptions(
         db,
         listName: kSubtitlePickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValues: splitPickListValues(_videoEdit.subtitlesController.text),
+        selectedValues:
+            splitPickListValues(_videoEdit.subtitlesController.text),
       ),
       loadSingleValuePickListOptions(
         db,
@@ -125,7 +127,7 @@ extension _LibraryEditVocabulary on _LibraryEditRendererState {
         db,
         listName: kGamePlatformPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValues: splitPickListValues(_gamePlatformsController.text),
+        selectedValues: splitPickListValues(_gameEdit.platformsController.text),
       ),
       loadSingleValuePickListOptions(
         db,
@@ -203,7 +205,8 @@ ORDER BY owner_label COLLATE NOCASE
       _subtitleOptions = List<String>.from(results[14] as List<String>);
       _layersOptions = List<String>.from(results[15] as List<String>);
       _colorOptions = List<String>.from(results[16] as List<String>);
-      _gamePlatformOptions = List<String>.from(results[17] as List<String>);
+      _gameEdit.platformOptions =
+          List<String>.from(results[17] as List<String>);
       _crossoverOptions = List<String>.from(results[18] as List<String>);
       _storyArcOptions = List<String>.from(results[19] as List<String>);
       _pageQualityOptions = List<String>.from(results[20] as List<String>);
