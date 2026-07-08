@@ -56,6 +56,7 @@ abstract final class LibraryPageShellPresenter {
                 children: [
                   state.widget.topBar,
                   state._toolbarController.buildToolbar(
+                    context: context,
                     projection: projection,
                     viewState: viewState,
                     shelfState: shelfState,

@@ -23,11 +23,34 @@ final comicKindModule = LibraryKindModule(
   toolbar: LibraryKindToolbarModule(
     actions: [
       LibraryToolbarActionDescriptor(
+        id: 'comic.jump_to_issue',
+        label: 'Jump to issue...',
+        icon: Icons.tag_outlined,
+        section: 'Collection',
+        buildAction: (buildContext, context) {
+          return LibraryUtilityMenuAction(
+            icon: Icons.tag_outlined,
+            label: 'Jump to issue...',
+            section: 'Collection',
+            enabled:
+                context.projection != null &&
+                context.onJumpToNumberSubmitted != null,
+            onSelected: context.projection == null ||
+                    context.onJumpToNumberSubmitted == null
+                ? null
+                : () => _showJumpToIssueDialog(
+                      buildContext,
+                      onSubmitted: context.onJumpToNumberSubmitted!,
+                    ),
+          );
+        },
+      ),
+      LibraryToolbarActionDescriptor(
         id: 'comic.missing_issues',
         label: 'Missing issues report...',
         icon: Icons.find_in_page_outlined,
         section: 'Collection',
-        buildAction: (context) {
+        buildAction: (buildContext, context) {
           final projection = context.projection;
           return LibraryUtilityMenuAction(
             icon: Icons.find_in_page_outlined,
@@ -52,4 +75,51 @@ Future<List<Map<String, dynamic>>> _loadComicFacetRows(
   return request.groupMode == LibraryGroupMode.storyArc
       ? request.api.storyArcFacets(request.itemIds)
       : request.api.characterFacets(request.itemIds);
+}
+
+Future<void> _showJumpToIssueDialog(
+  BuildContext context, {
+  required void Function(String value) onSubmitted,
+}) async {
+  final controller = TextEditingController();
+  try {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        void submit() {
+          final value = controller.text.trim();
+          if (value.isEmpty) {
+            return;
+          }
+          Navigator.of(dialogContext).pop();
+          onSubmitted(value);
+        }
+
+        return AlertDialog(
+          title: const Text('Jump to issue'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              hintText: 'Issue #',
+            ),
+            onSubmitted: (_) => submit(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: submit,
+              child: const Text('Jump'),
+            ),
+          ],
+        );
+      },
+    );
+  } finally {
+    controller.dispose();
+  }
 }

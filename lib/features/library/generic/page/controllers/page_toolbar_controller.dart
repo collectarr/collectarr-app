@@ -66,6 +66,7 @@ class LibraryPageToolbarController {
   }
 
   Widget buildToolbar({
+    required BuildContext context,
     required LibraryProjection? projection,
     required LibraryWorkspaceViewState viewState,
     required ShelfState? shelfState,
@@ -152,7 +153,8 @@ class LibraryPageToolbarController {
         ),
       ),
       actions: const LibraryToolbarActionRegistry().build(
-        context: LibraryPageToolbarActionContext(
+        buildContext: context,
+        actionContext: LibraryPageToolbarActionContext(
           search: LibraryToolbarSearchContext(
             supportsTrackSearch: _s._supportsTrackSearch,
             onSearchChanged: _s._onSearchChanged,

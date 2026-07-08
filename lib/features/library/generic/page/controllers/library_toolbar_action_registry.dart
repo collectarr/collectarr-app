@@ -185,25 +185,34 @@ class LibraryToolbarActionRegistry {
   const LibraryToolbarActionRegistry();
 
   LibraryToolbarActions build({
-    required LibraryPageToolbarActionContext context,
+    required BuildContext buildContext,
+    required LibraryPageToolbarActionContext actionContext,
     required LibraryProjection? projection,
     required LibraryWorkspaceViewState viewState,
     required ShelfState? shelfState,
   }) {
-    final availability = context.view.type.toolbarActionAvailability;
+    final availability = actionContext.view.type.toolbarActionAvailability;
     final kindCapabilities = availability.capabilities;
-    final kindToolbarActions = libraryKindModuleForType(context.view.type)
+    final kindToolbarActions = libraryKindModuleForType(actionContext.view.type)
         .toolbar
         .actions;
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
     final extraUtilityActions = kindToolbarActions
         .map(
           (descriptor) => descriptor.buildAction(
+            buildContext,
             LibraryToolbarActionContext(
-              type: context.view.type,
+              type: actionContext.view.type,
               projection: projection,
+              onJumpToNumberSubmitted: projection == null
+                  ? null
+                  : (value) =>
+                      actionContext.metadata.onJumpToNumberSubmitted(
+                        projection,
+                        value,
+                      ),
               onMissingSequenceReport:
-                  context.collectionActions.onMissingSequenceReport,
+                  actionContext.collectionActions.onMissingSequenceReport,
             ),
           ),
         )
@@ -211,119 +220,122 @@ class LibraryToolbarActionRegistry {
 
     return LibraryToolbarActions(
       onAdd: enabled(LibraryToolbarActionId.add)
-          ? context.view.onShowAddDialogFlow
+          ? actionContext.view.onShowAddDialogFlow
           : () {},
       onScan: enabled(LibraryToolbarActionId.scan)
-          ? context.adminActions.onScanCover
+          ? actionContext.adminActions.onScanCover
           : () {},
-      onSearchChanged: context.search.onSearchChanged,
-      onSearchInputChanged: context.search.onSearchInputChanged,
-      onSearchTargetChanged: context.search.supportsTrackSearch
-          ? context.search.onSearchTargetChanged
+      onSearchChanged: actionContext.search.onSearchChanged,
+      onSearchInputChanged: actionContext.search.onSearchInputChanged,
+      onSearchTargetChanged: actionContext.search.supportsTrackSearch
+          ? actionContext.search.onSearchTargetChanged
           : null,
-      onClearSearch: context.search.onClearSearch,
-      onSearchSuggestionSelected: context.search.onSearchSuggestionSelected,
+      onClearSearch: actionContext.search.onClearSearch,
+      onSearchSuggestionSelected: actionContext.search.onSearchSuggestionSelected,
       onEditColumns: enabled(LibraryToolbarActionId.editColumns)
-          ? context.view.onShowColumnChooserFlow
+          ? actionContext.view.onShowColumnChooserFlow
           : () {},
       onSortChanged: (LibrarySortColumn column) =>
-          context.view.onUpdateViewState(
+          actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) =>
-            next.withSortColumn(column, context.view.adapter.viewProfile),
+            next.withSortColumn(column, actionContext.view.adapter.viewProfile),
       ),
-      onEditSort: context.view.onShowSortDialogFlow,
-      onSidebarVisibilityChanged: context.view.onSetGroupingPanelVisibility,
+      onEditSort: actionContext.view.onShowSortDialogFlow,
+      onSidebarVisibilityChanged: actionContext.view.onSetGroupingPanelVisibility,
       onViewModeChanged: (LibraryViewMode mode) =>
-          context.view.onUpdateViewState(
+          actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.copyWith(viewMode: mode),
       ),
-      onBrowserModeChanged: context.view.onSetBrowserMode,
-      onReleaseFolderBack: context.view.showReleaseFolderBack
-          ? context.view.onCloseReleaseFolder
+      onBrowserModeChanged: actionContext.view.onSetBrowserMode,
+      onReleaseFolderBack: actionContext.view.showReleaseFolderBack
+          ? actionContext.view.onCloseReleaseFolder
           : null,
       onDetailsLayoutChanged: (LibraryDetailsLayout layout) =>
-          context.view.onUpdateViewState(
+          actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) =>
             next.copyWith(detailsLayout: layout),
       ),
       onDensityPresetChanged: (LibraryWorkspaceDensityPreset densityPreset) =>
-          context.view.onUpdateViewState(
+          actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) =>
             next.copyWith(densityPreset: densityPreset),
       ),
-      onCoverSizeChanged: (double size) => context.view.onUpdateViewState(
+      onCoverSizeChanged: (double size) => actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.copyWith(coverSize: size),
       ),
-      onClearBucket: context.view.onClearToolbarSearchChip,
-      onRefreshMetadata: () => context.metadata.onRefreshMetadata(projection),
+      onClearBucket: actionContext.view.onClearToolbarSearchChip,
+      onRefreshMetadata: () =>
+          actionContext.metadata.onRefreshMetadata(projection),
       onCollectionStatusScopeChanged:
-          context.metadata.onSetCollectionStatusScope,
-      onQuickViewSelected: context.view.onQuickViewSelected,
-      onLetterSelected: context.view.onSetSelectedLetter,
-      onViewPresetSelected: context.view.onApplyViewPreset,
-      onTogglePinnedViewPreset: context.view.onTogglePinnedViewPreset,
-      onSortFavoriteSelected: context.view.onApplySortFavorite,
-      onTogglePinnedSortFavorite: context.view.onTogglePinnedSortFavorite,
-      onManageSortFavorites: context.view.onShowSortFavoritesManagerFlow,
-      onColumnFavoriteSelected: context.view.onApplyColumnFavorite,
-      onTogglePinnedColumnFavorite: context.view.onTogglePinnedColumnFavorite,
+          actionContext.metadata.onSetCollectionStatusScope,
+      onQuickViewSelected: actionContext.view.onQuickViewSelected,
+      onLetterSelected: actionContext.view.onSetSelectedLetter,
+      onViewPresetSelected: actionContext.view.onApplyViewPreset,
+      onTogglePinnedViewPreset: actionContext.view.onTogglePinnedViewPreset,
+      onSortFavoriteSelected: actionContext.view.onApplySortFavorite,
+      onTogglePinnedSortFavorite: actionContext.view.onTogglePinnedSortFavorite,
+      onManageSortFavorites: actionContext.view.onShowSortFavoritesManagerFlow,
+      onColumnFavoriteSelected: actionContext.view.onApplyColumnFavorite,
+      onTogglePinnedColumnFavorite:
+          actionContext.view.onTogglePinnedColumnFavorite,
       onJumpToNumberSubmitted: projection == null
           ? null
           : (String value) =>
-              context.metadata.onJumpToNumberSubmitted(projection, value),
-      onClearFilters: context.grouping.onClearFilters,
+              actionContext.metadata.onJumpToNumberSubmitted(projection, value),
+      onClearFilters: actionContext.grouping.onClearFilters,
       onEditFilters: projection == null
           ? null
-          : () => context.grouping.onEditFilters(projection),
+          : () => actionContext.grouping.onEditFilters(projection),
       onRandomPick: projection == null
           ? null
-          : () => context.grouping.onRandomPick(projection),
+          : () => actionContext.grouping.onRandomPick(projection),
       onScanCover: kindCapabilities.canScanCover
-          ? context.adminActions.onScanCover
+          ? actionContext.adminActions.onScanCover
           : null,
       onDownloadAllCovers:
           kindCapabilities.canDownloadAllCovers && shelfState != null
-              ? () => context.adminActions.onDownloadAllCovers(shelfState)
+              ? () => actionContext.adminActions.onDownloadAllCovers(shelfState)
               : null,
       onSmartLists: shelfState == null
           ? null
-          : () => context.grouping.onSmartLists(shelfState),
-      onFolders: context.grouping.onShowUserFoldersFlow,
+          : () => actionContext.grouping.onSmartLists(shelfState),
+      onFolders: actionContext.grouping.onShowUserFoldersFlow,
       onReadingQueue: kindCapabilities.canReadingQueue
-          ? context.grouping.onShowReadingQueueFlow
+          ? actionContext.grouping.onShowReadingQueueFlow
           : null,
       onEditConditionPickList:
-          context.adminActions.onShowConditionPickListEditorFlow,
-      onEditGradePickList: context.adminActions.onShowGradePickListEditorFlow,
-      onEditTagPickList: context.adminActions.onShowTagPickListEditorFlow,
+          actionContext.adminActions.onShowConditionPickListEditorFlow,
+      onEditGradePickList: actionContext.adminActions.onShowGradePickListEditorFlow,
+      onEditTagPickList: actionContext.adminActions.onShowTagPickListEditorFlow,
       onTransferFieldData: projection == null
           ? null
-          : () => context.collectionActions.onTransferFieldData(projection),
+          : () => actionContext.collectionActions.onTransferFieldData(projection),
       onReassignIndex: projection == null || !kindCapabilities.canReassignIndex
           ? null
-          : () => context.collectionActions.onReassignIndex(projection),
+          : () => actionContext.collectionActions.onReassignIndex(projection),
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty
-          ? () => context.collectionActions.onPrintReport(projection)
+          ? () => actionContext.collectionActions.onPrintReport(projection)
           : null,
       onShareCollection:
           projection != null && projection.filteredItems.isNotEmpty
-              ? () => context.collectionActions.onShareCollection(projection)
+              ? () => actionContext.collectionActions.onShareCollection(projection)
               : null,
       onCompareMetadataWithServer: (() {
         if (projection == null ||
             !kindCapabilities.canCompareMetadataWithServer ||
-            !context.view.type.kindUiAdapter.supportsMetadataCompareWithServer(
-              context.view.type,
+            !actionContext.view.type.kindUiAdapter.supportsMetadataCompareWithServer(
+              actionContext.view.type,
             )) {
           return null;
         }
-        final selected = context.metadata.selectedProjectionItemFor(projection);
+        final selected =
+            actionContext.metadata.selectedProjectionItemFor(projection);
         if (selected == null ||
-            !context.metadata.canCompareMetadataWithServerItem(selected)) {
+            !actionContext.metadata.canCompareMetadataWithServerItem(selected)) {
           return null;
         }
         return () async {
-          await context.collectionActions.onCompareMetadataWithServer(
+          await actionContext.collectionActions.onCompareMetadataWithServer(
             projection,
             item: selected,
           );
