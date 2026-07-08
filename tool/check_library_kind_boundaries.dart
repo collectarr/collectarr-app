@@ -14,6 +14,9 @@ final _boundaryRoots = <String>[
   'lib/features/library/edit/',
 ];
 
+const _kindsRoot = 'lib/features/library/kinds/';
+const _registryRoot = 'lib/features/library/kinds/registry/';
+
 void main(List<String> arguments) {
   final repoRoot = Directory.current.path;
   final libRoot = p.join(repoRoot, 'lib');
@@ -24,8 +27,7 @@ void main(List<String> arguments) {
 
   for (final file in files) {
     final relativePath = p.relative(file, from: repoRoot).replaceAll('\\', '/');
-    final isRegistryFile =
-        relativePath.startsWith('lib/features/library/kinds/registry/');
+    final isRegistryFile = relativePath.startsWith(_registryRoot);
     final kindName = _kindNameForPath(relativePath);
 
     final lines = File(file).readAsLinesSync();
@@ -38,8 +40,8 @@ void main(List<String> arguments) {
 
       final directive = match.group(1)!;
       final importPath = match.group(2)!;
-
-      if (!_isKindPackageImport(importPath)) {
+      final importedPath = _resolveImportPath(repoRoot, file, importPath);
+      if (importedPath == null) {
         continue;
       }
 
@@ -47,10 +49,14 @@ void main(List<String> arguments) {
         continue;
       }
 
+      final importedRelativePath =
+          p.relative(importedPath, from: repoRoot).replaceAll('\\', '/');
+      if (!importedRelativePath.startsWith(_kindsRoot)) {
+        continue;
+      }
+
       if (_isBoundaryFile(relativePath)) {
-        violations.add(
-          '$relativePath:${index + 1}: $directive $importPath',
-        );
+        violations.add('$relativePath:${index + 1}: $directive $importPath');
         continue;
       }
 
@@ -58,15 +64,9 @@ void main(List<String> arguments) {
         continue;
       }
 
-      final importedKind = _kindNameFromPackageImport(importPath);
-      if (importedKind == null) {
-        continue;
-      }
-
-      if (importedKind != kindName && importedKind != 'shared') {
-        violations.add(
-          '$relativePath:${index + 1}: $directive $importPath',
-        );
+      final importedKind = _kindNameForPath(importedRelativePath);
+      if (importedKind != null && importedKind != kindName) {
+        violations.add('$relativePath:${index + 1}: $directive $importPath');
       }
     }
   }
@@ -90,10 +90,6 @@ Iterable<String> _dartFilesUnder(Directory root) sync* {
   }
 }
 
-bool _isKindPackageImport(String importPath) {
-  return importPath.startsWith('package:collectarr_app/features/library/kinds/');
-}
-
 bool _isBoundaryFile(String relativePath) {
   return _boundaryRoots.any(relativePath.startsWith);
 }
@@ -111,11 +107,15 @@ String? _kindNameForPath(String relativePath) {
   return kind;
 }
 
-String? _kindNameFromPackageImport(String importPath) {
-  const prefix = 'package:collectarr_app/features/library/kinds/';
-  if (!importPath.startsWith(prefix)) {
+String? _resolveImportPath(String repoRoot, String currentFile, String importPath) {
+  if (importPath.startsWith('package:collectarr_app/')) {
+    return p.join(repoRoot, 'lib', importPath.substring('package:collectarr_app/'.length));
+  }
+  if (importPath.startsWith('package:')) {
     return null;
   }
-  final remainder = importPath.substring(prefix.length);
-  return remainder.split('/').first;
+  if (importPath.startsWith('.')) {
+    return p.normalize(p.join(p.dirname(currentFile), importPath));
+  }
+  return null;
 }

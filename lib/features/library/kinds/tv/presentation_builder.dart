@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/shared/video_library_media_presentation_builder.dart';
 
 const tvMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Series identity',
