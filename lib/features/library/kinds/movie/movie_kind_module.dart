@@ -1,64 +1,13 @@
-import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart'
     as movie_add;
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/media_adapters.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 final movieKindModule = LibraryKindModule(
   type: moviesLibraryConfig,
   mediaAdapter: collectarrMediaAdapter(moviesLibraryConfig),
   add: LibraryKindAddModule(registerBuilders: movie_add.registerMovieAddBuilders),
-  providerMapper: const _VideoLibraryKindProviderMapper(),
+  providerMapper: const MovieLibraryKindProviderMapper(),
 );
-
-class _VideoLibraryKindProviderMapper extends DefaultLibraryKindProviderMapper {
-  const _VideoLibraryKindProviderMapper();
-
-  @override
-  LibraryMetadataItem metadataItemFromPreview(AdminProviderPreview preview) {
-    return super.metadataItemFromPreview(preview).copyWith(
-          video: preview.video,
-        );
-  }
-
-  @override
-  Map<String, Object?> buildCorrections({
-    required LibraryMetadataItem preview,
-    required LibraryMetadataItem edited,
-  }) {
-    final corrections = super.buildCorrections(
-      preview: preview,
-      edited: edited,
-    );
-    if (edited.video?.runtimeMinutes != preview.video?.runtimeMinutes) {
-      corrections['runtime_minutes'] = edited.video?.runtimeMinutes;
-    }
-    if (edited.video?.color != preview.video?.color) {
-      corrections['color'] = edited.video?.color;
-    }
-    if (edited.video?.nrDiscs != preview.video?.nrDiscs) {
-      corrections['nr_discs'] = edited.video?.nrDiscs;
-    }
-    if (edited.video?.screenRatio != preview.video?.screenRatio) {
-      corrections['screen_ratio'] = edited.video?.screenRatio;
-    }
-    if (edited.video?.audioTracks != preview.video?.audioTracks) {
-      corrections['audio_tracks'] = edited.video?.audioTracks;
-    }
-    if (edited.video?.subtitles != preview.video?.subtitles) {
-      corrections['subtitles'] = edited.video?.subtitles;
-    }
-    if (edited.video?.layers != preview.video?.layers) {
-      corrections['layers'] = edited.video?.layers;
-    }
-    if (edited.video?.ageRating != preview.video?.ageRating) {
-      corrections['age_rating'] = edited.video?.ageRating;
-    }
-    if (edited.video?.audienceRating != preview.video?.audienceRating) {
-      corrections['audience_rating'] = edited.video?.audienceRating;
-    }
-    return corrections;
-  }
-}

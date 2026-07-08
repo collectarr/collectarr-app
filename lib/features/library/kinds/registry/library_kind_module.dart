@@ -67,8 +67,8 @@ abstract class LibraryKindProviderMapper {
   });
 }
 
-class DefaultLibraryKindProviderMapper extends LibraryKindProviderMapper {
-  const DefaultLibraryKindProviderMapper();
+class CommonLibraryKindProviderMapper extends LibraryKindProviderMapper {
+  const CommonLibraryKindProviderMapper();
 
   @override
   LibraryMetadataItem metadataItemFromPreview(AdminProviderPreview preview) {
@@ -214,7 +214,7 @@ class DefaultLibraryKindProviderMapper extends LibraryKindProviderMapper {
   }
 }
 
-class NoopLibraryKindProviderMapper extends DefaultLibraryKindProviderMapper {
+class NoopLibraryKindProviderMapper extends CommonLibraryKindProviderMapper {
   const NoopLibraryKindProviderMapper();
 }
 
