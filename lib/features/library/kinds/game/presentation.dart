@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_item_types.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -6,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/game/presentation_builder.
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_column_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -591,6 +593,10 @@ final gamesLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: gamesLibraryBucketLabelBuilder,
   previewLabels: gamesPreviewLabels,
   statsLabels: gamesStatsLabels,
+  columnRegistry: libraryColumnRegistryFromFieldDefinitions(
+    CatalogMediaKind.game,
+    gamesLibraryFieldDefinitions,
+  ),
   fieldDefinitions: gamesLibraryFieldDefinitions,
   sortColumnDefinitions: gamesLibrarySortColumnDefinitions,
   groupModeDefinitions: gamesLibraryGroupModeDefinitions,

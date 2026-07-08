@@ -1,9 +1,12 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/shared/movie/presentation.dart'
     as movie_presentation;
 import 'package:collectarr_app/features/library/kinds/anime/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/shared/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_column_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -35,6 +38,9 @@ const animeStatsLabels = LibraryMediaStatsLabels(
   topSeries: 'Top Series',
   topPublisher: 'Top Studios',
 );
+
+final animeLibraryFieldDefinitions =
+    libraryWorkspaceFieldDefinitionsForKind('anime');
 
 const animeLibraryGroupModes = [
   LibraryGroupMode.series,
@@ -143,6 +149,11 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.tv_outlined,
+  columnRegistry: libraryColumnRegistryFromFieldDefinitions(
+    CatalogMediaKind.anime,
+    animeLibraryFieldDefinitions,
+  ),
+  fieldDefinitions: animeLibraryFieldDefinitions,
   sortColumnDefinitions: movie_presentation.moviesLibrarySortColumnDefinitions,
   groupModeDefinitions: movie_presentation.moviesLibraryGroupModeDefinitions,
   groupModes: movie_presentation.moviesLibraryGroupModes,

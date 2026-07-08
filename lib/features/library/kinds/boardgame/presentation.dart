@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_item_types.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -9,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace_entry_
         buildBoardGameEditionWorkspaceEntry,
         buildBoardGameWorkspaceEntry;
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_field_column_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_field_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -288,6 +290,10 @@ final boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: boardGamesLibraryBucketLabelBuilder,
   previewLabels: boardGamesPreviewLabels,
   statsLabels: boardGamesStatsLabels,
+  columnRegistry: libraryColumnRegistryFromFieldDefinitions(
+    CatalogMediaKind.boardgame,
+    boardGamesLibraryFieldDefinitions,
+  ),
   fieldDefinitions: boardGamesLibraryFieldDefinitions,
   sortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
   groupModeDefinitions: boardGamesLibraryGroupModeDefinitions,
