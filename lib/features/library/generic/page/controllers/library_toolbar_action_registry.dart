@@ -130,7 +130,7 @@ class LibraryToolbarCollectionActionsContext {
     required this.onTransferFieldData,
     required this.onReassignIndex,
     required this.onPrintReport,
-    required this.onMissingComics,
+    required this.onMissingSequenceReport,
     required this.onShareCollection,
     required this.onCompareMetadataWithServer,
   });
@@ -138,7 +138,7 @@ class LibraryToolbarCollectionActionsContext {
   final ValueChanged<LibraryProjection?> onTransferFieldData;
   final ValueChanged<LibraryProjection?> onReassignIndex;
   final ValueChanged<LibraryProjection?> onPrintReport;
-  final ValueChanged<LibraryProjection?> onMissingComics;
+  final ValueChanged<LibraryProjection?> onMissingSequenceReport;
   final ValueChanged<LibraryProjection?> onShareCollection;
   final Future<void> Function(
     LibraryProjection projection, {
@@ -289,10 +289,10 @@ class LibraryToolbarActionRegistry {
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty
           ? () => context.collectionActions.onPrintReport(projection)
           : null,
-      onMissingComics: projection != null &&
-              kindCapabilities.canMissingComicsReport &&
-              context.view.type.capabilities.supportsMissingComicsReport
-          ? () => context.collectionActions.onMissingComics(projection)
+      onMissingSequenceReport: projection != null &&
+              kindCapabilities.canMissingSequenceReport &&
+              context.view.type.capabilities.supportsMissingSequenceReport
+          ? () => context.collectionActions.onMissingSequenceReport(projection)
           : null,
       onShareCollection:
           projection != null && projection.filteredItems.isNotEmpty

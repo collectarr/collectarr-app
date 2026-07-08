@@ -103,6 +103,7 @@ abstract final class _LibraryFacetControllerOps {
     };
     try {
       final buckets = await state.fetchFacetBuckets(
+        type: state.widget.type,
         itemIds: shelfItemIds,
         signature: signature,
         isStoryArc: mode == LibraryGroupMode.storyArc,

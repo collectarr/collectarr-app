@@ -38,7 +38,7 @@ enum LibraryToolbarActionId {
   transferFieldData,
   reassignIndex,
   printReport,
-  missingComics,
+  missingSequenceReport,
   shareCollection,
   compareMetadataWithServer,
   pinnedFolderPresets,
@@ -84,7 +84,7 @@ const kDefaultLibraryToolbarActions = <LibraryToolbarActionId>[
   LibraryToolbarActionId.transferFieldData,
   LibraryToolbarActionId.reassignIndex,
   LibraryToolbarActionId.printReport,
-  LibraryToolbarActionId.missingComics,
+  LibraryToolbarActionId.missingSequenceReport,
   LibraryToolbarActionId.shareCollection,
   LibraryToolbarActionId.compareMetadataWithServer,
   LibraryToolbarActionId.pinnedFolderPresets,
@@ -99,7 +99,7 @@ class KindToolbarCapabilities {
     this.canReadingQueue = false,
     this.canReassignIndex = false,
     this.canCompareMetadataWithServer = false,
-    this.canMissingComicsReport = false,
+    this.canMissingSequenceReport = false,
   });
 
   final bool canScanCover;
@@ -107,7 +107,7 @@ class KindToolbarCapabilities {
   final bool canReadingQueue;
   final bool canReassignIndex;
   final bool canCompareMetadataWithServer;
-  final bool canMissingComicsReport;
+  final bool canMissingSequenceReport;
 }
 
 class LibraryToolbarActionAvailability {
@@ -131,7 +131,7 @@ extension LibraryTypeCapabilitiesToolbar on LibraryTypeCapabilities {
       canReadingQueue: supportsReadingQueue,
       canReassignIndex: supportsIndexReassignment,
       canCompareMetadataWithServer: supportsMetadataCompare,
-      canMissingComicsReport: usesComicCollectorFields,
+      canMissingSequenceReport: usesComicCollectorFields,
     );
   }
 }

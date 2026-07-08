@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class LibraryKindModule {
@@ -14,7 +16,7 @@ class LibraryKindModule {
     this.detail = const LibraryKindDetailModule(),
     this.toolbar = const LibraryKindToolbarModule(),
     this.providerMapper = const NoopLibraryKindProviderMapper(),
-    this.facets = const LibraryFacetModule(),
+    this.facets = const LibraryFacetModule(provider: DefaultLibraryFacetProvider()),
   });
 
   final LibraryTypeConfig type;
@@ -253,5 +255,52 @@ class NoopLibraryKindProviderMapper extends DefaultLibraryKindProviderMapper {
 }
 
 class LibraryFacetModule {
-  const LibraryFacetModule();
+  const LibraryFacetModule({
+    required this.provider,
+  });
+
+  final LibraryFacetProvider provider;
+}
+
+class LibraryFacetRequest {
+  const LibraryFacetRequest({
+    required this.api,
+    required this.type,
+    required this.itemIds,
+    required this.signature,
+    required this.isStoryArc,
+    this.allBucketLabel,
+  });
+
+  final ApiClient api;
+  final LibraryTypeConfig type;
+  final Set<String> itemIds;
+  final String signature;
+  final bool isStoryArc;
+  final String? allBucketLabel;
+}
+
+abstract class LibraryFacetProvider {
+  const LibraryFacetProvider();
+
+  Future<FacetBuckets> load(LibraryFacetRequest request);
+}
+
+class DefaultLibraryFacetProvider extends LibraryFacetProvider {
+  const DefaultLibraryFacetProvider();
+
+  @override
+  Future<FacetBuckets> load(LibraryFacetRequest request) async {
+    final rows = request.isStoryArc
+        ? await request.api.storyArcFacets(request.itemIds)
+        : await request.api.characterFacets(request.itemIds);
+    final byBucket =
+        LibraryPageUtilities.parseFacetRows(rows, request.itemIds);
+    return LibraryPageUtilities.buildFacetBuckets(
+      signature: request.signature,
+      byBucket: byBucket,
+      allBucketLabel: request.allBucketLabel,
+      totalItemCount: request.itemIds.length,
+    );
+  }
 }

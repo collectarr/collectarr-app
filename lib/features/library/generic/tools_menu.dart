@@ -32,7 +32,7 @@ class LibraryToolsButton extends StatelessWidget {
     this.onReassignIndex,
     this.onTransferFieldData,
     this.onPrintReport,
-    this.onMissingComics,
+    this.onMissingSequenceReport,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
   });
@@ -57,7 +57,7 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onPrintReport;
-  final VoidCallback? onMissingComics;
+  final VoidCallback? onMissingSequenceReport;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
 
@@ -226,12 +226,12 @@ class LibraryToolsButton extends StatelessWidget {
             section: 'Share',
             onSelected: onPrintReport!,
           ),
-        if (onMissingComics != null)
+        if (onMissingSequenceReport != null)
           LibraryUtilityMenuAction(
             icon: Icons.find_in_page_outlined,
-            label: 'Missing comics...',
+            label: 'Missing sequence report...',
             section: 'Collection',
-            onSelected: onMissingComics!,
+            onSelected: onMissingSequenceReport!,
           ),
         if (onShareCollection != null)
           LibraryUtilityMenuAction(

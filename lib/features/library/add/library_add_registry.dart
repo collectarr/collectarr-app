@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
 
 typedef LibraryAddManualKindSpecificFactory = Map<String, dynamic> Function();
 

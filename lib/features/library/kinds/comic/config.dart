@@ -93,7 +93,7 @@ const comicsLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     supportsIndexReassignment: true,
     supportsMetadataCompare: true,
-    supportsMissingComicsReport: true,
+    supportsMissingSequenceReport: true,
     supportsSeriesIssueJump: true,
     usesComicCollectorFields: true,
     issueSortNumber: comicIssueSortNumber,

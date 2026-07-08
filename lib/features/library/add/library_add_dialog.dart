@@ -60,6 +60,7 @@ import 'package:uuid/uuid.dart';
 
 import 'controllers/library_add_comparisons.dart';
 import 'controllers/library_add_controller.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
 import 'controllers/library_add_dialog_requests.dart';
 import 'controllers/library_add_manual_draft.dart';
 import 'controllers/library_add_preview_controller.dart';

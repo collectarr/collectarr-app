@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
@@ -111,21 +113,21 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
 
   /// Fetch facet rows from the API and build [FacetBuckets].
   Future<FacetBuckets> fetchFacetBuckets({
+    required LibraryTypeConfig type,
     required Set<String> itemIds,
     required String signature,
     required bool isStoryArc,
     String? allBucketLabel,
   }) async {
-    final api = ref.read(apiClientProvider);
-    final rows = isStoryArc
-        ? await api.storyArcFacets(itemIds)
-        : await api.characterFacets(itemIds);
-    final byBucket = parseFacetRows(rows, itemIds);
-    return buildFacetBuckets(
-      signature: signature,
-      byBucket: byBucket,
-      allBucketLabel: allBucketLabel,
-      totalItemCount: itemIds.length,
+    return libraryFacetProviderForType(type).load(
+      LibraryFacetRequest(
+        api: ref.read(apiClientProvider),
+        type: type,
+        itemIds: itemIds,
+        signature: signature,
+        isStoryArc: isStoryArc,
+        allBucketLabel: allBucketLabel,
+      ),
     );
   }
 

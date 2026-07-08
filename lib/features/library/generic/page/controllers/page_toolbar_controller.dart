@@ -226,7 +226,7 @@ class LibraryPageToolbarController {
               if (value == null) return;
               _s._reportCoordinator.printReportFlow(value);
             },
-            onMissingComics: (value) {
+            onMissingSequenceReport: (value) {
               if (value == null) return;
               _s._reportCoordinator.showMissingComicsFlow(value);
             },
