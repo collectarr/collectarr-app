@@ -5,18 +5,24 @@
 ## What's Changed
 
 ### ✨ Features
-- Added the collection activity page, folder-tree sidebar, folder shelf entries, loans manager, calendar export, typed custom fields, and kind-aware session history.
-- Expanded typed TV, movie, music, book, boardgame, and comic flows with new inspectors, release/media handling, episode editing, and fractional volume support.
-- Added admin proposal tooling, stats, health checks, barcode lookup, and contract drift gating.
+- Added the collection activity page with filters and a broader timeline for collection-level actions.
+- Added the folder-tree sidebar mode plus folder shelf entry support for folder-style browsing.
+- Added the loans manager tab so lent items can be tracked from the app.
+- Added collection calendar export to `.ics` so key dates can be shared outside the app.
+- Added typed custom fields and kind-aware session history for read, watch, listen, and play flows.
+- Expanded typed TV, movie, music, book, boardgame, and comic flows with dedicated inspectors, release/media handling, episode editing, and fractional volume support.
+- Added admin proposal tools, stats, health checks, barcode lookup, and contract drift gating.
 
 ### 🐛 Fixes
-- Aligned generic library, inspector, and edit-dialog flows with typed metadata and shared field primitives.
-- Stabilized cover loading and cache widths, grouped workspace layout, navigation chrome, and sync connection handling.
-- Fixed TV, video, and comic editor issues, removed legacy item-season lookups, and cleared analyzer leftovers.
+- Stabilized cover loading and cache widths so grid and detail views stay consistent.
+- Stabilized grouped workspace layout, navigation chrome, and sync connection handling.
+- Fixed TV, video, and comic editor regressions, removed legacy item-season lookups, and cleared analyzer leftovers.
 
 ### ♻️ Refactors
+- Aligned generic library, inspector, and edit-dialog flows with typed metadata and shared field primitives.
 - Consolidated shared add-dialog, inspector, and edit-field scaffolding.
 - Reworked library chrome, grouping, and tab routing through the shared shells.
+- Split TV, movie, music, book, boardgame, and comic workspace paths into cleaner kind-specific builders.
 - Continued kind-switch and editor-flow cleanups across the library surfaces.
 
 ### 🧰 CI & Build
