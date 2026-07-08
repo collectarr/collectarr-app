@@ -39,6 +39,7 @@ const boardGamesLibraryGroupModes = [
 const boardGamesLibraryGroupModeDefinitions = [
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.publisher,
+    id: 'publisher',
     label: 'Publisher / Designer',
     sidebarTitle: 'Publishers / Designers',
     icon: Icons.business_outlined,
@@ -46,30 +47,35 @@ const boardGamesLibraryGroupModeDefinitions = [
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.series,
+    id: 'series',
     label: 'Series',
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.year,
+    id: 'year',
     label: 'Year',
     sidebarTitle: 'Years',
     icon: Icons.calendar_today_outlined,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.location,
+    id: 'location',
     label: 'Location',
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.title,
+    id: 'title',
     label: 'Title',
     sidebarTitle: 'Titles',
     icon: Icons.sort_by_alpha,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.ownership,
+    id: 'ownership',
     label: 'Ownership',
     sidebarTitle: 'Ownership',
     icon: Icons.inventory_2_outlined,

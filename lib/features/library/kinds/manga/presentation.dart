@@ -80,18 +80,21 @@ const mangaLibraryGroupModes = [
 const mangaLibraryGroupModeDefinitions = [
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.series,
+    id: 'series',
     label: 'Series',
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.title,
+    id: 'title',
     label: 'Title',
     sidebarTitle: 'Titles',
     icon: Icons.sort_by_alpha,
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.publisher,
+    id: 'publisher',
     label: 'Publisher',
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
@@ -99,6 +102,7 @@ const mangaLibraryGroupModeDefinitions = [
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.genre,
+    id: 'genre',
     label: 'Genre',
     sidebarTitle: 'Genres',
     icon: Icons.theater_comedy_outlined,
@@ -106,6 +110,7 @@ const mangaLibraryGroupModeDefinitions = [
   ),
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.country,
+    id: 'country',
     label: 'Country',
     sidebarTitle: 'Countries',
     icon: Icons.flag_outlined,
