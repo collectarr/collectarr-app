@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/add/services/library_add_queue_flow.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
+import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_content_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
@@ -151,6 +152,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryAddController _addController;
   late final LibraryAddWorkflowService _workflowService;
   late final LibraryKindProviderMapper _providerMapper;
+  late final LibraryProviderOrchestrationService _providerOrchestrationService;
   final _uuid = const Uuid();
 
   bool _isAdding = false;
@@ -434,6 +436,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     );
     _workflowService = const LibraryAddWorkflowService();
     _providerActionService = const LibraryProviderActionService();
+    _providerOrchestrationService = const LibraryProviderOrchestrationService();
     if (_isMovieDesktopChrome) {
       _resultsPaneWidth = 720;
     }
@@ -2704,26 +2707,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     }
   }
 
-  Future<void> applyIngestCorrections({
-    required String kind,
-    required String itemId,
-    required LibraryMetadataItem preview,
-    required LibraryMetadataItem edited,
-  }) async {
-    final corrections = _providerMapper.buildCorrections(
-      preview: preview,
-      edited: edited,
-    );
-    if (corrections.isEmpty) return;
-    await applyProviderIngestCorrections(
-      api: ref.read(apiClientProvider),
-      kind: kind,
-      itemId: itemId,
-      corrections: corrections,
-      edited: edited,
-    );
-  }
-
   Future<void> _addProviderCandidate(
     ProviderCandidate candidate,
     LibraryAddTarget target,
@@ -2802,7 +2785,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         final edited = result.item;
         final ingested = metadataItemFromIngestResult(ingest.item);
         if (mounted) {
-          await applyIngestCorrections(
+          await _providerOrchestrationService.applyIngestCorrections(
+            api: ref.read(apiClientProvider),
+            providerMapper: _providerMapper,
             kind: ingested.kind,
             itemId: ingest.itemId,
             preview: previewItem,
@@ -2848,7 +2833,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         context: context,
         request: LibraryEditDialogRequest(
           type: widget.type,
-          item: proposalDraftFromCandidate(currentCandidate),
+          item: _providerOrchestrationService.proposalDraftFromCandidate(
+            type: widget.type,
+            candidate: currentCandidate,
+          ),
           ownedItem: null,
           accent: LibraryAccentScope.accentOf(context),
           physicalFormats: _currentPhysicalFormats(),
@@ -2909,7 +2897,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       if (mounted) {
         showAppToast(
           context,
-          _describeMetadataProposalError(error),
+          _providerOrchestrationService.describeMetadataProposalError(error),
           tone: AppToastTone.error,
         );
       }
@@ -2940,44 +2928,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       },
       setError: (message) => _error = message,
     );
-  }
-
-  LibraryMetadataItem proposalDraftFromCandidate(ProviderCandidate candidate) {
-    return LibraryMetadataItem(
-      id: buildPreviewCatalogItemId(
-        kind: widget.type.workspace.kind.apiValue,
-        provider: candidate.provider,
-        providerItemId: candidate.providerItemId,
-      ),
-      kind: widget.type.workspace.kind.apiValue,
-      title: candidate.title,
-      synopsis: candidate.summary,
-      coverImageUrl: candidate.imageUrl,
-      thumbnailImageUrl: candidate.imageUrl,
-    );
-  }
-
-  String _describeMetadataProposalError(Object error) {
-    if (error case DioException dioError) {
-      final statusCode = dioError.response?.statusCode;
-      if (statusCode != null) {
-        return 'Couldn\'t send the metadata proposal. Server responded with $statusCode.';
-      }
-      if (dioError.type == DioExceptionType.connectionTimeout ||
-          dioError.type == DioExceptionType.receiveTimeout ||
-          dioError.type == DioExceptionType.sendTimeout) {
-        return 'Couldn\'t send the metadata proposal. The request timed out.';
-      }
-      return 'Couldn\'t send the metadata proposal right now. Try again.';
-    }
-    final text = error.toString().trim();
-    if (text.startsWith('StateError: ')) {
-      return text.substring('StateError: '.length);
-    }
-    if (text.startsWith('Exception: ')) {
-      return text.substring('Exception: '.length);
-    }
-    return 'Couldn\'t send the metadata proposal. $text';
   }
 
   String get _activeProvider {
