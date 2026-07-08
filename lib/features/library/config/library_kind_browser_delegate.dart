@@ -21,27 +21,33 @@ abstract class LibraryKindBrowserDelegate {
     releaseFolderTitleItemId = null;
   }
 
-  String? get videoShelfDrilldownTitleItemId;
+  LibraryDrilldownState? get itemDrilldownState;
 
-  set videoShelfDrilldownTitleItemId(String? value);
+  set itemDrilldownState(LibraryDrilldownState? value);
 
-  String? get videoShelfDrilldownReleaseId;
+  String? get drilldownRootItemId => itemDrilldownState?.rootItemId;
 
-  set videoShelfDrilldownReleaseId(String? value);
+  String? get drilldownSelectedChildId => itemDrilldownState?.selectedChildId;
 
-  bool get hasVideoShelfDrilldown => videoShelfDrilldownTitleItemId != null;
+  String? get drilldownSelectedReleaseId =>
+      itemDrilldownState?.selectedReleaseId;
 
-  void openVideoShelfDrilldown(
-    String titleItemId, {
-    String? releaseId,
+  bool get hasItemDrilldown => itemDrilldownState != null;
+
+  void openItemDrilldown(
+    String rootItemId, {
+    String? selectedChildId,
+    String? selectedReleaseId,
   }) {
-    videoShelfDrilldownTitleItemId = titleItemId;
-    videoShelfDrilldownReleaseId = releaseId;
+    itemDrilldownState = LibraryDrilldownState(
+      rootItemId: rootItemId,
+      selectedChildId: selectedChildId,
+      selectedReleaseId: selectedReleaseId,
+    );
   }
 
-  void closeVideoShelfDrilldown() {
-    videoShelfDrilldownTitleItemId = null;
-    videoShelfDrilldownReleaseId = null;
+  void closeItemDrilldown() {
+    itemDrilldownState = null;
   }
 
   bool canOpenItemDetailDrilldown(
@@ -94,13 +100,25 @@ abstract class LibraryKindBrowserDelegate {
       onOpenTitleDetails: onOpenTitleDetails,
       ownedCopies: ownedCopies,
       wishlistItems: wishlistItems,
-      selectedReleaseId: videoShelfDrilldownReleaseId,
-      onSelectRelease: (releaseId) => openVideoShelfDrilldown(
+      selectedReleaseId: drilldownSelectedReleaseId,
+      onSelectRelease: (releaseId) => openItemDrilldown(
         selectedItem.entry.id,
-        releaseId: releaseId,
+        selectedReleaseId: releaseId,
       ),
     );
   }
+}
+
+class LibraryDrilldownState {
+  const LibraryDrilldownState({
+    required this.rootItemId,
+    this.selectedChildId,
+    this.selectedReleaseId,
+  });
+
+  final String rootItemId;
+  final String? selectedChildId;
+  final String? selectedReleaseId;
 }
 
 class LibraryNoopBrowserDelegate extends LibraryKindBrowserDelegate {
@@ -108,8 +126,7 @@ class LibraryNoopBrowserDelegate extends LibraryKindBrowserDelegate {
       : _releaseFolderTitleItemId = initialReleaseFolderTitleItemId;
 
   String? _releaseFolderTitleItemId;
-  String? _videoShelfDrilldownTitleItemId;
-  String? _videoShelfDrilldownReleaseId;
+  LibraryDrilldownState? _itemDrilldownState;
 
   @override
   String? get releaseFolderTitleItemId => _releaseFolderTitleItemId;
@@ -120,19 +137,11 @@ class LibraryNoopBrowserDelegate extends LibraryKindBrowserDelegate {
   }
 
   @override
-  String? get videoShelfDrilldownTitleItemId => _videoShelfDrilldownTitleItemId;
+  LibraryDrilldownState? get itemDrilldownState => _itemDrilldownState;
 
   @override
-  set videoShelfDrilldownTitleItemId(String? value) {
-    _videoShelfDrilldownTitleItemId = value;
-  }
-
-  @override
-  String? get videoShelfDrilldownReleaseId => _videoShelfDrilldownReleaseId;
-
-  @override
-  set videoShelfDrilldownReleaseId(String? value) {
-    _videoShelfDrilldownReleaseId = value;
+  set itemDrilldownState(LibraryDrilldownState? value) {
+    _itemDrilldownState = value;
   }
 }
 
@@ -142,8 +151,7 @@ class LibraryReleaseFolderBrowserDelegate extends LibraryKindBrowserDelegate {
   }) : _releaseFolderTitleItemId = initialReleaseFolderTitleItemId;
 
   String? _releaseFolderTitleItemId;
-  String? _videoShelfDrilldownTitleItemId;
-  String? _videoShelfDrilldownReleaseId;
+  LibraryDrilldownState? _itemDrilldownState;
 
   @override
   String? get releaseFolderTitleItemId => _releaseFolderTitleItemId;
@@ -154,19 +162,11 @@ class LibraryReleaseFolderBrowserDelegate extends LibraryKindBrowserDelegate {
   }
 
   @override
-  String? get videoShelfDrilldownTitleItemId => _videoShelfDrilldownTitleItemId;
+  LibraryDrilldownState? get itemDrilldownState => _itemDrilldownState;
 
   @override
-  set videoShelfDrilldownTitleItemId(String? value) {
-    _videoShelfDrilldownTitleItemId = value;
-  }
-
-  @override
-  String? get videoShelfDrilldownReleaseId => _videoShelfDrilldownReleaseId;
-
-  @override
-  set videoShelfDrilldownReleaseId(String? value) {
-    _videoShelfDrilldownReleaseId = value;
+  set itemDrilldownState(LibraryDrilldownState? value) {
+    _itemDrilldownState = value;
   }
 }
 

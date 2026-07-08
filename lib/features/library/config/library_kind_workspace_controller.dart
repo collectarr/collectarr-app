@@ -13,7 +13,7 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
 
   void closeAllKindDrilldowns() {
     closeReleaseFolder();
-    closeVideoShelfDrilldown();
+    closeItemDrilldown();
   }
 
   @override
@@ -32,7 +32,7 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
     if (!canOpenItemDetailDrilldown(type, item)) {
       return;
     }
-    openVideoShelfDrilldown(item.entry.id);
+    openItemDrilldown(item.entry.id);
   }
 
   @override
@@ -51,8 +51,8 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
     if (!canOpenVideoShelfDrilldown(type, selectedItem.entry)) {
       return null;
     }
-    final titleItemId = videoShelfDrilldownTitleItemId;
-    if (titleItemId == null || titleItemId != selectedItem.entry.id) {
+    final drilldownState = itemDrilldownState;
+    if (drilldownState == null || drilldownState.rootItemId != selectedItem.entry.id) {
       return null;
     }
     if (selectedItem.entry.mediaType == 'tv') {
@@ -60,7 +60,7 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
         titleEntry: selectedItem.entry,
         coverSize: viewState.coverSize,
         accent: accent,
-        onBack: closeVideoShelfDrilldown,
+        onBack: closeItemDrilldown,
         onRefreshFromCore: onRefreshFromCore,
         onOpenTitleDetails: onOpenTitleDetails,
       );
@@ -75,14 +75,14 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
     return VideoShelfReleaseDrilldown(
       titleItem: selectedItem,
       items: drilldownItems,
-      selectedReleaseId: videoShelfDrilldownReleaseId,
+      selectedReleaseId: drilldownState.selectedReleaseId,
       coverSize: viewState.coverSize,
       accent: accent,
-      onBack: closeVideoShelfDrilldown,
+      onBack: closeItemDrilldown,
       onRefreshFromCore: onRefreshFromCore,
-      onSelectRelease: (releaseId) => openVideoShelfDrilldown(
-        selectedItem.entry.id,
-        releaseId: releaseId,
+      onSelectRelease: (releaseId) => openItemDrilldown(
+        drilldownState.rootItemId,
+        selectedReleaseId: releaseId,
       ),
       onOpenTitleDetails: onOpenTitleDetails,
     );

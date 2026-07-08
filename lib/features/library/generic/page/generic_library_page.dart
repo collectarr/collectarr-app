@@ -1096,8 +1096,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       _closeReleaseFolder();
       return;
     }
-    if (_kindBrowserDelegate.hasVideoShelfDrilldown) {
-      setState(_kindBrowserDelegate.closeVideoShelfDrilldown);
+    if (_kindBrowserDelegate.hasItemDrilldown) {
+      setState(_kindBrowserDelegate.closeItemDrilldown);
       return;
     }
     if (_selection.itemIds.isNotEmpty || _selectedId != null) {

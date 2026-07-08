@@ -4,9 +4,9 @@ abstract final class _LibrarySelectionControllerOps {
   static void selectItem(GenericLibraryPageState state, String id) {
     state._mutateState(() {
       state._selectedId = id;
-      if (state._kindBrowserDelegate.hasVideoShelfDrilldown &&
-          state._kindBrowserDelegate.videoShelfDrilldownTitleItemId != id) {
-        state._kindBrowserDelegate.closeVideoShelfDrilldown();
+      if (state._kindBrowserDelegate.hasItemDrilldown &&
+          state._kindBrowserDelegate.drilldownRootItemId != id) {
+        state._kindBrowserDelegate.closeItemDrilldown();
       }
     });
     state._selectionHydrationDebounce?.cancel();
