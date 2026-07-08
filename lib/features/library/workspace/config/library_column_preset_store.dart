@@ -86,8 +86,8 @@ class LibraryColumnPresetStore {
       label: json['label'] as String? ?? 'Saved preset',
       columns: {
         for (final value in (json['columns'] as List<dynamic>? ?? []))
-          if (_columnByName(value.toString()) != null)
-            _columnByName(value.toString())!,
+          if (_columnById(value.toString()) != null)
+            _columnById(value.toString())!,
         if (config.supportsTableColumn(LibraryTableColumn.title))
           LibraryTableColumn.title,
       },
@@ -105,16 +105,17 @@ class LibraryColumnPresetStore {
     };
   }
 
-  LibraryTableColumn? _columnByName(String name) {
-    return config.tableColumnFromFieldId(name) ??
-        (() {
-          for (final column in config.availableTableColumns) {
-            if (column.name == name) {
-              return column;
-            }
-          }
-          return null;
-        })();
+  LibraryTableColumn? _columnById(String id) {
+    return config.tableColumnFromFieldId(id) ?? _columnByLegacyName(id);
+  }
+
+  LibraryTableColumn? _columnByLegacyName(String name) {
+    for (final column in config.availableTableColumns) {
+      if (column.name == name) {
+        return column;
+      }
+    }
+    return null;
   }
 
   String _slug(String value) {
