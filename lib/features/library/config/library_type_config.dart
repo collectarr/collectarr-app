@@ -782,11 +782,19 @@ class LibraryTypeConfig {
 
   List<LibraryGroupMode> get availableGroupModes => presentation.groupModes;
 
+  LibrarySortColumn get defaultSortColumn => workspace.defaultSortColumn;
+
+  Set<LibraryTableColumn> get defaultVisibleColumns =>
+      workspace.defaultVisibleColumns;
+
   List<LibrarySortColumnDefinition> get availableSortColumnDefinitions =>
       workspace.availableSortColumnDefinitions;
 
   List<LibrarySortColumn> get availableSortColumns =>
       workspace.availableSortColumns;
+
+  List<LibraryTableColumn> get availableTableColumns =>
+      workspace.availableTableColumns;
 
   LibrarySortColumnDefinition sortColumnDefinitionFor(
     LibrarySortColumn column,
@@ -885,9 +893,6 @@ class LibraryTypeConfig {
         browserMode == LibraryWorkspaceBrowserMode.releases &&
         releaseFolderTitleItemId != null;
   }
-
-  List<LibraryTableColumn> get availableTableColumns =>
-      workspace.availableTableColumns;
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
     if (workspace.kind == CatalogMediaKind.unknown) {

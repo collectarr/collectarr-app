@@ -28,7 +28,7 @@ LibraryMediaAdapter plannedMediaAdapter(
     viewProfile: viewProfile,
     orderedTableColumns: (columns) => orderedLibraryTableColumns(
       columns: columns,
-      defaultColumns: type.workspace.defaultVisibleColumns,
+      defaultColumns: type.defaultVisibleColumns,
     ),
     tableWidthForColumns: (columns, customWidths) =>
         plannedMediaTableWidthForColumns(

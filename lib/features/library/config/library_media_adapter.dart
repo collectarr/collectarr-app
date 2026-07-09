@@ -119,7 +119,7 @@ class LibraryMediaAdapter {
   final LibraryWorkspaceCardBuilder? workspaceCardBuilder;
 
   Set<LibraryTableColumn> defaultTableColumns() {
-    return Set.of(type.workspace.defaultVisibleColumns);
+    return Set.of(type.defaultVisibleColumns);
   }
 
   Widget buildTableCell(LibraryWorkspaceEntry entry, LibraryTableColumn column) {

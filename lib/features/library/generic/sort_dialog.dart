@@ -508,7 +508,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   LibrarySortRule _defaultRule() {
-    final column = widget.type.workspace.defaultSortColumn;
+    final column = widget.type.defaultSortColumn;
     return LibrarySortRule(
       column: column,
       ascending: _defaultAscending(column),
