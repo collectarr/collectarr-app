@@ -11,54 +11,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
-const musicLibrarySortColumns = [
-  LibrarySortColumn.series,
-  LibrarySortColumn.publisher,
-  LibrarySortColumn.status,
-  LibrarySortColumn.title,
-  LibrarySortColumn.issue,
-  LibrarySortColumn.storyArc,
-  LibrarySortColumn.variant,
-  LibrarySortColumn.format,
-  LibrarySortColumn.releaseDate,
-  LibrarySortColumn.barcode,
-  LibrarySortColumn.grade,
-  LibrarySortColumn.condition,
-  LibrarySortColumn.price,
-  LibrarySortColumn.location,
-  LibrarySortColumn.collectionStatus,
-  LibrarySortColumn.wishlist,
-  LibrarySortColumn.added,
-  LibrarySortColumn.updated,
-  LibrarySortColumn.country,
-  LibrarySortColumn.language,
-  LibrarySortColumn.pageCount,
-  LibrarySortColumn.ageRating,
-  LibrarySortColumn.imprint,
-];
-
-const musicLibraryTableColumns = [
-  LibraryTableColumn.status,
-  LibraryTableColumn.cover,
-  LibraryTableColumn.artist,
-  LibraryTableColumn.album,
-  LibraryTableColumn.title,
-  LibraryTableColumn.label,
-  LibraryTableColumn.catalogNumber,
-  LibraryTableColumn.format,
-  LibraryTableColumn.discCount,
-  LibraryTableColumn.trackCount,
-  LibraryTableColumn.length,
-  LibraryTableColumn.vinylColor,
-  LibraryTableColumn.rpm,
-  LibraryTableColumn.releaseDate,
-  LibraryTableColumn.barcode,
-  LibraryTableColumn.condition,
-  LibraryTableColumn.location,
-  LibraryTableColumn.wishlist,
-  LibraryTableColumn.updated,
-];
-
 const musicWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.music,
   title: 'Music',
@@ -69,27 +21,7 @@ const musicWorkspaceConfig = LibraryWorkspaceConfig(
   availableSortColumns: musicLibrarySortColumns,
   availableSortColumnDefinitions: musicLibrarySortColumnDefinitions,
   availableTableColumns: musicLibraryTableColumns,
-  defaultVisibleColumns: {
-    LibraryTableColumn.status,
-    LibraryTableColumn.cover,
-    LibraryTableColumn.artist,
-    LibraryTableColumn.album,
-    LibraryTableColumn.title,
-    LibraryTableColumn.label,
-    LibraryTableColumn.catalogNumber,
-    LibraryTableColumn.format,
-    LibraryTableColumn.discCount,
-    LibraryTableColumn.trackCount,
-    LibraryTableColumn.length,
-    LibraryTableColumn.vinylColor,
-    LibraryTableColumn.rpm,
-    LibraryTableColumn.releaseDate,
-    LibraryTableColumn.barcode,
-    LibraryTableColumn.condition,
-    LibraryTableColumn.location,
-    LibraryTableColumn.wishlist,
-    LibraryTableColumn.updated,
-  },
+  defaultVisibleColumns: musicLibraryDefaultVisibleColumns,
 );
 
 final musicLibraryConfig = LibraryTypeConfig(

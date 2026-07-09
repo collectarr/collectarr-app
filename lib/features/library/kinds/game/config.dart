@@ -12,48 +12,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 
-const gamesLibrarySortColumns = [
-  LibrarySortColumn.series,
-  LibrarySortColumn.publisher,
-  LibrarySortColumn.status,
-  LibrarySortColumn.title,
-  LibrarySortColumn.issue,
-  LibrarySortColumn.storyArc,
-  LibrarySortColumn.variant,
-  LibrarySortColumn.format,
-  LibrarySortColumn.releaseDate,
-  LibrarySortColumn.barcode,
-  LibrarySortColumn.grade,
-  LibrarySortColumn.condition,
-  LibrarySortColumn.price,
-  LibrarySortColumn.location,
-  LibrarySortColumn.collectionStatus,
-  LibrarySortColumn.wishlist,
-  LibrarySortColumn.added,
-  LibrarySortColumn.updated,
-  LibrarySortColumn.country,
-  LibrarySortColumn.language,
-  LibrarySortColumn.pageCount,
-  LibrarySortColumn.ageRating,
-  LibrarySortColumn.imprint,
-];
-
-const gamesLibraryTableColumns = [
-  LibraryTableColumn.status,
-  LibraryTableColumn.cover,
-  LibraryTableColumn.title,
-  LibraryTableColumn.platform,
-  LibraryTableColumn.developer,
-  LibraryTableColumn.publisher,
-  LibraryTableColumn.releasePlatform,
-  LibraryTableColumn.ageRating,
-  LibraryTableColumn.completion,
-  LibraryTableColumn.condition,
-  LibraryTableColumn.value,
-  LibraryTableColumn.location,
-  LibraryTableColumn.updated,
-];
-
 const gamesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.game,
   title: 'Games',
@@ -64,21 +22,7 @@ const gamesWorkspaceConfig = LibraryWorkspaceConfig(
   availableSortColumns: gamesLibrarySortColumns,
   availableSortColumnDefinitions: gameLibrarySortColumnDefinitions,
   availableTableColumns: gamesLibraryTableColumns,
-  defaultVisibleColumns: {
-    LibraryTableColumn.status,
-    LibraryTableColumn.cover,
-    LibraryTableColumn.title,
-    LibraryTableColumn.platform,
-    LibraryTableColumn.developer,
-    LibraryTableColumn.publisher,
-    LibraryTableColumn.releasePlatform,
-    LibraryTableColumn.ageRating,
-    LibraryTableColumn.completion,
-    LibraryTableColumn.condition,
-    LibraryTableColumn.value,
-    LibraryTableColumn.location,
-    LibraryTableColumn.updated,
-  },
+  defaultVisibleColumns: gamesLibraryDefaultVisibleColumns,
 );
 
 final gamesLibraryConfig = LibraryTypeConfig(

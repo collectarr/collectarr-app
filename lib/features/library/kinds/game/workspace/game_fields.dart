@@ -410,3 +410,42 @@ const gameLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
       column: LibrarySortColumn.imprint, label: 'Imprint'),
 ];
+const gamesLibrarySortColumns = [
+  LibrarySortColumn.series,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.added,
+  LibrarySortColumn.updated,
+];
+
+const gamesLibraryTableColumns = [
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+];
+
+const gamesLibraryDefaultVisibleColumns = {
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+};

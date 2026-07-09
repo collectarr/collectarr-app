@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart'
     as comic_workspace;
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
 final mangaLibraryFieldDefinitions = [
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
@@ -37,3 +38,43 @@ const mangaLibraryGroupModeDefinitions =
 
 const mangaLibrarySortColumnDefinitions =
     comic_workspace.comicLibrarySortColumnDefinitions;
+
+const mangaLibrarySortColumns = [
+  LibrarySortColumn.series,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.added,
+  LibrarySortColumn.updated,
+];
+
+const mangaLibraryTableColumns = [
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+];
+
+const mangaLibraryDefaultVisibleColumns = {
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+};

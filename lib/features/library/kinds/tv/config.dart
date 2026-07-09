@@ -13,36 +13,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:flutter/material.dart';
 import 'edit_presentation_builder.dart';
 
-const tvLibrarySortColumns = [
-  LibrarySortColumn.status,
-  LibrarySortColumn.title,
-  LibrarySortColumn.publisher,
-  LibrarySortColumn.releaseDate,
-  LibrarySortColumn.country,
-  LibrarySortColumn.language,
-  LibrarySortColumn.ageRating,
-  LibrarySortColumn.condition,
-  LibrarySortColumn.price,
-  LibrarySortColumn.location,
-  LibrarySortColumn.collectionStatus,
-  LibrarySortColumn.wishlist,
-  LibrarySortColumn.added,
-  LibrarySortColumn.updated,
-];
-
-const tvLibraryTableColumns = [
-  LibraryTableColumn.status,
-  LibraryTableColumn.cover,
-  LibraryTableColumn.title,
-  LibraryTableColumn.publisher,
-  LibraryTableColumn.releaseDate,
-  LibraryTableColumn.country,
-  LibraryTableColumn.language,
-  LibraryTableColumn.ageRating,
-  LibraryTableColumn.wishlist,
-  LibraryTableColumn.updated,
-];
-
 const tvWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.tv,
   title: 'TV',
@@ -53,18 +23,7 @@ const tvWorkspaceConfig = LibraryWorkspaceConfig(
   availableSortColumns: tvLibrarySortColumns,
   availableSortColumnDefinitions: tvLibrarySortColumnDefinitions,
   availableTableColumns: tvLibraryTableColumns,
-  defaultVisibleColumns: {
-    LibraryTableColumn.status,
-    LibraryTableColumn.cover,
-    LibraryTableColumn.title,
-    LibraryTableColumn.publisher,
-    LibraryTableColumn.releaseDate,
-    LibraryTableColumn.country,
-    LibraryTableColumn.language,
-    LibraryTableColumn.ageRating,
-    LibraryTableColumn.wishlist,
-    LibraryTableColumn.updated,
-  },
+  defaultVisibleColumns: tvLibraryDefaultVisibleColumns,
 );
 
 final tvLibraryConfig = LibraryTypeConfig(

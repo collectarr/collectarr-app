@@ -13,49 +13,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
-const booksLibrarySortColumns = [
-  LibrarySortColumn.status,
-  LibrarySortColumn.title,
-  LibrarySortColumn.series,
-  LibrarySortColumn.publisher,
-  LibrarySortColumn.issue,
-  LibrarySortColumn.storyArc,
-  LibrarySortColumn.variant,
-  LibrarySortColumn.format,
-  LibrarySortColumn.releaseDate,
-  LibrarySortColumn.barcode,
-  LibrarySortColumn.grade,
-  LibrarySortColumn.condition,
-  LibrarySortColumn.price,
-  LibrarySortColumn.location,
-  LibrarySortColumn.collectionStatus,
-  LibrarySortColumn.wishlist,
-  LibrarySortColumn.added,
-  LibrarySortColumn.updated,
-  LibrarySortColumn.country,
-  LibrarySortColumn.language,
-  LibrarySortColumn.pageCount,
-  LibrarySortColumn.ageRating,
-  LibrarySortColumn.imprint,
-];
-
-const booksLibraryTableColumns = [
-  LibraryTableColumn.status,
-  LibraryTableColumn.cover,
-  LibraryTableColumn.author,
-  LibraryTableColumn.title,
-  LibraryTableColumn.publisher,
-  LibraryTableColumn.releaseDate,
-  LibraryTableColumn.barcode,
-  LibraryTableColumn.readStatus,
-  LibraryTableColumn.rating,
-  LibraryTableColumn.condition,
-  LibraryTableColumn.price,
-  LibraryTableColumn.location,
-  LibraryTableColumn.wishlist,
-  LibraryTableColumn.updated,
-];
-
 const booksWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.book,
   title: 'Books',
@@ -66,22 +23,7 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   availableSortColumns: booksLibrarySortColumns,
   availableSortColumnDefinitions: bookLibrarySortColumnDefinitions,
   availableTableColumns: booksLibraryTableColumns,
-  defaultVisibleColumns: {
-    LibraryTableColumn.status,
-    LibraryTableColumn.cover,
-    LibraryTableColumn.author,
-    LibraryTableColumn.title,
-    LibraryTableColumn.publisher,
-    LibraryTableColumn.releaseDate,
-    LibraryTableColumn.barcode,
-    LibraryTableColumn.readStatus,
-    LibraryTableColumn.rating,
-    LibraryTableColumn.condition,
-    LibraryTableColumn.price,
-    LibraryTableColumn.location,
-    LibraryTableColumn.wishlist,
-    LibraryTableColumn.updated,
-  },
+  defaultVisibleColumns: booksLibraryDefaultVisibleColumns,
 );
 
 final booksLibraryConfig = LibraryTypeConfig(

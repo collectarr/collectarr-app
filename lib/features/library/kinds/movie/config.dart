@@ -14,45 +14,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 
-const moviesLibrarySortColumns = [
-  LibrarySortColumn.series,
-  LibrarySortColumn.publisher,
-  LibrarySortColumn.status,
-  LibrarySortColumn.title,
-  LibrarySortColumn.issue,
-  LibrarySortColumn.storyArc,
-  LibrarySortColumn.variant,
-  LibrarySortColumn.format,
-  LibrarySortColumn.releaseDate,
-  LibrarySortColumn.barcode,
-  LibrarySortColumn.grade,
-  LibrarySortColumn.condition,
-  LibrarySortColumn.price,
-  LibrarySortColumn.location,
-  LibrarySortColumn.collectionStatus,
-  LibrarySortColumn.wishlist,
-  LibrarySortColumn.added,
-  LibrarySortColumn.updated,
-  LibrarySortColumn.country,
-  LibrarySortColumn.language,
-  LibrarySortColumn.pageCount,
-  LibrarySortColumn.ageRating,
-  LibrarySortColumn.imprint,
-];
-
-const moviesLibraryTableColumns = [
-  LibraryTableColumn.status,
-  LibraryTableColumn.cover,
-  LibraryTableColumn.title,
-  LibraryTableColumn.publisher,
-  LibraryTableColumn.releaseDate,
-  LibraryTableColumn.country,
-  LibraryTableColumn.language,
-  LibraryTableColumn.ageRating,
-  LibraryTableColumn.wishlist,
-  LibraryTableColumn.updated,
-];
-
 const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.movie,
   title: 'Movies',
@@ -63,18 +24,7 @@ const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   availableSortColumns: moviesLibrarySortColumns,
   availableSortColumnDefinitions: movieLibrarySortColumnDefinitions,
   availableTableColumns: moviesLibraryTableColumns,
-  defaultVisibleColumns: {
-    LibraryTableColumn.status,
-    LibraryTableColumn.cover,
-    LibraryTableColumn.title,
-    LibraryTableColumn.publisher,
-    LibraryTableColumn.releaseDate,
-    LibraryTableColumn.country,
-    LibraryTableColumn.language,
-    LibraryTableColumn.ageRating,
-    LibraryTableColumn.wishlist,
-    LibraryTableColumn.updated,
-  },
+  defaultVisibleColumns: moviesLibraryDefaultVisibleColumns,
 );
 
 final moviesLibraryConfig = LibraryTypeConfig(

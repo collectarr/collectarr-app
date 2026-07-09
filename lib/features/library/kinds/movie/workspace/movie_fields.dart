@@ -538,3 +538,42 @@ const movieLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
       column: LibrarySortColumn.imprint, label: 'Imprint'),
 ];
+const moviesLibrarySortColumns = [
+  LibrarySortColumn.series,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.added,
+  LibrarySortColumn.updated,
+];
+
+const moviesLibraryTableColumns = [
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+];
+
+const moviesLibraryDefaultVisibleColumns = {
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+};

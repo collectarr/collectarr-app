@@ -10,36 +10,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 
-const animeLibrarySortColumns = [
-  LibrarySortColumn.status,
-  LibrarySortColumn.title,
-  LibrarySortColumn.publisher,
-  LibrarySortColumn.releaseDate,
-  LibrarySortColumn.country,
-  LibrarySortColumn.language,
-  LibrarySortColumn.ageRating,
-  LibrarySortColumn.condition,
-  LibrarySortColumn.price,
-  LibrarySortColumn.location,
-  LibrarySortColumn.collectionStatus,
-  LibrarySortColumn.wishlist,
-  LibrarySortColumn.added,
-  LibrarySortColumn.updated,
-];
-
-const animeLibraryTableColumns = [
-  LibraryTableColumn.status,
-  LibraryTableColumn.cover,
-  LibraryTableColumn.title,
-  LibraryTableColumn.publisher,
-  LibraryTableColumn.releaseDate,
-  LibraryTableColumn.country,
-  LibraryTableColumn.language,
-  LibraryTableColumn.ageRating,
-  LibraryTableColumn.wishlist,
-  LibraryTableColumn.updated,
-];
-
 const animeWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.anime,
   title: 'Anime',
@@ -50,18 +20,7 @@ const animeWorkspaceConfig = LibraryWorkspaceConfig(
   availableSortColumns: animeLibrarySortColumns,
   availableSortColumnDefinitions: animeLibrarySortColumnDefinitions,
   availableTableColumns: animeLibraryTableColumns,
-  defaultVisibleColumns: {
-    LibraryTableColumn.status,
-    LibraryTableColumn.cover,
-    LibraryTableColumn.title,
-    LibraryTableColumn.publisher,
-    LibraryTableColumn.releaseDate,
-    LibraryTableColumn.country,
-    LibraryTableColumn.language,
-    LibraryTableColumn.ageRating,
-    LibraryTableColumn.wishlist,
-    LibraryTableColumn.updated,
-  },
+  defaultVisibleColumns: animeLibraryDefaultVisibleColumns,
 );
 
 final animeLibraryConfig = LibraryTypeConfig(

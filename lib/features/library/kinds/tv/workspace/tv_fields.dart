@@ -287,3 +287,45 @@ const tvLibrarySortColumnDefinitions = [
     defaultAscending: false,
   ),
 ];
+const tvLibrarySortColumns = [
+  LibrarySortColumn.status,
+  LibrarySortColumn.title,
+  LibrarySortColumn.publisher,
+  LibrarySortColumn.releaseDate,
+  LibrarySortColumn.country,
+  LibrarySortColumn.language,
+  LibrarySortColumn.ageRating,
+  LibrarySortColumn.condition,
+  LibrarySortColumn.price,
+  LibrarySortColumn.location,
+  LibrarySortColumn.collectionStatus,
+  LibrarySortColumn.wishlist,
+  LibrarySortColumn.added,
+  LibrarySortColumn.updated,
+];
+
+const tvLibraryTableColumns = [
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+];
+
+const tvLibraryDefaultVisibleColumns = {
+  LibraryTableColumn.status,
+  LibraryTableColumn.cover,
+  LibraryTableColumn.title,
+  LibraryTableColumn.publisher,
+  LibraryTableColumn.releaseDate,
+  LibraryTableColumn.country,
+  LibraryTableColumn.language,
+  LibraryTableColumn.ageRating,
+  LibraryTableColumn.wishlist,
+  LibraryTableColumn.updated,
+};
