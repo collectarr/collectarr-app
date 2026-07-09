@@ -62,7 +62,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   void initState() {
     super.initState();
     _presetNameController = TextEditingController();
-    _presetStore = LibrarySortPresetStore(widget.type.workspace);
+    _presetStore = LibrarySortPresetStore(widget.type);
     _rules = widget.currentRules.isEmpty
         ? [_defaultRule()]
         : List<LibrarySortRule>.from(widget.currentRules);

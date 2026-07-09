@@ -17,15 +17,16 @@ const musicWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.music_note,
   accent: Color(0xFFFDAD49),
   preferencePrefix: 'music',
-  defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: musicLibrarySortColumns,
   availableSortColumnDefinitions: musicLibrarySortColumnDefinitions,
-  availableTableColumns: musicLibraryTableColumns,
-  defaultVisibleColumns: musicLibraryDefaultVisibleColumns,
 );
 
 final musicLibraryConfig = LibraryTypeConfig(
   workspace: musicWorkspaceConfig,
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: musicLibraryDefaultVisibleColumns,
+  availableSortColumns: musicLibrarySortColumns,
+  availableSortColumnDefinitions: musicLibrarySortColumnDefinitions,
+  availableTableColumns: musicLibraryTableColumns,
   singularLabel: 'Music',
   pluralLabel: 'Music',
   defaultMetadataProvider: 'musicbrainz',

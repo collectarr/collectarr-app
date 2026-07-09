@@ -17,15 +17,16 @@ const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.casino_outlined,
   accent: Color(0xFFE0A52B),
   preferencePrefix: 'boardgames',
-  defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: boardGamesLibrarySortColumns,
   availableSortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
-  availableTableColumns: boardGamesLibraryTableColumns,
-  defaultVisibleColumns: boardGamesLibraryDefaultVisibleColumns,
 );
 
 final boardGamesLibraryConfig = LibraryTypeConfig(
   workspace: boardGamesWorkspaceConfig,
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: boardGamesLibraryDefaultVisibleColumns,
+  availableSortColumns: boardGamesLibrarySortColumns,
+  availableSortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
+  availableTableColumns: boardGamesLibraryTableColumns,
   singularLabel: 'Board Game',
   pluralLabel: 'Board Games',
   defaultMetadataProvider: 'bgg',

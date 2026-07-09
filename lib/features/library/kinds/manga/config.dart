@@ -15,15 +15,16 @@ const mangaWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.import_contacts_outlined,
   accent: Color(0xFFFF6F91),
   preferencePrefix: 'manga',
-  defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: mangaLibrarySortColumns,
   availableSortColumnDefinitions: mangaLibrarySortColumnDefinitions,
-  availableTableColumns: mangaLibraryTableColumns,
-  defaultVisibleColumns: mangaLibraryDefaultVisibleColumns,
 );
 
 final mangaLibraryConfig = LibraryTypeConfig(
   workspace: mangaWorkspaceConfig,
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: mangaLibraryDefaultVisibleColumns,
+  availableSortColumns: mangaLibrarySortColumns,
+  availableSortColumnDefinitions: mangaLibrarySortColumnDefinitions,
+  availableTableColumns: mangaLibraryTableColumns,
   singularLabel: 'Manga',
   pluralLabel: 'Manga',
   defaultMetadataProvider: 'hardcover',

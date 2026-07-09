@@ -21,15 +21,16 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.collections_bookmark_outlined,
   accent: Color(0xFF44BFE7),
   preferencePrefix: 'comics',
-  defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: comicsLibrarySortColumns,
   availableSortColumnDefinitions: comicLibrarySortColumnDefinitions,
-  availableTableColumns: comicsLibraryTableColumns,
-  defaultVisibleColumns: comicsLibraryDefaultVisibleColumns,
 );
 
 final comicsLibraryConfig = LibraryTypeConfig(
   workspace: comicsWorkspaceConfig,
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: comicsLibraryDefaultVisibleColumns,
+  availableSortColumns: comicsLibrarySortColumns,
+  availableSortColumnDefinitions: comicLibrarySortColumnDefinitions,
+  availableTableColumns: comicsLibraryTableColumns,
   singularLabel: 'Comic',
   pluralLabel: 'Comics',
   defaultMetadataProvider: 'gcd',

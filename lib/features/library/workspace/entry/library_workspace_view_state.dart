@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 
 class LibraryWorkspaceViewPresetConfig {
   const LibraryWorkspaceViewPresetConfig({
@@ -31,7 +32,7 @@ typedef LibrarySortColumnDirectionResolver = bool Function(
 
 class LibraryWorkspaceViewProfile {
   const LibraryWorkspaceViewProfile({
-    required this.config,
+    required this.type,
     required this.defaultCoverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
@@ -49,7 +50,7 @@ class LibraryWorkspaceViewProfile {
     this.sortAscendingForColumn,
   });
 
-  final LibraryWorkspaceConfig config;
+  final LibraryTypeConfig type;
   final double defaultCoverSize;
   final double minCoverSize;
   final double maxCoverSize;
@@ -70,28 +71,28 @@ class LibraryWorkspaceViewProfile {
     // Use cached snapshot from a previous load/save when available so that the
     // first frame renders with the user's last-known cover size, avoiding a
     // visible pop-in when the async load completes.
-    final cached = LibraryWorkspacePreferences.cachedSnapshot(config);
+    final cached = LibraryWorkspacePreferences.cachedSnapshot(type);
     if (cached != null) {
       return fromPreferences(cached)
-          .withChrome(LibraryWorkspacePreferences.cachedChromeFor(config));
+          .withChrome(LibraryWorkspacePreferences.cachedChromeFor(type));
     }
     final defaults = LibraryWorkspaceViewState(
       browserMode: LibraryWorkspaceBrowserMode.media,
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
-      sortColumn: config.defaultSortColumn,
+      sortColumn: type.defaultSortColumn,
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
-      densityPreset: config.defaultDensityPreset,
-      visibleColumns: Set.of(config.defaultVisibleColumns),
+      densityPreset: type.defaultDensityPreset,
+      visibleColumns: Set.of(type.defaultVisibleColumns),
       columnWidths: const {},
     );
     return defaults
-        .withChrome(LibraryWorkspacePreferences.cachedChromeFor(config));
+        .withChrome(LibraryWorkspacePreferences.cachedChromeFor(type));
   }
 
   LibraryWorkspaceViewState fromPreferences(
@@ -118,9 +119,9 @@ class LibraryWorkspaceViewProfile {
   }
 
   Future<LibraryWorkspaceViewState> load() async {
-    final preferences = await LibraryWorkspacePreferences(config).read(
+    final preferences = await LibraryWorkspacePreferences(type).read(
       defaultCoverSize: defaultCoverSize,
-      defaultDensityPreset: config.defaultDensityPreset,
+      defaultDensityPreset: type.defaultDensityPreset,
       minCoverSize: minCoverSize,
       maxCoverSize: maxCoverSize,
       defaultViewMode: defaultViewMode,
@@ -135,7 +136,7 @@ class LibraryWorkspaceViewProfile {
   }
 
   Future<void> save(LibraryWorkspaceViewState state) async {
-    await LibraryWorkspacePreferences(config).write(
+    await LibraryWorkspacePreferences(type).write(
       state.toPreferenceSnapshot(),
     );
   }

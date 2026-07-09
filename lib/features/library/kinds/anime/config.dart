@@ -16,15 +16,16 @@ const animeWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.movie_filter_outlined,
   accent: Color(0xFFC94DFF),
   preferencePrefix: 'anime',
-  defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: animeLibrarySortColumns,
   availableSortColumnDefinitions: animeLibrarySortColumnDefinitions,
-  availableTableColumns: animeLibraryTableColumns,
-  defaultVisibleColumns: animeLibraryDefaultVisibleColumns,
 );
 
 final animeLibraryConfig = LibraryTypeConfig(
   workspace: animeWorkspaceConfig,
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: animeLibraryDefaultVisibleColumns,
+  availableSortColumns: animeLibrarySortColumns,
+  availableSortColumnDefinitions: animeLibrarySortColumnDefinitions,
+  availableTableColumns: animeLibraryTableColumns,
   singularLabel: 'Anime',
   pluralLabel: 'Anime',
   defaultMetadataProvider: 'anilist',

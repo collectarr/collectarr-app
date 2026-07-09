@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,17 +70,17 @@ class LibraryWorkspacePreferences {
   static final _cachedSnapshots =
       <String, LibraryWorkspacePreferenceSnapshot>{};
 
-  final LibraryWorkspaceConfig config;
+  final LibraryTypeConfig config;
 
   static LibraryWorkspaceChromePreferenceSnapshot? cachedChromeFor(
-    LibraryWorkspaceConfig config,
+    LibraryTypeConfig config,
   ) =>
       _cachedChromeByConfig[config.preferenceKey('')];
 
   /// Returns the last loaded/written snapshot for [config], or `null` if the
   /// preferences have not been loaded yet for this media type.
   static LibraryWorkspacePreferenceSnapshot? cachedSnapshot(
-    LibraryWorkspaceConfig config,
+    LibraryTypeConfig config,
   ) =>
       _cachedSnapshots[config.preferenceKey('')];
 

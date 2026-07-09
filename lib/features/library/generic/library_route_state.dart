@@ -200,7 +200,7 @@ class LibraryRouteState {
     return rules
         .map(
           (rule) =>
-              '${type.workspace.sortColumnFieldId(rule.column)}:${rule.ascending ? 'asc' : 'desc'}',
+              '${type.sortColumnFieldId(rule.column)}:${rule.ascending ? 'asc' : 'desc'}',
         )
         .join(',');
   }

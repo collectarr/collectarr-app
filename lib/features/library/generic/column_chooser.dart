@@ -14,7 +14,7 @@ Future<Set<LibraryTableColumn>?> showGenericLibraryColumnChooser({
   Set<String> pinnedFavoriteKeys = const {},
   ValueChanged<LibraryTableColumnPreset>? onTogglePinnedFavorite,
 }) async {
-  final store = LibraryColumnPresetStore(type.workspace);
+  final store = LibraryColumnPresetStore(type);
   final savedPresets = await store.read();
   if (!context.mounted) {
     return null;

@@ -694,6 +694,11 @@ class LibraryTypeConfig {
     required this.defaultMetadataProvider,
     required this.metadataProviders,
     required this.trackingProfile,
+    required this.defaultSortColumn,
+    required this.defaultVisibleColumns,
+    required this.availableSortColumns,
+    required this.availableSortColumnDefinitions,
+    required this.availableTableColumns,
     this.conditions = kGeneralConditions,
     this.grades = const [],
     this.defaultCondition,
@@ -730,6 +735,11 @@ class LibraryTypeConfig {
   final String defaultMetadataProvider;
   final List<LibraryMetadataProviderOption> metadataProviders;
   final MediaTrackingProfile trackingProfile;
+  final LibrarySortColumn defaultSortColumn;
+  final Set<LibraryTableColumn> defaultVisibleColumns;
+  final List<LibrarySortColumn> availableSortColumns;
+  final List<LibrarySortColumnDefinition> availableSortColumnDefinitions;
+  final List<LibraryTableColumn> availableTableColumns;
   final List<String> conditions;
   final List<String> grades;
   final String? defaultCondition;
@@ -782,25 +792,85 @@ class LibraryTypeConfig {
 
   List<LibraryGroupMode> get availableGroupModes => presentation.groupModes;
 
-  LibrarySortColumn get defaultSortColumn => workspace.defaultSortColumn;
+  LibraryWorkspaceDensityPreset get defaultDensityPreset =>
+      workspace.defaultDensityPreset;
 
-  Set<LibraryTableColumn> get defaultVisibleColumns =>
-      workspace.defaultVisibleColumns;
-
-  List<LibrarySortColumnDefinition> get availableSortColumnDefinitions =>
-      workspace.availableSortColumnDefinitions;
-
-  List<LibrarySortColumn> get availableSortColumns =>
-      workspace.availableSortColumns;
-
-  List<LibraryTableColumn> get availableTableColumns =>
-      workspace.availableTableColumns;
+  List<LibraryWorkspaceDensityPreset> get availableDensityPresets =>
+      workspace.availableDensityPresets;
 
   LibrarySortColumnDefinition sortColumnDefinitionFor(
     LibrarySortColumn column,
   ) {
-    return workspace.sortColumnDefinitionFor(column);
+    for (final definition in availableSortColumnDefinitions) {
+      if (definition.column == column) {
+        return definition;
+      }
+    }
+    return LibrarySortColumnDefinition(
+      column: column,
+      label: librarySortColumnFallbackLabel(column),
+    );
   }
+
+  bool supportsSortColumn(LibrarySortColumn column) {
+    return availableSortColumns.contains(column) ||
+        availableSortColumnDefinitions.any((definition) =>
+            definition.column == column);
+  }
+
+  bool supportsTableColumn(LibraryTableColumn column) {
+    return availableTableColumns.contains(column);
+  }
+
+  String sortColumnFieldId(LibrarySortColumn column) {
+    return sortColumnDefinitionFor(column).id;
+  }
+
+  String tableColumnFieldId(LibraryTableColumn column) {
+    return '${workspace.kind.apiValue}.${_stableToken(column.name)}';
+  }
+
+  LibrarySortColumn? sortColumnFromFieldId(String? fieldId) {
+    if (fieldId == null || fieldId.trim().isEmpty) {
+      return null;
+    }
+    final normalized = fieldId.trim();
+    final normalizedToken = _stableToken(normalized.split('.').last);
+    for (final definition in availableSortColumnDefinitions) {
+      final definitionToken = _stableToken(definition.id.split('.').last);
+      if (definition.id == normalized ||
+          definitionToken == normalizedToken ||
+          _stableToken(definition.column.name) == normalizedToken) {
+        return definition.column;
+      }
+    }
+    for (final column in availableSortColumns) {
+      if (_stableToken(column.name) == normalizedToken) {
+        return column;
+      }
+    }
+    return null;
+  }
+
+  LibraryTableColumn? tableColumnFromFieldId(String? fieldId) {
+    if (fieldId == null || fieldId.trim().isEmpty) {
+      return null;
+    }
+    final normalized = fieldId.trim();
+    for (final column in availableTableColumns) {
+      if (tableColumnFieldId(column) == normalized ||
+          _stableToken(column.name) == normalized.split('.').last) {
+        return column;
+      }
+    }
+    return null;
+  }
+
+  bool supportsDensityPreset(LibraryWorkspaceDensityPreset preset) {
+    return workspace.availableDensityPresets.contains(preset);
+  }
+
+  String preferenceKey(String suffix) => workspace.preferenceKey(suffix);
 
   bool get supportsMediaReleaseSplit => capabilities.supportsMediaReleaseSplit;
 
@@ -943,5 +1013,14 @@ class LibraryTypeConfig {
       }
     }
     return providerId;
+  }
+
+  String _stableToken(String value) {
+    return value
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
   }
 }

@@ -16,7 +16,7 @@ const double kLibraryTableRowHeight = 38;
 const double kLibraryTableSelectionRailWidth = 3;
 
 const comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
-  config: comicsWorkspaceConfig,
+  type: comicsLibraryConfig,
   defaultCoverSize: kComicsDefaultCoverSize,
   minCoverSize: kComicsMinCoverSize,
   maxCoverSize: kComicsMaxCoverSize,
@@ -194,7 +194,7 @@ List<LibraryTableColumn> orderedComicTableColumns(
     );
 
 Set<LibraryTableColumn> defaultComicTableColumns() =>
-    Set.of(comicsWorkspaceConfig.defaultVisibleColumns);
+    Set.of(comicsLibraryConfig.defaultVisibleColumns);
 
 double comicTableWidthForColumns(
   Set<LibraryTableColumn> columns,

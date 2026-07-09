@@ -19,15 +19,16 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.menu_book_outlined,
   accent: Color(0xFFBB72B6),
   preferencePrefix: 'books',
-  defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: booksLibrarySortColumns,
   availableSortColumnDefinitions: bookLibrarySortColumnDefinitions,
-  availableTableColumns: booksLibraryTableColumns,
-  defaultVisibleColumns: booksLibraryDefaultVisibleColumns,
 );
 
 final booksLibraryConfig = LibraryTypeConfig(
   workspace: booksWorkspaceConfig,
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: booksLibraryDefaultVisibleColumns,
+  availableSortColumns: booksLibrarySortColumns,
+  availableSortColumnDefinitions: bookLibrarySortColumnDefinitions,
+  availableTableColumns: booksLibraryTableColumns,
   singularLabel: 'Book',
   pluralLabel: 'Books',
   defaultMetadataProvider: 'openlibrary',

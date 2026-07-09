@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryColumnPresetStore {
   const LibraryColumnPresetStore(this.config);
 
-  final LibraryWorkspaceConfig config;
+  final LibraryTypeConfig config;
 
   Future<List<LibraryTableColumnPreset>> read() async {
     final prefs = await SharedPreferences.getInstance();

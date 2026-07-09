@@ -19,15 +19,16 @@ const tvWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.tv_outlined,
   accent: Color(0xFF00A7A0),
   preferencePrefix: 'tv',
-  defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: tvLibrarySortColumns,
   availableSortColumnDefinitions: tvLibrarySortColumnDefinitions,
-  availableTableColumns: tvLibraryTableColumns,
-  defaultVisibleColumns: tvLibraryDefaultVisibleColumns,
 );
 
 final tvLibraryConfig = LibraryTypeConfig(
   workspace: tvWorkspaceConfig,
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: tvLibraryDefaultVisibleColumns,
+  availableSortColumns: tvLibrarySortColumns,
+  availableSortColumnDefinitions: tvLibrarySortColumnDefinitions,
+  availableTableColumns: tvLibraryTableColumns,
   singularLabel: 'TV Show',
   pluralLabel: 'TV Shows',
   defaultMetadataProvider: 'tmdb',

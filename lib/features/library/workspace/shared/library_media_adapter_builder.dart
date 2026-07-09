@@ -22,7 +22,7 @@ LibraryMediaAdapter plannedMediaAdapter(
   LibraryEntryColumnComparator? compareEntriesByColumn,
   LibraryWorkspaceCardBuilder? workspaceCardBuilder,
 }) {
-  final viewProfile = plannedMediaWorkspaceViewProfile(type.workspace);
+  final viewProfile = plannedMediaWorkspaceViewProfile(type);
   return LibraryMediaAdapter(
     type: type,
     viewProfile: viewProfile,
@@ -68,14 +68,14 @@ LibraryMediaAdapter collectarrMediaAdapter(
 }
 
 LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
-  LibraryWorkspaceConfig config,
+  LibraryTypeConfig type,
 ) {
-  final coverGridHeightFactor = switch (config.kind) {
+  final coverGridHeightFactor = switch (type.workspace.kind) {
     CatalogMediaKind.music => 1.0,
     _ => 1.53,
   };
   return LibraryWorkspaceViewProfile(
-    config: config,
+    type: type,
     defaultCoverSize: kPlannedMediaDefaultCoverSize,
     minCoverSize: kPlannedMediaMinCoverSize,
     maxCoverSize: kPlannedMediaMaxCoverSize,

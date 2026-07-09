@@ -18,15 +18,16 @@ const gamesWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.sports_esports,
   accent: Color(0xFFF64458),
   preferencePrefix: 'games',
-  defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: gamesLibrarySortColumns,
   availableSortColumnDefinitions: gameLibrarySortColumnDefinitions,
-  availableTableColumns: gamesLibraryTableColumns,
-  defaultVisibleColumns: gamesLibraryDefaultVisibleColumns,
 );
 
 final gamesLibraryConfig = LibraryTypeConfig(
   workspace: gamesWorkspaceConfig,
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: gamesLibraryDefaultVisibleColumns,
+  availableSortColumns: gamesLibrarySortColumns,
+  availableSortColumnDefinitions: gameLibrarySortColumnDefinitions,
+  availableTableColumns: gamesLibraryTableColumns,
   singularLabel: 'Game',
   pluralLabel: 'Games',
   defaultMetadataProvider: 'igdb',

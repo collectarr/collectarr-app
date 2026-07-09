@@ -24,6 +24,11 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
     );
     return LibraryTypeConfig(
       workspace: workspace,
+      defaultSortColumn: defaultSortColumn,
+      defaultVisibleColumns: defaultVisibleColumns,
+      availableSortColumns: availableSortColumns,
+      availableSortColumnDefinitions: availableSortColumnDefinitions,
+      availableTableColumns: availableTableColumns,
       singularLabel: mediaType.singularLabel.isEmpty
           ? singularLabel
           : mediaType.singularLabel,

@@ -20,15 +20,16 @@ const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.movie_outlined,
   accent: Color(0xFF42AA55),
   preferencePrefix: 'movies',
-  defaultSortColumn: LibrarySortColumn.title,
-  availableSortColumns: moviesLibrarySortColumns,
   availableSortColumnDefinitions: movieLibrarySortColumnDefinitions,
-  availableTableColumns: moviesLibraryTableColumns,
-  defaultVisibleColumns: moviesLibraryDefaultVisibleColumns,
 );
 
 final moviesLibraryConfig = LibraryTypeConfig(
   workspace: moviesWorkspaceConfig,
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: moviesLibraryDefaultVisibleColumns,
+  availableSortColumns: moviesLibrarySortColumns,
+  availableSortColumnDefinitions: movieLibrarySortColumnDefinitions,
+  availableTableColumns: moviesLibraryTableColumns,
   singularLabel: 'Movie',
   pluralLabel: 'Movies',
   defaultMetadataProvider: 'tmdb',
