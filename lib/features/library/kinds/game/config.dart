@@ -18,7 +18,6 @@ const gamesWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.sports_esports,
   accent: Color(0xFFF64458),
   preferencePrefix: 'games',
-  availableSortColumnDefinitions: gameLibrarySortColumnDefinitions,
 );
 
 final gamesLibraryConfig = LibraryTypeConfig(

@@ -19,7 +19,6 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.menu_book_outlined,
   accent: Color(0xFFBB72B6),
   preferencePrefix: 'books',
-  availableSortColumnDefinitions: bookLibrarySortColumnDefinitions,
 );
 
 final booksLibraryConfig = LibraryTypeConfig(

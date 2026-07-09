@@ -19,7 +19,6 @@ const tvWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.tv_outlined,
   accent: Color(0xFF00A7A0),
   preferencePrefix: 'tv',
-  availableSortColumnDefinitions: tvLibrarySortColumnDefinitions,
 );
 
 final tvLibraryConfig = LibraryTypeConfig(

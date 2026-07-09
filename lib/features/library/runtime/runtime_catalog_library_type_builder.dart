@@ -31,7 +31,6 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
       icon: libraryIconForKind(mediaKind),
       accent: libraryAccentForKind(mediaKind),
       preferencePrefix: 'catalog_${normalizedType.kind}',
-      availableSortColumnDefinitions: const [],
     ),
     defaultSortColumn: LibrarySortColumn.title,
     defaultVisibleColumns: presentation.defaultVisibleColumns,

@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:flutter/material.dart';
 
 import 'library_workspace_enums.dart';
@@ -76,7 +75,6 @@ class LibraryWorkspaceConfig {
     required this.accent,
     required this.preferencePrefix,
     this.defaultDensityPreset = LibraryWorkspaceDensityPreset.compact,
-    this.availableSortColumnDefinitions = const [],
     this.availableDensityPresets = const [
       LibraryWorkspaceDensityPreset.comfortable,
       LibraryWorkspaceDensityPreset.compact,
@@ -91,7 +89,6 @@ class LibraryWorkspaceConfig {
   final Color accent;
   final String preferencePrefix;
   final LibraryWorkspaceDensityPreset defaultDensityPreset;
-  final List<LibrarySortColumnDefinition> availableSortColumnDefinitions;
   final List<LibraryWorkspaceDensityPreset> availableDensityPresets;
   final List<LibraryToolbarActionId> toolbarActions;
 

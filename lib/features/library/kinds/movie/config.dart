@@ -20,7 +20,6 @@ const moviesWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.movie_outlined,
   accent: Color(0xFF42AA55),
   preferencePrefix: 'movies',
-  availableSortColumnDefinitions: movieLibrarySortColumnDefinitions,
 );
 
 final moviesLibraryConfig = LibraryTypeConfig(

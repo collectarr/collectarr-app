@@ -17,7 +17,6 @@ const musicWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.music_note,
   accent: Color(0xFFFDAD49),
   preferencePrefix: 'music',
-  availableSortColumnDefinitions: musicLibrarySortColumnDefinitions,
 );
 
 final musicLibraryConfig = LibraryTypeConfig(

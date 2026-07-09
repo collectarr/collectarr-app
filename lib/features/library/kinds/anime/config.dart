@@ -16,7 +16,6 @@ const animeWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.movie_filter_outlined,
   accent: Color(0xFFC94DFF),
   preferencePrefix: 'anime',
-  availableSortColumnDefinitions: animeLibrarySortColumnDefinitions,
 );
 
 final animeLibraryConfig = LibraryTypeConfig(

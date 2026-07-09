@@ -17,7 +17,6 @@ const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.casino_outlined,
   accent: Color(0xFFE0A52B),
   preferencePrefix: 'boardgames',
-  availableSortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
 );
 
 final boardGamesLibraryConfig = LibraryTypeConfig(

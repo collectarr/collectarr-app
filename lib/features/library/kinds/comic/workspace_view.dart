@@ -15,7 +15,7 @@ const double kLibraryTableHeaderHeight = 30;
 const double kLibraryTableRowHeight = 38;
 const double kLibraryTableSelectionRailWidth = 3;
 
-const comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
+final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
   type: comicsLibraryConfig,
   defaultCoverSize: kComicsDefaultCoverSize,
   minCoverSize: kComicsMinCoverSize,

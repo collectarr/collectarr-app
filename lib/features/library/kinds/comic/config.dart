@@ -21,7 +21,6 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.collections_bookmark_outlined,
   accent: Color(0xFF44BFE7),
   preferencePrefix: 'comics',
-  availableSortColumnDefinitions: comicLibrarySortColumnDefinitions,
 );
 
 final comicsLibraryConfig = LibraryTypeConfig(

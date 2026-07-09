@@ -15,7 +15,6 @@ const mangaWorkspaceConfig = LibraryWorkspaceConfig(
   icon: Icons.import_contacts_outlined,
   accent: Color(0xFFFF6F91),
   preferencePrefix: 'manga',
-  availableSortColumnDefinitions: mangaLibrarySortColumnDefinitions,
 );
 
 final mangaLibraryConfig = LibraryTypeConfig(
