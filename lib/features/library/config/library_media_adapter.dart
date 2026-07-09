@@ -5,36 +5,36 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
-typedef LibraryTableColumnOrdering = List<LibraryTableColumn> Function(
-  Set<LibraryTableColumn> columns,
+typedef LibraryTableColumnOrdering = List<Object> Function(
+  Set<Object> columns,
 );
 typedef LibraryTableWidthForColumns = double Function(
-  Set<LibraryTableColumn> columns,
-  Map<LibraryTableColumn, double> customWidths,
+  Set<Object> columns,
+  Map<Object, double> customWidths,
 );
 typedef LibraryTableColumnWidthForCustomWidths = double Function(
-  LibraryTableColumn column,
-  Map<LibraryTableColumn, double> customWidths,
+  Object column,
+  Map<Object, double> customWidths,
 );
 typedef LibraryTableColumnDefaultWidthFor = double Function(
-  LibraryTableColumn column,
+  Object column,
 );
-typedef LibraryTableColumnLabelFor = String Function(LibraryTableColumn column);
+typedef LibraryTableColumnLabelFor = String Function(Object column);
 typedef LibraryTableColumnGroupFor = LibraryTableColumnGroup Function(
-  LibraryTableColumn column,
+  Object column,
 );
 typedef LibraryTableColumnGroupLabelFor = String Function(
   LibraryTableColumnGroup group,
 );
 typedef LibraryTableColumnNumericFor = bool Function(
-  LibraryTableColumn column,
+  Object column,
 );
-typedef LibraryTableColumnSortFor = LibrarySortColumn? Function(
-  LibraryTableColumn column,
+typedef LibraryTableColumnSortFor = Object? Function(
+  Object column,
 );
 typedef LibraryTableCellBuilder = Widget Function(
   LibraryWorkspaceEntry entry,
-  LibraryTableColumn column,
+  Object column,
 );
 typedef LibraryWorkspaceCardBuilder = Widget Function(
   BuildContext context,
@@ -44,7 +44,7 @@ typedef LibraryWorkspaceCardBuilder = Widget Function(
 typedef LibraryEntryColumnComparator = int Function(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
-  LibrarySortColumn column,
+  Object column,
 );
 typedef LibraryEntryFilterValuesBuilder = LibraryEntryFilterValues Function(
   LibraryWorkspaceEntry entry,
@@ -54,12 +54,12 @@ typedef LibraryEntryLinkedMetadataCandidatesBuilder = Iterable<String> Function(
 );
 typedef LibraryEntrySubgroupKeyBuilder = String? Function(
   LibraryWorkspaceEntry entry,
-  LibraryGroupMode groupMode,
+  Object groupMode,
 );
 typedef LibraryEntrySubgroupKeyComparator = int Function(
   String left,
   String right,
-  LibraryGroupMode groupMode,
+  Object groupMode,
 );
 
 class LibraryEntryFilterValues {
@@ -118,11 +118,11 @@ class LibraryMediaAdapter {
   final LibraryEntrySubgroupKeyComparator compareSubgroupKeys;
   final LibraryWorkspaceCardBuilder? workspaceCardBuilder;
 
-  Set<LibraryTableColumn> defaultTableColumns() {
+  Set<Object> defaultTableColumns() {
     return Set.of(type.defaultVisibleColumns);
   }
 
-  Widget buildTableCell(LibraryWorkspaceEntry entry, LibraryTableColumn column) {
+  Widget buildTableCell(LibraryWorkspaceEntry entry, Object column) {
     return tableCellBuilder(entry, column);
   }
 
@@ -138,7 +138,7 @@ class LibraryMediaAdapter {
 
   String? subgroupKeyForEntry(
     LibraryWorkspaceEntry entry,
-    LibraryGroupMode groupMode,
+    Object groupMode,
   ) {
     return entrySubgroupKeyBuilder(entry, groupMode);
   }

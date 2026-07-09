@@ -15,19 +15,19 @@ class LibraryWorkspaceViewPresetConfig {
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final double coverSize;
-  final Set<LibraryTableColumn> visibleColumns;
+  final Set<Object> visibleColumns;
 }
 
 typedef LibraryWorkspacePresetResolver = LibraryWorkspaceViewPresetConfig
     Function(LibraryWorkspacePreset preset);
 
 typedef LibraryTableColumnWidthClamp = double Function(
-  LibraryTableColumn column,
+  Object column,
   double width,
 );
 
 typedef LibrarySortColumnDirectionResolver = bool Function(
-  LibrarySortColumn column,
+  Object column,
 );
 
 class LibraryWorkspaceViewProfile {
@@ -141,7 +141,7 @@ class LibraryWorkspaceViewProfile {
     );
   }
 
-  bool initialSortAscending(LibrarySortColumn column) {
+  bool initialSortAscending(Object column) {
     return sortAscendingForColumn?.call(column) ?? defaultSortAscending;
   }
 }
@@ -152,7 +152,7 @@ class LibraryWorkspaceViewState {
     required this.viewMode,
     required this.detailsLayout,
     required this.isSidebarVisible,
-    required LibrarySortColumn sortColumn,
+    required Object sortColumn,
     required bool sortAscending,
     List<LibrarySortRule>? sortRules,
     required this.coverSize,
@@ -160,8 +160,8 @@ class LibraryWorkspaceViewState {
     required this.detailsWidth,
     required this.detailsHeight,
     this.densityPreset = LibraryWorkspaceDensityPreset.compact,
-    required Set<LibraryTableColumn> visibleColumns,
-    required Map<LibraryTableColumn, double> columnWidths,
+    required Set<Object> visibleColumns,
+    required Map<Object, double> columnWidths,
   })  : _sortRules = List.unmodifiable(
           _normalizedSortRules(
             sortRules,
@@ -182,12 +182,12 @@ class LibraryWorkspaceViewState {
   final double detailsWidth;
   final double detailsHeight;
   final LibraryWorkspaceDensityPreset densityPreset;
-  final Set<LibraryTableColumn> visibleColumns;
-  final Map<LibraryTableColumn, double> columnWidths;
+  final Set<Object> visibleColumns;
+  final Map<Object, double> columnWidths;
 
   List<LibrarySortRule> get sortRules => _sortRules;
 
-  LibrarySortColumn get sortColumn => _sortRules.first.column;
+  Object get sortColumn => _sortRules.first.column;
 
   bool get sortAscending => _sortRules.first.ascending;
 
@@ -215,7 +215,7 @@ class LibraryWorkspaceViewState {
     LibraryViewMode? viewMode,
     LibraryDetailsLayout? detailsLayout,
     bool? isSidebarVisible,
-    LibrarySortColumn? sortColumn,
+    Object? sortColumn,
     bool? sortAscending,
     List<LibrarySortRule>? sortRules,
     double? coverSize,
@@ -223,8 +223,8 @@ class LibraryWorkspaceViewState {
     double? detailsWidth,
     double? detailsHeight,
     LibraryWorkspaceDensityPreset? densityPreset,
-    Set<LibraryTableColumn>? visibleColumns,
-    Map<LibraryTableColumn, double>? columnWidths,
+    Set<Object>? visibleColumns,
+    Map<Object, double>? columnWidths,
   }) {
     final nextSortRules = sortRules ??
         ((sortColumn != null || sortAscending != null)
@@ -256,7 +256,7 @@ class LibraryWorkspaceViewState {
   }
 
   LibraryWorkspaceViewState withSortColumn(
-    LibrarySortColumn column,
+    Object column,
     LibraryWorkspaceViewProfile profile,
   ) {
     if (sortColumn == column) {
@@ -326,7 +326,7 @@ class LibraryWorkspaceViewState {
   }
 
   LibraryWorkspaceViewState withColumnWidth(
-    LibraryTableColumn column,
+    Object column,
     double width,
     LibraryWorkspaceViewProfile profile,
   ) {
@@ -339,8 +339,8 @@ class LibraryWorkspaceViewState {
   }
 
   LibraryWorkspaceViewState withReorderedColumn({
-    required LibraryTableColumn column,
-    required LibraryTableColumn? beforeColumn,
+    required Object column,
+    required Object? beforeColumn,
   }) {
     return copyWith(
       visibleColumns: {
@@ -357,13 +357,13 @@ class LibraryWorkspaceViewState {
 
 List<LibrarySortRule> _normalizedSortRules(
   List<LibrarySortRule>? rules, {
-  required LibrarySortColumn fallbackColumn,
+  required Object fallbackColumn,
   required bool fallbackAscending,
 }) {
   final effective = rules == null || rules.isEmpty
       ? [LibrarySortRule(column: fallbackColumn, ascending: fallbackAscending)]
       : rules;
-  final seen = <LibrarySortColumn>{};
+  final seen = <Object>{};
   final normalized = <LibrarySortRule>[];
   for (final rule in effective) {
     if (seen.add(rule.column)) {

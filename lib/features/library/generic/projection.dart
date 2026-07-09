@@ -531,13 +531,13 @@ String genericBucketForItem(
 String genericBucketForItemMode(
   LibraryProjectionItem item,
   LibraryTypeConfig type,
-  LibraryGroupMode groupMode,
+  Object groupMode,
 ) {
   return type.presentation.bucketLabelBuilder(
     LibraryBucketingContext(
       source: item.source,
       entry: item.entry,
-      groupMode: groupMode,
+      groupMode: groupMode.toString(),
     ),
   );
 }

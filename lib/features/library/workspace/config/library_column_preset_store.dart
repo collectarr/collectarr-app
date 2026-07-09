@@ -30,7 +30,7 @@ class LibraryColumnPresetStore {
 
   Future<List<LibraryTableColumnPreset>> savePreset({
     required String label,
-    required Set<LibraryTableColumn> columns,
+    required Set<Object> columns,
   }) async {
     final normalizedLabel = label.trim();
     if (normalizedLabel.isEmpty) {
@@ -50,8 +50,7 @@ class LibraryColumnPresetStore {
       columns: {
         for (final column in columns)
           if (config.supportsTableColumn(column)) column,
-        if (config.supportsTableColumn(LibraryTableColumn.title))
-          LibraryTableColumn.title,
+        if (config.supportsTableColumn('title')) 'title',
       },
     );
     final next = existing.toList(growable: true);
@@ -89,8 +88,7 @@ class LibraryColumnPresetStore {
         for (final value in (json['columns'] as List<dynamic>? ?? []))
           if (_columnById(value.toString()) != null)
             _columnById(value.toString())!,
-        if (config.supportsTableColumn(LibraryTableColumn.title))
-          LibraryTableColumn.title,
+        if (config.supportsTableColumn('title')) 'title',
       },
     );
   }
@@ -106,7 +104,7 @@ class LibraryColumnPresetStore {
     };
   }
 
-  LibraryTableColumn? _columnById(String id) {
+  Object? _columnById(String id) {
     return config.tableColumnFromFieldId(id);
   }
 

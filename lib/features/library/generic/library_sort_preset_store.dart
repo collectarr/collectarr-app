@@ -135,7 +135,7 @@ class LibrarySortPresetStore {
   }
 
   List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
-    final seen = <LibrarySortColumn>{};
+    final seen = <Object>{};
     final deduped = <LibrarySortRule>[];
     for (final rule in rules) {
       if (!config.supportsSortColumn(rule.column)) {

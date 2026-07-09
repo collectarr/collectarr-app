@@ -1,5 +1,3 @@
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-
 class LibraryTableColumnSizing {
   const LibraryTableColumnSizing({
     required this.defaultWidth,
@@ -12,9 +10,9 @@ class LibraryTableColumnSizing {
   final double maxWidth;
 }
 
-List<LibraryTableColumn> orderedLibraryTableColumns({
-  required Set<LibraryTableColumn> columns,
-  required Set<LibraryTableColumn> defaultColumns,
+List<Object> orderedLibraryTableColumns({
+  required Set<Object> columns,
+  required Set<Object> defaultColumns,
 }) {
   final effective = columns.isEmpty ? defaultColumns : columns;
   return [
@@ -22,10 +20,10 @@ List<LibraryTableColumn> orderedLibraryTableColumns({
   ];
 }
 
-List<LibraryTableColumn> reorderLibraryTableColumns({
-  required Iterable<LibraryTableColumn> columns,
-  required LibraryTableColumn column,
-  required LibraryTableColumn? beforeColumn,
+List<Object> reorderLibraryTableColumns({
+  required Iterable<Object> columns,
+  required Object column,
+  required Object? beforeColumn,
 }) {
   final ordered = columns.toList(growable: true);
   final currentIndex = ordered.indexOf(column);
@@ -49,9 +47,9 @@ List<LibraryTableColumn> reorderLibraryTableColumns({
 }
 
 double libraryTableColumnWidth({
-  required LibraryTableColumn column,
-  required Map<LibraryTableColumn, double> customWidths,
-  required LibraryTableColumnSizing Function(LibraryTableColumn column) sizing,
+  required Object column,
+  required Map<Object, double> customWidths,
+  required LibraryTableColumnSizing Function(Object column) sizing,
 }) {
   final size = sizing(column);
   final customWidth = customWidths[column];
@@ -69,10 +67,10 @@ double clampLibraryTableColumnWidth(
 }
 
 double libraryTableWidthForColumns({
-  required Set<LibraryTableColumn> columns,
-  required Set<LibraryTableColumn> defaultColumns,
-  required Map<LibraryTableColumn, double> customWidths,
-  required LibraryTableColumnSizing Function(LibraryTableColumn column) sizing,
+  required Set<Object> columns,
+  required Set<Object> defaultColumns,
+  required Map<Object, double> customWidths,
+  required LibraryTableColumnSizing Function(Object column) sizing,
   required double columnSpacing,
   required double horizontalMargin,
 }) {

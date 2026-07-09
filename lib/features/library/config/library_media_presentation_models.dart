@@ -94,101 +94,18 @@ class LibraryMediaStatsLabels {
   final String topPublisher;
 }
 
-enum LibrarySortFieldGroup { main, value, edition, personal }
-
-enum LibraryGroupPresentation { inlineHeaders, folderGrid }
-
-extension LibraryGroupPresentationLabels on LibraryGroupPresentation {
-  String get label {
-    return switch (this) {
-      LibraryGroupPresentation.inlineHeaders => 'Inline headers',
-      LibraryGroupPresentation.folderGrid => 'Folder grid',
-    };
+String libraryFallbackLabelForId(String value) {
+  final tokens = value
+      .split('.')
+      .map((segment) => segment.replaceAllMapped(
+            RegExp(r'([a-z0-9])([A-Z])'),
+            (match) => '${match[1]} ${match[2]}',
+          ))
+      .join(' ');
+  if (tokens.isEmpty) {
+    return value;
   }
-
-  IconData get icon {
-    return switch (this) {
-      LibraryGroupPresentation.inlineHeaders => Icons.segment_outlined,
-      LibraryGroupPresentation.folderGrid => Icons.folder_open_outlined,
-    };
-  }
-}
-
-class LibraryGroupModeDefinition {
-  const LibraryGroupModeDefinition({
-    required this.mode,
-    required this.label,
-    required this.sidebarTitle,
-    required this.icon,
-    String? id,
-    this.presentation = LibraryGroupPresentation.inlineHeaders,
-    this.supportsBucketManagement = false,
-    this.bucketManagerListLabel,
-    this.drilldownChildMode,
-    this.folderSetLabel,
-  }) : _id = id;
-
-  final LibraryGroupMode mode;
-  final String? _id;
-  final String label;
-  final String sidebarTitle;
-  final IconData icon;
-  final LibraryGroupPresentation presentation;
-  final bool supportsBucketManagement;
-  final String? bucketManagerListLabel;
-  final LibraryGroupMode? drilldownChildMode;
-  final String? folderSetLabel;
-
-  String get id => _id ?? _stableToken(mode.name);
-  String get resolvedBucketManagerListLabel =>
-      bucketManagerListLabel ?? '$label list';
-
-  static String _stableToken(String value) {
-    return value
-        .replaceAllMapped(
-          RegExp(r'([a-z0-9])([A-Z])'),
-          (match) => '${match[1]}_${match[2]}',
-        )
-        .toLowerCase();
-  }
-}
-
-class LibrarySortColumnDefinition {
-  const LibrarySortColumnDefinition({
-    required this.column,
-    required this.label,
-    String? id,
-    this.group = LibrarySortFieldGroup.main,
-    this.defaultAscending = true,
-  }) : _id = id;
-
-  final LibrarySortColumn column;
-  final String? _id;
-  final String label;
-  final LibrarySortFieldGroup group;
-  final bool defaultAscending;
-
-  String get id => _id ?? _stableToken(column.name);
-
-  static String _stableToken(String value) {
-    return value
-        .replaceAllMapped(
-          RegExp(r'([a-z0-9])([A-Z])'),
-          (match) => '${match[1]}_${match[2]}',
-        )
-        .toLowerCase();
-  }
-}
-
-String librarySortColumnFallbackLabel(LibrarySortColumn column) {
-  final raw = column.name.replaceAllMapped(
-    RegExp(r'([a-z0-9])([A-Z])'),
-    (match) => '${match[1]} ${match[2]}',
-  );
-  if (raw.isEmpty) {
-    return column.name;
-  }
-  return raw[0].toUpperCase() + raw.substring(1);
+  return tokens[0].toUpperCase() + tokens.substring(1);
 }
 
 class LibraryFilterOptionLabels {
@@ -345,7 +262,7 @@ class LibraryBucketingContext {
 
   final ShelfEntry source;
   final LibraryWorkspaceEntry entry;
-  final LibraryGroupMode groupMode;
+  final String groupMode;
 }
 
 class LibraryReleaseEntryRequest {
@@ -386,6 +303,85 @@ typedef LibraryBucketLabelBuilder = String Function(
   LibraryBucketingContext context,
 );
 
+class LibraryGroupModeDefinition
+    extends LibraryGroupDefinition<LibraryWorkspaceEntry, Object?> {
+  LibraryGroupModeDefinition({
+    required this.mode,
+    required String label,
+    required String sidebarTitle,
+    required IconData icon,
+    String? id,
+    LibraryGroupPresentation presentation =
+        LibraryGroupPresentation.inlineHeaders,
+    bool supportsBucketManagement = false,
+    String? bucketManagerListLabel,
+    String? drilldownChildMode,
+    String? folderSetLabel,
+  }) : super(
+          id: LibraryFieldId<Object?>(id ?? _stableToken(mode.toString())),
+          label: label,
+          getValue: (_) => null,
+          sidebarTitle: sidebarTitle,
+          icon: icon,
+          presentation: presentation,
+          supportsBucketManagement: supportsBucketManagement,
+          bucketManagerListLabel: bucketManagerListLabel,
+          drilldownChildId: drilldownChildMode,
+          folderSetLabel: folderSetLabel,
+        );
+
+  final Object mode;
+
+  static String _stableToken(String value) {
+    final normalized = value.contains('.') ? value.split('.').last : value;
+    return normalized
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+  }
+}
+
+class LibrarySortColumnDefinition
+    extends LibrarySortDefinition<LibraryWorkspaceEntry> {
+  LibrarySortColumnDefinition({
+    required this.column,
+    required String label,
+    String? id,
+    String group = 'Main',
+    bool defaultAscending = true,
+    LibrarySortComparator<LibraryWorkspaceEntry>? compare,
+  }) : super(
+          id: id ?? _stableToken(column.toString()),
+          label: label,
+          compare: compare ?? _compareByLabel,
+          group: group,
+          defaultAscending: defaultAscending,
+        );
+
+  final Object column;
+
+  static int _compareByLabel(
+    LibraryWorkspaceEntry left,
+    LibraryWorkspaceEntry right,
+  ) {
+    return left.resolvedTitle.toLowerCase().compareTo(
+          right.resolvedTitle.toLowerCase(),
+        );
+  }
+
+  static String _stableToken(String value) {
+    final normalized = value.contains('.') ? value.split('.').last : value;
+    return normalized
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+  }
+}
+
 class LibrarySortFavorite {
   const LibrarySortFavorite({
     required this.id,
@@ -406,7 +402,7 @@ const defaultLibrarySortFavorites = [
     label: 'Title A-Z',
     icon: Icons.sort_by_alpha,
     rules: [
-      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+      LibrarySortRule(column: 'title', ascending: true),
     ],
   ),
   LibrarySortFavorite(
@@ -414,8 +410,8 @@ const defaultLibrarySortFavorites = [
     label: 'Latest release',
     icon: Icons.event,
     rules: [
-      LibrarySortRule(column: LibrarySortColumn.releaseDate, ascending: false),
-      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+      LibrarySortRule(column: 'release_date', ascending: false),
+      LibrarySortRule(column: 'title', ascending: true),
     ],
   ),
   LibrarySortFavorite(
@@ -423,8 +419,8 @@ const defaultLibrarySortFavorites = [
     label: 'Recently added',
     icon: Icons.update,
     rules: [
-      LibrarySortRule(column: LibrarySortColumn.updated, ascending: false),
-      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+      LibrarySortRule(column: 'updated', ascending: false),
+      LibrarySortRule(column: 'title', ascending: true),
     ],
   ),
   LibrarySortFavorite(
@@ -432,8 +428,8 @@ const defaultLibrarySortFavorites = [
     label: 'Value high to low',
     icon: Icons.attach_money,
     rules: [
-      LibrarySortRule(column: LibrarySortColumn.price, ascending: false),
-      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+      LibrarySortRule(column: 'price', ascending: false),
+      LibrarySortRule(column: 'title', ascending: true),
     ],
   ),
 ];
@@ -442,35 +438,35 @@ const defaultLibraryColumnFavorites = [
   LibraryTableColumnPreset(
     label: 'Essential',
     columns: {
-      LibraryTableColumn.status,
-      LibraryTableColumn.title,
-      LibraryTableColumn.publisher,
-      LibraryTableColumn.releaseDate,
-      LibraryTableColumn.updated,
+      'status',
+      'title',
+      'publisher',
+      'release_date',
+      'updated',
     },
   ),
   LibraryTableColumnPreset(
     label: 'Collection',
     columns: {
-      LibraryTableColumn.status,
-      LibraryTableColumn.title,
-      LibraryTableColumn.condition,
-      LibraryTableColumn.grade,
-      LibraryTableColumn.price,
-      LibraryTableColumn.wishlist,
-      LibraryTableColumn.updated,
+      'status',
+      'title',
+      'condition',
+      'grade',
+      'price',
+      'wishlist',
+      'updated',
     },
   ),
   LibraryTableColumnPreset(
     label: 'Reference',
     columns: {
-      LibraryTableColumn.status,
-      LibraryTableColumn.title,
-      LibraryTableColumn.variant,
-      LibraryTableColumn.publisher,
-      LibraryTableColumn.releaseDate,
-      LibraryTableColumn.barcode,
-      LibraryTableColumn.updated,
+      'status',
+      'title',
+      'variant',
+      'publisher',
+      'release_date',
+      'barcode',
+      'updated',
     },
   ),
 ];
@@ -766,19 +762,21 @@ class LibraryMediaPresentation {
     required this.workspaceEntryBuilder,
     required this.releaseEntryBuilder,
     required this.bucketLabelBuilder,
-    this.defaultVisibleColumns = const {
-      LibraryTableColumn.status,
-      LibraryTableColumn.cover,
-      LibraryTableColumn.title,
-      LibraryTableColumn.publisher,
-      LibraryTableColumn.releaseDate,
-      LibraryTableColumn.barcode,
-      LibraryTableColumn.condition,
-      LibraryTableColumn.price,
-      LibraryTableColumn.location,
-      LibraryTableColumn.wishlist,
-      LibraryTableColumn.updated,
+    this.defaultVisibleColumnIds = const {
+      'status',
+      'cover',
+      'title',
+      'publisher',
+      'release_date',
+      'barcode',
+      'condition',
+      'price',
+      'location',
+      'wishlist',
+      'updated',
     },
+    this.defaultSortId,
+    this.defaultGroupId,
     this.previewLabels = const LibraryMediaPreviewLabels(
       series: 'Series',
       itemCount: 'Items',
@@ -804,9 +802,9 @@ class LibraryMediaPresentation {
     this.statusLabels = const LibraryStatusLabels(),
     this.bucketLabelOverrides = const LibraryBucketLabelOverrides(),
     this.fieldDefinitions = const [],
-    required this.sortColumnDefinitions,
-    required this.groupModeDefinitions,
-    required this.groupModes,
+    required this.sortDefinitions,
+    required this.groupDefinitions,
+    required this.columnDefinitions,
   });
 
   final LibraryMediaSearchFieldLabels searchFieldLabels;
@@ -816,11 +814,13 @@ class LibraryMediaPresentation {
   final LibraryWorkspaceEntryBuilder workspaceEntryBuilder;
   final LibraryReleaseEntryBuilder releaseEntryBuilder;
   final LibraryBucketLabelBuilder bucketLabelBuilder;
-  final Set<LibraryTableColumn> defaultVisibleColumns;
+  final Set<String> defaultVisibleColumnIds;
+  final String? defaultSortId;
+  final String? defaultGroupId;
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final bool usesTreeProviderCandidates;
-  final Map<LibraryGroupMode, String> externalFacetBucketIdsByMode;
+  final Map<String, String> externalFacetBucketIdsByMode;
   final bool supportsSeriesIssueJump;
   final bool usesTrackListCard;
   final bool showsSeasonGroupProgress;
@@ -840,9 +840,49 @@ class LibraryMediaPresentation {
   final LibraryBucketLabelOverrides bucketLabelOverrides;
   final List<LibraryFieldDefinition<LibraryWorkspaceDto, Object?>>
       fieldDefinitions;
-  final List<LibraryGroupModeDefinition> groupModeDefinitions;
-  final List<LibrarySortColumnDefinition> sortColumnDefinitions;
-  final List<LibraryGroupMode> groupModes;
+  final List<LibrarySortDefinition<LibraryWorkspaceEntry>> sortDefinitions;
+  final List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>>
+      groupDefinitions;
+  final List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>>
+      columnDefinitions;
+
+  Set<String> get defaultVisibleColumns => defaultVisibleColumnIds;
+
+  List<LibrarySortDefinition<LibraryWorkspaceEntry>>
+      get sortColumnDefinitions => sortDefinitions;
+
+  List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>>
+      get groupModeDefinitions => groupDefinitions;
+
+  List<String> get groupModes =>
+      [for (final definition in groupDefinitions) definition.id.value];
+
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>?
+      groupDefinitionForIdOrNull(String id) {
+    for (final definition in groupDefinitions) {
+      if (definition.id.value == id) {
+        return definition;
+      }
+    }
+    return null;
+  }
+
+  LibraryGroupModeDefinition? groupModeDefinitionForId(String id) {
+    final definition = groupDefinitionForIdOrNull(id);
+    if (definition == null) {
+      return null;
+    }
+    return _wrapGroupDefinition(definition);
+  }
+
+  LibraryGroupModeDefinition groupModeDefinitionFor(Object mode) {
+    final id = _definitionIdFor(mode);
+    final definition = groupDefinitionForIdOrNull(id);
+    if (definition != null) {
+      return _wrapGroupDefinition(definition);
+    }
+    return _fallbackGroupModeDefinition(id);
+  }
 
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>? fieldDefinitionFor(
     String id,
@@ -855,66 +895,128 @@ class LibraryMediaPresentation {
     return null;
   }
 
-  LibraryGroupModeDefinition? groupModeDefinitionForId(String id) {
-    for (final definition in groupModeDefinitions) {
+  LibrarySortDefinition<LibraryWorkspaceEntry>? sortDefinitionForId(
+    String id,
+  ) {
+    for (final definition in sortDefinitions) {
       if (definition.id == id) {
         return definition;
       }
     }
     return null;
-  }
-
-  LibraryGroupModeDefinition groupModeDefinitionFor(LibraryGroupMode mode) {
-    for (final definition in groupModeDefinitions) {
-      if (definition.mode == mode) {
-        return definition;
-      }
-    }
-    return _fallbackGroupModeDefinition(mode);
   }
 
   LibrarySortColumnDefinition? sortColumnDefinitionForId(String id) {
-    for (final definition in sortColumnDefinitions) {
-      if (definition.id == id) {
+    final definition = sortDefinitionForId(id);
+    if (definition == null) {
+      return null;
+    }
+    return _wrapSortDefinition(definition);
+  }
+
+  LibrarySortColumnDefinition sortColumnDefinitionFor(Object column) {
+    final id = _definitionIdFor(column);
+    final definition = sortDefinitionForId(id);
+    if (definition != null) {
+      return _wrapSortDefinition(definition);
+    }
+    return LibrarySortColumnDefinition(
+      column: column,
+      id: id,
+      label: libraryFallbackLabelForId(id),
+    );
+  }
+
+  LibrarySortDefinition<LibraryWorkspaceEntry> sortDefinitionFor(
+    String sortId,
+  ) {
+    final definition = sortDefinitionForId(sortId);
+    if (definition != null) {
+      return definition;
+    }
+    throw StateError(
+      'Missing sort definition for $sortId. '
+      'Ensure sortDefinitions declares every available sort field.',
+    );
+  }
+
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>?
+      columnDefinitionForId(String id) {
+    for (final definition in columnDefinitions) {
+      if (definition.id.value == id) {
         return definition;
       }
     }
     return null;
   }
 
-  LibrarySortColumnDefinition sortColumnDefinitionFor(
-    LibrarySortColumn column,
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?> columnDefinitionFor(
+    String columnId,
   ) {
-    for (final definition in sortColumnDefinitions) {
-      if (definition.column == column) {
-        return definition;
-      }
+    final definition = columnDefinitionForId(columnId);
+    if (definition != null) {
+      return definition;
     }
     throw StateError(
-      'Missing sort column definition for $column. '
-      'Ensure sortColumnDefinitions declares every available sort column.',
+      'Missing column definition for $columnId. '
+      'Ensure columnDefinitions declares every available table column.',
     );
   }
 }
-LibraryGroupModeDefinition _fallbackGroupModeDefinition(
-  LibraryGroupMode mode,
+
+LibraryGroupModeDefinition _wrapGroupDefinition(
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?> definition,
 ) {
-  final label = _fallbackGroupModeLabel(mode);
   return LibraryGroupModeDefinition(
-    mode: mode,
+    mode: definition.id.value,
+    id: definition.id.value,
+    label: definition.label,
+    sidebarTitle: definition.resolvedSidebarTitle,
+    icon: definition.icon ?? Icons.account_tree_outlined,
+    presentation: definition.presentation,
+    supportsBucketManagement: definition.supportsBucketManagement,
+    bucketManagerListLabel: definition.bucketManagerListLabel,
+    drilldownChildMode: definition.drilldownChildId,
+    folderSetLabel: definition.folderSetLabel,
+  );
+}
+
+LibrarySortColumnDefinition _wrapSortDefinition(
+  LibrarySortDefinition<LibraryWorkspaceEntry> definition,
+) {
+  return LibrarySortColumnDefinition(
+    column: definition.id,
+    id: definition.id,
+    label: definition.label,
+    group: definition.group,
+    defaultAscending: definition.defaultAscending,
+    compare: definition.compare,
+  );
+}
+
+LibraryGroupModeDefinition _fallbackGroupModeDefinition(String id) {
+  final label = libraryFallbackLabelForId(id);
+  return LibraryGroupModeDefinition(
+    mode: id,
+    id: id,
     label: label,
     sidebarTitle: _fallbackGroupModeSidebarTitle(label),
     icon: Icons.account_tree_outlined,
   );
 }
 
-String _fallbackGroupModeLabel(LibraryGroupMode mode) {
-  final raw = mode.name;
-  final words = raw.replaceAllMapped(
-    RegExp(r'([a-z0-9])([A-Z])'),
-    (match) => '${match.group(1)} ${match.group(2)}',
-  );
-  return words[0].toUpperCase() + words.substring(1);
+String _definitionIdFor(Object value) {
+  final normalized = switch (value) {
+    String text => text.trim(),
+    Object _ => value.toString().trim(),
+  };
+  if (normalized.isEmpty) {
+    return '';
+  }
+  if (value is String) {
+    return normalized;
+  }
+  return normalized.contains('.') ? normalized.split('.').last : normalized;
 }
 
 String _fallbackGroupModeSidebarTitle(String label) {

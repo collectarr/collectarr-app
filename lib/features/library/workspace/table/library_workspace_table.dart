@@ -6,19 +6,19 @@ import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-typedef LibraryColumnWidthFor = double Function(LibraryTableColumn column);
-typedef LibraryColumnSortFor = LibrarySortColumn? Function(
-  LibraryTableColumn column,
+typedef LibraryColumnWidthFor = double Function(Object column);
+typedef LibraryColumnSortFor = Object? Function(
+  Object column,
 );
-typedef LibraryColumnLabelFor = String Function(LibraryTableColumn column);
-typedef LibraryColumnNumericFor = bool Function(LibraryTableColumn column);
+typedef LibraryColumnLabelFor = String Function(Object column);
+typedef LibraryColumnNumericFor = bool Function(Object column);
 typedef LibraryColumnCellBuilder<T> = Widget Function(
   T entry,
-  LibraryTableColumn column,
+  Object column,
 );
 typedef LibraryColumnReordered = void Function(
-  LibraryTableColumn column,
-  LibraryTableColumn? beforeColumn,
+  Object column,
+  Object? beforeColumn,
 );
 
 class LibraryWorkspaceTable<T> extends StatefulWidget {
@@ -60,8 +60,8 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   });
 
   final List<T> entries;
-  final List<LibraryTableColumn> columns;
-  final LibrarySortColumn sortColumn;
+  final List<Object> columns;
+  final Object sortColumn;
   final bool sortAscending;
   final List<LibrarySortRule> sortRules;
   final LibraryColumnWidthFor columnWidthFor;
@@ -74,8 +74,8 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final ValueChanged<T> onEntryTap;
   final ValueChanged<T>? onEntryDoubleTap;
   final void Function(T entry, TapUpDetails details)? onEntrySecondaryTapUp;
-  final ValueChanged<LibrarySortColumn> onSortChanged;
-  final void Function(LibraryTableColumn column, double width)
+  final ValueChanged<Object> onSortChanged;
+  final void Function(Object column, double width)
       onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
   final double headerHeight;
@@ -249,16 +249,16 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
     required this.accentColor,
   });
 
-  final List<LibraryTableColumn> columns;
-  final LibrarySortColumn sortColumn;
+  final List<Object> columns;
+  final Object sortColumn;
   final bool sortAscending;
   final List<LibrarySortRule> sortRules;
   final LibraryColumnWidthFor columnWidthFor;
   final LibraryColumnWidthFor defaultColumnWidthFor;
   final LibraryColumnSortFor columnSortFor;
   final LibraryColumnLabelFor columnLabelFor;
-  final ValueChanged<LibrarySortColumn> onSortChanged;
-  final void Function(LibraryTableColumn column, double width)
+  final ValueChanged<Object> onSortChanged;
+  final void Function(Object column, double width)
       onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
   final double headerHeight;
@@ -309,7 +309,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
     );
   }
 
-  int? _sortPriorityFor(LibrarySortColumn? column) {
+  int? _sortPriorityFor(Object? column) {
     if (column == null) {
       return null;
     }
@@ -342,17 +342,17 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     required this.dividerColor,
   });
 
-  final LibraryTableColumn column;
-  final LibraryTableColumn? nextColumn;
+  final Object column;
+  final Object? nextColumn;
   final double width;
   final double defaultWidth;
   final bool sorted;
   final bool ascending;
-  final LibrarySortColumn? sort;
+  final Object? sort;
   final int? sortPriority;
   final String label;
-  final ValueChanged<LibrarySortColumn> onSortChanged;
-  final void Function(LibraryTableColumn column, double width)
+  final ValueChanged<Object> onSortChanged;
+  final void Function(Object column, double width)
       onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
   final double height;
@@ -369,7 +369,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     final headerMutedTextColor = headerTextColor.withValues(alpha: 0.72);
     final showSortIcon = sorted && width >= 64;
     final showSortPriority = sortPriority != null && width >= 80;
-    return DragTarget<LibraryTableColumn>(
+    return DragTarget<Object>(
       onWillAcceptWithDetails: (details) {
         return onColumnReordered != null && details.data != column;
       },
@@ -433,7 +433,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                           ),
                         if (showSortPriority)
                           Container(
-                            key: ValueKey('sort-priority-${column.name}'),
+                            key: ValueKey('sort-priority-$column'),
                             margin: const EdgeInsets.only(left: 4),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 5,
@@ -498,7 +498,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     );
   }
 
-  LibraryTableColumn? _dropTargetColumn(BuildContext context, Offset offset) {
+  Object? _dropTargetColumn(BuildContext context, Offset offset) {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) {
       return column;
@@ -518,7 +518,7 @@ class _LibraryColumnDragHandle extends StatelessWidget {
     required this.mutedColor,
   });
 
-  final LibraryTableColumn column;
+  final Object column;
   final String label;
   final Color headerColor;
   final Color accentColor;
@@ -528,7 +528,7 @@ class _LibraryColumnDragHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final feedbackLabel =
-        label.trim().isEmpty ? _humanizeEnumName(column.name) : label;
+        label.trim().isEmpty ? _humanizeEnumName(column.toString()) : label;
     final icon = Icon(
       Icons.drag_indicator,
       size: 14,
@@ -538,7 +538,7 @@ class _LibraryColumnDragHandle extends StatelessWidget {
       padding: const EdgeInsets.only(right: 3),
       child: Tooltip(
         message: 'Reorder column',
-        child: Draggable<LibraryTableColumn>(
+        child: Draggable<Object>(
           data: column,
           feedback: Material(
             color: Colors.transparent,
@@ -615,7 +615,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
   });
 
   final T entry;
-  final List<LibraryTableColumn> columns;
+  final List<Object> columns;
   final bool selected;
   final bool odd;
   final VoidCallback onTap;

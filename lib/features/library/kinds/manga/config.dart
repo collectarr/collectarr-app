@@ -19,11 +19,15 @@ const mangaWorkspaceConfig = LibraryWorkspaceConfig(
 
 final mangaLibraryConfig = LibraryTypeConfig(
   workspace: mangaWorkspaceConfig,
-  defaultSortColumn: LibrarySortColumn.title,
-  defaultVisibleColumns: mangaLibraryDefaultVisibleColumns,
-  availableSortColumns: mangaLibrarySortColumns,
-  availableSortColumnDefinitions: mangaLibrarySortColumnDefinitions,
-  availableTableColumns: mangaLibraryTableColumns,
+  defaultSortColumn: mangaDefaultSortId,
+  defaultVisibleColumns: mangaLibraryDefaultVisibleColumnIds,
+  availableSortColumns: [
+    for (final definition in mangaLibrarySortDefinitions) definition.id,
+  ],
+  availableSortColumnDefinitions: mangaLibrarySortDefinitions,
+  availableTableColumns: [
+    for (final definition in mangaLibraryColumnDefinitions) definition.id.value,
+  ],
   singularLabel: 'Manga',
   pluralLabel: 'Manga',
   defaultMetadataProvider: 'hardcover',

@@ -26,7 +26,7 @@ class SmartList {
   final LibraryFilterSelection filterSelection;
   final LibraryQuickView? quickView;
   final List<LibrarySortRule>? sortRules;
-  final LibrarySortColumn? sortColumn;
+  final Object? sortColumn;
   final bool? sortAscending;
   final String? searchQuery;
 
@@ -200,9 +200,14 @@ class SmartList {
     return rules;
   }
 
-  static String _sortColumnToken(String? mediaKind, LibrarySortColumn column) {
+  static String _sortColumnToken(String? mediaKind, Object column) {
     final kind = mediaKind?.trim().toLowerCase();
-    final stableColumn = _stableToken(column.name);
+    final stableColumn = column is String
+        ? _stableToken(column)
+        : _stableToken(column.toString().split('.').last);
+    if (stableColumn.contains('.')) {
+      return stableColumn;
+    }
     return kind == null || kind.isEmpty ? stableColumn : '$kind.$stableColumn';
   }
 
@@ -213,17 +218,15 @@ class SmartList {
     return _stableToken(rawValue.split('.').last);
   }
 
-  static LibrarySortColumn? _sortColumnFromToken(Object? rawValue) {
+  static Object? _sortColumnFromToken(Object? rawValue) {
     final candidate = _sortColumnTokenFromJson(rawValue);
     if (candidate == null) {
       return null;
     }
-    for (final column in LibrarySortColumn.values) {
-      if (_stableToken(column.name) == candidate) {
-        return column;
-      }
+    if (candidate.startsWith('LibrarySortColumn.')) {
+      return candidate.split('.').last;
     }
-    return null;
+    return candidate;
   }
 
   static String _stableToken(String value) {

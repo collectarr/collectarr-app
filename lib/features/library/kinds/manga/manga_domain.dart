@@ -30,15 +30,19 @@ final class MangaChapter {
   final bool isPrimary;
 
   factory MangaChapter.fromDtoValue(Object? value, {bool isPrimary = false}) {
-    final json = value is Map<String, dynamic> ? value : const <String, dynamic>{};
+    final json =
+        value is Map<String, dynamic> ? value : const <String, dynamic>{};
     return MangaChapter(
       id: _stringOrEmpty(json['id'] ?? json['chapter_id'] ?? json['chapterId']),
       title: _stringOrNull(json['title']) ?? 'Chapter',
-      chapterNumber: _stringOrNull(json['chapter_number'] ?? json['chapterNumber']),
-      volumeNumber: _stringOrNull(json['volume_number'] ?? json['volumeNumber']),
+      chapterNumber:
+          _stringOrNull(json['chapter_number'] ?? json['chapterNumber']),
+      volumeNumber:
+          _stringOrNull(json['volume_number'] ?? json['volumeNumber']),
       releaseDate: _dateOrNull(json['release_date'] ?? json['releaseDate']),
       barcode: _stringOrNull(json['barcode']),
-      physicalFormat: _stringOrNull(json['physical_format'] ?? json['physicalFormat']),
+      physicalFormat:
+          _stringOrNull(json['physical_format'] ?? json['physicalFormat']),
       physicalFormatLabel: _stringOrNull(
         json['physical_format_label'] ?? json['physicalFormatLabel'],
       ),
@@ -290,7 +294,8 @@ CatalogSeriesDetails? _seriesFromRaw(Map<String, dynamic> raw) {
     seriesTitle: _stringOrNull(raw['series_title'] ?? raw['seriesTitle']),
     volumeName: _stringOrNull(raw['volume_name'] ?? raw['volumeName']),
     volumeNumber: _doubleOrNull(raw['volume_number'] ?? raw['volumeNumber']),
-    volumeStartYear: _intOrNull(raw['volume_start_year'] ?? raw['volumeStartYear']),
+    volumeStartYear:
+        _intOrNull(raw['volume_start_year'] ?? raw['volumeStartYear']),
     tags: _stringList(raw['tags']),
   );
   return details.hasData ? details : null;

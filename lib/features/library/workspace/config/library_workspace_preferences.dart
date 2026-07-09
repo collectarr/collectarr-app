@@ -25,7 +25,7 @@ class LibraryWorkspacePreferenceSnapshot {
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final bool isSidebarVisible;
-  final LibrarySortColumn sortColumn;
+  final Object sortColumn;
   final bool sortAscending;
   final List<LibrarySortRule>? sortRules;
   final double coverSize;
@@ -33,8 +33,8 @@ class LibraryWorkspacePreferenceSnapshot {
   final double sidebarWidth;
   final double detailsWidth;
   final double detailsHeight;
-  final Set<LibraryTableColumn> visibleColumns;
-  final Map<LibraryTableColumn, double> columnWidths;
+  final Set<Object> visibleColumns;
+  final Map<Object, double> columnWidths;
 
   LibraryWorkspaceChromePreferenceSnapshot get chrome =>
       LibraryWorkspaceChromePreferenceSnapshot(
@@ -248,7 +248,7 @@ class LibraryWorkspacePreferences {
 
   String _key(String suffix) => config.preferenceKey(suffix);
 
-  Set<LibraryTableColumn> _decodeVisibleColumns(List<String>? values) {
+  Set<Object> _decodeVisibleColumns(List<String>? values) {
     if (values == null || values.isEmpty) {
       return Set.of(config.defaultVisibleColumns);
     }
@@ -257,14 +257,13 @@ class LibraryWorkspacePreferences {
         if (config.tableColumnFromFieldId(value) != null)
           config.tableColumnFromFieldId(value)!,
     };
-    if (config.supportsTableColumn(LibraryTableColumn.title) &&
-        !columns.contains(LibraryTableColumn.title)) {
-      columns.add(LibraryTableColumn.title);
+    if (config.supportsTableColumn('title') && !columns.contains('title')) {
+      columns.add('title');
     }
     return columns.isEmpty ? Set.of(config.defaultVisibleColumns) : columns;
   }
 
-  List<String> _encodeColumnWidths(Map<LibraryTableColumn, double> widths) {
+  List<String> _encodeColumnWidths(Map<Object, double> widths) {
     return [
       for (final entry in widths.entries)
         '${config.tableColumnFieldId(entry.key)}:${entry.value.round()}',
@@ -306,11 +305,11 @@ class LibraryWorkspacePreferences {
     return rules.isEmpty ? null : rules;
   }
 
-  Map<LibraryTableColumn, double> _decodeColumnWidths(List<String>? values) {
+  Map<Object, double> _decodeColumnWidths(List<String>? values) {
     if (values == null || values.isEmpty) {
       return const {};
     }
-    final widths = <LibraryTableColumn, double>{};
+    final widths = <Object, double>{};
     for (final value in values) {
       final parts = value.split(':');
       if (parts.length != 2) {
@@ -326,23 +325,23 @@ class LibraryWorkspacePreferences {
     return widths;
   }
 
-  Set<LibraryTableColumn> _normalizeVisibleColumns(
-    Set<LibraryTableColumn> columns,
+  Set<Object> _normalizeVisibleColumns(
+    Set<Object> columns,
   ) {
     final normalized = {
       for (final column in columns)
         if (config.supportsTableColumn(column)) column,
     };
-    if (config.supportsTableColumn(LibraryTableColumn.title)) {
-      normalized.add(LibraryTableColumn.title);
+    if (config.supportsTableColumn('title')) {
+      normalized.add('title');
     }
     return normalized.isEmpty
         ? Set.of(config.defaultVisibleColumns)
         : normalized;
   }
 
-  Map<LibraryTableColumn, double> _normalizeColumnWidths(
-    Map<LibraryTableColumn, double> widths,
+  Map<Object, double> _normalizeColumnWidths(
+    Map<Object, double> widths,
   ) {
     return {
       for (final entry in widths.entries)
@@ -355,7 +354,7 @@ class LibraryWorkspacePreferences {
       return null;
     }
     final normalized = <LibrarySortRule>[];
-    final seen = <LibrarySortColumn>{};
+    final seen = <Object>{};
     for (final rule in rules) {
       if (!config.supportsSortColumn(rule.column) || !seen.add(rule.column)) {
         continue;

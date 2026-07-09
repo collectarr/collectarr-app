@@ -62,17 +62,18 @@ LibraryWorkspaceEntry buildMangaLibraryWorkspaceEntryFromShelf(
     referenceFormatLabel: libraryReferenceFormatLabel(
       ownedItem: source.ownedItem,
       wishlistItem: source.wishlistItem,
-      editions: work.chapters.map((chapter) => chapter.toCatalogEdition()).toList(
-        growable: false,
-      ),
+      editions:
+          work.chapters.map((chapter) => chapter.toCatalogEdition()).toList(
+                growable: false,
+              ),
       fallbackFormatLabel: work.publishing?.subtitle ?? work.subtitle,
     ),
     referenceEditionId:
         source.ownedItem?.editionId ?? source.wishlistItem?.editionId,
     referenceVariantId:
         source.ownedItem?.variantId ?? source.wishlistItem?.variantId,
-    referenceBundleReleaseId:
-        source.ownedItem?.bundleReleaseId ?? source.wishlistItem?.bundleReleaseId,
+    referenceBundleReleaseId: source.ownedItem?.bundleReleaseId ??
+        source.wishlistItem?.bundleReleaseId,
     notes: overlay.ownedItem?.personalNotes ?? overlay.wishlistItem?.notes,
     tags: overlay.ownedItem?.tags,
     collectionStatus: overlay.ownedItem?.collectionStatus,
@@ -82,8 +83,8 @@ LibraryWorkspaceEntry buildMangaLibraryWorkspaceEntryFromShelf(
     locationPath: overlay.locationPath,
     addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
     editions: work.chapters.map((chapter) => chapter.toCatalogEdition()).toList(
-      growable: false,
-    ),
+          growable: false,
+        ),
     updatedAt: source.updatedAt,
     trailerUrls: work.trailerUrls,
     plotSummary: work.plotSummary ?? work.synopsis,

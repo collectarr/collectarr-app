@@ -24,13 +24,13 @@ class LibraryColumnChooserDialog extends StatefulWidget {
     super.key,
   });
 
-  final List<LibraryTableColumn> availableColumns;
-  final Set<LibraryTableColumn> selectedColumns;
-  final Set<LibraryTableColumn> defaultColumns;
-  final String Function(LibraryTableColumn column) columnLabel;
+  final List<Object> availableColumns;
+  final Set<Object> selectedColumns;
+  final Set<Object> defaultColumns;
+  final String Function(Object column) columnLabel;
   final Color? accent;
-  final String? Function(LibraryTableColumn column)? columnDescription;
-  final LibraryTableColumnGroup Function(LibraryTableColumn column)?
+  final String? Function(Object column)? columnDescription;
+  final LibraryTableColumnGroup Function(Object column)?
       columnGroup;
   final String Function(LibraryTableColumnGroup group)? groupLabel;
   final List<LibraryTableColumnPreset> presets;
@@ -39,7 +39,7 @@ class LibraryColumnChooserDialog extends StatefulWidget {
   final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedFavorite;
   final Future<List<LibraryTableColumnPreset>> Function(
     String label,
-    Set<LibraryTableColumn> columns,
+    Set<Object> columns,
   )? onSavePreset;
   final Future<List<LibraryTableColumnPreset>> Function(String id)?
       onDeletePreset;
@@ -51,7 +51,7 @@ class LibraryColumnChooserDialog extends StatefulWidget {
 
 class _LibraryColumnChooserDialogState
     extends State<LibraryColumnChooserDialog> {
-  late var _selected = Set<LibraryTableColumn>.of(widget.selectedColumns);
+  late var _selected = Set<Object>.of(widget.selectedColumns);
   late var _savedPresets = List<LibraryTableColumnPreset>.of(
     widget.savedPresets,
   );
@@ -60,7 +60,7 @@ class _LibraryColumnChooserDialogState
   String _query = '';
 
   LibraryTableColumnPreset? get _activePreset {
-    final selected = {..._selected, LibraryTableColumn.title};
+    final selected = {..._selected, 'title'};
     for (final preset in _allPresets) {
       if (_sameColumnSet(preset.columns, selected)) {
         return preset;
@@ -275,11 +275,10 @@ class _LibraryColumnChooserDialogState
                                         final column = selectedColumns[index];
                                         return _SelectedColumnTile(
                                           key: ValueKey(
-                                            'selected-column-${column.name}',
+                                            'selected-column-$column',
                                           ),
                                           title: widget.columnLabel(column),
-                                          removable: column !=
-                                              LibraryTableColumn.title,
+                                          removable: column != 'title',
                                           onRemove: () => setState(
                                             () => _selected.remove(column),
                                           ),
@@ -322,8 +321,7 @@ class _LibraryColumnChooserDialogState
                     const SizedBox(width: 8),
                     LibraryDenseButton(
                       onPressed: () {
-                        final result = Set<LibraryTableColumn>.of(_selected)
-                          ..add(LibraryTableColumn.title);
+                        final result = Set<Object>.of(_selected)..add('title');
                         Navigator.of(context).pop(result);
                       },
                       label: 'Save',
@@ -340,8 +338,8 @@ class _LibraryColumnChooserDialogState
     );
   }
 
-  List<LibraryTableColumn> _orderedVisibleColumns(
-    Set<LibraryTableColumn> columns,
+  List<Object> _orderedVisibleColumns(
+    Set<Object> columns,
   ) {
     final effective = columns.isEmpty ? widget.defaultColumns : columns;
     return [
@@ -353,7 +351,7 @@ class _LibraryColumnChooserDialogState
     setState(() {
       _selected = {
         ...preset.columns,
-        LibraryTableColumn.title,
+        'title',
       };
       _presetNameController.text = preset.label;
     });
@@ -383,7 +381,7 @@ class _LibraryColumnChooserDialogState
   }
 
   List<Widget> _availableColumnTiles(
-    List<LibraryTableColumn> columns, {
+    List<Object> columns, {
     required Color accent,
   }) {
     if (widget.columnGroup == null) {
@@ -391,7 +389,7 @@ class _LibraryColumnChooserDialogState
         for (final column in columns) _columnCheckbox(column),
       ];
     }
-    final grouped = <LibraryTableColumnGroup, List<LibraryTableColumn>>{};
+    final grouped = <LibraryTableColumnGroup, List<Object>>{};
     for (final column in columns) {
       final group = widget.columnGroup!(column);
       grouped.putIfAbsent(group, () => []).add(column);
@@ -414,14 +412,14 @@ class _LibraryColumnChooserDialogState
     ];
   }
 
-  Widget _columnCheckbox(LibraryTableColumn column) {
+  Widget _columnCheckbox(Object column) {
     final palette = appPalette(context);
     final selected = _selected.contains(column);
-    final locked = column == LibraryTableColumn.title;
+    final locked = column == 'title';
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        key: ValueKey('available-column-${column.name}'),
+        key: ValueKey('available-column-$column'),
         onTap: locked
             ? null
             : () => setState(() {
@@ -466,14 +464,14 @@ class _LibraryColumnChooserDialogState
     );
   }
 
-  void _toggleGroupColumns(List<LibraryTableColumn> columns) {
+  void _toggleGroupColumns(List<Object> columns) {
     final allSelected = columns.every(
       (column) =>
-          column == LibraryTableColumn.title || _selected.contains(column),
+          column == 'title' || _selected.contains(column),
     );
     setState(() {
       for (final column in columns) {
-        if (column == LibraryTableColumn.title) {
+        if (column == 'title') {
           _selected.add(column);
           continue;
         }
@@ -500,8 +498,8 @@ class _LibraryColumnChooserDialogState
   }
 
   bool _sameColumnSet(
-    Set<LibraryTableColumn> first,
-    Set<LibraryTableColumn> second,
+    Set<Object> first,
+    Set<Object> second,
   ) {
     return first.length == second.length && first.containsAll(second);
   }
@@ -587,7 +585,7 @@ class _PresetShelf extends StatelessWidget {
   final List<LibraryTableColumnPreset> presets;
   final LibraryTableColumnPreset? activePreset;
   final Set<String> pinnedFavoriteKeys;
-  final String Function(LibraryTableColumn column) columnLabel;
+  final String Function(Object column) columnLabel;
   final TextEditingController nameController;
   final ValueChanged<LibraryTableColumnPreset> onApply;
   final ValueChanged<LibraryTableColumnPreset> onEdit;

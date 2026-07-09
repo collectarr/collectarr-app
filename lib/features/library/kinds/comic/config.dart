@@ -25,11 +25,15 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
 
 final comicsLibraryConfig = LibraryTypeConfig(
   workspace: comicsWorkspaceConfig,
-  defaultSortColumn: LibrarySortColumn.title,
-  defaultVisibleColumns: comicsLibraryDefaultVisibleColumns,
-  availableSortColumns: comicsLibrarySortColumns,
-  availableSortColumnDefinitions: comicLibrarySortColumnDefinitions,
-  availableTableColumns: comicsLibraryTableColumns,
+  defaultSortColumn: comicDefaultSortId,
+  defaultVisibleColumns: comicLibraryDefaultVisibleColumnIds,
+  availableSortColumns: [
+    for (final definition in comicLibrarySortDefinitions) definition.id,
+  ],
+  availableSortColumnDefinitions: comicLibrarySortDefinitions,
+  availableTableColumns: [
+    for (final definition in comicLibraryColumnDefinitions) definition.id.value,
+  ],
   singularLabel: 'Comic',
   pluralLabel: 'Comics',
   defaultMetadataProvider: 'gcd',
@@ -91,76 +95,76 @@ final comicsLibraryConfig = LibraryTypeConfig(
 );
 
 List<LibraryGroupModeCategory> buildComicGroupModeCategories(
-  List<LibraryGroupMode> modes,
+  List<Object> modes,
 ) {
-  const mainModes = {
-    LibraryGroupMode.series,
-    LibraryGroupMode.ageRating,
-    LibraryGroupMode.country,
-    LibraryGroupMode.crossover,
-    LibraryGroupMode.genre,
-    LibraryGroupMode.imprint,
-    LibraryGroupMode.language,
-    LibraryGroupMode.publisher,
-    LibraryGroupMode.releaseDate,
-    LibraryGroupMode.releaseMonth,
-    LibraryGroupMode.releaseYear,
-    LibraryGroupMode.seriesGroup,
-    LibraryGroupMode.storyArc,
+  const mainIds = {
+    'series',
+    'age_rating',
+    'country',
+    'crossover',
+    'genre',
+    'imprint',
+    'language',
+    'publisher',
+    'release_date',
+    'release_month',
+    'release_year',
+    'series_group',
+    'comic.story_arc',
   };
-  const valueModes = {
-    LibraryGroupMode.grade,
-    LibraryGroupMode.condition,
-    LibraryGroupMode.isKeyComic,
-    LibraryGroupMode.rawOrSlabbed,
-    LibraryGroupMode.myRating,
-    LibraryGroupMode.purchaseDate,
-    LibraryGroupMode.purchaseMonth,
-    LibraryGroupMode.purchaseYear,
-    LibraryGroupMode.purchaseStore,
-    LibraryGroupMode.owner,
+  const valueIds = {
+    'grade',
+    'condition',
+    'is_key_comic',
+    'raw_or_slabbed',
+    'my_rating',
+    'purchase_date',
+    'purchase_month',
+    'purchase_year',
+    'purchase_store',
+    'owner',
   };
-  const editionModes = {
-    LibraryGroupMode.coverDate,
-    LibraryGroupMode.coverMonth,
-    LibraryGroupMode.coverYear,
-    LibraryGroupMode.format,
+  const editionIds = {
+    'cover_date',
+    'cover_month',
+    'cover_year',
+    'format',
   };
-  const creatorsAndCharactersModes = {
-    LibraryGroupMode.creator,
-    LibraryGroupMode.artist,
-    LibraryGroupMode.character,
-    LibraryGroupMode.colorist,
-    LibraryGroupMode.coverArtist,
-    LibraryGroupMode.coverColorist,
-    LibraryGroupMode.coverInker,
-    LibraryGroupMode.coverPainter,
-    LibraryGroupMode.coverPenciller,
-    LibraryGroupMode.coverSeparator,
-    LibraryGroupMode.editor,
-    LibraryGroupMode.editorInChief,
-    LibraryGroupMode.inker,
-    LibraryGroupMode.layouts,
-    LibraryGroupMode.letterer,
-    LibraryGroupMode.painter,
-    LibraryGroupMode.penciller,
-    LibraryGroupMode.plotter,
-    LibraryGroupMode.scripter,
-    LibraryGroupMode.separator,
-    LibraryGroupMode.translator,
-    LibraryGroupMode.writer,
+  const creatorsAndCharactersIds = {
+    'creator',
+    'artist',
+    'comic.character',
+    'colorist',
+    'cover_artist',
+    'cover_colorist',
+    'cover_inker',
+    'cover_painter',
+    'cover_penciller',
+    'cover_separator',
+    'editor',
+    'editor_in_chief',
+    'inker',
+    'layouts',
+    'letterer',
+    'painter',
+    'penciller',
+    'plotter',
+    'scripter',
+    'separator',
+    'translator',
+    'writer',
   };
-  final main = modes.where(mainModes.contains).toList();
-  final value = modes.where(valueModes.contains).toList();
-  final edition = modes.where(editionModes.contains).toList();
+  final main = modes.where(mainIds.contains).toList();
+  final value = modes.where(valueIds.contains).toList();
+  final edition = modes.where(editionIds.contains).toList();
   final creatorsAndCharacters =
-      modes.where(creatorsAndCharactersModes.contains).toList();
+      modes.where(creatorsAndCharactersIds.contains).toList();
   final personal = modes
       .where((mode) =>
-          !mainModes.contains(mode) &&
-          !valueModes.contains(mode) &&
-          !editionModes.contains(mode) &&
-          !creatorsAndCharactersModes.contains(mode))
+          !mainIds.contains(mode) &&
+          !valueIds.contains(mode) &&
+          !editionIds.contains(mode) &&
+          !creatorsAndCharactersIds.contains(mode))
       .toList();
   return [
     if (main.isNotEmpty) LibraryGroupModeCategory('Main', main),

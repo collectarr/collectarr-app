@@ -32,22 +32,29 @@ LibraryMediaAdapter plannedMediaAdapter(
     ),
     tableWidthForColumns: (columns, customWidths) =>
         plannedMediaTableWidthForColumns(
-      config: type.workspace,
+      type: type,
       columns: columns,
       customWidths: customWidths,
     ),
-    tableColumnWidth: plannedMediaTableColumnWidth,
-    defaultTableColumnWidth: defaultPlannedMediaTableColumnWidth,
+    tableColumnWidth: (column, customWidths) =>
+        plannedMediaTableColumnWidth(type, column, customWidths),
+    defaultTableColumnWidth: (column) =>
+        defaultPlannedMediaTableColumnWidth(type, column),
     columnLabel: (column) => plannedMediaTableColumnLabelForType(type, column),
     columnDisplayName: (column) =>
         plannedMediaTableColumnDisplayNameForType(type, column),
-    columnGroup: plannedMediaTableColumnGroup,
+    columnGroup: (column) => plannedMediaTableColumnGroup(type, column),
     columnGroupLabel: plannedMediaTableColumnGroupLabel,
-    columnIsNumeric: plannedMediaTableColumnIsNumeric,
-    columnSort: plannedMediaTableColumnSort,
-    tableCellBuilder: plannedMediaTableCell,
-    compareEntriesByColumn:
-        compareEntriesByColumn ?? comparePlannedMediaEntriesByColumn,
+    columnIsNumeric: (column) => plannedMediaTableColumnIsNumeric(type, column),
+    columnSort: (column) => plannedMediaTableColumnSort(type, column),
+    tableCellBuilder: (entry, column) =>
+        plannedMediaTableCell(type, entry, column),
+    compareEntriesByColumn: compareEntriesByColumn ??
+        (left, right, column) =>
+            type.presentation.sortDefinitionFor(column.toString()).compare(
+                  left,
+                  right,
+                ),
     entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
     entryLinkedMetadataCandidatesBuilder:
         plannedMediaLinkedMetadataCandidatesForEntry,
@@ -81,18 +88,12 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
     maxCoverSize: kPlannedMediaMaxCoverSize,
     coverGridHeightFactor: coverGridHeightFactor,
     presetConfig: plannedMediaViewPresetConfig,
-    clampColumnWidth: clampPlannedMediaTableColumnWidth,
+    clampColumnWidth: (column, width) =>
+        clampPlannedMediaTableColumnWidth(type, column, width),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
-    sortAscendingForColumn: plannedMediaInitialSortAscending,
+    sortAscendingForColumn: (column) =>
+        type.presentation.sortDefinitionFor(column.toString()).defaultAscending,
   );
-}
-
-bool plannedMediaInitialSortAscending(LibrarySortColumn column) {
-  return switch (column) {
-    LibrarySortColumn.added => false,
-    LibrarySortColumn.updated => false,
-    _ => true,
-  };
 }
 
 LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
@@ -104,11 +105,11 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
         detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: kPlannedMediaDefaultCoverSize,
         visibleColumns: {
-          LibraryTableColumn.status,
-          LibraryTableColumn.cover,
-          LibraryTableColumn.title,
-          LibraryTableColumn.publisher,
-          LibraryTableColumn.releaseDate,
+          'status',
+          'cover',
+          'title',
+          'publisher',
+          'releaseDate',
         },
       ),
     LibraryWorkspacePreset.card => const LibraryWorkspaceViewPresetConfig(
@@ -116,12 +117,12 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
         detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: 150,
         visibleColumns: {
-          LibraryTableColumn.status,
-          LibraryTableColumn.cover,
-          LibraryTableColumn.title,
-          LibraryTableColumn.publisher,
-          LibraryTableColumn.releaseDate,
-          LibraryTableColumn.condition,
+          'status',
+          'cover',
+          'title',
+          'publisher',
+          'releaseDate',
+          'condition',
         },
       ),
     LibraryWorkspacePreset.list => const LibraryWorkspaceViewPresetConfig(
@@ -129,15 +130,15 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
         detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: kPlannedMediaDefaultCoverSize,
         visibleColumns: {
-          LibraryTableColumn.status,
-          LibraryTableColumn.title,
-          LibraryTableColumn.format,
-          LibraryTableColumn.publisher,
-          LibraryTableColumn.releaseDate,
-          LibraryTableColumn.condition,
-          LibraryTableColumn.price,
-          LibraryTableColumn.location,
-          LibraryTableColumn.added,
+          'status',
+          'title',
+          'format',
+          'publisher',
+          'releaseDate',
+          'condition',
+          'price',
+          'location',
+          'added',
         },
       ),
     LibraryWorkspacePreset.details => const LibraryWorkspaceViewPresetConfig(
@@ -145,14 +146,14 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
         detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: 144,
         visibleColumns: {
-          LibraryTableColumn.status,
-          LibraryTableColumn.cover,
-          LibraryTableColumn.title,
-          LibraryTableColumn.publisher,
-          LibraryTableColumn.releaseDate,
-          LibraryTableColumn.barcode,
-          LibraryTableColumn.condition,
-          LibraryTableColumn.price,
+          'status',
+          'cover',
+          'title',
+          'publisher',
+          'releaseDate',
+          'barcode',
+          'condition',
+          'price',
         },
       ),
   };
@@ -161,7 +162,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
 int plannedMediaCompareEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
-  LibrarySortColumn column,
+  Object column,
 ) {
   return comparePlannedMediaEntriesByColumn(left, right, column);
 }
@@ -219,9 +220,9 @@ Iterable<String> plannedMediaLinkedMetadataCandidatesForEntry(
 
 String? plannedMediaSubgroupKeyForEntry(
   LibraryWorkspaceEntry entry,
-  LibraryGroupMode groupMode,
+  Object groupMode,
 ) {
-  if (groupMode != LibraryGroupMode.series) {
+  if (groupMode != 'series') {
     return null;
   }
   if (entry.mediaType.trim().toLowerCase() == 'book') {
@@ -243,9 +244,9 @@ String? plannedMediaSubgroupKeyForEntry(
 int plannedMediaCompareSubgroupKeys(
   String left,
   String right,
-  LibraryGroupMode groupMode,
+  Object groupMode,
 ) {
-  if (groupMode != LibraryGroupMode.series) {
+  if (groupMode != 'series') {
     return left.compareTo(right);
   }
   final leftNumber = _extractSubgroupNumber(left);
@@ -259,75 +260,78 @@ int plannedMediaCompareSubgroupKeys(
 int comparePlannedMediaEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
-  LibrarySortColumn column,
+  Object column,
 ) {
-  return switch (column) {
-    LibrarySortColumn.status => _compareBools(left.isOwned, right.isOwned),
-    LibrarySortColumn.title =>
+  return switch (column.toString()) {
+    'status' => _compareBools(left.isOwned, right.isOwned),
+    'title' =>
       _compareNullableStrings(left.resolvedTitle, right.resolvedTitle),
-    LibrarySortColumn.series => _compareNullableStrings(
+    'series' => _compareNullableStrings(
         left.series?.seriesTitle,
         right.series?.seriesTitle,
       ),
-    LibrarySortColumn.issue =>
+    'issue' =>
       _compareIssueNumbers(left.itemNumber, right.itemNumber),
-    LibrarySortColumn.storyArc => _compareNullableStrings(
+    'storyArc' => _compareNullableStrings(
         _firstStringValue(left.storyArcs),
         _firstStringValue(right.storyArcs),
       ),
-    LibrarySortColumn.variant =>
+    'variant' =>
       _compareNullableStrings(left.variant, right.variant),
-    LibrarySortColumn.format => _compareNullableStrings(
+    'format' => _compareNullableStrings(
         left.referenceFormatLabel,
         right.referenceFormatLabel,
       ),
-    LibrarySortColumn.publisher =>
+    'publisher' =>
       _compareNullableStrings(left.publisher, right.publisher),
-    LibrarySortColumn.releaseDate =>
+    'releaseDate' =>
       _compareNullableDates(left.releaseDate, right.releaseDate),
-    LibrarySortColumn.barcode =>
+    'barcode' =>
       _compareNullableStrings(left.barcode, right.barcode),
-    LibrarySortColumn.grade => _compareNullableStrings(left.grade, right.grade),
-    LibrarySortColumn.rawOrSlabbed =>
+    'grade' => _compareNullableStrings(left.grade, right.grade),
+    'rawOrSlabbed' =>
       _compareNullableStrings(left.comic?.rawOrSlabbed, right.comic?.rawOrSlabbed),
-    LibrarySortColumn.gradingCompany => _compareNullableStrings(
+    'gradingCompany' => _compareNullableStrings(
         left.comic?.gradingCompany,
         right.comic?.gradingCompany,
       ),
-    LibrarySortColumn.condition =>
+    'condition' =>
       _compareNullableStrings(left.condition, right.condition),
-    LibrarySortColumn.price =>
+    'price' =>
       _compareNullableInts(left.pricePaidCents, right.pricePaidCents),
-    LibrarySortColumn.location =>
+    'location' =>
       _compareNullableStrings(left.locationPath, right.locationPath),
-    LibrarySortColumn.collectionStatus =>
+    'collectionStatus' =>
       _compareNullableStrings(left.collectionStatus, right.collectionStatus),
-    LibrarySortColumn.wishlist =>
+    'wishlist' =>
       _compareBools(left.isWishlisted, right.isWishlisted),
-    LibrarySortColumn.keyComic =>
+    'keyComic' =>
       _compareBools(left.comic?.keyComic ?? false, right.comic?.keyComic ?? false),
-    LibrarySortColumn.added =>
+    'added' =>
       _compareNullableDates(left.addedAt, right.addedAt),
-    LibrarySortColumn.updated => left.updatedAt.compareTo(right.updatedAt),
-    LibrarySortColumn.country =>
+    'updated' => left.updatedAt.compareTo(right.updatedAt),
+    'country' =>
       _compareNullableStrings(left.country, right.country),
-    LibrarySortColumn.language =>
+    'language' =>
       _compareNullableStrings(left.language, right.language),
-    LibrarySortColumn.pageCount => _compareNullableInts(
+    'pageCount' => _compareNullableInts(
         left.publishing?.pageCount,
         right.publishing?.pageCount,
       ),
-    LibrarySortColumn.ageRating =>
+    'ageRating' =>
       _compareNullableStrings(left.ageRating, right.ageRating),
-    LibrarySortColumn.imprint =>
+    'imprint' =>
       _compareNullableStrings(left.publishing?.imprint, right.publishing?.imprint),
+    String() => left.resolvedTitle.toLowerCase().compareTo(
+        right.resolvedTitle.toLowerCase(),
+      ),
   };
 }
 
 int compareBookEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
-  LibrarySortColumn column,
+  Object column,
 ) =>
     comparePlannedMediaEntriesByColumn(left, right, column);
 

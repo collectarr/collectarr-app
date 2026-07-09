@@ -17,18 +17,18 @@ const comicsPreviewLabels = LibraryMediaPreviewLabels(
 );
 
 const comicsIssueVisibleColumns = {
-  LibraryTableColumn.status,
-  LibraryTableColumn.cover,
-  LibraryTableColumn.title,
-  LibraryTableColumn.issue,
-  LibraryTableColumn.publisher,
-  LibraryTableColumn.releaseDate,
-  LibraryTableColumn.barcode,
-  LibraryTableColumn.condition,
-  LibraryTableColumn.price,
-  LibraryTableColumn.location,
-  LibraryTableColumn.wishlist,
-  LibraryTableColumn.updated,
+  'status',
+  'cover',
+  'title',
+  'issue',
+  'publisher',
+  'release_date',
+  'barcode',
+  'condition',
+  'price',
+  'location',
+  'wishlist',
+  'updated',
 };
 
 const comicLibraryGroupLabels = LibraryMediaGroupLabels(
@@ -56,9 +56,9 @@ const comicLibrarySortFavorites = [
     label: 'Series + issue',
     icon: Icons.format_list_numbered,
     rules: [
-      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
-      LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
-      LibrarySortRule(column: LibrarySortColumn.variant, ascending: true),
+      LibrarySortRule(column: 'title', ascending: true),
+      LibrarySortRule(column: 'comic.issue', ascending: true),
+      LibrarySortRule(column: 'variant', ascending: true),
     ],
   ),
   LibrarySortFavorite(
@@ -66,8 +66,8 @@ const comicLibrarySortFavorites = [
     label: 'Recently added',
     icon: Icons.update,
     rules: [
-      LibrarySortRule(column: LibrarySortColumn.updated, ascending: false),
-      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+      LibrarySortRule(column: 'updated', ascending: false),
+      LibrarySortRule(column: 'title', ascending: true),
     ],
   ),
   LibrarySortFavorite(
@@ -75,9 +75,9 @@ const comicLibrarySortFavorites = [
     label: 'Publisher + date',
     icon: Icons.business_outlined,
     rules: [
-      LibrarySortRule(column: LibrarySortColumn.publisher, ascending: true),
-      LibrarySortRule(column: LibrarySortColumn.releaseDate, ascending: true),
-      LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
+      LibrarySortRule(column: 'publisher', ascending: true),
+      LibrarySortRule(column: 'release_date', ascending: true),
+      LibrarySortRule(column: 'comic.issue', ascending: true),
     ],
   ),
   LibrarySortFavorite(
@@ -85,8 +85,8 @@ const comicLibrarySortFavorites = [
     label: 'Value high to low',
     icon: Icons.attach_money,
     rules: [
-      LibrarySortRule(column: LibrarySortColumn.price, ascending: false),
-      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+      LibrarySortRule(column: 'price', ascending: false),
+      LibrarySortRule(column: 'title', ascending: true),
     ],
   ),
 ];
@@ -110,19 +110,21 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   workspaceEntryBuilder: buildComicsLibraryWorkspaceEntryFromShelf,
   releaseEntryBuilder: buildComicsLibraryReleaseEntry,
   bucketLabelBuilder: comicLibraryBucketLabelBuilder,
-  defaultVisibleColumns: comicsIssueVisibleColumns,
+  defaultVisibleColumnIds: comicsIssueVisibleColumns,
+  defaultSortId: comicDefaultSortId,
+  defaultGroupId: comicDefaultGroupId,
   previewLabels: comicsPreviewLabels,
   usesTreeProviderCandidates: true,
   externalFacetBucketIdsByMode: {
-    LibraryGroupMode.storyArc: LibraryFacetId.comicStoryArc,
-    LibraryGroupMode.character: LibraryFacetId.comicCharacter,
+    'comic.story_arc': LibraryFacetId.comicStoryArc,
+    'comic.character': LibraryFacetId.comicCharacter,
   },
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
   sortFavorites: comicLibrarySortFavorites,
   columnFavorites: comicsTableColumnPresets,
   fieldDefinitions: comicLibraryFieldDefinitions,
-  sortColumnDefinitions: comicLibrarySortColumnDefinitions,
-  groupModeDefinitions: comicLibraryGroupModeDefinitions,
-  groupModes: comicLibraryGroupModes,
+  sortDefinitions: comicLibrarySortDefinitions,
+  groupDefinitions: comicLibraryGroupDefinitions,
+  columnDefinitions: comicLibraryColumnDefinitions,
 );

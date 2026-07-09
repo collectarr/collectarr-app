@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/shared/comic/presentation_builde
 import 'package:collectarr_app/features/library/kinds/manga/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
 const mangaMetadataLabels = LibraryMetadataLabels(
@@ -83,14 +82,17 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   statsLabels: mangaStatsLabels,
   usesTreeProviderCandidates: true,
   externalFacetBucketIdsByMode: {
-    LibraryGroupMode.storyArc: LibraryFacetId.comicStoryArc,
-    LibraryGroupMode.character: LibraryFacetId.mediaCharacter,
+    'comic.story_arc': LibraryFacetId.comicStoryArc,
+    'comic.character': LibraryFacetId.mediaCharacter,
   },
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.import_contacts_outlined,
   fieldDefinitions: mangaLibraryFieldDefinitions,
-  sortColumnDefinitions: mangaLibrarySortColumnDefinitions,
-  groupModeDefinitions: mangaLibraryGroupModeDefinitions,
-  groupModes: mangaLibraryGroupModes,
+  sortDefinitions: mangaLibrarySortDefinitions,
+  groupDefinitions: mangaLibraryGroupDefinitions,
+  columnDefinitions: mangaLibraryColumnDefinitions,
+  defaultVisibleColumnIds: mangaLibraryDefaultVisibleColumnIds,
+  defaultSortId: mangaDefaultSortId,
+  defaultGroupId: mangaDefaultGroupId,
 );

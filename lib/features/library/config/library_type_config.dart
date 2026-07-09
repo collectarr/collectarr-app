@@ -29,7 +29,7 @@ import 'package:flutter/material.dart';
 
 typedef LibraryGroupModeCategoryBuilder = List<LibraryGroupModeCategory>
     Function(
-  List<LibraryGroupMode> modes,
+  List<Object> modes,
 );
 
 const kTransferableMediaFieldKeys = <String>[];
@@ -397,10 +397,10 @@ class LibraryTypeCapabilities {
   /// is showing the media scope vs the releases scope. When provided, the
   /// generic page narrows the available options per browser mode instead of
   /// hardcoding a per-kind rule.
-  final Set<LibraryGroupMode>? mediaScopeGroupModes;
-  final Set<LibraryGroupMode>? releaseScopeGroupModes;
-  final Set<LibrarySortColumn>? mediaScopeSortColumns;
-  final Set<LibrarySortColumn>? releaseScopeSortColumns;
+  final Set<Object>? mediaScopeGroupModes;
+  final Set<Object>? releaseScopeGroupModes;
+  final Set<Object>? mediaScopeSortColumns;
+  final Set<Object>? releaseScopeSortColumns;
 
   /// Whether this type can compare its local metadata against the canonical
   /// server record (e.g. comics and music).
@@ -476,7 +476,7 @@ class LibraryGroupModeCategory {
   const LibraryGroupModeCategory(this.label, this.modes);
 
   final String label;
-  final List<LibraryGroupMode> modes;
+  final List<Object> modes;
 }
 
 class LibraryKindUiAdapter {
@@ -509,7 +509,7 @@ class LibraryKindUiAdapter {
 
   bool supportsBucketManagement(
     LibraryTypeConfig type,
-    LibraryGroupMode mode,
+    Object mode,
   ) {
     return type.presentation
         .groupModeDefinitionFor(mode)
@@ -551,11 +551,11 @@ class LibraryKindUiAdapter {
   bool canJumpToSelectedEntry(
     LibraryTypeConfig type,
     LibraryProjection? projection, {
-    required LibraryGroupMode activeGroupMode,
+    required Object activeGroupMode,
     required String? selectedBucket,
   }) {
     if (projection == null ||
-        activeGroupMode != LibraryGroupMode.series ||
+        activeGroupMode != 'series' ||
         selectedBucket == null) {
       return false;
     }
@@ -563,7 +563,7 @@ class LibraryKindUiAdapter {
         type.workspaceBehavior.issueSortNumber ?? _issueSortNumber;
     return projection.allItems.any(
       (item) =>
-          genericBucketForItemMode(item, type, LibraryGroupMode.series) ==
+          genericBucketForItemMode(item, type, 'series') ==
               selectedBucket &&
           issueSortNumber(item.entry.itemNumber) != null,
     );
@@ -593,7 +593,7 @@ class LibraryKindUiAdapter {
 
   List<LibraryGroupModeCategory> groupModeCategories(
     LibraryTypeConfig type,
-    List<LibraryGroupMode> modes,
+    List<Object> modes,
   ) {
     final builder = type.capabilities.groupModeCategoriesBuilder;
     if (builder != null) {
@@ -604,7 +604,7 @@ class LibraryKindUiAdapter {
 
   List<LibraryGroupModeCategory> sidebarFacets(
     LibraryTypeConfig type,
-    List<LibraryGroupMode> modes,
+    List<Object> modes,
   ) {
     return groupModeCategories(type, modes);
   }
@@ -618,65 +618,65 @@ int? _issueSortNumber(String? raw) {
 }
 
 List<LibraryGroupModeCategory> _defaultGroupModeCategories(
-  List<LibraryGroupMode> modes,
+  List<Object> modes,
 ) {
   const mainModes = {
-    LibraryGroupMode.series,
-    LibraryGroupMode.storyArc,
-    LibraryGroupMode.character,
-    LibraryGroupMode.title,
-    LibraryGroupMode.publisher,
-    LibraryGroupMode.year,
-    LibraryGroupMode.audienceRating,
-    LibraryGroupMode.color,
-    LibraryGroupMode.genre,
-    LibraryGroupMode.country,
-    LibraryGroupMode.language,
-    LibraryGroupMode.ageRating,
-    LibraryGroupMode.movieOrTvSeries,
-    LibraryGroupMode.releaseDate,
-    LibraryGroupMode.releaseMonth,
-    LibraryGroupMode.releaseYear,
+    'series',
+    'storyArc',
+    'character',
+    'title',
+    'publisher',
+    'year',
+    'audienceRating',
+    'color',
+    'genre',
+    'country',
+    'language',
+    'ageRating',
+    'movieOrTvSeries',
+    'releaseDate',
+    'releaseMonth',
+    'releaseYear',
   };
   const editionModes = {
-    LibraryGroupMode.audioTracks,
-    LibraryGroupMode.boxSet,
-    LibraryGroupMode.distributor,
-    LibraryGroupMode.editionReleaseDate,
-    LibraryGroupMode.editionReleaseMonth,
-    LibraryGroupMode.editionReleaseYear,
-    LibraryGroupMode.extras,
-    LibraryGroupMode.format,
-    LibraryGroupMode.hdr,
-    LibraryGroupMode.layers,
-    LibraryGroupMode.packaging,
-    LibraryGroupMode.regions,
-    LibraryGroupMode.screenRatios,
-    LibraryGroupMode.subtitles,
+    'audioTracks',
+    'boxSet',
+    'distributor',
+    'editionReleaseDate',
+    'editionReleaseMonth',
+    'editionReleaseYear',
+    'extras',
+    'format',
+    'hdr',
+    'layers',
+    'packaging',
+    'regions',
+    'screenRatios',
+    'subtitles',
   };
   const crewModes = {
-    LibraryGroupMode.actor,
-    LibraryGroupMode.director,
-    LibraryGroupMode.musician,
-    LibraryGroupMode.photography,
-    LibraryGroupMode.producer,
-    LibraryGroupMode.writer,
-    LibraryGroupMode.creator,
-    LibraryGroupMode.artist,
-    LibraryGroupMode.penciller,
-    LibraryGroupMode.colorist,
-    LibraryGroupMode.letterer,
-    LibraryGroupMode.coverArtist,
-    LibraryGroupMode.editor,
+    'actor',
+    'director',
+    'musician',
+    'photography',
+    'producer',
+    'writer',
+    'creator',
+    'artist',
+    'penciller',
+    'colorist',
+    'letterer',
+    'coverArtist',
+    'editor',
   };
-  final main = modes.where(mainModes.contains).toList();
-  final edition = modes.where(editionModes.contains).toList();
-  final crew = modes.where(crewModes.contains).toList();
+  final main = modes.where((mode) => mainModes.contains(mode.toString())).toList();
+  final edition = modes.where((mode) => editionModes.contains(mode.toString())).toList();
+  final crew = modes.where((mode) => crewModes.contains(mode.toString())).toList();
   final personal = modes
       .where((mode) =>
-          !mainModes.contains(mode) &&
-          !editionModes.contains(mode) &&
-          !crewModes.contains(mode))
+          !mainModes.contains(mode.toString()) &&
+          !editionModes.contains(mode.toString()) &&
+          !crewModes.contains(mode.toString()))
       .toList();
   return [
     if (main.isNotEmpty) LibraryGroupModeCategory('Main', main),
@@ -735,11 +735,11 @@ class LibraryTypeConfig {
   final String defaultMetadataProvider;
   final List<LibraryMetadataProviderOption> metadataProviders;
   final MediaTrackingProfile trackingProfile;
-  final LibrarySortColumn defaultSortColumn;
-  final Set<LibraryTableColumn> defaultVisibleColumns;
-  final List<LibrarySortColumn> availableSortColumns;
-  final List<LibrarySortColumnDefinition> availableSortColumnDefinitions;
-  final List<LibraryTableColumn> availableTableColumns;
+  final Object defaultSortColumn;
+  final Set<Object> defaultVisibleColumns;
+  final List<Object> availableSortColumns;
+  final List<Object> availableSortColumnDefinitions;
+  final List<Object> availableTableColumns;
   final List<String> conditions;
   final List<String> grades;
   final String? defaultCondition;
@@ -790,7 +790,7 @@ class LibraryTypeConfig {
   bool get usesTitleAsSeriesFallback =>
       manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
-  List<LibraryGroupMode> get availableGroupModes => presentation.groupModes;
+  List<Object> get availableGroupModes => presentation.groupModes;
 
   LibraryWorkspaceDensityPreset get defaultDensityPreset =>
       workspace.defaultDensityPreset;
@@ -798,72 +798,59 @@ class LibraryTypeConfig {
   List<LibraryWorkspaceDensityPreset> get availableDensityPresets =>
       workspace.availableDensityPresets;
 
-  LibrarySortColumnDefinition sortColumnDefinitionFor(
-    LibrarySortColumn column,
-  ) {
-    for (final definition in availableSortColumnDefinitions) {
-      if (definition.column == column) {
-        return definition;
-      }
-    }
-    return LibrarySortColumnDefinition(
-      column: column,
-      label: librarySortColumnFallbackLabel(column),
-    );
+  LibrarySortColumnDefinition sortColumnDefinitionFor(Object column) {
+    return presentation.sortColumnDefinitionFor(column);
   }
 
-  bool supportsSortColumn(LibrarySortColumn column) {
-    return availableSortColumns.contains(column) ||
-        availableSortColumnDefinitions.any((definition) =>
-            definition.column == column);
+  bool supportsSortColumn(Object column) {
+    final columnId = _definitionIdFor(column);
+    return availableSortColumns.any(
+          (value) => _definitionIdFor(value) == columnId,
+        ) ||
+        presentation.sortDefinitionForId(columnId) != null ||
+        presentation.sortDefinitionForId(columnId.split('.').last) != null;
   }
 
-  bool supportsTableColumn(LibraryTableColumn column) {
-    return availableTableColumns.contains(column);
+  bool supportsTableColumn(Object column) {
+    final columnId = _definitionIdFor(column);
+    return availableTableColumns.any(
+          (definition) => _definitionIdFor(definition) == columnId,
+        ) ||
+        presentation.columnDefinitionForId(columnId) != null ||
+        presentation.columnDefinitionForId(columnId.split('.').last) != null;
   }
 
-  String sortColumnFieldId(LibrarySortColumn column) {
+  String sortColumnFieldId(Object column) {
     return sortColumnDefinitionFor(column).id;
   }
 
-  String tableColumnFieldId(LibraryTableColumn column) {
-    return '${workspace.kind.apiValue}.${_stableToken(column.name)}';
+  String tableColumnFieldId(Object column) {
+    final columnId = _definitionIdFor(column);
+    return presentation.columnDefinitionForId(columnId)?.id.value ?? columnId;
   }
 
-  LibrarySortColumn? sortColumnFromFieldId(String? fieldId) {
-    if (fieldId == null || fieldId.trim().isEmpty) {
+  Object? sortColumnFromFieldId(String? fieldId) {
+    final normalized = _definitionIdFor(fieldId);
+    if (normalized.isEmpty) {
       return null;
     }
-    final normalized = fieldId.trim();
-    final normalizedToken = _stableToken(normalized.split('.').last);
-    for (final definition in availableSortColumnDefinitions) {
-      final definitionToken = _stableToken(definition.id.split('.').last);
-      if (definition.id == normalized ||
-          definitionToken == normalizedToken ||
-          _stableToken(definition.column.name) == normalizedToken) {
-        return definition.column;
-      }
+    if (supportsSortColumn(normalized)) {
+      return normalized;
     }
-    for (final column in availableSortColumns) {
-      if (_stableToken(column.name) == normalizedToken) {
-        return column;
-      }
-    }
-    return null;
+    final shortId = normalized.split('.').last;
+    return supportsSortColumn(shortId) ? shortId : null;
   }
 
-  LibraryTableColumn? tableColumnFromFieldId(String? fieldId) {
-    if (fieldId == null || fieldId.trim().isEmpty) {
+  Object? tableColumnFromFieldId(String? fieldId) {
+    final normalized = _definitionIdFor(fieldId);
+    if (normalized.isEmpty) {
       return null;
     }
-    final normalized = fieldId.trim();
-    for (final column in availableTableColumns) {
-      if (tableColumnFieldId(column) == normalized ||
-          _stableToken(column.name) == normalized.split('.').last) {
-        return column;
-      }
+    if (supportsTableColumn(normalized)) {
+      return normalized;
     }
-    return null;
+    final shortId = normalized.split('.').last;
+    return supportsTableColumn(shortId) ? shortId : null;
   }
 
   bool supportsDensityPreset(LibraryWorkspaceDensityPreset preset) {
@@ -889,7 +876,7 @@ class LibraryTypeConfig {
 
   bool get hasGradePickList => grades.isNotEmpty;
 
-  List<LibraryGroupMode> availableGroupModesForBrowserMode(
+  List<Object> availableGroupModesForBrowserMode(
     LibraryWorkspaceBrowserMode browserMode,
   ) {
     if (!capabilities.scopesOptionsByBrowserMode) {
@@ -907,7 +894,7 @@ class LibraryTypeConfig {
     ];
   }
 
-  List<LibrarySortColumn> availableSortColumnsForBrowserMode(
+  List<Object> availableSortColumnsForBrowserMode(
     LibraryWorkspaceBrowserMode browserMode,
   ) {
     if (!capabilities.scopesOptionsByBrowserMode) {
@@ -1015,12 +1002,17 @@ class LibraryTypeConfig {
     return providerId;
   }
 
-  String _stableToken(String value) {
-    return value
-        .replaceAllMapped(
-          RegExp(r'([a-z0-9])([A-Z])'),
-          (match) => '${match[1]}_${match[2]}',
-        )
-        .toLowerCase();
+  String _definitionIdFor(Object? value) {
+    if (value == null) {
+      return '';
+    }
+    final normalized = value.toString().trim();
+    if (normalized.isEmpty) {
+      return '';
+    }
+    if (value is String) {
+      return normalized;
+    }
+    return normalized.contains('.') ? normalized.split('.').last : normalized;
   }
 }
