@@ -3,12 +3,4 @@ import 'package:collectarr_app/features/library/workspace/shared/library_media_a
 
 final animeMediaAdapter = plannedMediaAdapter(
   animeLibraryConfig,
-  entryAccessors: defaultEntryAccessors,
-  compareEntriesByColumn: (left, right, column) =>
-      comparePlannedMediaEntriesByColumn(
-        left,
-        right,
-        column,
-        defaultEntryAccessors,
-      ),
 );

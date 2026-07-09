@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/media/video/video_workspace_progress.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/shared/media_entry_accessors.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -369,7 +368,6 @@ LibrarySortColumn? plannedMediaTableColumnSort(LibraryTableColumn column) {
 Widget plannedMediaTableCell(
   LibraryWorkspaceEntry entry,
   LibraryTableColumn column,
-  PlannedMediaEntryAccessors accessors,
 ) {
   if (entry.mediaType == 'tv' && column == LibraryTableColumn.completion) {
     return VideoWorkspaceProgressCell(entry: entry);
@@ -384,9 +382,9 @@ Widget plannedMediaTableCell(
         hasFrontImage: entry.hasFrontImage,
         hasBackImage: entry.hasBackImage,
         extraImageCount: entry.extraImageCount,
-        hasKeyMarker: accessors.keyComic(entry),
-        hasSlabMarker: accessors.rawOrSlabbed(entry) != null ||
-            accessors.gradingCompany(entry) != null,
+        hasKeyMarker: entry.comic?.keyComic ?? false,
+        hasSlabMarker: entry.comic?.rawOrSlabbed != null ||
+            entry.comic?.gradingCompany != null,
         hasNotesMarker: entry.notes != null && entry.notes!.trim().isNotEmpty,
         contractDiagnosticLabel: libraryHierarchyContractDiagnosticLabel(
           entry,
@@ -478,13 +476,12 @@ Widget plannedMediaTableCell(
     LibraryTableColumn.value =>
       Text(formatMoney(entry.pricePaidCents, entry.currency)),
     LibraryTableColumn.platform =>
-      LibraryTableCellText(_firstDisplayValue(accessors.rawPlatforms(entry))),
-    LibraryTableColumn.developer =>
-      LibraryTableCellText(accessors.developer(entry)),
+      LibraryTableCellText(_firstDisplayValue(entry.game?.platforms ?? entry.rawPlatforms)),
+    LibraryTableColumn.developer => LibraryTableCellText(_musicArtist(entry)),
     LibraryTableColumn.releasePlatform =>
-      LibraryTableCellText(accessors.releasePlatform(entry)),
+      LibraryTableCellText(entry.referenceFormatLabel),
     LibraryTableColumn.completion =>
-      LibraryTableCellText(accessors.completion(entry)),
+      LibraryTableCellText(entry.collectionStatus),
     LibraryTableColumn.location => LibraryTableCellText(entry.locationPath),
     LibraryTableColumn.readStatus => LibraryTableCellText(entry.readStatus),
     LibraryTableColumn.wishlist =>
@@ -498,16 +495,12 @@ Widget plannedMediaTableCell(
         formatDate(entry.updatedAt),
         style: const TextStyle(fontSize: 12),
       ),
-    LibraryTableColumn.country =>
-      LibraryTableCellText(accessors.country(entry)),
-    LibraryTableColumn.language =>
-      LibraryTableCellText(accessors.language(entry)),
+    LibraryTableColumn.country => LibraryTableCellText(entry.country),
+    LibraryTableColumn.language => LibraryTableCellText(entry.language),
     LibraryTableColumn.pageCount =>
       LibraryTableCellText(entry.publishing?.pageCount?.toString()),
-    LibraryTableColumn.ageRating =>
-      LibraryTableCellText(accessors.ageRating(entry)),
-    LibraryTableColumn.imprint =>
-      LibraryTableCellText(entry.publishing?.imprint),
+    LibraryTableColumn.ageRating => LibraryTableCellText(entry.ageRating),
+    LibraryTableColumn.imprint => LibraryTableCellText(entry.publishing?.imprint),
   };
 }
 

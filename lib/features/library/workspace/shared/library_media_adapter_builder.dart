@@ -1,15 +1,14 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 
-import 'media_entry_accessors.dart';
 import 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
 
-export 'media_entry_accessors.dart';
 export 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
 
 const double kPlannedMediaMinCoverSize = 96;
@@ -20,11 +19,9 @@ const double kPlannedMediaTableHorizontalMargin = 8;
 
 LibraryMediaAdapter plannedMediaAdapter(
   LibraryTypeConfig type, {
-  PlannedMediaEntryAccessors? entryAccessors,
   LibraryEntryColumnComparator? compareEntriesByColumn,
   LibraryWorkspaceCardBuilder? workspaceCardBuilder,
 }) {
-  final resolvedEntryAccessors = entryAccessors ?? defaultEntryAccessors;
   final viewProfile = plannedMediaWorkspaceViewProfile(type.workspace);
   return LibraryMediaAdapter(
     type: type,
@@ -48,20 +45,12 @@ LibraryMediaAdapter plannedMediaAdapter(
     columnGroupLabel: plannedMediaTableColumnGroupLabel,
     columnIsNumeric: plannedMediaTableColumnIsNumeric,
     columnSort: plannedMediaTableColumnSort,
-    tableCellBuilder: (entry, column) =>
-        plannedMediaTableCell(entry, column, resolvedEntryAccessors),
-    compareEntriesByColumn: compareEntriesByColumn ??
-        (left, right, column) => comparePlannedMediaEntriesByColumn(
-              left,
-              right,
-              column,
-              resolvedEntryAccessors,
-            ),
-    entryFilterValuesBuilder: (entry) =>
-        plannedMediaFilterValuesForEntry(entry, resolvedEntryAccessors),
-    entryLinkedMetadataCandidatesBuilder: (entry) =>
-        plannedMediaLinkedMetadataCandidatesForEntry(
-            entry, resolvedEntryAccessors),
+    tableCellBuilder: plannedMediaTableCell,
+    compareEntriesByColumn:
+        compareEntriesByColumn ?? comparePlannedMediaEntriesByColumn,
+    entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
+    entryLinkedMetadataCandidatesBuilder:
+        plannedMediaLinkedMetadataCandidatesForEntry,
     entrySubgroupKeyBuilder: plannedMediaSubgroupKeyForEntry,
     compareSubgroupKeys: plannedMediaCompareSubgroupKeys,
     workspaceCardBuilder: workspaceCardBuilder,
@@ -70,12 +59,10 @@ LibraryMediaAdapter plannedMediaAdapter(
 
 LibraryMediaAdapter collectarrMediaAdapter(
   LibraryTypeConfig type, {
-  PlannedMediaEntryAccessors? entryAccessors,
   LibraryEntryColumnComparator? compareEntriesByColumn,
 }) {
   return plannedMediaAdapter(
     type,
-    entryAccessors: entryAccessors,
     compareEntriesByColumn: compareEntriesByColumn,
   );
 }
@@ -176,31 +163,117 @@ int plannedMediaCompareEntriesByColumn(
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
 ) {
-  return comparePlannedMediaEntriesByColumn(
-    left,
-    right,
-    column,
-    defaultEntryAccessors,
+  return comparePlannedMediaEntriesByColumn(left, right, column);
+}
+
+LibraryEntryFilterValues plannedMediaFilterValuesForEntry(
+  LibraryWorkspaceEntry entry,
+) {
+  return LibraryEntryFilterValues(
+    series: _trimmedOrNull(entry.series?.seriesTitle),
+    country: _trimmedOrNull(entry.country),
+    language: _trimmedOrNull(entry.language),
   );
+}
+
+Iterable<String> plannedMediaLinkedMetadataCandidatesForEntry(
+  LibraryWorkspaceEntry entry,
+) sync* {
+  final filterValues = plannedMediaFilterValuesForEntry(entry);
+  final publishing = entry.publishing;
+  yield* _nonEmptyValues([
+    entry.resolvedTitle,
+    entry.title,
+    entry.localizedTitle,
+    entry.originalTitle,
+    filterValues.series,
+    entry.itemNumber,
+    entry.publisher,
+    entry.variant,
+    publishing?.imprint,
+    entry.music?.catalogNumber,
+    filterValues.country,
+    filterValues.language,
+    entry.ageRating,
+    entry.music?.vinylColor,
+    entry.music?.rpm?.toString(),
+  ]);
+  yield* _nonEmptyValues(entry.searchAliases);
+  if (entry.creators case final creators?) {
+    for (final credit in creators) {
+      final name = credit['name']?.toString();
+      if (name != null && name.trim().isNotEmpty) {
+        yield name.trim();
+      }
+    }
+  }
+  yield* _nonEmptyValues(entry.characters);
+  yield* _nonEmptyValues(entry.storyArcs);
+  yield* _nonEmptyValues(entry.genres);
+  if (entry.game?.platforms case final platforms?) {
+    yield* _nonEmptyValues(platforms);
+  } else {
+    yield* _nonEmptyValues(entry.rawPlatforms);
+  }
+}
+
+String? plannedMediaSubgroupKeyForEntry(
+  LibraryWorkspaceEntry entry,
+  LibraryGroupMode groupMode,
+) {
+  if (groupMode != LibraryGroupMode.series) {
+    return null;
+  }
+  if (entry.mediaType.trim().toLowerCase() == 'book') {
+    return null;
+  }
+  final series = entry.series;
+  if (series?.seasonNumber != null) {
+    return 'Season ${series!.seasonNumber}';
+  }
+  if (series?.volumeName != null && series!.volumeName!.trim().isNotEmpty) {
+    return series.volumeName!.trim();
+  }
+  if (series?.volumeNumber != null) {
+    return libraryVolumeLabel(series!.volumeNumber);
+  }
+  return null;
+}
+
+int plannedMediaCompareSubgroupKeys(
+  String left,
+  String right,
+  LibraryGroupMode groupMode,
+) {
+  if (groupMode != LibraryGroupMode.series) {
+    return left.compareTo(right);
+  }
+  final leftNumber = _extractSubgroupNumber(left);
+  final rightNumber = _extractSubgroupNumber(right);
+  if (leftNumber != null && rightNumber != null) {
+    return leftNumber.compareTo(rightNumber);
+  }
+  return left.compareTo(right);
 }
 
 int comparePlannedMediaEntriesByColumn(
   LibraryWorkspaceEntry left,
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
-  PlannedMediaEntryAccessors accessors,
 ) {
   return switch (column) {
     LibrarySortColumn.status => _compareBools(left.isOwned, right.isOwned),
     LibrarySortColumn.title =>
       _compareNullableStrings(left.resolvedTitle, right.resolvedTitle),
-    LibrarySortColumn.series =>
-      _compareNullableStrings(accessors.series(left), accessors.series(right)),
+    LibrarySortColumn.series => _compareNullableStrings(
+        left.series?.seriesTitle,
+        right.series?.seriesTitle,
+      ),
     LibrarySortColumn.issue =>
       _compareIssueNumbers(left.itemNumber, right.itemNumber),
     LibrarySortColumn.storyArc => _compareNullableStrings(
-        accessors.storyArc(left),
-        accessors.storyArc(right),
+        _firstStringValue(left.storyArcs),
+        _firstStringValue(right.storyArcs),
       ),
     LibrarySortColumn.variant =>
       _compareNullableStrings(left.variant, right.variant),
@@ -215,10 +288,12 @@ int comparePlannedMediaEntriesByColumn(
     LibrarySortColumn.barcode =>
       _compareNullableStrings(left.barcode, right.barcode),
     LibrarySortColumn.grade => _compareNullableStrings(left.grade, right.grade),
-    LibrarySortColumn.rawOrSlabbed => _compareNullableStrings(
-        accessors.rawOrSlabbed(left), accessors.rawOrSlabbed(right)),
+    LibrarySortColumn.rawOrSlabbed =>
+      _compareNullableStrings(left.comic?.rawOrSlabbed, right.comic?.rawOrSlabbed),
     LibrarySortColumn.gradingCompany => _compareNullableStrings(
-        accessors.gradingCompany(left), accessors.gradingCompany(right)),
+        left.comic?.gradingCompany,
+        right.comic?.gradingCompany,
+      ),
     LibrarySortColumn.condition =>
       _compareNullableStrings(left.condition, right.condition),
     LibrarySortColumn.price =>
@@ -230,20 +305,22 @@ int comparePlannedMediaEntriesByColumn(
     LibrarySortColumn.wishlist =>
       _compareBools(left.isWishlisted, right.isWishlisted),
     LibrarySortColumn.keyComic =>
-      _compareBools(accessors.keyComic(left), accessors.keyComic(right)),
+      _compareBools(left.comic?.keyComic ?? false, right.comic?.keyComic ?? false),
     LibrarySortColumn.added =>
       _compareNullableDates(left.addedAt, right.addedAt),
     LibrarySortColumn.updated => left.updatedAt.compareTo(right.updatedAt),
-    LibrarySortColumn.country => _compareNullableStrings(
-        accessors.country(left), accessors.country(right)),
-    LibrarySortColumn.language => _compareNullableStrings(
-        accessors.language(left), accessors.language(right)),
+    LibrarySortColumn.country =>
+      _compareNullableStrings(left.country, right.country),
+    LibrarySortColumn.language =>
+      _compareNullableStrings(left.language, right.language),
     LibrarySortColumn.pageCount => _compareNullableInts(
-        accessors.pageCount(left), accessors.pageCount(right)),
-    LibrarySortColumn.ageRating => _compareNullableStrings(
-        accessors.ageRating(left), accessors.ageRating(right)),
-    LibrarySortColumn.imprint => _compareNullableStrings(
-        accessors.imprint(left), accessors.imprint(right)),
+        left.publishing?.pageCount,
+        right.publishing?.pageCount,
+      ),
+    LibrarySortColumn.ageRating =>
+      _compareNullableStrings(left.ageRating, right.ageRating),
+    LibrarySortColumn.imprint =>
+      _compareNullableStrings(left.publishing?.imprint, right.publishing?.imprint),
   };
 }
 
@@ -252,60 +329,7 @@ int compareBookEntriesByColumn(
   LibraryWorkspaceEntry right,
   LibrarySortColumn column,
 ) =>
-    comparePlannedMediaEntriesByColumn(
-      left,
-      right,
-      column,
-      bookEntryAccessors,
-    );
-
-int compareGameEntriesByColumn(
-  LibraryWorkspaceEntry left,
-  LibraryWorkspaceEntry right,
-  LibrarySortColumn column,
-) =>
-    comparePlannedMediaEntriesByColumn(
-      left,
-      right,
-      column,
-      gameEntryAccessors,
-    );
-
-int compareBoardGameEntriesByColumn(
-  LibraryWorkspaceEntry left,
-  LibraryWorkspaceEntry right,
-  LibrarySortColumn column,
-) =>
-    comparePlannedMediaEntriesByColumn(
-      left,
-      right,
-      column,
-      boardGameEntryAccessors,
-    );
-
-int compareMovieEntriesByColumn(
-  LibraryWorkspaceEntry left,
-  LibraryWorkspaceEntry right,
-  LibrarySortColumn column,
-) =>
-    comparePlannedMediaEntriesByColumn(
-      left,
-      right,
-      column,
-      movieEntryAccessors,
-    );
-
-int compareMusicEntriesByColumn(
-  LibraryWorkspaceEntry left,
-  LibraryWorkspaceEntry right,
-  LibrarySortColumn column,
-) =>
-    comparePlannedMediaEntriesByColumn(
-      left,
-      right,
-      column,
-      musicEntryAccessors,
-    );
+    comparePlannedMediaEntriesByColumn(left, right, column);
 
 int _compareIssueNumbers(String? left, String? right) {
   final leftNumber = _numericPrefixSortValue(left);
@@ -372,4 +396,45 @@ int _compareBools(bool left, bool right) {
     return 0;
   }
   return left ? -1 : 1;
+}
+
+String? _trimmedOrNull(String? value) {
+  final trimmed = value?.trim();
+  return trimmed == null || trimmed.isEmpty ? null : trimmed;
+}
+
+Iterable<String> _nonEmptyValues(Iterable<String?>? values) sync* {
+  if (values == null) {
+    return;
+  }
+  for (final value in values) {
+    final trimmed = value?.trim();
+    if (trimmed != null && trimmed.isNotEmpty) {
+      yield trimmed;
+    }
+  }
+}
+
+String? _firstStringValue(List<String>? values) {
+  if (values == null) {
+    return null;
+  }
+  for (final value in values) {
+    final trimmed = value.trim();
+    if (trimmed.isNotEmpty) {
+      return trimmed;
+    }
+  }
+  return null;
+}
+
+int? _extractSubgroupNumber(String? value) {
+  if (value == null) {
+    return null;
+  }
+  final match = RegExp(r'(\d+)').firstMatch(value);
+  if (match == null) {
+    return null;
+  }
+  return int.tryParse(match.group(1)!);
 }

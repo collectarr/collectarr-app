@@ -3,6 +3,4 @@ import 'package:collectarr_app/features/library/workspace/shared/library_media_a
 
 final moviesMediaAdapter = plannedMediaAdapter(
   moviesLibraryConfig,
-  entryAccessors: movieEntryAccessors,
-  compareEntriesByColumn: compareMovieEntriesByColumn,
 );
