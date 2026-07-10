@@ -2,12 +2,13 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final class MusicWorkspaceDto implements LibraryWorkspaceDto {
-  const MusicWorkspaceDto({
-    required this.title,
+  const MusicWorkspaceDto({required this.title,
     required this.seriesTitle,
     required this.itemNumber,
     required this.publisher,
     required this.releaseDate,
+    required this.isOwned,
+    required this.isWishlisted,
   });
 
   @override
@@ -20,6 +21,10 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
   final String? publisher;
   @override
   final DateTime? releaseDate;
+  @override
+  final bool isOwned;
+  @override
+  final bool isWishlisted;
 
   factory MusicWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
     return MusicWorkspaceDto(
@@ -28,6 +33,8 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
       itemNumber: entry.itemNumber,
       publisher: entry.publisher,
       releaseDate: entry.releaseDate,
+      isOwned: entry.isOwned,
+      isWishlisted: entry.isWishlisted,
     );
   }
 }

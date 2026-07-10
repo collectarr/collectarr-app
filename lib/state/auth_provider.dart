@@ -281,7 +281,19 @@ class AuthController extends StateNotifier<AuthState> {
     final email = session.user.email;
     final isAdmin = session.user.isAdmin;
     final prefs = await SharedPreferences.getInstance();
-    await _authSecureStorage.write(key: _authTokenKey, value: token);
+    try {
+      await _authSecureStorage.write(key: _authTokenKey, value: token);
+      await prefs.remove(_authTokenKey);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message:
+            'Failed to write secure token; falling back to shared preferences.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      await prefs.setString(_authTokenKey, token);
+    }
     if (userId != null && userId.isNotEmpty) {
       await prefs.setString(_authUserIdKey, userId);
     }
@@ -317,8 +329,7 @@ class AuthController extends StateNotifier<AuthState> {
         stackTrace: stackTrace,
       );
     }
-    await prefs.remove(_authUserIdKey);
-    await prefs.remove(_authEmailKey);
+    await prefs.remove(_authTokenKey);
     await prefs.remove(_authIsAdminKey);
     ref.read(apiAuthTokenProvider.notifier).set(null);
     ref.read(apiClientProvider).clearToken();
@@ -335,18 +346,34 @@ class AuthController extends StateNotifier<AuthState> {
       final secureToken = await _authSecureStorage
           .read(key: _authTokenKey)
           .timeout(_secureStorageReadTimeout);
-      return secureToken != null && secureToken.isNotEmpty
-          ? secureToken
-          : null;
+      if (secureToken != null && secureToken.isNotEmpty) {
+        return secureToken;
+      }
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'auth',
-        message: 'Failed to read secure token within the restore window.',
+        message:
+            'Failed to read secure token within the restore window; falling back to legacy token.',
         error: error,
         stackTrace: stackTrace,
       );
+    }
+    final legacyToken = prefs.getString(_authTokenKey);
+    if (legacyToken == null || legacyToken.isEmpty) {
       return null;
     }
+    try {
+      await _authSecureStorage.write(key: _authTokenKey, value: legacyToken);
+      await prefs.remove(_authTokenKey);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'auth',
+        message: 'Failed to migrate legacy token into secure storage.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+    return legacyToken;
   }
 }
 

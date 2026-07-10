@@ -26,7 +26,7 @@ final booksLibraryConfig = LibraryTypeConfig(
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: booksLibraryDefaultVisibleColumns,
   availableSortColumns: booksLibrarySortColumns,
-  availableSortColumnDefinitions: bookLibrarySortColumnDefinitions,
+  availableSortColumnDefinitions: bookLibrarySortDefinitions,
   availableTableColumns: booksLibraryTableColumns,
   singularLabel: 'Book',
   pluralLabel: 'Books',

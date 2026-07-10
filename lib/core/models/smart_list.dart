@@ -218,15 +218,33 @@ class SmartList {
     return _stableToken(rawValue.split('.').last);
   }
 
+  static const _validSortColumns = {
+    'title', 'publisher', 'release_date', 'condition', 'price', 'location', 'collection_status', 'wishlist', 'added', 'updated',
+    'issue', 'story_arc', 'variant', 'format', 'barcode', 'grade', 'raw_or_slabbed', 'grading_company', 'key_comic',
+    'season_number', 'episode_count', 'network',
+    'studio', 'runtime_minutes', 'rating',
+    'artist', 'album', 'label', 'catalog_number', 'disc_count', 'track_count', 'length', 'vinyl_color', 'rpm',
+    'author', 'read_status', 'page_count',
+    'platform', 'developer', 'release_year', 'genre',
+    'designers', 'publishers', 'playing_time', 'players_count', 'complexity',
+    'studios', 'episodes_count',
+    'authors', 'artists', 'volumes_count', 'chapters_count',
+    'series', 'status'
+  };
+
   static Object? _sortColumnFromToken(Object? rawValue) {
-    final candidate = _sortColumnTokenFromJson(rawValue);
+    var candidate = _sortColumnTokenFromJson(rawValue);
     if (candidate == null) {
       return null;
     }
     if (candidate.startsWith('LibrarySortColumn.')) {
-      return candidate.split('.').last;
+      candidate = candidate.split('.').last;
     }
-    return candidate;
+    final normalized = _stableToken(candidate);
+    if (!_validSortColumns.contains(normalized)) {
+      return null;
+    }
+    return normalized;
   }
 
   static String _stableToken(String value) {

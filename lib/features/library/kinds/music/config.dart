@@ -24,7 +24,7 @@ final musicLibraryConfig = LibraryTypeConfig(
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: musicLibraryDefaultVisibleColumns,
   availableSortColumns: musicLibrarySortColumns,
-  availableSortColumnDefinitions: musicLibrarySortColumnDefinitions,
+  availableSortColumnDefinitions: musicLibrarySortDefinitions,
   availableTableColumns: musicLibraryTableColumns,
   singularLabel: 'Music',
   pluralLabel: 'Music',

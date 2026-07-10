@@ -13,10 +13,10 @@ final musicKindModule = LibraryKindModule(
   mediaAdapter: musicMediaAdapter,
   workspaceDtoFactory: MusicWorkspaceDto.fromEntry,
   fields: AnyLibraryFieldRegistry(
-    groups: musicLibraryGroupModeDefinitions,
-    sorts: musicLibrarySortColumnDefinitions,
-    defaultVisibleColumnIds:
-        musicLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
+    groups: musicLibraryGroupDefinitions,
+    sorts: musicLibrarySortDefinitions,
+    columns: musicLibraryColumnDefinitions,
+    defaultVisibleColumnIds: musicLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
   ),

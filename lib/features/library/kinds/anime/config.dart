@@ -23,7 +23,7 @@ final animeLibraryConfig = LibraryTypeConfig(
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: animeLibraryDefaultVisibleColumns,
   availableSortColumns: animeLibrarySortColumns,
-  availableSortColumnDefinitions: animeLibrarySortColumnDefinitions,
+  availableSortColumnDefinitions: animeLibrarySortDefinitions,
   availableTableColumns: animeLibraryTableColumns,
   singularLabel: 'Anime',
   pluralLabel: 'Anime',

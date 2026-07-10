@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -180,20 +182,32 @@ IconData genericFolderPresetIcon(
   return genericGroupModeIcon(preset.primaryMode, type);
 }
 
-LibraryGroupModeDefinition? libraryGroupModeDefinitionOrNull(
+String _toSnakeCase(String name) {
+  final s1 = name.replaceAllMapped(
+    RegExp(r'(.)([A-Z][a-z]+)'),
+    (match) => '${match.group(1)}_${match.group(2)}',
+  );
+  return s1.replaceAllMapped(
+    RegExp(r'([a-z0-9])([A-Z])'),
+    (match) => '${match.group(1)}_${match.group(2)}',
+  ).toLowerCase();
+}
+
+LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>? libraryGroupModeDefinitionOrNull(
   LibraryGroupMode mode, [
   LibraryTypeConfig? type,
 ]) {
+  final targetId = _toSnakeCase(mode.name);
   if (type != null) {
     final module = libraryKindModuleForType(type);
     for (final definition in module.fields.groups) {
-      if (definition is LibraryGroupModeDefinition && definition.mode == mode) {
+      if (definition.id.value == targetId || definition.id.value == mode.name) {
         return definition;
       }
     }
   }
-  for (final definition in genericLibraryGroupModeDefinitions) {
-    if (definition is LibraryGroupModeDefinition && definition.mode == mode) {
+  for (final definition in commonGroupDefinitions) {
+    if (definition.id.value == targetId || definition.id.value == mode.name) {
       return definition;
     }
   }

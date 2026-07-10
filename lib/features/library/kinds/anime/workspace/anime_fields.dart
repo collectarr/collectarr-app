@@ -1,7 +1,9 @@
+import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart'
     as movie_workspace;
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final animeLibraryFieldDefinitions = [
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
@@ -33,11 +35,11 @@ final animeLibraryFieldDefinitions = [
 
 const animeLibraryGroupModes = movie_workspace.movieLibraryGroupModes;
 
-final animeLibraryGroupModeDefinitions =
-    movie_workspace.movieLibraryGroupModeDefinitions;
+final animeLibraryGroupDefinitions =
+    movie_workspace.movieLibraryGroupDefinitions;
 
-final animeLibrarySortColumnDefinitions =
-    movie_workspace.movieLibrarySortColumnDefinitions;
+final animeLibrarySortDefinitions =
+    movie_workspace.movieLibrarySortDefinitions;
 
 const animeLibrarySortColumns = [
   LibrarySortColumn.series,
@@ -77,4 +79,19 @@ const animeLibraryDefaultVisibleColumns = {
   LibraryTableColumn.ageRating,
   LibraryTableColumn.wishlist,
   LibraryTableColumn.updated,
+};
+
+final animeLibraryColumnDefinitions = commonColumnDefinitions;
+
+const animeLibraryDefaultVisibleColumnIds = {
+  'status',
+  'cover',
+  'title',
+  'publisher',
+  'release_date',
+  'country',
+  'language',
+  'age_rating',
+  'wishlist',
+  'updated'
 };

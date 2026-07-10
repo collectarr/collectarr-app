@@ -11,10 +11,10 @@ final boardGameKindModule = LibraryKindModule(
   mediaAdapter: boardGamesMediaAdapter,
   workspaceDtoFactory: BoardGameWorkspaceDto.fromEntry,
   fields: AnyLibraryFieldRegistry(
-    groups: boardGamesLibraryGroupModeDefinitions,
-    sorts: boardGamesLibrarySortColumnDefinitions,
-    defaultVisibleColumnIds:
-        boardGamesLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
+    groups: boardGamesLibraryGroupDefinitions,
+    sorts: boardGamesLibrarySortDefinitions,
+    columns: boardGamesLibraryColumnDefinitions,
+    defaultVisibleColumnIds: boardGamesLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
   ),

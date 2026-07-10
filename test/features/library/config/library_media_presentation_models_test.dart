@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
+import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
@@ -59,8 +60,8 @@ void main() {
       'music': libraryKindModuleForType(musicLibraryConfig).fields,
     };
     final configuredSortColumns = <String, Set<String>>{
-      'generic': genericLibrarySortColumnDefinitions
-          .map((definition) => definitionIdFor(definition.column))
+      'generic': commonSortDefinitions
+          .map((definition) => definition.id)
           .toSet(),
       'books': booksLibraryConfig.availableSortColumns
           .map((c) => definitionIdFor(c))

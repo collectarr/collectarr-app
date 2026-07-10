@@ -1,5 +1,7 @@
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
 
@@ -71,239 +73,276 @@ const gameLibraryGroupModes = [
   LibraryGroupMode.tags,
 ];
 
-final gameLibraryGroupModeDefinitions = [
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.title,
+final gameLibraryGroupDefinitions = [
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('title'),
     label: 'Title',
     sidebarTitle: 'Titles',
     icon: Icons.sort_by_alpha,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.audienceRating,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('audience_rating'),
     label: 'Audience Rating',
     sidebarTitle: 'Audience Ratings',
     icon: Icons.groups_2_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.developer,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('developer'),
     label: 'Developer',
     sidebarTitle: 'Developers',
     icon: Icons.code_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.genre,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('genre'),
     label: 'Genre',
     sidebarTitle: 'Genres',
     icon: Icons.theater_comedy_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.platform,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('platform'),
     label: 'Platform',
     sidebarTitle: 'Platforms',
     icon: Icons.sports_esports_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.publisher,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('publisher'),
     label: 'Publisher / Studio',
     sidebarTitle: 'Publishers / Studios',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.releaseDate,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('release_date'),
     label: 'Release Date',
     sidebarTitle: 'Release Dates',
     icon: Icons.event_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.releaseMonth,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('release_month'),
     label: 'Release Month',
     sidebarTitle: 'Release Months',
     icon: Icons.calendar_view_month_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.releaseYear,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('release_year'),
     label: 'Release Year',
     sidebarTitle: 'Release Years',
     icon: Icons.calendar_today_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.series,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('series'),
     label: 'Series',
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.completeness,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('completeness'),
     label: 'Completeness',
     sidebarTitle: 'Completeness',
     icon: Icons.checklist_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.condition,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('condition'),
     label: 'Condition',
     sidebarTitle: 'Conditions',
     icon: Icons.verified_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.purchaseDate,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('purchase_date'),
     label: 'Purchase Date',
     sidebarTitle: 'Purchase Dates',
     icon: Icons.shopping_bag_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.purchaseMonth,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('purchase_month'),
     label: 'Purchase Month',
     sidebarTitle: 'Purchase Months',
     icon: Icons.calendar_view_month_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.purchaseStore,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('purchase_store'),
     label: 'Purchase Store',
     sidebarTitle: 'Purchase Stores',
     icon: Icons.store_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.purchaseYear,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('purchase_year'),
     label: 'Purchase Year',
     sidebarTitle: 'Purchase Years',
     icon: Icons.calendar_today_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.valueLocked,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('value_locked'),
     label: 'Value Locked',
     sidebarTitle: 'Value Locked',
     icon: Icons.lock_outline,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.toySubtype,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('toy_subtype'),
     label: 'Subtype',
     sidebarTitle: 'Subtypes',
     icon: Icons.category_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.toyType,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('toy_type'),
     label: 'Type',
     sidebarTitle: 'Types',
     icon: Icons.toys_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.format,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('format'),
     label: 'Format',
     sidebarTitle: 'Formats',
     icon: Icons.album_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.regions,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('regions'),
     label: 'Region',
     sidebarTitle: 'Regions',
     icon: Icons.public_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.addedDate,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('added_date'),
     label: 'Added Date',
     sidebarTitle: 'Added Dates',
     icon: Icons.add_circle_outline,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.addedMonth,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('added_month'),
     label: 'Added Month',
     sidebarTitle: 'Added Months',
     icon: Icons.calendar_view_month_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.addedYear,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('added_year'),
     label: 'Added Year',
     sidebarTitle: 'Added Years',
     icon: Icons.calendar_today_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.collectionStatus,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('collection_status'),
     label: 'Collection Status',
     sidebarTitle: 'Collection Status',
     icon: Icons.bookmark_added_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.completed,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('completed'),
     label: 'Completed',
     sidebarTitle: 'Completed',
     icon: Icons.task_alt_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.completedDate,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('completed_date'),
     label: 'Completed Date',
     sidebarTitle: 'Completed Dates',
     icon: Icons.event_available_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.completedMonth,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('completed_month'),
     label: 'Completed Month',
     sidebarTitle: 'Completed Months',
     icon: Icons.calendar_view_month_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.completedYear,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('completed_year'),
     label: 'Completed Year',
     sidebarTitle: 'Completed Years',
     icon: Icons.calendar_today_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.imageType,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('image_type'),
     label: 'Image Type',
     sidebarTitle: 'Image Types',
     icon: Icons.image_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.location,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('location'),
     label: 'Location',
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.modifiedDate,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('modified_date'),
     label: 'Modified Date',
     sidebarTitle: 'Modified Dates',
     icon: Icons.edit_calendar_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.modifiedMonth,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('modified_month'),
     label: 'Modified Month',
     sidebarTitle: 'Modified Months',
     icon: Icons.calendar_view_month_outlined,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.myRating,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('my_rating'),
     label: 'My Rating',
     sidebarTitle: 'Ratings',
     icon: Icons.star_outline,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.owner,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('owner'),
     label: 'Owner',
     sidebarTitle: 'Owners',
     icon: Icons.person_outline,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.storageDevice,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('storage_device'),
     label: 'Storage Device',
     sidebarTitle: 'Storage Devices',
     icon: Icons.sd_storage_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupModeDefinition(
-    mode: LibraryGroupMode.tags,
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    getValue: (entry) => null,
+    id: LibraryFieldId<Object?>('tags'),
     label: 'Tags',
     sidebarTitle: 'Tags',
     icon: Icons.local_offer_outlined,
@@ -311,104 +350,127 @@ final gameLibraryGroupModeDefinitions = [
   ),
 ];
 
-final gameLibrarySortColumnDefinitions = [
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.series,
+final gameLibrarySortDefinitions = [
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'series',
+    compare: (left, right) => (left.series?.seriesTitle ?? "").compareTo(right.series?.seriesTitle ?? ""),
     label: 'Series',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.publisher,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'publisher',
+    compare: (left, right) => (left.publisher ?? "").compareTo(right.publisher ?? ""),
     label: 'Publisher / Studio',
   ),
-  LibrarySortColumnDefinition(
-      column: LibrarySortColumn.status, label: 'Status'),
-  LibrarySortColumnDefinition(column: LibrarySortColumn.title, label: 'Title'),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.issue,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+      id: 'status',
+    compare: (left, right) => (left.isOwned ? 0 : 1).compareTo(right.isOwned ? 0 : 1), label: 'Status'),
+  LibrarySortDefinition<LibraryWorkspaceEntry>(id: 'title',
+    compare: (left, right) => (left.resolvedTitle ?? "").compareTo(right.resolvedTitle ?? ""), label: 'Title'),
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'issue',
+    compare: (left, right) => (left.itemNumber ?? "").compareTo(right.itemNumber ?? ""),
     label: 'Issue / number',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.storyArc,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'story_arc',
+    compare: (left, right) => (left.storyArcs?.join(", ") ?? "").compareTo(right.storyArcs?.join(", ") ?? ""),
     label: 'Story arc',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.variant,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'variant',
+    compare: (left, right) => (left.variant ?? "").compareTo(right.variant ?? ""),
     label: 'Variant',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.format,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'format',
+    compare: (left, right) => (left.referenceFormatLabel ?? "").compareTo(right.referenceFormatLabel ?? ""),
     label: 'Format',
-    group: LibrarySortFieldGroup.edition,
+    group: 'Edition',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.releaseDate,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'release_date',
+    compare: (left, right) => (left.releaseDate ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(right.releaseDate ?? DateTime.fromMillisecondsSinceEpoch(0)),
     label: 'Release date',
     defaultAscending: false,
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.barcode,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'barcode',
+    compare: (left, right) => (left.barcode ?? "").compareTo(right.barcode ?? ""),
     label: 'Barcode',
-    group: LibrarySortFieldGroup.edition,
+    group: 'Edition',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.grade,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'grade',
+    compare: (left, right) => (left.grade ?? "").compareTo(right.grade ?? ""),
     label: 'Grade',
-    group: LibrarySortFieldGroup.value,
+    group: 'Value',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.condition,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'condition',
+    compare: (left, right) => (left.condition ?? "").compareTo(right.condition ?? ""),
     label: 'Condition',
-    group: LibrarySortFieldGroup.value,
+    group: 'Value',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.price,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'price',
+    compare: (left, right) => (left.pricePaidCents ?? 0).compareTo(right.pricePaidCents ?? 0),
     label: 'Purchase price',
-    group: LibrarySortFieldGroup.value,
+    group: 'Value',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.location,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'location',
+    compare: (left, right) => (left.locationPath ?? "").compareTo(right.locationPath ?? ""),
     label: 'Location',
-    group: LibrarySortFieldGroup.personal,
+    group: 'Personal',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.collectionStatus,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'collection_status',
+    compare: (left, right) => (left.collectionStatus ?? "").compareTo(right.collectionStatus ?? ""),
     label: 'Collection status',
-    group: LibrarySortFieldGroup.personal,
+    group: 'Personal',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.wishlist,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'wishlist',
+    compare: (left, right) => (left.isWishlisted ? 1 : 0).compareTo(right.isWishlisted ? 1 : 0),
     label: 'Wishlist',
-    group: LibrarySortFieldGroup.personal,
+    group: 'Personal',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.added,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'added',
+    compare: (left, right) => (left.addedAt ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(left.addedAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
     label: 'Added date',
-    group: LibrarySortFieldGroup.personal,
+    group: 'Personal',
     defaultAscending: false,
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.updated,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'updated',
+    compare: (left, right) => (left.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(right.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
     label: 'Updated',
-    group: LibrarySortFieldGroup.personal,
+    group: 'Personal',
     defaultAscending: false,
   ),
-  LibrarySortColumnDefinition(
-      column: LibrarySortColumn.country, label: 'Country'),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.language,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+      id: 'country',
+    compare: (left, right) => (left.country ?? "").compareTo(right.country ?? ""), label: 'Country'),
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'language',
+    compare: (left, right) => (left.language ?? "").compareTo(right.language ?? ""),
     label: 'Language',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.pageCount,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'page_count',
+    compare: (left, right) => (left.publishing?.pageCount ?? 0).compareTo(right.publishing?.pageCount ?? 0),
     label: 'Page count',
-    group: LibrarySortFieldGroup.edition,
+    group: 'Edition',
   ),
-  LibrarySortColumnDefinition(
-    column: LibrarySortColumn.ageRating,
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+    id: 'age_rating',
+    compare: (left, right) => (left.ageRating ?? "").compareTo(right.ageRating ?? ""),
     label: 'Age rating',
   ),
-  LibrarySortColumnDefinition(
-      column: LibrarySortColumn.imprint, label: 'Imprint'),
+  LibrarySortDefinition<LibraryWorkspaceEntry>(
+      id: 'imprint',
+    compare: (left, right) => (left.publishing?.imprint ?? "").compareTo(right.publishing?.imprint ?? ""), label: 'Imprint'),
 ];
 const gamesLibrarySortColumns = [
   LibrarySortColumn.series,
@@ -449,3 +511,5 @@ const gamesLibraryDefaultVisibleColumns = {
   LibraryTableColumn.wishlist,
   LibraryTableColumn.updated,
 };
+
+final gameLibraryColumnDefinitions = commonColumnDefinitions;

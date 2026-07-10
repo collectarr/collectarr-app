@@ -32,7 +32,8 @@ void main() {
     container.read(authControllerProvider);
     await _waitForAuthRestore(container);
 
-    expect(container.read(authControllerProvider).isAuthenticated, isTrue);
+    final auth = container.read(authControllerProvider);
+    expect(auth.isAuthenticated, isTrue);
     expect(container.read(authControllerProvider).isAdmin, isTrue);
     expect(
       container.read(apiClientProvider).authorizationHeader,

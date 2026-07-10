@@ -1,9 +1,9 @@
 {
-  "activeKindsHash": "a67cfdf60b04bbc79e47247c7c70750e810b43cdbd9448c05e26c874195364b7",
+  "activeKindsHash": "68999b7b0f66989200487a0d1f54031e01e199ccc84ccf110073fe7971e84971",
   "contractVersion": "1.0.0",
-  "coreCommit": "e94287ec02b760022a23a997eb57e228e681089d",
-  "fieldSchemaHash": "597df072c27d3789dec70b3f188786b8b059a7f41bdcba717b2a6f2daee8f4b7",
-  "generatedAt": "2026-07-04T23:11:04.496932Z",
-  "openApiHash": "2a46589dfb2de70fe4c64e37404df4e3df4d479c12f2caf4fe61e593c07c9214",
-  "providerSupportHash": "9771504e2c0de02faa4db979a409b4e696bf4fa9e864e8a147186552c139bf55"
+  "coreCommit": "4dfac4ab7ac4808627ed4448118f8d447cc32539",
+  "fieldSchemaHash": "4ba090f2a4b438389029b5dc6ede379ee5131a1131857eafd918c26a5f51ed37",
+  "generatedAt": "2026-07-06T07:49:56.348608Z",
+  "openApiHash": "20c72d6eb2159bfb94f69bb79e4777c392af77357d72891bfd11defa7c7ecfa0",
+  "providerSupportHash": "01d3f8521acd5c9e02d1c8f91f0b78da989024a27791aac75f8d97aad8391de6"
 }

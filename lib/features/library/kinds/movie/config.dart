@@ -27,7 +27,7 @@ final moviesLibraryConfig = LibraryTypeConfig(
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: moviesLibraryDefaultVisibleColumns,
   availableSortColumns: moviesLibrarySortColumns,
-  availableSortColumnDefinitions: movieLibrarySortColumnDefinitions,
+  availableSortColumnDefinitions: movieLibrarySortDefinitions,
   availableTableColumns: moviesLibraryTableColumns,
   singularLabel: 'Movie',
   pluralLabel: 'Movies',

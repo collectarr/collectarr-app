@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -14,66 +14,80 @@ void main() {
   testWidgets('music inspector renders CLZ-like panel with disc groups', (
     tester,
   ) async {
+    final entry = LibraryWorkspaceEntry(
+      id: 'music-1',
+      mediaType: 'music',
+      title: 'Lupus Dei',
+      publisher: 'Metal Blade Records',
+      releaseYear: 2007,
+      barcode: '039841461923',
+      isOwned: true,
+      genres: const ['Heavy Metal', 'Rock'],
+      series: const CatalogSeriesDetails(seriesTitle: 'Powerwolf'),
+      music: MusicCatalogDetails(
+        trackCount: 14,
+        catalogNumber: '3984-14619-2',
+        tracks: const [
+          CatalogTrack(
+            title: 'Lupus Daemonis (Intro)',
+            position: 1,
+            durationSeconds: 77,
+            discNumber: 1,
+          ),
+          CatalogTrack(
+            title: 'Lupus Dei',
+            position: 11,
+            durationSeconds: 370,
+            discNumber: 1,
+          ),
+          CatalogTrack(
+            title: 'Mr Sinister (Live)',
+            position: 2,
+            durationSeconds: 287,
+            discNumber: 2,
+          ),
+        ],
+      ),
+      updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
+    );
+    final ownedItem = testOwnedItem(
+      id: 'owned-music-1',
+      itemId: 'music-1',
+      indexNumber: 1,
+      createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
+      updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
+    );
+    final inspectorRequest = LibraryInspectorRequest(
+      type: musicLibraryConfig,
+      entry: entry,
+      ownedItem: ownedItem,
+      ownedCopies: [ownedItem],
+      trackingEntry: null,
+      accent: const Color(0xFFFDAD49),
+      detailsLayout: LibraryDetailsLayout.hidden,
+      onFilterByValue: (_) {},
+      searchQuery: null,
+      searchTarget: LibrarySearchTarget.all,
+    );
+    final request = LibraryInspectorPanelRequest(
+      inspector: inspectorRequest,
+      hero: const SizedBox.shrink(),
+      primarySections: const [],
+      trailingSections: const [],
+      ownedCopies: [ownedItem],
+      selectedOwnedItemId: ownedItem.id,
+      extraActions: const [],
+      onAddCopy: () {},
+      onOpenDetails: () {},
+    );
+
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
           home: Scaffold(
             body: SizedBox(
               width: 760,
-              child: LibraryInspector(
-                type: musicLibraryConfig,
-                entry: LibraryWorkspaceEntry(
-                  id: 'music-1',
-                  mediaType: 'music',
-                  title: 'Lupus Dei',
-                  publisher: 'Metal Blade Records',
-                  releaseYear: 2007,
-                  barcode: '039841461923',
-                  isOwned: true,
-                  genres: const ['Heavy Metal', 'Rock'],
-                  series: const CatalogSeriesDetails(seriesTitle: 'Powerwolf'),
-                  music: MusicCatalogDetails(
-                    trackCount: 14,
-                    catalogNumber: '3984-14619-2',
-                    tracks: const [
-                      CatalogTrack(
-                        title: 'Lupus Daemonis (Intro)',
-                        position: 1,
-                        durationSeconds: 77,
-                        discNumber: 1,
-                      ),
-                      CatalogTrack(
-                        title: 'Lupus Dei',
-                        position: 11,
-                        durationSeconds: 370,
-                        discNumber: 1,
-                      ),
-                      CatalogTrack(
-                        title: 'Mr Sinister (Live)',
-                        position: 2,
-                        durationSeconds: 287,
-                        discNumber: 2,
-                      ),
-                    ],
-                  ),
-                  updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
-                ),
-                ownedItem: testOwnedItem(
-                  id: 'owned-music-1',
-                  itemId: 'music-1',
-                  indexNumber: 1,
-                  createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
-                  updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
-                ),
-                densityPreset: LibraryWorkspaceDensityPreset.comfortable,
-                accent: const Color(0xFFFDAD49),
-                onAddOwned: () {},
-                onRemoveOwned: () {},
-                onAddWishlist: () {},
-                onRemoveWishlist: () {},
-                onEdit: (_) {},
-                onDetailsLayoutChanged: (_) {},
-              ),
+              child: MusicInspectorPanel(request: request),
             ),
           ),
         ),
@@ -96,52 +110,66 @@ void main() {
   testWidgets('music inspector highlights matching tracks for track search', (
     tester,
   ) async {
+    final entry = LibraryWorkspaceEntry(
+      id: 'music-2',
+      mediaType: 'music',
+      title: 'Lupus Dei',
+      series: const CatalogSeriesDetails(seriesTitle: 'Powerwolf'),
+      music: const MusicCatalogDetails(
+        tracks: [
+          CatalogTrack(
+            title: 'Lupus Daemonis (Intro)',
+            position: 1,
+            discNumber: 1,
+          ),
+          CatalogTrack(
+            title: 'Prayer In The Dark',
+            position: 3,
+            discNumber: 1,
+          ),
+        ],
+      ),
+      updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
+    );
+    final ownedItem = testOwnedItem(
+      id: 'owned-music-2',
+      itemId: 'music-2',
+      createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
+      updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
+    );
+
+    final inspectorRequest = LibraryInspectorRequest(
+      type: musicLibraryConfig,
+      entry: entry,
+      ownedItem: ownedItem,
+      ownedCopies: [ownedItem],
+      trackingEntry: null,
+      accent: const Color(0xFFFDAD49),
+      detailsLayout: LibraryDetailsLayout.hidden,
+      onFilterByValue: (_) {},
+      searchQuery: 'prayer',
+      searchTarget: LibrarySearchTarget.tracksOnly,
+    );
+
+    final request = LibraryInspectorPanelRequest(
+      inspector: inspectorRequest,
+      hero: const SizedBox.shrink(),
+      primarySections: const [],
+      trailingSections: const [],
+      ownedCopies: [ownedItem],
+      selectedOwnedItemId: ownedItem.id,
+      extraActions: const [],
+      onAddCopy: () {},
+      onOpenDetails: () {},
+    );
+
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
           home: Scaffold(
             body: SizedBox(
               width: 760,
-              child: LibraryInspector(
-                type: musicLibraryConfig,
-                entry: LibraryWorkspaceEntry(
-                  id: 'music-2',
-                  mediaType: 'music',
-                  title: 'Lupus Dei',
-                  series: const CatalogSeriesDetails(seriesTitle: 'Powerwolf'),
-                  music: const MusicCatalogDetails(
-                    tracks: [
-                      CatalogTrack(
-                        title: 'Lupus Daemonis (Intro)',
-                        position: 1,
-                        discNumber: 1,
-                      ),
-                      CatalogTrack(
-                        title: 'Prayer In The Dark',
-                        position: 3,
-                        discNumber: 1,
-                      ),
-                    ],
-                  ),
-                  updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
-                ),
-                ownedItem: testOwnedItem(
-                  id: 'owned-music-2',
-                  itemId: 'music-2',
-                  createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
-                  updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
-                ),
-                densityPreset: LibraryWorkspaceDensityPreset.comfortable,
-                accent: const Color(0xFFFDAD49),
-                searchQuery: 'prayer',
-                searchTarget: LibrarySearchTarget.tracksOnly,
-                onAddOwned: () {},
-                onRemoveOwned: () {},
-                onAddWishlist: () {},
-                onRemoveWishlist: () {},
-                onEdit: (_) {},
-                onDetailsLayoutChanged: (_) {},
-              ),
+              child: MusicInspectorPanel(request: request),
             ),
           ),
         ),

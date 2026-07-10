@@ -19,8 +19,8 @@ void main() {
     expect(tvDefaultVideoGrouping, VideoGroupingDefault.bySeries);
     expect(tvLibraryGroupModes.first, LibraryGroupMode.series);
     expect(
-      tvLibraryGroupModeDefinitions
-          .firstWhere((definition) => definition.mode == LibraryGroupMode.series)
+      tvLibraryGroupDefinitions
+          .firstWhere((definition) => definition.id.value == 'series')
           .presentation,
       LibraryGroupPresentation.folderGrid,
     );

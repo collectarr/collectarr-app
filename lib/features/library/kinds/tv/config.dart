@@ -26,7 +26,7 @@ final tvLibraryConfig = LibraryTypeConfig(
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: tvLibraryDefaultVisibleColumns,
   availableSortColumns: tvLibrarySortColumns,
-  availableSortColumnDefinitions: tvLibrarySortColumnDefinitions,
+  availableSortColumnDefinitions: tvLibrarySortDefinitions,
   availableTableColumns: tvLibraryTableColumns,
   singularLabel: 'TV Show',
   pluralLabel: 'TV Shows',

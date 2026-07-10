@@ -120,7 +120,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     final navBarSize = tester.getSize(find.byType(NavigationBar));
-    expect(navBarSize.height, 36);
+    expect(navBarSize.height, 44.0);
 
     await tester.tap(find.byTooltip('Hide bottom navigation'));
     await pumpUntilSettled(tester);

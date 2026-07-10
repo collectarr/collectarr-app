@@ -15,8 +15,8 @@ final movieKindModule = LibraryKindModule(
   mediaAdapter: moviesMediaAdapter,
   workspaceDtoFactory: MovieWorkspaceDto.fromEntry,
   fields: AnyLibraryFieldRegistry(
-    groups: movieLibraryGroupModeDefinitions,
-    sorts: movieLibrarySortColumnDefinitions,
+    groups: movieLibraryGroupDefinitions,
+    sorts: movieLibrarySortDefinitions,
     defaultVisibleColumnIds:
         moviesLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
     defaultSortId: 'title',

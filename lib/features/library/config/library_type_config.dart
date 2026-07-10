@@ -795,11 +795,19 @@ class LibraryTypeConfig {
 
   List<LibraryGroupMode> get availableGroupModes {
     final module = libraryKindModuleForType(this);
-    return [
-      for (final definition in module.fields.groups)
-        if (definition is LibraryGroupModeDefinition && definition.mode is LibraryGroupMode)
-          definition.mode as LibraryGroupMode
-    ];
+    final result = <LibraryGroupMode>[];
+    for (final definition in module.fields.groups) {
+      final idStr = definition.id.value;
+      final target = idStr.toLowerCase().replaceAll('_', '');
+      for (final mode in LibraryGroupMode.values) {
+        final modeNameNormalized = mode.name.toLowerCase();
+        if (modeNameNormalized == target) {
+          result.add(mode);
+          break;
+        }
+      }
+    }
+    return result;
   }
 
   LibraryWorkspaceDensityPreset get defaultDensityPreset =>

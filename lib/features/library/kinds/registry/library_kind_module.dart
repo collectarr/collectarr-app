@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
@@ -40,13 +41,13 @@ class AnyLibraryFieldRegistry {
   final List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>>? _columns;
 
   List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>> get groups =>
-      _groups ?? genericLibraryGroupModeDefinitions;
+      _groups ?? commonGroupDefinitions;
 
   List<LibrarySortDefinition<LibraryWorkspaceEntry>> get sorts =>
-      _sorts ?? genericLibrarySortColumnDefinitions;
+      _sorts ?? commonSortDefinitions;
 
   List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>> get columns =>
-      _columns ?? genericLibraryColumnDefinitions;
+      _columns ?? commonColumnDefinitions;
 
   final Set<String> defaultVisibleColumnIds;
   final String? defaultSortId;

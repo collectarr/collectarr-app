@@ -9,6 +9,8 @@ abstract interface class LibraryWorkspaceDto {
   String? get itemNumber;
   String? get publisher;
   DateTime? get releaseDate;
+  bool get isOwned;
+  bool get isWishlisted;
 }
 
 typedef LibraryWorkspaceDtoBuilder = LibraryWorkspaceDto Function(

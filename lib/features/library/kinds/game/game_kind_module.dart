@@ -13,8 +13,8 @@ final gameKindModule = LibraryKindModule(
   mediaAdapter: gamesMediaAdapter,
   workspaceDtoFactory: GameWorkspaceDto.fromEntry,
   fields: AnyLibraryFieldRegistry(
-    groups: gameLibraryGroupModeDefinitions,
-    sorts: gameLibrarySortColumnDefinitions,
+    groups: gameLibraryGroupDefinitions,
+    sorts: gameLibrarySortDefinitions,
     defaultVisibleColumnIds:
         gamesLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
     defaultSortId: 'title',

@@ -13,10 +13,10 @@ final animeKindModule = LibraryKindModule(
   mediaAdapter: animeMediaAdapter,
   workspaceDtoFactory: AnimeWorkspaceDto.fromEntry,
   fields: AnyLibraryFieldRegistry(
-    groups: animeLibraryGroupModeDefinitions,
-    sorts: animeLibrarySortColumnDefinitions,
-    defaultVisibleColumnIds:
-        animeLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
+    groups: animeLibraryGroupDefinitions,
+    sorts: animeLibrarySortDefinitions,
+    columns: animeLibraryColumnDefinitions,
+    defaultVisibleColumnIds: animeLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
   ),

@@ -11,8 +11,8 @@ final bookKindModule = LibraryKindModule(
   mediaAdapter: booksMediaAdapter,
   workspaceDtoFactory: BookWorkspaceDto.fromEntry,
   fields: AnyLibraryFieldRegistry(
-    groups: bookLibraryGroupModeDefinitions,
-    sorts: bookLibrarySortColumnDefinitions,
+    groups: bookLibraryGroupDefinitions,
+    sorts: bookLibrarySortDefinitions,
     defaultVisibleColumnIds:
         booksLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
     defaultSortId: 'title',

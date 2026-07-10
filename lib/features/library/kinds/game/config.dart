@@ -25,7 +25,7 @@ final gamesLibraryConfig = LibraryTypeConfig(
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: gamesLibraryDefaultVisibleColumns,
   availableSortColumns: gamesLibrarySortColumns,
-  availableSortColumnDefinitions: gameLibrarySortColumnDefinitions,
+  availableSortColumnDefinitions: gameLibrarySortDefinitions,
   availableTableColumns: gamesLibraryTableColumns,
   singularLabel: 'Game',
   pluralLabel: 'Games',

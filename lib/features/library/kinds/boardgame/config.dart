@@ -24,7 +24,7 @@ final boardGamesLibraryConfig = LibraryTypeConfig(
   defaultSortColumn: LibrarySortColumn.title,
   defaultVisibleColumns: boardGamesLibraryDefaultVisibleColumns,
   availableSortColumns: boardGamesLibrarySortColumns,
-  availableSortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
+  availableSortColumnDefinitions: boardGamesLibrarySortDefinitions,
   availableTableColumns: boardGamesLibraryTableColumns,
   singularLabel: 'Board Game',
   pluralLabel: 'Board Games',

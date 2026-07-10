@@ -14,10 +14,10 @@ final tvKindModule = LibraryKindModule(
   mediaAdapter: tvMediaAdapter,
   workspaceDtoFactory: TvWorkspaceDto.fromEntry,
   fields: AnyLibraryFieldRegistry(
-    groups: tvLibraryGroupModeDefinitions,
-    sorts: tvLibrarySortColumnDefinitions,
-    defaultVisibleColumnIds:
-        tvLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
+    groups: tvLibraryGroupDefinitions,
+    sorts: tvLibrarySortDefinitions,
+    columns: tvLibraryColumnDefinitions,
+    defaultVisibleColumnIds: tvLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
   ),

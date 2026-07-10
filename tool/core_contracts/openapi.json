@@ -334,6 +334,182 @@
         "title": "AdminDuplicateMergeRequest",
         "type": "object"
       },
+      "AdminDuplicateQueueSummaryResponse": {
+        "properties": {
+          "ignored_reviews": {
+            "title": "Ignored Reviews",
+            "type": "integer"
+          },
+          "latest_review_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Review At"
+          },
+          "merged_reviews": {
+            "title": "Merged Reviews",
+            "type": "integer"
+          },
+          "pending_candidates": {
+            "title": "Pending Candidates",
+            "type": "integer"
+          },
+          "total_reviews": {
+            "title": "Total Reviews",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pending_candidates",
+          "merged_reviews",
+          "ignored_reviews",
+          "total_reviews"
+        ],
+        "title": "AdminDuplicateQueueSummaryResponse",
+        "type": "object"
+      },
+      "AdminDuplicateReviewEntryResponse": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "actor_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Email"
+          },
+          "actor_user_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor User Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "details_json": {
+            "additionalProperties": true,
+            "title": "Details Json",
+            "type": "object"
+          },
+          "duplicate_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Score"
+          },
+          "entity_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Id"
+          },
+          "entity_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Entity Ids",
+            "type": "array"
+          },
+          "entity_type": {
+            "title": "Entity Type",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "ignore_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ignore Token"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "source_entity_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Entity Ids"
+          },
+          "target_entity_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Entity Id"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "entity_type",
+          "created_at"
+        ],
+        "title": "AdminDuplicateReviewEntryResponse",
+        "type": "object"
+      },
       "AdminDuplicateReviewRequest": {
         "properties": {
           "decision": {
@@ -391,6 +567,7 @@
         "type": "object"
       },
       "AdminMetadataCorrectionRequest": {
+        "additionalProperties": false,
         "properties": {
           "age_rating": {
             "anyOf": [
@@ -1749,6 +1926,17 @@
             "title": "Id",
             "type": "string"
           },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -2548,6 +2736,28 @@
       },
       "BookContributorResponse": {
         "properties": {
+          "biography": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Biography"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -2560,6 +2770,17 @@
           "role": {
             "title": "Role",
             "type": "string"
+          },
+          "role_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role Id"
           },
           "scope": {
             "title": "Scope",
@@ -2575,6 +2796,17 @@
               }
             ],
             "title": "Sequence"
+          },
+          "sort_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort Name"
           }
         },
         "required": [
@@ -2739,6 +2971,16 @@
             ],
             "title": "Page Count"
           },
+          "physical_details": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BookPhysicalDetailsResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "publication_date": {
             "anyOf": [
               {
@@ -2841,6 +3083,140 @@
         "title": "BookIdentifierResponse",
         "type": "object"
       },
+      "BookOriginalDetailsResponse": {
+        "properties": {
+          "dewey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dewey"
+          },
+          "lccn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lccn"
+          },
+          "loc_control_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loc Control Number"
+          },
+          "original_language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Language"
+          },
+          "original_publication_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Publication Date"
+          },
+          "original_publisher": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Publisher"
+          }
+        },
+        "title": "BookOriginalDetailsResponse",
+        "type": "object"
+      },
+      "BookPhysicalDetailsResponse": {
+        "properties": {
+          "dimensions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dimensions"
+          },
+          "dust_jacket": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dust Jacket"
+          },
+          "first_edition": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Edition"
+          },
+          "number_line": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number Line"
+          },
+          "printing": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Printing"
+          }
+        },
+        "title": "BookPhysicalDetailsResponse",
+        "type": "object"
+      },
       "BookSeriesResponse": {
         "properties": {
           "display_number": {
@@ -2940,6 +3316,16 @@
           "kind": {
             "$ref": "#/components/schemas/ItemKind",
             "default": "book"
+          },
+          "original_details": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BookOriginalDetailsResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "original_language": {
             "anyOf": [
@@ -3228,6 +3614,31 @@
             "title": "Character Id",
             "type": "string"
           },
+          "external_ids": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Ids"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -3235,6 +3646,17 @@
           "role": {
             "title": "Role",
             "type": "string"
+          },
+          "sort_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort Name"
           }
         },
         "required": [
@@ -3247,6 +3669,17 @@
       },
       "ComicContributorResponse": {
         "properties": {
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -3259,6 +3692,17 @@
           "role": {
             "title": "Role",
             "type": "string"
+          },
+          "role_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role Id"
           },
           "scope": {
             "title": "Scope",
@@ -3445,6 +3889,22 @@
             ],
             "title": "Issue Number"
           },
+          "key_comic": {
+            "default": false,
+            "title": "Key Comic",
+            "type": "boolean"
+          },
+          "key_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Reason"
+          },
           "language": {
             "anyOf": [
               {
@@ -3594,6 +4054,17 @@
             ],
             "title": "Description"
           },
+          "expected_issue_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Issue Count"
+          },
           "first_publication_date": {
             "anyOf": [
               {
@@ -3621,6 +4092,24 @@
           "kind": {
             "$ref": "#/components/schemas/ItemKind",
             "default": "comic"
+          },
+          "missing_issue_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Missing Issue Count"
+          },
+          "missing_issue_numbers": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Missing Issue Numbers",
+            "type": "array"
           },
           "original_language": {
             "anyOf": [
@@ -4562,6 +5051,17 @@
             "title": "Id",
             "type": "string"
           },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -5148,6 +5648,7 @@
         "type": "object"
       },
       "MetadataProposalAdminUpdateRequest": {
+        "additionalProperties": false,
         "properties": {
           "image_url": {
             "anyOf": [
@@ -5221,6 +5722,7 @@
         "type": "object"
       },
       "MetadataProposalCreate": {
+        "additionalProperties": false,
         "properties": {
           "image_url": {
             "anyOf": [
@@ -5437,6 +5939,17 @@
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
           },
           "name": {
             "title": "Name",
@@ -5943,6 +6456,17 @@
       },
       "MusicContributorResponse": {
         "properties": {
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -5955,6 +6479,17 @@
           "role": {
             "title": "Role",
             "type": "string"
+          },
+          "role_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role Id"
           },
           "sequence": {
             "anyOf": [
@@ -6022,10 +6557,54 @@
       },
       "MusicMediaV1Response": {
         "properties": {
+          "bp_disc_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bp Disc Id"
+          },
+          "cddb_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cddb Id"
+          },
+          "expected_track_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Track Count"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "leadout_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leadout Offset"
           },
           "media_condition": {
             "anyOf": [
@@ -6052,6 +6631,24 @@
               }
             ],
             "title": "Media Type"
+          },
+          "missing_track_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Missing Track Count"
+          },
+          "missing_track_positions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Track Positions",
+            "type": "array"
           },
           "packaging": {
             "anyOf": [
@@ -6112,6 +6709,17 @@
               }
             ],
             "title": "Title"
+          },
+          "toc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toc"
           },
           "track_count": {
             "anyOf": [
@@ -6226,6 +6834,17 @@
             ],
             "title": "Cover Image Url"
           },
+          "expected_media_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Media Count"
+          },
           "extras": {
             "anyOf": [
               {
@@ -6270,6 +6889,24 @@
             },
             "title": "Media",
             "type": "array"
+          },
+          "missing_disc_numbers": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Missing Disc Numbers",
+            "type": "array"
+          },
+          "missing_media_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Missing Media Count"
           },
           "publisher": {
             "anyOf": [
@@ -6375,6 +7012,17 @@
               }
             ],
             "title": "Track Count"
+          },
+          "upc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upc"
           }
         },
         "required": [
@@ -6386,6 +7034,17 @@
       },
       "MusicTrackV1Response": {
         "properties": {
+          "bitrate_kbps": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bitrate Kbps"
+          },
           "composition": {
             "anyOf": [
               {
@@ -6408,6 +7067,17 @@
             ],
             "title": "Duration Ms"
           },
+          "file_size_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Size Bytes"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -6429,6 +7099,17 @@
             "title": "Media Id",
             "type": "string"
           },
+          "offset_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offset Ms"
+          },
           "position": {
             "title": "Position",
             "type": "string"
@@ -6436,6 +7117,17 @@
           "title": {
             "title": "Title",
             "type": "string"
+          },
+          "track_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track Hash"
           }
         },
         "required": [
@@ -6656,6 +7348,41 @@
         "title": "ProviderCacheSummaryResponse",
         "type": "object"
       },
+      "ProviderFieldStateResponse": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "present",
+              "missing_from_provider",
+              "not_supported_by_provider",
+              "unsupported_by_collectarr",
+              "user_only",
+              "import_only"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "key",
+          "state"
+        ],
+        "title": "ProviderFieldStateResponse",
+        "type": "object"
+      },
       "ProviderIngestHistoryEntry": {
         "properties": {
           "attempts": {
@@ -6729,6 +7456,7 @@
         "type": "object"
       },
       "ProviderIngestJobCreateRequest": {
+        "additionalProperties": false,
         "properties": {
           "max_attempts": {
             "default": 3,
@@ -6949,6 +7677,7 @@
         "type": "object"
       },
       "ProviderIngestRequest": {
+        "additionalProperties": false,
         "properties": {
           "kind": {
             "anyOf": [
@@ -7220,6 +7949,13 @@
               }
             ],
             "title": "Edition Title"
+          },
+          "field_states": {
+            "items": {
+              "$ref": "#/components/schemas/ProviderFieldStateResponse"
+            },
+            "title": "Field States",
+            "type": "array"
           },
           "genres": {
             "items": {
@@ -7553,6 +8289,7 @@
         "type": "object"
       },
       "ProviderSearchRequest": {
+        "additionalProperties": false,
         "properties": {
           "kind": {
             "anyOf": [
@@ -7787,6 +8524,11 @@
           },
           "display_name": {
             "title": "Display Name",
+            "type": "string"
+          },
+          "image_policy": {
+            "default": "remote_image_only",
+            "title": "Image Policy",
             "type": "string"
           },
           "is_configured": {
@@ -8757,6 +9499,17 @@
             "title": "Id",
             "type": "string"
           },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
           "name": {
             "title": "Name",
             "type": "string"
@@ -8864,6 +9617,28 @@
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
+          "large_image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Large Image Url"
           },
           "runtime_minutes": {
             "anyOf": [
@@ -10581,6 +11356,86 @@
           }
         ],
         "summary": "Review Duplicate Candidate",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/duplicates/reviews": {
+      "get": {
+        "operationId": "duplicate_review_history_admin_duplicates_reviews_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdminDuplicateReviewEntryResponse"
+                  },
+                  "title": "Response Duplicate Review History Admin Duplicates Reviews Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Duplicate Review History",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/duplicates/summary": {
+      "get": {
+        "operationId": "duplicate_queue_summary_admin_duplicates_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDuplicateQueueSummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Duplicate Queue Summary",
         "tags": [
           "admin"
         ]
