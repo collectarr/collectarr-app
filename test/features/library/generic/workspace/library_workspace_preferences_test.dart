@@ -2,6 +2,9 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_enums.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,24 +16,48 @@ void main() {
     icon: Icons.menu_book,
     accent: Colors.red,
     preferencePrefix: 'comics',
-    defaultSortColumn: LibrarySortColumn.title,
-    defaultVisibleColumns: {
-      LibraryTableColumn.title,
-      LibraryTableColumn.issue,
-      LibraryTableColumn.grade,
-    },
   );
+
+  final typeConfig = LibraryTypeConfig(
+    workspace: config,
+    singularLabel: 'Comic',
+    pluralLabel: 'Comics',
+    defaultMetadataProvider: 'mock',
+    metadataProviders: const [],
+    trackingProfile: const MediaTrackingProfile(
+      name: 'Mock',
+      options: [],
+    ),
+    defaultSortColumn: LibrarySortColumn.title,
+    defaultVisibleColumns: const {LibraryTableColumn.title, LibraryTableColumn.issue, LibraryTableColumn.grade},
+    availableSortColumns: const [LibrarySortColumn.title, LibrarySortColumn.issue, LibrarySortColumn.grade],
+    availableSortColumnDefinitions: const [],
+    availableTableColumns: const [LibraryTableColumn.title, LibraryTableColumn.issue, LibraryTableColumn.grade],
+  );
+
   final mangaConfig = LibraryWorkspaceConfig(
     kind: CatalogMediaKind.comic,
     title: 'Manga',
     icon: Icons.auto_stories,
     accent: Colors.orange,
     preferencePrefix: 'manga',
+  );
+
+  final mangaTypeConfig = LibraryTypeConfig(
+    workspace: mangaConfig,
+    singularLabel: 'Manga',
+    pluralLabel: 'Manga',
+    defaultMetadataProvider: 'mock',
+    metadataProviders: const [],
+    trackingProfile: const MediaTrackingProfile(
+      name: 'Mock',
+      options: [],
+    ),
     defaultSortColumn: LibrarySortColumn.title,
-    defaultVisibleColumns: {
-      LibraryTableColumn.title,
-      LibraryTableColumn.publisher,
-    },
+    defaultVisibleColumns: const {LibraryTableColumn.title, LibraryTableColumn.publisher},
+    availableSortColumns: const [LibrarySortColumn.title, LibrarySortColumn.publisher],
+    availableSortColumnDefinitions: const [],
+    availableTableColumns: const [LibraryTableColumn.title, LibraryTableColumn.publisher],
   );
 
   setUp(() {
@@ -40,7 +67,7 @@ void main() {
 
   test('library workspace preferences persist reusable view settings',
       () async {
-    final store = LibraryWorkspacePreferences(config);
+    final store = LibraryWorkspacePreferences(typeConfig);
 
     await store.write(
       const LibraryWorkspacePreferenceSnapshot(
@@ -120,7 +147,7 @@ void main() {
       'comics.column_widths': ['title:320', 'grade:120'],
     });
 
-    final store = LibraryWorkspacePreferences(config);
+    final store = LibraryWorkspacePreferences(typeConfig);
     final restored = await store.read(
       defaultCoverSize: 128,
       defaultDensityPreset: LibraryWorkspaceDensityPreset.compact,
@@ -149,8 +176,8 @@ void main() {
 
   test('workspace chrome size and position are retained per library',
       () async {
-    final comicsStore = LibraryWorkspacePreferences(config);
-    final mangaStore = LibraryWorkspacePreferences(mangaConfig);
+    final comicsStore = LibraryWorkspacePreferences(typeConfig);
+    final mangaStore = LibraryWorkspacePreferences(mangaTypeConfig);
 
     await comicsStore.write(
       const LibraryWorkspacePreferenceSnapshot(
@@ -196,7 +223,7 @@ void main() {
 
   test('library workspace preferences keep pane widths beyond the old caps',
       () async {
-    final store = LibraryWorkspacePreferences(config);
+    final store = LibraryWorkspacePreferences(typeConfig);
 
     await store.write(
       const LibraryWorkspacePreferenceSnapshot(
@@ -231,8 +258,8 @@ void main() {
   });
 
   test('sort and chrome preferences stay isolated between libraries', () async {
-    final comicsStore = LibraryWorkspacePreferences(config);
-    final mangaStore = LibraryWorkspacePreferences(mangaConfig);
+    final comicsStore = LibraryWorkspacePreferences(typeConfig);
+    final mangaStore = LibraryWorkspacePreferences(mangaTypeConfig);
 
     await comicsStore.write(
       const LibraryWorkspacePreferenceSnapshot(

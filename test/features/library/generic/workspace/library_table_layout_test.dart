@@ -8,7 +8,11 @@ void main() {
     LibraryTableColumn.issue,
   };
 
-  LibraryTableColumnSizing sizing(LibraryTableColumn column) {
+  LibraryTableColumnSizing sizing(Object column) {
+    if (column is! LibraryTableColumn) {
+      return const LibraryTableColumnSizing(
+          defaultWidth: 60, minWidth: 40, maxWidth: 100);
+    }
     return switch (column) {
       LibraryTableColumn.title => const LibraryTableColumnSizing(
           defaultWidth: 200, minWidth: 100, maxWidth: 300),

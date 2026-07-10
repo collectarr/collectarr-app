@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 const double kPlannedMediaMinCoverSize = 96;
@@ -93,6 +94,12 @@ String plannedMediaTableColumnLabelForType(
   LibraryTypeConfig type,
   Object column,
 ) {
+  if (column == LibraryTableColumn.variant) {
+    return type.releaseFields.variantLabel;
+  }
+  if (column == LibraryTableColumn.barcode) {
+    return type.releaseFields.barcodeLabel;
+  }
   final definition = _tableColumnDefinition(type, column);
   if (definition != null) {
     return definition.label;
@@ -104,6 +111,12 @@ String plannedMediaTableColumnDisplayNameForType(
   LibraryTypeConfig type,
   Object column,
 ) {
+  if (column == LibraryTableColumn.variant) {
+    return type.releaseFields.variantLabel;
+  }
+  if (column == LibraryTableColumn.barcode) {
+    return type.releaseFields.barcodeLabel;
+  }
   final definition = _tableColumnDefinition(type, column);
   if (definition != null) {
     return definition.resolvedDisplayName;
@@ -144,7 +157,29 @@ Object? plannedMediaTableColumnSort(
   if (definition == null || !definition.sortable) {
     return null;
   }
-  return definition.sortId ?? definition.id.value;
+  final sortId = definition.sortId ?? definition.id.value;
+  for (final val in LibrarySortColumn.values) {
+    final name = val.name;
+    final snake = name
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+    if (name == sortId ||
+        snake == sortId ||
+        val.toString() == sortId ||
+        val.toString().split('.').last == sortId) {
+      return val;
+    }
+  }
+  if (sortId == 'comic.issue' || sortId == 'issue') {
+    return LibrarySortColumn.issue;
+  }
+  if (sortId == 'comic.key_issue' || sortId == 'keyComic' || sortId == 'key_comic') {
+    return LibrarySortColumn.keyComic;
+  }
+  return sortId;
 }
 
 Widget plannedMediaTableCell(
@@ -276,7 +311,8 @@ int compareBookEntriesByColumn(
 LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>?
     _tableColumnDefinition(LibraryTypeConfig type, Object column) {
   final fieldId = type.tableColumnFieldId(column);
-  return type.presentation.columnDefinitionForId(fieldId);
+  final module = libraryKindModuleForType(type);
+  return module.fields.columnDefinitionForId(fieldId);
 }
 
 LibraryTableColumnGroup _tableColumnGroupFor(String? group) {

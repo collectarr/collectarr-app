@@ -388,7 +388,7 @@ class LibraryWorkspace extends ConsumerWidget {
                   columnSortFor: adapter.columnSort,
                   columnLabelFor: adapter.columnLabel,
                   columnIsNumeric: adapter.columnIsNumeric,
-                  cellBuilder: _tableCell,
+                  cellBuilder: (entry, column) => _tableCell(entry, column as LibraryTableColumn),
                   isSelected: _isHighlighted,
                   onEntryTap: (item) => _selectionTap(item)(),
                   onEntryDoubleTap: onOpenItem,
@@ -396,9 +396,12 @@ class LibraryWorkspace extends ConsumerWidget {
                       ? null
                       : (item, details) =>
                           onItemContextMenu!(item, details.globalPosition),
-                  onSortChanged: onSortChanged,
-                  onColumnWidthChanged: onColumnWidthChanged,
-                  onColumnReordered: onColumnReordered,
+                  onSortChanged: (column) => onSortChanged(column as LibrarySortColumn),
+                  onColumnWidthChanged: (column, width) => onColumnWidthChanged(column as LibraryTableColumn, width),
+                  onColumnReordered: (column, beforeColumn) => onColumnReordered(
+                    column as LibraryTableColumn,
+                    beforeColumn as LibraryTableColumn?,
+                  ),
                   headerHeight: density.tableHeaderHeight,
                   rowHeight: density.tableRowHeight,
                   columnSpacing: compact ? 6 : 8,

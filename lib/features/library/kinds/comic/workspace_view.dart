@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -64,9 +65,12 @@ int compareComicEntriesByColumn(
   Object column,
 ) {
   final sortId = comicsLibraryConfig.sortColumnFieldId(column);
-  return comicsLibraryConfig.presentation
-      .sortDefinitionFor(sortId)
-      .compare(left, right);
+  final module = libraryKindModuleForType(comicsLibraryConfig);
+  final definition = module.fields.sortDefinitionForId(sortId);
+  if (definition != null) {
+    return definition.compare(left, right);
+  }
+  return 0;
 }
 
 const comicsTableColumnPresets = [
@@ -149,9 +153,9 @@ const comicsTableColumnPresets = [
 
 bool comicInitialSortAscending(Object column) {
   final sortId = comicsLibraryConfig.sortColumnFieldId(column);
-  return comicsLibraryConfig.presentation
-      .sortDefinitionFor(sortId)
-      .defaultAscending;
+  final module = libraryKindModuleForType(comicsLibraryConfig);
+  final definition = module.fields.sortDefinitionForId(sortId);
+  return definition?.defaultAscending ?? true;
 }
 
 LibraryWorkspaceViewPresetConfig comicsViewPresetConfig(

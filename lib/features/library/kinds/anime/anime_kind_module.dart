@@ -6,10 +6,20 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
+
 final animeKindModule = LibraryKindModule(
   type: animeLibraryConfig,
   mediaAdapter: animeMediaAdapter,
   workspaceDtoFactory: AnimeWorkspaceDto.fromEntry,
+  fields: AnyLibraryFieldRegistry(
+    groups: animeLibraryGroupModeDefinitions,
+    sorts: animeLibrarySortColumnDefinitions,
+    defaultVisibleColumnIds:
+        animeLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
+    defaultSortId: 'title',
+    defaultGroupId: 'series',
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsSeriesIssueJump: true,
     defaultVideoDisplayLevel: VideoDisplayLevel.season,

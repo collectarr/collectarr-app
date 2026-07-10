@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';

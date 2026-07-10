@@ -89,10 +89,4 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.import_contacts_outlined,
   fieldDefinitions: mangaLibraryFieldDefinitions,
-  sortDefinitions: mangaLibrarySortDefinitions,
-  groupDefinitions: mangaLibraryGroupDefinitions,
-  columnDefinitions: mangaLibraryColumnDefinitions,
-  defaultVisibleColumnIds: mangaLibraryDefaultVisibleColumnIds,
-  defaultSortId: mangaDefaultSortId,
-  defaultGroupId: mangaDefaultGroupId,
 );

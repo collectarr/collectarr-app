@@ -25,14 +25,56 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
 
 final comicsLibraryConfig = LibraryTypeConfig(
   workspace: comicsWorkspaceConfig,
-  defaultSortColumn: comicDefaultSortId,
-  defaultVisibleColumns: comicLibraryDefaultVisibleColumnIds,
-  availableSortColumns: [
-    for (final definition in comicLibrarySortDefinitions) definition.id,
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: const {
+    LibraryTableColumn.status,
+    LibraryTableColumn.cover,
+    LibraryTableColumn.title,
+    LibraryTableColumn.publisher,
+    LibraryTableColumn.releaseDate,
+    LibraryTableColumn.barcode,
+    LibraryTableColumn.condition,
+    LibraryTableColumn.price,
+    LibraryTableColumn.location,
+    LibraryTableColumn.wishlist,
+    LibraryTableColumn.updated,
+  },
+  availableSortColumns: const [
+    LibrarySortColumn.series,
+    LibrarySortColumn.publisher,
+    LibrarySortColumn.status,
+    LibrarySortColumn.title,
+    LibrarySortColumn.issue,
+    LibrarySortColumn.storyArc,
+    LibrarySortColumn.variant,
+    LibrarySortColumn.format,
+    LibrarySortColumn.releaseDate,
+    LibrarySortColumn.barcode,
+    LibrarySortColumn.grade,
+    LibrarySortColumn.rawOrSlabbed,
+    LibrarySortColumn.gradingCompany,
+    LibrarySortColumn.condition,
+    LibrarySortColumn.price,
+    LibrarySortColumn.location,
+    LibrarySortColumn.collectionStatus,
+    LibrarySortColumn.wishlist,
+    LibrarySortColumn.keyComic,
+    LibrarySortColumn.added,
+    LibrarySortColumn.updated,
   ],
   availableSortColumnDefinitions: comicLibrarySortDefinitions,
-  availableTableColumns: [
-    for (final definition in comicLibraryColumnDefinitions) definition.id.value,
+  availableTableColumns: const [
+    LibraryTableColumn.status,
+    LibraryTableColumn.cover,
+    LibraryTableColumn.title,
+    LibraryTableColumn.publisher,
+    LibraryTableColumn.releaseDate,
+    LibraryTableColumn.barcode,
+    LibraryTableColumn.condition,
+    LibraryTableColumn.price,
+    LibraryTableColumn.location,
+    LibraryTableColumn.wishlist,
+    LibraryTableColumn.updated,
   ],
   singularLabel: 'Comic',
   pluralLabel: 'Comics',
@@ -97,6 +139,21 @@ final comicsLibraryConfig = LibraryTypeConfig(
 List<LibraryGroupModeCategory> buildComicGroupModeCategories(
   List<Object> modes,
 ) {
+  String modeId(Object mode) {
+    if (mode is String) {
+      return mode;
+    }
+    final normalized = mode.toString().contains('.')
+        ? mode.toString().split('.').last
+        : mode.toString();
+    return normalized
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+  }
+
   const mainIds = {
     'series',
     'age_rating',
@@ -154,17 +211,17 @@ List<LibraryGroupModeCategory> buildComicGroupModeCategories(
     'translator',
     'writer',
   };
-  final main = modes.where(mainIds.contains).toList();
-  final value = modes.where(valueIds.contains).toList();
-  final edition = modes.where(editionIds.contains).toList();
+  final main = modes.where((m) => mainIds.contains(modeId(m))).toList();
+  final value = modes.where((m) => valueIds.contains(modeId(m))).toList();
+  final edition = modes.where((m) => editionIds.contains(modeId(m))).toList();
   final creatorsAndCharacters =
-      modes.where(creatorsAndCharactersIds.contains).toList();
+      modes.where((m) => creatorsAndCharactersIds.contains(modeId(m))).toList();
   final personal = modes
-      .where((mode) =>
-          !mainIds.contains(mode) &&
-          !valueIds.contains(mode) &&
-          !editionIds.contains(mode) &&
-          !creatorsAndCharactersIds.contains(mode))
+      .where((m) =>
+          !mainIds.contains(modeId(m)) &&
+          !valueIds.contains(modeId(m)) &&
+          !editionIds.contains(modeId(m)) &&
+          !creatorsAndCharactersIds.contains(modeId(m)))
       .toList();
   return [
     if (main.isNotEmpty) LibraryGroupModeCategory('Main', main),

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
@@ -82,7 +83,7 @@ void main() {
     );
     final factsSection = sections.whereType<InspectorMetadataFactsSection>().single;
     expect(
-      factsSection.facts.map((fact) => fact.label),
+      factsSection.facts.map((fact) => (fact as LibraryDetailField).label),
       containsAll(['Runtime', 'Layers', 'Trailers']),
     );
     expect(sections.whereType<InspectorReleasesSection>(), hasLength(1));

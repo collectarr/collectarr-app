@@ -7,10 +7,20 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
+
 final tvKindModule = LibraryKindModule(
   type: tvLibraryConfig,
   mediaAdapter: tvMediaAdapter,
   workspaceDtoFactory: TvWorkspaceDto.fromEntry,
+  fields: AnyLibraryFieldRegistry(
+    groups: tvLibraryGroupModeDefinitions,
+    sorts: tvLibrarySortColumnDefinitions,
+    defaultVisibleColumnIds:
+        tvLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
+    defaultSortId: 'title',
+    defaultGroupId: 'series',
+  ),
   workspaceBehavior: LibraryKindWorkspaceBehavior(
     showsSeasonGroupProgress: true,
     defaultVideoDisplayLevel: tvDefaultVideoDisplayLevel,

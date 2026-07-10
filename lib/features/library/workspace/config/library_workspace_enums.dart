@@ -293,3 +293,5 @@ enum LibraryTableColumn {
   ageRating,
   imprint,
 }
+
+enum LibrarySortFieldGroup { main, value, edition, personal }

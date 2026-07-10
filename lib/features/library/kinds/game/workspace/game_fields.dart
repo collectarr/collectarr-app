@@ -71,7 +71,7 @@ const gameLibraryGroupModes = [
   LibraryGroupMode.tags,
 ];
 
-const gameLibraryGroupModeDefinitions = [
+final gameLibraryGroupModeDefinitions = [
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.title,
     label: 'Title',
@@ -311,7 +311,7 @@ const gameLibraryGroupModeDefinitions = [
   ),
 ];
 
-const gameLibrarySortColumnDefinitions = [
+final gameLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.series,
     label: 'Series',

@@ -71,7 +71,4 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   referenceLabels: LibraryReferenceLabels(itemScope: 'Album'),
   compactBucketIcon: Icons.person_2_outlined,
   fieldDefinitions: musicLibraryFieldDefinitions,
-  sortColumnDefinitions: musicLibrarySortColumnDefinitions,
-  groupModeDefinitions: musicLibraryGroupModeDefinitions,
-  groupModes: musicLibraryGroupModes,
 );

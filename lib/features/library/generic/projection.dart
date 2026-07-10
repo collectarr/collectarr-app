@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -184,15 +185,15 @@ LibraryGroupModeDefinition? libraryGroupModeDefinitionOrNull(
   LibraryTypeConfig? type,
 ]) {
   if (type != null) {
-    for (final definition in type.presentation.groupModeDefinitions) {
-      if (definition.mode == mode) {
+    final module = libraryKindModuleForType(type);
+    for (final definition in module.fields.groups) {
+      if (definition is LibraryGroupModeDefinition && definition.mode == mode) {
         return definition;
       }
     }
   }
-  for (final definition
-      in genericLibraryMediaPresentation.groupModeDefinitions) {
-    if (definition.mode == mode) {
+  for (final definition in genericLibraryGroupModeDefinitions) {
+    if (definition is LibraryGroupModeDefinition && definition.mode == mode) {
       return definition;
     }
   }
@@ -231,7 +232,12 @@ LibraryGroupMode? genericGroupModeDrilldownChildMode(
   LibraryGroupMode mode,
   LibraryTypeConfig type,
 ) {
-  return libraryGroupModeDefinitionOrNull(mode, type)?.drilldownChildMode;
+  final childId = libraryGroupModeDefinitionOrNull(mode, type)?.drilldownChildId;
+  if (childId == null) return null;
+  return LibraryGroupMode.values.firstWhere(
+    (m) => m.name == childId || m.toString().split('.').last == childId,
+    orElse: () => LibraryGroupMode.title,
+  );
 }
 
 bool libraryAllowsGroupDrilldown({
@@ -282,7 +288,13 @@ LibraryGroupPresentation genericGroupPresentationForMode(
 List<LibraryGroupMode> libraryGroupModesForType(
   LibraryTypeConfig type,
 ) {
-  return type.presentation.groupModes;
+  return [
+    for (final mode in type.availableGroupModes)
+      LibraryGroupMode.values.firstWhere(
+        (m) => m.name == mode || m.toString().split('.').last == mode,
+        orElse: () => LibraryGroupMode.title,
+      )
+  ];
 }
 
 LibraryGroupMode libraryDefaultGroupMode(LibraryTypeConfig type) {

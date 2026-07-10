@@ -892,12 +892,8 @@ String _sortFavoriteSummary(
       .join('  |  ');
 }
 
-String _sortColumnLabel(LibraryTypeConfig type, LibrarySortColumn column) {
-  try {
-    return type.presentation.sortColumnDefinitionFor(column).label;
-  } on StateError {
-    return librarySortColumnFallbackLabel(column);
-  }
+String _sortColumnLabel(LibraryTypeConfig type, Object column) {
+  return type.sortColumnDefinitionFor(column).label;
 }
 
 List<LibrarySortFavorite> _orderedPinnedSortFavorites(

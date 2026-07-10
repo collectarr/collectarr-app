@@ -4,10 +4,21 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_work
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
+import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
+
 final mangaKindModule = LibraryKindModule(
   type: mangaLibraryConfig,
   mediaAdapter: mangaMediaAdapter,
   workspaceDtoFactory: MangaWorkspaceDto.fromEntry,
+  fields: AnyLibraryFieldRegistry(
+    groups: mangaLibraryGroupDefinitions,
+    sorts: mangaLibrarySortDefinitions,
+    columns: mangaLibraryColumnDefinitions,
+    defaultVisibleColumnIds: mangaLibraryDefaultVisibleColumnIds,
+    defaultSortId: mangaDefaultSortId,
+    defaultGroupId: mangaDefaultGroupId,
+  ),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

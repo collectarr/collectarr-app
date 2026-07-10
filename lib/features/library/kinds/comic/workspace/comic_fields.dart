@@ -713,7 +713,7 @@ final comicLibraryColumnDefinitions = [
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('cover'),
-    label: 'Cover',
+    label: '',
     getValue: (entry) => entry.coverImageUrl,
     cellValue: (entry) => entry.coverImageUrl == null
         ? const SizedBox.shrink()

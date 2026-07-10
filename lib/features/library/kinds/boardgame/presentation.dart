@@ -66,7 +66,7 @@ String _simpleLibraryBucketLabel(
         : entry.isWishlisted
             ? overrides.wishlist
             : overrides.catalogOnly,
-    _ => context.groupMode.name,
+    _ => context.groupMode,
   };
 }
 
@@ -113,9 +113,6 @@ final boardGamesLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: boardGamesPreviewLabels,
   statsLabels: boardGamesStatsLabels,
   fieldDefinitions: boardgameLibraryFieldDefinitions,
-  sortColumnDefinitions: boardGamesLibrarySortColumnDefinitions,
-  groupModeDefinitions: boardGamesLibraryGroupModeDefinitions,
-  groupModes: boardGamesLibraryGroupModes,
 );
 
 LibraryWorkspaceEntry buildBoardGamesLibraryWorkspaceEntryFromShelf(

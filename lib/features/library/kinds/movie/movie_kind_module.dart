@@ -8,10 +8,20 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
+
 final movieKindModule = LibraryKindModule(
   type: moviesLibraryConfig,
   mediaAdapter: moviesMediaAdapter,
   workspaceDtoFactory: MovieWorkspaceDto.fromEntry,
+  fields: AnyLibraryFieldRegistry(
+    groups: movieLibraryGroupModeDefinitions,
+    sorts: movieLibrarySortColumnDefinitions,
+    defaultVisibleColumnIds:
+        moviesLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
+    defaultSortId: 'title',
+    defaultGroupId: 'series',
+  ),
   add: LibraryKindAddModule(registerBuilders: movie_add.registerMovieAddBuilders),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,

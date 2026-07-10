@@ -72,7 +72,4 @@ final moviesLibraryMediaPresentation = LibraryMediaPresentation(
   compactBucketIcon: Icons.movie_filter_outlined,
   emptyStateProviderSummarySuffix: ' Physical formats are tracked as editions.',
   fieldDefinitions: movieLibraryFieldDefinitions,
-  sortColumnDefinitions: movieLibrarySortColumnDefinitions,
-  groupModeDefinitions: movieLibraryGroupModeDefinitions,
-  groupModes: movieLibraryGroupModes,
 );

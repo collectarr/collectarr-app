@@ -337,8 +337,8 @@ class _LibraryGroupModeDropdownMenuState
       for (final category in _categories)
         category.label: category.modes.any(
           (mode) =>
-              widget.selectedPreset == LibraryFolderPreset.single(mode) ||
-              _pinnedPresets.contains(LibraryFolderPreset.single(mode)),
+              widget.selectedPreset == LibraryFolderPreset.single(mode as LibraryGroupMode) ||
+              _pinnedPresets.contains(LibraryFolderPreset.single(mode as LibraryGroupMode)),
         ),
     };
   }
@@ -444,7 +444,7 @@ class _LibraryGroupModeDropdownMenuState
                   _buildSection(
                     context,
                     label: category.label,
-                    modes: category.modes,
+                    modes: category.modes.cast<LibraryGroupMode>(),
                   ),
               ],
             ),
@@ -727,7 +727,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   void _toggleCategoryModes(LibraryGroupModeCategory category) {
     final visibleModes = [
-      for (final mode in category.modes)
+      for (final mode in category.modes.cast<LibraryGroupMode>())
         if (_matchesFieldSearch(mode)) mode,
     ];
     if (visibleModes.isEmpty) {
@@ -768,7 +768,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     LibraryGroupModeCategory category,
   ) {
     final visibleModes = [
-      for (final mode in category.modes)
+      for (final mode in category.modes.cast<LibraryGroupMode>())
         if (_matchesFieldSearch(mode)) mode,
     ];
     if (visibleModes.isEmpty) {
@@ -817,7 +817,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
         LibraryGroupModeCategory(
           category.label,
           [
-            for (final mode in category.modes)
+            for (final mode in category.modes.cast<LibraryGroupMode>())
               if (genericGroupModeLabel(mode, widget.type)
                       .toLowerCase()
                       .contains(query) ||
@@ -1573,7 +1573,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
           ),
         ),
         if (expanded)
-          for (final mode in category.modes)
+          for (final mode in category.modes.cast<LibraryGroupMode>())
             if (_matchesFieldSearch(mode))
               InkWell(
                 onTap: () => _toggleDraftMode(mode),

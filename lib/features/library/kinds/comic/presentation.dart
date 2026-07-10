@@ -110,9 +110,6 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   workspaceEntryBuilder: buildComicsLibraryWorkspaceEntryFromShelf,
   releaseEntryBuilder: buildComicsLibraryReleaseEntry,
   bucketLabelBuilder: comicLibraryBucketLabelBuilder,
-  defaultVisibleColumnIds: comicsIssueVisibleColumns,
-  defaultSortId: comicDefaultSortId,
-  defaultGroupId: comicDefaultGroupId,
   previewLabels: comicsPreviewLabels,
   usesTreeProviderCandidates: true,
   externalFacetBucketIdsByMode: {
@@ -124,7 +121,4 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   sortFavorites: comicLibrarySortFavorites,
   columnFavorites: comicsTableColumnPresets,
   fieldDefinitions: comicLibraryFieldDefinitions,
-  sortDefinitions: comicLibrarySortDefinitions,
-  groupDefinitions: comicLibraryGroupDefinitions,
-  columnDefinitions: comicLibraryColumnDefinitions,
 );

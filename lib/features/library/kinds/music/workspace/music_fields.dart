@@ -100,7 +100,7 @@ const musicLibraryGroupModes = [
   LibraryGroupMode.tags,
 ];
 
-const musicLibraryGroupModeDefinitions = [
+final musicLibraryGroupModeDefinitions = [
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.series,
     label: 'Artist',
@@ -491,7 +491,7 @@ const musicLibraryGroupModeDefinitions = [
   ),
 ];
 
-const musicLibrarySortColumnDefinitions = [
+final musicLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.series,
     label: 'Artist',

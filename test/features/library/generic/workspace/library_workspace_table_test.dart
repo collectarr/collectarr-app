@@ -24,9 +24,9 @@ DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
 void main() {
   testWidgets('workspace table renders rows and reports sort/tap changes',
       (tester) async {
-    var sortedBy = LibrarySortColumn.issue;
+    Object sortedBy = LibrarySortColumn.issue;
     String? tapped;
-    (LibraryTableColumn, LibraryTableColumn?)? reordered;
+    (Object, Object?)? reordered;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -61,7 +61,7 @@ void main() {
                 LibraryTableColumn.issue => LibrarySortColumn.issue,
                 _ => null,
               },
-              columnLabelFor: (column) => column.name,
+              columnLabelFor: (column) => (column as LibraryTableColumn).name,
               columnIsNumeric: (column) => column == LibraryTableColumn.issue,
               cellBuilder: (entry, column) => Text(
                 column == LibraryTableColumn.title ? entry : '#1',
@@ -120,7 +120,7 @@ void main() {
                 LibraryTableColumn.issue => LibrarySortColumn.issue,
                 _ => null,
               },
-              columnLabelFor: (column) => column.name,
+              columnLabelFor: (column) => (column as LibraryTableColumn).name,
               columnIsNumeric: (column) => column == LibraryTableColumn.issue,
               cellBuilder: (entry, column) => Text(
                 column == LibraryTableColumn.title ? entry : '#1',
@@ -217,7 +217,7 @@ void main() {
                     LibraryTableColumn.issue => LibrarySortColumn.issue,
                     _ => null,
                   },
-                  columnLabelFor: (column) => column.name,
+                  columnLabelFor: (column) => (column as LibraryTableColumn).name,
                   columnIsNumeric: (column) =>
                       column == LibraryTableColumn.issue,
                   cellBuilder: (entry, column) => Text(
@@ -253,7 +253,7 @@ void main() {
 
   testWidgets('workspace table can reorder a column to the end',
       (tester) async {
-    (LibraryTableColumn, LibraryTableColumn?)? reordered;
+    (Object, Object?)? reordered;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -279,7 +279,7 @@ void main() {
                 _ => null,
               },
               columnLabelFor: (column) =>
-                  column == LibraryTableColumn.title ? '' : column.name,
+                  column == LibraryTableColumn.title ? '' : (column as LibraryTableColumn).name,
               columnIsNumeric: (column) => column == LibraryTableColumn.issue,
               cellBuilder: (entry, column) => Text(
                 column == LibraryTableColumn.title ? entry : '#1',
@@ -333,7 +333,7 @@ void main() {
                 LibraryTableColumn.issue => LibrarySortColumn.issue,
                 _ => null,
               },
-              columnLabelFor: (column) => column.name,
+              columnLabelFor: (column) => (column as LibraryTableColumn).name,
               columnIsNumeric: (column) => column == LibraryTableColumn.issue,
               cellBuilder: (entry, column) => Text(
                 column == LibraryTableColumn.title ? entry : '#1',

@@ -90,7 +90,7 @@ const movieLibraryGroupModes = [
   LibraryGroupMode.watchedWhere,
 ];
 
-const movieLibraryGroupModeDefinitions = [
+final movieLibraryGroupModeDefinitions = [
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.audienceRating,
     label: 'Audience Rating',
@@ -130,7 +130,7 @@ const movieLibraryGroupModeDefinitions = [
     label: 'Age',
     sidebarTitle: 'Age Ratings',
     icon: Icons.verified_user_outlined,
-    drilldownChildMode: LibraryGroupMode.country,
+    drilldownChildMode: 'country',
     folderSetLabel: 'Age / Country',
   ),
   LibraryGroupModeDefinition(
@@ -442,7 +442,7 @@ const movieLibraryGroupModeDefinitions = [
   ),
 ];
 
-const movieLibrarySortColumnDefinitions = [
+final movieLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(column: LibrarySortColumn.series, label: 'Series'),
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.publisher,

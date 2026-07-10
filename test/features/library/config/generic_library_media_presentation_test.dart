@@ -24,7 +24,7 @@ void main() {
         LibraryBucketingContext(
           source: ShelfEntry(itemId: 'comic-1', catalogItem: null),
           entry: entry,
-          groupMode: LibraryGroupMode.series,
+          groupMode: LibraryGroupMode.series.name,
         ),
       );
 
@@ -44,7 +44,7 @@ void main() {
         LibraryBucketingContext(
           source: ShelfEntry(itemId: 'comic-2', catalogItem: null),
           entry: entry,
-          groupMode: LibraryGroupMode.series,
+          groupMode: LibraryGroupMode.series.name,
         ),
       );
 
@@ -67,7 +67,7 @@ void main() {
         LibraryBucketingContext(
           source: ShelfEntry(itemId: 'comic-3', catalogItem: null),
           entry: entry,
-          groupMode: LibraryGroupMode.series,
+          groupMode: LibraryGroupMode.series.name,
         ),
       );
 
@@ -90,7 +90,7 @@ void main() {
         LibraryBucketingContext(
           source: ShelfEntry(itemId: 'comic-4', catalogItem: null),
           entry: entry,
-          groupMode: LibraryGroupMode.series,
+          groupMode: LibraryGroupMode.series.name,
         ),
       );
 
@@ -131,7 +131,7 @@ void main() {
         LibraryBucketingContext(
           source: ShelfEntry(itemId: 'batman-v0', catalogItem: null),
           entry: v0Item,
-          groupMode: LibraryGroupMode.series,
+          groupMode: LibraryGroupMode.series.name,
         ),
       );
 
@@ -139,7 +139,7 @@ void main() {
         LibraryBucketingContext(
           source: ShelfEntry(itemId: 'batman-v1', catalogItem: null),
           entry: v1Item,
-          groupMode: LibraryGroupMode.series,
+          groupMode: LibraryGroupMode.series.name,
         ),
       );
 
@@ -182,7 +182,7 @@ void main() {
         LibraryBucketingContext(
           source: ShelfEntry(itemId: 'batman-123-1', catalogItem: null),
           entry: item1,
-          groupMode: LibraryGroupMode.series,
+          groupMode: LibraryGroupMode.series.name,
         ),
       );
 
@@ -190,7 +190,7 @@ void main() {
         LibraryBucketingContext(
           source: ShelfEntry(itemId: 'batman-456-1', catalogItem: null),
           entry: item2,
-          groupMode: LibraryGroupMode.series,
+          groupMode: LibraryGroupMode.series.name,
         ),
       );
 

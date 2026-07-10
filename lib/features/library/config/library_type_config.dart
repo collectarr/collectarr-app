@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/config/generic_library_media_pre
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -25,6 +26,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_browser_
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryGroupModeCategoryBuilder = List<LibraryGroupModeCategory>
@@ -511,7 +513,8 @@ class LibraryKindUiAdapter {
     LibraryTypeConfig type,
     Object mode,
   ) {
-    return type.presentation
+    return libraryKindModuleForType(type)
+        .fields
         .groupModeDefinitionFor(mode)
         .supportsBucketManagement;
   }
@@ -735,11 +738,11 @@ class LibraryTypeConfig {
   final String defaultMetadataProvider;
   final List<LibraryMetadataProviderOption> metadataProviders;
   final MediaTrackingProfile trackingProfile;
-  final Object defaultSortColumn;
-  final Set<Object> defaultVisibleColumns;
-  final List<Object> availableSortColumns;
-  final List<Object> availableSortColumnDefinitions;
-  final List<Object> availableTableColumns;
+  final LibrarySortColumn defaultSortColumn;
+  final Set<LibraryTableColumn> defaultVisibleColumns;
+  final List<LibrarySortColumn> availableSortColumns;
+  final List<LibrarySortDefinition<LibraryWorkspaceEntry>> availableSortColumnDefinitions;
+  final List<LibraryTableColumn> availableTableColumns;
   final List<String> conditions;
   final List<String> grades;
   final String? defaultCondition;
@@ -790,7 +793,14 @@ class LibraryTypeConfig {
   bool get usesTitleAsSeriesFallback =>
       manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
-  List<Object> get availableGroupModes => presentation.groupModes;
+  List<LibraryGroupMode> get availableGroupModes {
+    final module = libraryKindModuleForType(this);
+    return [
+      for (final definition in module.fields.groups)
+        if (definition is LibraryGroupModeDefinition && definition.mode is LibraryGroupMode)
+          definition.mode as LibraryGroupMode
+    ];
+  }
 
   LibraryWorkspaceDensityPreset get defaultDensityPreset =>
       workspace.defaultDensityPreset;
@@ -799,25 +809,37 @@ class LibraryTypeConfig {
       workspace.availableDensityPresets;
 
   LibrarySortColumnDefinition sortColumnDefinitionFor(Object column) {
-    return presentation.sortColumnDefinitionFor(column);
+    final module = libraryKindModuleForType(this);
+    final id = _definitionIdFor(column);
+    final definition = module.fields.sortDefinitionForId(id);
+    if (definition != null) {
+      return wrapSortDefinition(definition);
+    }
+    return LibrarySortColumnDefinition(
+      column: column,
+      id: id,
+      label: libraryFallbackLabelForId(id),
+    );
   }
 
   bool supportsSortColumn(Object column) {
     final columnId = _definitionIdFor(column);
+    final module = libraryKindModuleForType(this);
     return availableSortColumns.any(
           (value) => _definitionIdFor(value) == columnId,
         ) ||
-        presentation.sortDefinitionForId(columnId) != null ||
-        presentation.sortDefinitionForId(columnId.split('.').last) != null;
+        module.fields.sortDefinitionForId(columnId) != null ||
+        module.fields.sortDefinitionForId(columnId.split('.').last) != null;
   }
 
   bool supportsTableColumn(Object column) {
     final columnId = _definitionIdFor(column);
+    final module = libraryKindModuleForType(this);
     return availableTableColumns.any(
           (definition) => _definitionIdFor(definition) == columnId,
         ) ||
-        presentation.columnDefinitionForId(columnId) != null ||
-        presentation.columnDefinitionForId(columnId.split('.').last) != null;
+        module.fields.columnDefinitionForId(columnId) != null ||
+        module.fields.columnDefinitionForId(columnId.split('.').last) != null;
   }
 
   String sortColumnFieldId(Object column) {
@@ -826,7 +848,8 @@ class LibraryTypeConfig {
 
   String tableColumnFieldId(Object column) {
     final columnId = _definitionIdFor(column);
-    return presentation.columnDefinitionForId(columnId)?.id.value ?? columnId;
+    final module = libraryKindModuleForType(this);
+    return module.fields.columnDefinitionForId(columnId)?.id.value ?? columnId;
   }
 
   Object? sortColumnFromFieldId(String? fieldId) {
@@ -876,7 +899,7 @@ class LibraryTypeConfig {
 
   bool get hasGradePickList => grades.isNotEmpty;
 
-  List<Object> availableGroupModesForBrowserMode(
+  List<LibraryGroupMode> availableGroupModesForBrowserMode(
     LibraryWorkspaceBrowserMode browserMode,
   ) {
     if (!capabilities.scopesOptionsByBrowserMode) {
@@ -894,7 +917,7 @@ class LibraryTypeConfig {
     ];
   }
 
-  List<Object> availableSortColumnsForBrowserMode(
+  List<LibrarySortColumn> availableSortColumnsForBrowserMode(
     LibraryWorkspaceBrowserMode browserMode,
   ) {
     if (!capabilities.scopesOptionsByBrowserMode) {

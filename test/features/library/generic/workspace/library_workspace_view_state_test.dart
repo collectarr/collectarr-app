@@ -2,6 +2,9 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_enums.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,15 +16,27 @@ void main() {
     icon: Icons.menu_book,
     accent: Colors.red,
     preferencePrefix: 'test.comics',
+  );
+
+  final typeConfig = LibraryTypeConfig(
+    workspace: config,
+    singularLabel: 'Comic',
+    pluralLabel: 'Comics',
+    defaultMetadataProvider: 'mock',
+    metadataProviders: const [],
+    trackingProfile: const MediaTrackingProfile(
+      name: 'Mock',
+      options: [],
+    ),
     defaultSortColumn: LibrarySortColumn.title,
-    defaultVisibleColumns: {
-      LibraryTableColumn.title,
-      LibraryTableColumn.issue,
-    },
+    defaultVisibleColumns: const {LibraryTableColumn.title, LibraryTableColumn.issue},
+    availableSortColumns: const [LibrarySortColumn.title, LibrarySortColumn.issue],
+    availableSortColumnDefinitions: const [],
+    availableTableColumns: const [LibraryTableColumn.title, LibraryTableColumn.issue],
   );
 
   final profile = LibraryWorkspaceViewProfile(
-    config: config,
+    type: typeConfig,
     defaultCoverSize: 128,
     minCoverSize: 100,
     maxCoverSize: 200,
@@ -167,7 +182,7 @@ void main() {
 
   test('workspace view profile controls initial sort direction', () {
     final newestFirstProfile = LibraryWorkspaceViewProfile(
-      config: config,
+      type: typeConfig,
       defaultCoverSize: 128,
       minCoverSize: 100,
       maxCoverSize: 200,
@@ -225,7 +240,7 @@ void main() {
   });
 
   test('workspace view defaults reuse cached library chrome', () async {
-    await LibraryWorkspacePreferences(config).write(
+    await LibraryWorkspacePreferences(typeConfig).write(
       profile
           .defaults()
           .copyWith(

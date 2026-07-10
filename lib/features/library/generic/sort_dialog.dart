@@ -392,15 +392,16 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                           },
                                           itemBuilder: (context, index) {
                                             final rule = _rules[index];
+                                            final col = rule.column as LibrarySortColumn;
                                             return _SelectedSortRuleTile(
                                               key: ValueKey(
-                                                  'selected-sort-${rule.column.name}'),
+                                                  'selected-sort-${col.name}'),
                                               index: index,
                                               dragHandleKey: ValueKey(
-                                                'selected-sort-${rule.column.name}-handle',
+                                                'selected-sort-${col.name}-handle',
                                               ),
                                               title: _sortColumnLabel(
-                                                  widget.type, rule.column),
+                                                  widget.type, col),
                                               ascending: rule.ascending,
                                               canMoveUp: index > 0,
                                               canMoveDown:
@@ -1129,7 +1130,7 @@ String _sortRuleSummary(LibraryTypeConfig type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
-            '${_sortColumnLabel(type, rule.column)} ${rule.ascending ? 'ASC' : 'DESC'}',
+            '${_sortColumnLabel(type, rule.column as LibrarySortColumn)} ${rule.ascending ? 'ASC' : 'DESC'}',
       )
       .join('  |  ');
 }
@@ -1138,7 +1139,11 @@ LibrarySortFieldGroup _sortFieldGroup(
   LibraryTypeConfig type,
   LibrarySortColumn column,
 ) {
-  return type.presentation.sortColumnDefinitionFor(column).group;
+  final groupStr = type.sortColumnDefinitionFor(column).group.toLowerCase();
+  return LibrarySortFieldGroup.values.firstWhere(
+    (g) => g.name.toLowerCase() == groupStr,
+    orElse: () => LibrarySortFieldGroup.main,
+  );
 }
 
 String _groupLabel(LibrarySortFieldGroup group) {
@@ -1151,15 +1156,17 @@ String _groupLabel(LibrarySortFieldGroup group) {
 }
 
 bool _defaultSortAscending(LibraryTypeConfig type, LibrarySortColumn column) {
-  return type.presentation.sortColumnDefinitionFor(column).defaultAscending;
+  return type.sortColumnDefinitionFor(column).defaultAscending;
 }
 
 List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
   final seen = <LibrarySortColumn>{};
   final deduped = <LibrarySortRule>[];
   for (final rule in rules) {
-    if (seen.add(rule.column)) {
-      deduped.add(rule);
+    if (rule.column is LibrarySortColumn) {
+      if (seen.add(rule.column as LibrarySortColumn)) {
+        deduped.add(rule);
+      }
     }
   }
   return deduped;
@@ -1167,7 +1174,7 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
 
 String _sortColumnLabel(LibraryTypeConfig type, LibrarySortColumn column) {
   try {
-    return type.presentation.sortColumnDefinitionFor(column).label;
+    return type.sortColumnDefinitionFor(column).label;
   } on StateError {
     return librarySortColumnFallbackLabel(column);
   }

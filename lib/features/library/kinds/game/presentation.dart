@@ -203,7 +203,4 @@ final gamesLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: gamesPreviewLabels,
   statsLabels: gamesStatsLabels,
   fieldDefinitions: gameLibraryFieldDefinitions,
-  sortColumnDefinitions: gameLibrarySortColumnDefinitions,
-  groupModeDefinitions: gameLibraryGroupModeDefinitions,
-  groupModes: gameLibraryGroupModes,
 );

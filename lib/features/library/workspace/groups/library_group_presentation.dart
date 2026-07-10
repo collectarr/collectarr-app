@@ -1,2 +1,2 @@
-export '../../config/library_media_presentation_models.dart'
+export '../config/library_typed_field_definition.dart'
     show LibraryGroupPresentation, LibraryGroupPresentationLabels;

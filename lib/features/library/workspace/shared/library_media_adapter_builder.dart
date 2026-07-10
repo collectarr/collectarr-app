@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -51,7 +52,7 @@ LibraryMediaAdapter plannedMediaAdapter(
         plannedMediaTableCell(type, entry, column),
     compareEntriesByColumn: compareEntriesByColumn ??
         (left, right, column) =>
-            type.presentation.sortDefinitionFor(column.toString()).compare(
+            libraryKindModuleForType(type).fields.sortDefinitionFor(column.toString()).compare(
                   left,
                   right,
                 ),
@@ -92,7 +93,7 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
         clampPlannedMediaTableColumnWidth(type, column, width),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
     sortAscendingForColumn: (column) =>
-        type.presentation.sortDefinitionFor(column.toString()).defaultAscending,
+        libraryKindModuleForType(type).fields.sortDefinitionFor(column.toString()).defaultAscending,
   );
 }
 

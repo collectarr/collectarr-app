@@ -82,7 +82,4 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   usesCompactTableLayout: true,
   compactBucketIcon: Icons.tv_outlined,
   fieldDefinitions: animeLibraryFieldDefinitions,
-  sortColumnDefinitions: animeLibrarySortColumnDefinitions,
-  groupModeDefinitions: animeLibraryGroupModeDefinitions,
-  groupModes: animeLibraryGroupModes,
 );

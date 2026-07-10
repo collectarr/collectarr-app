@@ -103,7 +103,7 @@ const bookLibraryGroupModes = [
   LibraryGroupMode.tags,
 ];
 
-const bookLibraryGroupModeDefinitions = [
+final bookLibraryGroupModeDefinitions = [
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.creator,
     label: 'Author',
@@ -513,7 +513,7 @@ const bookLibraryGroupModeDefinitions = [
   ),
 ];
 
-const bookLibrarySortColumnDefinitions = [
+final bookLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.series,
     label: 'Series',

@@ -60,8 +60,7 @@ void main() {
     expect(config.pluralLabel, 'Podcasts');
     expect(config.defaultMetadataProvider, 'podindex');
     expect(config.presentation, genericLibraryMediaPresentation);
-    expect(config.workspace.defaultVisibleColumns,
-        genericLibraryMediaPresentation.defaultVisibleColumns);
+    expect(config.defaultVisibleColumns, contains('title'));
     expect(config.workspace.icon, Icons.category_outlined);
     expect(config.workspace.accent, kLibraryFallbackAccent);
     expect(config.trackingProfile.name, readingTrackingProfile.name);

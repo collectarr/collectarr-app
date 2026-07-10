@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -9,10 +11,154 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
+class AnyLibraryFieldRegistry {
+  const AnyLibraryFieldRegistry({
+    List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>>? groups,
+    List<LibrarySortDefinition<LibraryWorkspaceEntry>>? sorts,
+    List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>>? columns,
+    this.defaultVisibleColumnIds = const {
+      'status',
+      'cover',
+      'title',
+      'publisher',
+      'release_date',
+      'barcode',
+      'condition',
+      'price',
+      'location',
+      'wishlist',
+      'updated',
+    },
+    this.defaultSortId = 'title',
+    this.defaultGroupId = 'series',
+  }) : _groups = groups,
+       _sorts = sorts,
+       _columns = columns;
+
+  final List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>>? _groups;
+  final List<LibrarySortDefinition<LibraryWorkspaceEntry>>? _sorts;
+  final List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>>? _columns;
+
+  List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>> get groups =>
+      _groups ?? genericLibraryGroupModeDefinitions;
+
+  List<LibrarySortDefinition<LibraryWorkspaceEntry>> get sorts =>
+      _sorts ?? genericLibrarySortColumnDefinitions;
+
+  List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>> get columns =>
+      _columns ?? genericLibraryColumnDefinitions;
+
+  final Set<String> defaultVisibleColumnIds;
+  final String? defaultSortId;
+  final String? defaultGroupId;
+
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>? columnDefinitionForId(String id) {
+    final normalized = id.contains('.') ? id.split('.').last : id;
+    final snakeCaseId = normalized
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+
+    for (final definition in columns) {
+      final defVal = definition.id.value;
+      final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
+      final defSnake = defNormalized
+          .replaceAllMapped(
+            RegExp(r'([a-z0-9])([A-Z])'),
+            (match) => '${match[1]}_${match[2]}',
+          )
+          .toLowerCase();
+      if (defVal == id ||
+          defVal == snakeCaseId ||
+          defNormalized == normalized ||
+          defSnake == snakeCaseId) {
+        return definition;
+      }
+    }
+    return null;
+  }
+
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?> columnDefinitionFor(String columnId) {
+    final definition = columnDefinitionForId(columnId);
+    if (definition != null) {
+      return definition;
+    }
+    throw StateError(
+      'Missing column definition for $columnId. '
+      'Ensure columns declares every available table column.',
+    );
+  }
+
+  LibrarySortDefinition<LibraryWorkspaceEntry>? sortDefinitionForId(String id) {
+    final normalized = id.contains('.') ? id.split('.').last : id;
+    final snakeCaseId = normalized
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+    final alternativeSnakeCaseId = snakeCaseId == 'key_comic'
+        ? 'key_issue'
+        : (snakeCaseId == 'key_issue' ? 'key_comic' : snakeCaseId);
+
+    for (final definition in sorts) {
+      final defVal = definition.id;
+      final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
+      final defSnake = defNormalized
+          .replaceAllMapped(
+            RegExp(r'([a-z0-9])([A-Z])'),
+            (match) => '${match[1]}_${match[2]}',
+          )
+          .toLowerCase();
+      if (defVal == id ||
+          defVal == snakeCaseId ||
+          defVal == alternativeSnakeCaseId ||
+          defNormalized == normalized ||
+          defSnake == snakeCaseId ||
+          defSnake == alternativeSnakeCaseId) {
+        return definition;
+      }
+    }
+    return null;
+  }
+
+  LibrarySortDefinition<LibraryWorkspaceEntry> sortDefinitionFor(String sortId) {
+    final definition = sortDefinitionForId(sortId);
+    if (definition != null) {
+      return definition;
+    }
+    throw StateError(
+      'Missing sort definition for $sortId. '
+      'Ensure sorts declares every available sort field.',
+    );
+  }
+
+  LibraryGroupModeDefinition groupModeDefinitionFor(Object mode) {
+    final id = definitionIdFor(mode);
+    final normalized = id.contains('.') ? id.split('.').last : id;
+    final snakeCaseId = normalized
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+
+    for (final definition in groups) {
+      if (definition.id.value == id || definition.id.value == snakeCaseId) {
+        return wrapGroupDefinition(definition);
+      }
+    }
+    return fallbackGroupModeDefinition(id);
+  }
+}
+
 class LibraryKindModule {
   const LibraryKindModule({
     required this.type,
     required this.mediaAdapter,
+    required this.fields,
     this.workspaceDtoFactory,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.add = const LibraryKindAddModule(),
@@ -27,6 +173,7 @@ class LibraryKindModule {
 
   final LibraryTypeConfig type;
   final LibraryMediaAdapter mediaAdapter;
+  final AnyLibraryFieldRegistry fields;
   final LibraryWorkspaceDto Function(LibraryWorkspaceEntry entry)?
       workspaceDtoFactory;
   final LibraryKindWorkspaceBehavior workspaceBehavior;

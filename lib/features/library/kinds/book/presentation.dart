@@ -131,9 +131,6 @@ final bookLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: bookLibraryBucketLabelBuilder,
   previewLabels: booksPreviewLabels,
   fieldDefinitions: bookLibraryFieldDefinitions,
-  sortColumnDefinitions: bookLibrarySortColumnDefinitions,
-  groupModeDefinitions: bookLibraryGroupModeDefinitions,
-  groupModes: bookLibraryGroupModes,
 );
 
 BookWork _bookWorkFromMetadataItem(LibraryMetadataItem item) {

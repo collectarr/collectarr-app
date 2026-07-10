@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   test('saves updates and deletes table column presets', () async {
     SharedPreferences.setMockInitialValues({});
-    final store = LibraryColumnPresetStore(comicsWorkspaceConfig);
+    final store = LibraryColumnPresetStore(comicsLibraryConfig);
 
     final saved = await store.savePreset(
       label: 'My Value View',

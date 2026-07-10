@@ -5,6 +5,8 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';

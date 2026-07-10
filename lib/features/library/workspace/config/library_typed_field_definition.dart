@@ -151,7 +151,7 @@ class LibraryColumnDefinition<TDto, TValue> {
     this.defaultWidth,
     this.minWidth,
     this.maxWidth,
-  }) : sortId = sortId ?? (sortable ? id.value : null);
+  });
 
   final LibraryFieldId<TValue> id;
   final String label;

@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 
 class GameLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {

@@ -36,13 +36,13 @@ void main() {
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,
       isSidebarVisible: true,
-      sortColumn: booksLibraryConfig.workspace.defaultSortColumn,
+      sortColumn: booksLibraryConfig.defaultSortColumn,
       sortAscending: true,
       coverSize: 180,
       sidebarWidth: 320,
       detailsWidth: 420,
       detailsHeight: 260,
-      visibleColumns: Set.of(booksLibraryConfig.workspace.defaultVisibleColumns),
+      visibleColumns: Set.of(booksLibraryConfig.defaultVisibleColumns),
       columnWidths: const {},
     );
 

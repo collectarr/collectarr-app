@@ -6,10 +6,20 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
+
 final musicKindModule = LibraryKindModule(
   type: musicLibraryConfig,
   mediaAdapter: musicMediaAdapter,
   workspaceDtoFactory: MusicWorkspaceDto.fromEntry,
+  fields: AnyLibraryFieldRegistry(
+    groups: musicLibraryGroupModeDefinitions,
+    sorts: musicLibrarySortColumnDefinitions,
+    defaultVisibleColumnIds:
+        musicLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
+    defaultSortId: 'title',
+    defaultGroupId: 'series',
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsTrackSearch: true,
     usesTrackListCard: true,

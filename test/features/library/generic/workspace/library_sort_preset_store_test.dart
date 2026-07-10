@@ -20,7 +20,7 @@ void main() {
       ]),
     });
 
-    final store = LibrarySortPresetStore(comicsWorkspaceConfig);
+    final store = LibrarySortPresetStore(comicsLibraryConfig);
     final restored = await store.read();
 
     expect(restored, hasLength(1));

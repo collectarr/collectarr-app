@@ -7,6 +7,8 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+export 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart'
+    show LibraryGroupPresentation, LibraryGroupPresentationLabels;
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -349,14 +351,14 @@ class LibrarySortColumnDefinition
     required this.column,
     required String label,
     String? id,
-    String group = 'Main',
+    Object group = 'Main',
     bool defaultAscending = true,
     LibrarySortComparator<LibraryWorkspaceEntry>? compare,
   }) : super(
           id: id ?? _stableToken(column.toString()),
           label: label,
           compare: compare ?? _compareByLabel,
-          group: group,
+          group: group is LibrarySortFieldGroup ? group.name : group.toString(),
           defaultAscending: defaultAscending,
         );
 
@@ -762,21 +764,6 @@ class LibraryMediaPresentation {
     required this.workspaceEntryBuilder,
     required this.releaseEntryBuilder,
     required this.bucketLabelBuilder,
-    this.defaultVisibleColumnIds = const {
-      'status',
-      'cover',
-      'title',
-      'publisher',
-      'release_date',
-      'barcode',
-      'condition',
-      'price',
-      'location',
-      'wishlist',
-      'updated',
-    },
-    this.defaultSortId,
-    this.defaultGroupId,
     this.previewLabels = const LibraryMediaPreviewLabels(
       series: 'Series',
       itemCount: 'Items',
@@ -802,9 +789,6 @@ class LibraryMediaPresentation {
     this.statusLabels = const LibraryStatusLabels(),
     this.bucketLabelOverrides = const LibraryBucketLabelOverrides(),
     this.fieldDefinitions = const [],
-    required this.sortDefinitions,
-    required this.groupDefinitions,
-    required this.columnDefinitions,
   });
 
   final LibraryMediaSearchFieldLabels searchFieldLabels;
@@ -814,9 +798,6 @@ class LibraryMediaPresentation {
   final LibraryWorkspaceEntryBuilder workspaceEntryBuilder;
   final LibraryReleaseEntryBuilder releaseEntryBuilder;
   final LibraryBucketLabelBuilder bucketLabelBuilder;
-  final Set<String> defaultVisibleColumnIds;
-  final String? defaultSortId;
-  final String? defaultGroupId;
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final bool usesTreeProviderCandidates;
@@ -840,49 +821,6 @@ class LibraryMediaPresentation {
   final LibraryBucketLabelOverrides bucketLabelOverrides;
   final List<LibraryFieldDefinition<LibraryWorkspaceDto, Object?>>
       fieldDefinitions;
-  final List<LibrarySortDefinition<LibraryWorkspaceEntry>> sortDefinitions;
-  final List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>>
-      groupDefinitions;
-  final List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>>
-      columnDefinitions;
-
-  Set<String> get defaultVisibleColumns => defaultVisibleColumnIds;
-
-  List<LibrarySortDefinition<LibraryWorkspaceEntry>>
-      get sortColumnDefinitions => sortDefinitions;
-
-  List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>>
-      get groupModeDefinitions => groupDefinitions;
-
-  List<String> get groupModes =>
-      [for (final definition in groupDefinitions) definition.id.value];
-
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>?
-      groupDefinitionForIdOrNull(String id) {
-    for (final definition in groupDefinitions) {
-      if (definition.id.value == id) {
-        return definition;
-      }
-    }
-    return null;
-  }
-
-  LibraryGroupModeDefinition? groupModeDefinitionForId(String id) {
-    final definition = groupDefinitionForIdOrNull(id);
-    if (definition == null) {
-      return null;
-    }
-    return _wrapGroupDefinition(definition);
-  }
-
-  LibraryGroupModeDefinition groupModeDefinitionFor(Object mode) {
-    final id = _definitionIdFor(mode);
-    final definition = groupDefinitionForIdOrNull(id);
-    if (definition != null) {
-      return _wrapGroupDefinition(definition);
-    }
-    return _fallbackGroupModeDefinition(id);
-  }
 
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>? fieldDefinitionFor(
     String id,
@@ -894,77 +832,9 @@ class LibraryMediaPresentation {
     }
     return null;
   }
-
-  LibrarySortDefinition<LibraryWorkspaceEntry>? sortDefinitionForId(
-    String id,
-  ) {
-    for (final definition in sortDefinitions) {
-      if (definition.id == id) {
-        return definition;
-      }
-    }
-    return null;
-  }
-
-  LibrarySortColumnDefinition? sortColumnDefinitionForId(String id) {
-    final definition = sortDefinitionForId(id);
-    if (definition == null) {
-      return null;
-    }
-    return _wrapSortDefinition(definition);
-  }
-
-  LibrarySortColumnDefinition sortColumnDefinitionFor(Object column) {
-    final id = _definitionIdFor(column);
-    final definition = sortDefinitionForId(id);
-    if (definition != null) {
-      return _wrapSortDefinition(definition);
-    }
-    return LibrarySortColumnDefinition(
-      column: column,
-      id: id,
-      label: libraryFallbackLabelForId(id),
-    );
-  }
-
-  LibrarySortDefinition<LibraryWorkspaceEntry> sortDefinitionFor(
-    String sortId,
-  ) {
-    final definition = sortDefinitionForId(sortId);
-    if (definition != null) {
-      return definition;
-    }
-    throw StateError(
-      'Missing sort definition for $sortId. '
-      'Ensure sortDefinitions declares every available sort field.',
-    );
-  }
-
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>?
-      columnDefinitionForId(String id) {
-    for (final definition in columnDefinitions) {
-      if (definition.id.value == id) {
-        return definition;
-      }
-    }
-    return null;
-  }
-
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?> columnDefinitionFor(
-    String columnId,
-  ) {
-    final definition = columnDefinitionForId(columnId);
-    if (definition != null) {
-      return definition;
-    }
-    throw StateError(
-      'Missing column definition for $columnId. '
-      'Ensure columnDefinitions declares every available table column.',
-    );
-  }
 }
 
-LibraryGroupModeDefinition _wrapGroupDefinition(
+LibraryGroupModeDefinition wrapGroupDefinition(
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?> definition,
 ) {
   return LibraryGroupModeDefinition(
@@ -981,7 +851,7 @@ LibraryGroupModeDefinition _wrapGroupDefinition(
   );
 }
 
-LibrarySortColumnDefinition _wrapSortDefinition(
+LibrarySortColumnDefinition wrapSortDefinition(
   LibrarySortDefinition<LibraryWorkspaceEntry> definition,
 ) {
   return LibrarySortColumnDefinition(
@@ -994,7 +864,7 @@ LibrarySortColumnDefinition _wrapSortDefinition(
   );
 }
 
-LibraryGroupModeDefinition _fallbackGroupModeDefinition(String id) {
+LibraryGroupModeDefinition fallbackGroupModeDefinition(String id) {
   final label = libraryFallbackLabelForId(id);
   return LibraryGroupModeDefinition(
     mode: id,
@@ -1005,7 +875,7 @@ LibraryGroupModeDefinition _fallbackGroupModeDefinition(String id) {
   );
 }
 
-String _definitionIdFor(Object value) {
+String definitionIdFor(Object value) {
   final normalized = switch (value) {
     String text => text.trim(),
     Object _ => value.toString().trim(),
@@ -1033,4 +903,18 @@ abstract final class LibraryFacetId {
   static const comicStoryArc = 'comic.story_arc';
   static const comicCharacter = 'comic.character';
   static const mediaCharacter = 'media.character';
+}
+
+String librarySortColumnFallbackLabel(Object column) {
+  final columnName = column is Enum
+      ? column.name
+      : column.toString().split('.').last;
+  final raw = columnName.replaceAllMapped(
+    RegExp(r'([a-z0-9])([A-Z])'),
+    (match) => '${match[1]} ${match[2]}',
+  );
+  if (raw.isEmpty) {
+    return columnName;
+  }
+  return raw[0].toUpperCase() + raw.substring(1);
 }

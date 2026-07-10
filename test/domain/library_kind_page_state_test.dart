@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_enums.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
@@ -265,17 +266,18 @@ void main() {
 }
 
 final _unknownLibraryConfig = LibraryTypeConfig(
-  workspace: LibraryWorkspaceConfig(
+  workspace: const LibraryWorkspaceConfig(
     kind: CatalogMediaKind.unknown,
     title: 'Unknown',
     icon: Icons.category_outlined,
     accent: Colors.grey,
     preferencePrefix: 'unknown',
-    defaultSortColumn: LibrarySortColumn.title,
-    availableSortColumns: const [LibrarySortColumn.title],
-    availableTableColumns: const [LibraryTableColumn.title],
-    defaultVisibleColumns: {LibraryTableColumn.title},
   ),
+  defaultSortColumn: LibrarySortColumn.title,
+  defaultVisibleColumns: const {LibraryTableColumn.title},
+  availableSortColumns: const [LibrarySortColumn.title],
+  availableSortColumnDefinitions: const [],
+  availableTableColumns: const [LibraryTableColumn.title],
   singularLabel: 'Unknown',
   pluralLabel: 'Unknown',
   defaultMetadataProvider: 'gcd',

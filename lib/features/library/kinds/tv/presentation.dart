@@ -63,7 +63,4 @@ final tvLibraryMediaPresentation = LibraryMediaPresentation(
   compactBucketIcon: Icons.tv_outlined,
   emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
   fieldDefinitions: tvLibraryFieldDefinitions,
-  sortColumnDefinitions: tvLibrarySortColumnDefinitions,
-  groupModeDefinitions: tvLibraryGroupModeDefinitions,
-  groupModes: tvLibraryGroupModes,
 );

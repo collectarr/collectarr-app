@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:flutter/material.dart';
 
 class MusicLibraryMediaPresentationBuilder

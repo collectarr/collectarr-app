@@ -33,10 +33,10 @@ final animeLibraryFieldDefinitions = [
 
 const animeLibraryGroupModes = movie_workspace.movieLibraryGroupModes;
 
-const animeLibraryGroupModeDefinitions =
+final animeLibraryGroupModeDefinitions =
     movie_workspace.movieLibraryGroupModeDefinitions;
 
-const animeLibrarySortColumnDefinitions =
+final animeLibrarySortColumnDefinitions =
     movie_workspace.movieLibrarySortColumnDefinitions;
 
 const animeLibrarySortColumns = [

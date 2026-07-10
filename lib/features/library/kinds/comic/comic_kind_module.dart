@@ -9,12 +9,22 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:flutter/material.dart';
 
 final comicKindModule = LibraryKindModule(
   type: comicsLibraryConfig,
   mediaAdapter: comicsMediaAdapter,
   workspaceDtoFactory: ComicWorkspaceDto.fromEntry,
+  fields: AnyLibraryFieldRegistry(
+    groups: comicLibraryGroupDefinitions,
+    sorts: comicLibrarySortDefinitions,
+    columns: comicLibraryColumnDefinitions,
+    defaultVisibleColumnIds: comicLibraryDefaultVisibleColumnIds,
+    defaultSortId: comicDefaultSortId,
+    defaultGroupId: comicDefaultGroupId,
+  ),
   add: LibraryKindAddModule(registerBuilders: comic_add.registerComicAddBuilders),
   workspaceBehavior: LibraryKindWorkspaceBehavior(
     supportsSeriesIssueJump: true,

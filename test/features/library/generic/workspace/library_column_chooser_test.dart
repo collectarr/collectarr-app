@@ -13,21 +13,27 @@ void main() {
     LibraryTableColumn.barcode,
   ];
 
-  String labelFor(LibraryTableColumn column) => switch (column) {
-        LibraryTableColumn.title => 'Series',
-        LibraryTableColumn.issue => 'Issue',
-        LibraryTableColumn.publisher => 'Publisher',
-        LibraryTableColumn.releaseDate => 'Release Date',
-        LibraryTableColumn.barcode => 'Barcode',
-        _ => column.name,
-      };
+  String labelFor(Object column) {
+    if (column is! LibraryTableColumn) return column.toString();
+    return switch (column) {
+      LibraryTableColumn.title => 'Series',
+      LibraryTableColumn.issue => 'Issue',
+      LibraryTableColumn.publisher => 'Publisher',
+      LibraryTableColumn.releaseDate => 'Release Date',
+      LibraryTableColumn.barcode => 'Barcode',
+      _ => column.name,
+    };
+  }
 
-  LibraryTableColumnGroup groupFor(LibraryTableColumn column) => switch (column) {
-        LibraryTableColumn.barcode || LibraryTableColumn.releaseDate =>
-          LibraryTableColumnGroup.edition,
-        LibraryTableColumn.publisher => LibraryTableColumnGroup.main,
-        _ => LibraryTableColumnGroup.main,
-      };
+  LibraryTableColumnGroup groupFor(Object column) {
+    if (column is! LibraryTableColumn) return LibraryTableColumnGroup.main;
+    return switch (column) {
+      LibraryTableColumn.barcode || LibraryTableColumn.releaseDate =>
+        LibraryTableColumnGroup.edition,
+      LibraryTableColumn.publisher => LibraryTableColumnGroup.main,
+      _ => LibraryTableColumnGroup.main,
+    };
+  }
 
   testWidgets('column chooser renders the CLZ-style manager shell', (
     tester,

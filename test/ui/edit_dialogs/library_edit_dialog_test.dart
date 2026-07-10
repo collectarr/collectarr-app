@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/config/generic_library_media_pre
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_enums.dart';
 
 import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -50,14 +51,17 @@ void main() {
         icon: Icons.movie_outlined,
         accent: Colors.red,
         preferencePrefix: 'movies-test',
-        defaultSortColumn: LibrarySortColumn.title,
-        defaultVisibleColumns: {LibraryTableColumn.title},
       ),
       singularLabel: 'Movie',
       pluralLabel: 'Movies',
       defaultMetadataProvider: 'tmdb',
       metadataProviders: const [],
       trackingProfile: videoTrackingProfile,
+      defaultSortColumn: LibrarySortColumn.title,
+      defaultVisibleColumns: const {LibraryTableColumn.title},
+      availableSortColumns: const [LibrarySortColumn.title],
+      availableSortColumnDefinitions: const [],
+      availableTableColumns: const [LibraryTableColumn.title],
       presentation: genericLibraryMediaPresentation,
       editPresentation: const LibraryEditPresentation(
         builder: DefaultLibraryEditPresentationBuilder(),

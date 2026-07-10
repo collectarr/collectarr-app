@@ -265,7 +265,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
         filterSelection: list.filterSelection,
         quickView: list.quickView,
         sortRules: list.sortRules,
-        sortColumn: list.sortColumn,
+        sortColumn: list.sortColumn as LibrarySortColumn?,
         sortAscending: list.sortAscending,
         searchQuery: list.searchQuery,
       ),
@@ -654,6 +654,6 @@ String? _smartListSortSummary(List<LibrarySortRule> rules) {
     return null;
   }
   return rules
-      .map((rule) => '${rule.column.name} ${rule.ascending ? 'asc' : 'desc'}')
+      .map((rule) => '${rule.column.toString().split('.').last} ${rule.ascending ? 'asc' : 'desc'}')
       .join(', ');
 }

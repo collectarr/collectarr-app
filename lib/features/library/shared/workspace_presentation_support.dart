@@ -15,7 +15,14 @@ String defaultLibraryBucketLabel(
   final entry = context.entry;
   final source = context.source;
   final publisher = entry.publisher?.trim();
-  return switch (context.groupMode) {
+  final groupMode = LibraryGroupMode.values.firstWhere(
+    (m) =>
+        m.name == context.groupMode ||
+        m.toString() == context.groupMode ||
+        m.toString().split('.').last == context.groupMode,
+    orElse: () => LibraryGroupMode.title,
+  );
+  return switch (groupMode) {
     LibraryGroupMode.series => _seriesBucket(entry, labels.unknownSeries),
     LibraryGroupMode.storyArc => overrides.storyArc,
     LibraryGroupMode.character => overrides.character,

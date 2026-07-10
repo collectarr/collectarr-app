@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
   final normalizedType = normalizeCatalogMediaTypeDefaults(type);
@@ -20,6 +21,26 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
       knownType?.editPresentation ?? const LibraryEditPresentation(
         builder: DefaultLibraryEditPresentationBuilder(),
       );
+  final defaultVisibleColumns = (knownType != null
+          ? libraryKindModuleForType(knownType).fields.defaultVisibleColumnIds
+          : const {
+              'status',
+              'cover',
+              'title',
+              'publisher',
+              'release_date',
+              'barcode',
+              'condition',
+              'price',
+              'location',
+              'wishlist',
+              'updated',
+            })
+      .map((id) => LibraryTableColumn.values.firstWhere(
+            (c) => c.name == id || c.toString().split('.').last == id,
+            orElse: () => LibraryTableColumn.title,
+          ))
+      .toSet();
   return LibraryTypeConfig(
     workspace: LibraryWorkspaceConfig(
       kind: mediaKind,
@@ -33,7 +54,7 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
       preferencePrefix: 'catalog_${normalizedType.kind}',
     ),
     defaultSortColumn: LibrarySortColumn.title,
-    defaultVisibleColumns: presentation.defaultVisibleColumns,
+    defaultVisibleColumns: defaultVisibleColumns,
     availableSortColumns: const [LibrarySortColumn.title],
     availableSortColumnDefinitions: const [],
     availableTableColumns: const [],

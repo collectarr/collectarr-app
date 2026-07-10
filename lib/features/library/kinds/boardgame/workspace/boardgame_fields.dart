@@ -40,7 +40,7 @@ const boardGamesLibraryGroupModes = [
   LibraryGroupMode.ownership,
 ];
 
-const boardGamesLibraryGroupModeDefinitions = [
+final boardGamesLibraryGroupModeDefinitions = [
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.publisher,
     id: 'publisher',
@@ -86,7 +86,7 @@ const boardGamesLibraryGroupModeDefinitions = [
   ),
 ];
 
-const boardGamesLibrarySortColumnDefinitions = [
+final boardGamesLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
     column: LibrarySortColumn.series,
     label: 'Series',

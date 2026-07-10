@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
@@ -66,7 +67,7 @@ void main() {
     expect(sections.whereType<InspectorMetadataFactsSection>(), hasLength(1));
     final factsSection = sections.whereType<InspectorMetadataFactsSection>().single;
     expect(
-      factsSection.facts.map((fact) => fact.label),
+      factsSection.facts.map((fact) => (fact as LibraryDetailField).label),
       containsAll(['Discs', 'Runtime', 'Audio', 'Subtitles', 'Layers', 'Trailers']),
     );
     expect(sections.whereType<InspectorEpisodeGridSection>(), hasLength(1));

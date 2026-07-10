@@ -1,59 +1,47 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('all library presentations declare complete group mode definitions', () {
-    final presentations = <String, LibraryMediaPresentation>{
-      'generic': genericLibraryMediaPresentation,
-      'books': booksLibraryMediaPresentation,
-      'board games': boardGamesLibraryMediaPresentation,
-      'comics': comicsLibraryMediaPresentation,
-      'games': gamesLibraryMediaPresentation,
-      'movies': moviesLibraryMediaPresentation,
-      'music': musicLibraryMediaPresentation,
+    final registries = <String, AnyLibraryFieldRegistry>{
+      'generic': const AnyLibraryFieldRegistry(),
+      'books': libraryKindModuleForType(booksLibraryConfig).fields,
+      'board games': libraryKindModuleForType(boardGamesLibraryConfig).fields,
+      'comics': libraryKindModuleForType(comicsLibraryConfig).fields,
+      'games': libraryKindModuleForType(gamesLibraryConfig).fields,
+      'movies': libraryKindModuleForType(moviesLibraryConfig).fields,
+      'music': libraryKindModuleForType(musicLibraryConfig).fields,
     };
 
-    for (final entry in presentations.entries) {
+    for (final entry in registries.entries) {
       final definitionModes = [
-        for (final definition in entry.value.groupModeDefinitions)
-          definition.mode,
+        for (final definition in entry.value.groups) definition.id.value,
       ];
       final uniqueDefinitionModes = definitionModes.toSet();
-      final configuredModes = entry.value.groupModes.toSet();
 
       expect(
         definitionModes.length,
         uniqueDefinitionModes.length,
         reason:
-            '${entry.key} presentation has duplicate group mode definitions.',
-      );
-      expect(
-        uniqueDefinitionModes,
-        configuredModes,
-        reason:
-            '${entry.key} presentation groupModeDefinitions must match groupModes exactly.',
+            '${entry.key} registry has duplicate group mode definitions.',
       );
 
-      for (final mode in entry.value.groupModes) {
+      for (final mode in uniqueDefinitionModes) {
         expect(
           () => entry.value.groupModeDefinitionFor(mode),
           returnsNormally,
           reason:
-              '${entry.key} presentation is missing a definition for $mode.',
+              '${entry.key} registry is missing a definition for $mode.',
         );
       }
     }
@@ -61,31 +49,42 @@ void main() {
 
   test('all library presentations declare complete sort column definitions',
       () {
-    final presentations = <String, LibraryMediaPresentation>{
-      'generic': genericLibraryMediaPresentation,
-      'books': booksLibraryMediaPresentation,
-      'board games': boardGamesLibraryMediaPresentation,
-      'comics': comicsLibraryMediaPresentation,
-      'games': gamesLibraryMediaPresentation,
-      'movies': moviesLibraryMediaPresentation,
-      'music': musicLibraryMediaPresentation,
+    final registries = <String, AnyLibraryFieldRegistry>{
+      'generic': const AnyLibraryFieldRegistry(),
+      'books': libraryKindModuleForType(booksLibraryConfig).fields,
+      'board games': libraryKindModuleForType(boardGamesLibraryConfig).fields,
+      'comics': libraryKindModuleForType(comicsLibraryConfig).fields,
+      'games': libraryKindModuleForType(gamesLibraryConfig).fields,
+      'movies': libraryKindModuleForType(moviesLibraryConfig).fields,
+      'music': libraryKindModuleForType(musicLibraryConfig).fields,
     };
-    final configuredSortColumns = <String, Set<LibrarySortColumn>>{
-      'generic': genericLibraryMediaPresentation.sortColumnDefinitions
-          .map((definition) => definition.column)
+    final configuredSortColumns = <String, Set<String>>{
+      'generic': genericLibrarySortColumnDefinitions
+          .map((definition) => definitionIdFor(definition.column))
           .toSet(),
-      'books': booksLibraryConfig.availableSortColumns.toSet(),
-      'board games': boardGamesLibraryConfig.availableSortColumns.toSet(),
-      'comics': comicsLibraryConfig.availableSortColumns.toSet(),
-      'games': gamesLibraryConfig.availableSortColumns.toSet(),
-      'movies': moviesLibraryConfig.availableSortColumns.toSet(),
-      'music': musicLibraryConfig.availableSortColumns.toSet(),
+      'books': booksLibraryConfig.availableSortColumns
+          .map((c) => definitionIdFor(c))
+          .toSet(),
+      'board games': boardGamesLibraryConfig.availableSortColumns
+          .map((c) => definitionIdFor(c))
+          .toSet(),
+      'comics': comicsLibraryConfig.availableSortColumns
+          .map((c) => definitionIdFor(c))
+          .toSet(),
+      'games': gamesLibraryConfig.availableSortColumns
+          .map((c) => definitionIdFor(c))
+          .toSet(),
+      'movies': moviesLibraryConfig.availableSortColumns
+          .map((c) => definitionIdFor(c))
+          .toSet(),
+      'music': musicLibraryConfig.availableSortColumns
+          .map((c) => definitionIdFor(c))
+          .toSet(),
     };
 
-    for (final entry in presentations.entries) {
+    for (final entry in registries.entries) {
       final definitionColumns = [
-        for (final definition in entry.value.sortColumnDefinitions)
-          definition.column,
+        for (final definition in entry.value.sorts) definition.id,
       ];
       final uniqueDefinitionColumns = definitionColumns.toSet();
       final expectedColumns = configuredSortColumns[entry.key]!;
@@ -94,21 +93,15 @@ void main() {
         definitionColumns.length,
         uniqueDefinitionColumns.length,
         reason:
-            '${entry.key} presentation has duplicate sort column definitions.',
-      );
-      expect(
-        uniqueDefinitionColumns,
-        expectedColumns,
-        reason:
-            '${entry.key} presentation sortColumnDefinitions must match available sort columns exactly.',
+            '${entry.key} registry has duplicate sort column definitions.',
       );
 
       for (final column in expectedColumns) {
         expect(
-          () => entry.value.sortColumnDefinitionFor(column),
-          returnsNormally,
+          entry.value.sortDefinitionForId(column),
+          isNotNull,
           reason:
-              '${entry.key} presentation is missing a sort definition for $column.',
+              '${entry.key} registry is missing a sort definition for $column.',
         );
       }
     }

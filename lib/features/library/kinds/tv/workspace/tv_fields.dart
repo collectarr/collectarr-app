@@ -63,7 +63,7 @@ const tvLibraryGroupModes = [
   LibraryGroupMode.watchedWhere,
 ];
 
-const tvLibraryGroupModeDefinitions = [
+final tvLibraryGroupModeDefinitions = [
   LibraryGroupModeDefinition(
     mode: LibraryGroupMode.genre,
     id: 'genre',
@@ -232,7 +232,7 @@ const tvLibraryGroupModeDefinitions = [
   ),
 ];
 
-const tvLibrarySortColumnDefinitions = [
+final tvLibrarySortColumnDefinitions = [
   LibrarySortColumnDefinition(
       column: LibrarySortColumn.series, label: 'Series'),
   LibrarySortColumnDefinition(
