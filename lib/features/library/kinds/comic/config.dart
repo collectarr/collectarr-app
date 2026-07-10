@@ -140,9 +140,6 @@ List<LibraryGroupModeCategory> buildComicGroupModeCategories(
   List<Object> modes,
 ) {
   String modeId(Object mode) {
-    if (mode is String) {
-      return mode;
-    }
     final normalized = mode.toString().contains('.')
         ? mode.toString().split('.').last
         : mode.toString();
@@ -167,7 +164,7 @@ List<LibraryGroupModeCategory> buildComicGroupModeCategories(
     'release_month',
     'release_year',
     'series_group',
-    'comic.story_arc',
+    'story_arc',
   };
   const valueIds = {
     'grade',
@@ -190,7 +187,7 @@ List<LibraryGroupModeCategory> buildComicGroupModeCategories(
   const creatorsAndCharactersIds = {
     'creator',
     'artist',
-    'comic.character',
+    'character',
     'colorist',
     'cover_artist',
     'cover_colorist',

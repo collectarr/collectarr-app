@@ -1,6 +1,4 @@
 import 'package:collectarr_app/features/library/config/common_fields.dart';
-import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -136,8 +134,7 @@ class AnyLibraryFieldRegistry {
     );
   }
 
-  LibraryGroupModeDefinition groupModeDefinitionFor(Object mode) {
-    final id = definitionIdFor(mode);
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>? groupDefinitionForId(String id) {
     final normalized = id.contains('.') ? id.split('.').last : id;
     final snakeCaseId = normalized
         .replaceAllMapped(
@@ -147,11 +144,33 @@ class AnyLibraryFieldRegistry {
         .toLowerCase();
 
     for (final definition in groups) {
-      if (definition.id.value == id || definition.id.value == snakeCaseId) {
-        return wrapGroupDefinition(definition);
+      final defVal = definition.id.value;
+      final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
+      final defSnake = defNormalized
+          .replaceAllMapped(
+            RegExp(r'([a-z0-9])([A-Z])'),
+            (match) => '${match[1]}_${match[2]}',
+          )
+          .toLowerCase();
+      if (defVal == id ||
+          defVal == snakeCaseId ||
+          defNormalized == normalized ||
+          defSnake == snakeCaseId) {
+        return definition;
       }
     }
-    return fallbackGroupModeDefinition(id);
+    return null;
+  }
+
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?> groupDefinitionFor(String groupId) {
+    final definition = groupDefinitionForId(groupId);
+    if (definition != null) {
+      return definition;
+    }
+    throw StateError(
+      'Missing group definition for $groupId. '
+      'Ensure groups declares every available group mode.',
+    );
   }
 }
 

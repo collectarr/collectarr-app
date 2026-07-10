@@ -513,10 +513,11 @@ class LibraryKindUiAdapter {
     LibraryTypeConfig type,
     Object mode,
   ) {
-    return libraryKindModuleForType(type)
+    final modeId = type._definitionIdFor(mode);
+    final groupDef = libraryKindModuleForType(type)
         .fields
-        .groupModeDefinitionFor(mode)
-        .supportsBucketManagement;
+        .groupDefinitionForId(modeId);
+    return groupDef?.supportsBucketManagement ?? false;
   }
 
   bool supportsMetadataCompareWithServer(LibraryTypeConfig type) {
@@ -672,14 +673,14 @@ List<LibraryGroupModeCategory> _defaultGroupModeCategories(
     'coverArtist',
     'editor',
   };
-  final main = modes.where((mode) => mainModes.contains(mode.toString())).toList();
-  final edition = modes.where((mode) => editionModes.contains(mode.toString())).toList();
-  final crew = modes.where((mode) => crewModes.contains(mode.toString())).toList();
+  final main = modes.where((mode) => mainModes.contains(mode is Enum ? (mode as Enum).name : mode.toString())).toList();
+  final edition = modes.where((mode) => editionModes.contains(mode is Enum ? (mode as Enum).name : mode.toString())).toList();
+  final crew = modes.where((mode) => crewModes.contains(mode is Enum ? (mode as Enum).name : mode.toString())).toList();
   final personal = modes
       .where((mode) =>
-          !mainModes.contains(mode.toString()) &&
-          !editionModes.contains(mode.toString()) &&
-          !crewModes.contains(mode.toString()))
+          !mainModes.contains(mode is Enum ? (mode as Enum).name : mode.toString()) &&
+          !editionModes.contains(mode is Enum ? (mode as Enum).name : mode.toString()) &&
+          !crewModes.contains(mode is Enum ? (mode as Enum).name : mode.toString()))
       .toList();
   return [
     if (main.isNotEmpty) LibraryGroupModeCategory('Main', main),
@@ -798,7 +799,13 @@ class LibraryTypeConfig {
     final result = <LibraryGroupMode>[];
     for (final definition in module.fields.groups) {
       final idStr = definition.id.value;
-      final target = idStr.toLowerCase().replaceAll('_', '');
+      var target = idStr.split('.').last.toLowerCase().replaceAll('_', '');
+      if (target == 'keyissue' || target == 'keycomic') {
+        target = 'keycomic';
+      }
+      if (target == 'readstatus' || target == 'readingstatus') {
+        target = 'readingstatus';
+      }
       for (final mode in LibraryGroupMode.values) {
         final modeNameNormalized = mode.name.toLowerCase();
         if (modeNameNormalized == target) {
@@ -816,17 +823,19 @@ class LibraryTypeConfig {
   List<LibraryWorkspaceDensityPreset> get availableDensityPresets =>
       workspace.availableDensityPresets;
 
-  LibrarySortColumnDefinition sortColumnDefinitionFor(Object column) {
+  LibrarySortDefinition<LibraryWorkspaceEntry> sortColumnDefinitionFor(Object column) {
     final module = libraryKindModuleForType(this);
     final id = _definitionIdFor(column);
     final definition = module.fields.sortDefinitionForId(id);
     if (definition != null) {
-      return wrapSortDefinition(definition);
+      return definition;
     }
-    return LibrarySortColumnDefinition(
-      column: column,
+    return LibrarySortDefinition<LibraryWorkspaceEntry>(
       id: id,
       label: libraryFallbackLabelForId(id),
+      compare: (left, right) => left.resolvedTitle.toLowerCase().compareTo(
+            right.resolvedTitle.toLowerCase(),
+          ),
     );
   }
 

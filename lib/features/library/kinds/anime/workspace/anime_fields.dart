@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/common_fields.dart';
+import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart'
     as movie_workspace;
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -81,7 +82,26 @@ const animeLibraryDefaultVisibleColumns = {
   LibraryTableColumn.updated,
 };
 
-final animeLibraryColumnDefinitions = commonColumnDefinitions;
+final animeLibraryColumnDefinitions = [
+  ...commonColumnDefinitions,
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('variant'),
+    label: 'Edition / Release',
+    getValue: (entry) => entry.variant,
+    cellValue: (entry) => Text(entry.variant ?? ''),
+    defaultWidth: 170,
+    maxWidth: 420,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('barcode'),
+    label: 'UPC / Barcode',
+    getValue: (entry) => entry.barcode,
+    cellValue: (entry) => Text(entry.barcode ?? ''),
+    group: 'Edition',
+    defaultWidth: 160,
+    maxWidth: 260,
+  ),
+];
 
 const animeLibraryDefaultVisibleColumnIds = {
   'status',

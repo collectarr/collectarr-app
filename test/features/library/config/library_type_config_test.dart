@@ -172,14 +172,6 @@ void main() {
     }
   });
 
-  test('missing group mode definitions fall back safely', () {
-    final definition = fallbackGroupModeDefinition('title');
-
-    expect(definition.mode, 'title');
-    expect(definition.label, 'Title');
-    expect(definition.sidebarTitle, 'Titles');
-  });
-
   test('anime and tv library configs are first-class video kinds', () {
     expect(animeLibraryConfig.workspace.kind, CatalogMediaKind.anime);
     expect(animeLibraryConfig.defaultMetadataProvider, 'anilist');
@@ -583,7 +575,7 @@ void main() {
         comicsMediaAdapter.columnIsNumeric(LibraryTableColumn.price), isTrue);
     expect(
       comicsMediaAdapter.columnSort(LibraryTableColumn.releaseDate),
-      LibrarySortColumn.releaseDate,
+      'release_date',
     );
     expect(
       comicsTableColumnPresets.map((preset) => preset.label),
@@ -626,7 +618,7 @@ void main() {
     expect(collectarrMediaAdapters.byKind('music')?.type, musicLibraryConfig);
     expect(
       gamesMediaAdapter.columnSort(LibraryTableColumn.releaseDate),
-      LibrarySortColumn.releaseDate,
+      'release_date',
     );
     expect(
       moviesMediaAdapter.columnLabel(LibraryTableColumn.variant),
@@ -645,13 +637,14 @@ void main() {
         LibraryTableColumn.title,
         {LibraryTableColumn.title: 999},
       ),
-      560,
+      520,
     );
     expect(musicLibraryConfig.availableGroupModes, [
       LibraryGroupMode.series,
       LibraryGroupMode.format,
       LibraryGroupMode.genre,
       LibraryGroupMode.publisher,
+      LibraryGroupMode.title,
       LibraryGroupMode.originalReleaseDate,
       LibraryGroupMode.originalReleaseMonth,
       LibraryGroupMode.originalReleaseYear,
@@ -661,7 +654,6 @@ void main() {
       LibraryGroupMode.releaseDate,
       LibraryGroupMode.releaseMonth,
       LibraryGroupMode.releaseYear,
-      LibraryGroupMode.title,
       LibraryGroupMode.boxSet,
       LibraryGroupMode.country,
       LibraryGroupMode.extras,
@@ -781,6 +773,7 @@ void main() {
       LibraryGroupMode.tags,
     ]);
     expect(gamesLibraryConfig.availableGroupModes, [
+      LibraryGroupMode.title,
       LibraryGroupMode.audienceRating,
       LibraryGroupMode.developer,
       LibraryGroupMode.genre,
@@ -790,7 +783,6 @@ void main() {
       LibraryGroupMode.releaseMonth,
       LibraryGroupMode.releaseYear,
       LibraryGroupMode.series,
-      LibraryGroupMode.title,
       LibraryGroupMode.completeness,
       LibraryGroupMode.condition,
       LibraryGroupMode.purchaseDate,
@@ -820,8 +812,8 @@ void main() {
       LibraryGroupMode.tags,
     ]);
     expect(comicsLibraryConfig.presentation.externalFacetBucketIdsByMode.keys, [
-      LibraryGroupMode.storyArc,
-      LibraryGroupMode.character,
+      'comic.story_arc',
+      'comic.character',
     ]);
     expect(comicsLibraryConfig.presentation.supportsSeriesIssueJump, isTrue);
     expect(

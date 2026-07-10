@@ -713,7 +713,7 @@ const musicLibraryTableColumns = [
   LibraryTableColumn.format,
   LibraryTableColumn.discCount,
   LibraryTableColumn.trackCount,
-  LibraryTableColumn.length,
+  LibraryTableColumn.trackLength,
   LibraryTableColumn.vinylColor,
   LibraryTableColumn.rpm,
   LibraryTableColumn.releaseDate,
@@ -735,7 +735,7 @@ const musicLibraryDefaultVisibleColumns = {
   LibraryTableColumn.format,
   LibraryTableColumn.discCount,
   LibraryTableColumn.trackCount,
-  LibraryTableColumn.length,
+  LibraryTableColumn.trackLength,
   LibraryTableColumn.vinylColor,
   LibraryTableColumn.rpm,
   LibraryTableColumn.releaseDate,
@@ -749,6 +749,23 @@ const musicLibraryDefaultVisibleColumns = {
 
 final musicLibraryColumnDefinitions = [
   ...commonColumnDefinitions,
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('variant'),
+    label: 'Version / Pressing',
+    getValue: (entry) => entry.variant,
+    cellValue: (entry) => Text(entry.variant ?? ''),
+    defaultWidth: 170,
+    maxWidth: 420,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('barcode'),
+    label: 'UPC / EAN / Barcode',
+    getValue: (entry) => entry.barcode,
+    cellValue: (entry) => Text(entry.barcode ?? ''),
+    group: 'Edition',
+    defaultWidth: 160,
+    maxWidth: 260,
+  ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('artist'),
     label: 'Artist',

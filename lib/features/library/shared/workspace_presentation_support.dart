@@ -355,6 +355,7 @@ String defaultLibraryBucketLabel(
       ),
     LibraryGroupMode.watched => _watchedBucket(source),
     LibraryGroupMode.watchedWhere => _watchedWhereBucket(source),
+    _ => _titleBucket(entry.resolvedTitle),
   };
 }
 

@@ -304,10 +304,14 @@ List<LibraryGroupMode> libraryGroupModesForType(
 ) {
   return [
     for (final mode in type.availableGroupModes)
-      LibraryGroupMode.values.firstWhere(
-        (m) => m.name == mode || m.toString().split('.').last == mode,
-        orElse: () => LibraryGroupMode.title,
-      )
+      mode is LibraryGroupMode
+          ? mode
+          : LibraryGroupMode.values.firstWhere(
+              (m) =>
+                  m.name == mode.toString() ||
+                  m.toString().split('.').last == mode.toString(),
+              orElse: () => LibraryGroupMode.title,
+            )
   ];
 }
 

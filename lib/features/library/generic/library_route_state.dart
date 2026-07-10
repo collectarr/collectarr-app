@@ -213,20 +213,28 @@ class LibraryRouteState {
     final decoded = <LibrarySortRule>[];
     for (final segment in trimmedValue.split(',')) {
       final separatorIndex = segment.lastIndexOf(':');
-      if (separatorIndex == -1) {
-        continue;
-      }
-      final columnToken = segment.substring(0, separatorIndex).trim();
-      final direction =
-          segment.substring(separatorIndex + 1).trim().toLowerCase();
-      final resolvedColumn = _sortColumnFromToken(columnToken);
+      final columnToken = separatorIndex == -1
+          ? null
+          : segment.substring(0, separatorIndex).trim();
+      final direction = separatorIndex == -1
+          ? null
+          : segment.substring(separatorIndex + 1).trim().toLowerCase();
+
+      final legacyParts = segment.split('.');
+      final legacyColumnToken =
+          legacyParts.length == 2 ? legacyParts.first.trim() : null;
+
+      final resolvedColumn = _sortColumnFromToken(
+        columnToken ?? legacyColumnToken,
+      );
       if (resolvedColumn == null) {
         continue;
       }
       decoded.add(
         LibrarySortRule(
           column: resolvedColumn,
-          ascending: direction != 'desc',
+          ascending: (direction ?? (legacyParts.length == 2 ? legacyParts.last.trim().toLowerCase() : 'asc')) !=
+              'desc',
         ),
       );
     }

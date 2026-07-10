@@ -705,7 +705,8 @@ void main() {
   });
 
   test('comic kind exposes a module-owned missing issues toolbar action', () {
-    final descriptor = comicKindModule.toolbar.actions.single;
+    final descriptor = comicKindModule.toolbar.actions
+        .firstWhere((a) => a.id == 'comic.missing_issues');
     expect(descriptor.id, 'comic.missing_issues');
     expect(descriptor.label, 'Missing issues report...');
     expect(descriptor.icon, Icons.find_in_page_outlined);

@@ -253,7 +253,26 @@ const boardGamesLibraryDefaultVisibleColumns = {
   LibraryTableColumn.updated,
 };
 
-final boardGamesLibraryColumnDefinitions = commonColumnDefinitions;
+final boardGamesLibraryColumnDefinitions = [
+  ...commonColumnDefinitions,
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('variant'),
+    label: 'Edition / Print run',
+    getValue: (entry) => entry.variant,
+    cellValue: (entry) => Text(entry.variant ?? ''),
+    defaultWidth: 170,
+    maxWidth: 420,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('barcode'),
+    label: 'UPC / Barcode',
+    getValue: (entry) => entry.barcode,
+    cellValue: (entry) => Text(entry.barcode ?? ''),
+    group: 'Edition',
+    defaultWidth: 160,
+    maxWidth: 260,
+  ),
+];
 
 const boardGamesLibraryDefaultVisibleColumnIds = {
   'status',

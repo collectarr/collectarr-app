@@ -41,9 +41,9 @@ void main() {
     final parsed = LibraryRouteState.fromUri(uri);
 
     expect(uri.queryParameters['kind'], 'movie');
-    expect(uri.queryParameters['folder'], 'group.genre>group.releaseYear');
+    expect(uri.queryParameters['folder'], 'group.genre>group.release_year');
     expect(uri.queryParameters['filterValue'], 'Action');
-    expect(uri.queryParameters['sort'], 'movie.title:asc,movie.updated:desc');
+    expect(uri.queryParameters['sort'], 'title:asc,updated:desc');
     expect(uri.queryParameters['seriesScope'], 'completed');
     expect(parsed.kind, 'movie');
     expect(parsed.searchQuery, 'alien');

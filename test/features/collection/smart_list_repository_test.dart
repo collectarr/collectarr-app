@@ -38,11 +38,11 @@ void main() {
         quickView: LibraryQuickView.owned,
         sortRules: const [
           LibrarySortRule(
-            column: LibrarySortColumn.updated,
+            column: 'updated',
             ascending: false,
           ),
           LibrarySortRule(
-            column: LibrarySortColumn.title,
+            column: 'title',
             ascending: true,
           ),
         ],
@@ -75,15 +75,15 @@ void main() {
     expect(global.id, isNotEmpty);
     expect(global.mediaKind, isNull);
     expect(global.quickView, LibraryQuickView.owned);
-    expect(global.sortColumn, LibrarySortColumn.updated);
+    expect(global.sortColumn, 'updated');
     expect(global.sortAscending, isFalse);
     expect(global.sortRules, const [
       LibrarySortRule(
-        column: LibrarySortColumn.updated,
+        column: 'updated',
         ascending: false,
       ),
       LibrarySortRule(
-        column: LibrarySortColumn.title,
+        column: 'title',
         ascending: true,
       ),
     ]);
@@ -117,7 +117,7 @@ void main() {
         mediaKind: 'book',
         sortRules: const [
           LibrarySortRule(
-            column: LibrarySortColumn.title,
+            column: 'title',
             ascending: true,
           ),
         ],
@@ -158,11 +158,11 @@ void main() {
         ),
         sortRules: const [
           LibrarySortRule(
-            column: LibrarySortColumn.title,
+            column: 'title',
             ascending: true,
           ),
           LibrarySortRule(
-            column: LibrarySortColumn.updated,
+            column: 'updated',
             ascending: false,
           ),
         ],
@@ -182,11 +182,11 @@ void main() {
     expect(updated.single.filterSelection.tag, 'Backlog');
     expect(updated.single.sortRules, const [
       LibrarySortRule(
-        column: LibrarySortColumn.title,
+        column: 'title',
         ascending: true,
       ),
       LibrarySortRule(
-        column: LibrarySortColumn.updated,
+        column: 'updated',
         ascending: false,
       ),
     ]);

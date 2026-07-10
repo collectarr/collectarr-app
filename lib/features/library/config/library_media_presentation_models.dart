@@ -305,84 +305,7 @@ typedef LibraryBucketLabelBuilder = String Function(
   LibraryBucketingContext context,
 );
 
-class LibraryGroupModeDefinition
-    extends LibraryGroupDefinition<LibraryWorkspaceEntry, Object?> {
-  LibraryGroupModeDefinition({
-    required this.mode,
-    required String label,
-    required String sidebarTitle,
-    required IconData icon,
-    String? id,
-    LibraryGroupPresentation presentation =
-        LibraryGroupPresentation.inlineHeaders,
-    bool supportsBucketManagement = false,
-    String? bucketManagerListLabel,
-    String? drilldownChildMode,
-    String? folderSetLabel,
-  }) : super(
-          id: LibraryFieldId<Object?>(id ?? _stableToken(mode.toString())),
-          label: label,
-          getValue: (_) => null,
-          sidebarTitle: sidebarTitle,
-          icon: icon,
-          presentation: presentation,
-          supportsBucketManagement: supportsBucketManagement,
-          bucketManagerListLabel: bucketManagerListLabel,
-          drilldownChildId: drilldownChildMode,
-          folderSetLabel: folderSetLabel,
-        );
 
-  final Object mode;
-
-  static String _stableToken(String value) {
-    final normalized = value.contains('.') ? value.split('.').last : value;
-    return normalized
-        .replaceAllMapped(
-          RegExp(r'([a-z0-9])([A-Z])'),
-          (match) => '${match[1]}_${match[2]}',
-        )
-        .toLowerCase();
-  }
-}
-
-class LibrarySortColumnDefinition
-    extends LibrarySortDefinition<LibraryWorkspaceEntry> {
-  LibrarySortColumnDefinition({
-    required this.column,
-    required String label,
-    String? id,
-    Object group = 'Main',
-    bool defaultAscending = true,
-    LibrarySortComparator<LibraryWorkspaceEntry>? compare,
-  }) : super(
-          id: id ?? _stableToken(column.toString()),
-          label: label,
-          compare: compare ?? _compareByLabel,
-          group: group is LibrarySortFieldGroup ? group.name : group.toString(),
-          defaultAscending: defaultAscending,
-        );
-
-  final Object column;
-
-  static int _compareByLabel(
-    LibraryWorkspaceEntry left,
-    LibraryWorkspaceEntry right,
-  ) {
-    return left.resolvedTitle.toLowerCase().compareTo(
-          right.resolvedTitle.toLowerCase(),
-        );
-  }
-
-  static String _stableToken(String value) {
-    final normalized = value.contains('.') ? value.split('.').last : value;
-    return normalized
-        .replaceAllMapped(
-          RegExp(r'([a-z0-9])([A-Z])'),
-          (match) => '${match[1]}_${match[2]}',
-        )
-        .toLowerCase();
-  }
-}
 
 class LibrarySortFavorite {
   const LibrarySortFavorite({
@@ -834,46 +757,7 @@ class LibraryMediaPresentation {
   }
 }
 
-LibraryGroupModeDefinition wrapGroupDefinition(
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?> definition,
-) {
-  return LibraryGroupModeDefinition(
-    mode: definition.id.value,
-    id: definition.id.value,
-    label: definition.label,
-    sidebarTitle: definition.resolvedSidebarTitle,
-    icon: definition.icon ?? Icons.account_tree_outlined,
-    presentation: definition.presentation,
-    supportsBucketManagement: definition.supportsBucketManagement,
-    bucketManagerListLabel: definition.bucketManagerListLabel,
-    drilldownChildMode: definition.drilldownChildId,
-    folderSetLabel: definition.folderSetLabel,
-  );
-}
 
-LibrarySortColumnDefinition wrapSortDefinition(
-  LibrarySortDefinition<LibraryWorkspaceEntry> definition,
-) {
-  return LibrarySortColumnDefinition(
-    column: definition.id,
-    id: definition.id,
-    label: definition.label,
-    group: definition.group,
-    defaultAscending: definition.defaultAscending,
-    compare: definition.compare,
-  );
-}
-
-LibraryGroupModeDefinition fallbackGroupModeDefinition(String id) {
-  final label = libraryFallbackLabelForId(id);
-  return LibraryGroupModeDefinition(
-    mode: id,
-    id: id,
-    label: label,
-    sidebarTitle: _fallbackGroupModeSidebarTitle(label),
-    icon: Icons.account_tree_outlined,
-  );
-}
 
 String definitionIdFor(Object value) {
   final normalized = switch (value) {
@@ -887,16 +771,6 @@ String definitionIdFor(Object value) {
     return normalized;
   }
   return normalized.contains('.') ? normalized.split('.').last : normalized;
-}
-
-String _fallbackGroupModeSidebarTitle(String label) {
-  if (label.endsWith('s')) {
-    return label;
-  }
-  if (label.endsWith('y')) {
-    return '${label.substring(0, label.length - 1)}ies';
-  }
-  return '${label}s';
 }
 
 abstract final class LibraryFacetId {

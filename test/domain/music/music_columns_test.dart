@@ -32,7 +32,7 @@ void main() {
         LibraryTableColumn.catalogNumber,
         LibraryTableColumn.discCount,
         LibraryTableColumn.trackCount,
-        LibraryTableColumn.length,
+        LibraryTableColumn.trackLength,
         LibraryTableColumn.vinylColor,
         LibraryTableColumn.rpm,
       ]),

@@ -659,4 +659,23 @@ const moviesLibraryDefaultVisibleColumns = {
   LibraryTableColumn.updated,
 };
 
-final movieLibraryColumnDefinitions = commonColumnDefinitions;
+final movieLibraryColumnDefinitions = [
+  ...commonColumnDefinitions,
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('variant'),
+    label: 'Format / Edition',
+    getValue: (entry) => entry.variant,
+    cellValue: (entry) => Text(entry.variant ?? ''),
+    defaultWidth: 170,
+    maxWidth: 420,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('barcode'),
+    label: 'UPC / Barcode',
+    getValue: (entry) => entry.barcode,
+    cellValue: (entry) => Text(entry.barcode ?? ''),
+    group: 'Edition',
+    defaultWidth: 160,
+    maxWidth: 260,
+  ),
+];

@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/episode_grid_section.dart';
-import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
+import 'package:collectarr_app/features/library/media/video/video_external_links_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/session_history_section.dart';
@@ -63,17 +64,27 @@ void main() {
       ),
     );
 
-    expect(sections, hasLength(6));
-    expect(sections.whereType<InspectorMetadataFactsSection>(), hasLength(1));
-    final factsSection = sections.whereType<InspectorMetadataFactsSection>().single;
+    final detailSections = sections.where((w) => w is! SizedBox).toList();
+    expect(detailSections, hasLength(6));
+
+    // Extract all children from the detail section wrappers
+    final allChildren = <Widget>[];
+    for (final section in detailSections) {
+      if (section is LibraryDetailSection) {
+        allChildren.addAll(section.children);
+      }
+    }
+
+    expect(allChildren.whereType<InspectorMetadataFactsSection>(), hasLength(1));
+    final factsSection = allChildren.whereType<InspectorMetadataFactsSection>().single;
     expect(
       factsSection.facts.map((fact) => (fact as LibraryDetailField).label),
       containsAll(['Discs', 'Runtime', 'Audio', 'Subtitles', 'Layers', 'Trailers']),
     );
-    expect(sections.whereType<InspectorEpisodeGridSection>(), hasLength(1));
-    expect(sections.whereType<InspectorSessionHistorySection>(), hasLength(1));
-    expect(sections.whereType<InspectorReleasesSection>(), hasLength(1));
-    expect(sections.whereType<InspectorContributorsSection>(), hasLength(1));
-    expect(sections.whereType<InspectorLinksTrailersSection>(), hasLength(1));
+    expect(allChildren.whereType<InspectorEpisodeGridSection>(), hasLength(1));
+    expect(allChildren.whereType<InspectorSessionHistorySection>(), hasLength(1));
+    expect(allChildren.whereType<InspectorReleasesSection>(), hasLength(1));
+    expect(allChildren.whereType<InspectorContributorsSection>(), hasLength(1));
+    expect(allChildren.whereType<VideoExternalLinksSection>(), hasLength(1));
   });
 }

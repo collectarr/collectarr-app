@@ -773,6 +773,23 @@ const booksLibraryDefaultVisibleColumns = {
 final bookLibraryColumnDefinitions = [
   ...commonColumnDefinitions,
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('variant'),
+    label: 'Edition / Binding',
+    getValue: (entry) => entry.variant,
+    cellValue: (entry) => Text(entry.variant ?? ''),
+    defaultWidth: 170,
+    maxWidth: 420,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('barcode'),
+    label: 'ISBN / Barcode',
+    getValue: (entry) => entry.barcode,
+    cellValue: (entry) => Text(entry.barcode ?? ''),
+    group: 'Edition',
+    defaultWidth: 160,
+    maxWidth: 260,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('author'),
     label: 'Author',
     getValue: (entry) => entry.creators?.firstOrNull?['name']?.toString(),

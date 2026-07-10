@@ -17,6 +17,7 @@ final movieKindModule = LibraryKindModule(
   fields: AnyLibraryFieldRegistry(
     groups: movieLibraryGroupDefinitions,
     sorts: movieLibrarySortDefinitions,
+    columns: movieLibraryColumnDefinitions,
     defaultVisibleColumnIds:
         moviesLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
     defaultSortId: 'title',

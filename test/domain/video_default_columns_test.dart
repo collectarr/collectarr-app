@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_enums.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -6,21 +7,21 @@ void main() {
     for (final config in [moviesLibraryConfig]) {
       expect(
         config.defaultVisibleColumns,
-        containsAll(<String>{
-          'title',
-          'release_date',
-          'country',
-          'language',
-          'age_rating',
+        containsAll(<LibraryTableColumn>{
+          LibraryTableColumn.title,
+          LibraryTableColumn.releaseDate,
+          LibraryTableColumn.country,
+          LibraryTableColumn.language,
+          LibraryTableColumn.ageRating,
         }),
       );
       expect(
         config.defaultVisibleColumns,
         isNot(
-          containsAll(<String>{
-            'condition',
-            'price',
-            'location',
+          containsAll(<LibraryTableColumn>{
+            LibraryTableColumn.condition,
+            LibraryTableColumn.price,
+            LibraryTableColumn.location,
           }),
         ),
       );

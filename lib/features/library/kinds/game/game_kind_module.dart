@@ -15,6 +15,7 @@ final gameKindModule = LibraryKindModule(
   fields: AnyLibraryFieldRegistry(
     groups: gameLibraryGroupDefinitions,
     sorts: gameLibrarySortDefinitions,
+    columns: gameLibraryColumnDefinitions,
     defaultVisibleColumnIds:
         gamesLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
     defaultSortId: 'title',

@@ -94,12 +94,6 @@ String plannedMediaTableColumnLabelForType(
   LibraryTypeConfig type,
   Object column,
 ) {
-  if (column == LibraryTableColumn.variant) {
-    return type.releaseFields.variantLabel;
-  }
-  if (column == LibraryTableColumn.barcode) {
-    return type.releaseFields.barcodeLabel;
-  }
   final definition = _tableColumnDefinition(type, column);
   if (definition != null) {
     return definition.label;
@@ -111,12 +105,6 @@ String plannedMediaTableColumnDisplayNameForType(
   LibraryTypeConfig type,
   Object column,
 ) {
-  if (column == LibraryTableColumn.variant) {
-    return type.releaseFields.variantLabel;
-  }
-  if (column == LibraryTableColumn.barcode) {
-    return type.releaseFields.barcodeLabel;
-  }
   final definition = _tableColumnDefinition(type, column);
   if (definition != null) {
     return definition.resolvedDisplayName;
@@ -157,29 +145,7 @@ Object? plannedMediaTableColumnSort(
   if (definition == null || !definition.sortable) {
     return null;
   }
-  final sortId = definition.sortId ?? definition.id.value;
-  for (final val in LibrarySortColumn.values) {
-    final name = val.name;
-    final snake = name
-        .replaceAllMapped(
-          RegExp(r'([a-z0-9])([A-Z])'),
-          (match) => '${match[1]}_${match[2]}',
-        )
-        .toLowerCase();
-    if (name == sortId ||
-        snake == sortId ||
-        val.toString() == sortId ||
-        val.toString().split('.').last == sortId) {
-      return val;
-    }
-  }
-  if (sortId == 'comic.issue' || sortId == 'issue') {
-    return LibrarySortColumn.issue;
-  }
-  if (sortId == 'comic.key_issue' || sortId == 'keyComic' || sortId == 'key_comic') {
-    return LibrarySortColumn.keyComic;
-  }
-  return sortId;
+  return definition.sortId ?? definition.id.value;
 }
 
 Widget plannedMediaTableCell(

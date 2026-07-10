@@ -39,7 +39,7 @@ void main() {
 
       for (final mode in uniqueDefinitionModes) {
         expect(
-          () => entry.value.groupModeDefinitionFor(mode),
+          () => entry.value.groupDefinitionFor(mode),
           returnsNormally,
           reason:
               '${entry.key} registry is missing a definition for $mode.',
