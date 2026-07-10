@@ -238,75 +238,7 @@ int plannedMediaCompareSubgroupKeys(
   return left.compareTo(right);
 }
 
-int comparePlannedMediaEntriesByColumn(
-  LibraryWorkspaceEntry left,
-  LibraryWorkspaceEntry right,
-  Object column,
-) {
-  return switch (column.toString()) {
-    'status' => _compareBools(left.isOwned, right.isOwned),
-    'title' => _compareNullableStrings(left.resolvedTitle, right.resolvedTitle),
-    'series' => _compareNullableStrings(
-        left.series?.seriesTitle,
-        right.series?.seriesTitle,
-      ),
-    'issue' => _compareIssueNumbers(left.itemNumber, right.itemNumber),
-    'storyArc' => _compareNullableStrings(
-        _firstDisplayValue(left.storyArcs),
-        _firstDisplayValue(right.storyArcs),
-      ),
-    'variant' => _compareNullableStrings(left.variant, right.variant),
-    'format' => _compareNullableStrings(
-        left.referenceFormatLabel,
-        right.referenceFormatLabel,
-      ),
-    'publisher' => _compareNullableStrings(left.publisher, right.publisher),
-    'releaseDate' => _compareNullableDates(left.releaseDate, right.releaseDate),
-    'barcode' => _compareNullableStrings(left.barcode, right.barcode),
-    'grade' => _compareNullableStrings(left.grade, right.grade),
-    'rawOrSlabbed' => _compareNullableStrings(
-        left.comic?.rawOrSlabbed,
-        right.comic?.rawOrSlabbed,
-      ),
-    'gradingCompany' => _compareNullableStrings(
-        left.comic?.gradingCompany,
-        right.comic?.gradingCompany,
-      ),
-    'condition' => _compareNullableStrings(left.condition, right.condition),
-    'price' => _compareNullableInts(left.pricePaidCents, right.pricePaidCents),
-    'location' => _compareNullableStrings(left.locationPath, right.locationPath),
-    'collectionStatus' =>
-      _compareNullableStrings(left.collectionStatus, right.collectionStatus),
-    'wishlist' => _compareBools(left.isWishlisted, right.isWishlisted),
-    'keyComic' => _compareBools(
-        left.comic?.keyComic ?? false,
-        right.comic?.keyComic ?? false,
-      ),
-    'added' => _compareNullableDates(left.addedAt, right.addedAt),
-    'updated' => left.updatedAt.compareTo(right.updatedAt),
-    'country' => _compareNullableStrings(left.country, right.country),
-    'language' => _compareNullableStrings(left.language, right.language),
-    'pageCount' => _compareNullableInts(
-        left.publishing?.pageCount,
-        right.publishing?.pageCount,
-      ),
-    'ageRating' => _compareNullableStrings(left.ageRating, right.ageRating),
-    'imprint' => _compareNullableStrings(
-        left.publishing?.imprint,
-        right.publishing?.imprint,
-      ),
-    String() => left.resolvedTitle.toLowerCase().compareTo(
-        right.resolvedTitle.toLowerCase(),
-      ),
-  };
-}
 
-int compareBookEntriesByColumn(
-  LibraryWorkspaceEntry left,
-  LibraryWorkspaceEntry right,
-  Object column,
-) =>
-    comparePlannedMediaEntriesByColumn(left, right, column);
 
 LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>?
     _tableColumnDefinition(LibraryTypeConfig type, Object column) {
@@ -338,83 +270,7 @@ String _fallbackLabel(String id) {
       : tokens[0].toUpperCase() + tokens.substring(1);
 }
 
-String? _firstDisplayValue(List<String>? values) {
-  if (values == null) return null;
-  for (final value in values) {
-    final trimmed = value.trim();
-    if (trimmed.isNotEmpty) {
-      return trimmed;
-    }
-  }
-  return null;
-}
 
-int _compareIssueNumbers(String? left, String? right) {
-  final leftNumber = _numericPrefixSortValue(left);
-  final rightNumber = _numericPrefixSortValue(right);
-  if (leftNumber != null && rightNumber != null) {
-    final numeric = leftNumber.compareTo(rightNumber);
-    if (numeric != 0) {
-      return numeric;
-    }
-  }
-  if (leftNumber != null) {
-    return -1;
-  }
-  if (rightNumber != null) {
-    return 1;
-  }
-  return _compareNullableStrings(left, right);
-}
-
-double? _numericPrefixSortValue(String? value) {
-  if (value == null || value.trim().isEmpty) {
-    return null;
-  }
-  final match = RegExp(r'^\s*(\d+(?:\.\d+)?)').firstMatch(value);
-  return match == null ? null : double.tryParse(match.group(1)!);
-}
-
-int _compareNullableStrings(String? left, String? right) {
-  final leftValue = left?.toLowerCase() ?? '';
-  final rightValue = right?.toLowerCase() ?? '';
-  if (leftValue.isEmpty && rightValue.isNotEmpty) {
-    return 1;
-  }
-  if (leftValue.isNotEmpty && rightValue.isEmpty) {
-    return -1;
-  }
-  return leftValue.compareTo(rightValue);
-}
-
-int _compareNullableInts(int? left, int? right) {
-  if (left == null && right != null) {
-    return 1;
-  }
-  if (left != null && right == null) {
-    return -1;
-  }
-  return (left ?? 0).compareTo(right ?? 0);
-}
-
-int _compareNullableDates(DateTime? left, DateTime? right) {
-  if (left == null && right != null) {
-    return 1;
-  }
-  if (left != null && right == null) {
-    return -1;
-  }
-  return (left ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(
-    right ?? DateTime.fromMillisecondsSinceEpoch(0),
-  );
-}
-
-int _compareBools(bool left, bool right) {
-  if (left == right) {
-    return 0;
-  }
-  return left ? -1 : 1;
-}
 
 int? _extractSubgroupNumber(String? value) {
   if (value == null) {
