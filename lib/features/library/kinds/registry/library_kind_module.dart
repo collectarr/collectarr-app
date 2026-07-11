@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/config/common_fields.dart';
 
 class AnyLibraryFieldRegistry {
   const AnyLibraryFieldRegistry({
@@ -76,6 +77,24 @@ class AnyLibraryFieldRegistry {
         return definition;
       }
     }
+    if (_columns != null) {
+      for (final definition in commonColumnDefinitions) {
+        final defVal = definition.id.value;
+        final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
+        final defSnake = defNormalized
+            .replaceAllMapped(
+              RegExp(r'([a-z0-9])([A-Z])'),
+              (match) => '${match[1]}_${match[2]}',
+            )
+            .toLowerCase();
+        if (defVal == id ||
+            defVal == snakeCaseId ||
+            defNormalized == normalized ||
+            defSnake == snakeCaseId) {
+          return definition;
+        }
+      }
+    }
     return null;
   }
 
@@ -120,6 +139,26 @@ class AnyLibraryFieldRegistry {
         return definition;
       }
     }
+    if (_sorts != null) {
+      for (final definition in commonSortDefinitions) {
+        final defVal = definition.id;
+        final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
+        final defSnake = defNormalized
+            .replaceAllMapped(
+              RegExp(r'([a-z0-9])([A-Z])'),
+              (match) => '${match[1]}_${match[2]}',
+            )
+            .toLowerCase();
+        if (defVal == id ||
+            defVal == snakeCaseId ||
+            defVal == alternativeSnakeCaseId ||
+            defNormalized == normalized ||
+            defSnake == snakeCaseId ||
+            defSnake == alternativeSnakeCaseId) {
+          return definition;
+        }
+      }
+    }
     return null;
   }
 
@@ -157,6 +196,24 @@ class AnyLibraryFieldRegistry {
           defNormalized == normalized ||
           defSnake == snakeCaseId) {
         return definition;
+      }
+    }
+    if (_groups != null) {
+      for (final definition in commonGroupDefinitions) {
+        final defVal = definition.id.value;
+        final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
+        final defSnake = defNormalized
+            .replaceAllMapped(
+              RegExp(r'([a-z0-9])([A-Z])'),
+              (match) => '${match[1]}_${match[2]}',
+            )
+            .toLowerCase();
+        if (defVal == id ||
+            defVal == snakeCaseId ||
+            defNormalized == normalized ||
+            defSnake == snakeCaseId) {
+          return definition;
+        }
       }
     }
     return null;

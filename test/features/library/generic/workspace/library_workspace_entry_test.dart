@@ -205,7 +205,7 @@ void main() {
       entry(id: '1', title: 'Series', itemNumber: '2'),
       entry(id: '3', title: 'Series', itemNumber: 'A'),
     ], const [
-      LibrarySortRule(column: LibrarySortColumn.issue, ascending: true)
+      LibrarySortRule(column: 'issue', ascending: true)
     ]);
 
     expect(items.map((item) => item.itemNumber), ['2', '10', 'A']);
@@ -216,7 +216,7 @@ void main() {
       entry(id: '1', title: 'Missing'),
       entry(id: '2', title: 'Owned', isOwned: true),
     ], const [
-      LibrarySortRule(column: LibrarySortColumn.status, ascending: true)
+      LibrarySortRule(column: 'status', ascending: true)
     ]);
 
     expect(items.map((item) => item.title), ['Owned', 'Missing']);
@@ -228,7 +228,7 @@ void main() {
       entry(id: '2', title: 'Low price', pricePaidCents: 100),
       entry(id: '3', title: 'High price', pricePaidCents: 500),
     ], const [
-      LibrarySortRule(column: LibrarySortColumn.price, ascending: true)
+      LibrarySortRule(column: 'price', ascending: true)
     ]);
 
     expect(
@@ -243,7 +243,7 @@ void main() {
       entry(id: '1', title: 'Issue A', seriesTitle: 'Alpha Flight'),
       entry(id: '3', title: 'Issue C'),
     ], const [
-      LibrarySortRule(column: LibrarySortColumn.series, ascending: true)
+      LibrarySortRule(column: 'series', ascending: true)
     ]);
 
     expect(items.map((item) => item.title), ['Issue A', 'Issue B', 'Issue C']);
@@ -254,7 +254,7 @@ void main() {
       entry(id: '1', title: 'Regular issue'),
       entry(id: '2', title: 'Key issue', keyComic: true),
     ], const [
-      LibrarySortRule(column: LibrarySortColumn.keyComic, ascending: true)
+      LibrarySortRule(column: 'key_issue', ascending: true)
     ]);
 
     expect(items.map((item) => item.title), ['Key issue', 'Regular issue']);
@@ -271,8 +271,8 @@ void main() {
           isOwned: true,
           itemNumber: '2'),
     ], const [
-      LibrarySortRule(column: LibrarySortColumn.status, ascending: true),
-      LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
+      LibrarySortRule(column: 'status', ascending: true),
+      LibrarySortRule(column: 'issue', ascending: true),
     ]);
 
     expect(
@@ -295,14 +295,14 @@ void main() {
         home: Material(
           child: comicsMediaAdapter.buildTableCell(
             item,
-            LibraryTableColumn.variant,
+            'variant',
           ),
         ),
       ),
     );
 
     expect(
-      find.text('Foil  ·  Scope: Edition  ·  Format: Hardcover'),
+      find.text('Foil  \u00b7  Scope: Edition  \u00b7  Format: Hardcover'),
       findsOneWidget,
     );
   });
@@ -324,8 +324,8 @@ void main() {
           child: Column(
             children: [
               comicsMediaAdapter.buildTableCell(
-                  item, LibraryTableColumn.format),
-              comicsMediaAdapter.buildTableCell(item, LibraryTableColumn.added),
+                  item, 'format'),
+              comicsMediaAdapter.buildTableCell(item, 'added'),
             ],
           ),
         ),

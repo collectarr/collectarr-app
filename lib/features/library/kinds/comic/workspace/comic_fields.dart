@@ -816,7 +816,16 @@ final comicLibraryColumnDefinitions = [
     label: 'Variant Description',
     displayName: 'Variant Description',
     getValue: (entry) => entry.variant,
-    cellValue: (entry) => Text(entry.variant ?? ''),
+    cellValue: (entry) {
+      final parts = <String>[
+        if (entry.variant != null && entry.variant!.trim().isNotEmpty) entry.variant!.trim(),
+        if (entry.referenceScopeLabel != null && entry.referenceScopeLabel!.trim().isNotEmpty)
+          'Scope: ${entry.referenceScopeLabel!.trim()}',
+        if (entry.referenceFormatLabel != null && entry.referenceFormatLabel!.trim().isNotEmpty)
+          'Format: ${entry.referenceFormatLabel!.trim()}',
+      ];
+      return Text(parts.join('  \u00b7  '));
+    },
     defaultWidth: 170,
     maxWidth: 420,
   ),
@@ -938,15 +947,15 @@ int _compareStrings(String? left, String? right) {
 
 int _compareNums(num? left, num? right) {
   if (left == null && right == null) return 0;
-  if (left == null) return -1;
-  if (right == null) return 1;
+  if (left == null) return 1;
+  if (right == null) return -1;
   return left.compareTo(right);
 }
 
 int _compareDates(DateTime? left, DateTime? right) {
   if (left == null && right == null) return 0;
-  if (left == null) return -1;
-  if (right == null) return 1;
+  if (left == null) return 1;
+  if (right == null) return -1;
   return left.compareTo(right);
 }
 

@@ -144,7 +144,13 @@ final commonSortDefinitions = [
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'price',
     label: 'Purchase price',
-    compare: (left, right) => (left.pricePaidCents ?? 0).compareTo(right.pricePaidCents ?? 0),
+    compare: (left, right) {
+      final l = left.pricePaidCents;
+      final r = right.pricePaidCents;
+      if (l == null && r != null) return 1;
+      if (l != null && r == null) return -1;
+      return (l ?? 0).compareTo(r ?? 0);
+    },
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'location',
@@ -281,5 +287,12 @@ final commonColumnDefinitions = [
     isNumeric: true,
     defaultWidth: 92,
     minWidth: 78,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('format'),
+    label: 'Format',
+    getValue: (entry) => entry.referenceFormatLabel,
+    cellValue: (entry) => Text(entry.referenceFormatLabel ?? ''),
+    defaultWidth: 100,
   ),
 ];
