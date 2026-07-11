@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
-Future<Set<LibraryTableColumn>?> showGenericLibraryColumnChooser({
+Future<Set<String>?> showGenericLibraryColumnChooser({
   required BuildContext context,
   required LibraryTypeConfig type,
   required LibraryMediaAdapter adapter,
@@ -19,7 +19,7 @@ Future<Set<LibraryTableColumn>?> showGenericLibraryColumnChooser({
   if (!context.mounted) {
     return null;
   }
-  return showDialog<Set<LibraryTableColumn>>(
+  return showDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
       availableColumns: type.availableTableColumns,

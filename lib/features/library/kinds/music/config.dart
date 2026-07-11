@@ -21,7 +21,7 @@ const musicWorkspaceConfig = LibraryWorkspaceConfig(
 
 final musicLibraryConfig = LibraryTypeConfig(
   workspace: musicWorkspaceConfig,
-  defaultSortColumn: LibrarySortColumn.title,
+  defaultSortColumn: 'title',
   defaultVisibleColumns: musicLibraryDefaultVisibleColumns,
   availableSortColumns: musicLibrarySortColumns,
   availableSortColumnDefinitions: musicLibrarySortDefinitions,

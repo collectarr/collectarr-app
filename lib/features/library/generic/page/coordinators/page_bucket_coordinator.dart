@@ -11,7 +11,7 @@ class LibraryPageBucketCoordinator {
 
   Future<void> showBucketManagerFlow(
     LibraryProjection projection, {
-    required LibraryGroupMode mode,
+    required String mode,
   }) async {
     final allBucketLabel = genericAllBucketLabel(_page.type);
     final entries = [
@@ -50,7 +50,7 @@ class LibraryPageBucketCoordinator {
 
   Future<int> _mutateBucketValues(
     LibraryProjection projection,
-    LibraryGroupMode mode,
+    String mode,
     String currentLabel, {
     String? replacement,
   }) async {

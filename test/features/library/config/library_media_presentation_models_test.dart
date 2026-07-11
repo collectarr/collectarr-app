@@ -109,9 +109,9 @@ void main() {
   });
 
   test('fallback sort column labels stay readable for unknown columns', () {
-    expect(librarySortColumnFallbackLabel(LibrarySortColumn.keyComic),
-        'Key Comic');
-    expect(librarySortColumnFallbackLabel(LibrarySortColumn.rawOrSlabbed),
+    expect(librarySortColumnFallbackLabel('key_issue'),
+        'Key Issue');
+    expect(librarySortColumnFallbackLabel('raw_or_slabbed'),
         'Raw Or Slabbed');
   });
 }

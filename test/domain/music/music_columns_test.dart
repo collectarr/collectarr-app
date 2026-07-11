@@ -6,35 +6,35 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('music workspace exposes album-specific columns', () {
     expect(
-      plannedMediaTableColumnLabelForType(musicLibraryConfig, LibraryTableColumn.artist),
+      plannedMediaTableColumnLabelForType(musicLibraryConfig, 'artist'),
       'Artist',
     );
     expect(
-      plannedMediaTableColumnLabelForType(musicLibraryConfig, LibraryTableColumn.frontCover),
+      plannedMediaTableColumnLabelForType(musicLibraryConfig, 'front_cover'),
       'Front Cover',
     );
     expect(
-      plannedMediaTableColumnLabelForType(musicLibraryConfig, LibraryTableColumn.backCover),
+      plannedMediaTableColumnLabelForType(musicLibraryConfig, 'back_cover'),
       'Back Cover',
     );
-    expect(plannedMediaTableColumnLabelForType(musicLibraryConfig, LibraryTableColumn.album), 'Album');
+    expect(plannedMediaTableColumnLabelForType(musicLibraryConfig, 'album'), 'Album');
     expect(
-      plannedMediaTableColumnLabelForType(musicLibraryConfig, LibraryTableColumn.catalogNumber),
+      plannedMediaTableColumnLabelForType(musicLibraryConfig, 'catalog_number'),
       'Catalog #',
     );
-    expect(plannedMediaTableColumnLabelForType(musicLibraryConfig, LibraryTableColumn.discCount), 'Disc Count');
+    expect(plannedMediaTableColumnLabelForType(musicLibraryConfig, 'disc_count'), 'Disc Count');
     expect(
       musicLibraryConfig.defaultVisibleColumns,
       containsAll([
-        LibraryTableColumn.artist,
-        LibraryTableColumn.album,
-        LibraryTableColumn.label,
-        LibraryTableColumn.catalogNumber,
-        LibraryTableColumn.discCount,
-        LibraryTableColumn.trackCount,
-        LibraryTableColumn.trackLength,
-        LibraryTableColumn.vinylColor,
-        LibraryTableColumn.rpm,
+        'artist',
+        'album',
+        'label',
+        'catalog_number',
+        'disc_count',
+        'track_count',
+        'track_length',
+        'vinyl_color',
+        'rpm',
       ]),
     );
   });

@@ -48,7 +48,7 @@ class LibrarySidebarHeader extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryGroupMode groupMode;
+  final String groupMode;
   final LibraryFolderPreset? folderPreset;
   final Color accent;
   final IconData icon;
@@ -72,7 +72,7 @@ class LibrarySidebarHeader extends StatelessWidget {
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
   final bool groupLoading;
-  final List<LibraryGroupMode>? availableGroupModes;
+  final List<String>? availableGroupModes;
   final VoidCallback? onClearFilter;
   final VoidCallback? onHideSidebar;
   final ValueChanged<bool>? onSidebarVisibilityChanged;

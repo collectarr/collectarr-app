@@ -69,14 +69,14 @@ void main() {
                     label: '[All Comics]',
                     count: 2,
                     cumulativeCount: 2,
-                    groupMode: LibraryGroupMode.series,
+                    groupMode: 'series',
                     children: [
                       LibraryFolderTreeNode(
                         id: 'root|series=Batman',
                         label: 'Batman',
                         count: 2,
                         cumulativeCount: 2,
-                        groupMode: LibraryGroupMode.series,
+                        groupMode: 'series',
                         bucketValue: 'Batman',
                         children: [],
                         isExpanded: false,

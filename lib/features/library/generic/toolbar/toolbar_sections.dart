@@ -142,9 +142,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraActions;
   final LibraryFolderPreset? folderPreset;
-  final LibraryGroupMode? groupMode;
+  final String? groupMode;
   final LibraryGroupPresentation? groupPresentation;
-  final List<LibraryGroupMode>? availableGroupModes;
+  final List<String>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;

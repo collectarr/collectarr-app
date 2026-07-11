@@ -498,10 +498,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final folderPreset = LibraryFolderPreset.single(LibraryGroupMode.series);
+    final folderPreset = LibraryFolderPreset.single('series');
     final pinnedPresets = <LibraryFolderPreset>[
-      LibraryFolderPreset.single(LibraryGroupMode.series),
-      LibraryFolderPreset.single(LibraryGroupMode.title),
+      LibraryFolderPreset.single('series'),
+      LibraryFolderPreset.single('title'),
     ];
 
     await tester.pumpWidget(
@@ -533,7 +533,7 @@ void main() {
               onQuickViewSelected: (_) {},
               hasActiveFilters: false,
               onClearFilters: () {},
-              groupMode: LibraryGroupMode.series,
+              groupMode: 'series',
               folderPreset: folderPreset,
               pinnedFolderPresets: pinnedPresets,
               onPinnedFolderPresetsChanged: (_) {},
@@ -547,7 +547,7 @@ void main() {
     final secondary = tester.widget<LibraryDesktopSecondaryToolbar>(
       find.byType(LibraryDesktopSecondaryToolbar),
     );
-    expect(secondary.groupMode, LibraryGroupMode.series);
+    expect(secondary.groupMode, 'series');
     expect(secondary.folderPreset, folderPreset);
     expect(secondary.pinnedFolderPresets, pinnedPresets);
     expect(secondary.onGroupModeChanged, isNotNull);

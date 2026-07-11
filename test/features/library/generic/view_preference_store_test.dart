@@ -18,12 +18,12 @@ void main() {
   test('write caches quick view and group mode for reuse', () async {
     await movieStore.writeQuickView(LibraryQuickView.wishlist);
     await movieStore.writeFolderPreset(
-      LibraryFolderPreset.single(LibraryGroupMode.publisher),
+      LibraryFolderPreset.single('publisher'),
     );
 
     const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
     expect(reloadedStore.cachedQuickView, LibraryQuickView.wishlist);
-    expect(reloadedStore.cachedFolderPreset, LibraryFolderPreset.single(LibraryGroupMode.publisher));
+    expect(reloadedStore.cachedFolderPreset, LibraryFolderPreset.single('publisher'));
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('library.movie.folderPreset'), 'group.publisher');
@@ -32,16 +32,16 @@ void main() {
   test('read populates cache and clearing removes cached values', () async {
     SharedPreferences.setMockInitialValues({
       'library.movie.quickView': LibraryQuickView.owned.name,
-      'library.movie.folderPreset': LibraryGroupMode.year.name,
+      'library.movie.folderPreset': 'year',
     });
 
     expect(await movieStore.readQuickView(), LibraryQuickView.owned);
     expect(
       await movieStore.readFolderPreset(),
-      LibraryFolderPreset.single(LibraryGroupMode.year),
+      LibraryFolderPreset.single('year'),
     );
     expect(movieStore.cachedQuickView, LibraryQuickView.owned);
-    expect(movieStore.cachedFolderPreset, LibraryFolderPreset.single(LibraryGroupMode.year));
+    expect(movieStore.cachedFolderPreset, LibraryFolderPreset.single('year'));
 
     await movieStore.writeQuickView(null);
     await movieStore.writeFolderPreset(null);
@@ -52,23 +52,23 @@ void main() {
 
   test('pinned group modes preserve persisted order', () async {
     await movieStore.writePinnedGroupModes({
-      LibraryGroupMode.director,
-      LibraryGroupMode.releaseYear,
-      LibraryGroupMode.title,
+      'director',
+      'release_year',
+      'title',
     });
 
     final restored = await movieStore.readPinnedGroupModes();
 
     expect(restored.toList(), [
-      LibraryGroupMode.director,
-      LibraryGroupMode.releaseYear,
-      LibraryGroupMode.title,
+      'director',
+      'release_year',
+      'title',
     ]);
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getStringList('library.movie.pinnedGroupModes'), [
       'group.director',
-      'group.releaseYear',
+      'group.release_year',
       'group.title',
     ]);
   });
@@ -76,9 +76,9 @@ void main() {
   test('folder preset caches and restores composite modes', () async {
     final preset = LibraryFolderPreset(
       modes: [
-        LibraryGroupMode.ageRating,
-        LibraryGroupMode.country,
-        LibraryGroupMode.releaseYear,
+        'age_rating',
+        'country',
+        'release_year',
       ],
     );
 
@@ -91,15 +91,15 @@ void main() {
 
   test('pinned folder presets preserve persisted order', () async {
     final presets = [
-      LibraryFolderPreset.single(LibraryGroupMode.director),
+      LibraryFolderPreset.single('director'),
       LibraryFolderPreset(
-        modes: [LibraryGroupMode.ageRating, LibraryGroupMode.country],
+        modes: ['age_rating', 'country'],
       ),
       LibraryFolderPreset(
         modes: [
-          LibraryGroupMode.ageRating,
-          LibraryGroupMode.releaseYear,
-          LibraryGroupMode.series,
+          'age_rating',
+          'release_year',
+          'series',
         ],
       ),
     ];
@@ -114,8 +114,8 @@ void main() {
   test('pinned folder presets migrate legacy single-mode favorites', () async {
     SharedPreferences.setMockInitialValues({
       'library.movie.pinnedGroupModes': [
-        LibraryGroupMode.director.name,
-        LibraryGroupMode.releaseYear.name,
+        'director',
+        'release_year',
       ],
     });
 
@@ -124,14 +124,14 @@ void main() {
     expect(
       restored,
       [
-        LibraryFolderPreset.single(LibraryGroupMode.director),
-        LibraryFolderPreset.single(LibraryGroupMode.releaseYear),
+        LibraryFolderPreset.single('director'),
+        LibraryFolderPreset.single('release_year'),
       ],
     );
   });
 
   test('folder tree state is cached per preset', () async {
-    final preset = LibraryFolderPreset.single(LibraryGroupMode.series);
+    final preset = LibraryFolderPreset.single('series');
 
     await movieStore.writeFolderDisplayMode(
       preset,
@@ -176,7 +176,7 @@ void main() {
 
   test('group presentation override and collapsed groups are cached per preset',
       () async {
-    final preset = LibraryFolderPreset.single(LibraryGroupMode.series);
+    final preset = LibraryFolderPreset.single('series');
 
     await movieStore.writeGroupPresentationOverride(
       preset,

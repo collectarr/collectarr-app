@@ -33,7 +33,7 @@ final class GroupShelfEntry extends ShelfPresentationEntry {
           label: bucket,
         );
 
-  final LibraryGroupMode groupMode;
+  final String groupMode;
   final String bucket;
   final LibraryGroupPresentation presentation;
   final List<LibraryProjectionItem> items;
@@ -57,7 +57,7 @@ final class FolderShelfEntry extends ShelfPresentationEntry {
 
   final GroupShelfEntry group;
 
-  LibraryGroupMode get groupMode => group.groupMode;
+  String get groupMode => group.groupMode;
   String get bucket => group.bucket;
   LibraryGroupPresentation get presentation => group.presentation;
   List<LibraryProjectionItem> get items => group.items;

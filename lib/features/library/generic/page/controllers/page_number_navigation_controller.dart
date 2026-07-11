@@ -66,7 +66,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     LibraryProjection projection,
   ) {
     return projection.filteredItems.where((item) {
-      if (state._activeGroupMode != LibraryGroupMode.series) {
+      if (state._activeGroupMode != 'series') {
         return false;
       }
       if (item.entry.browseScope != LibraryBrowserScope.title) {

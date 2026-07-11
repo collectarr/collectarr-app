@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/db/local_database.dart';
+﻿import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
@@ -23,7 +23,7 @@ class SmartListLoadResult {
   final LibraryFilterSelection filterSelection;
   final LibraryQuickView? quickView;
   final List<LibrarySortRule>? sortRules;
-  final LibrarySortColumn? sortColumn;
+  final String? sortColumn;
   final bool? sortAscending;
   final String? searchQuery;
 }
@@ -37,7 +37,7 @@ Future<SmartListLoadResult?> showSmartListsDialog({
   required LibraryFilterSelection currentFilter,
   LibraryQuickView? currentQuickView,
   List<LibrarySortRule>? currentSortRules,
-  LibrarySortColumn? currentSortColumn,
+  String? currentSortColumn,
   bool? currentSortAscending,
   String? currentSearchQuery,
   List<CustomFieldDefinition> customFieldDefinitions = const [],
@@ -76,7 +76,7 @@ class _SmartListsDialog extends StatefulWidget {
   final LibraryFilterSelection currentFilter;
   final LibraryQuickView? currentQuickView;
   final List<LibrarySortRule>? currentSortRules;
-  final LibrarySortColumn? currentSortColumn;
+  final String? currentSortColumn;
   final bool? currentSortAscending;
   final String? currentSearchQuery;
   final List<CustomFieldDefinition> customFieldDefinitions;
@@ -265,7 +265,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
         filterSelection: list.filterSelection,
         quickView: list.quickView,
         sortRules: list.sortRules,
-        sortColumn: list.sortColumn as LibrarySortColumn?,
+        sortColumn: list.sortColumn as String?,
         sortAscending: list.sortAscending,
         searchQuery: list.searchQuery,
       ),
@@ -431,7 +431,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     if (sortSummary != null) parts.add('sort: $sortSummary');
     if (parts.isEmpty) return null;
     return Text(
-      parts.join(' · '),
+      parts.join(' Â· '),
       style: TextStyle(color: appPalette(context).textMuted, fontSize: 12),
     );
   }
@@ -657,3 +657,4 @@ String? _smartListSortSummary(List<LibrarySortRule> rules) {
       .map((rule) => '${rule.column.toString().split('.').last} ${rule.ascending ? 'asc' : 'desc'}')
       .join(', ');
 }
+

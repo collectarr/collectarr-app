@@ -20,7 +20,7 @@ class _ManageFavoritesRequest {
 Future<List<LibraryFolderPreset>?> showLibraryFolderFavoritesDialog({
   required BuildContext context,
   required LibraryTypeConfig type,
-  required List<LibraryGroupMode> availableModes,
+  required List<String> availableModes,
   List<LibraryFolderPreset> initialFavorites = const [],
 }) {
   return showDialog<List<LibraryFolderPreset>>(
@@ -61,7 +61,7 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedPresetsChanged;
   final bool iconOnly;
-  final List<LibraryGroupMode>? availableModes;
+  final List<String>? availableModes;
 
   @override
   State<LibraryGroupModeMenuButton> createState() =>
@@ -93,7 +93,7 @@ class _LibraryGroupModeMenuButtonState
     _removeMenuOverlay();
   }
 
-  void _handleMenuSelection(Object? value, List<LibraryGroupMode> modes) async {
+  void _handleMenuSelection(Object? value, List<String> modes) async {
     _closeGroupModeMenu();
     if (value is LibraryFolderPreset) {
       widget.onChanged(value);
@@ -241,7 +241,7 @@ class _LibraryGroupModeMenuButtonState
     Overlay.of(context, rootOverlay: true).insert(_menuOverlayEntry!);
   }
 
-  double _resolveMenuWidth(BuildContext context, List<LibraryGroupMode> modes) {
+  double _resolveMenuWidth(BuildContext context, List<String> modes) {
     final textScaler = MediaQuery.textScalerOf(context);
     final textDirection = Directionality.of(context);
     final textStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -295,7 +295,7 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
 
   final LibraryTypeConfig type;
   final LibraryFolderPreset? selectedPreset;
-  final List<LibraryGroupMode> availableModes;
+  final List<String> availableModes;
   final List<LibraryFolderPreset> initialPinnedPresets;
   final bool sidebarVisible;
   final bool hasSidebarVisibilityToggle;
@@ -337,8 +337,8 @@ class _LibraryGroupModeDropdownMenuState
       for (final category in _categories)
         category.label: category.modes.any(
           (mode) =>
-              widget.selectedPreset == LibraryFolderPreset.single(mode as LibraryGroupMode) ||
-              _pinnedPresets.contains(LibraryFolderPreset.single(mode as LibraryGroupMode)),
+              widget.selectedPreset == LibraryFolderPreset.single(mode as String) ||
+              _pinnedPresets.contains(LibraryFolderPreset.single(mode as String)),
         ),
     };
   }
@@ -444,7 +444,7 @@ class _LibraryGroupModeDropdownMenuState
                   _buildSection(
                     context,
                     label: category.label,
-                    modes: category.modes.cast<LibraryGroupMode>(),
+                    modes: category.modes.cast<String>(),
                   ),
               ],
             ),
@@ -457,7 +457,7 @@ class _LibraryGroupModeDropdownMenuState
   Widget _buildSection(
     BuildContext context, {
     required String label,
-    List<LibraryGroupMode> modes = const [],
+    List<String> modes = const [],
     List<LibraryFolderPreset> presets = const [],
   }) {
     final expanded = _expandedSections[label] ?? false;
@@ -546,14 +546,14 @@ class _LibraryGroupModeDropdownMenuState
     );
   }
 
-  Widget _buildModeItem(BuildContext context, LibraryGroupMode mode) {
+  Widget _buildModeItem(BuildContext context, String mode) {
     final isSelected =
         widget.selectedPreset == LibraryFolderPreset.single(mode);
     final selectedBackground = _selectedRowBackground(context, isSelected);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
       child: LibraryWorkspaceMenuRow(
-        key: ValueKey('groupModeItemRow_${mode.name}'),
+        key: ValueKey('groupModeItemRow_$mode'),
         label: genericGroupModeFolderSetLabel(mode, widget.type),
         onTap: () => _emitSelection(LibraryFolderPreset.single(mode)),
         padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
@@ -606,7 +606,7 @@ class _GroupModeFavoritesDialog extends StatefulWidget {
   });
 
   final LibraryTypeConfig type;
-  final List<LibraryGroupMode> availableModes;
+  final List<String> availableModes;
   final List<LibraryFolderPreset> initialFavorites;
 
   @override
@@ -618,7 +618,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
   late final List<LibraryFolderPreset> _favoritePresets;
   int? _editingIndex;
   var _isCreatingFavorite = false;
-  late List<LibraryGroupMode> _draftModes;
+  late List<String> _draftModes;
   late final TextEditingController _fieldSearchController;
   late Map<String, bool> _expandedEditorSections;
   var _fieldSearch = '';
@@ -689,7 +689,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     setState(() {
       _isCreatingFavorite = false;
       _editingIndex = index;
-      _draftModes = List<LibraryGroupMode>.from(_favoritePresets[index].modes);
+      _draftModes = List<String>.from(_favoritePresets[index].modes);
       _fieldSearch = '';
       _fieldSearchController.clear();
     });
@@ -705,7 +705,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     });
   }
 
-  void _toggleDraftMode(LibraryGroupMode mode) {
+  void _toggleDraftMode(String mode) {
     setState(() {
       if (_draftModes.contains(mode)) {
         _draftModes.remove(mode);
@@ -727,7 +727,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   void _toggleCategoryModes(LibraryGroupModeCategory category) {
     final visibleModes = [
-      for (final mode in category.modes.cast<LibraryGroupMode>())
+      for (final mode in category.modes.cast<String>())
         if (_matchesFieldSearch(mode)) mode,
     ];
     if (visibleModes.isEmpty) {
@@ -751,7 +751,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     });
   }
 
-  bool _matchesFieldSearch(LibraryGroupMode mode) {
+  bool _matchesFieldSearch(String mode) {
     final query = _fieldSearch.trim().toLowerCase();
     if (query.isEmpty) {
       return true;
@@ -768,7 +768,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
     LibraryGroupModeCategory category,
   ) {
     final visibleModes = [
-      for (final mode in category.modes.cast<LibraryGroupMode>())
+      for (final mode in category.modes.cast<String>())
         if (_matchesFieldSearch(mode)) mode,
     ];
     if (visibleModes.isEmpty) {
@@ -817,7 +817,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
         LibraryGroupModeCategory(
           category.label,
           [
-            for (final mode in category.modes.cast<LibraryGroupMode>())
+            for (final mode in category.modes.cast<String>())
               if (genericGroupModeLabel(mode, widget.type)
                       .toLowerCase()
                       .contains(query) ||
@@ -1372,7 +1372,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                                                                             index];
                                                                     return Container(
                                                                       key: ValueKey(
-                                                                          'draftFolderMode_${mode.name}'),
+                                                                          'draftFolderMode_$mode'),
                                                                       margin: const EdgeInsets
                                                                           .symmetric(
                                                                           vertical:
@@ -1573,7 +1573,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
           ),
         ),
         if (expanded)
-          for (final mode in category.modes.cast<LibraryGroupMode>())
+          for (final mode in category.modes.cast<String>())
             if (_matchesFieldSearch(mode))
               InkWell(
                 onTap: () => _toggleDraftMode(mode),

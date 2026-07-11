@@ -94,11 +94,11 @@ extension _PageKindHooks on GenericLibraryPageState {
     return 'Release ${index + 1}/${items.length}';
   }
 
-  List<LibraryGroupMode> get _scopeAvailableGroupModes {
+  List<String> get _scopeAvailableGroupModes {
     return widget.type.availableGroupModesForBrowserMode(_activeBrowserMode);
   }
 
-  List<LibrarySortColumn> get _scopeAvailableSortColumns {
+  List<String> get _scopeAvailableSortColumns {
     return widget.type.availableSortColumnsForBrowserMode(_activeBrowserMode);
   }
 }

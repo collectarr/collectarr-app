@@ -92,7 +92,7 @@ class LibraryPageCoordinatorContext {
     required Set<String> Function() getPinnedColumnFavoriteKeys,
     required List<LibrarySortFavorite> Function() getSortFavorites,
     required LibrarySortFavorite? Function() getActiveSortFavorite,
-    required List<LibrarySortColumn> Function() getScopeAvailableSortColumns,
+    required List<String> Function() getScopeAvailableSortColumns,
     required bool Function() getIsScanningCover,
     required void Function(bool value) setIsScanningCover,
     required Future<void> Function() loadColumnFavoritePresets,
@@ -224,7 +224,7 @@ class LibraryPageCoordinatorContext {
   final Set<String> Function() _getPinnedColumnFavoriteKeys;
   final List<LibrarySortFavorite> Function() _getSortFavorites;
   final LibrarySortFavorite? Function() _getActiveSortFavorite;
-  final List<LibrarySortColumn> Function() _getScopeAvailableSortColumns;
+  final List<String> Function() _getScopeAvailableSortColumns;
   final bool Function() _getIsScanningCover;
   final void Function(bool value) _setIsScanningCover;
   final Future<void> Function() _loadColumnFavoritePresets;
@@ -323,7 +323,7 @@ class LibraryPageCoordinatorContext {
 
   List<LibrarySortFavorite> get sortFavorites => _getSortFavorites();
   LibrarySortFavorite? get activeSortFavorite => _getActiveSortFavorite();
-  List<LibrarySortColumn> get scopeAvailableSortColumns =>
+  List<String> get scopeAvailableSortColumns =>
       _getScopeAvailableSortColumns();
 
   bool get isScanningCover => _getIsScanningCover();

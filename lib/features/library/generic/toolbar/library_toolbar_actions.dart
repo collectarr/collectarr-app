@@ -71,7 +71,7 @@ class LibraryToolbarActions {
   final ValueChanged<LibraryToolbarSearchSuggestion>?
       onSearchSuggestionSelected;
   final VoidCallback onEditColumns;
-  final ValueChanged<LibrarySortColumn> onSortChanged;
+  final ValueChanged<String> onSortChanged;
   final VoidCallback? onEditSort;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;

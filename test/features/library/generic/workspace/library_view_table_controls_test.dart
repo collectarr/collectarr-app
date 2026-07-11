@@ -17,16 +17,16 @@ void main() {
     final essentialPreset = LibraryTableColumnPreset(
       label: 'Essential',
       columns: const {
-        LibraryTableColumn.title,
-        LibraryTableColumn.issue,
+        'title',
+        'issue',
       },
     );
     final pricingPreset = LibraryTableColumnPreset(
       label: 'Pricing',
       columns: const {
-        LibraryTableColumn.title,
-        LibraryTableColumn.publisher,
-        LibraryTableColumn.releaseDate,
+        'title',
+        'publisher',
+        'release_date',
       },
     );
 

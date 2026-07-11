@@ -14,12 +14,12 @@ const genericPreviewLabels = LibraryMediaPreviewLabels(
 );
 
 const genericLibraryGroupModes = [
-  LibraryGroupMode.series,
-  LibraryGroupMode.title,
-  LibraryGroupMode.publisher,
-  LibraryGroupMode.year,
-  LibraryGroupMode.location,
-  LibraryGroupMode.ownership,
+  'series',
+  'title',
+  'publisher',
+  'year',
+  'location',
+  'ownership',
 ];
 
 
@@ -50,34 +50,22 @@ String _simpleLibraryBucketLabel(
 ) {
   final entry = context.entry;
   final publisher = entry.publisher?.trim();
-  LibraryGroupMode? stdMode;
-  for (final m in LibraryGroupMode.values) {
-    if (m.name == context.groupMode ||
-        m.toString() == context.groupMode ||
-        m.toString().split('.').last == context.groupMode) {
-      stdMode = m;
-      break;
-    }
-  }
-  if (stdMode != null) {
-    return switch (stdMode) {
-      LibraryGroupMode.series => _seriesBucket(entry, labels.unknownSeries),
-      LibraryGroupMode.year =>
-        entry.releaseYear?.toString() ??
-            (entry.releaseDate?.year.toString() ?? 'Unknown year'),
-      LibraryGroupMode.publisher =>
-        publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
-      LibraryGroupMode.location => _locationBucket(entry.locationPath),
-      LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
-      LibraryGroupMode.ownership => entry.isOwned
-          ? overrides.owned
-          : entry.isWishlisted
-          ? overrides.wishlist
-          : overrides.catalogOnly,
-      _ => context.groupMode,
-    };
-  }
-  return context.groupMode;
+  return switch (context.groupMode) {
+    'series' => _seriesBucket(entry, labels.unknownSeries),
+    'year' =>
+      entry.releaseYear?.toString() ??
+          (entry.releaseDate?.year.toString() ?? 'Unknown year'),
+    'publisher' =>
+      publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
+    'location' => _locationBucket(entry.locationPath),
+    'title' => _titleBucket(entry.resolvedTitle),
+    'ownership' => entry.isOwned
+        ? overrides.owned
+        : entry.isWishlisted
+        ? overrides.wishlist
+        : overrides.catalogOnly,
+    _ => context.groupMode,
+  };
 }
 
 String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {

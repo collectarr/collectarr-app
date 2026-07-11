@@ -2,9 +2,9 @@ import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:flutter/material.dart';
 
-import 'library_workspace_enums.dart';
+import 'library_workspace_view_enums.dart';
 
-export 'library_workspace_enums.dart';
+export 'library_workspace_view_enums.dart';
 
 class LibrarySortRule {
   const LibrarySortRule({required this.column, required this.ascending});

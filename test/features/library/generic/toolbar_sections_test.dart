@@ -24,8 +24,8 @@ void main() {
       label: 'Series | Issue',
       icon: Icons.swap_vert,
       rules: [
-        LibrarySortRule(column: LibrarySortColumn.series, ascending: true),
-        LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
+        LibrarySortRule(column: 'series', ascending: true),
+        LibrarySortRule(column: 'issue', ascending: true),
       ],
     );
 
@@ -186,16 +186,16 @@ void main() {
     final essentialPreset = LibraryTableColumnPreset(
       label: 'Essential',
       columns: const {
-        LibraryTableColumn.title,
-        LibraryTableColumn.issue,
+        'title',
+        'issue',
       },
     );
     final pricingPreset = LibraryTableColumnPreset(
       label: 'Pricing',
       columns: const {
-        LibraryTableColumn.title,
-        LibraryTableColumn.publisher,
-        LibraryTableColumn.releaseDate,
+        'title',
+        'publisher',
+        'release_date',
       },
     );
 
@@ -273,7 +273,7 @@ void main() {
       label: 'Price desc',
       icon: Icons.attach_money,
       rules: [
-        LibrarySortRule(column: LibrarySortColumn.price, ascending: false),
+        LibrarySortRule(column: 'price', ascending: false),
       ],
     );
     const secondPinnedFavorite = LibrarySortFavorite(
@@ -281,7 +281,7 @@ void main() {
       label: 'Title asc',
       icon: Icons.sort_by_alpha,
       rules: [
-        LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+        LibrarySortRule(column: 'title', ascending: true),
       ],
     );
     const overflowFavorite = LibrarySortFavorite(
@@ -289,7 +289,7 @@ void main() {
       label: 'Updated desc',
       icon: Icons.update,
       rules: [
-        LibrarySortRule(column: LibrarySortColumn.updated, ascending: false),
+        LibrarySortRule(column: 'updated', ascending: false),
       ],
     );
 
@@ -359,11 +359,11 @@ void main() {
               hasActiveFilters: false,
               onQuickViewSelected: (_) {},
               onClearFilters: () {},
-              groupMode: LibraryGroupMode.series,
+              groupMode: 'series',
               folderPreset: LibraryFolderPreset(
                 modes: const [
-                  LibraryGroupMode.series,
-                  LibraryGroupMode.publisher
+                  'series',
+                  'publisher'
                 ],
               ),
               onGroupModeChanged: (preset) => changedPreset = preset,
@@ -440,8 +440,8 @@ void main() {
       label: 'Series | Issue',
       icon: Icons.swap_vert,
       rules: [
-        LibrarySortRule(column: LibrarySortColumn.series, ascending: true),
-        LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
+        LibrarySortRule(column: 'series', ascending: true),
+        LibrarySortRule(column: 'issue', ascending: true),
       ],
     );
     const secondFavorite = LibrarySortFavorite(
@@ -449,7 +449,7 @@ void main() {
       label: 'Updated desc',
       icon: Icons.update,
       rules: [
-        LibrarySortRule(column: LibrarySortColumn.updated, ascending: false),
+        LibrarySortRule(column: 'updated', ascending: false),
       ],
     );
 

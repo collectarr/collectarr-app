@@ -12,27 +12,27 @@ void main() {
     final saved = await store.savePreset(
       label: 'My Value View',
       columns: const {
-        LibraryTableColumn.status,
-        LibraryTableColumn.price,
+        'status',
+        'price',
       },
     );
 
     expect(saved.single.id, isNotNull);
     expect(saved.single.label, 'My Value View');
-    expect(saved.single.columns, contains(LibraryTableColumn.title));
-    expect(saved.single.columns, contains(LibraryTableColumn.price));
+    expect(saved.single.columns, contains('title'));
+    expect(saved.single.columns, contains('price'));
 
     final updated = await store.savePreset(
       label: 'my value view',
       columns: const {
-        LibraryTableColumn.status,
-        LibraryTableColumn.grade,
+        'status',
+        'grade',
       },
     );
 
     expect(updated.length, 1);
-    expect(updated.single.columns, contains(LibraryTableColumn.grade));
-    expect(updated.single.columns, isNot(contains(LibraryTableColumn.price)));
+    expect(updated.single.columns, contains('grade'));
+    expect(updated.single.columns, isNot(contains('price')));
 
     final deleted = await store.deletePreset(updated.single.id!);
     expect(deleted, isEmpty);

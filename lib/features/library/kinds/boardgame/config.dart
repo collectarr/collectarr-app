@@ -21,7 +21,7 @@ const boardGamesWorkspaceConfig = LibraryWorkspaceConfig(
 
 final boardGamesLibraryConfig = LibraryTypeConfig(
   workspace: boardGamesWorkspaceConfig,
-  defaultSortColumn: LibrarySortColumn.title,
+  defaultSortColumn: 'title',
   defaultVisibleColumns: boardGamesLibraryDefaultVisibleColumns,
   availableSortColumns: boardGamesLibrarySortColumns,
   availableSortColumnDefinitions: boardGamesLibrarySortDefinitions,

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_pane_wi
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_enums.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,11 +28,11 @@ void main() {
       name: 'Mock',
       options: [],
     ),
-    defaultSortColumn: LibrarySortColumn.title,
-    defaultVisibleColumns: const {LibraryTableColumn.title, LibraryTableColumn.issue, LibraryTableColumn.grade},
-    availableSortColumns: const [LibrarySortColumn.title, LibrarySortColumn.issue, LibrarySortColumn.grade],
+    defaultSortColumn: 'title',
+    defaultVisibleColumns: const {'title', 'issue', 'grade'},
+    availableSortColumns: const ['title', 'issue', 'grade'],
     availableSortColumnDefinitions: const [],
-    availableTableColumns: const [LibraryTableColumn.title, LibraryTableColumn.issue, LibraryTableColumn.grade],
+    availableTableColumns: const ['title', 'issue', 'grade'],
   );
 
   final mangaConfig = LibraryWorkspaceConfig(
@@ -53,11 +53,11 @@ void main() {
       name: 'Mock',
       options: [],
     ),
-    defaultSortColumn: LibrarySortColumn.title,
-    defaultVisibleColumns: const {LibraryTableColumn.title, LibraryTableColumn.publisher},
-    availableSortColumns: const [LibrarySortColumn.title, LibrarySortColumn.publisher],
+    defaultSortColumn: 'title',
+    defaultVisibleColumns: const {'title', 'publisher'},
+    availableSortColumns: const ['title', 'publisher'],
     availableSortColumnDefinitions: const [],
-    availableTableColumns: const [LibraryTableColumn.title, LibraryTableColumn.publisher],
+    availableTableColumns: const ['title', 'publisher'],
   );
 
   setUp(() {
@@ -74,16 +74,16 @@ void main() {
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
         isSidebarVisible: true,
-        sortColumn: LibrarySortColumn.grade,
+        sortColumn: 'grade',
         sortAscending: false,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         sortRules: [
           LibrarySortRule(
-            column: LibrarySortColumn.grade,
+            column: 'grade',
             ascending: false,
           ),
           LibrarySortRule(
-            column: LibrarySortColumn.updated,
+            column: 'updated',
             ascending: false,
           ),
         ],
@@ -92,12 +92,12 @@ void main() {
         detailsWidth: 390,
         detailsHeight: 244,
         visibleColumns: {
-          LibraryTableColumn.title,
-          LibraryTableColumn.grade,
+          'title',
+          'grade',
         },
         columnWidths: {
-          LibraryTableColumn.title: 320,
-          LibraryTableColumn.grade: 120,
+          'title': 320,
+          'grade': 120,
         },
       ),
     );
@@ -111,15 +111,15 @@ void main() {
 
     expect(restored.viewMode, LibraryViewMode.list);
     expect(restored.detailsLayout, LibraryDetailsLayout.bottom);
-    expect(restored.sortColumn, LibrarySortColumn.grade);
+    expect(restored.sortColumn, 'grade');
     expect(restored.sortAscending, isFalse);
     expect(restored.sortRules, [
       const LibrarySortRule(
-        column: LibrarySortColumn.grade,
+        column: 'grade',
         ascending: false,
       ),
       const LibrarySortRule(
-        column: LibrarySortColumn.updated,
+        column: 'updated',
         ascending: false,
       ),
     ]);
@@ -128,15 +128,15 @@ void main() {
     expect(restored.detailsWidth, 390);
     expect(restored.detailsHeight, 244);
     expect(restored.visibleColumns, {
-      LibraryTableColumn.title,
-      LibraryTableColumn.grade,
+      'title',
+      'grade',
     });
     expect(restored.visibleColumns.toList(), [
-      LibraryTableColumn.title,
-      LibraryTableColumn.grade,
+      'title',
+      'grade',
     ]);
-    expect(restored.columnWidths[LibraryTableColumn.title], 320);
-    expect(restored.columnWidths[LibraryTableColumn.grade], 120);
+    expect(restored.columnWidths['title'], 320);
+    expect(restored.columnWidths['grade'], 120);
   });
 
   test('library workspace preferences migrate legacy enum names', () async {
@@ -155,23 +155,23 @@ void main() {
       maxCoverSize: 188,
     );
 
-    expect(restored.sortColumn, LibrarySortColumn.grade);
+    expect(restored.sortColumn, 'grade');
     expect(restored.sortRules, [
       const LibrarySortRule(
-        column: LibrarySortColumn.grade,
+        column: 'grade',
         ascending: false,
       ),
       const LibrarySortRule(
-        column: LibrarySortColumn.updated,
+        column: 'updated',
         ascending: true,
       ),
     ]);
     expect(restored.visibleColumns, {
-      LibraryTableColumn.title,
-      LibraryTableColumn.grade,
+      'title',
+      'grade',
     });
-    expect(restored.columnWidths[LibraryTableColumn.title], 320);
-    expect(restored.columnWidths[LibraryTableColumn.grade], 120);
+    expect(restored.columnWidths['title'], 320);
+    expect(restored.columnWidths['grade'], 120);
   });
 
   test('workspace chrome size and position are retained per library',
@@ -184,7 +184,7 @@ void main() {
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
         isSidebarVisible: true,
-        sortColumn: LibrarySortColumn.grade,
+        sortColumn: 'grade',
         sortAscending: false,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 144,
@@ -192,11 +192,11 @@ void main() {
         detailsWidth: 430,
         detailsHeight: 260,
         visibleColumns: {
-          LibraryTableColumn.title,
-          LibraryTableColumn.grade,
+          'title',
+          'grade',
         },
         columnWidths: {
-          LibraryTableColumn.title: 320,
+          'title': 320,
         },
       ),
     );
@@ -213,10 +213,10 @@ void main() {
     expect(restored.detailsWidth, kLibraryDetailsDefaultWidth);
     expect(restored.detailsHeight, kLibraryDetailsDefaultHeight);
     expect(restored.viewMode, LibraryViewMode.grid);
-    expect(restored.sortColumn, LibrarySortColumn.title);
+    expect(restored.sortColumn, 'title');
     expect(restored.visibleColumns, {
-      LibraryTableColumn.title,
-      LibraryTableColumn.publisher,
+      'title',
+      'publisher',
     });
     expect(restored.columnWidths, isEmpty);
   });
@@ -230,7 +230,7 @@ void main() {
         viewMode: LibraryViewMode.grid,
         detailsLayout: LibraryDetailsLayout.right,
         isSidebarVisible: true,
-        sortColumn: LibrarySortColumn.title,
+        sortColumn: 'title',
         sortAscending: true,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 144,
@@ -238,8 +238,8 @@ void main() {
         detailsWidth: 980,
         detailsHeight: 540,
         visibleColumns: {
-          LibraryTableColumn.title,
-          LibraryTableColumn.issue,
+          'title',
+          'issue',
         },
         columnWidths: {},
       ),
@@ -266,7 +266,7 @@ void main() {
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
         isSidebarVisible: false,
-        sortColumn: LibrarySortColumn.grade,
+        sortColumn: 'grade',
         sortAscending: false,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 144,
@@ -274,8 +274,8 @@ void main() {
         detailsWidth: 430,
         detailsHeight: 260,
         visibleColumns: {
-          LibraryTableColumn.title,
-          LibraryTableColumn.grade,
+          'title',
+          'grade',
         },
         columnWidths: {},
       ),
@@ -286,7 +286,7 @@ void main() {
         viewMode: LibraryViewMode.grid,
         detailsLayout: LibraryDetailsLayout.right,
         isSidebarVisible: true,
-        sortColumn: LibrarySortColumn.title,
+        sortColumn: 'title',
         sortAscending: true,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 128,
@@ -294,8 +294,8 @@ void main() {
         detailsWidth: 340,
         detailsHeight: 300,
         visibleColumns: {
-          LibraryTableColumn.title,
-          LibraryTableColumn.publisher,
+          'title',
+          'publisher',
         },
         columnWidths: {},
       ),
@@ -314,12 +314,12 @@ void main() {
       maxCoverSize: 188,
     );
 
-    expect(comics.sortColumn, LibrarySortColumn.grade);
+    expect(comics.sortColumn, 'grade');
     expect(comics.sortAscending, isFalse);
     expect(comics.detailsLayout, LibraryDetailsLayout.bottom);
     expect(comics.isSidebarVisible, isFalse);
 
-    expect(manga.sortColumn, LibrarySortColumn.title);
+    expect(manga.sortColumn, 'title');
     expect(manga.sortAscending, isTrue);
     expect(manga.detailsLayout, LibraryDetailsLayout.right);
     expect(manga.isSidebarVisible, isTrue);

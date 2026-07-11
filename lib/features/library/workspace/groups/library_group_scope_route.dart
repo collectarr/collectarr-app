@@ -7,7 +7,7 @@ class LibraryGroupScopeRoute {
     this.folderDisplayMode,
   });
 
-  final LibraryGroupMode groupMode;
+  final String groupMode;
   final String bucket;
   final LibraryFolderDisplayMode? folderDisplayMode;
 }

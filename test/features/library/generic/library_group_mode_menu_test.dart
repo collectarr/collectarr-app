@@ -16,11 +16,11 @@ void main() {
           body: LibraryGroupModeDropdownMenu(
             type: moviesLibraryConfig,
             selectedPreset: LibraryFolderPreset.single(
-              LibraryGroupMode.releaseYear,
+              'release_year',
             ),
             availableModes: libraryGroupModesForType(moviesLibraryConfig),
             initialPinnedPresets: [
-              LibraryFolderPreset.single(LibraryGroupMode.director),
+              LibraryFolderPreset.single('director'),
             ],
             sidebarVisible: true,
             hasSidebarVisibilityToggle: true,
@@ -58,7 +58,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.byKey(const ValueKey('groupModeItemBar_releaseYear')),
+      find.byKey(const ValueKey('groupModeItemBar_release_year')),
       findsNothing,
     );
     expect(
@@ -67,7 +67,7 @@ void main() {
     );
 
     final selectedRow = tester.widget<LibraryWorkspaceMenuRow>(
-      find.byKey(const ValueKey('groupModeItemRow_releaseYear')),
+      find.byKey(const ValueKey('groupModeItemRow_release_year')),
     );
     expect(selectedRow.backgroundColor, isNot(Colors.transparent));
 
@@ -130,13 +130,13 @@ void main() {
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
             folderPreset: LibraryFolderPreset.single(
-              LibraryGroupMode.releaseYear,
+              'release_year',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
             onChanged: (_) {},
             pinnedFolderPresets: [
-              LibraryFolderPreset.single(LibraryGroupMode.director),
+              LibraryFolderPreset.single('director'),
             ],
             onPinnedPresetsChanged: (value) => savedPresets = value,
           ),
@@ -160,7 +160,7 @@ void main() {
     expect(savedPresets, isNotNull);
     expect(
       savedPresets,
-      [LibraryFolderPreset.single(LibraryGroupMode.director)],
+      [LibraryFolderPreset.single('director')],
     );
   });
 
@@ -176,7 +176,7 @@ void main() {
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
             folderPreset: LibraryFolderPreset.single(
-              LibraryGroupMode.releaseYear,
+              'release_year',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -205,7 +205,7 @@ void main() {
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
             folderPreset: LibraryFolderPreset.single(
-              LibraryGroupMode.releaseYear,
+              'release_year',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -240,7 +240,7 @@ void main() {
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
             folderPreset: LibraryFolderPreset(
-              modes: [LibraryGroupMode.ageRating, LibraryGroupMode.country],
+              modes: ['age_rating', 'country'],
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -260,7 +260,7 @@ void main() {
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
             folderPreset: LibraryFolderPreset.single(
-              LibraryGroupMode.releaseYear,
+              'release_year',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -289,7 +289,7 @@ void main() {
             child: LibraryGroupModeMenuButton(
               type: moviesLibraryConfig,
               folderPreset: LibraryFolderPreset.single(
-                LibraryGroupMode.releaseYear,
+                'release_year',
               ),
               accent: Colors.cyan,
               icon: Icons.account_tree_outlined,
@@ -321,10 +321,10 @@ void main() {
           body: LibraryGroupModeDropdownMenu(
             type: comicsLibraryConfig,
             selectedPreset:
-                LibraryFolderPreset.single(LibraryGroupMode.publisher),
+                LibraryFolderPreset.single('publisher'),
             availableModes: libraryGroupModesForType(comicsLibraryConfig),
             initialPinnedPresets: [
-              LibraryFolderPreset.single(LibraryGroupMode.series),
+              LibraryFolderPreset.single('series'),
             ],
           ),
         ),

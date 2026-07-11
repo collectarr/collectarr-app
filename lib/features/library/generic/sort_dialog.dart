@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+﻿import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -12,8 +12,8 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required BuildContext context,
   required LibraryTypeConfig type,
   required List<LibrarySortRule> currentRules,
-  bool Function(LibrarySortColumn column)? defaultAscendingForColumn,
-  List<LibrarySortColumn>? availableColumns,
+  bool Function(String column)? defaultAscendingForColumn,
+  List<String>? availableColumns,
 }) {
   return showDialog<List<LibrarySortRule>>(
     context: context,
@@ -36,8 +36,8 @@ class _LibrarySortDialog extends StatefulWidget {
 
   final LibraryTypeConfig type;
   final List<LibrarySortRule> currentRules;
-  final bool Function(LibrarySortColumn column)? defaultAscendingForColumn;
-  final List<LibrarySortColumn>? availableColumns;
+  final bool Function(String column)? defaultAscendingForColumn;
+  final List<String>? availableColumns;
 
   @override
   State<_LibrarySortDialog> createState() => _LibrarySortDialogState();
@@ -51,11 +51,11 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   bool _loadingPresets = true;
   String? _editingPresetId;
   String _query = '';
-  final Map<LibrarySortFieldGroup, bool> _expandedGroups = {
-    LibrarySortFieldGroup.main: true,
-    LibrarySortFieldGroup.value: false,
-    LibrarySortFieldGroup.edition: false,
-    LibrarySortFieldGroup.personal: true,
+  final Map<LibraryTableColumnGroup, bool> _expandedGroups = {
+    LibraryTableColumnGroup.main: true,
+    LibraryTableColumnGroup.value: false,
+    LibraryTableColumnGroup.edition: false,
+    LibraryTableColumnGroup.personal: true,
   };
 
   @override
@@ -293,7 +293,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                                         12, 0, 12, 12),
                                                 children: [
                                                   for (final group
-                                                      in LibrarySortFieldGroup
+                                                      in LibraryTableColumnGroup
                                                           .values)
                                                     if (_groupColumns(group,
                                                             availableColumns)
@@ -321,7 +321,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                                                   availableColumns))
                                                             _AvailableSortFieldTile(
                                                               key: ValueKey(
-                                                                  'available-sort-${column.name}'),
+                                                                  'available-sort-$column'),
                                                               label:
                                                                   _sortColumnLabel(
                                                                       widget
@@ -392,13 +392,13 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                           },
                                           itemBuilder: (context, index) {
                                             final rule = _rules[index];
-                                            final col = rule.column as LibrarySortColumn;
+                                            final col = rule.column as String;
                                             return _SelectedSortRuleTile(
                                               key: ValueKey(
-                                                  'selected-sort-${col.name}'),
+                                                  'selected-sort-${col}'),
                                               index: index,
                                               dragHandleKey: ValueKey(
-                                                'selected-sort-${col.name}-handle',
+                                                'selected-sort-${col}-handle',
                                               ),
                                               title: _sortColumnLabel(
                                                   widget.type, col),
@@ -561,7 +561,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     return null;
   }
 
-  List<LibrarySortColumn> _filteredColumns() {
+  List<String> _filteredColumns() {
     final query = _query.trim().toLowerCase();
     final available =
         widget.availableColumns ?? widget.type.availableSortColumns;
@@ -575,9 +575,9 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     }).toList(growable: false);
   }
 
-  List<LibrarySortColumn> _groupColumns(
-    LibrarySortFieldGroup group,
-    List<LibrarySortColumn> columns,
+  List<String> _groupColumns(
+    LibraryTableColumnGroup group,
+    List<String> columns,
   ) {
     return [
       for (final column in columns)
@@ -585,12 +585,12 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     ];
   }
 
-  bool _defaultAscending(LibrarySortColumn column) {
+  bool _defaultAscending(String column) {
     return widget.defaultAscendingForColumn?.call(column) ??
         _defaultSortAscending(widget.type, column);
   }
 
-  void _toggleColumn(LibrarySortColumn column) {
+  void _toggleColumn(String column) {
     final existingIndex = _rules.indexWhere((rule) => rule.column == column);
     setState(() {
       if (existingIndex >= 0) {
@@ -1130,41 +1130,41 @@ String _sortRuleSummary(LibraryTypeConfig type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
-            '${_sortColumnLabel(type, rule.column as LibrarySortColumn)} ${rule.ascending ? 'ASC' : 'DESC'}',
+            '${_sortColumnLabel(type, rule.column as String)} ${rule.ascending ? 'ASC' : 'DESC'}',
       )
       .join('  |  ');
 }
 
-LibrarySortFieldGroup _sortFieldGroup(
+LibraryTableColumnGroup _sortFieldGroup(
   LibraryTypeConfig type,
-  LibrarySortColumn column,
+  String column,
 ) {
   final groupStr = type.sortColumnDefinitionFor(column).group.toLowerCase();
-  return LibrarySortFieldGroup.values.firstWhere(
+  return LibraryTableColumnGroup.values.firstWhere(
     (g) => g.name.toLowerCase() == groupStr,
-    orElse: () => LibrarySortFieldGroup.main,
+    orElse: () => LibraryTableColumnGroup.main,
   );
 }
 
-String _groupLabel(LibrarySortFieldGroup group) {
+String _groupLabel(LibraryTableColumnGroup group) {
   return switch (group) {
-    LibrarySortFieldGroup.main => 'Main',
-    LibrarySortFieldGroup.value => 'Value',
-    LibrarySortFieldGroup.edition => 'Edition',
-    LibrarySortFieldGroup.personal => 'Personal',
+    LibraryTableColumnGroup.main => 'Main',
+    LibraryTableColumnGroup.value => 'Value',
+    LibraryTableColumnGroup.edition => 'Edition',
+    LibraryTableColumnGroup.personal => 'Personal',
   };
 }
 
-bool _defaultSortAscending(LibraryTypeConfig type, LibrarySortColumn column) {
+bool _defaultSortAscending(LibraryTypeConfig type, String column) {
   return type.sortColumnDefinitionFor(column).defaultAscending;
 }
 
 List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
-  final seen = <LibrarySortColumn>{};
+  final seen = <String>{};
   final deduped = <LibrarySortRule>[];
   for (final rule in rules) {
-    if (rule.column is LibrarySortColumn) {
-      if (seen.add(rule.column as LibrarySortColumn)) {
+    if (rule.column is String) {
+      if (seen.add(rule.column as String)) {
         deduped.add(rule);
       }
     }
@@ -1172,10 +1172,11 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
   return deduped;
 }
 
-String _sortColumnLabel(LibraryTypeConfig type, LibrarySortColumn column) {
+String _sortColumnLabel(LibraryTypeConfig type, String column) {
   try {
     return type.sortColumnDefinitionFor(column).label;
   } on StateError {
     return librarySortColumnFallbackLabel(column);
   }
 }
+

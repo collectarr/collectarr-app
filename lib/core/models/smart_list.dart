@@ -237,7 +237,7 @@ class SmartList {
     if (candidate == null) {
       return null;
     }
-    if (candidate.startsWith('LibrarySortColumn.')) {
+    if (candidate.startsWith('String.')) {
       candidate = candidate.split('.').last;
     }
     final normalized = _stableToken(candidate);

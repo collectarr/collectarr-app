@@ -14,9 +14,9 @@ void main() {
     final state = LibraryRouteState(
       kind: 'movie',
       searchQuery: 'alien',
-      groupMode: LibraryGroupMode.genre,
+      groupMode: 'genre',
       folderPreset: LibraryFolderPreset(
-        modes: [LibraryGroupMode.genre, LibraryGroupMode.releaseYear],
+        modes: ['genre', 'release_year'],
       ),
       selectedBucket: 'Action',
       selectedLetter: 'A',
@@ -31,8 +31,8 @@ void main() {
         missingMetadata: true,
       ),
       sortRules: [
-        LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
-        LibrarySortRule(column: LibrarySortColumn.updated, ascending: false),
+        LibrarySortRule(column: 'title', ascending: true),
+        LibrarySortRule(column: 'updated', ascending: false),
       ],
       isSidebarVisible: true,
     );
@@ -47,11 +47,11 @@ void main() {
     expect(uri.queryParameters['seriesScope'], 'completed');
     expect(parsed.kind, 'movie');
     expect(parsed.searchQuery, 'alien');
-    expect(parsed.groupMode, LibraryGroupMode.genre);
+    expect(parsed.groupMode, 'genre');
     expect(
       parsed.folderPreset,
       LibraryFolderPreset(
-        modes: [LibraryGroupMode.genre, LibraryGroupMode.releaseYear],
+        modes: ['genre', 'release_year'],
       ),
     );
     expect(parsed.selectedBucket, 'Action');
@@ -75,9 +75,9 @@ void main() {
     expect(parsed.filterSelection.location, 'Shelf A');
     expect(parsed.filterSelection.missingMetadata, isTrue);
     expect(parsed.sortRules, hasLength(2));
-    expect(parsed.sortRules!.first.column, LibrarySortColumn.title);
+    expect(parsed.sortRules!.first.column, 'title');
     expect(parsed.sortRules!.first.ascending, isTrue);
-    expect(parsed.sortRules!.last.column, LibrarySortColumn.updated);
+    expect(parsed.sortRules!.last.column, 'updated');
     expect(parsed.sortRules!.last.ascending, isFalse);
     expect(parsed.isSidebarVisible, isTrue);
     expect(parsed.hasExplicitViewState, isTrue);
@@ -103,8 +103,8 @@ void main() {
     );
 
     expect(parsed.sortRules, hasLength(2));
-    expect(parsed.sortRules!.first.column, LibrarySortColumn.title);
-    expect(parsed.sortRules!.last.column, LibrarySortColumn.updated);
+    expect(parsed.sortRules!.first.column, 'title');
+    expect(parsed.sortRules!.last.column, 'updated');
   });
 
   test('filtered route state drops explicit state when route kind mismatches',
@@ -154,17 +154,17 @@ void main() {
   test('filtered route state resets series scope outside series grouping', () {
     final state = LibraryRouteState(
       kind: 'book',
-      groupMode: LibraryGroupMode.publisher,
+      groupMode: 'publisher',
       seriesCompletionScope: LibrarySeriesCompletionScope.completed,
     );
 
     final filtered = state.filteredForType(booksLibraryConfig);
-    expect(filtered.groupMode, LibraryGroupMode.publisher);
+    expect(filtered.groupMode, 'publisher');
     expect(filtered.seriesCompletionScope, LibrarySeriesCompletionScope.all);
 
     final seriesFiltered = LibraryRouteState(
       kind: 'book',
-      groupMode: LibraryGroupMode.series,
+      groupMode: 'series',
       seriesCompletionScope: LibrarySeriesCompletionScope.completed,
     ).filteredForType(booksLibraryConfig);
     expect(

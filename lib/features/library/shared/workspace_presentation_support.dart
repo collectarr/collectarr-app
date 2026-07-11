@@ -15,315 +15,308 @@ String defaultLibraryBucketLabel(
   final entry = context.entry;
   final source = context.source;
   final publisher = entry.publisher?.trim();
-  final groupMode = LibraryGroupMode.values.firstWhere(
-    (m) =>
-        m.name == context.groupMode ||
-        m.toString() == context.groupMode ||
-        m.toString().split('.').last == context.groupMode,
-    orElse: () => LibraryGroupMode.title,
-  );
-  return switch (groupMode) {
-    LibraryGroupMode.series => _seriesBucket(entry, labels.unknownSeries),
-    LibraryGroupMode.storyArc => overrides.storyArc,
-    LibraryGroupMode.character => overrides.character,
-    LibraryGroupMode.year => entry.releaseYear?.toString() ??
+  return switch (context.groupMode) {
+    'series' => _seriesBucket(entry, labels.unknownSeries),
+    'story_arc' => overrides.storyArc,
+    'character' => overrides.character,
+    'year' => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
-    LibraryGroupMode.audienceRating =>
+    'audience_rating' =>
       entry.audienceRating?.trim().isNotEmpty == true
           ? entry.audienceRating!
           : 'No audience rating',
-    LibraryGroupMode.color => _stringBucket(entry.video?.color, 'No color'),
-    LibraryGroupMode.publisher => publisher == null || publisher.isEmpty
+    'color' => _stringBucket(entry.video?.color, 'No color'),
+    'publisher' => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,
-    LibraryGroupMode.genre => _firstOrDefault(entry.genres, overrides.noGenre),
-    LibraryGroupMode.platform => _firstOrDefault(
+    'genre' => _firstOrDefault(entry.genres, overrides.noGenre),
+    'platform' => _firstOrDefault(
         entry.game?.platforms ?? entry.rawPlatforms, 'No platform'),
-    LibraryGroupMode.developer => _creatorBucketByRole(entry, 'developer'),
-    LibraryGroupMode.country => entry.country?.trim().isNotEmpty == true
+    'developer' => _creatorBucketByRole(entry, 'developer'),
+    'country' => entry.country?.trim().isNotEmpty == true
         ? entry.country!
         : overrides.unknownCountry,
-    LibraryGroupMode.language => entry.language?.trim().isNotEmpty == true
+    'language' => entry.language?.trim().isNotEmpty == true
         ? entry.language!
         : overrides.unknownLanguage,
-    LibraryGroupMode.ageRating =>
+    'age_rating' =>
       entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
-    LibraryGroupMode.crossover =>
+    'crossover' =>
       _stringBucket(entry.crossover, 'No crossover'),
-    LibraryGroupMode.imprint =>
+    'imprint' =>
       _stringBucket(entry.publishing?.imprint, 'No imprint'),
-    LibraryGroupMode.seriesGroup =>
+    'series_group' =>
       _stringBucket(entry.publishing?.seriesGroup, 'No series group'),
-    LibraryGroupMode.movieOrTvSeries => _movieOrTvSeriesBucket(entry),
-    LibraryGroupMode.releaseDate =>
+    'movie_or_tv_series' => _movieOrTvSeriesBucket(entry),
+    'release_date' =>
       _dateBucket(entry.releaseDate, 'Unknown release date'),
-    LibraryGroupMode.releaseMonth =>
+    'release_month' =>
       _monthBucket(entry.releaseDate, fallback: 'Unknown release month'),
-    LibraryGroupMode.releaseYear => _yearBucket(
+    'release_year' => _yearBucket(
         entry.releaseDate ??
             (entry.releaseYear == null ? null : DateTime(entry.releaseYear!)),
         'Unknown release year',
       ),
-    LibraryGroupMode.publicationPlace => _stringBucket(
+    'publication_place' => _stringBucket(
         entry.publishing?.publicationPlace, 'Unknown publication place'),
-    LibraryGroupMode.originalReleaseDate => _dateBucket(
+    'original_release_date' => _dateBucket(
         entry.music?.originalReleaseDate,
         'Unknown original release date',
       ),
-    LibraryGroupMode.originalReleaseMonth => _monthBucket(
+    'original_release_month' => _monthBucket(
         entry.music?.originalReleaseDate,
         fallback: 'Unknown original release month',
       ),
-    LibraryGroupMode.originalReleaseYear => _yearBucket(
+    'original_release_year' => _yearBucket(
         entry.music?.originalReleaseDate,
         'Unknown original release year',
       ),
-    LibraryGroupMode.originalCountry => _stringBucket(
+    'original_country' => _stringBucket(
         entry.publishing?.originalCountry, 'Unknown original country'),
-    LibraryGroupMode.originalLanguage => _stringBucket(
+    'original_language' => _stringBucket(
         entry.publishing?.originalLanguage, 'Unknown original language'),
-    LibraryGroupMode.originalPublicationDate => _dateBucket(
+    'original_publication_date' => _dateBucket(
         entry.publishing?.originalPublicationDate,
         'Unknown original publication date',
       ),
-    LibraryGroupMode.originalPublicationMonth => _monthBucket(
+    'original_publication_month' => _monthBucket(
         entry.publishing?.originalPublicationDate,
         fallback: 'Unknown original publication month',
       ),
-    LibraryGroupMode.originalPublicationYear => _yearBucket(
+    'original_publication_year' => _yearBucket(
         entry.publishing?.originalPublicationDate,
         'Unknown original publication year',
       ),
-    LibraryGroupMode.originalPublicationPlace => _stringBucket(
+    'original_publication_place' => _stringBucket(
         entry.publishing?.originalPublicationPlace,
         'Unknown original publication place',
       ),
-    LibraryGroupMode.originalPublisher => _stringBucket(
+    'original_publisher' => _stringBucket(
         entry.publishing?.originalPublisher,
         'Unknown original publisher',
       ),
-    LibraryGroupMode.recordingDate => _dateBucket(
+    'recording_date' => _dateBucket(
         entry.music?.recordingDate,
         'Unknown recording date',
       ),
-    LibraryGroupMode.recordingMonth => _monthBucket(
+    'recording_month' => _monthBucket(
         entry.music?.recordingDate,
         fallback: 'Unknown recording month',
       ),
-    LibraryGroupMode.recordingYear => _yearBucket(
+    'recording_year' => _yearBucket(
         entry.music?.recordingDate,
         'Unknown recording year',
       ),
-    LibraryGroupMode.coverDate =>
+    'cover_date' =>
       _dateBucket(entry.coverDate, 'Unknown cover date'),
-    LibraryGroupMode.coverMonth =>
+    'cover_month' =>
       _monthBucket(entry.coverDate, fallback: 'Unknown cover month'),
-    LibraryGroupMode.coverYear =>
+    'cover_year' =>
       _yearBucket(entry.coverDate, 'Unknown cover year'),
-    LibraryGroupMode.audioTracks =>
+    'audio_tracks' =>
       _stringBucket(entry.video?.audioTracks, 'No audio tracks'),
-    LibraryGroupMode.boxSet =>
+    'box_set' =>
       _stringBucket(source.ownedItem?.boxSetName, 'No box set'),
-    LibraryGroupMode.completeness =>
+    'completeness' =>
       _stringBucket(source.ownedItem?.gameCompleteness, 'No completeness'),
-    LibraryGroupMode.valueLocked =>
+    'value_locked' =>
       source.ownedItem?.gameValueIsLocked == true ? 'Locked' : 'Unlocked',
-    LibraryGroupMode.dustJacketCondition => _stringBucket(
+    'dust_jacket_condition' => _stringBucket(
         entry.publishing?.dustJacketCondition, 'No dust jacket condition'),
-    LibraryGroupMode.distributor =>
+    'distributor' =>
       _stringBucket(source.ownedItem?.distributor, 'No distributor'),
-    LibraryGroupMode.instrument =>
+    'instrument' =>
       _stringBucket(entry.music?.instrument, 'No instrument'),
-    LibraryGroupMode.isLive =>
+    'is_live' =>
       entry.music?.isLive == true ? 'Live' : 'Not live',
-    LibraryGroupMode.mediaCondition =>
+    'media_condition' =>
       _stringBucket(entry.music?.mediaCondition, 'No media condition'),
-    LibraryGroupMode.rpm => _stringBucket(entry.music?.rpm, 'No RPM'),
-    LibraryGroupMode.spars => _stringBucket(entry.music?.spars, 'No SPARS'),
-    LibraryGroupMode.soundType =>
+    'rpm' => _stringBucket(entry.music?.rpm, 'No RPM'),
+    'spars' => _stringBucket(entry.music?.spars, 'No SPARS'),
+    'sound_type' =>
       _stringBucket(entry.music?.soundType, 'No sound'),
-    LibraryGroupMode.studio => _stringBucket(entry.music?.studio, 'No studio'),
-    LibraryGroupMode.vinylColor =>
+    'studio' => _stringBucket(entry.music?.studio, 'No studio'),
+    'vinyl_color' =>
       _stringBucket(entry.music?.vinylColor, 'No vinyl color'),
-    LibraryGroupMode.toySubtype =>
+    'toy_subtype' =>
       _stringBucket(entry.game?.toySubtype, 'No subtype'),
-    LibraryGroupMode.toyType => _stringBucket(entry.game?.toyType, 'No type'),
-    LibraryGroupMode.edition =>
+    'toy_type' => _stringBucket(entry.game?.toyType, 'No type'),
+    'edition' =>
       _stringBucket(entry.variant ?? entry.referenceEditionId, 'No edition'),
-    LibraryGroupMode.audiobookAbridged =>
+    'audiobook_abridged' =>
       entry.publishing?.audiobookAbridged == true
           ? 'Abridged'
           : 'Unabridged / Unknown',
-    LibraryGroupMode.firstEdition => entry.publishing?.firstEdition == true
+    'first_edition' => entry.publishing?.firstEdition == true
         ? 'First edition'
         : 'Not first edition',
-    LibraryGroupMode.narrator => _creatorBucketByRole(entry, 'narrator'),
-    LibraryGroupMode.paperType =>
+    'narrator' => _creatorBucketByRole(entry, 'narrator'),
+    'paper_type' =>
       _stringBucket(entry.publishing?.paperType, 'No paper type'),
-    LibraryGroupMode.printedBy =>
+    'printed_by' =>
       _stringBucket(entry.publishing?.printedBy, 'No printer'),
-    LibraryGroupMode.editionReleaseDate => _dateBucket(
+    'edition_release_date' => _dateBucket(
         _referenceEditionForEntry(entry)?.releaseDate,
         'Unknown edition release date',
       ),
-    LibraryGroupMode.editionReleaseMonth => _monthBucket(
+    'edition_release_month' => _monthBucket(
         _referenceEditionForEntry(entry)?.releaseDate,
         fallback: 'Unknown edition release month',
       ),
-    LibraryGroupMode.editionReleaseYear => _yearBucket(
+    'edition_release_year' => _yearBucket(
         _referenceEditionForEntry(entry)?.releaseDate,
         'Unknown edition release year',
       ),
-    LibraryGroupMode.extras =>
+    'extras' =>
       _stringBucket(source.ownedItem?.features, 'No extras'),
-    LibraryGroupMode.format => _editionFormatBucket(entry),
-    LibraryGroupMode.hdr =>
+    'format' => _editionFormatBucket(entry),
+    'hdr' =>
       _firstOrDefault(source.ownedItem?.hdrFormats, 'No HDR'),
-    LibraryGroupMode.layers => _stringBucket(entry.video?.layers, 'No layers'),
-    LibraryGroupMode.packaging =>
+    'layers' => _stringBucket(entry.video?.layers, 'No layers'),
+    'packaging' =>
       _stringBucket(source.ownedItem?.packaging, 'No packaging'),
-    LibraryGroupMode.regions =>
+    'regions' =>
       _stringBucket(_referenceRegionFor(source, entry), 'No region'),
-    LibraryGroupMode.screenRatios =>
+    'screen_ratios' =>
       _stringBucket(entry.video?.screenRatio, 'No screen ratio'),
-    LibraryGroupMode.subtitles =>
+    'subtitles' =>
       _stringBucket(entry.video?.subtitles, 'No subtitles'),
-    LibraryGroupMode.actor => _creatorBucketByRole(entry, 'actor'),
-    LibraryGroupMode.chorus => _creatorBucketByRole(entry, 'chorus'),
-    LibraryGroupMode.composer => _creatorBucketByRole(entry, 'composer'),
-    LibraryGroupMode.composition =>
+    'actor' => _creatorBucketByRole(entry, 'actor'),
+    'chorus' => _creatorBucketByRole(entry, 'chorus'),
+    'composer' => _creatorBucketByRole(entry, 'composer'),
+    'composition' =>
       _stringBucket(entry.music?.composition, 'No composition'),
-    LibraryGroupMode.conductor => _creatorBucketByRole(entry, 'conductor'),
-    LibraryGroupMode.engineer => _creatorBucketByRole(entry, 'engineer'),
-    LibraryGroupMode.director => _creatorBucketByRole(entry, 'director'),
-    LibraryGroupMode.musician => _creatorBucketByRole(entry, 'musician'),
-    LibraryGroupMode.orchestra => _creatorBucketByRole(entry, 'orchestra'),
-    LibraryGroupMode.photography => _creatorBucketByRole(entry, 'photography'),
-    LibraryGroupMode.producer => _creatorBucketByRole(entry, 'producer'),
-    LibraryGroupMode.creator => _creatorBucketByRole(entry, null),
-    LibraryGroupMode.writer => _creatorBucketByRole(entry, 'writer'),
-    LibraryGroupMode.artist => _creatorBucketByRole(entry, 'artist'),
-    LibraryGroupMode.penciller => _creatorBucketByRole(entry, 'penciller'),
-    LibraryGroupMode.inker => _creatorBucketByRole(entry, 'inker'),
-    LibraryGroupMode.colorist => _creatorBucketByRole(entry, 'colorist'),
-    LibraryGroupMode.painter => _creatorBucketByRole(entry, 'painter'),
-    LibraryGroupMode.letterer => _creatorBucketByRole(entry, 'letterer'),
-    LibraryGroupMode.separator => _creatorBucketByRole(entry, 'separator'),
-    LibraryGroupMode.layouts => _creatorBucketByRole(entry, 'layouts'),
-    LibraryGroupMode.translator => _creatorBucketByRole(entry, 'translator'),
-    LibraryGroupMode.plotter => _creatorBucketByRole(entry, 'plotter'),
-    LibraryGroupMode.scripter => _creatorBucketByRole(entry, 'scripter'),
-    LibraryGroupMode.coverArtist => _creatorBucketByRole(entry, 'cover'),
-    LibraryGroupMode.coverPenciller =>
+    'conductor' => _creatorBucketByRole(entry, 'conductor'),
+    'engineer' => _creatorBucketByRole(entry, 'engineer'),
+    'director' => _creatorBucketByRole(entry, 'director'),
+    'musician' => _creatorBucketByRole(entry, 'musician'),
+    'orchestra' => _creatorBucketByRole(entry, 'orchestra'),
+    'photography' => _creatorBucketByRole(entry, 'photography'),
+    'producer' => _creatorBucketByRole(entry, 'producer'),
+    'creator' => _creatorBucketByRole(entry, null),
+    'writer' => _creatorBucketByRole(entry, 'writer'),
+    'artist' => _creatorBucketByRole(entry, 'artist'),
+    'penciller' => _creatorBucketByRole(entry, 'penciller'),
+    'inker' => _creatorBucketByRole(entry, 'inker'),
+    'colorist' => _creatorBucketByRole(entry, 'colorist'),
+    'painter' => _creatorBucketByRole(entry, 'painter'),
+    'letterer' => _creatorBucketByRole(entry, 'letterer'),
+    'separator' => _creatorBucketByRole(entry, 'separator'),
+    'layouts' => _creatorBucketByRole(entry, 'layouts'),
+    'translator' => _creatorBucketByRole(entry, 'translator'),
+    'plotter' => _creatorBucketByRole(entry, 'plotter'),
+    'scripter' => _creatorBucketByRole(entry, 'scripter'),
+    'cover_artist' => _creatorBucketByRole(entry, 'cover'),
+    'cover_penciller' =>
       _creatorBucketByRole(entry, 'cover penciller'),
-    LibraryGroupMode.coverPainter =>
+    'cover_painter' =>
       _creatorBucketByRole(entry, 'cover painter'),
-    LibraryGroupMode.coverInker => _creatorBucketByRole(entry, 'cover inker'),
-    LibraryGroupMode.coverColorist =>
+    'cover_inker' => _creatorBucketByRole(entry, 'cover inker'),
+    'cover_colorist' =>
       _creatorBucketByRole(entry, 'cover colorist'),
-    LibraryGroupMode.coverSeparator =>
+    'cover_separator' =>
       _creatorBucketByRole(entry, 'cover separator'),
-    LibraryGroupMode.editor => _creatorBucketByRole(entry, 'editor'),
-    LibraryGroupMode.editorInChief =>
+    'editor' => _creatorBucketByRole(entry, 'editor'),
+    'editor_in_chief' =>
       _creatorBucketByRole(entry, 'editor in chief'),
-    LibraryGroupMode.forewordAuthor =>
+    'foreword_author' =>
       _creatorBucketByRole(entry, 'foreword author'),
-    LibraryGroupMode.ghostWriter => _creatorBucketByRole(entry, 'ghost writer'),
-    LibraryGroupMode.illustrator => _creatorBucketByRole(entry, 'illustrator'),
-    LibraryGroupMode.location => _locationBucket(entry.locationPath),
-    LibraryGroupMode.ownership => entry.isOwned
+    'ghost_writer' => _creatorBucketByRole(entry, 'ghost writer'),
+    'illustrator' => _creatorBucketByRole(entry, 'illustrator'),
+    'location' => _locationBucket(entry.locationPath),
+    'ownership' => entry.isOwned
         ? overrides.owned
         : entry.isWishlisted
             ? overrides.wishlist
             : overrides.catalogOnly,
-    LibraryGroupMode.addedDate => _dateBucket(
+    'added_date' => _dateBucket(
         source.ownedItem?.createdAt ?? source.wishlistItem?.createdAt,
         'Unknown added date',
       ),
-    LibraryGroupMode.addedMonth => _monthBucket(
+    'added_month' => _monthBucket(
         source.ownedItem?.createdAt ?? source.wishlistItem?.createdAt,
         fallback: 'Unknown added month',
       ),
-    LibraryGroupMode.addedYear => _yearBucket(
+    'added_year' => _yearBucket(
         source.ownedItem?.createdAt ?? source.wishlistItem?.createdAt,
         'Unknown added year',
       ),
-    LibraryGroupMode.collectionStatus => _stringBucket(
+    'collection_status' => _stringBucket(
         source.ownedItem?.collectionStatus,
         'No collection status',
       ),
-    LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
-    LibraryGroupMode.grade =>
+    'title' => _titleBucket(entry.resolvedTitle),
+    'grade' =>
       entry.grade?.trim().isNotEmpty == true ? entry.grade! : 'Ungraded',
-    LibraryGroupMode.condition => entry.condition?.trim().isNotEmpty == true
+    'condition' => entry.condition?.trim().isNotEmpty == true
         ? entry.condition!
         : 'No condition',
-    LibraryGroupMode.rawOrSlabbed =>
+    'raw_or_slabbed' =>
       entry.comic?.rawOrSlabbed?.trim().isNotEmpty == true
           ? entry.comic!.rawOrSlabbed!
           : 'Raw',
-    LibraryGroupMode.isKeyComic =>
+    'is_key_comic' =>
       entry.comic?.keyComic == true ? 'Key' : 'Not special',
-    LibraryGroupMode.imageType => _imageTypeBucket(source),
-    LibraryGroupMode.modifiedDate => formatCompactDate(entry.updatedAt),
-    LibraryGroupMode.modifiedMonth => _monthBucket(entry.updatedAt),
-    LibraryGroupMode.myRating => _ratingBucket(source.tracking.rating),
-    LibraryGroupMode.owner => _ownerBucket(source),
-    LibraryGroupMode.reader => _ownerBucket(source),
-    LibraryGroupMode.readingStatus => source.tracking.statusLabel,
-    LibraryGroupMode.completed => _completedBucket(source),
-    LibraryGroupMode.completedDate =>
+    'image_type' => _imageTypeBucket(source),
+    'modified_date' => formatCompactDate(entry.updatedAt),
+    'modified_month' => _monthBucket(entry.updatedAt),
+    'my_rating' => _ratingBucket(source.tracking.rating),
+    'owner' => _ownerBucket(source),
+    'reader' => _ownerBucket(source),
+    'reading_status' => source.tracking.statusLabel,
+    'completed' => _completedBucket(source),
+    'completed_date' =>
       _dateBucket(source.tracking.completedAt, 'Unknown completed date'),
-    LibraryGroupMode.completedMonth => _monthBucket(
+    'completed_month' => _monthBucket(
         source.tracking.completedAt,
         fallback: 'Unknown completed month',
       ),
-    LibraryGroupMode.completedYear =>
+    'completed_year' =>
       _yearBucket(source.tracking.completedAt, 'Unknown completed year'),
-    LibraryGroupMode.readDate =>
+    'read_date' =>
       _dateBucket(source.tracking.completedAt, 'Unknown read date'),
-    LibraryGroupMode.readMonth => _monthBucket(
+    'read_month' => _monthBucket(
         source.tracking.completedAt,
         fallback: 'Unknown read month',
       ),
-    LibraryGroupMode.readYear =>
+    'read_year' =>
       _yearBucket(source.tracking.completedAt, 'Unknown read year'),
-    LibraryGroupMode.isSigned =>
+    'is_signed' =>
       source.ownedItem?.signedBy?.trim().isNotEmpty == true
           ? 'Signed'
           : 'Not signed',
-    LibraryGroupMode.signedBy =>
+    'signed_by' =>
       _stringBucket(source.ownedItem?.signedBy, 'Not signed'),
-    LibraryGroupMode.purchaseDate => _dateBucket(
+    'purchase_date' => _dateBucket(
         source.ownedItem?.purchaseDate,
         'Unknown purchase date',
       ),
-    LibraryGroupMode.purchaseMonth => _monthBucket(
+    'purchase_month' => _monthBucket(
         source.ownedItem?.purchaseDate,
         fallback: 'Unknown purchase month',
       ),
-    LibraryGroupMode.purchaseYear => _yearBucket(
+    'purchase_year' => _yearBucket(
         source.ownedItem?.purchaseDate,
         'Unknown purchase year',
       ),
-    LibraryGroupMode.purchaseStore =>
+    'purchase_store' =>
       _stringBucket(source.ownedItem?.purchaseStore, 'No purchase store'),
-    LibraryGroupMode.soldDate =>
+    'sold_date' =>
       _dateBucket(source.ownedItem?.soldAt, 'Unknown sold date'),
-    LibraryGroupMode.soldMonth => _monthBucket(
+    'sold_month' => _monthBucket(
         source.ownedItem?.soldAt,
         fallback: 'Unknown sold month',
       ),
-    LibraryGroupMode.soldYear =>
+    'sold_year' =>
       _yearBucket(source.ownedItem?.soldAt, 'Unknown sold year'),
-    LibraryGroupMode.storageDevice =>
+    'storage_device' =>
       _stringBucket(source.ownedItem?.storageDevice, 'No storage device'),
-    LibraryGroupMode.dustJacket => entry.publishing?.dustJacket == true
+    'dust_jacket' => entry.publishing?.dustJacket == true
         ? 'Has dust jacket'
         : 'No dust jacket',
-    LibraryGroupMode.subject =>
+    'subject' =>
       _firstOrDefault(entry.publishing?.subjects, 'No subject'),
-    LibraryGroupMode.tags => _firstOrDefault(
+    'tags' => _firstOrDefault(
         entry.tags
             ?.split(',')
             .map((tag) => tag.trim())
@@ -331,30 +324,30 @@ String defaultLibraryBucketLabel(
             .toList(),
         'No tags',
       ),
-    LibraryGroupMode.bagBoardDate => _dateBucket(
+    'bag_board_date' => _dateBucket(
         entry.lastBagBoardDate,
         'Unknown bag/board date',
       ),
-    LibraryGroupMode.bagBoardMonth => _monthBucket(
+    'bag_board_month' => _monthBucket(
         entry.lastBagBoardDate,
         fallback: 'Unknown bag/board month',
       ),
-    LibraryGroupMode.bagBoardYear => _yearBucket(
+    'bag_board_year' => _yearBucket(
         entry.lastBagBoardDate,
         'Unknown bag/board year',
       ),
-    LibraryGroupMode.watchDate =>
+    'watch_date' =>
       _dateBucket(_latestWatchSession(source)?.watchedAt, 'Unknown watch date'),
-    LibraryGroupMode.watchMonth => _monthBucket(
+    'watch_month' => _monthBucket(
         _latestWatchSession(source)?.watchedAt,
         fallback: 'Unknown watch month',
       ),
-    LibraryGroupMode.watchYear => _yearBucket(
+    'watch_year' => _yearBucket(
         _latestWatchSession(source)?.watchedAt,
         'Unknown watch year',
       ),
-    LibraryGroupMode.watched => _watchedBucket(source),
-    LibraryGroupMode.watchedWhere => _watchedWhereBucket(source),
+    'watched' => _watchedBucket(source),
+    'watched_where' => _watchedWhereBucket(source),
     _ => _titleBucket(entry.resolvedTitle),
   };
 }

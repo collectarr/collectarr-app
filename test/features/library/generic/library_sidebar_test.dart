@@ -10,10 +10,10 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('group mode dropdown shows expandable folders sections',
       (tester) async {
-    var selectedMode = LibraryGroupMode.releaseYear;
+    var selectedMode = 'release_year';
     var selectedPreset = LibraryFolderPreset.single(selectedMode);
     final pinnedPresets = <LibraryFolderPreset>[
-      LibraryFolderPreset.single(LibraryGroupMode.director),
+      LibraryFolderPreset.single('director'),
     ];
 
     await tester.pumpWidget(
@@ -112,16 +112,16 @@ void main() {
                 buckets: const [
                   LibrarySeriesBucket(title: 'All Movies', count: 12),
                 ],
-                groupMode: LibraryGroupMode.releaseYear,
+                groupMode: 'release_year',
                 folderPreset:
-                    LibraryFolderPreset.single(LibraryGroupMode.releaseYear),
+                    LibraryFolderPreset.single('release_year'),
                 selectedBucket: 'All Movies',
                 onSelected: (_) {},
                 onGroupModeChanged: (_) {},
                 collectionStatusScope: LibraryCollectionStatusScope.all,
                 onClearFilter: () {},
                 pinnedFolderPresets: [
-                  LibraryFolderPreset.single(LibraryGroupMode.director),
+                  LibraryFolderPreset.single('director'),
                 ],
                 onPinnedFolderPresetsChanged: (_) {},
               ),
@@ -158,7 +158,7 @@ void main() {
                   LibrarySeriesBucket(title: '[All Movies]', count: 12),
                   LibrarySeriesBucket(title: 'Action', count: 8),
                 ],
-                groupMode: LibraryGroupMode.genre,
+                groupMode: 'genre',
                 selectedBucket: '[All Movies]',
                 onSelected: (_) {},
                 onGroupModeChanged: (_) {},
@@ -210,7 +210,7 @@ void main() {
                       ),
                       LibrarySeriesBucket(title: 'Sandman', count: 5),
                     ],
-                    groupMode: LibraryGroupMode.series,
+                    groupMode: 'series',
                     selectedBucket: 'Batman',
                     onSelected: (_) {},
                     onGroupModeChanged: (_) {},

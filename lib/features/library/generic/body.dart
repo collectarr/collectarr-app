@@ -168,7 +168,7 @@ class LibraryBody extends StatelessWidget {
   final String? selectedId;
   final String? selectedAnchorId;
   final String? selectedBucket;
-  final LibraryGroupMode groupMode;
+  final String groupMode;
   final LibraryGroupPresentation groupPresentation;
   final bool groupLoading;
   final Color accent;
@@ -184,7 +184,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<LibraryProjectionItem> onOpenItem;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<String?> onBucketChanged;
-  final ValueChanged<LibraryGroupMode> onGroupModeChanged;
+  final ValueChanged<String> onGroupModeChanged;
   final List<String> sidebarBreadcrumbs;
   final List<String> sidebarAncestorScopeLabels;
   final VoidCallback? onSidebarNavigateBack;
@@ -206,11 +206,11 @@ class LibraryBody extends StatelessWidget {
       onCollectionStatusScopeChanged;
   final ValueChanged<LibrarySeriesCompletionScope>?
       onSeriesCompletionScopeChanged;
-  final ValueChanged<LibrarySortColumn> onSortChanged;
-  final void Function(LibraryTableColumn column, double width)
+  final ValueChanged<String> onSortChanged;
+  final void Function(String column, double width)
       onColumnWidthChanged;
   final void Function(
-          LibraryTableColumn column, LibraryTableColumn? beforeColumn)
+          String column, String? beforeColumn)
       onColumnReordered;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<double> onSidebarWidthChanged;
@@ -236,7 +236,7 @@ class LibraryBody extends StatelessWidget {
   final Set<String> collapsedGroupBuckets;
   final ValueChanged<String>? onGroupBucketCollapsedToggled;
   final ValueChanged<Set<String>>? onSetCollapsedGroupBuckets;
-  final List<LibraryGroupMode>? availableGroupModes;
+  final List<String>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final VoidCallback? onManageBuckets;

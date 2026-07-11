@@ -783,12 +783,17 @@ String librarySortColumnFallbackLabel(Object column) {
   final columnName = column is Enum
       ? column.name
       : column.toString().split('.').last;
-  final raw = columnName.replaceAllMapped(
-    RegExp(r'([a-z0-9])([A-Z])'),
-    (match) => '${match[1]} ${match[2]}',
-  );
+  final raw = columnName
+      .replaceAll('_', ' ')
+      .replaceAllMapped(
+        RegExp(r'([a-z0-9])([A-Z])'),
+        (match) => '${match[1]} ${match[2]}',
+      );
   if (raw.isEmpty) {
     return columnName;
   }
-  return raw[0].toUpperCase() + raw.substring(1);
+  return raw.split(' ').map((word) {
+    if (word.isEmpty) return '';
+    return word[0].toUpperCase() + word.substring(1);
+  }).join(' ');
 }

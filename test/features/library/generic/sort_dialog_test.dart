@@ -25,11 +25,11 @@ void main() {
                   type: moviesLibraryConfig,
                   currentRules: const [
                     LibrarySortRule(
-                      column: LibrarySortColumn.title,
+                      column: 'title',
                       ascending: true,
                     ),
                     LibrarySortRule(
-                      column: LibrarySortColumn.updated,
+                      column: 'updated',
                       ascending: false,
                     ),
                   ],
@@ -52,11 +52,11 @@ void main() {
 
     expect(result, const [
       LibrarySortRule(
-        column: LibrarySortColumn.updated,
+        column: 'updated',
         ascending: false,
       ),
       LibrarySortRule(
-        column: LibrarySortColumn.title,
+        column: 'title',
         ascending: true,
       ),
     ]);
@@ -97,7 +97,7 @@ void main() {
     }
 
     await openDialog(const [
-      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+      LibrarySortRule(column: 'title', ascending: true),
     ]);
 
     final searchField = find.byWidgetPredicate(
@@ -106,7 +106,7 @@ void main() {
     );
     await tester.enterText(searchField, '');
     await pumpUntilSettled(tester);
-    final releaseDateTile = find.byKey(const ValueKey('available-sort-releaseDate'));
+    final releaseDateTile = find.byKey(const ValueKey('available-sort-release_date'));
     await tester.ensureVisible(releaseDateTile);
     await tester.tap(releaseDateTile);
     await pumpUntilSettled(tester);
@@ -122,11 +122,11 @@ void main() {
 
     expect(result, isNotNull);
     expect(result!.length, 2);
-    expect(result![0], const LibrarySortRule(column: LibrarySortColumn.title, ascending: true));
-    expect(result![1].column, LibrarySortColumn.releaseDate);
+    expect(result![0], const LibrarySortRule(column: 'title', ascending: true));
+    expect(result![1].column, 'release_date');
 
     await openDialog(const [
-      LibrarySortRule(column: LibrarySortColumn.title, ascending: true),
+      LibrarySortRule(column: 'title', ascending: true),
     ]);
 
     expect(find.text('Storage box'), findsOneWidget);

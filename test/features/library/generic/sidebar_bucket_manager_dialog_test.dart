@@ -10,28 +10,28 @@ void main() {
     expect(
       () => libraryGroupModeSupportsBucketManagement(
         moviesLibraryConfig,
-        LibraryGroupMode.storyArc,
+        'story_arc',
       ),
       returnsNormally,
     );
     expect(
       libraryGroupModeSupportsBucketManagement(
         moviesLibraryConfig,
-        LibraryGroupMode.storyArc,
+        'story_arc',
       ),
       isFalse,
     );
 
     expect(
       () => libraryBucketManagerListLabel(
-        LibraryGroupMode.audienceRating,
+        'audience_rating',
         musicLibraryConfig,
       ),
       returnsNormally,
     );
     expect(
       libraryBucketManagerListLabel(
-        LibraryGroupMode.audienceRating,
+        'audience_rating',
         musicLibraryConfig,
       ),
       isNotEmpty,
@@ -51,7 +51,7 @@ void main() {
                 onPressed: () => showLibraryBucketManagerDialog(
                   context: context,
                   type: moviesLibraryConfig,
-                  groupMode: LibraryGroupMode.genre,
+                  groupMode: 'genre',
                   accent: Colors.cyan,
                   entries: const [
                     LibraryBucketManagerEntry(label: 'Action', count: 8),

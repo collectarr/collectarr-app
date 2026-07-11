@@ -624,38 +624,49 @@ int? _issueSortNumber(String? raw) {
 List<LibraryGroupModeCategory> _defaultGroupModeCategories(
   List<Object> modes,
 ) {
+  String modeId(Object mode) {
+    final str = mode is Enum ? mode.name : mode.toString();
+    final normalized = str.contains('.') ? str.split('.').last : str;
+    return normalized
+        .replaceAllMapped(
+          RegExp(r'([a-z0-9])([A-Z])'),
+          (match) => '${match[1]}_${match[2]}',
+        )
+        .toLowerCase();
+  }
+
   const mainModes = {
     'series',
-    'storyArc',
+    'story_arc',
     'character',
     'title',
     'publisher',
     'year',
-    'audienceRating',
+    'audience_rating',
     'color',
     'genre',
     'country',
     'language',
-    'ageRating',
-    'movieOrTvSeries',
-    'releaseDate',
-    'releaseMonth',
-    'releaseYear',
+    'age_rating',
+    'movie_or_tv_series',
+    'release_date',
+    'release_month',
+    'release_year',
   };
   const editionModes = {
-    'audioTracks',
-    'boxSet',
+    'audio_tracks',
+    'box_set',
     'distributor',
-    'editionReleaseDate',
-    'editionReleaseMonth',
-    'editionReleaseYear',
+    'edition_release_date',
+    'edition_release_month',
+    'edition_release_year',
     'extras',
     'format',
     'hdr',
     'layers',
     'packaging',
     'regions',
-    'screenRatios',
+    'screen_ratios',
     'subtitles',
   };
   const crewModes = {
@@ -670,17 +681,17 @@ List<LibraryGroupModeCategory> _defaultGroupModeCategories(
     'penciller',
     'colorist',
     'letterer',
-    'coverArtist',
+    'cover_artist',
     'editor',
   };
-  final main = modes.where((mode) => mainModes.contains(mode is Enum ? (mode as Enum).name : mode.toString())).toList();
-  final edition = modes.where((mode) => editionModes.contains(mode is Enum ? (mode as Enum).name : mode.toString())).toList();
-  final crew = modes.where((mode) => crewModes.contains(mode is Enum ? (mode as Enum).name : mode.toString())).toList();
+  final main = modes.where((mode) => mainModes.contains(modeId(mode))).toList();
+  final edition = modes.where((mode) => editionModes.contains(modeId(mode))).toList();
+  final crew = modes.where((mode) => crewModes.contains(modeId(mode))).toList();
   final personal = modes
       .where((mode) =>
-          !mainModes.contains(mode is Enum ? (mode as Enum).name : mode.toString()) &&
-          !editionModes.contains(mode is Enum ? (mode as Enum).name : mode.toString()) &&
-          !crewModes.contains(mode is Enum ? (mode as Enum).name : mode.toString()))
+          !mainModes.contains(modeId(mode)) &&
+          !editionModes.contains(modeId(mode)) &&
+          !crewModes.contains(modeId(mode)))
       .toList();
   return [
     if (main.isNotEmpty) LibraryGroupModeCategory('Main', main),
@@ -739,11 +750,11 @@ class LibraryTypeConfig {
   final String defaultMetadataProvider;
   final List<LibraryMetadataProviderOption> metadataProviders;
   final MediaTrackingProfile trackingProfile;
-  final LibrarySortColumn defaultSortColumn;
-  final Set<LibraryTableColumn> defaultVisibleColumns;
-  final List<LibrarySortColumn> availableSortColumns;
+  final String defaultSortColumn;
+  final Set<String> defaultVisibleColumns;
+  final List<String> availableSortColumns;
   final List<LibrarySortDefinition<LibraryWorkspaceEntry>> availableSortColumnDefinitions;
-  final List<LibraryTableColumn> availableTableColumns;
+  final List<String> availableTableColumns;
   final List<String> conditions;
   final List<String> grades;
   final String? defaultCondition;
@@ -794,27 +805,12 @@ class LibraryTypeConfig {
   bool get usesTitleAsSeriesFallback =>
       manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
-  List<LibraryGroupMode> get availableGroupModes {
+  List<String> get availableGroupModes {
     final module = libraryKindModuleForType(this);
-    final result = <LibraryGroupMode>[];
-    for (final definition in module.fields.groups) {
-      final idStr = definition.id.value;
-      var target = idStr.split('.').last.toLowerCase().replaceAll('_', '');
-      if (target == 'keyissue' || target == 'keycomic') {
-        target = 'keycomic';
-      }
-      if (target == 'readstatus' || target == 'readingstatus') {
-        target = 'readingstatus';
-      }
-      for (final mode in LibraryGroupMode.values) {
-        final modeNameNormalized = mode.name.toLowerCase();
-        if (modeNameNormalized == target) {
-          result.add(mode);
-          break;
-        }
-      }
-    }
-    return result;
+    return [
+      for (final definition in module.fields.groups)
+        definition.id.value,
+    ];
   }
 
   LibraryWorkspaceDensityPreset get defaultDensityPreset =>
@@ -916,7 +912,7 @@ class LibraryTypeConfig {
 
   bool get hasGradePickList => grades.isNotEmpty;
 
-  List<LibraryGroupMode> availableGroupModesForBrowserMode(
+  List<String> availableGroupModesForBrowserMode(
     LibraryWorkspaceBrowserMode browserMode,
   ) {
     if (!capabilities.scopesOptionsByBrowserMode) {
@@ -934,7 +930,7 @@ class LibraryTypeConfig {
     ];
   }
 
-  List<LibrarySortColumn> availableSortColumnsForBrowserMode(
+  List<String> availableSortColumnsForBrowserMode(
     LibraryWorkspaceBrowserMode browserMode,
   ) {
     if (!capabilities.scopesOptionsByBrowserMode) {

@@ -13,11 +13,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('tv defaults to series folder grid presentation', () {
-    expect(tvDefaultWorkspaceGroupMode, LibraryGroupMode.series);
+    expect(tvDefaultWorkspaceGroupMode, 'series');
     expect(tvDefaultWorkspaceGroupPresentation, LibraryGroupPresentation.folderGrid);
     expect(tvDefaultVideoDisplayLevel, VideoDisplayLevel.season);
     expect(tvDefaultVideoGrouping, VideoGroupingDefault.bySeries);
-    expect(tvLibraryGroupModes.first, LibraryGroupMode.series);
+    expect(tvLibraryGroupModes.first, 'series');
     expect(
       tvLibraryGroupDefinitions
           .firstWhere((definition) => definition.id.value == 'series')
@@ -62,7 +62,7 @@ void main() {
     final groups = libraryGroupEntriesForItems(
       [first, second],
       tvLibraryConfig,
-      LibraryGroupMode.series,
+      'series',
     );
 
     expect(groups, hasLength(1));

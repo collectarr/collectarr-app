@@ -13,13 +13,13 @@ void main() {
       viewMode: mode,
       detailsLayout: LibraryDetailsLayout.right,
       isSidebarVisible: true,
-      sortColumn: LibrarySortColumn.title,
+      sortColumn: 'title',
       sortAscending: true,
       coverSize: coverSize,
       sidebarWidth: kLibrarySidebarDefaultWidth,
       detailsWidth: kLibraryDetailsDefaultWidth,
       detailsHeight: kLibraryDetailsDefaultHeight,
-      visibleColumns: const {LibraryTableColumn.title},
+      visibleColumns: const {'title'},
       columnWidths: const {},
     );
   }

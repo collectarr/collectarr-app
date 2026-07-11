@@ -178,21 +178,24 @@ void main() {
     await tester.pumpAndSettle();
 
     final transferItem = find.byWidgetPredicate(
-      (widget) =>
-          widget is PopupMenuItem &&
-          widget.enabled == false &&
-          widget.child is ListTile &&
-          (widget.child as ListTile).title is Text &&
-          ((widget.child as ListTile).title as Text).data ==
-              'Transfer Field Data',
+      (widget) {
+        if (widget is! PopupMenuItem || widget.enabled != false) return false;
+        final child = widget.child;
+        final listTile = child is Material ? child.child : child;
+        return listTile is ListTile &&
+            listTile.title is Text &&
+            (listTile.title as Text).data == 'Transfer Field Data';
+      },
     );
     final updateFromCoreItem = find.byWidgetPredicate(
-      (widget) =>
-          widget is PopupMenuItem &&
-          widget.enabled == false &&
-          widget.child is ListTile &&
-          (widget.child as ListTile).title is Text &&
-          ((widget.child as ListTile).title as Text).data == 'Update from Core',
+      (widget) {
+        if (widget is! PopupMenuItem || widget.enabled != false) return false;
+        final child = widget.child;
+        final listTile = child is Material ? child.child : child;
+        return listTile is ListTile &&
+            listTile.title is Text &&
+            (listTile.title as Text).data == 'Update from Core';
+      },
     );
 
     final editButton = tester.widget<TextButton>(

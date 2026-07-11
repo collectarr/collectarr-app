@@ -61,13 +61,13 @@ class LibrarySidebar extends StatelessWidget {
   final LibraryTypeConfig type;
   final Color accent;
   final List<LibrarySeriesBucket> buckets;
-  final LibraryGroupMode groupMode;
+  final String groupMode;
   final LibraryFolderPreset? folderPreset;
   final bool groupLoading;
   final String selectedBucket;
   final ValueChanged<String> onSelected;
-  final ValueChanged<LibraryGroupMode> onGroupModeChanged;
-  final List<LibraryGroupMode>? availableGroupModes;
+  final ValueChanged<String> onGroupModeChanged;
+  final List<String>? availableGroupModes;
   final List<String> breadcrumbs;
   final List<String> ancestorScopeLabels;
   final VoidCallback? onNavigateBack;

@@ -22,7 +22,7 @@ abstract final class _LibraryFacetControllerOps {
   static void maybeEnsureFacetBucketsLoaded(
     GenericLibraryPageState state,
     ShelfState shelf,
-    LibraryGroupMode mode,
+    String mode,
   ) {
     final signature = genericShelfSignature(state, shelf);
     final facetId = facetIdForMode(state, mode);
@@ -42,21 +42,21 @@ abstract final class _LibraryFacetControllerOps {
 
   static bool usesExternalFacetBuckets(
     GenericLibraryPageState state,
-    LibraryGroupMode mode,
+    String mode,
   ) {
     return facetIdForMode(state, mode) != null;
   }
 
   static String? facetIdForMode(
     GenericLibraryPageState state,
-    LibraryGroupMode mode,
+    String mode,
   ) {
     return state.widget.type.presentation.externalFacetBucketIdsByMode[mode];
   }
 
   static FacetBuckets? facetBucketsForMode(
     GenericLibraryPageState state,
-    LibraryGroupMode mode,
+    String mode,
     ShelfState shelf,
   ) {
     final facetId = facetIdForMode(state, mode);
@@ -83,7 +83,7 @@ abstract final class _LibraryFacetControllerOps {
   static void ensureFacetBucketsLoaded(
     GenericLibraryPageState state,
     ShelfState shelf,
-    LibraryGroupMode mode,
+    String mode,
     String facetId,
   ) {
     final signature = genericShelfSignature(state, shelf);
@@ -104,7 +104,7 @@ abstract final class _LibraryFacetControllerOps {
 
   static Future<void> loadFacetBuckets(
     GenericLibraryPageState state,
-    LibraryGroupMode mode,
+    String mode,
     String facetId,
     ShelfState shelf,
     String signature,

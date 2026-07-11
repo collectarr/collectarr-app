@@ -162,7 +162,7 @@ abstract final class LibraryPageShellPresenter {
             state._genericShelfSignature(shelfState),
           );
     final canUseSeriesCompletionScope =
-        state._activeGroupMode == LibraryGroupMode.series;
+        state._activeGroupMode == 'series';
     final effectiveSeriesCompletionScope = canUseSeriesCompletionScope
         ? state._seriesCompletionScope
         : LibrarySeriesCompletionScope.all;

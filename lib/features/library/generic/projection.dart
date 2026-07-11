@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
@@ -20,8 +21,6 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-export 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart'
-    show LibraryGroupMode;
 export 'projection_item.dart';
 export 'quick_view.dart';
 
@@ -41,7 +40,7 @@ class LibraryBucketScopeFilter {
     required this.bucket,
   });
 
-  final LibraryGroupMode groupMode;
+  final String groupMode;
   final String bucket;
 }
 
@@ -61,7 +60,7 @@ class LibraryFolderTreeNode {
   final String label;
   final int count;
   final int cumulativeCount;
-  final LibraryGroupMode groupMode;
+  final String groupMode;
   final String? bucketValue;
   final List<LibraryFolderTreeNode> children;
   final bool isExpanded;
@@ -73,7 +72,7 @@ class LibraryFolderTreeNode {
     String? label,
     int? count,
     int? cumulativeCount,
-    LibraryGroupMode? groupMode,
+    String? groupMode,
     String? bucketValue,
     List<LibraryFolderTreeNode>? children,
     bool? isExpanded,
@@ -92,8 +91,8 @@ class LibraryFolderTreeNode {
 }
 
 class LibraryFolderPreset {
-  LibraryFolderPreset({required Iterable<LibraryGroupMode> modes})
-      : modes = List<LibraryGroupMode>.unmodifiable(modes) {
+  LibraryFolderPreset({required Iterable<String> modes})
+      : modes = List<String>.unmodifiable(modes) {
     if (this.modes.isEmpty) {
       throw ArgumentError('Folder presets must contain at least one mode.');
     }
@@ -105,7 +104,7 @@ class LibraryFolderPreset {
     }
   }
 
-  factory LibraryFolderPreset.single(LibraryGroupMode mode) =>
+  factory LibraryFolderPreset.single(String mode) =>
       LibraryFolderPreset(modes: [mode]);
 
   factory LibraryFolderPreset.parse(String raw) {
@@ -113,7 +112,7 @@ class LibraryFolderPreset {
         .split('>')
         .map((value) => value.trim())
         .where((value) => value.isNotEmpty);
-    final modes = <LibraryGroupMode>[];
+    final modes = <String>[];
     for (final name in names) {
       final mode = libraryGroupModeFromStorageValue(name);
       if (mode == null) {
@@ -124,14 +123,14 @@ class LibraryFolderPreset {
     return LibraryFolderPreset(modes: modes);
   }
 
-  final List<LibraryGroupMode> modes;
+  final List<String> modes;
 
-  LibraryGroupMode get primaryMode => modes.first;
+  String get primaryMode => modes.first;
 
   String get storageValue =>
       modes.map(libraryGroupModeStorageValue).join('>');
 
-  LibraryGroupMode? nextModeAfter(LibraryGroupMode mode) {
+  String? nextModeAfter(String mode) {
     final index = modes.indexOf(mode);
     if (index == -1 || index >= modes.length - 1) {
       return null;
@@ -153,13 +152,13 @@ class LibraryFolderPreset {
 
 LibraryFolderPreset? sanitizeLibraryFolderPreset(
   LibraryFolderPreset? preset, {
-  Iterable<LibraryGroupMode>? allowedModes,
+  Iterable<String>? allowedModes,
 }) {
   if (preset == null) {
     return null;
   }
   final allowed =
-      allowedModes == null ? null : Set<LibraryGroupMode>.from(allowedModes);
+      allowedModes == null ? null : Set<String>.from(allowedModes);
   if (allowed != null && preset.modes.any((mode) => !allowed.contains(mode))) {
     return null;
   }
@@ -194,36 +193,35 @@ String _toSnakeCase(String name) {
 }
 
 LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>? libraryGroupModeDefinitionOrNull(
-  LibraryGroupMode mode, [
+  String mode, [
   LibraryTypeConfig? type,
 ]) {
-  final targetId = _toSnakeCase(mode.name);
+  final targetId = _toSnakeCase(mode);
   if (type != null) {
     final module = libraryKindModuleForType(type);
     for (final definition in module.fields.groups) {
-      if (definition.id.value == targetId || definition.id.value == mode.name) {
+      if (definition.id.value == targetId || definition.id.value == mode) {
         return definition;
       }
     }
   }
   for (final definition in commonGroupDefinitions) {
-    if (definition.id.value == targetId || definition.id.value == mode.name) {
+    if (definition.id.value == targetId || definition.id.value == mode) {
       return definition;
     }
   }
   return null;
 }
 
-String _fallbackGroupModeLabel(LibraryGroupMode mode) {
-  final raw = mode.name;
-  final words = raw.replaceAllMapped(
+String _fallbackGroupModeLabel(String mode) {
+  final words = mode.replaceAllMapped(
     RegExp(r'([a-z0-9])([A-Z])'),
     (match) => '${match.group(1)} ${match.group(2)}',
-  );
+  ).replaceAll('_', ' ');
   return words[0].toUpperCase() + words.substring(1);
 }
 
-String _fallbackGroupModeSidebarTitle(LibraryGroupMode mode) {
+String _fallbackGroupModeSidebarTitle(String mode) {
   final label = _fallbackGroupModeLabel(mode);
   if (label.endsWith('s')) {
     return label;
@@ -235,48 +233,42 @@ String _fallbackGroupModeSidebarTitle(LibraryGroupMode mode) {
 }
 
 String genericGroupModeLabel(
-  LibraryGroupMode mode,
+  String mode,
   LibraryTypeConfig type,
 ) {
   return libraryGroupModeDefinitionOrNull(mode, type)?.label ??
       _fallbackGroupModeLabel(mode);
 }
 
-LibraryGroupMode? genericGroupModeDrilldownChildMode(
-  LibraryGroupMode mode,
+String? genericGroupModeDrilldownChildMode(
+  String mode,
   LibraryTypeConfig type,
 ) {
-  final childId = libraryGroupModeDefinitionOrNull(mode, type)?.drilldownChildId;
-  if (childId == null) return null;
-  return LibraryGroupMode.values.firstWhere(
-    (m) => m.name == childId || m.toString().split('.').last == childId,
-    orElse: () => LibraryGroupMode.title,
-  );
+  return libraryGroupModeDefinitionOrNull(mode, type)?.drilldownChildId;
 }
 
 bool libraryAllowsGroupDrilldown({
-  required LibraryGroupMode currentMode,
-  required LibraryGroupMode? childMode,
+  required String currentMode,
+  required String? childMode,
 }) {
   if (childMode == null || childMode == currentMode) {
     return false;
   }
-  if (currentMode == LibraryGroupMode.series &&
-      childMode == LibraryGroupMode.title) {
+  if (currentMode == 'series' && childMode == 'title') {
     return false;
   }
   return true;
 }
 
 String genericGroupModeFolderSetLabel(
-  LibraryGroupMode mode,
+  String mode,
   LibraryTypeConfig type,
 ) {
   return genericFolderPresetLabel(LibraryFolderPreset.single(mode), type);
 }
 
 String genericGroupModeSidebarTitle(
-  LibraryGroupMode mode,
+  String mode,
   LibraryTypeConfig type,
 ) {
   return libraryGroupModeDefinitionOrNull(mode, type)?.sidebarTitle ??
@@ -284,7 +276,7 @@ String genericGroupModeSidebarTitle(
 }
 
 IconData genericGroupModeIcon(
-  LibraryGroupMode mode, [
+  String mode, [
   LibraryTypeConfig? type,
 ]) {
   return libraryGroupModeDefinitionOrNull(mode, type)?.icon ??
@@ -292,50 +284,55 @@ IconData genericGroupModeIcon(
 }
 
 LibraryGroupPresentation genericGroupPresentationForMode(
-  LibraryGroupMode mode, [
+  String mode, [
   LibraryTypeConfig? type,
 ]) {
   return libraryGroupModeDefinitionOrNull(mode, type)?.presentation ??
       LibraryGroupPresentation.inlineHeaders;
 }
 
-List<LibraryGroupMode> libraryGroupModesForType(
+List<String> libraryGroupModesForType(
   LibraryTypeConfig type,
 ) {
   return [
     for (final mode in type.availableGroupModes)
-      mode is LibraryGroupMode
-          ? mode
-          : LibraryGroupMode.values.firstWhere(
-              (m) =>
-                  m.name == mode.toString() ||
-                  m.toString().split('.').last == mode.toString(),
-              orElse: () => LibraryGroupMode.title,
-            )
+      mode.toString()
   ];
 }
 
-LibraryGroupMode libraryDefaultGroupMode(LibraryTypeConfig type) {
+String libraryDefaultGroupMode(LibraryTypeConfig type) {
   return libraryGroupModesForType(type).first;
 }
 
-String libraryGroupModeStorageValue(LibraryGroupMode mode) {
-  return 'group.${libraryGroupModeDefinitionOrNull(mode)?.id ?? _stableToken(mode.name)}';
+String libraryGroupModeStorageValue(String mode) {
+  return 'group.${libraryGroupModeDefinitionOrNull(mode)?.id ?? _stableToken(mode)}';
 }
 
-LibraryGroupMode? libraryGroupModeFromStorageValue(String value) {
+String? libraryGroupModeFromStorageValue(String value) {
   final normalized = value.trim();
   if (normalized.isEmpty) {
     return null;
   }
-  final candidate =
-      normalized.startsWith('group.') ? normalized.substring(6) : normalized;
-  for (final mode in LibraryGroupMode.values) {
-    final definition = libraryGroupModeDefinitionOrNull(mode);
-    if (_stableToken(mode.name) == candidate || definition?.id == candidate) {
-      return mode;
+  // Strip 'group.' prefix if present
+  final candidate = normalized.startsWith('group.')
+      ? normalized.substring(6)
+      : normalized;
+
+  // Validate candidate mode against known group mode definitions
+  for (final def in commonGroupDefinitions) {
+    if (def.id.value == candidate || _stableToken(def.id.value) == candidate) {
+      return def.id.value;
     }
   }
+
+  for (final module in collectarrKindModules) {
+    for (final def in module.fields.groups) {
+      if (def.id.value == candidate || _stableToken(def.id.value) == candidate) {
+        return def.id.value;
+      }
+    }
+  }
+
   return null;
 }
 
@@ -371,7 +368,7 @@ class LibraryProjection {
     required LibraryQuickView? quickView,
     LibraryCollectionStatusScope collectionStatusScope =
         LibraryCollectionStatusScope.all,
-    required LibraryGroupMode groupMode,
+    required String groupMode,
     List<LibraryBucketScopeFilter> bucketScopeFilters = const [],
     List<LibrarySeriesBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
@@ -420,11 +417,11 @@ class LibraryProjection {
 List<LibrarySeriesBucket> libraryBucketsForItems(
   List<LibraryProjectionItem> items,
   LibraryTypeConfig type,
-  LibraryGroupMode groupMode,
+  String groupMode,
 ) {
   final allBucketLabel = genericAllBucketLabel(type);
   final counts = <String, int>{allBucketLabel: items.length};
-  final isSeries = groupMode == LibraryGroupMode.series;
+  final isSeries = groupMode == 'series';
   final ownedCounts = isSeries
       ? <String, int>{
           allBucketLabel: items.where((item) => item.entry.isOwned).length,
@@ -502,7 +499,7 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
 List<GroupShelfEntry> libraryGroupEntriesForItems(
   List<LibraryProjectionItem> items,
   LibraryTypeConfig type,
-  LibraryGroupMode groupMode,
+  String groupMode,
   {
   LibraryGroupPresentation? presentationOverride,
 }) {
@@ -577,7 +574,7 @@ String genericAllBucketLabel(LibraryTypeConfig type) {
 }
 
 String libraryFolderTreeNodeId({
-  required List<LibraryGroupMode> modes,
+  required List<String> modes,
   required List<String> buckets,
 }) {
   final segments = <String>[];
@@ -621,7 +618,7 @@ List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
 List<LibraryFolderTreeNode> _buildFolderTreeNodes(
   List<LibraryProjectionItem> items, {
   required LibraryTypeConfig type,
-  required List<LibraryGroupMode> modes,
+  required List<String> modes,
   required int depth,
   required List<String> pathBuckets,
   required Set<String> expandedNodeIds,
@@ -677,7 +674,7 @@ List<LibraryFolderTreeNode> _buildFolderTreeNodes(
 bool _matchesBucket(
   LibraryProjectionItem item,
   LibraryTypeConfig type,
-  LibraryGroupMode groupMode,
+  String groupMode,
   String? selectedBucket,
 ) {
   return selectedBucket == null ||

@@ -235,7 +235,7 @@ class LibraryToolbarActionRegistry {
       onEditColumns: enabled(LibraryToolbarActionId.editColumns)
           ? actionContext.view.onShowColumnChooserFlow
           : () {},
-      onSortChanged: (LibrarySortColumn column) =>
+      onSortChanged: (String column) =>
           actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) =>
             next.withSortColumn(column, actionContext.view.adapter.viewProfile),

@@ -3,7 +3,7 @@ part of '../generic_library_page.dart';
 // ignore_for_file: invalid_use_of_protected_member
 
 extension _PageSidebarHooks on GenericLibraryPageState {
-  LibraryGroupMode? get _activeSidebarGroupMode {
+  String? get _activeSidebarGroupMode {
     final viewState = _viewState ?? _adapter.viewProfile.defaults();
     if (!viewState.isSidebarVisible) {
       return null;
@@ -18,14 +18,14 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     return libraryDefaultGroupMode(widget.type);
   }
 
-  LibraryGroupMode get _projectionGroupMode {
+  String get _projectionGroupMode {
     return _activeBrowserMode == LibraryWorkspaceBrowserMode.releases &&
             !_isScopedMediaReleaseSplit
-        ? LibraryGroupMode.title
-        : (_activeSidebarGroupMode ?? LibraryGroupMode.title);
+        ? 'title'
+        : (_activeSidebarGroupMode ?? 'title');
   }
 
-  LibraryGroupMode get _activeGroupMode => _projectionGroupMode;
+  String get _activeGroupMode => _projectionGroupMode;
 
   void _sanitizeScopeDependentState() {
     final allowedModes = _scopeAvailableGroupModes.toSet();
@@ -83,7 +83,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       activeReleaseFolderTitleItemId != null ||
       _filterSelection.hasActiveFilters;
 
-  void _setGroupMode(LibraryGroupMode mode) {
+  void _setGroupMode(String mode) {
     _setFolderPreset(LibraryFolderPreset.single(mode));
   }
 
@@ -98,7 +98,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     setState(() {
       _folderPreset = sanitized;
       _groupMode = sanitized.primaryMode;
-      if (_groupMode != LibraryGroupMode.series) {
+      if (_groupMode != 'series') {
         _seriesCompletionScope = LibrarySeriesCompletionScope.all;
       }
       _selectedBucket = null;
@@ -158,7 +158,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       linkedMetadataValue: _linkedMetadataFilter?.value,
       selectedLetter: _selectedLetter,
       collectionStatusScope: _collectionStatusScope,
-      seriesCompletionScope: _activeGroupMode == LibraryGroupMode.series
+      seriesCompletionScope: _activeGroupMode == 'series'
           ? _seriesCompletionScope
           : LibrarySeriesCompletionScope.all,
       quickView: _quickView,

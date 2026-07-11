@@ -38,7 +38,7 @@ class LibraryRouteState {
 
   final String? kind;
   final String? searchQuery;
-  final LibraryGroupMode? groupMode;
+  final String? groupMode;
   final LibraryFolderPreset? folderPreset;
   final String? selectedBucket;
   final String? linkedMetadataValue;
@@ -165,7 +165,7 @@ class LibraryRouteState {
             ? groupMode
             : null);
     final filteredSeriesCompletionScope =
-        filteredGroupMode == LibraryGroupMode.series
+        filteredGroupMode == 'series'
             ? seriesCompletionScope
             : LibrarySeriesCompletionScope.all;
     return LibraryRouteState(
@@ -241,18 +241,13 @@ class LibraryRouteState {
     return decoded.isEmpty ? null : decoded;
   }
 
-  static LibrarySortColumn? _sortColumnFromToken(String? token) {
+  static String? _sortColumnFromToken(String? token) {
     final trimmed = _trimmed(token);
     if (trimmed == null) {
       return null;
     }
-    final candidate = trimmed.split('.').last;
-    for (final column in LibrarySortColumn.values) {
-      if (_stableToken(column.name) == candidate) {
-        return column;
-      }
-    }
-    return null;
+    // Sort column IDs are plain snake_case strings — return the token directly
+    return trimmed.split('.').last;
   }
 
   static LibraryFolderPreset? _decodeFolderPreset(String? rawValue) {

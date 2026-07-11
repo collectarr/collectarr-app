@@ -22,7 +22,7 @@ const gamesWorkspaceConfig = LibraryWorkspaceConfig(
 
 final gamesLibraryConfig = LibraryTypeConfig(
   workspace: gamesWorkspaceConfig,
-  defaultSortColumn: LibrarySortColumn.title,
+  defaultSortColumn: 'title',
   defaultVisibleColumns: gamesLibraryDefaultVisibleColumns,
   availableSortColumns: gamesLibrarySortColumns,
   availableSortColumnDefinitions: gameLibrarySortDefinitions,

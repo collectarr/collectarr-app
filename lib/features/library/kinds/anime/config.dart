@@ -20,7 +20,7 @@ const animeWorkspaceConfig = LibraryWorkspaceConfig(
 
 final animeLibraryConfig = LibraryTypeConfig(
   workspace: animeWorkspaceConfig,
-  defaultSortColumn: LibrarySortColumn.title,
+  defaultSortColumn: 'title',
   defaultVisibleColumns: animeLibraryDefaultVisibleColumns,
   availableSortColumns: animeLibrarySortColumns,
   availableSortColumnDefinitions: animeLibrarySortDefinitions,

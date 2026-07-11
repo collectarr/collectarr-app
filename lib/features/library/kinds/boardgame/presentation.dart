@@ -53,15 +53,15 @@ String _simpleLibraryBucketLabel(
   final entry = context.entry;
   final publisher = entry.publisher?.trim();
   return switch (context.groupMode) {
-    LibraryGroupMode.series => _seriesBucket(entry, labels.unknownSeries),
-    LibraryGroupMode.year => entry.releaseYear?.toString() ??
+    'series' => _seriesBucket(entry, labels.unknownSeries),
+    'year' => entry.releaseYear?.toString() ??
         (entry.releaseDate?.year.toString() ?? 'Unknown year'),
-    LibraryGroupMode.publisher => publisher == null || publisher.isEmpty
+    'publisher' => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,
-    LibraryGroupMode.location => _locationBucket(entry.locationPath),
-    LibraryGroupMode.title => _titleBucket(entry.resolvedTitle),
-    LibraryGroupMode.ownership => entry.isOwned
+    'location' => _locationBucket(entry.locationPath),
+    'title' => _titleBucket(entry.resolvedTitle),
+    'ownership' => entry.isOwned
         ? overrides.owned
         : entry.isWishlisted
             ? overrides.wishlist

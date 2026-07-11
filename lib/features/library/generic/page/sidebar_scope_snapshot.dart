@@ -17,7 +17,7 @@ class LibrarySidebarScopeSnapshot {
     this.searchQuery = '',
   });
 
-  final LibraryGroupMode groupMode;
+  final String groupMode;
   final String? selectedBucket;
   final String? selectedLetter;
   final LibraryLinkedMetadataFilter? linkedMetadataFilter;

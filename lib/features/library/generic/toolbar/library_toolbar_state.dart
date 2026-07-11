@@ -72,10 +72,10 @@ class LibraryToolbarState {
   final bool hasActiveFilters;
   final int activeFilterCount;
   final ShelfState? shelfState;
-  final LibraryGroupMode? groupMode;
+  final String? groupMode;
   final LibraryFolderPreset? folderPreset;
   final LibraryGroupPresentation? groupPresentation;
-  final List<LibraryGroupMode>? availableGroupModes;
+  final List<String>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final LibrarySelectionCallbacks? selectionCallbacks;
   final bool selectionEnabled;

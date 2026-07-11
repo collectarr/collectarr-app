@@ -12,9 +12,9 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('sidebar facets alias matches group mode categories', () {
     const modes = [
-      LibraryGroupMode.series,
-      LibraryGroupMode.grade,
-      LibraryGroupMode.publisher,
+      'series',
+      'grade',
+      'publisher',
     ];
 
     final adapter = comicsLibraryConfig.kindUiAdapter;
@@ -58,7 +58,7 @@ void main() {
       adapter.canJumpToSelectedEntry(
         comicsLibraryConfig,
         null,
-        activeGroupMode: LibraryGroupMode.series,
+        activeGroupMode: 'series',
         selectedBucket: 'Series A',
       ),
       isFalse,

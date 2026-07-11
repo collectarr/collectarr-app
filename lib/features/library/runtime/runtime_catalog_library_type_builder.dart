@@ -23,7 +23,7 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
       );
   final defaultVisibleColumns = (knownType != null
           ? libraryKindModuleForType(knownType).fields.defaultVisibleColumnIds
-          : const {
+          : const <String>{
               'status',
               'cover',
               'title',
@@ -36,10 +36,6 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
               'wishlist',
               'updated',
             })
-      .map((id) => LibraryTableColumn.values.firstWhere(
-            (c) => c.name == id || c.toString().split('.').last == id,
-            orElse: () => LibraryTableColumn.title,
-          ))
       .toSet();
   return LibraryTypeConfig(
     workspace: LibraryWorkspaceConfig(
@@ -53,9 +49,9 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
       accent: libraryAccentForKind(mediaKind),
       preferencePrefix: 'catalog_${normalizedType.kind}',
     ),
-    defaultSortColumn: LibrarySortColumn.title,
+    defaultSortColumn: 'title',
     defaultVisibleColumns: defaultVisibleColumns,
-    availableSortColumns: const [LibrarySortColumn.title],
+    availableSortColumns: const ['title'],
     availableSortColumnDefinitions: const [],
     availableTableColumns: const [],
     singularLabel: _runtimeCatalogDisplayLabel(

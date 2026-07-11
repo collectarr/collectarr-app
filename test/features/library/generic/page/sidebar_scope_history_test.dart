@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   LibrarySidebarScopeSnapshot buildScope({
-    LibraryGroupMode groupMode = LibraryGroupMode.series,
+    String groupMode = 'series',
     String? bucket,
     String? letter,
     String? smartListName,
@@ -45,10 +45,10 @@ void main() {
 
   test('updateLibrarySidebarScopeHistory keeps previous bucket on group drilldown', () {
     final previous = buildScope(
-      groupMode: LibraryGroupMode.series,
+      groupMode: 'series',
       bucket: 'Batman',
     );
-    final next = buildScope(groupMode: LibraryGroupMode.publisher);
+    final next = buildScope(groupMode: 'publisher');
 
     final history = updateLibrarySidebarScopeHistory(
       history: const [],

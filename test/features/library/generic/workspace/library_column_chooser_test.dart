@@ -6,31 +6,31 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   const availableColumns = [
-    LibraryTableColumn.title,
-    LibraryTableColumn.issue,
-    LibraryTableColumn.publisher,
-    LibraryTableColumn.releaseDate,
-    LibraryTableColumn.barcode,
+    'title',
+    'issue',
+    'publisher',
+    'release_date',
+    'barcode',
   ];
 
   String labelFor(Object column) {
-    if (column is! LibraryTableColumn) return column.toString();
+    if (column is! String) return column.toString();
     return switch (column) {
-      LibraryTableColumn.title => 'Series',
-      LibraryTableColumn.issue => 'Issue',
-      LibraryTableColumn.publisher => 'Publisher',
-      LibraryTableColumn.releaseDate => 'Release Date',
-      LibraryTableColumn.barcode => 'Barcode',
-      _ => column.name,
+      'title' => 'Series',
+      'issue' => 'Issue',
+      'publisher' => 'Publisher',
+      'release_date' => 'Release Date',
+      'barcode' => 'Barcode',
+      _ => column as String,
     };
   }
 
   LibraryTableColumnGroup groupFor(Object column) {
-    if (column is! LibraryTableColumn) return LibraryTableColumnGroup.main;
+    if (column is! String) return LibraryTableColumnGroup.main;
     return switch (column) {
-      LibraryTableColumn.barcode || LibraryTableColumn.releaseDate =>
+      'barcode' || 'release_date' =>
         LibraryTableColumnGroup.edition,
-      LibraryTableColumn.publisher => LibraryTableColumnGroup.main,
+      'publisher' => LibraryTableColumnGroup.main,
       _ => LibraryTableColumnGroup.main,
     };
   }
@@ -45,13 +45,13 @@ void main() {
             accent: Colors.cyan,
             availableColumns: availableColumns,
             selectedColumns: const {
-              LibraryTableColumn.title,
-              LibraryTableColumn.issue,
-              LibraryTableColumn.publisher,
+              'title',
+              'issue',
+              'publisher',
             },
             defaultColumns: const {
-              LibraryTableColumn.title,
-              LibraryTableColumn.issue,
+              'title',
+              'issue',
             },
             columnLabel: labelFor,
             columnGroup: groupFor,
@@ -59,8 +59,8 @@ void main() {
               LibraryTableColumnPreset(
                 label: 'Essential',
                 columns: {
-                  LibraryTableColumn.title,
-                  LibraryTableColumn.issue,
+                  'title',
+                  'issue',
                 },
               ),
             ],
@@ -69,10 +69,10 @@ void main() {
                 id: 'full-preset',
                 label: 'Full View',
                 columns: {
-                  LibraryTableColumn.title,
-                  LibraryTableColumn.issue,
-                  LibraryTableColumn.publisher,
-                  LibraryTableColumn.releaseDate,
+                  'title',
+                  'issue',
+                  'publisher',
+                  'release_date',
                 },
               ),
             ],
@@ -112,12 +112,12 @@ void main() {
             accent: Colors.cyan,
             availableColumns: availableColumns,
             selectedColumns: const {
-              LibraryTableColumn.title,
-              LibraryTableColumn.issue,
+              'title',
+              'issue',
             },
             defaultColumns: const {
-              LibraryTableColumn.title,
-              LibraryTableColumn.issue,
+              'title',
+              'issue',
             },
             columnLabel: labelFor,
             columnGroup: groupFor,
@@ -125,8 +125,8 @@ void main() {
               LibraryTableColumnPreset(
                 label: 'Barcode View',
                 columns: {
-                  LibraryTableColumn.title,
-                  LibraryTableColumn.barcode,
+                  'title',
+                  'barcode',
                 },
               ),
             ],
@@ -169,20 +169,20 @@ void main() {
             accent: Colors.cyan,
             availableColumns: availableColumns,
             selectedColumns: const {
-              LibraryTableColumn.title,
-              LibraryTableColumn.issue,
+              'title',
+              'issue',
             },
             defaultColumns: const {
-              LibraryTableColumn.title,
-              LibraryTableColumn.issue,
+              'title',
+              'issue',
             },
             columnLabel: labelFor,
             presets: const [
               LibraryTableColumnPreset(
                 label: 'Barcode View',
                 columns: {
-                  LibraryTableColumn.title,
-                  LibraryTableColumn.barcode,
+                  'title',
+                  'barcode',
                 },
               ),
             ],
@@ -202,7 +202,7 @@ void main() {
     expect(libraryColumnFavoriteKey(
       const LibraryTableColumnPreset(
         label: 'Barcode View',
-        columns: {LibraryTableColumn.title, LibraryTableColumn.barcode},
+        columns: {'title', 'barcode'},
       ),
     ), 'builtin:barcode_view');
   });

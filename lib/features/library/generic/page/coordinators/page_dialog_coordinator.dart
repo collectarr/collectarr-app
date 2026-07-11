@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/dialogs/batch_loan_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_enums.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
@@ -154,7 +154,7 @@ class LibraryPageDialogCoordinator {
       currentFilter: _page.filterSelection,
       currentQuickView: _page.quickView,
       currentSortRules: _page.viewState?.sortRules,
-      currentSortColumn: _page.viewState?.sortColumn as LibrarySortColumn?,
+      currentSortColumn: _page.viewState?.sortColumn as String?,
       currentSortAscending: _page.viewState?.sortAscending,
       currentSearchQuery:
           _page.searchQuery.isNotEmpty ? _page.searchQuery : null,

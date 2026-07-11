@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_enums.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
@@ -61,7 +61,7 @@ void main() {
     expect(config.pluralLabel, 'Podcasts');
     expect(config.defaultMetadataProvider, 'podindex');
     expect(config.presentation, genericLibraryMediaPresentation);
-    expect(config.defaultVisibleColumns, contains(LibraryTableColumn.title));
+    expect(config.defaultVisibleColumns, contains('title'));
     expect(config.workspace.icon, Icons.category_outlined);
     expect(config.workspace.accent, kLibraryFallbackAccent);
     expect(config.trackingProfile.name, readingTrackingProfile.name);

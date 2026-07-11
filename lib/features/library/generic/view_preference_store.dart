@@ -11,7 +11,7 @@ class LibraryViewPreferenceStore {
 
   static final _cachedQuickViews = <String, LibraryQuickView>{};
   static final _cachedFolderPresets = <String, LibraryFolderPreset>{};
-  static final _cachedPinnedGroupModes = <String, Set<LibraryGroupMode>>{};
+  static final _cachedPinnedGroupModes = <String, Set<String>>{};
   static final _cachedPinnedFolderPresets =
     <String, List<LibraryFolderPreset>>{};
   static final _cachedPinnedViewPresets =
@@ -119,7 +119,7 @@ class LibraryViewPreferenceStore {
       _cachedPinnedFolderPresets[_cacheKey] ?? const [];
 
   Future<LibraryFolderPreset?> readFolderPreset({
-    Iterable<LibraryGroupMode>? allowedModes,
+    Iterable<String>? allowedModes,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_key('folderPreset'));
@@ -150,7 +150,7 @@ class LibraryViewPreferenceStore {
     }
   }
 
-  Set<LibraryGroupMode> get cachedPinnedGroupModes =>
+  Set<String> get cachedPinnedGroupModes =>
       _cachedPinnedGroupModes[_cacheKey] ?? const {};
 
   Set<LibraryWorkspacePreset> get cachedPinnedViewPresets =>
@@ -162,8 +162,8 @@ class LibraryViewPreferenceStore {
   Set<String> get cachedPinnedColumnFavoriteKeys =>
       _cachedPinnedColumnFavoriteKeys[_cacheKey] ?? const {};
 
-  Future<Set<LibraryGroupMode>> readPinnedGroupModes({
-    Iterable<LibraryGroupMode>? allowedModes,
+  Future<Set<String>> readPinnedGroupModes({
+    Iterable<String>? allowedModes,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final names = prefs.getStringList(_key('pinnedGroupModes'));
@@ -173,8 +173,8 @@ class LibraryViewPreferenceStore {
     }
     final allowed = allowedModes == null
         ? null
-        : Set<LibraryGroupMode>.from(allowedModes);
-    final modes = <LibraryGroupMode>{};
+        : Set<String>.from(allowedModes);
+    final modes = <String>{};
     for (final name in names) {
       final mode = libraryGroupModeFromStorageValue(name);
       if (mode != null && (allowed == null || allowed.contains(mode))) {
@@ -185,7 +185,7 @@ class LibraryViewPreferenceStore {
     return modes;
   }
 
-  Future<void> writePinnedGroupModes(Set<LibraryGroupMode> modes) async {
+  Future<void> writePinnedGroupModes(Set<String> modes) async {
     _cachedPinnedGroupModes[_cacheKey] = modes;
     final prefs = await SharedPreferences.getInstance();
     if (modes.isEmpty) {
@@ -199,7 +199,7 @@ class LibraryViewPreferenceStore {
   }
 
   Future<List<LibraryFolderPreset>> readPinnedFolderPresets({
-    Iterable<LibraryGroupMode>? allowedModes,
+    Iterable<String>? allowedModes,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final values = prefs.getStringList(_key('pinnedFolderPresets'));
@@ -514,7 +514,7 @@ class LibraryViewPreferenceStore {
 
   LibraryFolderPreset? _tryParsePreset(
     String value, {
-    Iterable<LibraryGroupMode>? allowedModes,
+    Iterable<String>? allowedModes,
   }) {
     try {
       return sanitizeLibraryFolderPreset(

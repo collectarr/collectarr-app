@@ -24,7 +24,7 @@ DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
 void main() {
   testWidgets('workspace table renders rows and reports sort/tap changes',
       (tester) async {
-    Object sortedBy = LibrarySortColumn.issue;
+    Object sortedBy = 'issue';
     String? tapped;
     (Object, Object?)? reordered;
 
@@ -37,34 +37,34 @@ void main() {
             child: LibraryWorkspaceTable<String>(
               entries: const ['Spider-Man', 'Batman'],
               columns: const [
-                LibraryTableColumn.title,
-                LibraryTableColumn.issue,
+                'title',
+                'issue',
               ],
-              sortColumn: LibrarySortColumn.title,
+              sortColumn: 'title',
               sortAscending: true,
               sortRules: const [
                 LibrarySortRule(
-                  column: LibrarySortColumn.title,
+                  column: 'title',
                   ascending: true,
                 ),
                 LibrarySortRule(
-                  column: LibrarySortColumn.issue,
+                  column: 'issue',
                   ascending: false,
                 ),
               ],
               columnWidthFor: (column) =>
-                  column == LibraryTableColumn.title ? 180 : 80,
+                  column == 'title' ? 180 : 80,
               defaultColumnWidthFor: (column) =>
-                  column == LibraryTableColumn.title ? 180 : 80,
+                  column == 'title' ? 180 : 80,
               columnSortFor: (column) => switch (column) {
-                LibraryTableColumn.title => LibrarySortColumn.title,
-                LibraryTableColumn.issue => LibrarySortColumn.issue,
+                'title' => 'title',
+                'issue' => 'issue',
                 _ => null,
               },
-              columnLabelFor: (column) => (column as LibraryTableColumn).name,
-              columnIsNumeric: (column) => column == LibraryTableColumn.issue,
+              columnLabelFor: (column) => column as String,
+              columnIsNumeric: (column) => column == 'issue',
               cellBuilder: (entry, column) => Text(
-                column == LibraryTableColumn.title ? entry : '#1',
+                column == 'title' ? entry : '#1',
               ),
               isSelected: (entry) => entry == 'Batman',
               onEntryTap: (entry) => tapped = entry,
@@ -87,9 +87,9 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    expect(sortedBy, LibrarySortColumn.title);
+    expect(sortedBy, 'title');
     expect(tapped, 'Batman');
-    expect(reordered, (LibraryTableColumn.issue, LibraryTableColumn.title));
+    expect(reordered, ('issue', 'title'));
     expect(find.byKey(const ValueKey('sort-priority-title')), findsOneWidget);
     expect(find.byKey(const ValueKey('sort-priority-issue')), findsOneWidget);
   });
@@ -106,24 +106,24 @@ void main() {
             child: LibraryWorkspaceTable<String>(
               entries: const ['Spider-Man', 'Batman'],
               columns: const [
-                LibraryTableColumn.title,
-                LibraryTableColumn.issue,
+                'title',
+                'issue',
               ],
-              sortColumn: LibrarySortColumn.title,
+              sortColumn: 'title',
               sortAscending: true,
               columnWidthFor: (column) =>
-                  column == LibraryTableColumn.title ? 180 : 80,
+                  column == 'title' ? 180 : 80,
               defaultColumnWidthFor: (column) =>
-                  column == LibraryTableColumn.title ? 180 : 80,
+                  column == 'title' ? 180 : 80,
               columnSortFor: (column) => switch (column) {
-                LibraryTableColumn.title => LibrarySortColumn.title,
-                LibraryTableColumn.issue => LibrarySortColumn.issue,
+                'title' => 'title',
+                'issue' => 'issue',
                 _ => null,
               },
-              columnLabelFor: (column) => (column as LibraryTableColumn).name,
-              columnIsNumeric: (column) => column == LibraryTableColumn.issue,
+              columnLabelFor: (column) => column as String,
+              columnIsNumeric: (column) => column == 'issue',
               cellBuilder: (entry, column) => Text(
-                column == LibraryTableColumn.title ? entry : '#1',
+                column == 'title' ? entry : '#1',
               ),
               isSelected: (_) => false,
               onEntryTap: (_) {},
@@ -155,19 +155,19 @@ void main() {
             child: LibraryWorkspaceTable<String>(
               entries: const ['Batman'],
               columns: const [
-                LibraryTableColumn.issue,
+                'issue',
               ],
-              sortColumn: LibrarySortColumn.issue,
+              sortColumn: 'issue',
               sortAscending: true,
               sortRules: const [
                 LibrarySortRule(
-                  column: LibrarySortColumn.issue,
+                  column: 'issue',
                   ascending: true,
                 ),
               ],
               columnWidthFor: (_) => 56,
               defaultColumnWidthFor: (_) => 56,
-              columnSortFor: (_) => LibrarySortColumn.issue,
+              columnSortFor: (_) => 'issue',
               columnLabelFor: (_) => 'Issue',
               columnIsNumeric: (_) => true,
               cellBuilder: (_, __) => const Text('#1'),
@@ -203,25 +203,25 @@ void main() {
                 child: LibraryWorkspaceTable<String>(
                   entries: const ['Spider-Man', 'Batman'],
                   columns: const [
-                    LibraryTableColumn.title,
-                    LibraryTableColumn.issue,
+                    'title',
+                    'issue',
                   ],
-                  sortColumn: LibrarySortColumn.title,
+                  sortColumn: 'title',
                   sortAscending: true,
                   columnWidthFor: (column) =>
-                      column == LibraryTableColumn.title ? 180 : 80,
+                      column == 'title' ? 180 : 80,
                   defaultColumnWidthFor: (column) =>
-                      column == LibraryTableColumn.title ? 180 : 80,
+                      column == 'title' ? 180 : 80,
                   columnSortFor: (column) => switch (column) {
-                    LibraryTableColumn.title => LibrarySortColumn.title,
-                    LibraryTableColumn.issue => LibrarySortColumn.issue,
+                    'title' => 'title',
+                    'issue' => 'issue',
                     _ => null,
                   },
-                  columnLabelFor: (column) => (column as LibraryTableColumn).name,
+                  columnLabelFor: (column) => column as String,
                   columnIsNumeric: (column) =>
-                      column == LibraryTableColumn.issue,
+                      column == 'issue',
                   cellBuilder: (entry, column) => Text(
-                    column == LibraryTableColumn.title ? entry : '#1',
+                    column == 'title' ? entry : '#1',
                   ),
                   isSelected: (entry) => entry == selectedEntry,
                   onEntryTap: (entry) => setState(() => selectedEntry = entry),
@@ -264,25 +264,25 @@ void main() {
             child: LibraryWorkspaceTable<String>(
               entries: const ['Spider-Man'],
               columns: const [
-                LibraryTableColumn.title,
-                LibraryTableColumn.issue,
+                'title',
+                'issue',
               ],
-              sortColumn: LibrarySortColumn.title,
+              sortColumn: 'title',
               sortAscending: true,
               columnWidthFor: (column) =>
-                  column == LibraryTableColumn.title ? 180 : 80,
+                  column == 'title' ? 180 : 80,
               defaultColumnWidthFor: (column) =>
-                  column == LibraryTableColumn.title ? 180 : 80,
+                  column == 'title' ? 180 : 80,
               columnSortFor: (column) => switch (column) {
-                LibraryTableColumn.title => LibrarySortColumn.title,
-                LibraryTableColumn.issue => LibrarySortColumn.issue,
+                'title' => 'title',
+                'issue' => 'issue',
                 _ => null,
               },
               columnLabelFor: (column) =>
-                  column == LibraryTableColumn.title ? '' : (column as LibraryTableColumn).name,
-              columnIsNumeric: (column) => column == LibraryTableColumn.issue,
+                  column == 'title' ? '' : column as String,
+              columnIsNumeric: (column) => column == 'issue',
               cellBuilder: (entry, column) => Text(
-                column == LibraryTableColumn.title ? entry : '#1',
+                column == 'title' ? entry : '#1',
               ),
               isSelected: (_) => false,
               onEntryTap: (_) {},
@@ -305,7 +305,7 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    expect(reordered, (LibraryTableColumn.title, null));
+    expect(reordered, ('title', null));
   });
 
   testWidgets('workspace table scrollbar hover stays attached to its list view',
@@ -319,24 +319,24 @@ void main() {
             child: LibraryWorkspaceTable<String>(
               entries: List.generate(20, (index) => 'Row $index'),
               columns: const [
-                LibraryTableColumn.title,
-                LibraryTableColumn.issue,
+                'title',
+                'issue',
               ],
-              sortColumn: LibrarySortColumn.title,
+              sortColumn: 'title',
               sortAscending: true,
               columnWidthFor: (column) =>
-                  column == LibraryTableColumn.title ? 180 : 80,
+                  column == 'title' ? 180 : 80,
               defaultColumnWidthFor: (column) =>
-                  column == LibraryTableColumn.title ? 180 : 80,
+                  column == 'title' ? 180 : 80,
               columnSortFor: (column) => switch (column) {
-                LibraryTableColumn.title => LibrarySortColumn.title,
-                LibraryTableColumn.issue => LibrarySortColumn.issue,
+                'title' => 'title',
+                'issue' => 'issue',
                 _ => null,
               },
-              columnLabelFor: (column) => (column as LibraryTableColumn).name,
-              columnIsNumeric: (column) => column == LibraryTableColumn.issue,
+              columnLabelFor: (column) => column as String,
+              columnIsNumeric: (column) => column == 'issue',
               cellBuilder: (entry, column) => Text(
-                column == LibraryTableColumn.title ? entry : '#1',
+                column == 'title' ? entry : '#1',
               ),
               isSelected: (_) => false,
               onEntryTap: (_) {},

@@ -39,7 +39,7 @@ class LibraryProjectionRequest {
   final String? selectedItemId;
   final LibraryQuickView? quickView;
   final LibraryCollectionStatusScope collectionStatusScope;
-  final LibraryGroupMode groupMode;
+  final String groupMode;
   final List<LibraryBucketScopeFilter> bucketScopeFilters;
   final List<LibrarySeriesBucket>? overrideBuckets;
   final Set<String>? constrainedItemIds;

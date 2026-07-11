@@ -13,7 +13,7 @@ final _defaultViewState = LibraryWorkspaceViewState(
   viewMode: LibraryViewMode.grid,
   detailsLayout: LibraryDetailsLayout.hidden,
   isSidebarVisible: true,
-  sortColumn: LibrarySortColumn.title,
+  sortColumn: 'title',
   sortAscending: true,
   coverSize: 128,
   sidebarWidth: 200,
@@ -37,7 +37,7 @@ LibraryProjection _project({
     selectedBucket: null,
     selectedItemId: null,
     quickView: null,
-    groupMode: LibraryGroupMode.series,
+    groupMode: 'series',
     customFieldValuesByItem: customFieldValuesByItem,
   );
 }

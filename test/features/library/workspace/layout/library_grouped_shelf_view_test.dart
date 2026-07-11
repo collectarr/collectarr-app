@@ -103,7 +103,7 @@ GroupShelfEntry _group({
 
   return GroupShelfEntry(
 
-    groupMode: LibraryGroupMode.publisher,
+    groupMode: 'publisher',
 
     bucket: bucket,
 

@@ -34,12 +34,12 @@ final boardgameLibraryFieldDefinitions = [
 ];
 
 const boardGamesLibraryGroupModes = [
-  LibraryGroupMode.publisher,
-  LibraryGroupMode.series,
-  LibraryGroupMode.year,
-  LibraryGroupMode.location,
-  LibraryGroupMode.title,
-  LibraryGroupMode.ownership,
+  'publisher',
+  'series',
+  'year',
+  'location',
+  'title',
+  'ownership',
 ];
 
 final boardGamesLibraryGroupDefinitions = [
@@ -212,45 +212,45 @@ final boardGamesLibrarySortDefinitions = [
 ];
 
 const boardGamesLibrarySortColumns = [
-  LibrarySortColumn.series,
-  LibrarySortColumn.publisher,
-  LibrarySortColumn.status,
-  LibrarySortColumn.title,
-  LibrarySortColumn.releaseDate,
-  LibrarySortColumn.country,
-  LibrarySortColumn.language,
-  LibrarySortColumn.ageRating,
-  LibrarySortColumn.collectionStatus,
-  LibrarySortColumn.added,
-  LibrarySortColumn.updated,
+  'series',
+  'publisher',
+  'status',
+  'title',
+  'release_date',
+  'country',
+  'language',
+  'age_rating',
+  'collection_status',
+  'added',
+  'updated',
 ];
 
 const boardGamesLibraryTableColumns = [
-  LibraryTableColumn.status,
-  LibraryTableColumn.cover,
-  LibraryTableColumn.title,
-  LibraryTableColumn.publisher,
-  LibraryTableColumn.releaseDate,
-  LibraryTableColumn.barcode,
-  LibraryTableColumn.condition,
-  LibraryTableColumn.price,
-  LibraryTableColumn.location,
-  LibraryTableColumn.wishlist,
-  LibraryTableColumn.updated,
+  'status',
+  'cover',
+  'title',
+  'publisher',
+  'release_date',
+  'barcode',
+  'condition',
+  'price',
+  'location',
+  'wishlist',
+  'updated',
 ];
 
 const boardGamesLibraryDefaultVisibleColumns = {
-  LibraryTableColumn.status,
-  LibraryTableColumn.cover,
-  LibraryTableColumn.title,
-  LibraryTableColumn.publisher,
-  LibraryTableColumn.releaseDate,
-  LibraryTableColumn.barcode,
-  LibraryTableColumn.condition,
-  LibraryTableColumn.price,
-  LibraryTableColumn.location,
-  LibraryTableColumn.wishlist,
-  LibraryTableColumn.updated,
+  'status',
+  'cover',
+  'title',
+  'publisher',
+  'release_date',
+  'barcode',
+  'condition',
+  'price',
+  'location',
+  'wishlist',
+  'updated',
 };
 
 final boardGamesLibraryColumnDefinitions = [

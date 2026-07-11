@@ -88,7 +88,7 @@ final _defaultViewState = LibraryWorkspaceViewState(
 
   isSidebarVisible: true,
 
-  sortColumn: LibrarySortColumn.title,
+  sortColumn: 'title',
 
   sortAscending: true,
 
@@ -226,9 +226,9 @@ void main() {
 
         sortRules: const [
 
-          LibrarySortRule(column: LibrarySortColumn.status, ascending: true),
+          LibrarySortRule(column: 'status', ascending: true),
 
-          LibrarySortRule(column: LibrarySortColumn.issue, ascending: true),
+          LibrarySortRule(column: 'issue', ascending: true),
 
         ],
 
@@ -242,7 +242,7 @@ void main() {
 
       quickView: null,
 
-      groupMode: LibraryGroupMode.series,
+      groupMode: 'series',
 
     );
 
@@ -334,7 +334,7 @@ void main() {
 
       quickView: null,
 
-      groupMode: LibraryGroupMode.series,
+      groupMode: 'series',
 
     );
 
@@ -458,13 +458,13 @@ void main() {
 
       quickView: null,
 
-      groupMode: LibraryGroupMode.year,
+      groupMode: 'year',
 
       bucketScopeFilters: const [
 
         LibraryBucketScopeFilter(
 
-          groupMode: LibraryGroupMode.series,
+          groupMode: 'series',
 
           bucket: 'Alpha',
 
@@ -500,7 +500,7 @@ void main() {
 
     expect(
 
-      genericGroupModeLabel(LibraryGroupMode.series, musicLibraryConfig),
+      genericGroupModeLabel('series', musicLibraryConfig),
 
       'Artist',
 
@@ -508,7 +508,7 @@ void main() {
 
     expect(
 
-      genericGroupModeSidebarTitle(LibraryGroupMode.series, musicLibraryConfig),
+      genericGroupModeSidebarTitle('series', musicLibraryConfig),
 
       'Artists',
 
@@ -516,7 +516,7 @@ void main() {
 
     expect(
 
-      genericGroupModeLabel(LibraryGroupMode.publisher, musicLibraryConfig),
+      genericGroupModeLabel('publisher', musicLibraryConfig),
 
       'Label',
 
@@ -526,7 +526,7 @@ void main() {
 
       genericGroupModeSidebarTitle(
 
-        LibraryGroupMode.publisher,
+        'publisher',
 
         musicLibraryConfig,
 
@@ -546,9 +546,9 @@ void main() {
 
       libraryAllowsGroupDrilldown(
 
-        currentMode: LibraryGroupMode.series,
+        currentMode: 'series',
 
-        childMode: LibraryGroupMode.title,
+        childMode: 'title',
 
       ),
 
@@ -560,7 +560,7 @@ void main() {
 
       libraryAllowsGroupDrilldown(
 
-        currentMode: LibraryGroupMode.series,
+        currentMode: 'series',
 
         childMode: null,
 
@@ -580,9 +580,9 @@ void main() {
 
       libraryAllowsGroupDrilldown(
 
-        currentMode: LibraryGroupMode.publisher,
+        currentMode: 'publisher',
 
-        childMode: LibraryGroupMode.title,
+        childMode: 'title',
 
       ),
 
@@ -620,7 +620,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, musicLibraryConfig, LibraryGroupMode.series),
+          item, musicLibraryConfig, 'series'),
 
       'Unknown artist',
 
@@ -634,7 +634,7 @@ void main() {
 
         musicLibraryConfig,
 
-        LibraryGroupMode.publisher,
+        'publisher',
 
       ),
 
@@ -650,7 +650,7 @@ void main() {
 
         musicLibraryConfig,
 
-        LibraryGroupMode.location,
+        'location',
 
       ),
 
@@ -688,7 +688,7 @@ void main() {
 
     expect(
 
-      genericGroupModeLabel(LibraryGroupMode.location, comicsLibraryConfig),
+      genericGroupModeLabel('location', comicsLibraryConfig),
 
       'Location',
 
@@ -698,7 +698,7 @@ void main() {
 
       genericGroupModeSidebarTitle(
 
-        LibraryGroupMode.location,
+        'location',
 
         comicsLibraryConfig,
 
@@ -716,7 +716,7 @@ void main() {
 
         comicsLibraryConfig,
 
-        LibraryGroupMode.location,
+        'location',
 
       ),
 
@@ -784,7 +784,7 @@ void main() {
 
     expect(
 
-      genericGroupModeLabel(LibraryGroupMode.publisher, moviesLibraryConfig),
+      genericGroupModeLabel('publisher', moviesLibraryConfig),
 
       'Studios',
 
@@ -792,7 +792,7 @@ void main() {
 
     expect(
 
-      genericGroupModeLabel(LibraryGroupMode.genre, moviesLibraryConfig),
+      genericGroupModeLabel('genre', moviesLibraryConfig),
 
       'Genres',
 
@@ -802,7 +802,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.audienceRating),
+          item, moviesLibraryConfig, 'audience_rating'),
 
       '8.1',
 
@@ -812,7 +812,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.color),
+          item, moviesLibraryConfig, 'color'),
 
       'Color',
 
@@ -822,7 +822,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.movieOrTvSeries),
+          item, moviesLibraryConfig, 'movie_or_tv_series'),
 
       'TV Series',
 
@@ -832,7 +832,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.releaseDate),
+          item, moviesLibraryConfig, 'release_date'),
 
       '1992-08-28',
 
@@ -842,7 +842,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.releaseMonth),
+          item, moviesLibraryConfig, 'release_month'),
 
       'August 1992',
 
@@ -852,7 +852,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.releaseYear),
+          item, moviesLibraryConfig, 'release_year'),
 
       '1992',
 
@@ -904,7 +904,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, comicsLibraryConfig, LibraryGroupMode.crossover),
+          item, comicsLibraryConfig, 'crossover'),
 
       'Hush',
 
@@ -914,7 +914,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, comicsLibraryConfig, LibraryGroupMode.imprint),
+          item, comicsLibraryConfig, 'imprint'),
 
       'DC Black Label',
 
@@ -924,7 +924,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, comicsLibraryConfig, LibraryGroupMode.seriesGroup),
+          item, comicsLibraryConfig, 'series_group'),
 
       'Batman Events',
 
@@ -934,7 +934,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, comicsLibraryConfig, LibraryGroupMode.coverDate),
+          item, comicsLibraryConfig, 'cover_date'),
 
       '2002-10-01',
 
@@ -944,7 +944,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, comicsLibraryConfig, LibraryGroupMode.coverMonth),
+          item, comicsLibraryConfig, 'cover_month'),
 
       'October 2002',
 
@@ -954,7 +954,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, comicsLibraryConfig, LibraryGroupMode.coverYear),
+          item, comicsLibraryConfig, 'cover_year'),
 
       '2002',
 
@@ -1004,7 +1004,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, comicsLibraryConfig, LibraryGroupMode.inker),
+          item, comicsLibraryConfig, 'inker'),
 
       'Scott Williams',
 
@@ -1014,7 +1014,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, comicsLibraryConfig, LibraryGroupMode.coverColorist),
+          item, comicsLibraryConfig, 'cover_colorist'),
 
       'Brian Haberlin',
 
@@ -1024,7 +1024,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, comicsLibraryConfig, LibraryGroupMode.plotter),
+          item, comicsLibraryConfig, 'plotter'),
 
       'Neil Gaiman',
 
@@ -1034,7 +1034,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, comicsLibraryConfig, LibraryGroupMode.editorInChief),
+          item, comicsLibraryConfig, 'editor_in_chief'),
 
       'Tom DeFalco',
 
@@ -1240,7 +1240,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.audioTracks),
+          item, moviesLibraryConfig, 'audio_tracks'),
 
       'English DTS-HD MA',
 
@@ -1250,7 +1250,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.boxSet),
+          item, moviesLibraryConfig, 'box_set'),
 
       'Nolan Collection',
 
@@ -1260,7 +1260,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.distributor),
+          item, moviesLibraryConfig, 'distributor'),
 
       'Warner Home Video',
 
@@ -1270,7 +1270,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.editionReleaseDate),
+          item, moviesLibraryConfig, 'edition_release_date'),
 
       '2023-10-12',
 
@@ -1280,7 +1280,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.editionReleaseMonth),
+          item, moviesLibraryConfig, 'edition_release_month'),
 
       'October 2023',
 
@@ -1290,7 +1290,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.editionReleaseYear),
+          item, moviesLibraryConfig, 'edition_release_year'),
 
       '2023',
 
@@ -1300,7 +1300,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.extras),
+          item, moviesLibraryConfig, 'extras'),
 
       'Commentary',
 
@@ -1314,7 +1314,7 @@ void main() {
 
         moviesLibraryConfig,
 
-        LibraryGroupMode.collectionStatus,
+        'collection_status',
 
       ),
 
@@ -1326,7 +1326,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.addedDate),
+          item, moviesLibraryConfig, 'added_date'),
 
       '2024-09-30',
 
@@ -1336,7 +1336,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.addedMonth),
+          item, moviesLibraryConfig, 'added_month'),
 
       'September 2024',
 
@@ -1346,7 +1346,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.addedYear),
+          item, moviesLibraryConfig, 'added_year'),
 
       '2024',
 
@@ -1356,7 +1356,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.format),
+          item, moviesLibraryConfig, 'format'),
 
       '4K UHD',
 
@@ -1364,7 +1364,7 @@ void main() {
 
     expect(
 
-      genericBucketForItemMode(item, moviesLibraryConfig, LibraryGroupMode.hdr),
+      genericBucketForItemMode(item, moviesLibraryConfig, 'hdr'),
 
       'HDR10',
 
@@ -1374,7 +1374,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.imageType),
+          item, moviesLibraryConfig, 'image_type'),
 
       'Back Cover',
 
@@ -1384,7 +1384,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.layers),
+          item, moviesLibraryConfig, 'layers'),
 
       'BD-100',
 
@@ -1394,7 +1394,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.myRating),
+          item, moviesLibraryConfig, 'my_rating'),
 
       '9',
 
@@ -1404,7 +1404,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.owner),
+          item, moviesLibraryConfig, 'owner'),
 
       'me@example.com',
 
@@ -1414,7 +1414,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.packaging),
+          item, moviesLibraryConfig, 'packaging'),
 
       'Steelbook',
 
@@ -1428,7 +1428,7 @@ void main() {
 
         moviesLibraryConfig,
 
-        LibraryGroupMode.purchaseDate,
+        'purchase_date',
 
       ),
 
@@ -1444,7 +1444,7 @@ void main() {
 
         moviesLibraryConfig,
 
-        LibraryGroupMode.purchaseMonth,
+        'purchase_month',
 
       ),
 
@@ -1460,7 +1460,7 @@ void main() {
 
         moviesLibraryConfig,
 
-        LibraryGroupMode.purchaseYear,
+        'purchase_year',
 
       ),
 
@@ -1476,7 +1476,7 @@ void main() {
 
         moviesLibraryConfig,
 
-        LibraryGroupMode.purchaseStore,
+        'purchase_store',
 
       ),
 
@@ -1488,7 +1488,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.regions),
+          item, moviesLibraryConfig, 'regions'),
 
       'A/B/C',
 
@@ -1498,7 +1498,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.screenRatios),
+          item, moviesLibraryConfig, 'screen_ratios'),
 
       '2.39:1',
 
@@ -1512,7 +1512,7 @@ void main() {
 
         moviesLibraryConfig,
 
-        LibraryGroupMode.storageDevice,
+        'storage_device',
 
       ),
 
@@ -1528,7 +1528,7 @@ void main() {
 
         moviesLibraryConfig,
 
-        LibraryGroupMode.modifiedDate,
+        'modified_date',
 
       ),
 
@@ -1544,7 +1544,7 @@ void main() {
 
         moviesLibraryConfig,
 
-        LibraryGroupMode.modifiedMonth,
+        'modified_month',
 
       ),
 
@@ -1556,7 +1556,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.watchDate),
+          item, moviesLibraryConfig, 'watch_date'),
 
       '2026-04-10',
 
@@ -1566,7 +1566,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.watchMonth),
+          item, moviesLibraryConfig, 'watch_month'),
 
       'April 2026',
 
@@ -1576,7 +1576,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.watchYear),
+          item, moviesLibraryConfig, 'watch_year'),
 
       '2026',
 
@@ -1586,7 +1586,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.watched),
+          item, moviesLibraryConfig, 'watched'),
 
       'Watched',
 
@@ -1596,7 +1596,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.subtitles),
+          item, moviesLibraryConfig, 'subtitles'),
 
       'English, Romanian',
 
@@ -1606,7 +1606,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.watchedWhere),
+          item, moviesLibraryConfig, 'watched_where'),
 
       'Streaming',
 
@@ -1674,7 +1674,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.actor),
+          item, moviesLibraryConfig, 'actor'),
 
       'Al Pacino',
 
@@ -1684,7 +1684,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.director),
+          item, moviesLibraryConfig, 'director'),
 
       'Michael Mann',
 
@@ -1694,7 +1694,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.musician),
+          item, moviesLibraryConfig, 'musician'),
 
       'Elliot Goldenthal',
 
@@ -1704,7 +1704,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.photography),
+          item, moviesLibraryConfig, 'photography'),
 
       'Dante Spinotti',
 
@@ -1714,7 +1714,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.producer),
+          item, moviesLibraryConfig, 'producer'),
 
       'Art Linson',
 
@@ -1724,7 +1724,7 @@ void main() {
 
       genericBucketForItemMode(
 
-          item, moviesLibraryConfig, LibraryGroupMode.writer),
+          item, moviesLibraryConfig, 'writer'),
 
       'Michael Mann',
 
@@ -1926,7 +1926,7 @@ void main() {
 
       comicsLibraryConfig,
 
-      LibraryGroupMode.series,
+      'series',
 
     );
 
@@ -2052,7 +2052,7 @@ void main() {
 
       quickView: null,
 
-      groupMode: LibraryGroupMode.series,
+      groupMode: 'series',
 
       searchTarget: LibrarySearchTarget.tracksOnly,
 
@@ -2138,7 +2138,7 @@ void main() {
 
       quickView: null,
 
-      groupMode: LibraryGroupMode.series,
+      groupMode: 'series',
 
       searchTarget: LibrarySearchTarget.mediaOnly,
 

@@ -17,7 +17,7 @@ class LibraryProjectionService {
     required LibraryQuickView? quickView,
     LibraryCollectionStatusScope collectionStatusScope =
         LibraryCollectionStatusScope.all,
-    required LibraryGroupMode groupMode,
+    required String groupMode,
     List<LibraryBucketScopeFilter> bucketScopeFilters = const [],
     List<LibrarySeriesBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,

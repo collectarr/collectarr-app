@@ -23,7 +23,7 @@ const tvWorkspaceConfig = LibraryWorkspaceConfig(
 
 final tvLibraryConfig = LibraryTypeConfig(
   workspace: tvWorkspaceConfig,
-  defaultSortColumn: LibrarySortColumn.title,
+  defaultSortColumn: 'title',
   defaultVisibleColumns: tvLibraryDefaultVisibleColumns,
   availableSortColumns: tvLibrarySortColumns,
   availableSortColumnDefinitions: tvLibrarySortDefinitions,

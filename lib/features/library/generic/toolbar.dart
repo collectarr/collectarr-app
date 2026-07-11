@@ -236,7 +236,7 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<LibraryToolbarSearchSuggestion>?
       onSearchSuggestionSelected;
   final VoidCallback onEditColumns;
-  final ValueChanged<LibrarySortColumn> onSortChanged;
+  final ValueChanged<String> onSortChanged;
   final VoidCallback? onEditSort;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
@@ -301,10 +301,10 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraUtilityActions;
-  final LibraryGroupMode? groupMode;
+  final String? groupMode;
   final LibraryFolderPreset? folderPreset;
   final LibraryGroupPresentation? groupPresentation;
-  final List<LibraryGroupMode>? availableGroupModes;
+  final List<String>? availableGroupModes;
   final List<LibraryFolderPreset> pinnedFolderPresets;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;
   final ValueChanged<LibraryFolderPreset>? onGroupModeChanged;

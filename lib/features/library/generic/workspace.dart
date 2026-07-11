@@ -84,7 +84,7 @@ class LibraryWorkspace extends ConsumerWidget {
   final String? selectedAnchorId;
   final bool selectionEnabled;
   final Set<String> selectedIds;
-  final LibraryGroupMode groupMode;
+  final String groupMode;
   final LibraryGroupPresentation groupPresentation;
   final String? selectedBucket;
   final ValueChanged<String?> onBucketChanged;
@@ -101,11 +101,11 @@ class LibraryWorkspace extends ConsumerWidget {
   final ValueChanged<LibraryProjectionItem> onOpenItem;
   final ValueChanged<LibraryProjectionItem> onEditItem;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
-  final ValueChanged<LibrarySortColumn> onSortChanged;
-  final void Function(LibraryTableColumn column, double width)
+  final ValueChanged<String> onSortChanged;
+  final void Function(String column, double width)
       onColumnWidthChanged;
   final void Function(
-          LibraryTableColumn column, LibraryTableColumn? beforeColumn)
+          String column, String? beforeColumn)
       onColumnReordered;
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final int? initialCrossAxisCount;
@@ -115,8 +115,8 @@ class LibraryWorkspace extends ConsumerWidget {
       viewState.viewMode != LibraryViewMode.cardFlow &&
       viewState.viewMode != LibraryViewMode.shelves &&
       selectedBucket == null &&
-      groupMode != LibraryGroupMode.title &&
-      groupMode != LibraryGroupMode.ownership;
+      groupMode != 'title' &&
+      groupMode != 'ownership';
 
   bool _isActive(LibraryProjectionItem item) => item.entry.id == selectedId;
 
@@ -388,7 +388,7 @@ class LibraryWorkspace extends ConsumerWidget {
                   columnSortFor: adapter.columnSort,
                   columnLabelFor: adapter.columnLabel,
                   columnIsNumeric: adapter.columnIsNumeric,
-                  cellBuilder: (entry, column) => _tableCell(entry, column as LibraryTableColumn),
+                  cellBuilder: (entry, column) => _tableCell(entry, column as String),
                   isSelected: _isHighlighted,
                   onEntryTap: (item) => _selectionTap(item)(),
                   onEntryDoubleTap: onOpenItem,
@@ -396,11 +396,11 @@ class LibraryWorkspace extends ConsumerWidget {
                       ? null
                       : (item, details) =>
                           onItemContextMenu!(item, details.globalPosition),
-                  onSortChanged: (column) => onSortChanged(column as LibrarySortColumn),
-                  onColumnWidthChanged: (column, width) => onColumnWidthChanged(column as LibraryTableColumn, width),
+                  onSortChanged: (column) => onSortChanged(column as String),
+                  onColumnWidthChanged: (column, width) => onColumnWidthChanged(column as String, width),
                   onColumnReordered: (column, beforeColumn) => onColumnReordered(
-                    column as LibraryTableColumn,
-                    beforeColumn as LibraryTableColumn?,
+                    column as String,
+                    beforeColumn as String?,
                   ),
                   headerHeight: density.tableHeaderHeight,
                   rowHeight: density.tableRowHeight,
@@ -480,7 +480,7 @@ class LibraryWorkspace extends ConsumerWidget {
     );
   }
 
-  Widget _tableCell(LibraryProjectionItem item, LibraryTableColumn column) {
+  Widget _tableCell(LibraryProjectionItem item, String column) {
     return adapter.buildTableCell(item.entry, column);
   }
 }

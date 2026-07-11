@@ -142,7 +142,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   LibraryQuickView? _quickView;
   var _collectionStatusScope = LibraryCollectionStatusScope.all;
   var _seriesCompletionScope = LibrarySeriesCompletionScope.all;
-  LibraryGroupMode? _groupMode;
+  String? _groupMode;
   LibraryFolderPreset? _folderPreset;
   LibraryGroupPresentation? _groupPresentationOverride;
   Set<String> _collapsedGroupBuckets = const <String>{};
@@ -355,21 +355,21 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
 
   void _maybeEnsureFacetBucketsLoaded(
     ShelfState shelf,
-    LibraryGroupMode mode,
+    String mode,
   ) {
     _LibraryFacetControllerOps.maybeEnsureFacetBucketsLoaded(this, shelf, mode);
   }
 
-  bool _usesExternalFacetBuckets(LibraryGroupMode mode) {
+  bool _usesExternalFacetBuckets(String mode) {
     return _LibraryFacetControllerOps.usesExternalFacetBuckets(this, mode);
   }
 
-  String? _facetIdForMode(LibraryGroupMode mode) {
+  String? _facetIdForMode(String mode) {
     return _LibraryFacetControllerOps.facetIdForMode(this, mode);
   }
 
   FacetBuckets? _facetBucketsForMode(
-    LibraryGroupMode mode,
+    String mode,
     ShelfState shelf,
   ) {
     return _LibraryFacetControllerOps.facetBucketsForMode(this, mode, shelf);
@@ -548,7 +548,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   void _setSeriesCompletionScope(LibrarySeriesCompletionScope scope) {
-    if (_activeGroupMode != LibraryGroupMode.series) {
+    if (_activeGroupMode != 'series') {
       return;
     }
     _mutateSidebarScope(() {
@@ -653,7 +653,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   LibrarySeriesStatusSummary? _seriesStatusSummaryForProjection(
     LibraryProjection projection,
   ) {
-    if (_activeGroupMode != LibraryGroupMode.series ||
+    if (_activeGroupMode != 'series' ||
         _selectedBucket == null) {
       return null;
     }
@@ -880,7 +880,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   }
 
   @protected
-  bool supportsBucketManagement(LibraryGroupMode mode) {
+  bool supportsBucketManagement(String mode) {
     return widget.type.kindUiAdapter
         .supportsBucketManagement(widget.type, mode);
   }

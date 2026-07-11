@@ -4,19 +4,19 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   const defaults = {
-    LibraryTableColumn.title,
-    LibraryTableColumn.issue,
+    'title',
+    'issue',
   };
 
   LibraryTableColumnSizing sizing(Object column) {
-    if (column is! LibraryTableColumn) {
+    if (column is! String) {
       return const LibraryTableColumnSizing(
           defaultWidth: 60, minWidth: 40, maxWidth: 100);
     }
     return switch (column) {
-      LibraryTableColumn.title => const LibraryTableColumnSizing(
+      'title' => const LibraryTableColumnSizing(
           defaultWidth: 200, minWidth: 100, maxWidth: 300),
-      LibraryTableColumn.issue => const LibraryTableColumnSizing(
+      'issue' => const LibraryTableColumnSizing(
           defaultWidth: 80, minWidth: 50, maxWidth: 120),
       _ => const LibraryTableColumnSizing(
           defaultWidth: 60, minWidth: 40, maxWidth: 100),
@@ -26,7 +26,7 @@ void main() {
   test('orders table columns with default fallback', () {
     expect(
       orderedLibraryTableColumns(columns: const {}, defaultColumns: defaults),
-      [LibraryTableColumn.title, LibraryTableColumn.issue],
+      ['title', 'issue'],
     );
   });
 
@@ -34,17 +34,17 @@ void main() {
     expect(
       reorderLibraryTableColumns(
         columns: const [
-          LibraryTableColumn.title,
-          LibraryTableColumn.issue,
-          LibraryTableColumn.grade,
+          'title',
+          'issue',
+          'grade',
         ],
-        column: LibraryTableColumn.grade,
-        beforeColumn: LibraryTableColumn.issue,
+        column: 'grade',
+        beforeColumn: 'issue',
       ),
       [
-        LibraryTableColumn.title,
-        LibraryTableColumn.grade,
-        LibraryTableColumn.issue,
+        'title',
+        'grade',
+        'issue',
       ],
     );
   });
@@ -53,17 +53,17 @@ void main() {
     expect(
       reorderLibraryTableColumns(
         columns: const [
-          LibraryTableColumn.title,
-          LibraryTableColumn.issue,
-          LibraryTableColumn.grade,
+          'title',
+          'issue',
+          'grade',
         ],
-        column: LibraryTableColumn.title,
+        column: 'title',
         beforeColumn: null,
       ),
       [
-        LibraryTableColumn.issue,
-        LibraryTableColumn.grade,
-        LibraryTableColumn.title,
+        'issue',
+        'grade',
+        'title',
       ],
     );
   });
@@ -71,8 +71,8 @@ void main() {
   test('clamps custom table column widths', () {
     expect(
       libraryTableColumnWidth(
-        column: LibraryTableColumn.title,
-        customWidths: const {LibraryTableColumn.title: 500},
+        column: 'title',
+        customWidths: const {'title': 500},
         sizing: sizing,
       ),
       300,

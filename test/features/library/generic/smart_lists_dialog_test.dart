@@ -42,11 +42,11 @@ void main() {
         quickView: LibraryQuickView.owned,
         sortRules: const [
           LibrarySortRule(
-            column: LibrarySortColumn.updated,
+            column: 'updated',
             ascending: false,
           ),
           LibrarySortRule(
-            column: LibrarySortColumn.title,
+            column: 'title',
             ascending: true,
           ),
         ],
@@ -110,15 +110,15 @@ void main() {
     expect(loaded!.quickView, LibraryQuickView.owned);
     expect(loaded!.sortRules, const [
       LibrarySortRule(
-        column: LibrarySortColumn.updated,
+        column: 'updated',
         ascending: false,
       ),
       LibrarySortRule(
-        column: LibrarySortColumn.title,
+        column: 'title',
         ascending: true,
       ),
     ]);
-    expect(loaded!.sortColumn, LibrarySortColumn.updated);
+    expect(loaded!.sortColumn, 'updated');
     expect(loaded!.sortAscending, isFalse);
     expect(loaded!.searchQuery, 'dune');
   });
