@@ -859,12 +859,6 @@ class LibraryTypeConfig {
     return sortColumnDefinitionFor(column).id;
   }
 
-  String tableColumnFieldId(Object column) {
-    final columnId = _definitionIdFor(column);
-    final module = libraryKindModuleForType(this);
-    return module.fields.columnDefinitionForId(columnId)?.id.value ?? columnId;
-  }
-
   Object? sortColumnFromFieldId(String? fieldId) {
     final normalized = _definitionIdFor(fieldId);
     if (normalized.isEmpty) {
@@ -875,18 +869,6 @@ class LibraryTypeConfig {
     }
     final shortId = normalized.split('.').last;
     return supportsSortColumn(shortId) ? shortId : null;
-  }
-
-  Object? tableColumnFromFieldId(String? fieldId) {
-    final normalized = _definitionIdFor(fieldId);
-    if (normalized.isEmpty) {
-      return null;
-    }
-    if (supportsTableColumn(normalized)) {
-      return normalized;
-    }
-    final shortId = normalized.split('.').last;
-    return supportsTableColumn(shortId) ? shortId : null;
   }
 
   bool supportsDensityPreset(LibraryWorkspaceDensityPreset preset) {

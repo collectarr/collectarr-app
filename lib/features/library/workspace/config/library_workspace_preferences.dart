@@ -237,7 +237,7 @@ class LibraryWorkspacePreferences {
     await prefs.setStringList(
       _key('visible_columns'),
       normalizedSnapshot.visibleColumns
-          .map((column) => config.tableColumnFieldId(column))
+          .map((column) => column.toString())
           .toList(growable: false),
     );
     await prefs.setStringList(
@@ -254,8 +254,7 @@ class LibraryWorkspacePreferences {
     }
     final columns = {
       for (final value in values)
-        if (config.tableColumnFromFieldId(value) != null)
-          config.tableColumnFromFieldId(value)!,
+        if (config.supportsTableColumn(value)) value,
     };
     if (config.supportsTableColumn('title') && !columns.contains('title')) {
       columns.add('title');
@@ -266,7 +265,7 @@ class LibraryWorkspacePreferences {
   List<String> _encodeColumnWidths(Map<Object, double> widths) {
     return [
       for (final entry in widths.entries)
-        '${config.tableColumnFieldId(entry.key)}:${entry.value.round()}',
+        '${entry.key.toString()}:${entry.value.round()}',
     ];
   }
 
@@ -315,8 +314,8 @@ class LibraryWorkspacePreferences {
       if (parts.length != 2) {
         continue;
       }
-      final column =
-          config.tableColumnFromFieldId(parts[0]);
+      final columnId = parts[0];
+      final column = config.supportsTableColumn(columnId) ? columnId : null;
       final width = double.tryParse(parts[1]);
       if (column != null && width != null) {
         widths[column] = width;

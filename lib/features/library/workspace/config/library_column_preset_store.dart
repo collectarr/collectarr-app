@@ -99,13 +99,13 @@ class LibraryColumnPresetStore {
       'label': preset.label,
       'columns': [
         for (final column in preset.columns)
-          config.tableColumnFieldId(column),
+          column.toString(),
       ],
     };
   }
 
   Object? _columnById(String id) {
-    return config.tableColumnFromFieldId(id);
+    return config.supportsTableColumn(id) ? id : null;
   }
 
   String _slug(String value) {

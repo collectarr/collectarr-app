@@ -34,53 +34,12 @@ final animeLibraryFieldDefinitions = [
   ),
 ];
 
-const animeLibraryGroupModes = movie_workspace.movieLibraryGroupModes;
 
 final animeLibraryGroupDefinitions =
     movie_workspace.movieLibraryGroupDefinitions;
 
 final animeLibrarySortDefinitions =
     movie_workspace.movieLibrarySortDefinitions;
-
-const animeLibrarySortColumns = [
-  'series',
-  'publisher',
-  'status',
-  'title',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'collection_status',
-  'added',
-  'updated',
-];
-
-const animeLibraryTableColumns = [
-  'status',
-  'cover',
-  'title',
-  'publisher',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'wishlist',
-  'updated',
-];
-
-const animeLibraryDefaultVisibleColumns = {
-  'status',
-  'cover',
-  'title',
-  'publisher',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'wishlist',
-  'updated',
-};
 
 final animeLibraryColumnDefinitions = [
   ...commonColumnDefinitions,

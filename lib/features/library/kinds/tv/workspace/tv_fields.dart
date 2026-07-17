@@ -39,31 +39,6 @@ const tvDefaultWorkspaceGroupPresentation = LibraryGroupPresentation.folderGrid;
 const tvDefaultVideoDisplayLevel = VideoDisplayLevel.season;
 const tvDefaultVideoGrouping = VideoGroupingDefault.bySeries;
 
-const tvLibraryGroupModes = [
-  'series',
-  'genre',
-  'country',
-  'language',
-  'age_rating',
-  'movie_or_tv_series',
-  'release_date',
-  'release_month',
-  'release_year',
-  'publisher',
-  'title',
-  'ownership',
-  'added_date',
-  'added_month',
-  'added_year',
-  'collection_status',
-  'modified_date',
-  'modified_month',
-  'watched',
-  'watch_date',
-  'watch_month',
-  'watch_year',
-  'watched_where',
-];
 
 final tvLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
@@ -290,48 +265,6 @@ final tvLibrarySortDefinitions = [
     defaultAscending: false,
   ),
 ];
-const tvLibrarySortColumns = [
-  'status',
-  'title',
-  'publisher',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'condition',
-  'price',
-  'location',
-  'collection_status',
-  'wishlist',
-  'added',
-  'updated',
-];
-
-const tvLibraryTableColumns = [
-  'status',
-  'cover',
-  'title',
-  'publisher',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'wishlist',
-  'updated',
-];
-
-const tvLibraryDefaultVisibleColumns = {
-  'status',
-  'cover',
-  'title',
-  'publisher',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'wishlist',
-  'updated',
-};
 
 final tvLibraryColumnDefinitions = [
   ...commonColumnDefinitions,

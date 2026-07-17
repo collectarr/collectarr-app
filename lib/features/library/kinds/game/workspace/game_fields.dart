@@ -33,45 +33,6 @@ final gameLibraryFieldDefinitions = [
   ),
 ];
 
-const gameLibraryGroupModes = [
-  'audience_rating',
-  'developer',
-  'genre',
-  'platform',
-  'publisher',
-  'release_date',
-  'release_month',
-  'release_year',
-  'series',
-  'title',
-  'completeness',
-  'condition',
-  'purchase_date',
-  'purchase_month',
-  'purchase_store',
-  'purchase_year',
-  'value_locked',
-  'toy_subtype',
-  'toy_type',
-  'format',
-  'regions',
-  'added_date',
-  'added_month',
-  'added_year',
-  'collection_status',
-  'completed',
-  'completed_date',
-  'completed_month',
-  'completed_year',
-  'image_type',
-  'location',
-  'modified_date',
-  'modified_month',
-  'my_rating',
-  'owner',
-  'storage_device',
-  'tags',
-];
 
 final gameLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
@@ -472,46 +433,18 @@ final gameLibrarySortDefinitions = [
       id: 'imprint',
     compare: (left, right) => (left.publishing?.imprint ?? "").compareTo(right.publishing?.imprint ?? ""), label: 'Imprint'),
 ];
-const gamesLibrarySortColumns = [
-  'series',
-  'publisher',
-  'status',
-  'title',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'collection_status',
-  'added',
-  'updated',
-];
-
-const gamesLibraryTableColumns = [
+const gamesLibraryDefaultVisibleColumnIds = {
   'status',
   'cover',
   'title',
   'publisher',
   'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'wishlist',
-  'updated',
-];
-
-const gamesLibraryDefaultVisibleColumns = {
-  'status',
-  'cover',
-  'title',
-  'publisher',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
+  'barcode',
+  'condition',
+  'location',
   'wishlist',
   'updated',
 };
-
 final gameLibraryColumnDefinitions = [
   ...commonColumnDefinitions,
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(

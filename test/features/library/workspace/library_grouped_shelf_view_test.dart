@@ -17,7 +17,13 @@ void main() {
     expect(tvDefaultWorkspaceGroupPresentation, LibraryGroupPresentation.folderGrid);
     expect(tvDefaultVideoDisplayLevel, VideoDisplayLevel.season);
     expect(tvDefaultVideoGrouping, VideoGroupingDefault.bySeries);
-    expect(tvLibraryGroupModes.first, 'series');
+    expect(
+      tvLibraryGroupDefinitions
+          .firstWhere((definition) => definition.id.value == 'series')
+          .id
+          .value,
+      'series',
+    );
     expect(
       tvLibraryGroupDefinitions
           .firstWhere((definition) => definition.id.value == 'series')

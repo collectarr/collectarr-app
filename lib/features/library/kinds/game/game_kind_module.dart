@@ -16,8 +16,7 @@ final gameKindModule = LibraryKindModule(
     groups: gameLibraryGroupDefinitions,
     sorts: gameLibrarySortDefinitions,
     columns: gameLibraryColumnDefinitions,
-    defaultVisibleColumnIds:
-        gamesLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
+    defaultVisibleColumnIds: gamesLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
   ),

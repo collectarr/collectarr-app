@@ -33,77 +33,6 @@ final bookLibraryFieldDefinitions = [
   ),
 ];
 
-const bookLibraryGroupModes = [
-  // Main
-  'creator',
-  'country',
-  'language',
-  'release_date',
-  'release_month',
-  'publication_place',
-  'release_year',
-  'publisher',
-  'series',
-  // Value
-  'condition',
-  'dust_jacket_condition',
-  'is_signed',
-  'purchase_date',
-  'purchase_month',
-  'purchase_store',
-  'purchase_year',
-  'signed_by',
-  'sold_date',
-  'sold_month',
-  'sold_year',
-  // Edition
-  'audiobook_abridged',
-  'box_set',
-  'edition',
-  'extras',
-  'first_edition',
-  'format',
-  'narrator',
-  'original_country',
-  'original_language',
-  'original_publication_date',
-  'original_publication_month',
-  'original_publication_place',
-  'original_publication_year',
-  'original_publisher',
-  'paper_type',
-  'printed_by',
-  // Credits
-  'cover_artist',
-  'editor',
-  'foreword_author',
-  'ghost_writer',
-  'illustrator',
-  'photography',
-  'translator',
-  // Categorization
-  'genre',
-  'subject',
-  // Personal
-  'added_date',
-  'added_month',
-  'added_year',
-  'collection_status',
-  'dust_jacket',
-  'image_type',
-  'location',
-  'modified_date',
-  'modified_month',
-  'my_rating',
-  'owner',
-  'read_date',
-  'watched',
-  'read_month',
-  'read_year',
-  'reader',
-  'reading_status',
-  'tags',
-];
 
 final bookLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
@@ -709,50 +638,7 @@ final bookLibrarySortDefinitions = [
     label: 'Imprint',
   ),
 ];
-const booksLibrarySortColumns = [
-  'status',
-  'title',
-  'series',
-  'publisher',
-  'issue',
-  'story_arc',
-  'variant',
-  'format',
-  'release_date',
-  'barcode',
-  'grade',
-  'condition',
-  'price',
-  'location',
-  'collection_status',
-  'wishlist',
-  'added',
-  'updated',
-  'country',
-  'language',
-  'page_count',
-  'age_rating',
-  'imprint',
-];
-
-const booksLibraryTableColumns = [
-  'status',
-  'cover',
-  'author',
-  'title',
-  'publisher',
-  'release_date',
-  'barcode',
-  'read_status',
-  'rating',
-  'condition',
-  'price',
-  'location',
-  'wishlist',
-  'updated',
-];
-
-const booksLibraryDefaultVisibleColumns = {
+const booksLibraryDefaultVisibleColumnIds = {
   'status',
   'cover',
   'author',
@@ -768,7 +654,6 @@ const booksLibraryDefaultVisibleColumns = {
   'wishlist',
   'updated',
 };
-
 
 final bookLibraryColumnDefinitions = [
   ...commonColumnDefinitions,

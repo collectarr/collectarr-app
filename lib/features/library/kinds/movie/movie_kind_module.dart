@@ -18,8 +18,7 @@ final movieKindModule = LibraryKindModule(
     groups: movieLibraryGroupDefinitions,
     sorts: movieLibrarySortDefinitions,
     columns: movieLibraryColumnDefinitions,
-    defaultVisibleColumnIds:
-        moviesLibraryDefaultVisibleColumns.map((c) => c.toString().split('.').last).toSet(),
+    defaultVisibleColumnIds: moviesLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
   ),

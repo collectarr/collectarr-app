@@ -53,44 +53,14 @@ class AnyLibraryFieldRegistry {
   final String? defaultGroupId;
 
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>? columnDefinitionForId(String id) {
-    final normalized = id.contains('.') ? id.split('.').last : id;
-    final snakeCaseId = normalized
-        .replaceAllMapped(
-          RegExp(r'([a-z0-9])([A-Z])'),
-          (match) => '${match[1]}_${match[2]}',
-        )
-        .toLowerCase();
-
     for (final definition in columns) {
-      final defVal = definition.id.value;
-      final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
-      final defSnake = defNormalized
-          .replaceAllMapped(
-            RegExp(r'([a-z0-9])([A-Z])'),
-            (match) => '${match[1]}_${match[2]}',
-          )
-          .toLowerCase();
-      if (defVal == id ||
-          defVal == snakeCaseId ||
-          defNormalized == normalized ||
-          defSnake == snakeCaseId) {
+      if (definition.id.value == id) {
         return definition;
       }
     }
     if (_columns != null) {
       for (final definition in commonColumnDefinitions) {
-        final defVal = definition.id.value;
-        final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
-        final defSnake = defNormalized
-            .replaceAllMapped(
-              RegExp(r'([a-z0-9])([A-Z])'),
-              (match) => '${match[1]}_${match[2]}',
-            )
-            .toLowerCase();
-        if (defVal == id ||
-            defVal == snakeCaseId ||
-            defNormalized == normalized ||
-            defSnake == snakeCaseId) {
+        if (definition.id.value == id) {
           return definition;
         }
       }
@@ -110,51 +80,14 @@ class AnyLibraryFieldRegistry {
   }
 
   LibrarySortDefinition<LibraryWorkspaceEntry>? sortDefinitionForId(String id) {
-    final normalized = id.contains('.') ? id.split('.').last : id;
-    final snakeCaseId = normalized
-        .replaceAllMapped(
-          RegExp(r'([a-z0-9])([A-Z])'),
-          (match) => '${match[1]}_${match[2]}',
-        )
-        .toLowerCase();
-    final alternativeSnakeCaseId = snakeCaseId == 'key_comic'
-        ? 'key_issue'
-        : (snakeCaseId == 'key_issue' ? 'key_comic' : snakeCaseId);
-
     for (final definition in sorts) {
-      final defVal = definition.id;
-      final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
-      final defSnake = defNormalized
-          .replaceAllMapped(
-            RegExp(r'([a-z0-9])([A-Z])'),
-            (match) => '${match[1]}_${match[2]}',
-          )
-          .toLowerCase();
-      if (defVal == id ||
-          defVal == snakeCaseId ||
-          defVal == alternativeSnakeCaseId ||
-          defNormalized == normalized ||
-          defSnake == snakeCaseId ||
-          defSnake == alternativeSnakeCaseId) {
+      if (definition.id == id) {
         return definition;
       }
     }
     if (_sorts != null) {
       for (final definition in commonSortDefinitions) {
-        final defVal = definition.id;
-        final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
-        final defSnake = defNormalized
-            .replaceAllMapped(
-              RegExp(r'([a-z0-9])([A-Z])'),
-              (match) => '${match[1]}_${match[2]}',
-            )
-            .toLowerCase();
-        if (defVal == id ||
-            defVal == snakeCaseId ||
-            defVal == alternativeSnakeCaseId ||
-            defNormalized == normalized ||
-            defSnake == snakeCaseId ||
-            defSnake == alternativeSnakeCaseId) {
+        if (definition.id == id) {
           return definition;
         }
       }
@@ -174,44 +107,14 @@ class AnyLibraryFieldRegistry {
   }
 
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>? groupDefinitionForId(String id) {
-    final normalized = id.contains('.') ? id.split('.').last : id;
-    final snakeCaseId = normalized
-        .replaceAllMapped(
-          RegExp(r'([a-z0-9])([A-Z])'),
-          (match) => '${match[1]}_${match[2]}',
-        )
-        .toLowerCase();
-
     for (final definition in groups) {
-      final defVal = definition.id.value;
-      final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
-      final defSnake = defNormalized
-          .replaceAllMapped(
-            RegExp(r'([a-z0-9])([A-Z])'),
-            (match) => '${match[1]}_${match[2]}',
-          )
-          .toLowerCase();
-      if (defVal == id ||
-          defVal == snakeCaseId ||
-          defNormalized == normalized ||
-          defSnake == snakeCaseId) {
+      if (definition.id.value == id) {
         return definition;
       }
     }
     if (_groups != null) {
       for (final definition in commonGroupDefinitions) {
-        final defVal = definition.id.value;
-        final defNormalized = defVal.contains('.') ? defVal.split('.').last : defVal;
-        final defSnake = defNormalized
-            .replaceAllMapped(
-              RegExp(r'([a-z0-9])([A-Z])'),
-              (match) => '${match[1]}_${match[2]}',
-            )
-            .toLowerCase();
-        if (defVal == id ||
-            defVal == snakeCaseId ||
-            defNormalized == normalized ||
-            defSnake == snakeCaseId) {
+        if (definition.id.value == id) {
           return definition;
         }
       }

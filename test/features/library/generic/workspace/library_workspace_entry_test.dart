@@ -205,7 +205,7 @@ void main() {
       entry(id: '1', title: 'Series', itemNumber: '2'),
       entry(id: '3', title: 'Series', itemNumber: 'A'),
     ], const [
-      LibrarySortRule(column: 'issue', ascending: true)
+      LibrarySortRule(column: 'comic.issue', ascending: true)
     ]);
 
     expect(items.map((item) => item.itemNumber), ['2', '10', 'A']);
@@ -254,7 +254,7 @@ void main() {
       entry(id: '1', title: 'Regular issue'),
       entry(id: '2', title: 'Key issue', keyComic: true),
     ], const [
-      LibrarySortRule(column: 'key_issue', ascending: true)
+      LibrarySortRule(column: 'comic.key_issue', ascending: true)
     ]);
 
     expect(items.map((item) => item.title), ['Key issue', 'Regular issue']);
@@ -272,7 +272,7 @@ void main() {
           itemNumber: '2'),
     ], const [
       LibrarySortRule(column: 'status', ascending: true),
-      LibrarySortRule(column: 'issue', ascending: true),
+      LibrarySortRule(column: 'comic.issue', ascending: true),
     ]);
 
     expect(

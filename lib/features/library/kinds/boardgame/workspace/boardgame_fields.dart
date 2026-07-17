@@ -33,14 +33,6 @@ final boardgameLibraryFieldDefinitions = [
   ),
 ];
 
-const boardGamesLibraryGroupModes = [
-  'publisher',
-  'series',
-  'year',
-  'location',
-  'title',
-  'ownership',
-];
 
 final boardGamesLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
@@ -211,35 +203,7 @@ final boardGamesLibrarySortDefinitions = [
     compare: (left, right) => (left.publishing?.imprint ?? "").compareTo(right.publishing?.imprint ?? ""), label: 'Imprint'),
 ];
 
-const boardGamesLibrarySortColumns = [
-  'series',
-  'publisher',
-  'status',
-  'title',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'collection_status',
-  'added',
-  'updated',
-];
-
-const boardGamesLibraryTableColumns = [
-  'status',
-  'cover',
-  'title',
-  'publisher',
-  'release_date',
-  'barcode',
-  'condition',
-  'price',
-  'location',
-  'wishlist',
-  'updated',
-];
-
-const boardGamesLibraryDefaultVisibleColumns = {
+const boardGamesLibraryDefaultVisibleColumnIds = {
   'status',
   'cover',
   'title',
@@ -252,7 +216,6 @@ const boardGamesLibraryDefaultVisibleColumns = {
   'wishlist',
   'updated',
 };
-
 final boardGamesLibraryColumnDefinitions = [
   ...commonColumnDefinitions,
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
@@ -274,16 +237,3 @@ final boardGamesLibraryColumnDefinitions = [
   ),
 ];
 
-const boardGamesLibraryDefaultVisibleColumnIds = {
-  'status',
-  'cover',
-  'title',
-  'publisher',
-  'release_date',
-  'barcode',
-  'condition',
-  'price',
-  'location',
-  'wishlist',
-  'updated'
-};

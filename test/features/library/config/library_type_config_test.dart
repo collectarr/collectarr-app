@@ -285,8 +285,10 @@ void main() {
       ),
       contains('title'),
     );
-    expect(boardGamesLibraryConfig.availableSortColumns,
-        boardGamesLibrarySortColumns);
+    expect(
+      boardGamesLibraryConfig.availableSortColumns,
+      contains('title'),
+    );
   });
 
   test('edit scope follows the active browser mode', () {

@@ -16,14 +16,14 @@ const double kPlannedMediaTableHorizontalMargin = 8;
 
 double plannedMediaTableWidthForColumns({
   required LibraryTypeConfig type,
-  required Set<Object> columns,
-  required Map<Object, double> customWidths,
+  required Set<String> columns,
+  required Map<String, double> customWidths,
 }) {
   return libraryTableWidthForColumns(
     columns: columns,
     defaultColumns: type.defaultVisibleColumns,
     customWidths: customWidths,
-    sizing: (column) => plannedMediaTableColumnSizing(type, column),
+    sizing: (column) => plannedMediaTableColumnSizing(type, column as String),
     columnSpacing: kPlannedMediaTableColumnSpacing,
     horizontalMargin: kPlannedMediaTableHorizontalMargin,
   );
@@ -31,21 +31,21 @@ double plannedMediaTableWidthForColumns({
 
 double plannedMediaTableColumnWidth(
   LibraryTypeConfig type,
-  Object column,
-  Map<Object, double> customWidths,
+  String columnId,
+  Map<String, double> customWidths,
 ) {
   return libraryTableColumnWidth(
-    column: column,
+    column: columnId,
     customWidths: customWidths,
-    sizing: (column) => plannedMediaTableColumnSizing(type, column),
+    sizing: (column) => plannedMediaTableColumnSizing(type, column as String),
   );
 }
 
 double defaultPlannedMediaTableColumnWidth(
   LibraryTypeConfig type,
-  Object column,
+  String columnId,
 ) {
-  final definition = _tableColumnDefinition(type, column);
+  final definition = _tableColumnDefinition(type, columnId);
   if (definition != null && definition.defaultWidth != null) {
     return definition.defaultWidth!;
   }
@@ -54,69 +54,69 @@ double defaultPlannedMediaTableColumnWidth(
 
 double minPlannedMediaTableColumnWidth(
   LibraryTypeConfig type,
-  Object column,
+  String columnId,
 ) {
-  final definition = _tableColumnDefinition(type, column);
+  final definition = _tableColumnDefinition(type, columnId);
   return definition?.minWidth ?? 64.0;
 }
 
 double maxPlannedMediaTableColumnWidth(
   LibraryTypeConfig type,
-  Object column,
+  String columnId,
 ) {
-  final definition = _tableColumnDefinition(type, column);
+  final definition = _tableColumnDefinition(type, columnId);
   return definition?.maxWidth ?? 260.0;
 }
 
 LibraryTableColumnSizing plannedMediaTableColumnSizing(
   LibraryTypeConfig type,
-  Object column,
+  String columnId,
 ) {
   return LibraryTableColumnSizing(
-    defaultWidth: defaultPlannedMediaTableColumnWidth(type, column),
-    minWidth: minPlannedMediaTableColumnWidth(type, column),
-    maxWidth: maxPlannedMediaTableColumnWidth(type, column),
+    defaultWidth: defaultPlannedMediaTableColumnWidth(type, columnId),
+    minWidth: minPlannedMediaTableColumnWidth(type, columnId),
+    maxWidth: maxPlannedMediaTableColumnWidth(type, columnId),
   );
 }
 
 double clampPlannedMediaTableColumnWidth(
   LibraryTypeConfig type,
-  Object column,
+  String columnId,
   double width,
 ) {
   return clampLibraryTableColumnWidth(
     width,
-    plannedMediaTableColumnSizing(type, column),
+    plannedMediaTableColumnSizing(type, columnId),
   );
 }
 
 String plannedMediaTableColumnLabelForType(
   LibraryTypeConfig type,
-  Object column,
+  String columnId,
 ) {
-  final definition = _tableColumnDefinition(type, column);
+  final definition = _tableColumnDefinition(type, columnId);
   if (definition != null) {
     return definition.label;
   }
-  return _fallbackLabel(type.tableColumnFieldId(column));
+  return _fallbackLabel(columnId);
 }
 
 String plannedMediaTableColumnDisplayNameForType(
   LibraryTypeConfig type,
-  Object column,
+  String columnId,
 ) {
-  final definition = _tableColumnDefinition(type, column);
+  final definition = _tableColumnDefinition(type, columnId);
   if (definition != null) {
     return definition.resolvedDisplayName;
   }
-  return plannedMediaTableColumnLabelForType(type, column);
+  return plannedMediaTableColumnLabelForType(type, columnId);
 }
 
 LibraryTableColumnGroup plannedMediaTableColumnGroup(
   LibraryTypeConfig type,
-  Object column,
+  String columnId,
 ) {
-  final definition = _tableColumnDefinition(type, column);
+  final definition = _tableColumnDefinition(type, columnId);
   return _tableColumnGroupFor(definition?.group);
 }
 
@@ -131,17 +131,17 @@ String plannedMediaTableColumnGroupLabel(LibraryTableColumnGroup group) {
 
 bool plannedMediaTableColumnIsNumeric(
   LibraryTypeConfig type,
-  Object column,
+  String columnId,
 ) {
-  final definition = _tableColumnDefinition(type, column);
+  final definition = _tableColumnDefinition(type, columnId);
   return definition?.isNumeric ?? false;
 }
 
 Object? plannedMediaTableColumnSort(
   LibraryTypeConfig type,
-  Object column,
+  String columnId,
 ) {
-  final definition = _tableColumnDefinition(type, column);
+  final definition = _tableColumnDefinition(type, columnId);
   if (definition == null || !definition.sortable) {
     return null;
   }
@@ -151,9 +151,9 @@ Object? plannedMediaTableColumnSort(
 Widget plannedMediaTableCell(
   LibraryTypeConfig type,
   LibraryWorkspaceEntry entry,
-  Object column,
+  String columnId,
 ) {
-  final definition = _tableColumnDefinition(type, column);
+  final definition = _tableColumnDefinition(type, columnId);
   if (definition == null) {
     return const LibraryTableCellText('');
   }
@@ -207,10 +207,9 @@ int plannedMediaCompareSubgroupKeys(
 
 
 LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>?
-    _tableColumnDefinition(LibraryTypeConfig type, Object column) {
-  final fieldId = type.tableColumnFieldId(column);
+    _tableColumnDefinition(LibraryTypeConfig type, String columnId) {
   final module = libraryKindModuleForType(type);
-  return module.fields.columnDefinitionForId(fieldId);
+  return module.fields.columnDefinitionForId(columnId);
 }
 
 LibraryTableColumnGroup _tableColumnGroupFor(String? group) {

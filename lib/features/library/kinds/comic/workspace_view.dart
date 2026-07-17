@@ -23,7 +23,7 @@ final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
   maxCoverSize: kComicsMaxCoverSize,
   presetConfig: comicsViewPresetConfig,
   clampColumnWidth: (column, width) =>
-      clampPlannedMediaTableColumnWidth(comicsLibraryConfig, column, width),
+      clampPlannedMediaTableColumnWidth(comicsLibraryConfig, column as String, width),
   defaultDetailsWidth: 350,
   defaultDetailsLayout: LibraryDetailsLayout.right,
   hideDetailsWhenSelectionEmpty: false,
@@ -37,20 +37,20 @@ final comicsMediaAdapter = LibraryMediaAdapter(
   tableWidthForColumns: comicTableWidthForColumns,
   tableColumnWidth: comicTableColumnWidth,
   defaultTableColumnWidth: (column) =>
-      defaultPlannedMediaTableColumnWidth(comicsLibraryConfig, column),
+      defaultPlannedMediaTableColumnWidth(comicsLibraryConfig, column as String),
   columnLabel: (column) =>
-      plannedMediaTableColumnLabelForType(comicsLibraryConfig, column),
+      plannedMediaTableColumnLabelForType(comicsLibraryConfig, column as String),
   columnDisplayName: (column) =>
-      plannedMediaTableColumnDisplayNameForType(comicsLibraryConfig, column),
+      plannedMediaTableColumnDisplayNameForType(comicsLibraryConfig, column as String),
   columnGroup: (column) =>
-      plannedMediaTableColumnGroup(comicsLibraryConfig, column),
+      plannedMediaTableColumnGroup(comicsLibraryConfig, column as String),
   columnGroupLabel: plannedMediaTableColumnGroupLabel,
   columnIsNumeric: (column) =>
-      plannedMediaTableColumnIsNumeric(comicsLibraryConfig, column),
+      plannedMediaTableColumnIsNumeric(comicsLibraryConfig, column as String),
   columnSort: (column) =>
-      plannedMediaTableColumnSort(comicsLibraryConfig, column),
+      plannedMediaTableColumnSort(comicsLibraryConfig, column as String),
   tableCellBuilder: (entry, column) =>
-      plannedMediaTableCell(comicsLibraryConfig, entry, column),
+      plannedMediaTableCell(comicsLibraryConfig, entry, column as String),
   compareEntriesByColumn: compareComicEntriesByColumn,
   entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
   entryLinkedMetadataCandidatesBuilder:
@@ -216,8 +216,8 @@ double comicTableWidthForColumns(
 ) {
   return plannedMediaTableWidthForColumns(
     type: comicsLibraryConfig,
-    columns: columns,
-    customWidths: customWidths,
+    columns: columns.cast<String>().toSet(),
+    customWidths: customWidths.cast<String, double>(),
   );
 }
 
@@ -226,5 +226,5 @@ double comicTableColumnWidth(
   Map<Object, double> customWidths,
 ) {
   return plannedMediaTableColumnWidth(
-      comicsLibraryConfig, column, customWidths);
+      comicsLibraryConfig, column as String, customWidths.cast<String, double>());
 }

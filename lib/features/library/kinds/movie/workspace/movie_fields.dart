@@ -33,64 +33,6 @@ final movieLibraryFieldDefinitions = [
   ),
 ];
 
-const movieLibraryGroupModes = [
-  'audience_rating',
-  'color',
-  'country',
-  'genre',
-  'language',
-  'age_rating',
-  'movie_or_tv_series',
-  'release_date',
-  'release_month',
-  'release_year',
-  'series',
-  'publisher',
-  'audio_tracks',
-  'box_set',
-  'distributor',
-  'edition_release_date',
-  'edition_release_month',
-  'edition_release_year',
-  'extras',
-  'format',
-  'hdr',
-  'layers',
-  'packaging',
-  'regions',
-  'screen_ratios',
-  'subtitles',
-  'actor',
-  'director',
-  'musician',
-  'photography',
-  'producer',
-  'writer',
-  'title',
-  'ownership',
-  'added_date',
-  'added_month',
-  'added_year',
-  'collection_status',
-  'condition',
-  'image_type',
-  'location',
-  'modified_date',
-  'modified_month',
-  'my_rating',
-  'owner',
-  'purchase_date',
-  'purchase_month',
-  'purchase_year',
-  'purchase_store',
-  'storage_device',
-  'tags',
-  'watch_date',
-  'watch_month',
-  'watch_year',
-  'watched',
-  'watched_where',
-];
 
 final movieLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
@@ -619,45 +561,6 @@ final movieLibrarySortDefinitions = [
       id: 'imprint',
     compare: (left, right) => (left.publishing?.imprint ?? "").compareTo(right.publishing?.imprint ?? ""), label: 'Imprint'),
 ];
-const moviesLibrarySortColumns = [
-  'series',
-  'publisher',
-  'status',
-  'title',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'collection_status',
-  'added',
-  'updated',
-];
-
-const moviesLibraryTableColumns = [
-  'status',
-  'cover',
-  'title',
-  'publisher',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'wishlist',
-  'updated',
-];
-
-const moviesLibraryDefaultVisibleColumns = {
-  'status',
-  'cover',
-  'title',
-  'publisher',
-  'release_date',
-  'country',
-  'language',
-  'age_rating',
-  'wishlist',
-  'updated',
-};
 
 final movieLibraryColumnDefinitions = [
   ...commonColumnDefinitions,
@@ -679,3 +582,16 @@ final movieLibraryColumnDefinitions = [
     maxWidth: 260,
   ),
 ];
+
+const moviesLibraryDefaultVisibleColumnIds = {
+  'status',
+  'cover',
+  'title',
+  'publisher',
+  'release_date',
+  'country',
+  'language',
+  'age_rating',
+  'wishlist',
+  'updated',
+};
