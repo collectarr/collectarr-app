@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -92,13 +93,14 @@ class LibrarySortPresetStore {
   }
 
   Map<String, dynamic> _presetToJson(LibrarySortPreset preset) {
+    final module = libraryKindModuleForType(config);
     return {
       'id': preset.id,
       'label': preset.label,
       'rules': [
         for (final rule in _dedupeRules(preset.rules))
           {
-            'column': config.sortColumnDefinitionFor(rule.column).id,
+            'column': module.fields.sortDefinitionForId(rule.column.toString())?.id ?? rule.column.toString(),
             'ascending': rule.ascending,
           },
       ],
@@ -109,6 +111,7 @@ class LibrarySortPresetStore {
     if (rawRules is! List) {
       return const [];
     }
+    final module = libraryKindModuleForType(config);
     final rules = <LibrarySortRule>[];
     for (final value in rawRules) {
       final json = switch (value) {
@@ -120,7 +123,17 @@ class LibrarySortPresetStore {
         continue;
       }
       final columnName = json['column']?.toString();
-      final column = config.sortColumnFromFieldId(columnName);
+      String? column;
+      if (columnName != null) {
+        if (module.fields.sortDefinitionForId(columnName) != null) {
+          column = columnName;
+        } else {
+          final shortId = columnName.split('.').last;
+          if (module.fields.sortDefinitionForId(shortId) != null) {
+            column = shortId;
+          }
+        }
+      }
       if (column == null) {
         continue;
       }
@@ -135,10 +148,13 @@ class LibrarySortPresetStore {
   }
 
   List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
+    final module = libraryKindModuleForType(config);
     final seen = <Object>{};
     final deduped = <LibrarySortRule>[];
     for (final rule in rules) {
-      if (!config.supportsSortColumn(rule.column)) {
+      final supported = module.fields.sortDefinitionForId(rule.column.toString()) != null ||
+          module.fields.sortDefinitionForId(rule.column.toString().split('.').last) != null;
+      if (!supported) {
         continue;
       }
       if (seen.add(rule.column)) {

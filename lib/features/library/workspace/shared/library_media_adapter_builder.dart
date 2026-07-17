@@ -29,7 +29,7 @@ LibraryMediaAdapter plannedMediaAdapter(
     viewProfile: viewProfile,
     orderedTableColumns: (columns) => orderedLibraryTableColumns(
       columns: columns,
-      defaultColumns: type.defaultVisibleColumns,
+      defaultColumns: libraryKindModuleForType(type).fields.defaultVisibleColumnIds,
     ),
     tableWidthForColumns: (columns, customWidths) =>
         plannedMediaTableWidthForColumns(
@@ -108,7 +108,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
           'cover',
           'title',
           'publisher',
-          'releaseDate',
+          'release_date',
         },
       ),
     LibraryWorkspacePreset.card => const LibraryWorkspaceViewPresetConfig(
@@ -120,7 +120,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
           'cover',
           'title',
           'publisher',
-          'releaseDate',
+          'release_date',
           'condition',
         },
       ),
@@ -133,7 +133,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
           'title',
           'format',
           'publisher',
-          'releaseDate',
+          'release_date',
           'condition',
           'price',
           'location',
@@ -149,7 +149,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
           'cover',
           'title',
           'publisher',
-          'releaseDate',
+          'release_date',
           'barcode',
           'condition',
           'price',

@@ -21,7 +21,7 @@ double plannedMediaTableWidthForColumns({
 }) {
   return libraryTableWidthForColumns(
     columns: columns,
-    defaultColumns: type.defaultVisibleColumns,
+    defaultColumns: libraryKindModuleForType(type).fields.defaultVisibleColumnIds,
     customWidths: customWidths,
     sizing: (column) => plannedMediaTableColumnSizing(type, column as String),
     columnSpacing: kPlannedMediaTableColumnSpacing,

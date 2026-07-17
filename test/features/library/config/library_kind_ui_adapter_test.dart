@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -32,17 +33,18 @@ void main() {
 
   test('browser mode resolution stays in the kind adapter', () {
     final adapter = booksLibraryConfig.kindUiAdapter;
+    final bookModule = libraryKindModuleForType(booksLibraryConfig);
     final state = LibraryWorkspaceViewState(
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,
       isSidebarVisible: true,
-      sortColumn: booksLibraryConfig.defaultSortColumn,
+      sortColumn: bookModule.fields.defaultSortId ?? 'title',
       sortAscending: true,
       coverSize: 180,
       sidebarWidth: 320,
       detailsWidth: 420,
       detailsHeight: 260,
-      visibleColumns: Set.of(booksLibraryConfig.defaultVisibleColumns),
+      visibleColumns: Set.of(bookModule.fields.defaultVisibleColumnIds),
       columnWidths: const {},
     );
 

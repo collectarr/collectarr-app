@@ -104,13 +104,13 @@ class AnyLibraryFieldRegistry {
 
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>? columnDefinitionForId(String id) {
     for (final definition in columns) {
-      if (definition.id.value == id) {
+      if (definition.id.value == id || definition.id.value.split('.').last == id) {
         return definition;
       }
     }
     if (_columns != null) {
       for (final definition in commonColumnDefinitions) {
-        if (definition.id.value == id) {
+        if (definition.id.value == id || definition.id.value.split('.').last == id) {
           return definition;
         }
       }
@@ -131,13 +131,13 @@ class AnyLibraryFieldRegistry {
 
   LibrarySortDefinition<LibraryWorkspaceEntry>? sortDefinitionForId(String id) {
     for (final definition in sorts) {
-      if (definition.id == id) {
+      if (definition.id == id || definition.id.split('.').last == id) {
         return definition;
       }
     }
     if (_sorts != null) {
       for (final definition in commonSortDefinitions) {
-        if (definition.id == id) {
+        if (definition.id == id || definition.id.split('.').last == id) {
           return definition;
         }
       }
@@ -158,13 +158,13 @@ class AnyLibraryFieldRegistry {
 
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>? groupDefinitionForId(String id) {
     for (final definition in groups) {
-      if (definition.id.value == id) {
+      if (definition.id.value == id || definition.id.value.split('.').last == id) {
         return definition;
       }
     }
     if (_groups != null) {
       for (final definition in commonGroupDefinitions) {
-        if (definition.id.value == id) {
+        if (definition.id.value == id || definition.id.value.split('.').last == id) {
           return definition;
         }
       }

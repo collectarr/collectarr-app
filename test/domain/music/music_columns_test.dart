@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -24,7 +26,7 @@ void main() {
     );
     expect(plannedMediaTableColumnLabelForType(musicLibraryConfig, 'disc_count'), 'Disc Count');
     expect(
-      musicLibraryConfig.defaultVisibleColumns,
+      libraryKindModuleForKind(CatalogMediaKind.music).fields.defaultVisibleColumnIds,
       containsAll([
         'artist',
         'album',

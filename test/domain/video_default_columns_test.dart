@@ -1,12 +1,14 @@
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('video list defaults stay media-focused', () {
     for (final config in [moviesLibraryConfig]) {
+      final defaultVisibleColumnIds = libraryKindModuleForKind(config.workspace.kind).fields.defaultVisibleColumnIds;
       expect(
-        config.defaultVisibleColumns,
+        defaultVisibleColumnIds,
         containsAll(<String>{
           'title',
           'release_date',
@@ -16,7 +18,7 @@ void main() {
         }),
       );
       expect(
-        config.defaultVisibleColumns,
+        defaultVisibleColumnIds,
         isNot(
           containsAll(<String>{
             'condition',

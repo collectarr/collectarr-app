@@ -57,11 +57,6 @@ void main() {
       defaultMetadataProvider: 'tmdb',
       metadataProviders: const [],
       trackingProfile: videoTrackingProfile,
-      defaultSortColumn: 'title',
-      defaultVisibleColumns: const {'title'},
-      availableSortColumns: const ['title'],
-      availableSortColumnDefinitions: const [],
-      availableTableColumns: const ['title'],
       presentation: genericLibraryMediaPresentation,
       editPresentation: const LibraryEditPresentation(
         builder: DefaultLibraryEditPresentationBuilder(),

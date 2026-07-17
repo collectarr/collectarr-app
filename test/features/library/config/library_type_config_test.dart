@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/game/game_media_adapter.da
 import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart'
     show moviesMediaAdapter;
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -286,7 +287,7 @@ void main() {
       contains('title'),
     );
     expect(
-      boardGamesLibraryConfig.availableSortColumns,
+      libraryKindModuleForType(boardGamesLibraryConfig).fields.sorts.map((d) => d.id),
       contains('title'),
     );
   });
@@ -327,11 +328,6 @@ void main() {
       metadataProviders: const [gcdMetadataProvider],
       trackingProfile: comicTrackingProfile,
       addDialogLauncher: fakeLauncher,
-      defaultSortColumn: 'title',
-      defaultVisibleColumns: const {},
-      availableSortColumns: const [],
-      availableSortColumnDefinitions: const [],
-      availableTableColumns: const [],
     );
 
     expect(config.addDialogLauncher, same(fakeLauncher));
@@ -350,11 +346,6 @@ void main() {
       metadataProviders: const [gcdMetadataProvider],
       trackingProfile: comicTrackingProfile,
       editDialogBuilder: fakeBuilder,
-      defaultSortColumn: 'title',
-      defaultVisibleColumns: const {},
-      availableSortColumns: const [],
-      availableSortColumnDefinitions: const [],
-      availableTableColumns: const [],
     );
 
     expect(config.editDialogBuilder, same(fakeBuilder));
@@ -373,11 +364,6 @@ void main() {
       metadataProviders: const [gcdMetadataProvider],
       trackingProfile: comicTrackingProfile,
       detailPageBuilder: fakeBuilder,
-      defaultSortColumn: 'title',
-      defaultVisibleColumns: const {},
-      availableSortColumns: const [],
-      availableSortColumnDefinitions: const [],
-      availableTableColumns: const [],
     );
 
     expect(config.detailPageBuilder, same(fakeBuilder));

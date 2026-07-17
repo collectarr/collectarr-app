@@ -1,5 +1,6 @@
-﻿import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
@@ -509,7 +510,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   LibrarySortRule _defaultRule() {
-    final column = widget.type.defaultSortColumn;
+    final column = libraryKindModuleForType(widget.type).fields.defaultSortId ?? 'title';
     return LibrarySortRule(
       column: column,
       ascending: _defaultAscending(column),
@@ -564,7 +565,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   List<String> _filteredColumns() {
     final query = _query.trim().toLowerCase();
     final available =
-        widget.availableColumns ?? widget.type.availableSortColumns;
+        widget.availableColumns ?? [for (final def in libraryKindModuleForType(widget.type).fields.sorts) def.id];
     return available.where((column) {
       if (query.isEmpty) {
         return true;
@@ -1139,7 +1140,7 @@ LibraryTableColumnGroup _sortFieldGroup(
   LibraryTypeConfig type,
   String column,
 ) {
-  final groupStr = type.sortColumnDefinitionFor(column).group.toLowerCase();
+  final groupStr = libraryKindModuleForType(type).fields.sortDefinitionFor(column).group.toLowerCase();
   return LibraryTableColumnGroup.values.firstWhere(
     (g) => g.name.toLowerCase() == groupStr,
     orElse: () => LibraryTableColumnGroup.main,
@@ -1156,7 +1157,7 @@ String _groupLabel(LibraryTableColumnGroup group) {
 }
 
 bool _defaultSortAscending(LibraryTypeConfig type, String column) {
-  return type.sortColumnDefinitionFor(column).defaultAscending;
+  return libraryKindModuleForType(type).fields.sortDefinitionFor(column).defaultAscending;
 }
 
 List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
@@ -1174,7 +1175,7 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
 
 String _sortColumnLabel(LibraryTypeConfig type, String column) {
   try {
-    return type.sortColumnDefinitionFor(column).label;
+    return libraryKindModuleForType(type).fields.sortDefinitionFor(column).label;
   } on StateError {
     return librarySortColumnFallbackLabel(column);
   }

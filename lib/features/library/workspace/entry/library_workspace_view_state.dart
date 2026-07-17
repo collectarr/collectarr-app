@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_pane_wi
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 class LibraryWorkspaceViewPresetConfig {
   const LibraryWorkspaceViewPresetConfig({
@@ -76,19 +77,20 @@ class LibraryWorkspaceViewProfile {
       return fromPreferences(cached)
           .withChrome(LibraryWorkspacePreferences.cachedChromeFor(type));
     }
+    final module = libraryKindModuleForType(type);
     final defaults = LibraryWorkspaceViewState(
       browserMode: LibraryWorkspaceBrowserMode.media,
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
-      sortColumn: type.defaultSortColumn,
+      sortColumn: module.fields.defaultSortId ?? 'title',
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
       densityPreset: type.defaultDensityPreset,
-      visibleColumns: Set.of(type.defaultVisibleColumns),
+      visibleColumns: Set.of(module.fields.defaultVisibleColumnIds),
       columnWidths: const {},
     );
     return defaults

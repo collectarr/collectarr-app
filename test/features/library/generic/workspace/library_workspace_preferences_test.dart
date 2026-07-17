@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_pane_wi
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
@@ -28,11 +29,6 @@ void main() {
       name: 'Mock',
       options: [],
     ),
-    defaultSortColumn: 'title',
-    defaultVisibleColumns: const {'title', 'issue', 'grade'},
-    availableSortColumns: const ['title', 'issue', 'grade'],
-    availableSortColumnDefinitions: const [],
-    availableTableColumns: const ['title', 'issue', 'grade'],
   );
 
   final mangaConfig = LibraryWorkspaceConfig(
@@ -53,11 +49,6 @@ void main() {
       name: 'Mock',
       options: [],
     ),
-    defaultSortColumn: 'title',
-    defaultVisibleColumns: const {'title', 'publisher'},
-    availableSortColumns: const ['title', 'publisher'],
-    availableSortColumnDefinitions: const [],
-    availableTableColumns: const ['title', 'publisher'],
   );
 
   setUp(() {
@@ -214,10 +205,7 @@ void main() {
     expect(restored.detailsHeight, kLibraryDetailsDefaultHeight);
     expect(restored.viewMode, LibraryViewMode.grid);
     expect(restored.sortColumn, 'title');
-    expect(restored.visibleColumns, {
-      'title',
-      'publisher',
-    });
+    expect(restored.visibleColumns, libraryKindModuleForType(mangaTypeConfig).fields.defaultVisibleColumnIds);
     expect(restored.columnWidths, isEmpty);
   });
 

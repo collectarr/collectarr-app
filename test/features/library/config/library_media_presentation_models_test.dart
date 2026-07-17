@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -63,23 +65,29 @@ void main() {
       'generic': commonSortDefinitions
           .map((definition) => definition.id)
           .toSet(),
-      'books': booksLibraryConfig.availableSortColumns
-          .map((c) => definitionIdFor(c))
+      'books': registries['books']!
+          .sorts
+          .map((definition) => definition.id)
           .toSet(),
-      'board games': boardGamesLibraryConfig.availableSortColumns
-          .map((c) => definitionIdFor(c))
+      'board games': registries['board games']!
+          .sorts
+          .map((definition) => definition.id)
           .toSet(),
-      'comics': comicsLibraryConfig.availableSortColumns
-          .map((c) => definitionIdFor(c))
+      'comics': registries['comics']!
+          .sorts
+          .map((definition) => definition.id)
           .toSet(),
-      'games': gamesLibraryConfig.availableSortColumns
-          .map((c) => definitionIdFor(c))
+      'games': registries['games']!
+          .sorts
+          .map((definition) => definition.id)
           .toSet(),
-      'movies': moviesLibraryConfig.availableSortColumns
-          .map((c) => definitionIdFor(c))
+      'movies': registries['movies']!
+          .sorts
+          .map((definition) => definition.id)
           .toSet(),
-      'music': musicLibraryConfig.availableSortColumns
-          .map((c) => definitionIdFor(c))
+      'music': registries['music']!
+          .sorts
+          .map((definition) => definition.id)
           .toSet(),
     };
 
@@ -113,5 +121,42 @@ void main() {
         'Key Issue');
     expect(librarySortColumnFallbackLabel('raw_or_slabbed'),
         'Raw Or Slabbed');
+  });
+
+  test('assert that every defaultVisibleColumnId and preset visible column ID resolves successfully', () {
+    for (final module in collectarrKindModules) {
+      final kind = module.type.workspace.kind;
+      
+      // Test default visible columns
+      for (final columnId in module.fields.defaultVisibleColumnIds) {
+        final definition = module.fields.columnDefinitionForId(columnId) ??
+            module.fields.columnDefinitionForId(columnId.split('.').last);
+        expect(
+          definition,
+          isNotNull,
+          reason: 'Default visible column $columnId in kind $kind does not resolve to a registered column definition.',
+        );
+      }
+
+      // Test preset visible columns
+      for (final preset in LibraryWorkspacePreset.values) {
+        final presetConfig = module.mediaAdapter.viewProfile.presetConfig(preset);
+        for (final columnId in presetConfig.visibleColumns) {
+          final idStr = columnId.toString();
+          final isSupported = module.fields.columns.any(
+            (c) => c.id.value == idStr || c.id.value.split('.').last == idStr,
+          );
+          if (isSupported) {
+            final definition = module.fields.columnDefinitionForId(idStr) ??
+                module.fields.columnDefinitionForId(idStr.split('.').last);
+            expect(
+              definition,
+              isNotNull,
+              reason: 'Preset $preset visible column $columnId in kind $kind does not resolve to a registered column definition.',
+            );
+          }
+        }
+      }
+    }
   });
 }

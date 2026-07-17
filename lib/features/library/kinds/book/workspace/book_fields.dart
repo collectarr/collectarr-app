@@ -681,7 +681,7 @@ final bookLibraryColumnDefinitions = [
     defaultWidth: 160,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('readStatus'),
+    id: LibraryFieldId<Object?>('read_status'),
     label: 'Read Status',
     getValue: (entry) => entry.readStatus,
     cellValue: (entry) => Text(entry.readStatus ?? ''),

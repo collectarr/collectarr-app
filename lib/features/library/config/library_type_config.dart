@@ -715,11 +715,6 @@ class LibraryTypeConfig {
     required this.defaultMetadataProvider,
     required this.metadataProviders,
     required this.trackingProfile,
-    required this.defaultSortColumn,
-    required this.defaultVisibleColumns,
-    required this.availableSortColumns,
-    required this.availableSortColumnDefinitions,
-    required this.availableTableColumns,
     this.conditions = kGeneralConditions,
     this.grades = const [],
     this.defaultCondition,
@@ -756,11 +751,7 @@ class LibraryTypeConfig {
   final String defaultMetadataProvider;
   final List<LibraryMetadataProviderOption> metadataProviders;
   final MediaTrackingProfile trackingProfile;
-  final String defaultSortColumn;
-  final Set<String> defaultVisibleColumns;
-  final List<String> availableSortColumns;
-  final List<LibrarySortDefinition<LibraryWorkspaceEntry>> availableSortColumnDefinitions;
-  final List<String> availableTableColumns;
+
   final List<String> conditions;
   final List<String> grades;
   final String? defaultCondition;
@@ -825,57 +816,7 @@ class LibraryTypeConfig {
   List<LibraryWorkspaceDensityPreset> get availableDensityPresets =>
       workspace.availableDensityPresets;
 
-  LibrarySortDefinition<LibraryWorkspaceEntry> sortColumnDefinitionFor(Object column) {
-    final module = libraryKindModuleForType(this);
-    final id = _definitionIdFor(column);
-    final definition = module.fields.sortDefinitionForId(id);
-    if (definition != null) {
-      return definition;
-    }
-    return LibrarySortDefinition<LibraryWorkspaceEntry>(
-      id: id,
-      label: libraryFallbackLabelForId(id),
-      compare: (left, right) => left.resolvedTitle.toLowerCase().compareTo(
-            right.resolvedTitle.toLowerCase(),
-          ),
-    );
-  }
 
-  bool supportsSortColumn(Object column) {
-    final columnId = _definitionIdFor(column);
-    final module = libraryKindModuleForType(this);
-    return availableSortColumns.any(
-          (value) => _definitionIdFor(value) == columnId,
-        ) ||
-        module.fields.sortDefinitionForId(columnId) != null ||
-        module.fields.sortDefinitionForId(columnId.split('.').last) != null;
-  }
-
-  bool supportsTableColumn(Object column) {
-    final columnId = _definitionIdFor(column);
-    final module = libraryKindModuleForType(this);
-    return availableTableColumns.any(
-          (definition) => _definitionIdFor(definition) == columnId,
-        ) ||
-        module.fields.columnDefinitionForId(columnId) != null ||
-        module.fields.columnDefinitionForId(columnId.split('.').last) != null;
-  }
-
-  String sortColumnFieldId(Object column) {
-    return sortColumnDefinitionFor(column).id;
-  }
-
-  Object? sortColumnFromFieldId(String? fieldId) {
-    final normalized = _definitionIdFor(fieldId);
-    if (normalized.isEmpty) {
-      return null;
-    }
-    if (supportsSortColumn(normalized)) {
-      return normalized;
-    }
-    final shortId = normalized.split('.').last;
-    return supportsSortColumn(shortId) ? shortId : null;
-  }
 
   bool supportsDensityPreset(LibraryWorkspaceDensityPreset preset) {
     return workspace.availableDensityPresets.contains(preset);
@@ -921,17 +862,21 @@ class LibraryTypeConfig {
   List<String> availableSortColumnsForBrowserMode(
     LibraryWorkspaceBrowserMode browserMode,
   ) {
+    final module = libraryKindModuleForType(this);
+    final allSorts = [
+      for (final def in module.fields.sorts) def.id,
+    ];
     if (!capabilities.scopesOptionsByBrowserMode) {
-      return availableSortColumns;
+      return allSorts;
     }
     final scoped = browserMode == LibraryWorkspaceBrowserMode.releases
         ? capabilities.releaseScopeSortColumns
         : capabilities.mediaScopeSortColumns;
     if (scoped == null) {
-      return availableSortColumns;
+      return allSorts;
     }
     return [
-      for (final column in availableSortColumns)
+      for (final column in allSorts)
         if (scoped.contains(column)) column,
     ];
   }

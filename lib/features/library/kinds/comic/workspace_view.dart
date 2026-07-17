@@ -65,7 +65,7 @@ int compareComicEntriesByColumn(
   LibraryWorkspaceEntry right,
   Object column,
 ) {
-  final sortId = comicsLibraryConfig.sortColumnFieldId(column);
+  final sortId = column.toString();
   final module = libraryKindModuleForType(comicsLibraryConfig);
   final definition = module.fields.sortDefinitionForId(sortId);
   if (definition != null) {
@@ -153,7 +153,7 @@ const comicsTableColumnPresets = [
 ];
 
 bool comicInitialSortAscending(Object column) {
-  final sortId = comicsLibraryConfig.sortColumnFieldId(column);
+  final sortId = column.toString();
   final module = libraryKindModuleForType(comicsLibraryConfig);
   final definition = module.fields.sortDefinitionForId(sortId);
   return definition?.defaultAscending ?? true;
@@ -209,7 +209,7 @@ List<Object> orderedComicTableColumns(
     );
 
 Set<Object> defaultComicTableColumns() =>
-    Set.of(comicsLibraryConfig.defaultVisibleColumns);
+    Set.of(libraryKindModuleForType(comicsLibraryConfig).fields.defaultVisibleColumnIds);
 
 double comicTableWidthForColumns(
   Set<Object> columns,

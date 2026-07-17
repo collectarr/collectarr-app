@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -111,9 +112,19 @@ class LibraryWorkspacePreferences {
         prefs.getDouble(_key('details_width')) ?? defaultDetailsWidth;
     final detailsHeight =
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
-    final sortColumn =
-        config.sortColumnFromFieldId(prefs.getString(_key('sort_column'))) ??
-            config.defaultSortColumn;
+    final module = libraryKindModuleForType(config);
+    final savedSortColumn = prefs.getString(_key('sort_column'));
+    var sortColumn = module.fields.defaultSortId ?? 'title';
+    if (savedSortColumn != null) {
+      if (module.fields.sortDefinitionForId(savedSortColumn) != null) {
+        sortColumn = savedSortColumn;
+      } else {
+        final shortId = savedSortColumn.split('.').last;
+        if (module.fields.sortDefinitionForId(shortId) != null) {
+          sortColumn = shortId;
+        }
+      }
+    }
     final sortRules = _decodeSortRules(prefs.getStringList(_key('sort_rules')));
     final visibleColumns = _decodeVisibleColumns(
       prefs.getStringList(_key('visible_columns')),
@@ -180,9 +191,12 @@ class LibraryWorkspacePreferences {
       snapshot.columnWidths,
     );
     final normalizedSortRules = _normalizeSortRules(snapshot.sortRules);
-    final normalizedSortColumn = config.supportsSortColumn(snapshot.sortColumn)
-        ? snapshot.sortColumn
-        : config.defaultSortColumn;
+    final writeModule = libraryKindModuleForType(config);
+    final normalizedSortColumn =
+        writeModule.fields.sortDefinitionForId(snapshot.sortColumn.toString()) != null ||
+                writeModule.fields.sortDefinitionForId(snapshot.sortColumn.toString().split('.').last) != null
+            ? snapshot.sortColumn
+            : (writeModule.fields.defaultSortId ?? 'title');
     final normalizedSnapshot = LibraryWorkspacePreferenceSnapshot(
       browserMode: snapshot.browserMode,
       viewMode: snapshot.viewMode,
@@ -219,7 +233,7 @@ class LibraryWorkspacePreferences {
         _key('sidebar_visible'), normalizedSnapshot.isSidebarVisible);
     await prefs.setString(
         _key('sort_column'),
-        config.sortColumnFieldId(normalizedSnapshot.sortColumn),
+        normalizedSnapshot.sortColumn.toString(),
     );
     await prefs.setBool(
         _key('sort_ascending'), normalizedSnapshot.sortAscending);
@@ -249,17 +263,23 @@ class LibraryWorkspacePreferences {
   String _key(String suffix) => config.preferenceKey(suffix);
 
   Set<Object> _decodeVisibleColumns(List<String>? values) {
+    final module = libraryKindModuleForType(config);
+    final defaultCols = module.fields.defaultVisibleColumnIds;
     if (values == null || values.isEmpty) {
-      return Set.of(config.defaultVisibleColumns);
+      return Set.of(defaultCols);
     }
     final columns = {
       for (final value in values)
-        if (config.supportsTableColumn(value)) value,
+        if (module.fields.columnDefinitionForId(value) != null ||
+            module.fields.columnDefinitionForId(value.split('.').last) != null)
+          value,
     };
-    if (config.supportsTableColumn('title') && !columns.contains('title')) {
+    final titleSupported = module.fields.columnDefinitionForId('title') != null ||
+        module.fields.columnDefinitionForId('title'.split('.').last) != null;
+    if (titleSupported && !columns.contains('title')) {
       columns.add('title');
     }
-    return columns.isEmpty ? Set.of(config.defaultVisibleColumns) : columns;
+    return columns.isEmpty ? Set.of(defaultCols) : columns;
   }
 
   List<String> _encodeColumnWidths(Map<Object, double> widths) {
@@ -273,9 +293,10 @@ class LibraryWorkspacePreferences {
     if (rules == null || rules.isEmpty) {
       return const <String>[];
     }
+    final module = libraryKindModuleForType(config);
     return [
       for (final rule in rules)
-        '${config.sortColumnDefinitionFor(rule.column).id}:${rule.ascending ? 'asc' : 'desc'}',
+        '${module.fields.sortDefinitionForId(rule.column.toString())?.id ?? rule.column.toString()}:${rule.ascending ? 'asc' : 'desc'}',
     ];
   }
 
@@ -283,14 +304,23 @@ class LibraryWorkspacePreferences {
     if (values == null || values.isEmpty) {
       return null;
     }
+    final module = libraryKindModuleForType(config);
     final rules = <LibrarySortRule>[];
     for (final value in values) {
       final parts = value.split(':');
       if (parts.length != 2) {
         continue;
       }
-      final column =
-          config.sortColumnFromFieldId(parts.first);
+      final rawId = parts.first;
+      String? column;
+      if (module.fields.sortDefinitionForId(rawId) != null) {
+        column = rawId;
+      } else {
+        final shortId = rawId.split('.').last;
+        if (module.fields.sortDefinitionForId(shortId) != null) {
+          column = shortId;
+        }
+      }
       if (column == null) {
         continue;
       }
@@ -308,6 +338,7 @@ class LibraryWorkspacePreferences {
     if (values == null || values.isEmpty) {
       return const {};
     }
+    final module = libraryKindModuleForType(config);
     final widths = <Object, double>{};
     for (final value in values) {
       final parts = value.split(':');
@@ -315,7 +346,9 @@ class LibraryWorkspacePreferences {
         continue;
       }
       final columnId = parts[0];
-      final column = config.supportsTableColumn(columnId) ? columnId : null;
+      final columnSupported = module.fields.columnDefinitionForId(columnId) != null ||
+          module.fields.columnDefinitionForId(columnId.split('.').last) != null;
+      final column = columnSupported ? columnId : null;
       final width = double.tryParse(parts[1]);
       if (column != null && width != null) {
         widths[column] = width;
@@ -327,24 +360,33 @@ class LibraryWorkspacePreferences {
   Set<Object> _normalizeVisibleColumns(
     Set<Object> columns,
   ) {
+    final module = libraryKindModuleForType(config);
+    final defaultCols = module.fields.defaultVisibleColumnIds;
     final normalized = {
       for (final column in columns)
-        if (config.supportsTableColumn(column)) column,
+        if (module.fields.columnDefinitionForId(column.toString()) != null ||
+            module.fields.columnDefinitionForId(column.toString().split('.').last) != null)
+          column,
     };
-    if (config.supportsTableColumn('title')) {
+    final titleSupported = module.fields.columnDefinitionForId('title') != null ||
+        module.fields.columnDefinitionForId('title'.split('.').last) != null;
+    if (titleSupported) {
       normalized.add('title');
     }
     return normalized.isEmpty
-        ? Set.of(config.defaultVisibleColumns)
+        ? Set.of(defaultCols)
         : normalized;
   }
 
   Map<Object, double> _normalizeColumnWidths(
     Map<Object, double> widths,
   ) {
+    final module = libraryKindModuleForType(config);
     return {
       for (final entry in widths.entries)
-        if (config.supportsTableColumn(entry.key)) entry.key: entry.value,
+        if (module.fields.columnDefinitionForId(entry.key.toString()) != null ||
+            module.fields.columnDefinitionForId(entry.key.toString().split('.').last) != null)
+          entry.key: entry.value,
     };
   }
 
@@ -352,10 +394,13 @@ class LibraryWorkspacePreferences {
     if (rules == null || rules.isEmpty) {
       return null;
     }
+    final module = libraryKindModuleForType(config);
     final normalized = <LibrarySortRule>[];
     final seen = <Object>{};
     for (final rule in rules) {
-      if (!config.supportsSortColumn(rule.column) || !seen.add(rule.column)) {
+      final sortSupported = module.fields.sortDefinitionForId(rule.column.toString()) != null ||
+          module.fields.sortDefinitionForId(rule.column.toString().split('.').last) != null;
+      if (!sortSupported || !seen.add(rule.column)) {
         continue;
       }
       normalized.add(rule);

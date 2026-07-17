@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -119,7 +120,7 @@ class LibraryMediaAdapter {
   final LibraryWorkspaceCardBuilder? workspaceCardBuilder;
 
   Set<Object> defaultTableColumns() {
-    return Set.of(type.defaultVisibleColumns);
+    return Set.of(libraryKindModuleForType(type).fields.defaultVisibleColumnIds);
   }
 
   Widget buildTableCell(LibraryWorkspaceEntry entry, Object column) {

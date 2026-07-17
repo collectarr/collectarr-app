@@ -295,4 +295,28 @@ final commonColumnDefinitions = [
     cellValue: (entry) => Text(entry.referenceFormatLabel ?? ''),
     defaultWidth: 100,
   ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('country'),
+    label: 'Country',
+    getValue: (entry) => entry.country,
+    cellValue: (entry) => Text(entry.country ?? ''),
+    group: 'Edition',
+    defaultWidth: 100,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('language'),
+    label: 'Language',
+    getValue: (entry) => entry.language,
+    cellValue: (entry) => Text(entry.language ?? ''),
+    group: 'Edition',
+    defaultWidth: 100,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('age_rating'),
+    label: 'Age Rating',
+    getValue: (entry) => entry.ageRating,
+    cellValue: (entry) => Text(entry.ageRating ?? ''),
+    group: 'Edition',
+    defaultWidth: 100,
+  ),
 ];

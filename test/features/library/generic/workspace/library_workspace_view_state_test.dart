@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
@@ -28,11 +29,6 @@ void main() {
       name: 'Mock',
       options: [],
     ),
-    defaultSortColumn: 'title',
-    defaultVisibleColumns: const {'title', 'issue'},
-    availableSortColumns: const ['title', 'issue'],
-    availableSortColumnDefinitions: const [],
-    availableTableColumns: const ['title', 'issue'],
   );
 
   final profile = LibraryWorkspaceViewProfile(
@@ -80,10 +76,7 @@ void main() {
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);
     expect(defaults.detailsHeight, 300);
-    expect(defaults.visibleColumns, {
-      'title',
-      'issue',
-    });
+    expect(defaults.visibleColumns, libraryKindModuleForType(typeConfig).fields.defaultVisibleColumnIds);
 
     final list = defaults.withPreset(LibraryWorkspacePreset.list, profile);
     expect(list.viewMode, LibraryViewMode.list);

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -153,12 +154,12 @@ class LibraryRouteState {
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final allowedSortColumns = type.availableSortColumns.toSet();
+    final allowedSortColumns = libraryKindModuleForType(type).fields.sorts.map((d) => d.id).toSet();
     final filteredSortRules = sortRules == null
         ? null
         : [
             for (final rule in sortRules!)
-              if (allowedSortColumns.contains(rule.column)) rule,
+              if (allowedSortColumns.contains(rule.column.toString())) rule,
           ];
     final filteredGroupMode = filteredFolderPreset?.primaryMode ??
         (groupMode != null && allowedGroupModes.contains(groupMode)
@@ -200,7 +201,7 @@ class LibraryRouteState {
     return rules
         .map(
           (rule) =>
-              '${type.sortColumnFieldId(rule.column)}:${rule.ascending ? 'asc' : 'desc'}',
+              '${rule.column.toString()}:${rule.ascending ? 'asc' : 'desc'}',
         )
         .join(',');
   }

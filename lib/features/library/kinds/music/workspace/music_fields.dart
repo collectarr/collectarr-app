@@ -653,21 +653,21 @@ final musicLibraryColumnDefinitions = [
     defaultWidth: 140,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('catalogNumber'),
+    id: LibraryFieldId<Object?>('catalog_number'),
     label: 'Catalog #',
     getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).catalogNumber,
     cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).catalogNumber ?? ''),
     defaultWidth: 130,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('discCount'),
+    id: LibraryFieldId<Object?>('disc_count'),
     label: 'Disc Count',
     getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).discCount,
     cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).discCount?.toString() ?? ''),
     defaultWidth: 90,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('trackCount'),
+    id: LibraryFieldId<Object?>('track_count'),
     label: 'Track Count',
     getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).trackCount,
     cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).trackCount?.toString() ?? ''),
@@ -681,7 +681,7 @@ final musicLibraryColumnDefinitions = [
     defaultWidth: 80,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('vinylColor'),
+    id: LibraryFieldId<Object?>('vinyl_color'),
     label: 'Vinyl Color',
     getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).vinylColor,
     cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).vinylColor ?? ''),

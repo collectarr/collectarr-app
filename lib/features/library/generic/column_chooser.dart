@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/workspace/table/library_column_c
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 Future<Set<String>?> showGenericLibraryColumnChooser({
@@ -22,7 +23,10 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
   return showDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
-      availableColumns: type.availableTableColumns,
+      availableColumns: [
+        for (final def in libraryKindModuleForType(type).fields.columns)
+          def.id.value,
+      ],
       selectedColumns: viewState.visibleColumns,
       defaultColumns: adapter.defaultTableColumns(),
       columnLabel: adapter.columnDisplayName,

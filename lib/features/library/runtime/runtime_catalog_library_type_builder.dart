@@ -49,11 +49,6 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
       accent: libraryAccentForKind(mediaKind),
       preferencePrefix: 'catalog_${normalizedType.kind}',
     ),
-    defaultSortColumn: 'title',
-    defaultVisibleColumns: defaultVisibleColumns,
-    availableSortColumns: const ['title'],
-    availableSortColumnDefinitions: const [],
-    availableTableColumns: const [],
     singularLabel: _runtimeCatalogDisplayLabel(
       normalizedType.singularLabel,
       normalizedType.kind,
