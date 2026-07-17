@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/data/library_workspace_query.dart';
@@ -5,6 +7,39 @@ import 'package:collectarr_app/features/library/workspace/data/library_workspace
 import 'library_workspace_key.dart';
 import 'library_filter_state.dart';
 import 'library_filters_provider.dart';
+
+/// Provides a debounced version of the search query from filters to avoid
+/// querying the database on every keystroke.
+final libraryDebouncedSearchProvider = StreamProvider.autoDispose
+    .family<String, LibraryWorkspaceKey>((ref, key) {
+  final filters = ref.watch(libraryFiltersProvider(key));
+  final searchQuery = filters.searchQuery;
+
+  if (searchQuery.isEmpty) {
+    return Stream.value(searchQuery);
+  }
+
+  final bool isTesting = const bool.fromEnvironment('dart.vm.product') == false &&
+      Platform.environment.containsKey('FLUTTER_TEST');
+
+  if (isTesting) {
+    return Stream.value(searchQuery);
+  }
+
+  final controller = StreamController<String>();
+  final timer = Timer(const Duration(milliseconds: 350), () {
+    if (!controller.isClosed) {
+      controller.add(searchQuery);
+    }
+  });
+
+  ref.onDispose(() {
+    timer.cancel();
+    controller.close();
+  });
+
+  return controller.stream;
+});
 
 /// Derives the filtered + sorted list of [LibraryWorkspaceEntry] objects for a
 /// given workspace scope, by combining the active [LibraryFilterState] with the
@@ -16,16 +51,18 @@ import 'library_filters_provider.dart';
 ///    mutations or sync)
 final libraryDisplayListProvider = StreamProvider.autoDispose
     .family<List<LibraryWorkspaceEntry>, LibraryWorkspaceKey>((ref, key) {
-  final LibraryFilterState filters = ref.watch(libraryFiltersProvider(key));
-  final LibraryWorkspaceRepository repository =
-      ref.watch(libraryWorkspaceRepositoryProvider);
+  final filters = ref.watch(libraryFiltersProvider(key));
+  final repository = ref.watch(libraryWorkspaceRepositoryProvider);
+
+  final searchAsync = ref.watch(libraryDebouncedSearchProvider(key));
+  final searchQuery = searchAsync.value ?? '';
 
   final query = LibraryWorkspaceQuery(
     kind: key.kind,
     collectionId: key.collectionId,
     scopeId: key.scopeId,
     presentationLevelId: filters.presentationLevelId,
-    searchQuery: filters.searchQuery,
+    searchQuery: searchQuery,
     facetValues: filters.facetValues,
     sortId: filters.sortId,
     sortAscending: filters.sortAscending,
