@@ -1,9 +1,8 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/config/common_fields.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
+import 'game_workspace_dto.dart';
 
 final gameLibraryFieldDefinitions = [
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
@@ -420,7 +419,7 @@ final gameLibrarySortDefinitions = [
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'page_count',
-    compare: (left, right) => (left.publishing?.pageCount ?? 0).compareTo(right.publishing?.pageCount ?? 0),
+    compare: (left, right) => GameWorkspaceDto.fromEntry(left).pageCount.compareTo(GameWorkspaceDto.fromEntry(right).pageCount),
     label: 'Page count',
     group: 'Edition',
   ),
@@ -430,8 +429,10 @@ final gameLibrarySortDefinitions = [
     label: 'Age rating',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
-      id: 'imprint',
-    compare: (left, right) => (left.publishing?.imprint ?? "").compareTo(right.publishing?.imprint ?? ""), label: 'Imprint'),
+    id: 'imprint',
+    compare: (left, right) => (GameWorkspaceDto.fromEntry(left).imprint ?? "").compareTo(GameWorkspaceDto.fromEntry(right).imprint ?? ""),
+    label: 'Imprint',
+  ),
 ];
 const gamesLibraryDefaultVisibleColumnIds = {
   'status',

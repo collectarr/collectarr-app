@@ -2,13 +2,17 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final class BookWorkspaceDto implements LibraryWorkspaceDto {
-  const BookWorkspaceDto({required this.title,
+  const BookWorkspaceDto({
+    required this.title,
     required this.seriesTitle,
     required this.itemNumber,
     required this.publisher,
     required this.releaseDate,
     required this.isOwned,
     required this.isWishlisted,
+    required this.pageCount,
+    required this.imprint,
+    required this.author,
   });
 
   @override
@@ -26,6 +30,10 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
   @override
   final bool isWishlisted;
 
+  final int pageCount;
+  final String? imprint;
+  final String? author;
+
   factory BookWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
     return BookWorkspaceDto(
       title: entry.resolvedTitle,
@@ -35,6 +43,9 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
       releaseDate: entry.releaseDate,
       isOwned: entry.isOwned,
       isWishlisted: entry.isWishlisted,
+      pageCount: entry.publishing?.pageCount ?? 0,
+      imprint: entry.publishing?.imprint,
+      author: entry.creators?.firstOrNull?['name']?.toString(),
     );
   }
 }

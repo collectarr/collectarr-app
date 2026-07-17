@@ -1,9 +1,8 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/config/common_fields.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
+import 'book_workspace_dto.dart';
 
 final bookLibraryFieldDefinitions = [
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
@@ -623,7 +622,7 @@ final bookLibrarySortDefinitions = [
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'page_count',
-    compare: (left, right) => (left.publishing?.pageCount ?? 0).compareTo(right.publishing?.pageCount ?? 0),
+    compare: (left, right) => BookWorkspaceDto.fromEntry(left).pageCount.compareTo(BookWorkspaceDto.fromEntry(right).pageCount),
     label: 'Page count',
     group: 'Edition',
   ),
@@ -634,7 +633,7 @@ final bookLibrarySortDefinitions = [
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'imprint',
-    compare: (left, right) => (left.publishing?.imprint ?? "").compareTo(right.publishing?.imprint ?? ""),
+    compare: (left, right) => (BookWorkspaceDto.fromEntry(left).imprint ?? "").compareTo(BookWorkspaceDto.fromEntry(right).imprint ?? ""),
     label: 'Imprint',
   ),
 ];
@@ -677,8 +676,8 @@ final bookLibraryColumnDefinitions = [
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('author'),
     label: 'Author',
-    getValue: (entry) => entry.creators?.firstOrNull?['name']?.toString(),
-    cellValue: (entry) => Text(entry.creators?.firstOrNull?['name']?.toString() ?? ''),
+    getValue: (entry) => BookWorkspaceDto.fromEntry(entry).author,
+    cellValue: (entry) => Text(BookWorkspaceDto.fromEntry(entry).author ?? ''),
     defaultWidth: 160,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(

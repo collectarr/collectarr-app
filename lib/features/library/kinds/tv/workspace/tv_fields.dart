@@ -1,9 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
 
 final tvLibraryFieldDefinitions = [
