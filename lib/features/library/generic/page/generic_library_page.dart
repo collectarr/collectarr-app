@@ -63,6 +63,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_layout_
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot_provider.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/state/library_workspace_providers.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_toolbar_presenter.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/library_toolbar_action_registry.dart';
 import 'package:collectarr_app/features/library/generic/page/controllers/page_search_controller.dart';
@@ -173,6 +174,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Timer? _viewStateSaveDebounce;
   Timer? _selectionHydrationDebounce;
   ProviderSubscription<AsyncValue<ShelfState>>? _shelfSubscription;
+  late final workspaceKey = LibraryWorkspaceKey(
+    kind: widget.type.workspace.kind,
+  );
+  ProviderSubscription<LibraryFilterState>? _filtersSubscription;
+  ProviderSubscription<LibraryViewConfigState>? _viewConfigSubscription;
   String? _lastFacetEnsureSignature;
   String? _lastFacetEnsureFacetId;
   LibraryKindBrowserDelegate _kindBrowserDelegate =
@@ -351,6 +357,97 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return;
     }
     setState(mutate);
+    _syncLocalStateToRiverpod();
+  }
+
+  void _syncLocalStateToRiverpod() {
+    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    final intent = ref.read(libraryWorkspaceIntentProvider(workspaceKey));
+
+    // Update query/filter state in Riverpod
+    intent.setSearch(_searchControllerOps.state.query);
+    intent.setGroup(_groupMode);
+    
+    final primarySort = viewState.sortRules.firstOrNull;
+    if (primarySort != null) {
+      intent.setSort(primarySort.column.toString(), ascending: primarySort.ascending);
+    }
+    
+    intent.setVisibleColumns(viewState.visibleColumns.cast<String>());
+
+    // Update visual config state in Riverpod
+    intent.setViewMode(viewState.viewMode);
+    intent.setCoverSize(viewState.coverSize);
+    intent.setDetailsLayout(viewState.detailsLayout);
+
+    final currentConfig = ref.read(libraryViewConfigProvider(workspaceKey));
+    if (currentConfig.isSidebarVisible != viewState.isSidebarVisible ||
+        currentConfig.sidebarWidth != viewState.sidebarWidth ||
+        currentConfig.detailsWidth != viewState.detailsWidth ||
+        currentConfig.detailsHeight != viewState.detailsHeight) {
+      intent.setSidebarVisible(viewState.isSidebarVisible);
+      intent.setSidebarWidth(viewState.sidebarWidth);
+      intent.setDetailsWidth(viewState.detailsWidth);
+      intent.setDetailsHeight(viewState.detailsHeight);
+    }
+  }
+
+  void _applyFiltersFromRiverpod(LibraryFilterState next) {
+    final current = _viewState;
+    final nextSortRule = next.sortId == null
+        ? const <LibrarySortRule>[]
+        : [LibrarySortRule(column: next.sortId!, ascending: next.sortAscending)];
+    final nextVisibleColumns = next.visibleColumnIds;
+
+    final hasChanges = next.searchQuery != _searchControllerOps.state.query ||
+        next.groupId != _groupMode ||
+        (current != null && (
+            !setEquals(nextVisibleColumns, current.visibleColumns) ||
+            !listEquals(nextSortRule, current.sortRules)
+        ));
+
+    if (hasChanges) {
+      setState(() {
+        if (next.searchQuery != _searchControllerOps.state.query) {
+          _searchController.text = next.searchQuery;
+          _searchControllerOps.state.setQuery(next.searchQuery);
+        }
+        _groupMode = next.groupId;
+        if (current != null) {
+          _viewState = current.copyWith(
+            visibleColumns: nextVisibleColumns,
+            sortRules: nextSortRule,
+          );
+        }
+      });
+      _syncRouteState();
+    }
+  }
+
+  void _applyViewConfigFromRiverpod(LibraryViewConfigState next) {
+    final current = _viewState;
+    if (current == null) return;
+    
+    if (next.viewMode != current.viewMode ||
+        next.coverSize != current.coverSize ||
+        next.detailsLayout != current.detailsLayout ||
+        next.isSidebarVisible != current.isSidebarVisible ||
+        next.sidebarWidth != current.sidebarWidth ||
+        next.detailsWidth != current.detailsWidth ||
+        next.detailsHeight != current.detailsHeight) {
+      setState(() {
+        _viewState = current.copyWith(
+          viewMode: next.viewMode,
+          coverSize: next.coverSize,
+          detailsLayout: next.detailsLayout,
+          isSidebarVisible: next.isSidebarVisible,
+          sidebarWidth: next.sidebarWidth,
+          detailsWidth: next.detailsWidth,
+          detailsHeight: next.detailsHeight,
+        );
+      });
+      _syncRouteState();
+    }
   }
 
   void _maybeEnsureFacetBucketsLoaded(

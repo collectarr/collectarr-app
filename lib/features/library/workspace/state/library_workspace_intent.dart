@@ -91,6 +91,9 @@ class LibraryWorkspaceIntentNotifier {
 
   void toggleSidebar() => _viewConfig.toggleSidebar();
 
+  void setSidebarVisible(bool visible) =>
+      _viewConfig.setSidebarVisible(visible);
+
   void setSidebarWidth(double width) =>
       _viewConfig.setSidebarWidth(width);
 
