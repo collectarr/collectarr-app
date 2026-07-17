@@ -2,13 +2,15 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final class TvWorkspaceDto implements LibraryWorkspaceDto {
-  const TvWorkspaceDto({required this.title,
+  const TvWorkspaceDto({
+    required this.title,
     required this.seriesTitle,
     required this.itemNumber,
     required this.publisher,
     required this.releaseDate,
     required this.isOwned,
     required this.isWishlisted,
+    required this.ageRating,
   });
 
   @override
@@ -26,6 +28,8 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
   @override
   final bool isWishlisted;
 
+  final String? ageRating;
+
   factory TvWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
     return TvWorkspaceDto(
       title: entry.resolvedTitle,
@@ -35,6 +39,7 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
       releaseDate: entry.releaseDate,
       isOwned: entry.isOwned,
       isWishlisted: entry.isWishlisted,
+      ageRating: entry.ageRating,
     );
   }
 }

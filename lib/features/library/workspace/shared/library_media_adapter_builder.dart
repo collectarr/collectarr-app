@@ -57,9 +57,10 @@ LibraryMediaAdapter plannedMediaAdapter(
                   right,
                 ),
     entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
-    entryLinkedMetadataCandidatesBuilder:
-        plannedMediaLinkedMetadataCandidatesForEntry,
-    entrySubgroupKeyBuilder: plannedMediaSubgroupKeyForEntry,
+    entryLinkedMetadataCandidatesBuilder: (entry) =>
+        plannedMediaLinkedMetadataCandidatesForEntry(type, entry),
+    entrySubgroupKeyBuilder: (entry, groupMode) =>
+        plannedMediaSubgroupKeyForEntry(type, entry, groupMode),
     compareSubgroupKeys: plannedMediaCompareSubgroupKeys,
     workspaceCardBuilder: workspaceCardBuilder,
   );
@@ -78,10 +79,7 @@ LibraryMediaAdapter collectarrMediaAdapter(
 LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
   LibraryTypeConfig type,
 ) {
-  final coverGridHeightFactor = switch (type.workspace.kind) {
-    CatalogMediaKind.music => 1.0,
-    _ => 1.53,
-  };
+  final coverGridHeightFactor = type.capabilities.prefersSquareCovers ? 1.0 : 1.53;
   return LibraryWorkspaceViewProfile(
     type: type,
     defaultCoverSize: kPlannedMediaDefaultCoverSize,
@@ -173,65 +171,38 @@ LibraryEntryFilterValues plannedMediaFilterValuesForEntry(
 }
 
 Iterable<String> plannedMediaLinkedMetadataCandidatesForEntry(
+  LibraryTypeConfig type,
   LibraryWorkspaceEntry entry,
-) sync* {
-  final filterValues = plannedMediaFilterValuesForEntry(entry);
-  final publishing = entry.publishing;
-  yield* _nonEmptyValues([
-    entry.resolvedTitle,
-    entry.title,
-    entry.localizedTitle,
-    entry.originalTitle,
-    filterValues.series,
-    entry.itemNumber,
-    entry.publisher,
-    entry.variant,
-    publishing?.imprint,
-    entry.music?.catalogNumber,
-    filterValues.country,
-    filterValues.language,
-    entry.ageRating,
-    entry.music?.vinylColor,
-    entry.music?.rpm?.toString(),
-  ]);
-  yield* _nonEmptyValues(entry.searchAliases);
-  if (entry.creators case final creators?) {
-    for (final credit in creators) {
-      final name = credit['name']?.toString();
-      if (name != null && name.trim().isNotEmpty) {
-        yield name.trim();
-      }
-    }
-  }
-  yield* _nonEmptyValues(entry.characters);
-  yield* _nonEmptyValues(entry.storyArcs);
-  yield* _nonEmptyValues(entry.genres);
-  if (entry.game?.platforms case final platforms?) {
-    yield* _nonEmptyValues(platforms);
-  } else {
-    yield* _nonEmptyValues(entry.rawPlatforms);
-  }
+) {
+  final registry = libraryKindModuleForType(type).fields;
+  return registry.linkedMetadataCandidates(entry);
 }
 
 String? plannedMediaSubgroupKeyForEntry(
+  LibraryTypeConfig type,
   LibraryWorkspaceEntry entry,
   Object groupMode,
 ) {
   if (groupMode != 'series') {
     return null;
   }
-  if (entry.mediaType.trim().toLowerCase() == 'book') {
+  if (!type.capabilities.supportsSeriesSubgroups) {
+    return null;
+  }
+  if (type.capabilities.contentHierarchy == LibraryContentHierarchy.flat) {
     return null;
   }
   final series = entry.series;
-  if (series?.seasonNumber != null) {
+  if (type.capabilities.usesSeasonHierarchy && series?.seasonNumber != null) {
     return 'Season ${series!.seasonNumber}';
   }
-  if (series?.volumeName != null && series!.volumeName!.trim().isNotEmpty) {
-    return series.volumeName!.trim();
-  }
-  if (series?.volumeNumber != null) {
-    return libraryVolumeLabel(series!.volumeNumber);
+  if (type.capabilities.usesVolumeHierarchy) {
+    if (series?.volumeName != null && series!.volumeName!.trim().isNotEmpty) {
+      return series.volumeName!.trim();
+    }
+    if (series?.volumeNumber != null) {
+      return libraryVolumeLabel(series!.volumeNumber);
+    }
   }
   return null;
 }
@@ -261,17 +232,7 @@ String? _trimmedOrNull(String? value) {
   return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }
 
-Iterable<String> _nonEmptyValues(Iterable<String?>? values) sync* {
-  if (values == null) {
-    return;
-  }
-  for (final value in values) {
-    final trimmed = value?.trim();
-    if (trimmed != null && trimmed.isNotEmpty) {
-      yield trimmed;
-    }
-  }
-}
+
 
 
 

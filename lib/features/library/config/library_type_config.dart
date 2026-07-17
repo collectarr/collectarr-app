@@ -381,6 +381,7 @@ class LibraryTypeCapabilities {
     this.releaseScopeSortColumns,
     this.supportsMetadataCompare = false,
     this.prefersSquareCovers = false,
+    this.supportsSeriesSubgroups = false,
     this.groupModeCategoriesBuilder,
   });
 
@@ -411,6 +412,11 @@ class LibraryTypeCapabilities {
   /// Whether this type's covers are square (e.g. music albums) and the grid
   /// should use square-tile sizing.
   final bool prefersSquareCovers;
+
+  /// Whether this type supports partitioning items into volume/season subgroups
+  /// when grouped by series.
+  final bool supportsSeriesSubgroups;
+
   final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
 
   /// Whether this type narrows group modes / sort columns by browser mode

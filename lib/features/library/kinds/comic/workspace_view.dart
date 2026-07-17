@@ -53,9 +53,10 @@ final comicsMediaAdapter = LibraryMediaAdapter(
       plannedMediaTableCell(comicsLibraryConfig, entry, column as String),
   compareEntriesByColumn: compareComicEntriesByColumn,
   entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
-  entryLinkedMetadataCandidatesBuilder:
-      plannedMediaLinkedMetadataCandidatesForEntry,
-  entrySubgroupKeyBuilder: plannedMediaSubgroupKeyForEntry,
+  entryLinkedMetadataCandidatesBuilder: (entry) =>
+      plannedMediaLinkedMetadataCandidatesForEntry(comicsLibraryConfig, entry),
+  entrySubgroupKeyBuilder: (entry, groupMode) =>
+      plannedMediaSubgroupKeyForEntry(comicsLibraryConfig, entry, groupMode),
   compareSubgroupKeys: plannedMediaCompareSubgroupKeys,
 );
 

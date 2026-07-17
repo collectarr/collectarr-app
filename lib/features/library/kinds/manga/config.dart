@@ -105,6 +105,8 @@ final mangaLibraryConfig = LibraryTypeConfig(
     canScanCover: true,
     supportsMediaReleaseSplit: true,
     supportsIndexReassignment: true,
+    contentHierarchy: LibraryContentHierarchy.volumes,
+    supportsSeriesSubgroups: true,
   ),
   showsDefaultInspectorPersonalSection: false,
 );

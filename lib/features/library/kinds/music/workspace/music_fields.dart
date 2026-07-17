@@ -2,8 +2,8 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
+import 'music_workspace_dto.dart';
 
 final musicLibraryFieldDefinitions = [
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
@@ -653,43 +653,43 @@ final musicLibraryColumnDefinitions = [
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('catalogNumber'),
     label: 'Catalog #',
-    getValue: (entry) => entry.music?.catalogNumber,
-    cellValue: (entry) => Text(entry.music?.catalogNumber ?? ''),
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).catalogNumber,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).catalogNumber ?? ''),
     defaultWidth: 130,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('discCount'),
     label: 'Disc Count',
-    getValue: (entry) => entry.music?.discCount,
-    cellValue: (entry) => Text(entry.music?.discCount?.toString() ?? ''),
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).discCount,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).discCount?.toString() ?? ''),
     defaultWidth: 90,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('trackCount'),
     label: 'Track Count',
-    getValue: (entry) => entry.music?.trackCount,
-    cellValue: (entry) => Text(entry.music?.trackCount?.toString() ?? ''),
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).trackCount,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).trackCount?.toString() ?? ''),
     defaultWidth: 90,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('length'),
     label: 'Length',
-    getValue: (entry) => entry.music?.length,
-    cellValue: (entry) => Text(entry.music?.length?.toString() ?? ''),
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).length,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).length?.toString() ?? ''),
     defaultWidth: 80,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('vinylColor'),
     label: 'Vinyl Color',
-    getValue: (entry) => entry.music?.vinylColor,
-    cellValue: (entry) => Text(entry.music?.vinylColor ?? ''),
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).vinylColor,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).vinylColor ?? ''),
     defaultWidth: 110,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('rpm'),
     label: 'RPM',
-    getValue: (entry) => entry.music?.rpm,
-    cellValue: (entry) => Text(entry.music?.rpm?.toString() ?? ''),
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).rpm,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).rpm?.toString() ?? ''),
     defaultWidth: 70,
   ),
 ];

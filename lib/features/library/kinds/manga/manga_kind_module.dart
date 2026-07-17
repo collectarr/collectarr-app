@@ -18,6 +18,10 @@ final mangaKindModule = LibraryKindModule(
     defaultVisibleColumnIds: mangaLibraryDefaultVisibleColumnIds,
     defaultSortId: mangaDefaultSortId,
     defaultGroupId: mangaDefaultGroupId,
+    customLinkedMetadataCandidates: (entry) sync* {
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.characters);
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.storyArcs);
+    },
   ),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,

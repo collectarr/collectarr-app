@@ -31,6 +31,7 @@ class AnyLibraryFieldRegistry {
     },
     this.defaultSortId = 'title',
     this.defaultGroupId = 'series',
+    this.customLinkedMetadataCandidates,
   }) : _groups = groups,
        _sorts = sorts,
        _columns = columns;
@@ -51,6 +52,55 @@ class AnyLibraryFieldRegistry {
   final Set<String> defaultVisibleColumnIds;
   final String? defaultSortId;
   final String? defaultGroupId;
+  final Iterable<String> Function(LibraryWorkspaceEntry)? customLinkedMetadataCandidates;
+
+  Iterable<String> linkedMetadataCandidates(LibraryWorkspaceEntry entry) sync* {
+    final series = entry.series?.seriesTitle?.trim();
+    final country = entry.country?.trim();
+    final language = entry.language?.trim();
+    final publishing = entry.publishing;
+
+    yield* nonEmptyStrings([
+      entry.resolvedTitle,
+      entry.title,
+      entry.localizedTitle,
+      entry.originalTitle,
+      series,
+      entry.itemNumber,
+      entry.publisher,
+      entry.variant,
+      publishing?.imprint,
+      country,
+      language,
+      entry.ageRating,
+    ]);
+    yield* nonEmptyStrings(entry.searchAliases);
+    if (entry.creators case final creators?) {
+      for (final credit in creators) {
+        final name = credit['name']?.toString()?.trim();
+        if (name != null && name.isNotEmpty) {
+          yield name;
+        }
+      }
+    }
+    yield* nonEmptyStrings(entry.genres);
+
+    if (customLinkedMetadataCandidates != null) {
+      yield* customLinkedMetadataCandidates!(entry);
+    }
+  }
+
+  static Iterable<String> nonEmptyStrings(Iterable<String?>? values) sync* {
+    if (values == null) {
+      return;
+    }
+    for (final value in values) {
+      final trimmed = value?.trim();
+      if (trimmed != null && trimmed.isNotEmpty) {
+        yield trimmed;
+      }
+    }
+  }
 
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>? columnDefinitionForId(String id) {
     for (final definition in columns) {

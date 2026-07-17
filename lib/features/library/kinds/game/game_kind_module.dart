@@ -19,6 +19,13 @@ final gameKindModule = LibraryKindModule(
     defaultVisibleColumnIds: gamesLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
+    customLinkedMetadataCandidates: (entry) sync* {
+      if (entry.game?.platforms case final platforms?) {
+        yield* AnyLibraryFieldRegistry.nonEmptyStrings(platforms);
+      } else {
+        yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.rawPlatforms);
+      }
+    },
   ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(  ),
   providerMapper: const GameLibraryKindProviderMapper(),

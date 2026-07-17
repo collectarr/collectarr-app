@@ -19,6 +19,13 @@ final musicKindModule = LibraryKindModule(
     defaultVisibleColumnIds: musicLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
+    customLinkedMetadataCandidates: (entry) sync* {
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings([
+        entry.music?.catalogNumber,
+        entry.music?.vinylColor,
+        entry.music?.rpm?.toString(),
+      ]);
+    },
   ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsTrackSearch: true,

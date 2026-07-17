@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
+import 'comic_workspace_dto.dart';
 
 final comicLibraryFieldDefinitions = [
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
@@ -64,7 +65,7 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('crossover'),
     label: 'Crossover',
-    getValue: (entry) => entry.crossover,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).crossover,
     sidebarTitle: 'Crossovers',
     icon: Icons.hub_outlined,
     supportsBucketManagement: true,
@@ -125,7 +126,7 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('comic.story_arc'),
     label: 'Story Arc',
-    getValue: (entry) => entry.storyArcs,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).storyArcs,
     sidebarTitle: 'Story Arcs',
     icon: Icons.auto_stories_outlined,
     supportsBucketManagement: true,
@@ -154,7 +155,7 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('comic.character'),
     label: 'Character',
-    getValue: (entry) => entry.characters,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).characters,
     sidebarTitle: 'Characters',
     icon: Icons.groups_2_outlined,
     supportsBucketManagement: true,
@@ -345,7 +346,7 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('grade'),
     label: 'Grade',
-    getValue: (entry) => entry.grade,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).grade,
     sidebarTitle: 'Grades',
     icon: Icons.verified_outlined,
   ),
@@ -601,7 +602,10 @@ final comicLibrarySortDefinitions = [
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'grade',
     label: 'Grade',
-    compare: (left, right) => _compareGrade(left.grade, right.grade),
+    compare: (left, right) => _compareGrade(
+      ComicWorkspaceDto.fromEntry(left).grade,
+      ComicWorkspaceDto.fromEntry(right).grade,
+    ),
     group: 'Value',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
@@ -653,7 +657,14 @@ final comicLibrarySortDefinitions = [
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'comic.key_issue',
     label: 'Key Comic',
-    compare: (left, right) => _compareStrings(left.title, right.title),
+    compare: (left, right) {
+      final leftKey = ComicWorkspaceDto.fromEntry(left).keyComic;
+      final rightKey = ComicWorkspaceDto.fromEntry(right).keyComic;
+      if (leftKey != rightKey) {
+        return leftKey ? -1 : 1;
+      }
+      return _compareStrings(left.title, right.title);
+    },
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'added',
@@ -855,8 +866,8 @@ final comicLibraryColumnDefinitions = [
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('grade'),
     label: 'Grade',
-    getValue: (entry) => entry.grade,
-    cellValue: (entry) => Text(entry.grade ?? ''),
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).grade,
+    cellValue: (entry) => Text(ComicWorkspaceDto.fromEntry(entry).grade ?? ''),
     group: 'Value',
     defaultWidth: 88,
   ),

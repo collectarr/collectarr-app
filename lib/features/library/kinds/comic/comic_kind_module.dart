@@ -24,6 +24,10 @@ final comicKindModule = LibraryKindModule(
     defaultVisibleColumnIds: comicLibraryDefaultVisibleColumnIds,
     defaultSortId: comicDefaultSortId,
     defaultGroupId: comicDefaultGroupId,
+    customLinkedMetadataCandidates: (entry) sync* {
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.characters);
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.storyArcs);
+    },
   ),
   add: LibraryKindAddModule(registerBuilders: comic_add.registerComicAddBuilders),
   workspaceBehavior: LibraryKindWorkspaceBehavior(

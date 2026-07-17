@@ -100,6 +100,7 @@ final tvLibraryConfig = LibraryTypeConfig(
     showsSynopsis: true,
     supportsMediaReleaseSplit: true,
     contentHierarchy: LibraryContentHierarchy.seasons,
+    supportsSeriesSubgroups: true,
     wideDialog: true,
   ),
   workspaceBehavior: LibraryKindWorkspaceBehavior(

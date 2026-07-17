@@ -124,6 +124,8 @@ final comicsLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     supportsIndexReassignment: true,
     supportsMetadataCompare: true,
+    contentHierarchy: LibraryContentHierarchy.volumes,
+    supportsSeriesSubgroups: true,
     groupModeCategoriesBuilder: buildComicGroupModeCategories,
   ),
   workspaceBehavior: LibraryKindWorkspaceBehavior(
