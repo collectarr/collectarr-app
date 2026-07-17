@@ -1,9 +1,8 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/config/common_fields.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
+import 'movie_workspace_dto.dart';
 
 final movieLibraryFieldDefinitions = [
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
@@ -548,7 +547,7 @@ final movieLibrarySortDefinitions = [
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'page_count',
-    compare: (left, right) => (left.publishing?.pageCount ?? 0).compareTo(right.publishing?.pageCount ?? 0),
+    compare: (left, right) => MovieWorkspaceDto.fromEntry(left).pageCount.compareTo(MovieWorkspaceDto.fromEntry(right).pageCount),
     label: 'Page count',
     group: 'Edition',
   ),
@@ -558,8 +557,10 @@ final movieLibrarySortDefinitions = [
     label: 'Age rating',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
-      id: 'imprint',
-    compare: (left, right) => (left.publishing?.imprint ?? "").compareTo(right.publishing?.imprint ?? ""), label: 'Imprint'),
+    id: 'imprint',
+    compare: (left, right) => (MovieWorkspaceDto.fromEntry(left).imprint ?? "").compareTo(MovieWorkspaceDto.fromEntry(right).imprint ?? ""),
+    label: 'Imprint',
+  ),
 ];
 
 final movieLibraryColumnDefinitions = [

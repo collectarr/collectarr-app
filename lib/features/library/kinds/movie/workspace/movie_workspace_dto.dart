@@ -2,13 +2,16 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final class MovieWorkspaceDto implements LibraryWorkspaceDto {
-  const MovieWorkspaceDto({required this.title,
+  const MovieWorkspaceDto({
+    required this.title,
     required this.seriesTitle,
     required this.itemNumber,
     required this.publisher,
     required this.releaseDate,
     required this.isOwned,
     required this.isWishlisted,
+    required this.pageCount,
+    required this.imprint,
   });
 
   @override
@@ -26,6 +29,9 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
   @override
   final bool isWishlisted;
 
+  final int pageCount;
+  final String? imprint;
+
   factory MovieWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
     return MovieWorkspaceDto(
       title: entry.resolvedTitle,
@@ -35,6 +41,8 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
       releaseDate: entry.releaseDate,
       isOwned: entry.isOwned,
       isWishlisted: entry.isWishlisted,
+      pageCount: entry.publishing?.pageCount ?? 0,
+      imprint: entry.publishing?.imprint,
     );
   }
 }

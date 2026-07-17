@@ -16,6 +16,8 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
     required this.length,
     required this.vinylColor,
     required this.rpm,
+    required this.pageCount,
+    required this.imprint,
   });
 
   @override
@@ -39,6 +41,8 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
   final String? length;
   final String? vinylColor;
   final String? rpm;
+  final int pageCount;
+  final String? imprint;
 
   factory MusicWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
     return MusicWorkspaceDto(
@@ -55,6 +59,8 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
       length: entry.music?.length,
       vinylColor: entry.music?.vinylColor,
       rpm: entry.music?.rpm,
+      pageCount: entry.publishing?.pageCount ?? 0,
+      imprint: entry.publishing?.imprint,
     );
   }
 }

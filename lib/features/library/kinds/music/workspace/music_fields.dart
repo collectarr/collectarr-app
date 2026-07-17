@@ -595,7 +595,7 @@ final musicLibrarySortDefinitions = [
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'page_count',
-    compare: (left, right) => (left.publishing?.pageCount ?? 0).compareTo(right.publishing?.pageCount ?? 0),
+    compare: (left, right) => MusicWorkspaceDto.fromEntry(left).pageCount.compareTo(MusicWorkspaceDto.fromEntry(right).pageCount),
     label: 'Page count',
     group: 'Edition',
   ),
@@ -605,8 +605,10 @@ final musicLibrarySortDefinitions = [
     label: 'Age rating',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
-      id: 'imprint',
-    compare: (left, right) => (left.publishing?.imprint ?? "").compareTo(right.publishing?.imprint ?? ""), label: 'Imprint'),
+    id: 'imprint',
+    compare: (left, right) => (MusicWorkspaceDto.fromEntry(left).imprint ?? "").compareTo(MusicWorkspaceDto.fromEntry(right).imprint ?? ""),
+    label: 'Imprint',
+  ),
 ];
 
 
