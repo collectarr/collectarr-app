@@ -34,12 +34,12 @@ class LibraryFilters extends StateNotifier<LibraryFilterState> {
   }
 
   void setGroup(String? groupId) {
-    state = state.copyWith(groupId: groupId);
+    state = state.copyWith(groupId: () => groupId);
   }
 
   void setSort(String sortId, {bool? ascending}) {
     state = state.copyWith(
-      sortId: sortId,
+      sortId: () => sortId,
       sortAscending: ascending ?? state.sortAscending,
     );
   }

@@ -20,20 +20,22 @@ class LibraryFilterState {
   LibraryFilterState copyWith({
     String? searchQuery,
     Map<String, Set<String>>? facetValues,
-    String? groupId,
-    String? sortId,
+    String? Function()? groupId,
+    String? Function()? sortId,
     bool? sortAscending,
     Set<String>? visibleColumnIds,
-    String? presentationLevelId,
+    String? Function()? presentationLevelId,
   }) {
     return LibraryFilterState(
       searchQuery: searchQuery ?? this.searchQuery,
       facetValues: facetValues ?? this.facetValues,
-      groupId: groupId ?? this.groupId,
-      sortId: sortId ?? this.sortId,
+      groupId: groupId != null ? groupId() : this.groupId,
+      sortId: sortId != null ? sortId() : this.sortId,
       sortAscending: sortAscending ?? this.sortAscending,
       visibleColumnIds: visibleColumnIds ?? this.visibleColumnIds,
-      presentationLevelId: presentationLevelId ?? this.presentationLevelId,
+      presentationLevelId: presentationLevelId != null
+          ? presentationLevelId()
+          : this.presentationLevelId,
     );
   }
 
