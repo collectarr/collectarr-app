@@ -187,4 +187,59 @@ void main() {
       expect(filters.sortId, equals('comic.grade'));
     });
   });
+
+  group('libraryLocalFacetValuesProvider Tests', () {
+    test('extracts unique sorted publisher values from shelf entries', () async {
+      final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
+
+      final mockShelfState = ShelfState(
+        entries: [
+          testShelfEntry(
+            itemId: '1',
+            kind: 'comic',
+            title: 'Batman #1',
+            catalogItem: testCatalogItem(id: '1', kind: 'comic', publisher: 'DC Comics'),
+          ),
+          testShelfEntry(
+            itemId: '2',
+            kind: 'comic',
+            title: 'Spider-Man #1',
+            catalogItem: testCatalogItem(id: '2', kind: 'comic', publisher: 'Marvel'),
+          ),
+          testShelfEntry(
+            itemId: '3',
+            kind: 'comic',
+            title: 'Batman #2',
+            catalogItem: testCatalogItem(id: '3', kind: 'comic', publisher: 'DC Comics'),
+          ),
+        ],
+        ownedCount: 3,
+        wishlistCount: 0,
+        missingGradeCount: 0,
+        pricedCount: 0,
+        totalPaidCents: 0,
+        primaryCurrency: 'USD',
+        hasMixedCurrencies: false,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          shelfProvider.overrideWithValue(AsyncValue.data(mockShelfState)),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final sub = container.listen(
+        libraryLocalFacetValuesProvider(LibraryFacetValuesInput(key: key, facetId: 'publisher')),
+        (previous, next) {},
+      );
+
+      final publishers = await container.read(
+        libraryLocalFacetValuesProvider(LibraryFacetValuesInput(key: key, facetId: 'publisher')).future,
+      );
+
+      expect(publishers, equals(['DC Comics', 'Marvel']));
+      sub.close();
+    });
+  });
 }
