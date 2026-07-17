@@ -58,6 +58,11 @@ class LibraryFilters extends StateNotifier<LibraryFilterState> {
       presentationLevelId: key.presentationLevelId,
     );
   }
+
+  /// Bulk-restore from a previously persisted snapshot (used by hydration).
+  void restoreFrom(LibraryFilterState saved) {
+    state = saved;
+  }
 }
 
 final libraryFiltersProvider =
