@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
@@ -8,14 +8,14 @@ import 'package:collectarr_app/features/library/workspace/entry/library_browser_
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryDateFormatter = String Function(DateTime value);
 typedef LibraryMoneyFormatter = String Function(int? cents, String? currency);
-
-enum LibraryMusicCardLayout { vertical, horizontal }
 
 enum LibraryCardLayout { vertical, horizontal }
 
@@ -32,7 +32,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
     this.accentColor = kAppAccent,
     this.mutedTextColor = kAppTextMuted,
     this.coverWidth = 72,
-    this.musicLayout = LibraryMusicCardLayout.vertical,
     this.cardLayout = LibraryCardLayout.horizontal,
     this.selectionMode = false,
     this.onSelectionToggleTap,
@@ -52,7 +51,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
   final Color accentColor;
   final Color mutedTextColor;
   final double coverWidth;
-  final LibraryMusicCardLayout musicLayout;
   final LibraryCardLayout cardLayout;
   final bool selectionMode;
   final VoidCallback? onSelectionToggleTap;
@@ -85,21 +83,42 @@ class LibraryWorkspaceCard extends StatelessWidget {
       variantId: entry.referenceVariantId,
       bundleReleaseId: entry.referenceBundleReleaseId,
     );
-    final comic = entry.comic;
-    final gradeLabel = entry.grade?.trim();
+
+    // Resolve the kind-supplied card presentation (or fall back to default).
+    final type = collectarrLibraryTypes.byKind(entry.mediaType);
+    final module = type != null ? libraryKindModuleForType(type) : null;
+    final musicVertical = cardLayout == LibraryCardLayout.vertical;
+    final presentation = module?.buildCardPresentation?.call(
+          entry,
+          musicVertical: musicVertical,
+        ) ??
+        const LibraryCardPresentation();
+
     final strongSelection =
         selected && entry.browseScope != LibraryBrowserScope.title;
     final coverCacheWidth = _targetCacheWidth(context);
-    final type = collectarrLibraryTypes.byKind(entry.mediaType);
-    if (type != null &&
-        libraryKindModuleForType(type).workspaceBehavior.usesTrackListCard) {
-      return _buildMusicCard(
-        context: context,
-        selectedTitleColor: selectedTitleColor,
-        mutedColor: resolvedMutedTextColor,
-        coverCacheWidth: coverCacheWidth,
-      );
+
+    // Route to the appropriate layout variant.
+    switch (presentation.cardVariant) {
+      case LibraryCardVariant.musicVertical:
+        return _buildMusicVerticalCard(
+          context: context,
+          selectedTitleColor: selectedTitleColor,
+          mutedColor: resolvedMutedTextColor,
+          coverCacheWidth: coverCacheWidth,
+        );
+      case LibraryCardVariant.musicHorizontal:
+        return _buildMusicHorizontalCard(
+          context: context,
+          selectedTitleColor: selectedTitleColor,
+          mutedColor: resolvedMutedTextColor,
+          coverCacheWidth: coverCacheWidth,
+          metadataPresentation: metadataPresentation,
+        );
+      case LibraryCardVariant.standard:
+        break;
     }
+
     if (cardLayout == LibraryCardLayout.vertical) {
       return _buildStandardVerticalCard(
         context: context,
@@ -107,14 +126,47 @@ class LibraryWorkspaceCard extends StatelessWidget {
         mutedColor: resolvedMutedTextColor,
         strongSelection: strongSelection,
         coverCacheWidth: coverCacheWidth,
+        presentation: presentation,
       );
     }
+    return _buildStandardHorizontalCard(
+      context: context,
+      selectedTitleColor: selectedTitleColor,
+      mutedColor: resolvedMutedTextColor,
+      strongSelection: strongSelection,
+      coverCacheWidth: coverCacheWidth,
+      metadataPresentation: metadataPresentation,
+      presentation: presentation,
+      referenceHierarchy: referenceHierarchy,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Standard horizontal card (default for most kinds).
+  // ---------------------------------------------------------------------------
+
+  Widget _buildStandardHorizontalCard({
+    required BuildContext context,
+    required Color selectedTitleColor,
+    required Color mutedColor,
+    required bool strongSelection,
+    required int? coverCacheWidth,
+    required LibraryMetadataPresentation? metadataPresentation,
+    required LibraryCardPresentation presentation,
+    required List<String> referenceHierarchy,
+  }) {
+    final palette = appPalette(context);
+    final gradeLabel = entry.grade?.trim();
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: selected ? resolvedSelectedColor : palette.cardBackground,
+          color: selected ? libraryWorkspaceSelectionBackground(
+                context,
+                accentColor: accentColor,
+                baseColor: palette.cardBackground,
+              ) : palette.cardBackground,
           border: Border.all(
             color: selected ? accentColor : palette.cardBorder,
             width: selected ? (strongSelection ? 3 : 2) : 1,
@@ -149,20 +201,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            SlabFrameOverlay.maybeWrap(
-                              rawOrSlabbed: comic?.rawOrSlabbed,
-                              gradingCompany: comic?.gradingCompany,
-                              grade: entry.grade,
-                              labelType: comic?.labelType,
-                              child: LibraryInteractiveCover(
-                                title: entry.resolvedTitle,
-                                itemNumber: entry.itemNumber,
-                                imageUrl: entry.displayCoverUrl,
-                                ownedItemId: entry.ownedItemId,
-                                accentColor: accentColor,
-                                enableFullscreen: false,
-                                enableSecondaryControl: false,
-                              ),
+                            _buildCover(
+                              context: context,
+                              coverCacheWidth: coverCacheWidth,
+                              presentation: presentation,
+                              fit: BoxFit.contain,
+                              borderRadius: 2,
                             ),
                             Positioned(
                               left: 4,
@@ -180,18 +224,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     libraryHierarchyContractDiagnosticLabel(
                                   entry,
                                 ),
-                                keyLabel: libraryKeyMarkerLabel(
-                                  comic?.keyComic ?? false,
-                                  comic?.keyReason,
-                                ),
+                                keyLabel: _coverKeyLabel(presentation),
                                 gradeLabel:
                                     gradeLabel == null || gradeLabel.isEmpty
                                         ? null
                                         : 'Grade $gradeLabel',
-                                slabLabel: librarySlabMarkerLabel(
-                                  comic?.rawOrSlabbed,
-                                  comic?.gradingCompany,
-                                ),
+                                slabLabel: _coverSlabLabel(presentation),
                                 signedLabel:
                                     librarySignedMarkerLabel(entry.signedBy),
                                 valueLabel: libraryValueMarkerLabel(
@@ -255,7 +293,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                    color: resolvedMutedTextColor,
+                                    color: mutedColor,
                                   ),
                             ),
                             const SizedBox(height: 8),
@@ -315,7 +353,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: runtime,
                                     accentColor: accentColor,
                                   ),
-                                ..._videoCompactBadges(entry, accentColor),
+                                // Kind-specific compact badges
+                                for (final badge in presentation.compactBadges)
+                                  _LibraryCompactMetaPill(
+                                    icon: badge.icon,
+                                    label: badge.label,
+                                    accentColor: accentColor,
+                                  ),
                                 if (_metadataFactValue(
                                         metadataPresentation, 'Tracks')
                                     case final trackCount?)
@@ -356,23 +400,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: badge,
                                     accentColor: accentColor,
                                   ),
-                                if (comic?.keyComic == true)
-                                  _LibraryCompactMetaPill(
-                                    icon: Icons.label_important,
-                                    label: comic?.keyReason ?? 'Key item',
-                                    accentColor: accentColor,
-                                  ),
-                                if (comic?.rawOrSlabbed != null ||
-                                    comic?.gradingCompany != null)
-                                  _LibraryCompactMetaPill(
-                                    icon: Icons.workspace_premium,
-                                    label: librarySlabMarkerLabel(
-                                          comic?.rawOrSlabbed,
-                                          comic?.gradingCompany,
-                                        ) ??
-                                        'Collector copy',
-                                    accentColor: accentColor,
-                                  ),
                                 if (entry.locationPath != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.inventory_2_outlined,
@@ -394,7 +421,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: 'Wishlist',
                                     accentColor: accentColor,
                                   ),
-                                ..._gameCompactBadges(entry, accentColor),
                               ],
                             ),
                             const Spacer(),
@@ -454,15 +480,19 @@ class LibraryWorkspaceCard extends StatelessWidget {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Standard vertical card (grid / card view).
+  // ---------------------------------------------------------------------------
+
   Widget _buildStandardVerticalCard({
     required BuildContext context,
     required Color selectedTitleColor,
     required Color mutedColor,
     required bool strongSelection,
     required int? coverCacheWidth,
+    required LibraryCardPresentation presentation,
   }) {
     final palette = appPalette(context);
-    final comic = entry.comic;
     final background = selected
         ? libraryWorkspaceSelectionBackground(
             context,
@@ -529,23 +559,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            SlabFrameOverlay.maybeWrap(
-                              rawOrSlabbed: comic?.rawOrSlabbed,
-                              gradingCompany: comic?.gradingCompany,
-                              grade: entry.grade,
-                              labelType: comic?.labelType,
-                              child: LibraryInteractiveCover(
-                                title: entry.resolvedTitle,
-                                itemNumber: entry.itemNumber,
-                                imageUrl: entry.displayCoverUrl,
-                                ownedItemId: entry.ownedItemId,
-                                targetCacheWidth: coverCacheWidth,
-                                accentColor: accentColor,
-                                fit: BoxFit.cover,
-                                borderRadius: 0,
-                                enableFullscreen: false,
-                                enableSecondaryControl: false,
-                              ),
+                            _buildCover(
+                              context: context,
+                              coverCacheWidth: coverCacheWidth,
+                              presentation: presentation,
+                              fit: BoxFit.cover,
+                              borderRadius: 0,
                             ),
                             Positioned(
                               left: 6,
@@ -560,14 +579,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     libraryHierarchyContractDiagnosticLabel(
                                   entry,
                                 ),
-                                keyLabel: libraryKeyMarkerLabel(
-                                  comic?.keyComic ?? false,
-                                  comic?.keyReason,
-                                ),
-                                slabLabel: librarySlabMarkerLabel(
-                                  comic?.rawOrSlabbed,
-                                  comic?.gradingCompany,
-                                ),
+                                keyLabel: _coverKeyLabel(presentation),
+                                slabLabel: _coverSlabLabel(presentation),
                                 notesLabel:
                                     libraryNotesMarkerLabel(entry.notes),
                               ),
@@ -663,33 +676,16 @@ class LibraryWorkspaceCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMusicCard({
-    required BuildContext context,
-    required Color selectedTitleColor,
-    required Color mutedColor,
-    required int? coverCacheWidth,
-  }) {
-    return switch (musicLayout) {
-      LibraryMusicCardLayout.horizontal => _buildMusicHorizontalCard(
-          context: context,
-          selectedTitleColor: selectedTitleColor,
-          mutedColor: mutedColor,
-          coverCacheWidth: coverCacheWidth,
-        ),
-      LibraryMusicCardLayout.vertical => _buildMusicVerticalCard(
-          context: context,
-          selectedTitleColor: selectedTitleColor,
-          mutedColor: mutedColor,
-          coverCacheWidth: coverCacheWidth,
-        ),
-    };
-  }
+  // ---------------------------------------------------------------------------
+  // Music horizontal card (tracklist / album list layout).
+  // ---------------------------------------------------------------------------
 
   Widget _buildMusicHorizontalCard({
     required BuildContext context,
     required Color selectedTitleColor,
     required Color mutedColor,
     required int? coverCacheWidth,
+    required LibraryMetadataPresentation? metadataPresentation,
   }) {
     final palette = appPalette(context);
     final background = selected
@@ -705,18 +701,15 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final supportColor = selected
         ? selectedTitleColor.withValues(alpha: 0.82)
         : palette.textSecondary;
-    final artist = _musicArtist(entry);
+    final artist = musicCardArtist(entry);
     final year = entry.releaseYear?.toString() ?? '';
     final format = entry.referenceFormatLabel?.trim();
-    final tracks = entry.music?.trackCount ??
-        int.tryParse(_metadataFactValue(
-                _metadataPresentationForEntry(entry), 'Tracks') ??
-            '');
-    final duration = _musicDuration(entry);
+    final tracks = musicCardTrackCount(entry);
+    final duration = musicCardDuration(entry);
     final metaLine = [
       if (format != null && format.isNotEmpty) format,
-      if (year.isNotEmpty) year
-    ].join(' \u2013 ');
+      if (year.isNotEmpty) year,
+    ].join(' – ');
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -811,16 +804,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                       fontWeight: FontWeight.w800,
                                     ),
                               ),
-                            if (_videoCompactBadges(entry, accentColor)
-                                .isNotEmpty) ...[
-                              const SizedBox(height: 6),
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children:
-                                    _videoCompactBadges(entry, accentColor),
-                              ),
-                            ],
                             if (customFieldBadges.isNotEmpty) ...[
                               const SizedBox(height: 6),
                               Wrap(
@@ -909,6 +892,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Music vertical card (album grid layout).
+  // ---------------------------------------------------------------------------
+
   Widget _buildMusicVerticalCard({
     required BuildContext context,
     required Color selectedTitleColor,
@@ -926,7 +913,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final titleColor = selected ? selectedTitleColor : palette.textPrimary;
     final subtitleColor =
         selected ? selectedTitleColor.withValues(alpha: 0.9) : mutedColor;
-    final artist = _musicArtist(entry);
+    final artist = musicCardArtist(entry);
     final year = entry.releaseYear?.toString() ?? '';
     return RepaintBoundary(
       child: AnimatedContainer(
@@ -1071,52 +1058,33 @@ class LibraryWorkspaceCard extends StatelessWidget {
     );
   }
 
-  String? _musicArtist(LibraryWorkspaceEntry entry) {
-    final creators = entry.creators ?? const <Map<String, dynamic>>[];
-    String? fallbackName;
-    for (final creator in creators) {
-      final rawName =
-          (creator['name'] ?? creator['display_name'] ?? '').toString().trim();
-      if (rawName.isEmpty) {
-        continue;
-      }
-      fallbackName ??= rawName;
-      final role =
-          (creator['role'] ?? creator['type'] ?? '').toString().toLowerCase();
-      if (role.contains('artist') ||
-          role.contains('performer') ||
-          role.contains('musician') ||
-          role.contains('band')) {
-        return rawName;
-      }
-    }
-    final publisher = entry.publisher?.trim();
-    if (publisher != null && publisher.isNotEmpty) {
-      return publisher;
-    }
-    return fallbackName;
-  }
+  // ---------------------------------------------------------------------------
+  // Shared helpers.
+  // ---------------------------------------------------------------------------
 
-  String? _musicDuration(LibraryWorkspaceEntry entry) {
-    final runtimeFact =
-        _metadataFactValue(_metadataPresentationForEntry(entry), 'Runtime');
-    if (runtimeFact != null && runtimeFact.isNotEmpty) {
-      return runtimeFact;
-    }
-    final totalSeconds = entry.music?.tracks.fold<int>(
-      0,
-      (sum, track) => sum + (track.durationSeconds ?? 0),
+  /// Builds the cover image, optionally wrapped in a kind-supplied overlay
+  /// (e.g. slab frame for comics).
+  Widget _buildCover({
+    required BuildContext context,
+    required int? coverCacheWidth,
+    required LibraryCardPresentation presentation,
+    required BoxFit fit,
+    required double borderRadius,
+  }) {
+    final cover = LibraryInteractiveCover(
+      title: entry.resolvedTitle,
+      itemNumber: entry.itemNumber,
+      imageUrl: entry.displayCoverUrl,
+      ownedItemId: entry.ownedItemId,
+      targetCacheWidth: coverCacheWidth,
+      accentColor: accentColor,
+      fit: fit,
+      borderRadius: borderRadius,
+      enableFullscreen: false,
+      enableSecondaryControl: false,
     );
-    if (totalSeconds == null || totalSeconds <= 0) {
-      return null;
-    }
-    final hours = totalSeconds ~/ 3600;
-    final minutes = (totalSeconds % 3600) ~/ 60;
-    final seconds = totalSeconds % 60;
-    if (hours > 0) {
-      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-    }
-    return '$minutes:${seconds.toString().padLeft(2, '0')}';
+    final wrapOverlay = presentation.coverOverlayBuilder;
+    return wrapOverlay != null ? wrapOverlay(cover) : cover;
   }
 
   Widget _scopeBadge(BuildContext context, LibraryWorkspaceEntry entry) {
@@ -1135,21 +1103,42 @@ class LibraryWorkspaceCard extends StatelessWidget {
 
   int? _targetCacheWidth(BuildContext context) {
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
-    if (pixelRatio <= 0) {
-      return null;
-    }
+    if (pixelRatio <= 0) return null;
     final rawWidth = coverWidth * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
   }
 }
 
+// ---------------------------------------------------------------------------
+// Helpers for extracting cover-badge labels from the presentation.
+// These read the first badge of the expected icon type.  Kinds can inject
+// badges via LibraryCardPresentation.compactBadges; the cover badges come from
+// kind-specific labels exposed via comic_card_presentation helpers.
+// ---------------------------------------------------------------------------
+
+String? _coverKeyLabel(LibraryCardPresentation presentation) {
+  for (final b in presentation.compactBadges) {
+    if (b.icon == Icons.label_important) return b.label;
+  }
+  return null;
+}
+
+String? _coverSlabLabel(LibraryCardPresentation presentation) {
+  for (final b in presentation.compactBadges) {
+    if (b.icon == Icons.workspace_premium) return b.label;
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Module-level helpers (previously in the file-level scope).
+// ---------------------------------------------------------------------------
+
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryWorkspaceEntry entry,
 ) {
   final type = collectarrLibraryTypes.byKind(entry.mediaType);
-  if (type == null) {
-    return null;
-  }
+  if (type == null) return null;
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,
     mediaFields: type.mediaFields,
@@ -1164,9 +1153,7 @@ String? _metadataFactValue(
   LibraryMetadataPresentation? presentation,
   String label,
 ) {
-  if (presentation == null) {
-    return null;
-  }
+  if (presentation == null) return null;
   for (final fact in presentation.allFacts) {
     if (fact.label == label) {
       final value = fact.value.trim();
@@ -1179,13 +1166,9 @@ String? _metadataFactValue(
 }
 
 String? _compactPlatformLabel(List<String>? platforms) {
-  if (platforms == null || platforms.isEmpty) {
-    return null;
-  }
+  if (platforms == null || platforms.isEmpty) return null;
   final first = platforms.first.trim();
-  if (first.isEmpty) {
-    return null;
-  }
+  if (first.isEmpty) return null;
   final extra =
       platforms.skip(1).where((value) => value.trim().isNotEmpty).length;
   return extra == 0 ? first : '$first +$extra';
@@ -1193,228 +1176,14 @@ String? _compactPlatformLabel(List<String>? platforms) {
 
 String? _compactNotesLabel(String? notes) {
   final trimmed = notes?.trim();
-  if (trimmed == null || trimmed.isEmpty) {
-    return null;
-  }
-  if (trimmed.length <= 28) {
-    return trimmed;
-  }
+  if (trimmed == null || trimmed.isEmpty) return null;
+  if (trimmed.length <= 28) return trimmed;
   return '${trimmed.substring(0, 27)}...';
 }
 
-List<Widget> _videoCompactBadges(
-  LibraryWorkspaceEntry entry,
-  Color accentColor,
-) {
-  final video = entry.video;
-  if (video == null) {
-    return const <Widget>[];
-  }
-  final badges = <Widget>[];
-  final edition = resolveLibraryEntryReferenceRelease(entry).edition ??
-      (entry.editions.isNotEmpty ? entry.editions.first : null);
-  final format = entry.referenceFormatLabel?.trim() ??
-      edition?.format?.trim() ??
-      edition?.physicalFormatLabel?.trim();
-  final region = edition?.region?.trim() ?? entry.country?.trim();
-  final hdr = video.color?.trim();
-  final screenRatio = video.screenRatio?.trim();
-  final audio = video.audioTracks?.trim();
-  final subtitles = video.subtitles?.trim();
-  final layers = video.layers?.trim();
-  final trailerCount =
-      entry.trailerUrls.where((link) => link.isTrailerLink).length;
-  if (format != null && format.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.album_outlined,
-        label: format,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (region != null && region.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.public_outlined,
-        label: region,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (hdr != null && hdr.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.hdr_on_outlined,
-        label: hdr,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (screenRatio != null && screenRatio.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.aspect_ratio_outlined,
-        label: screenRatio,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (audio != null && audio.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.volume_up_outlined,
-        label: audio,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (subtitles != null && subtitles.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.closed_caption_outlined,
-        label: subtitles,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (layers != null && layers.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.layers_outlined,
-        label: layers,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (trailerCount > 0) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.ondemand_video_outlined,
-        label: trailerCount == 1 ? 'Trailer' : '$trailerCount trailers',
-        accentColor: accentColor,
-      ),
-    );
-  }
-  return badges;
-}
-
-List<Widget> _gameCompactBadges(
-  LibraryWorkspaceEntry entry,
-  Color accentColor,
-) {
-  if (entry.mediaType != 'game') {
-    return const <Widget>[];
-  }
-  final badges = <Widget>[];
-  final releasePlatform = entry.referenceFormatLabel?.trim();
-  final developer = _compactGameDeveloperLabel(entry);
-  final ageRating = entry.ageRating?.trim();
-  final completion = _compactGameCompletionLabel(entry);
-  final value = entry.pricePaidCents == null
-      ? null
-      : formatMoney(entry.pricePaidCents, entry.currency);
-  final hardware = _compactHardwareLabel(entry);
-  if (releasePlatform != null && releasePlatform.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.album_outlined,
-        label: releasePlatform,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (developer != null && developer.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.code_outlined,
-        label: developer,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (ageRating != null && ageRating.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.shield_outlined,
-        label: ageRating,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (completion != null && completion.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.check_circle_outline,
-        label: completion,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (value != null && value.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.payments_outlined,
-        label: value,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  if (hardware != null && hardware.isNotEmpty) {
-    badges.add(
-      _LibraryCompactMetaPill(
-        icon: Icons.videogame_asset_outlined,
-        label: hardware,
-        accentColor: accentColor,
-      ),
-    );
-  }
-  return badges;
-}
-
-String? _compactGameDeveloperLabel(LibraryWorkspaceEntry entry) {
-  final creators = entry.creators ?? const <Map<String, dynamic>>[];
-  String? fallbackName;
-  for (final creator in creators) {
-    final rawName =
-        (creator['name'] ?? creator['display_name'] ?? '').toString().trim();
-    if (rawName.isEmpty) {
-      continue;
-    }
-    fallbackName ??= rawName;
-    final role =
-        (creator['role'] ?? creator['type'] ?? '').toString().toLowerCase();
-    if (role.contains('developer') ||
-        role.contains('publisher') ||
-        role.contains('studio')) {
-      return rawName;
-    }
-  }
-  return fallbackName;
-}
-
-String? _compactGameCompletionLabel(LibraryWorkspaceEntry entry) {
-  final status = entry.collectionStatus?.trim();
-  if (status != null && status.isNotEmpty) {
-    return status;
-  }
-  return entry.isOwned ? 'Owned' : null;
-}
-
-String? _compactHardwareLabel(LibraryWorkspaceEntry entry) {
-  final game = entry.game;
-  if (game == null) {
-    return null;
-  }
-  final parts = <String>[
-    if (game.toySubtype?.trim().isNotEmpty == true) game.toySubtype!.trim(),
-    if (game.toyType?.trim().isNotEmpty == true) game.toyType!.trim(),
-  ];
-  if (parts.isEmpty) {
-    return null;
-  }
-  return parts.join(' / ');
-}
+// ---------------------------------------------------------------------------
+// Private widget helpers.
+// ---------------------------------------------------------------------------
 
 class _LibraryIssuePill extends StatelessWidget {
   const _LibraryIssuePill({required this.label});

@@ -4,11 +4,13 @@ import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
+import 'package:collectarr_app/features/library/media/video/workspace/video_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
+
 
 final movieKindModule = LibraryKindModule(
   type: moviesLibraryConfig,
@@ -33,4 +35,5 @@ final movieKindModule = LibraryKindModule(
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),
+  buildCardPresentation: buildVideoCardPresentation,
 );

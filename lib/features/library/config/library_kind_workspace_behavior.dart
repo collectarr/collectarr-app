@@ -15,7 +15,6 @@ class LibraryKindWorkspaceBehavior {
   const LibraryKindWorkspaceBehavior({
     this.supportsTrackSearch = false,
     this.supportsSeriesIssueJump = false,
-    this.usesTrackListCard = false,
     this.showsSeasonGroupProgress = false,
     this.defaultVideoDisplayLevel,
     this.defaultVideoGrouping = VideoGroupingDefault.none,
@@ -26,7 +25,6 @@ class LibraryKindWorkspaceBehavior {
 
   final bool supportsTrackSearch;
   final bool supportsSeriesIssueJump;
-  final bool usesTrackListCard;
   final bool showsSeasonGroupProgress;
   final VideoDisplayLevel? defaultVideoDisplayLevel;
   final VideoGroupingDefault defaultVideoGrouping;

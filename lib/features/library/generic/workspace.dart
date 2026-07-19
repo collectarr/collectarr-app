@@ -291,7 +291,6 @@ class LibraryWorkspace extends ConsumerWidget {
             accentColor: accent,
             mutedTextColor: palette.textMuted,
             coverWidth: isMusicLibrary ? viewState.coverSize : cardCoverWidth,
-            musicLayout: LibraryMusicCardLayout.vertical,
             cardLayout: LibraryCardLayout.vertical,
             selectionMode: selectionEnabled,
             onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
@@ -466,7 +465,6 @@ class LibraryWorkspace extends ConsumerWidget {
                 accentColor: accent,
                 mutedTextColor: palette.textMuted,
                 coverWidth: cardCoverWidth,
-                musicLayout: LibraryMusicCardLayout.horizontal,
                 cardLayout: LibraryCardLayout.horizontal,
                 selectionMode: selectionEnabled,
                 onSelectionToggleTap: () =>

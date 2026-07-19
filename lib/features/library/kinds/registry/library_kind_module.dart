@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 class AnyLibraryFieldRegistry {
   const AnyLibraryFieldRegistry({
@@ -176,6 +177,7 @@ class LibraryKindModule {
     this.facets = const LibraryFacetModule(
       loadRows: _emptyFacetRows,
     ),
+    this.buildCardPresentation,
   });
 
   final LibraryTypeConfig type;
@@ -190,6 +192,15 @@ class LibraryKindModule {
   final LibraryKindToolbarModule toolbar;
   final LibraryKindProviderMapper providerMapper;
   final LibraryFacetModule facets;
+
+  /// Returns the card presentation for a given entry.
+  ///
+  /// When null the generic card falls back to [LibraryCardPresentation()] which
+  /// produces the standard layout without any kind-specific content.
+  final LibraryCardPresentation Function(
+    LibraryWorkspaceEntry entry, {
+    required bool musicVertical,
+  })? buildCardPresentation;
 }
 
 class LibraryKindAddModule {

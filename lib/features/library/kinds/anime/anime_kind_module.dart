@@ -2,11 +2,13 @@ import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
+import 'package:collectarr_app/features/library/media/video/workspace/video_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
+
 
 final animeKindModule = LibraryKindModule(
   type: animeLibraryConfig,
@@ -31,4 +33,5 @@ final animeKindModule = LibraryKindModule(
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),
+  buildCardPresentation: buildVideoCardPresentation,
 );

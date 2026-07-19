@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart'
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -13,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fiel
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
+
 
 final comicKindModule = LibraryKindModule(
   type: comicsLibraryConfig,
@@ -85,6 +87,7 @@ final comicKindModule = LibraryKindModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
     getFacetValues: _getFacetValues,
   ),
+  buildCardPresentation: buildComicCardPresentation,
 );
 
 Iterable<String> _getFacetValues(LibraryWorkspaceEntry entry, String facetId) {
