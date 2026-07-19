@@ -10,6 +10,14 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
     required this.releaseDate,
     required this.isOwned,
     required this.isWishlisted,
+    required this.condition,
+    required this.locationPath,
+    required this.rating,
+    required this.pricePaidCents,
+    required this.addedAt,
+    required this.updatedAt,
+    required this.tags,
+    required this.collectionStatus,
     required this.catalogNumber,
     required this.discCount,
     required this.trackCount,
@@ -35,6 +43,23 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
   @override
   final bool isWishlisted;
 
+  @override
+  final String? condition;
+  @override
+  final String? locationPath;
+  @override
+  final int? rating;
+  @override
+  final int? pricePaidCents;
+  @override
+  final DateTime? addedAt;
+  @override
+  final DateTime updatedAt;
+  @override
+  final String? tags;
+  @override
+  final String? collectionStatus;
+
   final String? catalogNumber;
   final int? discCount;
   final int? trackCount;
@@ -53,6 +78,14 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
       releaseDate: entry.releaseDate,
       isOwned: entry.isOwned,
       isWishlisted: entry.isWishlisted,
+      condition: entry.condition,
+      locationPath: entry.locationPath,
+      rating: entry.rating,
+      pricePaidCents: entry.pricePaidCents,
+      addedAt: entry.addedAt,
+      updatedAt: entry.updatedAt,
+      tags: entry.tags,
+      collectionStatus: entry.collectionStatus,
       catalogNumber: entry.music?.catalogNumber,
       discCount: entry.music?.discCount,
       trackCount: entry.music?.trackCount,

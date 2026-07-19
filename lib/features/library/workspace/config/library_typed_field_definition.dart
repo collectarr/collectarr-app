@@ -11,6 +11,15 @@ abstract interface class LibraryWorkspaceDto {
   DateTime? get releaseDate;
   bool get isOwned;
   bool get isWishlisted;
+
+  String? get condition;
+  String? get locationPath;
+  int? get rating;
+  int? get pricePaidCents;
+  DateTime? get addedAt;
+  DateTime get updatedAt;
+  String? get tags;
+  String? get collectionStatus;
 }
 
 typedef LibraryWorkspaceDtoBuilder = LibraryWorkspaceDto Function(
@@ -116,6 +125,32 @@ class LibraryGroupDefinition<TDto, TValue> {
 
   String get resolvedBucketManagerListLabel =>
       bucketManagerListLabel ?? '$label list';
+
+  LibraryGroupDefinition<TDto, TValue> copyWith({
+    LibraryFieldId<TValue>? id,
+    String? label,
+    LibraryFieldValueGetter<TDto, TValue>? getValue,
+    String? sidebarTitle,
+    IconData? icon,
+    LibraryGroupPresentation? presentation,
+    bool? supportsBucketManagement,
+    String? bucketManagerListLabel,
+    String? drilldownChildId,
+    String? folderSetLabel,
+  }) {
+    return LibraryGroupDefinition<TDto, TValue>(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      getValue: getValue ?? this.getValue,
+      sidebarTitle: sidebarTitle ?? this.sidebarTitle,
+      icon: icon ?? this.icon,
+      presentation: presentation ?? this.presentation,
+      supportsBucketManagement: supportsBucketManagement ?? this.supportsBucketManagement,
+      bucketManagerListLabel: bucketManagerListLabel ?? this.bucketManagerListLabel,
+      drilldownChildId: drilldownChildId ?? this.drilldownChildId,
+      folderSetLabel: folderSetLabel ?? this.folderSetLabel,
+    );
+  }
 }
 
 typedef LibrarySortComparator<TDto> = int Function(TDto left, TDto right);

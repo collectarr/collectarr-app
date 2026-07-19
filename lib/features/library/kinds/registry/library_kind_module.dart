@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -9,7 +8,6 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/config/common_fields.dart';
 
 class AnyLibraryFieldRegistry {
   const AnyLibraryFieldRegistry({
@@ -41,13 +39,13 @@ class AnyLibraryFieldRegistry {
   final List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>>? _columns;
 
   List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>> get groups =>
-      _groups ?? commonGroupDefinitions;
+      _groups ?? const [];
 
   List<LibrarySortDefinition<LibraryWorkspaceEntry>> get sorts =>
-      _sorts ?? commonSortDefinitions;
+      _sorts ?? const [];
 
   List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>> get columns =>
-      _columns ?? commonColumnDefinitions;
+      _columns ?? const [];
 
   final Set<String> defaultVisibleColumnIds;
   final String? defaultSortId;
@@ -108,13 +106,6 @@ class AnyLibraryFieldRegistry {
         return definition;
       }
     }
-    if (_columns != null) {
-      for (final definition in commonColumnDefinitions) {
-        if (definition.id.value == id || definition.id.value.split('.').last == id) {
-          return definition;
-        }
-      }
-    }
     return null;
   }
 
@@ -135,13 +126,6 @@ class AnyLibraryFieldRegistry {
         return definition;
       }
     }
-    if (_sorts != null) {
-      for (final definition in commonSortDefinitions) {
-        if (definition.id == id || definition.id.split('.').last == id) {
-          return definition;
-        }
-      }
-    }
     return null;
   }
 
@@ -160,13 +144,6 @@ class AnyLibraryFieldRegistry {
     for (final definition in groups) {
       if (definition.id.value == id || definition.id.value.split('.').last == id) {
         return definition;
-      }
-    }
-    if (_groups != null) {
-      for (final definition in commonGroupDefinitions) {
-        if (definition.id.value == id || definition.id.value.split('.').last == id) {
-          return definition;
-        }
       }
     }
     return null;

@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -204,10 +203,13 @@ LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>? libraryGroupModeDefiniti
         return definition;
       }
     }
+    return null;
   }
-  for (final definition in commonGroupDefinitions) {
-    if (definition.id.value == targetId || definition.id.value == mode) {
-      return definition;
+  for (final module in collectarrKindModules) {
+    for (final definition in module.fields.groups) {
+      if (definition.id.value == targetId || definition.id.value == mode) {
+        return definition;
+      }
     }
   }
   return null;
@@ -318,12 +320,7 @@ String? libraryGroupModeFromStorageValue(String value) {
       ? normalized.substring(6)
       : normalized;
 
-  // Validate candidate mode against known group mode definitions
-  for (final def in commonGroupDefinitions) {
-    if (def.id.value == candidate || _stableToken(def.id.value) == candidate) {
-      return def.id.value;
-    }
-  }
+
 
   for (final module in collectarrKindModules) {
     for (final def in module.fields.groups) {

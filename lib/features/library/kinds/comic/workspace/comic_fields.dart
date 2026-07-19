@@ -1,7 +1,8 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:flutter/material.dart';
-import 'comic_workspace_dto.dart';
 
 final comicLibraryFieldDefinitions = [
   LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
@@ -35,14 +36,14 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('series'),
     label: 'Series',
-    getValue: (entry) => entry.title,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).seriesTitle,
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('title'),
     label: 'Title',
-    getValue: (entry) => entry.title,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).title,
     sidebarTitle: 'Titles',
     icon: Icons.sort_by_alpha,
   ),
@@ -97,39 +98,23 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('release_date'),
     label: 'Release Date',
-    getValue: (entry) => entry.releaseDate,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).releaseDate,
     sidebarTitle: 'Release Dates',
     icon: Icons.event_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('release_month'),
     label: 'Release Month',
-    getValue: (entry) => entry.releaseDate,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).releaseDate,
     sidebarTitle: 'Release Months',
     icon: Icons.calendar_view_month_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('release_year'),
     label: 'Release Year',
-    getValue: (entry) => entry.releaseYear,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).releaseDate?.year,
     sidebarTitle: 'Release Years',
     icon: Icons.calendar_today_outlined,
-  ),
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('series_group'),
-    label: 'Series Group',
-    getValue: (entry) => null,
-    sidebarTitle: 'Series Groups',
-    icon: Icons.account_tree_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('comic.story_arc'),
-    label: 'Story Arc',
-    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).storyArcs,
-    sidebarTitle: 'Story Arcs',
-    icon: Icons.auto_stories_outlined,
-    supportsBucketManagement: true,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('cover_date'),
@@ -153,7 +138,23 @@ final comicLibraryGroupDefinitions = [
     icon: Icons.calendar_today_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('comic.character'),
+    id: LibraryFieldId<Object?>('series_group'),
+    label: 'Series Group',
+    getValue: (entry) => null,
+    sidebarTitle: 'Series Groups',
+    icon: Icons.folder_open_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('story_arc'),
+    label: 'Story Arc',
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).storyArcs,
+    sidebarTitle: 'Story Arcs',
+    icon: Icons.auto_stories_outlined,
+    supportsBucketManagement: true,
+  ),
+  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('character'),
     label: 'Character',
     getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).characters,
     sidebarTitle: 'Characters',
@@ -171,7 +172,7 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('publisher'),
     label: 'Publisher',
-    getValue: (entry) => entry.publisher,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).publisher,
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
@@ -360,7 +361,7 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('condition'),
     label: 'Condition',
-    getValue: (entry) => entry.condition,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).condition,
     sidebarTitle: 'Conditions',
     icon: Icons.rule_outlined,
   ),
@@ -381,7 +382,7 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('my_rating'),
     label: 'My Rating',
-    getValue: (entry) => entry.rating,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).rating,
     sidebarTitle: 'My Ratings',
     icon: Icons.star_outline,
   ),
@@ -423,7 +424,7 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('location'),
     label: 'Location',
-    getValue: (entry) => entry.locationPath,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).locationPath,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
   ),
@@ -438,35 +439,35 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('ownership'),
     label: 'Ownership',
-    getValue: (entry) => entry.isOwned,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).isOwned,
     sidebarTitle: 'Ownership',
     icon: Icons.inventory_2_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('added_date'),
     label: 'Added Date',
-    getValue: (entry) => entry.addedAt,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).addedAt,
     sidebarTitle: 'Added Dates',
     icon: Icons.playlist_add_check_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('added_month'),
     label: 'Added Month',
-    getValue: (entry) => entry.addedAt,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).addedAt,
     sidebarTitle: 'Added Months',
     icon: Icons.calendar_view_month_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('added_year'),
     label: 'Added Year',
-    getValue: (entry) => entry.addedAt,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).addedAt,
     sidebarTitle: 'Added Years',
     icon: Icons.calendar_today_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('collection_status'),
     label: 'Collection Status',
-    getValue: (entry) => entry.collectionStatus,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).collectionStatus,
     sidebarTitle: 'Collection Status',
     icon: Icons.inventory_outlined,
   ),
@@ -480,21 +481,21 @@ final comicLibraryGroupDefinitions = [
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('modified_date'),
     label: 'Modified Date',
-    getValue: (entry) => entry.updatedAt,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).updatedAt,
     sidebarTitle: 'Modified Dates',
     icon: Icons.edit_calendar_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('modified_month'),
     label: 'Modified Month',
-    getValue: (entry) => entry.updatedAt,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).updatedAt,
     sidebarTitle: 'Modified Months',
     icon: Icons.calendar_view_month_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('tags'),
     label: 'Tags',
-    getValue: (entry) => entry.tags,
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).tags,
     sidebarTitle: 'Tags',
     icon: Icons.sell_outlined,
   ),
@@ -520,21 +521,21 @@ final comicLibraryGroupDefinitions = [
     icon: Icons.calendar_today_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('watch_date'),
+    id: LibraryFieldId<Object?>('read_date'),
     label: 'Read Date',
     getValue: (entry) => null,
     sidebarTitle: 'Read Dates',
     icon: Icons.menu_book_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('watch_month'),
+    id: LibraryFieldId<Object?>('read_month'),
     label: 'Read Month',
     getValue: (entry) => null,
     sidebarTitle: 'Read Months',
     icon: Icons.calendar_view_month_outlined,
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('watch_year'),
+    id: LibraryFieldId<Object?>('read_year'),
     label: 'Read Year',
     getValue: (entry) => null,
     sidebarTitle: 'Read Years',
@@ -546,22 +547,44 @@ final comicLibrarySortDefinitions = [
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'series',
     label: 'Series',
-    compare: (left, right) => _compareStrings(left.title, right.title),
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareStrings(l.seriesTitle, r.seriesTitle);
+    },
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'publisher',
     label: 'Publisher',
-    compare: (left, right) => _compareStrings(left.publisher, right.publisher),
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareStrings(l.publisher, r.publisher);
+    },
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'status',
     label: 'Status',
-    compare: (left, right) => _compareStatus(left, right),
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      int rank(ComicWorkspaceDto dto) {
+        if (dto.isOwned) return 0;
+        if (dto.isWishlisted) return 1;
+        return 2;
+      }
+      final res = rank(l).compareTo(rank(r));
+      return res != 0 ? res : _compareStrings(l.title, r.title);
+    },
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'title',
     label: 'Title',
-    compare: (left, right) => _compareStrings(left.title, right.title),
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareStrings(l.title, r.title);
+    },
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'comic.issue',
@@ -571,8 +594,11 @@ final comicLibrarySortDefinitions = [
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'story_arc',
     label: 'Story Arc',
-    compare: (left, right) => _compareStrings(
-        left.storyArcs?.join(', '), right.storyArcs?.join(', ')),
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareStrings(l.storyArcs?.join(', '), r.storyArcs?.join(', '));
+    },
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'variant',
@@ -589,8 +615,11 @@ final comicLibrarySortDefinitions = [
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'release_date',
     label: 'Release Date',
-    compare: (left, right) =>
-        _compareDates(left.releaseDate, right.releaseDate),
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareDates(l.releaseDate, r.releaseDate);
+    },
     defaultAscending: false,
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
@@ -623,35 +652,51 @@ final comicLibrarySortDefinitions = [
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'condition',
     label: 'Condition',
-    compare: (left, right) => _compareStrings(left.condition, right.condition),
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareStrings(l.condition, r.condition);
+    },
     group: 'Value',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'price',
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareNums(l.pricePaidCents, r.pricePaidCents);
+    },
     label: 'Purchase Price',
-    compare: (left, right) =>
-        _compareNums(left.pricePaidCents, right.pricePaidCents),
     group: 'Value',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'location',
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareStrings(l.locationPath, r.locationPath);
+    },
     label: 'Location',
-    compare: (left, right) =>
-        _compareStrings(left.locationPath, right.locationPath),
     group: 'Personal',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'collection_status',
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareStrings(l.collectionStatus, r.collectionStatus);
+    },
     label: 'Collection Status',
-    compare: (left, right) =>
-        _compareStrings(left.collectionStatus, right.collectionStatus),
     group: 'Personal',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'wishlist',
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareBools(l.isWishlisted, r.isWishlisted);
+    },
     label: 'Wishlist',
-    compare: (left, right) =>
-        _compareBools(left.isWishlisted, right.isWishlisted),
     group: 'Personal',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
@@ -668,15 +713,23 @@ final comicLibrarySortDefinitions = [
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'added',
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareDates(l.addedAt, r.addedAt);
+    },
     label: 'Added Date',
-    compare: (left, right) => _compareDates(left.addedAt, right.addedAt),
     group: 'Personal',
     defaultAscending: false,
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'updated',
+    compare: (left, right) {
+      final l = ComicWorkspaceDto.fromEntry(left);
+      final r = ComicWorkspaceDto.fromEntry(right);
+      return _compareDates(l.updatedAt, r.updatedAt);
+    },
     label: 'Updated',
-    compare: (left, right) => _compareDates(left.updatedAt, right.updatedAt),
     group: 'Personal',
     defaultAscending: false,
   ),
@@ -712,11 +765,14 @@ final comicLibraryColumnDefinitions = [
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('status'),
     label: 'Status',
-    getValue: (entry) =>
-        entry.isWishlisted ? 'wishlist' : (entry.isOwned ? 'owned' : null),
-    cellValue: (entry) => Text(
-      entry.isWishlisted ? 'Wishlist' : (entry.isOwned ? 'Owned' : ''),
-    ),
+    getValue: (entry) {
+      final dto = ComicWorkspaceDto.fromEntry(entry);
+      return dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null);
+    },
+    cellValue: (entry) {
+      final dto = ComicWorkspaceDto.fromEntry(entry);
+      return Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : ''));
+    },
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -808,16 +864,16 @@ final comicLibraryColumnDefinitions = [
     id: LibraryFieldId<Object?>('title'),
     label: 'Series',
     displayName: 'Series',
-    getValue: (entry) => entry.title,
-    cellValue: (entry) => Text(entry.title),
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).title,
+    cellValue: (entry) => Text(ComicWorkspaceDto.fromEntry(entry).title),
     defaultWidth: 260,
     maxWidth: 520,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('issue'),
     label: 'Issue',
-    getValue: (entry) => entry.itemNumber,
-    cellValue: (entry) => Text(entry.itemNumber ?? ''),
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).itemNumber,
+    cellValue: (entry) => Text(ComicWorkspaceDto.fromEntry(entry).itemNumber ?? ''),
     sortId: 'comic.issue',
     defaultWidth: 64,
     minWidth: 54,
@@ -843,15 +899,15 @@ final comicLibraryColumnDefinitions = [
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('publisher'),
     label: 'Publisher',
-    getValue: (entry) => entry.publisher,
-    cellValue: (entry) => Text(entry.publisher ?? ''),
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).publisher,
+    cellValue: (entry) => Text(ComicWorkspaceDto.fromEntry(entry).publisher ?? ''),
     defaultWidth: 140,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('release_date'),
     label: 'Release Date',
-    getValue: (entry) => entry.releaseDate,
-    cellValue: (entry) => Text(_formatDate(entry.releaseDate)),
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).releaseDate,
+    cellValue: (entry) => Text(_formatDate(ComicWorkspaceDto.fromEntry(entry).releaseDate)),
     defaultWidth: 118,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
@@ -874,8 +930,8 @@ final comicLibraryColumnDefinitions = [
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('condition'),
     label: 'Condition',
-    getValue: (entry) => entry.condition,
-    cellValue: (entry) => Text(entry.condition ?? ''),
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).condition,
+    cellValue: (entry) => Text(ComicWorkspaceDto.fromEntry(entry).condition ?? ''),
     group: 'Value',
     defaultWidth: 124,
   ),
@@ -894,9 +950,11 @@ final comicLibraryColumnDefinitions = [
     id: LibraryFieldId<Object?>('price'),
     label: 'Purchase Price',
     displayName: 'Purchase Price',
-    getValue: (entry) => entry.pricePaidCents,
-    cellValue: (entry) =>
-        Text(_formatCents(entry.pricePaidCents, entry.currency)),
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).pricePaidCents,
+    cellValue: (entry) {
+      final dto = ComicWorkspaceDto.fromEntry(entry);
+      return Text(_formatCents(dto.pricePaidCents, entry.currency));
+    },
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -905,25 +963,40 @@ final comicLibraryColumnDefinitions = [
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('location'),
     label: 'Location',
-    getValue: (entry) => entry.locationPath,
-    cellValue: (entry) => Text(entry.locationPath ?? ''),
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).locationPath,
+    cellValue: (entry) => Text(ComicWorkspaceDto.fromEntry(entry).locationPath ?? ''),
     group: 'Personal',
     defaultWidth: 118,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('wishlist'),
     label: 'Wishlist',
-    getValue: (entry) => entry.isWishlisted,
-    cellValue: (entry) => Text(entry.isWishlisted ? 'Wishlist' : ''),
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).isWishlisted,
+    cellValue: (entry) => Text(ComicWorkspaceDto.fromEntry(entry).isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('format'),
+    label: 'Format',
+    getValue: (entry) => entry.referenceFormatLabel,
+    cellValue: (entry) => Text(entry.referenceFormatLabel ?? ''),
+    defaultWidth: 100,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('added'),
+    label: 'Added',
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).addedAt,
+    cellValue: (entry) => Text(_formatDate(ComicWorkspaceDto.fromEntry(entry).addedAt)),
+    group: 'Personal',
+    defaultWidth: 112,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('updated'),
     label: 'Updated',
-    getValue: (entry) => entry.updatedAt,
-    cellValue: (entry) => Text(_formatDate(entry.updatedAt)),
+    getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).updatedAt,
+    cellValue: (entry) => Text(_formatDate(ComicWorkspaceDto.fromEntry(entry).updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -946,6 +1019,8 @@ const comicLibraryDefaultVisibleColumnIds = {
   'price',
   'location',
   'wishlist',
+  'format',
+  'added',
   'updated',
 };
 
@@ -953,7 +1028,15 @@ const comicDefaultSortId = 'title';
 const comicDefaultGroupId = 'series';
 
 int _compareStrings(String? left, String? right) {
-  return (left ?? '').toLowerCase().compareTo((right ?? '').toLowerCase());
+  final leftValue = left ?? '';
+  final rightValue = right ?? '';
+  if (leftValue.isEmpty && rightValue.isNotEmpty) {
+    return 1;
+  }
+  if (leftValue.isNotEmpty && rightValue.isEmpty) {
+    return -1;
+  }
+  return leftValue.toLowerCase().compareTo(rightValue.toLowerCase());
 }
 
 int _compareNums(num? left, num? right) {

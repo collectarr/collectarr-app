@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/providers/selected_library_provi
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/sync_provider.dart';
+import 'package:collectarr_app/features/sync/presentation/sync_status_overlay.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -90,12 +91,17 @@ class _AppShellState extends ConsumerState<AppShell> {
       accent: accent,
       animationsEnabled: uiPreferences.animationsEnabled,
       child: Scaffold(
-        body: AnimatedTheme(
-          data: accentTheme,
-          duration:
-              uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
-          curve: Curves.easeOutCubic,
-          child: widget.navigationShell,
+        body: Stack(
+          children: [
+            AnimatedTheme(
+              data: accentTheme,
+              duration:
+                  uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
+              curve: Curves.easeOutCubic,
+              child: widget.navigationShell,
+            ),
+            const SyncStatusOverlay(),
+          ],
         ),
         bottomNavigationBar: _bottomNavCollapsed
             ? _BottomNavCollapsedStrip(

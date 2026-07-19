@@ -829,6 +829,8 @@ void main() {
       ' Physical formats are tracked as editions.',
     );
     expect(moviesLibraryConfig.availableGroupModes, [
+      'series',
+      'title',
       'audience_rating',
       'color',
       'country',
@@ -839,7 +841,6 @@ void main() {
       'release_date',
       'release_month',
       'release_year',
-      'series',
       'publisher',
       'audio_tracks',
       'box_set',
@@ -861,7 +862,6 @@ void main() {
       'photography',
       'producer',
       'writer',
-      'title',
       'ownership',
       'added_date',
       'added_month',

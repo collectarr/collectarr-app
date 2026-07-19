@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
@@ -17,7 +16,6 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('all library presentations declare complete group mode definitions', () {
     final registries = <String, AnyLibraryFieldRegistry>{
-      'generic': const AnyLibraryFieldRegistry(),
       'books': libraryKindModuleForType(booksLibraryConfig).fields,
       'board games': libraryKindModuleForType(boardGamesLibraryConfig).fields,
       'comics': libraryKindModuleForType(comicsLibraryConfig).fields,
@@ -53,7 +51,6 @@ void main() {
   test('all library presentations declare complete sort column definitions',
       () {
     final registries = <String, AnyLibraryFieldRegistry>{
-      'generic': const AnyLibraryFieldRegistry(),
       'books': libraryKindModuleForType(booksLibraryConfig).fields,
       'board games': libraryKindModuleForType(boardGamesLibraryConfig).fields,
       'comics': libraryKindModuleForType(comicsLibraryConfig).fields,
@@ -62,9 +59,6 @@ void main() {
       'music': libraryKindModuleForType(musicLibraryConfig).fields,
     };
     final configuredSortColumns = <String, Set<String>>{
-      'generic': commonSortDefinitions
-          .map((definition) => definition.id)
-          .toSet(),
       'books': registries['books']!
           .sorts
           .map((definition) => definition.id)

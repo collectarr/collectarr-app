@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
@@ -613,7 +612,154 @@ final musicLibrarySortDefinitions = [
 
 
 final musicLibraryColumnDefinitions = [
-  ...commonColumnDefinitions,
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('status'),
+    label: 'Status',
+    getValue: (entry) {
+      final dto = MusicWorkspaceDto.fromEntry(entry);
+      return dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null);
+    },
+    cellValue: (entry) {
+      final dto = MusicWorkspaceDto.fromEntry(entry);
+      return Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : ''));
+    },
+    sortable: false,
+    groupable: false,
+    defaultWidth: 52,
+    minWidth: 44,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('cover'),
+    label: '',
+    getValue: (entry) => entry.coverImageUrl,
+    cellValue: (entry) => entry.coverImageUrl == null
+        ? const SizedBox.shrink()
+        : Image.network(
+            entry.coverImageUrl!,
+            width: 32,
+            height: 32,
+            fit: BoxFit.cover,
+          ),
+    sortable: false,
+    groupable: false,
+    defaultWidth: 42,
+    minWidth: 44,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('front_cover'),
+    label: 'Front Cover',
+    getValue: (entry) => entry.frontCoverUrl,
+    cellValue: (entry) => entry.frontCoverUrl == null
+        ? const SizedBox.shrink()
+        : Image.network(
+            entry.frontCoverUrl!,
+            width: 32,
+            height: 32,
+            fit: BoxFit.cover,
+          ),
+    sortable: false,
+    groupable: false,
+    defaultWidth: 80,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('back_cover'),
+    label: 'Back Cover',
+    getValue: (entry) => entry.backCoverUrl,
+    cellValue: (entry) => entry.backCoverUrl == null
+        ? const SizedBox.shrink()
+        : Image.network(
+            entry.backCoverUrl!,
+            width: 32,
+            height: 32,
+            fit: BoxFit.cover,
+          ),
+    sortable: false,
+    groupable: false,
+    defaultWidth: 80,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('title'),
+    label: 'Title',
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).title,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).title),
+    defaultWidth: 260,
+    maxWidth: 520,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('publisher'),
+    label: 'Publisher',
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).publisher,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).publisher ?? ''),
+    defaultWidth: 140,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('release_date'),
+    label: 'Release Date',
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).releaseDate,
+    cellValue: (entry) => Text(_formatDate(MusicWorkspaceDto.fromEntry(entry).releaseDate)),
+    defaultWidth: 118,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('wishlist'),
+    label: 'Wishlist',
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).isWishlisted,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).isWishlisted ? 'Wishlist' : ''),
+    group: 'Personal',
+    defaultWidth: 82,
+    minWidth: 70,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('updated'),
+    label: 'Updated',
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).updatedAt,
+    cellValue: (entry) => Text(_formatDate(MusicWorkspaceDto.fromEntry(entry).updatedAt)),
+    group: 'Personal',
+    defaultWidth: 112,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('added'),
+    label: 'Added',
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).addedAt,
+    cellValue: (entry) => Text(_formatDate(MusicWorkspaceDto.fromEntry(entry).addedAt)),
+    group: 'Personal',
+    defaultWidth: 112,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('location'),
+    label: 'Location',
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).locationPath,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).locationPath ?? ''),
+    group: 'Personal',
+    defaultWidth: 118,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('condition'),
+    label: 'Condition',
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).condition,
+    cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).condition ?? ''),
+    group: 'Value',
+    defaultWidth: 124,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('price'),
+    label: 'Purchase Price',
+    getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).pricePaidCents,
+    cellValue: (entry) {
+      final dto = MusicWorkspaceDto.fromEntry(entry);
+      return Text(_formatCents(dto.pricePaidCents, entry.currency));
+    },
+    group: 'Value',
+    isNumeric: true,
+    defaultWidth: 92,
+    minWidth: 78,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('format'),
+    label: 'Format',
+    getValue: (entry) => entry.referenceFormatLabel,
+    cellValue: (entry) => Text(entry.referenceFormatLabel ?? ''),
+    defaultWidth: 100,
+  ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('variant'),
     label: 'Version / Pressing',
@@ -674,7 +820,7 @@ final musicLibraryColumnDefinitions = [
     defaultWidth: 90,
   ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
-    id: LibraryFieldId<Object?>('length'),
+    id: LibraryFieldId<Object?>('track_length'),
     label: 'Length',
     getValue: (entry) => MusicWorkspaceDto.fromEntry(entry).length,
     cellValue: (entry) => Text(MusicWorkspaceDto.fromEntry(entry).length?.toString() ?? ''),
@@ -707,7 +853,7 @@ const musicLibraryDefaultVisibleColumnIds = {
   'format',
   'disc_count',
   'track_count',
-  'length',
+  'track_length',
   'vinyl_color',
   'rpm',
   'release_date',
@@ -717,3 +863,16 @@ const musicLibraryDefaultVisibleColumnIds = {
   'wishlist',
   'updated'
 };
+
+String _formatDate(DateTime? value) {
+  if (value == null) return '';
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
+}
+
+String _formatCents(int? cents, String? currency) {
+  if (cents == null) return '';
+  final amount = (cents / 100).toStringAsFixed(2);
+  return currency == null ? amount : '$currency $amount';
+}

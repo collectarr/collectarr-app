@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/config/common_fields.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'game_workspace_dto.dart';
@@ -447,7 +446,122 @@ const gamesLibraryDefaultVisibleColumnIds = {
   'updated',
 };
 final gameLibraryColumnDefinitions = [
-  ...commonColumnDefinitions,
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('status'),
+    label: 'Status',
+    getValue: (entry) {
+      final dto = GameWorkspaceDto.fromEntry(entry);
+      return dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null);
+    },
+    cellValue: (entry) {
+      final dto = GameWorkspaceDto.fromEntry(entry);
+      return Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : ''));
+    },
+    sortable: false,
+    groupable: false,
+    defaultWidth: 52,
+    minWidth: 44,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('cover'),
+    label: '',
+    getValue: (entry) => entry.coverImageUrl,
+    cellValue: (entry) => entry.coverImageUrl == null
+        ? const SizedBox.shrink()
+        : Image.network(
+            entry.coverImageUrl!,
+            width: 32,
+            height: 32,
+            fit: BoxFit.cover,
+          ),
+    sortable: false,
+    groupable: false,
+    defaultWidth: 42,
+    minWidth: 44,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('title'),
+    label: 'Title',
+    getValue: (entry) => GameWorkspaceDto.fromEntry(entry).title,
+    cellValue: (entry) => Text(GameWorkspaceDto.fromEntry(entry).title),
+    defaultWidth: 260,
+    maxWidth: 520,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('publisher'),
+    label: 'Publisher',
+    getValue: (entry) => GameWorkspaceDto.fromEntry(entry).publisher,
+    cellValue: (entry) => Text(GameWorkspaceDto.fromEntry(entry).publisher ?? ''),
+    defaultWidth: 140,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('release_date'),
+    label: 'Release Date',
+    getValue: (entry) => GameWorkspaceDto.fromEntry(entry).releaseDate,
+    cellValue: (entry) => Text(_formatDate(GameWorkspaceDto.fromEntry(entry).releaseDate)),
+    defaultWidth: 118,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('wishlist'),
+    label: 'Wishlist',
+    getValue: (entry) => GameWorkspaceDto.fromEntry(entry).isWishlisted,
+    cellValue: (entry) => Text(GameWorkspaceDto.fromEntry(entry).isWishlisted ? 'Wishlist' : ''),
+    group: 'Personal',
+    defaultWidth: 82,
+    minWidth: 70,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('updated'),
+    label: 'Updated',
+    getValue: (entry) => GameWorkspaceDto.fromEntry(entry).updatedAt,
+    cellValue: (entry) => Text(_formatDate(GameWorkspaceDto.fromEntry(entry).updatedAt)),
+    group: 'Personal',
+    defaultWidth: 112,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('added'),
+    label: 'Added',
+    getValue: (entry) => GameWorkspaceDto.fromEntry(entry).addedAt,
+    cellValue: (entry) => Text(_formatDate(GameWorkspaceDto.fromEntry(entry).addedAt)),
+    group: 'Personal',
+    defaultWidth: 112,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('location'),
+    label: 'Location',
+    getValue: (entry) => GameWorkspaceDto.fromEntry(entry).locationPath,
+    cellValue: (entry) => Text(GameWorkspaceDto.fromEntry(entry).locationPath ?? ''),
+    group: 'Personal',
+    defaultWidth: 118,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('condition'),
+    label: 'Condition',
+    getValue: (entry) => GameWorkspaceDto.fromEntry(entry).condition,
+    cellValue: (entry) => Text(GameWorkspaceDto.fromEntry(entry).condition ?? ''),
+    group: 'Value',
+    defaultWidth: 124,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('price'),
+    label: 'Purchase Price',
+    getValue: (entry) => GameWorkspaceDto.fromEntry(entry).pricePaidCents,
+    cellValue: (entry) {
+      final dto = GameWorkspaceDto.fromEntry(entry);
+      return Text(_formatCents(dto.pricePaidCents, entry.currency));
+    },
+    group: 'Value',
+    isNumeric: true,
+    defaultWidth: 92,
+    minWidth: 78,
+  ),
+  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+    id: LibraryFieldId<Object?>('format'),
+    label: 'Format',
+    getValue: (entry) => entry.referenceFormatLabel,
+    cellValue: (entry) => Text(entry.referenceFormatLabel ?? ''),
+    defaultWidth: 100,
+  ),
   LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('variant'),
     label: 'Platform / Edition',
@@ -466,3 +580,16 @@ final gameLibraryColumnDefinitions = [
     maxWidth: 260,
   ),
 ];
+
+String _formatDate(DateTime? value) {
+  if (value == null) return '';
+  return '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
+}
+
+String _formatCents(int? cents, String? currency) {
+  if (cents == null) return '';
+  final amount = (cents / 100).toStringAsFixed(2);
+  return currency == null ? amount : '$currency $amount';
+}
