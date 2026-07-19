@@ -140,13 +140,13 @@ final boardGamesLibrarySortDefinitions = [
     label: 'Title',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
-    id: 'issue',
+    id: 'number',
     compare: (left, right) {
       final l = BoardGameWorkspaceDto.fromEntry(left);
       final r = BoardGameWorkspaceDto.fromEntry(right);
       return (l.itemNumber ?? "").compareTo(r.itemNumber ?? "");
     },
-    label: 'Issue / number',
+    label: 'Number',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'variant',

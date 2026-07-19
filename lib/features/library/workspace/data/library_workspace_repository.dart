@@ -224,19 +224,10 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
             if (selectedValues.isEmpty) {
               continue;
             }
-            if (facetId == LibraryFacetId.comicCharacter ||
-                facetId == LibraryFacetId.mediaCharacter) {
-              final entryChars = entry.characters ?? const <String>[];
-              final hasMatch = entryChars.any((char) => selectedValues.contains(char));
-              if (!hasMatch) {
-                return false;
-              }
-            } else if (facetId == LibraryFacetId.comicStoryArc) {
-              final entryArcs = entry.storyArcs ?? const <String>[];
-              final hasMatch = entryArcs.any((arc) => selectedValues.contains(arc));
-              if (!hasMatch) {
-                return false;
-              }
+            final values = module.facets.getFacetValues?.call(entry, facetId) ?? const <String>[];
+            final hasMatch = values.any((val) => selectedValues.contains(val));
+            if (!hasMatch) {
+              return false;
             }
           }
           return true;
@@ -328,19 +319,10 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
           if (selectedValues.isEmpty) {
             continue;
           }
-          if (facetId == LibraryFacetId.comicCharacter ||
-              facetId == LibraryFacetId.mediaCharacter) {
-            final entryChars = entry.characters ?? const <String>[];
-            final hasMatch = entryChars.any((char) => selectedValues.contains(char));
-            if (!hasMatch) {
-              return false;
-            }
-          } else if (facetId == LibraryFacetId.comicStoryArc) {
-            final entryArcs = entry.storyArcs ?? const <String>[];
-            final hasMatch = entryArcs.any((arc) => selectedValues.contains(arc));
-            if (!hasMatch) {
-              return false;
-            }
+          final values = module.facets.getFacetValues?.call(entry, facetId) ?? const <String>[];
+          final hasMatch = values.any((val) => selectedValues.contains(val));
+          if (!hasMatch) {
+            return false;
           }
         }
         return true;

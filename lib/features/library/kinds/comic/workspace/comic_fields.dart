@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -39,6 +40,16 @@ final comicLibraryGroupDefinitions = [
     getValue: (entry) => ComicWorkspaceDto.fromEntry(entry).seriesTitle,
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
+    subgroupKey: (entry) {
+      final series = entry.series;
+      if (series?.volumeName != null && series!.volumeName!.trim().isNotEmpty) {
+        return series.volumeName!.trim();
+      }
+      if (series?.volumeNumber != null) {
+        return libraryVolumeLabel(series!.volumeNumber);
+      }
+      return null;
+    },
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('title'),

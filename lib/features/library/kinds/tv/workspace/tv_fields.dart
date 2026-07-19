@@ -42,6 +42,13 @@ final tvLibraryGroupDefinitions = [
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
     presentation: tvDefaultWorkspaceGroupPresentation,
+    subgroupKey: (entry) {
+      final series = entry.series;
+      if (series?.seasonNumber != null) {
+        return 'Season ${series!.seasonNumber}';
+      }
+      return null;
+    },
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('title'),

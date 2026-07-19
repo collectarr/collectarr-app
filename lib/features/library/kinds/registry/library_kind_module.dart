@@ -279,9 +279,11 @@ class CommonLibraryKindProviderMapper extends NoopLibraryKindProviderMapper {
 class LibraryFacetModule {
   const LibraryFacetModule({
     required this.loadRows,
+    this.getFacetValues,
   });
 
   final LibraryFacetRowsLoader loadRows;
+  final Iterable<String> Function(LibraryWorkspaceEntry entry, String facetId)? getFacetValues;
 }
 
 typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({

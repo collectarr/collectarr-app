@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/config/library_toolbar_config.da
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
 final comicKindModule = LibraryKindModule(
@@ -82,8 +83,19 @@ final comicKindModule = LibraryKindModule(
   providerMapper: const ComicLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+    getFacetValues: _getFacetValues,
   ),
 );
+
+Iterable<String> _getFacetValues(LibraryWorkspaceEntry entry, String facetId) {
+  if (facetId == 'comic.character' || facetId == 'media.character') {
+    return entry.characters ?? const [];
+  }
+  if (facetId == 'comic.story_arc') {
+    return entry.storyArcs ?? const [];
+  }
+  return const [];
+}
 
 Future<void> _showJumpToIssueDialog(
   BuildContext context, {

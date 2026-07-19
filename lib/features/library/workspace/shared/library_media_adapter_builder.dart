@@ -183,28 +183,9 @@ String? plannedMediaSubgroupKeyForEntry(
   LibraryWorkspaceEntry entry,
   Object groupMode,
 ) {
-  if (groupMode != 'series') {
-    return null;
-  }
-  if (!type.capabilities.supportsSeriesSubgroups) {
-    return null;
-  }
-  if (type.capabilities.contentHierarchy == LibraryContentHierarchy.flat) {
-    return null;
-  }
-  final series = entry.series;
-  if (type.capabilities.usesSeasonHierarchy && series?.seasonNumber != null) {
-    return 'Season ${series!.seasonNumber}';
-  }
-  if (type.capabilities.usesVolumeHierarchy) {
-    if (series?.volumeName != null && series!.volumeName!.trim().isNotEmpty) {
-      return series.volumeName!.trim();
-    }
-    if (series?.volumeNumber != null) {
-      return libraryVolumeLabel(series!.volumeNumber);
-    }
-  }
-  return null;
+  final registry = libraryKindModuleForType(type).fields;
+  final definition = registry.groupDefinitionForId(groupMode.toString());
+  return definition?.subgroupKey?.call(entry);
 }
 
 int plannedMediaCompareSubgroupKeys(

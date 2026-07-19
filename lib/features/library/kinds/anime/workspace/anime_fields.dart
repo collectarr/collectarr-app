@@ -39,6 +39,13 @@ final animeLibraryGroupDefinitions = [
     getValue: (entry) => AnimeWorkspaceDto.fromEntry(entry).seriesTitle,
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
+    subgroupKey: (entry) {
+      final series = entry.series;
+      if (series?.seasonNumber != null) {
+        return 'Season ${series!.seasonNumber}';
+      }
+      return null;
+    },
   ),
   LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
     id: LibraryFieldId<Object?>('title'),

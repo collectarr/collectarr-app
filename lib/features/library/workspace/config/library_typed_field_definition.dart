@@ -108,6 +108,7 @@ class LibraryGroupDefinition<TDto, TValue> {
     this.bucketManagerListLabel,
     this.drilldownChildId,
     this.folderSetLabel,
+    this.subgroupKey,
   });
 
   final LibraryFieldId<TValue> id;
@@ -120,6 +121,7 @@ class LibraryGroupDefinition<TDto, TValue> {
   final String? bucketManagerListLabel;
   final String? drilldownChildId;
   final String? folderSetLabel;
+  final String? Function(LibraryWorkspaceEntry entry)? subgroupKey;
 
   String get resolvedSidebarTitle => sidebarTitle ?? label;
 
@@ -137,6 +139,7 @@ class LibraryGroupDefinition<TDto, TValue> {
     String? bucketManagerListLabel,
     String? drilldownChildId,
     String? folderSetLabel,
+    String? Function(LibraryWorkspaceEntry entry)? subgroupKey,
   }) {
     return LibraryGroupDefinition<TDto, TValue>(
       id: id ?? this.id,
@@ -149,6 +152,7 @@ class LibraryGroupDefinition<TDto, TValue> {
       bucketManagerListLabel: bucketManagerListLabel ?? this.bucketManagerListLabel,
       drilldownChildId: drilldownChildId ?? this.drilldownChildId,
       folderSetLabel: folderSetLabel ?? this.folderSetLabel,
+      subgroupKey: subgroupKey ?? this.subgroupKey,
     );
   }
 }

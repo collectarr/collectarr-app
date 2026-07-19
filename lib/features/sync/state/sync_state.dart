@@ -30,7 +30,14 @@ sealed class SyncState {
     this.syncLog = const [],
   });
 
-  const factory SyncState() = SyncIdle;
+  const factory SyncState({
+    int pendingCount,
+    bool isOffline,
+    DateTime? lastSyncedAt,
+    String? warningMessage,
+    List<SyncRejectedChange> rejectedChanges,
+    List<SyncLogEntry> syncLog,
+  }) = SyncIdle;
 
   final int pendingCount;
   final bool isOffline;

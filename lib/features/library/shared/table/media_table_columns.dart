@@ -165,28 +165,6 @@ Widget plannedMediaTableCell(
   return LibraryTableCellText(value?.toString());
 }
 
-String? plannedMediaSubgroupKeyForEntry(
-  LibraryWorkspaceEntry entry,
-  Object groupMode,
-) {
-  if (groupMode != 'series') {
-    return null;
-  }
-  if (entry.mediaType.trim().toLowerCase() == 'book') {
-    return null;
-  }
-  final series = entry.series;
-  if (series?.seasonNumber != null) {
-    return 'Season ${series!.seasonNumber}';
-  }
-  if (series?.volumeName != null && series!.volumeName!.trim().isNotEmpty) {
-    return series.volumeName!.trim();
-  }
-  if (series?.volumeNumber != null) {
-    return libraryVolumeLabel(series!.volumeNumber);
-  }
-  return null;
-}
 
 int plannedMediaCompareSubgroupKeys(
   String left,

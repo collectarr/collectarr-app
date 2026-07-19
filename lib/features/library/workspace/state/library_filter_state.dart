@@ -1,6 +1,7 @@
 class LibraryFilterState {
   const LibraryFilterState({
     this.searchQuery = '',
+    this.searchDraft = '',
     this.facetValues = const {},
     this.groupId,
     this.sortId,
@@ -10,6 +11,7 @@ class LibraryFilterState {
   });
 
   final String searchQuery;
+  final String searchDraft;
   final Map<String, Set<String>> facetValues;
   final String? groupId;
   final String? sortId;
@@ -19,6 +21,7 @@ class LibraryFilterState {
 
   LibraryFilterState copyWith({
     String? searchQuery,
+    String? searchDraft,
     Map<String, Set<String>>? facetValues,
     String? Function()? groupId,
     String? Function()? sortId,
@@ -28,6 +31,7 @@ class LibraryFilterState {
   }) {
     return LibraryFilterState(
       searchQuery: searchQuery ?? this.searchQuery,
+      searchDraft: searchDraft ?? this.searchDraft,
       facetValues: facetValues ?? this.facetValues,
       groupId: groupId != null ? groupId() : this.groupId,
       sortId: sortId != null ? sortId() : this.sortId,
@@ -45,6 +49,7 @@ class LibraryFilterState {
       other is LibraryFilterState &&
           runtimeType == other.runtimeType &&
           searchQuery == other.searchQuery &&
+          searchDraft == other.searchDraft &&
           _mapEquals(facetValues, other.facetValues) &&
           groupId == other.groupId &&
           sortId == other.sortId &&
@@ -55,6 +60,7 @@ class LibraryFilterState {
   @override
   int get hashCode =>
       searchQuery.hashCode ^
+      searchDraft.hashCode ^
       facetValues.hashCode ^
       groupId.hashCode ^
       sortId.hashCode ^

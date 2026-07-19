@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final mangaKindModule = LibraryKindModule(
   type: mangaLibraryConfig,
@@ -25,5 +26,16 @@ final mangaKindModule = LibraryKindModule(
   ),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+    getFacetValues: _getFacetValues,
   ),
 );
+
+Iterable<String> _getFacetValues(LibraryWorkspaceEntry entry, String facetId) {
+  if (facetId == 'comic.character' || facetId == 'media.character') {
+    return entry.characters ?? const [];
+  }
+  if (facetId == 'comic.story_arc') {
+    return entry.storyArcs ?? const [];
+  }
+  return const [];
+}
