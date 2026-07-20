@@ -2,7 +2,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
+
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
@@ -18,7 +19,7 @@ void main() {
     final client = _FakeSyncClient();
     final since = DateTime.utc(2026, 5, 11);
 
-    final result = await SyncService(
+    final result = await SyncApplyService(
       client: client,
       db: db,
       queue: SyncQueueRepository(db),
@@ -64,7 +65,7 @@ void main() {
       ),
     );
 
-    final result = await SyncService(
+    final result = await SyncApplyService(
       client: _RejectedSyncClient(),
       db: db,
       queue: queue,
@@ -112,7 +113,7 @@ void main() {
       ),
     );
 
-    final result = await SyncService(
+    final result = await SyncApplyService(
       client: client,
       db: db,
       queue: queue,

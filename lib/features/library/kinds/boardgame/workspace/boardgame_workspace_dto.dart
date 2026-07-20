@@ -18,6 +18,14 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
     required this.updatedAt,
     required this.tags,
     required this.collectionStatus,
+    this.variant,
+    this.barcode,
+    this.grade,
+    this.country,
+    this.language,
+    this.currency,
+    this.referenceFormatLabel,
+    this.coverImageUrl,
   });
 
   @override
@@ -52,6 +60,23 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
   @override
   final String? collectionStatus;
 
+  @override
+  final String? variant;
+  @override
+  final String? barcode;
+  @override
+  final String? grade;
+  @override
+  final String? country;
+  @override
+  final String? language;
+  @override
+  final String? currency;
+  @override
+  final String? referenceFormatLabel;
+  @override
+  final String? coverImageUrl;
+
   factory BoardGameWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
     return BoardGameWorkspaceDto(
       title: entry.resolvedTitle,
@@ -69,6 +94,14 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
       updatedAt: entry.updatedAt,
       tags: entry.tags,
       collectionStatus: entry.collectionStatus,
+      variant: entry.variant,
+      barcode: entry.barcode,
+      grade: entry.grade,
+      country: entry.country,
+      language: entry.language,
+      currency: entry.currency,
+      referenceFormatLabel: entry.referenceFormatLabel,
+      coverImageUrl: entry.coverImageUrl,
     );
   }
 }

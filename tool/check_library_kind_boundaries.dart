@@ -12,6 +12,26 @@ final _boundaryRoots = <String>[
   'lib/features/library/workspace/',
   'lib/features/library/add/',
   'lib/features/library/edit/',
+  'lib/features/library/detail/',
+  'lib/features/library/details/',
+  'lib/features/library/inspector/',
+  'lib/features/library/shared/',
+  'lib/features/library/ui/',
+  'lib/features/library/widgets/',
+  'lib/features/library/stats/',
+  'lib/features/library/reports/',
+  'lib/features/library/tracking/',
+];
+
+final _forbiddenSymbols = <String>[
+  'entry.music',
+  'entry.comic',
+  'entry.video',
+  'entry.game',
+  'rawOrSlabbed',
+  'keyComic',
+  'vinylColor',
+  'rpm',
 ];
 
 const _kindsRoot = 'lib/features/library/kinds/';
@@ -33,10 +53,21 @@ void main(List<String> arguments) {
     final lines = File(file).readAsLinesSync();
     for (var index = 0; index < lines.length; index += 1) {
       final line = lines[index];
+
+      // Scan for forbidden symbols in generic/shared files.
+      if (_isBoundaryFile(relativePath)) {
+        for (final symbol in _forbiddenSymbols) {
+          if (line.contains(symbol)) {
+            violations.add('$relativePath:${index + 1}: Forbidden symbol "$symbol" found');
+          }
+        }
+      }
+
       final match = _importPattern.firstMatch(line);
       if (match == null) {
         continue;
       }
+
 
       final directive = match.group(1)!;
       final importPath = match.group(2)!;

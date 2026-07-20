@@ -33,6 +33,7 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
     required this.language,
     required this.currency,
     required this.referenceFormatLabel,
+    this.coverImageUrl,
   });
 
   @override
@@ -81,6 +82,8 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
   final String? currency;
   @override
   final String? referenceFormatLabel;
+  @override
+  final String? coverImageUrl;
 
 
 
@@ -125,6 +128,7 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
       language: entry.language,
       currency: entry.currency,
       referenceFormatLabel: entry.referenceFormatLabel,
+      coverImageUrl: entry.coverImageUrl,
     );
   }
 

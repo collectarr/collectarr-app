@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/core/sync/sync_change.dart';
+
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:flutter_test/flutter_test.dart';
 

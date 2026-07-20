@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 
-final boardGameKindModule = LibraryKindModule(
+final boardGameKindModule = LibraryKindModule<BoardGameWorkspaceDto>(
   type: boardGamesLibraryConfig,
   mediaAdapter: boardGamesMediaAdapter,
   workspaceDtoFactory: BoardGameWorkspaceDto.fromEntry,

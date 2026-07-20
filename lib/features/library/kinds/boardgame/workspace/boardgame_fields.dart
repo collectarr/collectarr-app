@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -33,62 +32,44 @@ final boardgameLibraryFieldDefinitions = [
 ];
 
 final boardGamesLibraryGroupDefinitions = [
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    getValue: (entry) {
-      final dto = BoardGameWorkspaceDto.fromEntry(entry);
-      return dto.publisher;
-    },
+  LibraryGroupDefinition<BoardGameWorkspaceDto, Object?>(
+    getValue: (dto) => dto.publisher,
     id: LibraryFieldId<Object?>('publisher'),
     label: 'Publisher / Designer',
     sidebarTitle: 'Publishers / Designers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    getValue: (entry) {
-      final dto = BoardGameWorkspaceDto.fromEntry(entry);
-      return dto.seriesTitle;
-    },
+  LibraryGroupDefinition<BoardGameWorkspaceDto, Object?>(
+    getValue: (dto) => dto.seriesTitle,
     id: LibraryFieldId<Object?>('series'),
     label: 'Series',
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
   ),
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    getValue: (entry) {
-      final dto = BoardGameWorkspaceDto.fromEntry(entry);
-      return dto.releaseDate?.year;
-    },
+  LibraryGroupDefinition<BoardGameWorkspaceDto, Object?>(
+    getValue: (dto) => dto.releaseDate?.year,
     id: LibraryFieldId<Object?>('year'),
     label: 'Year',
     sidebarTitle: 'Years',
     icon: Icons.calendar_today_outlined,
   ),
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    getValue: (entry) {
-      final dto = BoardGameWorkspaceDto.fromEntry(entry);
-      return dto.locationPath;
-    },
+  LibraryGroupDefinition<BoardGameWorkspaceDto, Object?>(
+    getValue: (dto) => dto.locationPath,
     id: LibraryFieldId<Object?>('location'),
     label: 'Location',
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
   ),
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    getValue: (entry) {
-      final dto = BoardGameWorkspaceDto.fromEntry(entry);
-      return dto.title;
-    },
+  LibraryGroupDefinition<BoardGameWorkspaceDto, Object?>(
+    getValue: (dto) => dto.title,
     id: LibraryFieldId<Object?>('title'),
     label: 'Title',
     sidebarTitle: 'Titles',
     icon: Icons.sort_by_alpha,
   ),
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>(
-    getValue: (entry) {
-      final dto = BoardGameWorkspaceDto.fromEntry(entry);
-      return dto.isOwned;
-    },
+  LibraryGroupDefinition<BoardGameWorkspaceDto, Object?>(
+    getValue: (dto) => dto.isOwned,
     id: LibraryFieldId<Object?>('ownership'),
     label: 'Ownership',
     sidebarTitle: 'Ownership',
@@ -97,171 +78,125 @@ final boardGamesLibraryGroupDefinitions = [
 ];
 
 final boardGamesLibrarySortDefinitions = [
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'series',
-    compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return (l.seriesTitle ?? "").compareTo(r.seriesTitle ?? "");
-    },
+    compare: (left, right) => (left.seriesTitle ?? "").compareTo(right.seriesTitle ?? ""),
     label: 'Series',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'publisher',
-    compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return (l.publisher ?? "").compareTo(r.publisher ?? "");
-    },
+    compare: (left, right) => (left.publisher ?? "").compareTo(right.publisher ?? ""),
     label: 'Publisher / Designer',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'status',
     compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
       int rank(BoardGameWorkspaceDto dto) {
         if (dto.isOwned) return 0;
         if (dto.isWishlisted) return 1;
         return 2;
       }
-      final res = rank(l).compareTo(rank(r));
-      return res != 0 ? res : l.title.compareTo(r.title);
+      final res = rank(left).compareTo(rank(right));
+      return res != 0 ? res : left.title.compareTo(right.title);
     },
     label: 'Status',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'title',
-    compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return l.title.compareTo(r.title);
-    },
+    compare: (left, right) => left.title.compareTo(right.title),
     label: 'Title',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'number',
-    compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return (l.itemNumber ?? "").compareTo(r.itemNumber ?? "");
-    },
+    compare: (left, right) => (left.itemNumber ?? "").compareTo(right.itemNumber ?? ""),
     label: 'Number',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'variant',
     compare: (left, right) => (left.variant ?? "").compareTo(right.variant ?? ""),
     label: 'Variant',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'format',
     compare: (left, right) => (left.referenceFormatLabel ?? "").compareTo(right.referenceFormatLabel ?? ""),
     label: 'Format',
     group: 'Edition',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'release_date',
     compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return (l.releaseDate ?? DateTime.fromMillisecondsSinceEpoch(0))
-          .compareTo(r.releaseDate ?? DateTime.fromMillisecondsSinceEpoch(0));
+      return (left.releaseDate ?? DateTime.fromMillisecondsSinceEpoch(0))
+          .compareTo(right.releaseDate ?? DateTime.fromMillisecondsSinceEpoch(0));
     },
     label: 'Release date',
     defaultAscending: false,
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'barcode',
     compare: (left, right) => (left.barcode ?? "").compareTo(right.barcode ?? ""),
     label: 'Barcode',
     group: 'Edition',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'condition',
-    compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return (l.condition ?? "").compareTo(r.condition ?? "");
-    },
+    compare: (left, right) => (left.condition ?? "").compareTo(right.condition ?? ""),
     label: 'Condition',
     group: 'Value',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'price',
-    compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return (l.pricePaidCents ?? 0).compareTo(r.pricePaidCents ?? 0);
-    },
+    compare: (left, right) => (left.pricePaidCents ?? 0).compareTo(right.pricePaidCents ?? 0),
     label: 'Purchase price',
     group: 'Value',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'location',
-    compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return (l.locationPath ?? "").compareTo(r.locationPath ?? "");
-    },
+    compare: (left, right) => (left.locationPath ?? "").compareTo(right.locationPath ?? ""),
     label: 'Location',
     group: 'Personal',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'collection_status',
-    compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return (l.collectionStatus ?? "").compareTo(r.collectionStatus ?? "");
-    },
+    compare: (left, right) => (left.collectionStatus ?? "").compareTo(right.collectionStatus ?? ""),
     label: 'Collection status',
     group: 'Personal',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'wishlist',
-    compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return (l.isWishlisted ? 1 : 0).compareTo(r.isWishlisted ? 1 : 0);
-    },
+    compare: (left, right) => (left.isWishlisted ? 1 : 0).compareTo(right.isWishlisted ? 1 : 0),
     label: 'Wishlist',
     group: 'Personal',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'added',
     compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return (l.addedAt ?? DateTime.fromMillisecondsSinceEpoch(0))
-          .compareTo(r.addedAt ?? DateTime.fromMillisecondsSinceEpoch(0));
+      return (left.addedAt ?? DateTime.fromMillisecondsSinceEpoch(0))
+          .compareTo(right.addedAt ?? DateTime.fromMillisecondsSinceEpoch(0));
     },
     label: 'Added date',
     group: 'Personal',
     defaultAscending: false,
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'updated',
-    compare: (left, right) {
-      final l = BoardGameWorkspaceDto.fromEntry(left);
-      final r = BoardGameWorkspaceDto.fromEntry(right);
-      return l.updatedAt.compareTo(r.updatedAt);
-    },
+    compare: (left, right) => left.updatedAt.compareTo(right.updatedAt),
     label: 'Updated',
     group: 'Personal',
     defaultAscending: false,
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'country',
     compare: (left, right) => (left.country ?? "").compareTo(right.country ?? ""),
     label: 'Country',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'language',
     compare: (left, right) => (left.language ?? "").compareTo(right.language ?? ""),
     label: 'Language',
   ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
+  LibrarySortDefinition<BoardGameWorkspaceDto>(
     id: 'age_rating',
-    compare: (left, right) => (left.ageRating ?? "").compareTo(right.ageRating ?? ""),
+    compare: (left, right) => (left.grade ?? "").compareTo(right.grade ?? ""),
     label: 'Age rating',
   ),
 ];
@@ -281,30 +216,24 @@ const boardGamesLibraryDefaultVisibleColumnIds = {
 };
 
 final boardGamesLibraryColumnDefinitions = [
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('status'),
     label: 'Status',
-    getValue: (entry) {
-      final dto = BoardGameWorkspaceDto.fromEntry(entry);
-      return dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null);
-    },
-    cellValue: (entry) {
-      final dto = BoardGameWorkspaceDto.fromEntry(entry);
-      return Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : ''));
-    },
+    getValue: (dto) => dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
+    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('cover'),
     label: '',
-    getValue: (entry) => entry.coverImageUrl,
-    cellValue: (entry) => entry.coverImageUrl == null
+    getValue: (dto) => dto.coverImageUrl,
+    cellValue: (dto) => dto.coverImageUrl == null
         ? const SizedBox.shrink()
         : Image.network(
-            entry.coverImageUrl!,
+            dto.coverImageUrl!,
             width: 32,
             height: 32,
             fit: BoxFit.cover,
@@ -314,102 +243,99 @@ final boardGamesLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('title'),
     label: 'Title',
-    getValue: (entry) => BoardGameWorkspaceDto.fromEntry(entry).title,
-    cellValue: (entry) => Text(BoardGameWorkspaceDto.fromEntry(entry).title),
+    getValue: (dto) => dto.title,
+    cellValue: (dto) => Text(dto.title),
     defaultWidth: 260,
     maxWidth: 520,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('publisher'),
     label: 'Publisher',
-    getValue: (entry) => BoardGameWorkspaceDto.fromEntry(entry).publisher,
-    cellValue: (entry) => Text(BoardGameWorkspaceDto.fromEntry(entry).publisher ?? ''),
+    getValue: (dto) => dto.publisher,
+    cellValue: (dto) => Text(dto.publisher ?? ''),
     defaultWidth: 140,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('release_date'),
     label: 'Release Date',
-    getValue: (entry) => BoardGameWorkspaceDto.fromEntry(entry).releaseDate,
-    cellValue: (entry) => Text(_formatDate(BoardGameWorkspaceDto.fromEntry(entry).releaseDate)),
+    getValue: (dto) => dto.releaseDate,
+    cellValue: (dto) => Text(_formatDate(dto.releaseDate)),
     defaultWidth: 118,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('wishlist'),
     label: 'Wishlist',
-    getValue: (entry) => BoardGameWorkspaceDto.fromEntry(entry).isWishlisted,
-    cellValue: (entry) => Text(BoardGameWorkspaceDto.fromEntry(entry).isWishlisted ? 'Wishlist' : ''),
+    getValue: (dto) => dto.isWishlisted,
+    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('updated'),
     label: 'Updated',
-    getValue: (entry) => BoardGameWorkspaceDto.fromEntry(entry).updatedAt,
-    cellValue: (entry) => Text(_formatDate(BoardGameWorkspaceDto.fromEntry(entry).updatedAt)),
+    getValue: (dto) => dto.updatedAt,
+    cellValue: (dto) => Text(_formatDate(dto.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('added'),
     label: 'Added',
-    getValue: (entry) => BoardGameWorkspaceDto.fromEntry(entry).addedAt,
-    cellValue: (entry) => Text(_formatDate(BoardGameWorkspaceDto.fromEntry(entry).addedAt)),
+    getValue: (dto) => dto.addedAt,
+    cellValue: (dto) => Text(_formatDate(dto.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('location'),
     label: 'Location',
-    getValue: (entry) => BoardGameWorkspaceDto.fromEntry(entry).locationPath,
-    cellValue: (entry) => Text(BoardGameWorkspaceDto.fromEntry(entry).locationPath ?? ''),
+    getValue: (dto) => dto.locationPath,
+    cellValue: (dto) => Text(dto.locationPath ?? ''),
     group: 'Personal',
     defaultWidth: 118,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('condition'),
     label: 'Condition',
-    getValue: (entry) => BoardGameWorkspaceDto.fromEntry(entry).condition,
-    cellValue: (entry) => Text(BoardGameWorkspaceDto.fromEntry(entry).condition ?? ''),
+    getValue: (dto) => dto.condition,
+    cellValue: (dto) => Text(dto.condition ?? ''),
     group: 'Value',
     defaultWidth: 124,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('price'),
     label: 'Purchase Price',
-    getValue: (entry) => BoardGameWorkspaceDto.fromEntry(entry).pricePaidCents,
-    cellValue: (entry) {
-      final dto = BoardGameWorkspaceDto.fromEntry(entry);
-      return Text(_formatCents(dto.pricePaidCents, entry.currency));
-    },
+    getValue: (dto) => dto.pricePaidCents,
+    cellValue: (dto) => Text(_formatCents(dto.pricePaidCents, dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
     minWidth: 78,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('format'),
     label: 'Format',
-    getValue: (entry) => entry.referenceFormatLabel,
-    cellValue: (entry) => Text(entry.referenceFormatLabel ?? ''),
+    getValue: (dto) => dto.referenceFormatLabel,
+    cellValue: (dto) => Text(dto.referenceFormatLabel ?? ''),
     defaultWidth: 100,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('variant'),
     label: 'Edition / Print run',
-    getValue: (entry) => entry.variant,
-    cellValue: (entry) => Text(entry.variant ?? ''),
+    getValue: (dto) => dto.variant,
+    cellValue: (dto) => Text(dto.variant ?? ''),
     defaultWidth: 170,
     maxWidth: 420,
   ),
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>(
+  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('barcode'),
     label: 'UPC / Barcode',
-    getValue: (entry) => entry.barcode,
-    cellValue: (entry) => Text(entry.barcode ?? ''),
+    getValue: (dto) => dto.barcode,
+    cellValue: (dto) => Text(dto.barcode ?? ''),
     group: 'Edition',
     defaultWidth: 160,
     maxWidth: 260,

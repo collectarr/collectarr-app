@@ -28,6 +28,7 @@ abstract interface class LibraryWorkspaceDto {
   String? get language;
   String? get currency;
   String? get referenceFormatLabel;
+  String? get coverImageUrl;
 }
 
 

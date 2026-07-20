@@ -4,11 +4,12 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
-import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/state/sync_provider.dart';
+import 'package:collectarr_app/features/sync/state/sync_controller.dart';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

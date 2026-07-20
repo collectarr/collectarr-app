@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_ti
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +17,70 @@ typedef LibraryDateFormatter = String Function(DateTime value);
 typedef LibraryMoneyFormatter = String Function(int? cents, String? currency);
 
 enum LibraryCardLayout { vertical, horizontal }
+
+class _LibraryWorkspaceCardDelegateImpl implements LibraryWorkspaceCardDelegate {
+  _LibraryWorkspaceCardDelegateImpl({
+    required this.entry,
+    required this.selected,
+    required this.onTap,
+    required this.onDoubleTap,
+    required this.onSecondaryTapUp,
+    required this.selectedColor,
+    required this.accentColor,
+    required this.mutedTextColor,
+    required this.coverWidth,
+    required this.cardLayout,
+    required this.selectionMode,
+    required this.onSelectionToggleTap,
+    required this.onEditTap,
+    required this.customFieldBadges,
+    required this.selectedTitleColor,
+    required this.mutedColor,
+    required this.coverCacheWidth,
+    required this.metadataPresentation,
+    required this.referenceHierarchy,
+  });
+
+  @override
+  final LibraryWorkspaceEntry entry;
+  @override
+  final bool selected;
+  @override
+  final VoidCallback onTap;
+  @override
+  final VoidCallback? onDoubleTap;
+  @override
+  final GestureTapUpCallback? onSecondaryTapUp;
+  @override
+  final Color selectedColor;
+  @override
+  final Color accentColor;
+  @override
+  final Color mutedTextColor;
+  @override
+  final double coverWidth;
+  @override
+  final LibraryCardLayout cardLayout;
+  @override
+  final bool selectionMode;
+  @override
+  final VoidCallback? onSelectionToggleTap;
+  @override
+  final VoidCallback? onEditTap;
+  @override
+  final List<String> customFieldBadges;
+
+  @override
+  final Color selectedTitleColor;
+  @override
+  final Color mutedColor;
+  @override
+  final int? coverCacheWidth;
+  @override
+  final LibraryMetadataPresentation? metadataPresentation;
+  @override
+  final List<String> referenceHierarchy;
+}
 
 class LibraryWorkspaceCard extends StatelessWidget {
   const LibraryWorkspaceCard({
@@ -98,26 +161,33 @@ class LibraryWorkspaceCard extends StatelessWidget {
         selected && entry.browseScope != LibraryBrowserScope.title;
     final coverCacheWidth = _targetCacheWidth(context);
 
-    // Route to the appropriate layout variant.
-    switch (presentation.cardVariant) {
-      case LibraryCardVariant.musicVertical:
-        return _buildMusicVerticalCard(
-          context: context,
-          selectedTitleColor: selectedTitleColor,
-          mutedColor: resolvedMutedTextColor,
-          coverCacheWidth: coverCacheWidth,
-        );
-      case LibraryCardVariant.musicHorizontal:
-        return _buildMusicHorizontalCard(
-          context: context,
-          selectedTitleColor: selectedTitleColor,
-          mutedColor: resolvedMutedTextColor,
-          coverCacheWidth: coverCacheWidth,
-          metadataPresentation: metadataPresentation,
-        );
-      case LibraryCardVariant.standard:
-        break;
+    final delegate = _LibraryWorkspaceCardDelegateImpl(
+      entry: entry,
+      selected: selected,
+      onTap: onTap,
+      onDoubleTap: onDoubleTap,
+      onSecondaryTapUp: onSecondaryTapUp,
+      selectedColor: selectedColor,
+      accentColor: accentColor,
+      mutedTextColor: mutedTextColor,
+      coverWidth: coverWidth,
+      cardLayout: cardLayout,
+      selectionMode: selectionMode,
+      onSelectionToggleTap: onSelectionToggleTap,
+      onEditTap: onEditTap,
+      customFieldBadges: customFieldBadges,
+      selectedTitleColor: selectedTitleColor,
+      mutedColor: resolvedMutedTextColor,
+      coverCacheWidth: coverCacheWidth,
+      metadataPresentation: metadataPresentation,
+      referenceHierarchy: referenceHierarchy,
+    );
+
+    if (presentation.customCardBuilder != null) {
+      return presentation.customCardBuilder!(context, delegate);
     }
+
+
 
     if (cardLayout == LibraryCardLayout.vertical) {
       return _buildStandardVerticalCard(
@@ -676,387 +746,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Music horizontal card (tracklist / album list layout).
-  // ---------------------------------------------------------------------------
 
-  Widget _buildMusicHorizontalCard({
-    required BuildContext context,
-    required Color selectedTitleColor,
-    required Color mutedColor,
-    required int? coverCacheWidth,
-    required LibraryMetadataPresentation? metadataPresentation,
-  }) {
-    final palette = appPalette(context);
-    final background = selected
-        ? libraryWorkspaceSelectionBackground(
-            context,
-            accentColor: accentColor,
-            baseColor: palette.cardBackground,
-          )
-        : palette.cardBackground;
-    final titleColor = selected ? selectedTitleColor : palette.textPrimary;
-    final subtitleColor =
-        selected ? selectedTitleColor.withValues(alpha: 0.9) : mutedColor;
-    final supportColor = selected
-        ? selectedTitleColor.withValues(alpha: 0.82)
-        : palette.textSecondary;
-    final artist = musicCardArtist(entry);
-    final year = entry.releaseYear?.toString() ?? '';
-    final format = entry.referenceFormatLabel?.trim();
-    final tracks = musicCardTrackCount(entry);
-    final duration = musicCardDuration(entry);
-    final metaLine = [
-      if (format != null && format.isNotEmpty) format,
-      if (year.isNotEmpty) year,
-    ].join(' – ');
-    return RepaintBoundary(
-      child: AnimatedContainer(
-        duration: kAppAnimFast,
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: kAppRadiusSmall,
-          border: Border.all(
-            color: selected ? accentColor : palette.cardBorder,
-            width: selected ? 2 : 1,
-          ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: accentColor.withValues(alpha: 0.24),
-                    blurRadius: 12,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : null,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            onDoubleTap: onDoubleTap,
-            onSecondaryTapUp: onSecondaryTapUp,
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 28),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(
-                        width: coverWidth,
-                        child: LibraryInteractiveCover(
-                          title: entry.resolvedTitle,
-                          itemNumber: entry.itemNumber,
-                          imageUrl: entry.displayCoverUrl,
-                          targetCacheWidth: coverCacheWidth,
-                          ownedItemId: entry.ownedItemId,
-                          accentColor: accentColor,
-                          fit: BoxFit.cover,
-                          borderRadius: 2,
-                          enableFullscreen: false,
-                          enableSecondaryControl: false,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              entry.resolvedTitle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: titleColor,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                            ),
-                            if (artist != null) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                artist,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                      color: titleColor,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                              ),
-                            ],
-                            const Spacer(),
-                            if (metaLine.isNotEmpty)
-                              Text(
-                                metaLine,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                      color: subtitleColor,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                              ),
-                            if (customFieldBadges.isNotEmpty) ...[
-                              const SizedBox(height: 6),
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: [
-                                  for (final badge in customFieldBadges)
-                                    _LibraryCompactMetaPill(
-                                      icon: Icons.tune,
-                                      label: badge,
-                                      accentColor: accentColor,
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      if (tracks != null || duration != null) ...[
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            if (tracks != null)
-                              Text(
-                                '\u266b$tracks',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(
-                                      color: supportColor,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                              ),
-                            if (duration != null)
-                              Text(
-                                duration,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(
-                                      color: supportColor,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (selectionMode || selected)
-                  Positioned(
-                    left: 6,
-                    bottom: 6,
-                    child: LibraryTileSelectionToggleButton(
-                      onTap: onSelectionToggleTap,
-                      child: LibraryTileSelectionToggle(
-                        selected: selected,
-                        accentColor: accentColor,
-                        coverSize: coverWidth,
-                      ),
-                    ),
-                  ),
-                if (onEditTap != null)
-                  Positioned(
-                    top: 6,
-                    right: 6,
-                    child: LibraryTileHoverActionButton(
-                      icon: Icons.edit_outlined,
-                      tooltip: 'Edit item',
-                      onTap: onEditTap!,
-                    ),
-                  ),
-                Positioned(
-                  right: 6,
-                  bottom: 6,
-                  child: _scopeBadge(context, entry),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Music vertical card (album grid layout).
-  // ---------------------------------------------------------------------------
-
-  Widget _buildMusicVerticalCard({
-    required BuildContext context,
-    required Color selectedTitleColor,
-    required Color mutedColor,
-    required int? coverCacheWidth,
-  }) {
-    final palette = appPalette(context);
-    final background = selected
-        ? libraryWorkspaceSelectionBackground(
-            context,
-            accentColor: accentColor,
-            baseColor: palette.cardBackground,
-          )
-        : palette.cardBackground;
-    final titleColor = selected ? selectedTitleColor : palette.textPrimary;
-    final subtitleColor =
-        selected ? selectedTitleColor.withValues(alpha: 0.9) : mutedColor;
-    final artist = musicCardArtist(entry);
-    final year = entry.releaseYear?.toString() ?? '';
-    return RepaintBoundary(
-      child: AnimatedContainer(
-        duration: kAppAnimFast,
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: background,
-          borderRadius: kAppRadiusSmall,
-          border: Border.all(
-            color: selected ? accentColor : palette.cardBorder,
-            width: selected ? 2 : 1,
-          ),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            onDoubleTap: onDoubleTap,
-            onSecondaryTapUp: onSecondaryTapUp,
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 28),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: LibraryInteractiveCover(
-                          title: entry.resolvedTitle,
-                          itemNumber: entry.itemNumber,
-                          imageUrl: entry.displayCoverUrl,
-                          ownedItemId: entry.ownedItemId,
-                          targetCacheWidth: coverCacheWidth,
-                          accentColor: accentColor,
-                          fit: BoxFit.cover,
-                          borderRadius: 0,
-                          enableFullscreen: false,
-                          enableSecondaryControl: false,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              entry.resolvedTitle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: titleColor,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                            ),
-                            const SizedBox(height: 2),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    artist ?? entry.resolvedTitle,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          color: subtitleColor,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                  ),
-                                ),
-                                if (year.isNotEmpty)
-                                  Text(
-                                    year,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          color: subtitleColor,
-                                          fontWeight: FontWeight.w900,
-                                        ),
-                                  ),
-                              ],
-                            ),
-                            if (customFieldBadges.isNotEmpty) ...[
-                              const SizedBox(height: 6),
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: [
-                                  for (final badge in customFieldBadges)
-                                    _LibraryCompactMetaPill(
-                                      icon: Icons.tune,
-                                      label: badge,
-                                      accentColor: accentColor,
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (selectionMode || selected)
-                  Positioned(
-                    left: 6,
-                    bottom: 6,
-                    child: LibraryTileSelectionToggleButton(
-                      onTap: onSelectionToggleTap,
-                      child: LibraryTileSelectionToggle(
-                        selected: selected,
-                        accentColor: accentColor,
-                        coverSize: coverWidth,
-                      ),
-                    ),
-                  ),
-                if (onEditTap != null)
-                  Positioned(
-                    top: 6,
-                    right: 6,
-                    child: LibraryTileHoverActionButton(
-                      icon: Icons.edit_outlined,
-                      tooltip: 'Edit item',
-                      onTap: onEditTap!,
-                    ),
-                  ),
-                Positioned(
-                  right: 6,
-                  bottom: 6,
-                  child: _scopeBadge(context, entry),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   // ---------------------------------------------------------------------------
   // Shared helpers.
