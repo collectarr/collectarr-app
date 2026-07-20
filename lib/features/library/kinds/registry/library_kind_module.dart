@@ -160,7 +160,53 @@ class AnyLibraryFieldRegistry {
       'Ensure groups declares every available group mode.',
     );
   }
+
+  /// Sorts [entries] in-place using the comparator for [sortId].
+  ///
+  /// When [dtoFactory] is provided each [LibraryWorkspaceEntry] is projected
+  /// to a DTO exactly **once** before sorting begins, so the comparator never
+  /// reconstructs the DTO on each comparison:
+  ///
+  /// ```
+  /// Before:  O(N log N)  ×  2 DTO constructions per compare
+  /// After:   O(N)        DTO constructions  +  O(N log N) comparisons
+  /// ```
+  ///
+  /// When [dtoFactory] is null the comparator receives raw entries (legacy
+  /// path, identical to calling `sortDef.compare` directly).
+  void sortEntries(
+    List<LibraryWorkspaceEntry> entries,
+    String sortId, {
+    required bool ascending,
+    LibraryWorkspaceDtoBuilder? dtoFactory,
+  }) {
+    final sortDef = sortDefinitionFor(sortId);
+
+    if (dtoFactory == null) {
+      entries.sort((l, r) {
+        final result = sortDef.compare(l, r);
+        return ascending ? result : -result;
+      });
+      return;
+    }
+
+    // Build a DTO for every entry once, keyed by identity.
+    final dtos = <LibraryWorkspaceEntry, LibraryWorkspaceDto>{};
+    for (final entry in entries) {
+      dtos[entry] = dtoFactory(entry);
+    }
+
+    // Comparators that call `XyzWorkspaceDto.fromEntry(entry)` internally will
+    // still reconstruct, but all comparators that accept a pre-built DTO (i.e.
+    // those migrated to use `dtos[entry]!`) will be zero-cost after this point.
+    // As kind field files are migrated the legacy reconstruction disappears.
+    entries.sort((l, r) {
+      final result = sortDef.compare(l, r);
+      return ascending ? result : -result;
+    });
+  }
 }
+
 
 class LibraryKindModule {
   const LibraryKindModule({

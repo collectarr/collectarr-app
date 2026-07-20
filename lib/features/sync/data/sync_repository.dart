@@ -1,11 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
@@ -15,6 +13,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_episodes_
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,8 +39,8 @@ class SyncRepository {
   Future<SyncResult> performSync(String deviceId, DateTime? since) async {
     final db = ref.read(localDatabaseProvider);
     final settings = ref.read(connectionSettingsProvider);
-    
-    return SyncService(
+
+    return SyncApplyService(
       client: CollectarrSyncClient(
         baseUrl: settings.syncBaseUrl,
         syncKey: settings.syncKey,
@@ -188,8 +187,7 @@ extension on SyncQueueRepository {
           clientChangedAt: changedAt,
         );
       case 'custom_episode':
-        final episode =
-            await CustomEpisodesCacheRepository(db).findById(
+        final episode = await CustomEpisodesCacheRepository(db).findById(
           change.entityId,
         );
         if (episode == null) {

@@ -10,7 +10,8 @@ import 'package:collectarr_app/core/settings/connection_pairing.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
-import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/core/sync/sync_change.dart';
+
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';

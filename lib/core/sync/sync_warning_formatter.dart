@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/sync/sync_service.dart';
+import 'package:collectarr_app/core/sync/sync_change.dart';
+
 
 class SyncWarningFormatter {
   const SyncWarningFormatter._();

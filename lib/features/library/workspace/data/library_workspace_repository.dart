@@ -249,11 +249,12 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       }
 
       if (query.sortId != null) {
-        final sortDef = module.fields.sortDefinitionFor(query.sortId!);
-        filtered.sort((left, right) {
-          final result = sortDef.compare(left, right);
-          return query.sortAscending ? result : -result;
-        });
+        module.fields.sortEntries(
+          filtered,
+          query.sortId!,
+          ascending: query.sortAscending,
+          dtoFactory: module.workspaceDtoFactory,
+        );
       } else {
         filtered.sort((left, right) => left.resolvedTitle
             .toLowerCase()
@@ -344,11 +345,12 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     }
 
     if (query.sortId != null) {
-      final sortDef = module.fields.sortDefinitionFor(query.sortId!);
-      filtered.sort((left, right) {
-        final result = sortDef.compare(left, right);
-        return query.sortAscending ? result : -result;
-      });
+      module.fields.sortEntries(
+        filtered,
+        query.sortId!,
+        ascending: query.sortAscending,
+        dtoFactory: module.workspaceDtoFactory,
+      );
     } else {
       filtered.sort((left, right) => left.resolvedTitle
           .toLowerCase()
