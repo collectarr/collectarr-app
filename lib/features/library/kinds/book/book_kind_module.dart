@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
-final bookKindModule = LibraryKindModule(
+final bookKindModule = LibraryKindModule<BookWorkspaceDto>(
   type: booksLibraryConfig,
   mediaAdapter: booksMediaAdapter,
   workspaceDtoFactory: BookWorkspaceDto.fromEntry,

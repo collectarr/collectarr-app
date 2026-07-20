@@ -1,3 +1,6 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
@@ -18,9 +21,15 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
     required this.updatedAt,
     required this.tags,
     required this.collectionStatus,
-    required this.pageCount,
-    required this.imprint,
-    required this.author,
+    required this.variant,
+    required this.barcode,
+    required this.grade,
+    required this.country,
+    required this.language,
+    required this.currency,
+    required this.referenceFormatLabel,
+    required this.coverImageUrl,
+    required this.book,
   });
 
   @override
@@ -55,11 +64,61 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
   @override
   final String? collectionStatus;
 
-  final int pageCount;
-  final String? imprint;
-  final String? author;
+  @override
+  final String? variant;
+  @override
+  final String? barcode;
+  @override
+  final String? grade;
+  @override
+  final String? country;
+  @override
+  final String? language;
+  @override
+  final String? currency;
+  @override
+  final String? referenceFormatLabel;
+  @override
+  final String? coverImageUrl;
+
+  final BookCatalogItem book;
+
+  int get pageCount => book.publishing.pageCount ?? 0;
+  String? get imprint => book.publishing.imprint;
+  String? get author => book.work.creators.firstOrNull?.name;
 
   factory BookWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
+    // Construct transport DTO first
+    final dto = CatalogItemDto(
+      id: entry.id,
+      title: entry.title,
+      displayTitle: entry.displayTitle,
+      localizedTitle: entry.localizedTitle,
+      originalTitle: entry.originalTitle,
+      synopsis: entry.synopsis,
+      coverImageUrl: entry.coverImageUrl,
+      thumbnailImageUrl: entry.thumbnailImageUrl,
+      publisher: entry.publisher,
+      coverDate: entry.coverDate,
+      releaseDate: entry.releaseDate,
+      releaseYear: entry.releaseYear,
+      barcode: entry.barcode,
+      variant: entry.variant,
+      creators: entry.creators,
+      storyArcs: entry.storyArcs,
+      genres: entry.genres,
+      country: entry.country,
+      language: entry.language,
+      ageRating: entry.ageRating,
+      audienceRating: entry.audienceRating,
+      publishing: entry.publishing,
+      series: entry.series,
+      editions: entry.editions,
+    );
+
+    // Map to Book domain model using composition
+    final bookCatalogItem = BookCatalogMapper.mapDtoToBook(dto);
+
     return BookWorkspaceDto(
       title: entry.resolvedTitle,
       seriesTitle: entry.series?.seriesTitle,
@@ -76,9 +135,15 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
       updatedAt: entry.updatedAt,
       tags: entry.tags,
       collectionStatus: entry.collectionStatus,
-      pageCount: entry.publishing?.pageCount ?? 0,
-      imprint: entry.publishing?.imprint,
-      author: entry.creators?.firstOrNull?['name']?.toString(),
+      variant: entry.variant,
+      barcode: entry.barcode,
+      grade: entry.grade,
+      country: entry.country,
+      language: entry.language,
+      currency: entry.currency,
+      referenceFormatLabel: entry.referenceFormatLabel,
+      coverImageUrl: entry.coverImageUrl,
+      book: bookCatalogItem,
     );
   }
 }
