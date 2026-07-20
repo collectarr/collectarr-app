@@ -1,35 +1,25 @@
-import 'dart:async';
-import 'dart:io';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'library_workspace_key.dart';
 import 'library_filter_state.dart';
 
+/// Manages filter/sort/group/column state for a single library workspace.
+///
+/// Search debouncing is NOT done here; it is delegated to
+/// [libraryDebouncedSearchProvider] which reads a configurable
+/// [librarySearchDebounceDurationProvider]. This keeps [LibraryFilters]
+/// free of [dart:io] and platform detection.
 class LibraryFilters extends StateNotifier<LibraryFilterState> {
   LibraryFilters(this.key) : super(const LibraryFilterState()) {
     reset();
   }
 
   final LibraryWorkspaceKey key;
-  Timer? _searchDebounceTimer;
 
-  void updateSearch(String query, {bool? immediate}) {
-    state = state.copyWith(searchDraft: query);
-    _searchDebounceTimer?.cancel();
-    final shouldBeImmediate = immediate ?? query.isEmpty || Platform.environment.containsKey('FLUTTER_TEST');
-    if (shouldBeImmediate) {
-      state = state.copyWith(searchQuery: query);
-    } else {
-      _searchDebounceTimer = Timer(const Duration(milliseconds: 300), () {
-        state = state.copyWith(searchQuery: query);
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _searchDebounceTimer?.cancel();
-    super.dispose();
+  /// Updates the search query immediately. Debouncing is handled downstream
+  /// by [libraryDebouncedSearchProvider].
+  void updateSearch(String query) {
+    state = state.copyWith(searchDraft: query, searchQuery: query);
   }
 
   void setFacetValues(String facetId, Set<String> values) {

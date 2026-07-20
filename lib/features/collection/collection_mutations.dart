@@ -33,7 +33,8 @@ import 'package:collectarr_app/features/collection/services/image_download_servi
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/state/sync_provider.dart';
+import 'package:collectarr_app/features/sync/state/sync_controller.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 

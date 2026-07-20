@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_retry.dart';
-import 'package:collectarr_app/core/sync/sync_service.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -32,7 +31,12 @@ class SyncController extends StateNotifier<SyncState> {
   Future<void> refreshPendingCount() async {
     final count = await _repo.getPendingCount();
     final lastSynced = await _readLastSyncedAt();
-    state = state.copyWith(pendingCount: count, lastSyncedAt: lastSynced);
+    state = _withSnapshot(
+      state.snapshot.copyWith(
+        pendingCount: count,
+        lastSyncedAt: lastSynced,
+      ),
+    );
   }
 
   static const _maxLogEntries = 20;
@@ -42,35 +46,45 @@ class SyncController extends StateNotifier<SyncState> {
       return;
     }
     final preSyncPending = state.pendingCount;
-    state = state.copyWith(
-      isSyncing: true,
-      isOffline: false,
-      clearError: true,
-      clearWarning: true,
-      clearRejectedChanges: true,
+
+    // --- Begin sync: enter SyncInProgress ---
+    state = SyncInProgress.fromSnapshot(
+      state.snapshot.copyWith(
+        isOffline: false,
+        clearWarning: true,
+        clearRejectedChanges: true,
+      ),
     );
+
     try {
       final deviceId = await DeviceIdentity().getOrCreate();
       final since = await _repo.getLastSyncedAt();
       final result = await _repo.performSync(deviceId, since);
       await _repo.saveLastSyncedAt(result.serverTime);
+
       ref.invalidate(collectionProvider);
       ref.invalidate(trackingEntriesProvider);
       ref.invalidate(trackingEntriesByCatalogItemProvider);
       ref.invalidate(wishlistIdsProvider);
       ref.invalidate(wishlistProvider);
       ref.invalidate(shelfProvider);
+
       final count = await _repo.getPendingCount();
-      final log = _appendLog(SyncLogEntry(
-        timestamp: result.serverTime,
-        success: true,
-        pushed: preSyncPending,
-        rejected: result.rejectedCount,
-      ));
+      final log = _appendLog(
+        SyncLogEntry(
+          timestamp: result.serverTime,
+          success: true,
+          pushed: preSyncPending,
+          rejected: result.rejectedCount,
+        ),
+      );
+
+      // --- Success: enter SyncIdle ---
       state = SyncIdle(
         pendingCount: count,
         lastSyncedAt: result.serverTime,
-        warningMessage: SyncWarningFormatter.rejectedChanges(result.rejectedChanges),
+        warningMessage:
+            SyncWarningFormatter.rejectedChanges(result.rejectedChanges),
         rejectedChanges: result.rejectedChanges,
         syncLog: log,
       );
@@ -86,13 +100,18 @@ class SyncController extends StateNotifier<SyncState> {
             'Sync failed: $error',
             detail: stackTrace.toString(),
           );
+
       final count = await _repo.getPendingCount();
-      final log = _appendLog(SyncLogEntry(
-        timestamp: DateTime.now().toUtc(),
-        success: false,
-        pushed: preSyncPending,
-        errorMessage: error.toString(),
-      ));
+      final log = _appendLog(
+        SyncLogEntry(
+          timestamp: DateTime.now().toUtc(),
+          success: false,
+          pushed: preSyncPending,
+          errorMessage: error.toString(),
+        ),
+      );
+
+      // --- Failure: enter SyncFailure ---
       state = SyncFailure(
         errorMessage: error.toString(),
         pendingCount: count,
@@ -122,25 +141,30 @@ class SyncController extends StateNotifier<SyncState> {
   }
 
   void dismissError() {
-    state = state.copyWith(clearError: true);
+    if (state is SyncFailure) {
+      state = SyncIdle.fromSnapshot(state.snapshot);
+    }
   }
 
   void dismissRejectedChange(String key) {
     final rejectedChanges = state.rejectedChanges
         .where((change) => change.key != key)
         .toList(growable: false);
-    state = state.copyWith(
-      rejectedChanges: rejectedChanges,
-      warningMessage: SyncWarningFormatter.rejectedChanges(rejectedChanges),
-      clearWarning: rejectedChanges.isEmpty,
+    state = _withSnapshot(
+      state.snapshot.copyWith(
+        rejectedChanges: rejectedChanges,
+        warningMessage: SyncWarningFormatter.rejectedChanges(rejectedChanges),
+        clearWarning: rejectedChanges.isEmpty,
+      ),
     );
   }
 
   void dismissAllRejectedChanges() {
-    state = state.copyWith(
-      rejectedChanges: const [],
-      clearRejectedChanges: true,
-      clearWarning: true,
+    state = _withSnapshot(
+      state.snapshot.copyWith(
+        clearRejectedChanges: true,
+        clearWarning: true,
+      ),
     );
   }
 
@@ -152,6 +176,19 @@ class SyncController extends StateNotifier<SyncState> {
     dismissRejectedChange(change.key);
     await refreshPendingCount();
     return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+
+  /// Rebuild the current state class with an updated [SyncSnapshot].
+  SyncState _withSnapshot(SyncSnapshot s) {
+    return switch (state) {
+      SyncInProgress() => SyncInProgress.fromSnapshot(s),
+      SyncFailure f => SyncFailure.fromSnapshot(s, errorMessage: f.errorMessage),
+      SyncIdle() || _ => SyncIdle.fromSnapshot(s),
+    };
   }
 
   List<SyncLogEntry> _appendLog(SyncLogEntry entry) {

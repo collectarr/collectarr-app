@@ -1,15 +1,18 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/data/library_workspace_query.dart';
 import 'package:collectarr_app/features/library/workspace/data/library_workspace_repository.dart';
+import 'library_search_debounce_provider.dart';
 import 'library_workspace_key.dart';
 import 'library_filter_state.dart';
 import 'library_filters_provider.dart';
 
 /// Provides a debounced version of the search query from filters to avoid
 /// querying the database on every keystroke.
+///
+/// The debounce duration is controlled by [librarySearchDebounceDurationProvider]
+/// so tests can override it with [Duration.zero] without any platform detection.
 final libraryDebouncedSearchProvider = StreamProvider.autoDispose
     .family<String, LibraryWorkspaceKey>((ref, key) {
   final filters = ref.watch(libraryFiltersProvider(key));
@@ -19,15 +22,14 @@ final libraryDebouncedSearchProvider = StreamProvider.autoDispose
     return Stream.value(searchQuery);
   }
 
-  final bool isTesting = const bool.fromEnvironment('dart.vm.product') == false &&
-      Platform.environment.containsKey('FLUTTER_TEST');
+  final duration = ref.watch(librarySearchDebounceDurationProvider);
 
-  if (isTesting) {
+  if (duration == Duration.zero) {
     return Stream.value(searchQuery);
   }
 
   final controller = StreamController<String>();
-  final timer = Timer(const Duration(milliseconds: 350), () {
+  final timer = Timer(duration, () {
     if (!controller.isClosed) {
       controller.add(searchQuery);
     }

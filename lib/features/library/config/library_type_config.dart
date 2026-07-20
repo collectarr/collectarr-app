@@ -375,10 +375,10 @@ class LibraryTypeCapabilities {
     this.supportsReadingQueue = false,
     this.supportsIndexReassignment = false,
     this.wideDialog = false,
-    this.mediaScopeGroupModes,
-    this.releaseScopeGroupModes,
-    this.mediaScopeSortColumns,
-    this.releaseScopeSortColumns,
+    this.mediaScopeGroupIds,
+    this.releaseScopeGroupIds,
+    this.mediaScopeSortIds,
+    this.releaseScopeSortIds,
     this.supportsMetadataCompare = false,
     this.prefersSquareCovers = false,
     this.supportsSeriesSubgroups = false,
@@ -396,14 +396,14 @@ class LibraryTypeCapabilities {
   final bool supportsIndexReassignment;
   final bool wideDialog;
 
-  /// Group modes and sort columns available when a media/release split library
+  /// Group IDs and sort IDs available when a media/release split library
   /// is showing the media scope vs the releases scope. When provided, the
   /// generic page narrows the available options per browser mode instead of
   /// hardcoding a per-kind rule.
-  final Set<Object>? mediaScopeGroupModes;
-  final Set<Object>? releaseScopeGroupModes;
-  final Set<Object>? mediaScopeSortColumns;
-  final Set<Object>? releaseScopeSortColumns;
+  final Set<Object>? mediaScopeGroupIds;
+  final Set<Object>? releaseScopeGroupIds;
+  final Set<Object>? mediaScopeSortIds;
+  final Set<Object>? releaseScopeSortIds;
 
   /// Whether this type can compare its local metadata against the canonical
   /// server record (e.g. comics and music).
@@ -419,13 +419,13 @@ class LibraryTypeCapabilities {
 
   final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
 
-  /// Whether this type narrows group modes / sort columns by browser mode
+  /// Whether this type narrows group IDs / sort IDs by browser mode
   /// (media vs releases). Driven entirely by the scoped sets above.
   bool get scopesOptionsByBrowserMode =>
-      mediaScopeGroupModes != null ||
-      releaseScopeGroupModes != null ||
-      mediaScopeSortColumns != null ||
-      releaseScopeSortColumns != null;
+      mediaScopeGroupIds != null ||
+      releaseScopeGroupIds != null ||
+      mediaScopeSortIds != null ||
+      releaseScopeSortIds != null;
 
   bool get usesSeasonHierarchy =>
       contentHierarchy == LibraryContentHierarchy.seasons;
@@ -848,8 +848,8 @@ class LibraryTypeConfig {
       return availableGroupModes;
     }
     final scoped = browserMode == LibraryWorkspaceBrowserMode.releases
-        ? capabilities.releaseScopeGroupModes
-        : capabilities.mediaScopeGroupModes;
+        ? capabilities.releaseScopeGroupIds
+        : capabilities.mediaScopeGroupIds;
     if (scoped == null) {
       return availableGroupModes;
     }
@@ -870,8 +870,8 @@ class LibraryTypeConfig {
       return allSorts;
     }
     final scoped = browserMode == LibraryWorkspaceBrowserMode.releases
-        ? capabilities.releaseScopeSortColumns
-        : capabilities.mediaScopeSortColumns;
+        ? capabilities.releaseScopeSortIds
+        : capabilities.mediaScopeSortIds;
     if (scoped == null) {
       return allSorts;
     }

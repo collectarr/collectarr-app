@@ -502,14 +502,9 @@ final musicLibrarySortDefinitions = [
   LibrarySortDefinition<LibraryWorkspaceEntry>(id: 'title',
     compare: (left, right) => (left.resolvedTitle ?? "").compareTo(right.resolvedTitle ?? ""), label: 'Title'),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
-    id: 'issue',
-    compare: (left, right) => (left.itemNumber ?? "").compareTo(right.itemNumber ?? ""),
-    label: 'Issue / number',
-  ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
-    id: 'story_arc',
-    compare: (left, right) => (left.storyArcs?.join(", ") ?? "").compareTo(right.storyArcs?.join(", ") ?? ""),
-    label: 'Story arc',
+    id: 'item_number',
+    compare: (left, right) => (left.itemNumber ?? '').compareTo(right.itemNumber ?? ''),
+    label: 'Number',
   ),
   LibrarySortDefinition<LibraryWorkspaceEntry>(
     id: 'variant',
@@ -591,22 +586,6 @@ final musicLibrarySortDefinitions = [
     id: 'language',
     compare: (left, right) => (left.language ?? "").compareTo(right.language ?? ""),
     label: 'Language',
-  ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
-    id: 'page_count',
-    compare: (left, right) => MusicWorkspaceDto.fromEntry(left).pageCount.compareTo(MusicWorkspaceDto.fromEntry(right).pageCount),
-    label: 'Page count',
-    group: 'Edition',
-  ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
-    id: 'age_rating',
-    compare: (left, right) => (left.ageRating ?? "").compareTo(right.ageRating ?? ""),
-    label: 'Age rating',
-  ),
-  LibrarySortDefinition<LibraryWorkspaceEntry>(
-    id: 'imprint',
-    compare: (left, right) => (MusicWorkspaceDto.fromEntry(left).imprint ?? "").compareTo(MusicWorkspaceDto.fromEntry(right).imprint ?? ""),
-    label: 'Imprint',
   ),
 ];
 
