@@ -10,11 +10,11 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
-class AnyLibraryFieldRegistry {
+class AnyLibraryFieldRegistry<TDto> {
   const AnyLibraryFieldRegistry({
-    List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>>? groups,
-    List<LibrarySortDefinition<LibraryWorkspaceEntry>>? sorts,
-    List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>>? columns,
+    List<LibraryGroupDefinition<TDto, Object?>>? groups,
+    List<LibrarySortDefinition<TDto>>? sorts,
+    List<LibraryColumnDefinition<TDto, Object?>>? columns,
     this.defaultVisibleColumnIds = const {
       'status',
       'cover',
@@ -35,17 +35,18 @@ class AnyLibraryFieldRegistry {
        _sorts = sorts,
        _columns = columns;
 
-  final List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>>? _groups;
-  final List<LibrarySortDefinition<LibraryWorkspaceEntry>>? _sorts;
-  final List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>>? _columns;
 
-  List<LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>> get groups =>
+  final List<LibraryGroupDefinition<TDto, Object?>>? _groups;
+  final List<LibrarySortDefinition<TDto>>? _sorts;
+  final List<LibraryColumnDefinition<TDto, Object?>>? _columns;
+
+  List<LibraryGroupDefinition<TDto, Object?>> get groups =>
       _groups ?? const [];
 
-  List<LibrarySortDefinition<LibraryWorkspaceEntry>> get sorts =>
+  List<LibrarySortDefinition<TDto>> get sorts =>
       _sorts ?? const [];
 
-  List<LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>> get columns =>
+  List<LibraryColumnDefinition<TDto, Object?>> get columns =>
       _columns ?? const [];
 
   final Set<String> defaultVisibleColumnIds;
@@ -101,7 +102,7 @@ class AnyLibraryFieldRegistry {
     }
   }
 
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>? columnDefinitionForId(String id) {
+  LibraryColumnDefinition<TDto, Object?>? columnDefinitionForId(String id) {
     for (final definition in columns) {
       if (definition.id.value == id || definition.id.value.split('.').last == id) {
         return definition;
@@ -110,7 +111,7 @@ class AnyLibraryFieldRegistry {
     return null;
   }
 
-  LibraryColumnDefinition<LibraryWorkspaceEntry, Object?> columnDefinitionFor(String columnId) {
+  LibraryColumnDefinition<TDto, Object?> columnDefinitionFor(String columnId) {
     final definition = columnDefinitionForId(columnId);
     if (definition != null) {
       return definition;
@@ -121,7 +122,7 @@ class AnyLibraryFieldRegistry {
     );
   }
 
-  LibrarySortDefinition<LibraryWorkspaceEntry>? sortDefinitionForId(String id) {
+  LibrarySortDefinition<TDto>? sortDefinitionForId(String id) {
     for (final definition in sorts) {
       if (definition.id == id || definition.id.split('.').last == id) {
         return definition;
@@ -130,7 +131,7 @@ class AnyLibraryFieldRegistry {
     return null;
   }
 
-  LibrarySortDefinition<LibraryWorkspaceEntry> sortDefinitionFor(String sortId) {
+  LibrarySortDefinition<TDto> sortDefinitionFor(String sortId) {
     final definition = sortDefinitionForId(sortId);
     if (definition != null) {
       return definition;
@@ -141,7 +142,7 @@ class AnyLibraryFieldRegistry {
     );
   }
 
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>? groupDefinitionForId(String id) {
+  LibraryGroupDefinition<TDto, Object?>? groupDefinitionForId(String id) {
     for (final definition in groups) {
       if (definition.id.value == id || definition.id.value.split('.').last == id) {
         return definition;
@@ -150,7 +151,7 @@ class AnyLibraryFieldRegistry {
     return null;
   }
 
-  LibraryGroupDefinition<LibraryWorkspaceEntry, Object?> groupDefinitionFor(String groupId) {
+  LibraryGroupDefinition<TDto, Object?> groupDefinitionFor(String groupId) {
     final definition = groupDefinitionForId(groupId);
     if (definition != null) {
       return definition;
@@ -184,31 +185,27 @@ class AnyLibraryFieldRegistry {
 
     if (dtoFactory == null) {
       entries.sort((l, r) {
-        final result = sortDef.compare(l, r);
+        final result = sortDef.compare(l as TDto, r as TDto);
         return ascending ? result : -result;
       });
       return;
     }
 
     // Build a DTO for every entry once, keyed by identity.
-    final dtos = <LibraryWorkspaceEntry, LibraryWorkspaceDto>{};
+    final dtos = <LibraryWorkspaceEntry, TDto>{};
     for (final entry in entries) {
-      dtos[entry] = dtoFactory(entry);
+      dtos[entry] = dtoFactory(entry) as TDto;
     }
 
-    // Comparators that call `XyzWorkspaceDto.fromEntry(entry)` internally will
-    // still reconstruct, but all comparators that accept a pre-built DTO (i.e.
-    // those migrated to use `dtos[entry]!`) will be zero-cost after this point.
-    // As kind field files are migrated the legacy reconstruction disappears.
     entries.sort((l, r) {
-      final result = sortDef.compare(l, r);
+      final result = sortDef.compare(dtos[l]!, dtos[r]!);
       return ascending ? result : -result;
     });
   }
 }
 
 
-class LibraryKindModule {
+class LibraryKindModule<TDto> {
   const LibraryKindModule({
     required this.type,
     required this.mediaAdapter,
@@ -226,11 +223,11 @@ class LibraryKindModule {
     this.buildCardPresentation,
   });
 
+
   final LibraryTypeConfig type;
   final LibraryMediaAdapter mediaAdapter;
-  final AnyLibraryFieldRegistry fields;
-  final LibraryWorkspaceDto Function(LibraryWorkspaceEntry entry)?
-      workspaceDtoFactory;
+  final AnyLibraryFieldRegistry<TDto> fields;
+  final TDto Function(LibraryWorkspaceEntry entry)? workspaceDtoFactory;
   final LibraryKindWorkspaceBehavior workspaceBehavior;
   final LibraryKindAddModule add;
   final LibraryKindEditModule edit;
@@ -238,6 +235,7 @@ class LibraryKindModule {
   final LibraryKindToolbarModule toolbar;
   final LibraryKindProviderMapper providerMapper;
   final LibraryFacetModule facets;
+
 
   /// Returns the card presentation for a given entry.
   ///

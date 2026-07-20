@@ -26,6 +26,13 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
     required this.rpm,
     required this.pageCount,
     required this.imprint,
+    required this.variant,
+    required this.barcode,
+    required this.grade,
+    required this.country,
+    required this.language,
+    required this.currency,
+    required this.referenceFormatLabel,
   });
 
   @override
@@ -59,6 +66,23 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
   final String? tags;
   @override
   final String? collectionStatus;
+
+  @override
+  final String? variant;
+  @override
+  final String? barcode;
+  @override
+  final String? grade;
+  @override
+  final String? country;
+  @override
+  final String? language;
+  @override
+  final String? currency;
+  @override
+  final String? referenceFormatLabel;
+
+
 
   final String? catalogNumber;
   final int? discCount;
@@ -94,6 +118,16 @@ final class MusicWorkspaceDto implements LibraryWorkspaceDto {
       rpm: entry.music?.rpm,
       pageCount: entry.publishing?.pageCount ?? 0,
       imprint: entry.publishing?.imprint,
+      variant: entry.variant,
+      barcode: entry.barcode,
+      grade: entry.grade,
+      country: entry.country,
+      language: entry.language,
+      currency: entry.currency,
+      referenceFormatLabel: entry.referenceFormatLabel,
     );
   }
+
+
 }
+

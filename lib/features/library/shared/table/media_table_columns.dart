@@ -157,11 +157,13 @@ Widget plannedMediaTableCell(
   if (definition == null) {
     return const LibraryTableCellText('');
   }
+  final module = libraryKindModuleForType(type);
+  final dto = module.workspaceDtoFactory?.call(entry) ?? entry;
   final builder = definition.cellValue;
   if (builder != null) {
-    return builder(entry);
+    return builder(dto);
   }
-  final value = definition.getValue(entry);
+  final value = definition.getValue(dto);
   return LibraryTableCellText(value?.toString());
 }
 

@@ -10,8 +10,9 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
 
-final musicKindModule = LibraryKindModule(
+final musicKindModule = LibraryKindModule<MusicWorkspaceDto>(
   type: musicLibraryConfig,
+
   mediaAdapter: musicMediaAdapter,
   workspaceDtoFactory: MusicWorkspaceDto.fromEntry,
   fields: AnyLibraryFieldRegistry(

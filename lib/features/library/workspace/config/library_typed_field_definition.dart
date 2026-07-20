@@ -20,7 +20,18 @@ abstract interface class LibraryWorkspaceDto {
   DateTime get updatedAt;
   String? get tags;
   String? get collectionStatus;
+
+  String? get variant;
+  String? get barcode;
+  String? get grade;
+  String? get country;
+  String? get language;
+  String? get currency;
+  String? get referenceFormatLabel;
 }
+
+
+
 
 typedef LibraryWorkspaceDtoBuilder = LibraryWorkspaceDto Function(
   LibraryWorkspaceEntry entry,
