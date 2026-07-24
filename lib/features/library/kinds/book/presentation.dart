@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/book/presentation_builder.
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 

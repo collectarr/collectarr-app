@@ -32,7 +32,7 @@ void main() {
         title: item.work.title,
         coverImageUrl: item.releases.firstOrNull?.variants.firstOrNull?.coverImageUrl,
       ),
-      personal: const PersonalCopyProjection(),
+      personal: PersonalCopyProjection(),
       book: item,
     );
 

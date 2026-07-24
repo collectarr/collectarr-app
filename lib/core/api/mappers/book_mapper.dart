@@ -1,6 +1,5 @@
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
 
-BookWork bookWorkFromDto(BookWorkDto dto) => BookWork.fromDto(dto);
-
-BookEdition bookEditionFromDto(BookEditionDto dto) => BookEdition.fromDto(dto);
+BookCatalogItem bookWorkFromDto(CatalogItemDto dto) => BookCatalogMapper.mapDtoToBook(dto);
