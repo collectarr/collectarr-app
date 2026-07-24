@@ -1,137 +1,106 @@
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final class MusicWorkspaceDto implements LibraryWorkspaceDto {
   const MusicWorkspaceDto({
-    required this.title,
-    required this.seriesTitle,
-    required this.itemNumber,
-    required this.publisher,
-    required this.releaseDate,
-    required this.isOwned,
-    required this.isWishlisted,
-    required this.condition,
-    required this.locationPath,
-    required this.rating,
-    required this.pricePaidCents,
-    required this.addedAt,
-    required this.updatedAt,
-    required this.tags,
-    required this.collectionStatus,
-    required this.catalogNumber,
-    required this.discCount,
-    required this.trackCount,
-    required this.length,
-    required this.vinylColor,
-    required this.rpm,
-    required this.pageCount,
-    required this.imprint,
-    required this.variant,
-    required this.barcode,
-    required this.grade,
-    required this.country,
-    required this.language,
-    required this.currency,
-    required this.referenceFormatLabel,
-    this.coverImageUrl,
+    required this.common,
+    required this.personal,
+    required this.music,
   });
 
-  @override
-  final String title;
-  @override
-  final String? seriesTitle;
-  @override
-  final String? itemNumber;
-  @override
-  final String? publisher;
-  @override
-  final DateTime? releaseDate;
-  @override
-  final bool isOwned;
-  @override
-  final bool isWishlisted;
+  final WorkspaceCommonProjection common;
+  final PersonalCopyProjection personal;
+  final MusicCatalogItem music;
 
+  // Delegated LibraryWorkspaceDto getters from WorkspaceCommonProjection:
   @override
-  final String? condition;
+  String get title => common.title;
   @override
-  final String? locationPath;
+  String? get seriesTitle => common.seriesTitle;
   @override
-  final int? rating;
+  String? get itemNumber => common.itemNumber;
   @override
-  final int? pricePaidCents;
+  String? get publisher => common.publisher;
   @override
-  final DateTime? addedAt;
+  DateTime? get releaseDate => common.releaseDate;
   @override
-  final DateTime updatedAt;
+  String? get variant => common.variant;
   @override
-  final String? tags;
+  String? get barcode => common.barcode;
   @override
-  final String? collectionStatus;
+  String? get grade => common.grade;
+  @override
+  String? get country => common.country;
+  @override
+  String? get language => common.language;
+  @override
+  String? get currency => common.currency;
+  @override
+  String? get referenceFormatLabel => common.referenceFormatLabel;
+  @override
+  String? get coverImageUrl => common.coverImageUrl;
 
+  // Delegated LibraryWorkspaceDto getters from PersonalCopyProjection:
   @override
-  final String? variant;
+  bool get isOwned => personal.isOwned;
   @override
-  final String? barcode;
+  bool get isWishlisted => personal.isWishlisted;
   @override
-  final String? grade;
+  String? get condition => personal.condition;
   @override
-  final String? country;
+  String? get locationPath => personal.locationPath;
   @override
-  final String? language;
+  int? get rating => personal.rating;
   @override
-  final String? currency;
+  int? get pricePaidCents => personal.pricePaidCents;
   @override
-  final String? referenceFormatLabel;
+  DateTime? get addedAt => personal.addedAt;
   @override
-  final String? coverImageUrl;
+  DateTime get updatedAt => personal.updatedAt;
+  @override
+  String? get tags => personal.tags;
+  @override
+  String? get collectionStatus => personal.collectionStatus;
 
-
-
-  final String? catalogNumber;
-  final int? discCount;
-  final int? trackCount;
-  final String? length;
-  final String? vinylColor;
-  final String? rpm;
-  final int pageCount;
-  final String? imprint;
+  // Domain convenience getters delegating to MusicCatalogItem:
+  String? get artist => music.work.artist;
+  int? get trackCount => music.recording.trackCount;
 
   factory MusicWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
+    final musicCatalogItem = MusicCatalogMapper.mapWorkspaceEntryToMusic(entry);
+
     return MusicWorkspaceDto(
-      title: entry.resolvedTitle,
-      seriesTitle: entry.series?.seriesTitle,
-      itemNumber: entry.itemNumber,
-      publisher: entry.publisher,
-      releaseDate: entry.releaseDate,
-      isOwned: entry.isOwned,
-      isWishlisted: entry.isWishlisted,
-      condition: entry.condition,
-      locationPath: entry.locationPath,
-      rating: entry.rating,
-      pricePaidCents: entry.pricePaidCents,
-      addedAt: entry.addedAt,
-      updatedAt: entry.updatedAt,
-      tags: entry.tags,
-      collectionStatus: entry.collectionStatus,
-      catalogNumber: entry.music?.catalogNumber,
-      discCount: entry.music?.discCount,
-      trackCount: entry.music?.trackCount,
-      length: entry.music?.length,
-      vinylColor: entry.music?.vinylColor,
-      rpm: entry.music?.rpm,
-      pageCount: entry.publishing?.pageCount ?? 0,
-      imprint: entry.publishing?.imprint,
-      variant: entry.variant,
-      barcode: entry.barcode,
-      grade: entry.grade,
-      country: entry.country,
-      language: entry.language,
-      currency: entry.currency,
-      referenceFormatLabel: entry.referenceFormatLabel,
-      coverImageUrl: entry.coverImageUrl,
+      common: WorkspaceCommonProjection(
+        title: entry.resolvedTitle,
+        seriesTitle: entry.series?.seriesTitle,
+        itemNumber: entry.itemNumber,
+        publisher: entry.publisher,
+        releaseDate: entry.releaseDate,
+        variant: entry.variant,
+        barcode: entry.barcode,
+        grade: entry.grade,
+        country: entry.country,
+        language: entry.language,
+        currency: entry.currency,
+        referenceFormatLabel: entry.referenceFormatLabel,
+        coverImageUrl: entry.coverImageUrl,
+      ),
+      personal: PersonalCopyProjection(
+        isOwned: entry.isOwned,
+        isWishlisted: entry.isWishlisted,
+        condition: entry.condition,
+        locationPath: entry.locationPath,
+        rating: entry.rating,
+        pricePaidCents: entry.pricePaidCents,
+        addedAt: entry.addedAt,
+        updatedAt: entry.updatedAt,
+        tags: entry.tags,
+        collectionStatus: entry.collectionStatus,
+      ),
+      music: musicCatalogItem,
     );
   }
-
-
 }
-

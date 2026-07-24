@@ -1,702 +1,160 @@
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/config/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
-import 'music_workspace_dto.dart';
 
-final musicLibraryFieldDefinitions = [
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('music.title'),
+/// Single source of truth schema for Music kind fields.
+abstract final class MusicKindSchema {
+  static final title = textField<MusicWorkspaceDto>(
+    id: 'music.title',
     label: 'Title',
     getValue: (dto) => dto.title,
-  ),
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('music.series'),
-    label: 'Series',
-    getValue: (dto) => dto.seriesTitle,
-  ),
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('music.number'),
-    label: 'Number',
-    getValue: (dto) => dto.itemNumber,
-  ),
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('music.publisher'),
-    label: 'Publisher',
+  );
+
+  static final artist = textField<MusicWorkspaceDto>(
+    id: 'music.artist',
+    label: 'Artist',
+    getValue: (dto) => dto.artist,
+  );
+
+  static final publisher = textField<MusicWorkspaceDto>(
+    id: 'music.publisher',
+    label: 'Label',
     getValue: (dto) => dto.publisher,
-  ),
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('music.release_date'),
-    label: 'Release date',
+  );
+
+  static final releaseDate = dateField<MusicWorkspaceDto>(
+    id: 'music.release_date',
+    label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-  ),
+  );
+
+  static final trackCount = numberField<MusicWorkspaceDto>(
+    id: 'music.track_count',
+    label: 'Track count',
+    getValue: (dto) => dto.trackCount,
+  );
+
+  static final barcode = textField<MusicWorkspaceDto>(
+    id: 'music.barcode',
+    label: 'Barcode',
+    getValue: (dto) => dto.barcode,
+  );
+
+  static final condition = textField<MusicWorkspaceDto>(
+    id: 'music.condition',
+    label: 'Condition',
+    getValue: (dto) => dto.condition,
+  );
+
+  static final location = textField<MusicWorkspaceDto>(
+    id: 'music.location',
+    label: 'Location',
+    getValue: (dto) => dto.locationPath,
+  );
+
+  static final price = moneyField<MusicWorkspaceDto>(
+    id: 'music.price',
+    label: 'Purchase Price',
+    getValue: (dto) => dto.pricePaidCents,
+  );
+}
+
+final musicLibraryFieldDefinitions = [
+  MusicKindSchema.title,
+  MusicKindSchema.artist,
+  MusicKindSchema.publisher,
+  MusicKindSchema.releaseDate,
+  MusicKindSchema.trackCount,
+  MusicKindSchema.barcode,
+  MusicKindSchema.condition,
+  MusicKindSchema.location,
+  MusicKindSchema.price,
 ];
 
-
 final musicLibraryGroupDefinitions = [
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('series'),
-    label: 'Artist',
+  groupFromField(
+    MusicKindSchema.artist,
     sidebarTitle: 'Artists',
-    icon: Icons.collections_bookmark_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('format'),
-    label: 'Format',
-    sidebarTitle: 'Formats',
-    icon: Icons.album_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('genre'),
-    label: 'Genre',
-    sidebarTitle: 'Genres',
-    icon: Icons.music_note_outlined,
+    icon: Icons.person_outline,
     supportsBucketManagement: true,
   ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('publisher'),
-    label: 'Label',
+  groupFromField(
+    MusicKindSchema.publisher,
     sidebarTitle: 'Labels',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('title'),
-    label: 'Title',
-    sidebarTitle: 'Titles',
-    icon: Icons.sort_by_alpha,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('original_release_date'),
-    label: 'Original Release Date',
-    sidebarTitle: 'Original Release Dates',
-    icon: Icons.event_repeat_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('original_release_month'),
-    label: 'Original Release Month',
-    sidebarTitle: 'Original Release Months',
-    icon: Icons.event_repeat_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('original_release_year'),
-    label: 'Original Release Year',
-    sidebarTitle: 'Original Release Years',
-    icon: Icons.event_repeat_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('recording_date'),
-    label: 'Recording Date',
-    sidebarTitle: 'Recording Dates',
-    icon: Icons.mic_none_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('recording_month'),
-    label: 'Recording Month',
-    sidebarTitle: 'Recording Months',
-    icon: Icons.mic_none_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('recording_year'),
-    label: 'Recording Year',
-    sidebarTitle: 'Recording Years',
-    icon: Icons.mic_none_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('release_date'),
-    label: 'Release Date',
-    sidebarTitle: 'Release Dates',
-    icon: Icons.event_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('release_month'),
-    label: 'Release Month',
-    sidebarTitle: 'Release Months',
-    icon: Icons.event_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('release_year'),
-    label: 'Release Year',
-    sidebarTitle: 'Release Years',
-    icon: Icons.event_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('box_set'),
-    label: 'Box Set',
-    sidebarTitle: 'Box Sets',
-    icon: Icons.inventory_2_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('country'),
-    label: 'Country',
-    sidebarTitle: 'Countries',
-    icon: Icons.flag_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('extras'),
-    label: 'Extra',
-    sidebarTitle: 'Extras',
-    icon: Icons.extension_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('instrument'),
-    label: 'Instrument',
-    sidebarTitle: 'Instruments',
-    icon: Icons.piano_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('is_live'),
-    label: 'Is Live',
-    sidebarTitle: 'Is Live',
-    icon: Icons.sensors_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('media_condition'),
-    label: 'Media Condition',
-    sidebarTitle: 'Media Conditions',
-    icon: Icons.album_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('condition'),
-    label: 'Package/Sleeve Condition',
-    sidebarTitle: 'Package/Sleeve Conditions',
+  groupFromField(
+    MusicKindSchema.condition,
+    sidebarTitle: 'Conditions',
     icon: Icons.verified_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('packaging'),
-    label: 'Packaging',
-    sidebarTitle: 'Packaging',
-    icon: Icons.inventory_2_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('rpm'),
-    label: 'RPM',
-    sidebarTitle: 'RPM',
-    icon: Icons.speed_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('spars'),
-    label: 'SPARS',
-    sidebarTitle: 'SPARS',
-    icon: Icons.graphic_eq_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('sound_type'),
-    label: 'Sound',
-    sidebarTitle: 'Sound',
-    icon: Icons.surround_sound_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('storage_device'),
-    label: 'Storage Device',
-    sidebarTitle: 'Storage Devices',
-    icon: Icons.sd_storage_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('studio'),
-    label: 'Studio',
-    sidebarTitle: 'Studios',
-    icon: Icons.business_center_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('vinyl_color'),
-    label: 'Vinyl Color',
-    sidebarTitle: 'Vinyl Colors',
-    icon: Icons.palette_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('chorus'),
-    label: 'Chorus',
-    sidebarTitle: 'Chorus',
-    icon: Icons.groups_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('composer'),
-    label: 'Composer',
-    sidebarTitle: 'Composers',
-    icon: Icons.music_note_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('composition'),
-    label: 'Composition',
-    sidebarTitle: 'Compositions',
-    icon: Icons.queue_music_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('conductor'),
-    label: 'Conductor',
-    sidebarTitle: 'Conductors',
-    icon: Icons.waving_hand_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('orchestra'),
-    label: 'Orchestra',
-    sidebarTitle: 'Orchestras',
-    icon: Icons.groups_2_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('engineer'),
-    label: 'Engineer',
-    sidebarTitle: 'Engineers',
-    icon: Icons.engineering_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('musician'),
-    label: 'Musician',
-    sidebarTitle: 'Musicians',
-    icon: Icons.piano_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('producer'),
-    label: 'Producer',
-    sidebarTitle: 'Producers',
-    icon: Icons.factory_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('writer'),
-    label: 'Songwriter',
-    sidebarTitle: 'Songwriters',
-    icon: Icons.edit_note_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('added_date'),
-    label: 'Added Date',
-    sidebarTitle: 'Added Dates',
-    icon: Icons.event_available_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('added_month'),
-    label: 'Added Month',
-    sidebarTitle: 'Added Months',
-    icon: Icons.calendar_view_month_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('added_year'),
-    label: 'Added Year',
-    sidebarTitle: 'Added Years',
-    icon: Icons.calendar_today_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('collection_status'),
-    label: 'Collection Status',
-    sidebarTitle: 'Collection Status',
-    icon: Icons.task_alt_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('image_type'),
-    label: 'Image Type',
-    sidebarTitle: 'Image Types',
-    icon: Icons.photo_library_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('is_signed'),
-    label: 'Is Signed',
-    sidebarTitle: 'Is Signed',
-    icon: Icons.draw_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('bag_board_date'),
-    label: 'Last Cleaned Date',
-    sidebarTitle: 'Last Cleaned Dates',
-    icon: Icons.cleaning_services_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('bag_board_month'),
-    label: 'Last Cleaned Month',
-    sidebarTitle: 'Last Cleaned Months',
-    icon: Icons.cleaning_services_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('bag_board_year'),
-    label: 'Last Cleaned Year',
-    sidebarTitle: 'Last Cleaned Years',
-    icon: Icons.cleaning_services_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('location'),
-    label: 'Location',
+  groupFromField(
+    MusicKindSchema.location,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('modified_date'),
-    label: 'Modified Date',
-    sidebarTitle: 'Modified Dates',
-    icon: Icons.update_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('modified_month'),
-    label: 'Modified Month',
-    sidebarTitle: 'Modified Months',
-    icon: Icons.calendar_view_month_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('my_rating'),
-    label: 'My Rating',
-    sidebarTitle: 'My Ratings',
-    icon: Icons.star_outline,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('owner'),
-    label: 'Owner',
-    sidebarTitle: 'Owners',
-    icon: Icons.person_outline,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('watched'),
-    label: 'Played',
-    sidebarTitle: 'Played',
-    icon: Icons.play_arrow_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('watch_date'),
-    label: 'Played Date',
-    sidebarTitle: 'Played Dates',
-    icon: Icons.play_circle_outline,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('watch_month'),
-    label: 'Played Month',
-    sidebarTitle: 'Played Months',
-    icon: Icons.calendar_view_month_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('watch_year'),
-    label: 'Played Year',
-    sidebarTitle: 'Played Years',
-    icon: Icons.calendar_today_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('purchase_date'),
-    label: 'Purchase Date',
-    sidebarTitle: 'Purchase Dates',
-    icon: Icons.shopping_bag_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('purchase_month'),
-    label: 'Purchase Month',
-    sidebarTitle: 'Purchase Months',
-    icon: Icons.calendar_view_month_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('purchase_store'),
-    label: 'Purchase Store',
-    sidebarTitle: 'Purchase Stores',
-    icon: Icons.store_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('purchase_year'),
-    label: 'Purchase Year',
-    sidebarTitle: 'Purchase Years',
-    icon: Icons.calendar_today_outlined,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('signed_by'),
-    label: 'Signed by',
-    sidebarTitle: 'Signed by',
-    icon: Icons.edit_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<MusicWorkspaceDto, Object?>(
-
-    getValue: (entry) => null,
-    id: LibraryFieldId<Object?>('tags'),
-    label: 'Tags',
-    sidebarTitle: 'Tags',
-    icon: Icons.sell_outlined,
   ),
 ];
 
 final musicLibrarySortDefinitions = [
-
+  sortFromField(MusicKindSchema.artist),
+  sortFromField(MusicKindSchema.publisher),
   LibrarySortDefinition<MusicWorkspaceDto>(
-    id: 'series',
-    compare: (left, right) => (left.seriesTitle ?? "").compareTo(right.seriesTitle ?? ""),
-    label: 'Artist',
+    id: 'status',
+    compare: (left, right) {
+      int rank(MusicWorkspaceDto dto) {
+        if (dto.isOwned) return 0;
+        if (dto.isWishlisted) return 1;
+        return 2;
+      }
+      final res = rank(left).compareTo(rank(right));
+      return res != 0 ? res : left.title.compareTo(right.title);
+    },
+    label: 'Status',
   ),
-
-  LibrarySortDefinition<MusicWorkspaceDto>(
-    id: 'publisher',
-    compare: (left, right) => (left.publisher ?? "").compareTo(right.publisher ?? ""),
-    label: 'Label',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-      id: 'status',
-    compare: (left, right) => (left.isOwned ? 0 : 1).compareTo(right.isOwned ? 0 : 1), label: 'Status'),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-    id: 'title',
-    compare: (left, right) => (left.title ?? "").compareTo(right.title ?? ""), label: 'Title'),
-
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'item_number',
-    compare: (left, right) => (left.itemNumber ?? '').compareTo(right.itemNumber ?? ''),
-    label: 'Number',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'variant',
-    compare: (left, right) => (left.variant ?? "").compareTo(right.variant ?? ""),
-    label: 'Variant',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'format',
-    compare: (left, right) => (left.referenceFormatLabel ?? "").compareTo(right.referenceFormatLabel ?? ""),
-    label: 'Format',
-    group: 'Edition',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'release_date',
-    compare: (left, right) => (left.releaseDate ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(right.releaseDate ?? DateTime.fromMillisecondsSinceEpoch(0)),
-    label: 'Release date',
-    defaultAscending: false,
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'barcode',
-    compare: (left, right) => (left.barcode ?? "").compareTo(right.barcode ?? ""),
-    label: 'Barcode',
-    group: 'Edition',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'grade',
-    compare: (left, right) => (left.grade ?? "").compareTo(right.grade ?? ""),
-    label: 'Grade',
-    group: 'Value',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'condition',
-    compare: (left, right) => (left.condition ?? "").compareTo(right.condition ?? ""),
-    label: 'Condition',
-    group: 'Value',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'price',
-    compare: (left, right) => (left.pricePaidCents ?? 0).compareTo(right.pricePaidCents ?? 0),
-    label: 'Purchase price',
-    group: 'Value',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'location',
-    compare: (left, right) => (left.locationPath ?? "").compareTo(right.locationPath ?? ""),
-    label: 'Location',
-    group: 'Personal',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'collection_status',
-    compare: (left, right) => (left.collectionStatus ?? "").compareTo(right.collectionStatus ?? ""),
-    label: 'Collection status',
-    group: 'Personal',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'wishlist',
-    compare: (left, right) => (left.isWishlisted ? 1 : 0).compareTo(right.isWishlisted ? 1 : 0),
-    label: 'Wishlist',
-    group: 'Personal',
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'added',
-    compare: (left, right) => (left.addedAt ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(left.addedAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
-    label: 'Added date',
-    group: 'Personal',
-    defaultAscending: false,
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'updated',
-    compare: (left, right) => (left.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0)).compareTo(right.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
-    label: 'Updated',
-    group: 'Personal',
-    defaultAscending: false,
-  ),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-      id: 'country',
-    compare: (left, right) => (left.country ?? "").compareTo(right.country ?? ""), label: 'Country'),
-  LibrarySortDefinition<MusicWorkspaceDto>(
-
-    id: 'language',
-    compare: (left, right) => (left.language ?? "").compareTo(right.language ?? ""),
-    label: 'Language',
-  ),
+  sortFromField(MusicKindSchema.title),
+  sortFromField(MusicKindSchema.releaseDate, defaultAscending: false),
+  sortFromField(MusicKindSchema.trackCount),
 ];
 
+const musicLibraryDefaultVisibleColumnIds = {
+  'status',
+  'cover',
+  'artist',
+  'title',
+  'publisher',
+  'release_date',
+  'barcode',
+  'track_count',
+  'rating',
+  'condition',
+  'price',
+  'location',
+  'wishlist',
+  'updated',
+};
 
 final musicLibraryColumnDefinitions = [
   LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
     id: LibraryFieldId<Object?>('status'),
     label: 'Status',
-    getValue: (entry) {
-      final dto = entry;
-      return dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null);
-    },
-    cellValue: (entry) {
-      final dto = entry;
-      return Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : ''));
-    },
+    getValue: (dto) => dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
+    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
   LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
     id: LibraryFieldId<Object?>('cover'),
     label: '',
-    getValue: (entry) => entry.coverImageUrl,
-    cellValue: (entry) => entry.coverImageUrl == null
+    getValue: (dto) => dto.coverImageUrl,
+    cellValue: (dto) => dto.coverImageUrl == null
         ? const SizedBox.shrink()
         : Image.network(
-            entry.coverImageUrl!,
+            dto.coverImageUrl!,
             width: 32,
             height: 32,
             fit: BoxFit.cover,
@@ -706,247 +164,59 @@ final musicLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('front_cover'),
-    label: 'Front Cover',
-    getValue: (entry) => entry.frontCoverUrl,
-    cellValue: (entry) => entry.frontCoverUrl == null
-        ? const SizedBox.shrink()
-        : Image.network(
-            entry.frontCoverUrl!,
-            width: 32,
-            height: 32,
-            fit: BoxFit.cover,
-          ),
-    sortable: false,
-    groupable: false,
-    defaultWidth: 80,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('back_cover'),
-    label: 'Back Cover',
-    getValue: (entry) => entry.backCoverUrl,
-    cellValue: (entry) => entry.backCoverUrl == null
-        ? const SizedBox.shrink()
-        : Image.network(
-            entry.backCoverUrl!,
-            width: 32,
-            height: 32,
-            fit: BoxFit.cover,
-          ),
-    sortable: false,
-    groupable: false,
-    defaultWidth: 80,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('title'),
-    label: 'Title',
-    getValue: (entry) => entry.title,
-    cellValue: (entry) => Text(entry.title),
-    defaultWidth: 260,
-    maxWidth: 520,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('publisher'),
-    label: 'Publisher',
-    getValue: (entry) => entry.publisher,
-    cellValue: (entry) => Text(entry.publisher ?? ''),
-    defaultWidth: 140,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('release_date'),
-    label: 'Release Date',
-    getValue: (entry) => entry.releaseDate,
-    cellValue: (entry) => Text(_formatDate(entry.releaseDate)),
+  columnFromField(MusicKindSchema.artist, defaultWidth: 160),
+  columnFromField(MusicKindSchema.title, defaultWidth: 260, maxWidth: 520),
+  columnFromField(MusicKindSchema.publisher, defaultWidth: 140),
+  columnFromField(
+    MusicKindSchema.releaseDate,
+    cellValue: (dto) => Text(_formatDate(dto.releaseDate)),
     defaultWidth: 118,
   ),
   LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
     id: LibraryFieldId<Object?>('wishlist'),
     label: 'Wishlist',
-    getValue: (entry) => entry.isWishlisted,
-    cellValue: (entry) => Text(entry.isWishlisted ? 'Wishlist' : ''),
+    getValue: (dto) => dto.isWishlisted,
+    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
   LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
     id: LibraryFieldId<Object?>('updated'),
     label: 'Updated',
-    getValue: (entry) => entry.updatedAt,
-    cellValue: (entry) => Text(_formatDate(entry.updatedAt)),
+    getValue: (dto) => dto.updatedAt,
+    cellValue: (dto) => Text(_formatDate(dto.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
   LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
     id: LibraryFieldId<Object?>('added'),
     label: 'Added',
-    getValue: (entry) => entry.addedAt,
-    cellValue: (entry) => Text(_formatDate(entry.addedAt)),
+    getValue: (dto) => dto.addedAt,
+    cellValue: (dto) => Text(_formatDate(dto.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('location'),
-    label: 'Location',
-    getValue: (entry) => entry.locationPath,
-    cellValue: (entry) => Text(entry.locationPath ?? ''),
-    group: 'Personal',
-    defaultWidth: 118,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('condition'),
-    label: 'Condition',
-    getValue: (entry) => entry.condition,
-    cellValue: (entry) => Text(entry.condition ?? ''),
-    group: 'Value',
-    defaultWidth: 124,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('price'),
-    label: 'Purchase Price',
-    getValue: (entry) => entry.pricePaidCents,
-    cellValue: (entry) {
-      final dto = entry;
-      return Text(_formatCents(dto.pricePaidCents, entry.currency));
-    },
+  columnFromField(MusicKindSchema.location, group: 'Personal', defaultWidth: 118),
+  columnFromField(MusicKindSchema.condition, group: 'Value', defaultWidth: 124),
+  columnFromField(
+    MusicKindSchema.price,
+    cellValue: (dto) => Text(_formatCents(dto.pricePaidCents, dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
     minWidth: 78,
   ),
+  columnFromField(MusicKindSchema.barcode, group: 'Edition', defaultWidth: 160, maxWidth: 260),
+  columnFromField(MusicKindSchema.trackCount, defaultWidth: 90, isNumeric: true),
   LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('format'),
-    label: 'Format',
-    getValue: (entry) => entry.referenceFormatLabel,
-    cellValue: (entry) => Text(entry.referenceFormatLabel ?? ''),
-    defaultWidth: 100,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('variant'),
-    label: 'Version / Pressing',
-    getValue: (entry) => entry.variant,
-    cellValue: (entry) => Text(entry.variant ?? ''),
-    defaultWidth: 170,
-    maxWidth: 420,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('barcode'),
-    label: 'UPC / EAN / Barcode',
-    getValue: (entry) => entry.barcode,
-    cellValue: (entry) => Text(entry.barcode ?? ''),
-    group: 'Edition',
-    defaultWidth: 160,
-    maxWidth: 260,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('artist'),
-    label: 'Artist',
-    getValue: (entry) => entry.series?.seriesTitle,
-    cellValue: (entry) => Text(entry.series?.seriesTitle ?? ''),
-    defaultWidth: 140,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('album'),
-    label: 'Album',
-    getValue: (entry) => entry.resolvedTitle,
-    cellValue: (entry) => Text(entry.resolvedTitle),
-    defaultWidth: 160,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('label'),
-    label: 'Label',
-    getValue: (entry) => entry.publisher,
-    cellValue: (entry) => Text(entry.publisher ?? ''),
-    defaultWidth: 140,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('catalog_number'),
-    label: 'Catalog #',
-    getValue: (entry) => entry.catalogNumber,
-    cellValue: (entry) => Text(entry.catalogNumber ?? ''),
-    defaultWidth: 130,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('disc_count'),
-    label: 'Disc Count',
-    getValue: (entry) => entry.discCount,
-    cellValue: (entry) => Text(entry.discCount?.toString() ?? ''),
-    defaultWidth: 90,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('track_count'),
-    label: 'Track Count',
-    getValue: (entry) => entry.trackCount,
-    cellValue: (entry) => Text(entry.trackCount?.toString() ?? ''),
-    defaultWidth: 90,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('track_length'),
-    label: 'Length',
-    getValue: (entry) => entry.length,
-    cellValue: (entry) => Text(entry.length?.toString() ?? ''),
+    id: LibraryFieldId<Object?>('rating'),
+    label: 'Rating',
+    getValue: (dto) => dto.rating,
+    cellValue: (dto) => Text(dto.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('vinyl_color'),
-    label: 'Vinyl Color',
-    getValue: (entry) => entry.vinylColor,
-    cellValue: (entry) => Text(entry.vinylColor ?? ''),
-    defaultWidth: 110,
-  ),
-  LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
-
-    id: LibraryFieldId<Object?>('rpm'),
-    label: 'RPM',
-    getValue: (entry) => entry.rpm,
-    cellValue: (entry) => Text(entry.rpm?.toString() ?? ''),
-    defaultWidth: 70,
-  ),
 ];
-
-const musicLibraryDefaultVisibleColumnIds = {
-  'status',
-  'cover',
-  'artist',
-  'album',
-  'title',
-  'label',
-  'catalog_number',
-  'format',
-  'disc_count',
-  'track_count',
-  'track_length',
-  'vinyl_color',
-  'rpm',
-  'release_date',
-  'barcode',
-  'condition',
-  'location',
-  'wishlist',
-  'updated'
-};
 
 String _formatDate(DateTime? value) {
   if (value == null) return '';
