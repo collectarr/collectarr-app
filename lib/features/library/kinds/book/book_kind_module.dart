@@ -15,8 +15,8 @@ final bookKindModule = LibraryKindModule<BookWorkspaceDto>(
     sorts: bookLibrarySortDefinitions,
     columns: bookLibraryColumnDefinitions,
     defaultVisibleColumnIds: booksLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'title',
-    defaultGroupId: 'series',
+    defaultSortId: 'book.title',
+    defaultGroupId: 'book.series',
   ),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,

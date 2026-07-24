@@ -75,7 +75,7 @@ LibraryColumnDefinition<TDto, V> columnFromField<TDto, V>(
   );
 }
 
-LibrarySortDefinition<TDto> sortFromField<TDto, V extends Comparable<dynamic>>(
+LibrarySortDefinition<TDto> sortFromField<TDto, V extends Comparable<Object>>(
   LibraryFieldDefinition<TDto, V?> field, {
   String group = 'Main',
   bool defaultAscending = true,

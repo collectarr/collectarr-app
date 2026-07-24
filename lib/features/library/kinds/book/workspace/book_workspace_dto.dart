@@ -1,74 +1,26 @@
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
-final class BookWorkspaceDto implements LibraryWorkspaceDto {
+final class BookWorkspaceDto extends WorkspaceDtoAdapter {
   const BookWorkspaceDto({
     required this.common,
     required this.personal,
     required this.book,
   });
 
+  @override
   final WorkspaceCommonProjection common;
+  @override
   final PersonalCopyProjection personal;
   final BookCatalogItem book;
-
-  // Delegated LibraryWorkspaceDto getters from WorkspaceCommonProjection:
-  @override
-  String get title => common.title;
-  @override
-  String? get seriesTitle => common.seriesTitle;
-  @override
-  String? get itemNumber => common.itemNumber;
-  @override
-  String? get publisher => common.publisher;
-  @override
-  DateTime? get releaseDate => common.releaseDate;
-  @override
-  String? get variant => common.variant;
-  @override
-  String? get barcode => common.barcode;
-  @override
-  String? get grade => common.grade;
-  @override
-  String? get country => common.country;
-  @override
-  String? get language => common.language;
-  @override
-  String? get currency => common.currency;
-  @override
-  String? get referenceFormatLabel => common.referenceFormatLabel;
-  @override
-  String? get coverImageUrl => common.coverImageUrl;
-
-  // Delegated LibraryWorkspaceDto getters from PersonalCopyProjection:
-  @override
-  bool get isOwned => personal.isOwned;
-  @override
-  bool get isWishlisted => personal.isWishlisted;
-  @override
-  String? get condition => personal.condition;
-  @override
-  String? get locationPath => personal.locationPath;
-  @override
-  int? get rating => personal.rating;
-  @override
-  int? get pricePaidCents => personal.pricePaidCents;
-  @override
-  DateTime? get addedAt => personal.addedAt;
-  @override
-  DateTime get updatedAt => personal.updatedAt;
-  @override
-  String? get tags => personal.tags;
-  @override
-  String? get collectionStatus => personal.collectionStatus;
 
   // Domain convenience getters delegating to BookCatalogItem:
   int get pageCount => book.publishing.pageCount ?? 0;
   String? get imprint => book.publishing.imprint;
   String? get author => book.work.creators.firstOrNull?.name;
+  String? get isbn => book.releases.firstOrNull?.isbn;
 
   factory BookWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
     final bookCatalogItem = BookCatalogMapper.mapWorkspaceEntryToBook(entry);

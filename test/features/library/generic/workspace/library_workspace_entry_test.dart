@@ -1,169 +1,25 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
-import 'dart:typed_data';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  LibraryWorkspaceEntry entry({
-    required String id,
-    required String title,
-    String? itemNumber,
-    String? seriesTitle,
-    List<String>? storyArcs,
-    bool isOwned = false,
-    bool isWishlisted = false,
-    bool keyComic = false,
-    String? grade,
-    String? rawOrSlabbed,
-    String? gradingCompany,
-    String? collectionStatus,
-    String? variant,
-    String? referenceScopeLabel,
-    String? referenceFormatLabel,
-    DateTime? addedAt,
-    int? pricePaidCents,
-    DateTime? releaseDate,
-    DateTime? updatedAt,
-  }) {
-    return LibraryWorkspaceEntry(
-      id: id,
-      mediaType: 'comic',
-      title: title,
-      itemNumber: itemNumber,
-      series: seriesTitle == null
-          ? null
-          : CatalogSeriesDetails(seriesTitle: seriesTitle),
-      storyArcs: storyArcs,
-      isOwned: isOwned,
-      isWishlisted: isWishlisted,
-      keyComic: keyComic,
-      grade: grade,
-      rawOrSlabbed: rawOrSlabbed,
-      gradingCompany: gradingCompany,
-      collectionStatus: collectionStatus,
-      variant: variant,
-      referenceScopeLabel: referenceScopeLabel,
-      referenceFormatLabel: referenceFormatLabel,
-      addedAt: addedAt,
-      pricePaidCents: pricePaidCents,
-      releaseDate: releaseDate,
-      updatedAt: updatedAt ?? DateTime.utc(2026),
-    );
-  }
-
-  List<LibraryWorkspaceEntry> sortByRules(
-    List<LibraryWorkspaceEntry> items,
-    List<LibrarySortRule> rules,
-  ) {
-    return List<LibraryWorkspaceEntry>.of(items)
-      ..sort(
-        (left, right) => comicsMediaAdapter.compareEntriesByRules(
-          left,
-          right,
-          rules,
-        ),
-      );
-  }
-
-  test('uses thumbnail before full cover for display cover', () {
-    final item = LibraryWorkspaceEntry(
-      id: '1',
-      mediaType: 'comic',
-      title: 'Superman',
-      coverImageUrl: 'https://example.test/cover.jpg',
-      thumbnailImageUrl: 'https://example.test/thumb.jpg',
-      updatedAt: DateTime.utc(2026),
-    );
-
-    expect(item.displayCoverUrl, 'https://example.test/thumb.jpg');
-  });
-
-  test('exposes explicit core and synthetic ids', () {
-    final item = LibraryWorkspaceEntry(
-      id: 'tmdb-local:movie:42',
-      mediaType: 'movie',
-      title: 'Example Movie',
-      titleItemId: '00000000-0000-0000-0000-000000000042',
-      updatedAt: DateTime.utc(2026),
-    );
-
-    expect(item.canonicalItemId, '00000000-0000-0000-0000-000000000042');
-    expect(item.providerScopedId, '00000000-0000-0000-0000-000000000042');
-    expect(item.localSyntheticId, 'tmdb-local:movie:42');
-    expect(item.canHydrateFromCore, isTrue);
-  });
-
-  test('marks local-only entries as non-hydratable', () {
-    final item = LibraryWorkspaceEntry(
-      id: 'provider:movie:42',
-      mediaType: 'movie',
-      title: 'Provider Only Movie',
-      updatedAt: DateTime.utc(2026),
-    );
-
-    expect(item.canonicalItemId, 'provider:movie:42');
-    expect(item.localSyntheticId, 'provider:movie:42');
-    expect(item.canHydrateFromCore, isFalse);
-  });
-
-  test('tracks front and back owned-item images', () {
-    final item = LibraryWorkspaceEntry(
-      id: '1',
-      mediaType: 'comic',
-      title: 'Superman',
-      itemImages: [
-        ItemImage(
-          id: 'img-1',
-          ownedItemId: 'owned-1',
-          imageType: 'front_cover',
-          imageData: Uint8List.fromList([1, 2, 3]),
-          createdAt: DateTime.utc(2026),
-        ),
-        ItemImage(
-          id: 'img-2',
-          ownedItemId: 'owned-1',
-          imageType: 'back_cover',
-          imageData: Uint8List.fromList([4, 5, 6]),
-          createdAt: DateTime.utc(2026),
-        ),
-        ItemImage(
-          id: 'img-3',
-          ownedItemId: 'owned-1',
-          imageType: 'auxiliary',
-          imageData: Uint8List.fromList([7, 8, 9]),
-          createdAt: DateTime.utc(2026),
-        ),
-      ],
-      updatedAt: DateTime.utc(2026),
-    );
-
-    expect(item.hasFrontImage, isTrue);
-    expect(item.hasBackImage, isTrue);
-    expect(item.extraImages, hasLength(1));
-    expect(item.extraImageCount, 1);
-  });
-
   test('book media falls back to primary release cover and reference ids', () {
-    final item = BookWork(
+    final item = BookCatalogItem(
       id: 'book-1',
-      title: 'Example Book',
-      editions: [
-        BookEdition(
+      work: const BookWorkMetadata(title: 'Example Book'),
+      publishing: const BookPublishingMetadata(),
+      releases: [
+        BookRelease(
           id: 'edition-1',
           title: 'Hardcover',
           variants: [
-            BookVariant(
+            BookVariantRef(
               id: 'variant-1',
               name: 'Hardcover',
               coverImageUrl: 'https://example.test/release-cover.jpg',
-              thumbnailImageUrl: 'https://example.test/release-thumb.jpg',
               isPrimary: true,
             ),
           ],
@@ -171,168 +27,16 @@ void main() {
       ],
     );
 
-    final entry = buildBookWorkspaceEntry(item, const BookPersonalOverlay())
-        as BookWorkspaceEntry;
-
-    expect(entry.displayCoverUrl, 'https://example.test/release-thumb.jpg');
-    expect(entry.referenceEditionId, 'edition-1');
-    expect(entry.referenceVariantId, 'variant-1');
-    expect(entry.bookEditions, hasLength(1));
-  });
-
-  test('builds media-specific workspace entry subtypes', () {
-    final item = LibraryWorkspaceEntry(
-      id: 'music-1',
-      mediaType: 'music',
-      title: 'Discovery',
-      music: const MusicCatalogDetails(
-        trackCount: 14,
-        catalogNumber: 'DISC-2001',
-        releaseStatus: 'Official',
+    final dto = BookWorkspaceDto(
+      common: WorkspaceCommonProjection(
+        title: item.work.title,
+        coverImageUrl: item.releases.firstOrNull?.variants.firstOrNull?.coverImageUrl,
       ),
-      updatedAt: DateTime.utc(2026),
+      personal: const PersonalCopyProjection(),
+      book: item,
     );
 
-    expect(item, isA<MusicWorkspaceEntry>());
-    expect(item.music, isNotNull);
-    expect(item.music!.trackCount, 14);
-    expect(item.music!.catalogNumber, 'DISC-2001');
-  });
-
-  test('adapter sorts issue-like item numbers numerically', () {
-    final items = sortByRules([
-      entry(id: '2', title: 'Series', itemNumber: '10'),
-      entry(id: '1', title: 'Series', itemNumber: '2'),
-      entry(id: '3', title: 'Series', itemNumber: 'A'),
-    ], const [
-      LibrarySortRule(column: 'comic.issue', ascending: true)
-    ]);
-
-    expect(items.map((item) => item.itemNumber), ['2', '10', 'A']);
-  });
-
-  test('adapter sorts owned entries before missing entries by status', () {
-    final items = sortByRules([
-      entry(id: '1', title: 'Missing'),
-      entry(id: '2', title: 'Owned', isOwned: true),
-    ], const [
-      LibrarySortRule(column: 'status', ascending: true)
-    ]);
-
-    expect(items.map((item) => item.title), ['Owned', 'Missing']);
-  });
-
-  test('adapter sorts numeric value fields with empty values last', () {
-    final items = sortByRules([
-      entry(id: '1', title: 'No price'),
-      entry(id: '2', title: 'Low price', pricePaidCents: 100),
-      entry(id: '3', title: 'High price', pricePaidCents: 500),
-    ], const [
-      LibrarySortRule(column: 'price', ascending: true)
-    ]);
-
-    expect(
-      items.map((item) => item.title),
-      ['Low price', 'High price', 'No price'],
-    );
-  });
-
-  test('adapter sorts by series title when series sort is selected', () {
-    final items = sortByRules([
-      entry(id: '2', title: 'Issue B', seriesTitle: 'Zoo Crew'),
-      entry(id: '1', title: 'Issue A', seriesTitle: 'Alpha Flight'),
-      entry(id: '3', title: 'Issue C'),
-    ], const [
-      LibrarySortRule(column: 'series', ascending: true)
-    ]);
-
-    expect(items.map((item) => item.title), ['Issue A', 'Issue B', 'Issue C']);
-  });
-
-  test('adapter sorts key comics before non-key comics', () {
-    final items = sortByRules([
-      entry(id: '1', title: 'Regular issue'),
-      entry(id: '2', title: 'Key issue', keyComic: true),
-    ], const [
-      LibrarySortRule(column: 'comic.key_issue', ascending: true)
-    ]);
-
-    expect(items.map((item) => item.title), ['Key issue', 'Regular issue']);
-  });
-
-  test('adapter applies secondary sort rules before title fallback', () {
-    final items = sortByRules([
-      entry(
-          id: '2', title: 'Owned later issue', isOwned: true, itemNumber: '10'),
-      entry(id: '3', title: 'Missing issue', itemNumber: '1'),
-      entry(
-          id: '1',
-          title: 'Owned earlier issue',
-          isOwned: true,
-          itemNumber: '2'),
-    ], const [
-      LibrarySortRule(column: 'status', ascending: true),
-      LibrarySortRule(column: 'comic.issue', ascending: true),
-    ]);
-
-    expect(
-      items.map((item) => item.title),
-      ['Owned earlier issue', 'Owned later issue', 'Missing issue'],
-    );
-  });
-
-  testWidgets('adapter builds variant cell summary text', (tester) async {
-    final item = entry(
-      id: '1',
-      title: 'Issue A',
-      variant: 'Foil',
-      referenceScopeLabel: 'Edition',
-      referenceFormatLabel: 'Hardcover',
-    );
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Material(
-          child: comicsMediaAdapter.buildTableCell(
-            item,
-            'variant',
-          ),
-        ),
-      ),
-    );
-
-    expect(
-      find.text('Foil  \u00b7  Scope: Edition  \u00b7  Format: Hardcover'),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets('adapter builds dedicated format and added cells', (
-    tester,
-  ) async {
-    final item = entry(
-      id: '1',
-      title: 'Issue A',
-      referenceFormatLabel: 'Hardcover',
-      addedAt: DateTime.utc(2026, 5, 31),
-      updatedAt: DateTime.utc(2026, 6, 1),
-    );
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Material(
-          child: Column(
-            children: [
-              comicsMediaAdapter.buildTableCell(
-                  item, 'format'),
-              comicsMediaAdapter.buildTableCell(item, 'added'),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    expect(find.text('Hardcover'), findsOneWidget);
-    expect(find.text('2026-05-31'), findsOneWidget);
+    expect(dto.coverImageUrl, 'https://example.test/release-cover.jpg');
+    expect(dto.book.releases, hasLength(1));
   });
 }

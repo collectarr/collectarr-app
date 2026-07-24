@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/field_factories.dart';
+import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
 
@@ -31,8 +31,8 @@ abstract final class BookKindSchema {
 
   static final isbn = textField<BookWorkspaceDto>(
     id: 'book.isbn',
-    label: 'ISBN / Barcode',
-    getValue: (dto) => dto.barcode,
+    label: 'ISBN',
+    getValue: (dto) => dto.isbn ?? dto.barcode,
   );
 
   static final condition = textField<BookWorkspaceDto>(

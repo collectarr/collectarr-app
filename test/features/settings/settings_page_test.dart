@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
+import 'package:collectarr_app/features/sync/state/sync_state.dart';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -486,12 +487,14 @@ class _KeepLocalSyncController extends SyncController {
 
   @override
   Future<bool> keepLocalRejectedChange(SyncRejectedChange change) async {
-    state = state.copyWith(
-      pendingCount: pendingCountAfterQueue,
-      rejectedChanges: state.rejectedChanges
-          .where((entry) => entry.key != change.key)
-          .toList(growable: false),
-      clearWarning: true,
+    state = SyncIdle.fromSnapshot(
+      state.snapshot.copyWith(
+        pendingCount: pendingCountAfterQueue,
+        rejectedChanges: state.rejectedChanges
+            .where((entry) => entry.key != change.key)
+            .toList(growable: false),
+        clearWarning: true,
+      ),
     );
     return true;
   }
