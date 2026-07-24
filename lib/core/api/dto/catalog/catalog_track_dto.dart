@@ -1,51 +1,45 @@
 class CatalogTrackDto {
   const CatalogTrackDto({
-    required this.title,
-    this.position,
-    this.durationSeconds,
-    this.offsetMilliseconds,
-    this.bitrateKbps,
-    this.fileSizeBytes,
-    this.trackHash,
+    this.title,
+    this.trackNumber,
+    this.duration,
     this.artist,
+    Object? position,
+    this.durationSeconds,
     this.discNumber,
-  });
+  }) : position = position == null ? null : '$position';
 
-  final String title;
-  final int? position;
-  final int? durationSeconds;
-  final int? offsetMilliseconds;
-  final int? bitrateKbps;
-  final int? fileSizeBytes;
-  final String? trackHash;
+  final String? title;
+  final String? trackNumber;
+  final String? duration;
   final String? artist;
+  final String? position;
+  final int? durationSeconds;
   final int? discNumber;
 
   factory CatalogTrackDto.fromJson(Map<String, dynamic> json) {
     return CatalogTrackDto(
-      title: json['title'] as String? ?? 'Untitled track',
-      position: json['position'] as int?,
-      durationSeconds: json['duration_seconds'] as int?,
-      offsetMilliseconds: json['offset_milliseconds'] as int?,
-      bitrateKbps: json['bitrate_kbps'] as int?,
-      fileSizeBytes: json['file_size_bytes'] as int?,
-      trackHash: json['track_hash'] as String?,
+      title: json['title'] as String?,
+      trackNumber: json['track_number']?.toString(),
+      duration: json['duration'] as String?,
       artist: json['artist'] as String?,
+      position: json['position'],
+      durationSeconds: json['duration_seconds'] as int?,
       discNumber: json['disc_number'] as int?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'title': title,
+      if (title != null) 'title': title,
+      if (trackNumber != null) 'track_number': trackNumber,
+      if (duration != null) 'duration': duration,
+      if (artist != null) 'artist': artist,
       if (position != null) 'position': position,
       if (durationSeconds != null) 'duration_seconds': durationSeconds,
-      if (offsetMilliseconds != null) 'offset_milliseconds': offsetMilliseconds,
-      if (bitrateKbps != null) 'bitrate_kbps': bitrateKbps,
-      if (fileSizeBytes != null) 'file_size_bytes': fileSizeBytes,
-      if (trackHash != null) 'track_hash': trackHash,
-      if (artist != null) 'artist': artist,
       if (discNumber != null) 'disc_number': discNumber,
     };
   }
 }
+
+typedef CatalogTrack = CatalogTrackDto;

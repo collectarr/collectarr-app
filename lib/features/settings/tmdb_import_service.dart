@@ -5,7 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:csv/csv.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';

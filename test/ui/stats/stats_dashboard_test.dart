@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
@@ -229,7 +229,7 @@ void main() {
               title: 'Vinland Saga',
               series: CatalogSeriesDetails(
                 seriesTitle: 'Vinland Saga',
-                volumeNumber: volume.toDouble(),
+                volumeNumber: '$volume',
               ),
             ),
             ownedItem: testOwnedItem(

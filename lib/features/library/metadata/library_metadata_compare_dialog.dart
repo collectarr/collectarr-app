@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
@@ -414,7 +414,10 @@ class _LibraryMetadataCompareDialogState
       for (final disc in server.music?.discs ?? const <CatalogDisc>[])
         disc.discNumber: disc
     };
-    final all = <int>{...localDiscs.keys, ...serverDiscs.keys}.toList()..sort();
+    final all = <int>{
+      ...localDiscs.keys.whereType<int>(),
+      ...serverDiscs.keys.whereType<int>(),
+    }.toList()..sort();
     return [
       for (final discNumber in all)
         MetadataDiffEntry(

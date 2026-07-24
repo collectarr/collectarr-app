@@ -61,7 +61,7 @@ class BookLibraryMediaPresentationBuilder
         if (series?.seriesTitle != null)
           LibraryDetailField(label: 'Series', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
         if (hasVolume && !hasSeason)
-          LibraryDetailField(label: 'Volume', value: series!.volumeName ?? libraryVolumeLabel(series.volumeNumber)),
+          LibraryDetailField(label: 'Volume', value: series!.volumeName ?? (series.volumeNumber ?? '')),
         if (hasSeason && hasEpisode)
           LibraryDetailField(label: 'Season / Episode', value: 'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}'),
         if (hasSeason && !hasEpisode)
@@ -823,7 +823,7 @@ List<String> _bookDiscoveryTagsForSelection({
   }
 
   addAll(item?.genres ?? preview?.genres ?? const <String>[]);
-  addAll(item?.series?.tags ?? preview?.series?.tags ?? const <String>[]);
+  addAll(item?.series?.tags?.split(', ') ?? (preview?.series?.tags != null ? [preview!.series!.tags!] : const <String>[]));
   addAll(
     item?.characters ??
         preview?.characters ??

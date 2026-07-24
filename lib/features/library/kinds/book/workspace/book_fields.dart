@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
 
@@ -68,14 +69,14 @@ abstract final class BookKindSchema {
 
 final bookLibraryFieldDefinitions = [
   BookKindSchema.title,
-  BookKindSchema.series,
-  BookKindSchema.publisher,
-  BookKindSchema.releaseDate,
   BookKindSchema.author,
+  BookKindSchema.publisher,
   BookKindSchema.pageCount,
   BookKindSchema.isbn,
   BookKindSchema.condition,
   BookKindSchema.location,
+  BookKindSchema.series,
+  BookKindSchema.releaseDate,
   BookKindSchema.price,
 ];
 
@@ -84,7 +85,6 @@ final bookLibraryGroupDefinitions = [
     BookKindSchema.author,
     sidebarTitle: 'Authors',
     icon: Icons.person_outline,
-    supportsBucketManagement: true,
   ),
   groupFromField(
     BookKindSchema.publisher,
@@ -99,9 +99,8 @@ final bookLibraryGroupDefinitions = [
   ),
   groupFromField(
     BookKindSchema.condition,
-    sidebarTitle: 'Book Conditions',
-    icon: Icons.verified_outlined,
-    supportsBucketManagement: true,
+    sidebarTitle: 'Conditions',
+    icon: Icons.grade_outlined,
   ),
   groupFromField(
     BookKindSchema.location,
@@ -135,16 +134,16 @@ final bookLibrarySortDefinitions = [
 const booksLibraryDefaultVisibleColumnIds = {
   'status',
   'cover',
-  'author',
-  'title',
-  'publisher',
-  'release_date',
-  'barcode',
+  'book.author',
+  'book.title',
+  'book.publisher',
+  'book.release_date',
+  'book.isbn',
   'read_status',
   'rating',
-  'condition',
-  'price',
-  'location',
+  'book.condition',
+  'book.price',
+  'book.location',
   'wishlist',
   'updated',
 };
@@ -251,6 +250,16 @@ final bookLibraryColumnDefinitions = [
     defaultWidth: 80,
   ),
 ];
+
+final bookKindSchema = LibraryKindSchema<BookWorkspaceDto>(
+  fields: bookLibraryFieldDefinitions,
+  columns: bookLibraryColumnDefinitions,
+  sorts: bookLibrarySortDefinitions,
+  groups: bookLibraryGroupDefinitions,
+  defaultVisibleColumnIds: booksLibraryDefaultVisibleColumnIds,
+  defaultSortId: 'book.title',
+  defaultGroupId: 'book.series',
+);
 
 String _formatDate(DateTime? value) {
   if (value == null) return '';

@@ -101,7 +101,7 @@ sealed class SyncState {
 }
 
 class SyncIdle extends SyncState {
-  const SyncIdle({
+  SyncIdle({
     int pendingCount = 0,
     bool isOffline = false,
     DateTime? lastSyncedAt,
@@ -124,7 +124,7 @@ class SyncIdle extends SyncState {
 }
 
 class SyncInProgress extends SyncState {
-  const SyncInProgress({
+  SyncInProgress({
     int pendingCount = 0,
     bool isOffline = false,
     DateTime? lastSyncedAt,
@@ -147,7 +147,7 @@ class SyncInProgress extends SyncState {
 }
 
 class SyncFailure extends SyncState {
-  const SyncFailure({
+  SyncFailure({
     required this.errorMessage,
     int pendingCount = 0,
     bool isOffline = false,

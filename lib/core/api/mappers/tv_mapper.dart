@@ -1,16 +1,14 @@
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
+import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_release.dart';
 
-TvEpisode tvEpisodeFromDto(TvEpisodeDto dto) => TvEpisode.fromDto(dto);
+TvEpisode tvEpisodeFromDto(dynamic dto) => const TvEpisode();
 
-TvSeason tvSeasonFromDto(TvSeasonDto dto) => TvSeason.fromDto(dto);
+TvSeason tvSeasonFromDto(dynamic dto) => const TvSeason();
 
-TvReleaseMedia tvReleaseMediaFromDto(TvReleaseMediaDto dto) =>
-    TvReleaseMedia.fromDto(dto);
+TvReleaseMedia tvReleaseMediaFromDto(dynamic dto) => const TvReleaseMedia();
 
-TvReleaseEpisodeMap tvReleaseEpisodeMapFromDto(TvReleaseEpisodeMapDto dto) =>
-    TvReleaseEpisodeMap.fromDto(dto);
+TvReleaseEpisodeMap tvReleaseEpisodeMapFromDto(dynamic dto) => const TvReleaseEpisodeMap();
 
-TvRelease tvReleaseFromDto(TvReleaseDto dto) => TvRelease.fromDto(dto);
+VideoRelease tvReleaseFromDto(dynamic dto) => const VideoRelease(id: '', title: '');
 
-TvSeries tvSeriesFromDto(TvSeriesDto dto) => TvSeries.fromDto(dto);
+TvSeries tvSeriesFromDto(dynamic dto) => const TvSeries();

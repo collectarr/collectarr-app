@@ -10,5 +10,9 @@ class GameCatalogDetailsDto {
   final String? toyType;
 
   bool get hasData =>
-      platforms.isNotEmpty || toySubtype != null || toyType != null;
+      platforms.isNotEmpty ||
+      (toySubtype != null && toySubtype!.isNotEmpty) ||
+      (toyType != null && toyType!.isNotEmpty);
 }
+
+typedef GameCatalogDetails = GameCatalogDetailsDto;

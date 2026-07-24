@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart'
     show moviesMediaAdapter;
 import 'package:collectarr_app/features/library/kinds/music/music_media_adapter.dart'

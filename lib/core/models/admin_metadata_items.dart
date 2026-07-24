@@ -209,14 +209,14 @@ class AdminMetadataItem {
       seriesId: json['series_id'] as String?,
       seriesTitle: json['series_title'] as String?,
       volumeName: json['volume_name'] as String?,
-      volumeNumber: (json['volume_number'] as num?)?.toDouble(),
+      volumeNumber: (json['volume_number'] as num?)?.toString(),
       volumeStartYear: json['volume_start_year'] as int?,
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
-      tags: (json['tags'] as List<dynamic>?)
+      tags: ((json['tags'] as List<dynamic>?)
               ?.whereType<String>()
               .toList(growable: false) ??
-          const <String>[],
+          const <String>[]).join(', '),
     );
     final publishing = CatalogPublishingDetails(
       pageCount: json['page_count'] as int?,

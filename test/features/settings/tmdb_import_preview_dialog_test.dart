@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_preview_dialog.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:flutter/material.dart';

@@ -15,7 +15,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:collectarr_app/features/library/add/library_add_registry.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 Future<LibraryAddDialogResult?> showComicLibraryAddDialog(
   BuildContext context,

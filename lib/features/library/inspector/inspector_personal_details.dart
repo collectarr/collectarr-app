@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/api/mappers/boardgame_mapper.dart';
 import 'package:collectarr_app/core/api/mappers/book_mapper.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -876,15 +876,11 @@ class _InspectorTrackingDetailsEditorState
       final api = ref.read(apiClientProvider);
       final normalizedKind = widget.mediaType.trim().toLowerCase();
       if (normalizedKind == 'book') {
-        final edition = bookEditionFromDto(
-          await api.createBookEdition(widget.itemId, title: title),
-        );
+        final edition = await api.createBookEdition(widget.itemId, title: title);
         if (!mounted) return;
         setState(() => _selectedEditionId = edition.id);
       } else if (normalizedKind == 'boardgame') {
-        final edition = boardGameEditionFromDto(
-          await api.createBoardGameEdition(widget.itemId, title: title),
-        );
+        final edition = await api.createBoardGameEdition(widget.itemId, title: title);
         if (!mounted) return;
         setState(() => _selectedEditionId = edition.id);
       } else {

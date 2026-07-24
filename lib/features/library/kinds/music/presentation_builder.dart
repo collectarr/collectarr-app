@@ -29,7 +29,7 @@ class MusicLibraryMediaPresentationBuilder
     final subtitle = _firstMeaningfulMusicValue([
       item.publishing?.subtitle,
       item.series?.volumeName,
-      if ((item.series?.volumeNumber ?? 0) > 1)
+      if ((int.tryParse(item.series?.volumeNumber ?? '') ?? 0) > 1)
         'Disc ${item.series!.volumeNumber}',
     ], disallow: {
       item.title.trim().toLowerCase(),
@@ -832,7 +832,8 @@ String? _musicAlbumSubtitle({
     return value;
   }
   final volumeNumber = item?.series?.volumeNumber ?? preview?.series?.volumeNumber;
-  if (volumeNumber != null && volumeNumber > 1) {
+  final volumeInt = int.tryParse(volumeNumber ?? '');
+  if (volumeInt != null && volumeInt > 1) {
     return 'Disc $volumeNumber';
   }
   return null;
@@ -847,8 +848,10 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
     return [
       for (final track in itemTracks)
         _MusicPreviewTrackData(
-          title: track.title.trim().isEmpty ? 'Untitled track' : track.title,
-          position: track.position,
+          title: (track.title == null || track.title!.trim().isEmpty)
+              ? 'Untitled track'
+              : track.title!,
+          position: int.tryParse(track.position ?? ''),
           durationSeconds: track.durationSeconds,
           discNumber: track.discNumber,
         ),
@@ -861,8 +864,10 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
   return [
     for (final track in previewTracks)
       _MusicPreviewTrackData(
-        title: track.title.trim().isEmpty ? 'Untitled track' : track.title,
-        position: track.position,
+        title: (track.title == null || track.title!.trim().isEmpty)
+            ? 'Untitled track'
+            : track.title!,
+        position: int.tryParse(track.position ?? ''),
         durationSeconds: track.durationSeconds,
         discNumber: track.discNumber,
       ),

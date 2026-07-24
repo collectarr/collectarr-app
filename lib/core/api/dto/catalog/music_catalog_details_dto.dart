@@ -1,17 +1,12 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 
 class MusicCatalogDetailsDto {
   const MusicCatalogDetailsDto({
     this.trackCount,
     this.tracks = const <CatalogTrackDto>[],
     this.discs = const <CatalogDiscDto>[],
-    this.expectedMediaCount,
-    this.ownedMediaCount,
-    this.missingMediaCount,
-    this.missingDiscNumbers = const <int>[],
     this.catalogNumber,
-    this.upc,
     this.releaseStatus,
     this.originalReleaseDate,
     this.recordingDate,
@@ -25,20 +20,15 @@ class MusicCatalogDetailsDto {
     this.instrument,
     this.isLive,
     this.composition,
-    this.localCoverImagePath,
-    this.localBackImagePath,
-    this.localThumbnailImagePath,
   });
 
   final int? trackCount;
   final List<CatalogTrackDto> tracks;
   final List<CatalogDiscDto> discs;
-  final int? expectedMediaCount;
-  final int? ownedMediaCount;
-  final int? missingMediaCount;
-  final List<int> missingDiscNumbers;
+
+  int? get discCount => discs.isEmpty ? null : discs.length;
+  String? get length => null;
   final String? catalogNumber;
-  final String? upc;
   final String? releaseStatus;
   final DateTime? originalReleaseDate;
   final DateTime? recordingDate;
@@ -52,56 +42,25 @@ class MusicCatalogDetailsDto {
   final String? instrument;
   final bool? isLive;
   final String? composition;
-  final String? localCoverImagePath;
-  final String? localBackImagePath;
-  final String? localThumbnailImagePath;
 
   bool get hasData =>
       trackCount != null ||
       tracks.isNotEmpty ||
       discs.isNotEmpty ||
-      expectedMediaCount != null ||
-      ownedMediaCount != null ||
-      missingMediaCount != null ||
-      missingDiscNumbers.isNotEmpty ||
-      catalogNumber != null ||
-      upc != null ||
-      releaseStatus != null ||
+      (catalogNumber != null && catalogNumber!.isNotEmpty) ||
+      (releaseStatus != null && releaseStatus!.isNotEmpty) ||
       originalReleaseDate != null ||
       recordingDate != null ||
-      studio != null ||
-      rpm != null ||
-      spars != null ||
-      soundType != null ||
-      vinylColor != null ||
-      vinylWeight != null ||
-      mediaCondition != null ||
-      instrument != null ||
+      (studio != null && studio!.isNotEmpty) ||
+      (rpm != null && rpm!.isNotEmpty) ||
+      (spars != null && spars!.isNotEmpty) ||
+      (soundType != null && soundType!.isNotEmpty) ||
+      (vinylColor != null && vinylColor!.isNotEmpty) ||
+      (vinylWeight != null && vinylWeight!.isNotEmpty) ||
+      (mediaCondition != null && mediaCondition!.isNotEmpty) ||
+      (instrument != null && instrument!.isNotEmpty) ||
       isLive != null ||
-      composition != null ||
-      localCoverImagePath != null ||
-      localBackImagePath != null ||
-      localThumbnailImagePath != null;
-
-  int get discCount => discs.length;
-
-  String? get length {
-    var totalSeconds = 0;
-    for (final track in tracks) {
-      final duration = track.durationSeconds;
-      if (duration != null && duration > 0) {
-        totalSeconds += duration;
-      }
-    }
-    if (totalSeconds <= 0) {
-      return null;
-    }
-    final hours = totalSeconds ~/ 3600;
-    final minutes = (totalSeconds % 3600) ~/ 60;
-    final seconds = totalSeconds % 60;
-    if (hours > 0) {
-      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-    }
-    return '$minutes:${seconds.toString().padLeft(2, '0')}';
-  }
+      (composition != null && composition!.isNotEmpty);
 }
+
+typedef MusicCatalogDetails = MusicCatalogDetailsDto;

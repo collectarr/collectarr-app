@@ -81,3 +81,5 @@ class CatalogVariantDto {
     };
   }
 }
+
+typedef CatalogVariant = CatalogVariantDto;

@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';

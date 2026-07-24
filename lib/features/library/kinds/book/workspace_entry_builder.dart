@@ -6,9 +6,14 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+
+typedef BookWork = BookCatalogItem;
+typedef BookEdition = BookRelease;
+typedef BookVariant = BookVariantRef;
 
 final class BookPersonalOverlay {
   const BookPersonalOverlay({
@@ -49,18 +54,7 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
           primaryRelease.variant?.thumbnailImageUrl ??
           primaryRelease.variant?.coverImageUrl;
   final originalDetails = work.originalDetails;
-  final physicalDetails = bookEditions.isNotEmpty
-      ? BookPhysicalDetails(
-          dimensions: bookEditions.first.dimensions,
-          dustJacket: bookEditions.first.dustJacket,
-          printing: bookEditions.first.printing,
-          firstEdition: bookEditions.first.firstEdition,
-          numberLine: bookEditions.first.numberLine,
-          coverImagePath: bookEditions.first.coverImagePath,
-          thumbnailImagePath: bookEditions.first.thumbnailImagePath,
-          backImagePath: bookEditions.first.backImagePath,
-        )
-      : null;
+  final physicalDetails = null;
   return BookWorkspaceEntry(
     common: LibraryWorkspaceEntryData(
       id: work.id,
@@ -133,7 +127,7 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
       addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
       editions: const <CatalogEdition>[],
       updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
-      trailerUrls: _copyTrailerList(work.trailerUrls),
+      trailerUrls: const [],
       plotSummary: work.plotSummary,
       plotDescription: work.plotDescription,
       creators: _copyCreatorList(work.creators),
@@ -145,8 +139,27 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
       ageRating: work.ageRating,
       audienceRating: work.audienceRating,
     ),
-    series: work.series,
-    publishing: work.publishing,
+    series: work.work.series != null
+        ? CatalogSeriesDetailsDto(
+            seriesId: work.work.series!.seriesId,
+            seriesTitle: work.work.series!.seriesTitle,
+            volumeNumber: work.work.series!.volumeNumber?.toString(),
+            tags: work.work.series!.seriesGroup,
+          )
+        : null,
+    publishing: CatalogPublishingDetailsDto(
+      pageCount: work.publishing.pageCount,
+      imprint: work.publishing.imprint,
+      publicationPlace: work.publishing.publicationPlace,
+      paperType: work.publishing.paperType,
+      printedBy: work.publishing.printedBy,
+      dustJacket: work.publishing.dustJacket,
+      dustJacketCondition: work.publishing.dustJacketCondition,
+      firstEdition: work.publishing.firstEdition,
+      audiobookAbridged: work.publishing.audiobookAbridged,
+      coverPriceCents: work.publishing.coverPriceCents,
+      currency: work.publishing.currency,
+    ),
     bookEditions: bookEditions,
     originalDetails: originalDetails,
     physicalDetails: physicalDetails,
@@ -185,17 +198,7 @@ LibraryWorkspaceEntry buildBookEditionWorkspaceEntry({
     publishing: titleEntry.publishing,
     bookEditions: bookEditions,
     originalDetails: titleEntry.originalDetails,
-    physicalDetails: titleEntry.physicalDetails ??
-        BookPhysicalDetails(
-          dimensions: edition.dimensions,
-          dustJacket: edition.dustJacket,
-          printing: edition.printing,
-          firstEdition: edition.firstEdition,
-          numberLine: edition.numberLine,
-          coverImagePath: edition.coverImagePath,
-          thumbnailImagePath: edition.thumbnailImagePath,
-          backImagePath: edition.backImagePath,
-        ),
+    physicalDetails: titleEntry.physicalDetails,
   );
 }
 
@@ -332,11 +335,11 @@ String? _primaryBookReleaseCover(BookEdition? edition) {
 }
 
 bool _hasMissingCoreMetadata(BookWork book) {
-  return book.publisher == null &&
-      book.releaseDate == null &&
-      book.releaseYear == null &&
-      book.displayCoverUrl == null &&
-      book.displayEditionLabel == null;
+  final primary = book.primaryRelease;
+  return primary?.publisher == null &&
+      primary?.releaseDate == null &&
+      primary?.coverImageUrl == null &&
+      primary?.title == null;
 }
 
 List<BookEdition> _copyBookEditionList(List<BookEdition> values) {

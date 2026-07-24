@@ -92,3 +92,5 @@ class CatalogEditionDto {
     return DateTime.tryParse(raw);
   }
 }
+
+typedef CatalogEdition = CatalogEditionDto;

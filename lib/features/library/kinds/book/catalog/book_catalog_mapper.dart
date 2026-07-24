@@ -74,7 +74,10 @@ class BookCatalogMapper {
     );
   }
 
-  /// Maps [LibraryWorkspaceEntry] directly to domain [BookCatalogItem] without creating temporary DTOs.
+  /// Maps [LibraryWorkspaceEntry] directly to domain [BookCatalogItem].
+  ///
+  /// Transitional: Preference is to construct domain models from DTOs rather than workspace entries.
+  @Deprecated('Transitional workspace entry mapper. Prefer building BookCatalogItem from DTOs.')
   static BookCatalogItem mapWorkspaceEntryToBook(LibraryWorkspaceEntry entry) {
     final seriesDetails = entry.series;
     final pub = entry.publishing;

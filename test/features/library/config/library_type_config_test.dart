@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
@@ -146,7 +146,7 @@ void main() {
         seriesId: 'seed-series-dune',
         seriesTitle: 'Dune',
         volumeName: 'Dune',
-        volumeNumber: 1,
+        volumeNumber: '1',
       ),
       updatedAt: DateTime.utc(2026, 6, 27),
     );

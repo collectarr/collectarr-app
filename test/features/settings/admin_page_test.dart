@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
@@ -1721,8 +1721,8 @@ class _BookAdminApiClient extends _FakeAdminApiClient {
         series: CatalogSeriesDetails(
           seriesId: 'series-book-1',
           seriesTitle: 'The Lord of the Rings',
-          volumeNumber: 1,
-          tags: lastSeriesTags ?? const ['Fantasy'],
+          volumeNumber: '1',
+          tags: lastSeriesTags?.join(', ') ?? 'Fantasy',
         ),
         publishing: const CatalogPublishingDetails(
           subtitle: 'Being the First Part',

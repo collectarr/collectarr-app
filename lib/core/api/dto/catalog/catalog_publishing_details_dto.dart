@@ -14,7 +14,7 @@ class CatalogPublishingDetailsDto {
     this.originalPublisher,
     this.paperType,
     this.printedBy,
-    this.subjects = const <String>[],
+    this.subjects = const [],
     this.dustJacketCondition,
     this.dustJacket,
     this.audiobookAbridged,
@@ -44,21 +44,23 @@ class CatalogPublishingDetailsDto {
   bool get hasData =>
       pageCount != null ||
       coverPriceCents != null ||
-      currency != null ||
-      imprint != null ||
-      subtitle != null ||
-      seriesGroup != null ||
-      publicationPlace != null ||
-      originalCountry != null ||
-      originalLanguage != null ||
+      (currency != null && currency!.isNotEmpty) ||
+      (imprint != null && imprint!.isNotEmpty) ||
+      (subtitle != null && subtitle!.isNotEmpty) ||
+      (seriesGroup != null && seriesGroup!.isNotEmpty) ||
+      (publicationPlace != null && publicationPlace!.isNotEmpty) ||
+      (originalCountry != null && originalCountry!.isNotEmpty) ||
+      (originalLanguage != null && originalLanguage!.isNotEmpty) ||
       originalPublicationDate != null ||
-      originalPublicationPlace != null ||
-      originalPublisher != null ||
-      paperType != null ||
-      printedBy != null ||
+      (originalPublicationPlace != null && originalPublicationPlace!.isNotEmpty) ||
+      (originalPublisher != null && originalPublisher!.isNotEmpty) ||
+      (paperType != null && paperType!.isNotEmpty) ||
+      (printedBy != null && printedBy!.isNotEmpty) ||
       subjects.isNotEmpty ||
-      dustJacketCondition != null ||
+      (dustJacketCondition != null && dustJacketCondition!.isNotEmpty) ||
       dustJacket != null ||
       audiobookAbridged != null ||
       firstEdition != null;
 }
+
+typedef CatalogPublishingDetails = CatalogPublishingDetailsDto;

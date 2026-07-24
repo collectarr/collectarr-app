@@ -1,85 +1,100 @@
 class BoardGameStatsDetailsDto {
   const BoardGameStatsDetailsDto({
-    this.bggRank,
+    this.minPlayers,
+    this.maxPlayers,
+    this.playingTimeMinutes,
+    this.minPlayingTimeMinutes,
+    this.maxPlayingTimeMinutes,
+    this.minAgeYears,
+    this.complexityRating,
     this.bggRating,
-    this.playCount,
-    this.lastPlayed,
-    this.favoritePlayerCount,
-    this.playerStats = const <Map<String, dynamic>>[],
+    this.bggId,
+    this.bggRank,
+    this.bggWeight,
+    this.mechanics = const <String>[],
+    this.designers = const <String>[],
+    this.artists = const <String>[],
   });
 
-  final int? bggRank;
+  final int? minPlayers;
+  final int? maxPlayers;
+  final int? playingTimeMinutes;
+  final int? minPlayingTimeMinutes;
+  final int? maxPlayingTimeMinutes;
+  final int? minAgeYears;
+  final double? complexityRating;
   final double? bggRating;
-  final int? playCount;
-  final DateTime? lastPlayed;
-  final int? favoritePlayerCount;
-  final List<Map<String, dynamic>> playerStats;
+  final String? bggId;
+  final int? bggRank;
+  final double? bggWeight;
+  final List<String> mechanics;
+  final List<String> designers;
+  final List<String> artists;
+
+  bool get hasData =>
+      minPlayers != null ||
+      maxPlayers != null ||
+      playingTimeMinutes != null ||
+      minPlayingTimeMinutes != null ||
+      maxPlayingTimeMinutes != null ||
+      minAgeYears != null ||
+      complexityRating != null ||
+      bggRating != null ||
+      (bggId != null && bggId!.isNotEmpty) ||
+      bggRank != null ||
+      bggWeight != null ||
+      mechanics.isNotEmpty ||
+      designers.isNotEmpty ||
+      artists.isNotEmpty;
 
   factory BoardGameStatsDetailsDto.fromJson(Map<String, dynamic> json) {
     return BoardGameStatsDetailsDto(
-      bggRank: _boardGameIntOrNull(
-        json['bgg_rank'] ?? json['bggRank'] ?? json['rank'] ?? json['rank_value'],
-      ),
-      bggRating: _boardGameDoubleOrNull(
-        json['bgg_rating'] ?? json['bggRating'] ?? json['rating'],
-      ),
-      playCount: _boardGameIntOrNull(
-        json['play_count'] ?? json['playCount'] ?? json['plays'],
-      ),
-      lastPlayed: _boardGameDateOrNull(
-        json['last_played'] ?? json['lastPlayed'] ?? json['last_played_at'],
-      ),
-      favoritePlayerCount: _boardGameIntOrNull(
-        json['favorite_player_count'] ??
-            json['favoritePlayerCount'] ??
-            json['favorite_players'],
-      ),
-      playerStats: (json['player_stats'] as List<dynamic>? ??
-                  json['playerStats'] as List<dynamic>? ??
-                  json['stats'] as List<dynamic>?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((entry) => Map<String, dynamic>.from(entry))
+      minPlayers: json['min_players'] as int?,
+      maxPlayers: json['max_players'] as int?,
+      playingTimeMinutes: json['playing_time_minutes'] as int?,
+      minPlayingTimeMinutes: json['min_playing_time_minutes'] as int?,
+      maxPlayingTimeMinutes: json['max_playing_time_minutes'] as int?,
+      minAgeYears: json['min_age_years'] as int?,
+      complexityRating: (json['complexity_rating'] as num?)?.toDouble(),
+      bggRating: (json['bgg_rating'] as num?)?.toDouble(),
+      bggId: json['bgg_id']?.toString(),
+      bggRank: json['bgg_rank'] as int?,
+      bggWeight: (json['bgg_weight'] as num?)?.toDouble(),
+      mechanics: (json['mechanics'] as List<dynamic>?)
+              ?.whereType<String>()
               .toList(growable: false) ??
-          const <Map<String, dynamic>>[],
+          const <String>[],
+      designers: (json['designers'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
+      artists: (json['artists'] as List<dynamic>?)
+              ?.whereType<String>()
+              .toList(growable: false) ??
+          const <String>[],
     );
   }
 
-  bool get hasData =>
-      bggRank != null ||
-      bggRating != null ||
-      playCount != null ||
-      lastPlayed != null ||
-      favoritePlayerCount != null ||
-      playerStats.isNotEmpty;
-
   Map<String, dynamic> toJson() {
     return {
-      if (bggRank != null) 'bgg_rank': bggRank,
+      if (minPlayers != null) 'min_players': minPlayers,
+      if (maxPlayers != null) 'max_players': maxPlayers,
+      if (playingTimeMinutes != null) 'playing_time_minutes': playingTimeMinutes,
+      if (minPlayingTimeMinutes != null)
+        'min_playing_time_minutes': minPlayingTimeMinutes,
+      if (maxPlayingTimeMinutes != null)
+        'max_playing_time_minutes': maxPlayingTimeMinutes,
+      if (minAgeYears != null) 'min_age_years': minAgeYears,
+      if (complexityRating != null) 'complexity_rating': complexityRating,
       if (bggRating != null) 'bgg_rating': bggRating,
-      if (playCount != null) 'play_count': playCount,
-      if (lastPlayed != null) 'last_played': lastPlayed!.toUtc().toIso8601String(),
-      if (favoritePlayerCount != null)
-        'favorite_player_count': favoritePlayerCount,
-      if (playerStats.isNotEmpty) 'player_stats': playerStats,
+      if (bggId != null) 'bgg_id': bggId,
+      if (bggRank != null) 'bgg_rank': bggRank,
+      if (bggWeight != null) 'bgg_weight': bggWeight,
+      if (mechanics.isNotEmpty) 'mechanics': mechanics,
+      if (designers.isNotEmpty) 'designers': designers,
+      if (artists.isNotEmpty) 'artists': artists,
     };
   }
 }
 
-int? _boardGameIntOrNull(Object? value) {
-  if (value is int) return value;
-  if (value is num) return value.toInt();
-  return int.tryParse(value?.toString() ?? '');
-}
-
-double? _boardGameDoubleOrNull(Object? value) {
-  if (value is double) return value;
-  if (value is int) return value.toDouble();
-  if (value is num) return value.toDouble();
-  return double.tryParse(value?.toString() ?? '');
-}
-
-DateTime? _boardGameDateOrNull(Object? value) {
-  final text = value?.toString().trim();
-  if (text == null || text.isEmpty) return null;
-  return DateTime.tryParse(text);
-}
+typedef BoardGameStatsDetails = BoardGameStatsDetailsDto;

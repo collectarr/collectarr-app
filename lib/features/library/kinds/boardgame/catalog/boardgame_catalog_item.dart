@@ -54,4 +54,7 @@ class BoardGameCatalogItem {
   final BoardGameWorkMetadata work;
   final BoardGameStatsMetadata stats;
   final List<BoardGameRelease> releases;
+
+  List<String> get categories => work.categories;
+  List<String> get mechanics => work.mechanics;
 }

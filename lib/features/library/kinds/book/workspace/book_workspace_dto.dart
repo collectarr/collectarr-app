@@ -17,7 +17,7 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
   final BookCatalogItem book;
 
   // Domain convenience getters delegating to BookCatalogItem:
-  int get pageCount => book.publishing.pageCount ?? 0;
+  int? get pageCount => book.publishing.pageCount;
   String? get imprint => book.publishing.imprint;
   String? get author => book.work.creators.firstOrNull?.name;
   String? get isbn => book.releases.firstOrNull?.isbn;

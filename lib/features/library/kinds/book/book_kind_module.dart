@@ -10,14 +10,7 @@ final bookKindModule = LibraryKindModule<BookWorkspaceDto>(
   type: booksLibraryConfig,
   mediaAdapter: booksMediaAdapter,
   workspaceDtoFactory: BookWorkspaceDto.fromEntry,
-  fields: AnyLibraryFieldRegistry(
-    groups: bookLibraryGroupDefinitions,
-    sorts: bookLibrarySortDefinitions,
-    columns: bookLibraryColumnDefinitions,
-    defaultVisibleColumnIds: booksLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'book.title',
-    defaultGroupId: 'book.series',
-  ),
+  fields: bookKindSchema.toRegistry(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

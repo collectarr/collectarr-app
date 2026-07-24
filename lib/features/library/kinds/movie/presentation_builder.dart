@@ -55,7 +55,7 @@ class VideoLibraryMediaPresentationBuilder
         if (!hasSeason && hasEpisode)
           LibraryDetailField(label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         if (hasVolume && !hasSeason)
-          LibraryDetailField(label: 'Volume', value: series!.volumeName ?? libraryVolumeLabel(series.volumeNumber)),
+          LibraryDetailField(label: 'Volume', value: series!.volumeName ?? (series.volumeNumber ?? '')),
         if (entry.browseScope != LibraryBrowserScope.title &&
             entry.variant != null)
           LibraryDetailField(label: releaseFields.variantLabel, value: entry.variant!, onTap: tapFor(entry.variant)),

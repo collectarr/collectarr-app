@@ -7,29 +7,44 @@ class CatalogSeriesDetailsDto {
     this.volumeStartYear,
     this.seasonNumber,
     this.episodeNumber,
-    this.tags = const <String>[],
+    this.tags,
   });
 
   final String? seriesId;
   final String? seriesTitle;
   final String? volumeName;
-  final double? volumeNumber;
+  final String? volumeNumber;
   final int? volumeStartYear;
   final int? seasonNumber;
   final int? episodeNumber;
-  final List<String> tags;
+  final String? tags;
 
   bool get hasData =>
-      seriesId != null ||
-      seriesTitle != null ||
-      volumeName != null ||
+      (seriesId != null && seriesId!.isNotEmpty) ||
+      (seriesTitle != null && seriesTitle!.isNotEmpty) ||
+      (volumeName != null && volumeName!.isNotEmpty) ||
       volumeNumber != null ||
       volumeStartYear != null ||
       seasonNumber != null ||
       episodeNumber != null ||
-      tags.isNotEmpty;
+      (tags != null && tags!.isNotEmpty);
 
-  bool get hasVolume => volumeName != null || volumeNumber != null;
+  bool get hasVolume => (volumeName != null && volumeName!.isNotEmpty) || volumeNumber != null;
   bool get hasSeason => seasonNumber != null;
   bool get hasEpisode => episodeNumber != null;
+
+  factory CatalogSeriesDetailsDto.fromJson(Map<String, dynamic> json) {
+    return CatalogSeriesDetailsDto(
+      seriesId: json['series_id'] as String?,
+      seriesTitle: json['series_title'] as String?,
+      volumeName: json['volume_name'] as String?,
+      volumeNumber: json['volume_number'] as String?,
+      volumeStartYear: json['volume_start_year'] as int?,
+      seasonNumber: json['season_number'] as int?,
+      episodeNumber: json['episode_number'] as int?,
+      tags: json['tags'] as String?,
+    );
+  }
 }
+
+typedef CatalogSeriesDetails = CatalogSeriesDetailsDto;

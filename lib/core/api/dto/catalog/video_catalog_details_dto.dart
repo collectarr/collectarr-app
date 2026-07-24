@@ -23,12 +23,14 @@ class VideoCatalogDetailsDto {
 
   bool get hasData =>
       runtimeMinutes != null ||
-      color != null ||
+      (color != null && color!.isNotEmpty) ||
       nrDiscs != null ||
-      screenRatio != null ||
-      audioTracks != null ||
-      subtitles != null ||
-      layers != null ||
-      ageRating != null ||
-      audienceRating != null;
+      (screenRatio != null && screenRatio!.isNotEmpty) ||
+      (audioTracks != null && audioTracks!.isNotEmpty) ||
+      (subtitles != null && subtitles!.isNotEmpty) ||
+      (layers != null && layers!.isNotEmpty) ||
+      (ageRating != null && ageRating!.isNotEmpty) ||
+      (audienceRating != null && audienceRating!.isNotEmpty);
 }
+
+typedef VideoCatalogDetails = VideoCatalogDetailsDto;

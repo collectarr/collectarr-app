@@ -114,7 +114,7 @@ sealed class CatalogItemDto {
     String? titleExtension,
     List<String>? searchAliases,
     String? sortKey,
-    String? itemNumber,
+    Object? itemNumber,
     String? synopsis,
     String? coverImageUrl,
     String? thumbnailImageUrl,
@@ -161,7 +161,7 @@ sealed class CatalogItemDto {
       titleExtension: titleExtension,
       searchAliases: _normalizeStringList(searchAliases),
       sortKey: sortKey,
-      itemNumber: itemNumber,
+      itemNumber: itemNumber?.toString(),
       synopsis: synopsis,
       coverImageUrl: coverImageUrl,
       thumbnailImageUrl: thumbnailImageUrl,
@@ -200,47 +200,47 @@ sealed class CatalogItemDto {
 
     switch (resolvedMediaKind) {
       case CatalogMediaKind.comic:
-        return ComicCatalogItemDto._(
+        return ComicCatalogItemDto(
           common: common,
           series: series,
           publishing: publishing,
         );
       case CatalogMediaKind.book:
-        return BookCatalogItemDto._(
+        return BookCatalogItemDto(
           common: common,
           series: series,
           publishing: publishing,
         );
       case CatalogMediaKind.movie:
-        return MovieCatalogItemDto._(
+        return MovieCatalogItemDto(
           common: common,
           series: series,
           publishing: publishing,
           video: video,
         );
       case CatalogMediaKind.music:
-        return MusicCatalogItemDto._(
+        return MusicCatalogItemDto(
           common: common,
           series: series,
           publishing: publishing,
           music: music,
         );
       case CatalogMediaKind.game:
-        return GameCatalogItemDto._(
+        return GameCatalogItemDto(
           common: common,
           series: series,
           publishing: publishing,
           game: game,
         );
       case CatalogMediaKind.boardgame:
-        return BoardGameCatalogItemDto._(
+        return BoardGameCatalogItemDto(
           common: common,
           series: series,
           publishing: publishing,
           game: game,
         );
       case CatalogMediaKind.unknown:
-        return GenericCatalogItemDto._(
+        return GenericCatalogItemDto(
           common: common,
           series: series,
           publishing: publishing,
@@ -249,7 +249,7 @@ sealed class CatalogItemDto {
           game: game,
         );
       default:
-        return GenericCatalogItemDto._(
+        return GenericCatalogItemDto(
           common: common,
           series: series,
           publishing: publishing,
@@ -616,9 +616,32 @@ sealed class CatalogItemDto {
   }
 }
 
-abstract base class _TypedCatalogItemDto extends CatalogItemDto {
-  _TypedCatalogItemDto._({
-    required _CatalogItemCommonDto common,
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+
+export 'package:collectarr_app/core/models/catalog_media_kind.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/video_catalog_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/game_catalog_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/boardgame_stats_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/book_catalog_item_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/comic_catalog_item_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/music_catalog_item_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/video_catalog_item_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/game_catalog_item_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/boardgame_catalog_item_dto.dart';
+
+typedef CatalogItem = CatalogItemDto;
+typedef TrailerLink = TrailerLinkDto;
+
+abstract class TypedCatalogItemDto extends CatalogItemDto {
+  TypedCatalogItemDto({
+    required CatalogItemCommonDto common,
     this.seriesDetails,
     this.publishingDetails,
     this.videoDetails,
@@ -688,136 +711,15 @@ abstract base class _TypedCatalogItemDto extends CatalogItemDto {
   GameCatalogDetailsDto? get game => gameDetails;
 }
 
-final class ComicCatalogItemDto extends _TypedCatalogItemDto {
-  ComicCatalogItemDto._({
-    required _CatalogItemCommonDto common,
-    CatalogSeriesDetailsDto? series,
-    CatalogPublishingDetailsDto? publishing,
-  }) : super._(
-          common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-        );
-}
-
-final class MangaCatalogItemDto extends _TypedCatalogItemDto {
-  MangaCatalogItemDto._({
-    required _CatalogItemCommonDto common,
-    CatalogSeriesDetailsDto? series,
-    CatalogPublishingDetailsDto? publishing,
-  }) : super._(
-          common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-        );
-}
-
-final class BookCatalogItemDto extends _TypedCatalogItemDto {
-  BookCatalogItemDto._({
-    required _CatalogItemCommonDto common,
-    CatalogSeriesDetailsDto? series,
-    CatalogPublishingDetailsDto? publishing,
-  }) : super._(
-          common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-        );
-}
-
-final class MovieCatalogItemDto extends _TypedCatalogItemDto {
-  MovieCatalogItemDto._({
-    required _CatalogItemCommonDto common,
-    CatalogSeriesDetailsDto? series,
-    CatalogPublishingDetailsDto? publishing,
-    VideoCatalogDetailsDto? video,
-  }) : super._(
-          common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          videoDetails: video,
-        );
-}
-
-final class TvCatalogItemDto extends _TypedCatalogItemDto {
-  TvCatalogItemDto._({
-    required _CatalogItemCommonDto common,
-    CatalogSeriesDetailsDto? series,
-    CatalogPublishingDetailsDto? publishing,
-    VideoCatalogDetailsDto? video,
-  }) : super._(
-          common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          videoDetails: video,
-        );
-}
-
-final class AnimeCatalogItemDto extends _TypedCatalogItemDto {
-  AnimeCatalogItemDto._({
-    required _CatalogItemCommonDto common,
-    CatalogSeriesDetailsDto? series,
-    CatalogPublishingDetailsDto? publishing,
-    VideoCatalogDetailsDto? video,
-  }) : super._(
-          common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          videoDetails: video,
-        );
-}
-
-final class MusicCatalogItemDto extends _TypedCatalogItemDto {
-  MusicCatalogItemDto._({
-    required _CatalogItemCommonDto common,
-    CatalogSeriesDetailsDto? series,
-    CatalogPublishingDetailsDto? publishing,
-    MusicCatalogDetailsDto? music,
-  }) : super._(
-          common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          musicDetails: music,
-        );
-}
-
-final class GameCatalogItemDto extends _TypedCatalogItemDto {
-  GameCatalogItemDto._({
-    required _CatalogItemCommonDto common,
-    CatalogSeriesDetailsDto? series,
-    CatalogPublishingDetailsDto? publishing,
-    GameCatalogDetailsDto? game,
-  }) : super._(
-          common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          gameDetails: game,
-        );
-}
-
-final class BoardGameCatalogItemDto extends _TypedCatalogItemDto {
-  BoardGameCatalogItemDto._({
-    required _CatalogItemCommonDto common,
-    CatalogSeriesDetailsDto? series,
-    CatalogPublishingDetailsDto? publishing,
-    GameCatalogDetailsDto? game,
-  }) : super._(
-          common: common,
-          seriesDetails: series,
-          publishingDetails: publishing,
-          gameDetails: game,
-        );
-}
-
-final class GenericCatalogItemDto extends _TypedCatalogItemDto {
-  GenericCatalogItemDto._({
-    required _CatalogItemCommonDto common,
+final class GenericCatalogItemDto extends TypedCatalogItemDto {
+  GenericCatalogItemDto({
+    required super.common,
     CatalogSeriesDetailsDto? series,
     CatalogPublishingDetailsDto? publishing,
     VideoCatalogDetailsDto? video,
     MusicCatalogDetailsDto? music,
     GameCatalogDetailsDto? game,
-  }) : super._(
-          common: common,
+  }) : super(
           seriesDetails: series,
           publishingDetails: publishing,
           videoDetails: video,
@@ -826,8 +728,10 @@ final class GenericCatalogItemDto extends _TypedCatalogItemDto {
         );
 }
 
-class _CatalogItemCommonDto {
-  const _CatalogItemCommonDto({
+
+
+class CatalogItemCommonDto {
+  const CatalogItemCommonDto({
     required this.id,
     required this.mediaKind,
     required this.title,

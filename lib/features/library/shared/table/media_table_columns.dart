@@ -159,11 +159,12 @@ Widget plannedMediaTableCell(
   }
   final module = libraryKindModuleForType(type);
   final dto = module.workspaceDtoFactory?.call(entry) ?? entry;
+  final dtoAsEntry = dto as LibraryWorkspaceEntry;
   final builder = definition.cellValue;
   if (builder != null) {
-    return builder(dto);
+    return builder(dtoAsEntry);
   }
-  final value = definition.getValue(dto);
+  final value = definition.getValue(dtoAsEntry);
   return LibraryTableCellText(value?.toString());
 }
 
@@ -189,7 +190,8 @@ int plannedMediaCompareSubgroupKeys(
 LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>?
     _tableColumnDefinition(LibraryTypeConfig type, String columnId) {
   final module = libraryKindModuleForType(type);
-  return module.fields.columnDefinitionForId(columnId);
+  return module.fields.columnDefinitionForId(columnId)
+      as LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>?;
 }
 
 LibraryTableColumnGroup _tableColumnGroupFor(String? group) {

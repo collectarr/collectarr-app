@@ -60,7 +60,9 @@ class _GenericStatsDashboard extends StatelessWidget {
     final volumeGapSummary = _numberedGapSummary(
       state.entries,
       (entry) {
-        final volume = entry.catalogItem?.series?.volumeNumber;
+        final rawVolume = entry.catalogItem?.series?.volumeNumber;
+        if (rawVolume == null) return null;
+        final volume = double.tryParse(rawVolume);
         if (volume == null || volume % 1 != 0) {
           return null;
         }

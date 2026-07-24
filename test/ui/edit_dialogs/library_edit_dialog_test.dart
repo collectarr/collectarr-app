@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -812,7 +812,7 @@ void main() {
         series: const CatalogSeriesDetails(
           seriesId: 'series-1',
           seriesTitle: 'The Lord of the Rings',
-          volumeNumber: 1,
+          volumeNumber: '1',
         ),
       ),
     );

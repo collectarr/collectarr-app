@@ -227,7 +227,7 @@ class LibraryKindModule<TDto> {
   final LibraryTypeConfig type;
   final LibraryMediaAdapter mediaAdapter;
   final AnyLibraryFieldRegistry<TDto> fields;
-  final TDto Function(LibraryWorkspaceEntry entry)? workspaceDtoFactory;
+  final LibraryWorkspaceDto Function(LibraryWorkspaceEntry entry)? workspaceDtoFactory;
   final LibraryKindWorkspaceBehavior workspaceBehavior;
   final LibraryKindAddModule add;
   final LibraryKindEditModule edit;

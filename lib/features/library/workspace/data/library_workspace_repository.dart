@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -365,11 +365,11 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       seriesId: row.seriesId,
       seriesTitle: row.seriesTitle,
       volumeName: row.volumeName,
-      volumeNumber: row.volumeNumber,
+      volumeNumber: row.volumeNumber?.toString(),
       volumeStartYear: row.volumeStartYear,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
-      tags: _decodeStringList(row.seriesTagsJson) ?? const <String>[],
+      tags: _decodeStringList(row.seriesTagsJson)?.join(', '),
     );
     final video = VideoCatalogDetails(
       runtimeMinutes: row.runtimeMinutes,
