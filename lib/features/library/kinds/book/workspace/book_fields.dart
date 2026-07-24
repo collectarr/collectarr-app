@@ -1,519 +1,118 @@
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/config/field_factories.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
 
-final bookLibraryFieldDefinitions = [
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('book.title'),
+/// Single source of truth schema for Book kind fields.
+abstract final class BookKindSchema {
+  static final title = textField<BookWorkspaceDto>(
+    id: 'book.title',
     label: 'Title',
     getValue: (dto) => dto.title,
-  ),
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('book.series'),
-    label: 'Series',
-    getValue: (dto) => dto.seriesTitle,
-  ),
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('book.number'),
-    label: 'Number',
-    getValue: (dto) => dto.itemNumber,
-  ),
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('book.publisher'),
+  );
+
+  static final author = textField<BookWorkspaceDto>(
+    id: 'book.author',
+    label: 'Author',
+    getValue: (dto) => dto.author,
+  );
+
+  static final publisher = textField<BookWorkspaceDto>(
+    id: 'book.publisher',
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
-  ),
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('book.release_date'),
-    label: 'Release date',
+  );
+
+  static final pageCount = numberField<BookWorkspaceDto>(
+    id: 'book.page_count',
+    label: 'Page count',
+    getValue: (dto) => dto.pageCount,
+  );
+
+  static final isbn = textField<BookWorkspaceDto>(
+    id: 'book.isbn',
+    label: 'ISBN / Barcode',
+    getValue: (dto) => dto.barcode,
+  );
+
+  static final condition = textField<BookWorkspaceDto>(
+    id: 'book.condition',
+    label: 'Condition',
+    getValue: (dto) => dto.condition,
+  );
+
+  static final location = textField<BookWorkspaceDto>(
+    id: 'book.location',
+    label: 'Location',
+    getValue: (dto) => dto.locationPath,
+  );
+
+  static final series = textField<BookWorkspaceDto>(
+    id: 'book.series',
+    label: 'Series',
+    getValue: (dto) => dto.seriesTitle,
+  );
+
+  static final releaseDate = dateField<BookWorkspaceDto>(
+    id: 'book.release_date',
+    label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-  ),
+  );
+
+  static final price = moneyField<BookWorkspaceDto>(
+    id: 'book.price',
+    label: 'Purchase Price',
+    getValue: (dto) => dto.pricePaidCents,
+  );
+}
+
+final bookLibraryFieldDefinitions = [
+  BookKindSchema.title,
+  BookKindSchema.series,
+  BookKindSchema.publisher,
+  BookKindSchema.releaseDate,
+  BookKindSchema.author,
+  BookKindSchema.pageCount,
+  BookKindSchema.isbn,
+  BookKindSchema.condition,
+  BookKindSchema.location,
+  BookKindSchema.price,
 ];
 
 final bookLibraryGroupDefinitions = [
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('creator'),
-    label: 'Author',
+  groupFromField(
+    BookKindSchema.author,
     sidebarTitle: 'Authors',
     icon: Icons.person_outline,
     supportsBucketManagement: true,
   ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('country'),
-    label: 'Country',
-    sidebarTitle: 'Countries',
-    icon: Icons.flag_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('language'),
-    label: 'Language',
-    sidebarTitle: 'Languages',
-    icon: Icons.translate_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('release_date'),
-    label: 'Publication Date',
-    sidebarTitle: 'Publication Dates',
-    icon: Icons.event_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('release_month'),
-    label: 'Publication Month',
-    sidebarTitle: 'Publication Months',
-    icon: Icons.event_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('publication_place'),
-    label: 'Publication Place',
-    sidebarTitle: 'Publication Places',
-    icon: Icons.place_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('release_year'),
-    label: 'Publication Year',
-    sidebarTitle: 'Publication Years',
-    icon: Icons.calendar_today_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('publisher'),
-    label: 'Publisher',
+  groupFromField(
+    BookKindSchema.publisher,
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('series'),
-    label: 'Series',
+  groupFromField(
+    BookKindSchema.series,
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
   ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('condition'),
-    label: 'Book Condition',
+  groupFromField(
+    BookKindSchema.condition,
     sidebarTitle: 'Book Conditions',
     icon: Icons.verified_outlined,
     supportsBucketManagement: true,
   ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('dust_jacket_condition'),
-    label: 'Dust Jacket Condition',
-    sidebarTitle: 'Dust Jacket Conditions',
-    icon: Icons.checkroom_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('is_signed'),
-    label: 'Is Signed',
-    sidebarTitle: 'Is Signed',
-    icon: Icons.draw_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('purchase_date'),
-    label: 'Purchase Date',
-    sidebarTitle: 'Purchase Dates',
-    icon: Icons.shopping_bag_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('purchase_month'),
-    label: 'Purchase Month',
-    sidebarTitle: 'Purchase Months',
-    icon: Icons.calendar_view_month_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('purchase_store'),
-    label: 'Purchase Store',
-    sidebarTitle: 'Purchase Stores',
-    icon: Icons.store_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('purchase_year'),
-    label: 'Purchase Year',
-    sidebarTitle: 'Purchase Years',
-    icon: Icons.calendar_today_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('signed_by'),
-    label: 'Signed by',
-    sidebarTitle: 'Signed by',
-    icon: Icons.edit_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('sold_date'),
-    label: 'Sold Date',
-    sidebarTitle: 'Sold Dates',
-    icon: Icons.sell_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('sold_month'),
-    label: 'Sold Month',
-    sidebarTitle: 'Sold Months',
-    icon: Icons.calendar_view_month_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('sold_year'),
-    label: 'Sold Year',
-    sidebarTitle: 'Sold Years',
-    icon: Icons.calendar_today_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('audiobook_abridged'),
-    label: 'Audiobook Abridged',
-    sidebarTitle: 'Audiobook Abridged',
-    icon: Icons.headphones_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('box_set'),
-    label: 'Box Set',
-    sidebarTitle: 'Box Sets',
-    icon: Icons.inventory_2_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('edition'),
-    label: 'Edition',
-    sidebarTitle: 'Editions',
-    icon: Icons.book_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('extras'),
-    label: 'Extras',
-    sidebarTitle: 'Extras',
-    icon: Icons.extension_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('first_edition'),
-    label: 'First Edition',
-    sidebarTitle: 'First Edition',
-    icon: Icons.looks_one_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('format'),
-    label: 'Format',
-    sidebarTitle: 'Formats',
-    icon: Icons.menu_book_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('narrator'),
-    label: 'Narrator',
-    sidebarTitle: 'Narrators',
-    icon: Icons.record_voice_over_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('original_country'),
-    label: 'Original Country',
-    sidebarTitle: 'Original Countries',
-    icon: Icons.flag_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('original_language'),
-    label: 'Original Language',
-    sidebarTitle: 'Original Languages',
-    icon: Icons.translate_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('original_publication_date'),
-    label: 'Original Publication Date',
-    sidebarTitle: 'Original Publication Dates',
-    icon: Icons.event_repeat_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('original_publication_month'),
-    label: 'Original Publication Month',
-    sidebarTitle: 'Original Publication Months',
-    icon: Icons.event_repeat_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('original_publication_place'),
-    label: 'Original Publication Place',
-    sidebarTitle: 'Original Publication Places',
-    icon: Icons.place_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('original_publication_year'),
-    label: 'Original Publication Year',
-    sidebarTitle: 'Original Publication Years',
-    icon: Icons.event_repeat_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('original_publisher'),
-    label: 'Original Publisher',
-    sidebarTitle: 'Original Publishers',
-    icon: Icons.business_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('paper_type'),
-    label: 'Paper Type',
-    sidebarTitle: 'Paper Types',
-    icon: Icons.layers_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('printed_by'),
-    label: 'Printed By',
-    sidebarTitle: 'Printed By',
-    icon: Icons.print_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('cover_artist'),
-    label: 'Cover Artist',
-    sidebarTitle: 'Cover Artists',
-    icon: Icons.brush_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('editor'),
-    label: 'Editor',
-    sidebarTitle: 'Editors',
-    icon: Icons.edit_note_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('foreword_author'),
-    label: 'Foreword Author',
-    sidebarTitle: 'Foreword Authors',
-    icon: Icons.short_text_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('ghost_writer'),
-    label: 'Ghost Writer',
-    sidebarTitle: 'Ghost Writers',
-    icon: Icons.edit_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('illustrator'),
-    label: 'Illustrator',
-    sidebarTitle: 'Illustrators',
-    icon: Icons.brush_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('photography'),
-    label: 'Photographer',
-    sidebarTitle: 'Photographers',
-    icon: Icons.photo_camera_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('translator'),
-    label: 'Translator',
-    sidebarTitle: 'Translators',
-    icon: Icons.g_translate_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('genre'),
-    label: 'Genre',
-    sidebarTitle: 'Genres',
-    icon: Icons.category_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('subject'),
-    label: 'Subject',
-    sidebarTitle: 'Subjects',
-    icon: Icons.subject_outlined,
-    supportsBucketManagement: true,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('added_date'),
-    label: 'Added Date',
-    sidebarTitle: 'Added Dates',
-    icon: Icons.event_available_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('added_month'),
-    label: 'Added Month',
-    sidebarTitle: 'Added Months',
-    icon: Icons.calendar_view_month_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('added_year'),
-    label: 'Added Year',
-    sidebarTitle: 'Added Years',
-    icon: Icons.calendar_today_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('collection_status'),
-    label: 'Collection Status',
-    sidebarTitle: 'Collection Status',
-    icon: Icons.task_alt_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('dust_jacket'),
-    label: 'Dust Jacket',
-    sidebarTitle: 'Dust Jacket',
-    icon: Icons.checkroom_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('image_type'),
-    label: 'Image Type',
-    sidebarTitle: 'Image Types',
-    icon: Icons.photo_library_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('location'),
-    label: 'Location',
+  groupFromField(
+    BookKindSchema.location,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('modified_date'),
-    label: 'Modified Date',
-    sidebarTitle: 'Modified Dates',
-    icon: Icons.update_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('modified_month'),
-    label: 'Modified Month',
-    sidebarTitle: 'Modified Months',
-    icon: Icons.calendar_view_month_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('my_rating'),
-    label: 'My Rating',
-    sidebarTitle: 'My Ratings',
-    icon: Icons.star_outline,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('owner'),
-    label: 'Owner',
-    sidebarTitle: 'Owners',
-    icon: Icons.person_outline,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('read_date'),
-    label: 'Read Date',
-    sidebarTitle: 'Read Dates',
-    icon: Icons.menu_book_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('watched'),
-    label: 'Read It',
-    sidebarTitle: 'Read It',
-    icon: Icons.done_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('read_month'),
-    label: 'Read Month',
-    sidebarTitle: 'Read Months',
-    icon: Icons.calendar_view_month_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('read_year'),
-    label: 'Read Year',
-    sidebarTitle: 'Read Years',
-    icon: Icons.calendar_today_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('reader'),
-    label: 'Reader',
-    sidebarTitle: 'Readers',
-    icon: Icons.person_outline,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('reading_status'),
-    label: 'Reading Status',
-    sidebarTitle: 'Reading Status',
-    icon: Icons.local_library_outlined,
-  ),
-  LibraryGroupDefinition<BookWorkspaceDto, Object?>(
-    getValue: (dto) => null,
-    id: LibraryFieldId<Object?>('tags'),
-    label: 'Tags',
-    sidebarTitle: 'Tags',
-    icon: Icons.label_outlined,
   ),
 ];
 
 final bookLibrarySortDefinitions = [
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'series',
-    compare: (left, right) => (left.seriesTitle ?? "").compareTo(right.seriesTitle ?? ""),
-    label: 'Series',
-  ),
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'publisher',
-    compare: (left, right) => (left.publisher ?? "").compareTo(right.publisher ?? ""),
-    label: 'Publisher',
-  ),
+  sortFromField(BookKindSchema.series),
+  sortFromField(BookKindSchema.publisher),
   LibrarySortDefinition<BookWorkspaceDto>(
     id: 'status',
     compare: (left, right) {
@@ -527,51 +126,10 @@ final bookLibrarySortDefinitions = [
     },
     label: 'Status',
   ),
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'title',
-    compare: (left, right) => left.title.compareTo(right.title),
-    label: 'Title',
-  ),
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'number',
-    compare: (left, right) => (left.itemNumber ?? "").compareTo(right.itemNumber ?? ""),
-    label: 'Number',
-  ),
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'release_date',
-    compare: (left, right) {
-      return (left.releaseDate ?? DateTime.fromMillisecondsSinceEpoch(0))
-          .compareTo(right.releaseDate ?? DateTime.fromMillisecondsSinceEpoch(0));
-    },
-    label: 'Publication Date',
-    defaultAscending: false,
-  ),
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'country',
-    compare: (left, right) => (left.country ?? "").compareTo(right.country ?? ""),
-    label: 'Country',
-  ),
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'language',
-    compare: (left, right) => (left.language ?? "").compareTo(right.language ?? ""),
-    label: 'Language',
-  ),
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'page_count',
-    compare: (left, right) => left.pageCount.compareTo(right.pageCount),
-    label: 'Page count',
-    group: 'Edition',
-  ),
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'age_rating',
-    compare: (left, right) => (left.grade ?? "").compareTo(right.grade ?? ""),
-    label: 'Age rating',
-  ),
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'imprint',
-    compare: (left, right) => (left.imprint ?? "").compareTo(right.imprint ?? ""),
-    label: 'Imprint',
-  ),
+  sortFromField(BookKindSchema.title),
+  sortFromField(BookKindSchema.releaseDate, defaultAscending: false),
+  sortFromField(BookKindSchema.pageCount, group: 'Edition'),
+  sortFromField(BookKindSchema.author),
 ];
 
 const booksLibraryDefaultVisibleColumnIds = {
@@ -619,25 +177,10 @@ final bookLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('title'),
-    label: 'Title',
-    getValue: (dto) => dto.title,
-    cellValue: (dto) => Text(dto.title),
-    defaultWidth: 260,
-    maxWidth: 520,
-  ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('publisher'),
-    label: 'Publisher',
-    getValue: (dto) => dto.publisher,
-    cellValue: (dto) => Text(dto.publisher ?? ''),
-    defaultWidth: 140,
-  ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('release_date'),
-    label: 'Release Date',
-    getValue: (dto) => dto.releaseDate,
+  columnFromField(BookKindSchema.title, defaultWidth: 260, maxWidth: 520),
+  columnFromField(BookKindSchema.publisher, defaultWidth: 140),
+  columnFromField(
+    BookKindSchema.releaseDate,
     cellValue: (dto) => Text(_formatDate(dto.releaseDate)),
     defaultWidth: 118,
   ),
@@ -666,26 +209,10 @@ final bookLibraryColumnDefinitions = [
     group: 'Personal',
     defaultWidth: 112,
   ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('location'),
-    label: 'Location',
-    getValue: (dto) => dto.locationPath,
-    cellValue: (dto) => Text(dto.locationPath ?? ''),
-    group: 'Personal',
-    defaultWidth: 118,
-  ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('condition'),
-    label: 'Condition',
-    getValue: (dto) => dto.condition,
-    cellValue: (dto) => Text(dto.condition ?? ''),
-    group: 'Value',
-    defaultWidth: 124,
-  ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('price'),
-    label: 'Purchase Price',
-    getValue: (dto) => dto.pricePaidCents,
+  columnFromField(BookKindSchema.location, group: 'Personal', defaultWidth: 118),
+  columnFromField(BookKindSchema.condition, group: 'Value', defaultWidth: 124),
+  columnFromField(
+    BookKindSchema.price,
     cellValue: (dto) => Text(_formatCents(dto.pricePaidCents, dto.currency)),
     group: 'Value',
     isNumeric: true,
@@ -707,26 +234,12 @@ final bookLibraryColumnDefinitions = [
     defaultWidth: 170,
     maxWidth: 420,
   ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('barcode'),
-    label: 'ISBN / Barcode',
-    getValue: (dto) => dto.barcode,
-    cellValue: (dto) => Text(dto.barcode ?? ''),
-    group: 'Edition',
-    defaultWidth: 160,
-    maxWidth: 260,
-  ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('author'),
-    label: 'Author',
-    getValue: (dto) => dto.author,
-    cellValue: (dto) => Text(dto.author ?? ''),
-    defaultWidth: 160,
-  ),
+  columnFromField(BookKindSchema.isbn, group: 'Edition', defaultWidth: 160, maxWidth: 260),
+  columnFromField(BookKindSchema.author, defaultWidth: 160),
   LibraryColumnDefinition<BookWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('read_status'),
     label: 'Read Status',
-    getValue: (dto) => dto.collectionStatus, // Or readStatus if that maps.
+    getValue: (dto) => dto.collectionStatus,
     cellValue: (dto) => Text(dto.collectionStatus ?? ''),
     defaultWidth: 100,
   ),

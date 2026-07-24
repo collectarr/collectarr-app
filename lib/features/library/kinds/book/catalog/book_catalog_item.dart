@@ -5,11 +5,13 @@ class BookSeriesRef {
     required this.seriesId,
     required this.seriesTitle,
     this.volumeNumber,
+    this.seriesGroup,
   });
 
   final String seriesId;
   final String seriesTitle;
   final double? volumeNumber;
+  final String? seriesGroup;
 }
 
 class BookCreatorCredit {
@@ -31,6 +33,7 @@ class BookWorkMetadata {
     this.originalCountry,
     this.originalLanguage,
     this.originalPublicationDate,
+    this.originalPublicationPlace,
     this.originalPublisher,
     this.series,
     this.creators = const [],
@@ -45,6 +48,7 @@ class BookWorkMetadata {
   final String? originalCountry;
   final String? originalLanguage;
   final DateTime? originalPublicationDate;
+  final String? originalPublicationPlace;
   final String? originalPublisher;
   final BookSeriesRef? series;
   final List<BookCreatorCredit> creators;
@@ -60,7 +64,11 @@ class BookPublishingMetadata {
     this.paperType,
     this.printedBy,
     this.dustJacket,
+    this.dustJacketCondition,
     this.firstEdition,
+    this.audiobookAbridged,
+    this.coverPriceCents,
+    this.currency,
   });
 
   final int? pageCount;
@@ -69,7 +77,11 @@ class BookPublishingMetadata {
   final String? paperType;
   final String? printedBy;
   final bool? dustJacket;
+  final String? dustJacketCondition;
   final bool? firstEdition;
+  final bool? audiobookAbridged;
+  final int? coverPriceCents;
+  final String? currency;
 }
 
 class BookCatalogItem {

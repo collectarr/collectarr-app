@@ -1,148 +1,106 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final class BookWorkspaceDto implements LibraryWorkspaceDto {
   const BookWorkspaceDto({
-    required this.title,
-    required this.seriesTitle,
-    required this.itemNumber,
-    required this.publisher,
-    required this.releaseDate,
-    required this.isOwned,
-    required this.isWishlisted,
-    required this.condition,
-    required this.locationPath,
-    required this.rating,
-    required this.pricePaidCents,
-    required this.addedAt,
-    required this.updatedAt,
-    required this.tags,
-    required this.collectionStatus,
-    required this.variant,
-    required this.barcode,
-    required this.grade,
-    required this.country,
-    required this.language,
-    required this.currency,
-    required this.referenceFormatLabel,
-    required this.coverImageUrl,
+    required this.common,
+    required this.personal,
     required this.book,
   });
 
-  @override
-  final String title;
-  @override
-  final String? seriesTitle;
-  @override
-  final String? itemNumber;
-  @override
-  final String? publisher;
-  @override
-  final DateTime? releaseDate;
-  @override
-  final bool isOwned;
-  @override
-  final bool isWishlisted;
-
-  @override
-  final String? condition;
-  @override
-  final String? locationPath;
-  @override
-  final int? rating;
-  @override
-  final int? pricePaidCents;
-  @override
-  final DateTime? addedAt;
-  @override
-  final DateTime updatedAt;
-  @override
-  final String? tags;
-  @override
-  final String? collectionStatus;
-
-  @override
-  final String? variant;
-  @override
-  final String? barcode;
-  @override
-  final String? grade;
-  @override
-  final String? country;
-  @override
-  final String? language;
-  @override
-  final String? currency;
-  @override
-  final String? referenceFormatLabel;
-  @override
-  final String? coverImageUrl;
-
+  final WorkspaceCommonProjection common;
+  final PersonalCopyProjection personal;
   final BookCatalogItem book;
 
+  // Delegated LibraryWorkspaceDto getters from WorkspaceCommonProjection:
+  @override
+  String get title => common.title;
+  @override
+  String? get seriesTitle => common.seriesTitle;
+  @override
+  String? get itemNumber => common.itemNumber;
+  @override
+  String? get publisher => common.publisher;
+  @override
+  DateTime? get releaseDate => common.releaseDate;
+  @override
+  String? get variant => common.variant;
+  @override
+  String? get barcode => common.barcode;
+  @override
+  String? get grade => common.grade;
+  @override
+  String? get country => common.country;
+  @override
+  String? get language => common.language;
+  @override
+  String? get currency => common.currency;
+  @override
+  String? get referenceFormatLabel => common.referenceFormatLabel;
+  @override
+  String? get coverImageUrl => common.coverImageUrl;
+
+  // Delegated LibraryWorkspaceDto getters from PersonalCopyProjection:
+  @override
+  bool get isOwned => personal.isOwned;
+  @override
+  bool get isWishlisted => personal.isWishlisted;
+  @override
+  String? get condition => personal.condition;
+  @override
+  String? get locationPath => personal.locationPath;
+  @override
+  int? get rating => personal.rating;
+  @override
+  int? get pricePaidCents => personal.pricePaidCents;
+  @override
+  DateTime? get addedAt => personal.addedAt;
+  @override
+  DateTime get updatedAt => personal.updatedAt;
+  @override
+  String? get tags => personal.tags;
+  @override
+  String? get collectionStatus => personal.collectionStatus;
+
+  // Domain convenience getters delegating to BookCatalogItem:
   int get pageCount => book.publishing.pageCount ?? 0;
   String? get imprint => book.publishing.imprint;
   String? get author => book.work.creators.firstOrNull?.name;
 
   factory BookWorkspaceDto.fromEntry(LibraryWorkspaceEntry entry) {
-    // Construct transport DTO first
-    final dto = CatalogItemDto(
-      id: entry.id,
-      title: entry.title,
-      displayTitle: entry.displayTitle,
-      localizedTitle: entry.localizedTitle,
-      originalTitle: entry.originalTitle,
-      synopsis: entry.synopsis,
-      coverImageUrl: entry.coverImageUrl,
-      thumbnailImageUrl: entry.thumbnailImageUrl,
-      publisher: entry.publisher,
-      coverDate: entry.coverDate,
-      releaseDate: entry.releaseDate,
-      releaseYear: entry.releaseYear,
-      barcode: entry.barcode,
-      variant: entry.variant,
-      creators: entry.creators,
-      storyArcs: entry.storyArcs,
-      genres: entry.genres,
-      country: entry.country,
-      language: entry.language,
-      ageRating: entry.ageRating,
-      audienceRating: entry.audienceRating,
-      publishing: entry.publishing,
-      series: entry.series,
-      editions: entry.editions,
-    );
-
-    // Map to Book domain model using composition
-    final bookCatalogItem = BookCatalogMapper.mapDtoToBook(dto);
+    final bookCatalogItem = BookCatalogMapper.mapWorkspaceEntryToBook(entry);
 
     return BookWorkspaceDto(
-      title: entry.resolvedTitle,
-      seriesTitle: entry.series?.seriesTitle,
-      itemNumber: entry.itemNumber,
-      publisher: entry.publisher,
-      releaseDate: entry.releaseDate,
-      isOwned: entry.isOwned,
-      isWishlisted: entry.isWishlisted,
-      condition: entry.condition,
-      locationPath: entry.locationPath,
-      rating: entry.rating,
-      pricePaidCents: entry.pricePaidCents,
-      addedAt: entry.addedAt,
-      updatedAt: entry.updatedAt,
-      tags: entry.tags,
-      collectionStatus: entry.collectionStatus,
-      variant: entry.variant,
-      barcode: entry.barcode,
-      grade: entry.grade,
-      country: entry.country,
-      language: entry.language,
-      currency: entry.currency,
-      referenceFormatLabel: entry.referenceFormatLabel,
-      coverImageUrl: entry.coverImageUrl,
+      common: WorkspaceCommonProjection(
+        title: entry.resolvedTitle,
+        seriesTitle: entry.series?.seriesTitle,
+        itemNumber: entry.itemNumber,
+        publisher: entry.publisher,
+        releaseDate: entry.releaseDate,
+        variant: entry.variant,
+        barcode: entry.barcode,
+        grade: entry.grade,
+        country: entry.country,
+        language: entry.language,
+        currency: entry.currency,
+        referenceFormatLabel: entry.referenceFormatLabel,
+        coverImageUrl: entry.coverImageUrl,
+      ),
+      personal: PersonalCopyProjection(
+        isOwned: entry.isOwned,
+        isWishlisted: entry.isWishlisted,
+        condition: entry.condition,
+        locationPath: entry.locationPath,
+        rating: entry.rating,
+        pricePaidCents: entry.pricePaidCents,
+        addedAt: entry.addedAt,
+        updatedAt: entry.updatedAt,
+        tags: entry.tags,
+        collectionStatus: entry.collectionStatus,
+      ),
       book: bookCatalogItem,
     );
   }
