@@ -83,6 +83,9 @@ class LibraryDetailHero extends StatelessWidget {
             formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-',
       ),
     ];
+    final comic = ownedItem?.typedDetails is ComicOwnedDetails
+        ? ownedItem!.typedDetails as ComicOwnedDetails
+        : null;
     final primaryChips = <Widget>[
       LibraryInfoChip(
         icon: Icons.inventory_2,
@@ -128,21 +131,21 @@ class LibraryDetailHero extends StatelessWidget {
               .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
-      if (ownedItem?.keyComic == true)
+      if (comic?.keyComic == true)
         LibraryInfoChip(
           icon: Icons.label_important,
-          label: ownedItem!.keyReason ?? 'Key item',
+          label: comic?.keyReason ?? 'Key item',
           foreground: accent,
           background: palette.surfaceSubtle
               .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
-      if (ownedItem?.rawOrSlabbed != null || ownedItem?.gradingCompany != null)
+      if (comic?.rawOrSlabbed != null || comic?.gradingCompany != null)
         LibraryInfoChip(
           icon: Icons.verified_outlined,
           label: librarySlabMarkerLabel(
-                ownedItem?.rawOrSlabbed,
-                ownedItem?.gradingCompany,
+                comic?.rawOrSlabbed,
+                comic?.gradingCompany,
               ) ??
               'Collector copy',
           foreground: accent,
@@ -184,7 +187,7 @@ class LibraryDetailHero extends StatelessWidget {
                           )),
                         )
                         .value;
-                final localBack = ownedItemId == null
+                 final localBack = ownedItemId == null
                     ? null
                     : ref
                         .watch(
@@ -194,13 +197,16 @@ class LibraryDetailHero extends StatelessWidget {
                           )),
                         )
                         .value;
+                final comic = ownedItem?.typedDetails is ComicOwnedDetails
+                    ? ownedItem!.typedDetails as ComicOwnedDetails
+                    : null;
                 return SizedBox(
                   width: coverWidth,
                   child: SlabFrameOverlay.maybeWrap(
-                    rawOrSlabbed: ownedItem?.rawOrSlabbed,
-                    gradingCompany: ownedItem?.gradingCompany,
+                    rawOrSlabbed: comic?.rawOrSlabbed,
+                    gradingCompany: comic?.gradingCompany,
                     grade: ownedItem?.grade,
-                    labelType: ownedItem?.labelType,
+                    labelType: comic?.labelType,
                     child: LibraryInteractiveCover(
                       title: entry.resolvedTitle,
                       itemNumber: entry.itemNumber,

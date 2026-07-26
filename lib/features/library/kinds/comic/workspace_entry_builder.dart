@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -86,7 +87,10 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
     hasMissingMetadata: work.hasMissingCoreMetadata,
     condition: overlay.ownedItem?.condition,
     grade: overlay.ownedItem?.grade,
-    signedBy: overlay.signedBy ?? overlay.ownedItem?.signedBy,
+    signedBy: overlay.signedBy ??
+        (overlay.ownedItem?.typedDetails is ComicOwnedDetails
+            ? (overlay.ownedItem!.typedDetails as ComicOwnedDetails).signedBy
+            : null),
     marketValueCents: overlay.ownedItem?.marketValueCents,
     marketValueCurrency: overlay.ownedItem?.currency,
     primaryReferenceLabel: libraryPrimaryReferenceLabel(

@@ -149,14 +149,66 @@ OwnedItem testOwnedItem({
   String? gameCoreRegion,
   bool? gameValueIsLocked,
 }) {
+  final resolvedCatalogRef = catalogRef ??
+      CatalogEntityRef(
+        kind: kind,
+        entityType: CatalogEntityType.ownedCopy,
+        id: itemId,
+      );
+
+  OwnedItemDetails details;
+  switch (resolvedCatalogRef.kind) {
+    case 'comic':
+    case 'manga':
+      details = ComicOwnedDetails(
+        rawOrSlabbed: rawOrSlabbed,
+        gradingCompany: gradingCompany,
+        graderNotes: graderNotes,
+        signedBy: signedBy,
+        labelType: labelType,
+        customLabel: customLabel,
+        pageQuality: pageQuality,
+        certificationNumber: certificationNumber,
+        keyComic: keyComic,
+        keyReason: keyReason,
+        keyCategory: keyCategory,
+        keySeverity: keySeverity,
+        coverPriceCents: coverPriceCents,
+        lastBagBoardDate: lastBagBoardDate,
+      );
+    case 'movie':
+    case 'tv':
+    case 'anime':
+      details = VideoOwnedDetails(
+        features: features,
+        hdrFormats: hdrFormats ?? const <String>[],
+        boxSetId: boxSetId,
+        boxSetName: boxSetName,
+        region: region,
+        packaging: packaging,
+        distributor: distributor,
+      );
+    case 'game':
+      details = GameOwnedDetails(
+        completeness: gameCompleteness,
+        hasBox: gameHasBox,
+        hasManual: gameHasManual,
+        priceChartingId: gamePriceChartingId,
+        coreRegion: gameCoreRegion,
+        valueIsLocked: gameValueIsLocked,
+      );
+    case 'music':
+      details = MusicOwnedDetails(
+        storageDevice: storageDevice,
+        storageSlot: storageSlot,
+      );
+    default:
+      details = const GenericOwnedDetails();
+  }
+
   return OwnedItem(
     id: id,
-    catalogRef: catalogRef ??
-        CatalogEntityRef(
-          kind: kind,
-          entityType: CatalogEntityType.ownedCopy,
-          id: itemId,
-        ),
+    catalogRef: resolvedCatalogRef,
     createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.utc(2025, 1, 1),
     isDigital: isDigital,
@@ -165,6 +217,7 @@ OwnedItem testOwnedItem({
     editionId: editionId,
     variantId: variantId,
     bundleReleaseId: bundleReleaseId,
+    details: details,
     condition: condition,
     grade: grade,
     purchaseDate: purchaseDate,
@@ -173,19 +226,6 @@ OwnedItem testOwnedItem({
     personalNotes: personalNotes,
     quantity: quantity,
     indexNumber: indexNumber,
-    coverPriceCents: coverPriceCents,
-    rawOrSlabbed: rawOrSlabbed,
-    gradingCompany: gradingCompany,
-    graderNotes: graderNotes,
-    signedBy: signedBy,
-    labelType: labelType,
-    customLabel: customLabel,
-    pageQuality: pageQuality,
-    certificationNumber: certificationNumber,
-    keyComic: keyComic,
-    keyReason: keyReason,
-    keyCategory: keyCategory,
-    keySeverity: keySeverity,
     rating: rating,
     readStatus: readStatus,
     startedAt: startedAt,
@@ -198,25 +238,9 @@ OwnedItem testOwnedItem({
     ownerUserId: ownerUserId,
     ownerLabel: ownerLabel,
     locationId: locationId,
-    features: features,
-    hdrFormats: hdrFormats ?? const <String>[],
     purchaseStore: purchaseStore,
-    boxSetId: boxSetId,
-    boxSetName: boxSetName,
-    storageDevice: storageDevice,
-    storageSlot: storageSlot,
-    region: region,
-    packaging: packaging,
-    distributor: distributor,
     collectionStatus: collectionStatus,
-    lastBagBoardDate: lastBagBoardDate,
     marketValueCents: marketValueCents,
-    gameCompleteness: gameCompleteness,
-    gameHasBox: gameHasBox,
-    gameHasManual: gameHasManual,
-    gamePriceChartingId: gamePriceChartingId,
-    gameCoreRegion: gameCoreRegion,
-    gameValueIsLocked: gameValueIsLocked,
   );
 }
 

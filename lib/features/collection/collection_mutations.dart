@@ -73,9 +73,12 @@ class CollectionMutations {
     String? graderNotes,
     String? signedBy,
     String? labelType,
+    String? pageQuality,
     String? certificationNumber,
     bool keyComic = false,
     String? keyReason,
+    String? keyCategory,
+    String? keySeverity,
     int? rating,
     String? readStatus,
     DateTime? startedAt,
@@ -97,6 +100,12 @@ class CollectionMutations {
     String? collectionStatus,
     DateTime? lastBagBoardDate,
     int? marketValueCents,
+    String? gameCompleteness,
+    bool? gameHasBox,
+    bool? gameHasManual,
+    String? gamePriceChartingId,
+    String? gameCoreRegion,
+    bool gameValueIsLocked = false,
     bool syncTracking = true,
     bool notify = true,
   }) async {
@@ -111,22 +120,74 @@ class CollectionMutations {
       variantId: variantId,
       bundleReleaseId: bundleReleaseId,
     );
+    final catalogRef = _catalogRefForItem(
+      itemId,
+      catalogItem,
+      anchorType: normalizedAnchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+
+    OwnedItemDetails details;
+    switch (catalogRef.kind) {
+      case 'comic':
+      case 'manga':
+        details = ComicOwnedDetails(
+          rawOrSlabbed: rawOrSlabbed,
+          gradingCompany: gradingCompany,
+          graderNotes: graderNotes,
+          signedBy: signedBy,
+          labelType: labelType,
+          pageQuality: pageQuality,
+          certificationNumber: certificationNumber,
+          keyComic: keyComic ?? false,
+          keyReason: keyReason,
+          keyCategory: keyCategory,
+          keySeverity: keySeverity,
+          coverPriceCents: coverPriceCents,
+          lastBagBoardDate: lastBagBoardDate,
+        );
+      case 'movie':
+      case 'tv':
+      case 'anime':
+        details = VideoOwnedDetails(
+          features: features,
+          hdrFormats: hdrFormats ?? const <String>[],
+          boxSetId: boxSetId,
+          boxSetName: boxSetName,
+          region: region,
+          packaging: packaging,
+          distributor: distributor,
+        );
+      case 'game':
+        details = GameOwnedDetails(
+          completeness: gameCompleteness,
+          hasBox: gameHasBox,
+          hasManual: gameHasManual,
+          priceChartingId: gamePriceChartingId,
+          coreRegion: gameCoreRegion,
+          valueIsLocked: gameValueIsLocked,
+        );
+      case 'music':
+        details = MusicOwnedDetails(
+          storageDevice: storageDevice,
+          storageSlot: storageSlot,
+        );
+      default:
+        details = const GenericOwnedDetails();
+    }
+
     final ownedItem = OwnedItem(
       id: _uuid.v4(),
-      catalogRef: _catalogRefForItem(
-        itemId,
-        catalogItem,
-        anchorType: normalizedAnchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      ),
+      catalogRef: catalogRef,
       createdAt: now,
       isDigital: resolvedIsDigital,
       anchorType: normalizedAnchorType,
       editionId: editionId,
       variantId: variantId,
       bundleReleaseId: bundleReleaseId,
+      details: details,
       condition: condition,
       grade: grade,
       purchaseDate: purchaseDate,
@@ -136,15 +197,6 @@ class CollectionMutations {
       quantity: quantity,
       locationId: locationId,
       indexNumber: indexNumber,
-      coverPriceCents: coverPriceCents,
-      rawOrSlabbed: rawOrSlabbed,
-      gradingCompany: gradingCompany,
-      graderNotes: graderNotes,
-      signedBy: signedBy,
-      labelType: labelType,
-      certificationNumber: certificationNumber,
-      keyComic: keyComic,
-      keyReason: keyReason,
       rating: rating,
       readStatus: readStatus,
       startedAt: startedAt,
@@ -155,18 +207,8 @@ class CollectionMutations {
       soldTo: soldTo,
       ownerUserId: auth.userId,
       ownerLabel: auth.email,
-      features: features,
-      hdrFormats: hdrFormats ?? const <String>[],
       purchaseStore: purchaseStore,
-      boxSetId: boxSetId,
-      boxSetName: boxSetName,
-      storageDevice: storageDevice,
-      storageSlot: storageSlot,
-      region: region,
-      packaging: packaging,
-      distributor: distributor,
       collectionStatus: collectionStatus,
-      lastBagBoardDate: lastBagBoardDate,
       marketValueCents: marketValueCents,
       updatedAt: now,
     );
@@ -273,6 +315,61 @@ class CollectionMutations {
       fallbackVariantId: item.variantId,
       fallbackBundleReleaseId: item.bundleReleaseId,
     );
+    OwnedItemDetails details;
+    final existingDetails = item.typedDetails;
+    switch (item.catalogRef.kind) {
+      case 'comic':
+      case 'manga':
+        final comic = existingDetails is ComicOwnedDetails ? existingDetails : null;
+        details = ComicOwnedDetails(
+          rawOrSlabbed: rawOrSlabbed ?? comic?.rawOrSlabbed,
+          gradingCompany: gradingCompany ?? comic?.gradingCompany,
+          graderNotes: graderNotes ?? comic?.graderNotes,
+          signedBy: signedBy ?? comic?.signedBy,
+          labelType: labelType ?? comic?.labelType,
+          customLabel: customLabel ?? comic?.customLabel,
+          pageQuality: pageQuality ?? comic?.pageQuality,
+          certificationNumber: certificationNumber ?? comic?.certificationNumber,
+          keyComic: keyComic ?? comic?.keyComic ?? false,
+          keyReason: keyReason ?? comic?.keyReason,
+          keyCategory: keyCategory ?? comic?.keyCategory,
+          keySeverity: keySeverity ?? comic?.keySeverity,
+          coverPriceCents: coverPriceCents ?? comic?.coverPriceCents,
+          lastBagBoardDate: lastBagBoardDate ?? comic?.lastBagBoardDate,
+        );
+      case 'movie':
+      case 'tv':
+      case 'anime':
+        final video = existingDetails is VideoOwnedDetails ? existingDetails : null;
+        details = VideoOwnedDetails(
+          features: features ?? video?.features,
+          hdrFormats: hdrFormats ?? video?.hdrFormats ?? const <String>[],
+          boxSetId: boxSetId ?? video?.boxSetId,
+          boxSetName: boxSetName ?? video?.boxSetName,
+          region: region ?? video?.region,
+          packaging: packaging ?? video?.packaging,
+          distributor: distributor ?? video?.distributor,
+        );
+      case 'game':
+        final game = existingDetails is GameOwnedDetails ? existingDetails : null;
+        details = GameOwnedDetails(
+          completeness: gameCompleteness ?? game?.completeness,
+          hasBox: gameHasBox ?? game?.hasBox,
+          hasManual: gameHasManual ?? game?.hasManual,
+          priceChartingId: gamePriceChartingId ?? game?.priceChartingId,
+          coreRegion: gameCoreRegion ?? game?.coreRegion,
+          valueIsLocked: gameValueIsLocked ?? game?.valueIsLocked,
+        );
+      case 'music':
+        final music = existingDetails is MusicOwnedDetails ? existingDetails : null;
+        details = MusicOwnedDetails(
+          storageDevice: storageDevice ?? music?.storageDevice,
+          storageSlot: storageSlot ?? music?.storageSlot,
+        );
+      default:
+        details = const GenericOwnedDetails();
+    }
+
     final updated = OwnedItem(
       id: item.id,
       catalogRef: item.catalogRef,
@@ -282,6 +379,7 @@ class CollectionMutations {
       editionId: editionId,
       variantId: variantId,
       bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
+      details: details,
       condition: condition,
       grade: grade,
       purchaseDate: purchaseDate,
@@ -290,19 +388,6 @@ class CollectionMutations {
       personalNotes: personalNotes,
       quantity: quantity ?? item.quantity,
       indexNumber: indexNumber,
-      coverPriceCents: coverPriceCents,
-      rawOrSlabbed: rawOrSlabbed,
-      gradingCompany: gradingCompany,
-      graderNotes: graderNotes,
-      signedBy: signedBy,
-      labelType: labelType,
-      customLabel: customLabel,
-      pageQuality: pageQuality,
-      certificationNumber: certificationNumber,
-      keyComic: keyComic ?? item.keyComic,
-      keyReason: keyReason,
-      keyCategory: keyCategory,
-      keySeverity: keySeverity,
       rating: rating,
       readStatus: readStatus,
       startedAt: startedAt,
@@ -318,25 +403,9 @@ class CollectionMutations {
           : locationId as String?,
       updatedAt: now,
       deletedAt: item.deletedAt,
-      features: features,
-      hdrFormats: hdrFormats ?? item.hdrFormats,
       purchaseStore: purchaseStore,
-      boxSetId: boxSetId,
-      boxSetName: boxSetName,
-      storageDevice: storageDevice,
-      storageSlot: storageSlot,
-      region: region,
-      packaging: packaging,
-      distributor: distributor,
       collectionStatus: collectionStatus ?? item.collectionStatus,
-      lastBagBoardDate: lastBagBoardDate ?? item.lastBagBoardDate,
       marketValueCents: marketValueCents ?? item.marketValueCents,
-      gameCompleteness: gameCompleteness ?? item.gameCompleteness,
-      gameHasBox: gameHasBox ?? item.gameHasBox,
-      gameHasManual: gameHasManual ?? item.gameHasManual,
-      gamePriceChartingId: gamePriceChartingId ?? item.gamePriceChartingId,
-      gameCoreRegion: gameCoreRegion ?? item.gameCoreRegion,
-      gameValueIsLocked: gameValueIsLocked ?? item.gameValueIsLocked,
     );
     await _ownedCache().upsert(updated);
     await _enqueueOwnedItem(updated, 'upsert', now);

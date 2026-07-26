@@ -146,9 +146,12 @@ class ShelfState {
     };
     final hasMixedCurrencies = currencies.length > 1;
     final activeOwned = ownedByItemId.values.toList(growable: false);
-    final coverPricedOwned = activeOwned
-        .where((item) => item.coverPriceCents != null && item.currency != null)
-        .toList(growable: false);
+    final coverPricedOwned = activeOwned.where((item) {
+      final comic = item.typedDetails is ComicOwnedDetails
+          ? item.typedDetails as ComicOwnedDetails
+          : null;
+      return comic?.coverPriceCents != null && item.currency != null;
+    }).toList(growable: false);
     final coverCurrencies = {
       for (final item in coverPricedOwned) item.currency!,
     };
@@ -172,7 +175,12 @@ class ShelfState {
         0,
         (total, item) => total + item.quantity,
       ),
-      keyComicCount: activeOwned.where((item) => item.keyComic).length,
+      keyComicCount: activeOwned.where((item) {
+        final comic = item.typedDetails is ComicOwnedDetails
+            ? item.typedDetails as ComicOwnedDetails
+            : null;
+        return comic?.keyComic == true;
+      }).length,
       missingMetadataCount:
           entries.where((entry) => entry.catalogItem == null).length,
       gradeCounts: _counts(activeOwned.map((item) => item.grade ?? 'Ungraded')),
@@ -199,7 +207,12 @@ class ShelfState {
           ? null
           : coverPricedOwned.fold<int>(
             0,
-            (total, item) => total + (item.coverPriceCents ?? 0),
+            (total, item) {
+              final comic = item.typedDetails is ComicOwnedDetails
+                  ? item.typedDetails as ComicOwnedDetails
+                  : null;
+              return total + (comic?.coverPriceCents ?? 0);
+            },
           ),
         coverPriceCurrency:
           coverCurrencies.length == 1 ? coverCurrencies.single : null,

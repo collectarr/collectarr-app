@@ -215,6 +215,12 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
         if (_mode == TransferMode.move && !src.isCustomField) {
           updated = src.writeTo(updated, null);
         }
+        final comic = updated.typedDetails is ComicOwnedDetails
+            ? updated.typedDetails as ComicOwnedDetails
+            : null;
+        final video = updated.typedDetails is VideoOwnedDetails
+            ? updated.typedDetails as VideoOwnedDetails
+            : null;
         await widget.mutations.updateItem(
           item,
           condition: updated.condition,
@@ -223,18 +229,18 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           locationId: updated.locationId,
           tags: updated.tags,
           currency: updated.currency,
-          rawOrSlabbed: updated.rawOrSlabbed,
-          gradingCompany: updated.gradingCompany,
-          graderNotes: updated.graderNotes,
-          signedBy: updated.signedBy,
-          labelType: updated.labelType,
-          certificationNumber: updated.certificationNumber,
-          keyReason: updated.keyReason,
+          rawOrSlabbed: comic?.rawOrSlabbed,
+          gradingCompany: comic?.gradingCompany,
+          graderNotes: comic?.graderNotes,
+          signedBy: comic?.signedBy,
+          labelType: comic?.labelType,
+          certificationNumber: comic?.certificationNumber,
+          keyReason: comic?.keyReason,
           readStatus: updated.readStatus,
           soldTo: updated.soldTo,
-          features: updated.features,
+          features: video?.features,
           pricePaidCents: updated.pricePaidCents,
-          coverPriceCents: updated.coverPriceCents,
+          coverPriceCents: comic?.coverPriceCents,
           sellPriceCents: updated.sellPriceCents,
           quantity: updated.quantity,
           indexNumber: updated.indexNumber,
@@ -243,7 +249,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           startedAt: updated.startedAt,
           finishedAt: updated.finishedAt,
           soldAt: updated.soldAt,
-          keyComic: updated.keyComic,
+          keyComic: comic?.keyComic ?? false,
           notify: isLast,
         );
         transferred++;
@@ -268,6 +274,12 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             ));
           }
         } else {
+          final comic = item.typedDetails is ComicOwnedDetails
+              ? item.typedDetails as ComicOwnedDetails
+              : null;
+          final video = item.typedDetails is VideoOwnedDetails
+              ? item.typedDetails as VideoOwnedDetails
+              : null;
           await widget.mutations.updateItem(
             item,
             condition: src.key == 'condition' ? null : item.condition,
@@ -277,19 +289,19 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             locationId: src.key == 'locationId' ? null : item.locationId,
             tags: src.key == 'tags' ? null : item.tags,
             currency: src.key == 'currency' ? null : item.currency,
-            rawOrSlabbed: src.key == 'rawOrSlabbed' ? null : item.rawOrSlabbed,
+            rawOrSlabbed: src.key == 'rawOrSlabbed' ? null : comic?.rawOrSlabbed,
             gradingCompany:
-                src.key == 'gradingCompany' ? null : item.gradingCompany,
-            graderNotes: src.key == 'graderNotes' ? null : item.graderNotes,
-            signedBy: src.key == 'signedBy' ? null : item.signedBy,
-            labelType: src.key == 'labelType' ? null : item.labelType,
+                src.key == 'gradingCompany' ? null : comic?.gradingCompany,
+            graderNotes: src.key == 'graderNotes' ? null : comic?.graderNotes,
+            signedBy: src.key == 'signedBy' ? null : comic?.signedBy,
+            labelType: src.key == 'labelType' ? null : comic?.labelType,
             certificationNumber: src.key == 'certificationNumber'
                 ? null
-                : item.certificationNumber,
-            keyReason: src.key == 'keyReason' ? null : item.keyReason,
+                : comic?.certificationNumber,
+            keyReason: src.key == 'keyReason' ? null : comic?.keyReason,
             readStatus: src.key == 'readStatus' ? null : item.readStatus,
             soldTo: src.key == 'soldTo' ? null : item.soldTo,
-            features: src.key == 'features' ? null : item.features,
+            features: src.key == 'features' ? null : video?.features,
             notify: isLast,
           );
         }

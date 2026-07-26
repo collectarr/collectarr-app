@@ -1958,13 +1958,36 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final sellPriceCents =
         parseMoneyCents(ctl('soldPriceController', _sellPriceController).text);
     final soldAt = _soldAt;
+    final catalogRef = CatalogEntityRef(
+      kind: item.kind,
+      entityType: CatalogEntityType.work,
+      id: item.id,
+    );
+    OwnedItemDetails details;
+    switch (catalogRef.kind) {
+      case CatalogMediaKind.comic:
+      case CatalogMediaKind.manga:
+        details = ComicOwnedDetails(
+          rawOrSlabbed: ctlTextOrNull('rawOrSlabbedController', _rawOrSlabbedController),
+          gradingCompany: ctlTextOrNull('gradingCompanyController', _gradingCompanyController),
+          graderNotes: ctlTextOrNull('graderNotesController', _graderNotesController),
+          signedBy: ctlTextOrNull('signedByController', _signedByController),
+          labelType: ctlTextOrNull('labelTypeController', _labelTypeController),
+          pageQuality: ctlTextOrNull('pageQualityController'),
+          certificationNumber: ctlTextOrNull(
+            'certificationNumberController',
+            _certificationNumberController,
+          ),
+          coverPriceCents: coverPriceCents,
+        );
+      default:
+        details = const GenericOwnedDetails();
+    }
+
     return OwnedItem(
       id: 'manual-owned-${_uuid.v4()}',
-      catalogRef: CatalogEntityRef(
-        kind: item.kind,
-        entityType: CatalogEntityType.work,
-        id: item.id,
-      ),
+      catalogRef: catalogRef,
+      details: details,
       condition: _defaultCondition,
       grade: _defaultGrade,
       purchaseDate: purchaseDate,
@@ -1979,20 +2002,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               .text
               .trim(),
       quantity: 1,
-      coverPriceCents: coverPriceCents,
-      rawOrSlabbed:
-          ctlTextOrNull('rawOrSlabbedController', _rawOrSlabbedController),
-      gradingCompany:
-          ctlTextOrNull('gradingCompanyController', _gradingCompanyController),
-      graderNotes:
-          ctlTextOrNull('graderNotesController', _graderNotesController),
-      signedBy: ctlTextOrNull('signedByController', _signedByController),
-      labelType: ctlTextOrNull('labelTypeController', _labelTypeController),
-      pageQuality: ctlTextOrNull('pageQualityController'),
-      certificationNumber: ctlTextOrNull(
-        'certificationNumberController',
-        _certificationNumberController,
-      ),
       updatedAt: DateTime.now().toUtc(),
       soldAt: soldAt,
       sellPriceCents: sellPriceCents,

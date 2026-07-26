@@ -480,18 +480,21 @@ List<LibraryDetailField> _collectorFacts(OwnedItem? ownedItem) {
     return const [];
   }
   final rows = <LibraryDetailField>[];
-  if (ownedItem.rawOrSlabbed?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Raw / Slabbed', value: ownedItem.rawOrSlabbed!.trim()));
+  final comic = ownedItem.typedDetails is ComicOwnedDetails
+      ? ownedItem.typedDetails as ComicOwnedDetails
+      : null;
+  if (comic?.rawOrSlabbed?.trim().isNotEmpty == true) {
+    rows.add(LibraryDetailField(label: 'Raw / Slabbed', value: comic!.rawOrSlabbed!.trim()));
   }
-  if (ownedItem.gradingCompany?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Grading Co.', value: ownedItem.gradingCompany!.trim()));
+  if (comic?.gradingCompany?.trim().isNotEmpty == true) {
+    rows.add(LibraryDetailField(label: 'Grading Co.', value: comic!.gradingCompany!.trim()));
   }
-  if (ownedItem.certificationNumber?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Certification', value: ownedItem.certificationNumber!.trim()));
+  if (comic?.certificationNumber?.trim().isNotEmpty == true) {
+    rows.add(LibraryDetailField(label: 'Certification', value: comic!.certificationNumber!.trim()));
   }
-  if (ownedItem.keyComic == true) {
-    rows.add(LibraryDetailField(label: 'Key', value: ownedItem.keyReason?.trim().isNotEmpty == true
-            ? ownedItem.keyReason!.trim()
+  if (comic?.keyComic == true) {
+    rows.add(LibraryDetailField(label: 'Key', value: comic?.keyReason?.trim().isNotEmpty == true
+            ? comic!.keyReason!.trim()
             : 'Yes'));
   }
   return rows;
@@ -514,8 +517,11 @@ List<LibraryDetailField> _valueFacts(
   );
 
   final rows = <LibraryDetailField>[];
-  if (ownedItem.coverPriceCents != null) {
-    rows.add(LibraryDetailField(label: 'Cover Price', value: formatMoney(ownedItem.coverPriceCents, ownedItem.currency)));
+  final comicVal = ownedItem.typedDetails is ComicOwnedDetails
+      ? ownedItem.typedDetails as ComicOwnedDetails
+      : null;
+  if (comicVal?.coverPriceCents != null) {
+    rows.add(LibraryDetailField(label: 'Cover Price', value: formatMoney(comicVal!.coverPriceCents, ownedItem.currency)));
   }
   if (snapshot.providerValueCents != null) {
     rows.add(LibraryDetailField(label: 'Provider Value', value: formatMoney(snapshot.providerValueCents, snapshot.currency)));

@@ -25,13 +25,16 @@ final class ComicPersonalOverlay {
   });
 
   factory ComicPersonalOverlay.fromShelf(ShelfEntry source) {
+    final comicDetails = source.ownedItem?.typedDetails is ComicOwnedDetails
+        ? source.ownedItem!.typedDetails as ComicOwnedDetails
+        : null;
     return ComicPersonalOverlay(
       ownedItem: source.ownedItem,
       trackingEntry: source.trackingEntry,
       wishlistItem: source.wishlistItem,
       locationPath: source.locationPath,
-      lastBagBoardDate: source.ownedItem?.lastBagBoardDate,
-      signedBy: source.ownedItem?.signedBy,
+      lastBagBoardDate: comicDetails?.lastBagBoardDate,
+      signedBy: comicDetails?.signedBy,
       updatedAt: source.updatedAt,
     );
   }

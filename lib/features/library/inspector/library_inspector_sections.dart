@@ -135,8 +135,8 @@ class InspectorPersonalSection extends StatelessWidget {
             LibraryDetailField(label: 'Purchased', value: genericLibraryDash(
                 formatNullableDate(ownedItem?.purchaseDate),
               )),
-            if (ownedIsDigital != true && ownedItem?.coverPriceCents != null)
-              LibraryDetailField(label: 'Cover price', value: formatMoney(ownedItem!.coverPriceCents, ownedItem!.currency)),
+            if (ownedIsDigital != true && (ownedItem?.typedDetails is ComicOwnedDetails && (ownedItem!.typedDetails as ComicOwnedDetails).coverPriceCents != null))
+              LibraryDetailField(label: 'Cover price', value: formatMoney((ownedItem!.typedDetails as ComicOwnedDetails).coverPriceCents, ownedItem!.currency)),
             if (ownedItem?.isSold ?? false) ...[
               LibraryDetailField(label: 'Sold', value: formatNullableDate(ownedItem?.soldAt) ?? 'Yes'),
               LibraryDetailField(label: 'Sell price', value: ownedItem?.sellPriceCents != null

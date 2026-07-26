@@ -121,7 +121,9 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
       readStatus: overlay.trackingEntry?.statusStorageValue ??
           overlay.ownedItem?.readStatus,
       rating: overlay.trackingEntry?.rating ?? overlay.ownedItem?.rating,
-      lastBagBoardDate: overlay.ownedItem?.lastBagBoardDate,
+      lastBagBoardDate: overlay.ownedItem?.typedDetails is ComicOwnedDetails
+          ? (overlay.ownedItem!.typedDetails as ComicOwnedDetails).lastBagBoardDate
+          : null,
       pricePaidCents: overlay.ownedItem?.pricePaidCents,
       currency: overlay.ownedItem?.currency,
       locationPath: overlay.locationPath,

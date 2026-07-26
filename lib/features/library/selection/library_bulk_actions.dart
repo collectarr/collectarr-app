@@ -1,8 +1,11 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
+import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class LibraryBulkActions {
   const LibraryBulkActions(this.mutations);
@@ -19,6 +22,9 @@ class LibraryBulkActions {
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
       final ownedItem = ownedEntries[index].ownedItem!;
+      final comicDetails = ownedItem.typedDetails is ComicOwnedDetails
+          ? ownedItem.typedDetails as ComicOwnedDetails
+          : null;
       await mutations.updateItem(
         ownedItem,
         condition: selection.condition ?? ownedItem.condition,
@@ -28,18 +34,17 @@ class LibraryBulkActions {
         currency: ownedItem.currency,
         personalNotes: ownedItem.personalNotes,
         quantity: ownedItem.quantity,
-        locationId:
-            selection.applyLocation ? selection.locationId : ownedItem.locationId,
+        locationId: selection.locationId ?? ownedItem.locationId,
         indexNumber: ownedItem.indexNumber,
-        coverPriceCents: ownedItem.coverPriceCents,
-        rawOrSlabbed: ownedItem.rawOrSlabbed,
-        gradingCompany: ownedItem.gradingCompany,
-        graderNotes: ownedItem.graderNotes,
-        signedBy: ownedItem.signedBy,
-        labelType: ownedItem.labelType,
-        certificationNumber: ownedItem.certificationNumber,
-        keyComic: ownedItem.keyComic,
-        keyReason: ownedItem.keyReason,
+        coverPriceCents: comicDetails?.coverPriceCents,
+        rawOrSlabbed: comicDetails?.rawOrSlabbed,
+        gradingCompany: comicDetails?.gradingCompany,
+        graderNotes: comicDetails?.graderNotes,
+        signedBy: comicDetails?.signedBy,
+        labelType: comicDetails?.labelType,
+        certificationNumber: comicDetails?.certificationNumber,
+        keyComic: comicDetails?.keyComic,
+        keyReason: comicDetails?.keyReason,
         rating: selection.rating ?? ownedItem.rating,
         readStatus: selection.readStatus ?? ownedItem.readStatus,
         tags: selection.tags ?? ownedItem.tags,
@@ -110,6 +115,9 @@ class LibraryBulkActions {
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
       final src = ownedEntries[index].ownedItem!;
+      final comicDetails = src.typedDetails is ComicOwnedDetails
+          ? src.typedDetails as ComicOwnedDetails
+          : null;
       await mutations.addItem(
         src.itemId,
         isDigital: src.isDigital,
@@ -126,15 +134,15 @@ class LibraryBulkActions {
         quantity: src.quantity,
         locationId: src.locationId,
         indexNumber: src.indexNumber,
-        coverPriceCents: src.coverPriceCents,
-        rawOrSlabbed: src.rawOrSlabbed,
-        gradingCompany: src.gradingCompany,
-        graderNotes: src.graderNotes,
-        signedBy: src.signedBy,
-        labelType: src.labelType,
-        certificationNumber: src.certificationNumber,
-        keyComic: src.keyComic,
-        keyReason: src.keyReason,
+        coverPriceCents: comicDetails?.coverPriceCents,
+        rawOrSlabbed: comicDetails?.rawOrSlabbed,
+        gradingCompany: comicDetails?.gradingCompany,
+        graderNotes: comicDetails?.graderNotes,
+        signedBy: comicDetails?.signedBy,
+        labelType: comicDetails?.labelType,
+        certificationNumber: comicDetails?.certificationNumber,
+        keyComic: comicDetails?.keyComic ?? false,
+        keyReason: comicDetails?.keyReason,
         rating: src.rating,
         readStatus: src.readStatus,
         startedAt: src.startedAt,

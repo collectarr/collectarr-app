@@ -540,6 +540,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     required String? condition,
     required String? grade,
   }) async {
+    final comic = item.typedDetails is ComicOwnedDetails
+        ? item.typedDetails as ComicOwnedDetails
+        : null;
     await ref.read(collectionMutationsProvider).updateItem(
           item,
           condition: condition,
@@ -550,15 +553,15 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           personalNotes: item.personalNotes,
           quantity: item.quantity,
           indexNumber: item.indexNumber,
-          coverPriceCents: item.coverPriceCents,
-          rawOrSlabbed: item.rawOrSlabbed,
-          gradingCompany: item.gradingCompany,
-          graderNotes: item.graderNotes,
-          signedBy: item.signedBy,
-          labelType: item.labelType,
-          certificationNumber: item.certificationNumber,
-          keyComic: item.keyComic,
-          keyReason: item.keyReason,
+          coverPriceCents: comic?.coverPriceCents,
+          rawOrSlabbed: comic?.rawOrSlabbed,
+          gradingCompany: comic?.gradingCompany,
+          graderNotes: comic?.graderNotes,
+          signedBy: comic?.signedBy,
+          labelType: comic?.labelType,
+          certificationNumber: comic?.certificationNumber,
+          keyComic: comic?.keyComic,
+          keyReason: comic?.keyReason,
           rating: item.rating,
           readStatus: item.readStatus,
           tags: item.tags,
@@ -646,6 +649,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryWorkspaceEntry entry,
     OwnedItem item,
   ) async {
+    final comic = item.typedDetails is ComicOwnedDetails
+        ? item.typedDetails as ComicOwnedDetails
+        : null;
     await ref.read(collectionMutationsProvider).addItem(
           item.itemId,
           isDigital: item.isDigital,
@@ -662,15 +668,15 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           quantity: item.quantity,
           locationId: item.locationId,
           indexNumber: item.indexNumber,
-          coverPriceCents: item.coverPriceCents,
-          rawOrSlabbed: item.rawOrSlabbed,
-          gradingCompany: item.gradingCompany,
-          graderNotes: item.graderNotes,
-          signedBy: item.signedBy,
-          labelType: item.labelType,
-          certificationNumber: item.certificationNumber,
-          keyComic: item.keyComic,
-          keyReason: item.keyReason,
+          coverPriceCents: comic?.coverPriceCents,
+          rawOrSlabbed: comic?.rawOrSlabbed,
+          gradingCompany: comic?.gradingCompany,
+          graderNotes: comic?.graderNotes,
+          signedBy: comic?.signedBy,
+          labelType: comic?.labelType,
+          certificationNumber: comic?.certificationNumber,
+          keyComic: comic?.keyComic ?? false,
+          keyReason: comic?.keyReason,
           rating: item.rating,
           readStatus: item.readStatus,
           startedAt: item.startedAt,

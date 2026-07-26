@@ -332,30 +332,39 @@ class LibraryEditDraft {
           : (ownedItem!.sellPriceCents! / 100).toStringAsFixed(2),
     );
     final soldToController = create(ownedItem?.soldTo ?? '');
-    final rawOrSlabbedController = create(ownedItem?.rawOrSlabbed ?? '');
-    final gradingCompanyController = create(ownedItem?.gradingCompany ?? '');
-    final graderNotesController = create(ownedItem?.graderNotes ?? '');
-    final signedByController = create(ownedItem?.signedBy ?? '');
-    final labelTypeController = create(ownedItem?.labelType ?? '');
-    final pageQualityController = create(ownedItem?.pageQuality ?? '');
+    final comicDetails = ownedItem?.typedDetails is ComicOwnedDetails
+        ? ownedItem!.typedDetails as ComicOwnedDetails
+        : null;
+    final videoDetails = ownedItem?.typedDetails is VideoOwnedDetails
+        ? ownedItem!.typedDetails as VideoOwnedDetails
+        : null;
+    final musicDetails = ownedItem?.typedDetails is MusicOwnedDetails
+        ? ownedItem!.typedDetails as MusicOwnedDetails
+        : null;
+    final rawOrSlabbedController = create(comicDetails?.rawOrSlabbed ?? '');
+    final gradingCompanyController = create(comicDetails?.gradingCompany ?? '');
+    final graderNotesController = create(comicDetails?.graderNotes ?? '');
+    final signedByController = create(comicDetails?.signedBy ?? '');
+    final labelTypeController = create(comicDetails?.labelType ?? '');
+    final pageQualityController = create(comicDetails?.pageQuality ?? '');
     final certificationNumberController = create(
-      ownedItem?.certificationNumber ?? '',
+      comicDetails?.certificationNumber ?? '',
     );
     final coverPriceController = create(
-      ownedItem?.coverPriceCents == null
+      comicDetails?.coverPriceCents == null
           ? ''
-          : (ownedItem!.coverPriceCents! / 100).toStringAsFixed(2),
+          : (comicDetails!.coverPriceCents! / 100).toStringAsFixed(2),
     );
-    final keyReasonController = create(ownedItem?.keyReason ?? '');
-    final keyCategoryController = create(ownedItem?.keyCategory ?? '');
-    final featuresController = create(ownedItem?.features ?? '');
+    final keyReasonController = create(comicDetails?.keyReason ?? '');
+    final keyCategoryController = create(comicDetails?.keyCategory ?? '');
+    final featuresController = create(videoDetails?.features ?? '');
     final purchaseStoreController = create(ownedItem?.purchaseStore ?? '');
-    final boxSetNameController = create(ownedItem?.boxSetName ?? '');
-    final storageDeviceController = create(ownedItem?.storageDevice ?? '');
-    final storageSlotController = create(ownedItem?.storageSlot ?? '');
-    final regionController = create(ownedItem?.region ?? '');
-    final packagingController = create(ownedItem?.packaging ?? '');
-    final distributorController = create(ownedItem?.distributor ?? '');
+    final boxSetNameController = create(videoDetails?.boxSetName ?? '');
+    final storageDeviceController = create(musicDetails?.storageDevice ?? '');
+    final storageSlotController = create(musicDetails?.storageSlot ?? '');
+    final regionController = create(videoDetails?.region ?? '');
+    final packagingController = create(videoDetails?.packaging ?? '');
+    final distributorController = create(videoDetails?.distributor ?? '');
     final marketValueController = create(
       ownedItem?.marketValueCents == null
           ? ''
@@ -509,16 +518,34 @@ class LibraryEditDraft {
       finishedAt: trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
       episodeRatings:
           Map<String, int>.from(trackingEntry?.episodeRatings ?? const {}),
-      keyComic: ownedItem?.keyComic ?? false,
-      hdrFormats: List<String>.from(ownedItem?.hdrFormats ?? const <String>[]),
+      keyComic: (ownedItem?.typedDetails is ComicOwnedDetails
+          ? (ownedItem!.typedDetails as ComicOwnedDetails).keyComic
+          : false),
+      hdrFormats: List<String>.from((ownedItem?.typedDetails is VideoOwnedDetails
+              ? (ownedItem!.typedDetails as VideoOwnedDetails).hdrFormats
+              : const <String>[])),
       collectionStatus: ownedItem?.collectionStatus,
-      lastBagBoardDate: ownedItem?.lastBagBoardDate,
-      gameCompleteness: ownedItem?.gameCompleteness,
-      gameHasBox: ownedItem?.gameHasBox ?? true,
-      gameHasManual: ownedItem?.gameHasManual ?? true,
-      gamePriceChartingId: ownedItem?.gamePriceChartingId,
-      gameCoreRegion: ownedItem?.gameCoreRegion,
-      gameValueIsLocked: ownedItem?.gameValueIsLocked ?? false,
+      lastBagBoardDate: (ownedItem?.typedDetails is ComicOwnedDetails
+          ? (ownedItem!.typedDetails as ComicOwnedDetails).lastBagBoardDate
+          : null),
+      gameCompleteness: (ownedItem?.typedDetails is GameOwnedDetails
+          ? (ownedItem!.typedDetails as GameOwnedDetails).completeness
+          : null),
+      gameHasBox: (ownedItem?.typedDetails is GameOwnedDetails
+          ? (ownedItem!.typedDetails as GameOwnedDetails).hasBox ?? true
+          : true),
+      gameHasManual: (ownedItem?.typedDetails is GameOwnedDetails
+          ? (ownedItem!.typedDetails as GameOwnedDetails).hasManual ?? true
+          : true),
+      gamePriceChartingId: (ownedItem?.typedDetails is GameOwnedDetails
+          ? (ownedItem!.typedDetails as GameOwnedDetails).priceChartingId
+          : null),
+      gameCoreRegion: (ownedItem?.typedDetails is GameOwnedDetails
+          ? (ownedItem!.typedDetails as GameOwnedDetails).coreRegion
+          : null),
+      gameValueIsLocked: (ownedItem?.typedDetails is GameOwnedDetails
+          ? (ownedItem!.typedDetails as GameOwnedDetails).valueIsLocked ?? false
+          : false),
       physicalFormatId: initialPhysicalFormatId,
       seriesId: item.series?.seriesId,
       customFieldEdits: {

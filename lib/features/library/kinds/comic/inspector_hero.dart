@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -104,13 +105,16 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         ? entry.plotSummary?.trim()
         : entry.synopsis?.trim();
     final plotDescription = entry.plotDescription?.trim();
+    final comicDetails = ownedItem?.typedDetails is ComicOwnedDetails
+        ? ownedItem!.typedDetails as ComicOwnedDetails
+        : null;
     final slabLabel = librarySlabMarkerLabel(
-      ownedItem?.rawOrSlabbed,
-      ownedItem?.gradingCompany,
+      comicDetails?.rawOrSlabbed,
+      comicDetails?.gradingCompany,
     );
     final slabGrade = ownedItem?.grade?.trim();
     final showSlabOverlay =
-        ownedItem?.rawOrSlabbed?.trim().toLowerCase() == 'slabbed' &&
+        comicDetails?.rawOrSlabbed?.trim().toLowerCase() == 'slabbed' &&
             slabLabel != null &&
             slabGrade != null &&
             slabGrade.isNotEmpty;
@@ -121,8 +125,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
       if (ownedItem?.grade?.trim().isNotEmpty == true) ownedItem!.grade!.trim(),
       if (currentValue != null) currentValue,
     ].join('  •  ');
-    final keyReason = ownedItem?.keyReason?.trim().isNotEmpty == true
-        ? ownedItem!.keyReason!.trim()
+    final keyReason = comicDetails?.keyReason?.trim().isNotEmpty == true
+        ? comicDetails!.keyReason!.trim()
         : null;
     final ebayQuery = [
       if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),

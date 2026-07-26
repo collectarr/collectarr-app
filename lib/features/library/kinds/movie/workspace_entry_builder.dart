@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -140,7 +141,9 @@ LibraryWorkspaceEntryData _buildWorkEntryData(
     notes: overlay.ownedItem?.personalNotes,
     tags: overlay.ownedItem?.tags,
     collectionStatus: overlay.ownedItem?.collectionStatus,
-    lastBagBoardDate: overlay.ownedItem?.lastBagBoardDate,
+    lastBagBoardDate: overlay.ownedItem?.typedDetails is ComicOwnedDetails
+        ? (overlay.ownedItem!.typedDetails as ComicOwnedDetails).lastBagBoardDate
+        : null,
     pricePaidCents: overlay.ownedItem?.pricePaidCents,
     currency: overlay.ownedItem?.currency,
     locationPath: overlay.locationPath,
@@ -225,7 +228,9 @@ LibraryWorkspaceEntryData _buildReleaseEntryData({
     notes: overlay.ownedItem?.personalNotes,
     tags: overlay.ownedItem?.tags,
     collectionStatus: overlay.ownedItem?.collectionStatus,
-    lastBagBoardDate: overlay.ownedItem?.lastBagBoardDate,
+    lastBagBoardDate: overlay.ownedItem?.typedDetails is ComicOwnedDetails
+        ? (overlay.ownedItem!.typedDetails as ComicOwnedDetails).lastBagBoardDate
+        : null,
     pricePaidCents: overlay.ownedItem?.pricePaidCents,
     currency: overlay.ownedItem?.currency,
     locationPath: overlay.locationPath,

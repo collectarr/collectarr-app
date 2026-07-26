@@ -188,7 +188,9 @@ LibraryWorkspaceEntry buildBoardGameWorkspaceEntry(
       notes: overlay.ownedItem?.personalNotes ?? overlay.wishlistItem?.notes,
       tags: overlay.ownedItem?.tags,
       collectionStatus: overlay.ownedItem?.collectionStatus,
-      lastBagBoardDate: overlay.ownedItem?.lastBagBoardDate,
+      lastBagBoardDate: overlay.ownedItem?.typedDetails is ComicOwnedDetails
+          ? (overlay.ownedItem!.typedDetails as ComicOwnedDetails).lastBagBoardDate
+          : null,
       pricePaidCents: overlay.ownedItem?.pricePaidCents,
       currency: overlay.ownedItem?.currency,
       locationPath: overlay.locationPath,

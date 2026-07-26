@@ -338,7 +338,10 @@ class _InspectorPersonalDetailsEditorState
     _currencyController.text = item.currency ?? 'USD';
     _notesController.text = item.personalNotes ?? '';
     _purchaseStoreController.text = item.purchaseStore ?? '';
-    _boxSetNameController.text = item.boxSetName ?? '';
+    _boxSetNameController.text = (item.typedDetails is VideoOwnedDetails
+            ? (item.typedDetails as VideoOwnedDetails).boxSetName
+            : null) ??
+        '';
     _selectedLocationId = item.locationId;
     _locationChanged = false;
   }
@@ -404,6 +407,13 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
+    final comic = widget.ownedItem.typedDetails is ComicOwnedDetails
+        ? widget.ownedItem.typedDetails as ComicOwnedDetails
+        : null;
+    final video = widget.ownedItem.typedDetails is VideoOwnedDetails
+        ? widget.ownedItem.typedDetails as VideoOwnedDetails
+        : null;
+
     await ref.read(collectionMutationsProvider).updateItem(
           widget.ownedItem,
           condition: widget.ownedItem.condition,
@@ -413,21 +423,21 @@ class _InspectorPersonalDetailsEditorState
           currency: currency.isEmpty ? null : currency,
           personalNotes: _emptyToNull(_notesController.text),
           purchaseStore: _emptyToNull(_purchaseStoreController.text),
-          boxSetName: _emptyToNull(_boxSetNameController.text),
+          boxSetName: _emptyToNull(_boxSetNameController.text) ?? video?.boxSetName,
           quantity: widget.ownedItem.quantity,
           locationId: _locationChanged
               ? _selectedLocationId
               : widget.ownedItem.locationId,
           indexNumber: widget.ownedItem.indexNumber,
-          coverPriceCents: widget.ownedItem.coverPriceCents,
-          rawOrSlabbed: widget.ownedItem.rawOrSlabbed,
-          gradingCompany: widget.ownedItem.gradingCompany,
-          graderNotes: widget.ownedItem.graderNotes,
-          signedBy: widget.ownedItem.signedBy,
-          labelType: widget.ownedItem.labelType,
-          certificationNumber: widget.ownedItem.certificationNumber,
-          keyComic: widget.ownedItem.keyComic,
-          keyReason: widget.ownedItem.keyReason,
+          coverPriceCents: comic?.coverPriceCents,
+          rawOrSlabbed: comic?.rawOrSlabbed,
+          gradingCompany: comic?.gradingCompany,
+          graderNotes: comic?.graderNotes,
+          signedBy: comic?.signedBy,
+          labelType: comic?.labelType,
+          certificationNumber: comic?.certificationNumber,
+          keyComic: comic?.keyComic,
+          keyReason: comic?.keyReason,
           rating: widget.ownedItem.rating,
           readStatus: widget.ownedItem.readStatus,
           tags: widget.ownedItem.tags,

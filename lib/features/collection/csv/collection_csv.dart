@@ -1,4 +1,5 @@
 import 'package:csv/csv.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -324,6 +325,9 @@ class CollectionCsv {
     final cfValues = o != null
         ? _customFieldCells(o.id, customFieldDefinitions, customFieldValuesByItem)
         : List.filled(customFieldDefinitions.length, '');
+    final comic = o?.typedDetails is ComicOwnedDetails
+        ? o!.typedDetails as ComicOwnedDetails
+        : null;
     return [
       ..._catalogFields(entry),
       _status(entry),
@@ -336,15 +340,15 @@ class CollectionCsv {
       o?.quantity.toString() ?? '',
       _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
-      o?.coverPriceCents?.toString() ?? '',
-      o?.rawOrSlabbed ?? '',
-      o?.gradingCompany ?? '',
-      o?.graderNotes ?? '',
-      o?.signedBy ?? '',
-      o?.labelType ?? '',
-      o?.certificationNumber ?? '',
-      o == null ? '' : o.keyComic.toString(),
-      o?.keyReason ?? '',
+      comic?.coverPriceCents?.toString() ?? '',
+      comic?.rawOrSlabbed ?? '',
+      comic?.gradingCompany ?? '',
+      comic?.graderNotes ?? '',
+      comic?.signedBy ?? '',
+      comic?.labelType ?? '',
+      comic?.certificationNumber ?? '',
+      comic == null ? '' : comic.keyComic.toString(),
+      comic?.keyReason ?? '',
       o?.rating?.toString() ?? '',
       o?.readStatus ?? '',
       _formatDate(o?.startedAt),
@@ -363,6 +367,9 @@ class CollectionCsv {
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
     final o = entry.ownedItem;
+    final comic = o?.typedDetails is ComicOwnedDetails
+        ? o!.typedDetails as ComicOwnedDetails
+        : null;
     final cfValues = o != null
         ? _customFieldCells(o.id, customFieldDefinitions, customFieldValuesByItem)
         : List.filled(customFieldDefinitions.length, '');
@@ -374,18 +381,18 @@ class CollectionCsv {
       _formatDate(o?.purchaseDate),
       _formatMoney(o?.pricePaidCents),
       o?.currency ?? entry.wishlistItem?.currency ?? '',
-      _formatMoney(o?.coverPriceCents),
+      _formatMoney(comic?.coverPriceCents),
       o?.quantity.toString() ?? '',
       _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
-      o?.rawOrSlabbed ?? '',
-      o?.gradingCompany ?? '',
-      o?.graderNotes ?? '',
-      o?.signedBy ?? '',
-      o?.labelType ?? '',
-      o?.certificationNumber ?? '',
-      o == null ? '' : o.keyComic.toString(),
-      o?.keyReason ?? '',
+      comic?.rawOrSlabbed ?? '',
+      comic?.gradingCompany ?? '',
+      comic?.graderNotes ?? '',
+      comic?.signedBy ?? '',
+      comic?.labelType ?? '',
+      comic?.certificationNumber ?? '',
+      comic == null ? '' : comic.keyComic.toString(),
+      comic?.keyReason ?? '',
       o?.rating?.toString() ?? '',
       o?.readStatus ?? '',
       _formatDate(o?.startedAt),

@@ -491,13 +491,65 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
   }
 
   OwnedItem _ownedFromCache(OwnedItemsCacheData row) {
+    final catalogRef = CatalogEntityRef(
+      kind: 'unknown',
+      entityType: CatalogEntityType.unknown,
+      id: row.itemId,
+    );
+    OwnedItemDetails details;
+    switch (catalogRef.kind) {
+      case 'comic':
+      case 'manga':
+        details = ComicOwnedDetails(
+          rawOrSlabbed: row.rawOrSlabbed,
+          gradingCompany: row.gradingCompany,
+          graderNotes: row.graderNotes,
+          signedBy: row.signedBy,
+          labelType: row.labelType,
+          customLabel: row.customLabel,
+          pageQuality: row.pageQuality,
+          certificationNumber: row.certificationNumber,
+          keyComic: row.keyComic,
+          keyReason: row.keyReason,
+          keyCategory: row.keyCategory,
+          keySeverity: row.keySeverity,
+          coverPriceCents: row.coverPriceCents,
+          lastBagBoardDate: row.lastBagBoardDate,
+        );
+      case 'movie':
+      case 'tv':
+      case 'anime':
+        details = VideoOwnedDetails(
+          features: row.features,
+          hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
+          boxSetId: row.boxSetId,
+          boxSetName: row.boxSetName,
+          region: row.region,
+          packaging: row.packaging,
+          distributor: row.distributor,
+        );
+      case 'game':
+        details = GameOwnedDetails(
+          completeness: row.gameCompleteness,
+          hasBox: row.gameHasBox,
+          hasManual: row.gameHasManual,
+          priceChartingId: row.gamePriceChartingId,
+          coreRegion: row.gameCoreRegion,
+          valueIsLocked: row.gameValueIsLocked,
+        );
+      case 'music':
+        details = MusicOwnedDetails(
+          storageDevice: row.storageDevice,
+          storageSlot: row.storageSlot,
+        );
+      default:
+        details = const GenericOwnedDetails();
+    }
+
     return OwnedItem(
       id: row.id,
-      catalogRef: CatalogEntityRef(
-        kind: 'unknown',
-        entityType: CatalogEntityType.unknown,
-        id: row.itemId,
-      ),
+      catalogRef: catalogRef,
+      details: details,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
       anchorType: row.anchorType,
@@ -512,19 +564,6 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       personalNotes: row.personalNotes,
       quantity: row.quantity,
       indexNumber: row.indexNumber,
-      coverPriceCents: row.coverPriceCents,
-      rawOrSlabbed: row.rawOrSlabbed,
-      gradingCompany: row.gradingCompany,
-      graderNotes: row.graderNotes,
-      signedBy: row.signedBy,
-      labelType: row.labelType,
-      customLabel: row.customLabel,
-      pageQuality: row.pageQuality,
-      certificationNumber: row.certificationNumber,
-      keyComic: row.keyComic,
-      keyReason: row.keyReason,
-      keyCategory: row.keyCategory,
-      keySeverity: row.keySeverity,
       rating: row.rating,
       readStatus: row.readStatus,
       startedAt: row.startedAt,
@@ -538,25 +577,9 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       ownerUserId: row.ownerUserId,
       ownerLabel: row.ownerLabel,
       locationId: row.locationId,
-      features: row.features,
-      hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
       purchaseStore: row.purchaseStore,
-      boxSetId: row.boxSetId,
-      boxSetName: row.boxSetName,
-      storageDevice: row.storageDevice,
-      storageSlot: row.storageSlot,
-      region: row.region,
-      packaging: row.packaging,
-      distributor: row.distributor,
       collectionStatus: row.collectionStatus,
-      lastBagBoardDate: row.lastBagBoardDate,
       marketValueCents: row.marketValueCents,
-      gameCompleteness: row.gameCompleteness,
-      gameHasBox: row.gameHasBox,
-      gameHasManual: row.gameHasManual,
-      gamePriceChartingId: row.gamePriceChartingId,
-      gameCoreRegion: row.gameCoreRegion,
-      gameValueIsLocked: row.gameValueIsLocked,
     );
   }
 

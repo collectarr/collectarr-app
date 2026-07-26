@@ -89,9 +89,61 @@ class OwnedItemsCacheRepository {
   }
 
   OwnedItem _fromCache(OwnedItemsCacheData row) {
+    final catalogRef = _catalogRefFromRow(row.itemId);
+    OwnedItemDetails details;
+    switch (catalogRef.kind) {
+      case 'comic':
+      case 'manga':
+        details = ComicOwnedDetails(
+          rawOrSlabbed: row.rawOrSlabbed,
+          gradingCompany: row.gradingCompany,
+          graderNotes: row.graderNotes,
+          signedBy: row.signedBy,
+          labelType: row.labelType,
+          customLabel: row.customLabel,
+          pageQuality: row.pageQuality,
+          certificationNumber: row.certificationNumber,
+          keyComic: row.keyComic,
+          keyReason: row.keyReason,
+          keyCategory: row.keyCategory,
+          keySeverity: row.keySeverity,
+          coverPriceCents: row.coverPriceCents,
+          lastBagBoardDate: row.lastBagBoardDate,
+        );
+      case 'movie':
+      case 'tv':
+      case 'anime':
+        details = VideoOwnedDetails(
+          features: row.features,
+          hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
+          boxSetId: row.boxSetId,
+          boxSetName: row.boxSetName,
+          region: row.region,
+          packaging: row.packaging,
+          distributor: row.distributor,
+        );
+      case 'game':
+        details = GameOwnedDetails(
+          completeness: row.gameCompleteness,
+          hasBox: row.gameHasBox,
+          hasManual: row.gameHasManual,
+          priceChartingId: row.gamePriceChartingId,
+          coreRegion: row.gameCoreRegion,
+          valueIsLocked: row.gameValueIsLocked,
+        );
+      case 'music':
+        details = MusicOwnedDetails(
+          storageDevice: row.storageDevice,
+          storageSlot: row.storageSlot,
+        );
+      default:
+        details = const GenericOwnedDetails();
+    }
+
     return OwnedItem(
       id: row.id,
-      catalogRef: _catalogRefFromRow(row.itemId),
+      catalogRef: catalogRef,
+      details: details,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
       anchorType: row.anchorType,
@@ -106,19 +158,6 @@ class OwnedItemsCacheRepository {
       personalNotes: row.personalNotes,
       quantity: row.quantity,
       indexNumber: row.indexNumber,
-      coverPriceCents: row.coverPriceCents,
-      rawOrSlabbed: row.rawOrSlabbed,
-      gradingCompany: row.gradingCompany,
-      graderNotes: row.graderNotes,
-      signedBy: row.signedBy,
-      labelType: row.labelType,
-      customLabel: row.customLabel,
-      pageQuality: row.pageQuality,
-      certificationNumber: row.certificationNumber,
-      keyComic: row.keyComic,
-      keyReason: row.keyReason,
-      keyCategory: row.keyCategory,
-      keySeverity: row.keySeverity,
       rating: row.rating,
       readStatus: row.readStatus,
       startedAt: row.startedAt,
@@ -132,29 +171,19 @@ class OwnedItemsCacheRepository {
       ownerUserId: row.ownerUserId,
       ownerLabel: row.ownerLabel,
       locationId: row.locationId,
-      features: row.features,
-      hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
       purchaseStore: row.purchaseStore,
-      boxSetId: row.boxSetId,
-      boxSetName: row.boxSetName,
-      storageDevice: row.storageDevice,
-      storageSlot: row.storageSlot,
-      region: row.region,
-      packaging: row.packaging,
-      distributor: row.distributor,
       collectionStatus: row.collectionStatus,
-      lastBagBoardDate: row.lastBagBoardDate,
       marketValueCents: row.marketValueCents,
-      gameCompleteness: row.gameCompleteness,
-      gameHasBox: row.gameHasBox,
-      gameHasManual: row.gameHasManual,
-      gamePriceChartingId: row.gamePriceChartingId,
-      gameCoreRegion: row.gameCoreRegion,
-      gameValueIsLocked: row.gameValueIsLocked,
     );
   }
 
   OwnedItemsCacheCompanion _toCompanion(OwnedItem item) {
+    final details = item.typedDetails;
+    final comic = details is ComicOwnedDetails ? details : null;
+    final video = details is VideoOwnedDetails ? details : null;
+    final game = details is GameOwnedDetails ? details : null;
+    final music = details is MusicOwnedDetails ? details : null;
+
     return OwnedItemsCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
@@ -172,19 +201,19 @@ class OwnedItemsCacheRepository {
       personalNotes: Value(item.personalNotes),
       quantity: Value(item.quantity),
       indexNumber: Value(item.indexNumber),
-      coverPriceCents: Value(item.coverPriceCents),
-      rawOrSlabbed: Value(item.rawOrSlabbed),
-      gradingCompany: Value(item.gradingCompany),
-      graderNotes: Value(item.graderNotes),
-      signedBy: Value(item.signedBy),
-      labelType: Value(item.labelType),
-      customLabel: Value(item.customLabel),
-      pageQuality: Value(item.pageQuality),
-      certificationNumber: Value(item.certificationNumber),
-      keyComic: Value(item.keyComic),
-      keyReason: Value(item.keyReason),
-      keyCategory: Value(item.keyCategory),
-      keySeverity: Value(item.keySeverity),
+      coverPriceCents: Value(comic?.coverPriceCents),
+      rawOrSlabbed: Value(comic?.rawOrSlabbed),
+      gradingCompany: Value(comic?.gradingCompany),
+      graderNotes: Value(comic?.graderNotes),
+      signedBy: Value(comic?.signedBy),
+      labelType: Value(comic?.labelType),
+      customLabel: Value(comic?.customLabel),
+      pageQuality: Value(comic?.pageQuality),
+      certificationNumber: Value(comic?.certificationNumber),
+      keyComic: Value(comic?.keyComic ?? false),
+      keyReason: Value(comic?.keyReason),
+      keyCategory: Value(comic?.keyCategory),
+      keySeverity: Value(comic?.keySeverity),
       rating: Value(item.rating),
       readStatus: Value(item.readStatus),
       startedAt: Value(item.startedAt),
@@ -198,27 +227,27 @@ class OwnedItemsCacheRepository {
       ownerUserId: Value(item.ownerUserId),
       ownerLabel: Value(item.ownerLabel),
       locationId: Value(item.locationId),
-      features: Value(item.features),
+      features: Value(video?.features),
       hdrFormatsJson: Value(
-        item.hdrFormats.isNotEmpty ? jsonEncode(item.hdrFormats) : null,
+        video != null && video.hdrFormats.isNotEmpty ? jsonEncode(video.hdrFormats) : null,
       ),
       purchaseStore: Value(item.purchaseStore),
-      boxSetId: Value(item.boxSetId),
-      boxSetName: Value(item.boxSetName),
-      storageDevice: Value(item.storageDevice),
-      storageSlot: Value(item.storageSlot),
-      region: Value(item.region),
-      packaging: Value(item.packaging),
-      distributor: Value(item.distributor),
+      boxSetId: Value(video?.boxSetId),
+      boxSetName: Value(video?.boxSetName),
+      storageDevice: Value(music?.storageDevice),
+      storageSlot: Value(music?.storageSlot),
+      region: Value(video?.region),
+      packaging: Value(video?.packaging),
+      distributor: Value(video?.distributor),
       collectionStatus: Value(item.collectionStatus),
-      lastBagBoardDate: Value(item.lastBagBoardDate),
+      lastBagBoardDate: Value(comic?.lastBagBoardDate),
       marketValueCents: Value(item.marketValueCents),
-      gameCompleteness: Value(item.gameCompleteness),
-      gameHasBox: Value(item.gameHasBox),
-      gameHasManual: Value(item.gameHasManual),
-      gamePriceChartingId: Value(item.gamePriceChartingId),
-      gameCoreRegion: Value(item.gameCoreRegion),
-      gameValueIsLocked: Value(item.gameValueIsLocked),
+      gameCompleteness: Value(game?.completeness),
+      gameHasBox: Value(game?.hasBox),
+      gameHasManual: Value(game?.hasManual),
+      gamePriceChartingId: Value(game?.priceChartingId),
+      gameCoreRegion: Value(game?.coreRegion),
+      gameValueIsLocked: Value(game?.valueIsLocked),
     );
   }
 

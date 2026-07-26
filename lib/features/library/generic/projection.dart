@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -1006,7 +1007,10 @@ LibraryToolbarCounts _toolbarCountsForItems({
     }
     if (ownedItem != null) {
       totalPricePaid += ownedItem.pricePaidCents ?? 0;
-      totalCoverPrice += ownedItem.coverPriceCents ?? 0;
+      totalCoverPrice += (ownedItem.typedDetails is ComicOwnedDetails
+              ? (ownedItem.typedDetails as ComicOwnedDetails).coverPriceCents
+              : null) ??
+          0;
       totalSellPrice += ownedItem.sellPriceCents ?? 0;
       currency ??= ownedItem.currency;
     }

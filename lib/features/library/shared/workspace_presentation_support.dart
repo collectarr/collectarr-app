@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -115,16 +116,30 @@ String defaultLibraryBucketLabel(
       _yearBucket(entry.coverDate, 'Unknown cover year'),
     'audio_tracks' =>
       _stringBucket(entry.video?.audioTracks, 'No audio tracks'),
-    'box_set' =>
-      _stringBucket(source.ownedItem?.boxSetName, 'No box set'),
-    'completeness' =>
-      _stringBucket(source.ownedItem?.gameCompleteness, 'No completeness'),
-    'value_locked' =>
-      source.ownedItem?.gameValueIsLocked == true ? 'Locked' : 'Unlocked',
+    'box_set' => _stringBucket(
+        (source.ownedItem?.typedDetails is VideoOwnedDetails
+            ? (source.ownedItem!.typedDetails as VideoOwnedDetails).boxSetName
+            : null),
+        'No box set',
+      ),
+    'completeness' => _stringBucket(
+        (source.ownedItem?.typedDetails is GameOwnedDetails
+            ? (source.ownedItem!.typedDetails as GameOwnedDetails).completeness
+            : null),
+        'No completeness',
+      ),
+    'value_locked' => (source.ownedItem?.typedDetails is GameOwnedDetails &&
+            (source.ownedItem!.typedDetails as GameOwnedDetails).valueIsLocked == true)
+        ? 'Locked'
+        : 'Unlocked',
     'dust_jacket_condition' => _stringBucket(
         entry.publishing?.dustJacketCondition, 'No dust jacket condition'),
-    'distributor' =>
-      _stringBucket(source.ownedItem?.distributor, 'No distributor'),
+    'distributor' => _stringBucket(
+        (source.ownedItem?.typedDetails is VideoOwnedDetails
+            ? (source.ownedItem!.typedDetails as VideoOwnedDetails).distributor
+            : null),
+        'No distributor',
+      ),
     'instrument' =>
       _stringBucket(entry.music?.instrument, 'No instrument'),
     'is_live' =>
@@ -167,14 +182,26 @@ String defaultLibraryBucketLabel(
         _referenceEditionForEntry(entry)?.releaseDate,
         'Unknown edition release year',
       ),
-    'extras' =>
-      _stringBucket(source.ownedItem?.features, 'No extras'),
+    'extras' => _stringBucket(
+        (source.ownedItem?.typedDetails is VideoOwnedDetails
+                ? (source.ownedItem!.typedDetails as VideoOwnedDetails).features
+                : null),
+        'No extras',
+      ),
     'format' => _editionFormatBucket(entry),
-    'hdr' =>
-      _firstOrDefault(source.ownedItem?.hdrFormats, 'No HDR'),
+    'hdr' => _firstOrDefault(
+        (source.ownedItem?.typedDetails is VideoOwnedDetails
+            ? (source.ownedItem!.typedDetails as VideoOwnedDetails).hdrFormats
+            : null),
+        'No HDR',
+      ),
     'layers' => _stringBucket(entry.video?.layers, 'No layers'),
-    'packaging' =>
-      _stringBucket(source.ownedItem?.packaging, 'No packaging'),
+    'packaging' => _stringBucket(
+        (source.ownedItem?.typedDetails is VideoOwnedDetails
+            ? (source.ownedItem!.typedDetails as VideoOwnedDetails).packaging
+            : null),
+        'No packaging',
+      ),
     'regions' =>
       _stringBucket(_referenceRegionFor(source, entry), 'No region'),
     'screen_ratios' =>
@@ -282,11 +309,17 @@ String defaultLibraryBucketLabel(
     'read_year' =>
       _yearBucket(source.tracking.completedAt, 'Unknown read year'),
     'is_signed' =>
-      source.ownedItem?.signedBy?.trim().isNotEmpty == true
+      (source.ownedItem?.typedDetails is ComicOwnedDetails
+              ? (source.ownedItem!.typedDetails as ComicOwnedDetails).signedBy
+              : null)?.trim().isNotEmpty == true
           ? 'Signed'
           : 'Not signed',
-    'signed_by' =>
-      _stringBucket(source.ownedItem?.signedBy, 'Not signed'),
+    'signed_by' => _stringBucket(
+        (source.ownedItem?.typedDetails is ComicOwnedDetails
+            ? (source.ownedItem!.typedDetails as ComicOwnedDetails).signedBy
+            : null),
+        'Not signed',
+      ),
     'purchase_date' => _dateBucket(
         source.ownedItem?.purchaseDate,
         'Unknown purchase date',
@@ -309,8 +342,12 @@ String defaultLibraryBucketLabel(
       ),
     'sold_year' =>
       _yearBucket(source.ownedItem?.soldAt, 'Unknown sold year'),
-    'storage_device' =>
-      _stringBucket(source.ownedItem?.storageDevice, 'No storage device'),
+    'storage_device' => _stringBucket(
+        (source.ownedItem?.typedDetails is MusicOwnedDetails
+            ? (source.ownedItem!.typedDetails as MusicOwnedDetails).storageDevice
+            : null),
+        'No storage device',
+      ),
     'dust_jacket' => entry.publishing?.dustJacket == true
         ? 'Has dust jacket'
         : 'No dust jacket',
@@ -506,7 +543,10 @@ String? _referenceRegionFor(ShelfEntry source, LibraryWorkspaceEntry entry) {
   if (editionRegion != null && editionRegion.isNotEmpty) {
     return editionRegion;
   }
-  final ownedRegion = source.ownedItem?.region?.trim();
+  final video = source.ownedItem?.typedDetails is VideoOwnedDetails
+      ? source.ownedItem!.typedDetails as VideoOwnedDetails
+      : null;
+  final ownedRegion = video?.region?.trim();
   if (ownedRegion != null && ownedRegion.isNotEmpty) {
     return ownedRegion;
   }

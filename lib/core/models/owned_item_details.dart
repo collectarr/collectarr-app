@@ -83,6 +83,40 @@ class ComicOwnedDetails extends OwnedItemDetails {
           : DateTime.parse(json['last_bag_board_date'] as String),
     );
   }
+
+  ComicOwnedDetails copyWith({
+    String? rawOrSlabbed,
+    String? gradingCompany,
+    String? graderNotes,
+    String? signedBy,
+    String? labelType,
+    String? customLabel,
+    String? pageQuality,
+    String? certificationNumber,
+    bool? keyComic,
+    String? keyReason,
+    String? keyCategory,
+    String? keySeverity,
+    int? coverPriceCents,
+    DateTime? lastBagBoardDate,
+  }) {
+    return ComicOwnedDetails(
+      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
+      gradingCompany: gradingCompany ?? this.gradingCompany,
+      graderNotes: graderNotes ?? this.graderNotes,
+      signedBy: signedBy ?? this.signedBy,
+      labelType: labelType ?? this.labelType,
+      customLabel: customLabel ?? this.customLabel,
+      pageQuality: pageQuality ?? this.pageQuality,
+      certificationNumber: certificationNumber ?? this.certificationNumber,
+      keyComic: keyComic ?? this.keyComic,
+      keyReason: keyReason ?? this.keyReason,
+      keyCategory: keyCategory ?? this.keyCategory,
+      keySeverity: keySeverity ?? this.keySeverity,
+      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
+      lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
+    );
+  }
 }
 
 /// Kind-specific ownership details for movies, TV series, and anime.
@@ -130,6 +164,26 @@ class VideoOwnedDetails extends OwnedItemDetails {
       distributor: json['distributor'] as String?,
     );
   }
+
+  VideoOwnedDetails copyWith({
+    String? features,
+    List<String>? hdrFormats,
+    String? boxSetId,
+    String? boxSetName,
+    String? region,
+    String? packaging,
+    String? distributor,
+  }) {
+    return VideoOwnedDetails(
+      features: features ?? this.features,
+      hdrFormats: hdrFormats ?? this.hdrFormats,
+      boxSetId: boxSetId ?? this.boxSetId,
+      boxSetName: boxSetName ?? this.boxSetName,
+      region: region ?? this.region,
+      packaging: packaging ?? this.packaging,
+      distributor: distributor ?? this.distributor,
+    );
+  }
 }
 
 /// Kind-specific ownership details for video games.
@@ -170,6 +224,24 @@ class GameOwnedDetails extends OwnedItemDetails {
       valueIsLocked: json['game_value_is_locked'] as bool?,
     );
   }
+
+  GameOwnedDetails copyWith({
+    String? completeness,
+    bool? hasBox,
+    bool? hasManual,
+    String? priceChartingId,
+    String? coreRegion,
+    bool? valueIsLocked,
+  }) {
+    return GameOwnedDetails(
+      completeness: completeness ?? this.completeness,
+      hasBox: hasBox ?? this.hasBox,
+      hasManual: hasManual ?? this.hasManual,
+      priceChartingId: priceChartingId ?? this.priceChartingId,
+      coreRegion: coreRegion ?? this.coreRegion,
+      valueIsLocked: valueIsLocked ?? this.valueIsLocked,
+    );
+  }
 }
 
 /// Kind-specific ownership details for music releases.
@@ -192,6 +264,16 @@ class MusicOwnedDetails extends OwnedItemDetails {
     return MusicOwnedDetails(
       storageDevice: json['storage_device'] as String?,
       storageSlot: json['storage_slot'] as String?,
+    );
+  }
+
+  MusicOwnedDetails copyWith({
+    String? storageDevice,
+    String? storageSlot,
+  }) {
+    return MusicOwnedDetails(
+      storageDevice: storageDevice ?? this.storageDevice,
+      storageSlot: storageSlot ?? this.storageSlot,
     );
   }
 }
