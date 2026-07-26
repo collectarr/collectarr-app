@@ -10,7 +10,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('ComicWork parses issues and missing gaps', () {
-    final dto = ComicWorkDto.fromJson({
+    final dto = CatalogItemDto.fromJson({
       'id': 'comic-work-1',
       'title': 'Saga',
       'first_publication_date': '2024-05-01T00:00:00.000Z',

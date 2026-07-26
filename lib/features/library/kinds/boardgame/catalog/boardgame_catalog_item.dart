@@ -14,6 +14,8 @@ class BoardGameStatsMetadata {
   final int? playCount;
   final DateTime? lastPlayed;
   final int? favoritePlayerCount;
+
+  String? get playerStats => null;
 }
 
 class BoardGameWorkMetadata {
@@ -57,4 +59,13 @@ class BoardGameCatalogItem {
 
   List<String> get categories => work.categories;
   List<String> get mechanics => work.mechanics;
+  List<BoardGameRelease> get editions => releases;
+  String get title => work.title;
+  String? get displayTitle => work.title;
+  String? get originalTitle => work.originalTitle;
+  String? get synopsis => work.synopsis;
+  List<Map<String, dynamic>>? get creators => null;
+  List<String> get contributors => const [];
+  List<String> get expansions => const [];
+  BoardGameStatsMetadata? get playStats => stats;
 }

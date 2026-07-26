@@ -178,6 +178,7 @@ class _TvRelease {
     this.media = const [],
     this.publishingDetails,
     this.videoDetails,
+    this.episodeMappings = const [],
   });
 
   factory _TvRelease.fromCatalogEdition(
@@ -188,7 +189,7 @@ class _TvRelease {
         .map((disc) => TvReleaseMedia(
               id: '${edition.id}:disc:${disc.discNumber}',
               releaseId: edition.id,
-              sequenceNumber: disc.discNumber,
+              sequenceNumber: disc.discNumber ?? 1,
               name: disc.discName,
               discNumber: disc.discNumber,
               formatLabel: disc.discFormat,
@@ -234,6 +235,7 @@ class _TvRelease {
   final List<TvReleaseMedia> media;
   final CatalogPublishingDetails? publishingDetails;
   final VideoCatalogDetails? videoDetails;
+  final List<TvReleaseEpisodeMap> episodeMappings;
 }
 
 // ---------------------------------------------------------------------------
@@ -269,11 +271,17 @@ class TvReleaseMedia {
 class TvReleaseEpisodeMap {
   const TvReleaseEpisodeMap({
     this.id = '',
+    this.releaseId,
+    this.mediaId,
+    this.episodeId,
     this.sequenceNumber,
     this.discNumber,
   });
 
   final String id;
+  final String? releaseId;
+  final String? mediaId;
+  final String? episodeId;
   final int? sequenceNumber;
   final int? discNumber;
 }

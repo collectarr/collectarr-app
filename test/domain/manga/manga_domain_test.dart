@@ -10,7 +10,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('MangaWork parses chapters and metadata', () {
-    final dto = MangaWorkDto.fromJson({
+    final dto = CatalogItemDto.fromJson({
       'id': 'manga-work-1',
       'title': 'Vagabond',
       'description': 'A wandering swordsman.',

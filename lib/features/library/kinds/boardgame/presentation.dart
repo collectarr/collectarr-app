@@ -135,20 +135,18 @@ LibraryWorkspaceEntry buildBoardGamesLibraryReleaseEntry(
   }
   final work = titleEntry.boardGameWork!;
   final edition = _boardGameEditionById(
-        work.editions,
+        work.releases,
         request.referenceEditionId,
       ) ??
       _primaryBoardGameEdition(work) ??
-      BoardGameEdition(
+      BoardGameRelease(
         id: request.referenceEditionId ?? request.edition.id,
         title: request.edition.title,
-        format: request.edition.format,
         publisher: request.edition.publisher,
         catalogNumber: request.edition.upc,
         barcode: request.edition.upc,
         releaseDate: request.edition.releaseDate,
         language: request.edition.language,
-        country: request.edition.region,
         coverImageUrl: request.edition.variants.isNotEmpty
             ? request.edition.variants.first.coverImageUrl
             : null,
@@ -161,46 +159,19 @@ LibraryWorkspaceEntry buildBoardGamesLibraryReleaseEntry(
 }
 
 BoardGameWork _boardGameWorkFromMetadataItem(LibraryMetadataItem item) {
-  return BoardGameWork(
-    id: item.id,
-    title: item.title,
-    identifiers: const <String>[],
-    contributors: item.creators == null
-        ? const <String>[]
-        : List<String>.unmodifiable(
-            item.creators!
-                .map((creator) => creator['name']?.toString() ?? '')
-                .where((name) => name.isNotEmpty),
-          ),
-    mechanics: const <String>[],
-    categories: item.genres == null
-        ? const <String>[]
-        : List<String>.unmodifiable(item.genres!),
-    families: const <String>[],
-    expansions: const <String>[],
-    rankings: const <String>[],
-    playStats: item.boardGameStats == null
-        ? null
-        : BoardGamePlayStats.fromDetails(item.boardGameStats!),
-    editions: [
-      for (final edition in item.editions)
-        _boardGameEditionFromCatalogEdition(edition),
-    ],
-  );
+  return BoardGameCatalogMapper.mapMetadataItemToBoardGame(item);
 }
 
-BoardGameEdition _boardGameEditionFromCatalogEdition(CatalogEdition edition) {
-  return BoardGameEdition(
+BoardGameRelease _boardGameEditionFromCatalogEdition(CatalogEdition edition) {
+  return BoardGameRelease(
     id: edition.id,
     title: edition.title,
     editionTitle: edition.title,
-    format: edition.format,
     publisher: edition.publisher,
     catalogNumber: edition.upc,
     barcode: edition.upc,
     releaseDate: edition.releaseDate,
     language: edition.language,
-    country: edition.region,
     coverImageUrl: edition.variants.isNotEmpty
         ? edition.variants.first.coverImageUrl
         : null,

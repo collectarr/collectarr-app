@@ -71,16 +71,14 @@ class BoardGamePlayStatsSection extends StatelessWidget {
           values: work.expansions,
         ),
       ],
-      if (stats?.playerStats.isNotEmpty == true) ...[
+      if (stats?.playerStats?.isNotEmpty == true) ...[
         if (work.mechanics.isNotEmpty ||
             work.categories.isNotEmpty ||
             work.expansions.isNotEmpty)
           const SizedBox(height: 8),
         LibraryDetailChipGroupWidget(
           label: 'Player stats',
-          values: [
-            for (final stat in stats!.playerStats) stat.toSummary(),
-          ],
+          values: [stats!.playerStats!],
         ),
       ],
     ];

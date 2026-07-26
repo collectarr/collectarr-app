@@ -226,7 +226,7 @@ final class BookWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
     required LibraryWorkspaceEntryData common,
     CatalogSeriesDetails? series,
     CatalogPublishingDetails? publishing,
-    this.bookEditions = const <BookEdition>[],
+    this.bookEditions = const <BookRelease>[],
     this.originalDetails,
     this.physicalDetails,
   }) : super._(
@@ -235,7 +235,7 @@ final class BookWorkspaceEntry extends _TypedLibraryWorkspaceEntry {
           publishingDetails: _publishingOrNull(publishing),
         );
 
-  final List<BookEdition> bookEditions;
+  final List<BookRelease> bookEditions;
   final BookOriginalDetails? originalDetails;
   final BookPhysicalDetails? physicalDetails;
 }

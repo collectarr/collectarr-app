@@ -1,10 +1,10 @@
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('book work dto maps rich metadata into book domain', () {
-    final dto = BookWorkDto.fromJson({
+    final dto = CatalogItemDto.fromJson({
       'id': 'book-1',
       'title': 'Guards! Guards!',
       'search_aliases': ['Guards Guards'],

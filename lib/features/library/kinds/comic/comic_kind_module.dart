@@ -25,8 +25,8 @@ final comicKindModule = LibraryKindModule(
     sorts: comicLibrarySortDefinitions,
     columns: comicLibraryColumnDefinitions,
     defaultVisibleColumnIds: comicLibraryDefaultVisibleColumnIds,
-    defaultSortId: comicDefaultSortId,
-    defaultGroupId: comicDefaultGroupId,
+    defaultSortId: 'title',
+    defaultGroupId: 'series',
     customLinkedMetadataCandidates: (entry) sync* {
       yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.characters);
       yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.storyArcs);

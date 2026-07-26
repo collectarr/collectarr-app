@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_section_tab.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
@@ -252,7 +254,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _thumbnailController = _draft.thumbnailController;
     _synopsisController = _draft.synopsisController;
     _seriesTagsController =
-        TextEditingController(text: (item.series?.tags ?? const []).join(', '));
+        TextEditingController(text: item.series?.tags ?? '');
     _creatorsController = TextEditingController(
       text: _creatorNames(item.creators).join(', '),
     );
@@ -1163,11 +1165,11 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       seriesId: widget.request.item.series?.seriesId,
       seriesTitle: emptyToNull(_seriesTitleController.text),
       volumeName: emptyToNull(_volumeNameController.text),
-      volumeNumber: parseDouble(_volumeNumberController.text),
+      volumeNumber: emptyToNull(_volumeNumberController.text.trim()),
       volumeStartYear: widget.request.item.series?.volumeStartYear,
       seasonNumber: widget.request.item.series?.seasonNumber,
       episodeNumber: widget.request.item.series?.episodeNumber,
-      tags: _splitList(_seriesTagsController.text) ?? const <String>[],
+      tags: emptyToNull(_seriesTagsController.text.trim()),
     );
     final existingPublishing = widget.request.item.publishing;
     final updatedPublishing = CatalogPublishingDetails(

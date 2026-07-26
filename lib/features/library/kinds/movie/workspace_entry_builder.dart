@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -15,7 +16,7 @@ LibraryWorkspaceEntry buildMovieWorkWorkspaceEntry({
     common: common,
     series: work.series,
     publishing: work.publishingDetails,
-    video: work.videoDetails,
+    video: _toVideoDetails(work.videoDetails),
   );
 }
 
@@ -35,7 +36,20 @@ LibraryWorkspaceEntry buildMovieReleaseWorkspaceEntry({
     common: common,
     series: work.series,
     publishing: release.publishingDetails,
-    video: release.videoDetails ?? work.videoDetails,
+    video: _toVideoDetails(work.videoDetails),
+  );
+}
+
+VideoCatalogDetailsDto? _toVideoDetails(VideoTechnicalMetadata? tech) {
+  if (tech == null) return null;
+  return VideoCatalogDetailsDto(
+    runtimeMinutes: tech.runtimeMinutes,
+    color: tech.color,
+    screenRatio: tech.screenRatio,
+    audioTracks: tech.audioTracks,
+    subtitles: tech.subtitles,
+    ageRating: tech.ageRating,
+    audienceRating: tech.audienceRating,
   );
 }
 
@@ -59,7 +73,7 @@ LibraryWorkspaceEntry buildMoviesLibraryReleaseEntry(
   LibraryReleaseEntryRequest request,
 ) {
   final work = MovieWork.fromWorkspaceEntry(request.titleEntry);
-  final release = MovieRelease.fromCatalogEdition(
+  final release = MovieReleaseFactory.fromCatalogEdition(
     request.edition,
     workId: work.id,
   );
@@ -136,7 +150,7 @@ LibraryWorkspaceEntryData _buildWorkEntryData(
       for (final release in work.releases.skip(1)) release.toCatalogEdition(),
     ],
     updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
-    trailerUrls: work.trailerUrls,
+    trailerUrls: const <TrailerLinkDto>[],
     plotSummary: work.synopsis,
     plotDescription: work.description,
     creators: work.contributions,

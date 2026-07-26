@@ -8,8 +8,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_release.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_mapper.dart';
@@ -69,48 +67,46 @@ final class MoviePersonalOverlay {
 }
 
 // ---------------------------------------------------------------------------
+// Extension getters for VideoRelease required by movie workspace builder
+// ---------------------------------------------------------------------------
+
+extension VideoReleaseMovieExt on VideoRelease {
+  CatalogEdition toCatalogEdition() {
+    return CatalogEdition(
+      id: id,
+      title: title,
+      publisher: publisher,
+      distributor: distributor,
+      upc: barcode,
+      releaseDate: releaseDate,
+      physicalFormat: formatLabel,
+      physicalFormatLabel: formatLabel,
+    );
+  }
+
+  String? get backCoverUrl => null;
+  CatalogPublishingDetails? get publishingDetails => null;
+  VideoCatalogDetails? get videoDetails => null;
+  List<TrailerLink> get trailerUrls => const <TrailerLink>[];
+  String? get country => null;
+  String? get language => null;
+}
+
+// ---------------------------------------------------------------------------
 // Extension getters for VideoCatalogItem required by movie workspace builder
 // ---------------------------------------------------------------------------
 
 extension VideoCatalogItemMovieExt on VideoCatalogItem {
-  /// Maps LibraryMetadataItem to a VideoCatalogItem via the mapper.
-  static VideoCatalogItem fromMetadataItem(LibraryMetadataItem item) {
-    return VideoCatalogMapper.mapDtoToVideo(CatalogItemDto(
-      id: item.id,
-      mediaKind: item.mediaKind,
-      title: item.title,
-      displayTitle: item.displayTitle,
-      localizedTitle: item.localizedTitle,
-      originalTitle: item.originalTitle,
-      synopsis: item.synopsis,
-      coverImageUrl: item.coverImageUrl,
-      thumbnailImageUrl: item.thumbnailImageUrl,
-      releaseDate: item.releaseDate,
-      releaseYear: item.releaseYear,
-      publisher: item.publisher,
-      genres: item.genres,
-      country: item.country,
-      language: item.language,
-      ageRating: item.ageRating,
-      audienceRating: item.audienceRating,
-      creators: item.creators,
-      characterDetails: item.characterDetails,
-      video: item.video,
-      series: item.series,
-      publishing: item.publishing,
-      editions: item.editions,
-      trailerUrls: item.trailerUrls.map((t) => TrailerLinkDto(url: t.url, label: t.label)).toList(),
-    ));
-  }
-
-  static VideoCatalogItem fromWorkspaceEntry(LibraryWorkspaceEntry entry) {
-    return VideoCatalogMapper.mapWorkspaceEntryToVideo(entry);
-  }
-
-  CatalogSeriesDetails? get series => null;
-  CatalogPublishingDetails? get publishingDetails => null;
-  VideoCatalogDetails get videoDetails =>
-      VideoCatalogDetails(runtimeMinutes: technical.runtimeMinutes);
+  String get title => work.title;
+  String? get originalTitle => work.originalTitle;
+  String? get synopsis => work.synopsis;
+  DateTime? get releaseDate => work.releaseDate;
+  String? get originalLanguage => work.originalLanguage;
+  String? get ageRating => technical.ageRating;
+  String? get audienceRating => technical.audienceRating;
+  String? get coverImageUrl =>
+      releases.isEmpty ? null : releases.first.frontCoverUrl;
+  String? get thumbnailImageUrl => coverImageUrl;
   bool get hasMissingCoreMetadata =>
       work.title.isEmpty || (work.synopsis == null && releases.isEmpty);
   List<TrailerLink> get trailerUrls => const <TrailerLink>[];
@@ -118,22 +114,17 @@ extension VideoCatalogItemMovieExt on VideoCatalogItem {
   List<Map<String, dynamic>>? get contributions => null;
   List<Map<String, dynamic>> get characterAppearances =>
       const <Map<String, dynamic>>[];
-  String? get originalLanguage => work.originalLanguage;
-  String? get ageRating => technical.ageRating;
-  String? get audienceRating => technical.audienceRating;
-  String? get originalTitle => work.originalTitle;
-  String? get synopsis => work.synopsis;
-  String? get coverImageUrl =>
-      releases.isEmpty ? null : releases.first.frontCoverUrl;
-  String? get thumbnailImageUrl => coverImageUrl;
-  DateTime? get releaseDate => work.releaseDate;
+  CatalogSeriesDetails? get series => null;
+  CatalogPublishingDetails? get publishingDetails => null;
+  VideoCatalogDetails get videoDetails =>
+      VideoCatalogDetails(runtimeMinutes: technical.runtimeMinutes);
 }
 
 // ---------------------------------------------------------------------------
-// Extension getters for VideoRelease required by movie workspace builder
+// MovieRelease static factories (separate helper class)
 // ---------------------------------------------------------------------------
 
-extension VideoReleaseMovieExt on VideoRelease {
+abstract final class MovieReleaseFactory {
   static VideoRelease fromCatalogEdition(
     CatalogEdition edition, {
     required String workId,
@@ -154,28 +145,7 @@ extension VideoReleaseMovieExt on VideoRelease {
       barcode: edition.upc ?? edition.isbn,
       releaseDate: edition.releaseDate,
       formatLabel: edition.physicalFormatLabel ?? edition.physicalFormat,
-      frontCoverUrl: null,
       media: discs,
     );
   }
-
-  CatalogEdition toCatalogEdition() {
-    return CatalogEdition(
-      id: id,
-      title: title,
-      publisher: publisher,
-      distributor: distributor,
-      upc: barcode,
-      releaseDate: releaseDate,
-      physicalFormat: formatLabel,
-      physicalFormatLabel: formatLabel,
-    );
-  }
-
-  String? get backCoverUrl => null;
-  CatalogPublishingDetails? get publishingDetails => null;
-  VideoCatalogDetails? get videoDetails => null;
-  List<TrailerLink> get trailerUrls => const <TrailerLink>[];
-  String? get country => null;
-  String? get language => null;
 }

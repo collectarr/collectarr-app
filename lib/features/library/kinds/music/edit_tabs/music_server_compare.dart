@@ -59,7 +59,7 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
       _serverSnapshotItem?.creators ?? const <Map<String, dynamic>>[];
 
   List<CatalogDisc> get _serverDiscs =>
-      _serverSnapshotItem?.discs ?? const <CatalogDisc>[];
+      _serverSnapshotItem?.discsAsCatalog ?? const <CatalogDisc>[];
 
   List<String> _creatorsForRoleFromSource(
     List<Map<String, dynamic>> source,
@@ -264,7 +264,7 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
       MetadataDiffEntry(
         label: 'RPM',
         localValue: _diffText(_rpmController.text),
-        serverValue: _diffText(serverItem.rpm),
+        serverValue: _diffText(serverItem.rpm?.toString()),
       ),
       MetadataDiffEntry(
         label: 'SPARS',
@@ -304,7 +304,7 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
       MetadataDiffEntry(
         label: 'Live recording',
         localValue: _isLive ? 'Yes' : 'No',
-        serverValue: serverItem.isLive ? 'Yes' : 'No',
+        serverValue: (serverItem.isLive ?? false) ? 'Yes' : 'No',
       ),
     ];
   }
@@ -314,10 +314,11 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
     required bool showDiscsDiff,
   }) {
     final localDiscs = {
-      for (final disc in _buildSubmittedDiscMetadata()) disc.discNumber: disc,
+      for (final disc in _buildSubmittedDiscMetadata())
+        (disc.discNumber ?? 0): disc,
     };
     final serverDiscs = {
-      for (final disc in _serverDiscs) disc.discNumber: disc,
+      for (final disc in _serverDiscs) (disc.discNumber ?? 0): disc,
     };
     final allDiscNumbers =
         <int>{...localDiscs.keys, ...serverDiscs.keys}.toList()..sort();
@@ -489,8 +490,8 @@ extension _MusicEditServerCompare on _MusicLibraryEditDialogState {
   }
 
   void _applyServerDiscValue(CatalogDisc disc) {
-    _ensureDiscExists(disc.discNumber);
-    final draft = _discDraftFor(disc.discNumber);
+    _ensureDiscExists(disc.discNumber ?? 0);
+    final draft = _discDraftFor(disc.discNumber ?? 0);
     draft.discTitleController.text =
         disc.discName ?? 'Disc #${disc.discNumber}';
     draft.storageDeviceController.text = disc.storageDevice ?? '';

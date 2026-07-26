@@ -8,6 +8,30 @@ import 'package:collectarr_app/core/api/dto/catalog/game_catalog_details_dto.dar
 import 'package:collectarr_app/core/api/dto/catalog/boardgame_stats_details_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/book_catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/comic_catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/music_catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/video_catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/game_catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/boardgame_catalog_item_dto.dart';
+
+export 'package:collectarr_app/core/models/catalog_media_kind.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/video_catalog_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/game_catalog_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/boardgame_stats_details_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/book_catalog_item_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/comic_catalog_item_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/music_catalog_item_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/video_catalog_item_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/game_catalog_item_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/boardgame_catalog_item_dto.dart';
 
 class TrailerLinkDto {
   const TrailerLinkDto({
@@ -151,7 +175,7 @@ sealed class CatalogItemDto {
     String? audienceRating,
   }) {
     final resolvedMediaKind = mediaKind ?? catalogMediaKindFromApiValue(kind);
-    final common = _CatalogItemCommonDto(
+    final common = CatalogItemCommonDto(
       id: id,
       mediaKind: resolvedMediaKind,
       title: title,
@@ -616,25 +640,7 @@ sealed class CatalogItemDto {
   }
 }
 
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-export 'package:collectarr_app/core/models/catalog_media_kind.dart';
-export 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/video_catalog_details_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/game_catalog_details_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/boardgame_stats_details_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/book_catalog_item_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/comic_catalog_item_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/music_catalog_item_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/video_catalog_item_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/game_catalog_item_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/boardgame_catalog_item_dto.dart';
 
 typedef CatalogItem = CatalogItemDto;
 typedef TrailerLink = TrailerLinkDto;

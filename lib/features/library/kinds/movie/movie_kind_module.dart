@@ -20,7 +20,7 @@ final movieKindModule = LibraryKindModule(
     groups: movieLibraryGroupDefinitions,
     sorts: movieLibrarySortDefinitions,
     columns: movieLibraryColumnDefinitions,
-    defaultVisibleColumnIds: moviesLibraryDefaultVisibleColumnIds,
+    defaultVisibleColumnIds: movieLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
   ),

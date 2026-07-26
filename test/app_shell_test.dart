@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/providers/selected_library_provi
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
+import 'package:collectarr_app/features/sync/state/sync_state.dart';
 
 import 'package:collectarr_app/ui/app_shell.dart';
 import 'package:flutter/material.dart';
@@ -155,7 +156,7 @@ void main() {
           mediaCatalogProvider
               .overrideWith((ref) async => fallbackMediaCatalog),
           syncControllerProvider.overrideWith(
-            (ref) => _StaticSyncController(ref, const SyncState()),
+            (ref) => _StaticSyncController(ref, SyncState()),
           ),
           shelfProvider.overrideWith(
             (ref) async => const ShelfState(
@@ -362,7 +363,7 @@ void main() {
 List<Override> _baseShellOverrides() {
   return [
     syncControllerProvider.overrideWith(
-      (ref) => _StaticSyncController(ref, const SyncState()),
+      (ref) => _StaticSyncController(ref, SyncState()),
     ),
     shelfProvider.overrideWith(
       (ref) async => const ShelfState(
@@ -408,7 +409,7 @@ class _StaticSyncController extends SyncController {
 }
 
 class _SpySyncController extends _StaticSyncController {
-  _SpySyncController(Ref ref) : super(ref, const SyncState());
+  _SpySyncController(Ref ref) : super(ref, SyncState());
 
   int onlineFirstRequests = 0;
 

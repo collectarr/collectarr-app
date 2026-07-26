@@ -1004,7 +1004,8 @@ class _TvEpisodeMapList extends StatelessWidget {
                       'Disc ${mapping.discNumber}',
                     if (mapping.sequenceNumber != null)
                       'Seq ${mapping.sequenceNumber}',
-                    _episodeTitleForId(series, mapping.episodeId),
+                    if (mapping.episodeId != null)
+                      _episodeTitleForId(series, mapping.episodeId!),
                   ].where((value) => value.trim().isNotEmpty).join(' • '),
                 ),
               ),

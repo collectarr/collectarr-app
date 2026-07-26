@@ -61,6 +61,16 @@ class MusicCatalogDetailsDto {
       (instrument != null && instrument!.isNotEmpty) ||
       isLive != null ||
       (composition != null && composition!.isNotEmpty);
+
+  // Extended getters used by the inspector (null by default in the generic DTO)
+  int? get expectedMediaCount => null;
+  int? get ownedMediaCount => null;
+  int? get missingMediaCount => null;
+  List<int> get missingDiscNumbers => const <int>[];
+  String? get upc => catalogNumber;
+  String? get localCoverImagePath => null;
+  String? get localBackImagePath => null;
+  String? get localThumbnailImagePath => null;
 }
 
 typedef MusicCatalogDetails = MusicCatalogDetailsDto;

@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
@@ -54,7 +55,7 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
           primaryRelease.variant?.thumbnailImageUrl ??
           primaryRelease.variant?.coverImageUrl;
   final originalDetails = work.originalDetails;
-  final physicalDetails = null;
+  final BookPhysicalDetails? physicalDetails = null;
   return BookWorkspaceEntry(
     common: LibraryWorkspaceEntryData(
       id: work.id,

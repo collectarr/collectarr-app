@@ -61,7 +61,7 @@ LibraryWorkspaceEntry buildMusicLibraryWorkspaceEntryFromShelf(
     throw StateError('Expected catalog item for music workspace entry');
   }
   return buildMusicWorkspaceEntry(
-    MusicWork.fromMetadataItem(catalogItem),
+    MusicCatalogMapper.mapMetadataItemToMusic(catalogItem),
     MusicPersonalOverlay.fromShelf(source),
   );
 }

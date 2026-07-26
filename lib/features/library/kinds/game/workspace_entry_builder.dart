@@ -128,7 +128,7 @@ LibraryWorkspaceEntry buildGameReleaseWorkspaceEntry({
       storyArcs: _copyStringList(titleEntry.storyArcs),
       genres: _copyStringList(titleEntry.genres),
       country: titleEntry.country,
-      language: release.language ?? titleEntry.language,
+      language: titleEntry.language,
       ageRating: titleEntry.ageRating,
       audienceRating: titleEntry.audienceRating,
     ),
@@ -148,7 +148,7 @@ LibraryWorkspaceEntry buildGameWorkspaceEntry(
           ? referenceRelease!.format!.trim()
           : referenceRelease?.title.trim().isNotEmpty == true
               ? referenceRelease!.title.trim()
-              : work.physicalFormatLabel;
+              : null;
   return GameWorkspaceEntry(
     common: LibraryWorkspaceEntryData(
       id: work.id,
@@ -162,7 +162,7 @@ LibraryWorkspaceEntry buildGameWorkspaceEntry(
       displayTitle: work.displayTitle,
       localizedTitle: work.localizedTitle,
       originalTitle: work.originalTitle,
-      searchAliases: _copyStringList(work.searchAliases),
+      searchAliases: null,
       itemNumber: work.itemNumber,
       synopsis: work.synopsis,
       coverImageUrl: work.coverImageUrl ?? referenceRelease?.coverImageUrl,
@@ -221,7 +221,7 @@ LibraryWorkspaceEntry buildGameWorkspaceEntry(
       storyArcs: _copyStringList(work.storyArcs),
       genres: _copyStringList(work.genres),
       country: work.country,
-      language: work.language ?? referenceRelease?.language,
+      language: work.language,
       ageRating: work.ageRating,
       audienceRating: work.audienceRating,
     ),
@@ -231,11 +231,6 @@ LibraryWorkspaceEntry buildGameWorkspaceEntry(
 }
 
 GameRelease? _resolvePrimaryGameRelease(List<GameRelease> releases) {
-  for (final release in releases) {
-    if (release.isPrimary) {
-      return release;
-    }
-  }
   return releases.isEmpty ? null : releases.first;
 }
 

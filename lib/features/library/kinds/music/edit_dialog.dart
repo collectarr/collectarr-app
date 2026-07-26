@@ -628,8 +628,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       for (final track in tracks)
         _createTrackRow(
           discNumber: track.discNumber ?? 1,
-          position: track.position,
-          title: track.title,
+          position: int.tryParse(track.position ?? ''),
+          title: track.title ?? '',
           artist: track.artist,
           durationLabel: _secondsLabel(track.durationSeconds),
         ),
@@ -1074,7 +1074,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       if (byDisc != 0) {
         return byDisc;
       }
-      return (left.position ?? 0).compareTo(right.position ?? 0);
+      return ((left.position ?? 0) as Comparable).compareTo(right.position ?? 0);
     });
     return output;
   }
@@ -1092,15 +1092,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       output.add(
         CatalogDisc(
           discNumber: discNumber,
-          discName: emptyToNull(draft.discTitleController.text),
-          storageDevice: emptyToNull(draft.storageDeviceController.text),
-          slot: emptyToNull(draft.slotController.text),
-          matrixSideA: emptyToNull(draft.matrixSideAController.text),
-          matrixSideB: emptyToNull(draft.matrixSideBController.text),
+          name: emptyToNull(draft.discTitleController.text),
         ),
       );
     }
-    output.sort((left, right) => left.discNumber.compareTo(right.discNumber));
+    output.sort((left, right) => (left.discNumber ?? 0).compareTo(right.discNumber ?? 0));
     return output;
   }
 
@@ -1777,7 +1773,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       volumeStartYear: _item.series?.volumeStartYear,
       seasonNumber: _item.series?.seasonNumber,
       episodeNumber: _item.series?.episodeNumber,
-      tags: _item.series?.tags ?? const <String>[],
+      tags: _item.series?.tags,
     );
     final updatedPublishing = CatalogPublishingDetails(
       pageCount: _item.publishing?.pageCount,

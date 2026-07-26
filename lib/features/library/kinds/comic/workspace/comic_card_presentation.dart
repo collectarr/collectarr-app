@@ -34,7 +34,7 @@ LibraryCardPresentation buildComicCardPresentation(
     );
   }
 
-  Widget? overlay;
+  Widget Function(Widget child)? overlay;
   if (comic?.rawOrSlabbed != null ||
       comic?.gradingCompany != null ||
       comic?.labelType != null) {

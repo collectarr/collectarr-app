@@ -59,7 +59,6 @@ final musicLibraryConfig = LibraryTypeConfig(
   ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsTrackSearch: true,
-    usesTrackListCard: true,
   ),
 );
 

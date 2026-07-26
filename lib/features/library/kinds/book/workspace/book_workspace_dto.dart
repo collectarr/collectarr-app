@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 final class BookWorkspaceDto extends WorkspaceDtoAdapter {
-  const BookWorkspaceDto({
+  BookWorkspaceDto({
     required this.common,
     required this.personal,
     required this.book,

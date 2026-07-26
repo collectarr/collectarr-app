@@ -21,7 +21,7 @@ final syncControllerProvider =
 });
 
 class SyncController extends StateNotifier<SyncState> {
-  SyncController(this.ref) : super(const SyncIdle());
+  SyncController(this.ref) : super(SyncIdle());
 
   final Ref ref;
   bool _onlineFirstSyncQueued = false;

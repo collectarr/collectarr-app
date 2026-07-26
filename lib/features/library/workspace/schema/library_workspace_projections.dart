@@ -1,5 +1,8 @@
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
+// Epoch DateTime used as default updatedAt sentinel.
+const _kEpoch = Duration.zero;
+
 class WorkspaceCommonProjection {
   const WorkspaceCommonProjection({
     required this.title,
@@ -33,7 +36,7 @@ class WorkspaceCommonProjection {
 }
 
 class PersonalCopyProjection {
-  const PersonalCopyProjection({
+  PersonalCopyProjection({
     this.isOwned = false,
     this.isWishlisted = false,
     this.condition,
@@ -44,7 +47,7 @@ class PersonalCopyProjection {
     DateTime? updatedAt,
     this.tags,
     this.collectionStatus,
-  }) : updatedAt = updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+  }) : updatedAt = updatedAt ?? DateTime.utc(1970);
 
   final bool isOwned;
   final bool isWishlisted;
@@ -61,7 +64,7 @@ class PersonalCopyProjection {
 /// Abstract base adapter for Workspace DTOs implementing standard [LibraryWorkspaceDto] getters
 /// by delegating to [common] and [personal] projections.
 abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
-  const WorkspaceDtoAdapter();
+  WorkspaceDtoAdapter();
 
   WorkspaceCommonProjection get common;
   PersonalCopyProjection get personal;

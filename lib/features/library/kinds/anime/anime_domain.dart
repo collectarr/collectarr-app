@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_release.dart';
+
 export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_release.dart';

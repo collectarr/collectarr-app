@@ -191,7 +191,7 @@ String _toSnakeCase(String name) {
   ).toLowerCase();
 }
 
-LibraryGroupDefinition<LibraryWorkspaceEntry, Object?>? libraryGroupModeDefinitionOrNull(
+LibraryGroupDefinition<dynamic, Object?>? libraryGroupModeDefinitionOrNull(
   String mode, [
   LibraryTypeConfig? type,
 ]) {
@@ -965,7 +965,7 @@ bool _matchesTrackQuery(
   }
   for (final track in tracks) {
     final searchableParts = <String>[
-      track.title,
+      if (track.title != null) track.title!,
       if (track.artist?.trim().isNotEmpty == true) track.artist!.trim(),
       if (track.position != null) track.position!.toString(),
     ];

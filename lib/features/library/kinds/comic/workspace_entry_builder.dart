@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 LibraryWorkspaceEntry buildComicsLibraryWorkspaceEntryFromShelf(
   ShelfEntry source,
 ) {
-  final work = ComicWork.fromMetadataItem(source.catalogItem!);
+  final work = ComicCatalogMapper.mapMetadataItemToComic(source.catalogItem!);
   final overlay = ComicPersonalOverlay.fromShelf(source);
   return ComicWorkspaceEntry(
     common: _buildShelfWorkspaceEntryData(
@@ -17,9 +17,9 @@ LibraryWorkspaceEntry buildComicsLibraryWorkspaceEntryFromShelf(
       work: work,
       overlay: overlay,
     ),
-    comic: overlay.toWorkspaceDetails(),
+    comic: null,
     series: work.series,
-    publishing: work.publishing,
+    publishing: _toCatalogPublishing(work.publishing),
   );
 }
 
@@ -27,12 +27,22 @@ LibraryWorkspaceEntry buildComicsLibraryReleaseEntry(
   LibraryReleaseEntryRequest request,
 ) {
   final entry = request.titleEntry;
-  final work = ComicWork.fromWorkspaceEntry(entry);
+  final work = ComicCatalogMapper.mapWorkspaceEntryToComic(entry);
   return ComicWorkspaceEntry(
     common: _buildReleaseEntryData(request, mediaType: 'comic'),
     comic: entry.comic,
     series: work.series ?? entry.series,
-    publishing: work.publishing ?? entry.publishing,
+    publishing: _toCatalogPublishing(work.publishing) ?? entry.publishing,
+  );
+}
+
+CatalogPublishingDetails? _toCatalogPublishing(ComicPublishingMetadata? pub) {
+  if (pub == null) return null;
+  return CatalogPublishingDetails(
+    pageCount: pub.pageCount,
+    coverPriceCents: pub.coverPriceCents,
+    currency: pub.currency,
+    imprint: pub.imprint,
   );
 }
 

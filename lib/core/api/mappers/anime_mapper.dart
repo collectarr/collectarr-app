@@ -1,12 +1,11 @@
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_domain.dart';
+import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-AnimeSeries animeSeriesFromDto(AnimeSeriesDto dto) => AnimeSeries.fromDto(dto);
+VideoCatalogItem animeSeriesFromDto(CatalogItemDto dto) =>
+    VideoCatalogMapper.mapDtoToVideo(dto);
 
-AnimeSeries animeSeriesFromMetadataItem(LibraryMetadataItem item) =>
-    AnimeSeries.fromMetadataItem(item);
-
-AnimePersonalOverlay animePersonalOverlayFromShelf(ShelfEntry source) =>
-    AnimePersonalOverlay.fromShelf(source);
+VideoCatalogItem animeSeriesFromMetadataItem(LibraryMetadataItem item) =>
+    VideoCatalogMapper.mapMetadataItemToVideo(item);

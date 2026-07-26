@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
+
 class MusicTrackRef {
   const MusicTrackRef({
     required this.title,
@@ -60,4 +62,27 @@ class MusicRelease {
   final String? coverImageUrl;
   final List<MusicDiscRef> discs;
   final List<MusicTrackRef> tracks;
+
+  // Extended getters for compatibility with inspector and server compare
+  bool? get isLive => null;
+  String? get frontCoverUrl => coverImageUrl;
+  String? get backCoverUrl => null;
+  String? get sortTitle => null;
+  String? get subtitle => null;
+  DateTime? get originalReleaseDate => null;
+  DateTime? get recordingDate => null;
+  String? get countryCode => null;
+  String? get language => null;
+  List<String> get genres => const <String>[];
+  String? get instrument => null;
+  String? get composition => null;
+  String? get spars => null;
+  String? get soundType => null;
+  String? get vinylColor => null;
+  String? get vinylWeight => null;
+  String? get mediaCondition => null;
+  int? get rpm => null;
+  List<MusicDiscRef> get media => discs;
+  List<Map<String, dynamic>> get creators => const <Map<String, dynamic>>[];
+  List<CatalogDisc> get discsAsCatalog => const <CatalogDisc>[];
 }

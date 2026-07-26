@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_release.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class MusicCatalogMapper {
@@ -30,15 +31,15 @@ class MusicCatalogMapper {
     final releases = dto.editions.map((edition) {
       final discs = edition.discs.map((disc) {
         final tracks = disc.tracks.map((t) => MusicTrackRef(
-          title: t.title,
-          position: t.position,
+          title: t.title ?? '',
+          position: int.tryParse(t.position ?? ''),
           durationSeconds: t.durationSeconds,
           artist: t.artist ?? artistName,
           discNumber: disc.discNumber,
         )).toList();
 
         return MusicDiscRef(
-          discNumber: disc.discNumber,
+          discNumber: disc.discNumber ?? 0,
           discName: disc.discName,
           discFormat: disc.discFormat,
           trackCount: disc.trackCount,
@@ -92,15 +93,15 @@ class MusicCatalogMapper {
     final releases = entry.editions.map((edition) {
       final discs = edition.discs.map((disc) {
         final tracks = disc.tracks.map((t) => MusicTrackRef(
-          title: t.title,
-          position: t.position,
+          title: t.title ?? '',
+          position: int.tryParse(t.position ?? ''),
           durationSeconds: t.durationSeconds,
           artist: t.artist ?? artistName,
           discNumber: disc.discNumber,
         )).toList();
 
         return MusicDiscRef(
-          discNumber: disc.discNumber,
+          discNumber: disc.discNumber ?? 0,
           discName: disc.discName,
           discFormat: disc.discFormat,
           trackCount: disc.trackCount,
@@ -128,5 +129,28 @@ class MusicCatalogMapper {
       recording: recording,
       releases: releases,
     );
+  }
+  static MusicCatalogItem mapMetadataItemToMusic(LibraryMetadataItem item) {
+    return mapDtoToMusic(CatalogItemDto(
+      id: item.id,
+      mediaKind: item.mediaKind,
+      title: item.title,
+      originalTitle: item.originalTitle,
+      synopsis: item.synopsis,
+      coverImageUrl: item.coverImageUrl,
+      thumbnailImageUrl: item.thumbnailImageUrl,
+      releaseDate: item.releaseDate,
+      releaseYear: item.releaseYear,
+      publisher: item.publisher,
+      genres: item.genres,
+      country: item.country,
+      language: item.language,
+      ageRating: item.ageRating,
+      creators: item.creators,
+      music: item.music,
+      series: item.series,
+      publishing: item.publishing,
+      editions: item.editions,
+    ));
   }
 }

@@ -17,8 +17,8 @@ final mangaKindModule = LibraryKindModule(
     sorts: mangaLibrarySortDefinitions,
     columns: mangaLibraryColumnDefinitions,
     defaultVisibleColumnIds: mangaLibraryDefaultVisibleColumnIds,
-    defaultSortId: mangaDefaultSortId,
-    defaultGroupId: mangaDefaultGroupId,
+    defaultSortId: 'title',
+    defaultGroupId: 'series',
     customLinkedMetadataCandidates: (entry) sync* {
       yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.characters);
       yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.storyArcs);

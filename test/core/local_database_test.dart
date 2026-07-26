@@ -349,8 +349,8 @@ void main() {
         series: const CatalogSeriesDetails(
           seriesId: 'series-1',
           seriesTitle: 'The Lord of the Rings',
-          volumeNumber: 1,
-          tags: ['Epic Fantasy', 'Middle-earth'],
+          volumeNumber: '1',
+          tags: 'Epic Fantasy, Middle-earth',
         ),
         publishing: const CatalogPublishingDetails(
           subtitle: 'Being the First Part',

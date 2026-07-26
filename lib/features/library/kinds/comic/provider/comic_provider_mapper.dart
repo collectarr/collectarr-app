@@ -85,7 +85,7 @@ class ComicLibraryKindProviderMapper extends CommonLibraryKindProviderMapper {
     if (edited.series?.episodeNumber != preview.series?.episodeNumber) {
       corrections['episode_number'] = edited.series?.episodeNumber;
     }
-    if (!sameStringList(edited.series?.tags, preview.series?.tags)) {
+    if (edited.series?.tags != preview.series?.tags) {
       corrections['tags'] = edited.series?.tags;
     }
     if (edited.publishing?.pageCount != preview.publishing?.pageCount) {

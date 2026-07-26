@@ -28,4 +28,10 @@ class BoardGameRelease {
   final int? playingTimeMinutes;
   final int? minAge;
   final String? coverImageUrl;
+
+  String? get country => null;
+  String? get format => null;
+  String? get bestPlayers => null;
+  String? get releaseStatus => null;
+  String? get audienceRating => null;
 }

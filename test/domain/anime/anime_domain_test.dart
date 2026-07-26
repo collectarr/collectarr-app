@@ -10,7 +10,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('AnimeSeries parses episodes and metadata', () {
-    final dto = AnimeSeriesDto.fromJson({
+    final dto = CatalogItemDto.fromJson({
       'id': 'anime-series-1',
       'title': 'Cowboy Bebop',
       'description': 'A bounty-hunting crew.',
@@ -26,7 +26,7 @@ void main() {
       'kind': 'anime',
     });
 
-    final series = AnimeSeries.fromDto(dto);
+    final series = VideoCatalogItem.fromDto(dto);
 
     expect(series.title, 'Cowboy Bebop');
     expect(series.episodes, hasLength(2));

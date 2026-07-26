@@ -314,9 +314,9 @@ List<CatalogItem> _movieItems() => [
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeName: 'The Dark Knight Trilogy',
-          volumeNumber: 1,
+          volumeNumber: '1',
           volumeStartYear: 2005,
-          tags: ['superhero', 'action', 'thriller', 'origin story'],
+          tags: 'superhero, action, thriller, origin story',
         ),
         video: const VideoCatalogDetails(
           runtimeMinutes: 140,
@@ -398,7 +398,7 @@ List<CatalogItem> _movieItems() => [
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeName: 'The Dark Knight Trilogy',
-          volumeNumber: 1,
+          volumeNumber: '1',
           volumeStartYear: 2005,
         ),
         video: const VideoCatalogDetails(runtimeMinutes: 152),
@@ -428,7 +428,7 @@ List<CatalogItem> _movieItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-blade-runner',
           seriesTitle: 'Blade Runner',
-          tags: ['sci-fi', 'noir', 'dystopia', 'cyberpunk'],
+          tags: 'sci-fi, noir, dystopia, cyberpunk',
         ),
         video: const VideoCatalogDetails(
             runtimeMinutes: 117, screenRatio: '2.39:1'),
@@ -565,7 +565,7 @@ List<CatalogItem> _movieItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
-          volumeNumber: 1,
+          volumeNumber: '1',
           volumeStartYear: 2005,
         ),
         video: const VideoCatalogDetails(runtimeMinutes: 165),
@@ -627,10 +627,10 @@ List<CatalogItem> _bookItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-dune',
           seriesTitle: 'Dune',
-          volumeName: 'Dune',
-          volumeNumber: 1,
+          volumeName: 'Dune Chronicles',
+          volumeNumber: '1',
           volumeStartYear: 1965,
-          tags: ['sci-fi', 'politics', 'ecology', 'space opera'],
+          tags: 'sci-fi, politics, ecology, space opera',
         ),
         publishing: const CatalogPublishingDetails(
           pageCount: 412,
@@ -685,7 +685,7 @@ List<CatalogItem> _bookItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-dune',
           seriesTitle: 'Dune',
-          volumeNumber: 1,
+          volumeNumber: '1',
         ),
         publishing: const CatalogPublishingDetails(pageCount: 256),
         creators: [
@@ -795,9 +795,9 @@ List<CatalogItem> _bookItems() => [
           seriesId: 'seed-series-lotr',
           seriesTitle: 'The Lord of the Rings',
           volumeName: 'The Lord of the Rings',
-          volumeNumber: 1,
+          volumeNumber: '1',
           volumeStartYear: 1954,
-          tags: ['fantasy', 'epic', 'quest'],
+          tags: 'fantasy, epic, quest',
         ),
         publishing: const CatalogPublishingDetails(pageCount: 423),
         creators: [
@@ -822,7 +822,7 @@ List<CatalogItem> _bookItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-lotr',
           seriesTitle: 'The Lord of the Rings',
-          volumeNumber: 1,
+          volumeNumber: '1',
         ),
         publishing: const CatalogPublishingDetails(pageCount: 352),
         creators: [
@@ -847,7 +847,7 @@ List<CatalogItem> _bookItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-lotr',
           seriesTitle: 'The Lord of the Rings',
-          volumeNumber: 1,
+          volumeNumber: '1',
         ),
         publishing: const CatalogPublishingDetails(pageCount: 416),
         creators: [
@@ -924,7 +924,7 @@ List<CatalogItem> _musicItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-radiohead',
           seriesTitle: 'Radiohead',
-          tags: ['alternative rock', 'art rock'],
+          tags: 'alternative rock, art rock',
         ),
         music: const MusicCatalogDetails(
           trackCount: 12,
@@ -1157,7 +1157,7 @@ List<CatalogItem> _gameItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-witcher',
           seriesTitle: 'The Witcher',
-          tags: ['RPG', 'open world', 'fantasy'],
+          tags: 'RPG, open world, fantasy',
         ),
         game: const GameCatalogDetails(
           platforms: ['PC', 'PS4', 'Xbox One', 'Switch'],
@@ -1410,7 +1410,7 @@ List<CatalogItem> _boardgameItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-gloomhaven',
           seriesTitle: 'Gloomhaven',
-          tags: ['cooperative', 'dungeon crawl', 'campaign'],
+          tags: 'cooperative, dungeon crawl, campaign',
         ),
         publishing: const CatalogPublishingDetails(
           coverPriceCents: 14000,
@@ -1630,9 +1630,9 @@ List<CatalogItem> _comicItems() => [
           seriesId: 'seed-series-saga',
           seriesTitle: 'Saga',
           volumeName: 'Saga',
-          volumeNumber: 1,
+          volumeNumber: '1',
           volumeStartYear: 2012,
-          tags: ['sci-fi', 'fantasy', 'romance'],
+          tags: 'sci-fi, fantasy, romance',
         ),
         publishing: const CatalogPublishingDetails(
           pageCount: 44,
@@ -1661,7 +1661,7 @@ List<CatalogItem> _comicItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-saga',
           seriesTitle: 'Saga',
-          volumeNumber: 1,
+          volumeNumber: '2',
         ),
         publishing: const CatalogPublishingDetails(
           pageCount: 32,
@@ -1690,9 +1690,9 @@ List<CatalogItem> _comicItems() => [
           seriesId: 'seed-series-watchmen',
           seriesTitle: 'Watchmen',
           volumeName: 'Watchmen',
-          volumeNumber: 1,
+          volumeNumber: '1',
           volumeStartYear: 1986,
-          tags: ['superhero', 'deconstruction', 'political'],
+          tags: 'superhero, deconstruction, political',
         ),
         publishing: const CatalogPublishingDetails(
           pageCount: 32,
@@ -1726,9 +1726,8 @@ List<CatalogItem> _comicItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-sandman',
           seriesTitle: 'The Sandman',
-          volumeName: 'The Sandman',
-          volumeNumber: 1,
-          volumeStartYear: 1989,
+          volumeNumber: '1',
+          tags: 'dark-fantasy, supernatural',
         ),
         publishing: const CatalogPublishingDetails(
           pageCount: 40,
@@ -1796,7 +1795,7 @@ List<CatalogItem> _comicItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-invincible',
           seriesTitle: 'Invincible',
-          volumeNumber: 1,
+          volumeNumber: '1',
           volumeStartYear: 2003,
         ),
         publishing: const CatalogPublishingDetails(
@@ -1866,7 +1865,7 @@ List<CatalogItem> _comicItems() => [
         series: const CatalogSeriesDetails(
           seriesId: 'seed-series-hellboy',
           seriesTitle: 'Hellboy',
-          volumeNumber: 1,
+          volumeNumber: '1',
           volumeStartYear: 1994,
         ),
         publishing: const CatalogPublishingDetails(
@@ -1929,9 +1928,9 @@ List<CatalogItem> _tvItems() {
           seriesId: 'seed-series-tv-${_seedOrdinal2(i + 1)}',
           seriesTitle: titles[i],
           volumeName: titles[i],
-          volumeNumber: 1,
+          volumeNumber: '1',
           volumeStartYear: 2008 + i,
-          tags: const ['tv', 'drama', 'seed'],
+          tags: 'tv, drama, seed',
         ),
         video: VideoCatalogDetails(
           runtimeMinutes: 46 + (i % 12),
@@ -2003,9 +2002,9 @@ List<CatalogItem> _animeItems() {
           seriesId: 'seed-series-anime-${_seedOrdinal2(i + 1)}',
           seriesTitle: titles[i],
           volumeName: titles[i],
-          volumeNumber: 1,
+          volumeNumber: '1',
           volumeStartYear: 1998 + i,
-          tags: const ['anime', 'seed'],
+          tags: 'anime, seed',
         ),
         video: VideoCatalogDetails(
           runtimeMinutes: 24,
@@ -2073,9 +2072,9 @@ List<CatalogItem> _mangaItems() {
           seriesId: 'seed-series-manga-${_seedOrdinal2(i + 1)}',
           seriesTitle: titles[i],
           volumeName: titles[i],
-          volumeNumber: i + 1,
+          volumeNumber: '${i + 1}',
           volumeStartYear: 1999 + i,
-          tags: const ['manga', 'seed'],
+          tags: 'manga, seed',
         ),
         publishing: CatalogPublishingDetails(
           coverPriceCents: 1299 + (i * 70),

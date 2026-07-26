@@ -7,15 +7,16 @@ void main() {
   test('game workspace entry uses domain releases and no raw platforms', () {
     final work = GameWork(
       id: 'game-1',
-      title: 'Example Game',
-      platforms: const ['Switch'],
-      releases: [
+      work: const GameWorkMetadata(
+        title: 'Example Game',
+        platforms: ['Switch'],
+      ),
+      releases: const [
         GameRelease(
           id: 'release-1',
           title: 'Standard',
           platform: 'Switch',
           format: 'Physical',
-          isPrimary: true,
         ),
       ],
     );
@@ -35,7 +36,10 @@ void main() {
   test('game release workspace entry uses typed release input', () {
     final work = GameWork(
       id: 'game-1',
-      title: 'Example Game',
+      work: const GameWorkMetadata(
+        title: 'Example Game',
+      ),
+      releases: const [],
     );
     final titleEntry = buildGameWorkspaceEntry(
       work,

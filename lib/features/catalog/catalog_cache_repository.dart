@@ -67,7 +67,7 @@ class CatalogCacheRepository {
                 seriesId: Value(series?.seriesId),
                 seriesTitle: Value(series?.seriesTitle),
                 volumeName: Value(series?.volumeName),
-                volumeNumber: Value(series?.volumeNumber),
+                volumeNumber: Value(series?.volumeNumber != null ? double.tryParse(series!.volumeNumber!) : null),
                 volumeStartYear: Value(series?.volumeStartYear),
                 seasonNumber: Value(series?.seasonNumber),
                 episodeNumber: Value(series?.episodeNumber),
@@ -122,7 +122,7 @@ class CatalogCacheRepository {
                       : null,
                 ),
                 seriesTagsJson: Value(
-                  series != null && series.tags.isNotEmpty
+                  series != null && series.tags != null && series.tags!.isNotEmpty
                       ? jsonEncode(series.tags)
                       : null,
                 ),
@@ -353,11 +353,11 @@ class CatalogCacheRepository {
       seriesId: row.seriesId,
       seriesTitle: row.seriesTitle,
       volumeName: row.volumeName,
-      volumeNumber: row.volumeNumber,
+      volumeNumber: row.volumeNumber?.toString(),
       volumeStartYear: row.volumeStartYear,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
-      tags: _decodeStringList(row.seriesTagsJson) ?? const <String>[],
+      tags: row.seriesTagsJson,
     );
     final video = VideoCatalogDetails(
       runtimeMinutes: row.runtimeMinutes,

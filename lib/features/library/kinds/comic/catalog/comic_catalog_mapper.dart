@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class ComicCatalogMapper {
@@ -84,6 +85,48 @@ class ComicCatalogMapper {
 
     return ComicCatalogItem(
       id: entry.id,
+      work: work,
+      publishing: publishing,
+      releases: releases,
+    );
+  }
+
+  static ComicCatalogItem mapMetadataItemToComic(LibraryMetadataItem item) {
+    final pub = item.publishing;
+
+    final work = ComicWorkMetadata(
+      title: item.title,
+      issueNumber: item.itemNumber,
+      synopsis: item.synopsis,
+      coverDate: item.coverDate,
+      creators: (item.creators?.map((c) => c['name']?.toString() ?? '').where((n) => n.isNotEmpty).toList() ?? const []),
+      characters: item.characters ?? const [],
+      storyArcs: item.storyArcs ?? const [],
+      genres: item.genres ?? const [],
+    );
+
+    final publishing = ComicPublishingMetadata(
+      pageCount: pub?.pageCount,
+      coverPriceCents: pub?.coverPriceCents,
+      currency: pub?.currency,
+      publisher: item.publisher,
+      imprint: pub?.imprint,
+    );
+
+    final releases = item.editions.map((edition) {
+      return ComicRelease(
+        id: edition.id,
+        title: edition.title,
+        publisher: edition.publisher,
+        imprint: pub?.imprint,
+        isbn: edition.isbn,
+        upc: edition.upc,
+        releaseDate: edition.releaseDate,
+      );
+    }).toList();
+
+    return ComicCatalogItem(
+      id: item.id,
       work: work,
       publishing: publishing,
       releases: releases,

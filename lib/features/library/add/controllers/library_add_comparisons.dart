@@ -131,7 +131,7 @@ List<Map<String, dynamic>> normalizeTracks(List<CatalogTrack>? values) {
   }
   final normalized = <Map<String, dynamic>>[];
   for (final track in values) {
-    final title = track.title.trim();
+    final title = (track.title ?? '').trim();
     if (title.isEmpty) {
       continue;
     }

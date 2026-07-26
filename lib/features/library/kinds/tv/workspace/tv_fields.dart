@@ -1,7 +1,14 @@
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
+
+/// Default video display level for the TV kind (shows season-level by default).
+const tvDefaultVideoDisplayLevel = VideoDisplayLevel.season;
+
+/// Default video grouping for the TV kind (no grouping by default).
+const tvDefaultVideoGrouping = VideoGroupingDefault.none;
 
 /// Single source of truth schema for TV kind fields.
 abstract final class TvKindSchema {

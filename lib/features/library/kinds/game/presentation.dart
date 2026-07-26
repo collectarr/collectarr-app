@@ -17,7 +17,10 @@ LibraryWorkspaceEntry buildGamesLibraryWorkspaceEntryFromShelf(
     return buildGameWorkspaceEntry(
       GameWork(
         id: source.itemId,
-        title: source.itemId,
+        work: GameWorkMetadata(
+          title: source.itemId,
+        ),
+        releases: const [],
       ),
       GamePersonalOverlay.fromShelfEntry(source),
     );
@@ -55,63 +58,10 @@ LibraryWorkspaceEntry buildGamesLibraryReleaseEntry(
 }
 
 GameWork _gameWorkFromMetadataItem(LibraryMetadataItem item) {
-  return GameWork(
-    id: item.id,
-    title: item.title,
-    displayTitle: item.displayTitle,
-    localizedTitle: item.localizedTitle,
-    originalTitle: item.originalTitle,
-    searchAliases: List<String>.unmodifiable(item.searchAliases ?? const []),
-    itemNumber: item.itemNumber,
-    synopsis: item.synopsis,
-    coverImageUrl: item.coverImageUrl,
-    thumbnailImageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
-    publisher: item.publisher,
-    coverDate: item.coverDate,
-    releaseDate: item.releaseDate,
-    releaseYear: item.releaseYear,
-    barcode: item.barcode,
-    variant: item.variant,
-    crossover: item.crossover,
-    platforms: List<String>.unmodifiable(item.game?.platforms ?? const []),
-    identifiers: const <String>[],
-    companyRoles: const <String>[],
-    ageRatings: item.ageRating == null
-        ? const <String>[]
-        : List<String>.unmodifiable([item.ageRating!]),
-    releases: [
-      for (var index = 0; index < item.editions.length; index++)
-        _gameReleaseFromCatalogEdition(
-          item.editions[index],
-          isPrimary: index == 0,
-        ),
-    ],
-    trailerUrls: List<TrailerLink>.unmodifiable(item.trailerUrls),
-    plotSummary: item.plotSummary,
-    plotDescription: item.plotDescription,
-    creators: item.creators == null
-        ? null
-        : List<Map<String, dynamic>>.unmodifiable(
-            item.creators!
-                .map((value) => Map<String, dynamic>.unmodifiable(value)),
-          ),
-    characters: List<String>.unmodifiable(item.characters ?? const <String>[]),
-    storyArcs: List<String>.unmodifiable(item.storyArcs ?? const <String>[]),
-    genres: List<String>.unmodifiable(item.genres ?? const <String>[]),
-    country: item.country,
-    language: item.language,
-    ageRating: item.ageRating,
-    audienceRating: item.audienceRating,
-    physicalFormatLabel: item.physicalFormatLabel,
-  );
+  return GameCatalogMapper.mapMetadataItemToGame(item);
 }
 
 GameRelease? _resolvePrimaryGameRelease(List<GameRelease> releases) {
-  for (final release in releases) {
-    if (release.isPrimary) {
-      return release;
-    }
-  }
   return releases.isEmpty ? null : releases.first;
 }
 
@@ -140,13 +90,10 @@ GameRelease _gameReleaseFromCatalogEdition(
     format: edition.format ?? edition.physicalFormatLabel,
     publisher: edition.publisher,
     catalogNumber: edition.upc,
-    releaseStatus: null,
-    language: edition.language,
     barcode: edition.upc,
     coverImageUrl: edition.variants.isNotEmpty
         ? edition.variants.first.coverImageUrl
         : null,
-    isPrimary: isPrimary,
   );
 }
 

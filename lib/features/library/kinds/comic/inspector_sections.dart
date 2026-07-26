@@ -469,8 +469,8 @@ List<LibraryDetailField> _seriesFacts(LibraryWorkspaceEntry entry) {
   if (series?.volumeStartYear != null) {
     rows.add(LibraryDetailField(label: 'Start year', value: series!.volumeStartYear!.toString()));
   }
-  if (series?.tags.isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Series tags', value: series!.tags.join(', ')));
+  if (series?.tags?.isNotEmpty == true) {
+    rows.add(LibraryDetailField(label: 'Series tags', value: series!.tags!));
   }
   return rows;
 }

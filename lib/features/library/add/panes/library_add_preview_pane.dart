@@ -1565,8 +1565,8 @@ List<_PreviewTrackData> _previewTracksForSelection({
     return [
       for (final track in tracks)
         _PreviewTrackData(
-          title: track.title.trim().isEmpty ? 'Untitled track' : track.title,
-          position: track.position,
+          title: (track.title ?? '').trim().isEmpty ? 'Untitled track' : track.title!,
+          position: int.tryParse(track.position ?? ''),
           durationSeconds: track.durationSeconds,
         ),
     ];
@@ -1578,8 +1578,8 @@ List<_PreviewTrackData> _previewTracksForSelection({
   return [
     for (final track in previewTracks)
       _PreviewTrackData(
-        title: track.title,
-        position: track.position,
+        title: track.title ?? 'Untitled track',
+        position: int.tryParse(track.position ?? ''),
         durationSeconds: track.durationSeconds,
       ),
   ];

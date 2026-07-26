@@ -1272,11 +1272,22 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         .toList(growable: false);
   }
 
-  List<String> _normalizedAdminTags(List<String>? tags) {
-    return (tags ?? const <String>[])
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList(growable: false);
+  List<String> _normalizedAdminTags(dynamic tags) {
+    if (tags == null) return const [];
+    if (tags is String) {
+      return tags
+          .split(RegExp(r'[,;]'))
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList(growable: false);
+    }
+    if (tags is List) {
+      return tags
+          .map((e) => e.toString().trim())
+          .where((s) => s.isNotEmpty)
+          .toList(growable: false);
+    }
+    return const [];
   }
 
   Future<void> _showCoverInspectionDialog(AdminMetadataItem item) async {

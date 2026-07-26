@@ -1,22 +1,27 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_types.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
-import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 LibraryWorkspaceEntry buildBookReleaseWorkspaceEntry(
   LibraryReleaseEntryRequest request,
 ) {
   final titleEntry = request.titleEntry as BookWorkspaceEntry;
-  final edition = BookEdition(
+  final edition = BookRelease(
     id: request.edition.id,
     title: request.edition.title,
-    format: request.edition.format,
     publisher: request.edition.publisher,
     isbn: request.edition.isbn,
     upc: request.edition.upc,
@@ -27,7 +32,7 @@ LibraryWorkspaceEntry buildBookReleaseWorkspaceEntry(
     physicalFormatLabel: request.edition.physicalFormatLabel,
     variants: request.edition.variants
         .map(
-          (variant) => BookVariant(
+          (variant) => BookVariantRef(
             id: variant.id,
             name: variant.name,
             variantType: variant.variantType,
@@ -36,20 +41,18 @@ LibraryWorkspaceEntry buildBookReleaseWorkspaceEntry(
             isbn: variant.isbn,
             region: variant.region,
             coverImageUrl: variant.coverImageUrl,
-            thumbnailImageUrl: variant.thumbnailImageUrl,
-            description: variant.description,
             physicalFormat: variant.physicalFormat,
             physicalFormatLabel: variant.physicalFormatLabel,
             isPrimary: variant.isPrimary,
           ),
         )
-        .toList(growable: false),
+        .toList(),
   );
   final primaryVariant = edition.variants.firstWhere(
     (variant) => variant.isPrimary,
     orElse: () => edition.variants.isNotEmpty
         ? edition.variants.first
-        : const BookVariant(id: '', name: ''),
+        : const BookVariantRef(id: '', name: ''),
   );
   return buildBookEditionWorkspaceEntry(
     titleEntry: titleEntry,
@@ -70,6 +73,59 @@ LibraryWorkspaceEntry buildBookReleaseWorkspaceEntry(
     updatedAt: request.updatedAt,
   );
 }
+
+LibraryWorkspaceEntry buildBookLibraryWorkspaceEntryFromShelf(
+  ShelfEntry source,
+) {
+  final item = source.catalogItem;
+  final work = item == null
+      ? BookWork(
+          id: source.itemId,
+          work: BookWorkMetadata(
+            title: source.itemId,
+          ),
+          publishing: const BookPublishingMetadata(),
+          releases: const [],
+        )
+      : BookCatalogMapper.mapMetadataItemToBook(item);
+  final overlay = BookPersonalOverlay(
+    ownedItem: source.ownedItem,
+    trackingEntry: source.trackingEntry,
+    wishlistItem: source.wishlistItem,
+    locationPath: source.locationPath,
+    watchSessions: source.watchSessions,
+    itemImages: source.itemImages,
+    updatedAt: source.updatedAt,
+    fallbackOwnerLabel: source.fallbackOwnerLabel,
+  );
+  return buildBookWorkspaceEntry(work, overlay);
+}
+
+final bookLibraryMediaPresentation = LibraryMediaPresentation(
+  searchFieldLabels: const LibraryMediaSearchFieldLabels(
+    queryHint: 'Enter title, creator, or keyword...',
+    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
+    seriesHint: 'Series...',
+    numberHint: 'Volume...',
+    publisherHint: 'Publisher...',
+  ),
+  filterLabels: const LibraryMediaFilterLabels(
+    series: 'Series',
+    anySeries: 'Any series',
+    publisher: 'Publisher',
+    anyPublisher: 'Any publisher',
+  ),
+  groupLabels: bookLibraryGroupLabels,
+  builder: const BookLibraryMediaPresentationBuilder(
+    showSummary: true,
+    showVolumeHierarchy: true,
+  ),
+  workspaceEntryBuilder: buildBookLibraryWorkspaceEntryFromShelf,
+  releaseEntryBuilder: buildBookReleaseWorkspaceEntry,
+  bucketLabelBuilder: bookLibraryBucketLabelBuilder,
+  previewLabels: booksPreviewLabels,
+  fieldDefinitions: bookLibraryFieldDefinitions,
+);
 
 const booksPreviewLabels = LibraryMediaPreviewLabels(
   series: 'Series',
@@ -95,94 +151,23 @@ String bookLibraryBucketLabelBuilder(LibraryBucketingContext context) {
   );
 }
 
-final bookLibraryMediaPresentation = LibraryMediaPresentation(
-  searchFieldLabels: LibraryMediaSearchFieldLabels(
-    queryHint: 'Enter title, creator, or keyword...',
-    emptySearchMessage: 'Enter a title, creator, series, or keyword.',
-    seriesHint: 'Series...',
-    numberHint: 'Volume...',
-    publisherHint: 'Publisher...',
-  ),
-  filterLabels: LibraryMediaFilterLabels(
-    series: 'Series',
-    anySeries: 'Any series',
-    publisher: 'Publisher',
-    anyPublisher: 'Any publisher',
-  ),
-  groupLabels: bookLibraryGroupLabels,
-  builder: BookLibraryMediaPresentationBuilder(
-    showSummary: true,
-    showVolumeHierarchy: true,
-  ),
-  workspaceEntryBuilder: (ShelfEntry source) => buildBookWorkspaceEntry(
-    _bookWorkFromMetadataItem(source.catalogItem!),
-    BookPersonalOverlay(
-      ownedItem: source.ownedItem,
-      trackingEntry: source.trackingEntry,
-      wishlistItem: source.wishlistItem,
-      locationPath: source.locationPath,
-      watchSessions: source.watchSessions,
-      itemImages: source.itemImages,
-      updatedAt: source.updatedAt,
-      fallbackOwnerLabel: source.fallbackOwnerLabel,
-    ),
-  ),
-  releaseEntryBuilder: buildBookReleaseWorkspaceEntry,
-  bucketLabelBuilder: bookLibraryBucketLabelBuilder,
-  previewLabels: booksPreviewLabels,
-  fieldDefinitions: bookLibraryFieldDefinitions,
-);
-
 BookWork _bookWorkFromMetadataItem(LibraryMetadataItem item) {
-  return BookWork(
-    id: item.id,
-    title: item.title,
-    displayTitle: item.displayTitle,
-    localizedTitle: item.localizedTitle,
-    originalTitle: item.originalTitle,
-    searchAliases: List<String>.unmodifiable(item.searchAliases ?? const []),
-    itemNumber: item.itemNumber,
-    synopsis: item.synopsis,
-    coverImageUrl: item.coverImageUrl,
-    thumbnailImageUrl: item.thumbnailImageUrl,
-    publisher: item.publisher,
-    coverDate: item.coverDate,
-    releaseDate: item.releaseDate,
-    releaseYear: item.releaseYear,
-    barcode: item.barcode,
-    variant: item.variant,
-    crossover: item.crossover,
-    series: item.series,
-    publishing: item.publishing,
-    editions: [
-      for (final edition in item.editions)
-        _bookEditionFromCatalogEdition(edition),
-    ],
-    trailerUrls: List.unmodifiable(item.trailerUrls),
-    plotSummary: item.plotSummary,
-    plotDescription: item.plotDescription,
-    creators: item.creators == null
-        ? null
-        : List<Map<String, dynamic>>.unmodifiable(
-            item.creators!
-                .map((value) => Map<String, dynamic>.unmodifiable(value)),
-          ),
-    characters: List<String>.unmodifiable(item.characters ?? const []),
-    storyArcs: List<String>.unmodifiable(item.storyArcs ?? const []),
-    genres: List<String>.unmodifiable(item.genres ?? const []),
-    country: item.country,
-    language: item.language,
-    ageRating: item.ageRating,
-    audienceRating: item.audienceRating,
-    physicalFormatLabel: item.physicalFormatLabel,
+  return BookCatalogMapper.mapMetadataItemToBook(item);
+}
+
+LibraryWorkspaceEntry _bookWorkWorkspaceEntryFromMetadataItem(
+  LibraryMetadataItem item,
+) {
+  return buildBookWorkspaceEntry(
+    _bookWorkFromMetadataItem(item),
+    const BookPersonalOverlay(),
   );
 }
 
-BookEdition _bookEditionFromCatalogEdition(CatalogEdition edition) {
-  return BookEdition(
+BookRelease _bookEditionFromCatalogEdition(CatalogEdition edition) {
+  return BookRelease(
     id: edition.id,
     title: edition.title,
-    format: edition.format,
     publisher: edition.publisher,
     isbn: edition.isbn,
     upc: edition.upc,
@@ -198,8 +183,8 @@ BookEdition _bookEditionFromCatalogEdition(CatalogEdition edition) {
   );
 }
 
-BookVariant _bookVariantFromCatalogVariant(CatalogVariant variant) {
-  return BookVariant(
+BookVariantRef _bookVariantFromCatalogVariant(CatalogVariant variant) {
+  return BookVariantRef(
     id: variant.id,
     name: variant.name,
     variantType: variant.variantType,
@@ -208,8 +193,6 @@ BookVariant _bookVariantFromCatalogVariant(CatalogVariant variant) {
     isbn: variant.isbn,
     region: variant.region,
     coverImageUrl: variant.coverImageUrl,
-    thumbnailImageUrl: variant.thumbnailImageUrl,
-    description: variant.description,
     physicalFormat: variant.physicalFormat,
     physicalFormatLabel: variant.physicalFormatLabel,
     isPrimary: variant.isPrimary,

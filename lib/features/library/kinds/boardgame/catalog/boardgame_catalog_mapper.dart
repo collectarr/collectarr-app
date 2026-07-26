@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_release.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class BoardGameCatalogMapper {
@@ -19,9 +20,6 @@ class BoardGameCatalogMapper {
     final stats = BoardGameStatsMetadata(
       bggRank: bgStats?.bggRank,
       bggRating: bgStats?.bggRating,
-      playCount: bgStats?.playCount,
-      lastPlayed: bgStats?.lastPlayed,
-      favoritePlayerCount: bgStats?.favoritePlayerCount,
     );
 
     final releases = dto.editions.map((edition) {
@@ -29,7 +27,7 @@ class BoardGameCatalogMapper {
         id: edition.id,
         title: edition.title,
         publisher: edition.publisher,
-        isbn: edition.isbn,
+        barcode: edition.isbn ?? edition.upc,
         releaseDate: edition.releaseDate,
         language: edition.language,
       );
@@ -51,12 +49,9 @@ class BoardGameCatalogMapper {
       genres: entry.genres ?? const [],
     );
 
-    final stats = BoardGameStatsMetadata(
+    final stats = const BoardGameStatsMetadata(
       bggRank: null,
       bggRating: null,
-      playCount: null,
-      lastPlayed: null,
-      favoritePlayerCount: null,
     );
 
     final releases = entry.editions.map((edition) {
@@ -64,7 +59,7 @@ class BoardGameCatalogMapper {
         id: edition.id,
         title: edition.title,
         publisher: edition.publisher,
-        isbn: edition.isbn,
+        barcode: edition.isbn ?? edition.upc,
         releaseDate: edition.releaseDate,
         language: edition.language,
       );
@@ -72,6 +67,38 @@ class BoardGameCatalogMapper {
 
     return BoardGameCatalogItem(
       id: entry.id,
+      work: work,
+      stats: stats,
+      releases: releases,
+    );
+  }
+
+  static BoardGameCatalogItem mapMetadataItemToBoardGame(LibraryMetadataItem item) {
+    final work = BoardGameWorkMetadata(
+      title: item.title,
+      originalTitle: item.originalTitle,
+      synopsis: item.synopsis,
+      genres: item.genres ?? const [],
+    );
+
+    final stats = const BoardGameStatsMetadata(
+      bggRank: null,
+      bggRating: null,
+    );
+
+    final releases = item.editions.map((edition) {
+      return BoardGameRelease(
+        id: edition.id,
+        title: edition.title,
+        publisher: edition.publisher,
+        barcode: edition.isbn ?? edition.upc,
+        releaseDate: edition.releaseDate,
+        language: edition.language,
+      );
+    }).toList();
+
+    return BoardGameCatalogItem(
+      id: item.id,
       work: work,
       stats: stats,
       releases: releases,

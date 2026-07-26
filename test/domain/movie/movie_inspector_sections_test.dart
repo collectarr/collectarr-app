@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
@@ -15,8 +15,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('movie inspector composes movie-specific sections',
       (tester) async {
-    final work = MovieWork.fromDto(
-      MovieWorkDto.fromJson({
+    final work = VideoCatalogItem.fromDto(
+      CatalogItemDto.fromJson({
         'id': 'movie-1',
         'title': 'The Matrix',
         'description': 'A hacker discovers reality is a simulation.',

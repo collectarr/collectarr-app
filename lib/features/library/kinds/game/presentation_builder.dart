@@ -69,11 +69,6 @@ class GameLibraryMediaPresentationBuilder
 }
 
 GameRelease? _resolvePrimaryGameRelease(List<GameRelease> releases) {
-  for (final release in releases) {
-    if (release.isPrimary) {
-      return release;
-    }
-  }
   return releases.isEmpty ? null : releases.first;
 }
 

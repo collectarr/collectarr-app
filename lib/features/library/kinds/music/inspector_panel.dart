@@ -652,7 +652,7 @@ class _MusicTrackRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    track.title,
+                    track.title ?? '',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -918,7 +918,7 @@ class _MusicDiscCardSection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _MusicDiscCard(
-          discNumber: disc.discNumber,
+          discNumber: disc.discNumber ?? 0,
           trackCount: disc.trackCount ?? disc.tracks.length,
           duration: _formatTotalDuration(
             disc.tracks,
@@ -1012,7 +1012,8 @@ List<_DiscTrackGroup> _groupTracksByDisc(List<CatalogTrack> tracks) {
   for (final disc in sortedDiscs) {
     final discTracks = byDisc[disc]!
       ..sort(
-        (a, b) => (a.position ?? 0).compareTo(b.position ?? 0),
+        (a, b) => (int.tryParse(a.position ?? '') ?? 0)
+            .compareTo(int.tryParse(b.position ?? '') ?? 0),
       );
     groups.add(_DiscTrackGroup(discNumber: disc, tracks: discTracks));
   }
@@ -1057,7 +1058,7 @@ bool _matchesTrackTerms(CatalogTrack track, List<String> terms) {
     return false;
   }
   final searchable = <String>[
-    track.title,
+    track.title ?? '',
     if (track.artist?.trim().isNotEmpty == true) track.artist!.trim(),
     if (track.position != null) track.position!.toString(),
   ].join(' ').toLowerCase();

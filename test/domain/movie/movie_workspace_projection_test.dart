@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -6,8 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('movie work and release project into workspace entries', () {
-    final work = MovieWork.fromDto(
-      MovieWorkDto.fromJson({
+    final work = VideoCatalogItem.fromDto(
+      CatalogItemDto.fromJson({
         'id': 'movie-1',
         'title': 'The Matrix',
         'description': 'A hacker discovers reality is a simulation.',

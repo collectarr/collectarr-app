@@ -75,7 +75,7 @@ sealed class SyncState {
   const SyncState._({required this.snapshot});
 
   /// Shorthand factory that creates an initial [SyncIdle] with default values.
-  const factory SyncState({
+  factory SyncState({
     int pendingCount,
     bool isOffline,
     DateTime? lastSyncedAt,

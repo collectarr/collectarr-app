@@ -14,6 +14,8 @@ class VideoMediaRef {
   final int? discNumber;
   final List<String> audioTracks;
   final List<String> subtitles;
+
+  List<dynamic> get episodes => const [];
 }
 
 class VideoRelease {
@@ -38,4 +40,6 @@ class VideoRelease {
   final String? formatLabel;
   final String? frontCoverUrl;
   final List<VideoMediaRef> media;
+
+  dynamic get videoDetails => null;
 }

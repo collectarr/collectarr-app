@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 
 /// Optional local-storage paths for physical book cover images.
@@ -7,11 +8,21 @@ class BookPhysicalDetails {
     this.coverImagePath,
     this.thumbnailImagePath,
     this.backImagePath,
+    this.dimensions,
+    this.printing,
+    this.firstEdition,
+    this.dustJacket,
+    this.numberLine,
   });
 
   final String? coverImagePath;
   final String? thumbnailImagePath;
   final String? backImagePath;
+  final String? dimensions;
+  final String? printing;
+  final bool? firstEdition;
+  final bool? dustJacket;
+  final String? numberLine;
 }
 
 /// Original publication details carried on a book catalog item.
@@ -23,6 +34,9 @@ class BookOriginalDetails {
     this.originalCountry,
     this.originalPublicationDate,
     this.originalPublicationPlace,
+    this.dewey,
+    this.lccn,
+    this.locControlNumber,
   });
 
   final String? originalTitle;
@@ -31,6 +45,11 @@ class BookOriginalDetails {
   final String? originalCountry;
   final DateTime? originalPublicationDate;
   final String? originalPublicationPlace;
+  final String? dewey;
+  final String? lccn;
+  final String? locControlNumber;
+
+  String? get publisher => originalPublisher;
 }
 
 class BookSeriesRef {
@@ -125,6 +144,9 @@ class BookCatalogItem {
     required this.releases,
   });
 
+  static BookCatalogItem fromDto(CatalogItemDto dto) =>
+      BookCatalogMapper.mapDtoToBook(dto);
+
   final String id;
   final BookWorkMetadata work;
   final BookPublishingMetadata publishing;
@@ -143,10 +165,11 @@ class BookCatalogItem {
   List<String>? get genres => work.genres;
   String? get plotSummary => null;
   String? get plotDescription => null;
+  List<BookRelease> get chapters => releases;
+  String? get displayEditionLabel => primaryRelease?.title;
   List<String>? get characters => null;
   List<String>? get storyArcs => null;
   List<TrailerLink>? get trailerUrls => const [];
-  String? get displayEditionLabel => primaryRelease?.title;
   String? get crossover => null;
   String? get displayCoverUrl => primaryRelease?.coverImageUrl;
   String? get physicalFormatLabel => primaryRelease?.physicalFormatLabel;

@@ -24,6 +24,9 @@ class BookVariantRef {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final bool isPrimary;
+
+  String? get thumbnailImageUrl => coverImageUrl;
+  String? get description => null;
 }
 
 class BookRelease {
