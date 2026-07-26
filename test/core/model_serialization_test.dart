@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
+import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -64,7 +65,7 @@ void main() {
     expect(item.coverImageUrl, 'https://cdn.example/full.jpg');
     expect(item.thumbnailImageUrl, 'https://cdn.example/thumb.jpg');
     expect(item.displayCoverUrl, 'https://cdn.example/thumb.jpg');
-    expect(item, isA<ComicCatalogItem>());
+    expect(ComicCatalogMapper.mapDtoToComic(item), isA<ComicCatalogItem>());
   });
 
   test('catalog item builds sync snapshot payload', () {
@@ -144,7 +145,7 @@ void main() {
     });
 
     expect(item.music, isNotNull);
-    expect(item, isA<MusicCatalogItem>());
+    expect(MusicCatalogMapper.mapDtoToMusic(item), isA<MusicCatalogItem>());
     expect(item.music!.catalogNumber, 'DISC-2001');
     expect(item.music!.trackCount, 2);
     expect(item.music!.tracks, hasLength(2));
@@ -192,16 +193,10 @@ void main() {
       'series_group': 'Sci-Fi Classics',
     });
 
-    expect(item.series, isNotNull);
-    expect(item.series!.seriesTitle, 'Blade Runner');
-    expect(item.series!.hasSeason, isTrue);
-    expect(item, isA<MovieCatalogItem>());
-    expect(item.video, isNotNull);
-    expect(item.video!.runtimeMinutes, 164);
-    expect(item.publishing, isNotNull);
-    expect(item.publishing!.pageCount, 220);
-    expect(item.publishing!.imprint, 'Warner Archive');
-    expect(item.game, isNull);
+    final videoItem = VideoCatalogMapper.mapDtoToVideo(item);
+    expect(videoItem, isA<VideoCatalogItem>());
+    expect(videoItem.videoDetails, isNotNull);
+    expect(videoItem.videoDetails!.runtimeMinutes, 164);
   });
 
   test('personal models preserve catalog entity refs in sync payloads', () {

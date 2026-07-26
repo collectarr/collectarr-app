@@ -269,9 +269,28 @@ class OwnedItem {
 
   factory OwnedItem.fromJson(Map<String, dynamic> json) {
     final catalogRefJson = json['catalog_ref'] as Map<String, dynamic>;
+    final catalogRef = CatalogEntityRef.fromJson(catalogRefJson);
+    OwnedItemDetails details;
+    switch (catalogRef.kind) {
+      case CatalogMediaKind.comic:
+      case CatalogMediaKind.manga:
+        details = ComicOwnedDetails.fromJson(json);
+      case CatalogMediaKind.movie:
+      case CatalogMediaKind.tv:
+      case CatalogMediaKind.anime:
+        details = VideoOwnedDetails.fromJson(json);
+      case CatalogMediaKind.game:
+        details = GameOwnedDetails.fromJson(json);
+      case CatalogMediaKind.music:
+        details = MusicOwnedDetails.fromJson(json);
+      default:
+        details = const GenericOwnedDetails();
+    }
+
     return OwnedItem(
       id: json['id'] as String,
-      catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
+      catalogRef: catalogRef,
+      details: details,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
