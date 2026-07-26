@@ -14,26 +14,72 @@ import 'package:shared_preferences/shared_preferences.dart';
 const kGitHubOwner = 'collectarr';
 const kGitHubRepo = 'collectarr-app';
 const _kAutoCheckKey = 'collectarr.updater.auto_check';
+const _kChannelKey = 'collectarr.updater.channel';
+
+enum UpdateChannel {
+  stable,
+  beta,
+  nightly;
+
+  static UpdateChannel parse(String? value, {UpdateChannel fallback = UpdateChannel.stable}) {
+    if (value == null) return fallback;
+    return UpdateChannel.values.firstWhere(
+      (c) => c.name.toLowerCase() == value.toLowerCase(),
+      orElse: () => fallback,
+    );
+  }
+}
 
 class UpdateSettings {
-  const UpdateSettings({this.autoCheck = true});
+  const UpdateSettings({
+    this.autoCheck = true,
+    this.channel = UpdateChannel.stable,
+  });
 
   final bool autoCheck;
+  final UpdateChannel channel;
 
-  UpdateSettings copyWith({bool? autoCheck}) {
-    return UpdateSettings(autoCheck: autoCheck ?? this.autoCheck);
+  UpdateSettings copyWith({
+    bool? autoCheck,
+    UpdateChannel? channel,
+  }) {
+    return UpdateSettings(
+      autoCheck: autoCheck ?? this.autoCheck,
+      channel: channel ?? this.channel,
+    );
   }
 
-  static Future<UpdateSettings> load() async {
+  static Future<UpdateSettings> load([String? currentVersion]) async {
     final prefs = await SharedPreferences.getInstance();
+    final savedChannelStr = prefs.getString(_kChannelKey);
+
+    UpdateChannel channel;
+    if (savedChannelStr != null) {
+      channel = UpdateChannel.parse(savedChannelStr);
+    } else if (currentVersion != null) {
+      if (currentVersion.contains('-nightly')) {
+        channel = UpdateChannel.nightly;
+      } else if (currentVersion.contains('-beta') ||
+                 currentVersion.contains('-alpha') ||
+                 currentVersion.contains('-rc')) {
+        channel = UpdateChannel.beta;
+      } else {
+        channel = UpdateChannel.stable;
+      }
+    } else {
+      channel = UpdateChannel.stable;
+    }
+
     return UpdateSettings(
       autoCheck: prefs.getBool(_kAutoCheckKey) ?? true,
+      channel: channel,
     );
   }
 
   Future<void> save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kAutoCheckKey, autoCheck);
+    await prefs.setString(_kChannelKey, channel.name);
   }
 }
 
@@ -50,6 +96,7 @@ class GitHubRelease {
     required this.publishedAt,
     required this.msixDownloadUrl,
     required this.msixSize,
+    required this.isPrerelease,
   });
 
   final String version; // e.g. "0.2.0-beta.1"
@@ -59,6 +106,7 @@ class GitHubRelease {
   final DateTime publishedAt;
   final String msixDownloadUrl;
   final int msixSize; // bytes
+  final bool isPrerelease;
 
   factory GitHubRelease.fromJson(Map<String, dynamic> json) {
     final assets = json['assets'] as List<dynamic>? ?? [];
@@ -81,6 +129,7 @@ class GitHubRelease {
           DateTime.now(),
       msixDownloadUrl: msixAsset['browser_download_url'] as String? ?? '',
       msixSize: msixAsset['size'] as int? ?? 0,
+      isPrerelease: json['prerelease'] as bool? ?? false,
     );
   }
 }
@@ -92,6 +141,25 @@ class GitHubRelease {
 /// Returns true when [remote] is strictly newer than [local].
 bool isNewerVersion(String local, String remote) {
   return _compareSemver(local, remote) > 0;
+}
+
+/// Checks if [release] is allowed for the user's selected [channel].
+bool isReleaseAllowedForChannel(GitHubRelease release, UpdateChannel channel) {
+  final isPrerelease = release.isPrerelease ||
+      release.version.contains('-beta') ||
+      release.version.contains('-alpha') ||
+      release.version.contains('-rc') ||
+      release.version.contains('-nightly');
+  final isNightly = release.version.contains('-nightly');
+
+  switch (channel) {
+    case UpdateChannel.stable:
+      return !isPrerelease;
+    case UpdateChannel.beta:
+      return !isNightly;
+    case UpdateChannel.nightly:
+      return true;
+  }
 }
 
 int _compareSemver(String local, String remote) {
@@ -228,7 +296,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
 
   Future<void> init() async {
     final info = await PackageInfo.fromPlatform();
-    final settings = await UpdateSettings.load();
+    final settings = await UpdateSettings.load(info.version);
     state = state.copyWith(
       currentVersion: info.version,
       settings: settings,
@@ -269,6 +337,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
         if (item['draft'] as bool? ?? false) continue;
         final candidate = GitHubRelease.fromJson(item);
         if (candidate.msixDownloadUrl.isEmpty) continue;
+        if (!isReleaseAllowedForChannel(candidate, state.settings.channel)) continue;
         if (!isNewerVersion(state.currentVersion, candidate.version)) continue;
         release = candidate;
         break;
@@ -358,13 +427,11 @@ class AppUpdateController extends Notifier<AppUpdateState> {
 
     state = state.copyWith(status: UpdateStatus.installing);
     try {
-      // Launch the MSIX installer and exit the app.
       await Process.start(
         'powershell',
         ['-Command', 'Start-Process', '"$path"'],
         mode: ProcessStartMode.detached,
       );
-      // The OS installer will handle the rest.
     } catch (e) {
       state = state.copyWith(
         status: UpdateStatus.error,

@@ -17,6 +17,8 @@ class AppUpdatePanel extends ConsumerWidget {
       children: [
         _VersionRow(currentVersion: update.currentVersion, update: update),
         const SizedBox(height: 16),
+        _ChannelSelector(update: update, controller: controller),
+        const SizedBox(height: 16),
         _StatusSection(update: update, controller: controller),
         const SizedBox(height: 16),
         _AutoCheckToggle(update: update, controller: controller),
@@ -246,6 +248,49 @@ class _AutoCheckToggle extends StatelessWidget {
       onChanged: (v) {
         controller.updateSettings(update.settings.copyWith(autoCheck: v));
       },
+    );
+  }
+}
+
+class _ChannelSelector extends StatelessWidget {
+  const _ChannelSelector({required this.update, required this.controller});
+  final AppUpdateState update;
+  final AppUpdateController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Text(
+          'Update channel:',
+          style: TextStyle(fontSize: 14),
+        ),
+        const SizedBox(width: 12),
+        DropdownButton<UpdateChannel>(
+          value: update.settings.channel,
+          onChanged: (newChannel) {
+            if (newChannel != null) {
+              controller.updateSettings(
+                update.settings.copyWith(channel: newChannel),
+              );
+            }
+          },
+          items: const [
+            DropdownMenuItem(
+              value: UpdateChannel.stable,
+              child: Text('Stable (Recommended)'),
+            ),
+            DropdownMenuItem(
+              value: UpdateChannel.beta,
+              child: Text('Beta'),
+            ),
+            DropdownMenuItem(
+              value: UpdateChannel.nightly,
+              child: Text('Nightly'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -100,15 +100,17 @@ Current active tracks:
 - split `LibraryAddDialog` into controller, layout, and kind adapter layers
 - keep admin proposal/editor UX and stats surfaces aligned with Core contracts
 
-## 🔒 Release policy
+## 🔒 Release & Versioning Policy
+
+Collectarr App uses Semantic Versioning 2.0.0 and configurable update channels (`stable`, `beta`, `nightly`).
+
+See [docs/versioning-policy.md](docs/versioning-policy.md) for full details on versioning rules, update channel semantics, and release verification.
 
 Releases are manual (`workflow_dispatch`). Pushes to `main` run CI only.
 
-Release tags and Docker image tags use the beta prerelease line (`v0.x.y-beta.n`) until the app reaches 1.0 stable.
-
 Published release assets include:
 
-- GitHub Release notes + tags
+- GitHub Release notes + tags (`v0.x.y-beta.n`)
 - GHCR web image: `ghcr.io/collectarr/collectarr-app-web`
 - Android `.apk`
 - Windows `.zip` + `.exe`
