@@ -91,6 +91,8 @@ class BookWorkMetadata {
     this.creators = const [],
     this.subjects = const [],
     this.genres = const [],
+    this.characters = const [],
+    this.storyArcs = const [],
   });
 
   final String title;
@@ -106,6 +108,8 @@ class BookWorkMetadata {
   final List<BookCreatorCredit> creators;
   final List<String> subjects;
   final List<String> genres;
+  final List<String> characters;
+  final List<String> storyArcs;
 }
 
 class BookPublishingMetadata {
@@ -121,6 +125,7 @@ class BookPublishingMetadata {
     this.audiobookAbridged,
     this.coverPriceCents,
     this.currency,
+    this.dewey,
   });
 
   final int? pageCount;
@@ -134,6 +139,7 @@ class BookPublishingMetadata {
   final bool? audiobookAbridged;
   final int? coverPriceCents;
   final String? currency;
+  final String? dewey;
 }
 
 class BookCatalogItem {
@@ -153,6 +159,7 @@ class BookCatalogItem {
   final List<BookRelease> releases;
 
   BookRelease? get primaryRelease => releases.isEmpty ? null : releases.first;
+  BookSeriesRef? get series => work.series;
   String get title => work.title;
   String? get originalTitle => work.originalTitle;
   String? get synopsis => work.synopsis;
@@ -163,12 +170,12 @@ class BookCatalogItem {
   List<Map<String, dynamic>>? get creators =>
       work.creators.map((c) => {'name': c.name, 'role': c.role}).toList();
   List<String>? get genres => work.genres;
-  String? get plotSummary => null;
+  String? get plotSummary => work.synopsis;
   String? get plotDescription => null;
   List<BookRelease> get chapters => releases;
   String? get displayEditionLabel => primaryRelease?.title;
-  List<String>? get characters => null;
-  List<String>? get storyArcs => null;
+  List<String>? get characters => work.characters;
+  List<String>? get storyArcs => work.storyArcs;
   List<TrailerLink>? get trailerUrls => const [];
   String? get crossover => null;
   String? get displayCoverUrl => primaryRelease?.coverImageUrl;
@@ -176,27 +183,21 @@ class BookCatalogItem {
   DateTime? get coverDate => primaryRelease?.releaseDate;
   DateTime? get releaseDate => primaryRelease?.releaseDate;
   int? get releaseYear => primaryRelease?.releaseDate?.year;
-  String? get barcode => primaryRelease?.upc;
+  String? get barcode => primaryRelease?.upc ?? primaryRelease?.isbn;
   String? get itemNumber => null;
   String? get publisher => primaryRelease?.publisher;
   String? get coverImageUrl => primaryRelease?.coverImageUrl;
-  String? get thumbnailImageUrl => primaryRelease?.coverImageUrl;
+  String? get thumbnailImageUrl => primaryRelease?.thumbnailImageUrl ?? primaryRelease?.coverImageUrl;
   List<BookRelease> get editions => releases;
-  BookOriginalDetails? get originalDetails => work.originalTitle != null ||
-          work.originalPublisher != null ||
-          work.originalLanguage != null ||
-          work.originalCountry != null ||
-          work.originalPublicationDate != null ||
-          work.originalPublicationPlace != null
-      ? BookOriginalDetails(
-          originalTitle: work.originalTitle,
-          originalPublisher: work.originalPublisher,
-          originalLanguage: work.originalLanguage,
-          originalCountry: work.originalCountry,
-          originalPublicationDate: work.originalPublicationDate,
-          originalPublicationPlace: work.originalPublicationPlace,
-        )
-      : null;
+  BookOriginalDetails? get originalDetails => BookOriginalDetails(
+        originalTitle: work.originalTitle,
+        originalPublisher: work.originalPublisher,
+        originalLanguage: work.originalLanguage,
+        originalCountry: work.originalCountry,
+        originalPublicationDate: work.originalPublicationDate,
+        originalPublicationPlace: work.originalPublicationPlace,
+        dewey: publishing.dewey,
+      );
   String get displayTitle => work.title;
   String? get localizedTitle => null;
   List<String>? get searchAliases => null;

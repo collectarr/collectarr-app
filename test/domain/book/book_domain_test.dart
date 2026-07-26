@@ -6,13 +6,14 @@ void main() {
   test('book dto maps rich metadata into book domain', () {
     final dto = CatalogItemDto.fromJson({
       'id': 'book-1',
+      'kind': 'book',
       'title': 'Guards! Guards!',
       'search_aliases': ['Guards Guards'],
       'genres': ['fantasy'],
       'contributors': [
         {'name': 'Terry Pratchett', 'role': 'author'},
       ],
-      'series': ['Discworld'],
+      'series': {'series_id': 's1', 'series_title': 'Discworld'},
       'first_publication_date': '1989-03-16T00:00:00Z',
       'original_publication_date': '1989-03-16T00:00:00Z',
       'original_language': 'en',
@@ -26,8 +27,26 @@ void main() {
       'release_date': '1989-03-16T00:00:00Z',
       'release_year': 1989,
       'barcode': '9780062225729',
-      'variant': 'First edition',
+      'dewey': '823.914',
+      'page_count': 288,
+      'edition_title': 'Paperback',
       'crossover': 'City Watch',
+      'editions': [
+        {
+          'id': 'e1',
+          'title': 'Paperback',
+          'physical_format_label': 'Paperback',
+          'publisher': 'Victor Gollancz Ltd',
+          'variants': [
+            {
+              'id': 'v1',
+              'name': 'Standard',
+              'cover_image_url': 'https://example.com/book.jpg',
+              'thumbnail_image_url': 'https://example.com/book-thumb.jpg',
+            }
+          ]
+        }
+      ],
       'plot_summary': 'The city needs a dragon.',
       'plot_description': 'A dragon threatens Ankh-Morpork.',
       'creators': [
@@ -39,6 +58,7 @@ void main() {
       'language': 'en',
       'age_rating': 'PG',
       'audience_rating': 'Teen',
+      'physical_format': 'paperback',
       'physical_format_label': 'Paperback',
       'original_details': {
         'original_publisher': 'Victor Gollancz Ltd',

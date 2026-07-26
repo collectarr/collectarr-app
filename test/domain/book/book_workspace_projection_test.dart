@@ -1,18 +1,18 @@
-import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('book shelf entry builds from the book dto domain path', () {
-    final work = BookWork(
+    final work = BookCatalogItem(
       id: 'book-1',
       work: const BookWorkMetadata(
         title: 'Guards! Guards!',
         genres: ['fantasy'],
-        creators: [BookCreator(name: 'Terry Pratchett', role: 'author')],
+        creators: [BookCreatorCredit(name: 'Terry Pratchett', role: 'author')],
       ),
-      publishing: const BookPublishingMetadata(pageCount: 288, publisher: 'Victor Gollancz Ltd'),
+      publishing: const BookPublishingMetadata(pageCount: 288),
       releases: [
         BookRelease(
           id: 'book-edition-1',

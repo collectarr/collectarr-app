@@ -19,6 +19,7 @@ class CatalogPublishingDetailsDto {
     this.dustJacket,
     this.audiobookAbridged,
     this.firstEdition,
+    this.dewey,
   });
 
   final int? pageCount;
@@ -40,6 +41,7 @@ class CatalogPublishingDetailsDto {
   final bool? dustJacket;
   final bool? audiobookAbridged;
   final bool? firstEdition;
+  final String? dewey;
 
   bool get hasData =>
       pageCount != null ||

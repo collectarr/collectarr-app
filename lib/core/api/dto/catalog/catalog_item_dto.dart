@@ -378,10 +378,10 @@ sealed class CatalogItemDto {
       dustJacket: json['dust_jacket'] as bool?,
       audiobookAbridged: json['audiobook_abridged'] as bool?,
       firstEdition: json['first_edition'] as bool?,
+      dewey: json['dewey'] as String?,
     );
     final editions = (json['editions'] as List<dynamic>?)
-        ?.whereType<Map<String, dynamic>>()
-        .map(CatalogEditionDto.fromJson)
+        ?.map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList(growable: false);
     return CatalogItemDto(
       id: json['id'] as String,
@@ -396,7 +396,7 @@ sealed class CatalogItemDto {
           .toList(growable: false),
       sortKey: json['sort_key'] as String?,
       itemNumber: json['item_number'] as String?,
-      synopsis: json['synopsis'] as String?,
+      synopsis: (json['synopsis'] ?? json['description']) as String?,
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       coverImageData: json['cover_image_data'] as String?,

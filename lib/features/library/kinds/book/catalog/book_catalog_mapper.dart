@@ -51,6 +51,8 @@ class BookCatalogMapper {
       creators: creators,
       subjects: pub?.subjects ?? const [],
       genres: dto.genres ?? const [],
+      characters: dto.characters ?? const [],
+      storyArcs: dto.storyArcs ?? const [],
     );
 
     final publishing = BookPublishingMetadata(
@@ -65,9 +67,31 @@ class BookCatalogMapper {
       audiobookAbridged: pub?.audiobookAbridged,
       coverPriceCents: pub?.coverPriceCents,
       currency: pub?.currency,
+      dewey: pub?.dewey,
     );
 
-    final releases = dto.editions.map(_mapEditionDtoToRelease).toList();
+    final releases = dto.editions
+        .map((e) => _mapEditionDtoToRelease(
+              e,
+              dto.coverImageUrl,
+              dto.thumbnailImageUrl,
+              dto.editionTitle ?? dto.variant,
+              dto.physicalFormatLabel ?? dto.physicalFormat,
+            ))
+        .toList();
+
+    if (releases.isEmpty) {
+      releases.add(BookRelease(
+        id: '${dto.id}-release',
+        title: dto.editionTitle ?? dto.variant ?? dto.title,
+        publisher: dto.publisher,
+        coverImageUrl: dto.coverImageUrl,
+        releaseDate: dto.releaseDate,
+        physicalFormat: dto.physicalFormat,
+        physicalFormatLabel: dto.physicalFormatLabel,
+        upc: dto.barcode,
+      ));
+    }
 
     return BookCatalogItem(
       id: dto.id,
@@ -204,7 +228,9 @@ class BookCatalogMapper {
       currency: pub?.currency,
     );
 
-    final releases = item.editions.map(_mapEditionDtoToRelease).toList();
+    final releases = item.editions
+        .map((e) => _mapEditionDtoToRelease(e, item.coverImageUrl, item.thumbnailImageUrl))
+        .toList();
 
     return BookCatalogItem(
       id: item.id,
@@ -214,13 +240,23 @@ class BookCatalogMapper {
     );
   }
 
-  static BookRelease _mapEditionDtoToRelease(CatalogEditionDto edition) {
+  static BookRelease _mapEditionDtoToRelease(
+    CatalogEditionDto edition, [
+    String? parentCoverUrl,
+    String? parentThumbnailUrl,
+    String? parentEditionTitle,
+    String? parentPhysicalFormatLabel,
+  ]) {
     String? primaryCover;
+    String? primaryThumbnail;
     final variantRefs = <BookVariantRef>[];
 
     for (final v in edition.variants) {
       if (v.coverImageUrl != null && v.coverImageUrl!.isNotEmpty) {
         primaryCover ??= v.coverImageUrl;
+      }
+      if (v.thumbnailImageUrl != null && v.thumbnailImageUrl!.isNotEmpty) {
+        primaryThumbnail ??= v.thumbnailImageUrl;
       }
       variantRefs.add(BookVariantRef(
         id: v.id,
@@ -231,15 +267,25 @@ class BookCatalogMapper {
         isbn: v.isbn,
         region: v.region,
         coverImageUrl: v.coverImageUrl,
+        thumbnailImageUrl: v.thumbnailImageUrl,
         physicalFormat: v.physicalFormat,
         physicalFormatLabel: v.physicalFormatLabel,
         isPrimary: v.isPrimary,
       ));
     }
+    primaryCover ??= parentCoverUrl;
+    primaryThumbnail ??= parentThumbnailUrl;
+
+    final releaseTitle = (edition.title.isEmpty || edition.title == 'Edition')
+        ? (parentEditionTitle ??
+            (variantRefs.isNotEmpty && variantRefs.first.name != 'Variant'
+                ? variantRefs.first.name
+                : edition.title))
+        : edition.title;
 
     return BookRelease(
       id: edition.id,
-      title: edition.title,
+      title: releaseTitle,
       publisher: edition.publisher,
       distributor: edition.distributor,
       isbn: edition.isbn,
@@ -248,8 +294,13 @@ class BookCatalogMapper {
       region: edition.region,
       releaseDate: edition.releaseDate,
       physicalFormat: edition.physicalFormat,
-      physicalFormatLabel: edition.physicalFormatLabel,
+      physicalFormatLabel: (edition.physicalFormatLabel != null && edition.physicalFormatLabel != edition.physicalFormat)
+          ? edition.physicalFormatLabel
+          : (parentPhysicalFormatLabel ?? edition.physicalFormatLabel ?? edition.physicalFormat),
       coverImageUrl: primaryCover,
+      thumbnailImageUrl: primaryThumbnail,
+      dimensions: edition.metadata?['dimensions'] as String?,
+      firstEdition: edition.metadata?['first_edition'] as bool?,
       variants: variantRefs,
     );
   }

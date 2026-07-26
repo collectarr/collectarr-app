@@ -8,6 +8,7 @@ class BookVariantRef {
     this.isbn,
     this.region,
     this.coverImageUrl,
+    this.thumbnailImageUrl,
     this.physicalFormat,
     this.physicalFormatLabel,
     this.isPrimary = false,
@@ -21,11 +22,10 @@ class BookVariantRef {
   final String? isbn;
   final String? region;
   final String? coverImageUrl;
+  final String? thumbnailImageUrl;
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final bool isPrimary;
-
-  String? get thumbnailImageUrl => coverImageUrl;
   String? get description => null;
 }
 
@@ -43,6 +43,9 @@ class BookRelease {
     this.physicalFormat,
     this.physicalFormatLabel,
     this.coverImageUrl,
+    this.thumbnailImageUrl,
+    this.dimensions,
+    this.firstEdition,
     this.variants = const <BookVariantRef>[],
   });
 
@@ -58,5 +61,8 @@ class BookRelease {
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final String? coverImageUrl;
+  final String? thumbnailImageUrl;
+  final String? dimensions;
+  final bool? firstEdition;
   final List<BookVariantRef> variants;
 }
