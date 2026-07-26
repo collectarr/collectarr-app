@@ -1,5 +1,3 @@
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,15 +7,15 @@ void main() {
     expect(
       libraryKindModuleForKind(CatalogMediaKind.book).fields.defaultVisibleColumnIds,
       containsAll(<Object>{
-        'author',
-        'title',
-        'publisher',
-        'release_date',
-        'barcode',
+        'book.author',
+        'book.title',
+        'book.publisher',
+        'book.release_date',
+        'book.isbn',
         'read_status',
         'rating',
-        'condition',
-        'location',
+        'book.condition',
+        'book.location',
       }),
     );
   });

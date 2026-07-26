@@ -7,6 +7,7 @@ void main() {
     final dto = MusicReleaseDto.fromJson({
       'id': 'music-1',
       'title': 'The Wall',
+      'artist': 'Pink Floyd',
       'subtitle': 'Pink Floyd',
       'publisher': 'Harvest',
       'release_date': '1979-11-30T00:00:00Z',

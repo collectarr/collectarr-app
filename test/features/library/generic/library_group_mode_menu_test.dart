@@ -250,7 +250,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Age / Country'), findsOneWidget);
+    expect(find.text('Age rating / Country'), findsOneWidget);
   });
 
   testWidgets('group mode button opens menu on hover', (tester) async {
