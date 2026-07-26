@@ -1,5 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+
+export 'package:collectarr_app/core/models/owned_item_details.dart';
 
 const Object _ownedItemUnset = Object();
 
@@ -14,6 +18,7 @@ class OwnedItem {
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
+    this.details,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -133,6 +138,60 @@ class OwnedItem {
   final String? gamePriceChartingId;
   final String? gameCoreRegion;
   final bool? gameValueIsLocked;
+  final OwnedItemDetails? details;
+
+  OwnedItemDetails get typedDetails => details ?? _buildTypedDetails();
+
+  OwnedItemDetails _buildTypedDetails() {
+    switch (catalogRef.kind) {
+      case CatalogMediaKind.comic:
+      case CatalogMediaKind.manga:
+        return ComicOwnedDetails(
+          rawOrSlabbed: rawOrSlabbed,
+          gradingCompany: gradingCompany,
+          graderNotes: graderNotes,
+          signedBy: signedBy,
+          labelType: labelType,
+          customLabel: customLabel,
+          pageQuality: pageQuality,
+          certificationNumber: certificationNumber,
+          keyComic: keyComic,
+          keyReason: keyReason,
+          keyCategory: keyCategory,
+          keySeverity: keySeverity,
+          coverPriceCents: coverPriceCents,
+          lastBagBoardDate: lastBagBoardDate,
+        );
+      case CatalogMediaKind.movie:
+      case CatalogMediaKind.tv:
+      case CatalogMediaKind.anime:
+        return VideoOwnedDetails(
+          features: features,
+          hdrFormats: hdrFormats,
+          boxSetId: boxSetId,
+          boxSetName: boxSetName,
+          region: region,
+          packaging: packaging,
+          distributor: distributor,
+        );
+      case CatalogMediaKind.game:
+        return GameOwnedDetails(
+          completeness: gameCompleteness,
+          hasBox: gameHasBox,
+          hasManual: gameHasManual,
+          priceChartingId: gamePriceChartingId,
+          coreRegion: gameCoreRegion,
+          valueIsLocked: gameValueIsLocked,
+        );
+      case CatalogMediaKind.music:
+        return MusicOwnedDetails(
+          storageDevice: storageDevice,
+          storageSlot: storageSlot,
+        );
+      default:
+        return const GenericOwnedDetails();
+    }
+  }
 
   String get itemId => catalogRef.id;
 
