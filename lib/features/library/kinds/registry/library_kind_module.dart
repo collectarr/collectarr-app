@@ -35,7 +35,6 @@ class AnyLibraryFieldRegistry<TDto> {
        _sorts = sorts,
        _columns = columns;
 
-
   final List<LibraryGroupDefinition<TDto, Object?>>? _groups;
   final List<LibrarySortDefinition<TDto>>? _sorts;
   final List<LibraryColumnDefinition<TDto, Object?>>? _columns;
@@ -104,7 +103,7 @@ class AnyLibraryFieldRegistry<TDto> {
 
   LibraryColumnDefinition<TDto, Object?>? columnDefinitionForId(String id) {
     for (final definition in columns) {
-      if (definition.id.value == id || definition.id.value.split('.').last == id) {
+      if (definition.id.value == id) {
         return definition;
       }
     }
@@ -124,7 +123,7 @@ class AnyLibraryFieldRegistry<TDto> {
 
   LibrarySortDefinition<TDto>? sortDefinitionForId(String id) {
     for (final definition in sorts) {
-      if (definition.id == id || definition.id.split('.').last == id) {
+      if (definition.id == id) {
         return definition;
       }
     }
@@ -144,7 +143,7 @@ class AnyLibraryFieldRegistry<TDto> {
 
   LibraryGroupDefinition<TDto, Object?>? groupDefinitionForId(String id) {
     for (final definition in groups) {
-      if (definition.id.value == id || definition.id.value.split('.').last == id) {
+      if (definition.id.value == id) {
         return definition;
       }
     }
@@ -164,32 +163,19 @@ class AnyLibraryFieldRegistry<TDto> {
 
   /// Sorts [entries] in-place using the comparator for [sortId].
   ///
-  /// When [dtoFactory] is provided each [LibraryWorkspaceEntry] is projected
-  /// to a DTO exactly **once** before sorting begins, so the comparator never
-  /// reconstructs the DTO on each comparison:
+  /// Each [LibraryWorkspaceEntry] is projected to a DTO exactly **once** before
+  /// sorting begins via [dtoFactory], guaranteeing stable performance:
   ///
   /// ```
-  /// Before:  O(N log N)  ×  2 DTO constructions per compare
-  /// After:   O(N)        DTO constructions  +  O(N log N) comparisons
+  /// O(N) DTO constructions + O(N log N) comparisons
   /// ```
-  ///
-  /// When [dtoFactory] is null the comparator receives raw entries (legacy
-  /// path, identical to calling `sortDef.compare` directly).
   void sortEntries(
     List<LibraryWorkspaceEntry> entries,
     String sortId, {
     required bool ascending,
-    LibraryWorkspaceDtoBuilder? dtoFactory,
+    required LibraryWorkspaceDtoBuilder dtoFactory,
   }) {
     final sortDef = sortDefinitionFor(sortId);
-
-    if (dtoFactory == null) {
-      entries.sort((l, r) {
-        final result = sortDef.compare(l as TDto, r as TDto);
-        return ascending ? result : -result;
-      });
-      return;
-    }
 
     // Build a DTO for every entry once, keyed by identity.
     final dtos = <LibraryWorkspaceEntry, TDto>{};
@@ -199,18 +185,23 @@ class AnyLibraryFieldRegistry<TDto> {
 
     entries.sort((l, r) {
       final result = sortDef.compare(dtos[l]!, dtos[r]!);
-      return ascending ? result : -result;
+      if (result != 0) {
+        return ascending ? result : -result;
+      }
+      // Stable tie-breaking using resolved title & id
+      final titleCmp = l.resolvedTitle.compareTo(r.resolvedTitle);
+      if (titleCmp != 0) return titleCmp;
+      return l.id.compareTo(r.id);
     });
   }
 }
-
 
 class LibraryKindModule<TDto> {
   const LibraryKindModule({
     required this.type,
     required this.mediaAdapter,
     required this.fields,
-    this.workspaceDtoFactory,
+    required this.workspaceDtoFactory,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.add = const LibraryKindAddModule(),
     this.edit = const LibraryKindEditModule(),
@@ -223,11 +214,10 @@ class LibraryKindModule<TDto> {
     this.buildCardPresentation,
   });
 
-
   final LibraryTypeConfig type;
   final LibraryMediaAdapter mediaAdapter;
   final AnyLibraryFieldRegistry<TDto> fields;
-  final LibraryWorkspaceDto Function(LibraryWorkspaceEntry entry)? workspaceDtoFactory;
+  final LibraryWorkspaceDto Function(LibraryWorkspaceEntry entry) workspaceDtoFactory;
   final LibraryKindWorkspaceBehavior workspaceBehavior;
   final LibraryKindAddModule add;
   final LibraryKindEditModule edit;
@@ -236,15 +226,42 @@ class LibraryKindModule<TDto> {
   final LibraryKindProviderMapper providerMapper;
   final LibraryFacetModule facets;
 
-
   /// Returns the card presentation for a given entry.
-  ///
-  /// When null the generic card falls back to [LibraryCardPresentation()] which
-  /// produces the standard layout without any kind-specific content.
   final LibraryCardPresentation Function(
     LibraryWorkspaceEntry entry, {
     required bool musicVertical,
   })? buildCardPresentation;
+}
+
+/// Validates a [LibraryKindModule] for schema completeness, duplicate IDs,
+/// and required fields upon registration.
+void validateKindModule(LibraryKindModule module) {
+  final columnIds = <String>{};
+  for (final col in module.fields.columns) {
+    if (!columnIds.add(col.id.value)) {
+      throw StateError(
+        'Duplicate column ID "${col.id.value}" in kind module "${module.type.workspace.title}"',
+      );
+    }
+  }
+
+  final sortIds = <String>{};
+  for (final sort in module.fields.sorts) {
+    if (!sortIds.add(sort.id)) {
+      throw StateError(
+        'Duplicate sort ID "${sort.id}" in kind module "${module.type.workspace.title}"',
+      );
+    }
+  }
+
+  final groupIds = <String>{};
+  for (final group in module.fields.groups) {
+    if (!groupIds.add(group.id.value)) {
+      throw StateError(
+        'Duplicate group ID "${group.id.value}" in kind module "${module.type.workspace.title}"',
+      );
+    }
+  }
 }
 
 class LibraryKindAddModule {

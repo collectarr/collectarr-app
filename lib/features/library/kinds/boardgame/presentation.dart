@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_item_types.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';

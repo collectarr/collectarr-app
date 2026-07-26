@@ -116,12 +116,15 @@ class LibraryWorkspacePreferences {
     final savedSortColumn = prefs.getString(_key('sort_column'));
     var sortColumn = module.fields.defaultSortId ?? 'title';
     if (savedSortColumn != null) {
-      if (module.fields.sortDefinitionForId(savedSortColumn) != null) {
-        sortColumn = savedSortColumn;
+      final directDef = module.fields.sortDefinitionForId(savedSortColumn);
+      if (directDef != null) {
+        sortColumn = directDef.id;
       } else {
-        final shortId = savedSortColumn.split('.').last;
-        if (module.fields.sortDefinitionForId(shortId) != null) {
-          sortColumn = shortId;
+        for (final def in module.fields.sorts) {
+          if (def.id.endsWith('.$savedSortColumn')) {
+            sortColumn = def.id;
+            break;
+          }
         }
       }
     }
@@ -268,16 +271,27 @@ class LibraryWorkspacePreferences {
     if (values == null || values.isEmpty) {
       return Set.of(defaultCols);
     }
-    final columns = {
-      for (final value in values)
-        if (module.fields.columnDefinitionForId(value) != null ||
-            module.fields.columnDefinitionForId(value.split('.').last) != null)
-          value,
-    };
-    final titleSupported = module.fields.columnDefinitionForId('title') != null ||
-        module.fields.columnDefinitionForId('title'.split('.').last) != null;
-    if (titleSupported && !columns.contains('title')) {
-      columns.add('title');
+    final columns = <Object>{};
+    for (final value in values) {
+      final directDef = module.fields.columnDefinitionForId(value);
+      if (directDef != null) {
+        columns.add(directDef.id.value);
+      } else {
+        for (final def in module.fields.columns) {
+          if (def.id.value.endsWith('.$value')) {
+            columns.add(def.id.value);
+            break;
+          }
+        }
+      }
+    }
+    final titleSupported = module.fields.columns.any((c) => c.id.value.contains('title'));
+    if (titleSupported && !columns.any((c) => c.toString().contains('title'))) {
+      final titleDef = module.fields.columns.firstWhere(
+        (def) => def.id.value.contains('title'),
+        orElse: () => module.fields.columns.first,
+      );
+      columns.add(titleDef.id.value);
     }
     return columns.isEmpty ? Set.of(defaultCols) : columns;
   }
@@ -313,12 +327,15 @@ class LibraryWorkspacePreferences {
       }
       final rawId = parts.first;
       String? column;
-      if (module.fields.sortDefinitionForId(rawId) != null) {
-        column = rawId;
+      final directDef = module.fields.sortDefinitionForId(rawId);
+      if (directDef != null) {
+        column = directDef.id;
       } else {
-        final shortId = rawId.split('.').last;
-        if (module.fields.sortDefinitionForId(shortId) != null) {
-          column = shortId;
+        for (final def in module.fields.sorts) {
+          if (def.id.endsWith('.$rawId')) {
+            column = def.id;
+            break;
+          }
         }
       }
       if (column == null) {
