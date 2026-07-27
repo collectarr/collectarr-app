@@ -11,11 +11,14 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
 
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   type: musicLibraryConfig,
 
   mediaAdapter: musicMediaAdapter,
   workspaceDtoFactory: MusicWorkspaceDto.fromEntry,
+  ownedDetailsCodec: const MusicOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: musicLibraryGroupDefinitions,
     sorts: musicLibrarySortDefinitions,

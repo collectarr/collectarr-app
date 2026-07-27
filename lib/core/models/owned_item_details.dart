@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 /// Sealed hierarchy of kind-specific details for an [OwnedItem].
 @immutable
@@ -12,23 +13,31 @@ sealed class OwnedItemDetails {
     CatalogMediaKind kind,
     Map<String, dynamic> json,
   ) {
-    return switch (kind) {
-      CatalogMediaKind.comic || CatalogMediaKind.manga => ComicOwnedDetails.fromJson(json),
-      CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime => VideoOwnedDetails.fromJson(json),
-      CatalogMediaKind.game => GameOwnedDetails.fromJson(json),
-      CatalogMediaKind.music => MusicOwnedDetails.fromJson(json),
-      _ => const GenericOwnedDetails(),
-    };
+    try {
+      return LibraryKindRegistry.instance.getByKind(kind).decodeOwnedDetails(json);
+    } catch (_) {
+      return switch (kind) {
+        CatalogMediaKind.comic || CatalogMediaKind.manga => ComicOwnedDetails.fromJson(json),
+        CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime => VideoOwnedDetails.fromJson(json),
+        CatalogMediaKind.game => GameOwnedDetails.fromJson(json),
+        CatalogMediaKind.music => MusicOwnedDetails.fromJson(json),
+        _ => const GenericOwnedDetails(),
+      };
+    }
   }
 
   static OwnedItemDetails defaultForKind(CatalogMediaKind kind) {
-    return switch (kind) {
-      CatalogMediaKind.comic || CatalogMediaKind.manga => const ComicOwnedDetails(),
-      CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime => const VideoOwnedDetails(),
-      CatalogMediaKind.game => const GameOwnedDetails(),
-      CatalogMediaKind.music => const MusicOwnedDetails(),
-      _ => const GenericOwnedDetails(),
-    };
+    try {
+      return LibraryKindRegistry.instance.getByKind(kind).defaultOwnedDetails();
+    } catch (_) {
+      return switch (kind) {
+        CatalogMediaKind.comic || CatalogMediaKind.manga => const ComicOwnedDetails(),
+        CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime => const VideoOwnedDetails(),
+        CatalogMediaKind.game => const GameOwnedDetails(),
+        CatalogMediaKind.music => const MusicOwnedDetails(),
+        _ => const GenericOwnedDetails(),
+      };
+    }
   }
 
   ComicOwnedDetails? get comic => this is ComicOwnedDetails ? this as ComicOwnedDetails : null;

@@ -13,10 +13,13 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 
 
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, VideoOwnedDetails>(
   type: moviesLibraryConfig,
   mediaAdapter: moviesMediaAdapter,
   workspaceDtoFactory: MovieWorkspaceDto.fromEntry,
+  ownedDetailsCodec: const VideoOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: movieLibraryGroupDefinitions,
     sorts: movieLibrarySortDefinitions,

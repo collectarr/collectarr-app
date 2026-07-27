@@ -11,10 +11,13 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 
 
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   type: gamesLibraryConfig,
   mediaAdapter: gamesMediaAdapter,
   workspaceDtoFactory: GameWorkspaceDto.fromEntry,
+  ownedDetailsCodec: const GameOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: gameLibraryGroupDefinitions,
     sorts: gameLibrarySortDefinitions,

@@ -9,10 +9,13 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fiel
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+
 final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, ComicOwnedDetails>(
   type: mangaLibraryConfig,
   mediaAdapter: mangaMediaAdapter,
   workspaceDtoFactory: MangaWorkspaceDto.fromEntry,
+  ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: mangaLibraryGroupDefinitions,
     sorts: mangaLibrarySortDefinitions,

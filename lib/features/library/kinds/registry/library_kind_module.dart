@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_toolbar_config.da
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -240,6 +241,10 @@ abstract interface class LibraryKindRuntime {
   LibraryKindProviderMapper get providerMapper;
   LibraryFacetModule get facets;
 
+  OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json);
+  OwnedItemDetails defaultOwnedDetails();
+  Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details);
+
   LibraryCardPresentation? buildCardPresentation(
     LibraryWorkspaceEntry entry, {
     required bool musicVertical,
@@ -261,6 +266,7 @@ class LibraryKindSpec<TDto extends Object, TDetails extends OwnedItemDetails>
     required this.mediaAdapter,
     required this.fields,
     required this.workspaceDtoFactory,
+    required this.ownedDetailsCodec,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.add = const LibraryKindAddModule(),
     this.edit = const LibraryKindEditModule(),
@@ -275,6 +281,24 @@ class LibraryKindSpec<TDto extends Object, TDetails extends OwnedItemDetails>
       required bool musicVertical,
     })? buildCardPresentation,
   }) : _buildCardPresentation = buildCardPresentation;
+
+  final OwnedDetailsCodec<TDetails> ownedDetailsCodec;
+
+  @override
+  OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json) =>
+      ownedDetailsCodec.fromJson(json);
+
+  @override
+  OwnedItemDetails defaultOwnedDetails() =>
+      ownedDetailsCodec.defaultDetails();
+
+  @override
+  Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details) {
+    if (details is TDetails) {
+      return ownedDetailsCodec.toJson(details);
+    }
+    return details.toJson();
+  }
 
   @override
   CatalogMediaKind get kind => type.workspace.kind;

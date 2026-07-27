@@ -11,10 +11,13 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 
 
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+
 final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, VideoOwnedDetails>(
   type: animeLibraryConfig,
   mediaAdapter: animeMediaAdapter,
   workspaceDtoFactory: AnimeWorkspaceDto.fromEntry,
+  ownedDetailsCodec: const VideoOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: animeLibraryGroupDefinitions,
     sorts: animeLibrarySortDefinitions,

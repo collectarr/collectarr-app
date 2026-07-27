@@ -17,10 +17,13 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/material.dart';
 
 
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   type: comicsLibraryConfig,
   mediaAdapter: comicsMediaAdapter,
   workspaceDtoFactory: ComicWorkspaceDto.fromEntry,
+  ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: comicLibraryGroupDefinitions,
     sorts: comicLibrarySortDefinitions,
