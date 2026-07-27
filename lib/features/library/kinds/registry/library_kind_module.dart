@@ -165,7 +165,7 @@ class AnyLibraryFieldRegistry<TDto> {
     final direct = sortDefinitionForId(id);
     if (direct != null) return direct;
     for (final sort in sorts) {
-      if (sort.id.endsWith('.$id')) return sort;
+      if (sort.id.value.endsWith('.$id')) return sort;
     }
     return null;
   }
@@ -358,9 +358,9 @@ void validateKindRuntime(LibraryKindRuntime module) {
 
   final sortIds = <String>{};
   for (final sort in module.fields.sorts) {
-    if (!sortIds.add(sort.id)) {
+    if (!sortIds.add(sort.id.value)) {
       throw StateError(
-        'Duplicate sort ID "${sort.id}" in kind spec "${module.type.workspace.title}"',
+        'Duplicate sort ID "${sort.id.value}" in kind spec "${module.type.workspace.title}"',
       );
     }
   }

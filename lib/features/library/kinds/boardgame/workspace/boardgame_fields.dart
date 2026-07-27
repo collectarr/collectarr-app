@@ -88,7 +88,7 @@ final boardGamesLibrarySortDefinitions = [
   sortFromField(BoardGameKindSchema.series),
   sortFromField(BoardGameKindSchema.publisher),
   LibrarySortDefinition<BoardGameWorkspaceDto>(
-    id: 'status',
+    id: const LibrarySortId('status'),
     compare: (left, right) {
       int rank(BoardGameWorkspaceDto dto) {
         if (dto.isOwned) return 0;

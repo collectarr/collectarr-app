@@ -96,7 +96,7 @@ final mangaLibrarySortDefinitions = [
   sortFromField(MangaKindSchema.volumeNumber),
   sortFromField(MangaKindSchema.publisher),
   LibrarySortDefinition<MangaWorkspaceDto>(
-    id: 'status',
+    id: const LibrarySortId('status'),
     compare: (left, right) {
       int rank(MangaWorkspaceDto dto) {
         if (dto.isOwned) return 0;

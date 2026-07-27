@@ -565,7 +565,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   List<String> _filteredColumns() {
     final query = _query.trim().toLowerCase();
     final available =
-        widget.availableColumns ?? [for (final def in libraryKindModuleForType(widget.type).fields.sorts) def.id];
+        widget.availableColumns ?? [for (final def in libraryKindModuleForType(widget.type).fields.sorts) def.id.value];
     return available.where((column) {
       if (query.isEmpty) {
         return true;

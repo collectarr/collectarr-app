@@ -113,7 +113,7 @@ final bookLibrarySortDefinitions = [
   sortFromField(BookKindSchema.series),
   sortFromField(BookKindSchema.publisher),
   LibrarySortDefinition<BookWorkspaceDto>(
-    id: 'status',
+    id: const LibrarySortId('status'),
     compare: (left, right) {
       int rank(BookWorkspaceDto dto) {
         if (dto.isOwned) return 0;

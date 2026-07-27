@@ -88,7 +88,7 @@ final gameLibrarySortDefinitions = [
   sortFromField(GameKindSchema.series),
   sortFromField(GameKindSchema.publisher),
   LibrarySortDefinition<GameWorkspaceDto>(
-    id: 'status',
+    id: const LibrarySortId('status'),
     compare: (left, right) {
       int rank(GameWorkspaceDto dto) {
         if (dto.isOwned) return 0;

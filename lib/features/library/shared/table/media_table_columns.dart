@@ -145,7 +145,7 @@ String? plannedMediaTableColumnSort(
   if (definition == null || !definition.sortable) {
     return null;
   }
-  return definition.sortId ?? definition.id.value;
+  return definition.sortId?.value ?? definition.id.value;
 }
 
 Widget plannedMediaTableCell(

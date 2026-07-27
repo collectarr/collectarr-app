@@ -88,7 +88,7 @@ final animeLibrarySortDefinitions = [
   sortFromField(AnimeKindSchema.series),
   sortFromField(AnimeKindSchema.publisher),
   LibrarySortDefinition<AnimeWorkspaceDto>(
-    id: 'status',
+    id: const LibrarySortId('status'),
     compare: (left, right) {
       int rank(AnimeWorkspaceDto dto) {
         if (dto.isOwned) return 0;

@@ -56,7 +56,7 @@ final libraryAvailableSortsProvider =
     return [
       for (final def in module.fields.sorts)
         LibrarySortOption(
-          id: def.id,
+          id: def.id.value,
           label: def.label,
           group: def.group,
           defaultAscending: def.defaultAscending,

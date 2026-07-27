@@ -966,7 +966,7 @@ class LibraryTypeConfig {
   ) {
     final module = libraryKindModuleForType(this);
     final allSorts = [
-      for (final def in module.fields.sorts) def.id,
+      for (final def in module.fields.sorts) def.id.value,
     ];
     if (!capabilities.scopesOptionsByBrowserMode) {
       return allSorts;

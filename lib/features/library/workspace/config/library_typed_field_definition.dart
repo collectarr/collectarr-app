@@ -169,6 +169,25 @@ class LibraryGroupDefinition<TDto, TValue> {
   }
 }
 
+class LibrarySortId {
+  const LibrarySortId(this.value);
+
+  final String value;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is LibrarySortId) return other.value == value;
+    if (other is String) return other == value;
+    return false;
+  }
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
+}
+
 typedef LibrarySortComparator<TDto> = int Function(TDto left, TDto right);
 
 class LibrarySortDefinition<TDto> {
@@ -180,7 +199,7 @@ class LibrarySortDefinition<TDto> {
     this.defaultAscending = true,
   });
 
-  final String id;
+  final LibrarySortId id;
   final String label;
   final LibrarySortComparator<TDto> compare;
   final String group;
@@ -215,7 +234,7 @@ class LibraryColumnDefinition<TDto, TValue> {
   final bool sortable;
   final bool groupable;
   final bool isNumeric;
-  final String? sortId;
+  final LibrarySortId? sortId;
   final double? defaultWidth;
   final double? minWidth;
   final double? maxWidth;

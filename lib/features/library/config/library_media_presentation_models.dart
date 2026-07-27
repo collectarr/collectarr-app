@@ -773,10 +773,31 @@ String definitionIdFor(Object value) {
   return normalized.contains('.') ? normalized.split('.').last : normalized;
 }
 
-abstract final class LibraryFacetId {
+class LibraryFacetId {
+  const LibraryFacetId(this.value);
+
+  final String value;
+
   static const comicStoryArc = 'comic.story_arc';
   static const comicCharacter = 'comic.character';
   static const mediaCharacter = 'media.character';
+
+  static const comicStoryArcId = LibraryFacetId('comic.story_arc');
+  static const comicCharacterId = LibraryFacetId('comic.character');
+  static const mediaCharacterId = LibraryFacetId('media.character');
+
+  @override
+  bool operator ==(Object other) {
+    if (other is LibraryFacetId) return other.value == value;
+    if (other is String) return other == value;
+    return false;
+  }
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
 }
 
 String librarySortColumnFallbackLabel(String column) {

@@ -88,7 +88,7 @@ final movieLibrarySortDefinitions = [
   sortFromField(MovieKindSchema.series),
   sortFromField(MovieKindSchema.publisher),
   LibrarySortDefinition<MovieWorkspaceDto>(
-    id: 'status',
+    id: const LibrarySortId('status'),
     compare: (left, right) {
       int rank(MovieWorkspaceDto dto) {
         if (dto.isOwned) return 0;

@@ -102,7 +102,7 @@ final musicLibrarySortDefinitions = [
   sortFromField(MusicKindSchema.artist),
   sortFromField(MusicKindSchema.publisher),
   LibrarySortDefinition<MusicWorkspaceDto>(
-    id: 'status',
+    id: const LibrarySortId('status'),
     compare: (left, right) {
       int rank(MusicWorkspaceDto dto) {
         if (dto.isOwned) return 0;

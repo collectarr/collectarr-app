@@ -95,7 +95,7 @@ final tvLibrarySortDefinitions = [
   sortFromField(TvKindSchema.series),
   sortFromField(TvKindSchema.publisher),
   LibrarySortDefinition<TvWorkspaceDto>(
-    id: 'status',
+    id: const LibrarySortId('status'),
     compare: (left, right) {
       int rank(TvWorkspaceDto dto) {
         if (dto.isOwned) return 0;

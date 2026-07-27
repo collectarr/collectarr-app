@@ -130,7 +130,7 @@ class LibrarySortPresetStore {
       }
       rules.add(
         LibrarySortRule(
-          column: sortDef.id,
+          column: sortDef.id.value,
           ascending: json['ascending'] != false,
         ),
       );
@@ -147,8 +147,8 @@ class LibrarySortPresetStore {
       if (sortDef == null) {
         continue;
       }
-      if (seen.add(sortDef.id)) {
-        deduped.add(rule.copyWith(column: sortDef.id));
+      if (seen.add(sortDef.id.value)) {
+        deduped.add(rule.copyWith(column: sortDef.id.value));
       }
     }
     return deduped;

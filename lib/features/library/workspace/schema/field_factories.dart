@@ -82,7 +82,7 @@ LibrarySortDefinition<TDto> sortFromField<TDto, V extends Comparable<Object>>(
   int Function(V a, V b)? customCompare,
 }) {
   return LibrarySortDefinition<TDto>(
-    id: field.id.value,
+    id: LibrarySortId(field.id.value),
     label: field.label,
     group: group,
     defaultAscending: defaultAscending,

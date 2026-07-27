@@ -118,11 +118,11 @@ class LibraryWorkspacePreferences {
     if (savedSortColumn != null) {
       final directDef = module.fields.findSortDefinition(savedSortColumn);
       if (directDef != null) {
-        sortColumn = directDef.id;
+        sortColumn = directDef.id.value;
       } else {
         for (final def in module.fields.sorts) {
-          if (def.id.endsWith('.$savedSortColumn')) {
-            sortColumn = def.id;
+          if (def.id.value.endsWith('.$savedSortColumn')) {
+            sortColumn = def.id.value;
             break;
           }
         }
@@ -197,7 +197,7 @@ class LibraryWorkspacePreferences {
     final writeModule = libraryKindModuleForType(config);
     final sortDef = writeModule.fields.findSortDefinition(snapshot.sortColumn);
     final normalizedSortColumn =
-        sortDef?.id ?? (writeModule.fields.defaultSortId ?? 'title');
+        sortDef?.id.value ?? (writeModule.fields.defaultSortId ?? 'title');
     final normalizedSnapshot = LibraryWorkspacePreferenceSnapshot(
       browserMode: snapshot.browserMode,
       viewMode: snapshot.viewMode,
@@ -318,7 +318,7 @@ class LibraryWorkspacePreferences {
       }
       rules.add(
         LibrarySortRule(
-          column: sortDef.id,
+          column: sortDef.id.value,
           ascending: parts[1] != 'desc',
         ),
       );
@@ -392,10 +392,10 @@ class LibraryWorkspacePreferences {
     final seen = <String>{};
     for (final rule in rules) {
       final sortDef = module.fields.findSortDefinition(rule.column);
-      if (sortDef == null || !seen.add(sortDef.id)) {
+      if (sortDef == null || !seen.add(sortDef.id.value)) {
         continue;
       }
-      normalized.add(rule.copyWith(column: sortDef.id));
+      normalized.add(rule.copyWith(column: sortDef.id.value));
     }
     return normalized.isEmpty ? null : normalized;
   }

@@ -96,7 +96,7 @@ final comicLibrarySortDefinitions = [
   sortFromField(ComicKindSchema.issueNumber),
   sortFromField(ComicKindSchema.publisher),
   LibrarySortDefinition<ComicWorkspaceDto>(
-    id: 'status',
+    id: const LibrarySortId('status'),
     compare: (left, right) {
       int rank(ComicWorkspaceDto dto) {
         if (dto.isOwned) return 0;
