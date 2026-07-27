@@ -107,9 +107,7 @@ LibraryWorkspaceEntryData _buildShelfWorkspaceEntryData(
     notes: source.ownedItem?.personalNotes ?? source.wishlistItem?.notes,
     tags: source.ownedItem?.tags,
     collectionStatus: source.ownedItem?.collectionStatus,
-    lastBagBoardDate: source.ownedItem?.typedDetails is ComicOwnedDetails
-        ? (source.ownedItem!.typedDetails as ComicOwnedDetails).lastBagBoardDate
-        : null,
+    lastBagBoardDate: source.ownedItem?.comicDetails?.lastBagBoardDate,
     pricePaidCents: source.ownedItem?.pricePaidCents,
     currency: source.ownedItem?.currency,
     locationPath: source.locationPath,

@@ -326,9 +326,7 @@ class CollectionCsv {
     final cfValues = o != null
         ? _customFieldCells(o.id, customFieldDefinitions, customFieldValuesByItem)
         : List.filled(customFieldDefinitions.length, '');
-    final comic = o?.typedDetails is ComicOwnedDetails
-        ? o!.typedDetails as ComicOwnedDetails
-        : null;
+    final comic = o?.comicDetails;
     return [
       ..._catalogFields(entry),
       _status(entry),
@@ -368,9 +366,7 @@ class CollectionCsv {
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
     final o = entry.ownedItem;
-    final comic = o?.typedDetails is ComicOwnedDetails
-        ? o!.typedDetails as ComicOwnedDetails
-        : null;
+    final comic = o?.comicDetails;
     final cfValues = o != null
         ? _customFieldCells(o.id, customFieldDefinitions, customFieldValuesByItem)
         : List.filled(customFieldDefinitions.length, '');

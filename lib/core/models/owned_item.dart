@@ -82,25 +82,13 @@ class OwnedItem {
   final int? marketValueCents;
   final OwnedItemDetails? details;
 
-  OwnedItemDetails get typedDetails => details ?? _buildTypedDetails();
+  OwnedItemDetails get typedDetails =>
+      details ?? OwnedItemDetails.defaultForKind(catalogRef.mediaKind);
 
-  OwnedItemDetails _buildTypedDetails() {
-    switch (catalogRef.kind) {
-      case CatalogMediaKind.comic:
-      case CatalogMediaKind.manga:
-        return const ComicOwnedDetails();
-      case CatalogMediaKind.movie:
-      case CatalogMediaKind.tv:
-      case CatalogMediaKind.anime:
-        return const VideoOwnedDetails();
-      case CatalogMediaKind.game:
-        return const GameOwnedDetails();
-      case CatalogMediaKind.music:
-        return const MusicOwnedDetails();
-      default:
-        return const GenericOwnedDetails();
-    }
-  }
+  ComicOwnedDetails? get comicDetails => typedDetails.comic;
+  VideoOwnedDetails? get videoDetails => typedDetails.video;
+  GameOwnedDetails? get gameDetails => typedDetails.game;
+  MusicOwnedDetails? get musicDetails => typedDetails.music;
 
   String get itemId => catalogRef.id;
 
@@ -149,22 +137,7 @@ class OwnedItem {
   factory OwnedItem.fromJson(Map<String, dynamic> json) {
     final catalogRefJson = json['catalog_ref'] as Map<String, dynamic>;
     final catalogRef = CatalogEntityRef.fromJson(catalogRefJson);
-    OwnedItemDetails details;
-    switch (catalogRef.kind) {
-      case CatalogMediaKind.comic:
-      case CatalogMediaKind.manga:
-        details = ComicOwnedDetails.fromJson(json);
-      case CatalogMediaKind.movie:
-      case CatalogMediaKind.tv:
-      case CatalogMediaKind.anime:
-        details = VideoOwnedDetails.fromJson(json);
-      case CatalogMediaKind.game:
-        details = GameOwnedDetails.fromJson(json);
-      case CatalogMediaKind.music:
-        details = MusicOwnedDetails.fromJson(json);
-      default:
-        details = const GenericOwnedDetails();
-    }
+    final details = OwnedItemDetails.parseForKind(catalogRef.mediaKind, json);
 
     return OwnedItem(
       id: json['id'] as String,

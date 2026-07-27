@@ -47,9 +47,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       ownedItem?.currency,
     );
     final coverPrice = formatMoney(
-      ownedItem?.typedDetails is ComicOwnedDetails
-          ? (ownedItem!.typedDetails as ComicOwnedDetails).coverPriceCents
-          : null,
+      ownedItem?.comicDetails?.coverPriceCents,
       ownedItem?.currency,
     );
     final sellPrice = formatMoney(ownedItem?.sellPriceCents, ownedItem?.currency);
@@ -105,46 +103,17 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             LibraryDetailField(label: 'Progress', value: genericLibraryDash(trackingProgress)),
             LibraryDetailField(label: 'Episode', value: genericLibraryDash(trackingEpisode)),
             LibraryDetailField(label: 'Rating', value: trackingRating?.toString() ?? '-'),
-            LibraryDetailField(label: 'Features', value: genericLibraryDash(
-                ownedItem?.typedDetails is VideoOwnedDetails
-                    ? (ownedItem!.typedDetails as VideoOwnedDetails).features
-                    : null,
-              )),
-            LibraryDetailField(label: 'HDR Formats', value: (ownedItem?.typedDetails is VideoOwnedDetails &&
-                    (ownedItem!.typedDetails as VideoOwnedDetails).hdrFormats.isNotEmpty)
-                  ? (ownedItem!.typedDetails as VideoOwnedDetails).hdrFormats.join(', ')
+            LibraryDetailField(label: 'Features', value: genericLibraryDash(ownedItem?.videoDetails?.features)),
+            LibraryDetailField(label: 'HDR Formats', value: (ownedItem?.videoDetails?.hdrFormats.isNotEmpty ?? false)
+                  ? ownedItem!.videoDetails!.hdrFormats.join(', ')
                   : '-'),
             LibraryDetailField(label: 'Purchase Store', value: genericLibraryDash(ownedItem?.purchaseStore)),
-            LibraryDetailField(label: 'Box Set', value: genericLibraryDash(
-                ownedItem?.typedDetails is VideoOwnedDetails
-                    ? (ownedItem!.typedDetails as VideoOwnedDetails).boxSetName
-                    : null,
-              )),
-            LibraryDetailField(label: 'Storage Device', value: genericLibraryDash(
-                ownedItem?.typedDetails is MusicOwnedDetails
-                    ? (ownedItem!.typedDetails as MusicOwnedDetails).storageDevice
-                    : null,
-              )),
-            LibraryDetailField(label: 'Storage Slot', value: genericLibraryDash(
-                ownedItem?.typedDetails is MusicOwnedDetails
-                    ? (ownedItem!.typedDetails as MusicOwnedDetails).storageSlot
-                    : null,
-              )),
-            LibraryDetailField(label: 'Region', value: genericLibraryDash(
-                ownedItem?.typedDetails is VideoOwnedDetails
-                    ? (ownedItem!.typedDetails as VideoOwnedDetails).region
-                    : null,
-              )),
-            LibraryDetailField(label: 'Packaging', value: genericLibraryDash(
-                ownedItem?.typedDetails is VideoOwnedDetails
-                    ? (ownedItem!.typedDetails as VideoOwnedDetails).packaging
-                    : null,
-              )),
-            LibraryDetailField(label: 'Distributor', value: genericLibraryDash(
-                ownedItem?.typedDetails is VideoOwnedDetails
-                    ? (ownedItem!.typedDetails as VideoOwnedDetails).distributor
-                    : null,
-              )),
+            LibraryDetailField(label: 'Box Set', value: genericLibraryDash(ownedItem?.videoDetails?.boxSetName)),
+            LibraryDetailField(label: 'Storage Device', value: genericLibraryDash(ownedItem?.musicDetails?.storageDevice)),
+            LibraryDetailField(label: 'Storage Slot', value: genericLibraryDash(ownedItem?.musicDetails?.storageSlot)),
+            LibraryDetailField(label: 'Region', value: genericLibraryDash(ownedItem?.videoDetails?.region)),
+            LibraryDetailField(label: 'Packaging', value: genericLibraryDash(ownedItem?.videoDetails?.packaging)),
+            LibraryDetailField(label: 'Distributor', value: genericLibraryDash(ownedItem?.videoDetails?.distributor)),
           ],
         ),
         if (trackingRating != null && trackingRating > 0) ...[

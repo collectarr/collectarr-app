@@ -281,42 +281,15 @@ extension CollectionMutationsImport on CollectionMutations {
       locationId: hasLocationId ? row.locationId : existing?.locationId,
       indexNumber: row.indexNumber ?? existing?.indexNumber,
       details: ComicOwnedDetails(
-        rawOrSlabbed: row.rawOrSlabbed ??
-            (existing?.typedDetails is ComicOwnedDetails
-                ? (existing!.typedDetails as ComicOwnedDetails).rawOrSlabbed
-                : null),
-        gradingCompany: row.gradingCompany ??
-            (existing?.typedDetails is ComicOwnedDetails
-                ? (existing!.typedDetails as ComicOwnedDetails).gradingCompany
-                : null),
-        graderNotes: row.graderNotes ??
-            (existing?.typedDetails is ComicOwnedDetails
-                ? (existing!.typedDetails as ComicOwnedDetails).graderNotes
-                : null),
-        signedBy: row.signedBy ??
-            (existing?.typedDetails is ComicOwnedDetails
-                ? (existing!.typedDetails as ComicOwnedDetails).signedBy
-                : null),
-        labelType: row.labelType ??
-            (existing?.typedDetails is ComicOwnedDetails
-                ? (existing!.typedDetails as ComicOwnedDetails).labelType
-                : null),
-        certificationNumber: row.certificationNumber ??
-            (existing?.typedDetails is ComicOwnedDetails
-                ? (existing!.typedDetails as ComicOwnedDetails).certificationNumber
-                : null),
-        keyComic: row.keyComic ||
-            (existing?.typedDetails is ComicOwnedDetails
-                ? (existing!.typedDetails as ComicOwnedDetails).keyComic
-                : false),
-        keyReason: row.keyReason ??
-            (existing?.typedDetails is ComicOwnedDetails
-                ? (existing!.typedDetails as ComicOwnedDetails).keyReason
-                : null),
-        coverPriceCents: row.coverPriceCents ??
-            (existing?.typedDetails is ComicOwnedDetails
-                ? (existing!.typedDetails as ComicOwnedDetails).coverPriceCents
-                : null),
+        rawOrSlabbed: row.rawOrSlabbed ?? existing?.comicDetails?.rawOrSlabbed,
+        gradingCompany: row.gradingCompany ?? existing?.comicDetails?.gradingCompany,
+        graderNotes: row.graderNotes ?? existing?.comicDetails?.graderNotes,
+        signedBy: row.signedBy ?? existing?.comicDetails?.signedBy,
+        labelType: row.labelType ?? existing?.comicDetails?.labelType,
+        certificationNumber: row.certificationNumber ?? existing?.comicDetails?.certificationNumber,
+        keyComic: row.keyComic || (existing?.comicDetails?.keyComic ?? false),
+        keyReason: row.keyReason ?? existing?.comicDetails?.keyReason,
+        coverPriceCents: row.coverPriceCents ?? existing?.comicDetails?.coverPriceCents,
       ),
       rating: row.rating ?? existing?.rating,
       readStatus: row.readStatus ?? existing?.readStatus,

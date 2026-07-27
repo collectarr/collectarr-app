@@ -147,9 +147,7 @@ class ShelfState {
     final hasMixedCurrencies = currencies.length > 1;
     final activeOwned = ownedByItemId.values.toList(growable: false);
     final coverPricedOwned = activeOwned.where((item) {
-      final comic = item.typedDetails is ComicOwnedDetails
-          ? item.typedDetails as ComicOwnedDetails
-          : null;
+      final comic = item.comicDetails;
       return comic?.coverPriceCents != null && item.currency != null;
     }).toList(growable: false);
     final coverCurrencies = {
@@ -176,9 +174,7 @@ class ShelfState {
         (total, item) => total + item.quantity,
       ),
       keyComicCount: activeOwned.where((item) {
-        final comic = item.typedDetails is ComicOwnedDetails
-            ? item.typedDetails as ComicOwnedDetails
-            : null;
+        final comic = item.comicDetails;
         return comic?.keyComic == true;
       }).length,
       missingMetadataCount:
@@ -208,9 +204,7 @@ class ShelfState {
           : coverPricedOwned.fold<int>(
             0,
             (total, item) {
-              final comic = item.typedDetails is ComicOwnedDetails
-                  ? item.typedDetails as ComicOwnedDetails
-                  : null;
+              final comic = item.comicDetails;
               return total + (comic?.coverPriceCents ?? 0);
             },
           ),

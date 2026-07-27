@@ -250,9 +250,7 @@ final boxSetGroupsProvider =
       final grouped = <String, List<OwnedItem>>{};
       for (final item in items) {
         if (item.isDeleted) continue;
-        final videoDetails = item.typedDetails is VideoOwnedDetails
-            ? item.typedDetails as VideoOwnedDetails
-            : null;
+        final videoDetails = item.videoDetails;
         final name = videoDetails?.boxSetName;
         if (name != null && name.isNotEmpty) {
           grouped.putIfAbsent(name, () => <OwnedItem>[]).add(item);

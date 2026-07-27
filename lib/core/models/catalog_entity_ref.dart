@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+
 enum CatalogEntityType {
   work('work'),
   season('season'),
@@ -51,6 +53,8 @@ class CatalogEntityRef {
   final String kind;
   final CatalogEntityType entityType;
   final String id;
+
+  CatalogMediaKind get mediaKind => catalogMediaKindFromValue(kind);
 
   bool get isKnown =>
       kind.trim().isNotEmpty &&
