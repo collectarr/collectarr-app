@@ -37,20 +37,21 @@ LibraryWorkspaceEntry buildMovieReleaseWorkspaceEntry({
     common: common,
     series: work.series,
     publishing: release.publishingDetails,
-    video: _toVideoDetails(work.videoDetails),
+    video: _toVideoDetails(work.videoDetails, release: release),
   );
 }
 
-VideoCatalogDetailsDto? _toVideoDetails(VideoTechnicalMetadata? tech) {
-  if (tech == null) return null;
+VideoCatalogDetailsDto? _toVideoDetails(VideoTechnicalMetadata? tech, {MovieRelease? release}) {
+  if (tech == null && release == null) return null;
   return VideoCatalogDetailsDto(
-    runtimeMinutes: tech.runtimeMinutes,
-    color: tech.color,
-    screenRatio: tech.screenRatio,
-    audioTracks: tech.audioTracks,
-    subtitles: tech.subtitles,
-    ageRating: tech.ageRating,
-    audienceRating: tech.audienceRating,
+    runtimeMinutes: tech?.runtimeMinutes,
+    color: tech?.color,
+    nrDiscs: tech?.nrDiscs ?? (release != null ? release.media.length : null),
+    screenRatio: tech?.screenRatio,
+    audioTracks: tech?.audioTracks,
+    subtitles: tech?.subtitles,
+    ageRating: tech?.ageRating,
+    audienceRating: tech?.audienceRating,
   );
 }
 

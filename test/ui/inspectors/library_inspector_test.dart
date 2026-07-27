@@ -44,7 +44,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorHero(
-              type: collectarrLibraryTypes.byKind('book')!,
+              type: collectarrLibraryTypes.byKind(CatalogMediaKind.book)!,
               entry: LibraryWorkspaceEntry(
                 id: 'book-hero-1',
                 mediaType: 'book',
@@ -501,7 +501,7 @@ void main() {
   testWidgets('inspector action bar avoids overflow on narrow widths', (
     tester,
   ) async {
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -554,7 +554,7 @@ void main() {
   testWidgets('book inspector hides the item images section', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -650,7 +650,7 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
@@ -711,7 +711,7 @@ void main() {
   testWidgets('inspector edit uses the selected copy', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
@@ -789,7 +789,7 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
 
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(

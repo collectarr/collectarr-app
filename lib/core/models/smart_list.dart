@@ -26,7 +26,7 @@ class SmartList {
   final LibraryFilterSelection filterSelection;
   final LibraryQuickView? quickView;
   final List<LibrarySortRule>? sortRules;
-  final Object? sortColumn;
+  final String? sortColumn;
   final bool? sortAscending;
   final String? searchQuery;
 
@@ -200,11 +200,9 @@ class SmartList {
     return rules;
   }
 
-  static String _sortColumnToken(String? mediaKind, Object column) {
+  static String _sortColumnToken(String? mediaKind, String column) {
     final kind = mediaKind?.trim().toLowerCase();
-    final stableColumn = column is String
-        ? _stableToken(column)
-        : _stableToken(column.toString().split('.').last);
+    final stableColumn = _stableToken(column);
     if (stableColumn.contains('.')) {
       return stableColumn;
     }
@@ -232,7 +230,7 @@ class SmartList {
     'series', 'status'
   };
 
-  static Object? _sortColumnFromToken(Object? rawValue) {
+  static String? _sortColumnFromToken(Object? rawValue) {
     var candidate = _sortColumnTokenFromJson(rawValue);
     if (candidate == null) {
       return null;

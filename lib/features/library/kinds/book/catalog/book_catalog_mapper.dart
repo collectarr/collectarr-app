@@ -228,9 +228,30 @@ class BookCatalogMapper {
       currency: pub?.currency,
     );
 
-    final releases = item.editions
-        .map((e) => _mapEditionDtoToRelease(e, item.coverImageUrl, item.thumbnailImageUrl))
-        .toList();
+    final releases = item.editions.isEmpty
+        ? <BookRelease>[
+            BookRelease(
+              id: '${item.id}:release:1',
+              title: item.title,
+              publisher: item.publisher,
+              isbn: item.barcode,
+              releaseDate: item.releaseDate,
+              physicalFormatLabel: item.physicalFormatLabel ?? item.physicalFormat,
+              coverImageUrl: item.coverImageUrl,
+            )
+          ]
+        : item.editions
+            .map<BookRelease>((e) => BookRelease(
+                  id: e.id,
+                  title: e.title,
+                  publisher: e.publisher,
+                  distributor: e.distributor,
+                  isbn: e.isbn,
+                  upc: e.upc,
+                  releaseDate: e.releaseDate,
+                  physicalFormatLabel: e.physicalFormatLabel ?? e.physicalFormat,
+                ))
+            .toList();
 
     return BookCatalogItem(
       id: item.id,

@@ -228,7 +228,7 @@ void main() {
       () {
     expect(
       buildLibraryKindPage(
-        type: collectarrLibraryTypes.byKind('comic')!,
+        type: collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!,
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/comic'),
@@ -237,7 +237,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        type: collectarrLibraryTypes.byKind('movie')!,
+        type: collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!,
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/movie'),
@@ -246,7 +246,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        type: collectarrLibraryTypes.byKind('tv')!,
+        type: collectarrLibraryTypes.byKind(CatalogMediaKind.tv)!,
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/tv'),

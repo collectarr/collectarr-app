@@ -137,7 +137,7 @@ bool plannedMediaTableColumnIsNumeric(
   return definition?.isNumeric ?? false;
 }
 
-Object? plannedMediaTableColumnSort(
+String? plannedMediaTableColumnSort(
   LibraryTypeConfig type,
   String columnId,
 ) {
@@ -187,11 +187,10 @@ int plannedMediaCompareSubgroupKeys(
 
 
 
-LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>?
+LibraryColumnDefinition<dynamic, dynamic>?
     _tableColumnDefinition(LibraryTypeConfig type, String columnId) {
   final module = libraryKindModuleForType(type);
-  return module.fields.columnDefinitionForId(columnId)
-      as LibraryColumnDefinition<LibraryWorkspaceEntry, Object?>?;
+  return module.fields.findColumnDefinition(columnId);
 }
 
 LibraryTableColumnGroup _tableColumnGroupFor(String? group) {
@@ -205,16 +204,19 @@ LibraryTableColumnGroup _tableColumnGroupFor(String? group) {
 }
 
 String _fallbackLabel(String id) {
-  final tokens = id
+  final cleaned = id.replaceAll('_', ' ');
+  final tokens = cleaned
       .split('.')
       .map((segment) => segment.replaceAllMapped(
             RegExp(r'([a-z0-9])([A-Z])'),
             (match) => '${match[1]} ${match[2]}',
           ))
       .join(' ');
-  return tokens.isEmpty
-      ? id
-      : tokens[0].toUpperCase() + tokens.substring(1);
+  if (tokens.isEmpty) return id;
+  return tokens.split(' ').map((word) {
+    if (word.isEmpty) return '';
+    return word[0].toUpperCase() + word.substring(1);
+  }).join(' ');
 }
 
 

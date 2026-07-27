@@ -95,7 +95,7 @@ void main() {
       mediaKind: 'comic',
     );
 
-    final type = collectarrLibraryTypes.byKind('comic')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'comic-1',
@@ -344,7 +344,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final type = collectarrLibraryTypes.byKind('comic')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'comic-restore-order',
@@ -430,7 +430,7 @@ void main() {
     const imageBase64 =
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS1cAAAAASUVORK5CYII=';
 
-    final type = collectarrLibraryTypes.byKind('comic')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'comic-2',

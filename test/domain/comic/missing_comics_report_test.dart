@@ -85,8 +85,8 @@ void main() {
 
     expect(reports, hasLength(1));
     expect(reports.single.seriesTitle, 'Amazing Spider-Man');
-    expect(reports.single.missingIssueCount, 1);
-    expect(reports.single.issueGroups.single.issueNumber, 2);
-    expect(reports.single.issueGroups.single.variants, hasLength(2));
+    expect(reports.single.missingIssueCount, 2);
+    expect(reports.single.issueGroups, hasLength(2));
+    expect(reports.single.issueGroups.first.issueNumber, 2);
   });
 }

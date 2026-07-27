@@ -124,7 +124,7 @@ LibraryMetadataProviderOption _providerOptionForId(
       supportedKinds: {kind},
     );
   }
-  if (option.supportsKind(kind)) {
+  if (option.supportsKind(catalogMediaKindFromValue(kind))) {
     return option;
   }
   return LibraryMetadataProviderOption(

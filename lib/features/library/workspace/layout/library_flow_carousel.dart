@@ -957,7 +957,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryWorkspaceEntry entry,
 ) {
-  final type = collectarrLibraryTypes.byKind(entry.mediaType);
+  final type = collectarrLibraryTypes.byKind(entry.kind);
   if (type == null) {
     return null;
   }

@@ -38,6 +38,23 @@ class TvEpisode {
     this.originalTitle,
   });
 
+  factory TvEpisode.fromJson(Map<String, dynamic> json) {
+    final rawAirDate = json['air_date'] ?? json['release_date'];
+    return TvEpisode(
+      id: json['id'] as String? ?? '',
+      seasonId: json['season_id'] as String?,
+      seriesId: json['series_id'] as String?,
+      title: json['title'] as String? ?? '',
+      seasonNumber: json['season_number'] as int? ?? 1,
+      episodeNumber: json['episode_number'] as int? ?? 1,
+      overview: (json['overview'] ?? json['synopsis']) as String?,
+      airDate: rawAirDate is String ? DateTime.tryParse(rawAirDate) : null,
+      runtimeMinutes: json['runtime_minutes'] as int?,
+      stillUrl: json['still_url'] as String?,
+      originalTitle: json['original_title'] as String?,
+    );
+  }
+
   final String id;
   final String? seasonId;
   final String? seriesId;
@@ -67,6 +84,27 @@ class TvSeason {
     this.originalTitle,
     this.episodes = const [],
   });
+
+  factory TvSeason.fromJson(Map<String, dynamic> json) {
+    final rawAirDate = json['air_date'] ?? json['release_date'];
+    final rawEpisodes = (json['episodes'] as List<dynamic>?)
+            ?.whereType<Map<String, dynamic>>()
+            .map(TvEpisode.fromJson)
+            .toList() ??
+        const <TvEpisode>[];
+    return TvSeason(
+      id: json['id'] as String? ?? '',
+      seriesId: json['series_id'] as String? ?? '',
+      seasonNumber: json['season_number'] as int? ?? 1,
+      title: json['title'] as String?,
+      overview: (json['overview'] ?? json['synopsis']) as String?,
+      airDate: rawAirDate is String ? DateTime.tryParse(rawAirDate) : null,
+      episodeCount: json['episode_count'] as int?,
+      posterUrl: (json['poster_url'] ?? json['cover_image_url']) as String?,
+      originalTitle: json['original_title'] as String?,
+      episodes: rawEpisodes,
+    );
+  }
 
   final String id;
   final String seriesId;

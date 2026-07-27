@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -23,7 +25,7 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
@@ -84,7 +86,7 @@ void main() {
   testWidgets('detail page edit uses the selected copy', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
     await db.into(db.ownedItemsCache).insert(
           OwnedItemsCacheCompanion.insert(
             id: 'owned-1',
@@ -171,7 +173,7 @@ void main() {
       (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     await db.into(db.trackingEntriesCache).insert(
           TrackingEntriesCacheCompanion.insert(
             id: 'tracking-1',

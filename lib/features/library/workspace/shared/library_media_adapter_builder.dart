@@ -34,25 +34,25 @@ LibraryMediaAdapter plannedMediaAdapter(
     tableWidthForColumns: (columns, customWidths) =>
         plannedMediaTableWidthForColumns(
       type: type,
-      columns: columns.cast<String>().toSet(),
-      customWidths: customWidths.cast<String, double>(),
+      columns: columns,
+      customWidths: customWidths,
     ),
     tableColumnWidth: (column, customWidths) =>
-        plannedMediaTableColumnWidth(type, column as String, customWidths.cast<String, double>()),
+        plannedMediaTableColumnWidth(type, column, customWidths),
     defaultTableColumnWidth: (column) =>
-        defaultPlannedMediaTableColumnWidth(type, column as String),
-    columnLabel: (column) => plannedMediaTableColumnLabelForType(type, column as String),
+        defaultPlannedMediaTableColumnWidth(type, column),
+    columnLabel: (column) => plannedMediaTableColumnLabelForType(type, column),
     columnDisplayName: (column) =>
-        plannedMediaTableColumnDisplayNameForType(type, column as String),
-    columnGroup: (column) => plannedMediaTableColumnGroup(type, column as String),
+        plannedMediaTableColumnDisplayNameForType(type, column),
+    columnGroup: (column) => plannedMediaTableColumnGroup(type, column),
     columnGroupLabel: plannedMediaTableColumnGroupLabel,
-    columnIsNumeric: (column) => plannedMediaTableColumnIsNumeric(type, column as String),
-    columnSort: (column) => plannedMediaTableColumnSort(type, column as String),
+    columnIsNumeric: (column) => plannedMediaTableColumnIsNumeric(type, column),
+    columnSort: (column) => plannedMediaTableColumnSort(type, column),
     tableCellBuilder: (entry, column) =>
-        plannedMediaTableCell(type, entry, column as String),
+        plannedMediaTableCell(type, entry, column),
     compareEntriesByColumn: compareEntriesByColumn ??
         (left, right, column) =>
-            libraryKindModuleForType(type).fields.sortDefinitionFor(column.toString()).compare(
+            libraryKindModuleForType(type).fields.sortDefinitionFor(column).compare(
                   left,
                   right,
                 ),

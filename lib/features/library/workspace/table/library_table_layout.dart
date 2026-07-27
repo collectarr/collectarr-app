@@ -10,9 +10,9 @@ class LibraryTableColumnSizing {
   final double maxWidth;
 }
 
-List<Object> orderedLibraryTableColumns({
-  required Set<Object> columns,
-  required Set<Object> defaultColumns,
+List<String> orderedLibraryTableColumns({
+  required Set<String> columns,
+  required Set<String> defaultColumns,
 }) {
   final effective = columns.isEmpty ? defaultColumns : columns;
   return [
@@ -20,10 +20,10 @@ List<Object> orderedLibraryTableColumns({
   ];
 }
 
-List<Object> reorderLibraryTableColumns({
-  required Iterable<Object> columns,
-  required Object column,
-  required Object? beforeColumn,
+List<String> reorderLibraryTableColumns({
+  required Iterable<String> columns,
+  required String column,
+  required String? beforeColumn,
 }) {
   final ordered = columns.toList(growable: true);
   final currentIndex = ordered.indexOf(column);
@@ -47,9 +47,9 @@ List<Object> reorderLibraryTableColumns({
 }
 
 double libraryTableColumnWidth({
-  required Object column,
-  required Map<Object, double> customWidths,
-  required LibraryTableColumnSizing Function(Object column) sizing,
+  required String column,
+  required Map<String, double> customWidths,
+  required LibraryTableColumnSizing Function(String column) sizing,
 }) {
   final size = sizing(column);
   final customWidth = customWidths[column];
@@ -67,10 +67,10 @@ double clampLibraryTableColumnWidth(
 }
 
 double libraryTableWidthForColumns({
-  required Set<Object> columns,
-  required Set<Object> defaultColumns,
-  required Map<Object, double> customWidths,
-  required LibraryTableColumnSizing Function(Object column) sizing,
+  required Set<String> columns,
+  required Set<String> defaultColumns,
+  required Map<String, double> customWidths,
+  required LibraryTableColumnSizing Function(String column) sizing,
   required double columnSpacing,
   required double horizontalMargin,
 }) {

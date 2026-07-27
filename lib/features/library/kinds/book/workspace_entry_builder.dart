@@ -128,7 +128,7 @@ LibraryWorkspaceEntry buildBookWorkspaceEntry(
       currency: overlay.ownedItem?.currency,
       locationPath: overlay.locationPath,
       addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
-      editions: const <CatalogEdition>[],
+      editions: work.releases.map((r) => CatalogEdition(id: r.id, title: r.title)).toList(),
       updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
       trailerUrls: const [],
       plotSummary: work.plotSummary,

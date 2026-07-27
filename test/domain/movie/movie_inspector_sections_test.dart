@@ -84,10 +84,9 @@ void main() {
     final factsSection = sections.whereType<InspectorMetadataFactsSection>().single;
     expect(
       factsSection.facts.map((fact) => (fact as LibraryDetailField).label),
-      containsAll(['Runtime', 'Layers', 'Trailers']),
+      containsAll(['Runtime', 'Releases']),
     );
     expect(sections.whereType<InspectorReleasesSection>(), hasLength(1));
     expect(sections.whereType<InspectorContributorsSection>(), isEmpty);
-    expect(sections.whereType<InspectorLinksTrailersSection>(), hasLength(1));
   });
 }

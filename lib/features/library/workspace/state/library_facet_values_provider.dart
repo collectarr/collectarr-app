@@ -33,19 +33,18 @@ class LibraryFacetValuesInput {
 final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
     .family<List<String>, LibraryFacetValuesInput>((ref, input) {
   final module = libraryKindModuleForKind(input.key.kind);
-  final groupDef = module.fields.groupDefinitionForId(input.facetId);
-  final columnDef = module.fields.columnDefinitionForId(input.facetId);
+  final groupDef = module.fields.findGroupDefinition(input.facetId);
+  final columnDef = module.fields.findColumnDefinition(input.facetId);
 
-  // Fallback value extractor
-  Object? Function(LibraryWorkspaceEntry)? getValue;
-  if (groupDef != null) {
-    getValue = groupDef.getValue;
-  } else if (columnDef != null) {
-    getValue = columnDef.getValue;
+  if (groupDef == null && columnDef == null) {
+    return Stream.value(const <String>[]);
   }
 
-  if (getValue == null) {
-    return Stream.value(const <String>[]);
+  Object? getValue(LibraryWorkspaceEntry entry) {
+    final dto = module.workspaceDtoFactory(entry);
+    if (groupDef != null) return (groupDef as dynamic).getValue(dto);
+    if (columnDef != null) return (columnDef as dynamic).getValue(dto);
+    return null;
   }
 
   final repository = ref.watch(libraryWorkspaceRepositoryProvider);
@@ -61,7 +60,7 @@ final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
   return repository.watchEntries(query).map((entries) {
     final values = <String>{};
     for (final entry in entries) {
-      final raw = getValue!(entry);
+      final raw = getValue(entry);
       if (raw == null) continue;
       if (raw is String) {
         final val = raw.trim();

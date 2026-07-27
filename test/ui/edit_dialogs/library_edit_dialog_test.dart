@@ -159,7 +159,7 @@ void main() {
           ),
         );
 
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
       id: 'movie-1',
       kind: 'movie',
@@ -305,7 +305,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
       id: 'movie-edition-1',
       kind: 'movie',
@@ -407,7 +407,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'movie-publishing-1',
@@ -474,7 +474,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'movie-readonly-1',
@@ -576,7 +576,7 @@ void main() {
           ),
         );
 
-    final type = collectarrLibraryTypes.byKind('comic')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'comic-1',
@@ -800,7 +800,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'book-1',
@@ -872,7 +872,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'book-preserve-1',
@@ -1012,7 +1012,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'book-links-1',
@@ -1087,7 +1087,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
       id: 'movie-tracked-1',
       kind: 'movie',
@@ -1178,7 +1178,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
       id: 'movie-bundle-1',
       kind: 'movie',
@@ -1275,7 +1275,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'movie-bundle-existing-1',
@@ -1354,7 +1354,7 @@ void main() {
           ),
         );
 
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'movie-digital-1',
@@ -1436,7 +1436,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
       id: 'movie-wishlist-1',
       kind: 'movie',
@@ -1550,7 +1550,7 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    final type = collectarrLibraryTypes.byKind('music')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.music)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'music-1',
@@ -1663,7 +1663,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('game')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.game)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'game-1',
@@ -1736,7 +1736,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('game')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.game)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'game-1',
@@ -1803,7 +1803,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = collectarrLibraryTypes.byKind('boardgame')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.boardgame)!;
     final item = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
         id: 'bg-1',

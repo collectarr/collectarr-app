@@ -24,13 +24,13 @@ class LibraryColumnChooserDialog extends StatefulWidget {
     super.key,
   });
 
-  final List<Object> availableColumns;
-  final Set<Object> selectedColumns;
-  final Set<Object> defaultColumns;
-  final String Function(Object column) columnLabel;
+  final List<String> availableColumns;
+  final Set<String> selectedColumns;
+  final Set<String> defaultColumns;
+  final String Function(String column) columnLabel;
   final Color? accent;
-  final String? Function(Object column)? columnDescription;
-  final LibraryTableColumnGroup Function(Object column)?
+  final String? Function(String column)? columnDescription;
+  final LibraryTableColumnGroup Function(String column)?
       columnGroup;
   final String Function(LibraryTableColumnGroup group)? groupLabel;
   final List<LibraryTableColumnPreset> presets;
@@ -39,7 +39,7 @@ class LibraryColumnChooserDialog extends StatefulWidget {
   final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedFavorite;
   final Future<List<LibraryTableColumnPreset>> Function(
     String label,
-    Set<Object> columns,
+    Set<String> columns,
   )? onSavePreset;
   final Future<List<LibraryTableColumnPreset>> Function(String id)?
       onDeletePreset;
@@ -51,7 +51,7 @@ class LibraryColumnChooserDialog extends StatefulWidget {
 
 class _LibraryColumnChooserDialogState
     extends State<LibraryColumnChooserDialog> {
-  late var _selected = Set<Object>.of(widget.selectedColumns);
+  late var _selected = Set<String>.of(widget.selectedColumns);
   late var _savedPresets = List<LibraryTableColumnPreset>.of(
     widget.savedPresets,
   );
@@ -266,9 +266,7 @@ class _LibraryColumnChooserDialogState
                                             newIndex -= 1;
                                           }
                                           reordered.insert(newIndex, column);
-                                          _selected = {
-                                            for (final item in reordered) item,
-                                          };
+                                          _selected = reordered.toSet();
                                         });
                                       },
                                       itemBuilder: (context, index) {
@@ -321,7 +319,7 @@ class _LibraryColumnChooserDialogState
                     const SizedBox(width: 8),
                     LibraryDenseButton(
                       onPressed: () {
-                        final result = Set<Object>.of(_selected)..add('title');
+                        final result = Set<String>.of(_selected)..add('title');
                         Navigator.of(context).pop(result);
                       },
                       label: 'Save',
@@ -338,8 +336,8 @@ class _LibraryColumnChooserDialogState
     );
   }
 
-  List<Object> _orderedVisibleColumns(
-    Set<Object> columns,
+  List<String> _orderedVisibleColumns(
+    Set<String> columns,
   ) {
     final effective = columns.isEmpty ? widget.defaultColumns : columns;
     return [
@@ -381,7 +379,7 @@ class _LibraryColumnChooserDialogState
   }
 
   List<Widget> _availableColumnTiles(
-    List<Object> columns, {
+    List<String> columns, {
     required Color accent,
   }) {
     if (widget.columnGroup == null) {
@@ -389,7 +387,7 @@ class _LibraryColumnChooserDialogState
         for (final column in columns) _columnCheckbox(column),
       ];
     }
-    final grouped = <LibraryTableColumnGroup, List<Object>>{};
+    final grouped = <LibraryTableColumnGroup, List<String>>{};
     for (final column in columns) {
       final group = widget.columnGroup!(column);
       grouped.putIfAbsent(group, () => []).add(column);
@@ -412,7 +410,7 @@ class _LibraryColumnChooserDialogState
     ];
   }
 
-  Widget _columnCheckbox(Object column) {
+  Widget _columnCheckbox(String column) {
     final palette = appPalette(context);
     final selected = _selected.contains(column);
     final locked = column == 'title';
@@ -464,7 +462,7 @@ class _LibraryColumnChooserDialogState
     );
   }
 
-  void _toggleGroupColumns(List<Object> columns) {
+  void _toggleGroupColumns(List<String> columns) {
     final allSelected = columns.every(
       (column) =>
           column == 'title' || _selected.contains(column),
@@ -585,7 +583,7 @@ class _PresetShelf extends StatelessWidget {
   final List<LibraryTableColumnPreset> presets;
   final LibraryTableColumnPreset? activePreset;
   final Set<String> pinnedFavoriteKeys;
-  final String Function(Object column) columnLabel;
+  final String Function(String column) columnLabel;
   final TextEditingController nameController;
   final ValueChanged<LibraryTableColumnPreset> onApply;
   final ValueChanged<LibraryTableColumnPreset> onEdit;

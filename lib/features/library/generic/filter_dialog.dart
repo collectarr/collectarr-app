@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
@@ -27,7 +28,7 @@ String libraryOwnershipFilterLabel(
   LibraryTypeConfig? type,
   Object? mediaType,
 }) {
-  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: catalogMediaKindFromValue(mediaType));
   return switch (filter) {
     LibraryOwnershipFilter.all => labels.ownershipAll,
     LibraryOwnershipFilter.owned => labels.ownershipOwned,
@@ -54,7 +55,7 @@ String libraryTrackingStatusFilterLabel(
   LibraryTypeConfig? type,
   Object? mediaType,
 }) {
-  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: catalogMediaKindFromValue(mediaType));
   return switch (filter) {
     LibraryTrackingStatusFilter.all => labels.trackingAny,
     LibraryTrackingStatusFilter.notTracked => labels.trackingNotTracked,
@@ -99,7 +100,7 @@ String libraryLoanStatusFilterLabel(
   LibraryTypeConfig? type,
   Object? mediaType,
 }) {
-  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: catalogMediaKindFromValue(mediaType));
   return switch (filter) {
     LibraryLoanStatusFilter.all => labels.loanAny,
     LibraryLoanStatusFilter.onLoan => labels.loanOnLoan,
@@ -114,7 +115,7 @@ String libraryDateRangeFieldLabel(
   LibraryTypeConfig? type,
   Object? mediaType,
 }) {
-  final labels = _libraryFilterOptionLabels(type: type, mediaType: mediaType);
+  final labels = _libraryFilterOptionLabels(type: type, mediaType: catalogMediaKindFromValue(mediaType));
   return switch (field) {
     LibraryDateRangeField.updated => labels.dateUpdated,
     LibraryDateRangeField.purchased => labels.datePurchased,
@@ -125,13 +126,12 @@ String libraryDateRangeFieldLabel(
 
 LibraryFilterOptionLabels _libraryFilterOptionLabels({
   LibraryTypeConfig? type,
-  Object? mediaType,
+  CatalogMediaKind? mediaType,
 }) {
   return type?.presentation.filterOptionLabels ??
-      collectarrLibraryTypes
-          .byKind(mediaType)
-          ?.presentation
-          .filterOptionLabels ??
+      (mediaType != null
+          ? collectarrLibraryTypes.byKind(mediaType)?.presentation.filterOptionLabels
+          : null) ??
       const LibraryFilterOptionLabels();
 }
 

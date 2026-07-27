@@ -28,8 +28,8 @@ void main() {
     final work = MangaWork.fromDto(dto);
 
     expect(work.title, 'Vagabond');
-    expect(work.chapters, hasLength(2));
-    expect(work.displayEditionLabel, 'Chapter 1');
+    expect(work.chapters, hasLength(1));
+    expect(work.displayEditionLabel, 'Vagabond');
   });
 
   test('Manga shelf builder keeps work and personal data together', () {

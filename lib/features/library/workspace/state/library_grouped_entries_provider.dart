@@ -53,7 +53,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
       return;
     }
 
-    final groupDef = module.fields.groupDefinitionForId(groupId);
+    final groupDef = module.fields.findGroupDefinition(groupId);
     if (groupDef == null) {
       controller.add([
         LibraryGroupBucket(key: '_all', label: 'All', entries: entries),
@@ -64,8 +64,8 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     // Group entries by the bucket key returned by the group definition.
     final bucketMap = <String, List<LibraryWorkspaceEntry>>{};
     for (final entry in entries) {
-      final dto = module.createWorkspaceDto(entry);
-      final raw = groupDef.getValue(dto);
+      final dto = module.workspaceDtoFactory(entry);
+      final raw = (groupDef as dynamic).getValue(dto);
       final bucketKey = _bucketKeyFor(raw);
       bucketMap.putIfAbsent(bucketKey, () => []).add(entry);
     }

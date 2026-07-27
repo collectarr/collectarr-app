@@ -18,7 +18,7 @@ LibraryWorkspaceEntry buildComicsLibraryWorkspaceEntryFromShelf(
       work: work,
       overlay: overlay,
     ),
-    comic: null,
+    comic: overlay.toWorkspaceDetails(),
     series: work.series,
     publishing: _toCatalogPublishing(work.publishing),
   );
@@ -44,6 +44,7 @@ CatalogPublishingDetails? _toCatalogPublishing(ComicPublishingMetadata? pub) {
     coverPriceCents: pub.coverPriceCents,
     currency: pub.currency,
     imprint: pub.imprint,
+    subtitle: pub.subtitle,
   );
 }
 

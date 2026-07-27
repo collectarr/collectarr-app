@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -210,12 +211,8 @@ class LibraryNavPreferencesController
 
 Map<String, int> _cachedLibraryAccentHexByKind = const {};
 
-int? cachedLibraryAccentHexForKind(Object? kind) {
-  final normalized = _normalizeKind(kind?.toString() ?? '');
-  if (normalized.isEmpty) {
-    return null;
-  }
-  return _cachedLibraryAccentHexByKind[normalized];
+int? cachedLibraryAccentHexForKind(CatalogMediaKind kind) {
+  return _cachedLibraryAccentHexByKind[kind.apiValue];
 }
 
 String _normalizeKind(String kind) => kind.trim().toLowerCase();

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -195,7 +196,7 @@ LibraryWorkspaceEntry buildBoardGameWorkspaceEntry(
       currency: overlay.ownedItem?.currency,
       locationPath: overlay.locationPath,
       addedAt: overlay.ownedItem?.createdAt ?? overlay.wishlistItem?.createdAt,
-      editions: const [],
+      editions: work.editions.map((e) => CatalogEditionDto(id: e.id, title: e.title ?? '')).toList(),
       updatedAt: overlay.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
       trailerUrls: const [],
       plotSummary: null,

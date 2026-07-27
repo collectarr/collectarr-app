@@ -7,12 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('registry resolves adapters for normalized kind values', () {
-    expect(collectarrMediaAdapters.byKind(' COMIC '), same(comicsMediaAdapter));
     expect(
       collectarrMediaAdapters.byKind(CatalogMediaKind.comic),
       same(comicsMediaAdapter),
     );
-    expect(collectarrMediaAdapters.byKind('unknown-kind'), isNull);
+    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.unknown), isNull);
   });
 
   test('supportedKinds stays unique across built-in adapters', () {
@@ -25,8 +24,8 @@ void main() {
 
   test('music uses square cover grid factor while comics keep portrait factor',
       () {
-    final music = collectarrMediaAdapters.byKind('music')!;
-    final comics = collectarrMediaAdapters.byKind('comic')!;
+    final music = collectarrMediaAdapters.byKind(CatalogMediaKind.music)!;
+    final comics = collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!;
 
     expect(music.viewProfile.coverGridHeightFactor, equals(1.0));
     expect(comics.viewProfile.coverGridHeightFactor, equals(1.53));
@@ -34,8 +33,8 @@ void main() {
   });
 
   test('workspace grid height follows the adapter cover profile', () {
-    final music = collectarrMediaAdapters.byKind('music')!;
-    final comics = collectarrMediaAdapters.byKind('comic')!;
+    final music = collectarrMediaAdapters.byKind(CatalogMediaKind.music)!;
+    final comics = collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!;
 
     expect(
       libraryWorkspaceGridMainAxisExtent(adapter: music, coverSize: 128),

@@ -303,16 +303,17 @@ sealed class CatalogItemDto {
     final series = CatalogSeriesDetailsDto.fromJson(
       Map<String, dynamic>.from(json['series'] as Map? ?? {}),
     );
+    final vMap = (json['video'] as Map<String, dynamic>?) ?? json;
     final video = VideoCatalogDetailsDto(
-      runtimeMinutes: json['runtime_minutes'] as int?,
-      color: json['color'] as String?,
-      nrDiscs: json['nr_discs'] as int?,
-      screenRatio: json['screen_ratio'] as String?,
-      audioTracks: json['audio_tracks'] as String?,
-      subtitles: json['subtitles'] as String?,
-      layers: json['layers'] as String?,
-      ageRating: json['age_rating'] as String?,
-      audienceRating: json['audience_rating'] as String?,
+      runtimeMinutes: (vMap['runtime_minutes'] ?? json['runtime_minutes']) as int?,
+      color: (vMap['color'] ?? json['color']) as String?,
+      nrDiscs: (vMap['nr_discs'] ?? json['nr_discs']) as int?,
+      screenRatio: (vMap['screen_ratio'] ?? json['screen_ratio']) as String?,
+      audioTracks: (vMap['audio_tracks'] ?? json['audio_tracks']) as String?,
+      subtitles: (vMap['subtitles'] ?? json['subtitles']) as String?,
+      layers: (vMap['layers'] ?? json['layers']) as String?,
+      ageRating: (vMap['age_rating'] ?? json['age_rating']) as String?,
+      audienceRating: (vMap['audience_rating'] ?? json['audience_rating']) as String?,
     );
     final tracks = (json['tracks'] as List<dynamic>?)
         ?.map((track) => CatalogTrackDto.fromJson(track as Map<String, dynamic>))
@@ -380,7 +381,7 @@ sealed class CatalogItemDto {
       firstEdition: json['first_edition'] as bool?,
       dewey: json['dewey'] as String?,
     );
-    final editions = (json['editions'] as List<dynamic>?)
+    final editions = ((json['editions'] ?? json['episodes'] ?? json['releases'] ?? json['issues']) as List<dynamic>?)
         ?.map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList(growable: false);
     return CatalogItemDto(

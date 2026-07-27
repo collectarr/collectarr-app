@@ -9,11 +9,11 @@ export 'library_workspace_view_enums.dart';
 class LibrarySortRule {
   const LibrarySortRule({required this.column, required this.ascending});
 
-  final Object column;
+  final String column;
   final bool ascending;
 
   LibrarySortRule copyWith({
-    Object? column,
+    String? column,
     bool? ascending,
   }) {
     return LibrarySortRule(
@@ -62,7 +62,7 @@ class LibraryTableColumnPreset {
 
   final String? id;
   final String label;
-  final Set<Object> columns;
+  final Set<String> columns;
 
   bool get isSaved => id != null;
 }

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 
 class LibraryTypeRegistry {
@@ -6,10 +6,9 @@ class LibraryTypeRegistry {
 
   final List<LibraryTypeConfig> types;
 
-  LibraryTypeConfig? byKind(Object? kind) {
-    final normalized = catalogMediaKindFromValue(kind);
+  LibraryTypeConfig? byKind(CatalogMediaKind kind) {
     for (final type in types) {
-      if (type.workspace.kind == normalized) {
+      if (type.workspace.kind == kind) {
         return type;
       }
     }
@@ -22,12 +21,12 @@ class LibraryTypeRegistry {
     }.toList();
   }
 
-  List<LibraryMetadataProviderOption> providersForKind(Object? kind) {
+  List<LibraryMetadataProviderOption> providersForKind(CatalogMediaKind kind) {
     final type = byKind(kind);
     return type?.supportedMetadataProviders ?? const [];
   }
 
-  LibraryTypeCapabilities capabilitiesForKind(Object? kind) {
+  LibraryTypeCapabilities capabilitiesForKind(CatalogMediaKind kind) {
     return byKind(kind)?.capabilities ?? const LibraryTypeCapabilities();
   }
 }

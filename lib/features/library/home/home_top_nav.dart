@@ -124,8 +124,8 @@ class MediaLibraryTitleBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final accentData = LibraryAccentScope.of(context);
     final palette = appPalette(context);
-    final icon = registry.byKind(type.kind)?.workspace.icon ??
-        libraryIconForKind(type.kind);
+    final icon = registry.byKind(type.mediaKind)?.workspace.icon ??
+        libraryIconForKind(type.mediaKind);
     return AnimatedLibraryChromeGradient(
       accent: accentData.accent,
       begin: Alignment.centerLeft,
@@ -542,14 +542,14 @@ class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
                                     child: MediaLibraryNavButton(
                                       type: representative,
                                       color: libraryAccentForKind(
-                                        representative.kind,
+                                        representative.mediaKind,
                                       ),
                                       icon: widget.registry
-                                              .byKind(representative.kind)
+                                              .byKind(representative.mediaKind)
                                               ?.workspace
                                               .icon ??
                                           libraryIconForKind(
-                                            representative.kind,
+                                            representative.mediaKind,
                                           ),
                                       label: group.label,
                                       tooltip: group.label,

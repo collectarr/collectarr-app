@@ -148,10 +148,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
     );
 
     // Resolve the kind-supplied card presentation (or fall back to default).
-    final type = collectarrLibraryTypes.byKind(entry.mediaType);
+    final type = collectarrLibraryTypes.byKind(entry.kind);
     final module = type != null ? libraryKindModuleForType(type) : null;
     final musicVertical = cardLayout == LibraryCardLayout.vertical;
-    final presentation = module?.buildCardPresentation?.call(
+    final presentation = module?.buildCardPresentation(
           entry,
           musicVertical: musicVertical,
         ) ??
@@ -827,7 +827,7 @@ String? _coverSlabLabel(LibraryCardPresentation presentation) {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryWorkspaceEntry entry,
 ) {
-  final type = collectarrLibraryTypes.byKind(entry.mediaType);
+  final type = collectarrLibraryTypes.byKind(entry.kind);
   if (type == null) return null;
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,

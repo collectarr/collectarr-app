@@ -9,6 +9,7 @@ class ComicWorkMetadata {
     this.issueNumber,
     this.synopsis,
     this.coverDate,
+    this.series,
     this.creators = const [],
     this.characters = const [],
     this.storyArcs = const [],
@@ -19,6 +20,7 @@ class ComicWorkMetadata {
   final String? issueNumber;
   final String? synopsis;
   final DateTime? coverDate;
+  final CatalogSeriesDetails? series;
   final List<String> creators;
   final List<String> characters;
   final List<String> storyArcs;
@@ -32,6 +34,7 @@ class ComicPublishingMetadata {
     this.currency,
     this.publisher,
     this.imprint,
+    this.subtitle,
   });
 
   final int? pageCount;
@@ -39,6 +42,7 @@ class ComicPublishingMetadata {
   final String? currency;
   final String? publisher;
   final String? imprint;
+  final String? subtitle;
 }
 
 class ComicCatalogItem {
@@ -88,5 +92,5 @@ class ComicCatalogItem {
   String? get audienceRating => null;
   List<ComicRelease> get issues => releases;
   List<int> get missingIssueNumbers => const [];
-  CatalogSeriesDetails? get series => null;
+  CatalogSeriesDetails? get series => work.series;
 }

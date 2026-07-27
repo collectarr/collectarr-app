@@ -6,19 +6,19 @@ import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-typedef LibraryColumnWidthFor = double Function(Object column);
-typedef LibraryColumnSortFor = Object? Function(
-  Object column,
+typedef LibraryColumnWidthFor = double Function(String column);
+typedef LibraryColumnSortFor = String? Function(
+  String column,
 );
-typedef LibraryColumnLabelFor = String Function(Object column);
-typedef LibraryColumnNumericFor = bool Function(Object column);
+typedef LibraryColumnLabelFor = String Function(String column);
+typedef LibraryColumnNumericFor = bool Function(String column);
 typedef LibraryColumnCellBuilder<T> = Widget Function(
   T entry,
-  Object column,
+  String column,
 );
 typedef LibraryColumnReordered = void Function(
-  Object column,
-  Object? beforeColumn,
+  String column,
+  String? beforeColumn,
 );
 
 class LibraryWorkspaceTable<T> extends StatefulWidget {
@@ -60,8 +60,8 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   });
 
   final List<T> entries;
-  final List<Object> columns;
-  final Object sortColumn;
+  final List<String> columns;
+  final String sortColumn;
   final bool sortAscending;
   final List<LibrarySortRule> sortRules;
   final LibraryColumnWidthFor columnWidthFor;
@@ -74,8 +74,8 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final ValueChanged<T> onEntryTap;
   final ValueChanged<T>? onEntryDoubleTap;
   final void Function(T entry, TapUpDetails details)? onEntrySecondaryTapUp;
-  final ValueChanged<Object> onSortChanged;
-  final void Function(Object column, double width)
+  final ValueChanged<String> onSortChanged;
+  final void Function(String column, double width)
       onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
   final double headerHeight;
@@ -249,16 +249,16 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
     required this.accentColor,
   });
 
-  final List<Object> columns;
-  final Object sortColumn;
+  final List<String> columns;
+  final String sortColumn;
   final bool sortAscending;
   final List<LibrarySortRule> sortRules;
   final LibraryColumnWidthFor columnWidthFor;
   final LibraryColumnWidthFor defaultColumnWidthFor;
   final LibraryColumnSortFor columnSortFor;
   final LibraryColumnLabelFor columnLabelFor;
-  final ValueChanged<Object> onSortChanged;
-  final void Function(Object column, double width)
+  final ValueChanged<String> onSortChanged;
+  final void Function(String column, double width)
       onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
   final double headerHeight;
@@ -342,17 +342,17 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     required this.dividerColor,
   });
 
-  final Object column;
-  final Object? nextColumn;
+  final String column;
+  final String? nextColumn;
   final double width;
   final double defaultWidth;
   final bool sorted;
   final bool ascending;
-  final Object? sort;
+  final String? sort;
   final int? sortPriority;
   final String label;
-  final ValueChanged<Object> onSortChanged;
-  final void Function(Object column, double width)
+  final ValueChanged<String> onSortChanged;
+  final void Function(String column, double width)
       onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
   final double height;
@@ -369,7 +369,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     final headerMutedTextColor = headerTextColor.withValues(alpha: 0.72);
     final showSortIcon = sorted && width >= 64;
     final showSortPriority = sortPriority != null && width >= 80;
-    return DragTarget<Object>(
+    return DragTarget<String>(
       onWillAcceptWithDetails: (details) {
         return onColumnReordered != null && details.data != column;
       },
@@ -423,38 +423,27 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (showSortIcon)
+                        if (showSortIcon) ...[
+                          const SizedBox(width: 2),
                           Icon(
                             ascending
-                                ? Icons.arrow_drop_up
-                                : Icons.arrow_drop_down,
-                            size: 18,
-                            color: accentColor,
+                                ? Icons.arrow_upward_rounded
+                                : Icons.arrow_downward_rounded,
+                            size: 13,
+                            color: sorted ? accentColor : headerMutedTextColor,
                           ),
-                        if (showSortPriority)
-                          Container(
-                            key: ValueKey('sort-priority-$column'),
-                            margin: const EdgeInsets.only(left: 4),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 1,
-                            ),
-                            decoration: BoxDecoration(
-                              color: accentColor.withValues(alpha: 0.16),
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(
-                                color: accentColor.withValues(alpha: 0.45),
-                              ),
-                            ),
-                            child: Text(
-                              sortPriority.toString(),
-                              style: TextStyle(
-                                color: accentColor,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 11,
-                              ),
+                        ],
+                        if (showSortPriority) ...[
+                          const SizedBox(width: 2),
+                          Text(
+                            sortPriority.toString(),
+                            style: TextStyle(
+                              color: sorted ? accentColor : headerMutedTextColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ),
@@ -498,7 +487,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     );
   }
 
-  Object? _dropTargetColumn(BuildContext context, Offset offset) {
+  String? _dropTargetColumn(BuildContext context, Offset offset) {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) {
       return column;
@@ -518,7 +507,7 @@ class _LibraryColumnDragHandle extends StatelessWidget {
     required this.mutedColor,
   });
 
-  final Object column;
+  final String column;
   final String label;
   final Color headerColor;
   final Color accentColor;
@@ -528,7 +517,7 @@ class _LibraryColumnDragHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final feedbackLabel =
-        label.trim().isEmpty ? _humanizeEnumName(column.toString()) : label;
+        label.trim().isEmpty ? _humanizeEnumName(column) : label;
     final icon = Icon(
       Icons.drag_indicator,
       size: 14,
@@ -538,7 +527,7 @@ class _LibraryColumnDragHandle extends StatelessWidget {
       padding: const EdgeInsets.only(right: 3),
       child: Tooltip(
         message: 'Reorder column',
-        child: Draggable<Object>(
+        child: Draggable<String>(
           data: column,
           feedback: Material(
             color: Colors.transparent,
@@ -615,7 +604,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
   });
 
   final T entry;
-  final List<Object> columns;
+  final List<String> columns;
   final bool selected;
   final bool odd;
   final VoidCallback onTap;

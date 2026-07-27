@@ -73,22 +73,22 @@ const _catalogKindDefaults = <String, LibraryCatalogKindDefaults>{
   ),
 };
 
-LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(Object? kind) {
-  return _catalogKindDefaults[catalogMediaKindFromValue(kind).apiValue];
+LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(CatalogMediaKind kind) {
+  return _catalogKindDefaults[kind.apiValue];
 }
 
-String catalogMediaFamilyForKind(Object? kind) {
+String catalogMediaFamilyForKind(CatalogMediaKind kind) {
   return libraryCatalogKindDefaultsForKind(kind)?.mediaFamily ?? 'video';
 }
 
-MediaTrackingProfile catalogTrackingProfileForKind(Object? kind) {
+MediaTrackingProfile catalogTrackingProfileForKind(CatalogMediaKind kind) {
   return libraryCatalogKindDefaultsForKind(kind)?.trackingProfile ??
       readingTrackingProfile;
 }
 
 String catalogDisplayLabel(
   String value,
-  Object? fallback, {
+  CatalogMediaKind fallback, {
   bool plural = false,
   String emptyFallbackLabel = 'Library',
 }) {
@@ -97,7 +97,7 @@ String catalogDisplayLabel(
     return trimmed;
   }
   final label = catalogTitleFromToken(
-    catalogMediaKindFromValue(fallback).apiValue,
+    fallback.apiValue,
     emptyLabel: emptyFallbackLabel,
   );
   return plural ? '${label}s' : label;
@@ -121,18 +121,18 @@ String catalogTitleFromToken(String value, {String emptyLabel = ''}) {
   ].join(' ');
 }
 
-List<PhysicalMediaFormat> fallbackPhysicalMediaFormatsForKind(Object? kind) {
+List<PhysicalMediaFormat> fallbackPhysicalMediaFormatsForKind(CatalogMediaKind kind) {
   return libraryCatalogKindDefaultsForKind(kind)?.fallbackPhysicalFormats ??
       const [];
 }
 
 String catalogDisplayPluralLabel(CatalogMediaType type) {
-  return libraryCatalogKindDefaultsForKind(type.kind)?.pluralLabel ??
+  return libraryCatalogKindDefaultsForKind(type.mediaKind)?.pluralLabel ??
       type.pluralLabel;
 }
 
 CatalogMediaType normalizeCatalogMediaTypeDefaults(CatalogMediaType type) {
-  final defaults = libraryCatalogKindDefaultsForKind(type.kind);
+  final defaults = libraryCatalogKindDefaultsForKind(type.mediaKind);
   if (defaults == null) {
     return type;
   }

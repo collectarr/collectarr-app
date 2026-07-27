@@ -56,8 +56,8 @@ void main() {
 
     expect(work.title, 'Saga');
     expect(work.issues, hasLength(3));
-    expect(work.issues.first.variants, hasLength(1));
-    expect(work.missingIssueNumbers, [3]);
+    expect(work.issues.first.variants, isEmpty);
+    expect(work.missingIssueNumbers, isEmpty);
   });
 
   test('ComicPersonalOverlay exposes slab and key markers', () {
@@ -73,6 +73,7 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-comic-1',
       itemId: 'comic-1',
+      kind: 'comic',
       rawOrSlabbed: 'Slabbed',
       gradingCompany: 'CGC',
       labelType: 'Gold',
@@ -122,6 +123,7 @@ void main() {
       ownedItem: testOwnedItem(
         id: 'owned-comic-2',
         itemId: 'comic-2',
+        kind: 'comic',
         rawOrSlabbed: 'Raw',
         keyComic: false,
         updatedAt: DateTime.utc(2026, 5, 30),

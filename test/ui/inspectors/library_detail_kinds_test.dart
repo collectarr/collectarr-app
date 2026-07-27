@@ -18,7 +18,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = collectarrLibraryTypes.byKind('comic')!;
+      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
 
       await tester.pumpWidget(
         ProviderScope(
@@ -60,7 +60,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = collectarrLibraryTypes.byKind('music')!;
+      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.music)!;
 
       await tester.pumpWidget(
         ProviderScope(
@@ -102,7 +102,7 @@ void main() {
     testWidgets('renders game-specific fields', (tester) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = collectarrLibraryTypes.byKind('game')!;
+      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.game)!;
 
       await tester.pumpWidget(
         ProviderScope(
@@ -143,7 +143,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = collectarrLibraryTypes.byKind('book')!;
+      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
 
       await tester.pumpWidget(
         ProviderScope(
@@ -187,7 +187,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = collectarrLibraryTypes.byKind('comic')!;
+      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
 
       await tester.pumpWidget(
         ProviderScope(

@@ -29,7 +29,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final api = _VideoSeasonApiClient();
-    final type = collectarrLibraryTypes.byKind('tv')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.tv)!;
     const itemId = '00000000-0000-0000-0000-000000000001';
 
     await tester.pumpWidget(

@@ -496,10 +496,6 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
         ('Location', entry.locationPath!),
       if (owned?.collectionStatus?.trim().isNotEmpty == true)
         ('Collection status', owned!.collectionStatus!),
-      if (owned?.storageDevice?.trim().isNotEmpty == true)
-        ('Storage device', owned!.storageDevice!),
-      if (owned?.storageSlot?.trim().isNotEmpty == true)
-        ('Storage slot', owned!.storageSlot!),
       if (owned?.pricePaidCents != null)
         ('Price paid', formatMoney(owned!.pricePaidCents, owned.currency)),
       if (owned?.sellPriceCents != null)

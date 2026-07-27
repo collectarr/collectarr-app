@@ -30,11 +30,18 @@ class VideoCatalogMapper {
     );
 
     final releases = dto.editions.map((edition) {
+      final audioTracksStr = edition.metadata?['audio_tracks'] as String? ?? dto.video?.audioTracks;
+      final audioTracks = audioTracksStr != null && audioTracksStr.isNotEmpty ? [audioTracksStr] : const <String>[];
+      final subtitlesStr = edition.metadata?['subtitles'] as String? ?? dto.video?.subtitles;
+      final subtitles = subtitlesStr != null && subtitlesStr.isNotEmpty ? [subtitlesStr] : const <String>[];
+
       final media = edition.discs.map((disc) => VideoMediaRef(
         id: '${edition.id}:disc:${disc.discNumber}',
         title: disc.discName,
         formatLabel: disc.discFormat,
         discNumber: disc.discNumber,
+        audioTracks: audioTracks,
+        subtitles: subtitles,
       )).toList();
 
       return VideoRelease(
@@ -46,6 +53,16 @@ class VideoCatalogMapper {
         releaseDate: edition.releaseDate,
         formatLabel: edition.physicalFormatLabel ?? edition.physicalFormat,
         media: media,
+        videoDetails: VideoTechnicalMetadata(
+          runtimeMinutes: dto.video?.runtimeMinutes,
+          color: dto.video?.color,
+          screenRatio: dto.video?.screenRatio,
+          audioTracks: dto.video?.audioTracks,
+          subtitles: dto.video?.subtitles,
+          ageRating: dto.video?.ageRating,
+          audienceRating: dto.video?.audienceRating,
+          nrDiscs: edition.discs.length,
+        ),
       );
     }).toList();
 
@@ -54,6 +71,7 @@ class VideoCatalogMapper {
       work: work,
       technical: technical,
       releases: releases,
+      trailerUrls: dto.trailerUrls,
     );
   }
 
@@ -117,6 +135,7 @@ class VideoCatalogMapper {
       releaseDate: item.releaseDate,
       originalLanguage: item.language,
       genres: item.genres ?? const [],
+      series: item.series,
     );
 
     final technical = VideoTechnicalMetadata(

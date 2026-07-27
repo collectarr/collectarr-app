@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+
 enum MetadataFieldScope {
   work('work'),
   edition('edition'),
@@ -108,6 +110,8 @@ class CatalogMediaType {
   final String providerSearchPolicy;
   final bool isTopLevel;
   final List<CatalogPhysicalFormat> physicalFormats;
+
+  CatalogMediaKind get mediaKind => catalogMediaKindFromValue(kind);
 
   factory CatalogMediaType.fromJson(Map<String, dynamic> json) {
     return CatalogMediaType(

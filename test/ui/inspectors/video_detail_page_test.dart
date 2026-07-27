@@ -25,7 +25,7 @@ void main() {
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final entry = LibraryWorkspaceEntry(
       id: 'movie-1',
       mediaType: 'movie',
@@ -141,7 +141,7 @@ void main() {
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final entry = LibraryWorkspaceEntry(
       id: 'movie-1',
       mediaType: 'movie',
@@ -254,7 +254,7 @@ void main() {
 
   testWidgets('release browser explains when core has no releases yet',
       (tester) async {
-    final type = collectarrLibraryTypes.byKind('movie')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final entry = LibraryWorkspaceEntry(
       id: 'movie-2',
       mediaType: 'movie',

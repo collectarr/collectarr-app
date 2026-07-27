@@ -779,10 +779,8 @@ abstract final class LibraryFacetId {
   static const mediaCharacter = 'media.character';
 }
 
-String librarySortColumnFallbackLabel(Object column) {
-  final columnName = column is Enum
-      ? column.name
-      : column.toString().split('.').last;
+String librarySortColumnFallbackLabel(String column) {
+  final columnName = column.contains('.') ? column.split('.').last : column;
   final raw = columnName
       .replaceAll('_', ' ')
       .replaceAllMapped(

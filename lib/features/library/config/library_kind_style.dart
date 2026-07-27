@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -6,14 +7,14 @@ import 'package:flutter/material.dart';
 
 const Color kLibraryFallbackAccent = kAppAccent;
 
-Color libraryAccentForKind(Object? kind) {
+Color libraryAccentForKind(CatalogMediaKind kind) {
   if (cachedLibraryAccentHexForKind(kind) case final accentHex?) {
     return Color(accentHex);
   }
   return libraryDefaultAccentForKind(kind);
 }
 
-Color libraryDefaultAccentForKind(Object? kind) {
+Color libraryDefaultAccentForKind(CatalogMediaKind kind) {
   return collectarrLibraryTypes.byKind(kind)?.workspace.accent ??
       kLibraryFallbackAccent;
 }
@@ -107,7 +108,7 @@ class AnimatedLibraryChromeGradient extends StatelessWidget {
   }
 }
 
-IconData libraryIconForKind(Object? kind) {
+IconData libraryIconForKind(CatalogMediaKind kind) {
   return collectarrLibraryTypes.byKind(kind)?.workspace.icon ??
       Icons.category_outlined;
 }

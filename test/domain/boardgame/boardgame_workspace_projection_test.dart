@@ -13,6 +13,7 @@ void main() {
         categories: ['strategy'],
         mechanics: ['dice rolling'],
       ),
+      stats: const BoardGameStatsMetadata(),
       releases: [
         BoardGameRelease(
           id: 'edition-1',
@@ -29,10 +30,10 @@ void main() {
     );
 
     expect(entry, isA<BoardGameWorkspaceEntry>());
-    expect(entry.boardGameReleases, hasLength(1));
+    expect(entry.editions, hasLength(1));
 
     final editionEntry = buildBoardGameEditionWorkspaceEntry(
-      titleEntry: entry,
+      titleEntry: entry as BoardGameWorkspaceEntry,
       edition: work.editions.first,
       overlay: const BoardGamePersonalOverlay(),
     );

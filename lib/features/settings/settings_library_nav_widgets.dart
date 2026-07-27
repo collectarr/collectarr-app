@@ -129,9 +129,10 @@ class _LibraryNavSettings extends StatelessWidget {
             ];
             final allVisible = hiddenKinds.isEmpty;
             final reordered = [...groups];
+            final mediaKind = group.primaryType.mediaKind;
             final kind = group.primaryType.kind;
-            final defaultAccent = libraryDefaultAccentForKind(kind);
-            final effectiveAccent = libraryAccentForKind(kind);
+            final defaultAccent = libraryDefaultAccentForKind(mediaKind);
+            final effectiveAccent = libraryAccentForKind(mediaKind);
             final hasAccentOverride =
                 preferences.accentHexForKind(kind) != null;
             return ListTile(
@@ -359,16 +360,16 @@ class _LibraryNavTypeIcon extends StatelessWidget {
     final type = group.primaryType;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: libraryAccentForKind(type.kind).withValues(alpha: 0.18),
-        border: Border.all(color: libraryAccentForKind(type.kind)),
+        color: libraryAccentForKind(type.mediaKind).withValues(alpha: 0.18),
+        border: Border.all(color: libraryAccentForKind(type.mediaKind)),
         borderRadius: BorderRadius.circular(4),
       ),
       child: SizedBox.square(
         dimension: 30,
         child: Icon(
-          libraryIconForKind(type.kind),
+          libraryIconForKind(type.mediaKind),
           size: 17,
-          color: libraryAccentForKind(type.kind),
+          color: libraryAccentForKind(type.mediaKind),
         ),
       ),
     );
@@ -383,7 +384,7 @@ class _LibraryNavPreviewButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = group.primaryType;
-    final accent = libraryAccentForKind(type.kind);
+    final accent = libraryAccentForKind(type.mediaKind);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.22),
@@ -395,7 +396,7 @@ class _LibraryNavPreviewButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(libraryIconForKind(type.kind), size: 15, color: accent),
+            Icon(libraryIconForKind(type.mediaKind), size: 15, color: accent),
             const SizedBox(width: 5),
             Text(
               group.label,
@@ -416,7 +417,7 @@ class _LibraryNavPreviewTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final type = group.primaryType;
-    final accent = libraryAccentForKind(type.kind);
+    final accent = libraryAccentForKind(type.mediaKind);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.20),
@@ -425,7 +426,7 @@ class _LibraryNavPreviewTile extends StatelessWidget {
       ),
       child: SizedBox.square(
         dimension: 36,
-        child: Icon(libraryIconForKind(type.kind), size: 18, color: accent),
+        child: Icon(libraryIconForKind(type.mediaKind), size: 18, color: accent),
       ),
     );
   }
@@ -496,7 +497,7 @@ List<CatalogMediaType> _orderedSettingsMediaTypes(
   };
   final topLevelByKind = {
     for (final type in catalog)
-      if (type.isTopLevel || collectarrLibraryTypes.byKind(type.kind) != null)
+      if (type.isTopLevel || collectarrLibraryTypes.byKind(type.mediaKind) != null)
         type.kind: type,
   };
   final defaultKinds = [

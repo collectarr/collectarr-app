@@ -12,6 +12,7 @@ class VideoWorkMetadata {
     this.releaseDate,
     this.originalLanguage,
     this.genres = const [],
+    this.series,
   });
 
   final String title;
@@ -20,6 +21,7 @@ class VideoWorkMetadata {
   final DateTime? releaseDate;
   final String? originalLanguage;
   final List<String> genres;
+  final CatalogSeriesDetails? series;
 }
 
 class VideoTechnicalMetadata {
@@ -31,11 +33,13 @@ class VideoTechnicalMetadata {
     this.subtitles,
     this.ageRating,
     this.audienceRating,
+    this.nrDiscs,
   });
 
   final int? runtimeMinutes;
   final String? color;
   final String? screenRatio;
+  final int? nrDiscs;
   final String? audioTracks;
   final String? subtitles;
   final String? ageRating;
@@ -48,6 +52,7 @@ class VideoCatalogItem {
     required this.work,
     required this.technical,
     required this.releases,
+    this.trailerUrls = const [],
   });
 
   static VideoCatalogItem fromDto(CatalogItemDto dto) =>
@@ -64,6 +69,7 @@ class VideoCatalogItem {
         releaseDate: item.releaseDate,
         originalLanguage: item.language,
         genres: item.genres ?? const [],
+        series: item.series,
       ),
       technical: VideoTechnicalMetadata(
         runtimeMinutes: v?.runtimeMinutes,
@@ -103,6 +109,7 @@ class VideoCatalogItem {
         releaseDate: entry.releaseDate,
         originalLanguage: entry.language,
         genres: entry.genres ?? const [],
+        series: entry.series,
       ),
       technical: VideoTechnicalMetadata(
         runtimeMinutes: v?.runtimeMinutes,
@@ -135,10 +142,11 @@ class VideoCatalogItem {
   final VideoWorkMetadata work;
   final VideoTechnicalMetadata technical;
   final List<VideoRelease> releases;
+  final List<dynamic> trailerUrls;
 
   String get title => work.title;
+  CatalogSeriesDetails? get series => work.series;
   VideoTechnicalMetadata get videoDetails => technical;
-  List<dynamic> get trailerUrls => const [];
   List<VideoRelease> get episodes => releases;
   VideoRelease? get primaryRelease => releases.isEmpty ? null : releases.first;
   String? get displayEpisodeLabel => primaryRelease?.title;

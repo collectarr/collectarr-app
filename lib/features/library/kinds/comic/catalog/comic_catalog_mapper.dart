@@ -99,6 +99,7 @@ class ComicCatalogMapper {
       issueNumber: item.itemNumber,
       synopsis: item.synopsis,
       coverDate: item.coverDate,
+      series: item.series,
       creators: (item.creators?.map((c) => c['name']?.toString() ?? '').where((n) => n.isNotEmpty).toList() ?? const []),
       characters: item.characters ?? const [],
       storyArcs: item.storyArcs ?? const [],
@@ -111,6 +112,7 @@ class ComicCatalogMapper {
       currency: pub?.currency,
       publisher: item.publisher,
       imprint: pub?.imprint,
+      subtitle: pub?.subtitle,
     );
 
     final releases = item.editions.map((edition) {

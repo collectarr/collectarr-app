@@ -71,11 +71,11 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
   @override
   Widget build(BuildContext context) {
     final selected = selectedLibraryHomeType(widget.types, widget.selectedKind);
-    final accent = libraryAccentForKind(selected.kind);
+    final accent = libraryAccentForKind(selected.mediaKind);
     final palette = appPalette(context);
     final selectedIcon =
-        widget.registry.byKind(selected.kind)?.workspace.icon ??
-            libraryIconForKind(selected.kind);
+        widget.registry.byKind(selected.mediaKind)?.workspace.icon ??
+            libraryIconForKind(selected.mediaKind);
     return AnimatedLibraryChromeGradient(
       accent: accent,
       begin: Alignment.topCenter,
@@ -114,7 +114,7 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                       itemCount: widget.types.length,
                       itemBuilder: (context, index) {
                         final type = widget.types[index];
-                        final typeAccent = libraryAccentForKind(type.kind);
+                        final typeAccent = libraryAccentForKind(type.mediaKind);
                         final selectedType = type.kind == widget.selectedKind;
                         final tileFill = selectedType
                             ? (palette.isDark
@@ -176,10 +176,10 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
                                     children: [
                                       Icon(
                                         widget.registry
-                                                .byKind(type.kind)
+                                                .byKind(type.mediaKind)
                                                 ?.workspace
                                                 .icon ??
-                                            libraryIconForKind(type.kind),
+                                            libraryIconForKind(type.mediaKind),
                                         size: 19,
                                         color: selectedType
                                             ? selectedTileForeground

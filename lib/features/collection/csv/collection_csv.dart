@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:csv/csv.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -489,7 +490,7 @@ class CollectionCsv {
   }
 
   List<String> _clzFriendlyHeaderForKind(String kind) {
-    final type = collectarrLibraryTypes.byKind(kind);
+    final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(kind));
     if (type == null) {
       return clzFriendlyHeader;
     }

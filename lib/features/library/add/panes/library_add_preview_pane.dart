@@ -1303,7 +1303,7 @@ List<(String, String?)> _metadataRowsForFullPreview(
     if (preview.variantName != null)
       (release.variantLabel, preview.variantName),
     if (collectarrLibraryTypes
-            .capabilitiesForKind(preview.kind)
+            .capabilitiesForKind(catalogMediaKindFromValue(preview.kind))
             .showsTrackData &&
         music?.trackCount != null)
       ('Tracks', music!.trackCount.toString()),

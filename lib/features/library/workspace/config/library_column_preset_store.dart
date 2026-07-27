@@ -31,7 +31,7 @@ class LibraryColumnPresetStore {
 
   Future<List<LibraryTableColumnPreset>> savePreset({
     required String label,
-    required Set<Object> columns,
+    required Set<String> columns,
   }) async {
     final normalizedLabel = label.trim();
     if (normalizedLabel.isEmpty) {
@@ -50,10 +50,9 @@ class LibraryColumnPresetStore {
       label: normalizedLabel,
       columns: {
         for (final column in columns)
-          if (libraryKindModuleForType(config).fields.columnDefinitionForId(column.toString()) != null ||
-              libraryKindModuleForType(config).fields.columnDefinitionForId(column.toString().split('.').last) != null)
-            column,
-        if (libraryKindModuleForType(config).fields.columnDefinitionForId('title') != null)
+          if (_columnById(column) != null)
+            _columnById(column)!,
+        if (libraryKindModuleForType(config).fields.findColumnDefinition('title') != null)
           'title',
       },
     );
@@ -92,8 +91,7 @@ class LibraryColumnPresetStore {
         for (final value in (json['columns'] as List<dynamic>? ?? []))
           if (_columnById(value.toString()) != null)
             _columnById(value.toString())!,
-        if (libraryKindModuleForType(config).fields.columnDefinitionForId('title') != null ||
-            libraryKindModuleForType(config).fields.columnDefinitionForId('title'.split('.').last) != null)
+        if (libraryKindModuleForType(config).fields.findColumnDefinition('title') != null)
           'title',
       },
     );
@@ -105,16 +103,15 @@ class LibraryColumnPresetStore {
       'label': preset.label,
       'columns': [
         for (final column in preset.columns)
-          column.toString(),
+          column,
       ],
     };
   }
 
-  Object? _columnById(String id) {
+  String? _columnById(String id) {
     final module = libraryKindModuleForType(config);
-    final supported = module.fields.columnDefinitionForId(id) != null ||
-        module.fields.columnDefinitionForId(id.split('.').last) != null;
-    return supported ? id : null;
+    final colDef = module.fields.findColumnDefinition(id);
+    return colDef?.id.value;
   }
 
   String _slug(String value) {

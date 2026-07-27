@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
@@ -654,7 +654,7 @@ String? _smartListSortSummary(List<LibrarySortRule> rules) {
     return null;
   }
   return rules
-      .map((rule) => '${rule.column.toString().split('.').last} ${rule.ascending ? 'asc' : 'desc'}')
+      .map((rule) => '${rule.column} ${rule.ascending ? 'asc' : 'desc'}')
       .join(', ');
 }
 

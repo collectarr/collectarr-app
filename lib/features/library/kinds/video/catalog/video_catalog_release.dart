@@ -1,3 +1,5 @@
+import 'video_catalog_item.dart';
+
 class VideoMediaRef {
   const VideoMediaRef({
     required this.id,
@@ -29,6 +31,7 @@ class VideoRelease {
     this.formatLabel,
     this.frontCoverUrl,
     this.media = const <VideoMediaRef>[],
+    this.videoDetails,
   });
 
   final String id;
@@ -40,6 +43,5 @@ class VideoRelease {
   final String? formatLabel;
   final String? frontCoverUrl;
   final List<VideoMediaRef> media;
-
-  dynamic get videoDetails => null;
+  final VideoTechnicalMetadata? videoDetails;
 }

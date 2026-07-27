@@ -524,7 +524,7 @@ int? musicCardTrackCount(LibraryWorkspaceEntry entry) {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryWorkspaceEntry entry,
 ) {
-  final type = collectarrLibraryTypes.byKind(entry.mediaType);
+  final type = collectarrLibraryTypes.byKind(entry.kind);
   if (type == null) return null;
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,

@@ -335,13 +335,8 @@ class LibraryMetadataProviderOption {
   final bool requiresApiKey;
   final LibraryMetadataProviderUsagePolicy? usagePolicy;
 
-  bool supportsKind(Object? kind) {
-    final normalized = switch (kind) {
-      String value => value.trim().toLowerCase(),
-      null => '',
-      Object? _ => catalogMediaKindFromValue(kind).apiValue,
-    };
-    return supportedKinds.isEmpty || supportedKinds.contains(normalized);
+  bool supportsKind(CatalogMediaKind kind) {
+    return supportedKinds.isEmpty || supportedKinds.contains(kind.apiValue);
   }
 }
 
@@ -522,7 +517,7 @@ class LibraryKindUiAdapter {
     final modeId = type._definitionIdFor(mode);
     final groupDef = libraryKindModuleForType(type)
         .fields
-        .groupDefinitionForId(modeId);
+        .findGroupDefinition(modeId);
     return groupDef?.supportsBucketManagement ?? false;
   }
 
@@ -561,7 +556,7 @@ class LibraryKindUiAdapter {
   bool canJumpToSelectedEntry(
     LibraryTypeConfig type,
     LibraryProjection? projection, {
-    required Object activeGroupMode,
+    required String activeGroupMode,
     required String? selectedBucket,
   }) {
     if (projection == null ||

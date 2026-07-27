@@ -12,18 +12,16 @@ void main() {
         containsAll(<String>{
           'title',
           'release_date',
-          'country',
-          'language',
-          'age_rating',
+          'publisher',
         }),
       );
       expect(
         defaultVisibleColumnIds,
         isNot(
           containsAll(<String>{
-            'condition',
-            'price',
-            'location',
+            'isbn',
+            'issue_number',
+            'pages',
           }),
         ),
       );

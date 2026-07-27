@@ -100,7 +100,7 @@ class LibrarySortPresetStore {
       'rules': [
         for (final rule in _dedupeRules(preset.rules))
           {
-            'column': module.fields.sortDefinitionForId(rule.column.toString())?.id ?? rule.column.toString(),
+            'column': module.fields.findSortDefinition(rule.column.toString())?.id ?? rule.column.toString(),
             'ascending': rule.ascending,
           },
       ],
@@ -123,23 +123,14 @@ class LibrarySortPresetStore {
         continue;
       }
       final columnName = json['column']?.toString();
-      String? column;
-      if (columnName != null) {
-        if (module.fields.sortDefinitionForId(columnName) != null) {
-          column = columnName;
-        } else {
-          final shortId = columnName.split('.').last;
-          if (module.fields.sortDefinitionForId(shortId) != null) {
-            column = shortId;
-          }
-        }
-      }
-      if (column == null) {
+      if (columnName == null) continue;
+      final sortDef = module.fields.findSortDefinition(columnName);
+      if (sortDef == null) {
         continue;
       }
       rules.add(
         LibrarySortRule(
-          column: column,
+          column: sortDef.id,
           ascending: json['ascending'] != false,
         ),
       );
@@ -149,16 +140,15 @@ class LibrarySortPresetStore {
 
   List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
     final module = libraryKindModuleForType(config);
-    final seen = <Object>{};
+    final seen = <String>{};
     final deduped = <LibrarySortRule>[];
     for (final rule in rules) {
-      final supported = module.fields.sortDefinitionForId(rule.column.toString()) != null ||
-          module.fields.sortDefinitionForId(rule.column.toString().split('.').last) != null;
-      if (!supported) {
+      final sortDef = module.fields.findSortDefinition(rule.column);
+      if (sortDef == null) {
         continue;
       }
-      if (seen.add(rule.column)) {
-        deduped.add(rule);
+      if (seen.add(sortDef.id)) {
+        deduped.add(rule.copyWith(column: sortDef.id));
       }
     }
     return deduped;

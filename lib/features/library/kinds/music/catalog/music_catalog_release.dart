@@ -46,6 +46,7 @@ class MusicRelease {
     this.releaseStatus,
     this.releaseType,
     this.coverImageUrl,
+    this.genres = const <String>[],
     this.discs = const <MusicDiscRef>[],
     this.tracks = const <MusicTrackRef>[],
   });
@@ -60,6 +61,7 @@ class MusicRelease {
   final String? releaseStatus;
   final String? releaseType;
   final String? coverImageUrl;
+  final List<String> genres;
   final List<MusicDiscRef> discs;
   final List<MusicTrackRef> tracks;
 
@@ -73,7 +75,6 @@ class MusicRelease {
   DateTime? get recordingDate => null;
   String? get countryCode => null;
   String? get language => null;
-  List<String> get genres => const <String>[];
   String? get instrument => null;
   String? get composition => null;
   String? get spars => null;

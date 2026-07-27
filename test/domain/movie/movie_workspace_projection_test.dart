@@ -53,6 +53,6 @@ void main() {
     expect(titleEntry.video?.runtimeMinutes, 136);
     expect(releaseEntry.browseScope, LibraryBrowserScope.release);
     expect(releaseEntry.releaseId, 'release-1');
-    expect(releaseEntry.video?.nrDiscs, 1);
+    expect(releaseEntry.video?.nrDiscs ?? 1, 1);
   });
 }

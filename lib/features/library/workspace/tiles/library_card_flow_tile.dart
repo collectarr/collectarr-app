@@ -42,7 +42,7 @@ class LibraryCardFlowTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final coverCacheWidth = _targetCacheWidth(context);
     final capabilities = collectarrLibraryTypes.capabilitiesForKind(
-      entry.mediaType,
+      entry.kind,
     );
     final metadataPresentation = _metadataPresentationForEntry(entry);
     final theme = Theme.of(context);
@@ -393,7 +393,7 @@ class LibraryCardFlowTile extends StatelessWidget {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryWorkspaceEntry entry,
 ) {
-  final type = collectarrLibraryTypes.byKind(entry.mediaType);
+  final type = collectarrLibraryTypes.byKind(entry.kind);
   if (type == null) {
     return null;
   }

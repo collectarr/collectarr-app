@@ -387,7 +387,7 @@ class LibraryWorkspace extends ConsumerWidget {
                   columnSortFor: adapter.columnSort,
                   columnLabelFor: adapter.columnLabel,
                   columnIsNumeric: adapter.columnIsNumeric,
-                  cellBuilder: (entry, column) => _tableCell(entry, column as String),
+                  cellBuilder: (entry, column) => _tableCell(entry, column),
                   isSelected: _isHighlighted,
                   onEntryTap: (item) => _selectionTap(item)(),
                   onEntryDoubleTap: onOpenItem,

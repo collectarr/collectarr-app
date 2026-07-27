@@ -185,7 +185,7 @@ class SeriesRegistryRepository {
     final now = DateTime.now().toUtc();
     final candidates = <String, _SeriesCandidate>{};
     for (final item in items) {
-      final type = collectarrLibraryTypes.byKind(item.kind);
+      final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(item.kind));
       final title = _emptyToNull(
         item.series?.seriesTitle ??
             (type?.usesTitleAsSeriesFallback ?? false ? item.title : null),

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
@@ -80,7 +81,7 @@ void main() {
 
   group('InspectorMetadataSection', () {
     testWidgets('renders metadata section title', (tester) async {
-      final type = collectarrLibraryTypes.byKind('comic')!;
+      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -105,7 +106,7 @@ void main() {
 
     testWidgets('comic chip badges are clickable', (tester) async {
       String? tappedValue;
-      final type = collectarrLibraryTypes.byKind('comic')!;
+      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -144,7 +145,7 @@ void main() {
     }, skip: true);
 
     testWidgets('triggers onFilterByValue callback', (tester) async {
-      final type = collectarrLibraryTypes.byKind('comic')!;
+      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
       String? filteredValue;
       await tester.pumpWidget(
         MaterialApp(
@@ -306,7 +307,7 @@ void main() {
 
     testWidgets('comic inspector builder renders comic-only collector facts',
         (tester) async {
-      final type = collectarrLibraryTypes.byKind('comic')!;
+      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
       final sections = <Widget>[];
 
       await tester.pumpWidget(
@@ -424,7 +425,7 @@ void main() {
 
   group('EmptyInspector', () {
     testWidgets('renders placeholder text', (tester) async {
-      final type = collectarrLibraryTypes.byKind('comic')!;
+      final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

@@ -48,14 +48,17 @@ bool itemHasMissingDetails(LibraryMetadataItem item) {
 
 bool libraryShowsTrackData(Object? mediaType) {
   return collectarrLibraryTypes
-          .byKind(mediaType)
+          .byKind(catalogMediaKindFromValue(mediaType))
           ?.capabilities
           .showsTrackData ??
       false;
 }
 
 bool libraryShowsSynopsis(Object? mediaType) {
-  return collectarrLibraryTypes.byKind(mediaType)?.capabilities.showsSynopsis ??
+  return collectarrLibraryTypes
+          .byKind(catalogMediaKindFromValue(mediaType))
+          ?.capabilities
+          .showsSynopsis ??
       false;
 }
 
@@ -74,7 +77,7 @@ String? libraryHierarchyContractDiagnosticLabel(LibraryWorkspaceEntry entry) {
 }
 
 bool libraryShowsReadingQueue(Object? mediaType) {
-  final type = collectarrLibraryTypes.byKind(mediaType);
+  final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(mediaType));
   if (type == null) {
     return false;
   }
@@ -375,7 +378,7 @@ String? _referenceScopeLabelForAnchor(
 
 LibraryReferenceLabels _libraryReferenceLabelsForMediaType(String? mediaType) {
   return collectarrLibraryTypes
-          .byKind(mediaType)
+          .byKind(catalogMediaKindFromValue(mediaType))
           ?.presentation
           .referenceLabels ??
       const LibraryReferenceLabels();

@@ -16,7 +16,7 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
   };
   final topLevelByKind = {
     for (final type in catalog)
-      if (type.isTopLevel || collectarrLibraryTypes.byKind(type.kind) != null)
+      if (type.isTopLevel || collectarrLibraryTypes.byKind(type.mediaKind) != null)
         type.kind: type,
   };
   final defaultKinds = [
@@ -95,7 +95,7 @@ LibraryTypeConfig libraryConfigForCatalogType(
   CatalogMediaType type,
   LibraryTypeRegistry registry,
 ) {
-  final known = registry.byKind(type.kind);
+  final known = registry.byKind(type.mediaKind);
   if (known != null) {
     return known;
   }

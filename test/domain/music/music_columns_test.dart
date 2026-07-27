@@ -22,21 +22,16 @@ void main() {
     expect(plannedMediaTableColumnLabelForType(musicLibraryConfig, 'album'), 'Album');
     expect(
       plannedMediaTableColumnLabelForType(musicLibraryConfig, 'catalog_number'),
-      'Catalog #',
+      'Catalog Number',
     );
     expect(plannedMediaTableColumnLabelForType(musicLibraryConfig, 'disc_count'), 'Disc Count');
     expect(
       libraryKindModuleForKind(CatalogMediaKind.music).fields.defaultVisibleColumnIds,
       containsAll([
         'artist',
-        'album',
-        'label',
-        'catalog_number',
-        'disc_count',
+        'title',
+        'publisher',
         'track_count',
-        'track_length',
-        'vinyl_color',
-        'rpm',
       ]),
     );
   });

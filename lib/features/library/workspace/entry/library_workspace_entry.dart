@@ -1,6 +1,7 @@
 // ignore_for_file: use_super_parameters
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
@@ -86,6 +87,8 @@ sealed class LibraryWorkspaceEntry {
     this.rawPlatforms,
     this.gameReleases = const <GameRelease>[],
   });
+
+  CatalogMediaKind get kind => catalogMediaKindFromValue(mediaType);
 
   factory LibraryWorkspaceEntry({
     required String id,

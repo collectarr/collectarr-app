@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
@@ -31,7 +33,7 @@ void main() {
           ),
         );
 
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -90,7 +92,7 @@ void main() {
           ),
         );
 
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -128,7 +130,7 @@ void main() {
   testWidgets('detail hero shows a book author spotlight when creators exist', (
     tester,
   ) async {
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -165,7 +167,7 @@ void main() {
   testWidgets('detail hero shows the active ownership reference label', (
     tester,
   ) async {
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -202,7 +204,7 @@ void main() {
   testWidgets('detail hero shows collection value totals when multiple copies exist', (
     tester,
   ) async {
-    final type = collectarrLibraryTypes.byKind('book')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
 
     await tester.pumpWidget(
       ProviderScope(

@@ -18,4 +18,6 @@ class ComicRelease {
   final String? upc;
   final DateTime? releaseDate;
   final String? coverImageUrl;
+
+  List<dynamic> get variants => const [];
 }

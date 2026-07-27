@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 
 const gcdMetadataProvider = LibraryMetadataProviderOption(
@@ -150,7 +151,7 @@ class LibraryMetadataProviderRegistry {
     final normalized = kind.trim();
     return [
       for (final provider in providers)
-        if (provider.supportsKind(normalized)) provider,
+        if (provider.supportsKind(catalogMediaKindFromValue(normalized))) provider,
     ];
   }
 

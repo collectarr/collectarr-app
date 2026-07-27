@@ -26,7 +26,7 @@ class LibraryWorkspacePreferenceSnapshot {
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final bool isSidebarVisible;
-  final Object sortColumn;
+  final String sortColumn;
   final bool sortAscending;
   final List<LibrarySortRule>? sortRules;
   final double coverSize;
@@ -34,8 +34,8 @@ class LibraryWorkspacePreferenceSnapshot {
   final double sidebarWidth;
   final double detailsWidth;
   final double detailsHeight;
-  final Set<Object> visibleColumns;
-  final Map<Object, double> columnWidths;
+  final Set<String> visibleColumns;
+  final Map<String, double> columnWidths;
 
   LibraryWorkspaceChromePreferenceSnapshot get chrome =>
       LibraryWorkspaceChromePreferenceSnapshot(
@@ -116,7 +116,7 @@ class LibraryWorkspacePreferences {
     final savedSortColumn = prefs.getString(_key('sort_column'));
     var sortColumn = module.fields.defaultSortId ?? 'title';
     if (savedSortColumn != null) {
-      final directDef = module.fields.sortDefinitionForId(savedSortColumn);
+      final directDef = module.fields.findSortDefinition(savedSortColumn);
       if (directDef != null) {
         sortColumn = directDef.id;
       } else {
@@ -195,11 +195,9 @@ class LibraryWorkspacePreferences {
     );
     final normalizedSortRules = _normalizeSortRules(snapshot.sortRules);
     final writeModule = libraryKindModuleForType(config);
+    final sortDef = writeModule.fields.findSortDefinition(snapshot.sortColumn);
     final normalizedSortColumn =
-        writeModule.fields.sortDefinitionForId(snapshot.sortColumn.toString()) != null ||
-                writeModule.fields.sortDefinitionForId(snapshot.sortColumn.toString().split('.').last) != null
-            ? snapshot.sortColumn
-            : (writeModule.fields.defaultSortId ?? 'title');
+        sortDef?.id ?? (writeModule.fields.defaultSortId ?? 'title');
     final normalizedSnapshot = LibraryWorkspacePreferenceSnapshot(
       browserMode: snapshot.browserMode,
       viewMode: snapshot.viewMode,
@@ -265,41 +263,30 @@ class LibraryWorkspacePreferences {
 
   String _key(String suffix) => config.preferenceKey(suffix);
 
-  Set<Object> _decodeVisibleColumns(List<String>? values) {
+  Set<String> _decodeVisibleColumns(List<String>? values) {
     final module = libraryKindModuleForType(config);
     final defaultCols = module.fields.defaultVisibleColumnIds;
     if (values == null || values.isEmpty) {
       return Set.of(defaultCols);
     }
-    final columns = <Object>{};
+    final columns = <String>{};
     for (final value in values) {
-      final directDef = module.fields.columnDefinitionForId(value);
-      if (directDef != null) {
-        columns.add(directDef.id.value);
-      } else {
-        for (final def in module.fields.columns) {
-          if (def.id.value.endsWith('.$value')) {
-            columns.add(def.id.value);
-            break;
-          }
-        }
+      final colDef = module.fields.findColumnDefinition(value);
+      if (colDef != null) {
+        columns.add(colDef.id.value);
       }
     }
-    final titleSupported = module.fields.columns.any((c) => c.id.value.contains('title'));
-    if (titleSupported && !columns.any((c) => c.toString().contains('title'))) {
-      final titleDef = module.fields.columns.firstWhere(
-        (def) => def.id.value.contains('title'),
-        orElse: () => module.fields.columns.first,
-      );
+    final titleDef = module.fields.findColumnDefinition('title');
+    if (titleDef != null) {
       columns.add(titleDef.id.value);
     }
     return columns.isEmpty ? Set.of(defaultCols) : columns;
   }
 
-  List<String> _encodeColumnWidths(Map<Object, double> widths) {
+  List<String> _encodeColumnWidths(Map<String, double> widths) {
     return [
       for (final entry in widths.entries)
-        '${entry.key.toString()}:${entry.value.round()}',
+        '${entry.key}:${entry.value.round()}',
     ];
   }
 
@@ -307,10 +294,9 @@ class LibraryWorkspacePreferences {
     if (rules == null || rules.isEmpty) {
       return const <String>[];
     }
-    final module = libraryKindModuleForType(config);
     return [
       for (final rule in rules)
-        '${module.fields.sortDefinitionForId(rule.column.toString())?.id ?? rule.column.toString()}:${rule.ascending ? 'asc' : 'desc'}',
+        '${rule.column}:${rule.ascending ? 'asc' : 'desc'}',
     ];
   }
 
@@ -326,24 +312,13 @@ class LibraryWorkspacePreferences {
         continue;
       }
       final rawId = parts.first;
-      String? column;
-      final directDef = module.fields.sortDefinitionForId(rawId);
-      if (directDef != null) {
-        column = directDef.id;
-      } else {
-        for (final def in module.fields.sorts) {
-          if (def.id.endsWith('.$rawId')) {
-            column = def.id;
-            break;
-          }
-        }
-      }
-      if (column == null) {
+      final sortDef = module.fields.findSortDefinition(rawId);
+      if (sortDef == null) {
         continue;
       }
       rules.add(
         LibrarySortRule(
-          column: column,
+          column: sortDef.id,
           ascending: parts[1] != 'desc',
         ),
       );
@@ -351,21 +326,20 @@ class LibraryWorkspacePreferences {
     return rules.isEmpty ? null : rules;
   }
 
-  Map<Object, double> _decodeColumnWidths(List<String>? values) {
+  Map<String, double> _decodeColumnWidths(List<String>? values) {
     if (values == null || values.isEmpty) {
       return const {};
     }
     final module = libraryKindModuleForType(config);
-    final widths = <Object, double>{};
+    final widths = <String, double>{};
     for (final value in values) {
       final parts = value.split(':');
       if (parts.length != 2) {
         continue;
       }
       final columnId = parts[0];
-      final columnSupported = module.fields.columnDefinitionForId(columnId) != null ||
-          module.fields.columnDefinitionForId(columnId.split('.').last) != null;
-      final column = columnSupported ? columnId : null;
+      final colDef = module.fields.findColumnDefinition(columnId);
+      final column = colDef?.id.value;
       final width = double.tryParse(parts[1]);
       if (column != null && width != null) {
         widths[column] = width;
@@ -374,19 +348,19 @@ class LibraryWorkspacePreferences {
     return widths;
   }
 
-  Set<Object> _normalizeVisibleColumns(
-    Set<Object> columns,
+  Set<String> _normalizeVisibleColumns(
+    Set<String> columns,
   ) {
     final module = libraryKindModuleForType(config);
     final defaultCols = module.fields.defaultVisibleColumnIds;
-    final normalized = {
-      for (final column in columns)
-        if (module.fields.columnDefinitionForId(column.toString()) != null ||
-            module.fields.columnDefinitionForId(column.toString().split('.').last) != null)
-          column,
-    };
-    final titleSupported = module.fields.columnDefinitionForId('title') != null ||
-        module.fields.columnDefinitionForId('title'.split('.').last) != null;
+    final normalized = <String>{};
+    for (final column in columns) {
+      final colDef = module.fields.findColumnDefinition(column);
+      if (colDef != null) {
+        normalized.add(colDef.id.value);
+      }
+    }
+    final titleSupported = module.fields.findColumnDefinition('title') != null;
     if (titleSupported) {
       normalized.add('title');
     }
@@ -395,16 +369,18 @@ class LibraryWorkspacePreferences {
         : normalized;
   }
 
-  Map<Object, double> _normalizeColumnWidths(
-    Map<Object, double> widths,
+  Map<String, double> _normalizeColumnWidths(
+    Map<String, double> widths,
   ) {
     final module = libraryKindModuleForType(config);
-    return {
-      for (final entry in widths.entries)
-        if (module.fields.columnDefinitionForId(entry.key.toString()) != null ||
-            module.fields.columnDefinitionForId(entry.key.toString().split('.').last) != null)
-          entry.key: entry.value,
-    };
+    final normalized = <String, double>{};
+    for (final entry in widths.entries) {
+      final colDef = module.fields.findColumnDefinition(entry.key);
+      if (colDef != null) {
+        normalized[colDef.id.value] = entry.value;
+      }
+    }
+    return normalized;
   }
 
   List<LibrarySortRule>? _normalizeSortRules(List<LibrarySortRule>? rules) {
@@ -413,14 +389,13 @@ class LibraryWorkspacePreferences {
     }
     final module = libraryKindModuleForType(config);
     final normalized = <LibrarySortRule>[];
-    final seen = <Object>{};
+    final seen = <String>{};
     for (final rule in rules) {
-      final sortSupported = module.fields.sortDefinitionForId(rule.column.toString()) != null ||
-          module.fields.sortDefinitionForId(rule.column.toString().split('.').last) != null;
-      if (!sortSupported || !seen.add(rule.column)) {
+      final sortDef = module.fields.findSortDefinition(rule.column);
+      if (sortDef == null || !seen.add(sortDef.id)) {
         continue;
       }
-      normalized.add(rule);
+      normalized.add(rule.copyWith(column: sortDef.id));
     }
     return normalized.isEmpty ? null : normalized;
   }

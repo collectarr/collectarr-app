@@ -68,8 +68,8 @@ void main() {
     expect(config.trackingProfile.name, readingTrackingProfile.name);
     expect(config.supportedMetadataProviders.single.id, 'podindex');
     expect(
-        config.supportedMetadataProviders.single.supportsKind(null), isFalse);
-    expect(config.supportedMetadataProviders.single.supportsKind('podcast'),
+        config.supportedMetadataProviders.single.supportsKind(CatalogMediaKind.unknown), isFalse);
+    expect(config.supportedMetadataProviders.single.supportsKind(catalogMediaKindFromValue('podcast')),
         isTrue);
   });
 
@@ -91,7 +91,7 @@ void main() {
     expect(config.defaultMetadataProvider, 'openlibrary');
     expect(config.supportedMetadataProviders.single.id, 'openlibrary');
     expect(config.supportedMetadataProviders.single.label, 'Open Library');
-    expect(config.supportedMetadataProviders.single.supportsKind('podcast'),
+    expect(config.supportedMetadataProviders.single.supportsKind(catalogMediaKindFromValue('podcast')),
         isTrue);
   });
 

@@ -133,7 +133,7 @@ class LibraryStatPill extends StatelessWidget {
 
 String genericLibraryStatusLabel(LibraryWorkspaceEntry entry) {
   final labels = collectarrLibraryTypes
-          .byKind(entry.mediaType)
+          .byKind(entry.kind)
           ?.presentation
           .statusLabels ??
       const LibraryStatusLabels();

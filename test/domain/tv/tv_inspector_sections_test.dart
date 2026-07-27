@@ -16,7 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('tv inspector builds tv-specific sections', (tester) async {
-    final type = collectarrLibraryTypes.byKind('tv')!;
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.tv)!;
     late List<Widget> sections;
     await tester.pumpWidget(
       MaterialApp(

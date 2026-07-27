@@ -67,7 +67,7 @@ int compareComicEntriesByColumn(
 ) {
   final sortId = column.toString();
   final module = libraryKindModuleForType(comicsLibraryConfig);
-  final definition = module.fields.sortDefinitionForId(sortId);
+  final definition = module.fields.findSortDefinition(sortId);
   if (definition != null) {
     return definition.compare(left, right);
   }
@@ -155,7 +155,7 @@ const comicsTableColumnPresets = [
 bool comicInitialSortAscending(Object column) {
   final sortId = column.toString();
   final module = libraryKindModuleForType(comicsLibraryConfig);
-  final definition = module.fields.sortDefinitionForId(sortId);
+  final definition = module.fields.findSortDefinition(sortId);
   return definition?.defaultAscending ?? true;
 }
 
@@ -200,32 +200,32 @@ LibraryWorkspaceViewPresetConfig comicsViewPresetConfig(
   };
 }
 
-List<Object> orderedComicTableColumns(
-  Set<Object> columns,
+List<String> orderedComicTableColumns(
+  Set<String> columns,
 ) =>
     orderedLibraryTableColumns(
       columns: columns,
       defaultColumns: defaultComicTableColumns(),
     );
 
-Set<Object> defaultComicTableColumns() =>
+Set<String> defaultComicTableColumns() =>
     Set.of(libraryKindModuleForType(comicsLibraryConfig).fields.defaultVisibleColumnIds);
 
 double comicTableWidthForColumns(
-  Set<Object> columns,
-  Map<Object, double> customWidths,
+  Set<String> columns,
+  Map<String, double> customWidths,
 ) {
   return plannedMediaTableWidthForColumns(
     type: comicsLibraryConfig,
-    columns: columns.cast<String>().toSet(),
-    customWidths: customWidths.cast<String, double>(),
+    columns: columns,
+    customWidths: customWidths,
   );
 }
 
 double comicTableColumnWidth(
-  Object column,
-  Map<Object, double> customWidths,
+  String column,
+  Map<String, double> customWidths,
 ) {
   return plannedMediaTableColumnWidth(
-      comicsLibraryConfig, column as String, customWidths.cast<String, double>());
+      comicsLibraryConfig, column, customWidths);
 }

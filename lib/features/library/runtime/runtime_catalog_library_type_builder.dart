@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
   final normalizedType = normalizeCatalogMediaTypeDefaults(type);
   final mediaKind = catalogMediaKindFromApiValue(normalizedType.kind);
-  final knownType = collectarrLibraryTypes.byKind(normalizedType.kind);
+  final knownType = collectarrLibraryTypes.byKind(mediaKind);
   final presentation = knownType?.presentation ?? genericLibraryMediaPresentation;
   final editPresentation =
       knownType?.editPresentation ?? const LibraryEditPresentation(

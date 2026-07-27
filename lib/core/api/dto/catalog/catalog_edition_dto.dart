@@ -52,12 +52,14 @@ class CatalogEditionDto {
       physicalFormatLabel: json['physical_format_label'] as String? ?? json['physical_format'] as String? ?? json['format'] as String?,
       metadata: Map<String, dynamic>.from((json['metadata'] as Map?) ?? <String, dynamic>{})
         ..putIfAbsent('dimensions', () => json['dimensions'])
-        ..putIfAbsent('first_edition', () => json['first_edition']),
+        ..putIfAbsent('first_edition', () => json['first_edition'])
+        ..putIfAbsent('audio_tracks', () => json['audio_tracks'])
+        ..putIfAbsent('subtitles', () => json['subtitles']),
       variants: (json['variants'] as List<dynamic>?)
               ?.map((v) => CatalogVariantDto.fromJson(Map<String, dynamic>.from(v as Map)))
               .toList(growable: false) ??
           const <CatalogVariantDto>[],
-      discs: (json['discs'] as List<dynamic>?)
+      discs: ((json['discs'] ?? json['media']) as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
               .map(CatalogDiscDto.fromJson)
               .toList(growable: false) ??

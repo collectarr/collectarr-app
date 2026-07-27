@@ -133,7 +133,7 @@ class AnyLibraryFieldRegistry<TDto> {
   }
 
   LibrarySortDefinition<TDto> sortDefinitionFor(String sortId) {
-    final definition = sortDefinitionForId(sortId);
+    final definition = findSortDefinition(sortId);
     if (definition != null) {
       return definition;
     }
@@ -152,8 +152,35 @@ class AnyLibraryFieldRegistry<TDto> {
     return null;
   }
 
+  LibraryColumnDefinition<TDto, Object?>? findColumnDefinition(String id) {
+    final direct = columnDefinitionForId(id);
+    if (direct != null) return direct;
+    for (final col in columns) {
+      if (col.id.value.endsWith('.$id')) return col;
+    }
+    return null;
+  }
+
+  LibrarySortDefinition<TDto>? findSortDefinition(String id) {
+    final direct = sortDefinitionForId(id);
+    if (direct != null) return direct;
+    for (final sort in sorts) {
+      if (sort.id.endsWith('.$id')) return sort;
+    }
+    return null;
+  }
+
+  LibraryGroupDefinition<TDto, Object?>? findGroupDefinition(String id) {
+    final direct = groupDefinitionForId(id);
+    if (direct != null) return direct;
+    for (final grp in groups) {
+      if (grp.id.value.endsWith('.$id')) return grp;
+    }
+    return null;
+  }
+
   LibraryGroupDefinition<TDto, Object?> groupDefinitionFor(String groupId) {
-    final definition = groupDefinitionForId(groupId);
+    final definition = findGroupDefinition(groupId);
     if (definition != null) {
       return definition;
     }

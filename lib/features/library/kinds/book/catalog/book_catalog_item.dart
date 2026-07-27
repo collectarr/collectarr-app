@@ -173,6 +173,7 @@ class BookCatalogItem {
   String? get plotSummary => work.synopsis;
   String? get plotDescription => null;
   List<BookRelease> get chapters => releases;
+  List<BookRelease> get editions => releases;
   String? get displayEditionLabel => primaryRelease?.title;
   List<String>? get characters => work.characters;
   List<String>? get storyArcs => work.storyArcs;
@@ -188,7 +189,6 @@ class BookCatalogItem {
   String? get publisher => primaryRelease?.publisher;
   String? get coverImageUrl => primaryRelease?.coverImageUrl;
   String? get thumbnailImageUrl => primaryRelease?.thumbnailImageUrl ?? primaryRelease?.coverImageUrl;
-  List<BookRelease> get editions => releases;
   BookOriginalDetails? get originalDetails => BookOriginalDetails(
         originalTitle: work.originalTitle,
         originalPublisher: work.originalPublisher,
