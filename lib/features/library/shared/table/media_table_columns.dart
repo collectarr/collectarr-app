@@ -158,7 +158,7 @@ Widget plannedMediaTableCell(
     return const LibraryTableCellText('');
   }
   final module = libraryKindModuleForType(type);
-  final dto = module.workspaceDtoFactory?.call(entry) ?? entry;
+  final dto = module.createWorkspaceDto(entry);
   final dtoAsEntry = dto as LibraryWorkspaceEntry;
   final builder = definition.cellValue;
   if (builder != null) {

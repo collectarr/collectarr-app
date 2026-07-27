@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
@@ -6,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
-final bookKindModule = LibraryKindModule<BookWorkspaceDto>(
+final bookKindModule = LibraryKindSpec<BookWorkspaceDto, GenericOwnedDetails>(
   type: booksLibraryConfig,
   mediaAdapter: booksMediaAdapter,
   workspaceDtoFactory: BookWorkspaceDto.fromEntry,

@@ -7,23 +7,71 @@ export 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 export 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 export 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 
-LibraryKindModule libraryKindModuleForKind(CatalogMediaKind kind) {
-  return collectarrKindModules.firstWhere(
-    (module) => module.type.workspace.kind == kind,
-    orElse: () => throw ArgumentError('No LibraryKindModule registered for kind: $kind'),
-  );
+class LibraryKindRegistry {
+  LibraryKindRegistry._();
+
+  static final LibraryKindRegistry instance = LibraryKindRegistry._();
+
+  final Map<CatalogMediaKind, LibraryKindRuntime> _byKind = {};
+
+  void register(LibraryKindRuntime runtime) {
+    if (_byKind.containsKey(runtime.kind)) {
+      throw StateError(
+        'Duplicate LibraryKindSpec registration for kind: ${runtime.kind}',
+      );
+    }
+    validateKindRuntime(runtime);
+    _byKind[runtime.kind] = runtime;
+  }
+
+  void registerAll(Iterable<LibraryKindRuntime> runtimes) {
+    for (final r in runtimes) {
+      register(r);
+    }
+  }
+
+  LibraryKindRuntime getByKind(CatalogMediaKind kind) {
+    if (_byKind.isEmpty) {
+      registerAll(collectarrKindModules);
+    }
+    final runtime = _byKind[kind];
+    if (runtime == null) {
+      throw ArgumentError('No LibraryKindRuntime registered for kind: $kind');
+    }
+    return runtime;
+  }
+
+  LibraryKindRuntime getByType(LibraryTypeConfig type) {
+    return getByKind(type.workspace.kind);
+  }
+
+  List<LibraryKindRuntime> get allRuntimes => List.unmodifiable(_byKind.values);
+
+  void resetForTesting() {
+    _byKind.clear();
+  }
 }
 
-LibraryKindModule libraryKindModuleForType(LibraryTypeConfig type) {
-  return collectarrKindModules.firstWhere(
-    (module) => module.type.workspace.kind.apiValue == type.workspace.kind.apiValue,
-  );
+LibraryKindRuntime libraryKindRuntimeForKind(CatalogMediaKind kind) {
+  return LibraryKindRegistry.instance.getByKind(kind);
+}
+
+LibraryKindRuntime libraryKindRuntimeForType(LibraryTypeConfig type) {
+  return LibraryKindRegistry.instance.getByType(type);
+}
+
+LibraryKindRuntime libraryKindModuleForKind(CatalogMediaKind kind) {
+  return libraryKindRuntimeForKind(kind);
+}
+
+LibraryKindRuntime libraryKindModuleForType(LibraryTypeConfig type) {
+  return libraryKindRuntimeForType(type);
 }
 
 LibraryKindProviderMapper libraryKindProviderMapperForType(LibraryTypeConfig type) {
-  return libraryKindModuleForType(type).providerMapper;
+  return libraryKindRuntimeForType(type).providerMapper;
 }
 
 LibraryFacetProvider libraryFacetProviderForType(LibraryTypeConfig type) {
-  return LibraryFacetModuleProvider(libraryKindModuleForType(type).facets);
+  return LibraryFacetModuleProvider(libraryKindRuntimeForType(type).facets);
 }

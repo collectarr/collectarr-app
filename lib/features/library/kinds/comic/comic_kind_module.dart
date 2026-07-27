@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart'
     as comic_add;
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
@@ -16,7 +17,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter/material.dart';
 
 
-final comicKindModule = LibraryKindModule(
+final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   type: comicsLibraryConfig,
   mediaAdapter: comicsMediaAdapter,
   workspaceDtoFactory: ComicWorkspaceDto.fromEntry,

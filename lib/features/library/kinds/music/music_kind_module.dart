@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
@@ -10,7 +11,7 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
 
-final musicKindModule = LibraryKindModule<MusicWorkspaceDto>(
+final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   type: musicLibraryConfig,
 
   mediaAdapter: musicMediaAdapter,

@@ -64,7 +64,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     // Group entries by the bucket key returned by the group definition.
     final bucketMap = <String, List<LibraryWorkspaceEntry>>{};
     for (final entry in entries) {
-      final dto = module.workspaceDtoFactory?.call(entry) ?? entry;
+      final dto = module.createWorkspaceDto(entry);
       final raw = groupDef.getValue(dto);
       final bucketKey = _bucketKeyFor(raw);
       bucketMap.putIfAbsent(bucketKey, () => []).add(entry);

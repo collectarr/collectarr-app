@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
@@ -10,7 +11,7 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 
 
-final gameKindModule = LibraryKindModule(
+final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   type: gamesLibraryConfig,
   mediaAdapter: gamesMediaAdapter,
   workspaceDtoFactory: GameWorkspaceDto.fromEntry,

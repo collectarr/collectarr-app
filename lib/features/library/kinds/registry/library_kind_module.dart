@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
@@ -173,14 +175,14 @@ class AnyLibraryFieldRegistry<TDto> {
     List<LibraryWorkspaceEntry> entries,
     String sortId, {
     required bool ascending,
-    required LibraryWorkspaceDtoBuilder dtoFactory,
+    required TDto Function(LibraryWorkspaceEntry entry) dtoFactory,
   }) {
     final sortDef = sortDefinitionFor(sortId);
 
     // Build a DTO for every entry once, keyed by identity.
     final dtos = <LibraryWorkspaceEntry, TDto>{};
     for (final entry in entries) {
-      dtos[entry] = dtoFactory(entry) as TDto;
+      dtos[entry] = dtoFactory(entry);
     }
 
     entries.sort((l, r) {
@@ -196,8 +198,37 @@ class AnyLibraryFieldRegistry<TDto> {
   }
 }
 
-class LibraryKindModule<TDto> {
-  const LibraryKindModule({
+abstract interface class LibraryKindRuntime {
+  CatalogMediaKind get kind;
+  LibraryTypeConfig get type;
+  LibraryMediaAdapter get mediaAdapter;
+  AnyLibraryFieldRegistry<dynamic> get fields;
+  Object Function(LibraryWorkspaceEntry entry) get workspaceDtoFactory;
+  LibraryKindWorkspaceBehavior get workspaceBehavior;
+  LibraryKindAddModule get add;
+  LibraryKindEditModule get edit;
+  LibraryKindDetailModule get detail;
+  LibraryKindToolbarModule get toolbar;
+  LibraryKindProviderMapper get providerMapper;
+  LibraryFacetModule get facets;
+
+  LibraryCardPresentation? buildCardPresentation(
+    LibraryWorkspaceEntry entry, {
+    required bool musicVertical,
+  });
+
+  void sortEntries(
+    List<LibraryWorkspaceEntry> entries,
+    String sortId, {
+    required bool ascending,
+  });
+
+  Object createWorkspaceDto(LibraryWorkspaceEntry entry);
+}
+
+class LibraryKindSpec<TDto extends Object, TDetails extends OwnedItemDetails>
+    implements LibraryKindRuntime {
+  const LibraryKindSpec({
     required this.type,
     required this.mediaAdapter,
     required this.fields,
@@ -211,36 +242,85 @@ class LibraryKindModule<TDto> {
     this.facets = const LibraryFacetModule(
       loadRows: _emptyFacetRows,
     ),
-    this.buildCardPresentation,
-  });
+    LibraryCardPresentation Function(
+      LibraryWorkspaceEntry entry, {
+      required bool musicVertical,
+    })? buildCardPresentation,
+  }) : _buildCardPresentation = buildCardPresentation;
 
+  @override
+  CatalogMediaKind get kind => type.workspace.kind;
+
+  @override
   final LibraryTypeConfig type;
+
+  @override
   final LibraryMediaAdapter mediaAdapter;
+
+  @override
   final AnyLibraryFieldRegistry<TDto> fields;
-  final LibraryWorkspaceDto Function(LibraryWorkspaceEntry entry) workspaceDtoFactory;
+
+  @override
+  final TDto Function(LibraryWorkspaceEntry entry) workspaceDtoFactory;
+
+  @override
   final LibraryKindWorkspaceBehavior workspaceBehavior;
+  @override
   final LibraryKindAddModule add;
+  @override
   final LibraryKindEditModule edit;
+  @override
   final LibraryKindDetailModule detail;
+  @override
   final LibraryKindToolbarModule toolbar;
+  @override
   final LibraryKindProviderMapper providerMapper;
+  @override
   final LibraryFacetModule facets;
 
   /// Returns the card presentation for a given entry.
   final LibraryCardPresentation Function(
     LibraryWorkspaceEntry entry, {
     required bool musicVertical,
-  })? buildCardPresentation;
+  })? _buildCardPresentation;
+
+  @override
+  LibraryCardPresentation? buildCardPresentation(
+    LibraryWorkspaceEntry entry, {
+    required bool musicVertical,
+  }) {
+    return _buildCardPresentation?.call(entry, musicVertical: musicVertical);
+  }
+
+  @override
+  void sortEntries(
+    List<LibraryWorkspaceEntry> entries,
+    String sortId, {
+    required bool ascending,
+  }) {
+    fields.sortEntries(
+      entries,
+      sortId,
+      ascending: ascending,
+      dtoFactory: workspaceDtoFactory,
+    );
+  }
+
+  @override
+  TDto createWorkspaceDto(LibraryWorkspaceEntry entry) =>
+      workspaceDtoFactory(entry);
 }
 
-/// Validates a [LibraryKindModule] for schema completeness, duplicate IDs,
+typedef LibraryKindModule<TDto extends Object> = LibraryKindSpec<TDto, OwnedItemDetails>;
+
+/// Validates a [LibraryKindRuntime] for schema completeness, duplicate IDs,
 /// and required fields upon registration.
-void validateKindModule(LibraryKindModule module) {
+void validateKindRuntime(LibraryKindRuntime module) {
   final columnIds = <String>{};
   for (final col in module.fields.columns) {
     if (!columnIds.add(col.id.value)) {
       throw StateError(
-        'Duplicate column ID "${col.id.value}" in kind module "${module.type.workspace.title}"',
+        'Duplicate column ID "${col.id.value}" in kind spec "${module.type.workspace.title}"',
       );
     }
   }
@@ -249,7 +329,7 @@ void validateKindModule(LibraryKindModule module) {
   for (final sort in module.fields.sorts) {
     if (!sortIds.add(sort.id)) {
       throw StateError(
-        'Duplicate sort ID "${sort.id}" in kind module "${module.type.workspace.title}"',
+        'Duplicate sort ID "${sort.id}" in kind spec "${module.type.workspace.title}"',
       );
     }
   }
@@ -258,11 +338,13 @@ void validateKindModule(LibraryKindModule module) {
   for (final group in module.fields.groups) {
     if (!groupIds.add(group.id.value)) {
       throw StateError(
-        'Duplicate group ID "${group.id.value}" in kind module "${module.type.workspace.title}"',
+        'Duplicate group ID "${group.id.value}" in kind spec "${module.type.workspace.title}"',
       );
     }
   }
 }
+
+void validateKindModule(LibraryKindRuntime module) => validateKindRuntime(module);
 
 class LibraryKindAddModule {
   const LibraryKindAddModule({

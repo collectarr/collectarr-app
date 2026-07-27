@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
@@ -10,7 +11,7 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 
 
-final animeKindModule = LibraryKindModule(
+final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, VideoOwnedDetails>(
   type: animeLibraryConfig,
   mediaAdapter: animeMediaAdapter,
   workspaceDtoFactory: AnimeWorkspaceDto.fromEntry,

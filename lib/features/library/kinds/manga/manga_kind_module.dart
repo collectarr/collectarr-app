@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
@@ -8,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fiel
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
-final mangaKindModule = LibraryKindModule(
+final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, ComicOwnedDetails>(
   type: mangaLibraryConfig,
   mediaAdapter: mangaMediaAdapter,
   workspaceDtoFactory: MangaWorkspaceDto.fromEntry,

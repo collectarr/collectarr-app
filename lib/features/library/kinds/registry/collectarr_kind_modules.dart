@@ -6,9 +6,10 @@ import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart
 import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 
-final collectarrKindModules = [
+final List<LibraryKindRuntime> collectarrKindModules = [
   comicKindModule,
   mangaKindModule,
   bookKindModule,
@@ -19,3 +20,4 @@ final collectarrKindModules = [
   animeKindModule,
   musicKindModule,
 ];
+

@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -34,14 +36,14 @@ void main() {
     });
 
     test('validateKindModule throws StateError on duplicate column IDs', () {
-      final invalidRegistry = AnyLibraryFieldRegistry<dynamic>(
+      final invalidRegistry = AnyLibraryFieldRegistry<Object>(
         columns: [
           LibraryColumnDefinition(id: const LibraryFieldId('test.dup'), label: 'A', getValue: (dto) => null),
           LibraryColumnDefinition(id: const LibraryFieldId('test.dup'), label: 'B', getValue: (dto) => null),
         ],
       );
 
-      final invalidModule = LibraryKindModule(
+      final invalidModule = LibraryKindSpec<Object, GenericOwnedDetails>(
         type: moviesLibraryConfig,
         mediaAdapter: movieKindModule.mediaAdapter,
         fields: invalidRegistry,
@@ -52,14 +54,14 @@ void main() {
     });
 
     test('validateKindModule throws StateError on duplicate sort IDs', () {
-      final invalidRegistry = AnyLibraryFieldRegistry<dynamic>(
+      final invalidRegistry = AnyLibraryFieldRegistry<Object>(
         sorts: [
           LibrarySortDefinition(id: 'test.sort', label: 'A', compare: (a, b) => 0),
           LibrarySortDefinition(id: 'test.sort', label: 'B', compare: (a, b) => 0),
         ],
       );
 
-      final invalidModule = LibraryKindModule(
+      final invalidModule = LibraryKindSpec<Object, GenericOwnedDetails>(
         type: moviesLibraryConfig,
         mediaAdapter: movieKindModule.mediaAdapter,
         fields: invalidRegistry,
@@ -67,6 +69,38 @@ void main() {
       );
 
       expect(() => validateKindModule(invalidModule), throwsStateError);
+    });
+
+    test('LibraryKindRegistry throws StateError on duplicate kind registration', () {
+      final registry = LibraryKindRegistry.instance;
+      // Trigger initialization
+      registry.getByKind(CatalogMediaKind.comic);
+
+      expect(
+        () => registry.register(comicKindModule),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            contains('Duplicate LibraryKindSpec registration for kind: CatalogMediaKind.comic'),
+          ),
+        ),
+      );
+    });
+
+    test('LibraryKindRegistry performs O(1) map lookup for all 9 kinds', () {
+      for (final kind in CatalogMediaKind.values) {
+        if (kind == CatalogMediaKind.unknown) continue;
+        final runtime = LibraryKindRegistry.instance.getByKind(kind);
+        expect(runtime.kind, equals(kind));
+        expect(runtime.createWorkspaceDto, isNotNull);
+      }
+    });
+
+    test('LibraryKindSpec workspaceDtoFactory returns typed DTO', () {
+      final spec = comicKindModule;
+      expect(spec, isA<LibraryKindSpec<dynamic, dynamic>>());
+      expect(spec.kind, equals(CatalogMediaKind.comic));
     });
   });
 }

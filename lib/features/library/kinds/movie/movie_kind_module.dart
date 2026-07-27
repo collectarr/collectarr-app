@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart'
     as movie_add;
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
@@ -12,7 +13,7 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 
 
-final movieKindModule = LibraryKindModule(
+final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, VideoOwnedDetails>(
   type: moviesLibraryConfig,
   mediaAdapter: moviesMediaAdapter,
   workspaceDtoFactory: MovieWorkspaceDto.fromEntry,
