@@ -27,6 +27,6 @@ class LibraryTypeRegistry {
   }
 
   LibraryTypeCapabilities capabilitiesForKind(CatalogMediaKind kind) {
-    return byKind(kind)?.capabilities ?? const LibraryTypeCapabilities();
+    return byKind(kind)?.capabilities ?? const LibraryTypeCapabilities.empty();
   }
 }

@@ -228,6 +228,7 @@ class AnyLibraryFieldRegistry<TDto> {
 abstract interface class LibraryKindRuntime {
   CatalogMediaKind get kind;
   LibraryTypeConfig get type;
+  LibraryTypeCapabilities get capabilities;
   LibraryMediaAdapter get mediaAdapter;
   AnyLibraryFieldRegistry<dynamic> get fields;
   Object Function(LibraryWorkspaceEntry entry) get workspaceDtoFactory;
@@ -280,6 +281,9 @@ class LibraryKindSpec<TDto extends Object, TDetails extends OwnedItemDetails>
 
   @override
   final LibraryTypeConfig type;
+
+  @override
+  LibraryTypeCapabilities get capabilities => type.capabilities;
 
   @override
   final LibraryMediaAdapter mediaAdapter;

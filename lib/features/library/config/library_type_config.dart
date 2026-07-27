@@ -358,75 +358,182 @@ enum LibraryContentHierarchy {
   seasons,
 }
 
-class LibraryTypeCapabilities {
-  const LibraryTypeCapabilities({
+class LibraryPresentationCapabilitySpec {
+  const LibraryPresentationCapabilitySpec({
     this.showsSynopsis = false,
     this.showsTrackData = false,
     this.showsCreatorSpotlight = false,
-    this.contentHierarchy = LibraryContentHierarchy.flat,
-    this.canScanCover = false,
-    this.supportsOwnedItemImages = true,
-    this.supportsMediaReleaseSplit = false,
-    this.supportsReadingQueue = false,
-    this.supportsIndexReassignment = false,
-    this.wideDialog = false,
-    this.mediaScopeGroupIds,
-    this.releaseScopeGroupIds,
-    this.mediaScopeSortIds,
-    this.releaseScopeSortIds,
-    this.supportsMetadataCompare = false,
     this.prefersSquareCovers = false,
-    this.supportsSeriesSubgroups = false,
-    this.groupModeCategoriesBuilder,
+    this.wideDialog = false,
   });
 
   final bool showsSynopsis;
   final bool showsTrackData;
   final bool showsCreatorSpotlight;
-  final LibraryContentHierarchy contentHierarchy;
-  final bool canScanCover;
-  final bool supportsOwnedItemImages;
-  final bool supportsMediaReleaseSplit;
-  final bool supportsReadingQueue;
-  final bool supportsIndexReassignment;
-  final bool wideDialog;
-
-  /// Group IDs and sort IDs available when a media/release split library
-  /// is showing the media scope vs the releases scope. When provided, the
-  /// generic page narrows the available options per browser mode instead of
-  /// hardcoding a per-kind rule.
-  final Set<Object>? mediaScopeGroupIds;
-  final Set<Object>? releaseScopeGroupIds;
-  final Set<Object>? mediaScopeSortIds;
-  final Set<Object>? releaseScopeSortIds;
-
-  /// Whether this type can compare its local metadata against the canonical
-  /// server record (e.g. comics and music).
-  final bool supportsMetadataCompare;
-
-  /// Whether this type's covers are square (e.g. music albums) and the grid
-  /// should use square-tile sizing.
   final bool prefersSquareCovers;
+  final bool wideDialog;
+}
 
-  /// Whether this type supports partitioning items into volume/season subgroups
-  /// when grouped by series.
+class LibraryHierarchyCapabilitySpec {
+  const LibraryHierarchyCapabilitySpec({
+    this.contentHierarchy = LibraryContentHierarchy.flat,
+    this.supportsSeriesSubgroups = false,
+  });
+
+  final LibraryContentHierarchy contentHierarchy;
   final bool supportsSeriesSubgroups;
-
-  final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
-
-  /// Whether this type narrows group IDs / sort IDs by browser mode
-  /// (media vs releases). Driven entirely by the scoped sets above.
-  bool get scopesOptionsByBrowserMode =>
-      mediaScopeGroupIds != null ||
-      releaseScopeGroupIds != null ||
-      mediaScopeSortIds != null ||
-      releaseScopeSortIds != null;
 
   bool get usesSeasonHierarchy =>
       contentHierarchy == LibraryContentHierarchy.seasons;
 
   bool get usesVolumeHierarchy =>
       contentHierarchy == LibraryContentHierarchy.volumes;
+}
+
+class LibraryWorkflowCapabilitySpec {
+  const LibraryWorkflowCapabilitySpec({
+    this.canScanCover = false,
+    this.supportsOwnedItemImages = true,
+    this.supportsMediaReleaseSplit = false,
+    this.supportsReadingQueue = false,
+    this.supportsIndexReassignment = false,
+    this.supportsMetadataCompare = false,
+  });
+
+  final bool canScanCover;
+  final bool supportsOwnedItemImages;
+  final bool supportsMediaReleaseSplit;
+  final bool supportsReadingQueue;
+  final bool supportsIndexReassignment;
+  final bool supportsMetadataCompare;
+}
+
+class LibraryScopeOptionsCapabilitySpec {
+  const LibraryScopeOptionsCapabilitySpec({
+    this.mediaScopeGroupIds,
+    this.releaseScopeGroupIds,
+    this.mediaScopeSortIds,
+    this.releaseScopeSortIds,
+    this.groupModeCategoriesBuilder,
+  });
+
+  final Set<String>? mediaScopeGroupIds;
+  final Set<String>? releaseScopeGroupIds;
+  final Set<String>? mediaScopeSortIds;
+  final Set<String>? releaseScopeSortIds;
+  final LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder;
+
+  bool get scopesOptionsByBrowserMode =>
+      mediaScopeGroupIds != null ||
+      releaseScopeGroupIds != null ||
+      mediaScopeSortIds != null ||
+      releaseScopeSortIds != null;
+}
+
+class LibraryTypeCapabilities {
+  const LibraryTypeCapabilities.raw({
+    this.presentation = const LibraryPresentationCapabilitySpec(),
+    this.hierarchy = const LibraryHierarchyCapabilitySpec(),
+    this.workflow = const LibraryWorkflowCapabilitySpec(),
+    this.scopeOptions = const LibraryScopeOptionsCapabilitySpec(),
+  });
+
+  const LibraryTypeCapabilities.empty()
+      : presentation = const LibraryPresentationCapabilitySpec(),
+        hierarchy = const LibraryHierarchyCapabilitySpec(),
+        workflow = const LibraryWorkflowCapabilitySpec(),
+        scopeOptions = const LibraryScopeOptionsCapabilitySpec();
+
+  factory LibraryTypeCapabilities({
+    LibraryPresentationCapabilitySpec? presentation,
+    LibraryHierarchyCapabilitySpec? hierarchy,
+    LibraryWorkflowCapabilitySpec? workflow,
+    LibraryScopeOptionsCapabilitySpec? scopeOptions,
+    bool showsSynopsis = false,
+    bool showsTrackData = false,
+    bool showsCreatorSpotlight = false,
+    LibraryContentHierarchy contentHierarchy = LibraryContentHierarchy.flat,
+    bool canScanCover = false,
+    bool supportsOwnedItemImages = true,
+    bool supportsMediaReleaseSplit = false,
+    bool supportsReadingQueue = false,
+    bool supportsIndexReassignment = false,
+    bool wideDialog = false,
+    Set<String>? mediaScopeGroupIds,
+    Set<String>? releaseScopeGroupIds,
+    Set<String>? mediaScopeSortIds,
+    Set<String>? releaseScopeSortIds,
+    bool supportsMetadataCompare = false,
+    bool prefersSquareCovers = false,
+    bool supportsSeriesSubgroups = false,
+    LibraryGroupModeCategoryBuilder? groupModeCategoriesBuilder,
+  }) {
+    return LibraryTypeCapabilities.raw(
+      presentation: presentation ??
+          LibraryPresentationCapabilitySpec(
+            showsSynopsis: showsSynopsis,
+            showsTrackData: showsTrackData,
+            showsCreatorSpotlight: showsCreatorSpotlight,
+            prefersSquareCovers: prefersSquareCovers,
+            wideDialog: wideDialog,
+          ),
+      hierarchy: hierarchy ??
+          LibraryHierarchyCapabilitySpec(
+            contentHierarchy: contentHierarchy,
+            supportsSeriesSubgroups: supportsSeriesSubgroups,
+          ),
+      workflow: workflow ??
+          LibraryWorkflowCapabilitySpec(
+            canScanCover: canScanCover,
+            supportsOwnedItemImages: supportsOwnedItemImages,
+            supportsMediaReleaseSplit: supportsMediaReleaseSplit,
+            supportsReadingQueue: supportsReadingQueue,
+            supportsIndexReassignment: supportsIndexReassignment,
+            supportsMetadataCompare: supportsMetadataCompare,
+          ),
+      scopeOptions: scopeOptions ??
+          LibraryScopeOptionsCapabilitySpec(
+            mediaScopeGroupIds: mediaScopeGroupIds,
+            releaseScopeGroupIds: releaseScopeGroupIds,
+            mediaScopeSortIds: mediaScopeSortIds,
+            releaseScopeSortIds: releaseScopeSortIds,
+            groupModeCategoriesBuilder: groupModeCategoriesBuilder,
+          ),
+    );
+  }
+
+  final LibraryPresentationCapabilitySpec presentation;
+  final LibraryHierarchyCapabilitySpec hierarchy;
+  final LibraryWorkflowCapabilitySpec workflow;
+  final LibraryScopeOptionsCapabilitySpec scopeOptions;
+
+  bool get showsSynopsis => presentation.showsSynopsis;
+  bool get showsTrackData => presentation.showsTrackData;
+  bool get showsCreatorSpotlight => presentation.showsCreatorSpotlight;
+  bool get prefersSquareCovers => presentation.prefersSquareCovers;
+  bool get wideDialog => presentation.wideDialog;
+
+  LibraryContentHierarchy get contentHierarchy => hierarchy.contentHierarchy;
+  bool get supportsSeriesSubgroups => hierarchy.supportsSeriesSubgroups;
+  bool get usesSeasonHierarchy => hierarchy.usesSeasonHierarchy;
+  bool get usesVolumeHierarchy => hierarchy.usesVolumeHierarchy;
+
+  bool get canScanCover => workflow.canScanCover;
+  bool get supportsOwnedItemImages => workflow.supportsOwnedItemImages;
+  bool get supportsMediaReleaseSplit => workflow.supportsMediaReleaseSplit;
+  bool get supportsReadingQueue => workflow.supportsReadingQueue;
+  bool get supportsIndexReassignment => workflow.supportsIndexReassignment;
+  bool get supportsMetadataCompare => workflow.supportsMetadataCompare;
+
+  Set<String>? get mediaScopeGroupIds => scopeOptions.mediaScopeGroupIds;
+  Set<String>? get releaseScopeGroupIds => scopeOptions.releaseScopeGroupIds;
+  Set<String>? get mediaScopeSortIds => scopeOptions.mediaScopeSortIds;
+  Set<String>? get releaseScopeSortIds => scopeOptions.releaseScopeSortIds;
+  LibraryGroupModeCategoryBuilder? get groupModeCategoriesBuilder =>
+      scopeOptions.groupModeCategoriesBuilder;
+
+  bool get scopesOptionsByBrowserMode =>
+      scopeOptions.scopesOptionsByBrowserMode;
 }
 
 class LibraryEditChromeConfig {
@@ -714,7 +821,7 @@ class LibraryTypeConfig {
     this.grades = const [],
     this.defaultCondition,
     this.defaultGrade,
-    this.capabilities = const LibraryTypeCapabilities(),
+    this.capabilities = const LibraryTypeCapabilities.empty(),
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.presentation = genericLibraryMediaPresentation,
     this.editPresentation = const LibraryEditPresentation(
