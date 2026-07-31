@@ -23,7 +23,7 @@ dependencies:
   cached_network_image: ^3.4.1
   image_picker: ^1.1.2
   image: ^4.8.0
-  google_mlkit_text_recognition: ^0.15.0
+  google_mlkit_text_recognition: ^0.16.0
   csv: ^8.0.0
   archive: ^4.0.9
   crypto: ^3.0.6
