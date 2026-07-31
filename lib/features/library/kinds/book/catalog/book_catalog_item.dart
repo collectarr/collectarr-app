@@ -1,56 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
+import 'package:collectarr_app/features/library/shared/book/book_domain.dart';
 
-/// Optional local-storage paths for physical book cover images.
-class BookPhysicalDetails {
-  const BookPhysicalDetails({
-    this.coverImagePath,
-    this.thumbnailImagePath,
-    this.backImagePath,
-    this.dimensions,
-    this.printing,
-    this.firstEdition,
-    this.dustJacket,
-    this.numberLine,
-  });
+export 'package:collectarr_app/features/library/shared/book/book_domain.dart'
+    show BookPhysicalDetails, BookOriginalDetails;
 
-  final String? coverImagePath;
-  final String? thumbnailImagePath;
-  final String? backImagePath;
-  final String? dimensions;
-  final String? printing;
-  final bool? firstEdition;
-  final bool? dustJacket;
-  final String? numberLine;
-}
-
-/// Original publication details carried on a book catalog item.
-class BookOriginalDetails {
-  const BookOriginalDetails({
-    this.originalTitle,
-    this.originalPublisher,
-    this.originalLanguage,
-    this.originalCountry,
-    this.originalPublicationDate,
-    this.originalPublicationPlace,
-    this.dewey,
-    this.lccn,
-    this.locControlNumber,
-  });
-
-  final String? originalTitle;
-  final String? originalPublisher;
-  final String? originalLanguage;
-  final String? originalCountry;
-  final DateTime? originalPublicationDate;
-  final String? originalPublicationPlace;
-  final String? dewey;
-  final String? lccn;
-  final String? locControlNumber;
-
-  String? get publisher => originalPublisher;
-}
 
 class BookSeriesRef {
   const BookSeriesRef({

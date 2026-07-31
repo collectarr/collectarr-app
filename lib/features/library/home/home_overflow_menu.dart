@@ -59,8 +59,8 @@ class MediaLibraryOverflowMenu extends StatelessWidget {
             padding: EdgeInsets.zero,
             child: _OverflowMenuRow(
               type: type,
-              icon: registry.byKind(type.kind)?.workspace.icon ??
-                  libraryIconForKind(type.kind),
+              icon: registry.byKind(type.mediaKind)?.workspace.icon ??
+                  libraryIconForKind(type.mediaKind),
               count: counts[type.kind]?.total ?? 0,
             ),
           ),
@@ -123,7 +123,7 @@ class _OverflowMenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = libraryAccentForKind(type.kind);
+    final accent = libraryAccentForKind(type.mediaKind);
     final palette = appPalette(context);
     return SizedBox(
       height: kLibraryToolbarPopupItemHeight,

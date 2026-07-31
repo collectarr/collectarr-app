@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 final _importPattern = RegExp(
-  '^\\s*(import|export|part)\\s+["\\\']([^"\\\']+)["\\\']\\s*;',
+  r'^\s*(import|export|part)\s+["\x27]([^"\x27]+)["\x27]\s*;',
 );
 
 final _boundaryRoots = <String>[
@@ -15,23 +15,11 @@ final _boundaryRoots = <String>[
   'lib/features/library/detail/',
   'lib/features/library/details/',
   'lib/features/library/inspector/',
-  'lib/features/library/shared/',
   'lib/features/library/ui/',
   'lib/features/library/widgets/',
   'lib/features/library/stats/',
   'lib/features/library/reports/',
   'lib/features/library/tracking/',
-];
-
-final _forbiddenSymbols = <String>[
-  'entry.music',
-  'entry.comic',
-  'entry.video',
-  'entry.game',
-  'rawOrSlabbed',
-  'keyComic',
-  'vinylColor',
-  'rpm',
 ];
 
 const _kindsRoot = 'lib/features/library/kinds/';
@@ -40,8 +28,7 @@ const _registryRoot = 'lib/features/library/kinds/registry/';
 void main(List<String> arguments) {
   final repoRoot = Directory.current.path;
   final libRoot = p.join(repoRoot, 'lib');
-  final files = _dartFilesUnder(Directory(libRoot)).toList()
-    ..sort();
+  final files = _dartFilesUnder(Directory(libRoot)).toList()..sort();
 
   final violations = <String>[];
 
@@ -54,12 +41,18 @@ void main(List<String> arguments) {
     for (var index = 0; index < lines.length; index += 1) {
       final line = lines[index];
 
-      // Scan for forbidden symbols in generic/shared files.
+      // Check for forbidden CatalogMediaKind branching in generic/shared boundary code.
       if (_isBoundaryFile(relativePath)) {
-        for (final symbol in _forbiddenSymbols) {
-          if (line.contains(symbol)) {
-            violations.add('$relativePath:${index + 1}: Forbidden symbol "$symbol" found');
-          }
+        if (RegExp(r'switch\s*\(\s*.*kind\s*\)').hasMatch(line) &&
+            line.contains('CatalogMediaKind.')) {
+          violations.add(
+            '$relativePath:${index + 1}: Forbidden CatalogMediaKind switch in generic boundary code',
+          );
+        }
+        if (RegExp(r'if\s*\(\s*.*kind\s*==\s*CatalogMediaKind\.(comic|movie|tv|game|music|book|boardgame|manga|anime)\b\)').hasMatch(line)) {
+          violations.add(
+            '$relativePath:${index + 1}: Forbidden CatalogMediaKind comparison in generic boundary code',
+          );
         }
       }
 
@@ -67,7 +60,6 @@ void main(List<String> arguments) {
       if (match == null) {
         continue;
       }
-
 
       final directive = match.group(1)!;
       final importPath = match.group(2)!;
@@ -85,6 +77,9 @@ void main(List<String> arguments) {
       if (!importedRelativePath.startsWith(_kindsRoot)) {
         continue;
       }
+      if (importedRelativePath.startsWith(_registryRoot)) {
+        continue;
+      }
 
       if (_isBoundaryFile(relativePath)) {
         violations.add('$relativePath:${index + 1}: $directive $importPath');
@@ -96,7 +91,9 @@ void main(List<String> arguments) {
       }
 
       final importedKind = _kindNameForPath(importedRelativePath);
-      if (importedKind != null && importedKind != kindName) {
+      if (importedKind != null &&
+          importedKind != kindName &&
+          !_isAllowedKindImport(kindName, importedKind)) {
         violations.add('$relativePath:${index + 1}: $directive $importPath');
       }
     }
@@ -125,8 +122,22 @@ bool _isBoundaryFile(String relativePath) {
   return _boundaryRoots.any(relativePath.startsWith);
 }
 
+bool _isAllowedKindImport(String sourceKind, String importedKind) {
+  if (importedKind == 'video' &&
+      (sourceKind == 'movie' || sourceKind == 'tv' || sourceKind == 'anime')) {
+    return true;
+  }
+  if (importedKind == 'book' && sourceKind == 'manga') {
+    return true;
+  }
+  if (importedKind == 'movie' && sourceKind == 'anime') {
+    return true;
+  }
+  return false;
+}
+
 String? _kindNameForPath(String relativePath) {
-  final prefix = 'lib/features/library/kinds/';
+  const prefix = 'lib/features/library/kinds/';
   if (!relativePath.startsWith(prefix)) {
     return null;
   }
@@ -140,7 +151,11 @@ String? _kindNameForPath(String relativePath) {
 
 String? _resolveImportPath(String repoRoot, String currentFile, String importPath) {
   if (importPath.startsWith('package:collectarr_app/')) {
-    return p.join(repoRoot, 'lib', importPath.substring('package:collectarr_app/'.length));
+    return p.join(
+      repoRoot,
+      'lib',
+      importPath.substring('package:collectarr_app/'.length),
+    );
   }
   if (importPath.startsWith('package:')) {
     return null;

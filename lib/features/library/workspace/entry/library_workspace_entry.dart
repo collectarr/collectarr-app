@@ -3,9 +3,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 import 'package:collectarr_app/features/library/shared/boardgame/boardgame_domain.dart';
+import 'package:collectarr_app/features/library/shared/book/book_domain.dart';
 import 'package:collectarr_app/features/library/shared/game/game_domain.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 

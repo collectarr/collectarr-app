@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -206,7 +205,7 @@ LibraryGroupDefinition<dynamic, Object?>? libraryGroupModeDefinitionOrNull(
     }
     return null;
   }
-  for (final module in collectarrKindModules) {
+  for (final module in LibraryKindRegistry.instance.allRuntimes) {
     for (final definition in module.fields.groups) {
       if (definition.id.value == targetId || definition.id.value == mode) {
         return definition;
@@ -323,7 +322,7 @@ String? libraryGroupModeFromStorageValue(String value) {
 
 
 
-  for (final module in collectarrKindModules) {
+  for (final module in LibraryKindRegistry.instance.allRuntimes) {
     for (final def in module.fields.groups) {
       if (def.id.value == candidate || _stableToken(def.id.value) == candidate) {
         return def.id.value;
