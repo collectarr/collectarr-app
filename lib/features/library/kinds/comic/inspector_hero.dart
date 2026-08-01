@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -34,14 +35,16 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
   Widget build(BuildContext context) {
     final request = widget.request;
     final palette = appPalette(context);
-    final entry = request.entry;
+    final item = request.item;
+    final dto = item.dto;
+    final comic = item.source.catalogItem as ComicCatalogItem?;
     final ownedItem = request.ownedItem;
     final surface = palette.surface;
     final border =
         palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
-    final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
+    final ownedItemId = resolveLibraryOwnedItemId(item, ownedItem);
     final localFront = ownedItemId == null
         ? null
         : ref
@@ -63,48 +66,50 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             )
             .value;
     final db = ownedItemId == null ? null : ref.watch(localDatabaseProvider);
-    final referenceLabel = (entry.itemNumber?.trim().isNotEmpty == true
-            ? '#${entry.itemNumber!.trim()}'
+    final referenceLabel = (dto.itemNumber?.trim().isNotEmpty == true
+            ? '#${dto.itemNumber!.trim()}'
             : null) ??
-        entry.primaryReferenceLabel ??
-        libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
+        dto.referenceFormatLabel ??
+        libraryOwnedReferenceLabel(ownedItem, mediaType: item.source.catalogItem?.kind) ??
         request.type.singularLabel.toUpperCase();
-    final seriesLabel = entry.series?.seriesTitle?.trim().isNotEmpty == true
-        ? entry.series!.seriesTitle!.trim()
-        : null;
-    final editionLabel = entry.publishing?.subtitle?.trim().isNotEmpty == true
-        ? entry.publishing!.subtitle!.trim()
-        : entry.referenceFormatLabel?.trim().isNotEmpty == true
-            ? entry.referenceFormatLabel!.trim()
-            : entry.variant?.trim().isNotEmpty == true
-                ? entry.variant!.trim()
+    final seriesLabel = comic?.series?.seriesTitle?.trim().isNotEmpty == true
+        ? comic!.series!.seriesTitle!.trim()
+        : dto.seriesTitle?.trim().isNotEmpty == true
+            ? dto.seriesTitle!.trim()
+            : null;
+    final editionLabel = comic?.publishing.subtitle?.trim().isNotEmpty == true
+        ? comic!.publishing.subtitle!.trim()
+        : dto.referenceFormatLabel?.trim().isNotEmpty == true
+            ? dto.referenceFormatLabel!.trim()
+            : dto.variant?.trim().isNotEmpty == true
+                ? dto.variant!.trim()
                 : 'Regular edition';
-    final formatLabel = entry.referenceFormatLabel?.trim().isNotEmpty == true
-        ? entry.referenceFormatLabel!.trim()
+    final formatLabel = dto.referenceFormatLabel?.trim().isNotEmpty == true
+        ? dto.referenceFormatLabel!.trim()
         : null;
-    final releaseLabel = formatNullableDate(entry.releaseDate) ??
-        entry.releaseYear?.toString() ??
+    final releaseLabel = formatNullableDate(dto.releaseDate) ??
+        dto.releaseDate?.year.toString() ??
         '-';
     final publisherLabel = [
-      if (entry.publisher?.trim().isNotEmpty == true) entry.publisher!.trim(),
-      if (entry.publishing?.imprint?.trim().isNotEmpty == true)
-        entry.publishing!.imprint!.trim(),
+      if (dto.publisher?.trim().isNotEmpty == true) dto.publisher!.trim(),
+      if (comic?.publishing.imprint?.trim().isNotEmpty == true)
+        comic!.publishing.imprint!.trim(),
     ].join(' / ');
     final subtitleParts = <String>[
-      if (entry.crossover?.trim().isNotEmpty == true) entry.crossover!.trim(),
-      if (entry.storyArcs?.isNotEmpty == true) entry.storyArcs!.first.trim(),
-      if (entry.variant?.trim().isNotEmpty == true) entry.variant!.trim(),
+      if (comic?.crossover?.trim().isNotEmpty == true) comic!.crossover!.trim(),
+      if (comic?.storyArcs.isNotEmpty == true) comic!.storyArcs.first.trim(),
+      if (dto.variant?.trim().isNotEmpty == true) dto.variant!.trim(),
     ];
     final subtitleLabel = subtitleParts.join(' • ');
-    final statusLabel = entry.isOwned
+    final statusLabel = dto.isOwned
         ? 'Owned'
-        : entry.isWishlisted
+        : dto.isWishlisted
             ? 'Wishlist'
             : 'Not owned';
-    final synopsis = entry.plotSummary?.trim().isNotEmpty == true
-        ? entry.plotSummary?.trim()
-        : entry.synopsis?.trim();
-    final plotDescription = entry.plotDescription?.trim();
+    final synopsis = dto.synopsis?.trim().isNotEmpty == true
+        ? dto.synopsis?.trim()
+        : comic?.plotSummary?.trim();
+    final plotDescription = comic?.plotDescription?.trim();
     final comicDetails = ownedItem?.typedDetails is ComicOwnedDetails
         ? ownedItem!.typedDetails as ComicOwnedDetails
         : null;
@@ -129,7 +134,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         ? comicDetails!.keyReason!.trim()
         : null;
     final ebayQuery = [
-      if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
+      if (dto.barcode?.trim().isNotEmpty == true) dto.barcode!.trim(),
       if (seriesLabel != null) seriesLabel,
       if (referenceLabel.trim().isNotEmpty) referenceLabel,
       if (editionLabel.trim().isNotEmpty) editionLabel,
@@ -168,9 +173,9 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                 child: Stack(
                   children: [
                     LibraryInteractiveCover(
-                      title: entry.resolvedTitle,
-                      itemNumber: entry.itemNumber,
-                      imageUrl: back ? null : entry.displayCoverUrl,
+                      title: dto.title,
+                      itemNumber: dto.itemNumber,
+                      imageUrl: back ? null : (dto.coverImageUrl ?? comic?.displayCoverUrl),
                       localBytes: back ? localBack : localFront,
                       ownedItemId: back ? null : ownedItemId,
                       accentColor: request.accent,
@@ -295,8 +300,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                   label: 'Status',
                   value: statusLabel,
                   icon: _ComicCollectionStatusIcon(
-                    owned: entry.isOwned,
-                    wishlisted: entry.isWishlisted,
+                    owned: dto.isOwned,
+                    wishlisted: dto.isWishlisted,
                     accent: request.accent,
                     muted: muted,
                   ),
@@ -334,9 +339,9 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                           if (publisherLabel.isNotEmpty)
                             _ComicDetailLine(
                                 label: 'Publisher', value: publisherLabel),
-                          if (entry.barcode?.trim().isNotEmpty == true)
+                          if (dto.barcode?.trim().isNotEmpty == true)
                             _ComicDetailLine(
-                                label: 'Barcode', value: entry.barcode!.trim()),
+                                label: 'Barcode', value: dto.barcode!.trim()),
                         ],
                       ),
                     ),
@@ -410,7 +415,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         final mainBody = _ComicHeroBlock(
           surface: surface,
           border: border,
-          title: entry.resolvedTitle,
+          title: dto.title,
           overline: seriesLabel,
           accent: request.accent,
           child: stacked

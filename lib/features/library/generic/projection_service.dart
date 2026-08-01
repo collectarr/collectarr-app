@@ -69,8 +69,8 @@ class LibraryProjectionService {
             ))
           item,
     ]..sort((a, b) => adapter.compareEntriesByRules(
-          a.entry,
-          b.entry,
+          a,
+          b,
           viewState.sortRules,
         ));
     final counts = _toolbarCountsForItems(

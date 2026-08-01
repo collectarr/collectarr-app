@@ -19,12 +19,10 @@ class ComicInspectorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = request.inspector.accent;
-    final entry = request.inspector.entry;
-
     return LibraryDetailPanelScaffold(
       accent: accent,
       toolbar: InspectorUnifiedToolbar(
-        entry: entry,
+        item: request.inspector.item,
         detailsLayout: request.inspector.detailsLayout,
         onEdit: request.onEdit,
         onShare: request.onShare,

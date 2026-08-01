@@ -2,10 +2,11 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 
 LibraryProjectionRuntime _makeItem(String id, {String? seriesTitle, String? title}) {
   final cat = CatalogItemDto(
@@ -16,10 +17,13 @@ LibraryProjectionRuntime _makeItem(String id, {String? seriesTitle, String? titl
         ? CatalogSeriesDetails(seriesId: '$id-series', seriesTitle: seriesTitle)
         : null,
   );
-  return const GenericWorkspaceProjector().project(
-    source: ShelfEntry(itemId: id, catalogItem: cat),
-    node: LibraryTitleNodeRef(id),
+  final source = ShelfEntry(itemId: id, catalogItem: cat);
+  final node = LibraryTitleNodeRef(titleItemId: id);
+  final dto = const GenericWorkspaceProjector().projectTitle(
+    source: source,
+    node: node,
   );
+  return LibraryProjectionItem(source: source, node: node, dto: dto);
 }
 
 void main() {

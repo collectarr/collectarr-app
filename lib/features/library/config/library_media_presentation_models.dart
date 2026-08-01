@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -15,6 +16,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -465,6 +467,24 @@ abstract class LibraryMediaPresentationBuilder {
     return const [];
   }
 
+  bool canOpenKindDrilldown(LibraryProjectionRuntime item) => false;
+
+  Widget? buildKindDrilldown({
+    required BuildContext context,
+    required LibraryProjectionRuntime selectedItem,
+    required Color accent,
+    required double coverSize,
+    required VoidCallback onBack,
+    required Future<void> Function() onRefreshFromCore,
+    required VoidCallback onOpenTitleDetails,
+    required List<OwnedItem> ownedCopies,
+    required List<WishlistItem> wishlistItems,
+    required String? selectedReleaseId,
+    required void Function(String releaseId) onSelectRelease,
+    required LibraryWorkspaceProjector projector,
+  }) =>
+      null;
+
   List<Widget> buildDetailCatalogSections({
     required BuildContext context,
     required String singularLabel,
@@ -650,6 +670,7 @@ abstract class LibraryMediaPresentationBuilder {
       return () => onFilterByValue(value.trim());
     };
   }
+}
 
 class LibraryMediaPresentation {
   const LibraryMediaPresentation({

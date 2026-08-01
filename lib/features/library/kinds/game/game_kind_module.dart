@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
@@ -26,7 +28,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     defaultSortId: 'title',
     defaultGroupId: 'series',
     customLinkedMetadataCandidates: (source) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(source.catalogItem?.platforms);
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings((source.catalogItem as GameCatalogItem?)?.work.platforms);
     },
   ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(  ),

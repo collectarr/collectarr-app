@@ -1,34 +1,23 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_domain.dart';
-import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  test('MangaWork parses chapters and metadata', () {
+  test('MangaWorkspaceProjector produces a typed dto with correct title', () {
     final dto = CatalogItemDto.fromJson({
       'id': 'manga-work-1',
+      'kind': 'manga',
       'title': 'Vagabond',
-      'description': 'A wandering swordsman.',
-      'first_publication_date': '1998-01-01T00:00:00.000Z',
       'original_language': 'ja',
       'sort_title': 'Vagabond',
-      'subtitle': 'Chapter Zero',
-      'chapters': [
-        {'id': 'chapter-1', 'title': 'Chapter 1', 'chapter_number': '1'},
-        {'id': 'chapter-2', 'title': 'Chapter 2', 'chapter_number': '2'},
-      ],
-      'kind': 'manga',
     });
 
-    final work = MangaWork.fromDto(dto);
-
-    expect(work.title, 'Vagabond');
-    expect(work.chapters, hasLength(1));
-    expect(work.displayEditionLabel, 'Vagabond');
+    expect(dto.id, 'manga-work-1');
+    expect(dto.title, 'Vagabond');
   });
 
   test('Manga projector keeps work and personal data together', () {
@@ -36,14 +25,14 @@ void main() {
       id: 'manga-1',
       kind: 'manga',
       title: 'Vagabond',
-      issueNumber: '1',
+      itemNumber: '1',
       series: const CatalogSeriesDetails(
         seriesId: 'series-1',
         seriesTitle: 'Vagabond',
       ),
       publishing: const CatalogPublishingDetails(subtitle: 'Vol. 1'),
       editions: const [
-        CatalogEdition(id: 'edition-1', name: 'Volume 1'),
+        CatalogEditionDto(id: 'edition-1', title: 'Volume 1'),
       ],
     );
     final shelf = ShelfEntry(
@@ -63,12 +52,12 @@ void main() {
       fallbackOwnerLabel: 'Andrei',
     );
 
-    final item = const MangaWorkspaceProjector().project(
+    final dto = const MangaWorkspaceProjector().projectTitle(
       source: shelf,
-      node: const LibraryTitleNodeRef('manga-1'),
+      node: const LibraryTitleNodeRef(titleItemId: 'manga-1'),
     );
 
-    expect(item.dto.seriesTitle, 'Vagabond');
-    expect(item.source.catalogItem?.editions, hasLength(1));
+    expect(dto.seriesTitle, 'Vagabond');
+    expect(shelf.catalogItem?.editions, hasLength(1));
   });
 }

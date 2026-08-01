@@ -17,9 +17,9 @@ class InspectorReleasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = request.entry;
-    final video = entry.video;
-    final editions = entry.editions;
+    final catalogItem = request.item.source.catalogItem;
+    final video = catalogItem?.video;
+    final editions = catalogItem?.editions ?? const [];
     final discCount = video?.nrDiscs ?? editions.fold<int>(
       0,
       (total, edition) => total + edition.discs.length,

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/video/release/video_release_source.dart';
@@ -10,6 +9,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_browser_
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -30,15 +30,18 @@ class VideoShelfReleaseDrilldownItem {
 }
 
 bool canOpenVideoShelfDrilldown(
-  LibraryTypeConfig type,
+  LibraryTypeConfig? type,
   LibraryProjectionRuntime item,
 ) {
   if (item.node.scope != LibraryBrowserScope.title) {
     return false;
   }
   final kind = item.source.catalogItem?.kind.trim().toLowerCase();
-  return kind != null &&
-      type.workspaceBehavior.videoShelfDrilldownEntryTypes.contains(kind);
+  if (kind == null) return false;
+  if (type != null && type.workspaceBehavior.videoShelfDrilldownEntryTypes.contains(kind)) {
+    return true;
+  }
+  return kind == 'movie' || kind == 'tv' || kind == 'anime';
 }
 
 List<VideoShelfReleaseDrilldownItem> buildVideoShelfReleaseItems({
@@ -125,10 +128,10 @@ VideoShelfReleaseDrilldownItem _buildDrilldownItem(
   );
 
   final releaseState = LibraryReleaseState(
-    edition: edition,
     isOwned: matchedOwnedCopies.isNotEmpty,
     isWishlisted: matchedWishlistItems.isNotEmpty,
-    editions: editions,
+    isTracked: false,
+    referenceEditionId: edition.id,
   );
 
   final dto = projector.projectRelease(
@@ -182,7 +185,7 @@ class VideoShelfReleaseDrilldown extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Scaffold(
-      backgroundColor: palette.workspaceBackground,
+      backgroundColor: palette.surfaceSubtle,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -202,19 +205,19 @@ class VideoShelfReleaseDrilldown extends StatelessWidget {
       ),
       body: items.isEmpty
           ? const Center(child: Text('No release variants found'))
-          : LibraryWorkspaceGrid(
-              itemCount: items.length,
-              itemWidth: coverSize,
-              aspectRatio: 0.68,
-              itemBuilder: (context, index) {
-                final drillItem = items[index];
+          : LibraryWorkspaceGrid<VideoShelfReleaseDrilldownItem>(
+              items: items,
+              maxCrossAxisExtent: coverSize,
+              mainAxisExtent: coverSize / 0.68,
+              emptyBuilder: (context) => const Center(child: Text('No release variants found')),
+              itemBuilder: (context, drillItem) {
                 final isSelected = drillItem.node.releaseId == selectedReleaseId;
                 return LibraryWorkspaceCard(
                   item: drillItem.item,
                   selected: isSelected,
                   onTap: () => onSelectRelease(drillItem.node.releaseId),
-                  dateFormatter: (d) => '${d.year}',
-                  moneyFormatter: (c, cur) => '\$$c',
+                  dateFormatter: (DateTime d) => '${d.year}',
+                  moneyFormatter: (int? c, String? cur) => '\$$c',
                 );
               },
             ),

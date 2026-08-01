@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -20,7 +22,7 @@ enum LibraryCardLayout { vertical, horizontal }
 
 class _LibraryWorkspaceCardDelegateImpl implements LibraryWorkspaceCardDelegate {
   _LibraryWorkspaceCardDelegateImpl({
-    required this.entry,
+    required this.item,
     required this.selected,
     required this.onTap,
     required this.onDoubleTap,
@@ -59,7 +61,6 @@ class _LibraryWorkspaceCardDelegateImpl implements LibraryWorkspaceCardDelegate 
   final Color mutedTextColor;
   @override
   final double coverWidth;
-  @override
   final LibraryCardLayout cardLayout;
   @override
   final bool selectionMode;
@@ -122,7 +123,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final metadataPresentation = _metadataPresentationForEntry(entry);
+    final metadataPresentation = _metadataPresentationForEntry(item);
     final palette = appPalette(context);
     final resolvedSelectedColor = selectedColor == kAppSelection
         ? libraryWorkspaceSelectionBackground(
@@ -140,29 +141,31 @@ class LibraryWorkspaceCard extends StatelessWidget {
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
     final referenceHierarchy = libraryReferenceHierarchySegments(
-      mediaType: entry.mediaType,
-      editions: entry.editions,
-      editionId: entry.referenceEditionId,
-      variantId: entry.referenceVariantId,
-      bundleReleaseId: entry.referenceBundleReleaseId,
+      mediaType: item.source.catalogItem?.kind ?? '',
+      editions: item.source.catalogItem?.editions ?? const [],
+      editionId: item.source.ownedItem?.editionId,
+      variantId: item.source.ownedItem?.variantId,
+      bundleReleaseId: item.source.ownedItem?.bundleReleaseId,
     );
 
     // Resolve the kind-supplied card presentation (or fall back to default).
-    final type = collectarrLibraryTypes.byKind(entry.kind);
+    final type = collectarrLibraryTypes.byKind(
+      catalogMediaKindFromValue(item.source.catalogItem?.kind),
+    );
     final module = type != null ? libraryKindModuleForType(type) : null;
     final musicVertical = cardLayout == LibraryCardLayout.vertical;
     final presentation = module?.buildCardPresentation(
-          entry,
+          item,
           musicVertical: musicVertical,
         ) ??
         const LibraryCardPresentation();
 
     final strongSelection =
-        selected && entry.browseScope != LibraryBrowserScope.title;
+        selected && item.node is! LibraryTitleNodeRef;
     final coverCacheWidth = _targetCacheWidth(context);
 
     final delegate = _LibraryWorkspaceCardDelegateImpl(
-      entry: entry,
+      item: item,
       selected: selected,
       onTap: onTap,
       onDoubleTap: onDoubleTap,
@@ -226,7 +229,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required List<String> referenceHierarchy,
   }) {
     final palette = appPalette(context);
-    final gradeLabel = entry.grade?.trim();
+    final dto = item.dto;
+    final gradeLabel = dto.grade?.trim();
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -282,17 +286,16 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               left: 4,
                               top: 4,
                               child: LibraryCoverBadges(
-                                isOwned: entry.isOwned,
-                                isTracked: entry.isTracked,
-                                isWishlisted: entry.isWishlisted,
-                                hasMissingCover: entry.hasMissingCover,
-                                hasMissingMetadata: entry.hasMissingMetadata,
-                                hasFrontImage: entry.hasFrontImage,
-                                hasBackImage: entry.hasBackImage,
-                                extraImageCount: entry.extraImageCount,
+                                isOwned: item.dto.isOwned,
+                                isTracked: item.dto.isTracked,
+                                isWishlisted: item.dto.isWishlisted,
+                                hasMissingCover: item.dto.coverImageUrl == null ||
+                                    item.dto.coverImageUrl!.isEmpty,
+                                hasMissingMetadata: item.dto.publisher == null ||
+                                    item.dto.publisher!.isEmpty,
                                 contractDiagnosticLabel:
                                     libraryHierarchyContractDiagnosticLabel(
-                                  entry,
+                                  item,
                                 ),
                                 keyLabel: _coverKeyLabel(presentation),
                                 gradeLabel:
@@ -300,14 +303,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                         ? null
                                         : 'Grade $gradeLabel',
                                 slabLabel: _coverSlabLabel(presentation),
-                                signedLabel:
-                                    librarySignedMarkerLabel(entry.signedBy),
-                                valueLabel: libraryValueMarkerLabel(
-                                  entry.marketValueCents,
-                                  entry.marketValueCurrency,
-                                ),
                                 notesLabel:
-                                    libraryNotesMarkerLabel(entry.notes),
+                                    libraryNotesMarkerLabel(item.dto.notes),
                               ),
                             ),
                           ],
@@ -322,7 +319,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    entry.resolvedTitle,
+                                    item.dto.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: Theme.of(context)
@@ -338,24 +335,23 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                         ),
                                   ),
                                 ),
-                                if (entry.itemNumber != null)
+                                if (item.dto.itemNumber != null)
                                   _LibraryIssuePill(
-                                      label: '#${entry.itemNumber}'),
+                                      label: '#${item.dto.itemNumber}'),
                               ],
                             ),
                             const SizedBox(height: 4),
                             Text(
                               [
-                                if (entry.browseScope !=
-                                        LibraryBrowserScope.title &&
-                                    entry.variant != null &&
-                                    entry.variant!.isNotEmpty)
-                                  entry.variant,
-                                if (entry.releaseDate != null)
-                                  dateFormatter(entry.releaseDate!),
-                                if (entry.publisher != null &&
-                                    entry.publisher!.isNotEmpty)
-                                  entry.publisher,
+                                if (item.node is! LibraryTitleNodeRef &&
+                                    item.dto.variant != null &&
+                                    item.dto.variant!.isNotEmpty)
+                                  item.dto.variant,
+                                if (item.dto.releaseDate != null)
+                                  dateFormatter(item.dto.releaseDate!),
+                                if (item.dto.publisher != null &&
+                                    item.dto.publisher!.isNotEmpty)
+                                  item.dto.publisher,
                               ].whereType<String>().join('  |  '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -387,32 +383,22 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               spacing: 6,
                               runSpacing: 6,
                               children: [
-                                if (entry.referenceScopeLabel != null)
-                                  _LibraryCompactMetaPill(
-                                    icon: Icons.link_outlined,
-                                    label:
-                                        'Scope: ${entry.referenceScopeLabel!}',
-                                    accentColor: accentColor,
-                                  ),
-                                if (entry.browseScope !=
-                                        LibraryBrowserScope.title &&
-                                    entry.referenceFormatLabel != null)
+                                if (item.dto.format != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.album_outlined,
-                                    label:
-                                        'Format: ${entry.referenceFormatLabel!}',
+                                    label: 'Format: ${item.dto.format!}',
                                     accentColor: accentColor,
                                   ),
-                                if (entry.grade != null)
+                                if (item.dto.grade != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.workspace_premium,
-                                    label: entry.grade!,
+                                    label: item.dto.grade!,
                                     accentColor: accentColor,
                                   ),
-                                if (entry.condition != null)
+                                if (item.dto.condition != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.fact_check_outlined,
-                                    label: entry.condition!,
+                                    label: item.dto.condition!,
                                     accentColor: accentColor,
                                   ),
                                 if (_metadataFactValue(
@@ -423,7 +409,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: runtime,
                                     accentColor: accentColor,
                                   ),
-                                // Kind-specific compact badges
                                 for (final badge in presentation.compactBadges)
                                   _LibraryCompactMetaPill(
                                     icon: badge.icon,
@@ -448,16 +433,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: releaseStatus,
                                     accentColor: accentColor,
                                   ),
-                                if (_compactPlatformLabel(
-                                  libraryReferencePlatforms(entry),
-                                )
-                                    case final platformLabel?)
-                                  _LibraryCompactMetaPill(
-                                    icon: Icons.sports_esports,
-                                    label: platformLabel,
-                                    accentColor: accentColor,
-                                  ),
-                                if (_compactNotesLabel(entry.notes)
+                                if (_compactNotesLabel(item.dto.notes)
                                     case final noteLabel?)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.sticky_note_2_outlined,
@@ -470,22 +446,22 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: badge,
                                     accentColor: accentColor,
                                   ),
-                                if (entry.locationPath != null)
+                                if (item.dto.locationPath != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.inventory_2_outlined,
-                                    label: entry.locationPath!,
+                                    label: item.dto.locationPath!,
                                     accentColor: accentColor,
                                   ),
-                                if (entry.pricePaidCents != null)
+                                if (item.dto.pricePaidCents != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.attach_money,
                                     label: moneyFormatter(
-                                      entry.pricePaidCents,
-                                      entry.currency,
+                                      item.dto.pricePaidCents,
+                                      item.dto.currency,
                                     ),
                                     accentColor: accentColor,
                                   ),
-                                if (entry.isWishlisted)
+                                if (item.dto.isWishlisted)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.star,
                                     label: 'Wishlist',
@@ -494,11 +470,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               ],
                             ),
                             const Spacer(),
-                            if (entry.browseScope != LibraryBrowserScope.title)
+                            if (item.node is! LibraryTitleNodeRef)
                               Text(
-                                entry.barcode == null || entry.barcode!.isEmpty
+                                item.dto.barcode == null ||
+                                        item.dto.barcode!.isEmpty
                                     ? 'No barcode'
-                                    : entry.barcode!,
+                                    : item.dto.barcode!,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context)
@@ -540,7 +517,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                 Positioned(
                   right: 6,
                   bottom: 6,
-                  child: _scopeBadge(context, entry),
+                  child: _scopeBadge(context, item),
                 ),
               ],
             ),
@@ -574,18 +551,17 @@ class LibraryWorkspaceCard extends StatelessWidget {
         ? selectedTitleColor
         : (palette.isDark ? kAppAccentLight : accentColor);
     final subtitle = [
-      if (entry.browseScope != LibraryBrowserScope.title &&
-          entry.variant != null &&
-          entry.variant!.isNotEmpty)
-        entry.variant,
-      if (entry.releaseDate != null) dateFormatter(entry.releaseDate!),
-      if (entry.publisher != null && entry.publisher!.isNotEmpty)
-        entry.publisher,
+      if (item.node is! LibraryTitleNodeRef &&
+          item.dto.variant != null &&
+          item.dto.variant!.isNotEmpty)
+        item.dto.variant,
+      if (item.dto.releaseDate != null) dateFormatter(item.dto.releaseDate!),
+      if (item.dto.publisher != null && item.dto.publisher!.isNotEmpty)
+        item.dto.publisher,
     ].whereType<String>().join('  |  ');
     final support = [
-      if (entry.referenceFormatLabel != null) entry.referenceFormatLabel!,
-      if (entry.grade != null) entry.grade!,
-      if (_metadataFactValue(_metadataPresentationForEntry(entry), 'Runtime')
+      if (item.dto.grade != null) item.dto.grade!,
+      if (_metadataFactValue(_metadataPresentationForEntry(item), 'Runtime')
           case final runtime?)
         runtime,
     ].whereType<String>().join('  ·  ');
@@ -640,19 +616,21 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               left: 6,
                               top: 6,
                               child: LibraryCoverBadges(
-                                isOwned: entry.isOwned,
-                                isTracked: entry.isTracked,
-                                isWishlisted: entry.isWishlisted,
-                                hasMissingCover: entry.hasMissingCover,
-                                hasMissingMetadata: entry.hasMissingMetadata,
+                                isOwned: item.dto.isOwned,
+                                isTracked: item.dto.isTracked,
+                                isWishlisted: item.dto.isWishlisted,
+                                hasMissingCover: item.dto.coverImageUrl == null ||
+                                    item.dto.coverImageUrl!.isEmpty,
+                                hasMissingMetadata: item.dto.publisher == null ||
+                                    item.dto.publisher!.isEmpty,
                                 contractDiagnosticLabel:
                                     libraryHierarchyContractDiagnosticLabel(
-                                  entry,
+                                  item,
                                 ),
                                 keyLabel: _coverKeyLabel(presentation),
                                 slabLabel: _coverSlabLabel(presentation),
                                 notesLabel:
-                                    libraryNotesMarkerLabel(entry.notes),
+                                    libraryNotesMarkerLabel(item.dto.notes),
                               ),
                             ),
                           ],
@@ -664,7 +642,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              entry.resolvedTitle,
+                              item.dto.title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context)
@@ -736,7 +714,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                 Positioned(
                   right: 6,
                   bottom: 6,
-                  child: _scopeBadge(context, entry),
+                  child: _scopeBadge(context, item),
                 ),
               ],
             ),
@@ -762,10 +740,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required double borderRadius,
   }) {
     final cover = LibraryInteractiveCover(
-      title: entry.resolvedTitle,
-      itemNumber: entry.itemNumber,
-      imageUrl: entry.displayCoverUrl,
-      ownedItemId: entry.ownedItemId,
+      title: item.dto.title,
+      itemNumber: item.dto.itemNumber,
+      imageUrl: item.dto.coverImageUrl,
+      ownedItemId: item.source.ownedItem?.id,
       targetCacheWidth: coverCacheWidth,
       accentColor: accentColor,
       fit: fit,
@@ -828,7 +806,7 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionRuntime item,
 ) {
   final kind = item.source.catalogItem?.kind ?? '';
-  final type = collectarrLibraryTypes.byKind(kind);
+  final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(kind));
   if (type == null) return null;
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,

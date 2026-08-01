@@ -1,11 +1,10 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 export 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
@@ -55,16 +54,4 @@ final class ComicPersonalOverlay {
   bool get isSlabbed => _comicDetails?.rawOrSlabbed == 'Slabbed';
   bool get keyComic => _comicDetails?.keyComic ?? false;
   String? get gradingCompany => _comicDetails?.gradingCompany;
-  ComicWorkspaceDetails? toWorkspaceDetails() {
-    final details = _comicDetails;
-    if (details == null) return null;
-    return ComicWorkspaceDetails(
-      rawOrSlabbed: details.rawOrSlabbed,
-      gradingCompany: details.gradingCompany,
-      labelType: details.labelType,
-      certificationNumber: details.certificationNumber,
-      keyComic: details.keyComic ?? false,
-      keyReason: details.keyReason,
-    );
-  }
 }

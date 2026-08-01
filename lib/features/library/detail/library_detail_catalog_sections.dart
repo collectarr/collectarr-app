@@ -83,10 +83,6 @@ class LibraryDetailContextSection extends StatelessWidget {
     );
   }
 }
-      accent: accent,
-      onFilterByValue: onFilterByValue,
-    );
-  }
 
 class LibraryDetailCreditsSection extends StatelessWidget {
   const LibraryDetailCreditsSection({
@@ -225,14 +221,10 @@ class LibraryDetailCoverStatusSection extends StatelessWidget {
             LibraryDetailField(label: 'Cover URL', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty ? '-' : 'Available'),
           ],
         ),
-        if (dto.coverImageUrl != null || dto.thumbnailImageUrl != null) ...[
+        if (dto.coverImageUrl != null) ...[
           const SizedBox(height: 8),
           SelectableText(
-            [
-              if (entry.coverImageUrl != null) 'cover: ${entry.coverImageUrl}',
-              if (entry.thumbnailImageUrl != null)
-                'thumb: ${entry.thumbnailImageUrl}',
-            ].join('\n'),
+            'cover: ${dto.coverImageUrl}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: appPalette(context).textMuted,
                   fontWeight: FontWeight.w700,
@@ -395,17 +387,17 @@ _MetadataHealth _buildMetadataHealth(
     missingLabel: 'Cover image',
   );
   addSignal(
-    present: entry.synopsis?.trim().isNotEmpty ?? false,
+    present: catalogItem?.synopsis?.trim().isNotEmpty ?? false,
     weight: 16,
     missingLabel: 'Synopsis',
   );
   addSignal(
-    present: entry.publisher?.trim().isNotEmpty ?? false,
+    present: dto.publisher?.trim().isNotEmpty ?? false,
     weight: 10,
     missingLabel: 'Publisher',
   );
   addSignal(
-    present: entry.releaseDate != null || entry.releaseYear != null,
+    present: dto.releaseDate != null,
     weight: 10,
     missingLabel: 'Release date',
   );
@@ -417,7 +409,7 @@ _MetadataHealth _buildMetadataHealth(
     missingLabel: 'Series',
   );
   addSignal(
-    present: entry.itemNumber?.trim().isNotEmpty ?? false,
+    present: dto.itemNumber?.trim().isNotEmpty ?? false,
     weight: 6,
     missingLabel: 'Item number',
   );
@@ -442,7 +434,7 @@ _MetadataHealth _buildMetadataHealth(
     missingLabel: metadata.labels.genres,
   );
   addSignal(
-    present: !(entry.hasMissingMetadata || entry.hasMissingCover),
+    present: !(dto.publisher == null || dto.coverImageUrl == null),
     weight: 4,
     missingLabel: 'Catalog refresh',
   );

@@ -145,24 +145,16 @@ class BookLibraryMediaPresentationBuilder
         ),
       );
     }
-    final bookEntry = entry is BookWorkspaceEntry ? entry : null;
-    final originalDetails = bookEntry?.originalDetails;
-    final physicalDetails = bookEntry?.physicalDetails;
+    final dto = item.dto;
+    final catalogItem = item.source.catalogItem;
+    final series = catalogItem?.series;
     final sectionSpecs = <LibraryDetailSectionSpec>[];
 
     final originalFacts = <LibraryDetailField>[
-      if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Series', value: entry.series!.seriesTitle!.trim()),
-      if (entry.synopsis != null && entry.synopsis!.trim().isNotEmpty)
-        LibraryDetailField(label: 'Summary', value: entry.synopsis!.trim()),
-      if (originalDetails?.publisher?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Original publisher', value: originalDetails!.publisher!.trim()),
-      if (originalDetails?.dewey?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Dewey', value: originalDetails!.dewey!.trim()),
-      if (originalDetails?.lccn?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'LCCN', value: originalDetails!.lccn!.trim()),
-      if (originalDetails?.locControlNumber?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'LoC control number', value: originalDetails!.locControlNumber!.trim()),
+      if (series?.seriesTitle?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Series', value: series!.seriesTitle!.trim()),
+      if (catalogItem?.synopsis != null && catalogItem!.synopsis!.trim().isNotEmpty)
+        LibraryDetailField(label: 'Summary', value: catalogItem.synopsis!.trim()),
     ];
     if (originalFacts.isNotEmpty) {
       sectionSpecs.add(
@@ -175,30 +167,18 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final productFacts = <LibraryDetailField>[
-      if (entry.referenceFormatLabel?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Format', value: entry.referenceFormatLabel!.trim()),
-      if (entry.publisher?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Publisher', value: entry.publisher!.trim()),
-      if (entry.barcode?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'ISBN / Barcode', value: entry.barcode!.trim()),
-      if (entry.country?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Country', value: entry.country!.trim()),
-      if (entry.language?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Language', value: entry.language!.trim()),
-      if (entry.ageRating?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Age Rating', value: entry.ageRating!.trim()),
-      if (entry.publishing?.pageCount != null)
-        LibraryDetailField(label: 'Pages', value: entry.publishing!.pageCount.toString()),
-      if (physicalDetails?.dimensions?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Dimensions', value: physicalDetails!.dimensions!.trim()),
-      if (physicalDetails?.printing?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Printing', value: physicalDetails!.printing!.trim()),
-      if (physicalDetails?.firstEdition == true)
-        const LibraryDetailField(label: 'First edition', value: 'Yes'),
-      if (physicalDetails?.dustJacket != null)
-        LibraryDetailField(label: 'Dust jacket', value: physicalDetails!.dustJacket! ? 'Yes' : 'No'),
-      if (physicalDetails?.numberLine?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Number line', value: physicalDetails!.numberLine!.trim()),
+      if (dto.referenceFormatLabel?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Format', value: dto.referenceFormatLabel!.trim()),
+      if (dto.publisher?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Publisher', value: dto.publisher!.trim()),
+      if (dto.barcode?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'ISBN / Barcode', value: dto.barcode!.trim()),
+      if (dto.country?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Country', value: dto.country!.trim()),
+      if (dto.language?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Language', value: dto.language!.trim()),
+      if (catalogItem?.ageRating?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Age Rating', value: catalogItem!.ageRating!.trim()),
     ];
     if (productFacts.isNotEmpty) {
       sectionSpecs.add(
@@ -211,7 +191,7 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final creatorNames = <String>[
-      for (final creator in entry.creators ?? const <Map<String, dynamic>>[])
+      for (final creator in catalogItem?.creators ?? const <Map<String, dynamic>>[])
         if (creator['name']?.toString().trim().isNotEmpty == true)
           creator['name']!.toString().trim(),
     ];
@@ -231,19 +211,8 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final imageFacts = <LibraryDetailField>[
-      if (entry.displayCoverUrl?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Cover', value: entry.displayCoverUrl!.trim()),
-      if (entry.frontCoverUrl?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Front cover', value: entry.frontCoverUrl!.trim()),
-      if (entry.backCoverUrl?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Back cover', value: entry.backCoverUrl!.trim()),
-      if (bookEntry?.physicalDetails?.coverImagePath?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Local cover path', value: bookEntry!.physicalDetails!.coverImagePath!.trim()),
-      if (bookEntry?.physicalDetails?.thumbnailImagePath?.trim().isNotEmpty ==
-          true)
-        LibraryDetailField(label: 'Local thumbnail path', value: bookEntry!.physicalDetails!.thumbnailImagePath!.trim()),
-      if (bookEntry?.physicalDetails?.backImagePath?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Local back path', value: bookEntry!.physicalDetails!.backImagePath!.trim()),
+      if (dto.coverImageUrl?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Cover', value: dto.coverImageUrl!.trim()),
     ];
     if (imageFacts.isNotEmpty) {
       sectionSpecs.add(
@@ -256,13 +225,7 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final identifierValues = <String>[
-      if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
-      if (entry.referenceEditionId?.trim().isNotEmpty == true)
-        'Edition: ${entry.referenceEditionId!.trim()}',
-      if (entry.referenceVariantId?.trim().isNotEmpty == true)
-        'Printing: ${entry.referenceVariantId!.trim()}',
-      if (entry.referenceBundleReleaseId?.trim().isNotEmpty == true)
-        'Bundle release: ${entry.referenceBundleReleaseId!.trim()}',
+      if (dto.barcode?.trim().isNotEmpty == true) dto.barcode!.trim(),
     ];
     if (identifierValues.isNotEmpty) {
       sectionSpecs.add(
@@ -280,24 +243,22 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final personalFacts = <LibraryDetailField>[
-      if (entry.condition?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Condition', value: entry.condition!.trim()),
-      if (entry.grade?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Grade', value: entry.grade!.trim()),
-      if (entry.collectionStatus?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Collection Status', value: entry.collectionStatus!.trim()),
-      if (entry.readStatus?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Read It', value: entry.readStatus!.trim()),
-      if (entry.rating != null)
-        LibraryDetailField(label: 'Rating', value: entry.rating!.toString()),
-      if (entry.locationPath?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Location', value: entry.locationPath!.trim()),
-      if (entry.pricePaidCents != null)
-        LibraryDetailField(label: 'Price Paid', value: entry.pricePaidCents!.toString()),
-      if (entry.notes?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Notes', value: entry.notes!.trim()),
-      if (entry.tags?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Tags', value: entry.tags!.trim()),
+      if (dto.condition?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Condition', value: dto.condition!.trim()),
+      if (dto.grade?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Grade', value: dto.grade!.trim()),
+      if (dto.collectionStatus?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Collection Status', value: dto.collectionStatus!.trim()),
+      if (dto.rating != null)
+        LibraryDetailField(label: 'Rating', value: dto.rating!.toString()),
+      if (dto.locationPath?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Location', value: dto.locationPath!.trim()),
+      if (dto.pricePaidCents != null)
+        LibraryDetailField(label: 'Price Paid', value: dto.pricePaidCents!.toString()),
+      if (dto.notes?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Notes', value: dto.notes!.trim()),
+      if (dto.tags?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Tags', value: dto.tags!.trim()),
     ];
     if (personalFacts.isNotEmpty) {
       sectionSpecs.add(
@@ -309,12 +270,15 @@ class BookLibraryMediaPresentationBuilder
       );
     }
 
-    sections.addAll(
-      buildLibraryDetailSectionWidgets(
-        sectionSpecs,
-        accentColor: accent,
-      ),
-    );
+    for (final spec in sectionSpecs) {
+      sections.add(
+        LibraryDetailSection(
+          title: spec.title,
+          accentColor: accent,
+          children: spec.children,
+        ),
+      );
+    }
     return sections;
   }
 

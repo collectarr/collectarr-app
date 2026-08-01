@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
@@ -19,19 +20,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   mediaAdapter: musicMediaAdapter,
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
-  fields: AnyLibraryFieldRegistry(
-    groups: musicLibraryGroupDefinitions,
-    sorts: musicLibrarySortDefinitions,
-    columns: musicLibraryColumnDefinitions,
-    defaultVisibleColumnIds: musicLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'title',
-    defaultGroupId: 'series',
-    customLinkedMetadataCandidates: (source) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings([
-        source.catalogItem?.publisher,
-      ]);
-    },
-  ),
+  fields: musicKindSchema.toRegistry(),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsTrackSearch: true,
   ),

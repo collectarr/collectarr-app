@@ -46,7 +46,6 @@ class VideoWorkspaceProgressCard extends ConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
-                        ),
                       ),
                     ),
                   ),

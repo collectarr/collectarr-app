@@ -82,18 +82,18 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
                         ),
                   ),
                   const SizedBox(height: 4),
-                  LibraryDetailChipBar(
+                  LibraryDetailChipGroupWidget(
                     values: entry.value,
-                    onTap: onFilterByValue,
+                    onValueTap: onFilterByValue,
                   ),
                   const SizedBox(height: 8),
                 ],
               ],
             )
           else
-            LibraryDetailChipBar(
+            LibraryDetailChipGroupWidget(
               values: creatorNames,
-              onTap: onFilterByValue,
+              onValueTap: onFilterByValue,
             ),
         ],
         _buildEditionFormatBadges(item),

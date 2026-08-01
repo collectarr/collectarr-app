@@ -48,11 +48,8 @@ class LibraryPageCollectionActionCoordinator {
     )) {
       return false;
     }
-    final catalogId = item.source.catalogItem?.id ?? item.entry.id;
+    final catalogId = item.source.catalogItem?.id ?? item.node.id;
     if (_isNonServerMetadataId(catalogId)) {
-      return false;
-    }
-    if (item.entry.hasMissingMetadata) {
       return false;
     }
     return true;
@@ -70,7 +67,7 @@ class LibraryPageCollectionActionCoordinator {
   Future<void> confirmAndRemoveOwned(LibraryProjectionItem item) async {
     final confirmed = await _page.confirmSingleRemove(
       _page.context,
-      title: item.entry.title,
+      title: item.dto.title,
       itemLabel: _page.type.singularLabel.toLowerCase(),
     );
     if (!confirmed || !_page.mounted) {
@@ -87,7 +84,7 @@ class LibraryPageCollectionActionCoordinator {
       return null;
     }
     for (final item in projection.filteredItems) {
-      if (item.entry.id == selectedId) {
+      if (item.node.id == selectedId) {
         return item;
       }
     }
@@ -99,17 +96,17 @@ class LibraryPageCollectionActionCoordinator {
     LibraryProjectionItem item,
     Offset position,
   ) async {
-    final contextSelectionIds = <String>{item.entry.id};
+    final contextSelectionIds = <String>{item.node.id};
     final selectionChanged =
         contextSelectionIds.length != _page.selection.itemIds.length ||
             !contextSelectionIds.containsAll(_page.selection.itemIds);
-    if (selectionChanged || _page.selectedId != item.entry.id) {
+    if (selectionChanged || _page.selectedId != item.node.id) {
       _page.rebuild(() {
         _page.selection = _page.selection.replace(contextSelectionIds);
-        _page.selectedId = item.entry.id;
+        _page.selectedId = item.node.id;
         if (_page.selectionAnchorId == null ||
             !_page.selection.itemIds.contains(_page.selectionAnchorId)) {
-          _page.selectionAnchorId = item.entry.id;
+          _page.selectionAnchorId = item.node.id;
         }
       });
     }
@@ -117,7 +114,7 @@ class LibraryPageCollectionActionCoordinator {
     final result = await showLibraryItemContextMenu(
       context: _page.context,
       position: position,
-      entry: item.entry,
+      item: item,
       accent: _page.accent,
       selectedCount: contextSelectionIds.length,
       supportsMetadataCompare: canCompareMetadataWithServerItem(item),
@@ -166,7 +163,7 @@ class LibraryPageCollectionActionCoordinator {
         await runCollectionAction((a) => a.removeWishlist(item));
       case LibraryItemContextAction.removeTracking:
         final trackingEntries = _page.ref
-                .read(trackingEntriesByCatalogItemProvider)[item.entry.id] ??
+                .read(trackingEntriesByCatalogItemProvider)[item.node.id] ??
             const <TrackingEntry>[];
         final active = resolveActiveTrackingEntry(trackingEntries, null);
         if (active != null) {
@@ -175,14 +172,14 @@ class LibraryPageCollectionActionCoordinator {
           );
         }
       case LibraryItemContextAction.copyTitle:
-        await Clipboard.setData(ClipboardData(text: item.entry.title));
+        await Clipboard.setData(ClipboardData(text: item.dto.title));
         if (_page.mounted) {
           ScaffoldMessenger.of(_page.context).showSnackBar(
             const SnackBar(content: Text('Title copied')),
           );
         }
       case LibraryItemContextAction.copyBarcode:
-        final barcode = item.entry.barcode;
+        final barcode = item.dto.barcode;
         if (barcode != null && barcode.isNotEmpty) {
           await Clipboard.setData(ClipboardData(text: barcode));
           if (_page.mounted) {
@@ -225,7 +222,7 @@ class LibraryPageCollectionActionCoordinator {
       return;
     }
     final random = items[_random.nextInt(items.length)];
-    _page.selectItem(random.entry.id);
+    _page.selectItem(random.node.id);
   }
 
   Future<void> bulkEditFlow(LibraryProjection? projection) async {
@@ -300,7 +297,7 @@ class LibraryPageCollectionActionCoordinator {
     if (_page.mounted) {
       _page.invalidateShelf();
       ScaffoldMessenger.of(_page.context).showSnackBar(
-        SnackBar(content: Text('Duplicated "${item.entry.title}"')),
+        SnackBar(content: Text('Duplicated "${item.dto.title}"')),
       );
     }
   }

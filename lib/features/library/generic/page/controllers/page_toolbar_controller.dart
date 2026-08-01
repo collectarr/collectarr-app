@@ -16,16 +16,13 @@ class LibraryPageToolbarController {
     }
     final ranked = <(int, LibraryToolbarSearchSuggestion)>[];
     for (final item in projection.allItems) {
-      final entry = item.entry;
-      final title = entry.resolvedTitle.trim().isEmpty
-          ? entry.title.trim()
-          : entry.resolvedTitle.trim();
+      final title = item.dto.title.trim();
       if (title.isEmpty) {
         continue;
       }
       final normalizedTitle = title.toLowerCase();
-      final itemNumber = entry.itemNumber?.trim();
-      final publisher = entry.publisher?.trim();
+      final itemNumber = item.dto.itemNumber?.trim();
+      final publisher = item.dto.publisher?.trim();
       final subtitleParts = <String>[
         if (itemNumber != null && itemNumber.isNotEmpty) '#$itemNumber',
         if (publisher != null && publisher.isNotEmpty) publisher,
@@ -47,7 +44,7 @@ class LibraryPageToolbarController {
       ranked.add((
         score,
         LibraryToolbarSearchSuggestion(
-          id: entry.id,
+          id: item.node.id,
           title: title,
           subtitle: subtitle,
         ),
@@ -109,7 +106,7 @@ class LibraryPageToolbarController {
         quickView: _s._quickView,
         availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
           (projection?.filteredItems ?? const <LibraryProjectionItem>[])
-              .map((i) => i.entry.resolvedTitle),
+              .map((i) => i.dto.title),
         ),
         selectedLetter: _s._selectedLetter,
         activeViewPreset: _s._activeViewPreset,

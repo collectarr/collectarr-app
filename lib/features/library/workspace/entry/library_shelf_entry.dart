@@ -14,8 +14,8 @@ sealed class ShelfPresentationEntry {
 final class ItemShelfEntry extends ShelfPresentationEntry {
   ItemShelfEntry({required this.item})
       : super(
-          id: item.entry.id,
-          label: item.entry.resolvedTitle,
+          id: item.source.itemId,
+          label: item.dto.title,
         );
 
   final LibraryProjectionItem item;
@@ -42,7 +42,7 @@ final class GroupShelfEntry extends ShelfPresentationEntry {
   int get count => items.length;
 
   int get ownedCount =>
-      items.where((item) => item.entry.isOwned).length;
+      items.where((item) => item.dto.isOwned).length;
 }
 
 final class FolderShelfEntry extends ShelfPresentationEntry {

@@ -66,9 +66,9 @@ class _VideoLibraryDetailPageState
   @override
   void initState() {
     super.initState();
-    final nodes = _releaseNodesFor(widget.request.type, widget.request.entry);
+    final nodes = _releaseNodesFor(widget.request.type, widget.request.item);
     _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
-    if (_isTvKind && widget.request.entry.canHydrateFromCore) {
+    if (_isTvKind && widget.request.item.source.catalogItem != null) {
       _tvSeriesFuture = _loadTvSeriesSnapshot();
     }
   }
@@ -76,16 +76,13 @@ class _VideoLibraryDetailPageState
   @override
   void didUpdateWidget(covariant VideoLibraryDetailPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.request.entry.id != widget.request.entry.id) {
-      final nodes = _releaseNodesFor(widget.request.type, widget.request.entry);
+    if (oldWidget.request.item.source.itemId != widget.request.item.source.itemId) {
+      final nodes = _releaseNodesFor(widget.request.type, widget.request.item);
       _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
       _selectedOwnedItemIdByRelease.clear();
-      if (oldWidget.request.entry.canonicalItemId !=
-          widget.request.entry.canonicalItemId) {
-        _tvSeriesSnapshot = null;
-        if (_isTvKind && widget.request.entry.canHydrateFromCore) {
-          _tvSeriesFuture = _loadTvSeriesSnapshot();
-        }
+      _tvSeriesSnapshot = null;
+      if (_isTvKind && widget.request.item.source.catalogItem != null) {
+        _tvSeriesFuture = _loadTvSeriesSnapshot();
       }
     }
   }
@@ -93,18 +90,18 @@ class _VideoLibraryDetailPageState
   bool get _isTvKind => widget.request.type.workspace.kind.apiValue == 'tv';
 
   Future<TvSeries?> _loadTvSeriesSnapshot() async {
-    if (!widget.request.entry.canHydrateFromCore) {
+    if (widget.request.item.source.catalogItem == null) {
       return null;
     }
     final api = ref.read(apiClientProvider);
-    final dto = await api.getTvSeriesDto(widget.request.entry.canonicalItemId);
+    final dto = await api.getTvSeriesDto(widget.request.item.source.itemId);
     return tvSeriesFromDto(dto);
   }
 
   Future<void> _addCopyForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
     await ref.read(collectionMutationsProvider).addItem(
-          widget.request.entry.canonicalItemId,
+          widget.request.item.source.itemId,
           editionId: anchor.editionId,
           variantId: anchor.variantId,
           bundleReleaseId: anchor.bundleReleaseId,
@@ -122,7 +119,7 @@ class _VideoLibraryDetailPageState
   Future<void> _addWishlistForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
     await ref.read(collectionMutationsProvider).addToWishlist(
-          widget.request.entry.canonicalItemId,
+          widget.request.item.source.itemId,
           editionId: anchor.editionId,
           variantId: anchor.variantId,
           bundleReleaseId: anchor.bundleReleaseId,
@@ -135,7 +132,7 @@ class _VideoLibraryDetailPageState
       return;
     }
     await ref.read(collectionMutationsProvider).removeFromWishlist(
-          widget.request.entry.id,
+          widget.request.item.source.itemId,
           wishlistItemId: wishlistItem.id,
         );
   }
@@ -164,7 +161,7 @@ class _VideoLibraryDetailPageState
       data: (items) => items
           .where(
             (item) =>
-                !item.isDeleted && item.itemId == request.entry.canonicalItemId,
+                !item.isDeleted && item.itemId == request.item.source.itemId,
           )
           .toList(growable: false),
       orElse: () => const <OwnedItem>[],
@@ -173,28 +170,28 @@ class _VideoLibraryDetailPageState
       data: (items) => items
           .where(
             (item) =>
-                !item.isDeleted && item.itemId == request.entry.canonicalItemId,
+                !item.isDeleted && item.itemId == request.item.source.itemId,
           )
           .toList(growable: false),
       orElse: () => const <WishlistItem>[],
     );
     final releases = _resolvedReleasesFor(
       request.type,
-      request.entry,
+      request.item,
       ownedCopies: ownedCopies,
       wishlistItems: wishlistItems,
     );
     final seriesRef = CatalogEntityRef(
       kind: request.type.workspace.kind.apiValue,
       entityType: CatalogEntityType.work,
-      id: request.entry.canonicalItemId,
+      id: request.item.source.itemId,
     );
     final seasonsAsync = ref.watch(seasonsByCatalogRefProvider(seriesRef));
     final watchHistoryTargets = <WatchHistoryTargetOption>[
       WatchHistoryTargetOption(
         ref: seriesRef,
         label: 'Series',
-        subtitle: request.entry.resolvedTitle,
+        subtitle: request.item.source.catalogItem?.title ?? '',
       ),
       ...seasonsAsync.maybeWhen(
         data: (seasons) => [
@@ -231,16 +228,16 @@ class _VideoLibraryDetailPageState
           ref: CatalogEntityRef(
             kind: seriesRef.kind,
             entityType: CatalogEntityType.release,
-            id: release.node.id,
+            id: release.node.releaseId,
           ),
-          label: release.node.entry.displayTitle ?? release.node.entry.title,
-          subtitle: release.node.entry.itemNumber ?? release.node.entry.variant,
+          label: release.node.edition.title ?? release.node.releaseId,
+          subtitle: release.node.edition.physicalFormat,
         ),
       ),
     ];
     _ResolvedVideoRelease? selectedRelease;
     for (final release in releases) {
-      if (release.node.id == _selectedReleaseNodeId) {
+      if (release.node.releaseId == _selectedReleaseNodeId) {
         selectedRelease = release;
         break;
       }
@@ -264,6 +261,7 @@ class _VideoLibraryDetailPageState
             },
           )
         : null;
+
     final appBarForeground =
         ThemeData.estimateBrightnessForColor(request.accent) == Brightness.dark
             ? Colors.white
@@ -275,7 +273,7 @@ class _VideoLibraryDetailPageState
         appBar: AppBar(
           backgroundColor: request.accent,
           foregroundColor: appBarForeground,
-          title: Text(request.entry.resolvedTitle),
+          title: Text(request.item.source.catalogItem?.title ?? ''),
           actions: [
             IconButton(
               tooltip: 'Edit metadata and collection fields',
@@ -291,15 +289,15 @@ class _VideoLibraryDetailPageState
           children: [
             LibraryDetailHero(
               type: request.type,
-              entry: request.entry,
+              item: request.item,
               ownedItem: request.ownedItem,
               accent: request.accent,
-              isOwned: request.entry.isOwned,
+              isOwned: request.item.source.isOwned,
             ),
             const SizedBox(height: 16),
             InspectorVideoTitleMetadataSection(
               type: request.type,
-              entry: request.entry,
+              item: request.item,
               ownedReleaseCount: releases
                   .where((release) => release.ownedCopies.isNotEmpty)
                   .length,
@@ -316,14 +314,14 @@ class _VideoLibraryDetailPageState
               seriesRef: CatalogEntityRef(
                 kind: request.type.workspace.kind.apiValue,
                 entityType: CatalogEntityType.work,
-                id: request.entry.id,
+                id: request.item.source.itemId,
               ),
               kind: request.type.workspace.kind.apiValue,
               accent: request.accent,
             ),
             const SizedBox(height: 16),
             VideoEpisodeRatingDisplaySection(
-              itemId: request.entry.id,
+              itemId: request.item.source.itemId,
               kind: request.type.workspace.kind.apiValue,
               accent: request.accent,
             ),
@@ -331,13 +329,13 @@ class _VideoLibraryDetailPageState
             if (_isTvKind)
               VideoExternalLinksSection(
                 title: 'External links',
-                links: request.entry.trailerUrls,
+                links: request.item.source.catalogItem?.trailerUrls ?? const [],
                 accent: request.accent,
               ),
             if (_isTvKind) const SizedBox(height: 16),
             if (_isTvKind)
               LibraryDetailUserLinksSection(
-                itemId: request.entry.id,
+                itemId: request.item.source.itemId,
                 accent: request.accent,
               ),
             if (_isTvKind) const SizedBox(height: 16),
@@ -403,7 +401,7 @@ class _VideoLibraryDetailPageState
             const SizedBox(height: 16),
             LibraryDetailCreditsSection(
               type: request.type,
-              entry: request.entry,
+              item: request.item,
               accent: request.accent,
               onFilterByValue: request.onFilterByValue,
             ),
@@ -415,13 +413,13 @@ class _VideoLibraryDetailPageState
             ),
             const SizedBox(height: 16),
             WatchHistorySection(
-              itemId: request.entry.id,
+              itemId: request.item.source.itemId,
               accent: request.accent,
               defaultTargetRef: seriesRef,
               targetOptions: watchHistoryTargets,
             ),
             VideoMetadataCorrectionsSection(
-              itemId: request.entry.id,
+              itemId: request.item.source.itemId,
               accent: request.accent,
             ),
           ],
@@ -436,6 +434,7 @@ List<LibraryNodeRef> _releaseNodesFor(
   LibraryProjectionRuntime item,
 ) {
   final catalogItem = item.source.catalogItem;
+  if (catalogItem == null) return const [];
   final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(catalogItem);
   final nodes = <LibraryNodeRef>[];
   for (final edition in resolvedEditions) {
@@ -457,6 +456,7 @@ List<_ResolvedVideoRelease> _resolvedReleasesFor(
   required List<WishlistItem> wishlistItems,
 }) {
   final catalogItem = item.source.catalogItem;
+  if (catalogItem == null) return const [];
   final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
     catalogItem,
     ownedItems: ownedCopies,
@@ -548,7 +548,6 @@ class _ResolvedVideoRelease {
   });
 
   final LibraryReleaseNodeRef node;
-  final CatalogEdition edition;
   final CatalogEdition edition;
   final List<OwnedItem> ownedCopies;
   final WishlistItem? wishlistItem;
@@ -729,15 +728,15 @@ class _TvReleaseTile extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: LibraryCoverImage(
-                    title: release.title,
-                    imageUrl: release.coverImageUrl,
+                    title: release.title ?? '',
+                    imageUrl: release.frontCoverUrl,
                     borderRadius: 12,
                   ),
                 ),
               ),
               const SizedBox(height: 10),
               Text(
-                release.title,
+                release.title ?? '',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -748,8 +747,8 @@ class _TvReleaseTile extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 [
-                  if (release.format?.trim().isNotEmpty == true)
-                    release.format!,
+                  if (release.formatLabel?.trim().isNotEmpty == true)
+                    release.formatLabel!,
                   '${release.media.length} media',
                   '${release.episodeMappings.length} maps',
                 ].join(' • '),
@@ -810,7 +809,7 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              release.title,
+              release.title ?? '',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -1175,8 +1174,8 @@ class _VideoReleaseTile extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: LibraryCoverImage(
-                    title: release.entry.resolvedTitle,
-                    imageUrl: release.entry.displayCoverUrl,
+                    title: release.edition.title,
+                    imageUrl: null,
                     ownedItemId: release.ownedCopies.isEmpty
                         ? null
                         : release.ownedCopies.first.id,

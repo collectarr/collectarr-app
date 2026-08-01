@@ -38,7 +38,7 @@ class MusicInspectorPanel extends StatelessWidget {
     return LibraryDetailPanelScaffold(
       accent: inspector.accent,
       toolbar: InspectorUnifiedToolbar(
-        entry: inspector.entry,
+        item: inspector.item,
         detailsLayout: inspector.detailsLayout,
         onEdit: request.onEdit,
         onShare: request.onShare,
@@ -140,10 +140,10 @@ class _MusicInspectorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = inspector.entry;
-    final artist = entry.series?.seriesTitle?.trim();
+    final catalogItem = inspector.item.source.catalogItem;
+    final artist = catalogItem?.series?.seriesTitle?.trim();
     return LibraryInspectorTitleCard(
-      entry: entry,
+      item: inspector.item,
       eyebrow: artist,
       accent: inspector.accent,
     );
@@ -157,8 +157,8 @@ class _MusicInspectorMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = inspector.entry;
-    final music = entry.music;
+    final catalogItem = inspector.item.source.catalogItem;
+    final music = catalogItem?.music;
     final palette = appPalette(context);
     final discGroups =
         _groupTracksByDisc(music?.tracks ?? const <CatalogTrack>[]);
@@ -166,11 +166,12 @@ class _MusicInspectorMain extends StatelessWidget {
     final totalTracks = music?.trackCount ?? (music?.tracks.length ?? 0);
     final totalDuration =
         _formatTotalDuration(music?.tracks ?? const <CatalogTrack>[]);
-    final releaseYear = entry.releaseYear?.toString();
-    final genreText = entry.genres == null || entry.genres!.isEmpty
+    final releaseYear = catalogItem?.releaseYear?.toString();
+    final genreText = catalogItem?.genres == null || catalogItem!.genres!.isEmpty
         ? null
-        : entry.genres!.join(' | ');
-    final formatLabel = entry.referenceFormatLabel ?? entry.variant ?? '-';
+        : catalogItem.genres!.join(' | ');
+    final dto = inspector.item.dto;
+    final formatLabel = dto.referenceFormatLabel ?? dto.variant ?? '-';
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -189,9 +190,9 @@ class _MusicInspectorMain extends StatelessWidget {
                 width: 164,
                 height: 164,
                 child: LibraryInteractiveCover(
-                  title: entry.resolvedTitle,
-                  itemNumber: entry.itemNumber,
-                  imageUrl: entry.displayCoverUrl,
+                  title: dto.title,
+                  itemNumber: catalogItem?.itemNumber,
+                  imageUrl: catalogItem?.displayCoverUrl,
                   accentColor: inspector.accent,
                 ),
               ),
@@ -201,12 +202,12 @@ class _MusicInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (entry.publisher?.isNotEmpty == true ||
+                  if (dto.publisher?.isNotEmpty == true ||
                       releaseYear != null)
                     Text(
                       [
-                        if (entry.publisher?.isNotEmpty == true)
-                          entry.publisher!,
+                        if (dto.publisher?.isNotEmpty == true)
+                          dto.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -224,10 +225,10 @@ class _MusicInspectorMain extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 8),
-                  if (entry.barcode?.isNotEmpty == true)
+                  if (dto.barcode?.isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.qr_code_2,
-                      text: entry.barcode!,
+                      text: dto.barcode!,
                     ),
                   LibraryInspectorInfoLine(
                     icon: Icons.album_outlined,
@@ -267,7 +268,7 @@ class _MusicInspectorMain extends StatelessWidget {
                       Expanded(
                         child: _MusicCoverCard(
                           title: 'Front cover',
-                          coverUrl: entry.displayCoverUrl,
+                          coverUrl: catalogItem?.displayCoverUrl,
                           accent: inspector.accent,
                         ),
                       ),
@@ -282,7 +283,7 @@ class _MusicInspectorMain extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (_ebayUri(entry) case final uri?) ...[
+                  if (_ebayUri(inspector.item) case final uri?) ...[
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () => launchUrl(
@@ -324,7 +325,7 @@ class _MusicInspectorTracks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tracks = inspector.entry.music?.tracks ?? const <CatalogTrack>[];
+    final tracks = inspector.item.source.catalogItem?.music?.tracks ?? const <CatalogTrack>[];
     final groups = _groupTracksByDisc(tracks);
     if (groups.isEmpty) {
       return const SizedBox.shrink();
@@ -387,8 +388,8 @@ class _MusicDiscDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = inspector.entry;
-    final music = entry.music;
+    final catalogItem = inspector.item.source.catalogItem;
+    final music = catalogItem?.music;
     final discs = music?.discs ?? const <CatalogDisc>[];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,26 +437,27 @@ class _MusicProductDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = inspector.entry;
-    final music = entry.music;
+    final catalogItem = inspector.item.source.catalogItem;
+    final dto = inspector.item.dto;
+    final music = catalogItem?.music;
     final rows = <(String, String)>[
-      if (entry.publisher?.trim().isNotEmpty == true) ('Label', entry.publisher!),
+      if (dto.publisher?.trim().isNotEmpty == true) ('Label', dto.publisher!),
       if (music?.catalogNumber?.trim().isNotEmpty == true)
         ('Catalog number', music!.catalogNumber!),
       if (music?.upc?.trim().isNotEmpty == true) ('UPC', music!.upc!),
-      if (entry.barcode?.trim().isNotEmpty == true) ('Barcode', entry.barcode!),
-      if (entry.referenceFormatLabel?.trim().isNotEmpty == true ||
-          entry.variant?.trim().isNotEmpty == true)
-        ('Format', entry.referenceFormatLabel ?? entry.variant ?? '-'),
+      if (dto.barcode?.trim().isNotEmpty == true) ('Barcode', dto.barcode!),
+      if (dto.referenceFormatLabel?.trim().isNotEmpty == true ||
+          dto.variant?.trim().isNotEmpty == true)
+        ('Format', dto.referenceFormatLabel ?? dto.variant ?? '-'),
       if (music?.releaseStatus?.trim().isNotEmpty == true)
         ('Release status', music!.releaseStatus!),
       if (music?.originalReleaseDate != null)
         ('Original release', formatDate(music!.originalReleaseDate!)),
       if (music?.recordingDate != null)
         ('Recording date', formatDate(music!.recordingDate!)),
-      if (entry.country?.trim().isNotEmpty == true) ('Country', entry.country!),
-      if (entry.language?.trim().isNotEmpty == true)
-        ('Language', entry.language!),
+      if (catalogItem?.country?.trim().isNotEmpty == true) ('Country', catalogItem!.country!),
+      if (catalogItem?.language?.trim().isNotEmpty == true)
+        ('Language', catalogItem!.language!),
       if (music?.rpm?.trim().isNotEmpty == true) ('RPM', music!.rpm!),
       if (music?.soundType?.trim().isNotEmpty == true)
         ('Sound', music!.soundType!),
@@ -486,14 +488,14 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = inspector.entry;
+    final source = inspector.item.source;
     final owned = inspector.ownedItem;
     final personalRows = <(String, String)>[
       ('Index', owned?.indexNumber?.toString() ?? '-'),
       if (owned?.condition?.trim().isNotEmpty == true)
         ('Condition', owned!.condition!),
-      if (entry.locationPath?.trim().isNotEmpty == true)
-        ('Location', entry.locationPath!),
+      if (source.locationPath?.trim().isNotEmpty == true)
+        ('Location', source.locationPath!),
       if (owned?.collectionStatus?.trim().isNotEmpty == true)
         ('Collection status', owned!.collectionStatus!),
       if (owned?.pricePaidCents != null)
@@ -527,7 +529,8 @@ class _MusicInspectorCredits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final creditRows = libraryCreatorsGroupedByRole(inspector.entry.creators);
+    final creditRows = libraryCreatorsGroupedByRole(
+        inspector.item.source.catalogItem?.creators);
     if (creditRows.isEmpty) {
       return Text(
         '-',

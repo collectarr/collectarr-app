@@ -6,14 +6,9 @@ import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -158,32 +153,18 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
         final wishlistData = row.readTableOrNull(db.wishlistItemsCache);
         final trackingData = row.readTableOrNull(db.trackingEntriesCache);
 
-        String? locationPath;
-        if (ownedData?.locationId != null) {
-          locationPath = ref
-              .read(locationRepositoryProvider)
-              .resolvePathSync(ownedData!.locationId!);
-        }
-
-        final watchSessions = ref
-            .read(watchSessionsCacheRepositoryProvider)
-            .getSessionsSync(catalogData.id);
-
-        final itemImages = ref
-            .read(itemImageRepositoryProvider)
-            .getImagesSync(catalogData.id);
+        const String? locationPath = null;
 
         shelfEntries.add(
           ShelfEntry(
+            itemId: catalogData.id,
             catalogItem: LibraryMetadataItem.fromCatalogItem(
-              _itemFromRow(catalogData),
+              _catalogFromCache(catalogData),
             ),
             ownedItem: ownedData == null ? null : _ownedFromCache(ownedData),
             wishlistItem: wishlistData == null ? null : _wishlistFromCache(wishlistData),
             trackingEntry: trackingData == null ? null : _trackingFromCache(trackingData),
             locationPath: locationPath,
-            watchSessions: watchSessions,
-            itemImages: itemImages,
           ),
         );
       }
@@ -313,7 +294,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     return filtered;
   }
 
-  CatalogItem _itemFromRow(CatalogCacheData row) {
+  CatalogItem _catalogFromCache(CatalogCacheData row) {
     final series = CatalogSeriesDetails(
       seriesId: row.seriesId,
       seriesTitle: row.seriesTitle,
@@ -372,17 +353,10 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       editionTitle: row.editionTitle,
       physicalFormat: row.physicalFormat,
       publisher: row.publisher,
-      creators: _decodeStringList(row.creatorsJson),
-      artists: _decodeStringList(row.artistsJson),
-      authors: _decodeStringList(row.authorsJson),
-      directors: _decodeStringList(row.directorsJson),
-      writers: _decodeStringList(row.writersJson),
-      cast: _decodeStringList(row.castJson),
+      creators: _decodeListOfMaps(row.creatorsJson),
       characters: _decodeStringList(row.charactersJson),
+      characterDetails: _decodeListOfMaps(row.characterDetailsJson),
       storyArcs: _decodeStringList(row.storyArcsJson),
-      languages: _decodeStringList(row.languagesJson),
-      subtitles: _decodeStringList(row.subtitlesListJson),
-      readingOrder: row.readingOrder,
       series: series,
       video: video,
       music: music,
@@ -392,54 +366,80 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     );
   }
 
+  static List<Map<String, dynamic>>? _decodeListOfMaps(String? jsonStr) {
+    if (jsonStr == null || jsonStr.isEmpty) return null;
+    try {
+      final list = json.decode(jsonStr) as List;
+      return list.cast<Map<String, dynamic>>();
+    } catch (_) {
+      return null;
+    }
+  }
+
   OwnedItem _ownedFromCache(OwnedItemsCacheData row) {
     return OwnedItem(
       id: row.id,
-      itemId: row.itemId,
+      catalogRef: CatalogEntityRef(
+        kind: 'unknown',
+        entityType: CatalogEntityType.work,
+        id: row.itemId,
+      ),
       quantity: row.quantity,
       locationId: row.locationId,
       condition: row.condition,
-      notes: row.notes,
+      personalNotes: row.personalNotes,
       editionId: row.editionId,
       variantId: row.variantId,
       bundleReleaseId: row.bundleReleaseId,
       anchorType: row.anchorType,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     );
   }
 
   WishlistItem _wishlistFromCache(WishlistItemsCacheData row) {
     return WishlistItem(
       id: row.id,
-      itemId: row.itemId,
-      priority: row.priority,
+      catalogRef: CatalogEntityRef(
+        kind: 'unknown',
+        entityType: CatalogEntityType.work,
+        id: row.itemId,
+      ),
       notes: row.notes,
       editionId: row.editionId,
       variantId: row.variantId,
       bundleReleaseId: row.bundleReleaseId,
       anchorType: row.anchorType,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     );
   }
 
   TrackingEntry _trackingFromCache(TrackingEntriesCacheData row) {
-    final ref = CatalogEntityRef(
-      kind: row.kind,
-      entityType: CatalogEntityType.work,
-      id: row.itemId,
-    );
     return TrackingEntry(
       id: row.id,
-      catalogRef: ref,
-      status: TrackingStatus.values.firstWhere(
-        (e) => e.name == row.status,
-        orElse: () => TrackingStatus.planned,
+      catalogRef: CatalogEntityRef(
+        kind: 'unknown',
+        entityType: CatalogEntityType.work,
+        id: row.itemId,
       ),
-      lastUpdated: row.updatedAt,
-      progressFraction: row.progressFraction,
+      ownedItemId: row.ownedItemId,
+      editionId: row.editionId,
+      variantId: row.variantId,
+      bundleReleaseId: row.bundleReleaseId,
+      sourceType: row.sourceType,
+      status: row.status,
       rating: row.rating,
-      review: row.review,
-      startDate: row.startDate,
-      finishDate: row.finishDate,
+      startedAt: row.startedAt,
+      finishedAt: row.finishedAt,
+      progressCurrent: row.progressCurrent,
+      progressTotal: row.progressTotal,
       timesCompleted: row.timesCompleted,
+      notes: row.notes,
+      seasonNumber: row.seasonNumber,
+      episodeNumber: row.episodeNumber,
+      updatedAt: row.updatedAt,
+      deletedAt: row.deletedAt,
     );
   }
 

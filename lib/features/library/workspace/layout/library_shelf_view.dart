@@ -203,14 +203,14 @@ class _ShelfRow<T> extends StatelessWidget {
     final palette = appPalette(context);
     return Semantics(
       button: true,
-      label: entry.resolvedTitle,
+      label: entry.dto.title,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 1),
         child: SizedBox(
           width: bookW,
           height: bookHeight,
           child: LibraryCoverTile(
-            entry: entry,
+            item: entry,
             active: active,
             selected: selected,
             selectionMode: selectionEnabled,

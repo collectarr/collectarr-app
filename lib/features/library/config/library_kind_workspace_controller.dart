@@ -4,8 +4,6 @@ import 'package:collectarr_app/features/library/config/library_kind_drilldown.da
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
-import 'package:collectarr_app/features/library/kinds/video/release/video_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
@@ -56,36 +54,22 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
     if (drilldownState == null || drilldownState.rootItemId != selectedItem.node.titleItemId) {
       return null;
     }
-    if (selectedItem.source.catalogItem?.kind.toLowerCase() == 'tv') {
-      return TvShelfSeasonDrilldown(
-        titleItem: selectedItem,
-        coverSize: viewState.coverSize,
-        accent: accent,
-        onBack: closeItemDrilldown,
-        onRefreshFromCore: onRefreshFromCore,
-        onOpenTitleDetails: onOpenTitleDetails,
-      );
-    }
-
-    final drilldownItems = buildVideoShelfReleaseItems(
-      titleItem: selectedItem,
-      ownedCopies: allOwnedCopies,
-      wishlistItems: allWishlistItems,
-      projector: type.presentation.projector,
-    );
-    return VideoShelfReleaseDrilldown(
-      titleItem: selectedItem,
-      items: drilldownItems,
-      selectedReleaseId: drilldownState.selectedReleaseId,
-      coverSize: viewState.coverSize,
+    return buildLibraryKindDrilldown(
+      context: context,
+      type: type,
+      selectedItem: selectedItem,
       accent: accent,
+      coverSize: viewState.coverSize,
       onBack: closeItemDrilldown,
       onRefreshFromCore: onRefreshFromCore,
+      onOpenTitleDetails: onOpenTitleDetails,
+      ownedCopies: allOwnedCopies,
+      wishlistItems: allWishlistItems,
+      selectedReleaseId: drilldownState.selectedReleaseId,
       onSelectRelease: (releaseId) => openItemDrilldown(
         drilldownState.rootItemId,
         selectedReleaseId: releaseId,
       ),
-      onOpenTitleDetails: onOpenTitleDetails,
     );
   }
 }

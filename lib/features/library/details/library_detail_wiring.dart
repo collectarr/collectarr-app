@@ -22,7 +22,7 @@ List<Widget> buildLibraryDetailEditorSections({
     if (trackingEntry != null)
       InspectorTrackingDetailsEditor(
         itemId: item.node.titleItemId,
-        mediaType: catalogItem?.kind,
+        mediaType: catalogItem?.kind ?? '',
         trackingEntry: trackingEntry,
         profile: type.trackingProfile,
         editions: catalogItem?.editions ?? const [],

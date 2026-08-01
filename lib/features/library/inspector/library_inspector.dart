@@ -146,7 +146,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   @override
   void didUpdateWidget(covariant LibraryInspector oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.entry?.id != oldWidget.entry?.id) {
+    if (widget.item?.node.id != oldWidget.item?.node.id) {
       _selectedOwnedItemId = widget.ownedItem?.id;
       _selectNewestOwnedItem = false;
       return;
@@ -160,14 +160,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
 
   @override
   Widget build(BuildContext context) {
-    final selected = widget.entry;
+    final selected = widget.item;
     if (selected == null) {
       return EmptyInspector(type: widget.type, accent: widget.accent);
     }
     final ownedCopies = ref.watch(collectionProvider).maybeWhen(
           data: (items) {
             final matches = items
-                .where((item) => !item.isDeleted && item.itemId == selected.id)
+                .where((item) => !item.isDeleted && item.itemId == selected.source.catalogItem?.id)
                 .toList(growable: false)
               ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
             return matches;
@@ -193,19 +193,19 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       );
     }
     final trackingEntries =
-        ref.watch(trackingEntriesByCatalogItemProvider)[selected.id] ??
+        ref.watch(trackingEntriesByCatalogItemProvider)[selected.source.catalogItem?.id] ??
             const <TrackingEntry>[];
     final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
       activeOwnedItem,
     );
-    final onToggleOwned = selected.isOwned
+    final onToggleOwned = selected.dto.isOwned
         ? activeOwnedItem == null
             ? widget.onRemoveOwned
             : () => _removeOwnedCopy(activeOwnedItem)
         : widget.onAddOwned;
     final onToggleWishlist =
-        selected.isWishlisted ? widget.onRemoveWishlist : widget.onAddWishlist;
+        selected.dto.isWishlisted ? widget.onRemoveWishlist : widget.onAddWishlist;
     final onEdit =
         widget.onEdit == null ? null : () => widget.onEdit!(activeOwnedItem);
     final onCorrectMetadata = widget.type.supportedMetadataProviders.isNotEmpty
@@ -213,14 +213,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               context: context,
               ref: ref,
               item: CatalogItem(
-                id: selected.id,
+                id: selected.source.catalogItem!.id,
                 kind: widget.type.workspace.kind.apiValue,
-                title: selected.title,
-                itemNumber: selected.itemNumber,
-                publisher: selected.publisher,
-                releaseYear: selected.releaseYear,
-                barcode: selected.barcode,
-                variant: selected.variant,
+                title: selected.dto.title,
+                itemNumber: selected.dto.itemNumber,
+                publisher: selected.dto.publisher,
+                releaseYear: selected.dto.releaseDate?.year,
+                barcode: selected.dto.barcode,
+                variant: selected.dto.variant,
               ),
               type: widget.type,
             )
@@ -248,10 +248,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         context: context,
         request: LibraryDetailPageRequest(
           type: widget.type,
-          entry: selected,
+          item: selected,
           ownedItem: activeOwnedItem,
           accent: widget.accent,
-          onAddOwned: selected.isOwned
+          onAddOwned: selected.dto.isOwned
               ? () => _addOwnedCopy(
                     selected,
                     ownedItem: activeOwnedItem,
@@ -276,7 +276,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       activeTrackingEntry,
       LibraryInspectorRequest(
         type: widget.type,
-        entry: selected,
+        item: selected,
         ownedItem: activeOwnedItem,
         onEdit: widget.onEdit == null
             ? null
@@ -331,7 +331,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ) ??
         InspectorHero(
           type: widget.type,
-          entry: selected,
+          item: selected,
           ownedItem: activeOwnedItem,
           accent: widget.accent,
           contextLabel: widget.contextLabel,
@@ -346,7 +346,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         : <Widget>[
             InspectorMetadataSection(
               type: widget.type,
-              entry: selected,
+              item: selected,
               accent: widget.accent,
               onFilterByValue: widget.onFilterByValue,
             ),
@@ -355,7 +355,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (ownedCopies.isNotEmpty) {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
         copies: ownedCopies,
-        editions: selected.editions,
+        editions: selected.source.catalogItem?.editions ?? const [],
         selectedOwnedItemId: activeOwnedItem?.id,
         accent: widget.accent,
         onAddCopy: () => _addOwnedCopy(
@@ -379,8 +379,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
         resolveOwnedDigitalFlag(
               activeOwnedItem,
-              selected.editions,
-              fallbackLabel: selected.variant,
+              selected.source.catalogItem?.editions ?? const [],
+              fallbackLabel: selected.dto.variant,
             ) !=
             true) {
       conditionGradeSection = Builder(
@@ -441,7 +441,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
       if (widget.type.showsDefaultInspectorPersonalSection)
         InspectorPersonalSection(
-          entry: selected,
+          item: selected,
           ownedItem: activeOwnedItem,
           trackingEntry: activeTrackingEntry,
           accent: widget.accent,
@@ -458,7 +458,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       ...?(!usesCustomInspectorPanel
             ? buildLibraryInspectorEditorSections(
               type: widget.type,
-              entry: selected,
+              item: selected,
               accent: widget.accent,
               ownedItem: activeOwnedItem,
               trackingEntry: activeTrackingEntry,
@@ -468,7 +468,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             ? buildLibraryInspectorKindSections(
               context: context,
               type: widget.type,
-              entry: selected,
+              item: selected,
               accent: widget.accent,
               onFilterByValue: widget.onFilterByValue,
             )
@@ -486,7 +486,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
         children: [
           InspectorUnifiedToolbar(
-            entry: selected,
+            item: selected,
             onEdit: onEdit,
             onShare: onShare,
             onDuplicate: onDuplicate,
@@ -519,8 +519,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   widget.type.grades.isNotEmpty) &&
               resolveOwnedDigitalFlag(
                     activeOwnedItem,
-                    selected.editions,
-                    fallbackLabel: selected.variant,
+                    selected.source.catalogItem?.editions ?? const [],
+                    fallbackLabel: selected.dto.variant,
                   ) !=
                   true) ...[
             SizedBox(height: density.inspectorOuterGap),
@@ -896,7 +896,7 @@ class EmptyInspector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('No ${type.label.toLowerCase()} selected'),
+      child: Text('No ${type.singularLabel.toLowerCase()} selected'),
     );
   }
 }

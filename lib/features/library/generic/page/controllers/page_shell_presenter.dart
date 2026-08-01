@@ -122,10 +122,10 @@ abstract final class LibraryPageShellPresenter {
     if (state.activeReleaseFolderTitleItemId != null &&
         projection.filteredItems.isNotEmpty) {
       final hasSelection = projection.filteredItems.any(
-        (item) => item.entry.id == state._selectedId,
+        (item) => item.node.id == state._selectedId,
       );
       if (!hasSelection) {
-        final firstReleaseId = projection.filteredItems.first.entry.id;
+        final firstReleaseId = projection.filteredItems.first.node.id;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!state.mounted || state._selectedId == firstReleaseId) {
             return;
@@ -143,7 +143,7 @@ abstract final class LibraryPageShellPresenter {
         state._selectedId == null &&
         state._selection.itemIds.isEmpty &&
         projection.filteredItems.isNotEmpty) {
-      final firstVisibleId = projection.filteredItems.first.entry.id;
+      final firstVisibleId = projection.filteredItems.first.node.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!state.mounted ||
             state._selectedId != null ||
@@ -192,7 +192,7 @@ abstract final class LibraryPageShellPresenter {
       onToggleSelectionItem: state._toggleSelectionItem,
       onOpenItem: (item) {
         final isMediaTitle =
-            item.entry.browseScope == LibraryBrowserScope.title;
+            item.node.scope == LibraryBrowserScope.title;
         if (state._shouldOpenReleaseFolder(item) && isMediaTitle) {
           state._openReleaseFolder(item);
           return;
@@ -295,7 +295,7 @@ abstract final class LibraryPageShellPresenter {
       onFilterByValue: state._toggleLinkedMetadataFilter,
       selectedLetter: state._selectedLetter,
       availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
-        projection.filteredItems.map((i) => i.entry.resolvedTitle),
+        projection.filteredItems.map((i) => i.dto.title),
       ),
       onLetterSelected: state._setSelectedLetter,
       db: state.ref.read(localDatabaseProvider),

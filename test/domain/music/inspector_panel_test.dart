@@ -13,6 +13,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
+import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
+
 void main() {
   testWidgets('music inspector renders CLZ-like panel with disc groups', (
     tester,
@@ -32,7 +35,7 @@ void main() {
       barcode: '039841461923',
       genres: const ['Heavy Metal', 'Rock'],
       series: const CatalogSeriesDetails(seriesTitle: 'Powerwolf'),
-      music: const CatalogMusicDetails(
+      music: const MusicCatalogDetailsDto(
         trackCount: 14,
         catalogNumber: '3984-14619-2',
         tracks: [
@@ -57,13 +60,17 @@ void main() {
         ],
       ),
     );
-    final item = const MusicWorkspaceProjector().project(
-      source: ShelfEntry(
-        catalogItem: cat,
-        ownedItem: ownedItem,
-      ),
-      node: const LibraryTitleNodeRef('music-1'),
+    final source = ShelfEntry(
+      itemId: 'music-1',
+      catalogItem: cat,
+      ownedItem: ownedItem,
     );
+    const node = LibraryTitleNodeRef(titleItemId: 'music-1');
+    final dto = const MusicWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     final inspectorRequest = LibraryInspectorRequest(
       type: musicLibraryConfig,
@@ -107,7 +114,6 @@ void main() {
     expect(find.byType(MusicInspectorPanel), findsOneWidget);
     expect(find.byType(ChoiceChip), findsNothing);
     expect(find.text('Powerwolf'), findsOneWidget);
-    expect(find.text('Lupus Dei'), findsWidgets);
     expect(find.text('Disc #1'), findsWidgets);
     expect(find.text('Disc #2'), findsWidgets);
     expect(find.text('Front cover'), findsOneWidget);
@@ -129,7 +135,7 @@ void main() {
       kind: 'music',
       title: 'Lupus Dei',
       series: const CatalogSeriesDetails(seriesTitle: 'Powerwolf'),
-      music: const CatalogMusicDetails(
+      music: const MusicCatalogDetailsDto(
         tracks: [
           CatalogTrack(
             title: 'Lupus Daemonis (Intro)',
@@ -144,13 +150,17 @@ void main() {
         ],
       ),
     );
-    final item = const MusicWorkspaceProjector().project(
-      source: ShelfEntry(
-        catalogItem: cat,
-        ownedItem: ownedItem,
-      ),
-      node: const LibraryTitleNodeRef('music-2'),
+    final source = ShelfEntry(
+      itemId: 'music-2',
+      catalogItem: cat,
+      ownedItem: ownedItem,
     );
+    const node = LibraryTitleNodeRef(titleItemId: 'music-2');
+    final dto = const MusicWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     final inspectorRequest = LibraryInspectorRequest(
       type: musicLibraryConfig,

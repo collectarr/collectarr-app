@@ -107,8 +107,7 @@ class LibraryPageDialogCoordinator {
       return;
     }
     final allEntries =
-        projection?.allItems.map((i) => i.entry).toList(growable: false) ??
-            const [];
+        projection?.allItems ?? const [];
     final options = LibraryFilterOptions.fromEntries(
       allEntries,
       adapter: _page.adapter,
@@ -349,7 +348,7 @@ class LibraryPageDialogCoordinator {
     final ownedItems = await _page.ref.read(collectionProvider.future);
     final visibleIds = <String>{
       for (final item in projection.filteredItems)
-        if (item.entry.ownedItemId != null) item.entry.ownedItemId!,
+        if (item.source.ownedItem?.id != null) item.source.ownedItem!.id,
     };
     final items = ownedItems
         .where((o) => !o.isDeleted && visibleIds.contains(o.id))
@@ -397,9 +396,9 @@ class LibraryPageDialogCoordinator {
     final ownedItems = await _page.ref.read(collectionProvider.future);
     final visibleIds = <String>{
       for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.entry.id) &&
-            item.entry.ownedItemId != null)
-          item.entry.ownedItemId!,
+        if (_page.selection.itemIds.contains(item.node.id) &&
+            item.source.ownedItem?.id != null)
+          item.source.ownedItem!.id,
     };
     final items = ownedItems
         .where((o) => !o.isDeleted && visibleIds.contains(o.id))
@@ -441,10 +440,10 @@ class LibraryPageDialogCoordinator {
     final context = _page.context;
     final ownedItemIds = <String>{
       for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.entry.id) &&
-            item.entry.ownedItemId != null &&
-            !_page.activeLoanOwnedItemIds.contains(item.entry.ownedItemId))
-          item.entry.ownedItemId!,
+        if (_page.selection.itemIds.contains(item.node.id) &&
+            item.source.ownedItem?.id != null &&
+            !_page.activeLoanOwnedItemIds.contains(item.source.ownedItem!.id))
+          item.source.ownedItem!.id,
     };
     if (ownedItemIds.isEmpty || !_page.mounted) return;
 

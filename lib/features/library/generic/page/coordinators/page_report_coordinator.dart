@@ -10,7 +10,7 @@ class LibraryPageReportCoordinator {
   final LibraryPageCoordinatorContext _page;
 
   void printReportFlow(LibraryProjection projection) {
-    final items = projection.filteredItems.map((i) => i.entry).toList();
+    final items = projection.filteredItems;
     printCollectionReport(
       context: _page.context,
       title: _page.type.workspace.title,
@@ -22,7 +22,7 @@ class LibraryPageReportCoordinator {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final items = [
       for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.entry.id)) item.entry,
+        if (_page.selection.itemIds.contains(item.node.id)) item,
     ];
     if (items.isEmpty) return;
     printCollectionReport(

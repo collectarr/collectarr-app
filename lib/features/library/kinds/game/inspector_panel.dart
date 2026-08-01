@@ -26,10 +26,10 @@ List<Widget> buildGameInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
-  return buildLibraryDetailSectionWidgets(
-    _buildGameSectionSpecs(context, inspector),
-    accentColor: inspector.accent,
-  );
+  final specs = _buildGameSectionSpecs(context, inspector);
+  return [
+    for (final spec in specs) ...spec.children,
+  ];
 }
 
 class GameInspectorPanel extends StatelessWidget {
@@ -39,13 +39,13 @@ class GameInspectorPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = request.inspector.entry;
+    final item = request.inspector.item;
     final accent = request.inspector.accent;
 
     return LibraryDetailPanelScaffold(
       accent: accent,
       toolbar: InspectorUnifiedToolbar(
-        entry: entry,
+        item: item,
         detailsLayout: request.inspector.detailsLayout,
         onEdit: request.onEdit,
         onShare: request.onShare,
@@ -80,7 +80,9 @@ List<LibraryDetailSectionSpec> _buildGameSectionSpecs(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
-  final creditRows = libraryCreatorsGroupedByRole(inspector.entry.creators);
+  final creditRows = libraryCreatorsGroupedByRole(
+    inspector.item.source.catalogItem?.creators,
+  );
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.identity,
@@ -110,10 +112,10 @@ class _GameInspectorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = inspector.entry;
-    final series = entry.series?.seriesTitle?.trim();
+    final dto = inspector.item.dto;
+    final series = dto.seriesTitle?.trim();
     return LibraryInspectorTitleCard(
-      entry: entry,
+      item: inspector.item,
       eyebrow: series,
       accent: inspector.accent,
     );
@@ -127,15 +129,16 @@ class _GameInspectorMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = inspector.entry;
+    final item = inspector.item;
+    final dto = item.dto;
+    final catalogItem = item.source.catalogItem;
     final palette = appPalette(context);
-    final releaseYear = entry.releaseYear?.toString();
-    final genreText = entry.genres == null || entry.genres!.isEmpty
+    final releaseYear = dto.releaseDate?.year.toString();
+    final genres = catalogItem?.genres;
+    final genreText = genres == null || genres.isEmpty
         ? null
-        : entry.genres!.join(' | ');
-    final platforms = entry.game?.platforms.isNotEmpty == true
-        ? entry.game!.platforms
-        : entry.rawPlatforms ?? const <String>[];
+        : genres.join(' | ');
+    final platforms = catalogItem?.game?.platforms ?? const <String>[];
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -154,9 +157,9 @@ class _GameInspectorMain extends StatelessWidget {
                 width: 164,
                 height: 164,
                 child: LibraryInteractiveCover(
-                  title: entry.resolvedTitle,
-                  itemNumber: entry.itemNumber,
-                  imageUrl: entry.displayCoverUrl,
+                  title: dto.title,
+                  itemNumber: dto.itemNumber,
+                  imageUrl: dto.coverImageUrl,
                   accentColor: inspector.accent,
                 ),
               ),
@@ -166,12 +169,12 @@ class _GameInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (entry.publisher?.isNotEmpty == true ||
+                  if (dto.publisher?.isNotEmpty == true ||
                       releaseYear != null)
                     Text(
                       [
-                        if (entry.publisher?.isNotEmpty == true)
-                          entry.publisher!,
+                        if (dto.publisher?.isNotEmpty == true)
+                          dto.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -189,28 +192,28 @@ class _GameInspectorMain extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 8),
-                  if (entry.referenceFormatLabel?.trim().isNotEmpty == true ||
-                      entry.variant?.trim().isNotEmpty == true)
+                  if (dto.referenceFormatLabel?.trim().isNotEmpty == true ||
+                      dto.variant?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.album_outlined,
-                      text: entry.referenceFormatLabel ?? entry.variant ?? '-',
+                      text: dto.referenceFormatLabel ?? dto.variant ?? '-',
                     ),
                   if (platforms.isNotEmpty)
                     LibraryInspectorInfoLine(
                       icon: Icons.sports_esports_outlined,
                       text: platforms.join(' | '),
                     ),
-                  if (entry.audienceRating?.trim().isNotEmpty == true)
+                  if (dto.audienceRating?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.shield_outlined,
-                      text: 'Audience: ${entry.audienceRating!}',
+                      text: 'Audience: ${dto.audienceRating!}',
                     ),
-                  if (entry.barcode?.trim().isNotEmpty == true)
+                  if (dto.barcode?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.qr_code_2,
-                      text: entry.barcode!,
+                      text: dto.barcode!,
                     ),
-                  if (_ebayUri(entry) case final uri?) ...[
+                  if (_ebayUri(item) case final uri?) ...[
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () => launchUrl(
@@ -252,45 +255,48 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = inspector.entry;
-    final owned = inspector.ownedItem;
+    final item = inspector.item;
+    final dto = item.dto;
+    final catalogItem = item.source.catalogItem;
+    final owned = item.source.ownedItem;
+    final releaseYear = dto.releaseDate?.year;
     final detailRows = <(String, String)>[
-      if (entry.publisher?.trim().isNotEmpty == true)
-        ('Publisher', entry.publisher!),
-      if (entry.releaseDate != null || entry.releaseYear != null)
+      if (dto.publisher?.trim().isNotEmpty == true)
+        ('Publisher', dto.publisher!),
+      if (dto.releaseDate != null || releaseYear != null)
         (
           'Release',
-          formatNullableDate(entry.releaseDate) ??
-              entry.releaseYear!.toString(),
+          formatNullableDate(dto.releaseDate) ??
+              releaseYear!.toString(),
         ),
-      if (entry.referenceFormatLabel?.trim().isNotEmpty == true ||
-          entry.variant?.trim().isNotEmpty == true)
-        ('Format', entry.referenceFormatLabel ?? entry.variant ?? '-'),
-      if (entry.audienceRating?.trim().isNotEmpty == true)
-        ('Audience rating', entry.audienceRating!),
-      if (entry.ageRating?.trim().isNotEmpty == true)
-        ('Age rating', entry.ageRating!),
-      if (entry.country?.trim().isNotEmpty == true) ('Country', entry.country!),
-      if (entry.language?.trim().isNotEmpty == true)
-        ('Language', entry.language!),
-      if (entry.game?.platforms.isNotEmpty == true)
-        ('Platforms', entry.game!.platforms.join(', ')),
-      if (entry.game?.toySubtype?.trim().isNotEmpty == true)
-        ('Subtype', entry.game!.toySubtype!),
-      if (entry.game?.toyType?.trim().isNotEmpty == true)
-        ('Type', entry.game!.toyType!),
-      if (entry.barcode?.trim().isNotEmpty == true) ('Barcode', entry.barcode!),
-      if (entry.genres?.isNotEmpty == true)
-        ('Genres', entry.genres!.join(', ')),
-      if (entry.tags?.trim().isNotEmpty == true) ('Tags', entry.tags!),
+      if (dto.referenceFormatLabel?.trim().isNotEmpty == true ||
+          dto.variant?.trim().isNotEmpty == true)
+        ('Format', dto.referenceFormatLabel ?? dto.variant ?? '-'),
+      if (dto.audienceRating?.trim().isNotEmpty == true)
+        ('Audience rating', dto.audienceRating!),
+      if (dto.ageRating?.trim().isNotEmpty == true)
+        ('Age rating', dto.ageRating!),
+      if (dto.country?.trim().isNotEmpty == true) ('Country', dto.country!),
+      if (dto.language?.trim().isNotEmpty == true)
+        ('Language', dto.language!),
+      if (catalogItem?.game?.platforms.isNotEmpty == true)
+        ('Platforms', catalogItem!.game!.platforms.join(', ')),
+      if (catalogItem?.game?.toySubtype?.trim().isNotEmpty == true)
+        ('Subtype', catalogItem!.game!.toySubtype!),
+      if (catalogItem?.game?.toyType?.trim().isNotEmpty == true)
+        ('Type', catalogItem!.game!.toyType!),
+      if (dto.barcode?.trim().isNotEmpty == true) ('Barcode', dto.barcode!),
+      if (catalogItem?.genres?.isNotEmpty == true)
+        ('Genres', catalogItem!.genres!.join(', ')),
+      if (dto.tags?.trim().isNotEmpty == true) ('Tags', dto.tags!),
     ];
     final personalRows = <(String, String)>[
       if (owned?.condition?.trim().isNotEmpty == true)
         ('Condition', owned!.condition!),
-      if (entry.collectionStatus?.trim().isNotEmpty == true)
-        ('Collection status', entry.collectionStatus!),
-      if (entry.locationPath?.trim().isNotEmpty == true)
-        ('Location', entry.locationPath!),
+      if (dto.collectionStatus?.trim().isNotEmpty == true)
+        ('Collection status', dto.collectionStatus!),
+      if (dto.locationPath?.trim().isNotEmpty == true)
+        ('Location', dto.locationPath!),
       if (owned?.typedDetails is MusicOwnedDetails &&
           (owned!.typedDetails as MusicOwnedDetails).storageDevice?.trim().isNotEmpty == true)
         ('Storage device', (owned.typedDetails as MusicOwnedDetails).storageDevice!),
@@ -307,10 +313,10 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Purchase date', formatDate(owned!.purchaseDate!)),
       if (owned?.purchaseStore?.trim().isNotEmpty == true)
         ('Purchase store', owned!.purchaseStore!),
-      if (entry.addedAt != null) ('Added', formatDate(entry.addedAt!)),
-      ('Modified', formatDate(entry.updatedAt)),
+      if (dto.addedAt != null) ('Added', formatDate(dto.addedAt!)),
+      ('Modified', formatDate(dto.updatedAt)),
     ];
-    final creditRows = libraryCreatorsGroupedByRole(entry.creators);
+    final creditRows = libraryCreatorsGroupedByRole(catalogItem?.creators);
 
     return Column(
       children: [
@@ -394,13 +400,14 @@ class _GameInspectorFactRows extends StatelessWidget {
     );
   }
 }
+
 Uri? _ebayUri(LibraryProjectionRuntime item) {
   final dto = item.dto;
   final seriesTitle = dto.seriesTitle;
   final query = <String>[
     if (dto.barcode?.trim().isNotEmpty == true) dto.barcode!.trim(),
     dto.title,
-    if (seriesTitle?.trim().isNotEmpty == true) seriesTitle.trim(),
+    if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
     if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
   ].join(' ');
   if (query.trim().isEmpty) {

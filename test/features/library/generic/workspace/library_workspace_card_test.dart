@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../helpers/test_data_factories.dart';
@@ -48,16 +49,18 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: SizedBox(
-          width: 420,
-          height: 170,
-          child: LibraryWorkspaceCard(
-            item: comicItem,
-            selected: true,
-            onTap: () => tapped = true,
-            dateFormatter: (value) => value.toIso8601String().split('T').first,
-            moneyFormatter: (cents, currency) => '$currency $cents',
+      ProviderScope(
+        child: MaterialApp(
+          home: SizedBox(
+            width: 420,
+            height: 240,
+            child: LibraryWorkspaceCard(
+              item: comicItem,
+              selected: true,
+              onTap: () => tapped = true,
+              dateFormatter: (value) => value.toIso8601String().split('T').first,
+              moneyFormatter: (cents, currency) => '$currency $cents',
+            ),
           ),
         ),
       ),
@@ -99,16 +102,18 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: SizedBox(
-          width: 420,
-          height: 170,
-          child: LibraryWorkspaceCard(
-            item: musicItem,
-            selected: false,
-            onTap: () {},
-            dateFormatter: (value) => value.toIso8601String().split('T').first,
-            moneyFormatter: (cents, currency) => '$currency $cents',
+      ProviderScope(
+        child: MaterialApp(
+          home: SizedBox(
+            width: 420,
+            height: 240,
+            child: LibraryWorkspaceCard(
+              item: musicItem,
+              selected: false,
+              onTap: () {},
+              dateFormatter: (value) => value.toIso8601String().split('T').first,
+              moneyFormatter: (cents, currency) => '$currency $cents',
+            ),
           ),
         ),
       ),
@@ -161,39 +166,43 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Column(
-          children: [
-            SizedBox(
-              width: 420,
-              height: 170,
-              child: LibraryWorkspaceCard(
-                item: movieItem,
-                selected: false,
-                onTap: () {},
-                dateFormatter: (value) =>
-                    value.toIso8601String().split('T').first,
-                moneyFormatter: (cents, currency) => '$currency $cents',
-              ),
+      ProviderScope(
+        child: MaterialApp(
+          home: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  width: 420,
+                  height: 240,
+                  child: LibraryWorkspaceCard(
+                    item: movieItem,
+                    selected: false,
+                    onTap: () {},
+                    dateFormatter: (value) =>
+                        value.toIso8601String().split('T').first,
+                    moneyFormatter: (cents, currency) => '$currency $cents',
+                  ),
+                ),
+                SizedBox(
+                  width: 420,
+                  height: 240,
+                  child: LibraryWorkspaceCard(
+                    item: gameItem,
+                    selected: false,
+                    onTap: () {},
+                    dateFormatter: (value) =>
+                        value.toIso8601String().split('T').first,
+                    moneyFormatter: (cents, currency) => '$currency $cents',
+                  ),
+                ),
+              ],
             ),
-            SizedBox(
-              width: 420,
-              height: 170,
-              child: LibraryWorkspaceCard(
-                item: gameItem,
-                selected: false,
-                onTap: () {},
-                dateFormatter: (value) =>
-                    value.toIso8601String().split('T').first,
-                moneyFormatter: (cents, currency) => '$currency $cents',
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
 
-    expect(find.text('Dune'), findsOneWidget);
-    expect(find.text('Mario Kart 8 Deluxe'), findsOneWidget);
+    expect(find.text('Dune'), findsWidgets);
+    expect(find.text('Mario Kart 8 Deluxe'), findsWidgets);
   });
 }

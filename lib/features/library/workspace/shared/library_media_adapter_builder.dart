@@ -137,6 +137,18 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
           'price',
         },
       ),
+    LibraryWorkspacePreset.list => const LibraryWorkspaceViewPresetConfig(
+        viewMode: LibraryViewMode.list,
+        detailsLayout: LibraryDetailsLayout.bottom,
+        coverSize: 100,
+        visibleColumns: {
+          'status',
+          'cover',
+          'title',
+          'publisher',
+          'release_date',
+        },
+      ),
   };
 }
 

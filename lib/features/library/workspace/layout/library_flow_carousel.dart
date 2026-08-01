@@ -151,7 +151,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                   if (!widget.selectionEnabled ||
                                       widget.selectedIds.isEmpty) {
                                     widget.onActivateItem(
-                                        widget.items[index].entry.id);
+                                        widget.items[index].source.itemId);
                                   }
                                 },
                                 itemBuilder: (context, index) {
@@ -185,7 +185,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                         accent: widget.accent,
                                         selected: widget.selectionEnabled &&
                                             widget.selectedIds
-                                                .contains(item.entry.id),
+                                                .contains(item.source.itemId),
                                         selectionMode:
                                             widget.selectionEnabled &&
                                                 widget.selectedIds.isNotEmpty,
@@ -195,7 +195,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                                 .selectionEnabled
                                             ? () =>
                                                 widget.onToggleSelectionItem(
-                                                    item.entry.id)
+                                                    item.source.itemId)
                                             : null,
                                         onDoubleTap: () =>
                                             widget.onOpenItem(item),
@@ -250,7 +250,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
                                   borderRadius: kAppRadiusLarge,
                                   child: _FlowBackdrop(
                                     key: ValueKey(
-                                        'flow-carousel-backdrop-${activeItem.entry.id}'),
+                                        'flow-carousel-backdrop-${activeItem.source.itemId}'),
                                     item: activeItem,
                                     accent: widget.accent,
                                   ),
@@ -317,7 +317,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
       return _currentIndex.clamp(0, widget.items.length - 1);
     }
     final index =
-        widget.items.indexWhere((item) => item.entry.id == selectedId);
+        widget.items.indexWhere((item) => item.source.itemId == selectedId);
     return index >= 0 ? index : 0;
   }
 
@@ -397,7 +397,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
   void _handleTap(LibraryProjectionItem item, int index) {
     _focusNode.requestFocus();
     if (!widget.selectionEnabled) {
-      widget.onActivateItem(item.entry.id);
+      widget.onActivateItem(item.source.itemId);
       if (index != _currentIndex) {
         _animateToPage(index);
       }
@@ -407,26 +407,26 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     final isToggleSelection = _isToggleSelectionModifierPressed();
     if (isRangeSelection) {
       final anchorId =
-          widget.selectedAnchorId ?? widget.selectedId ?? item.entry.id;
+          widget.selectedAnchorId ?? widget.selectedId ?? item.source.itemId;
       final orderedIds = [
-        for (final candidate in widget.items) candidate.entry.id
+        for (final candidate in widget.items) candidate.source.itemId
       ];
       final rangeIds = selectionRangeItemIds(
         orderedIds,
         anchorId: anchorId,
-        targetId: item.entry.id,
+        targetId: item.source.itemId,
       );
       widget.onApplySelection(
         isToggleSelection ? {...widget.selectedIds, ...rangeIds} : rangeIds,
-        item.entry.id,
+        item.source.itemId,
       );
       return;
     }
     if (isToggleSelection) {
-      widget.onToggleSelectionItem(item.entry.id);
+      widget.onToggleSelectionItem(item.source.itemId);
       return;
     }
-    widget.onActivateItem(item.entry.id);
+    widget.onActivateItem(item.source.itemId);
     if (index != _currentIndex) {
       _animateToPage(index);
     }
@@ -463,7 +463,7 @@ class _FlowBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = item.entry;
+    final dto = item.dto;
     final palette = appPalette(context);
     return IgnorePointer(
       child: AnimatedSwitcher(
@@ -471,7 +471,7 @@ class _FlowBackdrop extends StatelessWidget {
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         child: Stack(
-          key: ValueKey(entry.id),
+          key: ValueKey(item.source.itemId),
           fit: StackFit.expand,
           children: [
             Transform.scale(
@@ -481,10 +481,10 @@ class _FlowBackdrop extends StatelessWidget {
                 child: Opacity(
                   opacity: 0.34,
                   child: LibraryCoverImage(
-                    title: entry.resolvedTitle,
-                    itemNumber: entry.itemNumber,
-                    imageUrl: entry.displayCoverUrl,
-                    ownedItemId: entry.ownedItemId,
+                    title: item.dto.title,
+                    itemNumber: item.dto.itemNumber,
+                    imageUrl: item.dto.coverImageUrl,
+                    ownedItemId: item.source.ownedItem?.id,
                     borderRadius: 0,
                     fit: BoxFit.cover,
                   ),
@@ -607,16 +607,15 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
 
   @override
   Widget build(BuildContext context) {
-    final entry = widget.item.entry;
+    final dto = widget.item.dto;
     final palette = appPalette(context);
-    final title = entry.resolvedTitle;
-    final comic = entry.comic;
+    final title = dto.title;
     final subtitle = [
-      if (entry.itemNumber != null && entry.itemNumber!.trim().isNotEmpty)
-        '#${entry.itemNumber}',
-      if (entry.publisher != null && entry.publisher!.trim().isNotEmpty)
-        entry.publisher,
-      if (entry.releaseYear != null) entry.releaseYear.toString(),
+      if (dto.itemNumber != null && dto.itemNumber!.trim().isNotEmpty)
+        '#${dto.itemNumber}',
+      if (dto.publisher != null && dto.publisher!.trim().isNotEmpty)
+        dto.publisher,
+      if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
     ].join('  ·  ');
     final cardColor = widget.focused
         ? Color.alphaBlend(
@@ -676,9 +675,9 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           borderRadius: BorderRadius.circular(18),
                           child: LibraryInteractiveCover(
                             title: title,
-                            itemNumber: entry.itemNumber,
-                            imageUrl: entry.displayCoverUrl,
-                            ownedItemId: entry.ownedItemId,
+                            itemNumber: dto.itemNumber,
+                            imageUrl: dto.coverImageUrl,
+                            ownedItemId: widget.item.source.ownedItem?.id,
                             accentColor: widget.accent,
                             enableFullscreen: false,
                             enableSecondaryControl: false,
@@ -689,22 +688,16 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                         left: 8,
                         top: 8,
                         child: LibraryCoverBadges(
-                          isOwned: entry.isOwned,
-                          isTracked: entry.isTracked,
-                          isWishlisted: entry.isWishlisted,
-                          hasMissingCover: entry.hasMissingCover,
-                          hasMissingMetadata: entry.hasMissingMetadata,
+                          isOwned: dto.isOwned,
+                          isTracked: dto.isTracked,
+                          isWishlisted: dto.isWishlisted,
+                          hasMissingCover: dto.coverImageUrl == null ||
+                              dto.coverImageUrl!.isEmpty,
+                          hasMissingMetadata: dto.publisher == null ||
+                              dto.publisher!.isEmpty,
                           contractDiagnosticLabel:
-                              libraryHierarchyContractDiagnosticLabel(entry),
-                          keyLabel: libraryKeyMarkerLabel(
-                            comic?.keyComic ?? false,
-                            comic?.keyReason,
-                          ),
-                          slabLabel: librarySlabMarkerLabel(
-                            comic?.rawOrSlabbed,
-                            comic?.gradingCompany,
-                          ),
-                          notesLabel: libraryNotesMarkerLabel(entry.notes),
+                              libraryHierarchyContractDiagnosticLabel(widget.item),
+                          notesLabel: libraryNotesMarkerLabel(dto.notes),
                         ),
                       ),
                       if (showEditButton)
@@ -733,7 +726,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                       Positioned(
                         right: 8,
                         bottom: 8,
-                        child: _cardScopeBadge(context, entry),
+                        child: _cardScopeBadge(context, widget.item),
                       ),
                     ],
                   ),
@@ -809,29 +802,27 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
   @override
   void didUpdateWidget(covariant _FlowCarouselFooter oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.item.entry.id != oldWidget.item.entry.id) {
+    if (widget.item.source.itemId != oldWidget.item.source.itemId) {
       _showReleases = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final entry = widget.item.entry;
-    final metadataPresentation = _metadataPresentationForEntry(entry);
+    final dto = widget.item.dto;
+    final metadataPresentation = _metadataPresentationForEntry(widget.item);
     final palette = appPalette(context);
     final meta = [
       _metadataFactValue(metadataPresentation, 'Series'),
       _metadataFactValue(metadataPresentation, 'Artist'),
-      if (entry.publisher != null && entry.publisher!.trim().isNotEmpty)
-        entry.publisher,
-      if (entry.releaseDate != null)
-        '${entry.releaseDate!.year}-${entry.releaseDate!.month.toString().padLeft(2, '0')}-${entry.releaseDate!.day.toString().padLeft(2, '0')}'
-      else if (entry.releaseYear != null)
-        entry.releaseYear.toString(),
-      if (entry.referenceFormatLabel != null) entry.referenceFormatLabel,
+      if (dto.publisher != null && dto.publisher!.trim().isNotEmpty)
+        dto.publisher,
+      if (dto.releaseDate != null)
+        '${dto.releaseDate!.year}-${dto.releaseDate!.month.toString().padLeft(2, '0')}-${dto.releaseDate!.day.toString().padLeft(2, '0')}',
+      if (dto.referenceFormatLabel != null) dto.referenceFormatLabel,
     ].whereType<String>().join('  ·  ');
 
-    final editions = entry.editions;
+    final editions = widget.item.source.catalogItem?.editions ?? [];
     final hasReleases = editions.length > 1;
 
     return DecoratedBox(
@@ -863,7 +854,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        entry.resolvedTitle,
+                        dto.title,
                         key: const ValueKey('flow-carousel-footer-title'),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -888,8 +879,8 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                     ],
                   ),
                 ),
-                if (entry.itemNumber != null &&
-                    entry.itemNumber!.trim().isNotEmpty)
+                if (dto.itemNumber != null &&
+                    dto.itemNumber!.trim().isNotEmpty)
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -900,7 +891,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                           color: widget.accent.withValues(alpha: 0.35)),
                     ),
                     child: Text(
-                      '#${entry.itemNumber}',
+                      '#${dto.itemNumber}',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: palette.textPrimary,
                             fontWeight: FontWeight.w800,
@@ -942,7 +933,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                 for (final edition in editions)
                   _FlowCarouselReleaseRow(
                     edition: edition,
-                    isOwned: edition.id == entry.referenceEditionId,
+                    isOwned: edition.id == widget.item.source.ownedItem?.editionId,
                     accent: widget.accent,
                   ),
               ],
@@ -957,7 +948,9 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionRuntime item,
 ) {
-  final type = collectarrLibraryTypes.byKind(item.source.catalogItem?.kind ?? '');
+  final type = collectarrLibraryTypes.byKind(
+    catalogMediaKindFromValue(item.source.catalogItem?.kind),
+  );
   if (type == null) {
     return null;
   }

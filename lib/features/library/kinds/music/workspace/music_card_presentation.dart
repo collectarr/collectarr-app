@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -44,7 +45,8 @@ Widget _buildMusicHorizontalCard({
   required BuildContext context,
   required LibraryWorkspaceCardDelegate delegate,
 }) {
-  final entry = delegate.entry;
+  final item = delegate.item;
+  final dto = item.dto;
   final palette = appPalette(context);
   final background = delegate.selected
       ? libraryWorkspaceSelectionBackground(
@@ -59,11 +61,11 @@ Widget _buildMusicHorizontalCard({
   final supportColor = delegate.selected
       ? delegate.selectedTitleColor.withValues(alpha: 0.82)
       : palette.textSecondary;
-  final artist = musicCardArtist(entry);
-  final year = entry.releaseYear?.toString() ?? '';
-  final format = entry.referenceFormatLabel?.trim();
-  final tracks = musicCardTrackCount(entry);
-  final duration = musicCardDuration(entry);
+  final artist = musicCardArtist(item);
+  final year = dto.releaseDate?.year.toString() ?? '';
+  final format = dto.referenceFormatLabel?.trim();
+  final tracks = musicCardTrackCount(item);
+  final duration = musicCardDuration(item);
   final metaLine = [
     if (format != null && format.isNotEmpty) format,
     if (year.isNotEmpty) year,
@@ -105,11 +107,11 @@ Widget _buildMusicHorizontalCard({
                     SizedBox(
                       width: delegate.coverWidth,
                       child: LibraryInteractiveCover(
-                        title: entry.resolvedTitle,
-                        itemNumber: entry.itemNumber,
-                        imageUrl: entry.displayCoverUrl,
+                        title: dto.title,
+                        itemNumber: dto.itemNumber,
+                        imageUrl: dto.coverImageUrl,
                         targetCacheWidth: delegate.coverCacheWidth,
-                        ownedItemId: entry.ownedItemId,
+                        ownedItemId: item.source.ownedItem?.id,
                         accentColor: delegate.accentColor,
                         fit: BoxFit.cover,
                         borderRadius: 2,
@@ -123,7 +125,7 @@ Widget _buildMusicHorizontalCard({
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            entry.resolvedTitle,
+                            dto.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context)
@@ -241,7 +243,7 @@ Widget _buildMusicHorizontalCard({
               Positioned(
                 right: 6,
                 bottom: 6,
-                child: _musicScopeBadge(context, entry, delegate.accentColor),
+                child: _musicScopeBadge(context, item, delegate.accentColor),
               ),
             ],
           ),
@@ -259,7 +261,8 @@ Widget _buildMusicVerticalCard({
   required BuildContext context,
   required LibraryWorkspaceCardDelegate delegate,
 }) {
-  final entry = delegate.entry;
+  final item = delegate.item;
+  final dto = item.dto;
   final palette = appPalette(context);
   final background = delegate.selected
       ? libraryWorkspaceSelectionBackground(
@@ -271,8 +274,8 @@ Widget _buildMusicVerticalCard({
   final titleColor = delegate.selected ? delegate.selectedTitleColor : palette.textPrimary;
   final subtitleColor =
       delegate.selected ? delegate.selectedTitleColor.withValues(alpha: 0.9) : delegate.mutedColor;
-  final artist = musicCardArtist(entry);
-  final year = entry.releaseYear?.toString() ?? '';
+  final artist = musicCardArtist(item);
+  final year = dto.releaseDate?.year.toString() ?? '';
   return RepaintBoundary(
     child: AnimatedContainer(
       duration: kAppAnimFast,
@@ -300,10 +303,10 @@ Widget _buildMusicVerticalCard({
                   children: [
                     Expanded(
                       child: LibraryInteractiveCover(
-                        title: entry.resolvedTitle,
-                        itemNumber: entry.itemNumber,
-                        imageUrl: entry.displayCoverUrl,
-                        ownedItemId: entry.ownedItemId,
+                        title: dto.title,
+                        itemNumber: dto.itemNumber,
+                        imageUrl: dto.coverImageUrl,
+                        ownedItemId: item.source.ownedItem?.id,
                         targetCacheWidth: delegate.coverCacheWidth,
                         accentColor: delegate.accentColor,
                         fit: BoxFit.cover,
@@ -316,7 +319,7 @@ Widget _buildMusicVerticalCard({
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
-                        entry.resolvedTitle,
+                        dto.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context)
@@ -379,7 +382,7 @@ Widget _buildMusicVerticalCard({
               Positioned(
                 right: 6,
                 bottom: 6,
-                child: _musicScopeBadge(context, entry, delegate.accentColor),
+                child: _musicScopeBadge(context, item, delegate.accentColor),
               ),
             ],
           ),
@@ -522,7 +525,7 @@ int? musicCardTrackCount(LibraryProjectionRuntime item) {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionRuntime item,
 ) {
-  final type = collectarrLibraryTypes.byKind(item.source.catalogItem?.kind ?? '');
+  final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(item.source.catalogItem?.kind));
   if (type == null) return null;
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,

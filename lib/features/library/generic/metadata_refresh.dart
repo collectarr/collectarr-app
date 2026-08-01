@@ -13,8 +13,8 @@ Future<LibraryMetadataRefreshResult?> showGenericLibraryMetadataRefreshDialog({
     context: context,
     type: type,
     accent: accent,
-    allEntries: [for (final item in projection.allItems) item.entry],
-    shownEntries: [for (final item in projection.filteredItems) item.entry],
-    selectedEntry: projection.selectedItem?.entry,
+    allEntries: projection.allItems,
+    shownEntries: projection.filteredItems,
+    selectedEntry: projection.selectedItem,
   );
 }

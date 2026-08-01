@@ -109,13 +109,18 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
         ),
       ],
     ),
-    ...buildLibraryDetailCatalogSections(
+    for (final widget in buildLibraryDetailCatalogSections(
       context: context,
       type: type,
       item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
-    ),
+    ))
+      LibraryDetailSectionSpec(
+        slot: LibraryDetailSectionSlot.identity,
+        title: '',
+        children: [widget],
+      ),
   ];
 
   return orderLibraryDetailSections(sections);

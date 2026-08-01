@@ -68,7 +68,7 @@ class AnyLibraryFieldRegistry<TDto> {
     final publishing = item.publishing;
 
     yield* nonEmptyStrings([
-      item.name,
+      item.title,
       series,
       item.itemNumber,
       item.publisher,

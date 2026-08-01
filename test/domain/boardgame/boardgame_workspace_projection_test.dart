@@ -6,8 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('boardgame workspace projector builds typed boardgame dto', () {
-    const source = ShelfEntry(
-      catalogItem: CatalogItemDto(
+    final source = ShelfEntry(
+      itemId: 'boardgame-1',
+      catalogItem: const CatalogItemDto(
         id: 'boardgame-1',
         title: 'Catan',
         kind: 'boardgame',
@@ -20,6 +21,6 @@ void main() {
     );
 
     expect(dto.title, 'Catan');
-    expect(dto.kind, 'boardgame');
+    expect(source.catalogItem?.kind, 'boardgame');
   });
 }

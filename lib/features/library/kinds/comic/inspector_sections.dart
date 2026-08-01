@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -74,6 +75,17 @@ class _ComicInspectorTab {
 }
 
 List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
+  final item = request.item;
+  final dto = item.dto;
+  final catalogItem = item.source.catalogItem as ComicCatalogItem?;
+  final synopsis = dto.synopsis?.trim().isNotEmpty == true
+      ? dto.synopsis!.trim()
+      : catalogItem?.synopsis?.trim();
+  final genres = catalogItem?.genres ?? const <String>[];
+  final storyArcs = catalogItem?.storyArcs ?? const <String>[];
+  final characters = catalogItem?.characters ?? const <String>[];
+  final creators = catalogItem?.creators ?? const <Map<String, dynamic>>[];
+
   return [
     _ComicInspectorTab(
       label: 'Overview',
@@ -85,35 +97,35 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
             title: 'Overview',
             accentColor: request.accent,
             children: [
-              LibraryDetailFieldTable(fields: _detailFacts(request.entry)),
-              if (request.entry.synopsis?.trim().isNotEmpty == true) ...[
+              LibraryDetailFieldTable(fields: _detailFacts(item)),
+              if (synopsis?.isNotEmpty == true) ...[
                 const SizedBox(height: 8),
                 Text(
-                  request.entry.synopsis!.trim(),
+                  synopsis!,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
-              if (request.entry.genres?.isNotEmpty == true) ...[
+              if (genres.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 LibraryDetailSection(
                   title: 'Genres',
                   children: [
                     LibraryDetailChipGroupWidget(
                       label: 'Genres',
-                      values: request.entry.genres!,
+                      values: genres,
                       onValueTap: request.onFilterByValue,
                     ),
                   ],
                 ),
               ],
-              if (request.entry.storyArcs?.isNotEmpty == true) ...[
+              if (storyArcs.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 LibraryDetailSection(
                   title: 'Story arcs',
                   children: [
                     LibraryDetailChipGroupWidget(
                       label: 'Story arcs',
-                      values: request.entry.storyArcs!,
+                      values: storyArcs,
                       onValueTap: request.onFilterByValue,
                     ),
                   ],
@@ -133,7 +145,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
           LibraryDetailSection(
             title: 'Value details',
             accentColor: request.accent,
-            children: [LibraryDetailFieldTable(fields: _valueFacts(request.entry, request.ownedItem, request.ownedCopies))],
+            children: [LibraryDetailFieldTable(fields: _valueFacts(item, request.ownedItem, request.ownedCopies))],
           ),
           if (request.ownedItem != null) ...[
             const SizedBox(height: 8),
@@ -158,7 +170,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
         children: [
           LibraryDetailChipGroupWidget(
             label: 'Characters',
-            values: request.entry.characters ?? const <String>[],
+            values: characters,
             onValueTap: request.onFilterByValue,
           ),
         ],
@@ -168,7 +180,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
       label: 'Creators',
       icon: Icons.group_outlined,
       builder: (context, ref) => _ComicCreatorsGroupedSection(
-        creators: request.entry.creators ?? const <Map<String, dynamic>>[],
+        creators: creators,
         accent: request.accent,
         onValueTap: request.onFilterByValue,
         headerActions: [
@@ -186,7 +198,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
           LibraryDetailSection(
             title: 'Series metadata',
             accentColor: request.accent,
-            children: [LibraryDetailFieldTable(fields: _seriesFacts(request.entry))],
+            children: [LibraryDetailFieldTable(fields: _seriesFacts(request.item))],
           ),
           const SizedBox(height: 8),
           ComicSeriesCompletenessSection(
@@ -202,21 +214,21 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
       builder: (context, ref) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (_noteFacts(request.entry, request.ownedItem).isNotEmpty)
+          if (_noteFacts(request.item, request.ownedItem).isNotEmpty)
             LibraryDetailSection(
               title: 'Notes',
               accentColor: request.accent,
-              children: [LibraryDetailFieldTable(fields: _noteFacts(request.entry, request.ownedItem))],
+              children: [LibraryDetailFieldTable(fields: _noteFacts(request.item, request.ownedItem))],
             ),
-          if (_linkFacts(request.entry).isNotEmpty) ...[
+          if (_linkFacts(request.item).isNotEmpty) ...[
             const SizedBox(height: 8),
             LibraryDetailSection(
               title: 'Links',
               accentColor: request.accent,
-              children: [LibraryDetailFieldTable(fields: _linkFacts(request.entry))],
+              children: [LibraryDetailFieldTable(fields: _linkFacts(request.item))],
             ),
           ],
-          if (request.entry.trailerUrls.isNotEmpty) ...[
+          if (request.item.source.catalogItem?.trailerUrls.isNotEmpty ?? false) ...[
             const SizedBox(height: 8),
             InspectorLinksTrailersSection(request: request),
           ],
@@ -266,7 +278,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seriesId = request.entry.series?.seriesId;
+    final seriesId = request.item.source.catalogItem?.series?.seriesId;
     if (seriesId == null || seriesId.trim().isEmpty) {
       return LibraryDetailSection(
         title: 'Series completeness',
@@ -302,7 +314,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
           children: [
             LibraryDetailFieldTable(
               fields: [
-                LibraryDetailField(label: 'Series', value: request.entry.series?.seriesTitle ?? request.entry.title),
+                LibraryDetailField(label: 'Series', value: request.item.source.catalogItem?.series?.seriesTitle ?? request.item.dto.title),
                 LibraryDetailField(label: 'Items', value: items.length.toString()),
                 LibraryDetailField(label: 'Owned', value: ownedCount.toString()),
                 LibraryDetailField(label: 'Missing', value: missingNumbers.length.toString()),
@@ -517,7 +529,7 @@ List<LibraryDetailField> _valueFacts(
   final comicVal = ownedItem.typedDetails is ComicOwnedDetails
       ? ownedItem.typedDetails as ComicOwnedDetails
       : null;
-  final currency = _detailValueCurrency(effectiveOwnedCopies, ownedItem);
+  final currency = snapshot.currency;
   final isGraded = ownedItem.grade?.trim().isNotEmpty == true;
 
   if (snapshot.purchasePriceCents != null) {
@@ -535,8 +547,8 @@ List<LibraryDetailField> _valueFacts(
   if (snapshot.manualEstimatedValueCents != null) {
     rows.add(LibraryDetailField(label: 'Manual Value', value: formatMoney(snapshot.manualEstimatedValueCents, snapshot.currency)));
   }
-  if (snapshot.currentValueCents != null) {
-    rows.add(LibraryDetailField(label: 'Current Value', value: formatMoney(snapshot.currentValueCents, snapshot.currency)));
+  if (snapshot.displayPrimaryValueCents != null) {
+    rows.add(LibraryDetailField(label: 'Current Value', value: formatMoney(snapshot.displayPrimaryValueCents, snapshot.currency)));
   }
   if (snapshot.insuranceValueCents != null) {
     rows.add(LibraryDetailField(label: 'Insurance Value', value: formatMoney(snapshot.insuranceValueCents, snapshot.currency)));
@@ -544,23 +556,8 @@ List<LibraryDetailField> _valueFacts(
   if (ownedItem.pricePaidCents != null) {
     rows.add(LibraryDetailField(label: 'Paid', value: formatMoney(ownedItem.pricePaidCents, ownedItem.currency)));
   }
-  if (snapshot.profitLossCents != null) {
-    rows.add(LibraryDetailField(label: 'Profit / Loss', value: formatMoney(snapshot.profitLossCents, snapshot.currency)));
-  }
-  final history = snapshot.history;
-  if (history.isNotEmpty) {
-    rows.add(
-      LibraryDetailField(label: 'Value history', value: history
-            .map(
-              (item) => [
-                item.label,
-                item.valueCents == null
-                    ? '—'
-                    : formatMoney(item.valueCents, item.currency),
-              ].join(': '),
-            )
-            .join(' • ')),
-    );
+  if (snapshot.unrealizedGainLossCents != null) {
+    rows.add(LibraryDetailField(label: 'Profit / Loss', value: formatMoney(snapshot.unrealizedGainLossCents, snapshot.currency)));
   }
 
   if (effectiveOwnedCopies.length > 1) {

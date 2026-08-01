@@ -44,7 +44,7 @@ enum ReportColumn {
       ReportColumn.format => cat?.editions.firstOrNull?.physicalFormatLabel ?? '',
       ReportColumn.creator => dto.creator ?? '',
       ReportColumn.tags => dto.tags ?? '',
-      ReportColumn.location => dto.locationLabel ?? '',
+      ReportColumn.location => dto.locationPath ?? '',
     };
   }
 }

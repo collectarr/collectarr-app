@@ -10,6 +10,7 @@ abstract interface class LibraryWorkspaceDto {
   DateTime? get releaseDate;
   bool get isOwned;
   bool get isWishlisted;
+  bool get isTracked;
 
   String? get condition;
   String? get locationPath;
@@ -19,6 +20,7 @@ abstract interface class LibraryWorkspaceDto {
   DateTime get updatedAt;
   String? get tags;
   String? get collectionStatus;
+  String? get notes;
 
   String? get variant;
   String? get barcode;
@@ -27,7 +29,14 @@ abstract interface class LibraryWorkspaceDto {
   String? get language;
   String? get currency;
   String? get referenceFormatLabel;
+  String? get format;
   String? get coverImageUrl;
+  int? get marketValueCents;
+  String? get creator;
+  String? get synopsis;
+  String? get audienceRating;
+  String? get ageRating;
+  String? get editionLabel;
 }
 
 

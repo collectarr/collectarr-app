@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_domain.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
 class BoardGamePlayStatsSection extends StatelessWidget {
@@ -19,10 +18,7 @@ class BoardGamePlayStatsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = request.entry;
-    final boardGameEntry =
-        entry is BoardGameWorkspaceEntry ? entry : null;
-    final work = boardGameEntry?.boardGameWork;
+    final work = request.item.source.catalogItem as BoardGameWork?;
     if (work == null) {
       return const SizedBox.shrink();
     }

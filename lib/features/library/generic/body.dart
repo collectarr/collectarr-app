@@ -307,7 +307,7 @@ class LibraryBody extends StatelessWidget {
             ? projection.filteredItems
             : projection.filteredItems
                 .where((item) => LibraryAlphaJumpBar.matchesLetter(
-                      item.entry.resolvedTitle,
+                      item.dto.title,
                       selectedLetter!,
                     ))
                 .toList();
@@ -364,7 +364,7 @@ class LibraryBody extends StatelessWidget {
             );
         final details = LibraryInspector(
           type: type,
-          entry: selected?.entry,
+          item: selected,
           ownedItem: selected?.source.ownedItem,
           detailsLayout: viewState.detailsLayout,
           densityPreset: viewState.densityPreset,

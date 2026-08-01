@@ -14,44 +14,29 @@ List<Widget> buildMovieInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
-  final entry = request.entry;
-  final video = entry.video;
-  final editionCount = entry.editions.length;
+  final item = request.item;
+  final dto = item.dto;
+  final catalogItem = item.source.catalogItem;
+  final editionCount = catalogItem?.editions.length ?? 0;
   final facts = <LibraryDetailField>[
-    LibraryDetailField(label: 'Title', value: entry.resolvedTitle),
-    if (entry.originalTitle?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Original title', value: entry.originalTitle!),
-    if (entry.publisher?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Studio', value: entry.publisher!),
-    if (entry.releaseDate != null)
-      LibraryDetailField(label: 'Release date', value: _formatDate(entry.releaseDate!)),
-    if (video?.runtimeMinutes != null)
-      LibraryDetailField(label: 'Runtime', value: '${video!.runtimeMinutes} min'),
-    if (video?.color?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'HDR / color', value: video!.color!),
-    if (video?.screenRatio?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Screen ratio', value: video!.screenRatio!),
-    if (video?.audioTracks?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Audio', value: video!.audioTracks!),
-    if (video?.subtitles?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Subtitles', value: video!.subtitles!),
-    if (video?.layers?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Layers', value: video!.layers!),
+    LibraryDetailField(label: 'Title', value: dto.title),
+    if (dto.publisher?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Studio', value: dto.publisher!),
+    if (dto.releaseDate != null)
+      LibraryDetailField(label: 'Release date', value: _formatDate(dto.releaseDate!)),
     LibraryDetailField(label: 'Releases', value: editionCount.toString()),
-    if (entry.barcode?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Barcode', value: entry.barcode!),
-    if (entry.country?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Country', value: entry.country!),
-    if (entry.language?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Language', value: entry.language!),
-    if (entry.ageRating?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Age rating', value: entry.ageRating!),
-    if (entry.audienceRating?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Audience rating', value: entry.audienceRating!),
-    if (entry.trailerUrls.isNotEmpty)
-      LibraryDetailField(label: 'Trailers', value: entry.trailerUrls.length.toString()),
-    LibraryDetailField(label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
-    LibraryDetailField(label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
+    if (dto.barcode?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Barcode', value: dto.barcode!),
+    if (dto.country?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Country', value: dto.country!),
+    if (dto.language?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Language', value: dto.language!),
+    if (catalogItem?.ageRating?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Age rating', value: catalogItem!.ageRating!),
+    if (catalogItem?.audienceRating?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Audience rating', value: catalogItem!.audienceRating!),
+    if (catalogItem?.trailerUrls.isNotEmpty == true)
+      LibraryDetailField(label: 'Trailers', value: catalogItem!.trailerUrls.length.toString()),
   ];
 
   final sections = <Widget>[
@@ -60,25 +45,25 @@ List<Widget> buildMovieInspectorSections(
       accent: request.accent,
       facts: facts,
       children: [
-        if (entry.synopsis?.trim().isNotEmpty == true)
+        if (catalogItem?.synopsis?.trim().isNotEmpty == true)
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              entry.synopsis!,
+              catalogItem!.synopsis!,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
       ],
     ),
-    if (entry.editions.isNotEmpty || video?.nrDiscs != null)
+    if ((catalogItem?.editions.isNotEmpty ?? false))
       InspectorReleasesSection(request: request),
-    if ((entry.creators ?? const <Map<String, dynamic>>[]).isNotEmpty)
+    if ((catalogItem?.creators ?? const <Map<String, dynamic>>[]).isNotEmpty)
       InspectorContributorsSection(request: request),
-    if (entry.trailerUrls.isNotEmpty)
+    if ((catalogItem?.trailerUrls.isNotEmpty ?? false))
       InspectorLinksTrailersSection(request: request),
     if (request.ownedItem != null || request.trackingEntry != null)
       InspectorPersonalStatusSection(
-        entry: entry,
+        item: item,
         ownedItem: request.ownedItem,
         trackingEntry: request.trackingEntry,
         accent: request.accent,
@@ -103,14 +88,14 @@ class _MovieInspectorPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = request.inspector.entry;
+    final item = request.inspector.item;
     final accent = request.inspector.accent;
     final sections = buildMovieInspectorSections(context, request.inspector);
 
     return LibraryDetailPanelScaffold(
       accent: accent,
       toolbar: InspectorUnifiedToolbar(
-        entry: entry,
+        item: item,
         detailsLayout: request.inspector.detailsLayout,
         onEdit: request.onEdit,
         onShare: request.onShare,
@@ -123,7 +108,7 @@ class _MovieInspectorPanel extends StatelessWidget {
       ),
       hero: LibraryDetailHero(
         type: request.inspector.type,
-        entry: entry,
+        item: item,
         ownedItem: request.inspector.ownedItem,
         accent: accent,
       ),

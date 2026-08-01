@@ -32,8 +32,7 @@ String defaultLibraryBucketLabel(
         ? labels.unknownPublisher
         : publisher,
     'genre' => _firstOrDefault(cat?.genres, overrides.noGenre),
-    'platform' => _firstOrDefault(
-        cat?.game?.platforms ?? cat?.rawPlatforms, 'No platform'),
+    'platform' => _firstOrDefault(cat?.game?.platforms, 'No platform'),
     'developer' => _creatorBucketByRole(item, 'developer'),
     'country' => dto.country?.trim().isNotEmpty == true
         ? dto.country!
@@ -109,11 +108,11 @@ String defaultLibraryBucketLabel(
         'Unknown recording year',
       ),
     'cover_date' =>
-      _dateBucket(cat?.comic?.coverDate, 'Unknown cover date'),
+      _dateBucket(cat?.coverDate, 'Unknown cover date'),
     'cover_month' =>
-      _monthBucket(cat?.comic?.coverDate, fallback: 'Unknown cover month'),
+      _monthBucket(cat?.coverDate, fallback: 'Unknown cover month'),
     'cover_year' =>
-      _yearBucket(cat?.comic?.coverDate, 'Unknown cover year'),
+      _yearBucket(cat?.coverDate, 'Unknown cover year'),
     'audio_tracks' =>
       _stringBucket(cat?.video?.audioTracks, 'No audio tracks'),
     'box_set' => _stringBucket(
@@ -250,7 +249,7 @@ String defaultLibraryBucketLabel(
       _creatorBucketByRole(item, 'foreword author'),
     'ghost_writer' => _creatorBucketByRole(item, 'ghost writer'),
     'illustrator' => _creatorBucketByRole(item, 'illustrator'),
-    'location' => _locationBucket(dto.locationLabel),
+    'location' => _locationBucket(dto.locationPath),
     'ownership' => dto.isOwned
         ? overrides.owned
         : dto.isWishlisted
@@ -278,12 +277,8 @@ String defaultLibraryBucketLabel(
     'condition' => dto.condition?.trim().isNotEmpty == true
         ? dto.condition!
         : 'No condition',
-    'raw_or_slabbed' =>
-      cat?.comic?.rawOrSlabbed?.trim().isNotEmpty == true
-          ? cat!.comic!.rawOrSlabbed!
-          : 'Raw',
-    'is_key_comic' =>
-      cat?.comic?.keyComic == true ? 'Key' : 'Not special',
+    'raw_or_slabbed' => 'Raw',
+    'is_key_comic' => 'Not special',
     'image_type' => _imageTypeBucket(source),
     'modified_date' => formatCompactDate(source.updatedAt),
     'modified_month' => _monthBucket(source.updatedAt),
@@ -506,7 +501,7 @@ String _firstOrDefault(List<String>? values, String fallback) {
 }
 
 String _editionFormatBucket(LibraryProjectionRuntime item) {
-  for (final edition in item.source.catalogItem?.editions ?? const []) {
+  for (final CatalogEditionDto edition in item.source.catalogItem?.editions ?? const []) {
     final label = edition.physicalFormatLabel ?? edition.physicalFormat;
     if (label != null && label.trim().isNotEmpty) {
       return label.trim();

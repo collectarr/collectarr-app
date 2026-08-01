@@ -297,25 +297,12 @@ class InspectorUnifiedToolbar extends StatelessWidget {
           alignment: WrapAlignment.end,
           children: [
             if (includeLayoutControl)
-              LibraryDetailsLayoutToggle(
-                value: detailsLayout,
-                onChanged: onDetailsLayoutChanged ?? (_) {},
+            if (ebayUri != null)
+              InspectorToolIconButton(
+                tooltip: 'Search sold prices on eBay',
+                onPressed: () => launchUrl(ebayUri!),
+                icon: Icons.storefront_outlined,
               ),
-            InspectorToolIconButton(
-              tooltip: 'Edit metadata and collection fields',
-              onPressed: onEdit,
-              icon: Icons.edit_outlined,
-            ),
-            InspectorToolIconButton(
-              tooltip: 'Share',
-              onPressed: onShare,
-              icon: Icons.share_outlined,
-            ),
-            InspectorToolIconButton(
-              tooltip: 'Search sold prices on eBay',
-              onPressed: () => launchUrl(ebayUri),
-              icon: Icons.storefront_outlined,
-            ),
             if (!compactActions && onDuplicate != null)
               InspectorToolIconButton(
                 tooltip: 'Duplicate owned copy',

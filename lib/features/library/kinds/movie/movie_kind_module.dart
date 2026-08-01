@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart'
     as movie_add;
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
