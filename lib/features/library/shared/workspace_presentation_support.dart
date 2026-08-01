@@ -7,115 +7,115 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 String defaultLibraryBucketLabel(
     LibraryBucketingContext context, LibraryMediaGroupLabels labels,
     [LibraryBucketLabelOverrides overrides =
         const LibraryBucketLabelOverrides()]) {
-  final entry = context.entry;
+  final item = context.item;
+  final dto = item.dto;
   final source = context.source;
-  final publisher = entry.publisher?.trim();
+  final cat = source.catalogItem;
+  final publisher = dto.publisher?.trim();
   return switch (context.groupMode) {
-    'series' => _seriesBucket(entry, labels.unknownSeries),
+    'series' => _seriesBucket(item, labels.unknownSeries),
     'story_arc' => overrides.storyArc,
     'character' => overrides.character,
-    'year' => entry.releaseYear?.toString() ??
-        (entry.releaseDate?.year.toString() ?? 'Unknown year'),
+    'year' => dto.releaseDate?.year.toString() ?? 'Unknown year',
     'audience_rating' =>
-      entry.audienceRating?.trim().isNotEmpty == true
-          ? entry.audienceRating!
+      dto.audienceRating?.trim().isNotEmpty == true
+          ? dto.audienceRating!
           : 'No audience rating',
-    'color' => _stringBucket(entry.video?.color, 'No color'),
+    'color' => _stringBucket(cat?.video?.color, 'No color'),
     'publisher' => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,
-    'genre' => _firstOrDefault(entry.genres, overrides.noGenre),
+    'genre' => _firstOrDefault(cat?.genres, overrides.noGenre),
     'platform' => _firstOrDefault(
-        entry.game?.platforms ?? entry.rawPlatforms, 'No platform'),
-    'developer' => _creatorBucketByRole(entry, 'developer'),
-    'country' => entry.country?.trim().isNotEmpty == true
-        ? entry.country!
+        cat?.game?.platforms ?? cat?.rawPlatforms, 'No platform'),
+    'developer' => _creatorBucketByRole(item, 'developer'),
+    'country' => dto.country?.trim().isNotEmpty == true
+        ? dto.country!
         : overrides.unknownCountry,
-    'language' => entry.language?.trim().isNotEmpty == true
-        ? entry.language!
+    'language' => dto.language?.trim().isNotEmpty == true
+        ? dto.language!
         : overrides.unknownLanguage,
     'age_rating' =>
-      entry.ageRating?.trim().isNotEmpty == true ? entry.ageRating! : 'Unrated',
+      dto.ageRating?.trim().isNotEmpty == true ? dto.ageRating! : 'Unrated',
     'crossover' =>
-      _stringBucket(entry.crossover, 'No crossover'),
+      _stringBucket(cat?.crossover, 'No crossover'),
     'imprint' =>
-      _stringBucket(entry.publishing?.imprint, 'No imprint'),
+      _stringBucket(cat?.publishing?.imprint, 'No imprint'),
     'series_group' =>
-      _stringBucket(entry.publishing?.seriesGroup, 'No series group'),
-    'movie_or_tv_series' => _movieOrTvSeriesBucket(entry),
+      _stringBucket(cat?.publishing?.seriesGroup, 'No series group'),
+    'movie_or_tv_series' => _movieOrTvSeriesBucket(item),
     'release_date' =>
-      _dateBucket(entry.releaseDate, 'Unknown release date'),
+      _dateBucket(dto.releaseDate, 'Unknown release date'),
     'release_month' =>
-      _monthBucket(entry.releaseDate, fallback: 'Unknown release month'),
+      _monthBucket(dto.releaseDate, fallback: 'Unknown release month'),
     'release_year' => _yearBucket(
-        entry.releaseDate ??
-            (entry.releaseYear == null ? null : DateTime(entry.releaseYear!)),
+        dto.releaseDate,
         'Unknown release year',
       ),
     'publication_place' => _stringBucket(
-        entry.publishing?.publicationPlace, 'Unknown publication place'),
+        cat?.publishing?.publicationPlace, 'Unknown publication place'),
     'original_release_date' => _dateBucket(
-        entry.music?.originalReleaseDate,
+        cat?.music?.originalReleaseDate,
         'Unknown original release date',
       ),
     'original_release_month' => _monthBucket(
-        entry.music?.originalReleaseDate,
+        cat?.music?.originalReleaseDate,
         fallback: 'Unknown original release month',
       ),
     'original_release_year' => _yearBucket(
-        entry.music?.originalReleaseDate,
+        cat?.music?.originalReleaseDate,
         'Unknown original release year',
       ),
     'original_country' => _stringBucket(
-        entry.publishing?.originalCountry, 'Unknown original country'),
+        cat?.publishing?.originalCountry, 'Unknown original country'),
     'original_language' => _stringBucket(
-        entry.publishing?.originalLanguage, 'Unknown original language'),
+        cat?.publishing?.originalLanguage, 'Unknown original language'),
     'original_publication_date' => _dateBucket(
-        entry.publishing?.originalPublicationDate,
+        cat?.publishing?.originalPublicationDate,
         'Unknown original publication date',
       ),
     'original_publication_month' => _monthBucket(
-        entry.publishing?.originalPublicationDate,
+        cat?.publishing?.originalPublicationDate,
         fallback: 'Unknown original publication month',
       ),
     'original_publication_year' => _yearBucket(
-        entry.publishing?.originalPublicationDate,
+        cat?.publishing?.originalPublicationDate,
         'Unknown original publication year',
       ),
     'original_publication_place' => _stringBucket(
-        entry.publishing?.originalPublicationPlace,
+        cat?.publishing?.originalPublicationPlace,
         'Unknown original publication place',
       ),
     'original_publisher' => _stringBucket(
-        entry.publishing?.originalPublisher,
+        cat?.publishing?.originalPublisher,
         'Unknown original publisher',
       ),
     'recording_date' => _dateBucket(
-        entry.music?.recordingDate,
+        cat?.music?.recordingDate,
         'Unknown recording date',
       ),
     'recording_month' => _monthBucket(
-        entry.music?.recordingDate,
+        cat?.music?.recordingDate,
         fallback: 'Unknown recording month',
       ),
     'recording_year' => _yearBucket(
-        entry.music?.recordingDate,
+        cat?.music?.recordingDate,
         'Unknown recording year',
       ),
     'cover_date' =>
-      _dateBucket(entry.coverDate, 'Unknown cover date'),
+      _dateBucket(cat?.comic?.coverDate, 'Unknown cover date'),
     'cover_month' =>
-      _monthBucket(entry.coverDate, fallback: 'Unknown cover month'),
+      _monthBucket(cat?.comic?.coverDate, fallback: 'Unknown cover month'),
     'cover_year' =>
-      _yearBucket(entry.coverDate, 'Unknown cover year'),
+      _yearBucket(cat?.comic?.coverDate, 'Unknown cover year'),
     'audio_tracks' =>
-      _stringBucket(entry.video?.audioTracks, 'No audio tracks'),
+      _stringBucket(cat?.video?.audioTracks, 'No audio tracks'),
     'box_set' => _stringBucket(
         (source.ownedItem?.typedDetails is VideoOwnedDetails
             ? (source.ownedItem!.typedDetails as VideoOwnedDetails).boxSetName
@@ -133,7 +133,7 @@ String defaultLibraryBucketLabel(
         ? 'Locked'
         : 'Unlocked',
     'dust_jacket_condition' => _stringBucket(
-        entry.publishing?.dustJacketCondition, 'No dust jacket condition'),
+        cat?.publishing?.dustJacketCondition, 'No dust jacket condition'),
     'distributor' => _stringBucket(
         (source.ownedItem?.typedDetails is VideoOwnedDetails
             ? (source.ownedItem!.typedDetails as VideoOwnedDetails).distributor
@@ -141,45 +141,45 @@ String defaultLibraryBucketLabel(
         'No distributor',
       ),
     'instrument' =>
-      _stringBucket(entry.music?.instrument, 'No instrument'),
+      _stringBucket(cat?.music?.instrument, 'No instrument'),
     'is_live' =>
-      entry.music?.isLive == true ? 'Live' : 'Not live',
+      cat?.music?.isLive == true ? 'Live' : 'Not live',
     'media_condition' =>
-      _stringBucket(entry.music?.mediaCondition, 'No media condition'),
-    'rpm' => _stringBucket(entry.music?.rpm, 'No RPM'),
-    'spars' => _stringBucket(entry.music?.spars, 'No SPARS'),
+      _stringBucket(cat?.music?.mediaCondition, 'No media condition'),
+    'rpm' => _stringBucket(cat?.music?.rpm, 'No RPM'),
+    'spars' => _stringBucket(cat?.music?.spars, 'No SPARS'),
     'sound_type' =>
-      _stringBucket(entry.music?.soundType, 'No sound'),
-    'studio' => _stringBucket(entry.music?.studio, 'No studio'),
+      _stringBucket(cat?.music?.soundType, 'No sound'),
+    'studio' => _stringBucket(cat?.music?.studio, 'No studio'),
     'vinyl_color' =>
-      _stringBucket(entry.music?.vinylColor, 'No vinyl color'),
+      _stringBucket(cat?.music?.vinylColor, 'No vinyl color'),
     'toy_subtype' =>
-      _stringBucket(entry.game?.toySubtype, 'No subtype'),
-    'toy_type' => _stringBucket(entry.game?.toyType, 'No type'),
+      _stringBucket(cat?.game?.toySubtype, 'No subtype'),
+    'toy_type' => _stringBucket(cat?.game?.toyType, 'No type'),
     'edition' =>
-      _stringBucket(entry.variant ?? entry.referenceEditionId, 'No edition'),
+      _stringBucket(dto.variant ?? dto.editionLabel, 'No edition'),
     'audiobook_abridged' =>
-      entry.publishing?.audiobookAbridged == true
+      cat?.publishing?.audiobookAbridged == true
           ? 'Abridged'
           : 'Unabridged / Unknown',
-    'first_edition' => entry.publishing?.firstEdition == true
+    'first_edition' => cat?.publishing?.firstEdition == true
         ? 'First edition'
         : 'Not first edition',
-    'narrator' => _creatorBucketByRole(entry, 'narrator'),
+    'narrator' => _creatorBucketByRole(item, 'narrator'),
     'paper_type' =>
-      _stringBucket(entry.publishing?.paperType, 'No paper type'),
+      _stringBucket(cat?.publishing?.paperType, 'No paper type'),
     'printed_by' =>
-      _stringBucket(entry.publishing?.printedBy, 'No printer'),
+      _stringBucket(cat?.publishing?.printedBy, 'No printer'),
     'edition_release_date' => _dateBucket(
-        _referenceEditionForEntry(entry)?.releaseDate,
+        _referenceEditionForEntry(item)?.releaseDate,
         'Unknown edition release date',
       ),
     'edition_release_month' => _monthBucket(
-        _referenceEditionForEntry(entry)?.releaseDate,
+        _referenceEditionForEntry(item)?.releaseDate,
         fallback: 'Unknown edition release month',
       ),
     'edition_release_year' => _yearBucket(
-        _referenceEditionForEntry(entry)?.releaseDate,
+        _referenceEditionForEntry(item)?.releaseDate,
         'Unknown edition release year',
       ),
     'extras' => _stringBucket(
@@ -188,14 +188,14 @@ String defaultLibraryBucketLabel(
                 : null),
         'No extras',
       ),
-    'format' => _editionFormatBucket(entry),
+    'format' => _editionFormatBucket(item),
     'hdr' => _firstOrDefault(
         (source.ownedItem?.typedDetails is VideoOwnedDetails
             ? (source.ownedItem!.typedDetails as VideoOwnedDetails).hdrFormats
             : null),
         'No HDR',
       ),
-    'layers' => _stringBucket(entry.video?.layers, 'No layers'),
+    'layers' => _stringBucket(cat?.video?.layers, 'No layers'),
     'packaging' => _stringBucket(
         (source.ownedItem?.typedDetails is VideoOwnedDetails
             ? (source.ownedItem!.typedDetails as VideoOwnedDetails).packaging
@@ -203,57 +203,57 @@ String defaultLibraryBucketLabel(
         'No packaging',
       ),
     'regions' =>
-      _stringBucket(_referenceRegionFor(source, entry), 'No region'),
+      _stringBucket(_referenceRegionFor(source, item), 'No region'),
     'screen_ratios' =>
-      _stringBucket(entry.video?.screenRatio, 'No screen ratio'),
+      _stringBucket(cat?.video?.screenRatio, 'No screen ratio'),
     'subtitles' =>
-      _stringBucket(entry.video?.subtitles, 'No subtitles'),
-    'actor' => _creatorBucketByRole(entry, 'actor'),
-    'chorus' => _creatorBucketByRole(entry, 'chorus'),
-    'composer' => _creatorBucketByRole(entry, 'composer'),
+      _stringBucket(cat?.video?.subtitles, 'No subtitles'),
+    'actor' => _creatorBucketByRole(item, 'actor'),
+    'chorus' => _creatorBucketByRole(item, 'chorus'),
+    'composer' => _creatorBucketByRole(item, 'composer'),
     'composition' =>
-      _stringBucket(entry.music?.composition, 'No composition'),
-    'conductor' => _creatorBucketByRole(entry, 'conductor'),
-    'engineer' => _creatorBucketByRole(entry, 'engineer'),
-    'director' => _creatorBucketByRole(entry, 'director'),
-    'musician' => _creatorBucketByRole(entry, 'musician'),
-    'orchestra' => _creatorBucketByRole(entry, 'orchestra'),
-    'photography' => _creatorBucketByRole(entry, 'photography'),
-    'producer' => _creatorBucketByRole(entry, 'producer'),
-    'creator' => _creatorBucketByRole(entry, null),
-    'writer' => _creatorBucketByRole(entry, 'writer'),
-    'artist' => _creatorBucketByRole(entry, 'artist'),
-    'penciller' => _creatorBucketByRole(entry, 'penciller'),
-    'inker' => _creatorBucketByRole(entry, 'inker'),
-    'colorist' => _creatorBucketByRole(entry, 'colorist'),
-    'painter' => _creatorBucketByRole(entry, 'painter'),
-    'letterer' => _creatorBucketByRole(entry, 'letterer'),
-    'separator' => _creatorBucketByRole(entry, 'separator'),
-    'layouts' => _creatorBucketByRole(entry, 'layouts'),
-    'translator' => _creatorBucketByRole(entry, 'translator'),
-    'plotter' => _creatorBucketByRole(entry, 'plotter'),
-    'scripter' => _creatorBucketByRole(entry, 'scripter'),
-    'cover_artist' => _creatorBucketByRole(entry, 'cover'),
+      _stringBucket(cat?.music?.composition, 'No composition'),
+    'conductor' => _creatorBucketByRole(item, 'conductor'),
+    'engineer' => _creatorBucketByRole(item, 'engineer'),
+    'director' => _creatorBucketByRole(item, 'director'),
+    'musician' => _creatorBucketByRole(item, 'musician'),
+    'orchestra' => _creatorBucketByRole(item, 'orchestra'),
+    'photography' => _creatorBucketByRole(item, 'photography'),
+    'producer' => _creatorBucketByRole(item, 'producer'),
+    'creator' => _creatorBucketByRole(item, null),
+    'writer' => _creatorBucketByRole(item, 'writer'),
+    'artist' => _creatorBucketByRole(item, 'artist'),
+    'penciller' => _creatorBucketByRole(item, 'penciller'),
+    'inker' => _creatorBucketByRole(item, 'inker'),
+    'colorist' => _creatorBucketByRole(item, 'colorist'),
+    'painter' => _creatorBucketByRole(item, 'painter'),
+    'letterer' => _creatorBucketByRole(item, 'letterer'),
+    'separator' => _creatorBucketByRole(item, 'separator'),
+    'layouts' => _creatorBucketByRole(item, 'layouts'),
+    'translator' => _creatorBucketByRole(item, 'translator'),
+    'plotter' => _creatorBucketByRole(item, 'plotter'),
+    'scripter' => _creatorBucketByRole(item, 'scripter'),
+    'cover_artist' => _creatorBucketByRole(item, 'cover'),
     'cover_penciller' =>
-      _creatorBucketByRole(entry, 'cover penciller'),
+      _creatorBucketByRole(item, 'cover penciller'),
     'cover_painter' =>
-      _creatorBucketByRole(entry, 'cover painter'),
-    'cover_inker' => _creatorBucketByRole(entry, 'cover inker'),
+      _creatorBucketByRole(item, 'cover painter'),
+    'cover_inker' => _creatorBucketByRole(item, 'cover inker'),
     'cover_colorist' =>
-      _creatorBucketByRole(entry, 'cover colorist'),
+      _creatorBucketByRole(item, 'cover colorist'),
     'cover_separator' =>
-      _creatorBucketByRole(entry, 'cover separator'),
-    'editor' => _creatorBucketByRole(entry, 'editor'),
+      _creatorBucketByRole(item, 'cover separator'),
+    'editor' => _creatorBucketByRole(item, 'editor'),
     'editor_in_chief' =>
-      _creatorBucketByRole(entry, 'editor in chief'),
+      _creatorBucketByRole(item, 'editor in chief'),
     'foreword_author' =>
-      _creatorBucketByRole(entry, 'foreword author'),
-    'ghost_writer' => _creatorBucketByRole(entry, 'ghost writer'),
-    'illustrator' => _creatorBucketByRole(entry, 'illustrator'),
-    'location' => _locationBucket(entry.locationPath),
-    'ownership' => entry.isOwned
+      _creatorBucketByRole(item, 'foreword author'),
+    'ghost_writer' => _creatorBucketByRole(item, 'ghost writer'),
+    'illustrator' => _creatorBucketByRole(item, 'illustrator'),
+    'location' => _locationBucket(dto.locationLabel),
+    'ownership' => dto.isOwned
         ? overrides.owned
-        : entry.isWishlisted
+        : dto.isWishlisted
             ? overrides.wishlist
             : overrides.catalogOnly,
     'added_date' => _dateBucket(
@@ -272,21 +272,21 @@ String defaultLibraryBucketLabel(
         source.ownedItem?.collectionStatus,
         'No collection status',
       ),
-    'title' => _titleBucket(entry.resolvedTitle),
+    'title' => _titleBucket(dto.title),
     'grade' =>
-      entry.grade?.trim().isNotEmpty == true ? entry.grade! : 'Ungraded',
-    'condition' => entry.condition?.trim().isNotEmpty == true
-        ? entry.condition!
+      dto.grade?.trim().isNotEmpty == true ? dto.grade! : 'Ungraded',
+    'condition' => dto.condition?.trim().isNotEmpty == true
+        ? dto.condition!
         : 'No condition',
     'raw_or_slabbed' =>
-      entry.comic?.rawOrSlabbed?.trim().isNotEmpty == true
-          ? entry.comic!.rawOrSlabbed!
+      cat?.comic?.rawOrSlabbed?.trim().isNotEmpty == true
+          ? cat!.comic!.rawOrSlabbed!
           : 'Raw',
     'is_key_comic' =>
-      entry.comic?.keyComic == true ? 'Key' : 'Not special',
+      cat?.comic?.keyComic == true ? 'Key' : 'Not special',
     'image_type' => _imageTypeBucket(source),
-    'modified_date' => formatCompactDate(entry.updatedAt),
-    'modified_month' => _monthBucket(entry.updatedAt),
+    'modified_date' => formatCompactDate(source.updatedAt),
+    'modified_month' => _monthBucket(source.updatedAt),
     'my_rating' => _ratingBucket(source.tracking.rating),
     'owner' => _ownerBucket(source),
     'reader' => _ownerBucket(source),
@@ -348,13 +348,13 @@ String defaultLibraryBucketLabel(
             : null),
         'No storage device',
       ),
-    'dust_jacket' => entry.publishing?.dustJacket == true
+    'dust_jacket' => cat?.publishing?.dustJacket == true
         ? 'Has dust jacket'
         : 'No dust jacket',
     'subject' =>
-      _firstOrDefault(entry.publishing?.subjects, 'No subject'),
+      _firstOrDefault(cat?.publishing?.subjects, 'No subject'),
     'tags' => _firstOrDefault(
-        entry.tags
+        source.ownedItem?.tags
             ?.split(',')
             .map((tag) => tag.trim())
             .where((tag) => tag.isNotEmpty)
@@ -362,15 +362,15 @@ String defaultLibraryBucketLabel(
         'No tags',
       ),
     'bag_board_date' => _dateBucket(
-        entry.lastBagBoardDate,
+        null,
         'Unknown bag/board date',
       ),
     'bag_board_month' => _monthBucket(
-        entry.lastBagBoardDate,
+        null,
         fallback: 'Unknown bag/board month',
       ),
     'bag_board_year' => _yearBucket(
-        entry.lastBagBoardDate,
+        null,
         'Unknown bag/board year',
       ),
     'watch_date' =>
@@ -385,7 +385,7 @@ String defaultLibraryBucketLabel(
       ),
     'watched' => _watchedBucket(source),
     'watched_where' => _watchedWhereBucket(source),
-    _ => _titleBucket(entry.resolvedTitle),
+    _ => _titleBucket(dto.title),
   };
 }
 
@@ -505,8 +505,8 @@ String _firstOrDefault(List<String>? values, String fallback) {
   return first.isEmpty ? fallback : first;
 }
 
-String _editionFormatBucket(LibraryWorkspaceEntry entry) {
-  for (final edition in entry.editions) {
+String _editionFormatBucket(LibraryProjectionRuntime item) {
+  for (final edition in item.source.catalogItem?.editions ?? const []) {
     final label = edition.physicalFormatLabel ?? edition.physicalFormat;
     if (label != null && label.trim().isNotEmpty) {
       return label.trim();
@@ -515,31 +515,23 @@ String _editionFormatBucket(LibraryWorkspaceEntry entry) {
   return 'Unknown format';
 }
 
-String _movieOrTvSeriesBucket(LibraryWorkspaceEntry entry) {
-  final normalizedMediaType = entry.mediaType.trim().toLowerCase();
+String _movieOrTvSeriesBucket(LibraryProjectionRuntime item) {
+  final normalizedMediaType = (item.source.catalogItem?.kind ?? '').trim().toLowerCase();
   if (normalizedMediaType == 'tv') {
     return 'TV Series';
   }
-  final series = entry.series;
-  if (series?.seasonNumber != null || series?.episodeNumber != null) {
+  if (item.dto.seriesTitle != null) {
     return 'TV Series';
   }
   return 'Movie';
 }
 
-CatalogEdition? _referenceEditionForEntry(LibraryWorkspaceEntry entry) {
-  final resolved = resolveLibraryEntryReferenceRelease(entry);
-  return resolved.edition ??
-      (entry.editions.isEmpty ? null : entry.editions.first);
+CatalogEdition? _referenceEditionForEntry(LibraryProjectionRuntime item) {
+  return item.source.catalogItem?.editions.firstOrNull;
 }
 
-String? _referenceRegionFor(ShelfEntry source, LibraryWorkspaceEntry entry) {
-  final resolved = resolveLibraryEntryReferenceRelease(entry);
-  final variantRegion = resolved.variant?.region?.trim();
-  if (variantRegion != null && variantRegion.isNotEmpty) {
-    return variantRegion;
-  }
-  final editionRegion = _referenceEditionForEntry(entry)?.region?.trim();
+String? _referenceRegionFor(ShelfEntry source, LibraryProjectionRuntime item) {
+  final editionRegion = _referenceEditionForEntry(item)?.region?.trim();
   if (editionRegion != null && editionRegion.isNotEmpty) {
     return editionRegion;
   }
@@ -553,15 +545,10 @@ String? _referenceRegionFor(ShelfEntry source, LibraryWorkspaceEntry entry) {
   return null;
 }
 
-String _creatorBucketByRole(LibraryWorkspaceEntry entry, String? role) {
-  for (final credit in entry.creators ?? const <Map<String, dynamic>>[]) {
-    final name = credit['name']?.toString().trim();
-    if (name == null || name.isEmpty) continue;
-    if (role == null) return name;
-    final creditRole = credit['role']?.toString().toLowerCase().trim();
-    if (creditRole != null && _matchesCreatorRole(creditRole, role)) {
-      return name;
-    }
+String _creatorBucketByRole(LibraryProjectionRuntime item, String? role) {
+  final creator = item.dto.creator;
+  if (creator != null && creator.trim().isNotEmpty) {
+    return creator.trim();
   }
   return role != null ? 'Unknown $role' : 'Unknown creator';
 }
@@ -592,8 +579,8 @@ bool _matchesCreatorRole(String creditRole, String role) {
   };
 }
 
-String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
-  final seriesTitle = entry.series?.seriesTitle?.trim();
+String _seriesBucket(LibraryProjectionRuntime item, String unknownLabel) {
+  final seriesTitle = item.dto.seriesTitle?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }

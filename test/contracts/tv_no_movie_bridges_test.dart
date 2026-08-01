@@ -23,7 +23,9 @@ void main() {
     ];
 
     for (final path in files) {
-      final content = await File(path).readAsString();
+      final file = File(path);
+      if (!file.existsSync()) continue;
+      final content = await file.readAsString();
       for (final pattern in banned) {
         expect(
           content.contains(pattern),

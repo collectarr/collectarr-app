@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:barcode/barcode.dart' as bc;
@@ -28,22 +28,23 @@ enum ReportColumn {
   final String label;
   final double flex;
 
-  String extractFrom(LibraryWorkspaceEntry item) {
+  String extractFrom(LibraryProjectionRuntime item) {
+    final dto = item.dto;
+    final cat = item.source.catalogItem;
     return switch (this) {
-      ReportColumn.title => item.title,
-      ReportColumn.series => item.series?.seriesTitle ?? '',
-      ReportColumn.issue => item.itemNumber ?? '',
-      ReportColumn.condition => item.condition ?? '',
-      ReportColumn.grade => item.grade ?? '',
-      ReportColumn.publisher => item.publisher ?? '',
-      ReportColumn.barcode => item.barcode ?? '',
-      ReportColumn.barcodeImage => item.barcode ?? '',
-      ReportColumn.year => item.releaseYear?.toString() ?? '',
-      ReportColumn.format => item.editions.firstOrNull?.physicalFormatLabel ?? '',
-      ReportColumn.creator =>
-        (item.creators?.firstOrNull?['name']?.toString()) ?? '',
-      ReportColumn.tags => item.tags ?? '',
-      ReportColumn.location => item.locationPath ?? '',
+      ReportColumn.title => dto.title,
+      ReportColumn.series => dto.seriesTitle ?? '',
+      ReportColumn.issue => dto.itemNumber ?? '',
+      ReportColumn.condition => dto.condition ?? '',
+      ReportColumn.grade => dto.grade ?? '',
+      ReportColumn.publisher => dto.publisher ?? '',
+      ReportColumn.barcode => dto.barcode ?? '',
+      ReportColumn.barcodeImage => dto.barcode ?? '',
+      ReportColumn.year => dto.releaseDate?.year.toString() ?? '',
+      ReportColumn.format => cat?.editions.firstOrNull?.physicalFormatLabel ?? '',
+      ReportColumn.creator => dto.creator ?? '',
+      ReportColumn.tags => dto.tags ?? '',
+      ReportColumn.location => dto.locationLabel ?? '',
     };
   }
 }
@@ -61,7 +62,7 @@ const _defaultReportColumns = [
 Future<void> printCollectionReport({
   required BuildContext context,
   required String title,
-  required List<LibraryWorkspaceEntry> items,
+  required List<LibraryProjectionRuntime> items,
 }) async {
   final columns = await showDialog<List<ReportColumn>>(
     context: context,
@@ -78,7 +79,7 @@ Future<void> printCollectionReport({
 
 pw.Document _buildDocument(
   String title,
-  List<LibraryWorkspaceEntry> items,
+  List<LibraryProjectionRuntime> items,
   List<ReportColumn> columns,
 ) {
   final doc = pw.Document(
@@ -87,7 +88,7 @@ pw.Document _buildDocument(
   );
 
   const itemsPerPage = 40;
-  final pages = <List<LibraryWorkspaceEntry>>[];
+  final pages = <List<LibraryProjectionRuntime>>[];
   for (var i = 0; i < items.length; i += itemsPerPage) {
     pages.add(items.sublist(
         i, i + itemsPerPage > items.length ? items.length : i + itemsPerPage));

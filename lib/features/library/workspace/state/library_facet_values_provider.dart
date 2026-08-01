@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/data/library_workspace_repository.dart';
 import 'package:collectarr_app/features/library/workspace/data/library_workspace_query.dart';
 import 'library_workspace_key.dart';
@@ -40,8 +40,8 @@ final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
     return Stream.value(const <String>[]);
   }
 
-  Object? getValue(LibraryWorkspaceEntry entry) {
-    final dto = module.workspaceDtoFactory(entry);
+  Object? getValue(LibraryProjectionRuntime item) {
+    final dto = item.dto;
     if (groupDef != null) return (groupDef as dynamic).getValue(dto);
     if (columnDef != null) return (columnDef as dynamic).getValue(dto);
     return null;

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +24,7 @@ enum LibraryItemContextAction {
 Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
   required BuildContext context,
   required Offset position,
-  required LibraryWorkspaceEntry entry,
+  required LibraryProjectionRuntime item,
   required Color accent,
   int selectedCount = 1,
   bool supportsMetadataCompare = false,
@@ -99,7 +99,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
                 Icons.compare_arrows,
                 'Compare metadata with server...',
               ),
-            if (entry.isOwned)
+            if (item.dto.isOwned)
               _item(
                 context,
                 LibraryItemContextAction.duplicate,
@@ -108,12 +108,12 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               ),
             const PopupMenuDivider(),
             _header('Collection', accent),
-            if (!entry.isOwned)
+            if (!item.dto.isOwned)
               _item(
                 context,
                 LibraryItemContextAction.addToOwned,
                 Icons.add_circle_outline,
-                entry.isWishlisted
+                item.dto.isWishlisted
                     ? 'Convert wishlist to collection'
                     : 'Add to collection',
               )
@@ -125,7 +125,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
                 'Remove from collection',
                 destructive: true,
               ),
-            if (!entry.isWishlisted)
+            if (!item.dto.isWishlisted)
               _item(
                 context,
                 LibraryItemContextAction.addToWishlist,
@@ -139,7 +139,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
                 Icons.star_outline,
                 'Remove from wishlist',
               ),
-            if (entry.isTracked && !entry.isOwned)
+            if (item.dto.isTracked && !item.dto.isOwned)
               _item(
                 context,
                 LibraryItemContextAction.removeTracking,
@@ -155,7 +155,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               Icons.content_copy,
               'Copy title',
             ),
-            if (entry.barcode != null && entry.barcode!.isNotEmpty)
+            if (item.dto.barcode != null && item.dto.barcode!.isNotEmpty)
               _item(
                 context,
                 LibraryItemContextAction.copyBarcode,

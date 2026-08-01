@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart'
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -31,9 +31,9 @@ Future<LibraryMetadataRefreshResult?> showLibraryMetadataRefreshDialog({
   required BuildContext context,
   required LibraryTypeConfig type,
   required Color accent,
-  required List<LibraryWorkspaceEntry> allEntries,
-  required List<LibraryWorkspaceEntry> shownEntries,
-  required LibraryWorkspaceEntry? selectedEntry,
+  required List<LibraryProjectionRuntime> allEntries,
+  required List<LibraryProjectionRuntime> shownEntries,
+  required LibraryProjectionRuntime? selectedEntry,
 }) {
   return showDialog<LibraryMetadataRefreshResult>(
     context: context,
@@ -59,9 +59,9 @@ class LibraryMetadataRefreshDialog extends ConsumerStatefulWidget {
 
   final LibraryTypeConfig type;
   final Color accent;
-  final List<LibraryWorkspaceEntry> allEntries;
-  final List<LibraryWorkspaceEntry> shownEntries;
-  final LibraryWorkspaceEntry? selectedEntry;
+  final List<LibraryProjectionRuntime> allEntries;
+  final List<LibraryProjectionRuntime> shownEntries;
+  final LibraryProjectionRuntime? selectedEntry;
 
   @override
   ConsumerState<LibraryMetadataRefreshDialog> createState() =>
@@ -264,7 +264,7 @@ class _LibraryMetadataRefreshDialogState
         return;
       }
       _updateRow(
-        entry.id,
+        entry.node.titleItemId,
         (row) => row.copyWith(
           status: _RefreshRowStatus.running,
           message: 'Searching Core...',
@@ -278,7 +278,7 @@ class _LibraryMetadataRefreshDialogState
           input: _inputForEntry(entry),
         );
         _updateRow(
-          entry.id,
+          entry.node.titleItemId,
           (row) => row.copyWith(
             status: results.isEmpty
                 ? _RefreshRowStatus.missing
@@ -290,7 +290,7 @@ class _LibraryMetadataRefreshDialogState
         );
       } catch (error) {
         _updateRow(
-          entry.id,
+          entry.node.titleItemId,
           (row) => row.copyWith(
             status: _RefreshRowStatus.failed,
             message: _shortError(
@@ -312,18 +312,18 @@ class _LibraryMetadataRefreshDialogState
       String entryId, _RefreshRow Function(_RefreshRow row) update) {
     setState(() {
       _rows = [
-        for (final row in _rows) row.entry.id == entryId ? update(row) : row,
+        for (final row in _rows) row.entry.node.titleItemId == entryId ? update(row) : row,
       ];
     });
   }
 
-  List<LibraryWorkspaceEntry> _targetEntries() {
+  List<LibraryProjectionRuntime> _targetEntries() {
     final values = switch (_scope) {
       _RefreshScope.selected => [
           if (widget.selectedEntry != null) widget.selectedEntry!,
         ],
       _RefreshScope.missing => widget.allEntries
-          .where((entry) => entry.hasMissingCover || entry.hasMissingMetadata)
+          .where((item) => item.dto.coverImageUrl == null || item.dto.coverImageUrl!.isEmpty || item.dto.publisher == null || item.dto.publisher!.isEmpty)
           .toList(growable: false),
       _RefreshScope.shown => widget.shownEntries,
       _RefreshScope.all => widget.allEntries,
@@ -331,34 +331,36 @@ class _LibraryMetadataRefreshDialogState
     return _dedupe(values);
   }
 
-  LibraryMetadataSearchInput _inputForEntry(LibraryWorkspaceEntry entry) {
-    final barcode = entry.barcode?.trim();
+  LibraryMetadataSearchInput _inputForEntry(LibraryProjectionRuntime item) {
+    final dto = item.dto;
+    final barcode = dto.barcode?.trim();
     if (barcode != null && barcode.isNotEmpty) {
       return LibraryMetadataSearchInput(
-        query: entry.title,
+        query: dto.title,
         barcode: barcode,
         limit: 5,
       );
     }
     return LibraryMetadataSearchInput(
-      query: entry.title,
-      issueNumber: entry.itemNumber,
-      publisher: entry.publisher,
-      year: entry.releaseYear ?? entry.releaseDate?.year,
+      query: dto.title,
+      issueNumber: dto.itemNumber,
+      publisher: dto.publisher,
+      year: dto.releaseDate?.year,
       limit: 5,
     );
   }
 
-  String _describeSearch(LibraryWorkspaceEntry entry) {
-    final barcode = entry.barcode?.trim();
+  String _describeSearch(LibraryProjectionRuntime item) {
+    final dto = item.dto;
+    final barcode = dto.barcode?.trim();
     if (barcode != null && barcode.isNotEmpty) {
       return 'Barcode $barcode';
     }
     final parts = [
-      entry.title,
-      if (entry.itemNumber != null && entry.itemNumber!.isNotEmpty)
-        '#${entry.itemNumber}',
-      if (entry.releaseYear != null) entry.releaseYear.toString(),
+      dto.title,
+      if (dto.itemNumber != null && dto.itemNumber!.isNotEmpty)
+        '#${dto.itemNumber}',
+      if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
     ];
     return parts.join(' ');
   }
@@ -379,7 +381,7 @@ class _RefreshRow {
   });
 
   factory _RefreshRow.waiting({
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime entry,
     required String message,
   }) {
     return _RefreshRow(
@@ -389,7 +391,7 @@ class _RefreshRow {
     );
   }
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime entry;
   final _RefreshRowStatus status;
   final String message;
   final int cached;
@@ -501,7 +503,7 @@ class _RefreshTargetList extends StatelessWidget {
   });
 
   final List<_RefreshRow> rows;
-  final List<LibraryWorkspaceEntry> targets;
+  final List<LibraryProjectionRuntime> targets;
   final Color accent;
 
   @override
@@ -510,7 +512,7 @@ class _RefreshTargetList extends StatelessWidget {
     final values = rows.isEmpty
         ? [
             for (final entry in targets)
-              _RefreshRow.waiting(entry: entry, message: entry.title),
+              _RefreshRow.waiting(entry: entry, message: entry.dto.title),
           ]
         : rows;
     if (values.isEmpty) {
@@ -540,7 +542,7 @@ class _RefreshTargetList extends StatelessWidget {
                 color: _statusColor(context, row.status, accent),
               ),
               title: Text(
-                row.entry.title,
+                row.entry.dto.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontWeight: FontWeight.w800),
@@ -551,7 +553,7 @@ class _RefreshTargetList extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               trailing:
-                  row.entry.hasMissingCover || row.entry.hasMissingMetadata
+                  row.entry.dto.coverImageUrl == null || row.entry.dto.coverImageUrl!.isEmpty
                       ? const Icon(Icons.priority_high, size: 16)
                       : null,
             );
@@ -642,11 +644,11 @@ class _RefreshNotice extends StatelessWidget {
   }
 }
 
-List<LibraryWorkspaceEntry> _dedupe(Iterable<LibraryWorkspaceEntry> values) {
+List<LibraryProjectionRuntime> _dedupe(Iterable<LibraryProjectionRuntime> values) {
   final seen = <String>{};
-  final result = <LibraryWorkspaceEntry>[];
+  final result = <LibraryProjectionRuntime>[];
   for (final value in values) {
-    if (seen.add(value.id)) {
+    if (seen.add(value.node.titleItemId)) {
       result.add(value);
     }
   }

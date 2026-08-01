@@ -14,7 +14,8 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -258,48 +259,14 @@ class LibraryAddSearchResultDisplay {
 class LibraryBucketingContext {
   const LibraryBucketingContext({
     required this.source,
-    required this.entry,
+    required this.item,
     required this.groupMode,
   });
 
   final ShelfEntry source;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final String groupMode;
 }
-
-class LibraryReleaseEntryRequest {
-  const LibraryReleaseEntryRequest({
-    required this.titleEntry,
-    required this.edition,
-    this.isOwned = false,
-    this.isWishlisted = false,
-    this.isTracked = false,
-    this.referenceEditionId,
-    this.referenceVariantId,
-    this.referenceBundleReleaseId,
-    this.editions = const <CatalogEdition>[],
-    required this.updatedAt,
-  });
-
-  final LibraryWorkspaceEntry titleEntry;
-  final CatalogEdition edition;
-  final bool isOwned;
-  final bool isWishlisted;
-  final bool isTracked;
-  final String? referenceEditionId;
-  final String? referenceVariantId;
-  final String? referenceBundleReleaseId;
-  final List<CatalogEdition> editions;
-  final DateTime updatedAt;
-}
-
-typedef LibraryWorkspaceEntryBuilder = LibraryWorkspaceEntry Function(
-  ShelfEntry source,
-);
-
-typedef LibraryReleaseEntryBuilder = LibraryWorkspaceEntry Function(
-  LibraryReleaseEntryRequest request,
-);
 
 typedef LibraryBucketLabelBuilder = String Function(
   LibraryBucketingContext context,
@@ -477,14 +444,21 @@ abstract class LibraryMediaPresentationBuilder {
     required String singularLabel,
     required MediaEditFields mediaFields,
     required ReleaseEditFields releaseFields,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   });
 
+  LibraryCardPresentation buildCardPresentation(
+    LibraryProjectionRuntime item, {
+    bool musicVertical = false,
+  }) {
+    return const LibraryCardPresentation();
+  }
+
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -496,7 +470,7 @@ abstract class LibraryMediaPresentationBuilder {
     required String singularLabel,
     required MediaEditFields mediaFields,
     required ReleaseEditFields releaseFields,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -506,7 +480,7 @@ abstract class LibraryMediaPresentationBuilder {
         singularLabel: singularLabel,
         mediaFields: mediaFields,
         releaseFields: releaseFields,
-        entry: entry,
+        item: item,
         accent: accent,
         onFilterByValue: onFilterByValue,
       ),
@@ -515,7 +489,7 @@ abstract class LibraryMediaPresentationBuilder {
         singularLabel: singularLabel,
         mediaFields: mediaFields,
         releaseFields: releaseFields,
-        entry: entry,
+        item: item,
         accent: accent,
         onFilterByValue: onFilterByValue,
       ),
@@ -524,7 +498,7 @@ abstract class LibraryMediaPresentationBuilder {
         singularLabel: singularLabel,
         mediaFields: mediaFields,
         releaseFields: releaseFields,
-        entry: entry,
+        item: item,
         accent: accent,
         onFilterByValue: onFilterByValue,
       ),
@@ -536,7 +510,7 @@ abstract class LibraryMediaPresentationBuilder {
     required String singularLabel,
     required MediaEditFields mediaFields,
     required ReleaseEditFields releaseFields,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -544,11 +518,11 @@ abstract class LibraryMediaPresentationBuilder {
       singularLabel: singularLabel,
       mediaFields: mediaFields,
       releaseFields: releaseFields,
-      entry: entry,
+      item: item,
       includeIdentityFacts: true,
       tapFor: _tapResolver(onFilterByValue),
     );
-    final series = entry.series;
+    final series = item.source.catalogItem?.series;
     final identityFacts = presentation.identityFacts.map((fact) {
       if (fact.label == 'Series' &&
           series?.seriesId != null &&
@@ -579,7 +553,7 @@ abstract class LibraryMediaPresentationBuilder {
     required String singularLabel,
     required MediaEditFields mediaFields,
     required ReleaseEditFields releaseFields,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -587,7 +561,7 @@ abstract class LibraryMediaPresentationBuilder {
       singularLabel: singularLabel,
       mediaFields: mediaFields,
       releaseFields: releaseFields,
-      entry: entry,
+      item: item,
       includeIdentityFacts: false,
       tapFor: _tapResolver(onFilterByValue),
     );
@@ -613,7 +587,7 @@ abstract class LibraryMediaPresentationBuilder {
     required String singularLabel,
     required MediaEditFields mediaFields,
     required ReleaseEditFields releaseFields,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -621,7 +595,7 @@ abstract class LibraryMediaPresentationBuilder {
       singularLabel: singularLabel,
       mediaFields: mediaFields,
       releaseFields: releaseFields,
-      entry: entry,
+      item: item,
       includeIdentityFacts: false,
       tapFor: _tapResolver(onFilterByValue),
     );
@@ -676,7 +650,6 @@ abstract class LibraryMediaPresentationBuilder {
       return () => onFilterByValue(value.trim());
     };
   }
-}
 
 class LibraryMediaPresentation {
   const LibraryMediaPresentation({
@@ -684,8 +657,7 @@ class LibraryMediaPresentation {
     required this.filterLabels,
     required this.groupLabels,
     required this.builder,
-    required this.workspaceEntryBuilder,
-    required this.releaseEntryBuilder,
+    required this.projector,
     required this.bucketLabelBuilder,
     this.previewLabels = const LibraryMediaPreviewLabels(
       series: 'Series',
@@ -718,8 +690,7 @@ class LibraryMediaPresentation {
   final LibraryMediaFilterLabels filterLabels;
   final LibraryMediaGroupLabels groupLabels;
   final LibraryMediaPresentationBuilder builder;
-  final LibraryWorkspaceEntryBuilder workspaceEntryBuilder;
-  final LibraryReleaseEntryBuilder releaseEntryBuilder;
+  final LibraryWorkspaceProjector<LibraryWorkspaceDto> projector;
   final LibraryBucketLabelBuilder bucketLabelBuilder;
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;

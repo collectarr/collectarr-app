@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 class LibraryValueHistoryEntry {
   const LibraryValueHistoryEntry({
@@ -28,18 +28,19 @@ class LibraryValueSnapshot {
     this.providerUpdatedAt,
   });
 
-  factory LibraryValueSnapshot.fromEntry(
-    LibraryWorkspaceEntry entry, {
+  factory LibraryValueSnapshot.fromItem(
+    LibraryProjectionRuntime item, {
     OwnedItem? ownedItem,
     String? providerName,
     DateTime? providerUpdatedAt,
   }) {
+    final dto = item.dto;
     final currency = ownedItem?.currency?.trim().isNotEmpty == true
         ? ownedItem!.currency!.trim()
-        : entry.marketValueCurrency?.trim().isNotEmpty == true
-            ? entry.marketValueCurrency!.trim()
+        : dto.currency?.trim().isNotEmpty == true
+            ? dto.currency!.trim()
             : null;
-    final providerValue = entry.marketValueCents;
+    final providerValue = dto.marketValueCents;
     final manualValue = ownedItem?.marketValueCents;
     final currentValue = providerValue ?? manualValue;
     return LibraryValueSnapshot(
@@ -63,76 +64,57 @@ class LibraryValueSnapshot {
   final String? providerName;
   final DateTime? providerUpdatedAt;
 
-  int? get currentValueCents => providerValueCents ?? manualEstimatedValueCents;
+  int? get displayPrimaryValueCents =>
+      providerValueCents ??
+      manualEstimatedValueCents ??
+      purchasePriceCents ??
+      soldPriceCents;
 
-  int? get profitLossCents {
+  int? get totalOwnedCostBasisCents => purchasePriceCents;
+
+  int? get unrealizedGainLossCents {
+    final current = displayPrimaryValueCents;
     final paid = purchasePriceCents;
-    final sold = soldPriceCents;
-    if (paid == null || sold == null) {
+    if (current == null || paid == null) {
       return null;
     }
-    return sold - paid;
+    return current - paid;
   }
 
-  bool get hasAnyValue =>
-      purchasePriceCents != null ||
-      soldPriceCents != null ||
-      manualEstimatedValueCents != null ||
-      providerValueCents != null ||
-      insuranceValueCents != null;
-
-  List<LibraryValueHistoryEntry> get history {
-    final rows = <LibraryValueHistoryEntry>[];
-    if (purchasePriceCents != null) {
-      rows.add(
-        LibraryValueHistoryEntry(
-          label: 'Purchase',
-          valueCents: purchasePriceCents,
-          currency: currency,
-        ),
-      );
+  double? get unrealizedGainLossPercentage {
+    final delta = unrealizedGainLossCents;
+    final paid = purchasePriceCents;
+    if (delta == null || paid == null || paid == 0) {
+      return null;
     }
-    if (providerValueCents != null) {
-      rows.add(
-        LibraryValueHistoryEntry(
-          label: providerName?.trim().isNotEmpty == true
-              ? providerName!.trim()
-              : 'Provider snapshot',
-          valueCents: providerValueCents,
-          currency: currency,
-          timestamp: providerUpdatedAt,
-        ),
-      );
-    }
-    if (manualEstimatedValueCents != null) {
-      rows.add(
-        LibraryValueHistoryEntry(
-          label: 'Manual estimate',
-          valueCents: manualEstimatedValueCents,
-          currency: currency,
-        ),
-      );
-    }
-    if (insuranceValueCents != null) {
-      rows.add(
-        LibraryValueHistoryEntry(
-          label: 'Insurance',
-          valueCents: insuranceValueCents,
-          currency: currency,
-        ),
-      );
-    }
-    if (soldPriceCents != null) {
-      rows.add(
-        LibraryValueHistoryEntry(
-          label: 'Sold',
-          valueCents: soldPriceCents,
-          currency: currency,
-        ),
-      );
-    }
-    return rows;
+    return (delta / paid) * 100;
   }
 
-  String formatValue(int? cents) => formatMoney(cents, currency);
+  List<LibraryValueHistoryEntry> get historyEntries => [
+        if (purchasePriceCents != null)
+          LibraryValueHistoryEntry(
+            label: 'Purchase price',
+            valueCents: purchasePriceCents,
+            currency: currency,
+          ),
+        if (manualEstimatedValueCents != null)
+          LibraryValueHistoryEntry(
+            label: 'Manual estimate',
+            valueCents: manualEstimatedValueCents,
+            currency: currency,
+          ),
+        if (providerValueCents != null)
+          LibraryValueHistoryEntry(
+            label: providerName ?? 'Provider value',
+            valueCents: providerValueCents,
+            currency: currency,
+            timestamp: providerUpdatedAt,
+          ),
+        if (soldPriceCents != null)
+          LibraryValueHistoryEntry(
+            label: 'Sold price',
+            valueCents: soldPriceCents,
+            currency: currency,
+          ),
+      ];
 }

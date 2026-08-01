@@ -7,13 +7,13 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 LibraryMetadataPresentation buildLibraryMetadataPresentation({
   required LibraryTypeConfig type,
-  required LibraryWorkspaceEntry entry,
+  required LibraryProjectionRuntime item,
   ValueChanged<String>? onFilterByValue,
   bool includeIdentityFacts = false,
 }) {
@@ -28,7 +28,7 @@ LibraryMetadataPresentation buildLibraryMetadataPresentation({
     singularLabel: type.singularLabel,
     mediaFields: type.mediaFields,
     releaseFields: type.releaseFields,
-    entry: entry,
+    item: item,
     includeIdentityFacts: includeIdentityFacts,
     tapFor: tapFor,
   );
@@ -38,13 +38,13 @@ class LibraryMetadataContent extends StatelessWidget {
   const LibraryMetadataContent({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     this.onFilterByValue,
     this.includeIdentityFacts = false,
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final ValueChanged<String>? onFilterByValue;
   final bool includeIdentityFacts;
 
@@ -52,7 +52,7 @@ class LibraryMetadataContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final presentation = buildLibraryMetadataPresentation(
       type: type,
-      entry: entry,
+      item: item,
       onFilterByValue: onFilterByValue,
       includeIdentityFacts: includeIdentityFacts,
     );

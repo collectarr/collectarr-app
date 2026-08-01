@@ -1,13 +1,18 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/season.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_detail_page.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import '../../helpers/test_data_factories.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,6 +37,19 @@ void main() {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.tv)!;
     const itemId = '00000000-0000-0000-0000-000000000001';
 
+    final source = ShelfEntry(
+      itemId: itemId,
+      catalogItem: testCatalogItem(
+        id: itemId,
+        kind: 'tv',
+        title: 'Cowboy Bebop',
+        displayTitle: 'Cowboy Bebop',
+      ),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: itemId);
+    final dto = const GenericWorkspaceProjector().projectTitle(source: source, node: node);
+    final tvItem = LibraryProjectionItem(source: source, node: node, dto: dto);
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -42,20 +60,7 @@ void main() {
           home: VideoLibraryDetailPage(
             request: LibraryDetailPageRequest(
               type: type,
-              entry: LibraryWorkspaceEntry(
-                id: itemId,
-                mediaType: 'tv',
-                title: 'Cowboy Bebop',
-                displayTitle: 'Cowboy Bebop',
-                editions: const [
-                  CatalogEdition(
-                    id: 'edition-bluray',
-                    title: 'Blu-ray',
-                    publisher: 'Crunchyroll',
-                  ),
-                ],
-                updatedAt: DateTime.utc(2026, 5, 25),
-              ),
+              item: tvItem,
               ownedItem: null,
               accent: Colors.orange,
               onAddOwned: () {},

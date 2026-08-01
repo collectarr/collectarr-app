@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace_entry_builder.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -92,14 +92,14 @@ const comicLibrarySortFavorites = [
 ];
 
 final comicLibraryMediaPresentation = LibraryMediaPresentation(
-  searchFieldLabels: LibraryMediaSearchFieldLabels(
+  searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
     seriesHint: 'Series...',
     numberHint: 'No. / Vol....',
     publisherHint: 'Publisher / Studio / Creator...',
   ),
-  filterLabels: LibraryMediaFilterLabels(
+  filterLabels: const LibraryMediaFilterLabels(
     series: 'Series',
     anySeries: 'Any series',
     publisher: 'Publisher',
@@ -107,12 +107,11 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: comicLibraryGroupLabels,
   builder: comicLibraryMediaBuilder,
-  workspaceEntryBuilder: buildComicsLibraryWorkspaceEntryFromShelf,
-  releaseEntryBuilder: buildComicsLibraryReleaseEntry,
+  projector: const ComicWorkspaceProjector(),
   bucketLabelBuilder: comicLibraryBucketLabelBuilder,
   previewLabels: comicsPreviewLabels,
   usesTreeProviderCandidates: true,
-  externalFacetBucketIdsByMode: {
+  externalFacetBucketIdsByMode: const {
     'comic.story_arc': LibraryFacetId.comicStoryArc,
     'comic.character': LibraryFacetId.comicCharacter,
   },

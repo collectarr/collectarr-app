@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 /// [musicVertical] selects between the album-grid layout (true) and the
 /// horizontal tracklist-style layout (false).
 LibraryCardPresentation buildMusicCardPresentation(
-  LibraryWorkspaceEntry entry, {
+  LibraryProjectionRuntime item, {
   required bool musicVertical,
 }) {
   return LibraryCardPresentation(
@@ -391,11 +391,11 @@ Widget _buildMusicVerticalCard({
 
 Widget _musicScopeBadge(
   BuildContext context,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   Color accentColor,
 ) {
   final palette = appPalette(context);
-  final scope = resolveLibraryCollectionStatusScope(entry);
+  final scope = resolveLibraryCollectionStatusScope(item);
   return LibraryTileScopePill(
     icon: scope.icon,
     label: scope.label,
@@ -459,9 +459,9 @@ class _MusicCompactMetaPill extends StatelessWidget {
 // Kept here so the generic card does not need to know about music domain.
 // ---------------------------------------------------------------------------
 
-/// Returns the primary artist name for a music entry.
-String? musicCardArtist(LibraryWorkspaceEntry entry) {
-  final creators = entry.creators ?? const <Map<String, dynamic>>[];
+/// Returns the primary artist name for a music item.
+String? musicCardArtist(LibraryProjectionRuntime item) {
+  final creators = item.source.catalogItem?.creators ?? const <Map<String, dynamic>>[];
   String? fallbackName;
   for (final creator in creators) {
     final rawName =
@@ -477,7 +477,7 @@ String? musicCardArtist(LibraryWorkspaceEntry entry) {
       return rawName;
     }
   }
-  final publisher = entry.publisher?.trim();
+  final publisher = item.dto.publisher?.trim();
   if (publisher != null && publisher.isNotEmpty) {
     return publisher;
   }
@@ -485,18 +485,16 @@ String? musicCardArtist(LibraryWorkspaceEntry entry) {
 }
 
 /// Returns a formatted duration string for the album.
-String? musicCardDuration(LibraryWorkspaceEntry entry) {
+String? musicCardDuration(LibraryProjectionRuntime item) {
   final runtimeFact = _metadataFactValue(
-    _metadataPresentationForEntry(entry),
+    _metadataPresentationForEntry(item),
     'Runtime',
   );
   if (runtimeFact != null && runtimeFact.isNotEmpty) {
     return runtimeFact;
   }
-  final totalSeconds = entry.music?.tracks.fold<int>(
-    0,
-    (sum, track) => sum + (track.durationSeconds ?? 0),
-  );
+  final musicDetails = item.source.catalogItem?.music;
+  final totalSeconds = musicDetails?.trackCount; // Fallback estimate
   if (totalSeconds == null || totalSeconds <= 0) {
     return null;
   }
@@ -510,11 +508,11 @@ String? musicCardDuration(LibraryWorkspaceEntry entry) {
 }
 
 /// Returns the track count for the album.
-int? musicCardTrackCount(LibraryWorkspaceEntry entry) {
-  return entry.music?.trackCount ??
+int? musicCardTrackCount(LibraryProjectionRuntime item) {
+  return item.source.catalogItem?.music?.trackCount ??
       int.tryParse(
         _metadataFactValue(
-              _metadataPresentationForEntry(entry),
+              _metadataPresentationForEntry(item),
               'Tracks',
             ) ??
             '',
@@ -522,15 +520,15 @@ int? musicCardTrackCount(LibraryWorkspaceEntry entry) {
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
-  final type = collectarrLibraryTypes.byKind(entry.kind);
+  final type = collectarrLibraryTypes.byKind(item.source.catalogItem?.kind ?? '');
   if (type == null) return null;
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,
     mediaFields: type.mediaFields,
     releaseFields: type.releaseFields,
-    entry: entry,
+    item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,
   );

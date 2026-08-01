@@ -11,13 +11,13 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
 
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   type: musicLibraryConfig,
 
   mediaAdapter: musicMediaAdapter,
-  workspaceDtoFactory: MusicWorkspaceDto.fromEntry,
+  projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: musicLibraryGroupDefinitions,
@@ -26,11 +26,9 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     defaultVisibleColumnIds: musicLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
-    customLinkedMetadataCandidates: (entry) sync* {
+    customLinkedMetadataCandidates: (source) sync* {
       yield* AnyLibraryFieldRegistry.nonEmptyStrings([
-        entry.music?.catalogNumber,
-        entry.music?.vinylColor,
-        entry.music?.rpm?.toString(),
+        source.catalogItem?.publisher,
       ]);
     },
   ),

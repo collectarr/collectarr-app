@@ -15,16 +15,16 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'library_workspace_query.dart';
 
 abstract class LibraryWorkspaceRepository {
-  Stream<List<LibraryWorkspaceEntry>> watchEntries(LibraryWorkspaceQuery query);
+  Stream<List<LibraryProjectionRuntime>> watchEntries(LibraryWorkspaceQuery query);
 }
 
 class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
@@ -32,19 +32,16 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
   final Ref ref;
 
   @override
-  Stream<List<LibraryWorkspaceEntry>> watchEntries(LibraryWorkspaceQuery query) {
-    final controller = StreamController<List<LibraryWorkspaceEntry>>();
+  Stream<List<LibraryProjectionRuntime>> watchEntries(LibraryWorkspaceQuery query) {
+    final controller = StreamController<List<LibraryProjectionRuntime>>();
     final db = ref.read(localDatabaseProvider);
 
-    // In unit tests where shelfProvider is overridden and the DB is the default LazyDatabase,
-    // we must bypass Drift queries to avoid MissingPluginException on path_provider.
     final bool isTesting = const bool.fromEnvironment('dart.vm.product') == false &&
         Platform.environment.containsKey('FLUTTER_TEST');
     final bool isLazy = db.connection.executor is LazyDatabase ||
         db.connection.executor.toString().contains('LazyDatabase');
 
     if (isTesting && isLazy) {
-      // Fall back to watching shelfProvider
       final listener = ref.listen<AsyncValue<ShelfState>>(
         shelfProvider,
         (previous, next) {
@@ -65,7 +62,6 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     db.select(db.catalogCache).get().then((items) {
       final hasDbItems = items.any((item) => item.kind == query.kind.apiValue);
       if (!hasDbItems) {
-        // Fall back to watching shelfProvider
         final listener = ref.listen<AsyncValue<ShelfState>>(
           shelfProvider,
           (previous, next) {
@@ -81,7 +77,6 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
           listener.close();
         };
       } else {
-        // Use the DB-level filtering query stream!
         final dbSubscription = _watchFromDb(query).listen(
           (entries) {
             controller.add(entries);
@@ -95,8 +90,6 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
         };
       }
     }).catchError((Object error, StackTrace stackTrace) {
-      // In case of error (e.g. database not initialized or missing tables in some tests)
-      // fallback to shelfProvider.
       final listener = ref.listen<AsyncValue<ShelfState>>(
         shelfProvider,
         (previous, next) {
@@ -116,10 +109,9 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     return controller.stream;
   }
 
-  Stream<List<LibraryWorkspaceEntry>> _watchFromDb(LibraryWorkspaceQuery query) {
+  Stream<List<LibraryProjectionRuntime>> _watchFromDb(LibraryWorkspaceQuery query) {
     final db = ref.read(localDatabaseProvider);
     final module = libraryKindModuleForKind(query.kind);
-    final type = module.type;
 
     final statement = db.select(db.catalogCache).join([
       leftOuterJoin(
@@ -136,40 +128,29 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       ),
     ]);
 
-    // 1. Kind filter
     statement.where(db.catalogCache.kind.equals(query.kind.apiValue));
 
-    // 2. Active shelf entry filter (must have at least one active owned, wishlist, or tracking entry)
-    statement.where(
-      (db.ownedItemsCache.id.isNotNull() & db.ownedItemsCache.deletedAt.isNull()) |
-      (db.wishlistItemsCache.id.isNotNull() & db.wishlistItemsCache.deletedAt.isNull()) |
-      (db.trackingEntriesCache.id.isNotNull() & db.trackingEntriesCache.deletedAt.isNull())
-    );
-
-    // 3. Search query filter
-    final queryStr = query.searchQuery.trim().toLowerCase();
-    if (queryStr.isNotEmpty) {
+    if (query.searchQuery.trim().isNotEmpty) {
+      final q = '%${query.searchQuery.trim().toLowerCase()}%';
       statement.where(
-        db.catalogCache.title.lower().like('%$queryStr%') |
-        db.catalogCache.publisher.lower().like('%$queryStr%') |
-        db.catalogCache.itemNumber.lower().like('%$queryStr%')
+        db.catalogCache.title.lower().like(q) |
+            db.catalogCache.publisher.lower().like(q) |
+            db.catalogCache.itemNumber.lower().like(q),
       );
     }
 
-    // 4. Collection/Location filter
     if (query.collectionId != null) {
       statement.where(db.ownedItemsCache.locationId.equals(query.collectionId!));
     }
 
-    // 5. Scope filter
     if (query.scopeId != null) {
       statement.where(
-        db.catalogCache.seriesId.equals(query.scopeId!) |
-        db.catalogCache.id.equals(query.scopeId!)
+        db.catalogCache.id.equals(query.scopeId!) |
+            db.catalogCache.seriesId.equals(query.scopeId!),
       );
     }
 
-    return statement.watch().asyncMap((rows) async {
+    return statement.watch().map((rows) {
       final shelfEntries = <ShelfEntry>[];
       for (final row in rows) {
         final catalogData = row.readTable(db.catalogCache);
@@ -179,23 +160,21 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
 
         String? locationPath;
         if (ownedData?.locationId != null) {
-          final locations = await LocationRepository(db).getAll();
-          locationPath = locations
-              .where((loc) => loc.id == ownedData!.locationId)
-              .map((loc) => loc.fullPath(locations))
-              .firstOrNull;
+          locationPath = ref
+              .read(locationRepositoryProvider)
+              .resolvePathSync(ownedData!.locationId!);
         }
 
-        final watchSessions = await WatchSessionsCacheRepository(db)
-            .listActiveByItemId(catalogData.id);
+        final watchSessions = ref
+            .read(watchSessionsCacheRepositoryProvider)
+            .getSessionsSync(catalogData.id);
 
-        final itemImages = ownedData != null
-            ? await ItemImageRepository(db).listForItem(ownedData.id)
-            : const <ItemImage>[];
+        final itemImages = ref
+            .read(itemImageRepositoryProvider)
+            .getImagesSync(catalogData.id);
 
         shelfEntries.add(
           ShelfEntry(
-            itemId: catalogData.id,
             catalogItem: LibraryMetadataItem.fromCatalogItem(
               _itemFromRow(catalogData),
             ),
@@ -209,22 +188,23 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
         );
       }
 
-      final entries = shelfEntries
-          .map((se) => type.presentation.workspaceEntryBuilder(se))
-          .toList();
+      final items = shelfEntries.map((se) {
+        final node = LibraryTitleNodeRef(titleItemId: se.catalogItem!.id);
+        final dto = module.projector.projectTitle(source: se, node: node);
+        return LibraryProjectionItem(source: se, node: node, dto: dto);
+      }).toList();
 
-      var filtered = entries;
+      var filtered = items;
 
-      // Facet values filtering
       if (query.facetValues.isNotEmpty) {
-        filtered = filtered.where((entry) {
+        filtered = filtered.where((item) {
           for (final facetEntry in query.facetValues.entries) {
             final facetId = facetEntry.key;
             final selectedValues = facetEntry.value;
             if (selectedValues.isEmpty) {
               continue;
             }
-            final values = module.facets.getFacetValues?.call(entry, facetId) ?? const <String>[];
+            final values = module.facets.getFacetValues?.call(item, facetId) ?? const <String>[];
             final hasMatch = values.any((val) => selectedValues.contains(val));
             if (!hasMatch) {
               return false;
@@ -234,93 +214,76 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
         }).toList();
       }
 
-      // Presentation level filtering
       if (query.presentationLevelId != null) {
-        filtered = filtered.where((entry) {
+        filtered = filtered.where((item) {
           if (query.presentationLevelId == 'title') {
-            return entry.browseScope == LibraryBrowserScope.title;
+            return item.node.scope == LibraryBrowserScope.title;
           } else if (query.presentationLevelId == 'release') {
-            return entry.browseScope == LibraryBrowserScope.release;
+            return item.node.scope == LibraryBrowserScope.release;
           } else if (query.presentationLevelId == 'copy') {
-            return entry.browseScope == LibraryBrowserScope.copy;
+            return item.node.scope == LibraryBrowserScope.copy;
           }
           return true;
         }).toList();
       }
 
-      if (query.sortId != null) {
-        module.fields.sortEntries(
-          filtered,
-          query.sortId!,
-          ascending: query.sortAscending,
-          dtoFactory: module.workspaceDtoFactory,
-        );
-      } else {
-        filtered.sort((left, right) => left.resolvedTitle
-            .toLowerCase()
-            .compareTo(right.resolvedTitle.toLowerCase()));
-      }
+      filtered.sort((left, right) => left.dto.title
+          .toLowerCase()
+          .compareTo(right.dto.title.toLowerCase()));
 
       return filtered;
     });
   }
 
-  List<LibraryWorkspaceEntry> _processEntries(
+  List<LibraryProjectionRuntime> _processEntries(
     List<ShelfEntry> shelfEntries,
     LibraryWorkspaceQuery query,
   ) {
     final module = libraryKindModuleForKind(query.kind);
-    final type = module.type;
 
-    final entries = <LibraryWorkspaceEntry>[];
+    final items = <LibraryProjectionRuntime>[];
     for (final source in shelfEntries) {
       final catalogItem = source.catalogItem;
       if (catalogItem != null && catalogItem.kind == query.kind.apiValue) {
-        entries.add(type.presentation.workspaceEntryBuilder(source));
+        final node = LibraryTitleNodeRef(titleItemId: catalogItem.id);
+        final dto = module.projector.projectTitle(source: source, node: node);
+        items.add(LibraryProjectionItem(source: source, node: node, dto: dto));
       }
     }
 
-    var filtered = entries;
+    var filtered = items;
 
-    // 1. Search Query filter
     final queryStr = query.searchQuery.trim().toLowerCase();
     if (queryStr.isNotEmpty) {
-      filtered = filtered.where((entry) {
-        return entry.resolvedTitle.toLowerCase().contains(queryStr) ||
-            (entry.publisher?.toLowerCase().contains(queryStr) ?? false) ||
-            (entry.itemNumber?.toLowerCase().contains(queryStr) ?? false);
+      filtered = filtered.where((item) {
+        return item.dto.title.toLowerCase().contains(queryStr) ||
+            (item.dto.publisher?.toLowerCase().contains(queryStr) ?? false) ||
+            (item.dto.itemNumber?.toLowerCase().contains(queryStr) ?? false);
       }).toList();
     }
 
-    // 2. Collection filter (matching ownedItem location ID)
     if (query.collectionId != null) {
-      filtered = filtered.where((entry) {
-        return entry.ownedItemId != null &&
-            shelfEntries.any((se) =>
-                se.ownedItem?.id == entry.ownedItemId &&
-                se.ownedItem?.locationId == query.collectionId);
+      filtered = filtered.where((item) {
+        return item.source.ownedItem?.locationId == query.collectionId;
       }).toList();
     }
 
-    // 3. Scope filter (matching titleItemId or seriesId)
     if (query.scopeId != null) {
-      filtered = filtered.where((entry) {
-        return entry.titleItemId == query.scopeId ||
-            entry.series?.seriesId == query.scopeId ||
-            entry.id == query.scopeId;
+      filtered = filtered.where((item) {
+        return item.node.titleItemId == query.scopeId ||
+            item.dto.seriesTitle == query.scopeId;
       }).toList();
     }
 
-    // 4. Facet values filtering
     if (query.facetValues.isNotEmpty) {
-      filtered = filtered.where((entry) {
+      filtered = filtered.where((item) {
         for (final facetEntry in query.facetValues.entries) {
           final facetId = facetEntry.key;
           final selectedValues = facetEntry.value;
           if (selectedValues.isEmpty) {
             continue;
           }
-          final values = module.facets.getFacetValues?.call(entry, facetId) ?? const <String>[];
+          final values = module.facets.getFacetValues?.call(item, facetId) ?? const <String>[];
           final hasMatch = values.any((val) => selectedValues.contains(val));
           if (!hasMatch) {
             return false;
@@ -330,32 +293,22 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       }).toList();
     }
 
-    // 5. Presentation Level filter
     if (query.presentationLevelId != null) {
-      filtered = filtered.where((entry) {
+      filtered = filtered.where((item) {
         if (query.presentationLevelId == 'title') {
-          return entry.browseScope == LibraryBrowserScope.title;
+          return item.node.scope == LibraryBrowserScope.title;
         } else if (query.presentationLevelId == 'release') {
-          return entry.browseScope == LibraryBrowserScope.release;
+          return item.node.scope == LibraryBrowserScope.release;
         } else if (query.presentationLevelId == 'copy') {
-          return entry.browseScope == LibraryBrowserScope.copy;
+          return item.node.scope == LibraryBrowserScope.copy;
         }
         return true;
       }).toList();
     }
 
-    if (query.sortId != null) {
-      module.fields.sortEntries(
-        filtered,
-        query.sortId!,
-        ascending: query.sortAscending,
-        dtoFactory: module.workspaceDtoFactory,
-      );
-    } else {
-      filtered.sort((left, right) => left.resolvedTitle
-          .toLowerCase()
-          .compareTo(right.resolvedTitle.toLowerCase()));
-    }
+    filtered.sort((left, right) => left.dto.title
+        .toLowerCase()
+        .compareTo(right.dto.title.toLowerCase()));
 
     return filtered;
   }
@@ -418,261 +371,126 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       coverImageData: row.coverImageData,
       editionTitle: row.editionTitle,
       physicalFormat: row.physicalFormat,
-      physicalFormatLabel: row.physicalFormatLabel,
       publisher: row.publisher,
-      coverDate: row.coverDate,
-      releaseDate: row.releaseDate,
-      releaseYear: row.releaseYear,
-      barcode: row.barcode,
-      variant: row.variant,
-      crossover: row.crossover,
-      plotSummary: row.plotSummary,
-      plotDescription: row.plotDescription,
-      series: series.hasData ? series : null,
-      video: video.hasData ? video : null,
-      music: music.hasData ? music : null,
-      game: game.hasData ? game : null,
-      publishing: publishing.hasData ? publishing : null,
-      editions: editions ?? const <CatalogEdition>[],
-      creators: _decodeListOfMaps(row.creatorsJson),
+      creators: _decodeStringList(row.creatorsJson),
+      artists: _decodeStringList(row.artistsJson),
+      authors: _decodeStringList(row.authorsJson),
+      directors: _decodeStringList(row.directorsJson),
+      writers: _decodeStringList(row.writersJson),
+      cast: _decodeStringList(row.castJson),
       characters: _decodeStringList(row.charactersJson),
-      characterDetails: _decodeListOfMaps(row.characterDetailsJson),
       storyArcs: _decodeStringList(row.storyArcsJson),
-      rawPlatforms: rawPlatforms,
-      genres: _decodeStringList(row.genresJson),
-      trailerUrls: _decodeTrailerUrls(row.trailerUrlsJson),
-      country: row.country,
-      language: row.language,
-      ageRating: row.ageRating,
-      audienceRating: row.audienceRating,
+      languages: _decodeStringList(row.languagesJson),
+      subtitles: _decodeStringList(row.subtitlesListJson),
+      readingOrder: row.readingOrder,
+      series: series,
+      video: video,
+      music: music,
+      game: game,
+      publishing: publishing,
+      editions: editions ?? const <CatalogEdition>[],
     );
-  }
-
-  static List<String>? _decodeStringList(String? json) {
-    if (json == null || json.isEmpty) return null;
-    final decoded = jsonDecode(json);
-    if (decoded is! List) return null;
-    return decoded.cast<String>().toList(growable: false);
-  }
-
-  static List<Map<String, dynamic>>? _decodeListOfMaps(String? json) {
-    if (json == null || json.isEmpty) return null;
-    final decoded = jsonDecode(json);
-    if (decoded is! List) return null;
-    return decoded.cast<Map<String, dynamic>>().toList(growable: false);
-  }
-
-  static List<CatalogTrack>? _decodeTracks(String? json) {
-    final decoded = _decodeListOfMaps(json);
-    if (decoded == null) return null;
-    return decoded.map(CatalogTrack.fromJson).toList(growable: false);
-  }
-
-  static List<CatalogDisc>? _decodeDiscs(String? json) {
-    final decoded = _decodeListOfMaps(json);
-    if (decoded == null) return null;
-    return decoded.map(CatalogDisc.fromJson).toList(growable: false);
-  }
-
-  static List<CatalogEdition>? _decodeEditions(String? json) {
-    final decoded = _decodeListOfMaps(json);
-    if (decoded == null) return null;
-    return decoded.map(CatalogEdition.fromJson).toList(growable: false);
-  }
-
-  static List<TrailerLink> _decodeTrailerUrls(String? json) {
-    if (json == null || json.isEmpty) return const <TrailerLink>[];
-    final decoded = jsonDecode(json);
-    if (decoded is! List) return const <TrailerLink>[];
-    return decoded
-        .cast<Map<String, dynamic>>()
-        .map(TrailerLink.fromJson)
-        .toList(growable: false);
   }
 
   OwnedItem _ownedFromCache(OwnedItemsCacheData row) {
-    final catalogRef = CatalogEntityRef(
-      kind: 'unknown',
-      entityType: CatalogEntityType.unknown,
-      id: row.itemId,
-    );
-    OwnedItemDetails details;
-    switch (catalogRef.kind) {
-      case 'comic':
-      case 'manga':
-        details = ComicOwnedDetails(
-          rawOrSlabbed: row.rawOrSlabbed,
-          gradingCompany: row.gradingCompany,
-          graderNotes: row.graderNotes,
-          signedBy: row.signedBy,
-          labelType: row.labelType,
-          customLabel: row.customLabel,
-          pageQuality: row.pageQuality,
-          certificationNumber: row.certificationNumber,
-          keyComic: row.keyComic,
-          keyReason: row.keyReason,
-          keyCategory: row.keyCategory,
-          keySeverity: row.keySeverity,
-          coverPriceCents: row.coverPriceCents,
-          lastBagBoardDate: row.lastBagBoardDate,
-        );
-      case 'movie':
-      case 'tv':
-      case 'anime':
-        details = VideoOwnedDetails(
-          features: row.features,
-          hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
-          boxSetId: row.boxSetId,
-          boxSetName: row.boxSetName,
-          region: row.region,
-          packaging: row.packaging,
-          distributor: row.distributor,
-        );
-      case 'game':
-        details = GameOwnedDetails(
-          completeness: row.gameCompleteness,
-          hasBox: row.gameHasBox,
-          hasManual: row.gameHasManual,
-          priceChartingId: row.gamePriceChartingId,
-          coreRegion: row.gameCoreRegion,
-          valueIsLocked: row.gameValueIsLocked,
-        );
-      case 'music':
-        details = MusicOwnedDetails(
-          storageDevice: row.storageDevice,
-          storageSlot: row.storageSlot,
-        );
-      default:
-        details = const GenericOwnedDetails();
-    }
-
     return OwnedItem(
       id: row.id,
-      catalogRef: catalogRef,
-      details: details,
-      createdAt: row.createdAt,
-      isDigital: row.isDigital,
-      anchorType: row.anchorType,
+      itemId: row.itemId,
+      quantity: row.quantity,
+      locationId: row.locationId,
+      condition: row.condition,
+      notes: row.notes,
       editionId: row.editionId,
       variantId: row.variantId,
       bundleReleaseId: row.bundleReleaseId,
-      condition: row.condition,
-      grade: row.grade,
-      purchaseDate: row.purchaseDate,
-      pricePaidCents: row.pricePaidCents,
-      currency: row.currency,
-      personalNotes: row.personalNotes,
-      quantity: row.quantity,
-      indexNumber: row.indexNumber,
-      rating: row.rating,
-      readStatus: row.readStatus,
-      startedAt: row.startedAt,
-      finishedAt: row.finishedAt,
-      tags: row.tags,
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
-      soldAt: row.soldAt,
-      sellPriceCents: row.sellPriceCents,
-      soldTo: row.soldTo,
-      ownerUserId: row.ownerUserId,
-      ownerLabel: row.ownerLabel,
-      locationId: row.locationId,
-      purchaseStore: row.purchaseStore,
-      collectionStatus: row.collectionStatus,
-      marketValueCents: row.marketValueCents,
+      anchorType: row.anchorType,
     );
   }
 
   WishlistItem _wishlistFromCache(WishlistItemsCacheData row) {
-    final anchor = PersonalItemAnchor.fromRaw(
-      anchorType: row.anchorType,
-      editionId: row.editionId,
-      variantId: row.variantId,
-      bundleReleaseId: row.bundleReleaseId,
-    );
-    final entityType = switch (anchor?.type) {
-      PersonalItemAnchorType.bundleRelease => CatalogEntityType.release,
-      PersonalItemAnchorType.variant => CatalogEntityType.release,
-      PersonalItemAnchorType.edition => CatalogEntityType.edition,
-      _ => CatalogEntityType.work,
-    };
     return WishlistItem(
       id: row.id,
-      catalogRef: CatalogEntityRef(
-        kind: 'unknown',
-        entityType: entityType,
-        id: row.itemId,
-      ),
-      anchorType: row.anchorType,
+      itemId: row.itemId,
+      priority: row.priority,
+      notes: row.notes,
       editionId: row.editionId,
       variantId: row.variantId,
       bundleReleaseId: row.bundleReleaseId,
-      targetPriceCents: row.targetPriceCents,
-      currency: row.currency,
-      notes: row.notes,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
+      anchorType: row.anchorType,
     );
   }
 
   TrackingEntry _trackingFromCache(TrackingEntriesCacheData row) {
-    final anchor = PersonalItemAnchor.fromRaw(
-      anchorType: row.sourceType,
-      editionId: row.editionId,
-      variantId: row.variantId,
-      bundleReleaseId: row.bundleReleaseId,
+    final ref = CatalogEntityRef(
+      kind: row.kind,
+      entityType: CatalogEntityType.work,
+      id: row.itemId,
     );
-    final entityType = row.seasonNumber != null || row.episodeNumber != null
-        ? CatalogEntityType.episode
-        : switch (anchor?.type) {
-            PersonalItemAnchorType.bundleRelease => CatalogEntityType.release,
-            PersonalItemAnchorType.variant => CatalogEntityType.release,
-            PersonalItemAnchorType.edition => CatalogEntityType.edition,
-            _ => CatalogEntityType.work,
-          };
     return TrackingEntry(
       id: row.id,
-      catalogRef: CatalogEntityRef(
-        kind: 'unknown',
-        entityType: entityType,
-        id: row.itemId,
+      catalogRef: ref,
+      status: TrackingStatus.values.firstWhere(
+        (e) => e.name == row.status,
+        orElse: () => TrackingStatus.planned,
       ),
-      ownedItemId: row.ownedItemId,
-      editionId: row.editionId,
-      variantId: row.variantId,
-      bundleReleaseId: row.bundleReleaseId,
-      sourceType: row.sourceType,
-      status: row.status,
+      lastUpdated: row.updatedAt,
+      progressFraction: row.progressFraction,
       rating: row.rating,
-      startedAt: row.startedAt,
-      finishedAt: row.finishedAt,
-      progressCurrent: row.progressCurrent,
-      progressTotal: row.progressTotal,
+      review: row.review,
+      startDate: row.startDate,
+      finishDate: row.finishDate,
       timesCompleted: row.timesCompleted,
-      notes: row.notes,
-      seasonNumber: row.seasonNumber,
-      episodeNumber: row.episodeNumber,
-      episodeRatings: _decodeEpisodeRatings(row.episodeRatings),
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
     );
   }
 
-  static Map<String, int>? _decodeEpisodeRatings(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
+  List<String>? _decodeStringList(String? jsonStr) {
+    if (jsonStr == null || jsonStr.isEmpty) return null;
     try {
-      final decoded = jsonDecode(raw);
-      if (decoded is Map) {
-        return decoded.map((k, v) => MapEntry(k as String, (v as num).toInt()));
-      }
-    } catch (_) {}
-    return null;
+      final list = json.decode(jsonStr) as List;
+      return list.cast<String>();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<CatalogTrack>? _decodeTracks(String? jsonStr) {
+    if (jsonStr == null || jsonStr.isEmpty) return null;
+    try {
+      final list = json.decode(jsonStr) as List;
+      return list
+          .map((e) => CatalogTrack.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<CatalogDisc>? _decodeDiscs(String? jsonStr) {
+    if (jsonStr == null || jsonStr.isEmpty) return null;
+    try {
+      final list = json.decode(jsonStr) as List;
+      return list
+          .map((e) => CatalogDisc.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<CatalogEdition>? _decodeEditions(String? jsonStr) {
+    if (jsonStr == null || jsonStr.isEmpty) return null;
+    try {
+      final list = json.decode(jsonStr) as List;
+      return list
+          .map((e) => CatalogEdition.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return null;
+    }
   }
 }
 
 final libraryWorkspaceRepositoryProvider =
-    Provider<LibraryWorkspaceRepository>((ref) {
+    Provider.autoDispose<LibraryWorkspaceRepository>((ref) {
   return LocalLibraryWorkspaceRepository(ref);
 });
-

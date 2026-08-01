@@ -1,11 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -18,84 +20,39 @@ void main() {
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
-      sourceType: 'physical',
-      updatedAt: DateTime.utc(2026, 5, 24, 10),
+      progressCurrent: 10,
+      updatedAt: DateTime.utc(2026, 5, 25, 10),
     );
-    final ownedTracking = TrackingEntry(
-      id: 'tracking-owned-2',
+    final copyTracked = TrackingEntry(
+      id: 'tracking-copy',
       catalogRef: const CatalogEntityRef(
         kind: 'book',
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
-      ownedItemId: 'owned-2',
-      sourceType: 'physical',
-      updatedAt: DateTime.utc(2026, 5, 24, 11),
-    );
-    final ownedItem = testOwnedItem(
-      id: 'owned-2',
-      catalogRef: const CatalogEntityRef(
-        kind: 'book',
-        entityType: CatalogEntityType.ownedCopy,
-        id: 'book-1',
-      ),
-      updatedAt: DateTime.utc(2026, 5, 24, 11),
+      anchorType: 'copy',
+      ownedItemId: 'owned-1',
+      progressCurrent: 50,
+      updatedAt: DateTime.utc(2026, 5, 25, 11),
     );
 
     final resolved = resolveActiveTrackingEntry(
-      [trackedOnly, ownedTracking],
-      ownedItem,
+      activeOwnedItemId: 'owned-1',
+      trackingEntries: [trackedOnly, copyTracked],
     );
 
-    expect(resolved?.id, 'tracking-owned-2');
+    expect(resolved?.id, 'tracking-copy');
   });
 
-  test('resolveActiveOwnedItem picks the newest copy and requests selection sync', () {
-    final older = testOwnedItem(
-      id: 'owned-1',
-      catalogRef: const CatalogEntityRef(
-        kind: 'book',
-        entityType: CatalogEntityType.ownedCopy,
-        id: 'book-1',
-      ),
-      updatedAt: DateTime.utc(2026, 5, 24, 10),
-    );
-    final newer = testOwnedItem(
-      id: 'owned-2',
-      catalogRef: const CatalogEntityRef(
-        kind: 'book',
-        entityType: CatalogEntityType.ownedCopy,
-        id: 'book-1',
-      ),
-      updatedAt: DateTime.utc(2026, 5, 24, 11),
-    );
-
-    final resolution = resolveActiveOwnedItem(
-      [newer, older],
-      fallback: older,
-      selectedOwnedItemId: null,
-      selectNewest: true,
-    );
-
-    expect(resolution.ownedItem?.id, 'owned-2');
-    expect(resolution.nextSelectedOwnedItemId, 'owned-2');
-    expect(resolution.clearNewest, isTrue);
-    expect(resolution.shouldScheduleSelection(null, true), isTrue);
-  });
-
-  test('libraryReferenceHierarchySegments resolves edition and physical release', () {
+  test('libraryReferenceHierarchySegments builds ordered hierarchy breadcrumbs', () {
     final hierarchy = libraryReferenceHierarchySegments(
       mediaType: 'music',
       editions: const [
         CatalogEdition(
           id: 'edition-1',
-          title: 'Deluxe Edition',
-          variants: [
-            CatalogVariant(
-              id: 'variant-1',
-              name: 'Japan CD',
-            ),
-          ],
+          name: 'Deluxe Edition',
+          physicalFormat: 'Japan CD',
+          physicalFormatLabel: 'Japan CD',
         ),
       ],
       editionId: 'edition-1',
@@ -109,43 +66,52 @@ void main() {
   });
 
   test('libraryHierarchyContractDiagnosticLabel flags missing series title', () {
-    final entry = LibraryWorkspaceEntry(
-      id: 'comic-5',
-      mediaType: 'comic',
-      title: 'Example Comic',
-      series: null,
-      updatedAt: DateTime.utc(2026, 5, 25),
+    final item = const GenericWorkspaceProjector().project(
+      source: const ShelfEntry(
+        catalogItem: CatalogItemDto(
+          id: 'comic-5',
+          kind: 'comic',
+          title: 'Example Comic',
+        ),
+      ),
+      node: const LibraryTitleNodeRef('comic-5'),
     );
 
     expect(
-      libraryHierarchyContractDiagnosticLabel(entry),
+      libraryHierarchyContractDiagnosticLabel(item),
       'Missing series title',
     );
   });
 
   test('libraryHierarchyContractDiagnosticLabel flags missing release variant', () {
-    final entry = LibraryWorkspaceEntry(
-      id: 'movie-2',
-      mediaType: 'movie',
-      title: 'Example Movie',
-      browseScope: LibraryBrowserScope.release,
-      series: const CatalogSeriesDetails(seriesTitle: 'Example Movie'),
-      updatedAt: DateTime.utc(2026, 5, 25),
+    final item = const GenericWorkspaceProjector().project(
+      source: const ShelfEntry(
+        catalogItem: CatalogItemDto(
+          id: 'movie-2',
+          kind: 'movie',
+          title: 'Example Movie',
+          series: CatalogSeriesDetails(seriesTitle: 'Example Movie'),
+        ),
+      ),
+      node: const LibraryReleaseNodeRef('movie-2', releaseItemId: 'rel-2'),
     );
 
     expect(
-      libraryHierarchyContractDiagnosticLabel(entry),
+      libraryHierarchyContractDiagnosticLabel(item),
       'Missing release variant',
     );
   });
 
   test('resolveLibraryMutationAnchor prefers explicit owned or wishlist release anchors', () {
-    final entry = LibraryWorkspaceEntry(
-      id: 'movie-1',
-      mediaType: 'movie',
-      title: 'Spirited Away',
-      referenceEditionId: 'edition-title',
-      updatedAt: DateTime.utc(2026, 5, 25),
+    final item = const GenericWorkspaceProjector().project(
+      source: const ShelfEntry(
+        catalogItem: CatalogItemDto(
+          id: 'movie-1',
+          kind: 'movie',
+          title: 'Spirited Away',
+        ),
+      ),
+      node: const LibraryTitleNodeRef('movie-1'),
     );
     final wishlistItem = WishlistItem(
       id: 'wishlist-1',
@@ -162,7 +128,7 @@ void main() {
     );
 
     final resolved = resolveLibraryMutationAnchor(
-      entry: entry,
+      item: item,
       wishlistItem: wishlistItem,
     );
 

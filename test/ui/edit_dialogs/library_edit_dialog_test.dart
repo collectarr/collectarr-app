@@ -70,7 +70,7 @@ void main() {
         variantLabel: 'Format / Edition',
         barcodeLabel: 'UPC / Barcode',
       ),
-      capabilities: const LibraryTypeCapabilities(
+      capabilities: LibraryTypeCapabilities(
         supportsMediaReleaseSplit: true,
       ),
     );

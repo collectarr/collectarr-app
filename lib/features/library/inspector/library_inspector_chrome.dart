@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -14,26 +14,27 @@ import 'package:url_launcher/url_launcher.dart';
 class InspectorBackdrop extends StatelessWidget {
   const InspectorBackdrop({
     super.key,
-    required this.entry,
+    required this.item,
     this.ownedItem,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final ownedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
+    final dto = item.dto;
+    final ownedItemId = resolveLibraryOwnedItemId(item, ownedItem);
     return Stack(
       fit: StackFit.expand,
       children: [
         Opacity(
           opacity: 0.38,
           child: LibraryCoverImage(
-            title: entry.resolvedTitle,
-            itemNumber: entry.itemNumber,
-            imageUrl: entry.displayCoverUrl,
+            title: dto.title,
+            itemNumber: dto.itemNumber,
+            imageUrl: dto.coverImageUrl,
             ownedItemId: ownedItemId,
           ),
         ),
@@ -72,7 +73,7 @@ class InspectorActionBar extends StatelessWidget {
   const InspectorActionBar({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.onToggleOwned,
     required this.onToggleWishlist,
     required this.onEdit,
@@ -82,7 +83,7 @@ class InspectorActionBar extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
@@ -93,6 +94,7 @@ class InspectorActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final dto = item.dto;
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border(
@@ -115,15 +117,15 @@ class InspectorActionBar extends StatelessWidget {
                   ),
             ),
             LibraryStatusChip(
-              icon: entry.isOwned
+              icon: dto.isOwned
                   ? Icons.check_circle_outline
                   : Icons.inventory_2_outlined,
-              label: entry.isOwned ? 'Owned' : 'Catalog only',
+              label: dto.isOwned ? 'Owned' : 'Catalog only',
               foreground: palette.textPrimary,
               background: palette.surface,
               borderColor: palette.divider,
             ),
-            if (entry.isWishlisted)
+            if (dto.isWishlisted)
               LibraryStatusChip(
                 icon: Icons.star,
                 label: 'Wish list',
@@ -132,24 +134,24 @@ class InspectorActionBar extends StatelessWidget {
                 borderColor: palette.divider,
               ),
             _InspectorActionPillButton(
-              tooltip: entry.isOwned
+              tooltip: dto.isOwned
                   ? 'Remove from collection'
-                  : entry.isWishlisted
+                  : dto.isWishlisted
                       ? 'Convert wishlist to collection'
                       : 'Add to collection',
               onPressed: onToggleOwned,
-              icon: entry.isOwned
+              icon: dto.isOwned
                   ? Icons.remove_circle_outline
                   : Icons.add_circle_outline,
-              label: entry.isOwned ? 'Remove' : 'Collect',
+              label: dto.isOwned ? 'Remove' : 'Collect',
             ),
             _InspectorActionPillButton(
-              tooltip: entry.isWishlisted
+              tooltip: dto.isWishlisted
                   ? 'Remove from wishlist'
                   : 'Move to wishlist',
               onPressed: onToggleWishlist,
-              icon: entry.isWishlisted ? Icons.star : Icons.star_border,
-              label: entry.isWishlisted ? 'Unwish' : 'Wishlist',
+              icon: dto.isWishlisted ? Icons.star : Icons.star_border,
+              label: dto.isWishlisted ? 'Unwish' : 'Wishlist',
             ),
             _InspectorActionPillButton(
               tooltip: 'Open details',
@@ -200,8 +202,7 @@ class _InspectorActionPillButton extends StatelessWidget {
         label: Text(label),
         style: OutlinedButton.styleFrom(
           visualDensity: VisualDensity.compact,
-          minimumSize: const Size(0, 30),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         ),
       ),
     );
@@ -212,32 +213,22 @@ class InspectorToolIconButton extends StatelessWidget {
   const InspectorToolIconButton({
     super.key,
     required this.tooltip,
-    required this.icon,
     required this.onPressed,
+    required this.icon,
   });
 
   final String tooltip;
-  final IconData icon;
   final VoidCallback? onPressed;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     return Tooltip(
       message: tooltip,
-      child: SizedBox(
-        height: 30,
-        child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            visualDensity: VisualDensity.compact,
-            minimumSize: const Size(30, 30),
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            side: BorderSide(color: palette.divider),
-            backgroundColor: palette.surface,
-          ),
-          onPressed: onPressed,
-          child: Icon(icon, size: 16),
-        ),
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 18),
+        visualDensity: VisualDensity.compact,
       ),
     );
   }
@@ -253,7 +244,7 @@ enum InspectorToolbarMenuAction {
 class InspectorUnifiedToolbar extends StatelessWidget {
   const InspectorUnifiedToolbar({
     super.key,
-    required this.entry,
+    required this.item,
     required this.detailsLayout,
     this.onEdit,
     this.onShare,
@@ -267,7 +258,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     this.includeLayoutControl = true,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final LibraryDetailsLayout detailsLayout;
   final VoidCallback? onEdit;
   final VoidCallback? onShare;
@@ -283,12 +274,13 @@ class InspectorUnifiedToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final dto = item.dto;
+    final seriesTitle = dto.seriesTitle;
     final ebayQuery = <String>[
-      if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
-      if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
-        entry.series!.seriesTitle!.trim(),
-      entry.resolvedTitle,
-      if (entry.releaseYear != null) entry.releaseYear.toString(),
+      if (dto.barcode?.trim().isNotEmpty == true) dto.barcode!.trim(),
+      if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
+      dto.title,
+      if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
     ].join(' ');
     final ebayUri = buildEbaySearchUri(
       query: ebayQuery,
@@ -297,106 +289,68 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     );
     final content = LayoutBuilder(
       builder: (context, constraints) {
-        final compactActions =
-            constraints.hasBoundedWidth && constraints.maxWidth < 280;
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          child: Row(
-            mainAxisSize: constraints.hasBoundedWidth
-                ? MainAxisSize.max
-                : MainAxisSize.min,
-            children: [
-              if (compactActions) ...[
-                InspectorToolIconButton(
-                  tooltip: 'Edit',
-                  icon: Icons.edit_outlined,
-                  onPressed: onEdit,
-                ),
-                const SizedBox(width: 6),
-                InspectorToolIconButton(
-                  tooltip: 'Share',
-                  icon: Icons.share_outlined,
-                  onPressed: onShare,
-                ),
-                if (ebayUri != null) ...[
-                  const SizedBox(width: 6),
-                  InspectorToolIconButton(
-                    tooltip: 'Find sold listings on eBay',
-                    icon: Icons.shopping_bag_outlined,
-                    onPressed: () => launchUrl(
-                      ebayUri,
-                      mode: LaunchMode.externalApplication,
-                    ),
-                  ),
-                ],
-              ] else ...[
-                OutlinedButton.icon(
-                  onPressed: onEdit,
-                  icon: const Icon(Icons.edit_outlined, size: 16),
-                  label: const Text('Edit'),
-                  style: OutlinedButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    minimumSize: const Size(0, 30),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                OutlinedButton.icon(
-                  onPressed: onShare,
-                  icon: const Icon(Icons.share_outlined, size: 16),
-                  label: const Text('Share'),
-                  style: OutlinedButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    minimumSize: const Size(0, 30),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  ),
-                ),
-                if (ebayUri != null) ...[
-                  const SizedBox(width: 6),
-                  OutlinedButton.icon(
-                    onPressed: () => launchUrl(
-                      ebayUri,
-                      mode: LaunchMode.externalApplication,
-                    ),
-                    icon: const Icon(Icons.shopping_bag_outlined, size: 16),
-                    label: const Text('eBay'),
-                    style: OutlinedButton.styleFrom(
-                      visualDensity: VisualDensity.compact,
-                      minimumSize: const Size(0, 30),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 6,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-              if (constraints.hasBoundedWidth) const Spacer(),
-              PopupMenuButton<InspectorToolbarMenuAction>(
-                tooltip: 'More actions',
-                onSelected: (value) {
-                  switch (value) {
-                    case InspectorToolbarMenuAction.duplicate:
-                      onDuplicate?.call();
-                      return;
-                    case InspectorToolbarMenuAction.removeOrCollect:
-                      onToggleOwned?.call();
-                      return;
-                    case InspectorToolbarMenuAction.loan:
-                      onLoan?.call();
-                      return;
-                    case InspectorToolbarMenuAction.refreshMetadata:
-                      onRefreshMetadata?.call();
-                      return;
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem<InspectorToolbarMenuAction>(
+        final compactActions = constraints.maxWidth < 420;
+        return Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          alignment: WrapAlignment.end,
+          children: [
+            if (includeLayoutControl)
+              LibraryDetailsLayoutToggle(
+                value: detailsLayout,
+                onChanged: onDetailsLayoutChanged ?? (_) {},
+              ),
+            InspectorToolIconButton(
+              tooltip: 'Edit metadata and collection fields',
+              onPressed: onEdit,
+              icon: Icons.edit_outlined,
+            ),
+            InspectorToolIconButton(
+              tooltip: 'Share',
+              onPressed: onShare,
+              icon: Icons.share_outlined,
+            ),
+            InspectorToolIconButton(
+              tooltip: 'Search sold prices on eBay',
+              onPressed: () => launchUrl(ebayUri),
+              icon: Icons.storefront_outlined,
+            ),
+            if (!compactActions && onDuplicate != null)
+              InspectorToolIconButton(
+                tooltip: 'Duplicate owned copy',
+                onPressed: onDuplicate,
+                icon: Icons.copy_all_outlined,
+              ),
+            if (!compactActions && onToggleOwned != null)
+              InspectorToolIconButton(
+                tooltip: dto.isOwned
+                    ? 'Remove from collection'
+                    : 'Add to collection',
+                onPressed: onToggleOwned,
+                icon: dto.isOwned
+                    ? Icons.delete_outline
+                    : Icons.add_circle_outline,
+              ),
+            PopupMenuButton<InspectorToolbarMenuAction>(
+              tooltip: 'More inspector actions',
+              onSelected: (action) {
+                switch (action) {
+                  case InspectorToolbarMenuAction.duplicate:
+                    onDuplicate?.call();
+                  case InspectorToolbarMenuAction.removeOrCollect:
+                    onToggleOwned?.call();
+                  case InspectorToolbarMenuAction.loan:
+                    onLoan?.call();
+                  case InspectorToolbarMenuAction.refreshMetadata:
+                    onRefreshMetadata?.call();
+                }
+              },
+              itemBuilder: (context) => [
+                if (compactActions && onDuplicate != null)
+                  const PopupMenuItem<InspectorToolbarMenuAction>(
                     value: InspectorToolbarMenuAction.duplicate,
-                    enabled: onDuplicate != null,
-                    child: const Material(
+                    child: Material(
                       type: MaterialType.transparency,
                       child: ListTile(
                         dense: true,
@@ -405,6 +359,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                       ),
                     ),
                   ),
+                if (compactActions && onToggleOwned != null)
                   PopupMenuItem<InspectorToolbarMenuAction>(
                     value: InspectorToolbarMenuAction.removeOrCollect,
                     enabled: onToggleOwned != null,
@@ -413,66 +368,60 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                       child: ListTile(
                         dense: true,
                         leading: Icon(
-                          entry.isOwned
+                          dto.isOwned
                               ? Icons.delete_outline
                               : Icons.add_circle_outline,
                         ),
-                        title: Text(entry.isOwned ? 'Remove' : 'Collect'),
+                        title: Text(dto.isOwned ? 'Remove' : 'Collect'),
                       ),
                     ),
                   ),
-                  PopupMenuItem<InspectorToolbarMenuAction>(
-                    value: InspectorToolbarMenuAction.loan,
-                    enabled: onLoan != null,
-                    child: const Material(
-                      type: MaterialType.transparency,
-                      child: ListTile(
-                        dense: true,
-                        leading: Icon(Icons.handshake_outlined),
-                        title: Text('Loan'),
-                      ),
+                PopupMenuItem<InspectorToolbarMenuAction>(
+                  value: InspectorToolbarMenuAction.loan,
+                  enabled: onLoan != null,
+                  child: const Material(
+                    type: MaterialType.transparency,
+                    child: ListTile(
+                      dense: true,
+                      leading: Icon(Icons.handshake_outlined),
+                      title: Text('Loan'),
                     ),
                   ),
-                  PopupMenuItem<InspectorToolbarMenuAction>(
-                    value: InspectorToolbarMenuAction.refreshMetadata,
-                    enabled: onRefreshMetadata != null,
-                    child: const Material(
-                      type: MaterialType.transparency,
-                      child: ListTile(
-                        dense: true,
-                        leading: Icon(Icons.cloud_download_outlined),
-                        title: Text('Update from Core'),
-                      ),
-                    ),
-                  ),
-                ],
-                child: const Padding(
-                  padding: EdgeInsets.all(4),
-                  child: Icon(Icons.more_vert, size: 18),
                 ),
-              ),
-              if (includeLayoutControl && onDetailsLayoutChanged != null) ...[
-                const SizedBox(width: 4),
-                LibraryDetailsLayoutDropdown(
-                  detailsLayout: detailsLayout,
-                  onChanged: onDetailsLayoutChanged!,
-                  iconOnly: true,
+                PopupMenuItem<InspectorToolbarMenuAction>(
+                  value: InspectorToolbarMenuAction.refreshMetadata,
+                  enabled: onRefreshMetadata != null,
+                  child: const Material(
+                    type: MaterialType.transparency,
+                    child: ListTile(
+                      dense: true,
+                      leading: Icon(Icons.cloud_download_outlined),
+                      title: Text('Update from Core'),
+                    ),
+                  ),
                 ),
               ],
-            ],
-          ),
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(Icons.more_vert, size: 18),
+              ),
+            ),
+          ],
         );
       },
     );
+
     if (!framed) {
       return content;
     }
-    return DecoratedBox(
+
+    return Container(
       decoration: BoxDecoration(
-        color: palette.surface.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.zero,
+        color: palette.panel.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: palette.divider),
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: content,
     );
   }

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -394,13 +394,14 @@ class _GameInspectorFactRows extends StatelessWidget {
     );
   }
 }
-Uri? _ebayUri(LibraryWorkspaceEntry entry) {
+Uri? _ebayUri(LibraryProjectionRuntime item) {
+  final dto = item.dto;
+  final seriesTitle = dto.seriesTitle;
   final query = <String>[
-    if (entry.barcode?.trim().isNotEmpty == true) entry.barcode!.trim(),
-    entry.resolvedTitle,
-    if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
-      entry.series!.seriesTitle!.trim(),
-    if (entry.releaseYear != null) entry.releaseYear.toString(),
+    if (dto.barcode?.trim().isNotEmpty == true) dto.barcode!.trim(),
+    dto.title,
+    if (seriesTitle?.trim().isNotEmpty == true) seriesTitle.trim(),
+    if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
   ].join(' ');
   if (query.trim().isEmpty) {
     return null;

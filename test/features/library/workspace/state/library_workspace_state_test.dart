@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_search_debounce_provider.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_providers.dart';
 import 'package:collectarr_app/features/library/workspace/data/library_workspace_repository.dart';
@@ -108,8 +108,8 @@ void main() {
       // Should filter out kind: music, keeping only kind: comic
       expect(entries.length, equals(2));
       // By default sorted by title, so Amazing Spider-Man #1 comes first
-      expect(entries[0].resolvedTitle, 'Amazing Spider-Man #1');
-      expect(entries[1].resolvedTitle, 'Batman #1');
+      expect(entries[0].dto.title, 'Amazing Spider-Man #1');
+      expect(entries[1].dto.title, 'Batman #1');
 
       // Now apply a search query filter
       container.read(libraryFiltersProvider(key).notifier).updateSearch('Batman');
@@ -117,7 +117,7 @@ void main() {
       // Wait for next emission
       final filteredEntries = await container.read(libraryDisplayListProvider(key).future);
       expect(filteredEntries.length, equals(1));
-      expect(filteredEntries[0].resolvedTitle, 'Batman #1');
+      expect(filteredEntries[0].dto.title, 'Batman #1');
 
       subscription.close();
     });

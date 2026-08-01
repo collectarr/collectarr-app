@@ -1,9 +1,13 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -82,17 +86,21 @@ void main() {
   });
 
   test('location filter matches exact location path', () {
-    final entry = LibraryWorkspaceEntry(
-      id: 'comic-1',
-      mediaType: 'comic',
-      title: 'Batman',
-      locationPath: 'Office > Shelf 2 > Short Box 1',
-      updatedAt: DateTime.utc(2026, 5, 22),
+    final item = const ComicWorkspaceProjector().project(
+      source: ShelfEntry(
+        catalogItem: const CatalogItemDto(
+          id: 'comic-1',
+          kind: 'comic',
+          title: 'Batman',
+        ),
+        locationPath: 'Office > Shelf 2 > Short Box 1',
+      ),
+      node: const LibraryTitleNodeRef('comic-1'),
     );
 
     expect(
       libraryFilterMatches(
-        entry,
+        item,
         const LibraryFilterSelection(
           location: 'Office > Shelf 2 > Short Box 1',
         ),
@@ -102,7 +110,7 @@ void main() {
     );
     expect(
       libraryFilterMatches(
-        entry,
+        item,
         const LibraryFilterSelection(location: 'Office > Shelf 2'),
         comicsMediaAdapter,
       ),
@@ -111,17 +119,23 @@ void main() {
   });
 
   test('tag filter matches exact tag case-insensitively', () {
-    final entry = LibraryWorkspaceEntry(
-      id: 'comic-1',
-      mediaType: 'comic',
-      title: 'Batman',
-      tags: 'Signed, Slabbed, Variant',
-      updatedAt: DateTime.utc(2026, 5, 22),
+    final item = const ComicWorkspaceProjector().project(
+      source: testShelfEntry(
+        itemId: 'comic-1',
+        kind: 'comic',
+        title: 'Batman',
+        ownedItem: testOwnedItem(
+          id: 'owned-1',
+          itemId: 'comic-1',
+          tags: 'Signed, Slabbed, Variant',
+        ),
+      ),
+      node: const LibraryTitleNodeRef('comic-1'),
     );
 
     expect(
       libraryFilterMatches(
-        entry,
+        item,
         const LibraryFilterSelection(tag: 'signed'),
         comicsMediaAdapter,
       ),
@@ -129,7 +143,7 @@ void main() {
     );
     expect(
       libraryFilterMatches(
-        entry,
+        item,
         const LibraryFilterSelection(tag: 'Exclusive'),
         comicsMediaAdapter,
       ),
@@ -168,22 +182,34 @@ void main() {
   });
 
   test('filter options extract normalized tags from entries', () {
-    final options = LibraryFilterOptions.fromEntries([
-      LibraryWorkspaceEntry(
-        id: 'comic-1',
-        mediaType: 'comic',
+    final item1 = const ComicWorkspaceProjector().project(
+      source: testShelfEntry(
+        itemId: 'comic-1',
+        kind: 'comic',
         title: 'Batman',
-        tags: 'Signed, Variant',
-        updatedAt: DateTime.utc(2026, 5, 22),
+        ownedItem: testOwnedItem(
+          id: 'owned-1',
+          itemId: 'comic-1',
+          tags: 'Signed, Variant',
+        ),
       ),
-      LibraryWorkspaceEntry(
-        id: 'comic-2',
-        mediaType: 'comic',
+      node: const LibraryTitleNodeRef('comic-1'),
+    );
+    final item2 = const ComicWorkspaceProjector().project(
+      source: testShelfEntry(
+        itemId: 'comic-2',
+        kind: 'comic',
         title: 'Robin',
-        tags: 'variant, Sketched',
-        updatedAt: DateTime.utc(2026, 5, 22),
+        ownedItem: testOwnedItem(
+          id: 'owned-2',
+          itemId: 'comic-2',
+          tags: 'variant, Sketched',
+        ),
       ),
-    ], adapter: comicsMediaAdapter);
+      node: const LibraryTitleNodeRef('comic-2'),
+    );
+
+    final options = LibraryFilterOptions.fromEntries([item1, item2], adapter: comicsMediaAdapter);
 
     expect(options.tags, ['Signed', 'Sketched', 'Variant']);
   });

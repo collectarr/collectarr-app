@@ -1,11 +1,11 @@
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
 /// Delegate carrying all parent layout properties/state so kind-specific
 /// custom card builders can render without referencing the parent widget class directly.
 abstract class LibraryWorkspaceCardDelegate {
-  LibraryWorkspaceEntry get entry;
+  LibraryProjectionRuntime get item;
   bool get selected;
   VoidCallback get onTap;
   VoidCallback? get onDoubleTap;

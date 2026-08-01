@@ -1,10 +1,13 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/season.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 void main() {
   setUp(() {
@@ -14,19 +17,26 @@ void main() {
   testWidgets('tv shelf drilldown shows seasons and episode details', (
     tester,
   ) async {
+    final source = ShelfEntry(
+      itemId: 'series-1',
+      catalogItem: CatalogItemDto(
+        id: 'series-1',
+        kind: 'tv',
+        title: 'Cowboy Bebop',
+        displayTitle: 'Cowboy Bebop',
+        coverImageUrl: 'https://example.com/poster.jpg',
+        releaseDate: DateTime.utc(1998, 4, 3),
+      ),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'series-1');
+    final dto = const GenericWorkspaceProjector().projectTitle(source: source, node: node);
+    final tvItem = LibraryProjectionItem(source: source, node: node, dto: dto);
+
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: TvShelfSeasonDrilldown(
-            titleEntry: LibraryWorkspaceEntry(
-              id: 'series-1',
-              mediaType: 'tv',
-              title: 'Cowboy Bebop',
-              displayTitle: 'Cowboy Bebop',
-              coverImageUrl: 'https://example.com/poster.jpg',
-              releaseDate: DateTime.utc(1998, 4, 3),
-              updatedAt: DateTime.utc(2026, 7, 6),
-            ),
+            titleItem: tvItem,
             coverSize: 160,
             accent: Colors.teal,
             onBack: () {},

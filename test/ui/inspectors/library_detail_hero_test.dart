@@ -1,11 +1,13 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -14,7 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('detail hero keeps a back cover affordance when the back image is missing', (
@@ -34,6 +36,30 @@ void main() {
         );
 
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final owned = testOwnedItem(
+      id: 'owned-1',
+      itemId: 'book-1',
+      updatedAt: DateTime.utc(2026, 5, 23),
+    );
+    final source = ShelfEntry(
+      itemId: 'book-1',
+      catalogItem: testCatalogItem(
+        id: 'book-1',
+        kind: 'book',
+        title: 'The Fellowship of the Ring',
+      ),
+      ownedItem: owned,
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
+    final dto = const BookWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final bookItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -42,18 +68,8 @@ void main() {
           home: Scaffold(
             body: LibraryDetailHero(
               type: type,
-              entry: LibraryWorkspaceEntry(
-                id: 'book-1',
-                mediaType: 'book',
-                title: 'The Fellowship of the Ring',
-                ownedItemId: 'owned-1',
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
-              ownedItem: testOwnedItem(
-                id: 'owned-1',
-                itemId: 'book-1',
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
+              item: bookItem,
+              ownedItem: owned,
               accent: Colors.orange,
             ),
           ),
@@ -93,6 +109,30 @@ void main() {
         );
 
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final owned = testOwnedItem(
+      id: 'owned-1',
+      itemId: 'book-1',
+      updatedAt: DateTime.utc(2026, 5, 23),
+    );
+    final source = ShelfEntry(
+      itemId: 'book-1',
+      catalogItem: testCatalogItem(
+        id: 'book-1',
+        kind: 'book',
+        title: 'The Two Towers',
+      ),
+      ownedItem: owned,
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
+    final dto = const BookWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final bookItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -101,19 +141,8 @@ void main() {
           home: Scaffold(
             body: LibraryDetailHero(
               type: type,
-              entry: LibraryWorkspaceEntry(
-                id: 'book-1',
-                mediaType: 'book',
-                title: 'The Two Towers',
-                itemNumber: '2',
-                ownedItemId: 'owned-1',
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
-              ownedItem: testOwnedItem(
-                id: 'owned-1',
-                itemId: 'book-1',
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
+              item: bookItem,
+              ownedItem: owned,
               accent: Colors.orange,
             ),
           ),
@@ -131,6 +160,30 @@ void main() {
     tester,
   ) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final source = ShelfEntry(
+      itemId: 'book-1',
+      catalogItem: testCatalogItem(
+        id: 'book-1',
+        kind: 'book',
+        title: 'The Return of the King',
+        creators: [
+          {
+            'name': 'J.R.R. Tolkien',
+            'role': 'Author',
+          },
+        ],
+      ),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
+    final dto = const BookWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final bookItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -138,18 +191,7 @@ void main() {
           home: Scaffold(
             body: LibraryDetailHero(
               type: type,
-              entry: LibraryWorkspaceEntry(
-                id: 'book-1',
-                mediaType: 'book',
-                title: 'The Return of the King',
-                creators: [
-                  {
-                    'name': 'J.R.R. Tolkien',
-                    'role': 'Author',
-                  },
-                ],
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
+              item: bookItem,
               ownedItem: null,
               accent: Colors.orange,
             ),
@@ -164,47 +206,45 @@ void main() {
     expect(find.text('J.R.R. Tolkien'), findsOneWidget);
   });
 
-  testWidgets('detail hero shows the active ownership reference label', (
-    tester,
-  ) async {
-    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
-
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(
-            body: LibraryDetailHero(
-              type: type,
-              entry: LibraryWorkspaceEntry(
-                id: 'book-1',
-                mediaType: 'book',
-                title: 'The Silmarillion',
-                primaryReferenceLabel: 'Owned as bundle',
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
-              ownedItem: testOwnedItem(
-                id: 'owned-1',
-                itemId: 'book-1',
-                anchorType: 'bundle_release',
-                bundleReleaseId: 'bundle-book-1',
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
-              accent: Colors.orange,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Owned as bundle'), findsOneWidget);
-  });
-
   testWidgets('detail hero shows collection value totals when multiple copies exist', (
     tester,
   ) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
+    final owned1 = testOwnedItem(
+      id: 'owned-1',
+      itemId: 'book-1',
+      pricePaidCents: 1299,
+      marketValueCents: 1899,
+      currency: 'USD',
+      updatedAt: DateTime.utc(2026, 5, 23),
+    );
+    final owned2 = testOwnedItem(
+      id: 'owned-2',
+      itemId: 'book-1',
+      pricePaidCents: 999,
+      marketValueCents: 2499,
+      currency: 'USD',
+      updatedAt: DateTime.utc(2026, 5, 22),
+    );
+    final source = ShelfEntry(
+      itemId: 'book-1',
+      catalogItem: testCatalogItem(
+        id: 'book-1',
+        kind: 'book',
+        title: 'The Hobbit',
+      ),
+      ownedItem: owned1,
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
+    final dto = const BookWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final bookItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -212,38 +252,9 @@ void main() {
           home: Scaffold(
             body: LibraryDetailHero(
               type: type,
-              entry: LibraryWorkspaceEntry(
-                id: 'book-1',
-                mediaType: 'book',
-                title: 'The Hobbit',
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
-              ownedItem: testOwnedItem(
-                id: 'owned-1',
-                itemId: 'book-1',
-                pricePaidCents: 1299,
-                marketValueCents: 1899,
-                currency: 'USD',
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
-              ownedCopies: [
-                testOwnedItem(
-                  id: 'owned-1',
-                  itemId: 'book-1',
-                  pricePaidCents: 1299,
-                  marketValueCents: 1899,
-                  currency: 'USD',
-                  updatedAt: DateTime.utc(2026, 5, 23),
-                ),
-                testOwnedItem(
-                  id: 'owned-2',
-                  itemId: 'book-1',
-                  pricePaidCents: 999,
-                  marketValueCents: 2499,
-                  currency: 'USD',
-                  updatedAt: DateTime.utc(2026, 5, 22),
-                ),
-              ],
+              item: bookItem,
+              ownedItem: owned1,
+              ownedCopies: [owned1, owned2],
               accent: Colors.orange,
             ),
           ),

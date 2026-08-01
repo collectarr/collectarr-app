@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/data/library_workspace_query.dart';
 import 'package:collectarr_app/features/library/workspace/data/library_workspace_repository.dart';
 import 'library_search_debounce_provider.dart';
@@ -43,7 +43,7 @@ final libraryDebouncedSearchProvider = StreamProvider.autoDispose
   return controller.stream;
 });
 
-/// Derives the filtered + sorted list of [LibraryWorkspaceEntry] objects for a
+/// Derives the filtered + sorted list of [LibraryProjectionRuntime] objects for a
 /// given workspace scope, by combining the active [LibraryFilterState] with the
 /// [LibraryWorkspaceRepository] stream.
 ///
@@ -52,7 +52,7 @@ final libraryDebouncedSearchProvider = StreamProvider.autoDispose
 ///  - the underlying shelf data changes (via [shelfProvider] invalidation after
 ///    mutations or sync)
 final libraryDisplayListProvider = StreamProvider.autoDispose
-    .family<List<LibraryWorkspaceEntry>, LibraryWorkspaceKey>((ref, key) {
+    .family<List<LibraryProjectionRuntime>, LibraryWorkspaceKey>((ref, key) {
   final filters = ref.watch(libraryFiltersProvider(key));
   final repository = ref.watch(libraryWorkspaceRepositoryProvider);
 

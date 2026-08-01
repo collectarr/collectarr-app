@@ -10,13 +10,13 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailPersonalSection extends StatelessWidget {
   const LibraryDetailPersonalSection({
     super.key,
-    required this.entry,
+    required this.item,
     required this.ownedItem,
     this.ownedCopies = const [],
     this.trackingEntry,
@@ -24,7 +24,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final List<OwnedItem> ownedCopies;
   final TrackingEntry? trackingEntry;
@@ -33,14 +33,15 @@ class LibraryDetailPersonalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dto = item.dto;
     final effectiveOwnedCopies = ownedCopies.isNotEmpty
         ? ownedCopies
         : ownedItem == null
             ? const <OwnedItem>[]
             : <OwnedItem>[ownedItem!];
     final paid = formatMoney(
-      ownedItem?.pricePaidCents ?? entry.pricePaidCents,
-      ownedItem?.currency ?? entry.currency,
+      ownedItem?.pricePaidCents ?? dto.pricePaidCents,
+      ownedItem?.currency ?? dto.currency,
     );
     final currentValue = formatMoney(
       ownedItem?.marketValueCents,
@@ -165,7 +166,7 @@ int? _sumOwnedValueCents(
 String? _detailValueCurrency(
   List<OwnedItem> ownedCopies,
   OwnedItem? ownedItem,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
   for (final copy in ownedCopies) {
     final currency = copy.currency?.trim();
@@ -176,10 +177,6 @@ String? _detailValueCurrency(
   final ownedCurrency = ownedItem?.currency?.trim();
   if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
     return ownedCurrency;
-  }
-  final entryCurrency = entry.currency?.trim();
-  if (entryCurrency != null && entryCurrency.isNotEmpty) {
-    return entryCurrency;
   }
   return null;
 }
@@ -223,11 +220,11 @@ String? _detailTrackingEpisodeLabel(TrackingEntry? trackingEntry) {
 class LibraryDetailLocalSnapshotSection extends StatelessWidget {
   const LibraryDetailLocalSnapshotSection({
     super.key,
-    required this.entry,
+    required this.item,
     required this.ownedItem,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
 
   @override

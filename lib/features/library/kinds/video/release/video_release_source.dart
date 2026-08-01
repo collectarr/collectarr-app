@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 const _videoReleaseSourceKey = 'release_source';
 const _videoReleaseAnchorKindKey = 'release_anchor_kind';
@@ -58,32 +58,17 @@ List<CatalogEdition> resolveVideoCatalogEditionsForCatalogItem(
   );
 }
 
-List<CatalogEdition> resolveVideoCatalogEditionsForEntry(
-  LibraryWorkspaceEntry entry, {
+List<CatalogEdition> resolveVideoCatalogEditionsForShelf(
+  ShelfEntry source, {
   Iterable<OwnedItem> ownedItems = const <OwnedItem>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
-  if (!_isVideoKind(entry.mediaType)) {
-    return entry.editions;
+  final item = source.catalogItem;
+  if (item == null) {
+    return const [];
   }
-  return _resolveVideoCatalogEditions(
-    _VideoReleaseSeedInput(
-      itemId: entry.titleItemId ?? entry.id,
-      mediaType: entry.mediaType,
-      resolvedTitle: entry.resolvedTitle,
-      editionTitle: entry.variant,
-      publisher: entry.publisher,
-      releaseDate: entry.releaseDate,
-      releaseYear: entry.releaseYear,
-      physicalFormatLabel: entry.referenceFormatLabel,
-      variant: entry.variant,
-      language: entry.language,
-      country: entry.country,
-      barcode: entry.barcode,
-      coverImageUrl: entry.coverImageUrl,
-      thumbnailImageUrl: entry.thumbnailImageUrl,
-    ),
-    entry.editions,
+  return resolveVideoCatalogEditionsForCatalogItem(
+    item,
     ownedItems: ownedItems,
     wishlistItems: wishlistItems,
   );

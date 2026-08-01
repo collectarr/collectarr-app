@@ -17,9 +17,8 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_librar
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -28,7 +27,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   testWidgets(
@@ -45,17 +44,10 @@ void main() {
           home: Scaffold(
             body: InspectorHero(
               type: collectarrLibraryTypes.byKind(CatalogMediaKind.book)!,
-              entry: LibraryWorkspaceEntry(
+              item: testProjectionItem(
                 id: 'book-hero-1',
-                mediaType: 'book',
+                kind: 'book',
                 title: 'Hyperion',
-                creators: const [
-                  {
-                    'name': 'Dan Simmons',
-                    'role': 'Author',
-                  },
-                ],
-                updatedAt: DateTime.utc(2026, 5, 23),
               ),
               ownedItem: null,
               accent: Colors.orange,
@@ -81,26 +73,11 @@ void main() {
             body: ComicInspectorHero(
               request: LibraryInspectorRequest(
                 type: comicsLibraryConfig,
-                entry: LibraryWorkspaceEntry(
+                item: testProjectionItem(
                   id: 'comic-hero-1',
-                  mediaType: 'comic',
+                  kind: 'comic',
                   title: 'The Last Ronin',
-                  itemNumber: '1',
-                  publisher: 'IDW Publishing',
-                  releaseYear: 2020,
                   barcode: '82771402051700111',
-                  synopsis:
-                      'The final turtle seeks justice in a ruined future.',
-                  series: CatalogSeriesDetails(
-                    seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
-                  ),
-                  publishing: CatalogPublishingDetails(
-                    imprint: 'IDW',
-                    subtitle: 'Director Cut',
-                    seriesGroup: 'TMNT Event',
-                  ),
-                  genres: const ['Action', 'Dystopian'],
-                  updatedAt: DateTime.utc(2026, 5, 23),
                 ),
                 ownedItem: testOwnedItem(
                   id: 'owned-comic-hero-1',
@@ -144,27 +121,10 @@ void main() {
                   child: ComicInspectorHero(
                     request: LibraryInspectorRequest(
                       type: comicsLibraryConfig,
-                      entry: LibraryWorkspaceEntry(
+                      item: testProjectionItem(
                         id: 'comic-hero-narrow-1',
-                        mediaType: 'comic',
+                        kind: 'comic',
                         title: 'The Last Ronin',
-                        itemNumber: '1',
-                        publisher: 'IDW Publishing',
-                        releaseYear: 2020,
-                        barcode: '82771402051700111',
-                        synopsis:
-                            'The final turtle seeks justice in a ruined future.',
-                        series: CatalogSeriesDetails(
-                          seriesTitle:
-                              'Teenage Mutant Ninja Turtles: The Last Ronin',
-                        ),
-                        publishing: CatalogPublishingDetails(
-                          imprint: 'IDW',
-                          subtitle: 'Director Cut',
-                          seriesGroup: 'TMNT Event',
-                        ),
-                        isOwned: true,
-                        updatedAt: DateTime.utc(2026, 5, 23),
                       ),
                       ownedItem: testOwnedItem(
                         id: 'owned-comic-hero-narrow-1',
@@ -205,31 +165,10 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: comicsLibraryConfig,
-              entry: LibraryWorkspaceEntry(
+              item: testProjectionItem(
                 id: 'comic-hero-2',
-                mediaType: 'comic',
+                kind: 'comic',
                 title: 'The Last Ronin',
-                itemNumber: '1',
-                publisher: 'IDW Publishing',
-                releaseYear: 2020,
-                barcode: '82771402051700111',
-                synopsis: 'The final turtle seeks justice in a ruined future.',
-                creators: const [
-                  {'name': 'Kevin Eastman', 'role': 'Writer'},
-                ],
-                characters: const ['Michelangelo'],
-                storyArcs: const ['The Last Ronin'],
-                series: CatalogSeriesDetails(
-                  seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
-                ),
-                publishing: CatalogPublishingDetails(
-                  imprint: 'IDW',
-                  subtitle: 'Director Cut',
-                  seriesGroup: 'TMNT Event',
-                ),
-                genres: const ['Action', 'Dystopian'],
-                isOwned: true,
-                updatedAt: DateTime.utc(2026, 5, 23),
               ),
               ownedItem: testOwnedItem(
                 id: 'owned-comic-hero-2',
@@ -301,13 +240,10 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: comicsLibraryConfig,
-              entry: LibraryWorkspaceEntry(
+              item: testProjectionItem(
                 id: 'comic-multi-1',
-                mediaType: 'comic',
+                kind: 'comic',
                 title: 'The Last Ronin',
-                ownedItemId: 'owned-comic-1',
-                isOwned: true,
-                updatedAt: DateTime.utc(2026, 5, 23),
               ),
               ownedItem: testOwnedItem(
                 id: 'owned-comic-1',
@@ -346,11 +282,10 @@ void main() {
               request: LibraryInspectorPanelRequest(
                 inspector: LibraryInspectorRequest(
                   type: booksLibraryConfig,
-                  entry: LibraryWorkspaceEntry(
+                  item: testProjectionItem(
                     id: 'book-1',
-                    mediaType: 'book',
+                    kind: 'book',
                     title: 'Hyperion',
-                    updatedAt: DateTime.utc(2026, 5, 23),
                   ),
                   ownedItem: null,
                   accent: Colors.blue,
@@ -432,13 +367,10 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorPersonalSection(
-            entry: LibraryWorkspaceEntry(
+            item: testProjectionItem(
               id: 'movie-1',
-              mediaType: 'movie',
+              kind: 'movie',
               title: 'Blade Runner 2049',
-              pricePaidCents: 1299,
-              currency: 'USD',
-              updatedAt: DateTime.utc(2026, 5, 22),
             ),
             ownedItem: testOwnedItem(
               id: 'owned-1',
@@ -470,12 +402,10 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorPersonalSection(
-            entry: LibraryWorkspaceEntry(
+            item: testProjectionItem(
               id: 'movie-1',
-              mediaType: 'movie',
+              kind: 'movie',
               title: 'Blade Runner 2049',
-              variant: 'Digital',
-              updatedAt: DateTime.utc(2026, 5, 22),
             ),
             ownedItem: testOwnedItem(
               id: 'owned-1',
@@ -510,13 +440,10 @@ void main() {
             width: 356,
             child: InspectorActionBar(
               type: type,
-              entry: LibraryWorkspaceEntry(
+              item: testProjectionItem(
                 id: 'book-1',
-                mediaType: 'book',
+                kind: 'book',
                 title: 'The Fellowship of the Ring',
-                isOwned: true,
-                isWishlisted: true,
-                updatedAt: DateTime.utc(2026, 5, 23),
               ),
               onToggleOwned: () {},
               onToggleWishlist: () {},
@@ -563,15 +490,10 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: type,
-              entry: LibraryWorkspaceEntry(
+              item: testProjectionItem(
                 id: 'book-1',
-                mediaType: 'book',
+                kind: 'book',
                 title: 'The Two Towers',
-                ownedItemId: 'owned-1',
-                creators: const [
-                  {'name': 'J.R.R. Tolkien', 'role': 'Author'},
-                ],
-                updatedAt: DateTime.utc(2026, 5, 23),
               ),
               ownedItem: testOwnedItem(
                 id: 'owned-1',
@@ -675,12 +597,10 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: type,
-              entry: LibraryWorkspaceEntry(
+              item: testProjectionItem(
                 id: 'book-1',
-                mediaType: 'book',
+                kind: 'book',
                 title: 'The Return of the King',
-                ownedItemId: 'owned-1',
-                updatedAt: DateTime.utc(2026, 5, 23),
               ),
               ownedItem: testOwnedItem(
                 id: 'owned-1',
@@ -737,13 +657,10 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: type,
-              entry: LibraryWorkspaceEntry(
+              item: testProjectionItem(
                 id: 'book-1',
-                mediaType: 'book',
+                kind: 'book',
                 title: 'The Return of the King',
-                ownedItemId: 'owned-1',
-                isOwned: true,
-                updatedAt: DateTime.utc(2026, 5, 23),
               ),
               ownedItem: testOwnedItem(
                 id: 'owned-1',
@@ -824,13 +741,10 @@ void main() {
           home: Scaffold(
             body: LibraryInspector(
               type: type,
-              entry: LibraryWorkspaceEntry(
+              item: testProjectionItem(
                 id: 'book-1',
-                mediaType: 'book',
+                kind: 'book',
                 title: 'The Return of the King',
-                ownedItemId: 'owned-1',
-                isOwned: true,
-                updatedAt: DateTime.utc(2026, 5, 23),
               ),
               ownedItem: testOwnedItem(
                 id: 'owned-1',
@@ -871,11 +785,10 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorUnifiedToolbar(
-            entry: LibraryWorkspaceEntry(
+            item: testProjectionItem(
               id: 'music-3',
-              mediaType: 'music',
+              kind: 'music',
               title: 'The Black Parade',
-              updatedAt: DateTime.utc(2026, 5, 23),
             ),
             detailsLayout: LibraryDetailsLayout.right,
             onEdit: () {},
@@ -900,12 +813,11 @@ void main() {
         body: SizedBox(
           width: 420,
           child: InspectorUnifiedToolbar(
-            entry: LibraryWorkspaceEntry(
+            item: testProjectionItem(
               id: 'music-ebay-wide',
-              mediaType: 'music',
+              kind: 'music',
               title: 'The Black Parade',
               barcode: '1234567890123',
-              updatedAt: DateTime.utc(2026, 5, 23),
             ),
             detailsLayout: LibraryDetailsLayout.right,
             onEdit: () {},
@@ -929,12 +841,11 @@ void main() {
         body: SizedBox(
           width: 260,
           child: InspectorUnifiedToolbar(
-            entry: LibraryWorkspaceEntry(
+            item: testProjectionItem(
               id: 'music-ebay-compact',
-              mediaType: 'music',
+              kind: 'music',
               title: 'The Black Parade',
               barcode: '1234567890123',
-              updatedAt: DateTime.utc(2026, 5, 23),
             ),
             detailsLayout: LibraryDetailsLayout.right,
             onEdit: () {},

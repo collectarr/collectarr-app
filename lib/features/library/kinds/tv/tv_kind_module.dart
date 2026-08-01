@@ -12,12 +12,12 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 
 
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto, VideoOwnedDetails>(
   type: tvLibraryConfig,
   mediaAdapter: tvMediaAdapter,
-  workspaceDtoFactory: TvWorkspaceDto.fromEntry,
+  projector: const TvWorkspaceProjector(),
   ownedDetailsCodec: const VideoOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: tvLibraryGroupDefinitions,

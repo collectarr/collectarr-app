@@ -10,7 +10,9 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video_release_source.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryOwnedItemResolution {
@@ -62,13 +64,13 @@ bool libraryShowsSynopsis(Object? mediaType) {
       false;
 }
 
-String? libraryHierarchyContractDiagnosticLabel(LibraryWorkspaceEntry entry) {
-  final seriesTitle = entry.series?.seriesTitle?.trim();
+String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
+  final seriesTitle = item.dto.seriesTitle?.trim();
   if (seriesTitle == null || seriesTitle.isEmpty) {
     return 'Missing series title';
   }
-  if (entry.browseScope != LibraryBrowserScope.title) {
-    final variant = entry.variant?.trim();
+  if (item.node.browseScope != LibraryBrowserScope.title) {
+    final variant = item.dto.variant?.trim();
     if (variant == null || variant.isEmpty) {
       return 'Missing release variant';
     }
@@ -216,23 +218,24 @@ List<String> libraryReferenceHierarchySegments({
 
 ({CatalogEdition? edition, CatalogVariant? variant})
     resolveLibraryEntryReferenceRelease(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
+  final releaseNode = item.node is LibraryReleaseNodeRef ? (item.node as LibraryReleaseNodeRef) : null;
   return resolveLibraryReferenceRelease(
-    editionId: entry.referenceEditionId,
-    variantId: entry.referenceVariantId,
-    editions: entry.editions,
+    editionId: releaseNode?.releaseId,
+    variantId: releaseNode != null ? preferredVideoEditionVariantId(releaseNode.edition) : null,
+    editions: item.source.catalogItem?.editions ?? const [],
   );
 }
 
-List<String> libraryReferencePlatforms(LibraryWorkspaceEntry entry) {
-  final resolved = resolveLibraryEntryReferenceRelease(entry);
+List<String> libraryReferencePlatforms(LibraryProjectionRuntime item) {
+  final resolved = resolveLibraryEntryReferenceRelease(item);
   final values = <String>[];
   final variantPlatform = resolved.variant?.platform?.trim();
   if (variantPlatform != null && variantPlatform.isNotEmpty) {
     values.add(variantPlatform);
   }
-  final rawPlatforms = entry.game?.platforms ?? entry.rawPlatforms;
+  final rawPlatforms = item.source.catalogItem?.game?.platforms;
   for (final platform in rawPlatforms ?? const <String>[]) {
     final normalized = platform.trim();
     if (normalized.isEmpty || values.contains(normalized)) {
@@ -244,10 +247,10 @@ List<String> libraryReferencePlatforms(LibraryWorkspaceEntry entry) {
 }
 
 String? resolveLibraryOwnedItemId(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   OwnedItem? ownedItem,
 ) {
-  return ownedItem?.id ?? entry.ownedItemId;
+  return ownedItem?.id ?? item.source.ownedItem?.id;
 }
 
 ({
@@ -256,24 +259,23 @@ String? resolveLibraryOwnedItemId(
   String? variantId,
   String? bundleReleaseId,
 }) resolveLibraryMutationAnchor({
-  LibraryWorkspaceEntry? entry,
+  LibraryProjectionRuntime? item,
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
 }) {
+  final releaseNode = item?.node is LibraryReleaseNodeRef ? (item!.node as LibraryReleaseNodeRef) : null;
   final editionId = _normalizedEntryAnchorId(
     ownedItem?.editionId ??
         wishlistItem?.editionId ??
-        entry?.referenceEditionId,
+        releaseNode?.releaseId,
   );
   final variantId = _normalizedEntryAnchorId(
     ownedItem?.variantId ??
         wishlistItem?.variantId ??
-        entry?.referenceVariantId,
+        (releaseNode != null ? preferredVideoEditionVariantId(releaseNode.edition) : null),
   );
   final bundleReleaseId = _normalizedEntryAnchorId(
-    ownedItem?.bundleReleaseId ??
-        wishlistItem?.bundleReleaseId ??
-        entry?.referenceBundleReleaseId,
+    ownedItem?.bundleReleaseId ?? wishlistItem?.bundleReleaseId,
   );
   return (
     anchorType: resolvePersonalItemAnchorType(

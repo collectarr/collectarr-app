@@ -1,4 +1,8 @@
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 // Epoch DateTime used as default updatedAt sentinel.
 const _kEpoch = Duration.zero;
@@ -19,6 +23,47 @@ class WorkspaceCommonProjection {
     this.referenceFormatLabel,
     this.coverImageUrl,
   });
+
+  factory WorkspaceCommonProjection.fromShelf(
+    ShelfEntry source,
+    LibraryNodeRef node, {
+    String? overrideTitle,
+    String? overrideSeriesTitle,
+    String? overridePublisher,
+    DateTime? overrideReleaseDate,
+    String? overrideVariant,
+    String? overrideBarcode,
+    String? overrideCoverImageUrl,
+  }) {
+    final item = source.catalogItem;
+    final edition = node is LibraryReleaseNodeRef ? node.edition : null;
+    CatalogVariant? primaryVariant;
+    if (edition != null) {
+      for (final v in edition.variants) {
+        if (v.isPrimary) {
+          primaryVariant = v;
+          break;
+        }
+      }
+      primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
+    }
+
+    return WorkspaceCommonProjection(
+      title: overrideTitle ?? item?.name ?? '',
+      seriesTitle: overrideSeriesTitle ?? item?.series?.seriesTitle,
+      itemNumber: item?.itemNumber,
+      publisher: overridePublisher ?? edition?.publisher ?? item?.publisher,
+      releaseDate: overrideReleaseDate ?? edition?.releaseDate ?? item?.releaseDate,
+      variant: overrideVariant ?? primaryVariant?.name ?? edition?.title ?? item?.variant,
+      barcode: overrideBarcode ?? primaryVariant?.barcode ?? edition?.upc ?? item?.barcode,
+      grade: source.ownedItem?.grade,
+      country: item?.country,
+      language: edition?.language ?? item?.language,
+      currency: source.ownedItem?.currency ?? item?.currency,
+      referenceFormatLabel: primaryVariant?.physicalFormatLabel ?? edition?.physicalFormatLabel ?? item?.referenceFormatLabel,
+      coverImageUrl: overrideCoverImageUrl ?? primaryVariant?.coverImageUrl ?? primaryVariant?.thumbnailImageUrl ?? item?.coverImageUrl,
+    );
+  }
 
   final String title;
   final String? seriesTitle;
@@ -48,6 +93,25 @@ class PersonalCopyProjection {
     this.tags,
     this.collectionStatus,
   }) : updatedAt = updatedAt ?? DateTime.utc(1970);
+
+  factory PersonalCopyProjection.fromShelf(
+    ShelfEntry source, {
+    LibraryReleaseState? releaseState,
+  }) {
+    final owned = source.ownedItem;
+    return PersonalCopyProjection(
+      isOwned: releaseState?.isOwned ?? source.isOwned,
+      isWishlisted: releaseState?.isWishlisted ?? source.isWishlisted,
+      condition: owned?.condition,
+      locationPath: owned?.locationPath,
+      rating: owned?.rating,
+      pricePaidCents: owned?.pricePaidCents,
+      addedAt: owned?.addedAt,
+      updatedAt: source.updatedAt,
+      tags: owned?.tags,
+      collectionStatus: owned?.collectionStatus,
+    );
+  }
 
   final bool isOwned;
   final bool isWishlisted;

@@ -41,7 +41,7 @@ import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_detail_page.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -54,7 +54,7 @@ class _TestPresentationBuilder extends LibraryMediaPresentationBuilder {
     required String singularLabel,
     required MediaEditFields mediaFields,
     required ReleaseEditFields releaseFields,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
@@ -138,21 +138,13 @@ void main() {
   });
 
   test('books do not create series subgroups for volume metadata', () {
-    final entry = LibraryWorkspaceEntry(
-      id: 'book-1',
-      mediaType: 'book',
+    const dto = BookWorkspaceDto(
       title: 'Dune',
-      series: const CatalogSeriesDetails(
-        seriesId: 'seed-series-dune',
-        seriesTitle: 'Dune',
-        volumeName: 'Dune',
-        volumeNumber: '1',
-      ),
-      updatedAt: DateTime.utc(2026, 6, 27),
+      seriesTitle: 'Dune',
     );
 
     expect(
-      booksMediaAdapter.subgroupKeyForEntry(entry, 'series'),
+      booksMediaAdapter.subgroupKeyForEntry(dto, 'series'),
       isNull,
     );
   });

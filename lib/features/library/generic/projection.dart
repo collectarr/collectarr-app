@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/foundation.dart';
@@ -882,7 +882,7 @@ bool _matchesLinkedMetadataFilter(
 }
 
 bool libraryEntryMatchesLinkedMetadataFilter(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   String value,
   LibraryMediaAdapter adapter,
 ) {
@@ -890,7 +890,7 @@ bool libraryEntryMatchesLinkedMetadataFilter(
   if (normalized.isEmpty) {
     return true;
   }
-  for (final candidate in adapter.linkedMetadataCandidatesForEntry(entry)) {
+  for (final candidate in adapter.linkedMetadataCandidatesForEntry(item.source)) {
     if (candidate.trim().toLowerCase() == normalized) {
       return true;
     }
@@ -899,7 +899,7 @@ bool libraryEntryMatchesLinkedMetadataFilter(
 }
 
 bool _matchesQuery(
-  LibraryProjectionItem item,
+  LibraryProjectionRuntime item,
   String query,
   Map<String, List<String>> customFieldValuesByItem,
   LibrarySearchTarget searchTarget,
@@ -907,25 +907,24 @@ bool _matchesQuery(
   if (query.isEmpty) {
     return true;
   }
-  final entry = item.entry;
+  final dto = item.dto;
+  final catalog = item.source.catalogItem;
   if (searchTarget.includesMedia &&
-      (_containsQuery(entry.resolvedTitle, query) ||
-          _containsQuery(entry.title, query) ||
-          _containsQuery(entry.localizedTitle, query) ||
-          _containsQuery(entry.originalTitle, query) ||
-          _containsQuery(entry.itemNumber, query) ||
-          _containsQuery(entry.publisher, query) ||
-          _containsQuery(entry.variant, query) ||
-          _containsQuery(entry.barcode, query) ||
-          _containsQuery(entry.releaseYear?.toString(), query) ||
-          _containsQuery(entry.condition, query) ||
-          _containsQuery(entry.grade, query) ||
-          _containsQuery(entry.locationPath, query))) {
+      (_containsQuery(dto.title, query) ||
+          _containsQuery(dto.seriesTitle, query) ||
+          _containsQuery(dto.itemNumber, query) ||
+          _containsQuery(dto.publisher, query) ||
+          _containsQuery(dto.variant, query) ||
+          _containsQuery(dto.barcode, query) ||
+          _containsQuery(dto.releaseDate?.year.toString(), query) ||
+          _containsQuery(dto.condition, query) ||
+          _containsQuery(dto.grade, query) ||
+          _containsQuery(dto.locationPath, query))) {
     return true;
   }
-  if (searchTarget.includesMedia) {
-    if (entry.searchAliases case final aliases?) {
-      for (final alias in aliases) {
+  if (searchTarget.includesMedia && catalog != null) {
+    if (catalog.searchAliases.isNotEmpty) {
+      for (final alias in catalog.searchAliases) {
         if (_containsQuery(alias, query)) {
           return true;
         }
@@ -941,17 +940,14 @@ bool _matchesQuery(
       }
     }
   }
-  if (searchTarget.includesTracks && _matchesTrackQuery(entry, query)) {
-    return true;
-  }
   return false;
 }
 
 bool _matchesTrackQuery(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   String query,
 ) {
-  final tracks = entry.music?.tracks;
+  final tracks = item.source.catalogItem?.music?.tracks;
   if (tracks == null || tracks.isEmpty) {
     return false;
   }

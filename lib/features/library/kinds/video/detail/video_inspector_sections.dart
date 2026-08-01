@@ -4,34 +4,27 @@ import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
 class InspectorVideoTitleMetadataSection extends StatelessWidget {
   const InspectorVideoTitleMetadataSection({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.ownedReleaseCount,
     this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final int ownedReleaseCount;
   final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
-    final metadataPresentation = _metadataPresentationForEntry(type, entry);
-    final aliasValues = <String>{
-      if (entry.originalTitle?.trim().isNotEmpty == true)
-        entry.originalTitle!.trim(),
-      if (entry.localizedTitle?.trim().isNotEmpty == true &&
-          entry.localizedTitle!.trim() != entry.resolvedTitle.trim())
-        entry.localizedTitle!.trim(),
-      ...?entry.searchAliases,
-    }.toList(growable: false);
+    final dto = item.dto;
+    final metadataPresentation = _metadataPresentationForEntry(type, item);
     final creatorNames = <String>[
       for (final credit in metadataPresentation.creators)
         if (credit['name']?.toString().trim().isNotEmpty == true)
@@ -52,52 +45,58 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
       children: [
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Display title', value: entry.resolvedTitle),
-            if (entry.originalTitle?.trim().isNotEmpty == true)
-              LibraryDetailField(label: 'Original title', value: entry.originalTitle!),
-            if (entry.publisher?.trim().isNotEmpty == true)
-              LibraryDetailField(label: 'Studio', value: entry.publisher!),
-            if (_metadataFactValue(metadataPresentation, 'Runtime')
-                case final runtime?)
+            LibraryDetailField(label: 'Display title', value: dto.title),
+            if (dto.publisher?.trim().isNotEmpty == true)
+              LibraryDetailField(label: 'Studio', value: dto.publisher!),
+            if (_metadataFactValue(metadataPresentation, 'Runtime') case final runtime?)
               LibraryDetailField(label: 'Runtime', value: runtime),
-            LibraryDetailField(label: 'Releases', value: entry.editions.length.toString()),
-            LibraryDetailField(label: 'Owned releases', value: ownedReleaseCount.toString()),
+            if (_metadataFactValue(metadataPresentation, 'Released') case final released?)
+              LibraryDetailField(label: 'Released', value: released),
+            if (ownedReleaseCount > 0)
+              LibraryDetailField(
+                label: 'Editions',
+                value: '$ownedReleaseCount in collection',
+              ),
           ],
         ),
-        _buildEditionFormatBadges(entry),
-        if (metadataPresentation.genres case final genres when genres.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          LibraryDetailChipGroupWidget(
-            label: 'Genres',
-            values: genres,
-            onValueTap: onFilterByValue,
+        if (creatorNames.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            'Cast & Crew',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
-        ],
-        if (creatorNames.isNotEmpty && hasRoles) ...[
-          for (final entry in creatorsByRole.entries) ...[
-            const SizedBox(height: 8),
-            LibraryDetailChipGroupWidget(
-              label: entry.key,
-              values: entry.value,
-              onValueTap: onFilterByValue,
+          const SizedBox(height: 6),
+          if (hasRoles)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final entry in creatorsByRole.entries) ...[
+                  Text(
+                    entry.key,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.outline,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  LibraryDetailChipBar(
+                    values: entry.value,
+                    onTap: onFilterByValue,
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ],
+            )
+          else
+            LibraryDetailChipBar(
+              values: creatorNames,
+              onTap: onFilterByValue,
             ),
-          ],
-        ] else if (creatorNames.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          LibraryDetailChipGroupWidget(
-            label: 'Cast / credits',
-            values: creatorNames,
-            onValueTap: onFilterByValue,
-          ),
         ],
-        if (aliasValues.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          LibraryDetailChipGroupWidget(
-            label: 'Search aliases',
-            values: aliasValues,
-            onValueTap: onFilterByValue,
-          ),
-        ],
+        _buildEditionFormatBadges(item),
       ],
     );
   }
@@ -105,13 +104,13 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
 
 LibraryMetadataPresentation _metadataPresentationForEntry(
   LibraryTypeConfig type,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,
     mediaFields: type.mediaFields,
     releaseFields: type.releaseFields,
-    entry: entry,
+    item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,
   );
@@ -132,10 +131,14 @@ String? _metadataFactValue(
   return null;
 }
 
-Widget _buildEditionFormatBadges(LibraryWorkspaceEntry entry) {
+Widget _buildEditionFormatBadges(LibraryProjectionRuntime item) {
+  final catalogItem = item.source.catalogItem;
+  if (catalogItem?.editions == null || catalogItem!.editions.isEmpty) {
+    return const SizedBox.shrink();
+  }
   final seen = <String>{};
   final badges = <Widget>[];
-  for (final edition in entry.editions) {
+  for (final edition in catalogItem.editions) {
     final id = edition.physicalFormat;
     if (id == null || !seen.add(id)) continue;
     badges.add(
@@ -155,19 +158,6 @@ Widget _buildEditionFormatBadges(LibraryWorkspaceEntry entry) {
 List<LibraryDetailSectionSpec> buildVideoInspectorSections(
   LibraryInspectorRequest request,
 ) {
-  final ownedReleaseIds = <String>{};
-  for (final edition in request.entry.editions) {
-    if (edition.id == request.entry.referenceEditionId) {
-      ownedReleaseIds.add(edition.id);
-      continue;
-    }
-    for (final variant in edition.variants) {
-      if (variant.id == request.entry.referenceVariantId) {
-        ownedReleaseIds.add(edition.id);
-        break;
-      }
-    }
-  }
   return [
     LibraryDetailSectionSpec(
       slot: LibraryDetailSectionSlot.identity,
@@ -175,8 +165,8 @@ List<LibraryDetailSectionSpec> buildVideoInspectorSections(
       children: [
         InspectorVideoTitleMetadataSection(
           type: request.type,
-          entry: request.entry,
-          ownedReleaseCount: ownedReleaseIds.length,
+          item: request.item,
+          ownedReleaseCount: 1,
           onFilterByValue: request.onFilterByValue,
         ),
       ],

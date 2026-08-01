@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_medi
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:flutter/material.dart';
@@ -125,38 +125,40 @@ class MusicLibraryMediaPresentationBuilder
     required String singularLabel,
     required MediaEditFields mediaFields,
     required ReleaseEditFields releaseFields,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final music = entry.music;
-    final series = entry.series;
+    final dto = item.dto;
+    final catalogItem = item.source.catalogItem;
+    final music = catalogItem?.music;
+    final series = catalogItem?.series;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: entry.id),
-          LibraryDetailField(label: 'Title', value: entry.title),
+          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (series?.seriesTitle != null)
           LibraryDetailField(label: 'Artist', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
         if (series?.volumeName != null || series?.volumeNumber != null)
           LibraryDetailField(label: 'Disc', value: series?.volumeName ?? 'Disc ${series?.volumeNumber}'),
-        if (entry.variant != null)
-          LibraryDetailField(label: releaseFields.variantLabel, value: entry.variant!, onTap: tapFor(entry.variant)),
-        if (entry.barcode != null)
-          LibraryDetailField(label: releaseFields.barcodeLabel, value: entry.barcode!),
+        if (dto.variant != null)
+          LibraryDetailField(label: releaseFields.variantLabel, value: dto.variant!, onTap: tapFor(dto.variant)),
+        if (dto.barcode != null)
+          LibraryDetailField(label: releaseFields.barcodeLabel, value: dto.barcode!),
       ],
       contextFacts: [
         if (series?.seriesTitle != null)
           LibraryDetailField(label: 'Artist', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
-        LibraryDetailField(label: 'Album', value: entry.resolvedTitle),
-        if (entry.publisher != null)
-          LibraryDetailField(label: 'Label', value: entry.publisher!, onTap: tapFor(entry.publisher)),
+        LibraryDetailField(label: 'Album', value: dto.title),
+        if (dto.publisher != null)
+          LibraryDetailField(label: 'Label', value: dto.publisher!, onTap: tapFor(dto.publisher)),
         LibraryDetailField(label: 'Released', value: genericLibraryDash(
-            formatPresentationNullableDate(entry.releaseDate) ??
-                entry.releaseYear?.toString(),
+            formatPresentationNullableDate(dto.releaseDate) ??
+                dto.releaseDate?.year.toString(),
           )),
         if (music?.trackCount != null)
           LibraryDetailField(label: 'Tracks', value: music!.trackCount.toString()),
@@ -166,37 +168,37 @@ class MusicLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Catalog #', value: music!.catalogNumber!),
         if (music?.releaseStatus != null)
           LibraryDetailField(label: 'Release Status', value: music!.releaseStatus!),
-        if (entry.country != null)
-          LibraryDetailField(label: 'Country', value: entry.country!),
-        if (entry.language != null)
-          LibraryDetailField(label: 'Language', value: entry.language!),
+        if (dto.country != null)
+          LibraryDetailField(label: 'Country', value: dto.country!),
+        if (dto.language != null)
+          LibraryDetailField(label: 'Language', value: dto.language!),
         if (music?.length != null)
           LibraryDetailField(label: 'Length', value: music!.length!),
         if (music?.vinylColor != null)
           LibraryDetailField(label: 'Vinyl color', value: music!.vinylColor!),
         if (music?.rpm != null)
           LibraryDetailField(label: 'RPM', value: music!.rpm!),
-        if (entry.audienceRating != null)
-          LibraryDetailField(label: 'Audience Rating', value: entry.audienceRating!),
-        LibraryDetailField(label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
-        LibraryDetailField(label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
+        if (catalogItem?.audienceRating != null)
+          LibraryDetailField(label: 'Audience Rating', value: catalogItem!.audienceRating!),
+        LibraryDetailField(label: 'Cover', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty ? 'Missing' : 'Ready'),
+        LibraryDetailField(label: 'Metadata', value: dto.publisher == null || dto.publisher!.isEmpty ? 'Missing' : 'Ready'),
       ],
-      creators: entry.creators ?? const <Map<String, dynamic>>[],
-      characters: entry.characters ?? const <String>[],
-      storyArcs: entry.storyArcs ?? const <String>[],
-      genres: entry.genres ?? const <String>[],
+      creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
+      characters: catalogItem?.characters ?? const <String>[],
+      storyArcs: catalogItem?.storyArcs ?? const <String>[],
+      genres: catalogItem?.genres ?? const <String>[],
     );
   }
 
   @override
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     final sections = <Widget>[];
-    final music = entry.music;
+    final music = item.source.catalogItem?.music;
     if (music?.tracks case final tracks? when tracks.isNotEmpty) {
       sections.add(
         InspectorTrackList(

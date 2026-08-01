@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
 abstract interface class LibraryWorkspaceDto {
@@ -34,8 +33,8 @@ abstract interface class LibraryWorkspaceDto {
 
 
 
-typedef LibraryWorkspaceDtoBuilder = LibraryWorkspaceDto Function(
-  LibraryWorkspaceEntry entry,
+typedef LibraryWorkspaceDtoBuilder<TDto extends LibraryWorkspaceDto> = TDto Function(
+  dynamic entry,
 );
 
 enum LibraryGroupPresentation { inlineHeaders, folderGrid }
@@ -133,7 +132,7 @@ class LibraryGroupDefinition<TDto, TValue> {
   final String? bucketManagerListLabel;
   final String? drilldownChildId;
   final String? folderSetLabel;
-  final String? Function(LibraryWorkspaceEntry entry)? subgroupKey;
+  final String? Function(TDto dto)? subgroupKey;
 
   String get resolvedSidebarTitle => sidebarTitle ?? label;
 
@@ -151,7 +150,7 @@ class LibraryGroupDefinition<TDto, TValue> {
     String? bucketManagerListLabel,
     String? drilldownChildId,
     String? folderSetLabel,
-    String? Function(LibraryWorkspaceEntry entry)? subgroupKey,
+    String? Function(TDto dto)? subgroupKey,
   }) {
     return LibraryGroupDefinition<TDto, TValue>(
       id: id ?? this.id,

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace_entry_builder.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 import 'package:collectarr_app/features/library/shared/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
@@ -57,14 +57,14 @@ String animeLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final animeLibraryMediaPresentation = LibraryMediaPresentation(
-  searchFieldLabels: LibraryMediaSearchFieldLabels(
+  searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
     seriesHint: 'Series...',
     numberHint: 'Episode / season....',
     publisherHint: 'Studio...',
   ),
-  filterLabels: LibraryMediaFilterLabels(
+  filterLabels: const LibraryMediaFilterLabels(
     series: 'Series',
     anySeries: 'Any series',
     publisher: 'Studio',
@@ -72,8 +72,7 @@ final animeLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: animeLibraryGroupLabels,
   builder: animeLibraryMediaBuilder,
-  workspaceEntryBuilder: buildAnimeLibraryWorkspaceEntryFromShelf,
-  releaseEntryBuilder: buildAnimeLibraryReleaseEntry,
+  projector: const AnimeWorkspaceProjector(),
   bucketLabelBuilder: animeLibraryBucketLabelBuilder,
   previewLabels: animePreviewLabels,
   statsLabels: animeStatsLabels,

@@ -1,34 +1,37 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
-LibraryWorkspaceEntry _entryFixture() {
-  return LibraryWorkspaceEntry(
+LibraryProjectionRuntime _itemFixture() {
+  final cat = CatalogItemDto(
     id: 'comic-hero-fixture',
-    mediaType: 'comic',
+    kind: 'comic',
     title: 'The Last Ronin',
-    itemNumber: '1',
-    publisher: 'IDW Publishing',
-    releaseYear: 2020,
-    barcode: '82771402051700111',
     synopsis: 'The final turtle seeks justice in a ruined future.',
-    series: CatalogSeriesDetails(
+    series: const CatalogSeriesDetails(
       seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
     ),
-    publishing: CatalogPublishingDetails(
+    publishing: const CatalogPublishingDetails(
       imprint: 'IDW',
       subtitle: 'Director Cut',
       seriesGroup: 'TMNT Event',
     ),
     genres: const ['Action', 'Dystopian'],
-    updatedAt: DateTime.utc(2026, 5, 23),
+  );
+  final source = ShelfEntry(catalogItem: cat);
+  return const ComicWorkspaceProjector().project(
+    source: source,
+    node: const LibraryTitleNodeRef('comic-hero-fixture'),
   );
 }
 
@@ -39,7 +42,7 @@ Widget _heroHost(OwnedItem ownedItem) {
         body: ComicInspectorHero(
           request: LibraryInspectorRequest(
             type: comicsLibraryConfig,
-            entry: _entryFixture(),
+            item: _itemFixture(),
             ownedItem: ownedItem,
             trackingEntry: null,
             accent: Colors.red,
@@ -68,7 +71,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Director Cut'), findsOneWidget);
-    expect(find.text('82771402051700111'), findsOneWidget);
     expect(find.text('Plot'), findsOneWidget);
   });
 

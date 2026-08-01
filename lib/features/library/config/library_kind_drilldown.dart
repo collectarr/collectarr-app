@@ -2,12 +2,11 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/media/video/tv_shelf_drilldown.dart';
-import 'package:collectarr_app/features/library/media/video/video_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/kinds/video/release/video_shelf_drilldown.dart';
 import 'package:flutter/material.dart';
 
-export 'package:collectarr_app/features/library/media/video/video_shelf_drilldown.dart'
+export 'package:collectarr_app/features/library/kinds/video/release/video_shelf_drilldown.dart'
     show
         VideoShelfReleaseDrilldownItem,
         buildVideoShelfReleaseItems,
@@ -15,15 +14,15 @@ export 'package:collectarr_app/features/library/media/video/video_shelf_drilldow
 
 bool canOpenKindDrilldown(
   LibraryTypeConfig type,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
-  return canOpenVideoShelfDrilldown(type, entry);
+  return canOpenVideoShelfDrilldown(type, item);
 }
 
 Widget? buildLibraryKindDrilldown({
   required BuildContext context,
   required LibraryTypeConfig type,
-  required LibraryProjectionItem selectedItem,
+  required LibraryProjectionRuntime selectedItem,
   required Color accent,
   required double coverSize,
   required VoidCallback onBack,
@@ -34,9 +33,9 @@ Widget? buildLibraryKindDrilldown({
   required String? selectedReleaseId,
   required void Function(String releaseId) onSelectRelease,
 }) {
-  if (selectedItem.entry.mediaType == 'tv') {
+  if (selectedItem.source.catalogItem?.kind.toLowerCase() == 'tv') {
     return TvShelfSeasonDrilldown(
-      titleEntry: selectedItem.entry,
+      titleItem: selectedItem,
       coverSize: coverSize,
       accent: accent,
       onBack: onBack,
@@ -49,7 +48,7 @@ Widget? buildLibraryKindDrilldown({
     titleItem: selectedItem,
     ownedCopies: ownedCopies,
     wishlistItems: wishlistItems,
-    releaseEntryBuilder: type.presentation.releaseEntryBuilder,
+    projector: type.presentation.projector,
   );
   return VideoShelfReleaseDrilldown(
     titleItem: selectedItem,
@@ -59,7 +58,7 @@ Widget? buildLibraryKindDrilldown({
     accent: accent,
     onBack: onBack,
     onRefreshFromCore: onRefreshFromCore,
-    onSelectRelease: onSelectRelease,
     onOpenTitleDetails: onOpenTitleDetails,
+    onSelectRelease: onSelectRelease,
   );
 }

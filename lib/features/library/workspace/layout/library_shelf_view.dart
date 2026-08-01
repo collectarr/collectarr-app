@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +24,7 @@ class LibraryShelfView<T> extends StatelessWidget {
   });
 
   final List<T> items;
-  final LibraryWorkspaceEntry Function(T item) entryOf;
+  final LibraryProjectionRuntime Function(T item) entryOf;
   final bool Function(T item) isActive;
   final bool Function(T item) isSelected;
   final bool selectionEnabled;
@@ -108,7 +108,7 @@ class _ShelfRow<T> extends StatelessWidget {
   });
 
   final List<T> books;
-  final LibraryWorkspaceEntry Function(T item) entryOf;
+  final LibraryProjectionRuntime Function(T item) entryOf;
   final bool Function(T item) isActive;
   final bool Function(T item) isSelected;
   final bool selectionEnabled;

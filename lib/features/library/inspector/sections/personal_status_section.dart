@@ -1,20 +1,20 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
 class InspectorPersonalStatusSection extends StatelessWidget {
   const InspectorPersonalStatusSection({
     super.key,
-    required this.entry,
+    required this.item,
     required this.accent,
     this.ownedItem,
     this.trackingEntry,
     this.onFilterByValue,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;
@@ -23,7 +23,7 @@ class InspectorPersonalStatusSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InspectorPersonalSection(
-      entry: entry,
+      item: item,
       ownedItem: ownedItem,
       trackingEntry: trackingEntry,
       accent: accent,

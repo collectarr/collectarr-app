@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_domain.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -23,33 +23,40 @@ void main() {
         {'id': 'ep-1', 'title': 'Asteroid Blues', 'episode_number': '1'},
         {'id': 'ep-2', 'title': 'Stray Dog Strut', 'episode_number': '2'},
       ],
-      'kind': 'anime',
     });
 
-    final series = VideoCatalogItem.fromDto(dto);
+    final series = AnimeSeries.fromDto(dto);
 
+    expect(series.id, 'anime-series-1');
     expect(series.title, 'Cowboy Bebop');
     expect(series.episodes, hasLength(2));
-    expect(series.displayEpisodeLabel, 'Asteroid Blues');
+    expect(series.episodes.first.title, 'Asteroid Blues');
   });
 
-  test('Anime shelf builder keeps series and overlay together', () {
-    final catalogItem = CatalogItem(
+  test('projects Anime item from shelf entry', () {
+    final catalogItem = CatalogItemDto(
       id: 'anime-1',
       kind: 'anime',
       title: 'Cowboy Bebop',
       series: const CatalogSeriesDetails(
-        seriesId: 'series-1',
         seriesTitle: 'Cowboy Bebop',
       ),
-      video: const VideoCatalogDetails(runtimeMinutes: 24),
       editions: const [
-        CatalogEdition(id: 'edition-1', title: 'Episode 1'),
+        CatalogEdition(
+          id: 'ed-1',
+          name: 'Blu-ray Collector Edition',
+          physicalFormat: 'Blu-ray',
+          physicalFormatLabel: 'Blu-ray',
+        ),
       ],
+      video: const CatalogVideoDetails(
+        runtimeMinutes: 24,
+      ),
     );
+
     final shelf = ShelfEntry(
       itemId: 'anime-1',
-      catalogItem: LibraryMetadataItem.fromCatalogItem(catalogItem),
+      catalogItem: catalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-anime-1',
         itemId: 'anime-1',
@@ -63,10 +70,12 @@ void main() {
       fallbackOwnerLabel: 'Andrei',
     );
 
-    final entry = buildAnimeLibraryWorkspaceEntryFromShelf(shelf);
+    final item = const AnimeWorkspaceProjector().project(
+      source: shelf,
+      node: const LibraryTitleNodeRef('anime-1'),
+    );
 
-    expect(entry.series?.seriesTitle, 'Cowboy Bebop');
-    expect(entry.video?.runtimeMinutes, 24);
-    expect(entry.editions, hasLength(1));
+    expect(item.dto.seriesTitle, 'Cowboy Bebop');
+    expect(item.source.catalogItem?.editions, hasLength(1));
   });
 }

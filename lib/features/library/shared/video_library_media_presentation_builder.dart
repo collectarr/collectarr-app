@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
 class VideoLibraryMediaPresentationBuilder
@@ -28,80 +28,56 @@ class VideoLibraryMediaPresentationBuilder
     required String singularLabel,
     required MediaEditFields mediaFields,
     required ReleaseEditFields releaseFields,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final series = entry.series;
-    final publishing = entry.publishing;
-    final video = entry.video;
-    final hasVolume = series?.hasVolume ?? false;
-    final hasSeason = series?.hasSeason ?? false;
-    final hasEpisode = series?.hasEpisode ?? false;
+    final dto = item.dto;
+    final cat = item.source.catalogItem;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: entry.id),
-          LibraryDetailField(label: 'Title', value: entry.title),
+          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'Title', value: dto.title),
         ],
-        if (series?.seriesTitle != null)
-          LibraryDetailField(label: 'Series', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
-        if (hasSeason && hasEpisode)
-          LibraryDetailField(label: 'Season / Episode', value: 'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}'),
-        if (hasSeason && !hasEpisode)
-          LibraryDetailField(label: 'Season', value: 'Season ${series!.seasonNumber}'),
-        if (!hasSeason && hasEpisode)
-          LibraryDetailField(label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
-        if (hasVolume && !hasSeason)
-          LibraryDetailField(label: 'Volume', value: series!.volumeName ?? (series.volumeNumber ?? '')),
-        if (entry.browseScope != LibraryBrowserScope.title &&
-            entry.variant != null)
-          LibraryDetailField(label: releaseFields.variantLabel, value: entry.variant!, onTap: tapFor(entry.variant)),
-        if (entry.browseScope != LibraryBrowserScope.title &&
-            entry.barcode != null)
-          LibraryDetailField(label: releaseFields.barcodeLabel, value: entry.barcode!),
+        if (dto.seriesTitle != null)
+          LibraryDetailField(label: 'Series', value: dto.seriesTitle!, onTap: tapFor(dto.seriesTitle)),
+        if (item.node.browseScope != LibraryBrowserScope.title &&
+            dto.variant != null)
+          LibraryDetailField(label: releaseFields.variantLabel, value: dto.variant!, onTap: tapFor(dto.variant)),
+        if (item.node.browseScope != LibraryBrowserScope.title &&
+            dto.barcode != null)
+          LibraryDetailField(label: releaseFields.barcodeLabel, value: dto.barcode!),
       ],
       contextFacts: [
-        if (entry.publisher != null)
-          LibraryDetailField(label: mediaFields.publisherLabel, value: entry.publisher!, onTap: tapFor(entry.publisher)),
+        if (dto.publisher != null)
+          LibraryDetailField(label: mediaFields.publisherLabel, value: dto.publisher!, onTap: tapFor(dto.publisher)),
         LibraryDetailField(label: 'Released', value: genericLibraryDash(
-            formatPresentationNullableDate(entry.releaseDate) ??
-                entry.releaseYear?.toString(),
+            formatPresentationNullableDate(dto.releaseDate),
           )),
-        if (video?.runtimeMinutes != null)
-          LibraryDetailField(label: 'Runtime', value: '${video!.runtimeMinutes} min'),
-        if (entry.country != null)
-          LibraryDetailField(label: 'Country', value: entry.country!),
-        if (entry.language != null)
-          LibraryDetailField(label: 'Language', value: entry.language!),
-        if (entry.ageRating != null)
-          LibraryDetailField(label: 'Age Rating', value: entry.ageRating!),
-        if (entry.audienceRating != null)
-          LibraryDetailField(label: 'Audience Rating', value: entry.audienceRating!),
-        if (publishing?.subtitle != null)
-          LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
-        LibraryDetailField(label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
-        LibraryDetailField(label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
+        if (dto.country != null)
+          LibraryDetailField(label: 'Country', value: dto.country!),
+        if (dto.language != null)
+          LibraryDetailField(label: 'Language', value: dto.language!),
       ],
-      creators: entry.creators ?? const <Map<String, dynamic>>[],
-      characters: entry.characters ?? const <String>[],
-      storyArcs: entry.storyArcs ?? const <String>[],
-      genres: entry.genres ?? const <String>[],
+      creators: dto.creator != null ? [<String, dynamic>{'name': dto.creator}] : const [],
+      characters: cat?.genres ?? const [],
+      storyArcs: const [],
+      genres: cat?.genres ?? const [],
     );
   }
 
   @override
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    if (!showSummary ||
-        entry.synopsis == null ||
-        entry.synopsis!.trim().isEmpty) {
+    final synopsis = item.dto.synopsis ?? item.source.catalogItem?.synopsis;
+    if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }
     return [
@@ -109,9 +85,11 @@ class VideoLibraryMediaPresentationBuilder
         title: 'Summary',
         accentColor: accent,
         children: [
-          Text(
-            entry.synopsis!,
-            style: Theme.of(context).textTheme.bodyMedium,
+          SelectableText(
+            synopsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  height: 1.4,
+                ),
           ),
         ],
       ),

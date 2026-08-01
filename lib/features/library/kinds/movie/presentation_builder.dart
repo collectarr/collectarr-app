@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
@@ -28,13 +28,14 @@ class VideoLibraryMediaPresentationBuilder
     required String singularLabel,
     required MediaEditFields mediaFields,
     required ReleaseEditFields releaseFields,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final series = entry.series;
-    final publishing = entry.publishing;
-    final video = entry.video;
+    final dto = item.dto;
+    final catalogItem = item.source.catalogItem;
+    final series = catalogItem?.series;
+    final video = catalogItem?.video;
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
@@ -43,65 +44,66 @@ class VideoLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: entry.id),
-          LibraryDetailField(label: 'Title', value: entry.title),
+          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (series?.seriesTitle != null)
           LibraryDetailField(label: 'Series', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
+        if (hasVolume && !hasSeason)
+          LibraryDetailField(label: 'Volume', value: series!.volumeName ?? libraryVolumeLabel(series.volumeNumber != null ? double.tryParse(series.volumeNumber!) : null)),
         if (hasSeason && hasEpisode)
           LibraryDetailField(label: 'Season / Episode', value: 'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}'),
         if (hasSeason && !hasEpisode)
           LibraryDetailField(label: 'Season', value: 'Season ${series!.seasonNumber}'),
-        if (!hasSeason && hasEpisode)
+        if (hasEpisode && !hasSeason)
           LibraryDetailField(label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
-        if (hasVolume && !hasSeason)
-          LibraryDetailField(label: 'Volume', value: series!.volumeName ?? (series.volumeNumber ?? '')),
-        if (entry.browseScope != LibraryBrowserScope.title &&
-            entry.variant != null)
-          LibraryDetailField(label: releaseFields.variantLabel, value: entry.variant!, onTap: tapFor(entry.variant)),
-        if (entry.browseScope != LibraryBrowserScope.title &&
-            entry.barcode != null)
-          LibraryDetailField(label: releaseFields.barcodeLabel, value: entry.barcode!),
+        LibraryDetailField(label: mediaFields.numberLabel, value: genericLibraryDash(dto.itemNumber), onTap: tapFor(dto.itemNumber)),
+        LibraryDetailField(label: releaseFields.variantLabel, value: genericLibraryDash(dto.variant), onTap: tapFor(dto.variant)),
+        LibraryDetailField(label: releaseFields.barcodeLabel, value: genericLibraryDash(dto.barcode)),
       ],
       contextFacts: [
-        if (entry.publisher != null)
-          LibraryDetailField(label: mediaFields.publisherLabel, value: entry.publisher!, onTap: tapFor(entry.publisher)),
+        LibraryDetailField(label: mediaFields.publisherLabel, value: genericLibraryDash(dto.publisher), onTap: tapFor(dto.publisher)),
         LibraryDetailField(label: 'Released', value: genericLibraryDash(
-            formatPresentationNullableDate(entry.releaseDate) ??
-                entry.releaseYear?.toString(),
+            formatPresentationNullableDate(dto.releaseDate) ??
+                dto.releaseDate?.year.toString(),
           )),
         if (video?.runtimeMinutes != null)
           LibraryDetailField(label: 'Runtime', value: '${video!.runtimeMinutes} min'),
-        if (entry.country != null)
-          LibraryDetailField(label: 'Country', value: entry.country!),
-        if (entry.language != null)
-          LibraryDetailField(label: 'Language', value: entry.language!),
-        if (entry.ageRating != null)
-          LibraryDetailField(label: 'Age Rating', value: entry.ageRating!),
-        if (entry.audienceRating != null)
-          LibraryDetailField(label: 'Audience Rating', value: entry.audienceRating!),
-        if (publishing?.subtitle != null)
-          LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
-        LibraryDetailField(label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
-        LibraryDetailField(label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
+        if (video?.screenRatio != null)
+          LibraryDetailField(label: 'Aspect Ratio', value: video!.screenRatio!),
+        if (video?.audioTracks != null)
+          LibraryDetailField(label: 'Audio', value: video!.audioTracks!),
+        if (video?.subtitles != null)
+          LibraryDetailField(label: 'Subtitles', value: video!.subtitles!),
+        if (dto.country != null)
+          LibraryDetailField(label: 'Country', value: dto.country!, onTap: tapFor(dto.country)),
+        if (dto.language != null)
+          LibraryDetailField(label: 'Language', value: dto.language!, onTap: tapFor(dto.language)),
+        if (catalogItem?.ageRating != null)
+          LibraryDetailField(label: 'Age Rating', value: catalogItem!.ageRating!, onTap: tapFor(catalogItem.ageRating)),
+        if (catalogItem?.audienceRating != null)
+          LibraryDetailField(label: 'Audience Rating', value: catalogItem!.audienceRating!, onTap: tapFor(catalogItem.audienceRating)),
+        LibraryDetailField(label: 'Cover', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty ? 'Missing' : 'Ready'),
+        LibraryDetailField(label: 'Metadata', value: dto.publisher == null || dto.publisher!.isEmpty ? 'Missing' : 'Ready'),
       ],
-      creators: entry.creators ?? const <Map<String, dynamic>>[],
-      characters: entry.characters ?? const <String>[],
-      storyArcs: entry.storyArcs ?? const <String>[],
-      genres: entry.genres ?? const <String>[],
+      creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
+      characters: catalogItem?.characters ?? const <String>[],
+      storyArcs: catalogItem?.storyArcs ?? const <String>[],
+      genres: catalogItem?.genres ?? const <String>[],
     );
   }
 
   @override
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
+    final synopsis = item.source.catalogItem?.synopsis;
     if (!showSummary ||
-        entry.synopsis == null ||
-        entry.synopsis!.trim().isEmpty) {
+        synopsis == null ||
+        synopsis.trim().isEmpty) {
       return const [];
     }
     return [
@@ -110,7 +112,7 @@ class VideoLibraryMediaPresentationBuilder
         accentColor: accent,
         children: [
           Text(
-            entry.synopsis!,
+            synopsis,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],

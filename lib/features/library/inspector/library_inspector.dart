@@ -26,7 +26,7 @@ import 'package:collectarr_app/features/collection/pick_list/pick_list_options.d
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -93,7 +93,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   const LibraryInspector({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.ownedItem,
     this.detailsLayout = LibraryDetailsLayout.hidden,
     this.densityPreset = LibraryWorkspaceDensityPreset.compact,
@@ -112,7 +112,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry? entry;
+  final LibraryProjectionRuntime? item;
   final OwnedItem? ownedItem;
   final LibraryDetailsLayout detailsLayout;
   final LibraryWorkspaceDensityPreset densityPreset;
@@ -307,7 +307,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   Widget _buildContent(
     BuildContext context,
     WidgetRef ref,
-    LibraryWorkspaceEntry selected,
+    LibraryProjectionRuntime selected,
     OwnedItem? activeOwnedItem,
     List<OwnedItem> ownedCopies,
     TrackingEntry? activeTrackingEntry,
@@ -609,15 +609,15 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   Future<void> _addOwnedCopy(
-    LibraryWorkspaceEntry entry, {
+    LibraryProjectionRuntime item, {
     OwnedItem? ownedItem,
   }) async {
     final anchor = resolveLibraryMutationAnchor(
-      entry: entry,
+      item: item,
       ownedItem: ownedItem,
     );
     await ref.read(collectionMutationsProvider).addItem(
-          entry.id,
+          item.node.titleItemId,
           anchorType: anchor.anchorType,
           editionId: anchor.editionId,
           variantId: anchor.variantId,
@@ -646,28 +646,28 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   Future<void> _duplicateOwnedCopy(
-    LibraryWorkspaceEntry entry,
-    OwnedItem item,
+    LibraryProjectionRuntime item,
+    OwnedItem ownedItem,
   ) async {
-    final comic = item.typedDetails is ComicOwnedDetails
-        ? item.typedDetails as ComicOwnedDetails
+    final comic = ownedItem.typedDetails is ComicOwnedDetails
+        ? ownedItem.typedDetails as ComicOwnedDetails
         : null;
     await ref.read(collectionMutationsProvider).addItem(
-          item.itemId,
-          isDigital: item.isDigital,
-          anchorType: item.anchorType,
-          editionId: item.editionId,
-          variantId: item.variantId,
-          bundleReleaseId: item.bundleReleaseId,
-          condition: item.condition,
-          grade: item.grade,
-          purchaseDate: item.purchaseDate,
-          pricePaidCents: item.pricePaidCents,
-          currency: item.currency,
-          personalNotes: item.personalNotes,
-          quantity: item.quantity,
-          locationId: item.locationId,
-          indexNumber: item.indexNumber,
+          ownedItem.itemId,
+          isDigital: ownedItem.isDigital,
+          anchorType: ownedItem.anchorType,
+          editionId: ownedItem.editionId,
+          variantId: ownedItem.variantId,
+          bundleReleaseId: ownedItem.bundleReleaseId,
+          condition: ownedItem.condition,
+          grade: ownedItem.grade,
+          purchaseDate: ownedItem.purchaseDate,
+          pricePaidCents: ownedItem.pricePaidCents,
+          currency: ownedItem.currency,
+          personalNotes: ownedItem.personalNotes,
+          quantity: ownedItem.quantity,
+          locationId: ownedItem.locationId,
+          indexNumber: ownedItem.indexNumber,
           coverPriceCents: comic?.coverPriceCents,
           rawOrSlabbed: comic?.rawOrSlabbed,
           gradingCompany: comic?.gradingCompany,
@@ -677,11 +677,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           certificationNumber: comic?.certificationNumber,
           keyComic: comic?.keyComic ?? false,
           keyReason: comic?.keyReason,
-          rating: item.rating,
-          readStatus: item.readStatus,
-          startedAt: item.startedAt,
-          finishedAt: item.finishedAt,
-          tags: item.tags,
+          rating: ownedItem.rating,
+          readStatus: ownedItem.readStatus,
+          startedAt: ownedItem.startedAt,
+          finishedAt: ownedItem.finishedAt,
+          tags: ownedItem.tags,
         );
     if (!mounted) {
       return;
@@ -691,19 +691,19 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       _selectNewestOwnedItem = true;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Duplicated "${entry.title}"')),
+      SnackBar(content: Text('Duplicated "${item.dto.title}"')),
     );
   }
 
   Future<void> _refreshSelectedEntryMetadata(
-      LibraryWorkspaceEntry entry) async {
+      LibraryProjectionRuntime item) async {
     final result = await showLibraryMetadataRefreshDialog(
       context: context,
       type: widget.type,
       accent: widget.accent,
-      allEntries: [entry],
-      shownEntries: [entry],
-      selectedEntry: entry,
+      allEntries: [item],
+      shownEntries: [item],
+      selectedEntry: item,
     );
     if (result == null || !mounted) {
       return;
@@ -717,11 +717,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     );
   }
 
-  void _shareInspectorEntry(LibraryWorkspaceEntry entry) {
+  void _shareInspectorEntry(LibraryProjectionRuntime item) {
     showCollectionShareDialog(
       context: context,
-      title: entry.resolvedTitle,
-      items: <LibraryWorkspaceEntry>[entry],
+      title: item.dto.title,
+      items: <LibraryProjectionRuntime>[item],
     );
   }
 }
@@ -879,6 +879,24 @@ class _InspectorReadingQueueActionButtonState
       tooltip: tooltip,
       onPressed: _openDialog,
       icon: _inQueue ? Icons.bookmark : Icons.bookmark_border,
+    );
+  }
+}
+
+class EmptyInspector extends StatelessWidget {
+  const EmptyInspector({
+    required this.type,
+    required this.accent,
+    super.key,
+  });
+
+  final LibraryTypeConfig type;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('No ${type.label.toLowerCase()} selected'),
     );
   }
 }

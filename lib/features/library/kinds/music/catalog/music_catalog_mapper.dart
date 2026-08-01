@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_release.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class MusicCatalogMapper {
   const MusicCatalogMapper._();
@@ -69,67 +68,6 @@ class MusicCatalogMapper {
     );
   }
 
-  static MusicCatalogItem mapWorkspaceEntryToMusic(LibraryWorkspaceEntry entry) {
-    final musicDetails = entry.music;
-    final artistName = entry.creators?.firstOrNull?['name']?.toString();
-
-    final work = MusicWorkMetadata(
-      title: entry.title,
-      originalTitle: entry.originalTitle,
-      synopsis: entry.synopsis,
-      artist: artistName,
-      genres: entry.genres ?? const [],
-    );
-
-    final recording = MusicRecordingMetadata(
-      trackCount: musicDetails?.trackCount,
-      studio: musicDetails?.studio,
-      originalReleaseDate: musicDetails?.originalReleaseDate,
-      recordingDate: musicDetails?.recordingDate,
-      isLive: musicDetails?.isLive,
-      composition: musicDetails?.composition,
-    );
-
-    final releases = entry.editions.map((edition) {
-      final discs = edition.discs.map((disc) {
-        final tracks = disc.tracks.map((t) => MusicTrackRef(
-          title: t.title ?? '',
-          position: int.tryParse(t.position ?? ''),
-          durationSeconds: t.durationSeconds,
-          artist: t.artist ?? artistName,
-          discNumber: disc.discNumber,
-        )).toList();
-
-        return MusicDiscRef(
-          discNumber: disc.discNumber ?? 0,
-          discName: disc.discName,
-          discFormat: disc.discFormat,
-          trackCount: disc.trackCount,
-          mediaCondition: disc.mediaCondition,
-          tracks: tracks,
-        );
-      }).toList();
-
-      return MusicRelease(
-        id: edition.id,
-        title: edition.title,
-        artist: artistName,
-        publisher: edition.publisher,
-        catalogNumber: musicDetails?.catalogNumber,
-        upc: edition.upc,
-        releaseDate: edition.releaseDate,
-        releaseStatus: musicDetails?.releaseStatus,
-        discs: discs,
-      );
-    }).toList();
-
-    return MusicCatalogItem(
-      id: entry.id,
-      work: work,
-      recording: recording,
-      releases: releases,
-    );
-  }
   static MusicCatalogItem mapMetadataItemToMusic(LibraryMetadataItem item) {
     return mapDtoToMusic(CatalogItemDto(
       id: item.id,

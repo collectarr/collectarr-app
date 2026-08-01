@@ -7,12 +7,12 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto, GenericOwnedDetails>(
   type: booksLibraryConfig,
   mediaAdapter: booksMediaAdapter,
-  workspaceDtoFactory: BookWorkspaceDto.fromEntry,
+  projector: const BookWorkspaceProjector(),
   ownedDetailsCodec: const GenericOwnedDetailsCodec(),
   fields: bookKindSchema.toRegistry(),
   facets: const LibraryFacetModule(

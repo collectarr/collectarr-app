@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -148,23 +148,23 @@ String? plannedMediaTableColumnSort(
   return definition.sortId?.value ?? definition.id.value;
 }
 
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+
 Widget plannedMediaTableCell(
   LibraryTypeConfig type,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   String columnId,
 ) {
   final definition = _tableColumnDefinition(type, columnId);
   if (definition == null) {
     return const LibraryTableCellText('');
   }
-  final module = libraryKindModuleForType(type);
-  final dto = module.createWorkspaceDto(entry);
-  final dtoAsEntry = dto as LibraryWorkspaceEntry;
+  final dto = item.dto;
   final builder = definition.cellValue;
   if (builder != null) {
-    return builder(dtoAsEntry);
+    return builder(dto);
   }
-  final value = definition.getValue(dtoAsEntry);
+  final value = definition.getValue(dto);
   return LibraryTableCellText(value?.toString());
 }
 

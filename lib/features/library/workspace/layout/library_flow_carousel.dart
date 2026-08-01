@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -771,9 +771,9 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
     );
   }
 
-  Widget _cardScopeBadge(BuildContext context, LibraryWorkspaceEntry entry) {
+  Widget _cardScopeBadge(BuildContext context, LibraryProjectionRuntime item) {
     final palette = appPalette(context);
-    final scope = resolveLibraryCollectionStatusScope(entry);
+    final scope = resolveLibraryCollectionStatusScope(item);
     return LibraryTileScopePill(
       icon: scope.icon,
       label: scope.label,
@@ -955,9 +955,9 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
-  final type = collectarrLibraryTypes.byKind(entry.kind);
+  final type = collectarrLibraryTypes.byKind(item.source.catalogItem?.kind ?? '');
   if (type == null) {
     return null;
   }
@@ -965,7 +965,7 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
     singularLabel: type.singularLabel,
     mediaFields: type.mediaFields,
     releaseFields: type.releaseFields,
-    entry: entry,
+    item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,
   );

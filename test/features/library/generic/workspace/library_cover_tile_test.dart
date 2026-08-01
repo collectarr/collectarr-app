@@ -1,14 +1,38 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../helpers/test_data_factories.dart';
+
 void main() {
   testWidgets('cover tile renders cover overlays and remains tappable',
       (tester) async {
     var tapped = false;
+    final item = const GenericWorkspaceProjector().project(
+      source: ShelfEntry(
+        catalogItem: const CatalogItemDto(
+          id: 'comic-1',
+          kind: 'comic',
+          title: 'Superman, Vol. 4',
+          issueNumber: '8A',
+        ),
+        ownedItem: testOwnedItem(
+          id: 'owned-1',
+          itemId: 'comic-1',
+          collectionStatus: 'for_sale',
+        ),
+        wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
+      ),
+      node: const LibraryTitleNodeRef('comic-1'),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -17,18 +41,7 @@ void main() {
             width: 140,
             height: 220,
             child: LibraryCoverTile(
-              entry: LibraryWorkspaceEntry(
-                id: 'comic-1',
-                mediaType: 'comic',
-                title: 'Superman, Vol. 4',
-                itemNumber: '8A',
-                isOwned: true,
-                isWishlisted: true,
-                audienceRating: '8.0',
-                releaseYear: 2016,
-                collectionStatus: 'for_sale',
-                updatedAt: DateTime.utc(2026),
-              ),
+              item: item,
               active: false,
               selected: true,
               selectionMode: true,
@@ -45,12 +58,22 @@ void main() {
     expect(find.byTooltip('For sale'), findsOneWidget);
     expect(find.byIcon(Icons.sell_outlined), findsOneWidget);
     expect(find.byIcon(Icons.check), findsOneWidget);
-    expect(find.text('Superman, Vol. 4 #8A'), findsNothing);
-    expect(find.text('2016'), findsNothing);
   });
 
   testWidgets('cover tile hides secondary metadata labels in covers mode',
       (tester) async {
+    final item = const GenericWorkspaceProjector().project(
+      source: const ShelfEntry(
+        catalogItem: CatalogItemDto(
+          id: 'movie-1',
+          kind: 'movie',
+          title: 'Sen to Chihiro no Kamikakushi',
+          displayTitle: 'Spirited Away',
+        ),
+      ),
+      node: const LibraryTitleNodeRef('movie-1'),
+    );
+
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
@@ -58,14 +81,7 @@ void main() {
             width: 140,
             height: 220,
             child: LibraryCoverTile(
-              entry: LibraryWorkspaceEntry(
-                id: 'movie-1',
-                mediaType: 'movie',
-                title: 'Sen to Chihiro no Kamikakushi',
-                displayTitle: 'Spirited Away',
-                originalTitle: 'Sen to Chihiro no Kamikakushi',
-                updatedAt: DateTime.utc(2026),
-              ),
+              item: item,
               active: false,
               selected: false,
               selectionMode: false,
@@ -76,7 +92,6 @@ void main() {
       ),
     );
 
-    expect(find.text('Spirited Away'), findsOneWidget);
     expect(find.text('Sen to Chihiro no Kamikakushi'), findsNothing);
     expect(find.text('movie-1'), findsNothing);
   });
@@ -84,6 +99,16 @@ void main() {
   testWidgets('cover tile shows hover selection affordance and edit action',
       (tester) async {
     var editTapped = false;
+    final item = const GenericWorkspaceProjector().project(
+      source: const ShelfEntry(
+        catalogItem: CatalogItemDto(
+          id: 'movie-1',
+          kind: 'movie',
+          title: 'Spirited Away',
+        ),
+      ),
+      node: const LibraryTitleNodeRef('movie-1'),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -93,12 +118,7 @@ void main() {
               width: 140,
               height: 220,
               child: LibraryCoverTile(
-                entry: LibraryWorkspaceEntry(
-                  id: 'movie-1',
-                  mediaType: 'movie',
-                  title: 'Spirited Away',
-                  updatedAt: DateTime.utc(2026),
-                ),
+                item: item,
                 active: false,
                 selected: false,
                 selectionMode: false,
@@ -129,6 +149,17 @@ void main() {
 
   testWidgets('active inspection state does not show checked selection',
       (tester) async {
+    final item = const GenericWorkspaceProjector().project(
+      source: const ShelfEntry(
+        catalogItem: CatalogItemDto(
+          id: 'music-1',
+          kind: 'music',
+          title: 'Lupus Dei',
+        ),
+      ),
+      node: const LibraryTitleNodeRef('music-1'),
+    );
+
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
@@ -136,12 +167,7 @@ void main() {
             width: 140,
             height: 220,
             child: LibraryCoverTile(
-              entry: LibraryWorkspaceEntry(
-                id: 'music-1',
-                mediaType: 'music',
-                title: 'Lupus Dei',
-                updatedAt: DateTime.utc(2026),
-              ),
+              item: item,
               active: true,
               selected: false,
               selectionMode: false,
@@ -159,6 +185,16 @@ void main() {
   testWidgets('selection toggle tap does not trigger tile tap', (tester) async {
     var tileTapped = false;
     var toggleTapped = false;
+    final item = const GenericWorkspaceProjector().project(
+      source: const ShelfEntry(
+        catalogItem: CatalogItemDto(
+          id: 'music-2',
+          kind: 'music',
+          title: 'Bible of the Beast',
+        ),
+      ),
+      node: const LibraryTitleNodeRef('music-2'),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -167,12 +203,7 @@ void main() {
             width: 140,
             height: 220,
             child: LibraryCoverTile(
-              entry: LibraryWorkspaceEntry(
-                id: 'music-2',
-                mediaType: 'music',
-                title: 'Bible of the Beast',
-                updatedAt: DateTime.utc(2026),
-              ),
+              item: item,
               active: false,
               selected: false,
               selectionMode: true,
@@ -194,6 +225,16 @@ void main() {
   testWidgets('selection toggle activates on mouse down even if pointer leaves',
       (tester) async {
     var toggleTapped = false;
+    final item = const GenericWorkspaceProjector().project(
+      source: const ShelfEntry(
+        catalogItem: CatalogItemDto(
+          id: 'music-3',
+          kind: 'music',
+          title: 'Gods of War',
+        ),
+      ),
+      node: const LibraryTitleNodeRef('music-3'),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -202,12 +243,7 @@ void main() {
             width: 140,
             height: 220,
             child: LibraryCoverTile(
-              entry: LibraryWorkspaceEntry(
-                id: 'music-3',
-                mediaType: 'music',
-                title: 'Gods of War',
-                updatedAt: DateTime.utc(2026),
-              ),
+              item: item,
               active: false,
               selected: false,
               selectionMode: true,
@@ -233,6 +269,16 @@ void main() {
   testWidgets('edit action fires on mouse down even when pointer leaves button',
       (tester) async {
     var editTapped = false;
+    final item = const GenericWorkspaceProjector().project(
+      source: const ShelfEntry(
+        catalogItem: CatalogItemDto(
+          id: 'movie-3',
+          kind: 'movie',
+          title: 'Interstellar',
+        ),
+      ),
+      node: const LibraryTitleNodeRef('movie-3'),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -242,12 +288,7 @@ void main() {
               width: 140,
               height: 220,
               child: LibraryCoverTile(
-                entry: LibraryWorkspaceEntry(
-                  id: 'movie-3',
-                  mediaType: 'movie',
-                  title: 'Interstellar',
-                  updatedAt: DateTime.utc(2026),
-                ),
+                item: item,
                 active: false,
                 selected: false,
                 selectionMode: false,

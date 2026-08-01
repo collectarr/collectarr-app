@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_adapter.dar
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -61,8 +61,8 @@ final comicsMediaAdapter = LibraryMediaAdapter(
 );
 
 int compareComicEntriesByColumn(
-  LibraryWorkspaceEntry left,
-  LibraryWorkspaceEntry right,
+  LibraryProjectionRuntime left,
+  LibraryProjectionRuntime right,
   Object column,
 ) {
   final sortId = column.toString();

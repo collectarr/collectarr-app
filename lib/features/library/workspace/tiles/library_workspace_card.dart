@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +42,7 @@ class _LibraryWorkspaceCardDelegateImpl implements LibraryWorkspaceCardDelegate 
   });
 
   @override
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   @override
   final bool selected;
   @override
@@ -84,7 +84,7 @@ class _LibraryWorkspaceCardDelegateImpl implements LibraryWorkspaceCardDelegate 
 
 class LibraryWorkspaceCard extends StatelessWidget {
   const LibraryWorkspaceCard({
-    required this.entry,
+    required this.item,
     required this.selected,
     required this.onTap,
     this.onDoubleTap,
@@ -103,7 +103,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     super.key,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final bool selected;
   final VoidCallback onTap;
   final VoidCallback? onDoubleTap;
@@ -777,9 +777,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
     return wrapOverlay != null ? wrapOverlay(cover) : cover;
   }
 
-  Widget _scopeBadge(BuildContext context, LibraryWorkspaceEntry entry) {
+  Widget _scopeBadge(BuildContext context, LibraryProjectionRuntime item) {
     final palette = appPalette(context);
-    final scope = resolveLibraryCollectionStatusScope(entry);
+    final scope = resolveLibraryCollectionStatusScope(item);
     return LibraryTileScopePill(
       icon: scope.icon,
       label: scope.label,
@@ -825,15 +825,16 @@ String? _coverSlabLabel(LibraryCardPresentation presentation) {
 // ---------------------------------------------------------------------------
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
-  final type = collectarrLibraryTypes.byKind(entry.kind);
+  final kind = item.source.catalogItem?.kind ?? '';
+  final type = collectarrLibraryTypes.byKind(kind);
   if (type == null) return null;
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,
     mediaFields: type.mediaFields,
     releaseFields: type.releaseFields,
-    entry: entry,
+    item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,
   );

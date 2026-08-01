@@ -9,12 +9,12 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fiel
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 
 final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, ComicOwnedDetails>(
   type: mangaLibraryConfig,
   mediaAdapter: mangaMediaAdapter,
-  workspaceDtoFactory: MangaWorkspaceDto.fromEntry,
+  projector: const MangaWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: mangaLibraryGroupDefinitions,
@@ -23,9 +23,9 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, ComicOwnedDetails>(
     defaultVisibleColumnIds: mangaLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
-    customLinkedMetadataCandidates: (entry) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.characters);
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.storyArcs);
+    customLinkedMetadataCandidates: (source) sync* {
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(source.catalogItem?.characters);
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(source.catalogItem?.storyArcs);
     },
   ),
   facets: const LibraryFacetModule(
@@ -34,12 +34,13 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, ComicOwnedDetails>(
   ),
 );
 
-Iterable<String> _getFacetValues(LibraryWorkspaceEntry entry, String facetId) {
+Iterable<String> _getFacetValues(LibraryProjectionRuntime item, String facetId) {
+  final catalog = item.source.catalogItem;
   if (facetId == 'comic.character' || facetId == 'media.character') {
-    return entry.characters ?? const [];
+    return catalog?.characters ?? const [];
   }
   if (facetId == 'comic.story_arc') {
-    return entry.storyArcs ?? const [];
+    return catalog?.storyArcs ?? const [];
   }
   return const [];
 }

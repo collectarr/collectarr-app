@@ -11,12 +11,12 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 
 
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   type: gamesLibraryConfig,
   mediaAdapter: gamesMediaAdapter,
-  workspaceDtoFactory: GameWorkspaceDto.fromEntry,
+  projector: const GameWorkspaceProjector(),
   ownedDetailsCodec: const GameOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: gameLibraryGroupDefinitions,
@@ -25,12 +25,8 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     defaultVisibleColumnIds: gamesLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
-    customLinkedMetadataCandidates: (entry) sync* {
-      if (entry.game?.platforms case final platforms?) {
-        yield* AnyLibraryFieldRegistry.nonEmptyStrings(platforms);
-      } else {
-        yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.rawPlatforms);
-      }
+    customLinkedMetadataCandidates: (source) sync* {
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(source.catalogItem?.platforms);
     },
   ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(  ),

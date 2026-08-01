@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -1060,17 +1060,19 @@ bool _matchesTrackTerms(CatalogTrack track, List<String> terms) {
   ].join(' ').toLowerCase();
   return terms.every(searchable.contains);
 }
-Uri? _ebayUri(LibraryWorkspaceEntry entry) {
-  final barcode = entry.barcode?.trim();
+Uri? _ebayUri(LibraryProjectionRuntime item) {
+  final dto = item.dto;
+  final barcode = dto.barcode?.trim();
   if (barcode == null || barcode.isEmpty) {
     return null;
   }
+  final seriesTitle = item.source.catalogItem?.series?.seriesTitle;
   final query = <String>[
     barcode,
-    if (entry.series?.seriesTitle?.trim().isNotEmpty == true)
-      entry.series!.seriesTitle!.trim(),
-    entry.resolvedTitle,
-    if (entry.releaseYear != null) entry.releaseYear.toString(),
+    if (seriesTitle?.trim().isNotEmpty == true)
+      seriesTitle!.trim(),
+    dto.title,
+    if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
   ].join(' ');
   return buildEbaySearchUri(
     query: query,

@@ -1,10 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart';
+import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,20 +17,25 @@ void main() {
   testWidgets('music inspector renders CLZ-like panel with disc groups', (
     tester,
   ) async {
-    final entry = LibraryWorkspaceEntry(
+    final ownedItem = testOwnedItem(
+      id: 'owned-music-1',
+      itemId: 'music-1',
+      indexNumber: 1,
+      createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
+      updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
+    );
+    final cat = CatalogItemDto(
       id: 'music-1',
-      mediaType: 'music',
+      kind: 'music',
       title: 'Lupus Dei',
       publisher: 'Metal Blade Records',
-      releaseYear: 2007,
       barcode: '039841461923',
-      isOwned: true,
       genres: const ['Heavy Metal', 'Rock'],
       series: const CatalogSeriesDetails(seriesTitle: 'Powerwolf'),
-      music: MusicCatalogDetails(
+      music: const CatalogMusicDetails(
         trackCount: 14,
         catalogNumber: '3984-14619-2',
-        tracks: const [
+        tracks: [
           CatalogTrack(
             title: 'Lupus Daemonis (Intro)',
             position: 1,
@@ -48,18 +56,18 @@ void main() {
           ),
         ],
       ),
-      updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
     );
-    final ownedItem = testOwnedItem(
-      id: 'owned-music-1',
-      itemId: 'music-1',
-      indexNumber: 1,
-      createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
-      updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
+    final item = const MusicWorkspaceProjector().project(
+      source: ShelfEntry(
+        catalogItem: cat,
+        ownedItem: ownedItem,
+      ),
+      node: const LibraryTitleNodeRef('music-1'),
     );
+
     final inspectorRequest = LibraryInspectorRequest(
       type: musicLibraryConfig,
-      entry: entry,
+      item: item,
       ownedItem: ownedItem,
       ownedCopies: [ownedItem],
       trackingEntry: null,
@@ -110,12 +118,18 @@ void main() {
   testWidgets('music inspector highlights matching tracks for track search', (
     tester,
   ) async {
-    final entry = LibraryWorkspaceEntry(
+    final ownedItem = testOwnedItem(
+      id: 'owned-music-2',
+      itemId: 'music-2',
+      createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
+      updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
+    );
+    final cat = CatalogItemDto(
       id: 'music-2',
-      mediaType: 'music',
+      kind: 'music',
       title: 'Lupus Dei',
       series: const CatalogSeriesDetails(seriesTitle: 'Powerwolf'),
-      music: const MusicCatalogDetails(
+      music: const CatalogMusicDetails(
         tracks: [
           CatalogTrack(
             title: 'Lupus Daemonis (Intro)',
@@ -129,18 +143,18 @@ void main() {
           ),
         ],
       ),
-      updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
     );
-    final ownedItem = testOwnedItem(
-      id: 'owned-music-2',
-      itemId: 'music-2',
-      createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
-      updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
+    final item = const MusicWorkspaceProjector().project(
+      source: ShelfEntry(
+        catalogItem: cat,
+        ownedItem: ownedItem,
+      ),
+      node: const LibraryTitleNodeRef('music-2'),
     );
 
     final inspectorRequest = LibraryInspectorRequest(
       type: musicLibraryConfig,
-      entry: entry,
+      item: item,
       ownedItem: ownedItem,
       ownedCopies: [ownedItem],
       trackingEntry: null,

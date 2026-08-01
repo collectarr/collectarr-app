@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ import 'package:file_selector/file_selector.dart';
 Future<void> showCollectionShareDialog({
   required BuildContext context,
   required String title,
-  required List<LibraryWorkspaceEntry> items,
+  required List<LibraryProjectionRuntime> items,
 }) {
   return showDialog<void>(
     context: context,
@@ -30,7 +30,7 @@ class _CollectionShareDialog extends StatelessWidget {
   });
 
   final String title;
-  final List<LibraryWorkspaceEntry> items;
+  final List<LibraryProjectionRuntime> items;
 
   @override
   Widget build(BuildContext context) {
@@ -39,22 +39,25 @@ class _CollectionShareDialog extends StatelessWidget {
       backgroundColor: palette.panel,
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
-        title: 'Share "$title"',
-        icon: Icons.share,
+        title: 'Share collection',
+        accent: kAppAccent,
       ),
       content: SizedBox(
-        width: 340,
+        width: 360,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '${items.length} items in current view',
-              style: TextStyle(color: palette.textMuted),
+              'Exporting ${items.length} items',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: palette.textMuted,
+                  ),
             ),
             const SizedBox(height: 16),
             _ShareOption(
-              icon: Icons.list_alt,
-              label: 'Copy as text list',
+              icon: Icons.copy,
+              label: 'Copy as plain text',
               onTap: () => _copyAsText(context),
             ),
             const SizedBox(height: 8),
@@ -65,26 +68,26 @@ class _CollectionShareDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             _ShareOption(
-              icon: Icons.save_alt,
-              label: 'Save CSV to file',
+              icon: Icons.code,
+              label: 'Copy as JSON',
+              onTap: () => _copyAsJson(context),
+            ),
+            const SizedBox(height: 16),
+            _ShareOption(
+              icon: Icons.download,
+              label: 'Save CSV file',
               onTap: () => _saveCsvToFile(context),
             ),
             const SizedBox(height: 8),
             _ShareOption(
-              icon: Icons.data_object,
-              label: 'Copy as JSON',
-              onTap: () => _copyAsJson(context),
-            ),
-            const SizedBox(height: 8),
-            _ShareOption(
-              icon: Icons.save_alt,
-              label: 'Save JSON to file',
+              icon: Icons.download_for_offline,
+              label: 'Save JSON file',
               onTap: () => _saveJsonToFile(context),
             ),
             const SizedBox(height: 8),
             _ShareOption(
-              icon: Icons.language,
-              label: 'Export as HTML page',
+              icon: Icons.html,
+              label: 'Save HTML page',
               onTap: () => _exportAsHtml(context),
             ),
           ],
@@ -104,10 +107,10 @@ class _CollectionShareDialog extends StatelessWidget {
     buffer.writeln(title);
     buffer.writeln('─' * title.length);
     for (final item in items) {
-      final series = item.series;
-      final parts = <String>[item.title];
-      if (item.itemNumber != null) parts.add('#${item.itemNumber}');
-      if (series?.seriesTitle != null) parts.add('(${series!.seriesTitle})');
+      final dto = item.dto;
+      final parts = <String>[dto.title];
+      if (dto.itemNumber != null) parts.add('#${dto.itemNumber}');
+      if (dto.seriesTitle != null) parts.add('(${dto.seriesTitle})');
       buffer.writeln(parts.join(' '));
     }
     Clipboard.setData(ClipboardData(text: buffer.toString()));
@@ -120,14 +123,17 @@ class _CollectionShareDialog extends StatelessWidget {
   void _copyAsCsv(BuildContext context) {
     final rows = <List<String>>[
       ['Title', 'Issue', 'Series', 'Publisher', 'Condition', 'Barcode'],
-      ...items.map((item) => [
-            item.title,
-            item.itemNumber ?? '',
-        item.series?.seriesTitle ?? '',
-            item.publisher ?? '',
-            item.condition ?? '',
-            item.barcode ?? '',
-          ]),
+      ...items.map((item) {
+        final dto = item.dto;
+        return [
+          dto.title,
+          dto.itemNumber ?? '',
+          dto.seriesTitle ?? '',
+          dto.publisher ?? '',
+          dto.condition ?? '',
+          dto.barcode ?? '',
+        ];
+      }),
     ];
     final csv = const CsvEncoder().convert(rows);
     Clipboard.setData(ClipboardData(text: csv));
@@ -138,17 +144,17 @@ class _CollectionShareDialog extends StatelessWidget {
   }
 
   void _copyAsJson(BuildContext context) {
-    final data = items
-        .map((item) => {
-              'title': item.title,
-              if (item.itemNumber != null) 'issue': item.itemNumber,
-              if (item.series?.seriesTitle != null)
-                'series': item.series!.seriesTitle,
-              if (item.publisher != null) 'publisher': item.publisher,
-              if (item.condition != null) 'condition': item.condition,
-              if (item.barcode != null) 'barcode': item.barcode,
-            })
-        .toList();
+    final data = items.map((item) {
+      final dto = item.dto;
+      return {
+        'title': dto.title,
+        if (dto.itemNumber != null) 'issue': dto.itemNumber,
+        if (dto.seriesTitle != null) 'series': dto.seriesTitle,
+        if (dto.publisher != null) 'publisher': dto.publisher,
+        if (dto.condition != null) 'condition': dto.condition,
+        if (dto.barcode != null) 'barcode': dto.barcode,
+      };
+    }).toList();
     final json = const JsonEncoder.withIndent('  ').convert(data);
     Clipboard.setData(ClipboardData(text: json));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -160,31 +166,34 @@ class _CollectionShareDialog extends StatelessWidget {
   Future<void> _saveCsvToFile(BuildContext context) async {
     final rows = <List<String>>[
       ['Title', 'Issue', 'Series', 'Publisher', 'Condition', 'Barcode'],
-      ...items.map((item) => [
-            item.title,
-            item.itemNumber ?? '',
-            item.series?.seriesTitle ?? '',
-            item.publisher ?? '',
-            item.condition ?? '',
-            item.barcode ?? '',
-          ]),
+      ...items.map((item) {
+        final dto = item.dto;
+        return [
+          dto.title,
+          dto.itemNumber ?? '',
+          dto.seriesTitle ?? '',
+          dto.publisher ?? '',
+          dto.condition ?? '',
+          dto.barcode ?? '',
+        ];
+      }),
     ];
     final csv = const CsvEncoder().convert(rows);
     await _saveToFile(context, csv, 'csv');
   }
 
   Future<void> _saveJsonToFile(BuildContext context) async {
-    final data = items
-        .map((item) => {
-              'title': item.title,
-              if (item.itemNumber != null) 'issue': item.itemNumber,
-              if (item.series?.seriesTitle != null)
-                'series': item.series!.seriesTitle,
-              if (item.publisher != null) 'publisher': item.publisher,
-              if (item.condition != null) 'condition': item.condition,
-              if (item.barcode != null) 'barcode': item.barcode,
-            })
-        .toList();
+    final data = items.map((item) {
+      final dto = item.dto;
+      return {
+        'title': dto.title,
+        if (dto.itemNumber != null) 'issue': dto.itemNumber,
+        if (dto.seriesTitle != null) 'series': dto.seriesTitle,
+        if (dto.publisher != null) 'publisher': dto.publisher,
+        if (dto.condition != null) 'condition': dto.condition,
+        if (dto.barcode != null) 'barcode': dto.barcode,
+      };
+    }).toList();
     final json = const JsonEncoder.withIndent('  ').convert(data);
     await _saveToFile(context, json, 'json');
   }
@@ -223,13 +232,14 @@ class _CollectionShareDialog extends StatelessWidget {
     final rows = StringBuffer();
     for (var i = 0; i < items.length; i++) {
       final item = items[i];
+      final dto = item.dto;
       rows.writeln('<tr>');
       rows.writeln('  <td>${i + 1}</td>');
-      rows.writeln('  <td>${_htmlEscape(item.title)}</td>');
-      rows.writeln('  <td>${_htmlEscape(item.itemNumber ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(item.series?.seriesTitle ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(item.publisher ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(item.condition ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(dto.title)}</td>');
+      rows.writeln('  <td>${_htmlEscape(dto.itemNumber ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(dto.seriesTitle ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(dto.publisher ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(dto.condition ?? '')}</td>');
       rows.writeln('</tr>');
     }
     final html = '''<!DOCTYPE html>
@@ -318,21 +328,17 @@ class _ShareOption extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
               Icon(icon, size: 20, color: kAppAccent),
               const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
-              Icon(Icons.copy, size: 16, color: palette.textMuted),
             ],
           ),
         ),

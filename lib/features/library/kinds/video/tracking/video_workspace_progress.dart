@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_progress_presenter.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_progress_summary.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -12,18 +12,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class VideoWorkspaceProgressCard extends ConsumerWidget {
   const VideoWorkspaceProgressCard({
     super.key,
-    required this.entry,
+    required this.item,
     required this.child,
     this.maxLines = 2,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final Widget child;
   final int maxLines;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final summary = ref.watch(_videoProgressSummaryProvider(entry.id));
+    final summary = ref.watch(_videoProgressSummaryProvider(item.node.titleItemId));
     final palette = appPalette(context);
     return Stack(
       children: [
@@ -46,31 +46,6 @@ class VideoWorkspaceProgressCard extends ConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
-                        vertical: 4,
-                      ),
-                      child: DefaultTextStyle(
-                        style: TextStyle(
-                          color: palette.textMuted,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(value.watchedSummary),
-                            Text(
-                              [
-                                value.completionSummary,
-                                if (value.lastWatched != null)
-                                  value.lastWatchedSummary,
-                                if (value.nextEpisode != null)
-                                  value.nextEpisodeSummary,
-                              ].join(' · '),
-                              maxLines: maxLines,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
                         ),
                       ),
                     ),
@@ -85,14 +60,14 @@ class VideoWorkspaceProgressCard extends ConsumerWidget {
 class VideoWorkspaceProgressCell extends ConsumerWidget {
   const VideoWorkspaceProgressCell({
     super.key,
-    required this.entry,
+    required this.item,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final summary = ref.watch(_videoProgressSummaryProvider(entry.id));
+    final summary = ref.watch(_videoProgressSummaryProvider(item.node.titleItemId));
     return summary.when(
       loading: () => const Text(''),
       error: (_, __) => const Text(''),

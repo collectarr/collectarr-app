@@ -1,10 +1,9 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -148,27 +147,14 @@ void main() {
 }
 
 LibraryProjectionItem _item(String id, String title, {int? year}) {
-  final entry = LibraryWorkspaceEntry(
+  final cat = CatalogItemDto(
     id: id,
-    mediaType: 'movie',
+    kind: 'movie',
     title: title,
-    releaseYear: year,
-    updatedAt: DateTime.utc(2026, 1, 1),
+    releaseDate: year != null ? DateTime.utc(year, 1, 1) : null,
   );
-  return LibraryProjectionItem(
-    source: ShelfEntry(
-      itemId: id,
-      catalogItem: null,
-      ownedItem: null,
-      wishlistItem: null,
-      trackingEntry: null,
-    ),
-    entry: entry,
-    node: LibraryBrowserNode(
-      id: id,
-      scope: LibraryBrowserScope.title,
-      entry: entry,
-      titleItemId: id,
-    ),
+  return const GenericWorkspaceProjector().project(
+    source: ShelfEntry(itemId: id, catalogItem: cat),
+    node: LibraryTitleNodeRef(id),
   );
 }

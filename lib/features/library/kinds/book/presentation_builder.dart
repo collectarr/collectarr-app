@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -37,16 +37,18 @@ class BookLibraryMediaPresentationBuilder
     required String singularLabel,
     required MediaEditFields mediaFields,
     required ReleaseEditFields releaseFields,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final series = entry.series;
-    final publishing = entry.publishing;
-    final music = entry.music;
-    final referenceRelease = resolveLibraryEntryReferenceRelease(entry);
+    final dto = item.dto;
+    final catalogItem = item.source.catalogItem;
+    final series = catalogItem?.series;
+    final publishing = catalogItem?.publishing;
+    final music = catalogItem?.music;
+    final referenceRelease = resolveLibraryEntryReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
-    final referencePlatforms = libraryReferencePlatforms(entry);
+    final referencePlatforms = libraryReferencePlatforms(item);
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
@@ -55,8 +57,8 @@ class BookLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: entry.id),
-          LibraryDetailField(label: 'Title', value: entry.title),
+          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (series?.seriesTitle != null)
           LibraryDetailField(label: 'Series', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
@@ -68,15 +70,15 @@ class BookLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Season', value: 'Season ${series!.seasonNumber}'),
         if (hasEpisode && !hasSeason)
           LibraryDetailField(label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
-        LibraryDetailField(label: mediaFields.numberLabel, value: genericLibraryDash(entry.itemNumber), onTap: tapFor(entry.itemNumber)),
-        LibraryDetailField(label: releaseFields.variantLabel, value: genericLibraryDash(entry.variant), onTap: tapFor(entry.variant)),
-        LibraryDetailField(label: releaseFields.barcodeLabel, value: genericLibraryDash(entry.barcode)),
+        LibraryDetailField(label: mediaFields.numberLabel, value: genericLibraryDash(dto.itemNumber), onTap: tapFor(dto.itemNumber)),
+        LibraryDetailField(label: releaseFields.variantLabel, value: genericLibraryDash(dto.variant), onTap: tapFor(dto.variant)),
+        LibraryDetailField(label: releaseFields.barcodeLabel, value: genericLibraryDash(dto.barcode)),
       ],
       contextFacts: [
-        LibraryDetailField(label: mediaFields.publisherLabel, value: genericLibraryDash(entry.publisher), onTap: tapFor(entry.publisher)),
+        LibraryDetailField(label: mediaFields.publisherLabel, value: genericLibraryDash(dto.publisher), onTap: tapFor(dto.publisher)),
         LibraryDetailField(label: 'Released', value: genericLibraryDash(
-            formatPresentationNullableDate(entry.releaseDate) ??
-                entry.releaseYear?.toString(),
+            formatPresentationNullableDate(dto.releaseDate) ??
+                dto.releaseDate?.year.toString(),
           )),
         if (publishing?.pageCount != null)
           LibraryDetailField(label: 'Pages', value: publishing!.pageCount.toString()),
@@ -93,16 +95,16 @@ class BookLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Series Group', value: publishing!.seriesGroup!, onTap: tapFor(publishing.seriesGroup)),
         if (publishing?.subtitle != null)
           LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
-        if (entry.country != null)
-          LibraryDetailField(label: 'Country', value: entry.country!),
+        if (dto.country != null)
+          LibraryDetailField(label: 'Country', value: dto.country!),
         if (music?.releaseStatus != null)
           LibraryDetailField(label: 'Release Status', value: music!.releaseStatus!),
-        if (entry.language != null)
-          LibraryDetailField(label: 'Language', value: entry.language!),
-        if (entry.ageRating != null)
-          LibraryDetailField(label: 'Age Rating', value: entry.ageRating!),
-        if (entry.audienceRating != null)
-          LibraryDetailField(label: 'Audience Rating', value: entry.audienceRating!),
+        if (dto.language != null)
+          LibraryDetailField(label: 'Language', value: dto.language!),
+        if (catalogItem?.ageRating != null)
+          LibraryDetailField(label: 'Age Rating', value: catalogItem!.ageRating!),
+        if (catalogItem?.audienceRating != null)
+          LibraryDetailField(label: 'Audience Rating', value: catalogItem!.audienceRating!),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
@@ -116,20 +118,20 @@ class BookLibraryMediaPresentationBuilder
             ].join(' · ')),
         if (referencePlatforms.isNotEmpty)
           LibraryDetailField(label: referencePlatforms.length == 1 ? 'Platform' : 'Platforms', value: referencePlatforms.join(', ')),
-        LibraryDetailField(label: 'Cover', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
-        LibraryDetailField(label: 'Metadata', value: entry.hasMissingMetadata ? 'Missing' : 'Ready'),
+        LibraryDetailField(label: 'Cover', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty ? 'Missing' : 'Ready'),
+        LibraryDetailField(label: 'Metadata', value: dto.publisher == null || dto.publisher!.isEmpty ? 'Missing' : 'Ready'),
       ],
-      creators: entry.creators ?? const <Map<String, dynamic>>[],
-      characters: entry.characters ?? const <String>[],
-      storyArcs: entry.storyArcs ?? const <String>[],
-      genres: entry.genres ?? const <String>[],
+      creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
+      characters: catalogItem?.characters ?? const <String>[],
+      storyArcs: catalogItem?.storyArcs ?? const <String>[],
+      genres: catalogItem?.genres ?? const <String>[],
     );
   }
 
   @override
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryWorkspaceEntry entry,
+    required LibraryProjectionRuntime item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -137,8 +139,8 @@ class BookLibraryMediaPresentationBuilder
     if (showVolumeHierarchy) {
       sections.add(
         VolumesSection(
-          itemId: entry.canonicalItemId,
-          canHydrateFromCore: entry.canHydrateFromCore,
+          itemId: item.node.titleItemId,
+          canHydrateFromCore: true,
           kind: 'book',
         ),
       );

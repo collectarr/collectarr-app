@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
@@ -34,27 +35,27 @@ typedef LibraryTableColumnSortFor = String? Function(
   String column,
 );
 typedef LibraryTableCellBuilder = Widget Function(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   String column,
 );
 typedef LibraryWorkspaceCardBuilder = Widget Function(
   BuildContext context,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   Widget child,
 );
 typedef LibraryEntryColumnComparator = int Function(
-  LibraryWorkspaceEntry left,
-  LibraryWorkspaceEntry right,
+  LibraryProjectionRuntime left,
+  LibraryProjectionRuntime right,
   String column,
 );
 typedef LibraryEntryFilterValuesBuilder = LibraryEntryFilterValues Function(
-  LibraryWorkspaceEntry entry,
+  ShelfEntry source,
 );
 typedef LibraryEntryLinkedMetadataCandidatesBuilder = Iterable<String> Function(
-  LibraryWorkspaceEntry entry,
+  ShelfEntry source,
 );
 typedef LibraryEntrySubgroupKeyBuilder = String? Function(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   String groupMode,
 );
 typedef LibraryEntrySubgroupKeyComparator = int Function(
@@ -123,30 +124,30 @@ class LibraryMediaAdapter {
     return Set.of(libraryKindModuleForType(type).fields.defaultVisibleColumnIds);
   }
 
-  Widget buildTableCell(LibraryWorkspaceEntry entry, String column) {
-    return tableCellBuilder(entry, column);
+  Widget buildTableCell(LibraryProjectionRuntime item, String column) {
+    return tableCellBuilder(item, column);
   }
 
-  LibraryEntryFilterValues filterValuesForEntry(LibraryWorkspaceEntry entry) {
-    return entryFilterValuesBuilder(entry);
+  LibraryEntryFilterValues filterValuesForEntry(ShelfEntry source) {
+    return entryFilterValuesBuilder(source);
   }
 
   Iterable<String> linkedMetadataCandidatesForEntry(
-    LibraryWorkspaceEntry entry,
+    ShelfEntry source,
   ) {
-    return entryLinkedMetadataCandidatesBuilder(entry);
+    return entryLinkedMetadataCandidatesBuilder(source);
   }
 
   String? subgroupKeyForEntry(
-    LibraryWorkspaceEntry entry,
+    LibraryProjectionRuntime item,
     String groupMode,
   ) {
-    return entrySubgroupKeyBuilder(entry, groupMode);
+    return entrySubgroupKeyBuilder(item, groupMode);
   }
 
   int compareEntriesByRules(
-    LibraryWorkspaceEntry left,
-    LibraryWorkspaceEntry right,
+    LibraryProjectionRuntime left,
+    LibraryProjectionRuntime right,
     Iterable<LibrarySortRule> rules,
   ) {
     for (final rule in rules) {
@@ -155,8 +156,8 @@ class LibraryMediaAdapter {
         return rule.ascending ? result : -result;
       }
     }
-    return left.resolvedTitle.toLowerCase().compareTo(
-          right.resolvedTitle.toLowerCase(),
+    return left.dto.title.toLowerCase().compareTo(
+          right.dto.title.toLowerCase(),
         );
   }
 }

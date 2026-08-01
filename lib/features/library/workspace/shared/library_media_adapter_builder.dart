@@ -1,13 +1,11 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
-
 import 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
 
 export 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
@@ -48,19 +46,19 @@ LibraryMediaAdapter plannedMediaAdapter(
     columnGroupLabel: plannedMediaTableColumnGroupLabel,
     columnIsNumeric: (column) => plannedMediaTableColumnIsNumeric(type, column),
     columnSort: (column) => plannedMediaTableColumnSort(type, column),
-    tableCellBuilder: (entry, column) =>
-        plannedMediaTableCell(type, entry, column),
+    tableCellBuilder: (item, column) =>
+        plannedMediaTableCell(type, item, column),
     compareEntriesByColumn: compareEntriesByColumn ??
         (left, right, column) =>
             libraryKindModuleForType(type).fields.sortDefinitionFor(column).compare(
-                  left,
-                  right,
+                  left.dto,
+                  right.dto,
                 ),
     entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
-    entryLinkedMetadataCandidatesBuilder: (entry) =>
-        plannedMediaLinkedMetadataCandidatesForEntry(type, entry),
-    entrySubgroupKeyBuilder: (entry, groupMode) =>
-        plannedMediaSubgroupKeyForEntry(type, entry, groupMode),
+    entryLinkedMetadataCandidatesBuilder: (source) =>
+        plannedMediaLinkedMetadataCandidatesForEntry(type, source),
+    entrySubgroupKeyBuilder: (item, groupMode) =>
+        plannedMediaSubgroupKeyForEntry(type, item, groupMode),
     compareSubgroupKeys: plannedMediaCompareSubgroupKeys,
     workspaceCardBuilder: workspaceCardBuilder,
   );
@@ -121,22 +119,6 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
           'title',
           'publisher',
           'release_date',
-          'condition',
-        },
-      ),
-    LibraryWorkspacePreset.list => const LibraryWorkspaceViewPresetConfig(
-        viewMode: LibraryViewMode.list,
-        detailsLayout: LibraryDetailsLayout.bottom,
-        coverSize: kPlannedMediaDefaultCoverSize,
-        visibleColumns: {
-          'status',
-          'title',
-          'format',
-          'publisher',
-          'release_date',
-          'condition',
-          'price',
-          'location',
           'added',
         },
       ),
@@ -158,34 +140,33 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
   };
 }
 
-
-
 LibraryEntryFilterValues plannedMediaFilterValuesForEntry(
-  LibraryWorkspaceEntry entry,
+  ShelfEntry source,
 ) {
+  final item = source.catalogItem;
   return LibraryEntryFilterValues(
-    series: _trimmedOrNull(entry.series?.seriesTitle),
-    country: _trimmedOrNull(entry.country),
-    language: _trimmedOrNull(entry.language),
+    series: _trimmedOrNull(item?.series?.seriesTitle),
+    country: _trimmedOrNull(item?.country),
+    language: _trimmedOrNull(item?.language),
   );
 }
 
 Iterable<String> plannedMediaLinkedMetadataCandidatesForEntry(
   LibraryTypeConfig type,
-  LibraryWorkspaceEntry entry,
+  ShelfEntry source,
 ) {
   final registry = libraryKindModuleForType(type).fields;
-  return registry.linkedMetadataCandidates(entry);
+  return registry.linkedMetadataCandidates(source);
 }
 
 String? plannedMediaSubgroupKeyForEntry(
   LibraryTypeConfig type,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   Object groupMode,
 ) {
   final registry = libraryKindModuleForType(type).fields;
   final definition = registry.groupDefinitionForId(groupMode.toString());
-  return definition?.subgroupKey?.call(entry);
+  return definition?.subgroupKey?.call(item.dto as dynamic);
 }
 
 int plannedMediaCompareSubgroupKeys(
@@ -204,18 +185,10 @@ int plannedMediaCompareSubgroupKeys(
   return left.compareTo(right);
 }
 
-
-
-
-
 String? _trimmedOrNull(String? value) {
   final trimmed = value?.trim();
   return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }
-
-
-
-
 
 int? _extractSubgroupNumber(String? value) {
   if (value == null) {

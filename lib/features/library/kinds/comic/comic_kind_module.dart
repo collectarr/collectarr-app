@@ -13,16 +13,15 @@ import 'package:collectarr_app/features/library/config/library_toolbar_config.da
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 
 
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   type: comicsLibraryConfig,
   mediaAdapter: comicsMediaAdapter,
-  workspaceDtoFactory: ComicWorkspaceDto.fromEntry,
+  projector: const ComicWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: comicLibraryGroupDefinitions,
@@ -31,9 +30,9 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     defaultVisibleColumnIds: comicLibraryDefaultVisibleColumnIds,
     defaultSortId: 'title',
     defaultGroupId: 'series',
-    customLinkedMetadataCandidates: (entry) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.characters);
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(entry.storyArcs);
+    customLinkedMetadataCandidates: (source) sync* {
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(source.catalogItem?.characters);
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(source.catalogItem?.storyArcs);
     },
   ),
   add: LibraryKindAddModule(registerBuilders: comic_add.registerComicAddBuilders),
@@ -94,12 +93,13 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   buildCardPresentation: buildComicCardPresentation,
 );
 
-Iterable<String> _getFacetValues(LibraryWorkspaceEntry entry, String facetId) {
+Iterable<String> _getFacetValues(LibraryProjectionRuntime item, String facetId) {
+  final catalogItem = item.source.catalogItem;
   if (facetId == 'comic.character' || facetId == 'media.character') {
-    return entry.characters ?? const [];
+    return catalogItem?.characters ?? const [];
   }
   if (facetId == 'comic.story_arc') {
-    return entry.storyArcs ?? const [];
+    return catalogItem?.storyArcs ?? const [];
   }
   return const [];
 }

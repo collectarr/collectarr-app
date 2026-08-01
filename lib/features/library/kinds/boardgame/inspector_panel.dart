@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sections.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -26,13 +26,13 @@ class BoardGameInspectorPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = request.inspector.entry;
+    final item = request.inspector.item;
     final accent = request.inspector.accent;
 
     return LibraryDetailPanelScaffold(
       accent: accent,
       toolbar: InspectorUnifiedToolbar(
-        entry: entry,
+        item: item,
         detailsLayout: request.inspector.detailsLayout,
         onEdit: request.onEdit,
         onShare: request.onShare,
@@ -56,7 +56,7 @@ class BoardGameInspectorPanel extends StatelessWidget {
           slot: LibraryDetailSectionSlot.people,
           title: 'Play stats',
           children: [
-            BoardGamePlayStatsSection(request: request.inspector),
+            BoardGamePlayStatsSection(request.inspector),
           ],
         ),
         if (request.trailingSections.isNotEmpty)
@@ -77,10 +77,11 @@ class _BoardGameInspectorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = inspector.entry;
+    final item = inspector.item;
+    final seriesTitle = item.dto.seriesTitle?.trim();
     return LibraryInspectorTitleCard(
-      entry: entry,
-      eyebrow: entry.series?.seriesTitle?.trim(),
+      item: item,
+      eyebrow: seriesTitle,
       accent: inspector.accent,
     );
   }
@@ -93,13 +94,16 @@ class _BoardGameInspectorMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = inspector.entry;
-    final boardGameEntry =
-        entry is BoardGameWorkspaceEntry ? entry : null;
-    final boardGameWork = boardGameEntry?.boardGameWork;
+    final item = inspector.item;
+    final dto = item.dto;
+    final catalogItem = item.source.catalogItem;
     final palette = appPalette(context);
-    final releaseYear = entry.releaseYear?.toString();
-    final designerText = _joinNonEmpty(boardGameWork?.contributors ?? const <String>[]);
+    final releaseYear = dto.releaseDate?.year.toString();
+    final creatorsList = catalogItem?.creators
+        ?.map((c) => (c['name'] ?? '').toString())
+        .where((n) => n.trim().isNotEmpty)
+        .toList() ?? const [];
+    final designerText = _joinNonEmpty(creatorsList);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -118,9 +122,9 @@ class _BoardGameInspectorMain extends StatelessWidget {
                 width: 164,
                 height: 164,
                 child: LibraryInteractiveCover(
-                  title: entry.resolvedTitle,
-                  itemNumber: entry.itemNumber,
-                  imageUrl: entry.displayCoverUrl,
+                  title: dto.title,
+                  itemNumber: dto.itemNumber,
+                  imageUrl: dto.coverImageUrl,
                   accentColor: inspector.accent,
                 ),
               ),
@@ -130,12 +134,12 @@ class _BoardGameInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (entry.publisher?.isNotEmpty == true ||
+                  if (dto.publisher?.isNotEmpty == true ||
                       releaseYear != null)
                     Text(
                       [
-                        if (entry.publisher?.isNotEmpty == true)
-                          entry.publisher!,
+                        if (dto.publisher?.isNotEmpty == true)
+                          dto.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -143,23 +147,23 @@ class _BoardGameInspectorMain extends StatelessWidget {
                           ),
                     ),
                   const SizedBox(height: 8),
-                  if (entry.referenceFormatLabel?.trim().isNotEmpty == true ||
-                      entry.variant?.trim().isNotEmpty == true)
+                  if (dto.referenceFormatLabel?.trim().isNotEmpty == true ||
+                      dto.variant?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.casino_outlined,
-                      text: entry.referenceFormatLabel ?? entry.variant ?? '-',
+                      text: dto.referenceFormatLabel ?? dto.variant ?? '-',
                     ),
                   if (designerText != null)
                     LibraryInspectorInfoLine(
                       icon: Icons.design_services_outlined,
                       text: designerText,
                     ),
-                  if (entry.barcode?.trim().isNotEmpty == true)
+                  if (dto.barcode?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.qr_code_2,
-                      text: entry.barcode!,
+                      text: dto.barcode!,
                     ),
-                  if (_ebayUri(entry) case final uri?) ...[
+                  if (_ebayUri(item) case final uri?) ...[
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () => launchUrl(
@@ -195,10 +199,10 @@ class _BoardGameInspectorMain extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (entry.synopsis?.trim().isNotEmpty == true) ...[
+                  if (catalogItem?.synopsis?.trim().isNotEmpty == true) ...[
                     const SizedBox(height: 10),
                     Text(
-                      entry.synopsis!,
+                      catalogItem!.synopsis!,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -211,8 +215,9 @@ class _BoardGameInspectorMain extends StatelessWidget {
     );
   }
 }
-Uri? _ebayUri(LibraryWorkspaceEntry entry) {
-  final title = entry.resolvedTitle.trim();
+
+Uri? _ebayUri(LibraryProjectionRuntime item) {
+  final title = item.dto.title.trim();
   if (title.isEmpty) {
     return null;
   }

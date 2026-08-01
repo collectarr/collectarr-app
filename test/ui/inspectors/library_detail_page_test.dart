@@ -1,14 +1,17 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -17,7 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('detail page shows copy selector when multiple copies exist', (
@@ -43,26 +46,40 @@ void main() {
           ),
         );
 
+    final owned = testOwnedItem(
+      id: 'owned-1',
+      itemId: 'book-1',
+      condition: 'Near Mint',
+      updatedAt: DateTime.utc(2026, 5, 23, 10),
+    );
+    final source = ShelfEntry(
+      itemId: 'book-1',
+      catalogItem: testCatalogItem(
+        id: 'book-1',
+        kind: 'book',
+        title: 'The Return of the King',
+      ),
+      ownedItem: owned,
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
+    final dto = const BookWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final bookItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           home: LibraryDetailPage(
             type: type,
-            entry: LibraryWorkspaceEntry(
-              id: 'book-1',
-              mediaType: 'book',
-              title: 'The Return of the King',
-              ownedItemId: 'owned-1',
-              isOwned: true,
-              updatedAt: DateTime.utc(2026, 5, 23),
-            ),
-            ownedItem: testOwnedItem(
-              id: 'owned-1',
-              itemId: 'book-1',
-              condition: 'Near Mint',
-              updatedAt: DateTime.utc(2026, 5, 23, 10),
-            ),
+            item: bookItem,
+            ownedItem: owned,
             accent: Colors.orange,
             onAddOwned: () {},
             onRemoveOwned: () {},
@@ -105,6 +122,32 @@ void main() {
         );
     OwnedItem? editedOwnedItem;
 
+    final owned = testOwnedItem(
+      id: 'owned-1',
+      itemId: 'book-1',
+      condition: 'Near Mint',
+      updatedAt: DateTime.utc(2026, 5, 23, 10),
+    );
+    final source = ShelfEntry(
+      itemId: 'book-1',
+      catalogItem: testCatalogItem(
+        id: 'book-1',
+        kind: 'book',
+        title: 'The Return of the King',
+      ),
+      ownedItem: owned,
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
+    final dto = const BookWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final bookItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -125,20 +168,8 @@ void main() {
         child: MaterialApp(
           home: LibraryDetailPage(
             type: type,
-            entry: LibraryWorkspaceEntry(
-              id: 'book-1',
-              mediaType: 'book',
-              title: 'The Return of the King',
-              ownedItemId: 'owned-1',
-              isOwned: true,
-              updatedAt: DateTime.utc(2026, 5, 23),
-            ),
-            ownedItem: testOwnedItem(
-              id: 'owned-1',
-              itemId: 'book-1',
-              condition: 'Near Mint',
-              updatedAt: DateTime.utc(2026, 5, 23, 10),
-            ),
+            item: bookItem,
+            ownedItem: owned,
             accent: Colors.orange,
             onAddOwned: () {},
             onRemoveOwned: () {},
@@ -185,19 +216,40 @@ void main() {
           ),
         );
 
+    final source = ShelfEntry(
+      itemId: 'movie-1',
+      catalogItem: testCatalogItem(
+        id: 'movie-1',
+        kind: 'movie',
+        title: 'Dune',
+      ),
+      trackingEntry: TrackingEntry(
+        id: 'tracking-1',
+        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+        sourceType: 'digital',
+        status: 'Watching',
+        rating: 8,
+        updatedAt: DateTime.utc(2026, 5, 23),
+      ),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
+    final dto = const GenericWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final movieItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
           home: LibraryDetailPage(
             type: type,
-            entry: LibraryWorkspaceEntry(
-              id: 'movie-1',
-              mediaType: 'movie',
-              title: 'Dune',
-              isTracked: true,
-              updatedAt: DateTime.utc(2026, 5, 23),
-            ),
+            item: movieItem,
             ownedItem: null,
             accent: Colors.orange,
             onAddOwned: () {},

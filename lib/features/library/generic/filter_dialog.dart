@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -368,7 +368,7 @@ class LibraryFilterOptions {
   final List<LibraryCustomFieldFilterOption> customFields;
 
   factory LibraryFilterOptions.fromEntries(
-    List<LibraryWorkspaceEntry> entries, {
+    List<LibraryProjectionRuntime> entries, {
     required LibraryMediaAdapter adapter,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
@@ -483,24 +483,25 @@ Set<String> _customFieldPresetOptions(CustomFieldDefinition definition) {
   return definition.optionValues.toSet();
 }
 
-/// Returns true if the entry matches the active filter selection.
+/// Returns true if the item matches the active filter selection.
 bool libraryFilterMatches(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   LibraryFilterSelection filters,
   LibraryMediaAdapter adapter,
 ) {
-  final filterValues = adapter.filterValuesForEntry(entry);
+  final dto = item.dto;
+  final filterValues = adapter.filterValuesForEntry(item);
   if (filters.ownershipFilter == LibraryOwnershipFilter.owned &&
-      !entry.isOwned) {
+      !dto.isOwned) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.wishlist &&
-      !entry.isWishlisted) {
+      !dto.isWishlisted) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.missingGrade &&
-      !(entry.isOwned &&
-          (entry.grade == null || entry.grade!.trim().isEmpty))) {
+      !(dto.isOwned &&
+          (dto.grade == null || dto.grade!.trim().isEmpty))) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.forSale &&

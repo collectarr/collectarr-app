@@ -1,11 +1,11 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
 class InspectorPrimaryActions extends StatelessWidget {
   const InspectorPrimaryActions({
     super.key,
-    required this.entry,
+    required this.item,
     required this.type,
     required this.onAddOwned,
     required this.onRemoveOwned,
@@ -14,7 +14,7 @@ class InspectorPrimaryActions extends StatelessWidget {
     required this.onEdit,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final LibraryTypeConfig type;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
@@ -24,16 +24,17 @@ class InspectorPrimaryActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (entry.isOwned) {
+    final dto = item.dto;
+    if (dto.isOwned) {
       return Wrap(
         spacing: 6,
         runSpacing: 6,
         children: [
           OutlinedButton.icon(
-            onPressed: entry.isWishlisted ? onRemoveWishlist : onAddWishlist,
-            icon: Icon(entry.isWishlisted ? Icons.star : Icons.star_border),
+            onPressed: dto.isWishlisted ? onRemoveWishlist : onAddWishlist,
+            icon: Icon(dto.isWishlisted ? Icons.star : Icons.star_border),
             label: Text(
-              entry.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
+              dto.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
             ),
           ),
           OutlinedButton.icon(
@@ -56,24 +57,34 @@ class InspectorPrimaryActions extends StatelessWidget {
           onPressed: onAddOwned,
           icon: const Icon(Icons.add_circle_outline),
           label: Text(
-            entry.isWishlisted
+            dto.isWishlisted
                 ? 'Convert wishlist to collection'
                 : 'Add to collection',
           ),
         ),
         const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: entry.isWishlisted ? onRemoveWishlist : onAddWishlist,
-          icon: Icon(entry.isWishlisted ? Icons.star : Icons.star_border),
-          label: Text(
-            entry.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
-          ),
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: onEdit,
-          icon: const Icon(Icons.edit_outlined),
-          label: const Text('Edit metadata'),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: dto.isWishlisted ? onRemoveWishlist : onAddWishlist,
+                icon: Icon(dto.isWishlisted ? Icons.star : Icons.star_border),
+                label: Text(
+                  dto.isWishlisted
+                      ? 'Remove from wishlist'
+                      : 'Add to wishlist',
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: onEdit,
+                icon: const Icon(Icons.edit_outlined),
+                label: const Text('Edit'),
+              ),
+            ),
+          ],
         ),
       ],
     );

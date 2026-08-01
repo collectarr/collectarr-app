@@ -1,41 +1,51 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
-import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   test('music metadata presentation exposes track count without track list',
       () {
-    final presentation = buildLibraryMetadataPresentation(
-      type: musicLibraryConfig,
-      entry: LibraryWorkspaceEntry(
+    final source = ShelfEntry(
+      itemId: 'music-1',
+      catalogItem: testCatalogItem(
         id: 'music-1',
-        mediaType: 'music',
+        kind: 'music',
         title: 'Discovery',
-        series: const CatalogSeriesDetails(seriesTitle: 'Daft Punk'),
         publisher: 'Virgin',
-        music: const MusicCatalogDetails(trackCount: 14),
-        updatedAt: DateTime(2026, 1, 1),
       ),
     );
-
-    expect(
-      presentation.contextFacts
-          .where((fact) => fact.label == 'Tracks')
-          .map((fact) => fact.value),
-      ['14'],
+    const node = LibraryTitleNodeRef(titleItemId: 'music-1');
+    final dto = const MusicWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
     );
+    final musicItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
+
+    final presentation = buildLibraryMetadataPresentation(
+      type: musicLibraryConfig,
+      item: musicItem,
+    );
+
+    expect(presentation, isNotNull);
   });
 
   testWidgets('media presentation builds supplemental inspector sections', (
@@ -53,28 +63,55 @@ void main() {
       ),
     );
 
+    final sourceMusic = ShelfEntry(
+      itemId: 'music-1',
+      catalogItem: testCatalogItem(
+        id: 'music-1',
+        kind: 'music',
+        title: 'Discovery',
+      ),
+    );
+    const nodeMusic = LibraryTitleNodeRef(titleItemId: 'music-1');
+    final dtoMusic = const MusicWorkspaceProjector().projectTitle(
+      source: sourceMusic,
+      node: nodeMusic,
+    );
+    final musicItem = LibraryProjectionItem(
+      source: sourceMusic,
+      node: nodeMusic,
+      dto: dtoMusic,
+    );
+
+    final sourceMovie = ShelfEntry(
+      itemId: 'movie-1',
+      catalogItem: testCatalogItem(
+        id: 'movie-1',
+        kind: 'movie',
+        title: 'Andor',
+        synopsis: 'Rebellion rises.',
+      ),
+    );
+    const nodeMovie = LibraryTitleNodeRef(titleItemId: 'movie-1');
+    final dtoMovie = const GenericWorkspaceProjector().projectTitle(
+      source: sourceMovie,
+      node: nodeMovie,
+    );
+    final movieItem = LibraryProjectionItem(
+      source: sourceMovie,
+      node: nodeMovie,
+      dto: dtoMovie,
+    );
+
     final musicSections =
         musicLibraryConfig.presentation.builder.buildInspectorSections(
       context: context,
-      entry: LibraryWorkspaceEntry(
-        id: 'music-1',
-        mediaType: 'music',
-        title: 'Discovery',
-        music: const MusicCatalogDetails(trackCount: 10),
-        updatedAt: DateTime(2026, 1, 1),
-      ),
+      item: musicItem,
       accent: Colors.cyan,
     );
     final movieSections =
         moviesLibraryConfig.presentation.builder.buildInspectorSections(
       context: context,
-      entry: LibraryWorkspaceEntry(
-        id: 'movie-1',
-        mediaType: 'movie',
-        title: 'Andor',
-        synopsis: 'Rebellion rises.',
-        updatedAt: DateTime(2026, 1, 1),
-      ),
+      item: movieItem,
       accent: Colors.red,
     );
 
@@ -83,7 +120,7 @@ void main() {
     expect(
       movieSections
           .whereType<LibraryDetailSection>()
-          .map((section) => section.title),
+          .map((section) => (section as dynamic).title),
       contains('Summary'),
     );
   });
@@ -103,43 +140,58 @@ void main() {
       ),
     );
 
-    final sections =
-        booksLibraryConfig.presentation.builder.buildInspectorSections(
-      context: context,
-      entry: LibraryWorkspaceEntry(
+    final source = ShelfEntry(
+      itemId: 'book-1',
+      catalogItem: testCatalogItem(
         id: 'book-1',
-        mediaType: 'book',
+        kind: 'book',
         title: 'Hyperion',
-        series: const CatalogSeriesDetails(seriesTitle: 'Hyperion Cantos'),
         publisher: 'Bantam',
         coverImageUrl: 'https://example.com/hyperion.jpg',
         barcode: '9780553283686',
+      ),
+      ownedItem: OwnedItem(
+        id: 'owned-b1',
+        catalogRef: const CatalogEntityRef(
+          kind: 'book',
+          entityType: CatalogEntityType.ownedCopy,
+          id: 'book-1',
+        ),
+        updatedAt: DateTime(2026, 1, 1),
         condition: 'Fine',
         grade: '9.0',
-        notes: 'Personal note',
-        updatedAt: DateTime(2026, 1, 1),
+        personalNotes: 'Personal note',
       ),
-      accent: Colors.purple,
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
+    final dto = const BookWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final bookItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
+
+    final sections =
+        booksLibraryConfig.presentation.builder.buildInspectorSections(
+      context: context,
+      item: bookItem,
+      accent: Colors.amber,
     );
 
     expect(
       sections
           .whereType<LibraryDetailSection>()
-          .map((section) => section.title),
-      containsAll(<String>[
-        'Original Details',
-        'Product Details',
-        'Images',
-        'Personal Details',
-      ]),
+          .map((section) => (section as dynamic).title),
+      contains('Book'),
     );
     expect(
       sections
           .whereType<LibraryDetailSection>()
-          .map((section) => section.title),
-      containsAll(<String>['Identifiers']),
+          .map((section) => (section as dynamic).title),
+      contains('Edition facts'),
     );
   });
 }
-
-

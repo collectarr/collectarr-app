@@ -102,7 +102,7 @@ abstract class LibraryKindBrowserDelegate {
       wishlistItems: wishlistItems,
       selectedReleaseId: drilldownSelectedReleaseId,
       onSelectRelease: (releaseId) => openItemDrilldown(
-        selectedItem.entry.id,
+        selectedItem.node.titleItemId,
         selectedReleaseId: releaseId,
       ),
     );

@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
 import 'package:flutter/material.dart';
 
@@ -21,13 +21,13 @@ class InspectorMetadataSection extends StatelessWidget {
   const InspectorMetadataSection({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.accent,
     this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -35,7 +35,7 @@ class InspectorMetadataSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryMetadataContent(
       type: type,
-      entry: entry,
+      item: item,
       onFilterByValue: onFilterByValue,
     );
   }
@@ -44,14 +44,14 @@ class InspectorMetadataSection extends StatelessWidget {
 class InspectorPersonalSection extends StatelessWidget {
   const InspectorPersonalSection({
     super.key,
-    required this.entry,
+    required this.item,
     required this.ownedItem,
     this.trackingEntry,
     required this.accent,
     this.onFilterByValue,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;
@@ -59,21 +59,23 @@ class InspectorPersonalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final valueSnapshot = LibraryValueSnapshot.fromEntry(
-      entry,
+    final dto = item.dto;
+    final catalogEditions = item.source.catalogItem?.editions ?? const [];
+    final valueSnapshot = LibraryValueSnapshot.fromItem(
+      item,
       ownedItem: ownedItem,
-      providerName: entry.marketValueCents != null ? 'Provider snapshot' : null,
+      providerName: dto.marketValueCents != null ? 'Provider snapshot' : null,
     );
-    final paid = formatMoney(entry.pricePaidCents, entry.currency);
+    final paid = formatMoney(dto.pricePaidCents, dto.currency);
     final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
       ownedItem,
-      entry.editions,
-      fallbackLabel: entry.variant,
+      catalogEditions,
+      fallbackLabel: dto.variant,
     );
     final ownedIsDigital = resolveOwnedDigitalFlag(
       ownedItem,
-      entry.editions,
-      fallbackLabel: entry.variant,
+      catalogEditions,
+      fallbackLabel: dto.variant,
     );
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
     final trackingStatus =
@@ -95,7 +97,7 @@ class InspectorPersonalSection extends StatelessWidget {
         ],
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Status', value: genericLibraryStatusLabel(entry)),
+            LibraryDetailField(label: 'Status', value: genericLibraryStatusLabel(item)),
             if (ownedCopyTypeLabel != null)
               LibraryDetailField(label: 'Ownership', value: ownedCopyTypeLabel),
             if (trackingStatus != null && trackingStatus.trim().isNotEmpty)
@@ -105,12 +107,12 @@ class InspectorPersonalSection extends StatelessWidget {
             if (trackingFinishedAt != null)
               LibraryDetailField(label: 'Finished', value: formatNullableDate(trackingFinishedAt) ?? '-'),
             if (ownedIsDigital != true)
-              LibraryDetailField(label: 'Condition', value: genericLibraryDash(entry.condition)),
+              LibraryDetailField(label: 'Condition', value: genericLibraryDash(dto.condition)),
             if (ownedIsDigital != true)
-              LibraryDetailField(label: 'Grade', value: genericLibraryDash(entry.grade)),
+              LibraryDetailField(label: 'Grade', value: genericLibraryDash(dto.grade)),
             LibraryDetailField(label: 'Quantity', value: ownedItem == null ? '-' : ownedItem!.quantity.toString()),
             if (ownedIsDigital != true)
-              LibraryDetailField(label: 'Location', value: genericLibraryDash(entry.locationPath)),
+              LibraryDetailField(label: 'Location', value: genericLibraryDash(dto.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
             if (valueSnapshot.providerValueCents != null)
               LibraryDetailField(label: 'Provider value', value: formatMoney(
@@ -122,83 +124,26 @@ class InspectorPersonalSection extends StatelessWidget {
                   valueSnapshot.manualEstimatedValueCents,
                   valueSnapshot.currency,
                 )),
-            if (valueSnapshot.currentValueCents != null)
-              LibraryDetailField(label: 'Current value', value: formatMoney(
-                  valueSnapshot.currentValueCents,
-                  valueSnapshot.currency,
-                )),
-            if (valueSnapshot.insuranceValueCents != null)
-              LibraryDetailField(label: 'Insurance', value: formatMoney(
-                  valueSnapshot.insuranceValueCents,
-                  valueSnapshot.currency,
-                )),
-            LibraryDetailField(label: 'Purchased', value: genericLibraryDash(
-                formatNullableDate(ownedItem?.purchaseDate),
-              )),
-            if (ownedIsDigital != true && (ownedItem?.typedDetails is ComicOwnedDetails && (ownedItem!.typedDetails as ComicOwnedDetails).coverPriceCents != null))
-              LibraryDetailField(label: 'Cover price', value: formatMoney((ownedItem!.typedDetails as ComicOwnedDetails).coverPriceCents, ownedItem!.currency)),
-            if (ownedItem?.isSold ?? false) ...[
-              LibraryDetailField(label: 'Sold', value: formatNullableDate(ownedItem?.soldAt) ?? 'Yes'),
-              LibraryDetailField(label: 'Sell price', value: ownedItem?.sellPriceCents != null
-                    ? formatMoney(
-                        ownedItem!.sellPriceCents, ownedItem!.currency)
-                    : '-'),
-              if (valueSnapshot.profitLossCents != null)
-                LibraryDetailField(label: 'Profit / Loss', value: formatMoney(
-                    valueSnapshot.profitLossCents,
-                    valueSnapshot.currency,
-                  )),
-              LibraryDetailField(label: 'Sold to', value: genericLibraryDash(ownedItem?.soldTo)),
-            ],
-            LibraryDetailField(label: 'Updated', value: formatNullableDate(entry.updatedAt) ?? '-'),
           ],
         ),
-        if (ownedItem?.personalNotes != null &&
-            ownedItem!.personalNotes!.trim().isNotEmpty) ...[
+        if (dto.personalNotes != null && dto.personalNotes!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
-          LibraryDetailFieldRow(
-            field: LibraryDetailField(
-              label: 'Notes',
-              value: ownedItem!.personalNotes!,
-            ),
+          Text(
+            dto.personalNotes!,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: appPalette(context).textMuted,
+                ),
           ),
         ],
-        if (ownedItem?.tags != null && ownedItem!.tags!.trim().isNotEmpty) ...[
+        if (dto.tags != null && dto.tags!.isNotEmpty) ...[
           const SizedBox(height: 8),
           LibraryDetailChipGroupWidget(
+            label: 'Tags',
+            values: dto.tags!,
             onValueTap: onFilterByValue,
-            values: [
-              for (final tag in ownedItem!.tags!.split(','))
-                if (tag.trim().isNotEmpty) tag.trim(),
-            ],
           ),
         ],
       ],
     );
   }
 }
-
-class EmptyInspector extends StatelessWidget {
-  const EmptyInspector({
-    super.key,
-    required this.type,
-    required this.accent,
-  });
-
-  final LibraryTypeConfig type;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Center(
-      child: Text(
-        'No ${type.singularLabel.toLowerCase()} selected',
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: palette.textMuted,
-            ),
-      ),
-    );
-  }
-}
-

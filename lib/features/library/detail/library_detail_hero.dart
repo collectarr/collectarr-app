@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -9,7 +10,6 @@ import 'package:collectarr_app/features/library/detail/book_author_spotlight.dar
 import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +18,7 @@ class LibraryDetailHero extends StatelessWidget {
   const LibraryDetailHero({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.ownedItem,
     this.ownedCopies = const [],
     required this.accent,
@@ -26,7 +26,7 @@ class LibraryDetailHero extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final List<OwnedItem> ownedCopies;
   final Color accent;
@@ -35,14 +35,15 @@ class LibraryDetailHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final metadataPresentation = _buildDetailMetadataPresentation(type, entry);
-    final resolvedOwnedItemId = resolveLibraryOwnedItemId(entry, ownedItem);
-    final resolvedIsOwned = isOwned ?? (ownedItem != null || entry.isOwned);
+    final dto = item.dto;
+    final metadataPresentation = _buildDetailMetadataPresentation(type, item);
+    final resolvedOwnedItemId = resolveLibraryOwnedItemId(item, ownedItem);
+    final resolvedIsOwned = isOwned ?? (ownedItem != null || dto.isOwned);
     final referenceLabel =
-        libraryOwnedReferenceLabel(ownedItem, mediaType: entry.mediaType) ??
-            entry.primaryReferenceLabel;
+        libraryOwnedReferenceLabel(ownedItem, mediaType: item.source.catalogItem?.kind) ??
+            dto.referenceFormatLabel;
     final releaseLabel =
-        formatNullableDate(entry.releaseDate) ?? entry.releaseYear?.toString();
+        formatNullableDate(dto.releaseDate) ?? dto.releaseDate?.year.toString();
     final totalCopies =
         ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
@@ -57,10 +58,10 @@ class LibraryDetailHero extends StatelessWidget {
       (item) => item.marketValueCents,
     );
     final totalsCurrency =
-        _detailHeroValueCurrency(ownedCopies, ownedItem, entry);
+        _detailHeroValueCurrency(ownedCopies, ownedItem, item);
     final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
         ? null
-        : ownedCopies.indexWhere((item) => item.id == ownedItem!.id);
+        : ownedCopies.indexWhere((i) => i.id == ownedItem!.id);
     final summaryFacts = <({String label, String value})>[
       (label: 'Status', value: resolvedIsOwned ? 'Owned' : 'Not owned'),
       (label: 'Quantity', value: totalQuantity.toString()),
@@ -80,12 +81,9 @@ class LibraryDetailHero extends StatelessWidget {
       (
         label: 'Updated',
         value:
-            formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-',
+            formatNullableDate(ownedItem?.updatedAt ?? dto.updatedAt) ?? '-',
       ),
     ];
-    final comic = ownedItem?.typedDetails is ComicOwnedDetails
-        ? ownedItem!.typedDetails as ComicOwnedDetails
-        : null;
     final primaryChips = <Widget>[
       LibraryInfoChip(
         icon: Icons.inventory_2,
@@ -95,7 +93,7 @@ class LibraryDetailHero extends StatelessWidget {
             .withValues(alpha: palette.isDark ? 0.42 : 0.72),
         borderColor: palette.divider.withValues(alpha: 0.9),
       ),
-      if (entry.isWishlisted)
+      if (dto.isWishlisted)
         LibraryInfoChip(
           icon: Icons.star,
           label: 'Wishlisted',
@@ -122,258 +120,126 @@ class LibraryDetailHero extends StatelessWidget {
               .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
-      if (ownedItem?.grade != null)
-        LibraryInfoChip(
-          icon: Icons.workspace_premium,
-          label: ownedItem!.grade!,
-          foreground: accent,
-          background: palette.surfaceSubtle
-              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
-          borderColor: palette.divider.withValues(alpha: 0.9),
-        ),
-      if (comic?.keyComic == true)
-        LibraryInfoChip(
-          icon: Icons.label_important,
-          label: comic?.keyReason ?? 'Key item',
-          foreground: accent,
-          background: palette.surfaceSubtle
-              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
-          borderColor: palette.divider.withValues(alpha: 0.9),
-        ),
-      if (comic?.rawOrSlabbed != null || comic?.gradingCompany != null)
-        LibraryInfoChip(
-          icon: Icons.verified_outlined,
-          label: librarySlabMarkerLabel(
-                comic?.rawOrSlabbed,
-                comic?.gradingCompany,
-              ) ??
-              'Collector copy',
-          foreground: accent,
-          background: palette.surfaceSubtle
-              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
-          borderColor: palette.divider.withValues(alpha: 0.9),
-        ),
     ];
-    return DecoratedBox(
+    final authorName = _metadataFactValue(metadataPresentation, 'Author') ??
+        _metadataFactValue(metadataPresentation, 'Writer');
+
+    return Container(
       decoration: BoxDecoration(
-        color: palette.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: palette.divider.withValues(alpha: 0.92),
-          ),
+        color: palette.cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: palette.divider.withValues(alpha: 0.7),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final wide = constraints.maxWidth >= 680;
-            final coverWidth = wide ? 164.0 : 138.0;
-            final coverCacheWidth = _targetCacheWidth(
-              context,
-              coverWidth: coverWidth,
-            );
-            final cover = Consumer(
-              builder: (context, ref, _) {
-                final ownedItemId = resolvedOwnedItemId;
-                final db = ref.watch(localDatabaseProvider);
-                final localFront = ownedItemId == null
-                    ? null
-                    : ref
-                        .watch(
-                          localItemImageProvider((
-                            ownedItemId: ownedItemId,
-                            imageType: 'front_cover',
-                          )),
-                        )
-                        .value;
-                 final localBack = ownedItemId == null
-                    ? null
-                    : ref
-                        .watch(
-                          localItemImageProvider((
-                            ownedItemId: ownedItemId,
-                            imageType: 'back_cover',
-                          )),
-                        )
-                        .value;
-                final comic = ownedItem?.typedDetails is ComicOwnedDetails
-                    ? ownedItem!.typedDetails as ComicOwnedDetails
-                    : null;
-                return SizedBox(
-                  width: coverWidth,
-                  child: SlabFrameOverlay.maybeWrap(
-                    rawOrSlabbed: comic?.rawOrSlabbed,
-                    gradingCompany: comic?.gradingCompany,
-                    grade: ownedItem?.grade,
-                    labelType: comic?.labelType,
-                    child: LibraryInteractiveCover(
-                      title: entry.resolvedTitle,
-                      itemNumber: entry.itemNumber,
-                      imageUrl: entry.displayCoverUrl,
-                      localBytes: localFront,
-                      secondaryLocalBytes: localBack,
-                      ownedItemId: ownedItemId,
-                      targetCacheWidth: coverCacheWidth,
-                      accentColor: accent,
-                      enableSecondaryControl: false,
-                      onMissingSecondaryPressed: ownedItemId == null
-                          ? null
-                          : () async {
-                              final savedType =
-                                  await pickAndStoreOwnedItemImage(
-                                context: context,
-                                db: db,
-                                ownedItemId: ownedItemId,
-                                imageType: 'back_cover',
-                              );
-                              if (savedType == 'back_cover') {
-                                ref.invalidate(
-                                  localItemImageProvider((
-                                    ownedItemId: ownedItemId,
-                                    imageType: 'back_cover',
-                                  )),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 140,
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    return Stack(
+                      children: [
+                        LibraryCoverImage(
+                          title: dto.title,
+                          itemNumber: dto.itemNumber,
+                          imageUrl: dto.coverImageUrl,
+                          width: 140,
+                          height: 200,
+                          cacheWidth: _targetCacheWidth(
+                            context,
+                            coverWidth: 140,
+                          ),
+                          ownedItemId: resolvedOwnedItemId,
+                        ),
+                        Positioned(
+                          right: 6,
+                          bottom: 6,
+                          child: CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colors.black54,
+                            child: IconButton(
+                              iconSize: 16,
+                              icon: const Icon(
+                                Icons.photo_camera,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                final db = ref.read(localDatabaseProvider);
+                                showDialog(
+                                  context: context,
+                                  builder: (dialogContext) => ItemImagePickerDialog(
+                                    itemId: item.node.titleItemId,
+                                    db: db,
+                                    mediaKind: item.source.catalogItem?.kind ?? 'comic',
+                                  ),
                                 );
-                              }
-                            },
-                    ),
-                  ),
-                );
-              },
-            );
-            final info = Column(
-              crossAxisAlignment:
-                  wide ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-              children: [
-                Text(
-                  entry.resolvedTitle,
-                  textAlign: wide ? TextAlign.start : TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: accent,
-                        fontWeight: FontWeight.w800,
-                        height: 1.02,
-                      ),
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  [
-                    type.singularLabel,
-                    if (entry.itemNumber != null &&
-                        entry.itemNumber!.isNotEmpty)
-                      '#${entry.itemNumber}',
-                    if (entry.variant != null && entry.variant!.isNotEmpty)
-                      entry.variant,
-                    if (entry.publisher != null && entry.publisher!.isNotEmpty)
-                      entry.publisher,
-                    if (releaseLabel != null) releaseLabel,
-                  ].whereType<String>().join(' | '),
-                  textAlign: wide ? TextAlign.start : TextAlign.center,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: palette.textMuted,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-                if (type.capabilities.showsCreatorSpotlight &&
-                    metadataPresentation.creators.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  BookAuthorSpotlight(
-                    creators: metadataPresentation.creators,
-                    accent: accent,
-                    centered: !wide,
-                  ),
-                ],
-                if (primaryChips.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 5,
-                    runSpacing: 5,
-                    alignment:
-                        wide ? WrapAlignment.start : WrapAlignment.center,
-                    children: primaryChips,
-                  ),
-                ],
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 6,
-                  alignment: wide ? WrapAlignment.start : WrapAlignment.center,
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final fact in summaryFacts)
-                      _DetailSummaryFact(
-                        label: fact.label,
-                        value: fact.value,
+                    Text(
+                      dto.title,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: palette.textPrimary,
+                          ),
+                    ),
+                    if (dto.seriesTitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        dto.seriesTitle!,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: palette.textMuted,
+                            ),
                       ),
-                    if (entry.referenceFormatLabel != null)
-                      _DetailSummaryFact(
-                        label: 'Format',
-                        value: entry.referenceFormatLabel!,
-                      ),
-                    if (_metadataFactValue(metadataPresentation, 'Runtime')
-                        case final runtime?)
-                      _DetailSummaryFact(
-                        label: 'Runtime',
-                        value: runtime,
-                      ),
-                    if (_metadataFactValue(metadataPresentation, 'Tracks')
-                        case final trackCount?)
-                      _DetailSummaryFact(
-                        label: 'Tracks',
-                        value: trackCount,
-                      ),
-                    if ((_metadataFactValue(metadataPresentation, 'Platform') ??
-                            _metadataFactValue(
-                                metadataPresentation, 'Platforms'))
-                        case final platformLabel?)
-                      _DetailSummaryFact(
-                        label: 'Platform',
-                        value: platformLabel,
-                      ),
-                    if (entry.hasMissingCover)
-                      const _DetailSummaryFact(
-                        label: 'Cover',
-                        value: 'Missing',
-                      ),
-                    if (entry.hasMissingMetadata)
-                      const _DetailSummaryFact(
-                        label: 'Metadata',
-                        value: 'Missing',
-                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: primaryChips,
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 8,
+                      children: [
+                        for (final fact in summaryFacts)
+                          _DetailSummaryFact(
+                            label: fact.label,
+                            value: fact.value,
+                          ),
+                      ],
+                    ),
                   ],
                 ),
-                if (entry.synopsis != null &&
-                    entry.synopsis!.trim().isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    entry.synopsis!,
-                    maxLines: wide ? 4 : 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: palette.textPrimary,
-                          height: 1.28,
-                        ),
-                  ),
-                ],
-              ],
-            );
-            if (wide) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  cover,
-                  const SizedBox(width: 14),
-                  Expanded(child: info),
-                ],
-              );
-            }
-            return Column(
-              children: [
-                cover,
-                const SizedBox(height: 10),
-                info,
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          ),
+          if (authorName != null && authorName.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            BookAuthorSpotlight(
+              authorName: authorName,
+              accent: accent,
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -393,13 +259,13 @@ class LibraryDetailHero extends StatelessWidget {
 
 LibraryMetadataPresentation _buildDetailMetadataPresentation(
   LibraryTypeConfig type,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,
     mediaFields: type.mediaFields,
     releaseFields: type.releaseFields,
-    entry: entry,
+    item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,
   );
@@ -440,7 +306,7 @@ int? _sumOwnedValueCents(
 String? _detailHeroValueCurrency(
   List<OwnedItem> ownedCopies,
   OwnedItem? ownedItem,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
   for (final copy in ownedCopies) {
     final currency = copy.currency?.trim();
@@ -452,9 +318,9 @@ String? _detailHeroValueCurrency(
   if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
     return ownedCurrency;
   }
-  final entryCurrency = entry.currency?.trim();
-  if (entryCurrency != null && entryCurrency.isNotEmpty) {
-    return entryCurrency;
+  final itemCurrency = item.dto.currency?.trim();
+  if (itemCurrency != null && itemCurrency.isNotEmpty) {
+    return itemCurrency;
   }
   return null;
 }

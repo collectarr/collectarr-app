@@ -7,12 +7,12 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 
 final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto, GenericOwnedDetails>(
   type: boardGamesLibraryConfig,
   mediaAdapter: boardGamesMediaAdapter,
-  workspaceDtoFactory: BoardGameWorkspaceDto.fromEntry,
+  projector: const BoardGameWorkspaceProjector(),
   ownedDetailsCodec: const GenericOwnedDetailsCodec(),
   fields: AnyLibraryFieldRegistry(
     groups: boardGamesLibraryGroupDefinitions,

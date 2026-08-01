@@ -23,7 +23,6 @@ import 'package:collectarr_app/features/library/config/physical_media_formats.da
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -200,7 +199,7 @@ typedef LibraryEditDialogBuilder = Widget Function(
 class LibraryDetailPageRequest {
   const LibraryDetailPageRequest({
     required this.type,
-    required this.entry,
+    required this.item,
     required this.ownedItem,
     required this.accent,
     required this.onAddOwned,
@@ -212,7 +211,7 @@ class LibraryDetailPageRequest {
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final Color accent;
   final VoidCallback? onAddOwned;
@@ -231,7 +230,7 @@ typedef LibraryDetailPageBuilder = Widget Function(
 class LibraryInspectorRequest {
   const LibraryInspectorRequest({
     required this.type,
-    required this.entry,
+    required this.item,
     required this.ownedItem,
     this.onEdit,
     this.ownedCopies = const [],
@@ -244,7 +243,7 @@ class LibraryInspectorRequest {
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final VoidCallback? onEdit;
   final List<OwnedItem> ownedCopies;

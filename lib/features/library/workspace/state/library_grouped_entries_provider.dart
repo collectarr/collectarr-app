@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'library_workspace_key.dart';
 import 'library_filter_state.dart';
 import 'library_filters_provider.dart';
 import 'library_display_provider.dart';
 
 /// A single group bucket: the label that identifies the group and the
-/// entries that belong to it.
+/// items that belong to it.
 class LibraryGroupBucket {
   const LibraryGroupBucket({
     required this.key,
@@ -23,7 +23,7 @@ class LibraryGroupBucket {
   /// Human-readable label shown in section headers.
   final String label;
 
-  final List<LibraryWorkspaceEntry> entries;
+  final List<LibraryProjectionRuntime> entries;
 
   int get count => entries.length;
   bool get isEmpty => entries.isEmpty;
@@ -31,7 +31,7 @@ class LibraryGroupBucket {
 
 /// Derives the grouped display list for the given workspace scope.
 ///
-/// - Groups entries according to [LibraryFilterState.groupId].
+/// - Groups items according to [LibraryFilterState.groupId].
 /// - Falls back to a single "All" bucket when no group is active or the group
 ///   definition is not found.
 /// - Known groups are sorted lexicographically; "Unknown" appended at end.
@@ -41,14 +41,14 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     .family<List<LibraryGroupBucket>, LibraryWorkspaceKey>((ref, key) {
   final controller = StreamController<List<LibraryGroupBucket>>();
 
-  void emit(List<LibraryWorkspaceEntry> entries) {
+  void emit(List<LibraryProjectionRuntime> items) {
     final filters = ref.read(libraryFiltersProvider(key));
     final module = libraryKindModuleForKind(key.kind);
     final groupId = filters.groupId;
 
     if (groupId == null) {
       controller.add([
-        LibraryGroupBucket(key: '_all', label: 'All', entries: entries),
+        LibraryGroupBucket(key: '_all', label: 'All', entries: items),
       ]);
       return;
     }
@@ -56,18 +56,17 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     final groupDef = module.fields.findGroupDefinition(groupId);
     if (groupDef == null) {
       controller.add([
-        LibraryGroupBucket(key: '_all', label: 'All', entries: entries),
+        LibraryGroupBucket(key: '_all', label: 'All', entries: items),
       ]);
       return;
     }
 
-    // Group entries by the bucket key returned by the group definition.
-    final bucketMap = <String, List<LibraryWorkspaceEntry>>{};
-    for (final entry in entries) {
-      final dto = module.workspaceDtoFactory(entry);
-      final raw = (groupDef as dynamic).getValue(dto);
+    // Group items by the bucket key returned by the group definition.
+    final bucketMap = <String, List<LibraryProjectionRuntime>>{};
+    for (final item in items) {
+      final raw = (groupDef as dynamic).getValue(item.dto);
       final bucketKey = _bucketKeyFor(raw);
-      bucketMap.putIfAbsent(bucketKey, () => []).add(entry);
+      bucketMap.putIfAbsent(bucketKey, () => []).add(item);
     }
 
     const unknownKey = '';
@@ -90,7 +89,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
   }
 
   // Emit when the display list changes.
-  final listenerEntries = ref.listen<AsyncValue<List<LibraryWorkspaceEntry>>>(
+  final listenerEntries = ref.listen<AsyncValue<List<LibraryProjectionRuntime>>>(
     libraryDisplayListProvider(key),
     (_, next) {
       next.whenData(emit);

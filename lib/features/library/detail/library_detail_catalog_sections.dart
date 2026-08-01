@@ -7,13 +7,13 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailCatalogSections({
   required BuildContext context,
   required LibraryTypeConfig type,
-  required LibraryWorkspaceEntry entry,
+  required LibraryProjectionRuntime item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
@@ -22,7 +22,7 @@ List<Widget> buildLibraryDetailCatalogSections({
     singularLabel: type.singularLabel,
     mediaFields: type.mediaFields,
     releaseFields: type.releaseFields,
-    entry: entry,
+    item: item,
     accent: accent,
     onFilterByValue: onFilterByValue,
   );
@@ -32,13 +32,13 @@ class LibraryDetailMetadataSection extends StatelessWidget {
   const LibraryDetailMetadataSection({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.accent,
     this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -49,7 +49,7 @@ class LibraryDetailMetadataSection extends StatelessWidget {
       singularLabel: type.singularLabel,
       mediaFields: type.mediaFields,
       releaseFields: type.releaseFields,
-      entry: entry,
+      item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
     );
@@ -60,13 +60,13 @@ class LibraryDetailContextSection extends StatelessWidget {
   const LibraryDetailContextSection({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.accent,
     this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -77,24 +77,28 @@ class LibraryDetailContextSection extends StatelessWidget {
       singularLabel: type.singularLabel,
       mediaFields: type.mediaFields,
       releaseFields: type.releaseFields,
-      entry: entry,
+      item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
     );
   }
 }
+      accent: accent,
+      onFilterByValue: onFilterByValue,
+    );
+  }
 
 class LibraryDetailCreditsSection extends StatelessWidget {
   const LibraryDetailCreditsSection({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.accent,
     this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -105,7 +109,7 @@ class LibraryDetailCreditsSection extends StatelessWidget {
       singularLabel: type.singularLabel,
       mediaFields: type.mediaFields,
       releaseFields: type.releaseFields,
-      entry: entry,
+      item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
     );
@@ -116,44 +120,31 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
   const LibraryDetailProvenanceSection({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.accent,
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    final sourceKind = _sourceKind(entry.id);
+    final sourceKind = _sourceKind(item.node.titleItemId);
     final defaultProvider = type.defaultSupportedMetadataProviderOption;
+
     return LibraryDetailSection(
-      title: 'Metadata provenance',
+      title: 'Metadata source & system IDs',
       accentColor: accent,
       children: [
         LibraryDetailFieldTable(
           fields: [
+            LibraryDetailField(label: 'Item ID', value: item.node.titleItemId),
             LibraryDetailField(label: 'Source', value: sourceKind.label),
-            LibraryDetailField(label: 'Snapshot updated', value: formatNullableDate(entry.updatedAt) ?? '-'),
-            LibraryDetailField(label: 'Metadata state', value: entry.hasMissingMetadata ? 'Incomplete' : 'Ready'),
-            LibraryDetailField(label: 'Cover state', value: entry.hasMissingCover ? 'Missing' : 'Ready'),
-            LibraryDetailField(label: 'Image delivery', value: entry.displayCoverUrl == null
-                  ? 'Generated fallback'
-                  : 'External provider URL'),
-            LibraryDetailField(label: 'Preferred provider', value: defaultProvider?.label ??
-                  type.metadataProviderLabel(
-                    type.defaultSupportedMetadataProvider,
-                  )),
+            if (defaultProvider != null)
+              LibraryDetailField(label: 'Metadata provider', value: defaultProvider.label),
+            LibraryDetailField(label: 'Sync profile', value: type.singularLabel),
           ],
-        ),
-        const SizedBox(height: 8),
-        Text(
-          sourceKind.helpText,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: appPalette(context).textMuted,
-                fontWeight: FontWeight.w700,
-              ),
         ),
       ],
     );
@@ -164,19 +155,19 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
   const LibraryDetailMetadataHealthSection({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.accent,
     this.onFilterByValue,
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
-    final health = _buildMetadataHealth(type, entry);
+    final health = _buildMetadataHealth(type, item);
     return LibraryDetailSection(
       title: 'Metadata health',
       accentColor: accent,
@@ -212,29 +203,29 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
 class LibraryDetailCoverStatusSection extends StatelessWidget {
   const LibraryDetailCoverStatusSection({
     super.key,
-    required this.entry,
+    required this.item,
     required this.accent,
   });
 
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
+    final dto = item.dto;
     return LibraryDetailSection(
       title: 'Cover status',
       accentColor: accent,
       children: [
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Display', value: entry.displayCoverUrl == null
+            LibraryDetailField(label: 'Display', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
                   ? 'Generated fallback'
                   : 'External URL'),
-            LibraryDetailField(label: 'Cover URL', value: entry.coverImageUrl == null ? '-' : 'Available'),
-            LibraryDetailField(label: 'Thumbnail URL', value: entry.thumbnailImageUrl == null ? '-' : 'Available'),
+            LibraryDetailField(label: 'Cover URL', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty ? '-' : 'Available'),
           ],
         ),
-        if (entry.coverImageUrl != null || entry.thumbnailImageUrl != null) ...[
+        if (dto.coverImageUrl != null || dto.thumbnailImageUrl != null) ...[
           const SizedBox(height: 8),
           SelectableText(
             [
@@ -370,7 +361,7 @@ class _MetadataHealth {
 
 _MetadataHealth _buildMetadataHealth(
   LibraryTypeConfig type,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
   var score = 0;
   final missingSignals = <String>[];
@@ -378,7 +369,7 @@ _MetadataHealth _buildMetadataHealth(
     singularLabel: type.singularLabel,
     mediaFields: type.mediaFields,
     releaseFields: type.releaseFields,
-    entry: entry,
+    item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,
   );
@@ -396,8 +387,10 @@ _MetadataHealth _buildMetadataHealth(
     }
   }
 
+  final dto = item.dto;
+  final catalogItem = item.source.catalogItem;
   addSignal(
-    present: entry.displayCoverUrl != null,
+    present: dto.coverImageUrl != null && dto.coverImageUrl!.isNotEmpty,
     weight: 18,
     missingLabel: 'Cover image',
   );

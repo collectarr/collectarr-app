@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:flutter/material.dart';
 
@@ -37,25 +37,22 @@ String tvLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final tvLibraryMediaPresentation = LibraryMediaPresentation(
-  searchFieldLabels: LibraryMediaSearchFieldLabels(
+  searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter series, episode, or keyword...',
     emptySearchMessage: 'Enter a series, episode, or keyword.',
     seriesHint: 'Series...',
     numberHint: 'Episode no....',
     publisherHint: 'Network...',
   ),
-  filterLabels: LibraryMediaFilterLabels(
+  filterLabels: const LibraryMediaFilterLabels(
     series: 'Series',
     anySeries: 'Any series',
     publisher: 'Network',
     anyPublisher: 'Any network',
   ),
   groupLabels: tvLibraryGroupLabels,
-  builder: TvLibraryMediaPresentationBuilder(),
-  // intentional shared adapter, not canonical domain path
-  workspaceEntryBuilder: buildTvWorkspaceEntryFromShelf,
-  // intentional shared adapter, not canonical domain path
-  releaseEntryBuilder: buildTvLibraryReleaseEntry,
+  builder: const TvLibraryMediaPresentationBuilder(),
+  projector: const TvWorkspaceProjector(),
   bucketLabelBuilder: tvLibraryBucketLabelBuilder,
   previewLabels: tvPreviewLabels,
   statsLabels: tvStatsLabels,

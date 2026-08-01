@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/shared/comic/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:flutter/material.dart';
@@ -60,14 +60,14 @@ String mangaLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final mangaLibraryMediaPresentation = LibraryMediaPresentation(
-  searchFieldLabels: LibraryMediaSearchFieldLabels(
+  searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
     seriesHint: 'Series...',
     numberHint: 'Chapter / vol....',
     publisherHint: 'Publisher...',
   ),
-  filterLabels: LibraryMediaFilterLabels(
+  filterLabels: const LibraryMediaFilterLabels(
     series: 'Series',
     anySeries: 'Any series',
     publisher: 'Publisher',
@@ -75,18 +75,16 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: mangaLibraryGroupLabels,
   builder: mangaLibraryMediaBuilder,
-  workspaceEntryBuilder: buildMangaLibraryWorkspaceEntryFromShelf,
-  releaseEntryBuilder: buildMangaLibraryReleaseEntry,
+  projector: const MangaWorkspaceProjector(),
   bucketLabelBuilder: mangaLibraryBucketLabelBuilder,
   previewLabels: mangaPreviewLabels,
   statsLabels: mangaStatsLabels,
   usesTreeProviderCandidates: true,
-  externalFacetBucketIdsByMode: {
+  externalFacetBucketIdsByMode: const {
     'comic.story_arc': LibraryFacetId.comicStoryArc,
-    'comic.character': LibraryFacetId.mediaCharacter,
+    'comic.character': LibraryFacetId.comicCharacter,
   },
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
-  compactBucketIcon: Icons.import_contacts_outlined,
   fieldDefinitions: mangaLibraryFieldDefinitions,
 );

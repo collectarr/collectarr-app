@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/config/library_kind_drilldown.da
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/media/video/tv_shelf_drilldown.dart';
-import 'package:collectarr_app/features/library/media/video/video_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/kinds/video/release/video_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
@@ -20,20 +20,20 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
   @override
   bool canOpenItemDetailDrilldown(
     LibraryTypeConfig type,
-    LibraryProjectionItem item,
+    LibraryProjectionRuntime item,
   ) {
-    return canOpenKindDrilldown(type, item.entry);
+    return canOpenKindDrilldown(type, item);
   }
 
   @override
   void openItemDetailDrilldown(
     LibraryTypeConfig type,
-    LibraryProjectionItem item,
+    LibraryProjectionRuntime item,
   ) {
     if (!canOpenItemDetailDrilldown(type, item)) {
       return;
     }
-    openItemDrilldown(item.entry.id);
+    openItemDrilldown(item.node.titleItemId);
   }
 
   @override
@@ -41,7 +41,7 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
     required BuildContext context,
     required LibraryTypeConfig type,
     required LibraryProjection projection,
-    required LibraryProjectionItem selectedItem,
+    required LibraryProjectionRuntime selectedItem,
     required LibraryWorkspaceViewState viewState,
     required Color accent,
     required Future<void> Function() onRefreshFromCore,
@@ -49,16 +49,16 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
     required List<OwnedItem> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    if (!canOpenKindDrilldown(type, selectedItem.entry)) {
+    if (!canOpenKindDrilldown(type, selectedItem)) {
       return null;
     }
     final drilldownState = itemDrilldownState;
-    if (drilldownState == null || drilldownState.rootItemId != selectedItem.entry.id) {
+    if (drilldownState == null || drilldownState.rootItemId != selectedItem.node.titleItemId) {
       return null;
     }
-    if (selectedItem.entry.mediaType == 'tv') {
+    if (selectedItem.source.catalogItem?.kind.toLowerCase() == 'tv') {
       return TvShelfSeasonDrilldown(
-        titleEntry: selectedItem.entry,
+        titleItem: selectedItem,
         coverSize: viewState.coverSize,
         accent: accent,
         onBack: closeItemDrilldown,
@@ -71,7 +71,7 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
       titleItem: selectedItem,
       ownedCopies: allOwnedCopies,
       wishlistItems: allWishlistItems,
-      releaseEntryBuilder: type.presentation.releaseEntryBuilder,
+      projector: type.presentation.projector,
     );
     return VideoShelfReleaseDrilldown(
       titleItem: selectedItem,

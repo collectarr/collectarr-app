@@ -1,9 +1,8 @@
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace_entry_builder.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -23,103 +22,56 @@ void main() {
         {
           'id': 'issue-1',
           'issue_number': '1',
-          'title': 'Issue #1',
-          'variants': [
-            {
-              'id': 'variant-1a',
-              'name': 'A',
-              'variant_type': 'foil',
-              'is_primary': true,
-            }
-          ],
-          'characters': ['Marko'],
-          'story_arcs': ['Opening'],
-          'genres': ['Sci-Fi'],
+          'title': 'Chapter One',
+          'cover_date': '2024-05-01T00:00:00.000Z',
+          'sku': 'SKU-001',
+          'barcode': '123456789',
         },
         {
-          'id': 'issue-2',
-          'issue_number': '2',
-          'title': 'Issue #2',
-          'variants': const <dynamic>[],
-        },
-        {
-          'id': 'issue-4',
-          'issue_number': '4',
-          'title': 'Issue #4',
-          'variants': const <dynamic>[],
+          'id': 'issue-3',
+          'issue_number': '3',
+          'title': 'Chapter Three',
+          'cover_date': '2024-07-01T00:00:00.000Z',
+          'sku': 'SKU-003',
+          'barcode': '123456791',
         },
       ],
-      'kind': 'comic',
     });
 
     final work = ComicWork.fromDto(dto);
 
+    expect(work.id, 'comic-work-1');
     expect(work.title, 'Saga');
-    expect(work.issues, hasLength(3));
-    expect(work.issues.first.variants, isEmpty);
-    expect(work.missingIssueNumbers, isEmpty);
+    expect(work.issues, hasLength(2));
+    expect(work.issues.first.issueNumber, '1');
+    expect(work.missingIssueNumbers(ownedIssueNumbers: const {'1'}), ['3']);
   });
 
-  test('ComicPersonalOverlay exposes slab and key markers', () {
-    final catalogItem = CatalogItem(
-      id: 'comic-1',
-      kind: 'comic',
-      title: 'Saga',
-      itemNumber: '1',
-      series: const CatalogSeriesDetails(seriesId: 'series-1', seriesTitle: 'Saga'),
-      publishing: const CatalogPublishingDetails(subtitle: 'Director Cut'),
-    );
-    final metadataItem = LibraryMetadataItem.fromCatalogItem(catalogItem);
-    final ownedItem = testOwnedItem(
-      id: 'owned-comic-1',
-      itemId: 'comic-1',
-      kind: 'comic',
-      rawOrSlabbed: 'Slabbed',
-      gradingCompany: 'CGC',
-      labelType: 'Gold',
-      certificationNumber: '123456789',
-      keyComic: true,
-      keyReason: 'First appearance',
-      lastBagBoardDate: DateTime.utc(2026, 5, 30),
-      updatedAt: DateTime.utc(2026, 5, 30),
-    );
-    final shelf = ShelfEntry(
-      itemId: 'comic-1',
-      catalogItem: metadataItem,
-      ownedItem: ownedItem,
-      trackingEntry: null,
-      wishlistItem: null,
-      locationPath: 'Shelf A / Box 1',
-      watchSessions: const [],
-      itemImages: const [],
-      fallbackOwnerLabel: 'Andrei',
-    );
-
-    final overlay = ComicPersonalOverlay.fromShelf(shelf);
-    final details = overlay.toWorkspaceDetails();
-
-    expect(overlay.isSlabbed, isTrue);
-    expect(overlay.keyComic, isTrue);
-    expect(overlay.gradingCompany, 'CGC');
-    expect(details?.rawOrSlabbed, 'Slabbed');
-    expect(details?.keyReason, 'First appearance');
-  });
-
-  test('Comic shelf builder keeps work and personal overlays together', () {
-    final catalogItem = CatalogItem(
+  test('projects Comic item from shelf entry', () {
+    final catalogItem = CatalogItemDto(
       id: 'comic-2',
       kind: 'comic',
       title: 'The Last Ronin',
-      itemNumber: '1',
+      issueNumber: '1',
+      publisher: 'IDW Publishing',
+      synopsis: 'The final turtle seeks justice in a ruined future.',
       series: const CatalogSeriesDetails(
-        seriesId: 'series-2',
         seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
       ),
-      publishing: const CatalogPublishingDetails(subtitle: 'Director Cut'),
+      publishing: const CatalogPublishingDetails(
+        imprint: 'IDW',
+        subtitle: 'Director Cut',
+        seriesGroup: 'TMNT Event',
+      ),
+      comic: const CatalogComicDetails(
+        rawOrSlabbed: 'Raw',
+        keyComic: false,
+      ),
     );
+
     final shelf = ShelfEntry(
       itemId: 'comic-2',
-      catalogItem: LibraryMetadataItem.fromCatalogItem(catalogItem),
+      catalogItem: catalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-comic-2',
         itemId: 'comic-2',
@@ -136,12 +88,14 @@ void main() {
       fallbackOwnerLabel: 'Andrei',
     );
 
-    final entry = buildComicsLibraryWorkspaceEntryFromShelf(shelf);
+    final item = const ComicWorkspaceProjector().project(
+      source: shelf,
+      node: const LibraryTitleNodeRef('comic-2'),
+    );
 
-    expect(entry.title, 'The Last Ronin');
-    expect(entry.itemNumber, '1');
-    expect(entry.comic?.rawOrSlabbed, 'Raw');
-    expect(entry.series?.seriesTitle, 'Teenage Mutant Ninja Turtles: The Last Ronin');
-    expect(entry.publishing?.subtitle, 'Director Cut');
+    expect(item.dto.title, 'The Last Ronin');
+    expect(item.dto.itemNumber, '1');
+    expect(item.source.catalogItem?.comic?.rawOrSlabbed, 'Raw');
+    expect(item.dto.seriesTitle, 'Teenage Mutant Ninja Turtles: The Last Ronin');
   });
 }

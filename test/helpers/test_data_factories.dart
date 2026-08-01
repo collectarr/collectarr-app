@@ -3,7 +3,10 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 
 /// Builds a [CatalogItem] with sensible defaults for testing.
 ///
@@ -268,3 +271,35 @@ ShelfEntry testShelfEntry({
     locationPath: locationPath,
   );
 }
+
+LibraryProjectionRuntime testProjectionItem({
+  String? id,
+  String itemId = 'test-item-1',
+  String kind = 'comic',
+  String title = 'Test Item',
+  String? barcode,
+  CatalogItem? catalogItem,
+  OwnedItem? ownedItem,
+  String? locationPath,
+}) {
+  final resolvedId = id ?? itemId;
+  final shelf = testShelfEntry(
+    itemId: resolvedId,
+    kind: kind,
+    title: title,
+    catalogItem: catalogItem ?? testCatalogItem(id: resolvedId, kind: kind, title: title, barcode: barcode),
+    ownedItem: ownedItem,
+    locationPath: locationPath,
+  );
+  final node = LibraryTitleNodeRef(titleItemId: resolvedId);
+  final dto = const GenericWorkspaceProjector().projectTitle(
+    source: shelf,
+    node: node,
+  );
+  return LibraryProjectionItem(
+    source: shelf,
+    node: node,
+    dto: dto,
+  );
+}
+

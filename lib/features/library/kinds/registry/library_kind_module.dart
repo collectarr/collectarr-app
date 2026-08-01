@@ -2,15 +2,18 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 class AnyLibraryFieldRegistry<TDto> {
@@ -54,30 +57,28 @@ class AnyLibraryFieldRegistry<TDto> {
   final Set<String> defaultVisibleColumnIds;
   final String? defaultSortId;
   final String? defaultGroupId;
-  final Iterable<String> Function(LibraryWorkspaceEntry)? customLinkedMetadataCandidates;
+  final Iterable<String> Function(ShelfEntry)? customLinkedMetadataCandidates;
 
-  Iterable<String> linkedMetadataCandidates(LibraryWorkspaceEntry entry) sync* {
-    final series = entry.series?.seriesTitle?.trim();
-    final country = entry.country?.trim();
-    final language = entry.language?.trim();
-    final publishing = entry.publishing;
+  Iterable<String> linkedMetadataCandidates(ShelfEntry source) sync* {
+    final item = source.catalogItem;
+    if (item == null) return;
+    final series = item.series?.seriesTitle?.trim();
+    final country = item.country?.trim();
+    final language = item.language?.trim();
+    final publishing = item.publishing;
 
     yield* nonEmptyStrings([
-      entry.resolvedTitle,
-      entry.title,
-      entry.localizedTitle,
-      entry.originalTitle,
+      item.name,
       series,
-      entry.itemNumber,
-      entry.publisher,
-      entry.variant,
+      item.itemNumber,
+      item.publisher,
+      item.variant,
       publishing?.imprint,
       country,
       language,
-      entry.ageRating,
     ]);
-    yield* nonEmptyStrings(entry.searchAliases);
-    if (entry.creators case final creators?) {
+    yield* nonEmptyStrings(item.searchAliases);
+    if (item.creators case final creators?) {
       for (final credit in creators) {
         final name = credit['name']?.toString()?.trim();
         if (name != null && name.isNotEmpty) {
@@ -85,10 +86,10 @@ class AnyLibraryFieldRegistry<TDto> {
         }
       }
     }
-    yield* nonEmptyStrings(entry.genres);
+    yield* nonEmptyStrings(item.genres);
 
     if (customLinkedMetadataCandidates != null) {
-      yield* customLinkedMetadataCandidates!(entry);
+      yield* customLinkedMetadataCandidates!(source);
     }
   }
 
@@ -191,37 +192,21 @@ class AnyLibraryFieldRegistry<TDto> {
     );
   }
 
-  /// Sorts [entries] in-place using the comparator for [sortId].
-  ///
-  /// Each [LibraryWorkspaceEntry] is projected to a DTO exactly **once** before
-  /// sorting begins via [dtoFactory], guaranteeing stable performance:
-  ///
-  /// ```
-  /// O(N) DTO constructions + O(N log N) comparisons
-  /// ```
   void sortEntries(
-    List<LibraryWorkspaceEntry> entries,
+    List<LibraryProjectionRuntime> items,
     String sortId, {
     required bool ascending,
-    required TDto Function(LibraryWorkspaceEntry entry) dtoFactory,
   }) {
     final sortDef = sortDefinitionFor(sortId);
 
-    // Build a DTO for every entry once, keyed by identity.
-    final dtos = <LibraryWorkspaceEntry, TDto>{};
-    for (final entry in entries) {
-      dtos[entry] = dtoFactory(entry);
-    }
-
-    entries.sort((l, r) {
-      final result = sortDef.compare(dtos[l]!, dtos[r]!);
+    items.sort((l, r) {
+      final result = sortDef.compare(l.dto as TDto, r.dto as TDto);
       if (result != 0) {
         return ascending ? result : -result;
       }
-      // Stable tie-breaking using resolved title & id
-      final titleCmp = l.resolvedTitle.compareTo(r.resolvedTitle);
+      final titleCmp = l.dto.title.compareTo(r.dto.title);
       if (titleCmp != 0) return titleCmp;
-      return l.id.compareTo(r.id);
+      return l.node.id.compareTo(r.node.id);
     });
   }
 }
@@ -232,7 +217,7 @@ abstract interface class LibraryKindRuntime {
   LibraryTypeCapabilities get capabilities;
   LibraryMediaAdapter get mediaAdapter;
   AnyLibraryFieldRegistry<dynamic> get fields;
-  Object Function(LibraryWorkspaceEntry entry) get workspaceDtoFactory;
+  LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
   LibraryKindWorkspaceBehavior get workspaceBehavior;
   LibraryKindAddModule get add;
   LibraryKindEditModule get edit;
@@ -246,26 +231,29 @@ abstract interface class LibraryKindRuntime {
   Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details);
 
   LibraryCardPresentation? buildCardPresentation(
-    LibraryWorkspaceEntry entry, {
+    LibraryProjectionRuntime item, {
     required bool musicVertical,
   });
 
   void sortEntries(
-    List<LibraryWorkspaceEntry> entries,
+    List<LibraryProjectionRuntime> items,
     String sortId, {
     required bool ascending,
   });
 
-  Object createWorkspaceDto(LibraryWorkspaceEntry entry);
+  LibraryWorkspaceDto createWorkspaceDto({
+    required ShelfEntry source,
+    required LibraryNodeRef node,
+  });
 }
 
-class LibraryKindSpec<TDto extends Object, TDetails extends OwnedItemDetails>
+class LibraryKindSpec<TDto extends LibraryWorkspaceDto, TDetails extends OwnedItemDetails>
     implements LibraryKindRuntime {
   const LibraryKindSpec({
     required this.type,
     required this.mediaAdapter,
     required this.fields,
-    required this.workspaceDtoFactory,
+    required this.projector,
     required this.ownedDetailsCodec,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.add = const LibraryKindAddModule(),
@@ -277,7 +265,7 @@ class LibraryKindSpec<TDto extends Object, TDetails extends OwnedItemDetails>
       loadRows: _emptyFacetRows,
     ),
     LibraryCardPresentation Function(
-      LibraryWorkspaceEntry entry, {
+      LibraryProjectionRuntime item, {
       required bool musicVertical,
     })? buildCardPresentation,
   }) : _buildCardPresentation = buildCardPresentation;
@@ -316,7 +304,7 @@ class LibraryKindSpec<TDto extends Object, TDetails extends OwnedItemDetails>
   final AnyLibraryFieldRegistry<TDto> fields;
 
   @override
-  final TDto Function(LibraryWorkspaceEntry entry) workspaceDtoFactory;
+  final LibraryWorkspaceProjector<TDto> projector;
 
   @override
   final LibraryKindWorkspaceBehavior workspaceBehavior;
@@ -333,43 +321,61 @@ class LibraryKindSpec<TDto extends Object, TDetails extends OwnedItemDetails>
   @override
   final LibraryFacetModule facets;
 
-  /// Returns the card presentation for a given entry.
   final LibraryCardPresentation Function(
-    LibraryWorkspaceEntry entry, {
+    LibraryProjectionRuntime item, {
     required bool musicVertical,
   })? _buildCardPresentation;
 
   @override
   LibraryCardPresentation? buildCardPresentation(
-    LibraryWorkspaceEntry entry, {
+    LibraryProjectionRuntime item, {
     required bool musicVertical,
   }) {
-    return _buildCardPresentation?.call(entry, musicVertical: musicVertical);
+    return _buildCardPresentation?.call(item, musicVertical: musicVertical);
   }
 
   @override
   void sortEntries(
-    List<LibraryWorkspaceEntry> entries,
+    List<LibraryProjectionRuntime> items,
     String sortId, {
     required bool ascending,
   }) {
     fields.sortEntries(
-      entries,
+      items,
       sortId,
       ascending: ascending,
-      dtoFactory: workspaceDtoFactory,
     );
   }
 
   @override
-  TDto createWorkspaceDto(LibraryWorkspaceEntry entry) =>
-      workspaceDtoFactory(entry);
+  LibraryWorkspaceDto createWorkspaceDto({
+    required ShelfEntry source,
+    required LibraryNodeRef node,
+  }) {
+    if (node is LibraryTitleNodeRef) {
+      return projector.projectTitle(source: source, node: node);
+    } else if (node is LibraryReleaseNodeRef) {
+      return projector.projectRelease(
+        source: source,
+        node: node,
+        releaseState: LibraryReleaseState(
+          isOwned: source.isOwned,
+          isWishlisted: source.isWishlisted,
+          isTracked: source.isTracked,
+        ),
+      );
+    } else if (node is LibraryCopyNodeRef) {
+      return projector.projectCopy(source: source, node: node);
+    }
+    return projector.projectTitle(
+      source: source,
+      node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
+    );
+  }
 }
 
-typedef LibraryKindModule<TDto extends Object> = LibraryKindSpec<TDto, OwnedItemDetails>;
+typedef LibraryKindModule<TDto extends LibraryWorkspaceDto> = LibraryKindSpec<TDto, OwnedItemDetails>;
 
-/// Validates a [LibraryKindRuntime] for schema completeness, duplicate IDs,
-/// and required fields upon registration.
 void validateKindRuntime(LibraryKindRuntime module) {
   final columnIds = <String>{};
   for (final col in module.fields.columns) {
@@ -492,7 +498,7 @@ class LibraryFacetModule {
   });
 
   final LibraryFacetRowsLoader loadRows;
-  final Iterable<String> Function(LibraryWorkspaceEntry entry, String facetId)? getFacetValues;
+  final Iterable<String> Function(LibraryProjectionRuntime item, String facetId)? getFacetValues;
 }
 
 typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({

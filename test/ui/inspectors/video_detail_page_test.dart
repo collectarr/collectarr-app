@@ -1,15 +1,21 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
+import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,33 +32,45 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
-    final entry = LibraryWorkspaceEntry(
-      id: 'movie-1',
-      mediaType: 'movie',
-      title: 'Sen to Chihiro no Kamikakushi',
-      displayTitle: 'Spirited Away',
-      originalTitle: 'Sen to Chihiro no Kamikakushi',
-      isOwned: true,
-      editions: [
-        CatalogEdition(
-          id: 'edition-4k',
-          title: '4K Steelbook',
-          publisher: 'Studio Ghibli',
-          releaseDate: DateTime.utc(2024, 1, 5),
-          variants: const [
-            CatalogVariant(
-              id: 'variant-uhd',
-              name: '4K UHD',
-              isPrimary: true,
-            ),
-          ],
-        ),
-      ],
-      updatedAt: DateTime.utc(2026, 5, 25),
+    final source1 = ShelfEntry(
+      itemId: 'movie-1',
+      catalogItem: CatalogItemDto(
+        id: 'movie-1',
+        kind: 'movie',
+        title: 'Sen to Chihiro no Kamikakushi',
+        displayTitle: 'Spirited Away',
+        originalTitle: 'Sen to Chihiro no Kamikakushi',
+        editions: [
+          CatalogEditionDto(
+            id: 'edition-4k',
+            title: '4K Steelbook',
+            publisher: 'Studio Ghibli',
+            releaseDate: DateTime.utc(2024, 1, 5),
+            variants: const [
+              CatalogVariantDto(
+                id: 'variant-uhd',
+                name: '4K UHD',
+                isPrimary: true,
+              ),
+            ],
+          ),
+        ],
+      ),
+      ownedItem: testOwnedItem(
+        id: 'owned-1',
+        itemId: 'movie-1',
+        editionId: 'edition-4k',
+        quantity: 1,
+        updatedAt: DateTime.utc(2026, 5, 25, 10),
+      ),
     );
+    const node1 = LibraryTitleNodeRef(titleItemId: 'movie-1');
+    final dto1 = const GenericWorkspaceProjector().projectTitle(source: source1, node: node1);
+    final item = LibraryProjectionItem(source: source1, node: node1, dto: dto1);
+
     final request = LibraryDetailPageRequest(
       type: type,
-      entry: entry,
+      item: item,
       ownedItem: null,
       accent: Colors.orange,
       onAddOwned: () {},
@@ -72,7 +90,7 @@ void main() {
                 width: 420,
                 height: 170,
                 child: LibraryWorkspaceCard(
-                  entry: entry,
+                  item: item,
                   selected: false,
                   onTap: () {},
                   onDoubleTap: () =>
@@ -122,9 +140,9 @@ void main() {
     );
 
     await pumpUntilSettled(tester);
-  await tester.tap(find.byType(LibraryWorkspaceCard));
-  await tester.pump(const Duration(milliseconds: 40));
-  await tester.tap(find.byType(LibraryWorkspaceCard));
+    await tester.tap(find.byType(LibraryWorkspaceCard));
+    await tester.pump(const Duration(milliseconds: 40));
+    await tester.tap(find.byType(LibraryWorkspaceCard));
     await pumpUntilSettled(tester);
 
     expect(find.text('Releases'), findsWidgets);
@@ -142,33 +160,50 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
-    final entry = LibraryWorkspaceEntry(
-      id: 'movie-1',
-      mediaType: 'movie',
-      title: 'Sen to Chihiro no Kamikakushi',
-      displayTitle: 'Spirited Away',
-      originalTitle: 'Sen to Chihiro no Kamikakushi',
-      isWishlisted: true,
-      editions: [
-        CatalogEdition(
-          id: 'edition-4k',
-          title: '4K Steelbook',
-          publisher: 'Studio Ghibli',
-          releaseDate: DateTime.utc(2024, 1, 5),
-          variants: const [
-            CatalogVariant(
-              id: 'variant-uhd',
-              name: '4K UHD',
-              isPrimary: true,
-            ),
-          ],
+    final source2 = ShelfEntry(
+      itemId: 'movie-1',
+      catalogItem: CatalogItemDto(
+        id: 'movie-1',
+        kind: 'movie',
+        title: 'Sen to Chihiro no Kamikakushi',
+        displayTitle: 'Spirited Away',
+        originalTitle: 'Sen to Chihiro no Kamikakushi',
+        editions: [
+          CatalogEditionDto(
+            id: 'edition-4k',
+            title: '4K Steelbook',
+            publisher: 'Studio Ghibli',
+            releaseDate: DateTime.utc(2024, 1, 5),
+            variants: const [
+              CatalogVariantDto(
+                id: 'variant-uhd',
+                name: '4K UHD',
+                isPrimary: true,
+              ),
+            ],
+          ),
+        ],
+      ),
+      wishlistItem: WishlistItem(
+        id: 'wishlist-1',
+        catalogRef: const CatalogEntityRef(
+          kind: 'movie',
+          entityType: CatalogEntityType.ownedCopy,
+          id: 'movie-1',
         ),
-      ],
-      updatedAt: DateTime.utc(2026, 5, 25),
+        anchorType: 'edition',
+        editionId: 'edition-4k',
+        createdAt: DateTime.utc(2026, 5, 25, 9),
+        updatedAt: DateTime.utc(2026, 5, 25, 10),
+      ),
     );
+    const node2 = LibraryTitleNodeRef(titleItemId: 'movie-1');
+    final dto2 = const GenericWorkspaceProjector().projectTitle(source: source2, node: node2);
+    final item = LibraryProjectionItem(source: source2, node: node2, dto: dto2);
+
     final request = LibraryDetailPageRequest(
       type: type,
-      entry: entry,
+      item: item,
       ownedItem: null,
       accent: Colors.orange,
       onAddOwned: () {},
@@ -188,7 +223,7 @@ void main() {
                 width: 420,
                 height: 170,
                 child: LibraryWorkspaceCard(
-                  entry: entry,
+                  item: item,
                   selected: false,
                   onTap: () {},
                   onDoubleTap: () =>
@@ -222,7 +257,7 @@ void main() {
             (ref) async => [
               WishlistItem(
                 id: 'wishlist-1',
-                catalogRef: CatalogEntityRef(
+                catalogRef: const CatalogEntityRef(
                   kind: 'movie',
                   entityType: CatalogEntityType.ownedCopy,
                   id: 'movie-1',
@@ -255,16 +290,22 @@ void main() {
   testWidgets('release browser explains when core has no releases yet',
       (tester) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
-    final entry = LibraryWorkspaceEntry(
-      id: 'movie-2',
-      mediaType: 'movie',
-      title: 'Castle in the Sky',
-      displayTitle: 'Castle in the Sky',
-      updatedAt: DateTime.utc(2026, 5, 25),
+    final source3 = ShelfEntry(
+      itemId: 'movie-2',
+      catalogItem: testCatalogItem(
+        id: 'movie-2',
+        kind: 'movie',
+        title: 'Castle in the Sky',
+        displayTitle: 'Castle in the Sky',
+      ),
     );
+    const node3 = LibraryTitleNodeRef(titleItemId: 'movie-2');
+    final dto3 = const GenericWorkspaceProjector().projectTitle(source: source3, node: node3);
+    final item = LibraryProjectionItem(source: source3, node: node3, dto: dto3);
+
     final request = LibraryDetailPageRequest(
       type: type,
-      entry: entry,
+      item: item,
       ownedItem: null,
       accent: Colors.orange,
       onAddOwned: () {},
@@ -284,7 +325,7 @@ void main() {
                 width: 420,
                 height: 170,
                 child: LibraryWorkspaceCard(
-                  entry: entry,
+                  item: item,
                   selected: false,
                   onTap: () {},
                   onDoubleTap: () =>

@@ -1,10 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
-import 'package:collectarr_app/features/library/config/generic_library_media_workspace_builder.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 
 const genericLibraryMediaBuilder = GenericLibraryMediaPresentationBuilder();
 
@@ -21,8 +17,6 @@ const genericLibraryGroupModes = [
   'location',
   'ownership',
 ];
-
-
 
 const genericLibraryGroupLabels = LibraryMediaGroupLabels(
   series: 'Series',
@@ -48,32 +42,21 @@ String _simpleLibraryBucketLabel(
   LibraryMediaGroupLabels labels,
   LibraryBucketLabelOverrides overrides,
 ) {
-  final entry = context.entry;
-  final publisher = entry.publisher?.trim();
+  final dto = context.item.dto;
+  final publisher = dto.publisher?.trim();
   return switch (context.groupMode) {
-    'series' => _seriesBucket(entry, labels.unknownSeries),
-    'year' =>
-      entry.releaseYear?.toString() ??
-          (entry.releaseDate?.year.toString() ?? 'Unknown year'),
-    'publisher' =>
-      publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
-    'location' => _locationBucket(entry.locationPath),
-    'title' => _titleBucket(entry.resolvedTitle),
-    'ownership' => entry.isOwned
+    'series' => dto.seriesTitle?.trim().isNotEmpty == true ? dto.seriesTitle!.trim() : labels.unknownSeries,
+    'year' => dto.releaseDate?.year.toString() ?? 'Unknown year',
+    'publisher' => publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
+    'location' => _locationBucket(dto.locationPath),
+    'title' => _titleBucket(dto.title),
+    'ownership' => dto.isOwned
         ? overrides.owned
-        : entry.isWishlisted
+        : dto.isWishlisted
         ? overrides.wishlist
         : overrides.catalogOnly,
     _ => context.groupMode,
   };
-}
-
-String _seriesBucket(LibraryWorkspaceEntry entry, String unknownLabel) {
-  final seriesTitle = entry.series?.seriesTitle?.trim();
-  if (seriesTitle != null && seriesTitle.isNotEmpty) {
-    return seriesTitle;
-  }
-  return unknownLabel;
 }
 
 String _locationBucket(String? location) {
@@ -88,23 +71,6 @@ String _titleBucket(String title) {
   final trimmed = title.trim();
   return trimmed.isEmpty ? 'Unknown' : trimmed.substring(0, 1).toUpperCase();
 }
-
-
-
-String _formatDate(DateTime? value) {
-  if (value == null) return '';
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}
-
-String _formatCents(int? cents, String? currency) {
-  if (cents == null) return '';
-  final amount = (cents / 100).toStringAsFixed(2);
-  return currency == null ? amount : '$currency $amount';
-}
-
-
 
 const genericLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
@@ -122,8 +88,7 @@ const genericLibraryMediaPresentation = LibraryMediaPresentation(
   ),
   groupLabels: genericLibraryGroupLabels,
   builder: genericLibraryMediaBuilder,
-  workspaceEntryBuilder: buildGenericLibraryWorkspaceEntryFromShelf,
-  releaseEntryBuilder: buildGenericLibraryReleaseEntry,
+  projector: GenericWorkspaceProjector(),
   bucketLabelBuilder: genericLibraryBucketLabelBuilder,
   previewLabels: genericPreviewLabels,
 );

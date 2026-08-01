@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/details/library_detail_chip.dart
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
@@ -430,29 +430,28 @@ final _comicSeriesItemsProvider =
   },
 );
 
-List<LibraryDetailField> _detailFacts(LibraryWorkspaceEntry entry) {
+List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
+  final dto = item.dto;
+  final publishing = item.source.catalogItem?.publishing;
   final rows = <LibraryDetailField>[];
-  if (entry.referenceFormatLabel?.trim().isNotEmpty == true) {
+  if (dto.referenceFormatLabel?.trim().isNotEmpty == true) {
     rows.add(
-        LibraryDetailField(label: 'Format', value: entry.referenceFormatLabel!.trim()));
+        LibraryDetailField(label: 'Format', value: dto.referenceFormatLabel!.trim()));
   }
-  if (entry.country?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Country', value: entry.country!.trim()));
+  if (dto.country?.trim().isNotEmpty == true) {
+    rows.add(LibraryDetailField(label: 'Country', value: dto.country!.trim()));
   }
-  if (entry.language?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Language', value: entry.language!.trim()));
+  if (dto.language?.trim().isNotEmpty == true) {
+    rows.add(LibraryDetailField(label: 'Language', value: dto.language!.trim()));
   }
-  if (entry.ageRating?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Age', value: entry.ageRating!.trim()));
-  }
-  if (entry.publishing?.pageCount != null) {
-    rows.add(LibraryDetailField(label: 'Pages', value: entry.publishing!.pageCount.toString()));
+  if (publishing?.pageCount != null) {
+    rows.add(LibraryDetailField(label: 'Pages', value: publishing!.pageCount.toString()));
   }
   return rows;
 }
 
-List<LibraryDetailField> _seriesFacts(LibraryWorkspaceEntry entry) {
-  final series = entry.series;
+List<LibraryDetailField> _seriesFacts(LibraryProjectionRuntime item) {
+  final series = item.source.catalogItem?.series;
   final rows = <LibraryDetailField>[];
   if (series?.seriesTitle?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(label: 'Series', value: series!.seriesTitle!.trim()));
@@ -468,9 +467,6 @@ List<LibraryDetailField> _seriesFacts(LibraryWorkspaceEntry entry) {
   }
   if (series?.volumeStartYear != null) {
     rows.add(LibraryDetailField(label: 'Start year', value: series!.volumeStartYear!.toString()));
-  }
-  if (series?.tags?.isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Series tags', value: series!.tags!));
   }
   return rows;
 }
@@ -501,30 +497,40 @@ List<LibraryDetailField> _collectorFacts(OwnedItem? ownedItem) {
 }
 
 List<LibraryDetailField> _valueFacts(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   OwnedItem? ownedItem,
   List<OwnedItem> ownedCopies,
 ) {
   if (ownedItem == null) {
     return const [];
   }
+  final dto = item.dto;
   final effectiveOwnedCopies =
       ownedCopies.isNotEmpty ? ownedCopies : <OwnedItem>[ownedItem];
-  final snapshot = LibraryValueSnapshot.fromEntry(
-    entry,
+  final snapshot = LibraryValueSnapshot.fromItem(
+    item,
     ownedItem: ownedItem,
-    providerName: entry.marketValueCents != null ? 'Provider snapshot' : null,
+    providerName: dto.marketValueCents != null ? 'Provider snapshot' : null,
   );
 
   final rows = <LibraryDetailField>[];
   final comicVal = ownedItem.typedDetails is ComicOwnedDetails
       ? ownedItem.typedDetails as ComicOwnedDetails
       : null;
-  if (comicVal?.coverPriceCents != null) {
-    rows.add(LibraryDetailField(label: 'Cover Price', value: formatMoney(comicVal!.coverPriceCents, ownedItem.currency)));
+  final currency = _detailValueCurrency(effectiveOwnedCopies, ownedItem);
+  final isGraded = ownedItem.grade?.trim().isNotEmpty == true;
+
+  if (snapshot.purchasePriceCents != null) {
+    rows.add(LibraryDetailField(
+      label: 'Paid',
+      value: formatMoney(snapshot.purchasePriceCents, currency),
+    ));
   }
   if (snapshot.providerValueCents != null) {
-    rows.add(LibraryDetailField(label: 'Provider Value', value: formatMoney(snapshot.providerValueCents, snapshot.currency)));
+    rows.add(LibraryDetailField(
+      label: snapshot.providerName ?? 'Provider value',
+      value: formatMoney(snapshot.providerValueCents, currency),
+    ));
   }
   if (snapshot.manualEstimatedValueCents != null) {
     rows.add(LibraryDetailField(label: 'Manual Value', value: formatMoney(snapshot.manualEstimatedValueCents, snapshot.currency)));
@@ -613,28 +619,25 @@ String? _inspectorValueCurrency(
 }
 
 List<LibraryDetailField> _noteFacts(
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   OwnedItem? ownedItem,
 ) {
   final rows = <LibraryDetailField>[];
   final personalNotes = ownedItem?.personalNotes?.trim();
-  final catalogNotes = entry.notes?.trim();
   if (personalNotes != null && personalNotes.isNotEmpty) {
     rows.add(LibraryDetailField(label: 'Personal', value: personalNotes));
-  }
-  if (catalogNotes != null && catalogNotes.isNotEmpty) {
-    rows.add(LibraryDetailField(label: 'Catalog', value: catalogNotes));
   }
   return rows;
 }
 
-List<LibraryDetailField> _linkFacts(LibraryWorkspaceEntry entry) {
-  if (entry.trailerUrls.isEmpty) {
+List<LibraryDetailField> _linkFacts(LibraryProjectionRuntime item) {
+  final trailerUrls = item.source.catalogItem?.trailerUrls ?? const [];
+  if (trailerUrls.isEmpty) {
     return const [];
   }
 
   return [
-    for (final trailer in entry.trailerUrls)
+    for (final trailer in trailerUrls)
       LibraryDetailField(label: trailer.source?.trim().isNotEmpty == true
             ? trailer.source!.trim()
             : 'Link', value: trailer.title?.trim().isNotEmpty == true

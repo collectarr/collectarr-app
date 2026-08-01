@@ -1,7 +1,7 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
 class LibraryMetaChip extends StatelessWidget {
@@ -25,103 +25,33 @@ class LibraryMetaChip extends StatelessWidget {
     final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: palette.panel.withValues(alpha: 0.8),
-        border: Border.all(color: accent.withValues(alpha: 0.4)),
-        borderRadius: borderRadius,
+        color: accent.withValues(alpha: 0.12),
+        borderRadius: borderRadius ?? kAppRadiusSmall,
+        border: Border.all(
+          color: accent.withValues(alpha: 0.28),
+        ),
       ),
       child: Padding(
         padding: padding,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: accent),
+            Icon(
+              icon,
+              size: 13,
+              color: accent,
+            ),
             const SizedBox(width: 5),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class LibraryItemPill extends StatelessWidget {
-  const LibraryItemPill({
-    super.key,
-    required this.label,
-    required this.color,
-  });
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: kAppRadiusSmall,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: kAppSurfaceDim,
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class LibraryStatPill extends StatelessWidget {
-  const LibraryStatPill({
-    super.key,
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panelRaised,
-        border: Border.all(color: palette.divider),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: palette.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              value,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: palette.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                    ),
               ),
             ),
           ],
@@ -131,19 +61,20 @@ class LibraryStatPill extends StatelessWidget {
   }
 }
 
-String genericLibraryStatusLabel(LibraryWorkspaceEntry entry) {
+String genericLibraryStatusLabel(LibraryProjectionRuntime item) {
+  final kind = item.source.catalogItem?.kind ?? '';
   final labels = collectarrLibraryTypes
-          .byKind(entry.kind)
+          .byKind(kind)
           ?.presentation
           .statusLabels ??
       const LibraryStatusLabels();
-  if (entry.isOwned) {
+  if (item.dto.isOwned) {
     return labels.owned;
   }
-  if (entry.isTracked) {
+  if (item.dto.isTracked) {
     return labels.tracked;
   }
-  if (entry.isWishlisted) {
+  if (item.dto.isWishlisted) {
     return labels.wishlist;
   }
   return labels.localCatalog;

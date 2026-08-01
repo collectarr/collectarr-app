@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -10,7 +11,8 @@ import 'package:collectarr_app/features/library/inspector/sections/metadata_fact
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/session_history_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/shared/video_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -18,6 +20,37 @@ void main() {
   testWidgets('tv inspector builds tv-specific sections', (tester) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.tv)!;
     late List<Widget> sections;
+    final item = VideoLibraryWorkspaceProjector(kind: 'tv').project(
+      source: ShelfEntry(
+        catalogItem: CatalogItemDto(
+          id: 'series-1',
+          kind: 'tv',
+          title: 'Cowboy Bebop',
+          displayTitle: 'Cowboy Bebop',
+          video: const CatalogVideoDetails(
+            runtimeMinutes: 24,
+            discCount: 2,
+            audioTracks: 'Stereo',
+            subtitles: 'English',
+            layers: 'Dual layer',
+          ),
+          editions: const [
+            CatalogEdition(
+              id: 'release-1',
+              name: 'Blu-ray',
+              physicalFormat: 'Blu-ray',
+              physicalFormatLabel: 'Blu-ray',
+              releaseDate: DateTime.utc(2024, 1, 5),
+            ),
+          ],
+          trailerUrls: const [
+            TrailerLink(url: 'https://example.com/trailer'),
+          ],
+        ),
+      ),
+      node: const LibraryTitleNodeRef('series-1'),
+    );
+
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -27,31 +60,7 @@ void main() {
                 context,
                 LibraryInspectorRequest(
                   type: type,
-                  entry: LibraryWorkspaceEntry(
-                    id: 'series-1',
-                    mediaType: 'tv',
-                    title: 'Cowboy Bebop',
-                    displayTitle: 'Cowboy Bebop',
-                    video: const VideoCatalogDetails(
-                      runtimeMinutes: 24,
-                      nrDiscs: 2,
-                      audioTracks: 'Stereo',
-                      subtitles: 'English',
-                      layers: 'Dual layer',
-                    ),
-                    editions: [
-                      CatalogEdition(
-                        id: 'release-1',
-                        title: 'Blu-ray',
-                        format: 'Blu-ray',
-                        releaseDate: DateTime.utc(2024, 1, 5),
-                      ),
-                    ],
-                    trailerUrls: const [
-                      TrailerLink(url: 'https://example.com/trailer'),
-                    ],
-                    updatedAt: DateTime.utc(2026, 7, 5),
-                  ),
+                  item: item,
                   ownedItem: null,
                   trackingEntry: null,
                   accent: Colors.teal,

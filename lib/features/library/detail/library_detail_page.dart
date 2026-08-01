@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +20,7 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
   const LibraryDetailPage({
     super.key,
     required this.type,
-    required this.entry,
+    required this.item,
     required this.ownedItem,
     required this.accent,
     required this.onAddOwned,
@@ -32,7 +32,7 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
   final Color accent;
   final VoidCallback? onAddOwned;
@@ -182,23 +182,24 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     );
   }
 
-  Future<void> _searchOnEbay(LibraryWorkspaceEntry entry) async {
-    final query = entry.itemNumber != null
-        ? '${entry.resolvedTitle} #${entry.itemNumber}'
-        : entry.resolvedTitle;
+  Future<void> _searchOnEbay(LibraryProjectionRuntime item) async {
+    final dto = item.dto;
+    final query = dto.itemNumber != null
+        ? '${dto.title} #${dto.itemNumber}'
+        : dto.title;
     await launchEbaySearch(query);
   }
 
   Future<void> _addOwnedCopy(
-    LibraryWorkspaceEntry entry, {
+    LibraryProjectionRuntime item, {
     OwnedItem? ownedItem,
   }) async {
     final anchor = resolveLibraryMutationAnchor(
-      entry: entry,
+      item: item,
       ownedItem: ownedItem,
     );
     await ref.read(collectionMutationsProvider).addItem(
-          entry.id,
+          item.node.titleItemId,
           anchorType: anchor.anchorType,
           editionId: anchor.editionId,
           variantId: anchor.variantId,
@@ -230,7 +231,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
 class _LibraryDetailToolbar extends StatelessWidget {
   const _LibraryDetailToolbar({
     required this.type,
-    required this.entry,
+    required this.item,
     required this.activeOwnedItem,
     required this.ownedCopies,
     required this.selectedOwnedItemId,
@@ -245,7 +246,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryWorkspaceEntry entry;
+  final LibraryProjectionRuntime item;
   final OwnedItem? activeOwnedItem;
   final List<OwnedItem> ownedCopies;
   final String? selectedOwnedItemId;

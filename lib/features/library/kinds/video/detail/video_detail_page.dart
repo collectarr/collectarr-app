@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/detail/library_detail_user_links
 import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/library/shared/tv/tv_domain.dart';
-import 'package:collectarr_app/features/library/shared/tv/workspace_entry_builder.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_metadata_corrections_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_release_source.dart';
@@ -31,7 +30,7 @@ import 'package:collectarr_app/features/library/details/library_detail_panel_sca
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
@@ -432,29 +431,17 @@ class _VideoLibraryDetailPageState
   }
 }
 
-List<LibraryBrowserNode> _releaseNodesFor(
+List<LibraryNodeRef> _releaseNodesFor(
   LibraryTypeConfig type,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
 ) {
-  final resolvedEditions = resolveVideoCatalogEditionsForEntry(entry);
-  final nodes = <LibraryBrowserNode>[];
+  final catalogItem = item.source.catalogItem;
+  final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(catalogItem);
+  final nodes = <LibraryNodeRef>[];
   for (final edition in resolvedEditions) {
-    final releaseEntry = type.presentation.releaseEntryBuilder(
-      LibraryReleaseEntryRequest(
-        titleEntry: entry,
-        edition: edition,
-        referenceEditionId: edition.id,
-        referenceVariantId: preferredVideoEditionVariantId(edition),
-        editions: resolvedEditions,
-        updatedAt: entry.updatedAt,
-      ),
-    );
     nodes.add(
-      LibraryBrowserNode(
-        id: releaseEntry.id,
-        scope: releaseEntry.browseScope,
-        entry: releaseEntry,
-        titleItemId: entry.id,
+      LibraryReleaseNodeRef(
+        titleItemId: item.node.titleItemId,
         releaseId: edition.id,
         edition: edition,
       ),
@@ -465,12 +452,13 @@ List<LibraryBrowserNode> _releaseNodesFor(
 
 List<_ResolvedVideoRelease> _resolvedReleasesFor(
   LibraryTypeConfig type,
-  LibraryWorkspaceEntry entry, {
+  LibraryProjectionRuntime item, {
   required List<OwnedItem> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
-  final resolvedEditions = resolveVideoCatalogEditionsForEntry(
-    entry,
+  final catalogItem = item.source.catalogItem;
+  final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
+    catalogItem,
     ownedItems: ownedCopies,
     wishlistItems: wishlistItems,
   );
@@ -478,7 +466,7 @@ List<_ResolvedVideoRelease> _resolvedReleasesFor(
     for (final edition in resolvedEditions)
       _buildResolvedVideoRelease(
         type,
-        entry,
+        item,
         edition,
         editions: resolvedEditions,
         ownedCopies: ownedCopies,
@@ -489,7 +477,7 @@ List<_ResolvedVideoRelease> _resolvedReleasesFor(
 
 _ResolvedVideoRelease _buildResolvedVideoRelease(
   LibraryTypeConfig type,
-  LibraryWorkspaceEntry entry,
+  LibraryProjectionRuntime item,
   CatalogEdition edition, {
   required List<CatalogEdition> editions,
   required List<OwnedItem> ownedCopies,
@@ -500,35 +488,19 @@ _ResolvedVideoRelease _buildResolvedVideoRelease(
       .toList(growable: false)
     ..sort((left, right) => right.updatedAt.compareTo(left.updatedAt));
   WishlistItem? matchedWishlist;
-  for (final item in wishlistItems) {
-    if (_matchesReleaseAnchor(item, edition)) {
-      matchedWishlist = item;
+  for (final wish in wishlistItems) {
+    if (_matchesReleaseAnchor(wish, edition)) {
+      matchedWishlist = wish;
       break;
     }
   }
-  final releaseEntry = type.presentation.releaseEntryBuilder(
-    LibraryReleaseEntryRequest(
-      titleEntry: entry,
-      edition: edition,
-      isOwned: matchedOwnedCopies.isNotEmpty,
-      isWishlisted: matchedWishlist != null,
-      referenceEditionId: edition.id,
-      referenceVariantId: preferredVideoEditionVariantId(edition),
-      editions: editions,
-      updatedAt: entry.updatedAt,
-    ),
-  );
-  final node = LibraryBrowserNode(
-    id: releaseEntry.id,
-    scope: releaseEntry.browseScope,
-    entry: releaseEntry,
-    titleItemId: entry.id,
+  final node = LibraryReleaseNodeRef(
+    titleItemId: item.node.titleItemId,
     releaseId: edition.id,
     edition: edition,
   );
   return _ResolvedVideoRelease(
     node: node,
-    entry: releaseEntry,
     edition: edition,
     ownedCopies: matchedOwnedCopies,
     wishlistItem: matchedWishlist,
@@ -569,15 +541,14 @@ bool _matchesReleaseAnchor(Object item, CatalogEdition edition) {
 class _ResolvedVideoRelease {
   const _ResolvedVideoRelease({
     required this.node,
-    required this.entry,
     required this.edition,
     required this.ownedCopies,
     required this.wishlistItem,
     required this.sourceLabel,
   });
 
-  final LibraryBrowserNode node;
-  final LibraryWorkspaceEntry entry;
+  final LibraryReleaseNodeRef node;
+  final CatalogEdition edition;
   final CatalogEdition edition;
   final List<OwnedItem> ownedCopies;
   final WishlistItem? wishlistItem;
@@ -645,30 +616,14 @@ class _TvReleaseBrowserSectionState extends State<_TvReleaseBrowserSection> {
   @override
   Widget build(BuildContext context) {
     final releases = widget.series.releases;
-    final releaseEntries = buildTvReleaseWorkspaceEntries(
-      series: widget.series,
-      overlay: TvPersonalOverlay(
-        updatedAt: DateTime.fromMillisecondsSinceEpoch(0),
-      ),
-    );
     TvRelease? selectedRelease;
-    LibraryWorkspaceEntry? selectedReleaseEntry;
-    for (var index = 0; index < releases.length; index += 1) {
-      final release = releases[index];
+    for (final release in releases) {
       if (release.id == _selectedReleaseId) {
         selectedRelease = release;
-        selectedReleaseEntry = releaseEntries[index];
         break;
       }
     }
     selectedRelease ??= releases.isEmpty ? null : releases.first;
-    if (selectedReleaseEntry == null && selectedRelease != null) {
-      final selectedIndex =
-          releases.indexWhere((release) => release.id == selectedRelease!.id);
-      if (selectedIndex >= 0 && selectedIndex < releaseEntries.length) {
-        selectedReleaseEntry = releaseEntries[selectedIndex];
-      }
-    }
     final palette = appPalette(context);
     return LibraryDetailSection(
       title: 'Releases / discs',
@@ -694,9 +649,7 @@ class _TvReleaseBrowserSectionState extends State<_TvReleaseBrowserSection> {
             itemCount: releases.length,
             itemBuilder: (context, index) {
               final release = releases[index];
-              final releaseEntry = releaseEntries[index];
               return _TvReleaseTile(
-                entry: releaseEntry,
                 release: release,
                 accent: widget.accent,
                 selected: release.id == _selectedReleaseId,
@@ -704,17 +657,15 @@ class _TvReleaseBrowserSectionState extends State<_TvReleaseBrowserSection> {
               );
             },
           ),
-          if (selectedRelease != null && selectedReleaseEntry != null) ...[
+          if (selectedRelease != null) ...[
             const SizedBox(height: 12),
             Builder(
               builder: (context) {
                 final release = selectedRelease!;
-                final releaseEntry = selectedReleaseEntry!;
                 final releaseId = release.id;
                 return _TvReleaseDetailsPanel(
                   series: widget.series,
                   release: release,
-                  releaseEntry: releaseEntry,
                   accent: widget.accent,
                   selectedMediaId: _selectedMediaIdByRelease[releaseId] ??
                       release.media.firstOrNull?.id,
@@ -735,14 +686,12 @@ class _TvReleaseBrowserSectionState extends State<_TvReleaseBrowserSection> {
 
 class _TvReleaseTile extends StatelessWidget {
   const _TvReleaseTile({
-    required this.entry,
     required this.release,
     required this.accent,
     required this.selected,
     required this.onTap,
   });
 
-  final LibraryWorkspaceEntry entry;
   final TvRelease release;
   final Color accent;
   final bool selected;
@@ -780,15 +729,15 @@ class _TvReleaseTile extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: LibraryCoverImage(
-                    title: entry.displayTitle ?? entry.title,
-                    imageUrl: entry.coverImageUrl,
+                    title: release.title,
+                    imageUrl: release.coverImageUrl,
                     borderRadius: 12,
                   ),
                 ),
               ),
               const SizedBox(height: 10),
               Text(
-                entry.displayTitle ?? entry.title,
+                release.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -799,8 +748,8 @@ class _TvReleaseTile extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 [
-                  if (entry.itemNumber?.trim().isNotEmpty == true)
-                    entry.itemNumber!,
+                  if (release.format?.trim().isNotEmpty == true)
+                    release.format!,
                   '${release.media.length} media',
                   '${release.episodeMappings.length} maps',
                 ].join(' • '),
@@ -822,7 +771,6 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
   const _TvReleaseDetailsPanel({
     required this.series,
     required this.release,
-    required this.releaseEntry,
     required this.accent,
     required this.selectedMediaId,
     required this.onSelectMedia,
@@ -830,7 +778,6 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
 
   final TvSeries series;
   final TvRelease release;
-  final LibraryWorkspaceEntry releaseEntry;
   final Color accent;
   final String? selectedMediaId;
   final ValueChanged<String> onSelectMedia;
@@ -863,7 +810,7 @@ class _TvReleaseDetailsPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              releaseEntry.displayTitle ?? releaseEntry.title,
+              release.title,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,
