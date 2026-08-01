@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
 
@@ -122,16 +124,16 @@ final musicLibrarySortDefinitions = [
 const musicLibraryDefaultVisibleColumnIds = {
   'status',
   'cover',
-  'artist',
-  'title',
-  'publisher',
-  'release_date',
-  'barcode',
-  'track_count',
+  'music.artist',
+  'music.title',
+  'music.publisher',
+  'music.release_date',
+  'music.barcode',
+  'music.track_count',
   'rating',
-  'condition',
-  'price',
-  'location',
+  'music.condition',
+  'music.price',
+  'music.location',
   'wishlist',
   'updated',
 };
@@ -230,3 +232,18 @@ String _formatCents(int? cents, String? currency) {
   final amount = (cents / 100).toStringAsFixed(2);
   return currency == null ? amount : '$currency $amount';
 }
+
+final musicKindSchema = LibraryKindSchema<MusicWorkspaceDto>(
+  fields: musicLibraryFieldDefinitions,
+  columns: musicLibraryColumnDefinitions,
+  sorts: musicLibrarySortDefinitions,
+  groups: musicLibraryGroupDefinitions,
+  defaultVisibleColumnIds: musicLibraryDefaultVisibleColumnIds,
+  defaultSortId: 'music.title',
+  defaultGroupId: 'music.artist',
+  customLinkedMetadataCandidates: (source) sync* {
+    yield* AnyLibraryFieldRegistry.nonEmptyStrings([
+      source.catalogItem?.publisher,
+    ]);
+  },
+);

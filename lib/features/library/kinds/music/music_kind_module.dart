@@ -20,19 +20,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   mediaAdapter: musicMediaAdapter,
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
-  fields: AnyLibraryFieldRegistry(
-    groups: musicLibraryGroupDefinitions,
-    sorts: musicLibrarySortDefinitions,
-    columns: musicLibraryColumnDefinitions,
-    defaultVisibleColumnIds: musicLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'title',
-    defaultGroupId: 'series',
-    customLinkedMetadataCandidates: (source) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings([
-        source.catalogItem?.publisher,
-      ]);
-    },
-  ),
+  fields: musicKindSchema.toRegistry(),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsTrackSearch: true,
   ),

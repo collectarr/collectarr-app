@@ -28,10 +28,10 @@ void main() {
     expect(
       libraryKindModuleForKind(CatalogMediaKind.music).fields.defaultVisibleColumnIds,
       containsAll([
-        'artist',
-        'title',
-        'publisher',
-        'track_count',
+        'music.artist',
+        'music.title',
+        'music.publisher',
+        'music.track_count',
       ]),
     );
   });

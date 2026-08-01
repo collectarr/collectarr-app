@@ -50,7 +50,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           entityType: CatalogEntityType.release,
           id: '${seriesRef.id}:release:${edition.id}',
         ),
-        label: edition.title,
+        label: edition.title ?? edition.id,
         subtitle: [
           if (edition.format?.trim().isNotEmpty == true) edition.format!,
           if (edition.releaseDate != null)

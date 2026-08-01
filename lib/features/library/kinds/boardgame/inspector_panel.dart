@@ -56,7 +56,7 @@ class BoardGameInspectorPanel extends StatelessWidget {
           slot: LibraryDetailSectionSlot.people,
           title: 'Play stats',
           children: [
-            BoardGamePlayStatsSection(request.inspector),
+            BoardGamePlayStatsSection(request: request.inspector),
           ],
         ),
         if (request.trailingSections.isNotEmpty)

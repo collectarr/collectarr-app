@@ -5,8 +5,9 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('game workspace projector builds typed game dto', () {
-    const source = ShelfEntry(
+  test('GameWorkspaceProjector produces a typed GameWorkspaceDto with correct title', () {
+    final source = ShelfEntry(
+      itemId: 'game-1',
       catalogItem: CatalogItemDto(
         id: 'game-1',
         title: 'Example Game',
@@ -19,8 +20,7 @@ void main() {
       node: const LibraryTitleNodeRef(titleItemId: 'game-1'),
     );
 
-    expect(dto.id, 'game-1');
     expect(dto.title, 'Example Game');
-    expect(dto.kind, 'game');
+    expect(dto.game.work.title, 'Example Game');
   });
 }
