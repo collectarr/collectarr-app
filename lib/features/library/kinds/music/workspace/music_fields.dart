@@ -14,7 +14,7 @@ abstract final class MusicKindSchema {
   static final artist = textField<MusicWorkspaceDto>(
     id: 'music.artist',
     label: 'Artist',
-    getValue: (dto) => dto.artist,
+    getValue: (dto) => dto.music.work.artist,
   );
 
   static final publisher = textField<MusicWorkspaceDto>(
@@ -32,7 +32,7 @@ abstract final class MusicKindSchema {
   static final trackCount = numberField<MusicWorkspaceDto>(
     id: 'music.track_count',
     label: 'Track count',
-    getValue: (dto) => dto.trackCount,
+    getValue: (dto) => dto.music.recording.trackCount,
   );
 
   static final barcode = textField<MusicWorkspaceDto>(

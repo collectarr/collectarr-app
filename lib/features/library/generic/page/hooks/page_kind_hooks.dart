@@ -41,7 +41,7 @@ extension _PageKindHooks on GenericLibraryPageState {
     return widget.type.kindUiAdapter.shouldOpenReleaseFolderOnOpen(
       widget.type,
       browserMode: _activeBrowserMode,
-      browseScope: item.entry.browseScope,
+      browseScope: item.node.scope,
     );
   }
 
@@ -58,12 +58,12 @@ extension _PageKindHooks on GenericLibraryPageState {
   }
 
   void _openReleaseFolder(LibraryProjectionItem item) {
-    final titleId = item.entry.titleItemId ?? item.entry.id;
+    final titleId = item.node.titleItemId;
     setState(() {
       _kindBrowserDelegate.openReleaseFolder(titleId);
       _selectedBucket = null;
       _selectedLetter = null;
-      _selectedId = item.entry.id;
+      _selectedId = item.node.id;
     });
     _syncRouteState();
   }
@@ -89,7 +89,7 @@ extension _PageKindHooks on GenericLibraryPageState {
       return null;
     }
     final selectedIndex =
-        items.indexWhere((item) => item.entry.id == _selectedId);
+        items.indexWhere((item) => item.node.id == _selectedId);
     final index = selectedIndex < 0 ? 0 : selectedIndex;
     return 'Release ${index + 1}/${items.length}';
   }

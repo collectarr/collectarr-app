@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,33 +62,33 @@ void main() {
     final configuredSortColumns = <String, Set<String>>{
       'books': registries['books']!
           .sorts
-          .map((definition) => definition.id)
+          .map((definition) => definition.id.value)
           .toSet(),
       'board games': registries['board games']!
           .sorts
-          .map((definition) => definition.id)
+          .map((definition) => definition.id.value)
           .toSet(),
       'comics': registries['comics']!
           .sorts
-          .map((definition) => definition.id)
+          .map((definition) => definition.id.value)
           .toSet(),
       'games': registries['games']!
           .sorts
-          .map((definition) => definition.id)
+          .map((definition) => definition.id.value)
           .toSet(),
       'movies': registries['movies']!
           .sorts
-          .map((definition) => definition.id)
+          .map((definition) => definition.id.value)
           .toSet(),
       'music': registries['music']!
           .sorts
-          .map((definition) => definition.id)
+          .map((definition) => definition.id.value)
           .toSet(),
     };
 
     for (final entry in registries.entries) {
       final definitionColumns = [
-        for (final definition in entry.value.sorts) definition.id,
+        for (final definition in entry.value.sorts) definition.id.value,
       ];
       final uniqueDefinitionColumns = definitionColumns.toSet();
       final expectedColumns = configuredSortColumns[entry.key]!;

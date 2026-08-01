@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_section_tab.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
@@ -24,7 +25,6 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
@@ -174,10 +174,39 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   Color get _accent => widget.request.accent;
 
-  List<BookEdition> get _bookEditions =>
-      widget.request.item is BookWorkspaceEntry
-          ? (widget.request.item as BookWorkspaceEntry).bookEditions
-          : const <BookEdition>[];
+  List<BookRelease> get _bookEditions {
+    return widget.request.item.editions
+        .map((e) => BookRelease(
+              id: e.id,
+              title: e.title,
+              publisher: e.publisher,
+              distributor: e.distributor,
+              isbn: e.isbn,
+              upc: e.upc,
+              language: e.language,
+              region: e.region,
+              releaseDate: e.releaseDate,
+              physicalFormat: e.physicalFormat,
+              physicalFormatLabel: e.physicalFormatLabel,
+              variants: e.variants
+                  .map((v) => BookVariantRef(
+                        id: v.id,
+                        name: v.name,
+                        variantType: v.variantType,
+                        sku: v.sku,
+                        barcode: v.barcode,
+                        isbn: v.isbn,
+                        region: v.region,
+                        coverImageUrl: v.coverImageUrl,
+                        thumbnailImageUrl: v.thumbnailImageUrl,
+                        physicalFormat: v.physicalFormat,
+                        physicalFormatLabel: v.physicalFormatLabel,
+                        isPrimary: v.isPrimary,
+                      ))
+                  .toList(),
+            ))
+        .toList();
+  }
 
   LibraryEditPresentationContext get _tabPresentationContext {
     return LibraryEditPresentationContext(
@@ -1296,7 +1325,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
   }
 
-  BookEdition? _selectedEdition() {
+  BookRelease? _selectedEdition() {
     final selectedId = _selectedEditionId;
     if (selectedId == null) {
       return null;
@@ -1328,7 +1357,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
           ),
       ],
       onChanged: (value) {
-        BookEdition? edition;
+        BookRelease? edition;
         final selectedId = emptyToNull(value ?? '');
         if (selectedId != null) {
           for (final candidate in _bookEditions) {
@@ -1348,7 +1377,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
 
   Widget _variantSelectionField() {
     final edition = _selectedEdition();
-    final variants = edition?.variants ?? const <BookVariant>[];
+    final variants = edition?.variants ?? const <BookVariantRef>[];
     return DropdownButtonFormField<String>(
       initialValue: _selectedVariantId,
       isExpanded: true,
@@ -1376,7 +1405,7 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     );
   }
 
-  String? _resolvePrimaryVariantId(BookEdition? edition) {
+  String? _resolvePrimaryVariantId(BookRelease? edition) {
     if (edition == null) {
       return null;
     }

@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_entry.dart';
 
 class LibraryBulkActions {
   const LibraryBulkActions(this.mutations);
@@ -209,6 +208,6 @@ List<ShelfEntry> selectedShelfEntries(
 ) {
   return [
     for (final item in visibleItems)
-      if (selectedItemIds.contains(item.entry.id)) item.source,
+      if (selectedItemIds.contains(item.source.itemId)) item.source,
   ];
 }

@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video_release_source.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryOwnedItemResolution {
@@ -69,7 +68,7 @@ String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
   if (seriesTitle == null || seriesTitle.isEmpty) {
     return 'Missing series title';
   }
-  if (item.node.browseScope != LibraryBrowserScope.title) {
+  if (item.node.scope != LibraryBrowserScope.title) {
     final variant = item.dto.variant?.trim();
     if (variant == null || variant.isEmpty) {
       return 'Missing release variant';
@@ -214,6 +213,15 @@ List<String> libraryReferenceHierarchySegments({
     variantId: variantId,
     editions: editions,
   );
+}
+
+String? preferredVideoEditionVariantId(CatalogEdition edition) {
+  for (final variant in edition.variants) {
+    if (variant.isPrimary) {
+      return variant.id;
+    }
+  }
+  return edition.variants.isEmpty ? null : edition.variants.first.id;
 }
 
 ({CatalogEdition? edition, CatalogVariant? variant})

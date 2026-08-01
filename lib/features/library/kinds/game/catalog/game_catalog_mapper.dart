@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_release.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-
+class GameCatalogMapper {
   static GameCatalogItem mapMetadataItemToGame(LibraryMetadataItem item) {
     final game = item.game;
 

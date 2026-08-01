@@ -21,21 +21,21 @@ class BookInspectorPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = request.inspector.entry;
+    final item = request.inspector.item;
     final accent = request.inspector.accent;
-    final series = entry.series?.seriesTitle?.trim();
+    final series = item.dto.seriesTitle?.trim();
     final sections = const BookLibraryMediaPresentationBuilder(
       showSummary: true,
     ).buildInspectorSections(
       context: context,
-      entry: entry,
+      item: item,
       accent: accent,
     );
 
     return LibraryDetailPanelScaffold(
       accent: accent,
       toolbar: InspectorUnifiedToolbar(
-        entry: entry,
+        item: item,
         detailsLayout: request.inspector.detailsLayout,
         onEdit: request.onEdit,
         onShare: request.onShare,
@@ -51,13 +51,13 @@ class BookInspectorPanel extends StatelessWidget {
         children: [
           LibraryDetailHero(
             type: request.inspector.type,
-            entry: entry,
+            item: item,
             ownedItem: request.inspector.ownedItem,
             accent: accent,
           ),
           const SizedBox(height: 6),
           LibraryInspectorTitleCard(
-            entry: entry,
+            item: item,
             eyebrow: series,
             accent: accent,
           ),

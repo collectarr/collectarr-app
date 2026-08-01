@@ -24,7 +24,7 @@ class MovieLibraryPage extends GenericLibraryPage {
 class VideoDrilldownLibraryPageState extends GenericLibraryPageState {
   @override
   bool canOpenItemDetailDrilldown(LibraryProjectionItem item) {
-    return canOpenKindDrilldown(widget.type, item.entry);
+    return canOpenKindDrilldown(widget.type, item);
   }
 
   @override

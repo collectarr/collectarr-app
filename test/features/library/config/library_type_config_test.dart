@@ -822,8 +822,8 @@ void main() {
     );
     expect(
       comicsLibraryConfig.presentation.columnFavorites
-          .map((LibraryColumnPreset preset) => preset.label),
-      comicsTableColumnPresets.map((LibraryColumnPreset preset) => preset.label),
+          .map((preset) => preset.label),
+      comicsTableColumnPresets.map((preset) => preset.label),
     );
     expect(booksLibraryConfig.presentation.compactBucketIcon, Icons.folder);
     expect(

@@ -676,7 +676,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return false;
     }
     return projection.filteredItems
-        .any((item) => item.entry.ownedItemId != null);
+        .any((item) => item.source.ownedItem?.id != null);
   }
 
   bool _hasOwnedItemsInSelection(LibraryProjection? projection) {
@@ -685,8 +685,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.entry.id) &&
-          item.entry.ownedItemId != null,
+          _selection.itemIds.contains(item.node.id) &&
+          item.source.ownedItem?.id != null,
     );
   }
 
@@ -695,7 +695,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return false;
     }
     return projection.filteredItems.any(
-      (item) => _selection.itemIds.contains(item.entry.id),
+      (item) => _selection.itemIds.contains(item.node.id),
     );
   }
 
@@ -705,9 +705,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.entry.id) &&
-          item.entry.ownedItemId != null &&
-          !_activeLoanOwnedItemIds.contains(item.entry.ownedItemId),
+          _selection.itemIds.contains(item.node.id) &&
+          item.source.ownedItem?.id != null &&
+          !_activeLoanOwnedItemIds.contains(item.source.ownedItem?.id),
     );
   }
 
@@ -717,7 +717,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.entry.id) && !item.entry.isOwned,
+          _selection.itemIds.contains(item.node.id) && !item.dto.isOwned,
     );
   }
 
@@ -729,8 +729,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.entry.id) &&
-          !item.entry.isWishlisted,
+          _selection.itemIds.contains(item.node.id) &&
+          !item.dto.isWishlisted,
     );
   }
 
@@ -740,9 +740,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.entry.id) &&
-          (item.entry.ownedItemId != null ||
-              item.entry.isWishlisted ||
+          _selection.itemIds.contains(item.node.id) &&
+          (item.source.ownedItem?.id != null ||
+              item.dto.isWishlisted ||
               item.source.trackingEntry != null),
     );
   }
@@ -775,7 +775,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       projection,
     )) {
       final ownedItem = item.source.ownedItem;
-      final status = item.entry.collectionStatus?.trim().toLowerCase();
+      final status = item.dto.collectionStatus?.trim().toLowerCase();
       if (ownedItem?.isSold == true) {
         soldCount += 1;
         continue;
@@ -951,11 +951,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return;
     }
     final currentIndex =
-        items.indexWhere((item) => item.entry.id == _selectedId);
+        items.indexWhere((item) => item.node.id == _selectedId);
     final nextIndex = currentIndex < 0
         ? (delta < 0 ? items.length - 1 : 0)
         : (currentIndex + delta).clamp(0, items.length - 1);
-    _activateItem(items[nextIndex].entry.id);
+    _activateItem(items[nextIndex].node.id);
   }
 
   void _handleKeyboardEscape() {
@@ -1024,7 +1024,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         context: context,
         request: LibraryDetailPageRequest(
           type: widget.type,
-          entry: selectedItem.entry,
+          item: selectedItem,
           ownedItem: selectedItem.source.ownedItem,
           accent: widget.accent,
           onAddOwned: () => _collectionActionCoordinator.runCollectionAction(

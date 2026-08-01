@@ -85,6 +85,10 @@ class InspectorPersonalSection extends StatelessWidget {
     final trackingStartedAt = trackingEntry?.startedAt ?? ownedItem?.startedAt;
     final trackingFinishedAt =
         trackingEntry?.finishedAt ?? ownedItem?.finishedAt;
+    final ownedTags = ownedItem?.tags;
+    final List<String> tagList = (ownedTags != null && ownedTags.trim().isNotEmpty)
+        ? ownedTags.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList()
+        : (dto.tags != null ? <String>[dto.tags!] : const <String>[]);
     return LibraryDetailSection(
       title: 'Personal',
       accentColor: accent,
@@ -126,20 +130,20 @@ class InspectorPersonalSection extends StatelessWidget {
                 )),
           ],
         ),
-        if (dto.personalNotes != null && dto.personalNotes!.trim().isNotEmpty) ...[
+        if (dto.notes != null && dto.notes!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
           Text(
-            dto.personalNotes!,
+            dto.notes!,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: appPalette(context).textMuted,
                 ),
           ),
         ],
-        if (dto.tags != null && dto.tags!.isNotEmpty) ...[
+        if (tagList.isNotEmpty) ...[
           const SizedBox(height: 8),
           LibraryDetailChipGroupWidget(
             label: 'Tags',
-            values: dto.tags!,
+            values: tagList,
             onValueTap: onFilterByValue,
           ),
         ],

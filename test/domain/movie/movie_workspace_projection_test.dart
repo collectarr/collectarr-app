@@ -5,14 +5,17 @@ import 'package:collectarr_app/features/library/workspace/entry/library_browser_
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:collectarr_app/core/api/dto/catalog/video_catalog_details_dto.dart';
+
 void main() {
   test('movie work and release project into workspace dtos', () {
-    const source = ShelfEntry(
+    final source = ShelfEntry(
+      itemId: 'movie-1',
       catalogItem: CatalogItemDto(
         id: 'movie-1',
         title: 'The Matrix',
-        description: 'A hacker discovers reality is a simulation.',
-        runtimeMinutes: 136,
+        synopsis: 'A hacker discovers reality is a simulation.',
+        video: const VideoCatalogDetailsDto(runtimeMinutes: 136),
         kind: 'movie',
       ),
     );
@@ -23,7 +26,6 @@ void main() {
     );
 
     expect(titleDto.title, 'The Matrix');
-    expect(titleDto.browseScope, LibraryBrowserScope.title);
-    expect(titleDto.movie.runtimeMinutes, 136);
+    expect(titleDto.movie.technical.runtimeMinutes, 136);
   });
 }

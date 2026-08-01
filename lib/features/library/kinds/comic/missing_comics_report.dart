@@ -67,53 +67,54 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
   final bySeries = <String, _MissingComicSeriesAccumulator>{};
 
   for (final item in items) {
-    if (item.entry.mediaType != 'comic') {
+    if (item.source.catalogItem?.kind != 'comic') {
       continue;
     }
-    final issueNumber = _issueNumber(item.entry.itemNumber);
+    final issueNumber = _issueNumber(item.dto.itemNumber);
     if (issueNumber == null) {
       continue;
     }
+    final series = item.source.catalogItem?.series;
     final seriesKey =
-        item.entry.series?.seriesId?.trim().isNotEmpty == true
-            ? item.entry.series!.seriesId!.trim()
-            : item.entry.series?.seriesTitle?.trim().isNotEmpty == true
-                ? item.entry.series!.seriesTitle!.trim()
-                : item.entry.title;
+        series?.seriesId?.trim().isNotEmpty == true
+            ? series!.seriesId!.trim()
+            : series?.seriesTitle?.trim().isNotEmpty == true
+                ? series!.seriesTitle!.trim()
+                : item.dto.title;
     final accumulator = bySeries.putIfAbsent(
       seriesKey,
       () => _MissingComicSeriesAccumulator(
         seriesKey: seriesKey,
-        seriesTitle: item.entry.series?.seriesTitle?.trim().isNotEmpty == true
-            ? item.entry.series!.seriesTitle!.trim()
-            : item.entry.title,
-        coverUrl: item.entry.displayCoverUrl,
+        seriesTitle: series?.seriesTitle?.trim().isNotEmpty == true
+            ? series!.seriesTitle!.trim()
+            : item.dto.title,
+        coverUrl: item.dto.coverImageUrl,
         ownedIssueNumbers: <int>{},
         candidateVariants: <int, List<MissingComicIssueVariant>>{},
       ),
     );
 
-    if (accumulator.coverUrl == null && item.entry.displayCoverUrl != null) {
-      accumulator.coverUrl = item.entry.displayCoverUrl;
+    if (accumulator.coverUrl == null && item.dto.coverImageUrl != null) {
+      accumulator.coverUrl = item.dto.coverImageUrl;
     }
 
-    if (item.entry.isOwned) {
+    if (item.source.ownedItem != null) {
       accumulator.ownedIssueNumbers.add(issueNumber);
       continue;
     }
     if (options.excludeOnOrder &&
-        item.entry.collectionStatus?.trim().toLowerCase() == 'on_order') {
+        item.dto.collectionStatus?.trim().toLowerCase() == 'on_order') {
       continue;
     }
-    if (options.excludeUnreleased && _isFutureRelease(item.entry.releaseDate, resolvedNow)) {
+    if (options.excludeUnreleased && _isFutureRelease(item.dto.releaseDate, resolvedNow)) {
       continue;
     }
     accumulator.candidateVariants.putIfAbsent(issueNumber, () => <MissingComicIssueVariant>[])
       .add(
         MissingComicIssueVariant(
           label: _missingComicVariantLabel(item),
-          variant: item.entry.variant,
-          releaseDate: item.entry.releaseDate,
+          variant: item.dto.variant,
+          releaseDate: item.dto.releaseDate,
         ),
       );
   }
@@ -264,13 +265,13 @@ String _verboseGroupLabel(MissingComicIssueGroup group) {
 }
 
 String _missingComicVariantLabel(LibraryProjectionItem item) {
-  final variant = item.entry.variant?.trim();
+  final variant = item.dto.variant?.trim();
   if (variant != null && variant.isNotEmpty) {
     return variant;
   }
-  return item.entry.referenceFormatLabel?.trim().isNotEmpty == true
-      ? item.entry.referenceFormatLabel!.trim()
-      : item.entry.title;
+  return item.dto.referenceFormatLabel?.trim().isNotEmpty == true
+      ? item.dto.referenceFormatLabel!.trim()
+      : item.dto.title;
 }
 
 int? _issueNumber(String? value) {

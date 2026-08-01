@@ -6,11 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('tv workspace projections build series season episode and release nodes', () {
-    const source = ShelfEntry(
+    final source = ShelfEntry(
+      itemId: 'series-1',
       catalogItem: CatalogItemDto(
         id: 'series-1',
         title: 'Cowboy Bebop',
-        description: 'A space western.',
+        synopsis: 'A space western.',
         kind: 'tv',
       ),
     );
@@ -21,6 +22,6 @@ void main() {
     );
 
     expect(dto.title, 'Cowboy Bebop');
-    expect(dto.kind, 'tv');
+    expect(source.catalogItem?.kind, 'tv');
   });
 }

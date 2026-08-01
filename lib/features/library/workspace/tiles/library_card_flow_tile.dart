@@ -2,11 +2,16 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -61,9 +66,8 @@ class LibraryCardFlowTile extends StatelessWidget {
             Brightness.dark
         ? Colors.white
         : theme.colorScheme.onSurface;
-    final comic = cat?.comic;
     final strongSelection =
-        selected && item.node.browseScope != LibraryBrowserScope.title;
+        selected && item.node is! LibraryTitleNodeRef;
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -132,15 +136,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             extraImageCount: item.source.itemImages.length,
                             contractDiagnosticLabel:
                                 libraryHierarchyContractDiagnosticLabel(item),
-                            keyLabel: libraryKeyMarkerLabel(
-                              comic?.keyComic ?? false,
-                              comic?.keyReason,
-                            ),
-                            slabLabel: librarySlabMarkerLabel(
-                              comic?.rawOrSlabbed,
-                              comic?.gradingCompany,
-                            ),
-                            notesLabel: libraryNotesMarkerLabel(dto.personalNotes),
+                            notesLabel: libraryNotesMarkerLabel(dto.notes),
                           ),
                         ),
                       ],
@@ -192,8 +188,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                         // Variant | date | publisher
                         Text(
                           [
-                            if (item.node.browseScope !=
-                                    LibraryBrowserScope.title &&
+                            if (item.node is! LibraryTitleNodeRef &&
                                 dto.variant != null &&
                                 dto.variant!.isNotEmpty)
                               dto.variant,
@@ -212,10 +207,10 @@ class LibraryCardFlowTile extends StatelessWidget {
                             fontSize: 12,
                           ),
                         ),
-                        if (dto.creator != null && dto.creator!.isNotEmpty) ...[
+                        if (dto.publisher != null && dto.publisher!.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            dto.creator!,
+                            dto.publisher!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodySmall?.copyWith(
@@ -291,7 +286,7 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionRuntime item,
 ) {
   final kind = item.source.catalogItem?.kind ?? '';
-  final type = collectarrLibraryTypes.byKind(kind);
+  final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(kind));
   if (type == null) {
     return null;
   }

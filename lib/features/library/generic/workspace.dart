@@ -118,10 +118,10 @@ class LibraryWorkspace extends ConsumerWidget {
       groupMode != 'title' &&
       groupMode != 'ownership';
 
-  bool _isActive(LibraryProjectionItem item) => item.entry.id == selectedId;
+  bool _isActive(LibraryProjectionItem item) => item.node.id == selectedId;
 
   bool _isSelectionSelected(LibraryProjectionItem item) =>
-      selectedIds.contains(item.entry.id);
+      selectedIds.contains(item.node.id);
 
   bool _isHighlighted(LibraryProjectionItem item) =>
       selectionEnabled ? _isSelectionSelected(item) : _isActive(item);
@@ -131,27 +131,27 @@ class LibraryWorkspace extends ConsumerWidget {
       final isRangeSelection = isLibraryRangeModifierPressed();
       final isToggleSelection = isLibraryToggleModifierPressed();
       if (isRangeSelection) {
-        final anchorId = selectedAnchorId ?? selectedId ?? item.entry.id;
-        final orderedIds = [for (final candidate in items) candidate.entry.id];
+        final anchorId = selectedAnchorId ?? selectedId ?? item.node.id;
+        final orderedIds = <String>[for (final candidate in items) candidate.node.id];
         final rangeIds = selectionRangeItemIds(
           orderedIds,
           anchorId: anchorId,
-          targetId: item.entry.id,
+          targetId: item.node.id,
         );
         onApplySelection(
           isToggleSelection ? {...selectedIds, ...rangeIds} : rangeIds,
-          item.entry.id,
+          item.node.id,
         );
         return;
       }
       if (isToggleSelection) {
-        onToggleSelectionItem(item.entry.id);
+        onToggleSelectionItem(item.node.id);
         return;
       }
       if (_isActive(item) && !selectionEnabled) {
         return;
       }
-      onActivateItem(item.entry.id);
+      onActivateItem(item.node.id);
     };
   }
 
@@ -234,18 +234,18 @@ class LibraryWorkspace extends ConsumerWidget {
           padding: gridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
-          itemIdOf: (item) => item.entry.id,
+          itemIdOf: (item) => item.node.id,
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryCoverTile(
-            key: ValueKey(item.entry.id),
-            entry: item.entry,
+            key: ValueKey(item.node.id),
+            item: item,
             customFieldBadges: item.customFieldBadges,
             active: _isActive(item),
             selected: _isSelectionSelected(item),
             selectionMode: selectionEnabled,
             onTap: _selectionTap(item),
-            onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
+            onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
             onDoubleTap: () => onOpenItem(item),
             onEditTap: () => onEditItem(item),
             onSecondaryTapUp: onItemContextMenu == null
@@ -272,12 +272,12 @@ class LibraryWorkspace extends ConsumerWidget {
           padding: gridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
-          itemIdOf: (item) => item.entry.id,
+          itemIdOf: (item) => item.node.id,
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryWorkspaceCard(
-            key: ValueKey(item.entry.id),
-            entry: item.entry,
+            key: ValueKey(item.node.id),
+            item: item,
             customFieldBadges: item.customFieldBadges,
             selected: _isHighlighted(item),
             onTap: _selectionTap(item),
@@ -293,7 +293,7 @@ class LibraryWorkspace extends ConsumerWidget {
             coverWidth: isMusicLibrary ? viewState.coverSize : cardCoverWidth,
             cardLayout: LibraryCardLayout.vertical,
             selectionMode: selectionEnabled,
-            onSelectionToggleTap: () => onToggleSelectionItem(item.entry.id),
+            onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
             onEditTap: () => onEditItem(item),
           ),
         ),
@@ -322,12 +322,12 @@ class LibraryWorkspace extends ConsumerWidget {
       LibraryViewMode.list => _buildTable(),
       LibraryViewMode.shelves => LibraryShelfView<LibraryProjectionItem>(
           items: items,
-          entryOf: (item) => item.entry,
+          entryOf: (item) => item,
           isActive: _isActive,
           isSelected: _isSelectionSelected,
           selectionEnabled: selectionEnabled,
           onTap: (item) => _selectionTap(item)(),
-          onToggleSelectionItem: (item) => onToggleSelectionItem(item.entry.id),
+          onToggleSelectionItem: (item) => onToggleSelectionItem(item.node.id),
           onDoubleTap: onOpenItem,
           onSecondaryTapUp: onItemContextMenu == null
               ? null
@@ -450,8 +450,8 @@ class LibraryWorkspace extends ConsumerWidget {
               width: cardTileWidth,
               height: cardTileHeight,
               child: LibraryWorkspaceCard(
-                key: ValueKey(item.entry.id),
-                entry: item.entry,
+                key: ValueKey(item.node.id),
+                item: item,
                 customFieldBadges: item.customFieldBadges,
                 selected: _isHighlighted(item),
                 onTap: _selectionTap(item),
@@ -468,7 +468,7 @@ class LibraryWorkspace extends ConsumerWidget {
                 cardLayout: LibraryCardLayout.horizontal,
                 selectionMode: selectionEnabled,
                 onSelectionToggleTap: () =>
-                    onToggleSelectionItem(item.entry.id),
+                    onToggleSelectionItem(item.node.id),
                 onEditTap: () => onEditItem(item),
               ),
             ),
@@ -479,7 +479,7 @@ class LibraryWorkspace extends ConsumerWidget {
   }
 
   Widget _tableCell(LibraryProjectionItem item, String column) {
-    return adapter.buildTableCell(item.entry, column);
+    return adapter.buildTableCell(item, column);
   }
 }
 

@@ -18,7 +18,7 @@ class LibraryPageEditCoordinator {
       context: _s.context,
       request: LibraryDetailPageRequest(
         type: _s.widget.type,
-        entry: item.entry,
+        item: item,
         ownedItem: item.source.ownedItem,
         accent: _s.widget.accent,
         onAddOwned: () => _s._collectionActionCoordinator.runCollectionAction(
@@ -130,7 +130,7 @@ class LibraryPageEditCoordinator {
     final viewItems =
         projection?.filteredItems ?? const <LibraryProjectionItem>[];
     var currentIndex = viewItems.indexWhere(
-      (candidate) => candidate.entry.id == item.entry.id,
+      (candidate) => candidate.node.id == item.node.id,
     );
     if (currentIndex < 0) {
       currentIndex = viewItems.indexWhere(

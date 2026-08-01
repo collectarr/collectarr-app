@@ -41,7 +41,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       state._searchController.clear();
     });
     state._searchControllerOps.clearSearch();
-    state._selectItem(match.entry.id);
+    state._selectItem(match.node.id);
   }
 
   static LibraryProjectionItem? _matchNumberInProjection(
@@ -54,7 +54,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       return null;
     }
     for (final item in seriesBucketItems(state, projection)) {
-      if (_selectionSortNumber(item.entry.itemNumber) == target) {
+      if (_selectionSortNumber(item.dto.itemNumber) == target) {
         return item;
       }
     }
@@ -69,7 +69,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       if (state._activeGroupMode != 'series') {
         return false;
       }
-      if (item.entry.browseScope != LibraryBrowserScope.title) {
+      if (item.node.scope != LibraryBrowserScope.title) {
         return false;
       }
       return true;

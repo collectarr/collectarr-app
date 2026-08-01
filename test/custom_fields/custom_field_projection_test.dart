@@ -105,7 +105,7 @@ void main() {
       );
 
       expect(projection.filteredItems, hasLength(1));
-      expect(projection.filteredItems.single.entry.id, 'comic-1');
+      expect(projection.filteredItems.single.node.id, 'comic-1');
     });
 
     test('matches standard fields', () {
@@ -165,7 +165,7 @@ void main() {
 
       expect(englishProjection.filteredItems, hasLength(1));
       expect(originalProjection.filteredItems, hasLength(1));
-      expect(englishProjection.filteredItems.single.entry.resolvedTitle, 'Your Name');
+      expect(englishProjection.filteredItems.single.dto.title, 'Your Name');
     });
 
     test('empty query returns all', () {
@@ -246,7 +246,7 @@ void main() {
       );
 
       expect(projection.filteredItems, hasLength(1));
-      expect(projection.filteredItems.single.entry.id, 'comic-1');
+      expect(projection.filteredItems.single.node.id, 'comic-1');
     });
   });
 }

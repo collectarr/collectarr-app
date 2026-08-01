@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart'
     as comic_add;
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
@@ -16,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:flutter/material.dart';
 
 
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(

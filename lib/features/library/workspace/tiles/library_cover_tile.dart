@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
@@ -97,10 +98,9 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final showSelectionToggle = widget.selectionMode || selected || _hovered;
     final showEditButton = _hovered && widget.onEditTap != null;
     final scopeBadge = _scopeBadge(context, item);
-    final comic = cat?.comic;
     final auxiliaryBadges = _auxiliaryBadges(item);
     final strongSelection =
-        selected && item.node.browseScope != LibraryBrowserScope.title;
+        selected && item.node is! LibraryTitleNodeRef;
     final selectedBorderWidth =
         (widget.coverSize * 0.032).clamp(3.0, 6.0).toDouble();
     final activeBorderWidth =
@@ -197,22 +197,16 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: SlabFrameOverlay.maybeWrap(
-                        rawOrSlabbed: comic?.rawOrSlabbed,
-                        gradingCompany: comic?.gradingCompany,
-                        grade: dto.grade,
-                        labelType: comic?.labelType,
-                        child: LibraryInteractiveCover(
-                          title: dto.title,
-                          itemNumber: dto.itemNumber,
-                          imageUrl: dto.coverImageUrl,
-                          ownedItemId: item.source.ownedItem?.id,
-                          targetCacheWidth: targetCacheWidth,
-                          accentColor: widget.accentColor,
-                          fit: BoxFit.cover,
-                          enableFullscreen: false,
-                          enableSecondaryControl: false,
-                        ),
+                      child: LibraryInteractiveCover(
+                        title: dto.title,
+                        itemNumber: dto.itemNumber,
+                        imageUrl: dto.coverImageUrl,
+                        ownedItemId: item.source.ownedItem?.id,
+                        targetCacheWidth: targetCacheWidth,
+                        accentColor: widget.accentColor,
+                        fit: BoxFit.cover,
+                        enableFullscreen: false,
+                        enableSecondaryControl: false,
                       ),
                     ),
                   ],
@@ -267,7 +261,6 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
 
   List<Widget> _auxiliaryBadges(LibraryProjectionRuntime item) {
     final dto = item.dto;
-    final comic = item.source.catalogItem?.comic;
     return [
       if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty)
         const LibraryCoverBadge(
@@ -279,22 +272,10 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
           icon: Icons.manage_search,
           label: 'Missing metadata',
         ),
-      if (libraryKeyMarkerLabel(comic?.keyComic ?? false, comic?.keyReason)
-          case final label?)
-        LibraryCoverBadge(
-          icon: Icons.label_important,
-          label: label,
-        ),
       if (dto.grade?.trim().isNotEmpty == true)
         LibraryCoverBadge(
           icon: Icons.star_rate,
           label: 'Grade ${dto.grade!.trim()}',
-        ),
-      if (librarySlabMarkerLabel(comic?.rawOrSlabbed, comic?.gradingCompany)
-          case final label?)
-        LibraryCoverBadge(
-          icon: Icons.workspace_premium,
-          label: label,
         ),
       if (libraryHierarchyContractDiagnosticLabel(item) case final label?)
         LibraryCoverBadge(

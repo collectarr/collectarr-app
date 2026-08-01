@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';

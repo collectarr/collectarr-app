@@ -84,12 +84,12 @@ abstract final class LibraryPageSelectionControllerOps {
         : projection.filteredItems
             .where(
               (item) => LibraryAlphaJumpBar.matchesLetter(
-                item.entry.resolvedTitle,
+                item.dto.title,
                 state._selectedLetter!,
               ),
             )
             .toList(growable: false);
-    return visibleItems.map((item) => item.entry.id).toSet();
+    return visibleItems.map((item) => item.node.id).toSet();
   }
 
   static bool isTextInputFocused(GenericLibraryPageState state) {

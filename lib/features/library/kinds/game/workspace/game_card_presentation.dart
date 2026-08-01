@@ -19,7 +19,7 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionRuntime item) {
 
   final badges = <LibraryCardBadge>[];
   final releasePlatform = dto.referenceFormatLabel?.trim();
-  final developer = gameDto?.game.work.developers.firstOrNull;
+  final developer = dto.publisher?.trim();
   final ageRating = item.source.catalogItem?.ageRating?.trim();
   final completion = dto.collectionStatus?.trim() ?? (dto.isOwned ? 'Owned' : null);
 

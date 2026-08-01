@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -28,7 +27,7 @@ void main() {
   });
 
   test('comic-only toolbar actions stay in the kind adapter', () {
-    final adapter = comicsLibraryConfig.kindUiAdapter;
+    expect(comicsLibraryConfig.kindUiAdapter, isNotNull);
   });
 
   test('browser mode resolution stays in the kind adapter', () {

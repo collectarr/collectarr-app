@@ -53,7 +53,7 @@ class LibraryPageMetadataCoordinator {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final selectedEntries = [
       for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.entry.id)) item.entry,
+        if (_page.selection.itemIds.contains(item.node.id)) item,
     ];
     if (selectedEntries.isEmpty) return;
     final result = await showLibraryMetadataRefreshDialog(
@@ -126,9 +126,9 @@ class LibraryPageMetadataCoordinator {
       context: _page.context,
       type: _page.type,
       accent: _page.accent,
-      allEntries: [item.entry],
-      shownEntries: [item.entry],
-      selectedEntry: item.entry,
+      allEntries: [item],
+      shownEntries: [item],
+      selectedEntry: item,
     );
     if (result == null || !_page.mounted) return;
     _page.invalidateShelf();

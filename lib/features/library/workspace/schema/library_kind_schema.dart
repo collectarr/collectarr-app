@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 /// Strongly-typed schema object holding all field, column, sort, group,
@@ -23,7 +24,7 @@ class LibraryKindSchema<TDto> {
   final Set<String> defaultVisibleColumnIds;
   final String defaultSortId;
   final String defaultGroupId;
-  final Iterable<String> Function(LibraryProjectionRuntime)? customLinkedMetadataCandidates;
+  final Iterable<String> Function(ShelfEntry)? customLinkedMetadataCandidates;
 
   /// Converts this schema to [AnyLibraryFieldRegistry<TDto>] for consumption by [LibraryKindModule].
   AnyLibraryFieldRegistry<TDto> toRegistry() {

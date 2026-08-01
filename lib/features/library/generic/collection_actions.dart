@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryCollectionActions {
@@ -10,12 +10,12 @@ class LibraryCollectionActions {
 
   Future<void> addOwned(LibraryProjectionItem item) {
     final anchor = resolveLibraryMutationAnchor(
-      entry: item.entry,
+      item: item,
       ownedItem: item.source.ownedItem,
       wishlistItem: item.source.wishlistItem,
     );
     return mutations.addItem(
-      item.entry.id,
+      item.source.catalogItem!.id,
       anchorType: anchor.anchorType,
       editionId: anchor.editionId,
       variantId: anchor.variantId,
@@ -33,12 +33,12 @@ class LibraryCollectionActions {
 
   Future<void> addWishlist(LibraryProjectionItem item) {
     final anchor = resolveLibraryMutationAnchor(
-      entry: item.entry,
+      item: item,
       ownedItem: item.source.ownedItem,
       wishlistItem: item.source.wishlistItem,
     );
     return mutations.addToWishlist(
-      item.entry.id,
+      item.source.catalogItem!.id,
       anchorType: anchor.anchorType,
       editionId: anchor.editionId,
       variantId: anchor.variantId,
@@ -48,12 +48,12 @@ class LibraryCollectionActions {
 
   Future<void> removeWishlist(LibraryProjectionItem item) {
     final anchor = resolveLibraryMutationAnchor(
-      entry: item.entry,
+      item: item,
       ownedItem: item.source.ownedItem,
       wishlistItem: item.source.wishlistItem,
     );
     return mutations.removeFromWishlist(
-      item.entry.id,
+      item.source.catalogItem!.id,
       wishlistItemId: item.source.wishlistItem?.id,
       anchorType: anchor.anchorType,
       editionId: anchor.editionId,

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';

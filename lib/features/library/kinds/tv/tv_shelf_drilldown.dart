@@ -123,9 +123,8 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                 child: Column(
                   children: [
                     LibraryCoverImage(
+                      title: seasonItem.season.title ?? 'Season ${seasonItem.season.seasonNumber}',
                       imageUrl: seasonItem.season.posterUrl ?? titleItem.dto.coverImageUrl,
-                      width: coverSize,
-                      height: coverSize * 1.5,
                       fit: BoxFit.cover,
                     ),
                     const SizedBox(height: 8),
@@ -169,7 +168,7 @@ class _TvShelfDrilldownShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return Scaffold(
-      backgroundColor: palette.workspaceBackground,
+      backgroundColor: palette.canvas,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

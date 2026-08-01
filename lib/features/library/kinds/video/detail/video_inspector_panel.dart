@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_inspector_sections.dart';
 import 'package:flutter/material.dart';
@@ -21,14 +20,13 @@ class VideoInspectorPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entry = request.inspector.entry;
+    final item = request.inspector.item;
     final accent = request.inspector.accent;
-    final sections = buildVideoInspectorSections(request.inspector);
 
     return LibraryDetailPanelScaffold(
       accent: accent,
       toolbar: InspectorUnifiedToolbar(
-        entry: entry,
+        item: item,
         detailsLayout: request.inspector.detailsLayout,
         onEdit: request.onEdit,
         onShare: request.onShare,
@@ -41,21 +39,19 @@ class VideoInspectorPanel extends StatelessWidget {
       ),
       hero: LibraryDetailHero(
         type: request.inspector.type,
-        entry: entry,
+        item: item,
         ownedItem: request.inspector.ownedItem,
         accent: accent,
       ),
       sections: [
-        LibraryDetailSectionSpec(
-          slot: LibraryDetailSectionSlot.identity,
-          title: 'Details',
-          children: [
-            ...buildLibraryDetailSectionWidgets(
-              sections,
-              accentColor: accent,
-            ),
-            if (request.ownedCopiesSection != null ||
-                request.conditionGradeSection != null) ...[
+        ...buildVideoInspectorSections(request.inspector),
+        if (request.ownedCopiesSection != null ||
+            request.conditionGradeSection != null ||
+            request.bundleSection != null)
+          LibraryDetailSectionSpec(
+            slot: LibraryDetailSectionSlot.personalStatus,
+            title: 'Personal',
+            children: [
               if (request.ownedCopiesSection != null)
                 request.ownedCopiesSection!,
               if (request.conditionGradeSection != null) ...[
@@ -63,13 +59,12 @@ class VideoInspectorPanel extends StatelessWidget {
                   const SizedBox(height: 8),
                 request.conditionGradeSection!,
               ],
+              if (request.bundleSection != null) ...[
+                const SizedBox(height: 8),
+                request.bundleSection!,
+              ],
             ],
-            if (request.bundleSection != null) ...[
-              const SizedBox(height: 8),
-              request.bundleSection!,
-            ],
-          ],
-        ),
+          ),
         if (request.trailingSections.isNotEmpty)
           LibraryDetailSectionSpec(
             slot: LibraryDetailSectionSlot.activityHistory,

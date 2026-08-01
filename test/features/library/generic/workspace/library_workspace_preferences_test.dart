@@ -64,16 +64,16 @@ void main() {
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
         isSidebarVisible: true,
-        sortColumn: 'grade',
+        sortColumn: 'comic.publisher',
         sortAscending: false,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         sortRules: [
           LibrarySortRule(
-            column: 'grade',
+            column: 'comic.publisher',
             ascending: false,
           ),
           LibrarySortRule(
-            column: 'updated',
+            column: 'comic.title',
             ascending: false,
           ),
         ],
@@ -82,12 +82,12 @@ void main() {
         detailsWidth: 390,
         detailsHeight: 244,
         visibleColumns: {
-          'title',
-          'grade',
+          'comic.title',
+          'comic.publisher',
         },
         columnWidths: {
-          'title': 320,
-          'grade': 120,
+          'comic.title': 320,
+          'comic.publisher': 120,
         },
       ),
     );
@@ -101,15 +101,15 @@ void main() {
 
     expect(restored.viewMode, LibraryViewMode.list);
     expect(restored.detailsLayout, LibraryDetailsLayout.bottom);
-    expect(restored.sortColumn, 'grade');
+    expect(restored.sortColumn, 'comic.publisher');
     expect(restored.sortAscending, isFalse);
     expect(restored.sortRules, [
       const LibrarySortRule(
-        column: 'grade',
+        column: 'comic.publisher',
         ascending: false,
       ),
       const LibrarySortRule(
-        column: 'updated',
+        column: 'comic.title',
         ascending: false,
       ),
     ]);
@@ -118,23 +118,23 @@ void main() {
     expect(restored.detailsWidth, 390);
     expect(restored.detailsHeight, 244);
     expect(restored.visibleColumns, {
-      'title',
-      'grade',
+      'comic.title',
+      'comic.publisher',
     });
     expect(restored.visibleColumns.toList(), [
-      'title',
-      'grade',
+      'comic.title',
+      'comic.publisher',
     ]);
-    expect(restored.columnWidths['title'], 320);
-    expect(restored.columnWidths['grade'], 120);
+    expect(restored.columnWidths['comic.title'], 320);
+    expect(restored.columnWidths['comic.publisher'], 120);
   });
 
   test('library workspace preferences migrate legacy enum names', () async {
     SharedPreferences.setMockInitialValues({
-      'comics.sort_column': 'grade',
-      'comics.sort_rules': ['grade:desc', 'updated:asc'],
-      'comics.visible_columns': ['title', 'grade'],
-      'comics.column_widths': ['title:320', 'grade:120'],
+      'comics.sort_column': 'publisher',
+      'comics.sort_rules': ['publisher:desc', 'title:asc'],
+      'comics.visible_columns': ['title', 'publisher'],
+      'comics.column_widths': ['title:320', 'publisher:120'],
     });
 
     final store = LibraryWorkspacePreferences(typeConfig);
@@ -145,23 +145,23 @@ void main() {
       maxCoverSize: 188,
     );
 
-    expect(restored.sortColumn, 'grade');
+    expect(restored.sortColumn, 'comic.publisher');
     expect(restored.sortRules, [
       const LibrarySortRule(
-        column: 'grade',
+        column: 'comic.publisher',
         ascending: false,
       ),
       const LibrarySortRule(
-        column: 'updated',
+        column: 'comic.title',
         ascending: true,
       ),
     ]);
     expect(restored.visibleColumns, {
-      'title',
-      'grade',
+      'comic.title',
+      'comic.publisher',
     });
-    expect(restored.columnWidths['title'], 320);
-    expect(restored.columnWidths['grade'], 120);
+    expect(restored.columnWidths['comic.title'], 320);
+    expect(restored.columnWidths['comic.publisher'], 120);
   });
 
   test('workspace chrome size and position are retained per library',
@@ -253,7 +253,7 @@ void main() {
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
         isSidebarVisible: false,
-        sortColumn: 'grade',
+        sortColumn: 'comic.publisher',
         sortAscending: false,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 144,
@@ -262,7 +262,7 @@ void main() {
         detailsHeight: 260,
         visibleColumns: {
           'title',
-          'grade',
+          'comic.publisher',
         },
         columnWidths: {},
       ),
@@ -301,12 +301,12 @@ void main() {
       maxCoverSize: 188,
     );
 
-    expect(comics.sortColumn, 'grade');
+    expect(comics.sortColumn, 'comic.publisher');
     expect(comics.sortAscending, isFalse);
     expect(comics.detailsLayout, LibraryDetailsLayout.bottom);
     expect(comics.isSidebarVisible, isFalse);
 
-    expect(manga.sortColumn, 'title');
+    expect(manga.sortColumn, 'comic.title');
     expect(manga.sortAscending, isTrue);
     expect(manga.detailsLayout, LibraryDetailsLayout.right);
     expect(manga.isSidebarVisible, isTrue);

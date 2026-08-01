@@ -44,10 +44,10 @@ class VideoLibraryMediaPresentationBuilder
         ],
         if (dto.seriesTitle != null)
           LibraryDetailField(label: 'Series', value: dto.seriesTitle!, onTap: tapFor(dto.seriesTitle)),
-        if (item.node.browseScope != LibraryBrowserScope.title &&
+        if (item.node.scope != LibraryBrowserScope.title &&
             dto.variant != null)
           LibraryDetailField(label: releaseFields.variantLabel, value: dto.variant!, onTap: tapFor(dto.variant)),
-        if (item.node.browseScope != LibraryBrowserScope.title &&
+        if (item.node.scope != LibraryBrowserScope.title &&
             dto.barcode != null)
           LibraryDetailField(label: releaseFields.barcodeLabel, value: dto.barcode!),
       ],

@@ -49,9 +49,9 @@ class WorkspaceCommonProjection {
     }
 
     return WorkspaceCommonProjection(
-      title: overrideTitle ?? item?.name ?? '',
+      title: overrideTitle ?? item?.title ?? '',
       seriesTitle: overrideSeriesTitle ?? item?.series?.seriesTitle,
-      itemNumber: item?.itemNumber,
+      itemNumber: item?.itemNumber?.toString(),
       publisher: overridePublisher ?? edition?.publisher ?? item?.publisher,
       releaseDate: overrideReleaseDate ?? edition?.releaseDate ?? item?.releaseDate,
       variant: overrideVariant ?? primaryVariant?.name ?? edition?.title ?? item?.variant,
@@ -59,8 +59,8 @@ class WorkspaceCommonProjection {
       grade: source.ownedItem?.grade,
       country: item?.country,
       language: edition?.language ?? item?.language,
-      currency: source.ownedItem?.currency ?? item?.currency,
-      referenceFormatLabel: primaryVariant?.physicalFormatLabel ?? edition?.physicalFormatLabel ?? item?.referenceFormatLabel,
+      currency: source.ownedItem?.currency,
+      referenceFormatLabel: primaryVariant?.physicalFormatLabel ?? edition?.physicalFormatLabel ?? item?.physicalFormatLabel,
       coverImageUrl: overrideCoverImageUrl ?? primaryVariant?.coverImageUrl ?? primaryVariant?.thumbnailImageUrl ?? item?.coverImageUrl,
     );
   }
@@ -84,6 +84,7 @@ class PersonalCopyProjection {
   PersonalCopyProjection({
     this.isOwned = false,
     this.isWishlisted = false,
+    this.isTracked = false,
     this.condition,
     this.locationPath,
     this.rating,
@@ -92,6 +93,7 @@ class PersonalCopyProjection {
     DateTime? updatedAt,
     this.tags,
     this.collectionStatus,
+    this.notes,
   }) : updatedAt = updatedAt ?? DateTime.utc(1970);
 
   factory PersonalCopyProjection.fromShelf(
@@ -102,19 +104,22 @@ class PersonalCopyProjection {
     return PersonalCopyProjection(
       isOwned: releaseState?.isOwned ?? source.isOwned,
       isWishlisted: releaseState?.isWishlisted ?? source.isWishlisted,
+      isTracked: releaseState?.isTracked ?? source.isTracked,
       condition: owned?.condition,
-      locationPath: owned?.locationPath,
+      locationPath: owned?.locationId,
       rating: owned?.rating,
       pricePaidCents: owned?.pricePaidCents,
-      addedAt: owned?.addedAt,
+      addedAt: owned?.createdAt,
       updatedAt: source.updatedAt,
       tags: owned?.tags,
       collectionStatus: owned?.collectionStatus,
+      notes: owned?.personalNotes,
     );
   }
 
   final bool isOwned;
   final bool isWishlisted;
+  final bool isTracked;
   final String? condition;
   final String? locationPath;
   final int? rating;
@@ -123,6 +128,7 @@ class PersonalCopyProjection {
   final DateTime updatedAt;
   final String? tags;
   final String? collectionStatus;
+  final String? notes;
 }
 
 /// Abstract base adapter for Workspace DTOs implementing standard [LibraryWorkspaceDto] getters
@@ -159,6 +165,8 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   @override
   String? get referenceFormatLabel => common.referenceFormatLabel;
   @override
+  String? get format => common.referenceFormatLabel;
+  @override
   String? get coverImageUrl => common.coverImageUrl;
 
   // Delegated LibraryWorkspaceDto getters from PersonalCopyProjection:
@@ -166,6 +174,8 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   bool get isOwned => personal.isOwned;
   @override
   bool get isWishlisted => personal.isWishlisted;
+  @override
+  bool get isTracked => personal.isTracked;
   @override
   String? get condition => personal.condition;
   @override
@@ -182,4 +192,18 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   String? get tags => personal.tags;
   @override
   String? get collectionStatus => personal.collectionStatus;
+  @override
+  String? get notes => personal.notes;
+  @override
+  int? get marketValueCents => null;
+  @override
+  String? get creator => publisher;
+  @override
+  String? get synopsis => null;
+  @override
+  String? get audienceRating => null;
+  @override
+  String? get ageRating => null;
+  @override
+  String? get editionLabel => null;
 }

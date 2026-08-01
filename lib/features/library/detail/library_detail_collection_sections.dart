@@ -61,7 +61,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       effectiveOwnedCopies,
       (item) => item.marketValueCents,
     );
-    final totalsCurrency = _detailValueCurrency(effectiveOwnedCopies, ownedItem, entry);
+    final totalsCurrency = _detailValueCurrency(effectiveOwnedCopies, ownedItem, item);
     final totalPaid = totalPaidCents == null
         ? ''
         : formatMoney(totalPaidCents, totalsCurrency);
@@ -80,12 +80,12 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       children: [
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Status', value: genericLibraryStatusLabel(entry)),
+            LibraryDetailField(label: 'Status', value: genericLibraryStatusLabel(item)),
             LibraryDetailField(label: 'Owned ID', value: genericLibraryDash(ownedItem?.id)),
-            LibraryDetailField(label: 'Condition', value: genericLibraryDash(ownedItem?.condition ?? entry.condition)),
-            LibraryDetailField(label: 'Grade', value: genericLibraryDash(ownedItem?.grade ?? entry.grade)),
+            LibraryDetailField(label: 'Condition', value: genericLibraryDash(ownedItem?.condition ?? dto.condition)),
+            LibraryDetailField(label: 'Grade', value: genericLibraryDash(ownedItem?.grade ?? dto.grade)),
             LibraryDetailField(label: 'Quantity', value: ownedItem == null ? '-' : ownedItem!.quantity.toString()),
-            LibraryDetailField(label: 'Location', value: genericLibraryDash(entry.locationPath)),
+            LibraryDetailField(label: 'Location', value: genericLibraryDash(dto.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
             LibraryDetailField(label: 'Current value', value: currentValue.isEmpty ? '-' : currentValue),
             if (effectiveOwnedCopies.length > 1)
@@ -99,7 +99,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             LibraryDetailField(label: 'Sell price', value: sellPrice.isEmpty ? '-' : sellPrice),
             LibraryDetailField(label: 'Profit / Loss', value: profitLoss ?? '-'),
             LibraryDetailField(label: 'Sold to', value: genericLibraryDash(ownedItem?.soldTo)),
-            LibraryDetailField(label: 'Updated', value: formatNullableDate(ownedItem?.updatedAt ?? entry.updatedAt) ?? '-'),
+            LibraryDetailField(label: 'Updated', value: formatNullableDate(ownedItem?.updatedAt ?? dto.updatedAt) ?? '-'),
             LibraryDetailField(label: 'Read status', value: genericLibraryDash(trackingStatus)),
             LibraryDetailField(label: 'Progress', value: genericLibraryDash(trackingProgress)),
             LibraryDetailField(label: 'Episode', value: genericLibraryDash(trackingEpisode)),
@@ -234,12 +234,12 @@ class LibraryDetailLocalSnapshotSection extends StatelessWidget {
       children: [
         SelectableText(
           [
-            'catalog_id: ${entry.id}',
-            'kind: ${entry.mediaType}',
+            'catalog_id: ${item.node.titleItemId}',
+            'kind: ${item.source.catalogItem?.kind ?? '-'}' ,
             'owned_id: ${ownedItem?.id ?? '-'}',
             'edition_id: ${ownedItem?.editionId ?? '-'}',
             'variant_id: ${ownedItem?.variantId ?? '-'}',
-            'updated_at: ${entry.updatedAt.toUtc().toIso8601String()}',
+            'updated_at: ${item.dto.updatedAt.toUtc().toIso8601String()}',
           ].join('\n'),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: appPalette(context).textMuted,

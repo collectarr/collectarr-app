@@ -23,7 +23,7 @@ double plannedMediaTableWidthForColumns({
     columns: columns,
     defaultColumns: libraryKindModuleForType(type).fields.defaultVisibleColumnIds,
     customWidths: customWidths,
-    sizing: (column) => plannedMediaTableColumnSizing(type, column as String),
+    sizing: (column) => plannedMediaTableColumnSizing(type, column),
     columnSpacing: kPlannedMediaTableColumnSpacing,
     horizontalMargin: kPlannedMediaTableHorizontalMargin,
   );
@@ -37,7 +37,7 @@ double plannedMediaTableColumnWidth(
   return libraryTableColumnWidth(
     column: columnId,
     customWidths: customWidths,
-    sizing: (column) => plannedMediaTableColumnSizing(type, column as String),
+    sizing: (column) => plannedMediaTableColumnSizing(type, column),
   );
 }
 
@@ -147,8 +147,6 @@ String? plannedMediaTableColumnSort(
   }
   return definition.sortId?.value ?? definition.id.value;
 }
-
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 Widget plannedMediaTableCell(
   LibraryTypeConfig type,

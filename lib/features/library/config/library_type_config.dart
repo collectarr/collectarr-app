@@ -652,8 +652,8 @@ class LibraryKindUiAdapter {
       return null;
     }
     for (final item in projection.allItems) {
-      if ((item.entry.titleItemId ?? item.entry.id) == titleId) {
-        return item.entry.resolvedTitle;
+      if (item.node.titleItemId == titleId) {
+        return item.dto.title;
       }
     }
     return null;
@@ -676,7 +676,7 @@ class LibraryKindUiAdapter {
       (item) =>
           genericBucketForItemMode(item, type, 'series') ==
               selectedBucket &&
-          issueSortNumber(item.entry.itemNumber) != null,
+          issueSortNumber(item.dto.itemNumber) != null,
     );
   }
 

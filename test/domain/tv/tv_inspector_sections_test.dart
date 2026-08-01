@@ -16,40 +16,43 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/video_catalog_details_dto.dart';
+
 void main() {
   testWidgets('tv inspector builds tv-specific sections', (tester) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.tv)!;
     late List<Widget> sections;
-    final item = VideoLibraryWorkspaceProjector(kind: 'tv').project(
-      source: ShelfEntry(
-        catalogItem: CatalogItemDto(
-          id: 'series-1',
-          kind: 'tv',
-          title: 'Cowboy Bebop',
-          displayTitle: 'Cowboy Bebop',
-          video: const CatalogVideoDetails(
-            runtimeMinutes: 24,
-            discCount: 2,
-            audioTracks: 'Stereo',
-            subtitles: 'English',
-            layers: 'Dual layer',
-          ),
-          editions: const [
-            CatalogEdition(
-              id: 'release-1',
-              name: 'Blu-ray',
-              physicalFormat: 'Blu-ray',
-              physicalFormatLabel: 'Blu-ray',
-              releaseDate: DateTime.utc(2024, 1, 5),
-            ),
-          ],
-          trailerUrls: const [
-            TrailerLink(url: 'https://example.com/trailer'),
-          ],
+    final source = ShelfEntry(
+      itemId: 'series-1',
+      catalogItem: CatalogItemDto(
+        id: 'series-1',
+        kind: 'tv',
+        title: 'Cowboy Bebop',
+        video: const VideoCatalogDetailsDto(
+          runtimeMinutes: 24,
+          audioTracks: 'Stereo',
+          subtitles: 'English',
+          layers: 'Dual layer',
         ),
+        editions: [
+          CatalogEdition(
+            id: 'release-1',
+            title: 'Blu-ray',
+            physicalFormat: 'Blu-ray',
+            physicalFormatLabel: 'Blu-ray',
+            releaseDate: DateTime.utc(2024, 1, 5),
+          ),
+        ],
+        trailerUrls: const [
+          TrailerLink(url: 'https://example.com/trailer'),
+        ],
       ),
-      node: const LibraryTitleNodeRef('series-1'),
     );
+    const node = LibraryTitleNodeRef(titleItemId: 'series-1');
+    final dto = const TvWorkspaceProjector().projectTitle(source: source, node: node);
+    final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     await tester.pumpWidget(
       MaterialApp(

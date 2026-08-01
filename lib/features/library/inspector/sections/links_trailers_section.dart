@@ -13,7 +13,7 @@ class InspectorLinksTrailersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final links = request.entry.trailerUrls;
+    final links = request.item.source.catalogItem?.trailerUrls ?? const [];
     if (links.isEmpty) {
       return const SizedBox.shrink();
     }

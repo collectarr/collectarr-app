@@ -22,23 +22,28 @@ List<Widget> buildTvInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
-  return buildLibraryDetailSectionWidgets(
-    _buildTvInspectorSectionSpecs(context, request),
-    accentColor: request.accent,
-  );
+  final specs = _buildTvInspectorSectionSpecs(context, request);
+  final widgets = <Widget>[];
+  for (final spec in specs) {
+    widgets.addAll(spec.children);
+  }
+  return widgets;
 }
 
 List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
+  final item = request.item;
+  final dto = item.dto;
+  final catalogItem = item.source.catalogItem;
   final seriesRef = CatalogEntityRef(
     kind: request.type.workspace.kind.apiValue,
     entityType: CatalogEntityType.work,
-    id: request.entry.id,
+    id: item.node.titleItemId,
   );
   final releaseOptions = [
-    for (final edition in request.entry.editions)
+    for (final edition in catalogItem?.editions ?? const [])
       WatchHistoryTargetOption(
         ref: CatalogEntityRef(
           kind: seriesRef.kind,
@@ -54,49 +59,24 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ),
   ];
 
-  final entry = request.entry;
   final ownedItem = request.ownedItem;
   final trackingEntry = request.trackingEntry;
-  final aliases = <String>{
-    if (entry.originalTitle?.trim().isNotEmpty == true) entry.originalTitle!.trim(),
-    if (entry.localizedTitle?.trim().isNotEmpty == true &&
-        entry.localizedTitle!.trim() != entry.resolvedTitle.trim())
-      entry.localizedTitle!.trim(),
-    ...?entry.searchAliases,
-  }.toList(growable: false);
-  final genreValues = entry.genres ?? const <String>[];
   final creatorNames = <String>[
-    for (final credit in entry.creators ?? const <Map<String, dynamic>>[])
+    for (final credit in catalogItem?.creators ?? const <Map<String, dynamic>>[])
       if (credit['name']?.toString().trim().isNotEmpty == true)
         credit['name'].toString().trim(),
   ];
   final facts = <LibraryDetailField>[
-    LibraryDetailField(label: 'Display title', value: entry.resolvedTitle),
-    if (entry.originalTitle?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Original title', value: entry.originalTitle!),
-    if (entry.publisher?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Studio', value: entry.publisher!),
-    LibraryDetailField(label: 'Releases', value: entry.editions.length.toString()),
-    if (entry.video?.nrDiscs != null)
-      LibraryDetailField(label: 'Discs', value: entry.video!.nrDiscs.toString()),
-    if (entry.video?.runtimeMinutes != null)
-      LibraryDetailField(label: 'Runtime', value: '${entry.video!.runtimeMinutes} min'),
-    if (entry.video?.color?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'HDR / color', value: entry.video!.color!),
-    if (entry.video?.screenRatio?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Screen ratio', value: entry.video!.screenRatio!),
-    if (entry.video?.audioTracks?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Audio', value: entry.video!.audioTracks!),
-    if (entry.video?.subtitles?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Subtitles', value: entry.video!.subtitles!),
-    if (entry.video?.layers?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Layers', value: entry.video!.layers!),
+    LibraryDetailField(label: 'Display title', value: dto.title),
+    if (dto.publisher?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Studio', value: dto.publisher!),
+    LibraryDetailField(label: 'Releases', value: (catalogItem?.editions.length ?? 0).toString()),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
     if (trackingEntry?.episodeRatings.isNotEmpty == true)
       LibraryDetailField(label: 'Rated episodes', value: trackingEntry!.episodeRatings.length.toString()),
-    if (request.entry.trailerUrls.isNotEmpty)
-      LibraryDetailField(label: 'Trailers', value: request.entry.trailerUrls.length.toString()),
+    if (catalogItem?.trailerUrls.isNotEmpty == true)
+      LibraryDetailField(label: 'Trailers', value: catalogItem!.trailerUrls.length.toString()),
   ];
 
   return <LibraryDetailSectionSpec>[
@@ -108,31 +88,6 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           title: 'Series metadata',
           accent: request.accent,
           facts: facts,
-          children: [
-            if (genreValues.isNotEmpty) ...[
-              LibraryDetailChipGroupWidget(
-                label: 'Genres',
-                values: genreValues,
-                onValueTap: request.onFilterByValue,
-              ),
-            ],
-            if (creatorNames.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              LibraryDetailChipGroupWidget(
-                label: 'Cast / credits',
-                values: creatorNames,
-                onValueTap: request.onFilterByValue,
-              ),
-            ],
-            if (aliases.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              LibraryDetailChipGroupWidget(
-                label: 'Search aliases',
-                values: aliases,
-                onValueTap: request.onFilterByValue,
-              ),
-            ],
-          ],
         ),
       ],
     ),
@@ -151,7 +106,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           seriesRef: seriesRef,
           kind: request.type.workspace.kind.apiValue,
           accent: request.accent,
-          itemId: request.entry.id,
+          itemId: item.node.titleItemId,
         ),
       ],
     ),
@@ -185,12 +140,12 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       children: [
         VideoExternalLinksSection(
           title: 'External links',
-          links: request.entry.trailerUrls,
+          links: request.item.source.catalogItem?.trailerUrls ?? const [],
           accent: request.accent,
         ),
         const SizedBox(height: 8),
         LibraryDetailUserLinksSection(
-          itemId: request.entry.id,
+          itemId: request.item.node.titleItemId,
           accent: request.accent,
         ),
         const SizedBox(height: 8),
@@ -239,13 +194,13 @@ Widget buildTvInspectorPanel(
   BuildContext context,
   LibraryInspectorPanelRequest request,
 ) {
-  final entry = request.inspector.entry;
+  final item = request.inspector.item;
   final accent = request.inspector.accent;
 
   return LibraryDetailPanelScaffold(
     accent: accent,
     toolbar: InspectorUnifiedToolbar(
-      entry: entry,
+      item: item,
       detailsLayout: request.inspector.detailsLayout,
       onEdit: request.onEdit,
       onShare: request.onShare,
@@ -256,11 +211,7 @@ Widget buildTvInspectorPanel(
       onUnlinkFromCore: request.onUnlinkFromCore,
       onDetailsLayoutChanged: request.onDetailsLayoutChanged,
     ),
-    hero: LibraryInspectorTitleCard(
-      entry: entry,
-      eyebrow: entry.series?.seriesTitle?.trim(),
-      accent: accent,
-    ),
+    hero: const SizedBox.shrink(),
     sections: _buildTvInspectorSectionSpecs(context, request.inspector),
   );
 }

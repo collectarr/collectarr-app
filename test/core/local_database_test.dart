@@ -362,7 +362,7 @@ void main() {
 
     expect(item, isA<CatalogItem>());
     expect(item!.sortKey, 'lord-of-the-rings-001');
-    expect(item.series?.tags, ['Epic Fantasy', 'Middle-earth']);
+    expect(item.series?.tags, 'Epic Fantasy, Middle-earth');
     expect(item.publishing?.subtitle, 'Being the First Part');
   });
 

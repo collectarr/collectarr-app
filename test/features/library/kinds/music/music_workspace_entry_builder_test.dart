@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('music work maps metadata into a workspace entry', () {
     final work = MusicCatalogMapper.mapDtoToMusic(
-      const CatalogItemDto(
+      CatalogItemDto(
         id: 'music-1',
         kind: 'music',
         title: 'Kinesis',

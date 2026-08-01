@@ -10,39 +10,30 @@ LibraryCardPresentation buildComicCardPresentation(
   LibraryProjectionRuntime item, {
   required bool musicVertical,
 }) {
-  final comic = item.dto is ComicWorkspaceDto ? (item.dto as ComicWorkspaceDto).comic : null;
+  final comicDetails = item.source.ownedItem?.typedDetails?.comic;
   final badges = <LibraryCardBadge>[];
 
-  if (comic?.work.keyComic == true) {
+  if (comicDetails?.keyComic == true) {
     badges.add(
       LibraryCardBadge(
         icon: Icons.label_important,
-        label: comic?.work.keyReason?.isNotEmpty == true
-            ? comic!.work.keyReason!
+        label: comicDetails?.keyReason?.isNotEmpty == true
+            ? comicDetails!.keyReason!
             : 'Key item',
       ),
     );
   }
 
-  final slabLabel = librarySlabMarkerLabel(
-    comic?.publishing.rawOrSlabbed,
-    comic?.publishing.gradingCompany,
-  );
-  if (slabLabel != null) {
-    badges.add(
-      LibraryCardBadge(icon: Icons.workspace_premium, label: slabLabel),
-    );
-  }
-
   Widget Function(Widget child)? overlay;
-  if (comic?.publishing.rawOrSlabbed != null ||
-      comic?.publishing.gradingCompany != null ||
-      comic?.publishing.labelType != null) {
+  if (comicDetails?.rawOrSlabbed != null ||
+      comicDetails?.gradingCompany != null ||
+      comicDetails?.labelType != null ||
+      item.dto.grade != null) {
     overlay = (child) => SlabFrameOverlay.maybeWrap(
-          rawOrSlabbed: comic?.publishing.rawOrSlabbed,
-          gradingCompany: comic?.publishing.gradingCompany,
+          rawOrSlabbed: comicDetails?.rawOrSlabbed,
+          gradingCompany: comicDetails?.gradingCompany,
           grade: item.dto.grade,
-          labelType: comic?.publishing.labelType,
+          labelType: comicDetails?.labelType,
           child: child,
         );
   }

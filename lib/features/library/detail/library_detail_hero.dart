@@ -141,51 +141,15 @@ class LibraryDetailHero extends StatelessWidget {
             children: [
               SizedBox(
                 width: 140,
-                child: Consumer(
-                  builder: (context, ref, child) {
-                    return Stack(
-                      children: [
-                        LibraryCoverImage(
-                          title: dto.title,
-                          itemNumber: dto.itemNumber,
-                          imageUrl: dto.coverImageUrl,
-                          width: 140,
-                          height: 200,
-                          cacheWidth: _targetCacheWidth(
-                            context,
-                            coverWidth: 140,
-                          ),
-                          ownedItemId: resolvedOwnedItemId,
-                        ),
-                        Positioned(
-                          right: 6,
-                          bottom: 6,
-                          child: CircleAvatar(
-                            radius: 16,
-                            backgroundColor: Colors.black54,
-                            child: IconButton(
-                              iconSize: 16,
-                              icon: const Icon(
-                                Icons.photo_camera,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                final db = ref.read(localDatabaseProvider);
-                                showDialog(
-                                  context: context,
-                                  builder: (dialogContext) => ItemImagePickerDialog(
-                                    itemId: item.node.titleItemId,
-                                    db: db,
-                                    mediaKind: item.source.catalogItem?.kind ?? 'comic',
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+                child: LibraryCoverImage(
+                  title: dto.title,
+                  itemNumber: dto.itemNumber,
+                  imageUrl: dto.coverImageUrl,
+                  targetCacheWidth: _targetCacheWidth(
+                    context,
+                    coverWidth: 140,
+                  ),
+                  ownedItemId: resolvedOwnedItemId,
                 ),
               ),
               const SizedBox(width: 20),
@@ -232,10 +196,10 @@ class LibraryDetailHero extends StatelessWidget {
               ),
             ],
           ),
-          if (authorName != null && authorName.isNotEmpty) ...[
+          if ((item.source.catalogItem?.creators ?? const []).isNotEmpty) ...[
             const SizedBox(height: 20),
             BookAuthorSpotlight(
-              authorName: authorName,
+              creators: item.source.catalogItem?.creators ?? const [],
               accent: accent,
             ),
           ],

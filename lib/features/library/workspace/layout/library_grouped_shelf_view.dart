@@ -82,10 +82,10 @@ class LibraryGroupedShelfView extends StatelessWidget {
   final LibraryGroupItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
 
-  bool _isActive(LibraryProjectionItem item) => item.entry.id == selectedId;
+  bool _isActive(LibraryProjectionItem item) => item.source.itemId == selectedId;
 
   bool _isSelected(LibraryProjectionItem item) =>
-      selectedIds.contains(item.entry.id);
+      selectedIds.contains(item.source.itemId);
 
   @override
   Widget build(BuildContext context) {
@@ -229,22 +229,22 @@ class LibraryGroupedShelfView extends StatelessWidget {
                 mainAxisExtent: mainAxisExtent,
                 selectionEnabled: selectionEnabled,
                 selectedIds: selectedIds,
-                itemIdOf: (item) => item.item.entry.id,
+                itemIdOf: (item) => item.item.source.itemId,
                 onSelectionChanged: onBoxSelectionChanged,
                 shrinkWrap: true,
                 scrollable: false,
                 itemBuilder: (context, shelfItem) {
                   final item = shelfItem.item;
                   final child = LibraryCoverTile(
-                    key: ValueKey(item.entry.id),
-                    entry: item.entry,
+                    key: ValueKey(item.source.itemId),
+                    item: item,
                     customFieldBadges: item.customFieldBadges,
                     active: _isActive(item),
                     selected: _isSelected(item),
                     selectionMode: selectionEnabled,
-                    onTap: () => onActivateItem(item.entry.id),
+                    onTap: () => onActivateItem(item.source.itemId),
                     onSelectionToggleTap: () =>
-                        onToggleSelectionItem(item.entry.id),
+                        onToggleSelectionItem(item.source.itemId),
                     onDoubleTap: () => onOpenItem(item),
                     onEditTap: () => onEditItem(item),
                     onSecondaryTapUp: onItemContextMenu == null
@@ -260,7 +260,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
                       ? child
                       : adapter.workspaceCardBuilder!(
                           context,
-                          item.entry,
+                          item,
                           child,
                         );
                 },
@@ -357,19 +357,19 @@ class LibraryGroupFolderTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
-    final entry = group.representativeItem.entry;
+    final representative = group.representativeItem;
     final isTv = showSeasonGroupProgress;
     final catalogRef = CatalogEntityRef(
-      kind: entry.mediaType,
+      kind: representative.source.catalogItem?.kind ?? '',
       entityType: CatalogEntityType.work,
-      id: entry.canonicalItemId,
+      id: representative.source.itemId,
     );
     final progress = isTv ? ref.watch(_tvGroupProgressProvider(catalogRef)) : null;
     final ownedSeasonCount = group.items
         .where(
           (item) =>
-              item.entry.isOwned &&
-              (item.entry.itemNumber?.trim().toLowerCase().startsWith('season ') ??
+              item.dto.isOwned &&
+              (item.dto.itemNumber?.trim().toLowerCase().startsWith('season ') ??
                   false),
         )
         .length;
@@ -398,8 +398,8 @@ class LibraryGroupFolderTile extends ConsumerWidget {
                 child: Opacity(
                   opacity: 0.22,
                   child: LibraryCoverImage(
-                    title: entry.resolvedTitle,
-                    imageUrl: entry.thumbnailImageUrl ?? entry.coverImageUrl,
+                    title: representative.dto.title,
+                    imageUrl: representative.dto.coverImageUrl,
                     borderRadius: 10,
                     fit: BoxFit.cover,
                   ),
@@ -439,9 +439,8 @@ class LibraryGroupFolderTile extends ConsumerWidget {
                                   border: Border.all(color: palette.divider),
                                 ),
                                 child: LibraryCoverImage(
-                                  title: entry.resolvedTitle,
-                                  imageUrl:
-                                      entry.coverImageUrl ?? entry.thumbnailImageUrl,
+                                  title: representative.dto.title,
+                                  imageUrl: representative.dto.coverImageUrl,
                                   borderRadius: 8,
                                   fit: BoxFit.cover,
                                 ),
@@ -474,7 +473,7 @@ class LibraryGroupFolderTile extends ConsumerWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  entry.resolvedTitle,
+                                  representative.dto.title,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: Theme.of(context)
