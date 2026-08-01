@@ -24,7 +24,7 @@ void main() {
     ]);
 
     expect(
-      ordered.map((section) => section.slot),
+      ordered.map((LibraryDetailSectionSpec section) => section.slot),
       equals([
         LibraryDetailSectionSlot.identity,
         LibraryDetailSectionSlot.imagesMedia,

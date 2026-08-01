@@ -120,7 +120,7 @@ void main() {
     expect(
       movieSections
           .whereType<LibraryDetailSection>()
-          .map((section) => (section as dynamic).title),
+          .map((LibraryDetailSection section) => section.title),
       contains('Summary'),
     );
   });
@@ -184,13 +184,13 @@ void main() {
     expect(
       sections
           .whereType<LibraryDetailSection>()
-          .map((section) => (section as dynamic).title),
+          .map((LibraryDetailSection section) => section.title),
       contains('Book'),
     );
     expect(
       sections
           .whereType<LibraryDetailSection>()
-          .map((section) => (section as dynamic).title),
+          .map((LibraryDetailSection section) => section.title),
       contains('Edition facts'),
     );
   });

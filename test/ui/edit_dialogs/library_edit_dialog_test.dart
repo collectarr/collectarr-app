@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/config/generic_library_media_pre
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 
 import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';

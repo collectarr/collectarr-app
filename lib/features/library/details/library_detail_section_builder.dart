@@ -118,5 +118,19 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
     ),
   ];
 
-  return sections;
+  return orderLibraryDetailSections(sections);
+}
+
+List<LibraryDetailSectionSpec> orderLibraryDetailSections(
+  List<LibraryDetailSectionSpec> sections,
+) {
+  final copy = List<LibraryDetailSectionSpec>.from(sections);
+  copy.sort((a, b) {
+    final indexA = libraryDetailSectionOrder.indexOf(a.slot);
+    final indexB = libraryDetailSectionOrder.indexOf(b.slot);
+    final rankA = indexA == -1 ? 999 : indexA;
+    final rankB = indexB == -1 ? 999 : indexB;
+    return rankA.compareTo(rankB);
+  });
+  return copy;
 }

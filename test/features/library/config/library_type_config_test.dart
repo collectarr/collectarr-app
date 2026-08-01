@@ -1,6 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
@@ -28,6 +31,10 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
+
+import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
@@ -138,13 +145,27 @@ void main() {
   });
 
   test('books do not create series subgroups for volume metadata', () {
-    const dto = BookWorkspaceDto(
-      title: 'Dune',
-      seriesTitle: 'Dune',
+    final source = ShelfEntry(
+      itemId: 'book-1',
+      catalogItem: testCatalogItem(
+        id: 'book-1',
+        kind: 'book',
+        title: 'Dune',
+      ),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'book-1');
+    final dto = const BookWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
     );
 
     expect(
-      booksMediaAdapter.subgroupKeyForEntry(dto, 'series'),
+      booksMediaAdapter.subgroupKeyForEntry(item, 'series'),
       isNull,
     );
   });
@@ -682,7 +703,7 @@ void main() {
     ]);
     expect(
       booksLibraryConfig.presentation.sortFavorites
-          .map((favorite) => favorite.id),
+          .map((LibrarySortFavorite favorite) => favorite.id),
       ['title_asc', 'release_latest', 'recent', 'value_desc'],
     );
     expect(booksLibraryConfig.availableGroupModes, [
@@ -796,13 +817,13 @@ void main() {
     expect(comicsLibraryConfig.presentation.supportsSeriesIssueJump, isTrue);
     expect(
       comicsLibraryConfig.presentation.sortFavorites
-          .map((favorite) => favorite.id),
+          .map((LibrarySortFavorite favorite) => favorite.id),
       ['series_issue', 'recent', 'publisher_date', 'value_desc'],
     );
     expect(
       comicsLibraryConfig.presentation.columnFavorites
-          .map((preset) => preset.label),
-      comicsTableColumnPresets.map((preset) => preset.label),
+          .map((LibraryColumnPreset preset) => preset.label),
+      comicsTableColumnPresets.map((LibraryColumnPreset preset) => preset.label),
     );
     expect(booksLibraryConfig.presentation.compactBucketIcon, Icons.folder);
     expect(
