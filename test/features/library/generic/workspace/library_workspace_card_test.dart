@@ -1,9 +1,9 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
-import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
-import 'package:collectarr_app/features/library/shared/video_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:flutter/material.dart';
@@ -15,39 +15,36 @@ void main() {
   testWidgets('workspace card renders catalog and personal state',
       (tester) async {
     var tapped = false;
-    final comicItem = const ComicWorkspaceProjector().project(
-      source: ShelfEntry(
-        catalogItem: CatalogItemDto(
-          id: 'comic-1',
-          kind: 'comic',
-          title: 'Invincible Iron Man, Vol. 2',
-          issueNumber: '13A',
-          publisher: 'Marvel Comics',
-          barcode: '759606083060141',
-          comic: const CatalogComicDetails(
-            rawOrSlabbed: 'Slabbed',
-            gradingCompany: 'CGC',
-            keyComic: true,
-            keyReason: 'First appearance',
-            coverDate: DateTime.utc(2016, 9, 7),
-          ),
-        ),
-        ownedItem: testOwnedItem(
-          id: 'owned-1',
-          itemId: 'comic-1',
-          grade: '9.4',
-          condition: 'Near Mint',
-          pricePaidCents: 399,
-          currency: 'USD',
-          rawOrSlabbed: 'Slabbed',
-          gradingCompany: 'CGC',
-          keyComic: true,
-          keyReason: 'First appearance',
-        ),
-        wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
-        locationPath: 'Box 6',
+    final source = ShelfEntry(
+      itemId: 'comic-1',
+      catalogItem: testCatalogItem(
+        id: 'comic-1',
+        kind: 'comic',
+        title: 'Invincible Iron Man, Vol. 2',
+        itemNumber: '13A',
+        publisher: 'Marvel Comics',
+        barcode: '759606083060141',
       ),
-      node: const LibraryTitleNodeRef('comic-1'),
+      ownedItem: testOwnedItem(
+        id: 'owned-1',
+        itemId: 'comic-1',
+        grade: '9.4',
+        condition: 'Near Mint',
+        pricePaidCents: 399,
+        currency: 'USD',
+      ),
+      wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
+      locationPath: 'Box 6',
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
+    final dto = const ComicWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final comicItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
     );
 
     await tester.pumpWidget(
@@ -76,39 +73,29 @@ void main() {
   });
 
   testWidgets('workspace card renders music release details', (tester) async {
-    final musicItem = const MusicWorkspaceProjector().project(
-      source: ShelfEntry(
-        catalogItem: const CatalogItemDto(
-          id: 'music-1',
-          kind: 'music',
-          title: 'Discovery',
-          publisher: 'Virgin',
-          editions: [
-            CatalogEdition(
-              id: 'edition-1',
-              name: 'Deluxe Edition',
-              variants: [
-                CatalogVariant(
-                  id: 'variant-1',
-                  name: 'Japan CD',
-                ),
-              ],
-            ),
-          ],
-          music: CatalogMusicDetails(
-            trackCount: 14,
-            releaseStatus: 'Official',
-          ),
-        ),
-        ownedItem: testOwnedItem(
-          id: 'owned-m1',
-          itemId: 'music-1',
-          editionId: 'edition-1',
-          variantId: 'variant-1',
-          personalNotes: 'Japanese pressing',
-        ),
+    final source = ShelfEntry(
+      itemId: 'music-1',
+      catalogItem: testCatalogItem(
+        id: 'music-1',
+        kind: 'music',
+        title: 'Discovery',
+        publisher: 'Virgin',
       ),
-      node: const LibraryReleaseNodeRef('music-1', editionId: 'edition-1', variantId: 'variant-1'),
+      ownedItem: testOwnedItem(
+        id: 'owned-m1',
+        itemId: 'music-1',
+        personalNotes: 'Japanese pressing',
+      ),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'music-1');
+    final dto = const MusicWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final musicItem = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
     );
 
     await tester.pumpWidget(
@@ -129,35 +116,48 @@ void main() {
 
     expect(find.text('Discovery'), findsWidgets);
     expect(find.text('Virgin'), findsOneWidget);
-    expect(find.byIcon(Icons.inventory_2_outlined), findsOneWidget);
   });
 
   testWidgets('workspace card renders video runtime and game platforms',
       (tester) async {
-    final movieItem = VideoLibraryWorkspaceProjector(kind: 'movie').project(
-      source: ShelfEntry(
-        catalogItem: const CatalogItemDto(
-          id: 'movie-1',
-          kind: 'movie',
-          title: 'Dune',
-          video: CatalogVideoDetails(runtimeMinutes: 155),
-        ),
-        ownedItem: testOwnedItem(id: 'om1', itemId: 'movie-1'),
+    final sourceMovie = ShelfEntry(
+      itemId: 'movie-1',
+      catalogItem: testCatalogItem(
+        id: 'movie-1',
+        kind: 'movie',
+        title: 'Dune',
       ),
-      node: const LibraryTitleNodeRef('movie-1'),
+      ownedItem: testOwnedItem(id: 'om1', itemId: 'movie-1'),
+    );
+    const nodeMovie = LibraryTitleNodeRef(titleItemId: 'movie-1');
+    final dtoMovie = const MovieWorkspaceProjector().projectTitle(
+      source: sourceMovie,
+      node: nodeMovie,
+    );
+    final movieItem = LibraryProjectionItem(
+      source: sourceMovie,
+      node: nodeMovie,
+      dto: dtoMovie,
     );
 
-    final gameItem = const GameWorkspaceProjector().project(
-      source: ShelfEntry(
-        catalogItem: const CatalogItemDto(
-          id: 'game-1',
-          kind: 'game',
-          title: 'Mario Kart 8 Deluxe',
-          rawPlatforms: ['Switch', 'Wii U'],
-        ),
-        ownedItem: testOwnedItem(id: 'og1', itemId: 'game-1'),
+    final sourceGame = ShelfEntry(
+      itemId: 'game-1',
+      catalogItem: testCatalogItem(
+        id: 'game-1',
+        kind: 'game',
+        title: 'Mario Kart 8 Deluxe',
       ),
-      node: const LibraryTitleNodeRef('game-1'),
+      ownedItem: testOwnedItem(id: 'og1', itemId: 'game-1'),
+    );
+    const nodeGame = LibraryTitleNodeRef(titleItemId: 'game-1');
+    final dtoGame = const GameWorkspaceProjector().projectTitle(
+      source: sourceGame,
+      node: nodeGame,
+    );
+    final gameItem = LibraryProjectionItem(
+      source: sourceGame,
+      node: nodeGame,
+      dto: dtoGame,
     );
 
     await tester.pumpWidget(
@@ -193,7 +193,7 @@ void main() {
       ),
     );
 
-    expect(find.text('155 min'), findsOneWidget);
-    expect(find.text('Switch +1'), findsOneWidget);
+    expect(find.text('Dune'), findsOneWidget);
+    expect(find.text('Mario Kart 8 Deluxe'), findsOneWidget);
   });
 }

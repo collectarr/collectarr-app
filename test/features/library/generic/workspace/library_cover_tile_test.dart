@@ -1,10 +1,8 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,22 +14,30 @@ void main() {
   testWidgets('cover tile renders cover overlays and remains tappable',
       (tester) async {
     var tapped = false;
-    final item = const GenericWorkspaceProjector().project(
-      source: ShelfEntry(
-        catalogItem: const CatalogItemDto(
-          id: 'comic-1',
-          kind: 'comic',
-          title: 'Superman, Vol. 4',
-          issueNumber: '8A',
-        ),
-        ownedItem: testOwnedItem(
-          id: 'owned-1',
-          itemId: 'comic-1',
-          collectionStatus: 'for_sale',
-        ),
-        wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
+    final source = ShelfEntry(
+      itemId: 'comic-1',
+      catalogItem: testCatalogItem(
+        id: 'comic-1',
+        kind: 'comic',
+        title: 'Superman, Vol. 4',
+        itemNumber: '8A',
       ),
-      node: const LibraryTitleNodeRef('comic-1'),
+      ownedItem: testOwnedItem(
+        id: 'owned-1',
+        itemId: 'comic-1',
+        collectionStatus: 'for_sale',
+      ),
+      wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
+    final dto = const GenericWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
     );
 
     await tester.pumpWidget(
@@ -62,16 +68,24 @@ void main() {
 
   testWidgets('cover tile hides secondary metadata labels in covers mode',
       (tester) async {
-    final item = const GenericWorkspaceProjector().project(
-      source: const ShelfEntry(
-        catalogItem: CatalogItemDto(
-          id: 'movie-1',
-          kind: 'movie',
-          title: 'Sen to Chihiro no Kamikakushi',
-          displayTitle: 'Spirited Away',
-        ),
+    final source = ShelfEntry(
+      itemId: 'movie-1',
+      catalogItem: testCatalogItem(
+        id: 'movie-1',
+        kind: 'movie',
+        title: 'Sen to Chihiro no Kamikakushi',
+        displayTitle: 'Spirited Away',
       ),
-      node: const LibraryTitleNodeRef('movie-1'),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
+    final dto = const GenericWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
     );
 
     await tester.pumpWidget(
@@ -99,15 +113,23 @@ void main() {
   testWidgets('cover tile shows hover selection affordance and edit action',
       (tester) async {
     var editTapped = false;
-    final item = const GenericWorkspaceProjector().project(
-      source: const ShelfEntry(
-        catalogItem: CatalogItemDto(
-          id: 'movie-1',
-          kind: 'movie',
-          title: 'Spirited Away',
-        ),
+    final source = ShelfEntry(
+      itemId: 'movie-1',
+      catalogItem: testCatalogItem(
+        id: 'movie-1',
+        kind: 'movie',
+        title: 'Spirited Away',
       ),
-      node: const LibraryTitleNodeRef('movie-1'),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
+    final dto = const GenericWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
     );
 
     await tester.pumpWidget(
@@ -149,15 +171,23 @@ void main() {
 
   testWidgets('active inspection state does not show checked selection',
       (tester) async {
-    final item = const GenericWorkspaceProjector().project(
-      source: const ShelfEntry(
-        catalogItem: CatalogItemDto(
-          id: 'music-1',
-          kind: 'music',
-          title: 'Lupus Dei',
-        ),
+    final source = ShelfEntry(
+      itemId: 'music-1',
+      catalogItem: testCatalogItem(
+        id: 'music-1',
+        kind: 'music',
+        title: 'Lupus Dei',
       ),
-      node: const LibraryTitleNodeRef('music-1'),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'music-1');
+    final dto = const GenericWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
     );
 
     await tester.pumpWidget(
@@ -185,15 +215,23 @@ void main() {
   testWidgets('selection toggle tap does not trigger tile tap', (tester) async {
     var tileTapped = false;
     var toggleTapped = false;
-    final item = const GenericWorkspaceProjector().project(
-      source: const ShelfEntry(
-        catalogItem: CatalogItemDto(
-          id: 'music-2',
-          kind: 'music',
-          title: 'Bible of the Beast',
-        ),
+    final source = ShelfEntry(
+      itemId: 'music-2',
+      catalogItem: testCatalogItem(
+        id: 'music-2',
+        kind: 'music',
+        title: 'Bible of the Beast',
       ),
-      node: const LibraryTitleNodeRef('music-2'),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'music-2');
+    final dto = const GenericWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
     );
 
     await tester.pumpWidget(
@@ -225,15 +263,23 @@ void main() {
   testWidgets('selection toggle activates on mouse down even if pointer leaves',
       (tester) async {
     var toggleTapped = false;
-    final item = const GenericWorkspaceProjector().project(
-      source: const ShelfEntry(
-        catalogItem: CatalogItemDto(
-          id: 'music-3',
-          kind: 'music',
-          title: 'Gods of War',
-        ),
+    final source = ShelfEntry(
+      itemId: 'music-3',
+      catalogItem: testCatalogItem(
+        id: 'music-3',
+        kind: 'music',
+        title: 'Gods of War',
       ),
-      node: const LibraryTitleNodeRef('music-3'),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'music-3');
+    final dto = const GenericWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
     );
 
     await tester.pumpWidget(
@@ -269,15 +315,23 @@ void main() {
   testWidgets('edit action fires on mouse down even when pointer leaves button',
       (tester) async {
     var editTapped = false;
-    final item = const GenericWorkspaceProjector().project(
-      source: const ShelfEntry(
-        catalogItem: CatalogItemDto(
-          id: 'movie-3',
-          kind: 'movie',
-          title: 'Interstellar',
-        ),
+    final source = ShelfEntry(
+      itemId: 'movie-3',
+      catalogItem: testCatalogItem(
+        id: 'movie-3',
+        kind: 'movie',
+        title: 'Interstellar',
       ),
-      node: const LibraryTitleNodeRef('movie-3'),
+    );
+    const node = LibraryTitleNodeRef(titleItemId: 'movie-3');
+    final dto = const GenericWorkspaceProjector().projectTitle(
+      source: source,
+      node: node,
+    );
+    final item = LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
     );
 
     await tester.pumpWidget(

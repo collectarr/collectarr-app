@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

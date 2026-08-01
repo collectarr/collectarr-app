@@ -151,7 +151,7 @@ void main() {
     testWidgets('shows tracking status and rating', (tester) async {
       final source0a = ShelfEntry(
         itemId: 'book-1',
-        catalogItem: const CatalogItemDto(
+        catalogItem: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
@@ -194,7 +194,7 @@ void main() {
     testWidgets('shows quantity when more than 1', (tester) async {
       final source0b = ShelfEntry(
         itemId: 'book-1',
-        catalogItem: const CatalogItemDto(
+        catalogItem: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
@@ -227,7 +227,7 @@ void main() {
     testWidgets('shows sold information when soldAt is set', (tester) async {
       final source1 = ShelfEntry(
         itemId: 'book-1',
-        catalogItem: const CatalogItemDto(
+        catalogItem: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
@@ -265,7 +265,7 @@ void main() {
       String? tappedValue;
       final source2 = ShelfEntry(
         itemId: 'book-1',
-        catalogItem: const CatalogItemDto(
+        catalogItem: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',

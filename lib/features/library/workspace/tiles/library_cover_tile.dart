@@ -334,3 +334,171 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     return ((rawWidth / 64).ceil() * 64).toInt();
   }
 }
+
+class LibraryTileSelectionToggle extends StatelessWidget {
+  const LibraryTileSelectionToggle({
+    super.key,
+    required this.selected,
+    required this.accentColor,
+    required this.coverSize,
+  });
+
+  final bool selected;
+  final Color accentColor;
+  final double coverSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final iconSize = (coverSize * 0.095).clamp(12.0, 16.0).toDouble();
+    final padding = (coverSize * 0.01).clamp(1.0, 2.0).toDouble();
+    final selectedBackground = Color.alphaBlend(
+      accentColor.withValues(alpha: 0.84),
+      Colors.white,
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: selected
+            ? selectedBackground
+            : Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: selected
+              ? accentColor
+              : palette.cardBorder.withValues(alpha: 0.9),
+        ),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 6,
+            color: Colors.black.withValues(alpha: 0.22),
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(padding),
+        child: selected
+            ? Icon(
+                Icons.check,
+                size: iconSize,
+                color: Colors.white,
+              )
+            : SizedBox.square(dimension: iconSize),
+      ),
+    );
+  }
+}
+
+class LibraryTileSelectionToggleButton extends StatelessWidget {
+  const LibraryTileSelectionToggleButton({
+    super.key,
+    required this.child,
+    this.onTap,
+  });
+
+  final Widget child;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    if (onTap == null) {
+      return child;
+    }
+    return Material(
+      color: Colors.transparent,
+      child: Semantics(
+        button: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: (_) => onTap!(),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+class LibraryTileHoverActionButton extends StatefulWidget {
+  const LibraryTileHoverActionButton({
+    super.key,
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  State<LibraryTileHoverActionButton> createState() =>
+      _LibraryTileHoverActionButtonState();
+}
+
+class _LibraryTileHoverActionButtonState
+    extends State<LibraryTileHoverActionButton> {
+  bool _tapHandledOnDown = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return Tooltip(
+      message: widget.tooltip,
+      child: Material(
+        color: palette.surfaceBright.withValues(alpha: 0.95),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        elevation: 2,
+        child: Listener(
+          onPointerDown: (event) {
+            if (event.buttons != kPrimaryButton) {
+              return;
+            }
+            _tapHandledOnDown = true;
+            widget.onTap();
+          },
+          child: InkWell(
+            onTapCancel: () => _tapHandledOnDown = false,
+            onTap: () {
+              if (!_tapHandledOnDown) {
+                widget.onTap();
+              }
+              _tapHandledOnDown = false;
+            },
+            borderRadius: BorderRadius.circular(6),
+            hoverColor: kAppHighlight.withValues(alpha: 0.25),
+            highlightColor: kAppHighlight.withValues(alpha: 0.18),
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Icon(widget.icon, size: 15, color: palette.textPrimary),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LibraryTileScopePill extends StatelessWidget {
+  const LibraryTileScopePill({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: label,
+      child: Icon(
+        icon,
+        size: 13,
+        color: color,
+      ),
+    );
+  }
+}

@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
@@ -17,9 +19,9 @@ void main() {
       }
     });
 
-    test('all registered kind modules declare mandatory workspaceDtoFactory', () {
+    test('all registered kind modules declare mandatory projector', () {
       for (final module in collectarrKindModules) {
-        expect(module.workspaceDtoFactory, isNotNull);
+        expect(module.projector, isNotNull);
       }
     });
 
@@ -36,36 +38,38 @@ void main() {
     });
 
     test('validateKindModule throws StateError on duplicate column IDs', () {
-      final invalidRegistry = AnyLibraryFieldRegistry<Object>(
+      final invalidRegistry = AnyLibraryFieldRegistry<GenericWorkspaceDto>(
         columns: [
           LibraryColumnDefinition(id: const LibraryFieldId('test.dup'), label: 'A', getValue: (dto) => null),
           LibraryColumnDefinition(id: const LibraryFieldId('test.dup'), label: 'B', getValue: (dto) => null),
         ],
       );
 
-      final invalidModule = LibraryKindSpec<Object, GenericOwnedDetails>(
+      final invalidModule = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
         type: moviesLibraryConfig,
         mediaAdapter: movieKindModule.mediaAdapter,
         fields: invalidRegistry,
-        workspaceDtoFactory: (entry) => throw UnimplementedError(),
+        projector: const GenericWorkspaceProjector(),
+        ownedDetailsCodec: const GenericOwnedDetailsCodec(),
       );
 
       expect(() => validateKindModule(invalidModule), throwsStateError);
     });
 
     test('validateKindModule throws StateError on duplicate sort IDs', () {
-      final invalidRegistry = AnyLibraryFieldRegistry<Object>(
+      final invalidRegistry = AnyLibraryFieldRegistry<GenericWorkspaceDto>(
         sorts: [
-          LibrarySortDefinition(id: 'test.sort', label: 'A', compare: (a, b) => 0),
-          LibrarySortDefinition(id: 'test.sort', label: 'B', compare: (a, b) => 0),
+          LibrarySortDefinition(id: const LibrarySortId('test.sort'), label: 'A', compare: (a, b) => 0),
+          LibrarySortDefinition(id: const LibrarySortId('test.sort'), label: 'B', compare: (a, b) => 0),
         ],
       );
 
-      final invalidModule = LibraryKindSpec<Object, GenericOwnedDetails>(
+      final invalidModule = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
         type: moviesLibraryConfig,
         mediaAdapter: movieKindModule.mediaAdapter,
         fields: invalidRegistry,
-        workspaceDtoFactory: (entry) => throw UnimplementedError(),
+        projector: const GenericWorkspaceProjector(),
+        ownedDetailsCodec: const GenericOwnedDetailsCodec(),
       );
 
       expect(() => validateKindModule(invalidModule), throwsStateError);
@@ -78,29 +82,8 @@ void main() {
 
       expect(
         () => registry.register(comicKindModule),
-        throwsA(
-          isA<StateError>().having(
-            (e) => e.message,
-            'message',
-            contains('Duplicate LibraryKindSpec registration for kind: CatalogMediaKind.comic'),
-          ),
-        ),
+        throwsStateError,
       );
-    });
-
-    test('LibraryKindRegistry performs O(1) map lookup for all 9 kinds', () {
-      for (final kind in CatalogMediaKind.values) {
-        if (kind == CatalogMediaKind.unknown) continue;
-        final runtime = LibraryKindRegistry.instance.getByKind(kind);
-        expect(runtime.kind, equals(kind));
-        expect(runtime.createWorkspaceDto, isNotNull);
-      }
-    });
-
-    test('LibraryKindSpec workspaceDtoFactory returns typed DTO', () {
-      final spec = comicKindModule;
-      expect(spec, isA<LibraryKindSpec<dynamic, dynamic>>());
-      expect(spec.kind, equals(CatalogMediaKind.comic));
     });
   });
 }

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

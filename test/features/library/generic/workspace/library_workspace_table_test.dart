@@ -61,7 +61,7 @@ void main() {
                 'issue' => 'issue',
                 _ => null,
               },
-              columnLabelFor: (column) => column as String,
+              columnLabelFor: (column) => column,
               columnIsNumeric: (column) => column == 'issue',
               cellBuilder: (entry, column) => Text(
                 column == 'title' ? entry : '#1',
@@ -120,7 +120,7 @@ void main() {
                 'issue' => 'issue',
                 _ => null,
               },
-              columnLabelFor: (column) => column as String,
+              columnLabelFor: (column) => column,
               columnIsNumeric: (column) => column == 'issue',
               cellBuilder: (entry, column) => Text(
                 column == 'title' ? entry : '#1',
@@ -217,7 +217,7 @@ void main() {
                     'issue' => 'issue',
                     _ => null,
                   },
-                  columnLabelFor: (column) => column as String,
+                  columnLabelFor: (column) => column,
                   columnIsNumeric: (column) =>
                       column == 'issue',
                   cellBuilder: (entry, column) => Text(
@@ -279,7 +279,7 @@ void main() {
                 _ => null,
               },
               columnLabelFor: (column) =>
-                  column == 'title' ? '' : column as String,
+                  column == 'title' ? '' : column,
               columnIsNumeric: (column) => column == 'issue',
               cellBuilder: (entry, column) => Text(
                 column == 'title' ? entry : '#1',
@@ -333,7 +333,7 @@ void main() {
                 'issue' => 'issue',
                 _ => null,
               },
-              columnLabelFor: (column) => column as String,
+              columnLabelFor: (column) => column,
               columnIsNumeric: (column) => column == 'issue',
               cellBuilder: (entry, column) => Text(
                 column == 'title' ? entry : '#1',

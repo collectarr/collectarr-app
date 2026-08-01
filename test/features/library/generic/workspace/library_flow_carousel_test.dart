@@ -1,15 +1,16 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../helpers/test_constants.dart';
+import '../../../../helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('flow carousel navigates between items with arrow controls',
@@ -147,14 +148,23 @@ void main() {
 }
 
 LibraryProjectionItem _item(String id, String title, {int? year}) {
-  final cat = CatalogItemDto(
-    id: id,
-    kind: 'movie',
-    title: title,
-    releaseDate: year != null ? DateTime.utc(year, 1, 1) : null,
+  final source = ShelfEntry(
+    itemId: id,
+    catalogItem: testCatalogItem(
+      id: id,
+      kind: 'movie',
+      title: title,
+      releaseDate: year != null ? DateTime.utc(year, 1, 1) : null,
+    ),
   );
-  return const GenericWorkspaceProjector().project(
-    source: ShelfEntry(itemId: id, catalogItem: cat),
-    node: LibraryTitleNodeRef(id),
+  final node = LibraryTitleNodeRef(titleItemId: id);
+  final dto = const GenericWorkspaceProjector().projectTitle(
+    source: source,
+    node: node,
+  );
+  return LibraryProjectionItem(
+    source: source,
+    node: node,
+    dto: dto,
   );
 }

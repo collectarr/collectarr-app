@@ -21,7 +21,7 @@ void main() {
       'publisher' => 'Publisher',
       'release_date' => 'Release Date',
       'barcode' => 'Barcode',
-      _ => column as String,
+      _ => column,
     };
   }
 

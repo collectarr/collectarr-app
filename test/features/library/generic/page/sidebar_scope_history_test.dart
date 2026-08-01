@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_history.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
-import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -73,9 +73,7 @@ void main() {
                 groups: [
                   _group(
                     bucket: 'Batman',
-                    presentation: const LibraryGroupPresentation(
-                      icon: Icons.folder,
-                    ),
+                    presentation: LibraryGroupPresentation.folderGrid,
                     items: items,
                   ),
                 ],

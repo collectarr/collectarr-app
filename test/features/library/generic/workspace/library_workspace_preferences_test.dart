@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

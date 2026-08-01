@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:flutter/material.dart';

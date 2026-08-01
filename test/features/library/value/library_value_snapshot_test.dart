@@ -30,8 +30,6 @@ void main() {
         id: 'comic-1',
         kind: 'comic',
         title: 'Sample Comic',
-        marketValueCents: 2500,
-        currency: 'USD',
       ),
       ownedItem: ownedItem,
     );

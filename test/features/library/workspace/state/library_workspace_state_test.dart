@@ -2,10 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_search_debounce_provider.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_providers.dart';
-import 'package:collectarr_app/features/library/workspace/data/library_workspace_repository.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import '../../../../helpers/test_data_factories.dart';
 

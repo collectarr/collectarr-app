@@ -1,21 +1,19 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('music work maps metadata into a workspace entry', () {
     final work = MusicCatalogMapper.mapDtoToMusic(
-      CatalogItemDto(
+      const CatalogItemDto(
         id: 'music-1',
         kind: 'music',
         title: 'Kinesis',
         publisher: 'Inside Out',
         releaseDate: DateTime.utc(1998, 1, 1),
-        editions: const [
+        editions: [
           CatalogEditionDto(
             id: 'edition-1',
             title: 'CD',
@@ -23,7 +21,7 @@ void main() {
             upc: '1234567890',
           ),
         ],
-        music: const MusicCatalogDetailsDto(
+        music: MusicCatalogDetailsDto(
           trackCount: 3,
           catalogNumber: 'KDCD 1022',
           releaseStatus: 'Album',
