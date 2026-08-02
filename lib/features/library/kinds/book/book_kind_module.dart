@@ -15,7 +15,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, GenericOwnedDetails>(
   mediaAdapter: booksMediaAdapter,
   projector: const BookWorkspaceProjector(),
   ownedDetailsCodec: const GenericOwnedDetailsCodec(),
-  fields: bookKindSchema.toRegistry(),
+  fields: bookLibraryKindSchema.toRegistry(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

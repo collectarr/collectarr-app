@@ -18,7 +18,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   mediaAdapter: musicMediaAdapter,
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
-  fields: musicKindSchema.toRegistry(),
+  fields: musicLibraryKindSchema.toRegistry(),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsTrackSearch: true,
   ),

@@ -19,18 +19,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   mediaAdapter: gamesMediaAdapter,
   projector: const GameWorkspaceProjector(),
   ownedDetailsCodec: const GameOwnedDetailsCodec(),
-  fields: AnyLibraryFieldRegistry(
-    groups: gameLibraryGroupDefinitions,
-    sorts: gameLibrarySortDefinitions,
-    columns: gameLibraryColumnDefinitions,
-    defaultVisibleColumnIds: gamesLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'title',
-    defaultGroupId: 'series',
-    customLinkedMetadataCandidates: (source) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(
-          (source.catalogItem as GameCatalogItem?)?.work.platforms);
-    },
-  ),
+  fields: gameLibraryKindSchema.toRegistry(),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(),
   providerMapper: const GameLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(

@@ -16,14 +16,7 @@ final boardGameKindModule =
   mediaAdapter: boardGamesMediaAdapter,
   projector: const BoardGameWorkspaceProjector(),
   ownedDetailsCodec: const GenericOwnedDetailsCodec(),
-  fields: AnyLibraryFieldRegistry(
-    groups: boardGamesLibraryGroupDefinitions,
-    sorts: boardGamesLibrarySortDefinitions,
-    columns: boardGamesLibraryColumnDefinitions,
-    defaultVisibleColumnIds: boardGamesLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'title',
-    defaultGroupId: 'series',
-  ),
+  fields: boardgameLibraryKindSchema.toRegistry(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

@@ -191,7 +191,7 @@ String _toSnakeCase(String name) {
       .toLowerCase();
 }
 
-LibraryGroupDefinition<dynamic, Object?>? libraryGroupModeDefinitionOrNull(
+LibraryGroupDefinition<dynamic, dynamic, Object?>? libraryGroupModeDefinitionOrNull(
   String mode, [
   LibraryTypeConfig? type,
 ]) {

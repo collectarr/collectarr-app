@@ -158,12 +158,16 @@ Widget plannedMediaTableCell(
   if (definition == null) {
     return const LibraryTableCellText('');
   }
-  final dto = item.dto;
+  final context = LibraryProjectionContext(
+    source: item.source,
+    node: item.node,
+    dto: item.dto,
+  );
   final builder = definition.cellValue;
   if (builder != null) {
-    return builder(dto);
+    return builder(context);
   }
-  final value = definition.getValue(dto);
+  final value = definition.getValue(context);
   return LibraryTableCellText(value?.toString());
 }
 
@@ -183,7 +187,7 @@ int plannedMediaCompareSubgroupKeys(
   return left.compareTo(right);
 }
 
-LibraryColumnDefinition<dynamic, dynamic>? _tableColumnDefinition(
+LibraryColumnDefinition<dynamic, dynamic, dynamic>? _tableColumnDefinition(
     LibraryTypeConfig type, String columnId) {
   final module = libraryKindModuleForType(type);
   return module.fields.findColumnDefinition(columnId);

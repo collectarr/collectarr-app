@@ -19,14 +19,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, VideoOwnedDetails>(
   mediaAdapter: tvMediaAdapter,
   projector: const TvWorkspaceProjector(),
   ownedDetailsCodec: const VideoOwnedDetailsCodec(),
-  fields: AnyLibraryFieldRegistry(
-    groups: tvLibraryGroupDefinitions,
-    sorts: tvLibrarySortDefinitions,
-    columns: tvLibraryColumnDefinitions,
-    defaultVisibleColumnIds: tvLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'title',
-    defaultGroupId: 'series',
-  ),
+  fields: tvLibraryKindSchema.toRegistry(),
   workspaceBehavior: LibraryKindWorkspaceBehavior(
     showsSeasonGroupProgress: true,
     defaultVideoDisplayLevel: tvDefaultVideoDisplayLevel,

@@ -58,6 +58,8 @@ class LibraryEntry {
     return latest ?? DateTime.fromMillisecondsSinceEpoch(0);
   }
 
+  DateTime? get addedAt => ownedItem?.createdAt ?? wishlistItem?.createdAt;
+
   String get title {
     final item = catalogItem;
     if (item == null) {

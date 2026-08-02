@@ -14,13 +14,14 @@ import 'package:collectarr_app/features/library/config/owned_details_codec.dart'
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
-class AnyLibraryFieldRegistry<TDto> {
+class AnyLibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   const AnyLibraryFieldRegistry({
-    List<LibraryGroupDefinition<TDto, Object?>>? groups,
-    List<LibrarySortDefinition<TDto>>? sorts,
-    List<LibraryColumnDefinition<TDto, Object?>>? columns,
+    List<LibraryGroupDefinition<dynamic, TDto, Object?>>? groups,
+    List<LibrarySortDefinition<dynamic, TDto>>? sorts,
+    List<LibraryColumnDefinition<dynamic, TDto, Object?>>? columns,
     this.defaultVisibleColumnIds = const {
       'status',
       'cover',
@@ -36,20 +37,23 @@ class AnyLibraryFieldRegistry<TDto> {
     },
     this.defaultSortId = 'title',
     this.defaultGroupId = 'series',
+    this.preferenceCodec,
     this.customLinkedMetadataCandidates,
   })  : _groups = groups,
         _sorts = sorts,
         _columns = columns;
 
-  final List<LibraryGroupDefinition<TDto, Object?>>? _groups;
-  final List<LibrarySortDefinition<TDto>>? _sorts;
-  final List<LibraryColumnDefinition<TDto, Object?>>? _columns;
+  final LibraryWorkspacePreferenceCodec<dynamic>? preferenceCodec;
+  final List<LibraryGroupDefinition<dynamic, TDto, Object?>>? _groups;
+  final List<LibrarySortDefinition<dynamic, TDto>>? _sorts;
+  final List<LibraryColumnDefinition<dynamic, TDto, Object?>>? _columns;
 
-  List<LibraryGroupDefinition<TDto, Object?>> get groups => _groups ?? const [];
+  List<LibraryGroupDefinition<dynamic, TDto, Object?>> get groups =>
+      _groups ?? const [];
 
-  List<LibrarySortDefinition<TDto>> get sorts => _sorts ?? const [];
+  List<LibrarySortDefinition<dynamic, TDto>> get sorts => _sorts ?? const [];
 
-  List<LibraryColumnDefinition<TDto, Object?>> get columns =>
+  List<LibraryColumnDefinition<dynamic, TDto, Object?>> get columns =>
       _columns ?? const [];
 
   final Set<String> defaultVisibleColumnIds;
@@ -103,7 +107,8 @@ class AnyLibraryFieldRegistry<TDto> {
     }
   }
 
-  LibraryColumnDefinition<TDto, Object?>? columnDefinitionForId(String id) {
+  LibraryColumnDefinition<dynamic, TDto, Object?>? columnDefinitionForId(
+      String id) {
     for (final definition in columns) {
       if (definition.id.value == id) {
         return definition;
@@ -112,7 +117,8 @@ class AnyLibraryFieldRegistry<TDto> {
     return null;
   }
 
-  LibraryColumnDefinition<TDto, Object?> columnDefinitionFor(String columnId) {
+  LibraryColumnDefinition<dynamic, TDto, Object?> columnDefinitionFor(
+      String columnId) {
     final definition = columnDefinitionForId(columnId);
     if (definition != null) {
       return definition;
@@ -123,16 +129,16 @@ class AnyLibraryFieldRegistry<TDto> {
     );
   }
 
-  LibrarySortDefinition<TDto>? sortDefinitionForId(String id) {
+  LibrarySortDefinition<dynamic, TDto>? sortDefinitionForId(String id) {
     for (final definition in sorts) {
-      if (definition.id == id) {
+      if (definition.id.value == id) {
         return definition;
       }
     }
     return null;
   }
 
-  LibrarySortDefinition<TDto> sortDefinitionFor(String sortId) {
+  LibrarySortDefinition<dynamic, TDto> sortDefinitionFor(String sortId) {
     final definition = findSortDefinition(sortId);
     if (definition != null) {
       return definition;
@@ -143,7 +149,8 @@ class AnyLibraryFieldRegistry<TDto> {
     );
   }
 
-  LibraryGroupDefinition<TDto, Object?>? groupDefinitionForId(String id) {
+  LibraryGroupDefinition<dynamic, TDto, Object?>? groupDefinitionForId(
+      String id) {
     for (final definition in groups) {
       if (definition.id.value == id) {
         return definition;
@@ -152,34 +159,46 @@ class AnyLibraryFieldRegistry<TDto> {
     return null;
   }
 
-  LibraryColumnDefinition<TDto, Object?>? findColumnDefinition(String id) {
+  LibraryColumnDefinition<dynamic, TDto, Object?>? findColumnDefinition(
+      String id) {
     final direct = columnDefinitionForId(id);
     if (direct != null) return direct;
-    for (final col in columns) {
-      if (col.id.value.endsWith('.$id')) return col;
+    if (preferenceCodec != null) {
+      final decoded = preferenceCodec!.decodeColumn(id);
+      if (decoded != null) {
+        return columnDefinitionForId(decoded.value);
+      }
     }
     return null;
   }
 
-  LibrarySortDefinition<TDto>? findSortDefinition(String id) {
+  LibrarySortDefinition<dynamic, TDto>? findSortDefinition(String id) {
     final direct = sortDefinitionForId(id);
     if (direct != null) return direct;
-    for (final sort in sorts) {
-      if (sort.id.value.endsWith('.$id')) return sort;
+    if (preferenceCodec != null) {
+      final decoded = preferenceCodec!.decodeSort(id);
+      if (decoded != null) {
+        return sortDefinitionForId(decoded.value);
+      }
     }
     return null;
   }
 
-  LibraryGroupDefinition<TDto, Object?>? findGroupDefinition(String id) {
+  LibraryGroupDefinition<dynamic, TDto, Object?>? findGroupDefinition(
+      String id) {
     final direct = groupDefinitionForId(id);
     if (direct != null) return direct;
-    for (final grp in groups) {
-      if (grp.id.value.endsWith('.$id')) return grp;
+    if (preferenceCodec != null) {
+      final decoded = preferenceCodec!.decodeGroup(id);
+      if (decoded != null) {
+        return groupDefinitionForId(decoded.value);
+      }
     }
     return null;
   }
 
-  LibraryGroupDefinition<TDto, Object?> groupDefinitionFor(String groupId) {
+  LibraryGroupDefinition<dynamic, TDto, Object?> groupDefinitionFor(
+      String groupId) {
     final definition = findGroupDefinition(groupId);
     if (definition != null) {
       return definition;
@@ -198,7 +217,17 @@ class AnyLibraryFieldRegistry<TDto> {
     final sortDef = sortDefinitionFor(sortId);
 
     items.sort((l, r) {
-      final result = sortDef.compare(l.dto as TDto, r.dto as TDto);
+      final leftContext = LibraryProjectionContext<TDto>(
+        source: l.source,
+        node: l.node,
+        dto: l.dto as TDto,
+      );
+      final rightContext = LibraryProjectionContext<TDto>(
+        source: r.source,
+        node: r.node,
+        dto: r.dto as TDto,
+      );
+      final result = sortDef.compare(leftContext, rightContext);
       if (result != 0) {
         return ascending ? result : -result;
       }

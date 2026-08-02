@@ -1,83 +1,122 @@
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
 import 'package:flutter/material.dart';
+
+export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_preference_codec.dart';
 
 /// Single source of truth schema for BoardGame kind fields.
 abstract final class BoardGameKindSchema {
-  static final title = textField<BoardGameWorkspaceDto>(
-    id: 'boardgame.title',
+  static final title = textField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
   );
 
-  static final publisher = textField<BoardGameWorkspaceDto>(
-    id: 'boardgame.publisher',
+  static final publisher = textField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.publisher,
     label: 'Publisher / Designer',
     getValue: (dto) => dto.publisher,
   );
 
-  static final series = textField<BoardGameWorkspaceDto>(
-    id: 'boardgame.series',
-    label: 'Series',
-    getValue: (dto) => dto.seriesTitle,
+  static final designer = textField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.designer,
+    label: 'Designer',
+    getValue: (dto) => dto.creator,
   );
 
-  static final releaseDate = dateField<BoardGameWorkspaceDto>(
-    id: 'boardgame.release_date',
+  static final releaseDate = dateField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
   );
 
-  static final condition = textField<BoardGameWorkspaceDto>(
-    id: 'boardgame.condition',
+  static final condition = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    id: BoardGameFieldIds.condition,
     label: 'Condition',
-    getValue: (dto) => dto.condition,
+    getValue: (context) => context.source.ownedItem?.condition,
   );
 
-  static final location = textField<BoardGameWorkspaceDto>(
-    id: 'boardgame.location',
+  static final location = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    id: BoardGameFieldIds.location,
     label: 'Location',
-    getValue: (dto) => dto.locationPath,
+    getValue: (context) => context.source.locationPath,
   );
 
-  static final price = moneyField<BoardGameWorkspaceDto>(
-    id: 'boardgame.price',
+  static final pricePaid = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
+    id: BoardGameFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (dto) => dto.pricePaidCents,
+    getValue: (context) => context.source.ownedItem?.pricePaidCents,
   );
 
-  static final barcode = textField<BoardGameWorkspaceDto>(
-    id: 'boardgame.barcode',
+  static final barcode = textField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
+  );
+
+  static final status = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    id: BoardGameFieldIds.status,
+    label: 'Status',
+    getValue: (context) => context.source.isWishlisted
+        ? 'wishlist'
+        : (context.source.isOwned ? 'owned' : null),
+  );
+
+  static final cover = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    id: BoardGameFieldIds.cover,
+    label: 'Cover',
+    getValue: (context) => context.dto.coverImageUrl,
+  );
+
+  static final rating = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
+    id: BoardGameFieldIds.rating,
+    label: 'Rating',
+    getValue: (context) => context.source.ownedItem?.rating,
+  );
+
+  static final wishlist = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, bool>(
+    id: BoardGameFieldIds.wishlist,
+    label: 'Wishlist',
+    getValue: (context) => context.source.isWishlisted,
+  );
+
+  static final updatedAt = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
+    id: BoardGameFieldIds.updatedAt,
+    label: 'Updated',
+    getValue: (context) => context.source.updatedAt,
+  );
+
+  static final addedAt = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
+    id: BoardGameFieldIds.addedAt,
+    label: 'Added',
+    getValue: (context) => context.source.addedAt,
   );
 }
 
 final boardgameLibraryFieldDefinitions = [
   BoardGameKindSchema.title,
   BoardGameKindSchema.publisher,
-  BoardGameKindSchema.series,
+  BoardGameKindSchema.designer,
   BoardGameKindSchema.releaseDate,
   BoardGameKindSchema.condition,
   BoardGameKindSchema.location,
-  BoardGameKindSchema.price,
+  BoardGameKindSchema.pricePaid,
   BoardGameKindSchema.barcode,
 ];
 
 final boardGamesLibraryGroupDefinitions = [
-  groupFromField(
+  groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
     BoardGameKindSchema.publisher,
     sidebarTitle: 'Publishers / Designers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
   ),
-  groupFromField(
-    BoardGameKindSchema.series,
-    sidebarTitle: 'Series',
-    icon: Icons.collections_bookmark_outlined,
-  ),
-  groupFromField(
+  groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
     BoardGameKindSchema.location,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
@@ -85,62 +124,60 @@ final boardGamesLibraryGroupDefinitions = [
 ];
 
 final boardGamesLibrarySortDefinitions = [
-  sortFromField(BoardGameKindSchema.series),
-  sortFromField(BoardGameKindSchema.publisher),
-  LibrarySortDefinition<BoardGameWorkspaceDto>(
-    id: const LibrarySortId('status'),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(BoardGameKindSchema.publisher),
+  LibrarySortDefinition<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameSortIds.status,
     compare: (left, right) {
-      int rank(BoardGameWorkspaceDto dto) {
-        if (dto.isOwned) return 0;
-        if (dto.isWishlisted) return 1;
+      int rank(LibraryProjectionContext<BoardGameWorkspaceDto> ctx) {
+        if (ctx.source.isOwned) return 0;
+        if (ctx.source.isWishlisted) return 1;
         return 2;
       }
 
       final res = rank(left).compareTo(rank(right));
-      return res != 0 ? res : left.title.compareTo(right.title);
+      return res != 0 ? res : left.dto.title.compareTo(right.dto.title);
     },
     label: 'Status',
   ),
-  sortFromField(BoardGameKindSchema.title),
-  sortFromField(BoardGameKindSchema.releaseDate, defaultAscending: false),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(BoardGameKindSchema.title),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime>(BoardGameKindSchema.releaseDate, defaultAscending: false),
 ];
 
-const boardGamesLibraryDefaultVisibleColumnIds = {
-  'status',
-  'cover',
-  'boardgame.title',
-  'boardgame.publisher',
-  'boardgame.release_date',
-  'boardgame.barcode',
-  'rating',
-  'boardgame.condition',
-  'boardgame.price',
-  'boardgame.location',
-  'wishlist',
-  'updated',
+final boardGamesLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+  BoardGameFieldIds.status,
+  BoardGameFieldIds.cover,
+  BoardGameFieldIds.publisher,
+  BoardGameFieldIds.title,
+  BoardGameFieldIds.releaseDate,
+  BoardGameFieldIds.barcode,
+  BoardGameFieldIds.rating,
+  BoardGameFieldIds.condition,
+  BoardGameFieldIds.pricePaid,
+  BoardGameFieldIds.location,
+  BoardGameFieldIds.wishlist,
+  BoardGameFieldIds.updatedAt,
 };
 
-final boardGamesLibraryColumnDefinitions = [
-  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('status'),
+final boardgameLibraryColumnDefinitions = [
+  LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    id: BoardGameFieldIds.status,
     label: 'Status',
-    getValue: (dto) =>
-        dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
-    cellValue: (dto) =>
-        Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
+    getValue: BoardGameKindSchema.status.getValue,
+    cellValue: (context) =>
+        Text(context.source.isWishlisted ? 'Wishlist' : (context.source.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
-  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('cover'),
+  LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    id: BoardGameFieldIds.cover,
     label: '',
-    getValue: (dto) => dto.coverImageUrl,
-    cellValue: (dto) => dto.coverImageUrl == null
+    getValue: BoardGameKindSchema.cover.getValue,
+    cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
         : Image.network(
-            dto.coverImageUrl!,
+            context.dto.coverImageUrl!,
             width: 32,
             height: 32,
             fit: BoxFit.cover,
@@ -150,60 +187,82 @@ final boardGamesLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  columnFromField(BoardGameKindSchema.title, defaultWidth: 260, maxWidth: 520),
-  columnFromField(BoardGameKindSchema.publisher, defaultWidth: 160),
-  columnFromField(
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(BoardGameKindSchema.publisher, defaultWidth: 160),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(BoardGameKindSchema.title, defaultWidth: 260, maxWidth: 520),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
     BoardGameKindSchema.releaseDate,
-    cellValue: (dto) => Text(_formatDate(dto.releaseDate)),
+    cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
     defaultWidth: 118,
   ),
-  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('wishlist'),
+  LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, bool>(
+    id: BoardGameFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: (dto) => dto.isWishlisted,
-    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : ''),
+    getValue: BoardGameKindSchema.wishlist.getValue,
+    cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
-  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('updated'),
+  LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
+    id: BoardGameFieldIds.updatedAt,
     label: 'Updated',
-    getValue: (dto) => dto.updatedAt,
-    cellValue: (dto) => Text(_formatDate(dto.updatedAt)),
+    getValue: BoardGameKindSchema.updatedAt.getValue,
+    cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
-  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('added'),
+  LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
+    id: BoardGameFieldIds.addedAt,
     label: 'Added',
-    getValue: (dto) => dto.addedAt,
-    cellValue: (dto) => Text(_formatDate(dto.addedAt)),
+    getValue: BoardGameKindSchema.addedAt.getValue,
+    cellValue: (context) => Text(_formatDate(context.source.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
-  columnFromField(BoardGameKindSchema.location,
-      group: 'Personal', defaultWidth: 118),
-  columnFromField(BoardGameKindSchema.condition,
-      group: 'Value', defaultWidth: 124),
-  columnFromField(
-    BoardGameKindSchema.price,
-    cellValue: (dto) => Text(_formatCents(dto.pricePaidCents, dto.currency)),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    BoardGameKindSchema.location,
+    group: 'Personal',
+    defaultWidth: 118,
+  ),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    BoardGameKindSchema.condition,
+    group: 'Value',
+    defaultWidth: 124,
+  ),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, int?>(
+    BoardGameKindSchema.pricePaid,
+    cellValue: (context) => Text(_formatCents(context.source.ownedItem?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
     minWidth: 78,
   ),
-  columnFromField(BoardGameKindSchema.barcode,
-      group: 'Edition', defaultWidth: 160, maxWidth: 260),
-  LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('rating'),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    BoardGameKindSchema.barcode,
+    group: 'Edition',
+    defaultWidth: 160,
+    maxWidth: 260,
+  ),
+  LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
+    id: BoardGameFieldIds.rating,
     label: 'Rating',
-    getValue: (dto) => dto.rating,
-    cellValue: (dto) => Text(dto.rating?.toString() ?? ''),
+    getValue: BoardGameKindSchema.rating.getValue,
+    cellValue: (context) => Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
 ];
+
+final boardgameLibraryKindSchema = LibraryKindSchema<BoardGameKind, BoardGameWorkspaceDto>(
+  kindNamespace: 'boardgame',
+  fields: boardgameLibraryFieldDefinitions,
+  columns: boardgameLibraryColumnDefinitions,
+  sorts: boardGamesLibrarySortDefinitions,
+  groups: boardGamesLibraryGroupDefinitions,
+  defaultVisibleColumns: boardGamesLibraryDefaultVisibleColumns,
+  defaultSort: BoardGameSortIds.publisher,
+  defaultGroup: BoardGameGroupIds.publisher,
+  preferenceCodec: const BoardGamePreferenceCodec(),
+);
 
 String _formatDate(DateTime? value) {
   if (value == null) return '';

@@ -20,14 +20,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, VideoOwnedDetails>(
   mediaAdapter: moviesMediaAdapter,
   projector: const MovieWorkspaceProjector(),
   ownedDetailsCodec: const VideoOwnedDetailsCodec(),
-  fields: AnyLibraryFieldRegistry(
-    groups: movieLibraryGroupDefinitions,
-    sorts: movieLibrarySortDefinitions,
-    columns: movieLibraryColumnDefinitions,
-    defaultVisibleColumnIds: movieLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'title',
-    defaultGroupId: 'series',
-  ),
+  fields: movieLibraryKindSchema.toRegistry(),
   add: LibraryKindAddModule(
       registerBuilders: movie_add.registerMovieAddBuilders),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(

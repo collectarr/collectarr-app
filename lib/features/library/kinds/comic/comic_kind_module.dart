@@ -24,20 +24,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   mediaAdapter: comicsMediaAdapter,
   projector: const ComicWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
-  fields: AnyLibraryFieldRegistry(
-    groups: comicLibraryGroupDefinitions,
-    sorts: comicLibrarySortDefinitions,
-    columns: comicLibraryColumnDefinitions,
-    defaultVisibleColumnIds: comicLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'title',
-    defaultGroupId: 'series',
-    customLinkedMetadataCandidates: (source) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(
-          source.catalogItem?.characters);
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(
-          source.catalogItem?.storyArcs);
-    },
-  ),
+  fields: comicLibraryKindSchema.toRegistry(),
   add: LibraryKindAddModule(
       registerBuilders: comic_add.registerComicAddBuilders),
   workspaceBehavior: LibraryKindWorkspaceBehavior(

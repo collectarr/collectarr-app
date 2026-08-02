@@ -1,69 +1,118 @@
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter/material.dart';
+
+export 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
+export 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 
 /// Single source of truth schema for Book kind fields.
 abstract final class BookKindSchema {
-  static final title = textField<BookWorkspaceDto>(
-    id: 'book.title',
+  static final title = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
   );
 
-  static final author = textField<BookWorkspaceDto>(
-    id: 'book.author',
+  static final author = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.author,
     label: 'Author',
     getValue: (dto) => dto.author,
   );
 
-  static final publisher = textField<BookWorkspaceDto>(
-    id: 'book.publisher',
+  static final publisher = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
   );
 
-  static final pageCount = numberField<BookWorkspaceDto>(
-    id: 'book.page_count',
+  static final pageCount = numberField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.pageCount,
     label: 'Page count',
     getValue: (dto) => dto.pageCount,
   );
 
-  static final isbn = textField<BookWorkspaceDto>(
-    id: 'book.isbn',
+  static final isbn = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.isbn,
     label: 'ISBN',
     getValue: (dto) => dto.isbn ?? dto.barcode,
   );
 
-  static final condition = textField<BookWorkspaceDto>(
-    id: 'book.condition',
+  static final condition = LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+    id: BookFieldIds.condition,
     label: 'Condition',
-    getValue: (dto) => dto.condition,
+    getValue: (context) => context.source.ownedItem?.condition,
   );
 
-  static final location = textField<BookWorkspaceDto>(
-    id: 'book.location',
+  static final location = LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+    id: BookFieldIds.location,
     label: 'Location',
-    getValue: (dto) => dto.locationPath,
+    getValue: (context) => context.source.locationPath,
   );
 
-  static final series = textField<BookWorkspaceDto>(
-    id: 'book.series',
+  static final series = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
   );
 
-  static final releaseDate = dateField<BookWorkspaceDto>(
-    id: 'book.release_date',
+  static final releaseDate = dateField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
   );
 
-  static final price = moneyField<BookWorkspaceDto>(
-    id: 'book.price',
+  static final pricePaid = LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
+    id: BookFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (dto) => dto.pricePaidCents,
+    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+  );
+
+  static final status = LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+    id: BookFieldIds.status,
+    label: 'Status',
+    getValue: (context) => context.source.isWishlisted
+        ? 'wishlist'
+        : (context.source.isOwned ? 'owned' : null),
+  );
+
+  static final cover = LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+    id: BookFieldIds.cover,
+    label: 'Cover',
+    getValue: (context) => context.dto.coverImageUrl,
+  );
+
+  static final rating = LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
+    id: BookFieldIds.rating,
+    label: 'Rating',
+    getValue: (context) => context.source.ownedItem?.rating,
+  );
+
+  static final wishlist = LibraryFieldDefinition<BookKind, BookWorkspaceDto, bool>(
+    id: BookFieldIds.wishlist,
+    label: 'Wishlist',
+    getValue: (context) => context.source.isWishlisted,
+  );
+
+  static final updatedAt = LibraryFieldDefinition<BookKind, BookWorkspaceDto, DateTime>(
+    id: BookFieldIds.updatedAt,
+    label: 'Updated',
+    getValue: (context) => context.source.updatedAt,
+  );
+
+  static final addedAt = LibraryFieldDefinition<BookKind, BookWorkspaceDto, DateTime?>(
+    id: BookFieldIds.addedAt,
+    label: 'Added',
+    getValue: (context) => context.source.addedAt,
+  );
+
+  static final readStatus = LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+    id: BookFieldIds.readStatus,
+    label: 'Read Status',
+    getValue: (context) => context.source.ownedItem?.readStatus,
   );
 }
 
@@ -77,32 +126,27 @@ final bookLibraryFieldDefinitions = [
   BookKindSchema.location,
   BookKindSchema.series,
   BookKindSchema.releaseDate,
-  BookKindSchema.price,
+  BookKindSchema.pricePaid,
 ];
 
 final bookLibraryGroupDefinitions = [
-  groupFromField(
+  groupFromField<BookKind, BookWorkspaceDto, String?>(
     BookKindSchema.author,
     sidebarTitle: 'Authors',
     icon: Icons.person_outline,
   ),
-  groupFromField(
+  groupFromField<BookKind, BookWorkspaceDto, String?>(
     BookKindSchema.publisher,
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
   ),
-  groupFromField(
+  groupFromField<BookKind, BookWorkspaceDto, String?>(
     BookKindSchema.series,
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
   ),
-  groupFromField(
-    BookKindSchema.condition,
-    sidebarTitle: 'Conditions',
-    icon: Icons.grade_outlined,
-  ),
-  groupFromField(
+  groupFromField<BookKind, BookWorkspaceDto, String?>(
     BookKindSchema.location,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
@@ -110,66 +154,63 @@ final bookLibraryGroupDefinitions = [
 ];
 
 final bookLibrarySortDefinitions = [
-  sortFromField(BookKindSchema.series),
-  sortFromField(BookKindSchema.publisher),
-  LibrarySortDefinition<BookWorkspaceDto>(
-    id: const LibrarySortId('status'),
+  LibrarySortDefinition<BookKind, BookWorkspaceDto>(
+    id: BookSortIds.status,
     compare: (left, right) {
-      int rank(BookWorkspaceDto dto) {
-        if (dto.isOwned) return 0;
-        if (dto.isWishlisted) return 1;
+      int rank(LibraryProjectionContext<BookWorkspaceDto> ctx) {
+        if (ctx.source.isOwned) return 0;
+        if (ctx.source.isWishlisted) return 1;
         return 2;
       }
 
       final res = rank(left).compareTo(rank(right));
-      return res != 0 ? res : left.title.compareTo(right.title);
+      return res != 0 ? res : left.dto.title.compareTo(right.dto.title);
     },
     label: 'Status',
   ),
-  sortFromField(BookKindSchema.title),
-  sortFromField(BookKindSchema.releaseDate, defaultAscending: false),
-  sortFromField(BookKindSchema.pageCount, group: 'Edition'),
-  sortFromField(BookKindSchema.author),
+  sortFromField<BookKind, BookWorkspaceDto, String>(BookKindSchema.title),
+  sortFromField<BookKind, BookWorkspaceDto, DateTime>(BookKindSchema.releaseDate, defaultAscending: false),
+  sortFromField<BookKind, BookWorkspaceDto, num>(BookKindSchema.pageCount, group: 'Edition'),
+  sortFromField<BookKind, BookWorkspaceDto, String>(BookKindSchema.author),
 ];
 
-const booksLibraryDefaultVisibleColumnIds = {
-  'status',
-  'cover',
-  'book.author',
-  'book.title',
-  'book.publisher',
-  'book.release_date',
-  'book.isbn',
-  'read_status',
-  'rating',
-  'book.condition',
-  'book.price',
-  'book.location',
-  'wishlist',
-  'updated',
+final booksLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+  BookFieldIds.status,
+  BookFieldIds.cover,
+  BookFieldIds.author,
+  BookFieldIds.title,
+  BookFieldIds.publisher,
+  BookFieldIds.releaseDate,
+  BookFieldIds.isbn,
+  BookFieldIds.readStatus,
+  BookFieldIds.rating,
+  BookFieldIds.condition,
+  BookFieldIds.pricePaid,
+  BookFieldIds.location,
+  BookFieldIds.wishlist,
+  BookFieldIds.updatedAt,
 };
 
 final bookLibraryColumnDefinitions = [
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('status'),
+  LibraryColumnDefinition<BookKind, BookWorkspaceDto, String?>(
+    id: BookFieldIds.status,
     label: 'Status',
-    getValue: (dto) =>
-        dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
-    cellValue: (dto) =>
-        Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
+    getValue: BookKindSchema.status.getValue,
+    cellValue: (context) =>
+        Text(context.source.isWishlisted ? 'Wishlist' : (context.source.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('cover'),
+  LibraryColumnDefinition<BookKind, BookWorkspaceDto, String?>(
+    id: BookFieldIds.cover,
     label: '',
-    getValue: (dto) => dto.coverImageUrl,
-    cellValue: (dto) => dto.coverImageUrl == null
+    getValue: BookKindSchema.cover.getValue,
+    cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
         : Image.network(
-            dto.coverImageUrl!,
+            context.dto.coverImageUrl!,
             width: 32,
             height: 32,
             fit: BoxFit.cover,
@@ -179,91 +220,83 @@ final bookLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  columnFromField(BookKindSchema.title, defaultWidth: 260, maxWidth: 520),
-  columnFromField(BookKindSchema.publisher, defaultWidth: 140),
-  columnFromField(
+  columnFromField<BookKind, BookWorkspaceDto, String?>(BookKindSchema.author, defaultWidth: 150),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(BookKindSchema.title, defaultWidth: 260, maxWidth: 520),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(BookKindSchema.publisher, defaultWidth: 140),
+  columnFromField<BookKind, BookWorkspaceDto, DateTime?>(
     BookKindSchema.releaseDate,
-    cellValue: (dto) => Text(_formatDate(dto.releaseDate)),
+    cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
     defaultWidth: 118,
   ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('wishlist'),
-    label: 'Wishlist',
-    getValue: (dto) => dto.isWishlisted,
-    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : ''),
-    group: 'Personal',
-    defaultWidth: 82,
-    minWidth: 70,
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.isbn,
+    group: 'Edition',
+    defaultWidth: 150,
+    maxWidth: 240,
   ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('updated'),
-    label: 'Updated',
-    getValue: (dto) => dto.updatedAt,
-    cellValue: (dto) => Text(_formatDate(dto.updatedAt)),
+  LibraryColumnDefinition<BookKind, BookWorkspaceDto, String?>(
+    id: BookFieldIds.readStatus,
+    label: 'Read Status',
+    getValue: BookKindSchema.readStatus.getValue,
+    cellValue: (context) => Text(context.source.ownedItem?.readStatus ?? ''),
     group: 'Personal',
-    defaultWidth: 112,
+    defaultWidth: 100,
   ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('added'),
-    label: 'Added',
-    getValue: (dto) => dto.addedAt,
-    cellValue: (dto) => Text(_formatDate(dto.addedAt)),
+  LibraryColumnDefinition<BookKind, BookWorkspaceDto, int?>(
+    id: BookFieldIds.rating,
+    label: 'Rating',
+    getValue: BookKindSchema.rating.getValue,
+    cellValue: (context) => Text(context.source.ownedItem?.rating?.toString() ?? ''),
     group: 'Personal',
-    defaultWidth: 112,
+    defaultWidth: 80,
   ),
-  columnFromField(BookKindSchema.location,
-      group: 'Personal', defaultWidth: 118),
-  columnFromField(BookKindSchema.condition, group: 'Value', defaultWidth: 124),
-  columnFromField(
-    BookKindSchema.price,
-    cellValue: (dto) => Text(_formatCents(dto.pricePaidCents, dto.currency)),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.condition,
+    group: 'Personal',
+    defaultWidth: 118,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, int?>(
+    BookKindSchema.pricePaid,
+    cellValue: (context) => Text(_formatCents(context.source.ownedItem?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
     minWidth: 78,
   ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('format'),
-    label: 'Format',
-    getValue: (dto) => dto.referenceFormatLabel,
-    cellValue: (dto) => Text(dto.referenceFormatLabel ?? ''),
-    defaultWidth: 100,
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.location,
+    group: 'Personal',
+    defaultWidth: 118,
   ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('variant'),
-    label: 'Edition / Binding',
-    getValue: (dto) => dto.variant,
-    cellValue: (dto) => Text(dto.variant ?? ''),
-    defaultWidth: 170,
-    maxWidth: 420,
+  LibraryColumnDefinition<BookKind, BookWorkspaceDto, bool>(
+    id: BookFieldIds.wishlist,
+    label: 'Wishlist',
+    getValue: BookKindSchema.wishlist.getValue,
+    cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
+    group: 'Personal',
+    defaultWidth: 82,
+    minWidth: 70,
   ),
-  columnFromField(BookKindSchema.isbn,
-      group: 'Edition', defaultWidth: 160, maxWidth: 260),
-  columnFromField(BookKindSchema.author, defaultWidth: 160),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('read_status'),
-    label: 'Read Status',
-    getValue: (dto) => dto.collectionStatus,
-    cellValue: (dto) => Text(dto.collectionStatus ?? ''),
-    defaultWidth: 100,
-  ),
-  LibraryColumnDefinition<BookWorkspaceDto, Object?>(
-    id: LibraryFieldId<Object?>('rating'),
-    label: 'Rating',
-    getValue: (dto) => dto.rating,
-    cellValue: (dto) => Text(dto.rating?.toString() ?? ''),
-    defaultWidth: 80,
+  LibraryColumnDefinition<BookKind, BookWorkspaceDto, DateTime>(
+    id: BookFieldIds.updatedAt,
+    label: 'Updated',
+    getValue: BookKindSchema.updatedAt.getValue,
+    cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
+    group: 'Personal',
+    defaultWidth: 112,
   ),
 ];
 
-final bookKindSchema = LibraryKindSchema<BookWorkspaceDto>(
+final bookLibraryKindSchema = LibraryKindSchema<BookKind, BookWorkspaceDto>(
+  kindNamespace: 'book',
   fields: bookLibraryFieldDefinitions,
   columns: bookLibraryColumnDefinitions,
   sorts: bookLibrarySortDefinitions,
   groups: bookLibraryGroupDefinitions,
-  defaultVisibleColumnIds: booksLibraryDefaultVisibleColumnIds,
-  defaultSortId: 'book.title',
-  defaultGroupId: 'book.series',
+  defaultVisibleColumns: booksLibraryDefaultVisibleColumns,
+  defaultSort: BookSortIds.author,
+  defaultGroup: BookGroupIds.author,
+  preferenceCodec: const BookPreferenceCodec(),
 );
 
 String _formatDate(DateTime? value) {

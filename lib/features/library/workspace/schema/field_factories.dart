@@ -1,57 +1,62 @@
 import 'package:flutter/widgets.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
-LibraryFieldDefinition<TDto, String?> textField<TDto>({
-  required String id,
+LibraryFieldDefinition<TKind, TDto, String?>
+    textField<TKind, TDto extends LibraryWorkspaceDto>({
+  required LibraryFieldId<TKind, String?> id,
   required String label,
   required String? Function(TDto dto) getValue,
 }) {
-  return LibraryFieldDefinition<TDto, String?>(
-    id: LibraryFieldId<String?>(id),
+  return LibraryFieldDefinition<TKind, TDto, String?>(
+    id: id,
     label: label,
-    getValue: getValue,
+    getValue: (context) => getValue(context.dto),
   );
 }
 
-LibraryFieldDefinition<TDto, num?> numberField<TDto>({
-  required String id,
+LibraryFieldDefinition<TKind, TDto, num?>
+    numberField<TKind, TDto extends LibraryWorkspaceDto>({
+  required LibraryFieldId<TKind, num?> id,
   required String label,
   required num? Function(TDto dto) getValue,
 }) {
-  return LibraryFieldDefinition<TDto, num?>(
-    id: LibraryFieldId<num?>(id),
+  return LibraryFieldDefinition<TKind, TDto, num?>(
+    id: id,
     label: label,
-    getValue: getValue,
+    getValue: (context) => getValue(context.dto),
   );
 }
 
-LibraryFieldDefinition<TDto, DateTime?> dateField<TDto>({
-  required String id,
+LibraryFieldDefinition<TKind, TDto, DateTime?>
+    dateField<TKind, TDto extends LibraryWorkspaceDto>({
+  required LibraryFieldId<TKind, DateTime?> id,
   required String label,
   required DateTime? Function(TDto dto) getValue,
 }) {
-  return LibraryFieldDefinition<TDto, DateTime?>(
-    id: LibraryFieldId<DateTime?>(id),
+  return LibraryFieldDefinition<TKind, TDto, DateTime?>(
+    id: id,
     label: label,
-    getValue: getValue,
+    getValue: (context) => getValue(context.dto),
   );
 }
 
-LibraryFieldDefinition<TDto, int?> moneyField<TDto>({
-  required String id,
+LibraryFieldDefinition<TKind, TDto, int?>
+    moneyField<TKind, TDto extends LibraryWorkspaceDto>({
+  required LibraryFieldId<TKind, int?> id,
   required String label,
   required int? Function(TDto dto) getValue,
 }) {
-  return LibraryFieldDefinition<TDto, int?>(
-    id: LibraryFieldId<int?>(id),
+  return LibraryFieldDefinition<TKind, TDto, int?>(
+    id: id,
     label: label,
-    getValue: getValue,
+    getValue: (context) => getValue(context.dto),
   );
 }
 
-LibraryColumnDefinition<TDto, V> columnFromField<TDto, V>(
-  LibraryFieldDefinition<TDto, V> field, {
-  Widget Function(TDto dto)? cellValue,
+LibraryColumnDefinition<TKind, TDto, V>
+    columnFromField<TKind, TDto extends LibraryWorkspaceDto, V>(
+  LibraryFieldDefinition<TKind, TDto, V> field, {
+  Widget Function(LibraryProjectionContext<TDto> context)? cellValue,
   String group = 'Main',
   double? defaultWidth,
   double? minWidth,
@@ -60,7 +65,7 @@ LibraryColumnDefinition<TDto, V> columnFromField<TDto, V>(
   bool groupable = true,
   bool isNumeric = false,
 }) {
-  return LibraryColumnDefinition<TDto, V>(
+  return LibraryColumnDefinition<TKind, TDto, V>(
     id: field.id,
     label: field.label,
     getValue: field.getValue,
@@ -75,14 +80,15 @@ LibraryColumnDefinition<TDto, V> columnFromField<TDto, V>(
   );
 }
 
-LibrarySortDefinition<TDto> sortFromField<TDto, V extends Comparable<Object>>(
-  LibraryFieldDefinition<TDto, V?> field, {
+LibrarySortDefinition<TKind, TDto> sortFromField<TKind,
+    TDto extends LibraryWorkspaceDto, V extends Comparable<Object>>(
+  LibraryFieldDefinition<TKind, TDto, V?> field, {
   String group = 'Main',
   bool defaultAscending = true,
   int Function(V a, V b)? customCompare,
 }) {
-  return LibrarySortDefinition<TDto>(
-    id: LibrarySortId(field.id.value),
+  return LibrarySortDefinition<TKind, TDto>(
+    id: LibrarySortId<TKind>(field.id.value),
     label: field.label,
     group: group,
     defaultAscending: defaultAscending,
@@ -98,14 +104,15 @@ LibrarySortDefinition<TDto> sortFromField<TDto, V extends Comparable<Object>>(
   );
 }
 
-LibraryGroupDefinition<TDto, V> groupFromField<TDto, V>(
-  LibraryFieldDefinition<TDto, V> field, {
+LibraryGroupDefinition<TKind, TDto, V>
+    groupFromField<TKind, TDto extends LibraryWorkspaceDto, V>(
+  LibraryFieldDefinition<TKind, TDto, V> field, {
   String? sidebarTitle,
   IconData? icon,
   bool supportsBucketManagement = false,
 }) {
-  return LibraryGroupDefinition<TDto, V>(
-    id: field.id,
+  return LibraryGroupDefinition<TKind, TDto, V>(
+    id: LibraryGroupId<TKind, V>(field.id.value),
     label: field.label,
     getValue: field.getValue,
     sidebarTitle: sidebarTitle,

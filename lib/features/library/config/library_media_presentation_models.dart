@@ -732,10 +732,10 @@ class LibraryMediaPresentation {
   final LibraryReferenceLabels referenceLabels;
   final LibraryStatusLabels statusLabels;
   final LibraryBucketLabelOverrides bucketLabelOverrides;
-  final List<LibraryFieldDefinition<LibraryWorkspaceDto, Object?>>
+  final List<LibraryFieldDefinition<dynamic, LibraryWorkspaceDto, Object?>>
       fieldDefinitions;
 
-  LibraryFieldDefinition<LibraryWorkspaceDto, Object?>? fieldDefinitionFor(
+  LibraryFieldDefinition<dynamic, LibraryWorkspaceDto, Object?>? fieldDefinitionFor(
     String id,
   ) {
     for (final definition in fieldDefinitions) {

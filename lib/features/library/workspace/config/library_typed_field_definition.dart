@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
+
+export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+export 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 
 abstract interface class LibraryWorkspaceDto {
   const LibraryWorkspaceDto();
@@ -39,11 +44,6 @@ abstract interface class LibraryWorkspaceDto {
   String? get editionLabel;
 }
 
-typedef LibraryWorkspaceDtoBuilder<TDto extends LibraryWorkspaceDto> = TDto
-    Function(
-  dynamic entry,
-);
-
 enum LibraryGroupPresentation { inlineHeaders, folderGrid }
 
 extension LibraryGroupPresentationLabels on LibraryGroupPresentation {
@@ -62,23 +62,6 @@ extension LibraryGroupPresentationLabels on LibraryGroupPresentation {
   }
 }
 
-class LibraryFieldId<TValue> {
-  const LibraryFieldId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) {
-    return other is LibraryFieldId && other.value == value;
-  }
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
-}
-
 class LibraryCellValue {
   const LibraryCellValue._(this.value);
 
@@ -94,9 +77,12 @@ class LibraryCellValue {
   bool get isEmpty => value == null;
 }
 
-typedef LibraryFieldValueGetter<TDto, TValue> = TValue Function(TDto dto);
+typedef LibraryFieldValueGetter<TDto extends LibraryWorkspaceDto, TValue>
+    = TValue Function(
+  LibraryProjectionContext<TDto> context,
+);
 
-class LibraryFieldDefinition<TDto, TValue> {
+class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   const LibraryFieldDefinition({
     required this.id,
     required this.label,
@@ -106,7 +92,7 @@ class LibraryFieldDefinition<TDto, TValue> {
     this.groupable = true,
   });
 
-  final LibraryFieldId<TValue> id;
+  final LibraryFieldId<TKind, TValue> id;
   final String label;
   final LibraryFieldValueGetter<TDto, TValue> getValue;
   final LibraryCellValue Function(TValue value)? cellValue;
@@ -114,7 +100,7 @@ class LibraryFieldDefinition<TDto, TValue> {
   final bool groupable;
 }
 
-class LibraryGroupDefinition<TDto, TValue> {
+class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   const LibraryGroupDefinition({
     required this.id,
     required this.label,
@@ -129,7 +115,7 @@ class LibraryGroupDefinition<TDto, TValue> {
     this.subgroupKey,
   });
 
-  final LibraryFieldId<TValue> id;
+  final LibraryGroupId<TKind, TValue> id;
   final String label;
   final LibraryFieldValueGetter<TDto, TValue> getValue;
   final String? sidebarTitle;
@@ -139,15 +125,15 @@ class LibraryGroupDefinition<TDto, TValue> {
   final String? bucketManagerListLabel;
   final String? drilldownChildId;
   final String? folderSetLabel;
-  final String? Function(TDto dto)? subgroupKey;
+  final String? Function(LibraryProjectionContext<TDto> context)? subgroupKey;
 
   String get resolvedSidebarTitle => sidebarTitle ?? label;
 
   String get resolvedBucketManagerListLabel =>
       bucketManagerListLabel ?? '$label list';
 
-  LibraryGroupDefinition<TDto, TValue> copyWith({
-    LibraryFieldId<TValue>? id,
+  LibraryGroupDefinition<TKind, TDto, TValue> copyWith({
+    LibraryGroupId<TKind, TValue>? id,
     String? label,
     LibraryFieldValueGetter<TDto, TValue>? getValue,
     String? sidebarTitle,
@@ -157,9 +143,9 @@ class LibraryGroupDefinition<TDto, TValue> {
     String? bucketManagerListLabel,
     String? drilldownChildId,
     String? folderSetLabel,
-    String? Function(TDto dto)? subgroupKey,
+    String? Function(LibraryProjectionContext<TDto> context)? subgroupKey,
   }) {
-    return LibraryGroupDefinition<TDto, TValue>(
+    return LibraryGroupDefinition<TKind, TDto, TValue>(
       id: id ?? this.id,
       label: label ?? this.label,
       getValue: getValue ?? this.getValue,
@@ -177,28 +163,12 @@ class LibraryGroupDefinition<TDto, TValue> {
   }
 }
 
-class LibrarySortId {
-  const LibrarySortId(this.value);
+typedef LibrarySortComparator<TDto extends LibraryWorkspaceDto> = int Function(
+  LibraryProjectionContext<TDto> left,
+  LibraryProjectionContext<TDto> right,
+);
 
-  final String value;
-
-  @override
-  bool operator ==(Object other) {
-    if (other is LibrarySortId) return other.value == value;
-    if (other is String) return other == value;
-    return false;
-  }
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
-}
-
-typedef LibrarySortComparator<TDto> = int Function(TDto left, TDto right);
-
-class LibrarySortDefinition<TDto> {
+class LibrarySortDefinition<TKind, TDto extends LibraryWorkspaceDto> {
   const LibrarySortDefinition({
     required this.id,
     required this.label,
@@ -207,16 +177,19 @@ class LibrarySortDefinition<TDto> {
     this.defaultAscending = true,
   });
 
-  final LibrarySortId id;
+  final LibrarySortId<TKind> id;
   final String label;
   final LibrarySortComparator<TDto> compare;
   final String group;
   final bool defaultAscending;
 }
 
-typedef LibraryColumnCellBuilder<TDto> = Widget Function(TDto dto);
+typedef LibraryColumnCellBuilder<TDto extends LibraryWorkspaceDto> = Widget
+    Function(
+  LibraryProjectionContext<TDto> context,
+);
 
-class LibraryColumnDefinition<TDto, TValue> {
+class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   const LibraryColumnDefinition({
     required this.id,
     required this.label,
@@ -233,7 +206,7 @@ class LibraryColumnDefinition<TDto, TValue> {
     this.maxWidth,
   });
 
-  final LibraryFieldId<TValue> id;
+  final LibraryFieldId<TKind, TValue> id;
   final String label;
   final LibraryFieldValueGetter<TDto, TValue> getValue;
   final LibraryColumnCellBuilder<TDto>? cellValue;
@@ -242,7 +215,7 @@ class LibraryColumnDefinition<TDto, TValue> {
   final bool sortable;
   final bool groupable;
   final bool isNumeric;
-  final LibrarySortId? sortId;
+  final LibrarySortId<TKind>? sortId;
   final double? defaultWidth;
   final double? minWidth;
   final double? maxWidth;

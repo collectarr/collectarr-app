@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
 
 export 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
@@ -54,8 +55,8 @@ LibraryMediaAdapter plannedMediaAdapter(
             .fields
             .sortDefinitionFor(column)
             .compare(
-              left.dto,
-              right.dto,
+              LibraryProjectionContext(source: left.source, node: left.node, dto: left.dto),
+              LibraryProjectionContext(source: right.source, node: right.node, dto: right.dto),
             ),
     entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
     entryLinkedMetadataCandidatesBuilder: (source) =>
@@ -183,8 +184,10 @@ String? plannedMediaSubgroupKeyForEntry(
   Object groupMode,
 ) {
   final registry = libraryKindModuleForType(type).fields;
-  final definition = registry.groupDefinitionForId(groupMode.toString());
-  return definition?.subgroupKey?.call(item.dto as dynamic);
+  final definition = registry.findGroupDefinition(groupMode.toString());
+  return definition?.subgroupKey?.call(
+    LibraryProjectionContext(source: item.source, node: item.node, dto: item.dto),
+  );
 }
 
 int plannedMediaCompareSubgroupKeys(

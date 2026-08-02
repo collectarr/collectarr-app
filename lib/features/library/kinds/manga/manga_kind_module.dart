@@ -17,20 +17,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, ComicOwnedDetails>(
   mediaAdapter: mangaMediaAdapter,
   projector: const MangaWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
-  fields: AnyLibraryFieldRegistry(
-    groups: mangaLibraryGroupDefinitions,
-    sorts: mangaLibrarySortDefinitions,
-    columns: mangaLibraryColumnDefinitions,
-    defaultVisibleColumnIds: mangaLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'title',
-    defaultGroupId: 'series',
-    customLinkedMetadataCandidates: (source) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(
-          source.catalogItem?.characters);
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(
-          source.catalogItem?.storyArcs);
-    },
-  ),
+  fields: mangaLibraryKindSchema.toRegistry(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
     getFacetValues: _getFacetValues,

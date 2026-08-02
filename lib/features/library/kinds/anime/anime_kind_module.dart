@@ -18,14 +18,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, VideoOwnedDetails>(
   mediaAdapter: animeMediaAdapter,
   projector: const AnimeWorkspaceProjector(),
   ownedDetailsCodec: const VideoOwnedDetailsCodec(),
-  fields: AnyLibraryFieldRegistry(
-    groups: animeLibraryGroupDefinitions,
-    sorts: animeLibrarySortDefinitions,
-    columns: animeLibraryColumnDefinitions,
-    defaultVisibleColumnIds: animeLibraryDefaultVisibleColumnIds,
-    defaultSortId: 'title',
-    defaultGroupId: 'series',
-  ),
+  fields: animeLibraryKindSchema.toRegistry(),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsSeriesIssueJump: true,
     defaultVideoDisplayLevel: VideoDisplayLevel.season,
