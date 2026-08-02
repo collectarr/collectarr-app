@@ -21,8 +21,7 @@ Future<void> showTvCustomEpisodeDialog(
   String? localImagePath,
   String? thumbnailImageUrl,
 }) async {
-  final seasonController =
-      TextEditingController(text: seasonNumber.toString());
+  final seasonController = TextEditingController(text: seasonNumber.toString());
   final episodeController =
       TextEditingController(text: episodeNumber.toString());
   final titleController = TextEditingController(text: title);
@@ -53,7 +52,8 @@ Future<void> showTvCustomEpisodeDialog(
                         child: TextField(
                           controller: seasonController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Season'),
+                          decoration:
+                              const InputDecoration(labelText: 'Season'),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -61,7 +61,8 @@ Future<void> showTvCustomEpisodeDialog(
                         child: TextField(
                           controller: episodeController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Episode'),
+                          decoration:
+                              const InputDecoration(labelText: 'Episode'),
                         ),
                       ),
                     ],

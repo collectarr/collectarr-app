@@ -14,7 +14,6 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-
 class SyncRepository {
   SyncRepository(this.ref);
   final Ref ref;

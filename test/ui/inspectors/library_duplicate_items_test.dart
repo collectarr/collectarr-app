@@ -7,7 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  test('duplicate groups rank barcode matches ahead of metadata-only matches', () {
+  test('duplicate groups rank barcode matches ahead of metadata-only matches',
+      () {
     final groups = findDuplicateShelfGroups([
       _entry(
         itemId: 'barcode-a',
@@ -45,7 +46,8 @@ void main() {
 
     expect(groups, hasLength(2));
     expect(groups.first.reason, 'Same barcode');
-    expect(groups.first.confidenceScore, greaterThan(groups.last.confidenceScore));
+    expect(
+        groups.first.confidenceScore, greaterThan(groups.last.confidenceScore));
   });
 
   test('duplicate groups reward richer matching metadata', () {
@@ -78,10 +80,12 @@ void main() {
 
     expect(groups, hasLength(2));
     expect(groups.first.label, contains('Batman'));
-    expect(groups.first.confidenceScore, greaterThan(groups.last.confidenceScore));
+    expect(
+        groups.first.confidenceScore, greaterThan(groups.last.confidenceScore));
   });
 
-  testWidgets('duplicate dialog renders group summary and entries', (tester) async {
+  testWidgets('duplicate dialog renders group summary and entries',
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Builder(

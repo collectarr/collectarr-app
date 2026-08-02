@@ -484,9 +484,10 @@ class AdminProviderPreview {
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
       tags: ((json['tags'] as List<dynamic>?)
-              ?.whereType<String>()
-              .toList(growable: false) ??
-          const <String>[]).join(', '),
+                  ?.whereType<String>()
+                  .toList(growable: false) ??
+              const <String>[])
+          .join(', '),
     );
     final publishing = CatalogPublishingDetails(
       pageCount: json['page_count'] as int?,

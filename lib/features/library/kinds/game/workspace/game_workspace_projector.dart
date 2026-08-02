@@ -31,7 +31,8 @@ final class GameWorkspaceProjector
     final game = GameCatalogMapper.mapMetadataItemToGame(source.catalogItem!);
     return GameWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
-      personal: PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      personal:
+          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       game: game,
     );
   }

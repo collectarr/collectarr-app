@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgam
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_release.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-
 class BoardGameCatalogMapper {
   const BoardGameCatalogMapper._();
 
@@ -41,9 +40,8 @@ class BoardGameCatalogMapper {
     );
   }
 
-
-
-  static BoardGameCatalogItem mapMetadataItemToBoardGame(LibraryMetadataItem item) {
+  static BoardGameCatalogItem mapMetadataItemToBoardGame(
+      LibraryMetadataItem item) {
     final work = BoardGameWorkMetadata(
       title: item.title,
       originalTitle: item.originalTitle,

@@ -55,7 +55,7 @@ void main() {
     ]);
 
     expect(exported, contains('"Spider-Man, ""Vol. 1"""'));
-  expect(exported, contains('location_id'));
+    expect(exported, contains('location_id'));
 
     final rows = csv.parse(exported);
     expect(rows.single.itemId, 'comic-1');
@@ -534,7 +534,7 @@ void main() {
     );
 
     final parsed = csv.parse(exported);
-    expect(parsed.single.customFieldValues['Notes'],
-        'Special note, with comma');
+    expect(
+        parsed.single.customFieldValues['Notes'], 'Special note, with comma');
   });
 }

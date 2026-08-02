@@ -6,7 +6,7 @@ export 'package:collectarr_app/features/library/config/library_media_presentatio
         LibraryMediaFilterLabels,
         LibraryMediaGroupLabels,
         LibraryMediaPresentation,
-    LibraryMediaPreviewLabels,
+        LibraryMediaPreviewLabels,
         LibraryMediaSearchFieldLabels;
 
 LibraryMediaSearchFieldLabels libraryMediaSearchFieldLabels(

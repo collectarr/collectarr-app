@@ -126,8 +126,7 @@ class LibraryFolderPreset {
 
   String get primaryMode => modes.first;
 
-  String get storageValue =>
-      modes.map(libraryGroupModeStorageValue).join('>');
+  String get storageValue => modes.map(libraryGroupModeStorageValue).join('>');
 
   String? nextModeAfter(String mode) {
     final index = modes.indexOf(mode);
@@ -156,8 +155,7 @@ LibraryFolderPreset? sanitizeLibraryFolderPreset(
   if (preset == null) {
     return null;
   }
-  final allowed =
-      allowedModes == null ? null : Set<String>.from(allowedModes);
+  final allowed = allowedModes == null ? null : Set<String>.from(allowedModes);
   if (allowed != null && preset.modes.any((mode) => !allowed.contains(mode))) {
     return null;
   }
@@ -185,10 +183,12 @@ String _toSnakeCase(String name) {
     RegExp(r'(.)([A-Z][a-z]+)'),
     (match) => '${match.group(1)}_${match.group(2)}',
   );
-  return s1.replaceAllMapped(
-    RegExp(r'([a-z0-9])([A-Z])'),
-    (match) => '${match.group(1)}_${match.group(2)}',
-  ).toLowerCase();
+  return s1
+      .replaceAllMapped(
+        RegExp(r'([a-z0-9])([A-Z])'),
+        (match) => '${match.group(1)}_${match.group(2)}',
+      )
+      .toLowerCase();
 }
 
 LibraryGroupDefinition<dynamic, Object?>? libraryGroupModeDefinitionOrNull(
@@ -216,10 +216,12 @@ LibraryGroupDefinition<dynamic, Object?>? libraryGroupModeDefinitionOrNull(
 }
 
 String _fallbackGroupModeLabel(String mode) {
-  final words = mode.replaceAllMapped(
-    RegExp(r'([a-z0-9])([A-Z])'),
-    (match) => '${match.group(1)} ${match.group(2)}',
-  ).replaceAll('_', ' ');
+  final words = mode
+      .replaceAllMapped(
+        RegExp(r'([a-z0-9])([A-Z])'),
+        (match) => '${match.group(1)} ${match.group(2)}',
+      )
+      .replaceAll('_', ' ');
   return words[0].toUpperCase() + words.substring(1);
 }
 
@@ -296,10 +298,7 @@ LibraryGroupPresentation genericGroupPresentationForMode(
 List<String> libraryGroupModesForType(
   LibraryTypeConfig type,
 ) {
-  return [
-    for (final mode in type.availableGroupModes)
-      mode.toString()
-  ];
+  return [for (final mode in type.availableGroupModes) mode.toString()];
 }
 
 String libraryDefaultGroupMode(LibraryTypeConfig type) {
@@ -316,15 +315,13 @@ String? libraryGroupModeFromStorageValue(String value) {
     return null;
   }
   // Strip 'group.' prefix if present
-  final candidate = normalized.startsWith('group.')
-      ? normalized.substring(6)
-      : normalized;
-
-
+  final candidate =
+      normalized.startsWith('group.') ? normalized.substring(6) : normalized;
 
   for (final module in LibraryKindRegistry.instance.allRuntimes) {
     for (final def in module.fields.groups) {
-      if (def.id.value == candidate || _stableToken(def.id.value) == candidate) {
+      if (def.id.value == candidate ||
+          _stableToken(def.id.value) == candidate) {
         return def.id.value;
       }
     }
@@ -397,8 +394,7 @@ class LibraryProjection {
       filterSelection: filterSelection,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
-      customFieldValuesByDefinitionByItem:
-          customFieldValuesByDefinitionByItem,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
       activeLoanOwnedItemIds: activeLoanOwnedItemIds,
       searchTarget: searchTarget,
     );
@@ -496,13 +492,12 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
 List<GroupShelfEntry> libraryGroupEntriesForItems(
   List<LibraryProjectionItem> items,
   LibraryTypeConfig type,
-  String groupMode,
-  {
+  String groupMode, {
   LibraryGroupPresentation? presentationOverride,
 }) {
   final grouped = <String, List<LibraryProjectionItem>>{};
-  final presentation = presentationOverride ??
-      genericGroupPresentationForMode(groupMode, type);
+  final presentation =
+      presentationOverride ?? genericGroupPresentationForMode(groupMode, type);
   for (final item in items) {
     final bucket = genericBucketForItemMode(item, type, groupMode);
     (grouped[bucket] ??= []).add(item);
@@ -891,7 +886,8 @@ bool libraryEntryMatchesLinkedMetadataFilter(
   if (normalized.isEmpty) {
     return true;
   }
-  for (final candidate in adapter.linkedMetadataCandidatesForEntry(item.source)) {
+  for (final candidate
+      in adapter.linkedMetadataCandidatesForEntry(item.source)) {
     if (candidate.trim().toLowerCase() == normalized) {
       return true;
     }

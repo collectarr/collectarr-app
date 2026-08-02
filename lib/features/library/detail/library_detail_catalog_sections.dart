@@ -138,8 +138,10 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
             LibraryDetailField(label: 'Item ID', value: item.node.titleItemId),
             LibraryDetailField(label: 'Source', value: sourceKind.label),
             if (defaultProvider != null)
-              LibraryDetailField(label: 'Metadata provider', value: defaultProvider.label),
-            LibraryDetailField(label: 'Sync profile', value: type.singularLabel),
+              LibraryDetailField(
+                  label: 'Metadata provider', value: defaultProvider.label),
+            LibraryDetailField(
+                label: 'Sync profile', value: type.singularLabel),
           ],
         ),
       ],
@@ -172,7 +174,9 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
           fields: [
             LibraryDetailField(label: 'Score', value: '${health.score}/100'),
             LibraryDetailField(label: 'Status', value: health.label),
-            LibraryDetailField(label: 'Missing signals', value: health.missingSignals.length.toString()),
+            LibraryDetailField(
+                label: 'Missing signals',
+                value: health.missingSignals.length.toString()),
           ],
         ),
         const SizedBox(height: 8),
@@ -215,10 +219,16 @@ class LibraryDetailCoverStatusSection extends StatelessWidget {
       children: [
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Display', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
-                  ? 'Generated fallback'
-                  : 'External URL'),
-            LibraryDetailField(label: 'Cover URL', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty ? '-' : 'Available'),
+            LibraryDetailField(
+                label: 'Display',
+                value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
+                    ? 'Generated fallback'
+                    : 'External URL'),
+            LibraryDetailField(
+                label: 'Cover URL',
+                value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
+                    ? '-'
+                    : 'Available'),
           ],
         ),
         if (dto.coverImageUrl != null) ...[
@@ -226,7 +236,7 @@ class LibraryDetailCoverStatusSection extends StatelessWidget {
           SelectableText(
             'cover: ${dto.coverImageUrl}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: appPalette(context).textMuted,
+                  color: appPalette(context).textMuted,
                   fontWeight: FontWeight.w700,
                 ),
           ),
@@ -271,15 +281,21 @@ class LibraryDetailProviderSection extends StatelessWidget {
           const SizedBox(height: 8),
           LibraryDetailFieldTable(
             fields: [
-              LibraryDetailField(label: 'Default provider', value: type.metadataProviderLabel(
-                  type.defaultSupportedMetadataProvider,
-                )),
-              LibraryDetailField(label: 'Provider count', value: type.supportedMetadataProviders.length.toString()),
-              LibraryDetailField(label: 'API keys', value: type.supportedMetadataProviders.any(
-                  (provider) => provider.requiresApiKey,
-                )
-                    ? 'Some required'
-                    : 'Not required'),
+              LibraryDetailField(
+                  label: 'Default provider',
+                  value: type.metadataProviderLabel(
+                    type.defaultSupportedMetadataProvider,
+                  )),
+              LibraryDetailField(
+                  label: 'Provider count',
+                  value: type.supportedMetadataProviders.length.toString()),
+              LibraryDetailField(
+                  label: 'API keys',
+                  value: type.supportedMetadataProviders.any(
+                    (provider) => provider.requiresApiKey,
+                  )
+                      ? 'Some required'
+                      : 'Not required'),
             ],
           ),
           const SizedBox(height: 8),
@@ -316,7 +332,8 @@ extension on _MetadataSourceKind {
   String get label {
     return switch (this) {
       _MetadataSourceKind.localSnapshot => 'Collectarr Core catalog snapshot',
-      _MetadataSourceKind.providerPlaceholder => 'Provider placeholder snapshot',
+      _MetadataSourceKind.providerPlaceholder =>
+        'Provider placeholder snapshot',
     };
   }
 
@@ -446,10 +463,14 @@ _MetadataHealth _buildMetadataHealth(
     _ => 'Needs work',
   };
   final summary = switch (label) {
-    'Strong' => 'This record has enough structured metadata to browse and compare confidently.',
-    'Usable' => 'The core metadata is present, but a refresh would still add useful context.',
-    'Thin' => 'This record is browsable, but several discovery and quality signals are still missing.',
-    _ => 'This record needs a metadata refresh before it will feel trustworthy in the library.',
+    'Strong' =>
+      'This record has enough structured metadata to browse and compare confidently.',
+    'Usable' =>
+      'The core metadata is present, but a refresh would still add useful context.',
+    'Thin' =>
+      'This record is browsable, but several discovery and quality signals are still missing.',
+    _ =>
+      'This record needs a metadata refresh before it will feel trustworthy in the library.',
   };
 
   return _MetadataHealth(
@@ -459,5 +480,3 @@ _MetadataHealth _buildMetadataHealth(
     missingSignals: missingSignals,
   );
 }
-
-

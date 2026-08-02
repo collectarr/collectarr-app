@@ -34,8 +34,10 @@ final collectionByCatalogItemProvider = Provider<Map<String, OwnedItem>>((ref) {
   );
 });
 
-final trackingEntriesProvider = FutureProvider<List<TrackingEntry>>((ref) async {
-  final cache = TrackingEntriesCacheRepository(ref.watch(localDatabaseProvider));
+final trackingEntriesProvider =
+    FutureProvider<List<TrackingEntry>>((ref) async {
+  final cache =
+      TrackingEntriesCacheRepository(ref.watch(localDatabaseProvider));
   return cache.listActive();
 });
 
@@ -49,7 +51,9 @@ final trackingEntriesByCatalogItemProvider =
         if (item.isDeleted) {
           continue;
         }
-        grouped.putIfAbsent(item.catalogRef.id, () => <TrackingEntry>[]).add(item);
+        grouped
+            .putIfAbsent(item.catalogRef.id, () => <TrackingEntry>[])
+            .add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -75,7 +79,9 @@ final trackingUnitsByCatalogItemProvider =
         if (item.isDeleted) {
           continue;
         }
-        grouped.putIfAbsent(item.targetRef.id, () => <TrackingUnit>[]).add(item);
+        grouped
+            .putIfAbsent(item.targetRef.id, () => <TrackingUnit>[])
+            .add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) {
@@ -124,7 +130,9 @@ final wishlistByCatalogItemProvider =
         if (item.isDeleted) {
           continue;
         }
-        grouped.putIfAbsent(item.catalogRef.id, () => <WishlistItem>[]).add(item);
+        grouped
+            .putIfAbsent(item.catalogRef.id, () => <WishlistItem>[])
+            .add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -158,7 +166,9 @@ final watchSessionsByItemProvider =
       final grouped = <String, List<WatchSession>>{};
       for (final session in items) {
         if (session.isDeleted) continue;
-        grouped.putIfAbsent(session.targetRef.id, () => <WatchSession>[]).add(session);
+        grouped
+            .putIfAbsent(session.targetRef.id, () => <WatchSession>[])
+            .add(session);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
@@ -222,28 +232,27 @@ final metadataOverridesByItemProvider =
 });
 
 final userExternalLinksByItemProvider =
-  FutureProvider.family<List<UserExternalLink>, String>((ref, itemId) async {
-final db = ref.watch(localDatabaseProvider);
-return UserExternalLinksCacheRepository(db).listByItemId(itemId);
+    FutureProvider.family<List<UserExternalLink>, String>((ref, itemId) async {
+  final db = ref.watch(localDatabaseProvider);
+  return UserExternalLinksCacheRepository(db).listByItemId(itemId);
 });
 
 final customEpisodesByItemProvider =
-  FutureProvider.family<Map<int, List<CustomEpisode>>, String>(
-      (ref, itemId) async {
+    FutureProvider.family<Map<int, List<CustomEpisode>>, String>(
+        (ref, itemId) async {
   final db = ref.watch(localDatabaseProvider);
   return CustomEpisodesCacheRepository(db).listByItemIdGrouped(itemId);
 });
 
-final customEpisodesByCatalogRefProvider = FutureProvider.family<
-    Map<int, List<CustomEpisode>>,
-    CatalogEntityRef>((ref, catalogRef) async {
+final customEpisodesByCatalogRefProvider =
+    FutureProvider.family<Map<int, List<CustomEpisode>>, CatalogEntityRef>(
+        (ref, catalogRef) async {
   final db = ref.watch(localDatabaseProvider);
   return CustomEpisodesCacheRepository(db).listByItemIdGrouped(catalogRef.id);
 });
 
 /// Groups owned items by box set name for summary display.
-final boxSetGroupsProvider =
-    Provider<Map<String, List<OwnedItem>>>((ref) {
+final boxSetGroupsProvider = Provider<Map<String, List<OwnedItem>>>((ref) {
   final collection = ref.watch(collectionProvider);
   return collection.maybeWhen(
     data: (items) {

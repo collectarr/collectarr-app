@@ -25,8 +25,10 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, ComicOwnedDetails>(
     defaultSortId: 'title',
     defaultGroupId: 'series',
     customLinkedMetadataCandidates: (source) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(source.catalogItem?.characters);
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(source.catalogItem?.storyArcs);
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(
+          source.catalogItem?.characters);
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(
+          source.catalogItem?.storyArcs);
     },
   ),
   facets: const LibraryFacetModule(
@@ -35,7 +37,8 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, ComicOwnedDetails>(
   ),
 );
 
-Iterable<String> _getFacetValues(LibraryProjectionRuntime item, String facetId) {
+Iterable<String> _getFacetValues(
+    LibraryProjectionRuntime item, String facetId) {
   final catalog = item.source.catalogItem;
   if (facetId == 'comic.character' || facetId == 'media.character') {
     return catalog?.characters ?? const [];

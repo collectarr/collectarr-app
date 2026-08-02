@@ -105,7 +105,6 @@ extension CollectionMutationsImport on CollectionMutations {
       if (row.isWishlisted && !activeWishlistItemIds.contains(row.itemId)) {
         final wishlistItem = WishlistItem(
           id: _uuid.v4(),
-
           catalogRef: _catalogRefForItem(
             row.itemId,
             catalogItems[row.itemId],
@@ -259,7 +258,6 @@ extension CollectionMutationsImport on CollectionMutations {
     final hasLocationId = row.locationId?.trim().isNotEmpty ?? false;
     return OwnedItem(
       id: existing?.id ?? _uuid.v4(),
-
       catalogRef: existing?.catalogRef ??
           CatalogEntityRef(
             kind: 'unknown',
@@ -282,14 +280,17 @@ extension CollectionMutationsImport on CollectionMutations {
       indexNumber: row.indexNumber ?? existing?.indexNumber,
       details: ComicOwnedDetails(
         rawOrSlabbed: row.rawOrSlabbed ?? existing?.comicDetails?.rawOrSlabbed,
-        gradingCompany: row.gradingCompany ?? existing?.comicDetails?.gradingCompany,
+        gradingCompany:
+            row.gradingCompany ?? existing?.comicDetails?.gradingCompany,
         graderNotes: row.graderNotes ?? existing?.comicDetails?.graderNotes,
         signedBy: row.signedBy ?? existing?.comicDetails?.signedBy,
         labelType: row.labelType ?? existing?.comicDetails?.labelType,
-        certificationNumber: row.certificationNumber ?? existing?.comicDetails?.certificationNumber,
+        certificationNumber: row.certificationNumber ??
+            existing?.comicDetails?.certificationNumber,
         keyComic: row.keyComic || (existing?.comicDetails?.keyComic ?? false),
         keyReason: row.keyReason ?? existing?.comicDetails?.keyReason,
-        coverPriceCents: row.coverPriceCents ?? existing?.comicDetails?.coverPriceCents,
+        coverPriceCents:
+            row.coverPriceCents ?? existing?.comicDetails?.coverPriceCents,
       ),
       rating: row.rating ?? existing?.rating,
       readStatus: row.readStatus ?? existing?.readStatus,
@@ -303,5 +304,4 @@ extension CollectionMutationsImport on CollectionMutations {
       soldTo: row.soldTo ?? existing?.soldTo,
     );
   }
-
 }

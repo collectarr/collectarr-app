@@ -66,8 +66,7 @@ class LibraryCardFlowTile extends StatelessWidget {
             Brightness.dark
         ? Colors.white
         : theme.colorScheme.onSurface;
-    final strongSelection =
-        selected && item.node is! LibraryTitleNodeRef;
+    final strongSelection = selected && item.node is! LibraryTitleNodeRef;
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -129,10 +128,14 @@ class LibraryCardFlowTile extends StatelessWidget {
                             isOwned: dto.isOwned,
                             isTracked: dto.isTracked,
                             isWishlisted: dto.isWishlisted,
-                            hasMissingCover: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty,
-                            hasMissingMetadata: dto.publisher == null || dto.publisher!.isEmpty,
-                            hasFrontImage: item.source.itemImages.any((img) => img.imageType == 'front_cover'),
-                            hasBackImage: item.source.itemImages.any((img) => img.imageType == 'back_cover'),
+                            hasMissingCover: dto.coverImageUrl == null ||
+                                dto.coverImageUrl!.isEmpty,
+                            hasMissingMetadata:
+                                dto.publisher == null || dto.publisher!.isEmpty,
+                            hasFrontImage: item.source.itemImages
+                                .any((img) => img.imageType == 'front_cover'),
+                            hasBackImage: item.source.itemImages
+                                .any((img) => img.imageType == 'back_cover'),
                             extraImageCount: item.source.itemImages.length,
                             contractDiagnosticLabel:
                                 libraryHierarchyContractDiagnosticLabel(item),
@@ -207,7 +210,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                             fontSize: 12,
                           ),
                         ),
-                        if (dto.publisher != null && dto.publisher!.isNotEmpty) ...[
+                        if (dto.publisher != null &&
+                            dto.publisher!.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
                             dto.publisher!,
@@ -225,7 +229,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                           children: [
                             _cardScopeBadge(context, item),
                             const Spacer(),
-                            if (dto.condition != null && dto.condition!.isNotEmpty)
+                            if (dto.condition != null &&
+                                dto.condition!.isNotEmpty)
                               Text(
                                 dto.condition!,
                                 style: theme.textTheme.bodySmall?.copyWith(

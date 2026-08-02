@@ -25,9 +25,11 @@ Future<LibraryFilterState> loadPersistedFilterState(
   final prefs = await SharedPreferences.getInstance();
   final module = libraryKindModuleForKind(key.kind);
 
-  final sortId = prefs.getString(_k(key, 'sort_id')) ?? module.fields.defaultSortId;
+  final sortId =
+      prefs.getString(_k(key, 'sort_id')) ?? module.fields.defaultSortId;
   final sortAscending = prefs.getBool(_k(key, 'sort_ascending')) ?? true;
-  final groupId = prefs.getString(_k(key, 'group_id')) ?? module.fields.defaultGroupId;
+  final groupId =
+      prefs.getString(_k(key, 'group_id')) ?? module.fields.defaultGroupId;
 
   final storedColumns = prefs.getStringList(_k(key, 'visible_columns'));
   final visibleColumnIds = storedColumns != null
@@ -103,8 +105,8 @@ Future<void> persistViewConfig(
 ///
 /// Widgets should watch this provider and wait for it to be in [AsyncData]
 /// before allowing user interactions that depend on persisted defaults.
-final libraryWorkspaceHydrationProvider =
-    FutureProvider.autoDispose.family<void, LibraryWorkspaceKey>((ref, key) async {
+final libraryWorkspaceHydrationProvider = FutureProvider.autoDispose
+    .family<void, LibraryWorkspaceKey>((ref, key) async {
   final filterState = await loadPersistedFilterState(key);
   final viewConfig = await loadPersistedViewConfig(key);
 

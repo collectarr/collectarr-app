@@ -138,8 +138,9 @@ class _LibraryMetadataValueList extends StatelessWidget {
                   _LibraryMetadataInlineValue(
                     value: values[index],
                     trailingComma: index < values.length - 1,
-                    onTap:
-                        onValueTap == null ? null : () => onValueTap!(values[index]),
+                    onTap: onValueTap == null
+                        ? null
+                        : () => onValueTap!(values[index]),
                   ),
               ],
             ),
@@ -167,11 +168,11 @@ class _LibraryMetadataInlineValue extends StatelessWidget {
     final text = Text(
       trailingComma ? '$value, ' : value,
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: Theme.of(context).colorScheme.onSurface,
-        fontWeight: FontWeight.w600,
-        decoration: onTap == null ? null : TextDecoration.underline,
-        decorationColor: palette.textMuted.withValues(alpha: 0.4),
-      ),
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+            decoration: onTap == null ? null : TextDecoration.underline,
+            decorationColor: palette.textMuted.withValues(alpha: 0.4),
+          ),
     );
     if (onTap == null) {
       return text;

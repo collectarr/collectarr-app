@@ -121,7 +121,8 @@ class LibraryMediaAdapter {
   final LibraryWorkspaceCardBuilder? workspaceCardBuilder;
 
   Set<String> defaultTableColumns() {
-    return Set.of(libraryKindModuleForType(type).fields.defaultVisibleColumnIds);
+    return Set.of(
+        libraryKindModuleForType(type).fields.defaultVisibleColumnIds);
   }
 
   Widget buildTableCell(LibraryProjectionRuntime item, String column) {

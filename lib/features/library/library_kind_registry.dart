@@ -68,7 +68,8 @@ LibraryKindRuntime libraryKindModuleForType(LibraryTypeConfig type) {
   return libraryKindRuntimeForType(type);
 }
 
-LibraryKindProviderMapper libraryKindProviderMapperForType(LibraryTypeConfig type) {
+LibraryKindProviderMapper libraryKindProviderMapperForType(
+    LibraryTypeConfig type) {
   return libraryKindRuntimeForType(type).providerMapper;
 }
 

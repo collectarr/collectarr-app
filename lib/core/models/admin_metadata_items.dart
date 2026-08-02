@@ -214,9 +214,10 @@ class AdminMetadataItem {
       seasonNumber: json['season_number'] as int?,
       episodeNumber: json['episode_number'] as int?,
       tags: ((json['tags'] as List<dynamic>?)
-              ?.whereType<String>()
-              .toList(growable: false) ??
-          const <String>[]).join(', '),
+                  ?.whereType<String>()
+                  .toList(growable: false) ??
+              const <String>[])
+          .join(', '),
     );
     final publishing = CatalogPublishingDetails(
       pageCount: json['page_count'] as int?,
@@ -307,7 +308,8 @@ class AdminMetadataItem {
           AdminEdition.fromJson(edition as Map<String, dynamic>),
       ],
       coverStatus: _adminCoverValue(json, 'cover_status') ??
-          (json['cover_image_url'] != null || json['thumbnail_image_url'] != null
+          (json['cover_image_url'] != null ||
+                  json['thumbnail_image_url'] != null
               ? 'external_url'
               : 'missing'),
       coverStorage: _adminCoverValue(json, 'cover_storage'),

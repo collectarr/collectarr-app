@@ -89,8 +89,8 @@ class SmartList {
       sortRules: decodedSortRules.isEmpty ? null : decodedSortRules,
       sortColumn: primarySortColumn,
       sortAscending: primarySortAscending,
-      filterSelection: _filterFromJson(
-          json['filter'] as Map<String, dynamic>? ?? {}),
+      filterSelection:
+          _filterFromJson(json['filter'] as Map<String, dynamic>? ?? {}),
     );
   }
 
@@ -107,8 +107,7 @@ class SmartList {
       if (f.dateTo != null) 'date_to': f.dateTo!.toIso8601String(),
       if (f.customFieldDefinitionId != null)
         'custom_field_definition_id': f.customFieldDefinitionId,
-      if (f.customFieldValue != null)
-        'custom_field_value': f.customFieldValue,
+      if (f.customFieldValue != null) 'custom_field_value': f.customFieldValue,
       if (f.series != null) 'series': f.series,
       if (f.location != null) 'location': f.location,
       if (f.tag != null) 'tag': f.tag,
@@ -217,17 +216,60 @@ class SmartList {
   }
 
   static const _validSortColumns = {
-    'title', 'publisher', 'release_date', 'condition', 'price', 'location', 'collection_status', 'wishlist', 'added', 'updated',
-    'issue', 'story_arc', 'variant', 'format', 'barcode', 'grade', 'raw_or_slabbed', 'grading_company', 'key_comic',
-    'season_number', 'episode_count', 'network',
-    'studio', 'runtime_minutes', 'rating',
-    'artist', 'album', 'label', 'catalog_number', 'disc_count', 'track_count', 'length', 'vinyl_color', 'rpm',
-    'author', 'read_status', 'page_count',
-    'platform', 'developer', 'release_year', 'genre',
-    'designers', 'publishers', 'playing_time', 'players_count', 'complexity',
-    'studios', 'episodes_count',
-    'authors', 'artists', 'volumes_count', 'chapters_count',
-    'series', 'status'
+    'title',
+    'publisher',
+    'release_date',
+    'condition',
+    'price',
+    'location',
+    'collection_status',
+    'wishlist',
+    'added',
+    'updated',
+    'issue',
+    'story_arc',
+    'variant',
+    'format',
+    'barcode',
+    'grade',
+    'raw_or_slabbed',
+    'grading_company',
+    'key_comic',
+    'season_number',
+    'episode_count',
+    'network',
+    'studio',
+    'runtime_minutes',
+    'rating',
+    'artist',
+    'album',
+    'label',
+    'catalog_number',
+    'disc_count',
+    'track_count',
+    'length',
+    'vinyl_color',
+    'rpm',
+    'author',
+    'read_status',
+    'page_count',
+    'platform',
+    'developer',
+    'release_year',
+    'genre',
+    'designers',
+    'publishers',
+    'playing_time',
+    'players_count',
+    'complexity',
+    'studios',
+    'episodes_count',
+    'authors',
+    'artists',
+    'volumes_count',
+    'chapters_count',
+    'series',
+    'status'
   };
 
   static String? _sortColumnFromToken(Object? rawValue) {

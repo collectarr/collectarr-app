@@ -64,8 +64,7 @@ class LibraryToolbarSearch extends StatelessWidget {
     const inputHeight = 34.0;
     final showSearchScope =
         searchTargetOptions.isNotEmpty && onSearchTargetChanged != null;
-    final inlineActionCount =
-        1 +
+    final inlineActionCount = 1 +
         (onScanBarcode != null ? 1 : 0) +
         (onScanCover != null ? 1 : 0) +
         (onRandomPick != null ? 1 : 0);

@@ -377,7 +377,7 @@ class _DistributionRow extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+              style: TextStyle(
                 color: colors.textPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -442,7 +442,7 @@ class _MoneyDistributionRow extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+              style: TextStyle(
                 color: colors.textPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,

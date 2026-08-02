@@ -5,8 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _months = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 String _fmtDate(DateTime dt) {
@@ -90,8 +100,7 @@ class _GlobalActivityPageState extends ConsumerState<GlobalActivityPage> {
             for (final e in entries) e.event.kind,
           }.toList()
             ..sort((a, b) => a.index.compareTo(b.index));
-          final filtered =
-              entries.where(_matches).toList(growable: false);
+          final filtered = entries.where(_matches).toList(growable: false);
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -34,16 +34,14 @@ void main() {
       expect(
         definitionModes.length,
         uniqueDefinitionModes.length,
-        reason:
-            '${entry.key} registry has duplicate group mode definitions.',
+        reason: '${entry.key} registry has duplicate group mode definitions.',
       );
 
       for (final mode in uniqueDefinitionModes) {
         expect(
           () => entry.value.groupDefinitionFor(mode),
           returnsNormally,
-          reason:
-              '${entry.key} registry is missing a definition for $mode.',
+          reason: '${entry.key} registry is missing a definition for $mode.',
         );
       }
     }
@@ -96,8 +94,7 @@ void main() {
       expect(
         definitionColumns.length,
         uniqueDefinitionColumns.length,
-        reason:
-            '${entry.key} registry has duplicate sort column definitions.',
+        reason: '${entry.key} registry has duplicate sort column definitions.',
       );
 
       for (final column in expectedColumns) {
@@ -112,16 +109,16 @@ void main() {
   });
 
   test('fallback sort column labels stay readable for unknown columns', () {
-    expect(librarySortColumnFallbackLabel('key_issue'),
-        'Key Issue');
-    expect(librarySortColumnFallbackLabel('raw_or_slabbed'),
-        'Raw Or Slabbed');
+    expect(librarySortColumnFallbackLabel('key_issue'), 'Key Issue');
+    expect(librarySortColumnFallbackLabel('raw_or_slabbed'), 'Raw Or Slabbed');
   });
 
-  test('assert that every defaultVisibleColumnId and preset visible column ID resolves successfully', () {
+  test(
+      'assert that every defaultVisibleColumnId and preset visible column ID resolves successfully',
+      () {
     for (final module in collectarrKindModules) {
       final kind = module.type.workspace.kind;
-      
+
       // Test default visible columns
       for (final columnId in module.fields.defaultVisibleColumnIds) {
         final definition = module.fields.columnDefinitionForId(columnId) ??
@@ -129,13 +126,15 @@ void main() {
         expect(
           definition,
           isNotNull,
-          reason: 'Default visible column $columnId in kind $kind does not resolve to a registered column definition.',
+          reason:
+              'Default visible column $columnId in kind $kind does not resolve to a registered column definition.',
         );
       }
 
       // Test preset visible columns
       for (final preset in LibraryWorkspacePreset.values) {
-        final presetConfig = module.mediaAdapter.viewProfile.presetConfig(preset);
+        final presetConfig =
+            module.mediaAdapter.viewProfile.presetConfig(preset);
         for (final columnId in presetConfig.visibleColumns) {
           final idStr = columnId.toString();
           final isSupported = module.fields.columns.any(
@@ -147,7 +146,8 @@ void main() {
             expect(
               definition,
               isNotNull,
-              reason: 'Preset $preset visible column $columnId in kind $kind does not resolve to a registered column definition.',
+              reason:
+                  'Preset $preset visible column $columnId in kind $kind does not resolve to a registered column definition.',
             );
           }
         }

@@ -58,7 +58,8 @@ class TvEpisodeImportMapper {
 
   String _summaryFor(TvEpisodeImportRow row) {
     final parts = <String>[
-      if (row.status != null && row.status!.trim().isNotEmpty) row.status!.trim(),
+      if (row.status != null && row.status!.trim().isNotEmpty)
+        row.status!.trim(),
       if (row.score != null) 'Score ${row.score}',
       if (row.progress != null) '${(row.progress! * 100).round()}%',
       if (row.repeats != null && row.repeats! > 0) 'x${row.repeats}',

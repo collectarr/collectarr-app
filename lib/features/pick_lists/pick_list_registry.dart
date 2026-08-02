@@ -487,7 +487,8 @@ class PickListRegistry {
     if (mediaKind == null || mediaKind.trim().isEmpty) {
       return definitions;
     }
-    definitions.addAll(_kindDefinitions[mediaKind.trim().toLowerCase()] ?? const []);
+    definitions
+        .addAll(_kindDefinitions[mediaKind.trim().toLowerCase()] ?? const []);
     return definitions;
   }
 
@@ -502,7 +503,8 @@ class PickListRegistry {
       if (definition.scope != scope) {
         continue;
       }
-      if (definition.id == normalizedKey || definition.listName == normalizedKey) {
+      if (definition.id == normalizedKey ||
+          definition.listName == normalizedKey) {
         return definition;
       }
     }

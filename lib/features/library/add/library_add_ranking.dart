@@ -106,7 +106,8 @@ double _topMetadataMatchConfidence(
   return (topScore / maxScore).clamp(0, 1).toDouble();
 }
 
-int _scoreMetadataItem(LibraryMetadataItem item, LibraryAddLocalRerankHints hints) {
+int _scoreMetadataItem(
+    LibraryMetadataItem item, LibraryAddLocalRerankHints hints) {
   return _scoreMatchFields(
     title: item.title,
     series: item.series?.seriesTitle,
@@ -117,7 +118,8 @@ int _scoreMetadataItem(LibraryMetadataItem item, LibraryAddLocalRerankHints hint
   );
 }
 
-int _scoreProviderCandidate(ProviderCandidate item, LibraryAddLocalRerankHints hints) {
+int _scoreProviderCandidate(
+    ProviderCandidate item, LibraryAddLocalRerankHints hints) {
   return _scoreMatchFields(
     title: item.title,
     series: item.series?.seriesTitle,
@@ -157,7 +159,8 @@ int _scoreMatchFields({
   required LibraryAddLocalRerankHints hints,
 }) {
   var score = 0;
-  score += _scoreTextHint(title, hints.query, exactWeight: 100, containsWeight: 36);
+  score +=
+      _scoreTextHint(title, hints.query, exactWeight: 100, containsWeight: 36);
   score += _scoreTextHint(
     series ?? title,
     hints.series,
@@ -222,5 +225,8 @@ List<String> _tokenizeHint(String value) {
   if (value.isEmpty) {
     return const <String>[];
   }
-  return value.split(' ').where((token) => token.isNotEmpty).toList(growable: false);
+  return value
+      .split(' ')
+      .where((token) => token.isNotEmpty)
+      .toList(growable: false);
 }

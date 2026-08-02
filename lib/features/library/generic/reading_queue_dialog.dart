@@ -115,7 +115,9 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 
   Future<void> _reorderFilteredEntries(int oldIndex, int newIndex) async {
     final filteredEntries = _filteredEntries;
-    if (filteredEntries.isEmpty || oldIndex < 0 || oldIndex >= filteredEntries.length) {
+    if (filteredEntries.isEmpty ||
+        oldIndex < 0 ||
+        oldIndex >= filteredEntries.length) {
       return;
     }
     final adjustedNewIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
@@ -127,18 +129,20 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 
     final fullWithoutMoved = [..._entries]
       ..removeWhere((entry) => entry.ownedItem.id == movedEntry.ownedItem.id);
-    final predecessor = clampedIndex > 0 ? reorderedFiltered[clampedIndex - 1] : null;
+    final predecessor =
+        clampedIndex > 0 ? reorderedFiltered[clampedIndex - 1] : null;
     final successor = clampedIndex < reorderedFiltered.length - 1
         ? reorderedFiltered[clampedIndex + 1]
         : null;
 
     int targetIndex;
     if (predecessor != null) {
-      targetIndex =
-          fullWithoutMoved.indexWhere((entry) => entry.ownedItem.id == predecessor.ownedItem.id) + 1;
+      targetIndex = fullWithoutMoved.indexWhere(
+              (entry) => entry.ownedItem.id == predecessor.ownedItem.id) +
+          1;
     } else if (successor != null) {
-      targetIndex =
-          fullWithoutMoved.indexWhere((entry) => entry.ownedItem.id == successor.ownedItem.id);
+      targetIndex = fullWithoutMoved
+          .indexWhere((entry) => entry.ownedItem.id == successor.ownedItem.id);
     } else {
       targetIndex = 0;
     }
@@ -156,7 +160,9 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
     if (query.isEmpty) {
       return _entries;
     }
-    return _entries.where((entry) => _matchesQuery(entry, query)).toList(growable: false);
+    return _entries
+        .where((entry) => _matchesQuery(entry, query))
+        .toList(growable: false);
   }
 
   bool _matchesQuery(_ReadingQueueDialogEntry entry, String query) {
@@ -257,20 +263,28 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                 itemBuilder: (context, index) {
                                   final entry = filteredEntries[index];
                                   final details = <String>[];
-                                  final publisher = entry.catalogItem.publisher?.trim();
-                                  if (publisher != null && publisher.isNotEmpty) {
+                                  final publisher =
+                                      entry.catalogItem.publisher?.trim();
+                                  if (publisher != null &&
+                                      publisher.isNotEmpty) {
                                     details.add(publisher);
                                   }
-                                  final readStatus = entry.ownedItem.readStatus?.trim();
-                                  if (readStatus != null && readStatus.isNotEmpty) {
+                                  final readStatus =
+                                      entry.ownedItem.readStatus?.trim();
+                                  if (readStatus != null &&
+                                      readStatus.isNotEmpty) {
                                     details.add(readStatus);
                                   }
-                                  final notes = entry.ownedItem.personalNotes?.trim();
+                                  final notes =
+                                      entry.ownedItem.personalNotes?.trim();
                                   if (notes != null && notes.isNotEmpty) {
                                     details.add('Has notes');
                                   }
-                                  final queuePosition =
-                                      _entries.indexWhere((e) => e.ownedItem.id == entry.ownedItem.id) + 1;
+                                  final queuePosition = _entries.indexWhere(
+                                          (e) =>
+                                              e.ownedItem.id ==
+                                              entry.ownedItem.id) +
+                                      1;
                                   return Material(
                                     key: ValueKey(entry.ownedItem.id),
                                     color: Colors.transparent,
@@ -300,14 +314,16 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                           ReorderableDragStartListener(
                                             index: index,
                                             child: const Padding(
-                                              padding: EdgeInsets.symmetric(horizontal: 8),
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 8),
                                               child: Icon(Icons.drag_indicator),
                                             ),
                                           ),
                                           IconButton(
                                             tooltip: 'Remove from queue',
                                             onPressed: () => _remove(entry),
-                                            icon: const Icon(Icons.remove_circle_outline),
+                                            icon: const Icon(
+                                                Icons.remove_circle_outline),
                                           ),
                                         ],
                                       ),

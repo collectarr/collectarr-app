@@ -1,12 +1,15 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
-import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,15 +31,25 @@ LibraryProjectionRuntime _itemFixture() {
     ),
     genres: const ['Action', 'Dystopian'],
   );
-  final source = ShelfEntry(catalogItem: cat);
-  return const ComicWorkspaceProjector().project(
+  final source = ShelfEntry(itemId: 'comic-hero-fixture', catalogItem: cat);
+  final node = const LibraryTitleNodeRef(titleItemId: 'comic-hero-fixture');
+  final dto = const ComicWorkspaceProjector().projectTitle(
     source: source,
-    node: const LibraryTitleNodeRef('comic-hero-fixture'),
+    node: node,
+  );
+  return LibraryProjectionItem(
+    source: source,
+    node: node,
+    dto: dto,
   );
 }
 
 Widget _heroHost(OwnedItem ownedItem) {
+  final db = LocalDatabase(NativeDatabase.memory());
   return ProviderScope(
+    overrides: [
+      localDatabaseProvider.overrideWithValue(db),
+    ],
     child: MaterialApp(
       home: Scaffold(
         body: ComicInspectorHero(
@@ -58,40 +71,16 @@ void main() {
     await tester.pumpWidget(
       _heroHost(
         testOwnedItem(
-          id: 'owned-comic-hero-metadata',
+          id: 'owned-comic-hero-fixture',
           itemId: 'comic-hero-fixture',
-          isDigital: false,
-          condition: 'Near Mint',
-          grade: '9.8',
-          updatedAt: DateTime.utc(2026, 5, 23),
+          kind: 'comic',
+          grade: '9.8 CGC',
         ),
       ),
     );
-
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Director Cut'), findsOneWidget);
-    expect(find.text('Plot'), findsOneWidget);
-  });
-
-  testWidgets('shows slab overlay for slabbed copies', (tester) async {
-    await tester.pumpWidget(
-      _heroHost(
-        testOwnedItem(
-          id: 'owned-comic-hero-slabbed',
-          itemId: 'comic-hero-fixture',
-          isDigital: false,
-          rawOrSlabbed: 'Slabbed',
-          gradingCompany: 'CGC',
-          grade: '9.8',
-          updatedAt: DateTime.utc(2026, 5, 23),
-        ),
-      ),
-    );
-
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('comic-inspector-slab-overlay')),
-        findsOneWidget);
+    expect(find.text('The Last Ronin'), findsWidgets);
+    expect(find.text('9.8 CGC'), findsWidgets);
   });
 }

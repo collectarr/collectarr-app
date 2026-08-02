@@ -267,7 +267,8 @@ class ApiClient {
     return _catalogApi.getBundleRelease(bundleReleaseId);
   }
 
-  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(
+      String itemId) async {
     return const <BundleReleaseSummary>[];
   }
 

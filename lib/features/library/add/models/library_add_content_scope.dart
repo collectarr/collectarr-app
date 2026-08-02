@@ -64,4 +64,3 @@ bool libraryAddIsReleaseResult(LibraryMetadataItem item) {
       (barcode != null && barcode.isNotEmpty) ||
       (variant != null && variant.isNotEmpty);
 }
-

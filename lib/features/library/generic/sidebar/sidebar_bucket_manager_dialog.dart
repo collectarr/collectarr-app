@@ -883,13 +883,11 @@ bool _creatorMatchesMode(Map<String, dynamic> creator, String mode) {
         role.contains('cinemat'),
     'producer' => role.contains('producer'),
     'writer' => role.contains('writer'),
-    'artist' =>
-      role.contains('artist') && !role.contains('cover'),
+    'artist' => role.contains('artist') && !role.contains('cover'),
     'penciller' => role.contains('pencil'),
     'inker' => role.contains('ink') && !role.contains('cover'),
     'colorist' => role.contains('color'),
-    'painter' =>
-      role.contains('paint') && !role.contains('cover'),
+    'painter' => role.contains('paint') && !role.contains('cover'),
     'letterer' => role.contains('letter'),
     'separator' => role.contains('separator'),
     'layouts' => role.contains('layout'),
@@ -899,14 +897,10 @@ bool _creatorMatchesMode(Map<String, dynamic> creator, String mode) {
     'cover_artist' => role.contains('cover'),
     'cover_penciller' => role.contains('cover') &&
         (role.contains('pencil') || role.contains('penciller')),
-    'cover_painter' =>
-      role.contains('cover') && role.contains('paint'),
-    'cover_inker' =>
-      role.contains('cover') && role.contains('ink'),
-    'cover_colorist' =>
-      role.contains('cover') && role.contains('color'),
-    'cover_separator' =>
-      role.contains('cover') && role.contains('separator'),
+    'cover_painter' => role.contains('cover') && role.contains('paint'),
+    'cover_inker' => role.contains('cover') && role.contains('ink'),
+    'cover_colorist' => role.contains('cover') && role.contains('color'),
+    'cover_separator' => role.contains('cover') && role.contains('separator'),
     'editor' => role.contains('editor'),
     'editor_in_chief' =>
       role.contains('editor in chief') || role.contains('editor-in-chief'),

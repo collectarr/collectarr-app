@@ -79,7 +79,8 @@ class BoardGameStatsDetailsDto {
     return {
       if (minPlayers != null) 'min_players': minPlayers,
       if (maxPlayers != null) 'max_players': maxPlayers,
-      if (playingTimeMinutes != null) 'playing_time_minutes': playingTimeMinutes,
+      if (playingTimeMinutes != null)
+        'playing_time_minutes': playingTimeMinutes,
       if (minPlayingTimeMinutes != null)
         'min_playing_time_minutes': minPlayingTimeMinutes,
       if (maxPlayingTimeMinutes != null)

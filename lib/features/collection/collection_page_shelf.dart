@@ -406,8 +406,7 @@ class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
                             ),
                         ],
                       ),
-                      if (owned?.personalNotes?.trim().isNotEmpty ??
-                          false) ...[
+                      if (owned?.personalNotes?.trim().isNotEmpty ?? false) ...[
                         const SizedBox(height: 6),
                         Text(
                           owned!.personalNotes!,
@@ -524,7 +523,8 @@ class _ShelfVolumesPanel extends ConsumerWidget {
     return volumesAsync.when(
       loading: () => const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
-        child: Center(child: SizedBox(
+        child: Center(
+            child: SizedBox(
           width: 20,
           height: 20,
           child: CircularProgressIndicator(strokeWidth: 2),
@@ -551,9 +551,7 @@ class _ShelfVolumesPanel extends ConsumerWidget {
           padding: const EdgeInsets.only(top: 4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: volumes
-                .map((v) => _ShelfVolumeTile(volume: v))
-                .toList(),
+            children: volumes.map((v) => _ShelfVolumeTile(volume: v)).toList(),
           ),
         );
       },

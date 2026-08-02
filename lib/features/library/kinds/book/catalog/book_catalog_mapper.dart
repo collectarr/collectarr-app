@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-
 class BookCatalogMapper {
   const BookCatalogMapper._();
 
@@ -31,7 +30,8 @@ class BookCatalogMapper {
 
     final creators = dto.creators
             ?.map((creator) => BookCreatorCredit(
-                  name: (creator['name'] ?? creator['display_name'] ?? '').toString(),
+                  name: (creator['name'] ?? creator['display_name'] ?? '')
+                      .toString(),
                   role: (creator['role'] ?? creator['type'] ?? '').toString(),
                 ))
             .toList() ??
@@ -103,7 +103,6 @@ class BookCatalogMapper {
 
   /// Maps projected item directly to domain [BookCatalogItem].
 
-
   /// Maps [LibraryMetadataItem] directly to domain [BookCatalogItem].
   static BookCatalogItem mapMetadataItemToBook(LibraryMetadataItem item) {
     final seriesDetails = item.series;
@@ -125,7 +124,8 @@ class BookCatalogMapper {
 
     final creators = item.creators
             ?.map((Map<String, dynamic> creator) => BookCreatorCredit(
-                  name: (creator['name'] ?? creator['display_name'] ?? '').toString(),
+                  name: (creator['name'] ?? creator['display_name'] ?? '')
+                      .toString(),
                   role: (creator['role'] ?? creator['type'] ?? '').toString(),
                 ))
             .toList() ??
@@ -169,7 +169,8 @@ class BookCatalogMapper {
               publisher: item.publisher,
               isbn: item.barcode,
               releaseDate: item.releaseDate,
-              physicalFormatLabel: item.physicalFormatLabel ?? item.physicalFormat,
+              physicalFormatLabel:
+                  item.physicalFormatLabel ?? item.physicalFormat,
               coverImageUrl: item.coverImageUrl,
             )
           ]
@@ -182,7 +183,8 @@ class BookCatalogMapper {
                   isbn: e.isbn,
                   upc: e.upc,
                   releaseDate: e.releaseDate,
-                  physicalFormatLabel: e.physicalFormatLabel ?? e.physicalFormat,
+                  physicalFormatLabel:
+                      e.physicalFormatLabel ?? e.physicalFormat,
                 ))
             .toList();
 
@@ -248,9 +250,12 @@ class BookCatalogMapper {
       region: edition.region,
       releaseDate: edition.releaseDate,
       physicalFormat: edition.physicalFormat,
-      physicalFormatLabel: (edition.physicalFormatLabel != null && edition.physicalFormatLabel != edition.physicalFormat)
+      physicalFormatLabel: (edition.physicalFormatLabel != null &&
+              edition.physicalFormatLabel != edition.physicalFormat)
           ? edition.physicalFormatLabel
-          : (parentPhysicalFormatLabel ?? edition.physicalFormatLabel ?? edition.physicalFormat),
+          : (parentPhysicalFormatLabel ??
+              edition.physicalFormatLabel ??
+              edition.physicalFormat),
       coverImageUrl: primaryCover,
       thumbnailImageUrl: primaryThumbnail,
       dimensions: edition.metadata?['dimensions'] as String?,

@@ -56,9 +56,8 @@ class InspectorTrackList extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final count = trackCount ?? tracks.length;
     final duration = _totalDuration;
-    final headerLabel = duration != null
-        ? '$count tracks ($duration)'
-        : '$count tracks';
+    final headerLabel =
+        duration != null ? '$count tracks ($duration)' : '$count tracks';
     final rows = [
       ['Disc', 'Track', 'Artist', 'Duration'],
       for (final track in tracks)
@@ -81,19 +80,18 @@ class InspectorTrackList extends StatelessWidget {
           children: [
             Text(
               headerLabel,
-              style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+              style:
+                  textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
             TextButton.icon(
-              onPressed: tracks.isEmpty
-                  ? null
-                  : () => _copyTrackList(context, rows),
+              onPressed:
+                  tracks.isEmpty ? null : () => _copyTrackList(context, rows),
               icon: const Icon(Icons.copy, size: 16),
               label: const Text('Copy'),
             ),
             TextButton.icon(
-              onPressed: tracks.isEmpty
-                  ? null
-                  : () => _printTrackList(context, rows),
+              onPressed:
+                  tracks.isEmpty ? null : () => _printTrackList(context, rows),
               icon: const Icon(Icons.print_outlined, size: 16),
               label: const Text('Print'),
             ),
@@ -324,9 +322,8 @@ pw.Widget _pdfCell(String value, {bool bold = false}) {
 String _rowsToCsv(List<List<String>> rows) {
   return rows
       .map(
-        (row) => row
-            .map((value) => '"${value.replaceAll('"', '""')}"')
-            .join(','),
+        (row) =>
+            row.map((value) => '"${value.replaceAll('"', '""')}"').join(','),
       )
       .join('\n');
 }

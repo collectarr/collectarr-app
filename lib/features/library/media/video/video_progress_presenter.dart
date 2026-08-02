@@ -25,20 +25,19 @@ class VideoProgressPresenter {
     final episodes = _flattenEpisodes(headlineSeasons);
     final totalSeasons = headlineSeasons.length;
     final totalEpisodes = episodes.length;
-    final releasedEpisodes = episodes.isEmpty
-        ? 0
-        : _releasedEpisodes(episodes, referenceNow);
+    final releasedEpisodes =
+        episodes.isEmpty ? 0 : _releasedEpisodes(episodes, referenceNow);
     final watchedEpisodeKeys = _watchedEpisodeKeys(trackedUnits, watchSessions);
     final releasedKeys = <String>{
       for (final episode in episodes)
-        if (_isReleased(episode, referenceNow)) _episodeKeyForSeasonEpisode(episode)
+        if (_isReleased(episode, referenceNow))
+          _episodeKeyForSeasonEpisode(episode)
     };
     final watchedReleasedCount =
         watchedEpisodeKeys.where(releasedKeys.contains).length;
     final watchedTotalCount = watchedEpisodeKeys.length;
     final watchedEpisodes = watchedTotalCount;
-    final episodesLeft =
-        math.max(releasedEpisodes - watchedReleasedCount, 0);
+    final episodesLeft = math.max(releasedEpisodes - watchedReleasedCount, 0);
     final completionPercent = releasedEpisodes == 0
         ? 0.0
         : (math.min(watchedReleasedCount, releasedEpisodes) / releasedEpisodes)
@@ -48,7 +47,8 @@ class VideoProgressPresenter {
       trackedUnits: trackedUnits,
       watchSessions: watchSessions,
     );
-    final nextEpisode = _nextEpisode(episodes, watchedEpisodeKeys, referenceNow);
+    final nextEpisode =
+        _nextEpisode(episodes, watchedEpisodeKeys, referenceNow);
     final currentSeasonNumber = nextEpisode?.seasonNumber ??
         lastWatched?.seasonNumber ??
         _firstRegularSeasonNumber(headlineSeasons);
@@ -337,7 +337,8 @@ class VideoProgressPresenter {
   }
 
   static WatchSession? _latestWatchSession(List<WatchSession> watchSessions) {
-    final active = watchSessions.where((session) => !session.isDeleted).toList();
+    final active =
+        watchSessions.where((session) => !session.isDeleted).toList();
     if (active.isEmpty) {
       return null;
     }

@@ -50,7 +50,8 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
   final _searchController = TextEditingController();
   final _registry = PickListRegistry();
   late final PickListRepository _repo = PickListRepository(widget.db);
-  late final CustomFieldRepository _customFieldRepo = CustomFieldRepository(widget.db);
+  late final CustomFieldRepository _customFieldRepo =
+      CustomFieldRepository(widget.db);
 
   String? _selectedKind = 'all';
   String? _selectedListName;
@@ -323,14 +324,17 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                         itemCount: _definitions.length,
                         itemBuilder: (context, index) {
                           final item = _definitions[index];
-                          final selected = item.listName == definition?.listName;
+                          final selected =
+                              item.listName == definition?.listName;
                           return InkWell(
                             onTap: () {
                               setState(() => _selectedListName = item.listName);
                               unawaited(_load());
                             },
                             child: Container(
-                              color: selected ? palette.surface : Colors.transparent,
+                              color: selected
+                                  ? palette.surface
+                                  : Colors.transparent,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 12,
@@ -341,8 +345,9 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                                   Text(
                                     item.label,
                                     style: TextStyle(
-                                      fontWeight:
-                                          selected ? FontWeight.w800 : FontWeight.w600,
+                                      fontWeight: selected
+                                          ? FontWeight.w800
+                                          : FontWeight.w600,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -363,7 +368,7 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                       ),
                     ),
                   ],
-              ),
+                ),
               ),
             ),
           ),

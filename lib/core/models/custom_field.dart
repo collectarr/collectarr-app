@@ -20,8 +20,7 @@ enum CustomFieldValueType {
   final String apiValue;
   final String label;
 
-  bool get supportsOptions =>
-      this == singleSelect || this == multiSelect;
+  bool get supportsOptions => this == singleSelect || this == multiSelect;
 
   bool get isMultiValue => this == multiSelect;
 
@@ -101,7 +100,8 @@ class CustomFieldDefinition {
   final String? options; // JSON array for select type
   final DateTime createdAt;
 
-  CustomFieldValueType get valueType => CustomFieldValueType.fromApiValue(fieldType);
+  CustomFieldValueType get valueType =>
+      CustomFieldValueType.fromApiValue(fieldType);
   String get valueTypeLabel => valueType.label;
   bool get supportsOptions => valueType.supportsOptions;
   List<String> get optionValues => parseCustomFieldOptions(options);
@@ -230,8 +230,7 @@ String? normalizeCustomFieldInputValue(
   return switch (definition.valueType) {
     CustomFieldValueType.multiSelect =>
       encodeCustomFieldMultiValues(parseCustomFieldMultiValues(trimmed)),
-    CustomFieldValueType.boolean =>
-      switch (trimmed.toLowerCase()) {
+    CustomFieldValueType.boolean => switch (trimmed.toLowerCase()) {
         '1' || 'true' || 'yes' || 'y' => 'true',
         '0' || 'false' || 'no' || 'n' => 'false',
         _ => trimmed.toLowerCase(),
@@ -249,8 +248,7 @@ String displayCustomFieldValue(
     return '';
   }
   return switch (definition.valueType) {
-    CustomFieldValueType.boolean =>
-      switch (trimmed.toLowerCase()) {
+    CustomFieldValueType.boolean => switch (trimmed.toLowerCase()) {
         'true' || '1' || 'yes' || 'y' => 'Yes',
         'false' || '0' || 'no' || 'n' => 'No',
         _ => trimmed,

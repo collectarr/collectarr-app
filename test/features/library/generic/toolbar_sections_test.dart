@@ -362,10 +362,7 @@ void main() {
               onClearFilters: () {},
               groupMode: 'series',
               folderPreset: LibraryFolderPreset(
-                modes: const [
-                  'series',
-                  'publisher'
-                ],
+                modes: const ['series', 'publisher'],
               ),
               onGroupModeChanged: (preset) => changedPreset = preset,
             ),

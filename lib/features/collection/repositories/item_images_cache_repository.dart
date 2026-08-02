@@ -71,8 +71,7 @@ class ItemImagesCacheRepository {
 
   /// Delete a specific image by id.
   Future<void> deleteById(String id) async {
-    await (_db.delete(_db.itemImagesCache)
-          ..where((row) => row.id.equals(id)))
+    await (_db.delete(_db.itemImagesCache)..where((row) => row.id.equals(id)))
         .go();
   }
 }

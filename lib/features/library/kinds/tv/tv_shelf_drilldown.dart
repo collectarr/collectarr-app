@@ -83,7 +83,8 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
             node: titleItem.node,
             dto: projector.projectTitle(
               source: titleItem.source,
-              node: LibraryTitleNodeRef(titleItemId: titleItem.node.titleItemId),
+              node:
+                  LibraryTitleNodeRef(titleItemId: titleItem.node.titleItemId),
             ),
             customFieldBadges: titleItem.customFieldBadges,
           ),
@@ -123,13 +124,16 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                 child: Column(
                   children: [
                     LibraryCoverImage(
-                      title: seasonItem.season.title ?? 'Season ${seasonItem.season.seasonNumber}',
-                      imageUrl: seasonItem.season.posterUrl ?? titleItem.dto.coverImageUrl,
+                      title: seasonItem.season.title ??
+                          'Season ${seasonItem.season.seasonNumber}',
+                      imageUrl: seasonItem.season.posterUrl ??
+                          titleItem.dto.coverImageUrl,
                       fit: BoxFit.cover,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      seasonItem.season.title ?? 'Season ${seasonItem.season.seasonNumber}',
+                      seasonItem.season.title ??
+                          'Season ${seasonItem.season.seasonNumber}',
                       style: TextStyle(
                         color: palette.textPrimary,
                         fontWeight: FontWeight.w600,

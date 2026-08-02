@@ -29,8 +29,8 @@ class LibrarySectionPanel extends StatelessWidget {
     final palette = appPalette(context);
     final resolvedPadding = padding ??
         EdgeInsets.all(density == LibraryDensity.comfortable ? 12 : 10);
-    final resolvedMargin = margin ??
-        const EdgeInsets.only(bottom: kLibrarySectionGap);
+    final resolvedMargin =
+        margin ?? const EdgeInsets.only(bottom: kLibrarySectionGap);
     return Container(
       margin: resolvedMargin,
       padding: resolvedPadding,
@@ -45,9 +45,9 @@ class LibrarySectionPanel extends StatelessWidget {
           if (title != null || subtitle != null) ...[
             DefaultTextStyle(
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: palette.textPrimary,
-                    fontWeight: FontWeight.w800,
-                  ) ??
+                        color: palette.textPrimary,
+                        fontWeight: FontWeight.w800,
+                      ) ??
                   const TextStyle(fontWeight: FontWeight.w800),
               child: title ?? const SizedBox.shrink(),
             ),

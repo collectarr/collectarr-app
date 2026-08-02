@@ -32,7 +32,8 @@ class Loan {
       id: _requiredString(json, 'id'),
       ownedItemId: _requiredString(json, 'owned_item_id'),
       catalogRef: json['catalog_ref'] is Map<String, dynamic>
-          ? CatalogEntityRef.fromJson(json['catalog_ref'] as Map<String, dynamic>)
+          ? CatalogEntityRef.fromJson(
+              json['catalog_ref'] as Map<String, dynamic>)
           : null,
       borrowerName: _requiredString(json, 'borrower_name'),
       lentDate: _requiredDate(json, 'lent_date'),

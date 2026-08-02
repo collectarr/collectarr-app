@@ -484,13 +484,16 @@ class _LibraryEditFooter extends StatelessWidget {
           SizedBox(
             width: isMovieDesktop ? 44 : 112,
             child: OutlinedButton(
-              style: isMovieDesktop ? compactIconButtonStyle : OutlinedButton.styleFrom(
-                shape: kLibraryDialogFooterButtonShape,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
-                visualDensity: VisualDensity.compact,
-              ),
+              style: isMovieDesktop
+                  ? compactIconButtonStyle
+                  : OutlinedButton.styleFrom(
+                      shape: kLibraryDialogFooterButtonShape,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 9),
+                      minimumSize:
+                          const Size(112, kLibraryDialogFooterButtonHeight),
+                      visualDensity: VisualDensity.compact,
+                    ),
               onPressed: onCancel,
               child: isMovieDesktop
                   ? const Icon(Icons.close, size: 16)

@@ -231,7 +231,8 @@ class LibraryEditDraft {
     final pageCountController = create(
       item.publishing?.pageCount?.toString() ?? '',
     );
-    final editionTitleController = create(item.editionTitle ?? item.titleExtension ?? '');
+    final editionTitleController =
+        create(item.editionTitle ?? item.titleExtension ?? '');
     final barcodeController = create(item.barcode ?? '');
     final variantController = create(item.variant ?? '');
     final physicalFormatLabelController = create(
@@ -521,7 +522,8 @@ class LibraryEditDraft {
       keyComic: (ownedItem?.typedDetails is ComicOwnedDetails
           ? (ownedItem!.typedDetails as ComicOwnedDetails).keyComic
           : false),
-      hdrFormats: List<String>.from((ownedItem?.typedDetails is VideoOwnedDetails
+      hdrFormats: List<String>.from(
+          (ownedItem?.typedDetails is VideoOwnedDetails
               ? (ownedItem!.typedDetails as VideoOwnedDetails).hdrFormats
               : const <String>[])),
       collectionStatus: ownedItem?.collectionStatus,
@@ -953,7 +955,7 @@ class LibraryEditDraft {
             ),
       customFieldEdits: customFieldEdits,
       itemImageEdits: itemImageEdits,
-            submitAction: submitAction,
+      submitAction: submitAction,
     );
   }
 

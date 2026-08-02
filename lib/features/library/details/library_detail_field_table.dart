@@ -17,7 +17,8 @@ class LibraryDetailFieldTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ordered = [...fields]..sort((a, b) => a.priority.compareTo(b.priority));
+    final ordered = [...fields]
+      ..sort((a, b) => a.priority.compareTo(b.priority));
     final palette = appPalette(context);
     return LayoutBuilder(
       builder: (context, constraints) {

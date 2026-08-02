@@ -19,7 +19,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
     );
     unawaited(state._warmViewStateCachesOnce());
     state._viewState = state._adapter.viewProfile.defaults();
-    
+
     // Hydrate & persist Riverpod state
     state.ref.read(libraryWorkspaceHydrationProvider(state.workspaceKey));
     state.ref.listenManual<void>(
@@ -34,7 +34,8 @@ abstract final class _LibraryPageLifecycleControllerOps {
         state._applyFiltersFromRiverpod(next);
       },
     );
-    state._viewConfigSubscription = state.ref.listenManual<LibraryViewConfigState>(
+    state._viewConfigSubscription =
+        state.ref.listenManual<LibraryViewConfigState>(
       libraryViewConfigProvider(state.workspaceKey),
       (previous, next) {
         state._applyViewConfigFromRiverpod(next);
@@ -159,9 +160,9 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state.widget.type,
     );
     state._folderPreset = sanitizeLibraryFolderPreset(
-          state._viewPrefs.cachedFolderPreset,
-          allowedModes: allowedGroupModes,
-        );
+      state._viewPrefs.cachedFolderPreset,
+      allowedModes: allowedGroupModes,
+    );
     state._groupMode = state._folderPreset?.primaryMode;
     state._folderDisplayMode = LibraryFolderDisplayMode.drilldown;
     state._folderTreeExpandedNodeIds = const <String>{};

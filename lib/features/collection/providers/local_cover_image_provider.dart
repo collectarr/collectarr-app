@@ -7,7 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 typedef LocalItemImageRequest = ({String ownedItemId, String imageType});
 
 final localItemImageProvider =
-    FutureProvider.family<Uint8List?, LocalItemImageRequest>((ref, request) async {
+    FutureProvider.family<Uint8List?, LocalItemImageRequest>(
+        (ref, request) async {
   final db = ref.watch(localDatabaseProvider);
   final image = await ItemImagesCacheRepository(db).primaryImageForItem(
     request.ownedItemId,

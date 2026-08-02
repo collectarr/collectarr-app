@@ -233,8 +233,8 @@ class LibraryWorkspacePreferences {
     await prefs.setBool(
         _key('sidebar_visible'), normalizedSnapshot.isSidebarVisible);
     await prefs.setString(
-        _key('sort_column'),
-        normalizedSnapshot.sortColumn.toString(),
+      _key('sort_column'),
+      normalizedSnapshot.sortColumn.toString(),
     );
     await prefs.setBool(
         _key('sort_ascending'), normalizedSnapshot.sortAscending);
@@ -285,8 +285,7 @@ class LibraryWorkspacePreferences {
 
   List<String> _encodeColumnWidths(Map<String, double> widths) {
     return [
-      for (final entry in widths.entries)
-        '${entry.key}:${entry.value.round()}',
+      for (final entry in widths.entries) '${entry.key}:${entry.value.round()}',
     ];
   }
 
@@ -364,9 +363,7 @@ class LibraryWorkspacePreferences {
     if (titleSupported) {
       normalized.add('title');
     }
-    return normalized.isEmpty
-        ? Set.of(defaultCols)
-        : normalized;
+    return normalized.isEmpty ? Set.of(defaultCols) : normalized;
   }
 
   Map<String, double> _normalizeColumnWidths(

@@ -82,19 +82,19 @@ class DefaultLibraryEditPresentationBuilder
   }) {
     final tabs = context.scope == LibraryEditScope.media
         ? [
-        ...catalogTabs,
-        if (context.hasCustomFields)
-          const LibraryEditTabSpec(
-            id: 'custom',
-            icon: Icons.tune,
-            label: 'Custom',
-          ),
-        ]
+            ...catalogTabs,
+            if (context.hasCustomFields)
+              const LibraryEditTabSpec(
+                id: 'custom',
+                icon: Icons.tune,
+                label: 'Custom',
+              ),
+          ]
         : context.isOwned
-          ? ownedTabs
-          : context.isTrackingOnly || context.hasWishlistContext
-              ? trackedTabs
-              : catalogTabs;
+            ? ownedTabs
+            : context.isTrackingOnly || context.hasWishlistContext
+                ? trackedTabs
+                : catalogTabs;
     return LibraryEditSectionRegistry.instance.orderTabs(
       tabs,
       context,

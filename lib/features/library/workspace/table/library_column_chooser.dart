@@ -30,8 +30,7 @@ class LibraryColumnChooserDialog extends StatefulWidget {
   final String Function(String column) columnLabel;
   final Color? accent;
   final String? Function(String column)? columnDescription;
-  final LibraryTableColumnGroup Function(String column)?
-      columnGroup;
+  final LibraryTableColumnGroup Function(String column)? columnGroup;
   final String Function(LibraryTableColumnGroup group)? groupLabel;
   final List<LibraryTableColumnPreset> presets;
   final List<LibraryTableColumnPreset> savedPresets;
@@ -464,8 +463,7 @@ class _LibraryColumnChooserDialogState
 
   void _toggleGroupColumns(List<String> columns) {
     final allSelected = columns.every(
-      (column) =>
-          column == 'title' || _selected.contains(column),
+      (column) => column == 'title' || _selected.contains(column),
     );
     setState(() {
       for (final column in columns) {

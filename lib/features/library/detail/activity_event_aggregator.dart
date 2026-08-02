@@ -25,7 +25,8 @@ class ActivityEventAggregator {
       // Purchase
       if (item.purchaseDate != null) {
         final priceStr = item.pricePaidCents != null
-            ? '${(item.pricePaidCents! / 100).toStringAsFixed(2)} ${item.currency ?? ''}'.trim()
+            ? '${(item.pricePaidCents! / 100).toStringAsFixed(2)} ${item.currency ?? ''}'
+                .trim()
             : null;
         events.add(ActivityEvent(
           kind: ActivityEventKind.purchased,
@@ -54,7 +55,8 @@ class ActivityEventAggregator {
       // Sold
       if (item.soldAt != null) {
         final priceStr = item.sellPriceCents != null
-            ? '${(item.sellPriceCents! / 100).toStringAsFixed(2)} ${item.currency ?? ''}'.trim()
+            ? '${(item.sellPriceCents! / 100).toStringAsFixed(2)} ${item.currency ?? ''}'
+                .trim()
             : null;
         events.add(ActivityEvent(
           kind: ActivityEventKind.sold,
@@ -157,7 +159,8 @@ class ActivityEventAggregator {
     // Deduplicate by kind+timestamp (same second = same event from owned vs tracking)
     final seen = <String>{};
     events.removeWhere((e) {
-      final key = '${e.kind.name}:${e.timestamp.millisecondsSinceEpoch ~/ 1000}';
+      final key =
+          '${e.kind.name}:${e.timestamp.millisecondsSinceEpoch ~/ 1000}';
       return !seen.add(key);
     });
 

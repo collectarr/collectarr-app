@@ -36,7 +36,8 @@ class PickListRepository {
         merged[normalized] = _fromRow(row);
         continue;
       }
-      if (existing.mediaKind == row.mediaKind && row.sortOrder < existing.sortOrder) {
+      if (existing.mediaKind == row.mediaKind &&
+          row.sortOrder < existing.sortOrder) {
         merged[normalized] = _fromRow(row);
       }
     }
@@ -175,10 +176,14 @@ class PickListRepository {
   }
 
   Future<List<String>> listNames() async {
-    final result = await _db.customSelect(
-      'SELECT DISTINCT list_name AS list_name FROM pick_list_values_cache ORDER BY list_name',
-    ).get();
-    return result.map((row) => row.read<String>('list_name')).toList(growable: false);
+    final result = await _db
+        .customSelect(
+          'SELECT DISTINCT list_name AS list_name FROM pick_list_values_cache ORDER BY list_name',
+        )
+        .get();
+    return result
+        .map((row) => row.read<String>('list_name'))
+        .toList(growable: false);
   }
 
   Future<Map<String, int>> usageCounts({
@@ -234,9 +239,8 @@ class PickListRepository {
     };
     var nextSortOrder = existingValues.fold<int>(
       0,
-      (maxSortOrder, row) => row.sortOrder >= maxSortOrder
-          ? row.sortOrder + 1
-          : maxSortOrder,
+      (maxSortOrder, row) =>
+          row.sortOrder >= maxSortOrder ? row.sortOrder + 1 : maxSortOrder,
     );
     for (final value in normalizedValues) {
       final normalized = normalizePickListValue(value);
@@ -413,7 +417,8 @@ class PickListRepository {
         ('catalog_cache', 'physicalFormatLabel'),
       ],
     };
-    final ownedColumns = directColumns[listName] ?? const <(String table, String column)>[];
+    final ownedColumns =
+        directColumns[listName] ?? const <(String table, String column)>[];
     var total = 0;
     for (final column in ownedColumns) {
       total += await _countTextColumn(column.$1, column.$2, normalized);

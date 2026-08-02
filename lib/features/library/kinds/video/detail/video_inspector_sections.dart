@@ -48,9 +48,11 @@ class InspectorVideoTitleMetadataSection extends StatelessWidget {
             LibraryDetailField(label: 'Display title', value: dto.title),
             if (dto.publisher?.trim().isNotEmpty == true)
               LibraryDetailField(label: 'Studio', value: dto.publisher!),
-            if (_metadataFactValue(metadataPresentation, 'Runtime') case final runtime?)
+            if (_metadataFactValue(metadataPresentation, 'Runtime')
+                case final runtime?)
               LibraryDetailField(label: 'Runtime', value: runtime),
-            if (_metadataFactValue(metadataPresentation, 'Released') case final released?)
+            if (_metadataFactValue(metadataPresentation, 'Released')
+                case final released?)
               LibraryDetailField(label: 'Released', value: released),
             if (ownedReleaseCount > 0)
               LibraryDetailField(

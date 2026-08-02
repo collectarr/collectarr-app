@@ -23,7 +23,8 @@ void main() {
 
     const reloadedStore = LibraryViewPreferenceStore(CatalogMediaKind.movie);
     expect(reloadedStore.cachedQuickView, LibraryQuickView.wishlist);
-    expect(reloadedStore.cachedFolderPreset, LibraryFolderPreset.single('publisher'));
+    expect(reloadedStore.cachedFolderPreset,
+        LibraryFolderPreset.single('publisher'));
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('library.movie.folderPreset'), 'group.publisher');

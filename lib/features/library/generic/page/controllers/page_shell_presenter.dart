@@ -161,8 +161,7 @@ abstract final class LibraryPageShellPresenter {
             activeFacetId,
             state._genericShelfSignature(shelfState),
           );
-    final canUseSeriesCompletionScope =
-        state._activeGroupMode == 'series';
+    final canUseSeriesCompletionScope = state._activeGroupMode == 'series';
     final effectiveSeriesCompletionScope = canUseSeriesCompletionScope
         ? state._seriesCompletionScope
         : LibrarySeriesCompletionScope.all;
@@ -191,8 +190,7 @@ abstract final class LibraryPageShellPresenter {
       onActivateItem: state._activateItem,
       onToggleSelectionItem: state._toggleSelectionItem,
       onOpenItem: (item) {
-        final isMediaTitle =
-            item.node.scope == LibraryBrowserScope.title;
+        final isMediaTitle = item.node.scope == LibraryBrowserScope.title;
         if (state._shouldOpenReleaseFolder(item) && isMediaTitle) {
           state._openReleaseFolder(item);
           return;

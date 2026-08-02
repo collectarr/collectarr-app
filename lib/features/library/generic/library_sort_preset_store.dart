@@ -51,11 +51,13 @@ class LibrarySortPresetStore {
 
     final next = (await read()).toList(growable: true);
     final nextPreset = LibrarySortPreset(
-      id: id ?? '${_slug(normalizedLabel)}-${DateTime.now().microsecondsSinceEpoch}',
+      id: id ??
+          '${_slug(normalizedLabel)}-${DateTime.now().microsecondsSinceEpoch}',
       label: normalizedLabel,
       rules: List<LibrarySortRule>.unmodifiable(_dedupeRules(rules)),
     );
-    final existingIndex = next.indexWhere((preset) => preset.id == nextPreset.id);
+    final existingIndex =
+        next.indexWhere((preset) => preset.id == nextPreset.id);
     if (existingIndex >= 0) {
       next[existingIndex] = nextPreset;
     } else {
@@ -100,7 +102,9 @@ class LibrarySortPresetStore {
       'rules': [
         for (final rule in _dedupeRules(preset.rules))
           {
-            'column': module.fields.findSortDefinition(rule.column.toString())?.id ?? rule.column.toString(),
+            'column':
+                module.fields.findSortDefinition(rule.column.toString())?.id ??
+                    rule.column.toString(),
             'ascending': rule.ascending,
           },
       ],

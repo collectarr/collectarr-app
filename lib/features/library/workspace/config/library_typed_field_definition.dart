@@ -39,10 +39,8 @@ abstract interface class LibraryWorkspaceDto {
   String? get editionLabel;
 }
 
-
-
-
-typedef LibraryWorkspaceDtoBuilder<TDto extends LibraryWorkspaceDto> = TDto Function(
+typedef LibraryWorkspaceDtoBuilder<TDto extends LibraryWorkspaceDto> = TDto
+    Function(
   dynamic entry,
 );
 
@@ -168,8 +166,10 @@ class LibraryGroupDefinition<TDto, TValue> {
       sidebarTitle: sidebarTitle ?? this.sidebarTitle,
       icon: icon ?? this.icon,
       presentation: presentation ?? this.presentation,
-      supportsBucketManagement: supportsBucketManagement ?? this.supportsBucketManagement,
-      bucketManagerListLabel: bucketManagerListLabel ?? this.bucketManagerListLabel,
+      supportsBucketManagement:
+          supportsBucketManagement ?? this.supportsBucketManagement,
+      bucketManagerListLabel:
+          bucketManagerListLabel ?? this.bucketManagerListLabel,
       drilldownChildId: drilldownChildId ?? this.drilldownChildId,
       folderSetLabel: folderSetLabel ?? this.folderSetLabel,
       subgroupKey: subgroupKey ?? this.subgroupKey,

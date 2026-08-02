@@ -117,7 +117,8 @@ class WatchHistorySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sessions = catalogRef == null
-        ? ref.watch(watchSessionsByItemProvider)[itemId] ?? const <WatchSession>[]
+        ? ref.watch(watchSessionsByItemProvider)[itemId] ??
+            const <WatchSession>[]
         : ref.watch(watchSessionsByCatalogRefProvider(catalogRef!));
     final runSummary = const VideoWatchRunPresenter().build(sessions);
     final palette = appPalette(context);
@@ -149,9 +150,10 @@ class WatchHistorySection extends ConsumerWidget {
                   icon: Icon(Icons.add_circle_outline, color: accent, size: 22),
                   tooltip: labels.addTooltip,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                  onPressed: () =>
-                      _showEditor(context, ref, resolvedTargets: resolvedTargets),
+                  constraints:
+                      const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () => _showEditor(context, ref,
+                      resolvedTargets: resolvedTargets),
                 ),
               ],
             ),
@@ -179,7 +181,8 @@ class WatchHistorySection extends ConsumerWidget {
                 _WatchSessionTile(
                   session: session,
                   accent: accent,
-                  targetLabel: _targetLabelFor(session.targetRef, resolvedTargets),
+                  targetLabel:
+                      _targetLabelFor(session.targetRef, resolvedTargets),
                   onEdit: () => _showEditor(
                     context,
                     ref,
@@ -362,12 +365,14 @@ class _WatchSessionTile extends StatelessWidget {
             spacing: 0,
             children: [
               IconButton(
-                icon: Icon(Icons.edit_outlined, size: 18, color: palette.textMuted),
+                icon: Icon(Icons.edit_outlined,
+                    size: 18, color: palette.textMuted),
                 tooltip: 'Edit',
                 onPressed: onEdit,
               ),
               IconButton(
-                icon: Icon(Icons.delete_outline, size: 18, color: palette.textMuted),
+                icon: Icon(Icons.delete_outline,
+                    size: 18, color: palette.textMuted),
                 tooltip: 'Delete',
                 onPressed: onDelete,
               ),
@@ -440,7 +445,8 @@ class _WatchSessionDialogState extends State<_WatchSessionDialog> {
     super.initState();
     _selectedTarget = widget.initialTarget;
     _watchedAt = widget.initialWatchedAt;
-    _seenWhereController = TextEditingController(text: widget.initialSeenWhere ?? '');
+    _seenWhereController =
+        TextEditingController(text: widget.initialSeenWhere ?? '');
     _ratingController =
         TextEditingController(text: widget.initialRating?.toString() ?? '');
     _notesController = TextEditingController(text: widget.initialNotes ?? '');
@@ -526,7 +532,8 @@ class _WatchSessionDialogState extends State<_WatchSessionDialog> {
                     onPressed: () async {
                       final picked = await showTimePicker(
                         context: context,
-                        initialTime: TimeOfDay.fromDateTime(_watchedAt.toLocal()),
+                        initialTime:
+                            TimeOfDay.fromDateTime(_watchedAt.toLocal()),
                       );
                       if (picked == null || !context.mounted) return;
                       setState(() {
@@ -575,8 +582,7 @@ class _WatchSessionDialogState extends State<_WatchSessionDialog> {
         TextButton(
           onPressed: () {
             final ratingText = _ratingController.text.trim();
-            final rating =
-                ratingText.isEmpty ? null : int.tryParse(ratingText);
+            final rating = ratingText.isEmpty ? null : int.tryParse(ratingText);
             Navigator.pop(
               context,
               _WatchSessionDraft(

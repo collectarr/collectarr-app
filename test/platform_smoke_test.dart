@@ -109,8 +109,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
 
       SharedPreferences.setMockInitialValues({});
-      await tester
-          .pumpWidget(const ProviderScope(child: CollectarrApp()));
+      await tester.pumpWidget(const ProviderScope(child: CollectarrApp()));
       await pumpUntilSettled(tester);
 
       // App renders without crashing on desktop dimensions.
@@ -166,8 +165,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
 
       SharedPreferences.setMockInitialValues({});
-      await tester
-          .pumpWidget(const ProviderScope(child: CollectarrApp()));
+      await tester.pumpWidget(const ProviderScope(child: CollectarrApp()));
       await pumpUntilSettled(tester);
 
       // App renders without crashing on narrow mobile dimensions.

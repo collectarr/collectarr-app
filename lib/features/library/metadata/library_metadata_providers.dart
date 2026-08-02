@@ -79,7 +79,8 @@ const hardcoverMetadataProvider = LibraryMetadataProviderOption(
   supportedKinds: {'book', 'manga'},
   requiresApiKey: true,
   usagePolicy: LibraryMetadataProviderUsagePolicy(
-    summary: 'Book and comic metadata with attribution and API key requirements',
+    summary:
+        'Book and comic metadata with attribution and API key requirements',
     requiresAttribution: true,
   ),
 );
@@ -151,7 +152,8 @@ class LibraryMetadataProviderRegistry {
     final normalized = kind.trim();
     return [
       for (final provider in providers)
-        if (provider.supportsKind(catalogMediaKindFromValue(normalized))) provider,
+        if (provider.supportsKind(catalogMediaKindFromValue(normalized)))
+          provider,
     ];
   }
 

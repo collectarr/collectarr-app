@@ -56,8 +56,8 @@ class _TrailerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final isYouTube = trailer.url.contains('youtube.com') ||
-        trailer.url.contains('youtu.be');
+    final isYouTube =
+        trailer.url.contains('youtube.com') || trailer.url.contains('youtu.be');
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: InkWell(

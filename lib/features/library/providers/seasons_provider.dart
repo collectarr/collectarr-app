@@ -4,23 +4,25 @@ import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final seasonsProvider =
-    FutureProvider.autoDispose.family<List<Season>, ({String provider, String providerItemId})>(
+final seasonsProvider = FutureProvider.autoDispose
+    .family<List<Season>, ({String provider, String providerItemId})>(
         (ref, params) async {
   final api = ref.watch(apiClientProvider);
   return api.getProviderSeasons(params.provider, params.providerItemId);
 });
 
-final tvSeriesSeasonsProvider = FutureProvider.autoDispose.family<List<TvSeasonDto>, String>(
+final tvSeriesSeasonsProvider =
+    FutureProvider.autoDispose.family<List<TvSeasonDto>, String>(
   (ref, seriesId) async {
     final api = ref.watch(apiClientProvider);
-    return api.getTvSeriesSeasonsDto(seriesId).timeout(const Duration(seconds: 60));
+    return api
+        .getTvSeriesSeasonsDto(seriesId)
+        .timeout(const Duration(seconds: 60));
   },
 );
 
-final tvSeasonsBySeriesRefProvider = FutureProvider.autoDispose.family<
-    List<Season>,
-    String>((ref, seriesId) async {
+final tvSeasonsBySeriesRefProvider = FutureProvider.autoDispose
+    .family<List<Season>, String>((ref, seriesId) async {
   final seasons = await ref.watch(tvSeriesSeasonsProvider(seriesId).future);
   return _seasonDtosToSeasonModels(seasons);
 });

@@ -66,7 +66,8 @@ class TrackingQuickAdjustments extends StatelessWidget {
         episodeNumberController,
       ]),
       builder: (context, child) {
-        final progressCurrent = parseTrackingInt(progressCurrentController.text) ?? 0;
+        final progressCurrent =
+            parseTrackingInt(progressCurrentController.text) ?? 0;
         final progressTotal = parseTrackingInt(progressTotalController.text);
         final seasonNumber = parseTrackingInt(seasonNumberController.text);
         final episodeNumber = parseTrackingInt(episodeNumberController.text);

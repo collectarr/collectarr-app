@@ -21,7 +21,8 @@ enum UpdateChannel {
   beta,
   nightly;
 
-  static UpdateChannel parse(String? value, {UpdateChannel fallback = UpdateChannel.stable}) {
+  static UpdateChannel parse(String? value,
+      {UpdateChannel fallback = UpdateChannel.stable}) {
     if (value == null) return fallback;
     return UpdateChannel.values.firstWhere(
       (c) => c.name.toLowerCase() == value.toLowerCase(),
@@ -60,8 +61,8 @@ class UpdateSettings {
       if (currentVersion.contains('-nightly')) {
         channel = UpdateChannel.nightly;
       } else if (currentVersion.contains('-beta') ||
-                 currentVersion.contains('-alpha') ||
-                 currentVersion.contains('-rc')) {
+          currentVersion.contains('-alpha') ||
+          currentVersion.contains('-rc')) {
         channel = UpdateChannel.beta;
       } else {
         channel = UpdateChannel.stable;
@@ -337,7 +338,8 @@ class AppUpdateController extends Notifier<AppUpdateState> {
         if (item['draft'] as bool? ?? false) continue;
         final candidate = GitHubRelease.fromJson(item);
         if (candidate.msixDownloadUrl.isEmpty) continue;
-        if (!isReleaseAllowedForChannel(candidate, state.settings.channel)) continue;
+        if (!isReleaseAllowedForChannel(candidate, state.settings.channel))
+          continue;
         if (!isNewerVersion(state.currentVersion, candidate.version)) continue;
         release = candidate;
         break;

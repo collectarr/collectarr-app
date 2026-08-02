@@ -68,8 +68,7 @@ class VolumesSection extends ConsumerWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: volumes.length,
-              itemBuilder: (_, index) =>
-                  _VolumeTile(volume: volumes[index]),
+              itemBuilder: (_, index) => _VolumeTile(volume: volumes[index]),
             ),
           ],
         );

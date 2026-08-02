@@ -96,8 +96,7 @@ class EditableComicCharacter {
     );
   }
 
-  factory EditableComicCharacter.fromLookupResult(
-      Map<String, dynamic> result) {
+  factory EditableComicCharacter.fromLookupResult(Map<String, dynamic> result) {
     return EditableComicCharacter(
       nameController:
           TextEditingController(text: result['name']?.toString() ?? ''),

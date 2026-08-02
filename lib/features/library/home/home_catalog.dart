@@ -16,7 +16,8 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
   };
   final topLevelByKind = {
     for (final type in catalog)
-      if (type.isTopLevel || collectarrLibraryTypes.byKind(type.mediaKind) != null)
+      if (type.isTopLevel ||
+          collectarrLibraryTypes.byKind(type.mediaKind) != null)
         type.kind: type,
   };
   final defaultKinds = [

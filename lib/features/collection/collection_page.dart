@@ -57,7 +57,8 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
-    final overdueOwnedItemIds = ref.watch(overdueLoanOwnedItemIdsProvider)
+    final overdueOwnedItemIds = ref
+        .watch(overdueLoanOwnedItemIdsProvider)
         .maybeWhen(data: (value) => value, orElse: () => const <String>{});
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
@@ -75,9 +76,9 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
             tooltip: 'Import collection',
             onPressed: shelf.maybeWhen(
               data: (state) => () => _showImportExportWizard(
-                state.entries,
-                initialIndex: 1,
-              ),
+                    state.entries,
+                    initialIndex: 1,
+                  ),
               orElse: () => null,
             ),
             icon: const Icon(Icons.upload_file),
@@ -86,9 +87,9 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
             tooltip: 'Export collection',
             onPressed: shelf.maybeWhen(
               data: (state) => () => _showImportExportWizard(
-                state.entries,
-                initialIndex: 0,
-              ),
+                    state.entries,
+                    initialIndex: 0,
+                  ),
               orElse: () => null,
             ),
             icon: const Icon(Icons.download),

@@ -7,8 +7,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Provides all calendar events aggregated from collection data.
-final calendarEventsProvider =
-    FutureProvider<List<CalendarEvent>>((ref) async {
+final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
   final ownedItems = await ref.watch(collectionProvider.future);
   final watchSessions = await ref.watch(watchSessionsProvider.future);
@@ -102,9 +101,7 @@ final calendarEventsProvider =
 
   for (final loan in loans) {
     final owned = ownedById[loan.ownedItemId];
-    final title = owned != null
-        ? titleFor(owned.itemId)
-        : 'Unknown item';
+    final title = owned != null ? titleFor(owned.itemId) : 'Unknown item';
 
     if (loan.dueDate != null) {
       events.add(CalendarEvent(

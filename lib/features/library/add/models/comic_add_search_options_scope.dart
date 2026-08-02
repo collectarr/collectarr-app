@@ -20,8 +20,8 @@ class ComicAddSearchOptionsScope extends InheritedWidget {
   final ValueChanged<bool> onCompactIssuesChanged;
 
   static ComicAddSearchOptionsScope? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<
-        ComicAddSearchOptionsScope>();
+    return context
+        .dependOnInheritedWidgetOfExactType<ComicAddSearchOptionsScope>();
   }
 
   static ComicAddSearchOptionsScope of(BuildContext context) {

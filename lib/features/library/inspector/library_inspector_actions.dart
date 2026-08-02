@@ -70,9 +70,7 @@ class InspectorPrimaryActions extends StatelessWidget {
                 onPressed: dto.isWishlisted ? onRemoveWishlist : onAddWishlist,
                 icon: Icon(dto.isWishlisted ? Icons.star : Icons.star_border),
                 label: Text(
-                  dto.isWishlisted
-                      ? 'Remove from wishlist'
-                      : 'Add to wishlist',
+                  dto.isWishlisted ? 'Remove from wishlist' : 'Add to wishlist',
                 ),
               ),
             ),

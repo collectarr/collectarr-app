@@ -51,7 +51,9 @@ class LibraryDetailFieldRow extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: field.onTap != null && field.value.isNotEmpty && field.value != '-'
+            child: field.onTap != null &&
+                    field.value.isNotEmpty &&
+                    field.value != '-'
                 ? Tooltip(
                     message: field.tooltip ?? 'Show all with ${field.value}',
                     child: InkWell(

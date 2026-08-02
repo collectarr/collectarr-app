@@ -4,7 +4,8 @@ import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:flutter/material.dart';
 
 class BoardGameLibraryEditDialog extends StatelessWidget {
-  const BoardGameLibraryEditDialog({super.key, required this.request, this.draft});
+  const BoardGameLibraryEditDialog(
+      {super.key, required this.request, this.draft});
 
   final LibraryEditDialogRequest request;
   final LibraryEditDraft? draft;

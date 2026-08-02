@@ -20,7 +20,6 @@ abstract class TypedMetadataResponse {
   Map<String, dynamic> toJson() => Map<String, dynamic>.from(raw);
 }
 
-
 String _stringValue(dynamic value, {String fallback = ''}) =>
     value?.toString() ?? fallback;
 
@@ -368,12 +367,12 @@ class GameReleaseDto extends TypedMetadataResponse {
       Map<String, dynamic>.from(json),
       id: _stringValue(json['id']),
       workId: _stringValue(json['work_id']),
-      releaseTitle:
-          _nullableString(json['release_title']) ?? _nullableString(json['title']),
+      releaseTitle: _nullableString(json['release_title']) ??
+          _nullableString(json['title']),
       platform: _nullableString(json['platform']),
       releaseDateValue: _nullableDate(json['release_date']),
-      regionCode:
-          _nullableString(json['region_code']) ?? _nullableString(json['region']),
+      regionCode: _nullableString(json['region_code']) ??
+          _nullableString(json['region']),
       format: _nullableString(json['format']),
       publisher: _nullableString(json['publisher']),
       catalogNumber: _nullableString(json['catalog_number']),
@@ -458,7 +457,8 @@ class BoardGameWorkDto extends TypedMetadataResponse {
       sortTitle: _nullableString(json['sort_title']),
       subtitle: _nullableString(json['subtitle']),
       description: _nullableString(json['description']),
-      kind: _nullableString(json['kind']) ?? CollectarrItemKind.boardgame.apiValue,
+      kind: _nullableString(json['kind']) ??
+          CollectarrItemKind.boardgame.apiValue,
     );
   }
 }
@@ -700,7 +700,6 @@ class MusicMediaDto extends TypedMetadataResponse {
       vinylWeight: _nullableString(json['vinyl_weight']),
     );
   }
-
 }
 
 class MusicTrackDto extends TypedMetadataResponse {

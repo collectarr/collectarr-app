@@ -30,7 +30,8 @@ void main() {
     final dto = BookWorkspaceDto(
       common: WorkspaceCommonProjection(
         title: item.work.title,
-        coverImageUrl: item.releases.firstOrNull?.variants.firstOrNull?.coverImageUrl,
+        coverImageUrl:
+            item.releases.firstOrNull?.variants.firstOrNull?.coverImageUrl,
       ),
       personal: PersonalCopyProjection(),
       book: item,

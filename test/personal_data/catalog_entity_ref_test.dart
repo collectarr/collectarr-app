@@ -10,7 +10,9 @@ void main() {
     expect(anchor?.variantId, isNull);
   });
 
-  test('variant anchor type still resolves to edition when only edition id exists', () {
+  test(
+      'variant anchor type still resolves to edition when only edition id exists',
+      () {
     final anchor = PersonalItemAnchor.fromRaw(
       anchorType: 'variant',
       editionId: 'edition-1',

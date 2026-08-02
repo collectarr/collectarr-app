@@ -14,8 +14,10 @@ extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
   String helperLabelForType(LibraryTypeConfig type) {
     return switch (this) {
       LibraryAddReferenceType.media => type.addChrome.mediaReferenceHelperLabel,
-      LibraryAddReferenceType.edition => type.addChrome.editionReferenceHelperLabel,
-      LibraryAddReferenceType.bundleRelease => 'Attach ownership to a bundle that contains this item',
+      LibraryAddReferenceType.edition =>
+        type.addChrome.editionReferenceHelperLabel,
+      LibraryAddReferenceType.bundleRelease =>
+        'Attach ownership to a bundle that contains this item',
     };
   }
 }

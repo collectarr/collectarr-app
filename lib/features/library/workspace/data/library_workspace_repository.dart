@@ -19,7 +19,8 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'library_workspace_query.dart';
 
 abstract class LibraryWorkspaceRepository {
-  Stream<List<LibraryProjectionRuntime>> watchEntries(LibraryWorkspaceQuery query);
+  Stream<List<LibraryProjectionRuntime>> watchEntries(
+      LibraryWorkspaceQuery query);
 }
 
 class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
@@ -27,12 +28,14 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
   final Ref ref;
 
   @override
-  Stream<List<LibraryProjectionRuntime>> watchEntries(LibraryWorkspaceQuery query) {
+  Stream<List<LibraryProjectionRuntime>> watchEntries(
+      LibraryWorkspaceQuery query) {
     final controller = StreamController<List<LibraryProjectionRuntime>>();
     final db = ref.read(localDatabaseProvider);
 
-    final bool isTesting = const bool.fromEnvironment('dart.vm.product') == false &&
-        Platform.environment.containsKey('FLUTTER_TEST');
+    final bool isTesting =
+        const bool.fromEnvironment('dart.vm.product') == false &&
+            Platform.environment.containsKey('FLUTTER_TEST');
     final bool isLazy = db.connection.executor is LazyDatabase ||
         db.connection.executor.toString().contains('LazyDatabase');
 
@@ -104,7 +107,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     return controller.stream;
   }
 
-  Stream<List<LibraryProjectionRuntime>> _watchFromDb(LibraryWorkspaceQuery query) {
+  Stream<List<LibraryProjectionRuntime>> _watchFromDb(
+      LibraryWorkspaceQuery query) {
     final db = ref.read(localDatabaseProvider);
     final module = libraryKindModuleForKind(query.kind);
 
@@ -135,7 +139,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     }
 
     if (query.collectionId != null) {
-      statement.where(db.ownedItemsCache.locationId.equals(query.collectionId!));
+      statement
+          .where(db.ownedItemsCache.locationId.equals(query.collectionId!));
     }
 
     if (query.scopeId != null) {
@@ -162,8 +167,10 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
               _catalogFromCache(catalogData),
             ),
             ownedItem: ownedData == null ? null : _ownedFromCache(ownedData),
-            wishlistItem: wishlistData == null ? null : _wishlistFromCache(wishlistData),
-            trackingEntry: trackingData == null ? null : _trackingFromCache(trackingData),
+            wishlistItem:
+                wishlistData == null ? null : _wishlistFromCache(wishlistData),
+            trackingEntry:
+                trackingData == null ? null : _trackingFromCache(trackingData),
             locationPath: locationPath,
           ),
         );
@@ -185,7 +192,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
             if (selectedValues.isEmpty) {
               continue;
             }
-            final values = module.facets.getFacetValues?.call(item, facetId) ?? const <String>[];
+            final values = module.facets.getFacetValues?.call(item, facetId) ??
+                const <String>[];
             final hasMatch = values.any((val) => selectedValues.contains(val));
             if (!hasMatch) {
               return false;
@@ -264,7 +272,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
           if (selectedValues.isEmpty) {
             continue;
           }
-          final values = module.facets.getFacetValues?.call(item, facetId) ?? const <String>[];
+          final values = module.facets.getFacetValues?.call(item, facetId) ??
+              const <String>[];
           final hasMatch = values.any((val) => selectedValues.contains(val));
           if (!hasMatch) {
             return false;
@@ -287,9 +296,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       }).toList();
     }
 
-    filtered.sort((left, right) => left.dto.title
-        .toLowerCase()
-        .compareTo(right.dto.title.toLowerCase()));
+    filtered.sort((left, right) =>
+        left.dto.title.toLowerCase().compareTo(right.dto.title.toLowerCase()));
 
     return filtered;
   }

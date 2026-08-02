@@ -39,7 +39,10 @@ class CatalogEditionDto {
   factory CatalogEditionDto.fromJson(Map<String, dynamic> json) {
     return CatalogEditionDto(
       id: json['id'] as String,
-      title: json['title'] as String? ?? json['edition_title'] as String? ?? json['name'] as String? ?? 'Edition',
+      title: json['title'] as String? ??
+          json['edition_title'] as String? ??
+          json['name'] as String? ??
+          'Edition',
       format: json['format'] as String?,
       publisher: json['publisher'] as String?,
       distributor: json['distributor'] as String?,
@@ -48,15 +51,20 @@ class CatalogEditionDto {
       language: json['language'] as String?,
       region: json['region'] as String?,
       releaseDate: _parseDate(json['release_date'] as String?),
-      physicalFormat: json['physical_format'] as String? ?? json['format'] as String?,
-      physicalFormatLabel: json['physical_format_label'] as String? ?? json['physical_format'] as String? ?? json['format'] as String?,
-      metadata: Map<String, dynamic>.from((json['metadata'] as Map?) ?? <String, dynamic>{})
+      physicalFormat:
+          json['physical_format'] as String? ?? json['format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String? ??
+          json['physical_format'] as String? ??
+          json['format'] as String?,
+      metadata: Map<String, dynamic>.from(
+          (json['metadata'] as Map?) ?? <String, dynamic>{})
         ..putIfAbsent('dimensions', () => json['dimensions'])
         ..putIfAbsent('first_edition', () => json['first_edition'])
         ..putIfAbsent('audio_tracks', () => json['audio_tracks'])
         ..putIfAbsent('subtitles', () => json['subtitles']),
       variants: (json['variants'] as List<dynamic>?)
-              ?.map((v) => CatalogVariantDto.fromJson(Map<String, dynamic>.from(v as Map)))
+              ?.map((v) => CatalogVariantDto.fromJson(
+                  Map<String, dynamic>.from(v as Map)))
               .toList(growable: false) ??
           const <CatalogVariantDto>[],
       discs: ((json['discs'] ?? json['media']) as List<dynamic>?)

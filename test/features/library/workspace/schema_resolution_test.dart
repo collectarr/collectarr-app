@@ -33,12 +33,14 @@ void main() {
           expect(
             definition,
             isNotNull,
-            reason: '$name default visible column ID "$defaultId" must resolve.',
+            reason:
+                '$name default visible column ID "$defaultId" must resolve.',
           );
           expect(
             columnIds.contains(definition!.id.value),
             isTrue,
-            reason: '$name resolved column ID "${definition.id.value}" for "$defaultId" must exist in columns list.',
+            reason:
+                '$name resolved column ID "${definition.id.value}" for "$defaultId" must exist in columns list.',
           );
         }
       });
@@ -46,13 +48,15 @@ void main() {
       test('defaultSortId resolves to valid sort definition', () {
         final registry = module.fields;
         final defaultSortId = registry.defaultSortId;
-        expect(defaultSortId, isNotNull, reason: '$name defaultSortId should not be null.');
+        expect(defaultSortId, isNotNull,
+            reason: '$name defaultSortId should not be null.');
         if (defaultSortId != null) {
           final sort = registry.findSortDefinition(defaultSortId);
           expect(
             sort,
             isNotNull,
-            reason: '$name defaultSortId "$defaultSortId" must resolve to a valid sort definition.',
+            reason:
+                '$name defaultSortId "$defaultSortId" must resolve to a valid sort definition.',
           );
         }
       });
@@ -60,13 +64,15 @@ void main() {
       test('defaultGroupId resolves to valid group definition', () {
         final registry = module.fields;
         final defaultGroupId = registry.defaultGroupId;
-        expect(defaultGroupId, isNotNull, reason: '$name defaultGroupId should not be null.');
+        expect(defaultGroupId, isNotNull,
+            reason: '$name defaultGroupId should not be null.');
         if (defaultGroupId != null) {
           final group = registry.findGroupDefinition(defaultGroupId);
           expect(
             group,
             isNotNull,
-            reason: '$name defaultGroupId "$defaultGroupId" must resolve to a valid group definition.',
+            reason:
+                '$name defaultGroupId "$defaultGroupId" must resolve to a valid group definition.',
           );
         }
       });

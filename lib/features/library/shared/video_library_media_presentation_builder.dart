@@ -43,26 +43,40 @@ class VideoLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (dto.seriesTitle != null)
-          LibraryDetailField(label: 'Series', value: dto.seriesTitle!, onTap: tapFor(dto.seriesTitle)),
-        if (item.node.scope != LibraryBrowserScope.title &&
-            dto.variant != null)
-          LibraryDetailField(label: releaseFields.variantLabel, value: dto.variant!, onTap: tapFor(dto.variant)),
-        if (item.node.scope != LibraryBrowserScope.title &&
-            dto.barcode != null)
-          LibraryDetailField(label: releaseFields.barcodeLabel, value: dto.barcode!),
+          LibraryDetailField(
+              label: 'Series',
+              value: dto.seriesTitle!,
+              onTap: tapFor(dto.seriesTitle)),
+        if (item.node.scope != LibraryBrowserScope.title && dto.variant != null)
+          LibraryDetailField(
+              label: releaseFields.variantLabel,
+              value: dto.variant!,
+              onTap: tapFor(dto.variant)),
+        if (item.node.scope != LibraryBrowserScope.title && dto.barcode != null)
+          LibraryDetailField(
+              label: releaseFields.barcodeLabel, value: dto.barcode!),
       ],
       contextFacts: [
         if (dto.publisher != null)
-          LibraryDetailField(label: mediaFields.publisherLabel, value: dto.publisher!, onTap: tapFor(dto.publisher)),
-        LibraryDetailField(label: 'Released', value: genericLibraryDash(
-            formatPresentationNullableDate(dto.releaseDate),
-          )),
+          LibraryDetailField(
+              label: mediaFields.publisherLabel,
+              value: dto.publisher!,
+              onTap: tapFor(dto.publisher)),
+        LibraryDetailField(
+            label: 'Released',
+            value: genericLibraryDash(
+              formatPresentationNullableDate(dto.releaseDate),
+            )),
         if (dto.country != null)
           LibraryDetailField(label: 'Country', value: dto.country!),
         if (dto.language != null)
           LibraryDetailField(label: 'Language', value: dto.language!),
       ],
-      creators: dto.creator != null ? [<String, dynamic>{'name': dto.creator}] : const [],
+      creators: dto.creator != null
+          ? [
+              <String, dynamic>{'name': dto.creator}
+            ]
+          : const [],
       characters: cat?.genres ?? const [],
       storyArcs: const [],
       genres: cat?.genres ?? const [],
@@ -96,4 +110,3 @@ class VideoLibraryMediaPresentationBuilder
     ];
   }
 }
-

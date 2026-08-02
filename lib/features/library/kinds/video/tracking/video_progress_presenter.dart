@@ -25,20 +25,19 @@ class VideoProgressPresenter {
     final episodes = _flattenEpisodes(headlineSeasons);
     final totalSeasons = headlineSeasons.length;
     final totalEpisodes = episodes.length;
-    final releasedEpisodes = episodes.isEmpty
-        ? 0
-        : _releasedEpisodes(episodes, referenceNow);
+    final releasedEpisodes =
+        episodes.isEmpty ? 0 : _releasedEpisodes(episodes, referenceNow);
     final watchedEpisodeKeys = _watchedEpisodeKeys(trackedUnits, watchSessions);
     final releasedKeys = <String>{
       for (final episode in episodes)
-        if (_isReleased(episode, referenceNow)) _episodeKeyForSeasonEpisode(episode)
+        if (_isReleased(episode, referenceNow))
+          _episodeKeyForSeasonEpisode(episode)
     };
     final watchedReleasedCount =
         watchedEpisodeKeys.where(releasedKeys.contains).length;
     final watchedTotalCount = watchedEpisodeKeys.length;
     final watchedEpisodes = watchedTotalCount;
-    final episodesLeft =
-        math.max(releasedEpisodes - watchedReleasedCount, 0);
+    final episodesLeft = math.max(releasedEpisodes - watchedReleasedCount, 0);
     final completionPercent = releasedEpisodes == 0
         ? 0.0
         : (math.min(watchedReleasedCount, releasedEpisodes) / releasedEpisodes)
@@ -48,7 +47,8 @@ class VideoProgressPresenter {
       trackedUnits: trackedUnits,
       watchSessions: watchSessions,
     );
-    final nextEpisode = _nextEpisode(episodes, watchedEpisodeKeys, referenceNow);
+    final nextEpisode =
+        _nextEpisode(episodes, watchedEpisodeKeys, referenceNow);
     final currentSeasonNumber = nextEpisode?.seasonNumber ??
         lastWatched?.seasonNumber ??
         _firstRegularSeasonNumber(headlineSeasons);
@@ -344,7 +344,8 @@ class VideoProgressPresenter {
     return latest;
   }
 
-  static TrackingUnit? _latestWatchedTrackingUnit(List<TrackingUnit> trackedUnits) {
+  static TrackingUnit? _latestWatchedTrackingUnit(
+      List<TrackingUnit> trackedUnits) {
     TrackingUnit? latest;
     for (final unit in trackedUnits) {
       if (unit.isDeleted || unit.unitType != TrackingUnitType.episode) {
@@ -437,11 +438,14 @@ class VideoProgressPresenter {
   }) {
     final hasFutureEpisodes = season.episodes.any(
       (episode) =>
-          _episodeAirDate(_SeasonEpisode(season, episode))?.isAfter(referenceNow) ==
+          _episodeAirDate(_SeasonEpisode(season, episode))
+              ?.isAfter(referenceNow) ==
           true,
     );
     if (watchedCount == 0) {
-      return hasFutureEpisodes && releaseCount == 0 ? 'Upcoming' : 'Not started';
+      return hasFutureEpisodes && releaseCount == 0
+          ? 'Upcoming'
+          : 'Not started';
     }
     if (releaseCount > 0 && watchedCount >= releaseCount) {
       return hasFutureEpisodes && releaseCount < totalCount

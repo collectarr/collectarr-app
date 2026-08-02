@@ -39,7 +39,8 @@ class _PickListValueEditorDialog extends StatefulWidget {
       _PickListValueEditorDialogState();
 }
 
-class _PickListValueEditorDialogState extends State<_PickListValueEditorDialog> {
+class _PickListValueEditorDialogState
+    extends State<_PickListValueEditorDialog> {
   late final TextEditingController _controller;
 
   @override
@@ -61,7 +62,8 @@ class _PickListValueEditorDialogState extends State<_PickListValueEditorDialog> 
     }
     Navigator.of(context).pop(
       PickListValue(
-        id: widget.existing?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
+        id: widget.existing?.id ??
+            DateTime.now().microsecondsSinceEpoch.toString(),
         listName: widget.listName,
         mediaKind: widget.mediaKind,
         value: value,
@@ -74,7 +76,9 @@ class _PickListValueEditorDialogState extends State<_PickListValueEditorDialog> 
   Widget build(BuildContext context) {
     return AccentAlertDialog(
       backgroundColor: appPalette(context).panel,
-      title: Text(widget.existing == null ? 'Add ${widget.label} value' : 'Edit ${widget.label} value'),
+      title: Text(widget.existing == null
+          ? 'Add ${widget.label} value'
+          : 'Edit ${widget.label} value'),
       content: SizedBox(
         width: 520,
         child: TextField(

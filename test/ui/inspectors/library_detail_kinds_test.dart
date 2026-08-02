@@ -171,7 +171,8 @@ void main() {
 
       await pumpUntilSettled(tester);
 
-      expect(find.text('The Legend of Zelda: Tears of the Kingdom'), findsWidgets);
+      expect(
+          find.text('The Legend of Zelda: Tears of the Kingdom'), findsWidgets);
     });
   });
 

@@ -229,7 +229,9 @@ class OwnedItemsCacheRepository {
       locationId: Value(item.locationId),
       features: Value(video?.features),
       hdrFormatsJson: Value(
-        video != null && video.hdrFormats.isNotEmpty ? jsonEncode(video.hdrFormats) : null,
+        video != null && video.hdrFormats.isNotEmpty
+            ? jsonEncode(video.hdrFormats)
+            : null,
       ),
       purchaseStore: Value(item.purchaseStore),
       boxSetId: Value(video?.boxSetId),

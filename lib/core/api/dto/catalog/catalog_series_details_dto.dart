@@ -29,7 +29,8 @@ class CatalogSeriesDetailsDto {
       episodeNumber != null ||
       (tags != null && tags!.isNotEmpty);
 
-  bool get hasVolume => (volumeName != null && volumeName!.isNotEmpty) || volumeNumber != null;
+  bool get hasVolume =>
+      (volumeName != null && volumeName!.isNotEmpty) || volumeNumber != null;
   bool get hasSeason => seasonNumber != null;
   bool get hasEpisode => episodeNumber != null;
 

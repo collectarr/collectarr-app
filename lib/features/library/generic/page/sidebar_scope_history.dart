@@ -16,7 +16,8 @@ List<LibrarySidebarScopeSnapshot> updateLibrarySidebarScopeHistory({
   required LibrarySidebarScopeSnapshot next,
 }) {
   if (next.isRootScope) {
-    if (previous.selectedBucket != null && next.groupMode != previous.groupMode) {
+    if (previous.selectedBucket != null &&
+        next.groupMode != previous.groupMode) {
       final updatedHistory = List<LibrarySidebarScopeSnapshot>.from(history);
       if (updatedHistory.isEmpty || updatedHistory.last != previous) {
         updatedHistory.add(previous);
@@ -68,7 +69,8 @@ LibrarySidebarHistoryNavigationResult? popLibrarySidebarScopeHistory(
   );
 }
 
-LibrarySidebarHistoryNavigationResult? navigateLibrarySidebarScopeHistoryToBreadcrumb({
+LibrarySidebarHistoryNavigationResult?
+    navigateLibrarySidebarScopeHistoryToBreadcrumb({
   required List<LibrarySidebarScopeSnapshot> history,
   required int index,
   required LibrarySidebarScopeSnapshot rootScope,

@@ -14,7 +14,8 @@ void main() {
       'original_language': 'en',
       'sort_title': 'Matrix, The',
       'subtitle': 'The One',
-      'description': 'A computer hacker learns about the true nature of reality.',
+      'description':
+          'A computer hacker learns about the true nature of reality.',
       'cover_image_url': 'https://example.com/matrix.jpg',
       'thumbnail_image_url': 'https://example.com/matrix-thumb.jpg',
       'publisher': 'Warner Bros.',

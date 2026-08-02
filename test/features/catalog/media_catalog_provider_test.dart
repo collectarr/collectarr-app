@@ -66,7 +66,8 @@ void main() {
       type.inspectorSectionsBuilder,
       same(comicsLibraryConfig.inspectorSectionsBuilder),
     );
-    expect(type.inspectorHeroBuilder, same(comicsLibraryConfig.inspectorHeroBuilder));
+    expect(type.inspectorHeroBuilder,
+        same(comicsLibraryConfig.inspectorHeroBuilder));
     expect(
       type.inspectorSectionsBuilder,
       same(comicsLibraryConfig.inspectorSectionsBuilder),

@@ -14,7 +14,8 @@ final class MusicWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final music = MusicCatalogMapper.mapMetadataItemToMusic(source.catalogItem!);
+    final music =
+        MusicCatalogMapper.mapMetadataItemToMusic(source.catalogItem!);
     return MusicWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
@@ -28,10 +29,12 @@ final class MusicWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final music = MusicCatalogMapper.mapMetadataItemToMusic(source.catalogItem!);
+    final music =
+        MusicCatalogMapper.mapMetadataItemToMusic(source.catalogItem!);
     return MusicWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
-      personal: PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      personal:
+          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       music: music,
     );
   }

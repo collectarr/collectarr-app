@@ -32,13 +32,15 @@ void main() {
     );
 
     final viewDropdown = tester.widget<PopupMenuButton<LibraryViewMode>>(
-      find.byWidgetPredicate((widget) => widget is PopupMenuButton<LibraryViewMode>),
+      find.byWidgetPredicate(
+          (widget) => widget is PopupMenuButton<LibraryViewMode>),
     );
     viewDropdown.onSelected?.call(LibraryViewMode.list);
     await tester.pump();
     expect(viewMode, LibraryViewMode.list);
 
-    final detailsDropdown = tester.widget<PopupMenuButton<LibraryDetailsLayout>>(
+    final detailsDropdown =
+        tester.widget<PopupMenuButton<LibraryDetailsLayout>>(
       find.byWidgetPredicate(
         (widget) => widget is PopupMenuButton<LibraryDetailsLayout>,
       ),

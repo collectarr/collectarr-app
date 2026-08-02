@@ -75,12 +75,11 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
       continue;
     }
     final series = item.source.catalogItem?.series;
-    final seriesKey =
-        series?.seriesId?.trim().isNotEmpty == true
-            ? series!.seriesId!.trim()
-            : series?.seriesTitle?.trim().isNotEmpty == true
-                ? series!.seriesTitle!.trim()
-                : item.dto.title;
+    final seriesKey = series?.seriesId?.trim().isNotEmpty == true
+        ? series!.seriesId!.trim()
+        : series?.seriesTitle?.trim().isNotEmpty == true
+            ? series!.seriesTitle!.trim()
+            : item.dto.title;
     final accumulator = bySeries.putIfAbsent(
       seriesKey,
       () => _MissingComicSeriesAccumulator(
@@ -106,17 +105,19 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
         item.dto.collectionStatus?.trim().toLowerCase() == 'on_order') {
       continue;
     }
-    if (options.excludeUnreleased && _isFutureRelease(item.dto.releaseDate, resolvedNow)) {
+    if (options.excludeUnreleased &&
+        _isFutureRelease(item.dto.releaseDate, resolvedNow)) {
       continue;
     }
-    accumulator.candidateVariants.putIfAbsent(issueNumber, () => <MissingComicIssueVariant>[])
-      .add(
-        MissingComicIssueVariant(
-          label: _missingComicVariantLabel(item),
-          variant: item.dto.variant,
-          releaseDate: item.dto.releaseDate,
-        ),
-      );
+    accumulator.candidateVariants
+        .putIfAbsent(issueNumber, () => <MissingComicIssueVariant>[])
+        .add(
+          MissingComicIssueVariant(
+            label: _missingComicVariantLabel(item),
+            variant: item.dto.variant,
+            releaseDate: item.dto.releaseDate,
+          ),
+        );
   }
 
   final reports = <MissingComicSeriesReport>[];
@@ -129,9 +130,8 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
       continue;
     }
     final issueGroups = [
-      for (final issueNumber in options.ascending
-          ? missingNumbers
-          : missingNumbers.reversed)
+      for (final issueNumber
+          in options.ascending ? missingNumbers : missingNumbers.reversed)
         MissingComicIssueGroup(
           issueNumber: issueNumber,
           variants: options.includeVariants

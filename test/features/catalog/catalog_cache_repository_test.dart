@@ -18,7 +18,8 @@ void main() {
 
   tearDown(() => db.close());
 
-  test('upsertAll captures single-value catalog vocabulary and comic series', () async {
+  test('upsertAll captures single-value catalog vocabulary and comic series',
+      () async {
     await catalog.upsertAll([
       CatalogItem(
         id: 'comic-1',
@@ -53,7 +54,8 @@ void main() {
       contains('Deluxe Hardcovers'),
     );
     expect(
-      await pickLists.getValues(kPhysicalFormatPickListName, mediaKind: 'comic'),
+      await pickLists.getValues(kPhysicalFormatPickListName,
+          mediaKind: 'comic'),
       contains('Hardcover'),
     );
 

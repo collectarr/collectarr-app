@@ -51,9 +51,9 @@ class VideoEditMediaTab extends StatelessWidget {
                 ultraWideBreakpoint: 600,
                 children: [
                   LibraryEditTextField(
-                  controller: draft.displayTitleController,
-                  label: 'Custom display title',
-                ),
+                    controller: draft.displayTitleController,
+                    label: 'Custom display title',
+                  ),
                   LibraryEditTextField(
                     controller: draft.publisherController,
                     label: 'Studios',
@@ -68,16 +68,16 @@ class VideoEditMediaTab extends StatelessWidget {
                 ultraWideBreakpoint: 600,
                 children: [
                   LibraryEditTextField(
-                  controller: videoEdit.runtimeController,
-                  label: 'Runtime (min)',
-                  validator: optionalIntValidator,
-                ),
-                LibraryVocabularyField(
-                  controller: draft.genresEditController,
-                  options: genreOptions,
-                  label: 'Genres',
-                  multiSelect: true,
-                ),
+                    controller: videoEdit.runtimeController,
+                    label: 'Runtime (min)',
+                    validator: optionalIntValidator,
+                  ),
+                  LibraryVocabularyField(
+                    controller: draft.genresEditController,
+                    options: genreOptions,
+                    label: 'Genres',
+                    multiSelect: true,
+                  ),
                 ],
               ),
             ],
@@ -95,16 +95,16 @@ class VideoEditMediaTab extends StatelessWidget {
                 wideBreakpoint: 600,
                 ultraWideBreakpoint: 600,
                 children: [
-                LibraryVocabularyField(
-                  label: 'Age rating',
-                  controller: draft.ageRatingController,
-                  options: ageRatingOptions,
-                ),
-                LibraryVocabularyField(
-                  label: 'Audience rating',
-                  controller: draft.audienceRatingController,
-                  options: audienceRatingOptions,
-                ),
+                  LibraryVocabularyField(
+                    label: 'Age rating',
+                    controller: draft.ageRatingController,
+                    options: ageRatingOptions,
+                  ),
+                  LibraryVocabularyField(
+                    label: 'Audience rating',
+                    controller: draft.audienceRatingController,
+                    options: audienceRatingOptions,
+                  ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -114,16 +114,16 @@ class VideoEditMediaTab extends StatelessWidget {
                 wideBreakpoint: 600,
                 ultraWideBreakpoint: 600,
                 children: [
-                LibraryVocabularyField(
-                  label: 'Country',
-                  controller: draft.countryController,
-                  options: countryOptions,
-                ),
-                LibraryVocabularyField(
-                  label: 'Language',
-                  controller: draft.languageController,
-                  options: languageOptions,
-                ),
+                  LibraryVocabularyField(
+                    label: 'Country',
+                    controller: draft.countryController,
+                    options: countryOptions,
+                  ),
+                  LibraryVocabularyField(
+                    label: 'Language',
+                    controller: draft.languageController,
+                    options: languageOptions,
+                  ),
                 ],
               ),
             ],

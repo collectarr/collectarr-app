@@ -164,8 +164,7 @@ void main() {
     expect(restored.columnWidths['comic.publisher'], 120);
   });
 
-  test('workspace chrome size and position are retained per library',
-      () async {
+  test('workspace chrome size and position are retained per library', () async {
     final comicsStore = LibraryWorkspacePreferences(typeConfig);
     final mangaStore = LibraryWorkspacePreferences(mangaTypeConfig);
 
@@ -204,7 +203,11 @@ void main() {
     expect(restored.detailsHeight, kLibraryDetailsDefaultHeight);
     expect(restored.viewMode, LibraryViewMode.grid);
     expect(restored.sortColumn, 'title');
-    expect(restored.visibleColumns, libraryKindModuleForType(mangaTypeConfig).fields.defaultVisibleColumnIds);
+    expect(
+        restored.visibleColumns,
+        libraryKindModuleForType(mangaTypeConfig)
+            .fields
+            .defaultVisibleColumnIds);
     expect(restored.columnWidths, isEmpty);
   });
 

@@ -21,7 +21,8 @@ class VideoEditCastTab extends StatelessWidget {
       addLabel: 'Add Cast',
       accent: accent,
       credits: videoEdit.castCredits,
-      onAdd: () => videoEdit.castCredits.add(EditableVideoCredit.custom(role: 'Actor')),
+      onAdd: () =>
+          videoEdit.castCredits.add(EditableVideoCredit.custom(role: 'Actor')),
     );
   }
 }

@@ -17,7 +17,8 @@ class VideoExternalLinksSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final externalLinks = links.where((link) => link.isExternalLink).toList(growable: false);
+    final externalLinks =
+        links.where((link) => link.isExternalLink).toList(growable: false);
     if (externalLinks.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -62,7 +63,9 @@ class _LinkRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final title = link.title?.trim().isNotEmpty == true ? link.title!.trim() : link.source?.trim();
+    final title = link.title?.trim().isNotEmpty == true
+        ? link.title!.trim()
+        : link.source?.trim();
     return InkWell(
       onTap: () async {
         final uri = Uri.tryParse(link.url);

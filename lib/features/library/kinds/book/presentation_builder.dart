@@ -61,65 +61,113 @@ class BookLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (series?.seriesTitle != null)
-          LibraryDetailField(label: 'Series', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
+          LibraryDetailField(
+              label: 'Series',
+              value: series!.seriesTitle!,
+              onTap: tapFor(series.seriesTitle)),
         if (hasVolume && !hasSeason)
-          LibraryDetailField(label: 'Volume', value: series!.volumeName ?? (series.volumeNumber ?? '')),
+          LibraryDetailField(
+              label: 'Volume',
+              value: series!.volumeName ?? (series.volumeNumber ?? '')),
         if (hasSeason && hasEpisode)
-          LibraryDetailField(label: 'Season / Episode', value: 'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}'),
+          LibraryDetailField(
+              label: 'Season / Episode',
+              value:
+                  'Season ${series!.seasonNumber}, Ep. ${series.episodeNumber}'),
         if (hasSeason && !hasEpisode)
-          LibraryDetailField(label: 'Season', value: 'Season ${series!.seasonNumber}'),
+          LibraryDetailField(
+              label: 'Season', value: 'Season ${series!.seasonNumber}'),
         if (hasEpisode && !hasSeason)
-          LibraryDetailField(label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
-        LibraryDetailField(label: mediaFields.numberLabel, value: genericLibraryDash(dto.itemNumber), onTap: tapFor(dto.itemNumber)),
-        LibraryDetailField(label: releaseFields.variantLabel, value: genericLibraryDash(dto.variant), onTap: tapFor(dto.variant)),
-        LibraryDetailField(label: releaseFields.barcodeLabel, value: genericLibraryDash(dto.barcode)),
+          LibraryDetailField(
+              label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
+        LibraryDetailField(
+            label: mediaFields.numberLabel,
+            value: genericLibraryDash(dto.itemNumber),
+            onTap: tapFor(dto.itemNumber)),
+        LibraryDetailField(
+            label: releaseFields.variantLabel,
+            value: genericLibraryDash(dto.variant),
+            onTap: tapFor(dto.variant)),
+        LibraryDetailField(
+            label: releaseFields.barcodeLabel,
+            value: genericLibraryDash(dto.barcode)),
       ],
       contextFacts: [
-        LibraryDetailField(label: mediaFields.publisherLabel, value: genericLibraryDash(dto.publisher), onTap: tapFor(dto.publisher)),
-        LibraryDetailField(label: 'Released', value: genericLibraryDash(
-            formatPresentationNullableDate(dto.releaseDate) ??
-                dto.releaseDate?.year.toString(),
-          )),
-        if (publishing?.pageCount != null)
-          LibraryDetailField(label: 'Pages', value: publishing!.pageCount.toString()),
-        if (music?.catalogNumber != null)
-          LibraryDetailField(label: 'Catalog No.', value: music!.catalogNumber!),
-        if (publishing?.coverPriceCents != null)
-          LibraryDetailField(label: 'Cover Price', value: formatPresentationMoney(
-              publishing!.coverPriceCents,
-              publishing.currency,
+        LibraryDetailField(
+            label: mediaFields.publisherLabel,
+            value: genericLibraryDash(dto.publisher),
+            onTap: tapFor(dto.publisher)),
+        LibraryDetailField(
+            label: 'Released',
+            value: genericLibraryDash(
+              formatPresentationNullableDate(dto.releaseDate) ??
+                  dto.releaseDate?.year.toString(),
             )),
+        if (publishing?.pageCount != null)
+          LibraryDetailField(
+              label: 'Pages', value: publishing!.pageCount.toString()),
+        if (music?.catalogNumber != null)
+          LibraryDetailField(
+              label: 'Catalog No.', value: music!.catalogNumber!),
+        if (publishing?.coverPriceCents != null)
+          LibraryDetailField(
+              label: 'Cover Price',
+              value: formatPresentationMoney(
+                publishing!.coverPriceCents,
+                publishing.currency,
+              )),
         if (publishing?.imprint != null)
-          LibraryDetailField(label: 'Imprint', value: publishing!.imprint!, onTap: tapFor(publishing.imprint)),
+          LibraryDetailField(
+              label: 'Imprint',
+              value: publishing!.imprint!,
+              onTap: tapFor(publishing.imprint)),
         if (publishing?.seriesGroup != null)
-          LibraryDetailField(label: 'Series Group', value: publishing!.seriesGroup!, onTap: tapFor(publishing.seriesGroup)),
+          LibraryDetailField(
+              label: 'Series Group',
+              value: publishing!.seriesGroup!,
+              onTap: tapFor(publishing.seriesGroup)),
         if (publishing?.subtitle != null)
           LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
         if (dto.country != null)
           LibraryDetailField(label: 'Country', value: dto.country!),
         if (music?.releaseStatus != null)
-          LibraryDetailField(label: 'Release Status', value: music!.releaseStatus!),
+          LibraryDetailField(
+              label: 'Release Status', value: music!.releaseStatus!),
         if (dto.language != null)
           LibraryDetailField(label: 'Language', value: dto.language!),
         if (catalogItem?.ageRating != null)
-          LibraryDetailField(label: 'Age Rating', value: catalogItem!.ageRating!),
+          LibraryDetailField(
+              label: 'Age Rating', value: catalogItem!.ageRating!),
         if (catalogItem?.audienceRating != null)
-          LibraryDetailField(label: 'Audience Rating', value: catalogItem!.audienceRating!),
+          LibraryDetailField(
+              label: 'Audience Rating', value: catalogItem!.audienceRating!),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
         if (referenceVariant?.sku case final sku? when sku.trim().isNotEmpty)
           LibraryDetailField(label: 'SKU', value: sku.trim()),
         if (referenceRelease.edition != null)
-          LibraryDetailField(label: 'Primary release', value: [
-              referenceRelease.edition!.title,
-              if (referenceVariant?.name.trim().isNotEmpty == true)
-                referenceVariant!.name.trim(),
-            ].join(' · ')),
+          LibraryDetailField(
+              label: 'Primary release',
+              value: [
+                referenceRelease.edition!.title,
+                if (referenceVariant?.name.trim().isNotEmpty == true)
+                  referenceVariant!.name.trim(),
+              ].join(' · ')),
         if (referencePlatforms.isNotEmpty)
-          LibraryDetailField(label: referencePlatforms.length == 1 ? 'Platform' : 'Platforms', value: referencePlatforms.join(', ')),
-        LibraryDetailField(label: 'Cover', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty ? 'Missing' : 'Ready'),
-        LibraryDetailField(label: 'Metadata', value: dto.publisher == null || dto.publisher!.isEmpty ? 'Missing' : 'Ready'),
+          LibraryDetailField(
+              label: referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
+              value: referencePlatforms.join(', ')),
+        LibraryDetailField(
+            label: 'Cover',
+            value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
+                ? 'Missing'
+                : 'Ready'),
+        LibraryDetailField(
+            label: 'Metadata',
+            value: dto.publisher == null || dto.publisher!.isEmpty
+                ? 'Missing'
+                : 'Ready'),
       ],
       creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
       characters: catalogItem?.characters ?? const <String>[],
@@ -153,8 +201,10 @@ class BookLibraryMediaPresentationBuilder
     final originalFacts = <LibraryDetailField>[
       if (series?.seriesTitle?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Series', value: series!.seriesTitle!.trim()),
-      if (catalogItem?.synopsis != null && catalogItem!.synopsis!.trim().isNotEmpty)
-        LibraryDetailField(label: 'Summary', value: catalogItem.synopsis!.trim()),
+      if (catalogItem?.synopsis != null &&
+          catalogItem!.synopsis!.trim().isNotEmpty)
+        LibraryDetailField(
+            label: 'Summary', value: catalogItem.synopsis!.trim()),
     ];
     if (originalFacts.isNotEmpty) {
       sectionSpecs.add(
@@ -168,7 +218,8 @@ class BookLibraryMediaPresentationBuilder
 
     final productFacts = <LibraryDetailField>[
       if (dto.referenceFormatLabel?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Format', value: dto.referenceFormatLabel!.trim()),
+        LibraryDetailField(
+            label: 'Format', value: dto.referenceFormatLabel!.trim()),
       if (dto.publisher?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Publisher', value: dto.publisher!.trim()),
       if (dto.barcode?.trim().isNotEmpty == true)
@@ -178,7 +229,8 @@ class BookLibraryMediaPresentationBuilder
       if (dto.language?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Language', value: dto.language!.trim()),
       if (catalogItem?.ageRating?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Age Rating', value: catalogItem!.ageRating!.trim()),
+        LibraryDetailField(
+            label: 'Age Rating', value: catalogItem!.ageRating!.trim()),
     ];
     if (productFacts.isNotEmpty) {
       sectionSpecs.add(
@@ -191,7 +243,8 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final creatorNames = <String>[
-      for (final creator in catalogItem?.creators ?? const <Map<String, dynamic>>[])
+      for (final creator
+          in catalogItem?.creators ?? const <Map<String, dynamic>>[])
         if (creator['name']?.toString().trim().isNotEmpty == true)
           creator['name']!.toString().trim(),
     ];
@@ -248,13 +301,15 @@ class BookLibraryMediaPresentationBuilder
       if (dto.grade?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Grade', value: dto.grade!.trim()),
       if (dto.collectionStatus?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Collection Status', value: dto.collectionStatus!.trim()),
+        LibraryDetailField(
+            label: 'Collection Status', value: dto.collectionStatus!.trim()),
       if (dto.rating != null)
         LibraryDetailField(label: 'Rating', value: dto.rating!.toString()),
       if (dto.locationPath?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Location', value: dto.locationPath!.trim()),
       if (dto.pricePaidCents != null)
-        LibraryDetailField(label: 'Price Paid', value: dto.pricePaidCents!.toString()),
+        LibraryDetailField(
+            label: 'Price Paid', value: dto.pricePaidCents!.toString()),
       if (dto.notes?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Notes', value: dto.notes!.trim()),
       if (dto.tags?.trim().isNotEmpty == true)
@@ -789,7 +844,10 @@ List<String> _bookDiscoveryTagsForSelection({
   }
 
   addAll(item?.genres ?? preview?.genres ?? const <String>[]);
-  addAll(item?.series?.tags?.split(', ') ?? (preview?.series?.tags != null ? [preview!.series!.tags!] : const <String>[]));
+  addAll(item?.series?.tags?.split(', ') ??
+      (preview?.series?.tags != null
+          ? [preview!.series!.tags!]
+          : const <String>[]));
   addAll(
     item?.characters ??
         preview?.characters ??
@@ -804,5 +862,3 @@ List<String> _bookDiscoveryTagsForSelection({
   );
   return tags;
 }
-
-

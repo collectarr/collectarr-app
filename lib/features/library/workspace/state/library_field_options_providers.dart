@@ -13,6 +13,7 @@ class LibrarySortOption {
 
   final String id;
   final String label;
+
   /// Category name for grouping in the sort menu (e.g. 'Main', 'Metadata').
   final String group;
   final bool defaultAscending;
@@ -41,6 +42,7 @@ class LibraryColumnOption {
 
   final String id;
   final String label;
+
   /// Column group label for the column-chooser UI (e.g. 'Main', 'Music').
   final String group;
   final bool isNumeric;

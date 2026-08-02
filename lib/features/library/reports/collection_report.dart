@@ -41,7 +41,8 @@ enum ReportColumn {
       ReportColumn.barcode => dto.barcode ?? '',
       ReportColumn.barcodeImage => dto.barcode ?? '',
       ReportColumn.year => dto.releaseDate?.year.toString() ?? '',
-      ReportColumn.format => cat?.editions.firstOrNull?.physicalFormatLabel ?? '',
+      ReportColumn.format =>
+        cat?.editions.firstOrNull?.physicalFormatLabel ?? '',
       ReportColumn.creator => dto.creator ?? '',
       ReportColumn.tags => dto.tags ?? '',
       ReportColumn.location => dto.locationPath ?? '',
@@ -272,9 +273,8 @@ class _ReportColumnPickerDialogState extends State<_ReportColumnPickerDialog> {
               ? null
               : () {
                   // Maintain enum order
-                  final ordered = ReportColumn.values
-                      .where(_selected.contains)
-                      .toList();
+                  final ordered =
+                      ReportColumn.values.where(_selected.contains).toList();
                   Navigator.pop(context, ordered);
                 },
           child: const Text('Generate report'),

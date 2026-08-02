@@ -320,7 +320,8 @@ class CollectionMutations {
     switch (item.catalogRef.kind) {
       case 'comic':
       case 'manga':
-        final comic = existingDetails is ComicOwnedDetails ? existingDetails : null;
+        final comic =
+            existingDetails is ComicOwnedDetails ? existingDetails : null;
         details = ComicOwnedDetails(
           rawOrSlabbed: rawOrSlabbed ?? comic?.rawOrSlabbed,
           gradingCompany: gradingCompany ?? comic?.gradingCompany,
@@ -329,7 +330,8 @@ class CollectionMutations {
           labelType: labelType ?? comic?.labelType,
           customLabel: customLabel ?? comic?.customLabel,
           pageQuality: pageQuality ?? comic?.pageQuality,
-          certificationNumber: certificationNumber ?? comic?.certificationNumber,
+          certificationNumber:
+              certificationNumber ?? comic?.certificationNumber,
           keyComic: keyComic ?? comic?.keyComic ?? false,
           keyReason: keyReason ?? comic?.keyReason,
           keyCategory: keyCategory ?? comic?.keyCategory,
@@ -340,7 +342,8 @@ class CollectionMutations {
       case 'movie':
       case 'tv':
       case 'anime':
-        final video = existingDetails is VideoOwnedDetails ? existingDetails : null;
+        final video =
+            existingDetails is VideoOwnedDetails ? existingDetails : null;
         details = VideoOwnedDetails(
           features: features ?? video?.features,
           hdrFormats: hdrFormats ?? video?.hdrFormats ?? const <String>[],
@@ -351,7 +354,8 @@ class CollectionMutations {
           distributor: distributor ?? video?.distributor,
         );
       case 'game':
-        final game = existingDetails is GameOwnedDetails ? existingDetails : null;
+        final game =
+            existingDetails is GameOwnedDetails ? existingDetails : null;
         details = GameOwnedDetails(
           completeness: gameCompleteness ?? game?.completeness,
           hasBox: gameHasBox ?? game?.hasBox,
@@ -361,7 +365,8 @@ class CollectionMutations {
           valueIsLocked: gameValueIsLocked ?? game?.valueIsLocked,
         );
       case 'music':
-        final music = existingDetails is MusicOwnedDetails ? existingDetails : null;
+        final music =
+            existingDetails is MusicOwnedDetails ? existingDetails : null;
         details = MusicOwnedDetails(
           storageDevice: storageDevice ?? music?.storageDevice,
           storageSlot: storageSlot ?? music?.storageSlot,
@@ -626,9 +631,9 @@ class CollectionMutations {
     );
     final entityType = switch (resolvedAnchorType) {
       'edition' => CatalogEntityType.edition,
-    'season' => CatalogEntityType.season,
-    'variant' || 'bundle_release' => CatalogEntityType.release,
-    _ => CatalogEntityType.work,
+      'season' => CatalogEntityType.season,
+      'variant' || 'bundle_release' => CatalogEntityType.release,
+      _ => CatalogEntityType.work,
     };
     return CatalogEntityRef(
       kind: item.kind,

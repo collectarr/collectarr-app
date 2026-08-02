@@ -22,8 +22,8 @@ final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
   minCoverSize: kComicsMinCoverSize,
   maxCoverSize: kComicsMaxCoverSize,
   presetConfig: comicsViewPresetConfig,
-  clampColumnWidth: (column, width) =>
-      clampPlannedMediaTableColumnWidth(comicsLibraryConfig, column as String, width),
+  clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
+      comicsLibraryConfig, column as String, width),
   defaultDetailsWidth: 350,
   defaultDetailsLayout: LibraryDetailsLayout.right,
   hideDetailsWhenSelectionEmpty: false,
@@ -36,12 +36,12 @@ final comicsMediaAdapter = LibraryMediaAdapter(
   orderedTableColumns: orderedComicTableColumns,
   tableWidthForColumns: comicTableWidthForColumns,
   tableColumnWidth: comicTableColumnWidth,
-  defaultTableColumnWidth: (column) =>
-      defaultPlannedMediaTableColumnWidth(comicsLibraryConfig, column as String),
-  columnLabel: (column) =>
-      plannedMediaTableColumnLabelForType(comicsLibraryConfig, column as String),
-  columnDisplayName: (column) =>
-      plannedMediaTableColumnDisplayNameForType(comicsLibraryConfig, column as String),
+  defaultTableColumnWidth: (column) => defaultPlannedMediaTableColumnWidth(
+      comicsLibraryConfig, column as String),
+  columnLabel: (column) => plannedMediaTableColumnLabelForType(
+      comicsLibraryConfig, column as String),
+  columnDisplayName: (column) => plannedMediaTableColumnDisplayNameForType(
+      comicsLibraryConfig, column as String),
   columnGroup: (column) =>
       plannedMediaTableColumnGroup(comicsLibraryConfig, column as String),
   columnGroupLabel: plannedMediaTableColumnGroupLabel,
@@ -209,7 +209,9 @@ List<String> orderedComicTableColumns(
     );
 
 Set<String> defaultComicTableColumns() =>
-    Set.of(libraryKindModuleForType(comicsLibraryConfig).fields.defaultVisibleColumnIds);
+    Set.of(libraryKindModuleForType(comicsLibraryConfig)
+        .fields
+        .defaultVisibleColumnIds);
 
 double comicTableWidthForColumns(
   Set<String> columns,

@@ -78,7 +78,8 @@ String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
 }
 
 bool libraryShowsReadingQueue(Object? mediaType) {
-  final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(mediaType));
+  final type =
+      collectarrLibraryTypes.byKind(catalogMediaKindFromValue(mediaType));
   if (type == null) {
     return false;
   }
@@ -228,10 +229,14 @@ String? preferredVideoEditionVariantId(CatalogEdition edition) {
     resolveLibraryEntryReferenceRelease(
   LibraryProjectionRuntime item,
 ) {
-  final releaseNode = item.node is LibraryReleaseNodeRef ? (item.node as LibraryReleaseNodeRef) : null;
+  final releaseNode = item.node is LibraryReleaseNodeRef
+      ? (item.node as LibraryReleaseNodeRef)
+      : null;
   return resolveLibraryReferenceRelease(
     editionId: releaseNode?.releaseId,
-    variantId: releaseNode != null ? preferredVideoEditionVariantId(releaseNode.edition) : null,
+    variantId: releaseNode != null
+        ? preferredVideoEditionVariantId(releaseNode.edition)
+        : null,
     editions: item.source.catalogItem?.editions ?? const [],
   );
 }
@@ -271,16 +276,18 @@ String? resolveLibraryOwnedItemId(
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
 }) {
-  final releaseNode = item?.node is LibraryReleaseNodeRef ? (item!.node as LibraryReleaseNodeRef) : null;
+  final releaseNode = item?.node is LibraryReleaseNodeRef
+      ? (item!.node as LibraryReleaseNodeRef)
+      : null;
   final editionId = _normalizedEntryAnchorId(
-    ownedItem?.editionId ??
-        wishlistItem?.editionId ??
-        releaseNode?.releaseId,
+    ownedItem?.editionId ?? wishlistItem?.editionId ?? releaseNode?.releaseId,
   );
   final variantId = _normalizedEntryAnchorId(
     ownedItem?.variantId ??
         wishlistItem?.variantId ??
-        (releaseNode != null ? preferredVideoEditionVariantId(releaseNode.edition) : null),
+        (releaseNode != null
+            ? preferredVideoEditionVariantId(releaseNode.edition)
+            : null),
   );
   final bundleReleaseId = _normalizedEntryAnchorId(
     ownedItem?.bundleReleaseId ?? wishlistItem?.bundleReleaseId,

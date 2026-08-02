@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/shared/book/book_domain.dart';
 export 'package:collectarr_app/features/library/shared/book/book_domain.dart'
     show BookPhysicalDetails, BookOriginalDetails;
 
-
 class BookSeriesRef {
   const BookSeriesRef({
     required this.seriesId,
@@ -143,7 +142,8 @@ class BookCatalogItem {
   String? get itemNumber => null;
   String? get publisher => primaryRelease?.publisher;
   String? get coverImageUrl => primaryRelease?.coverImageUrl;
-  String? get thumbnailImageUrl => primaryRelease?.thumbnailImageUrl ?? primaryRelease?.coverImageUrl;
+  String? get thumbnailImageUrl =>
+      primaryRelease?.thumbnailImageUrl ?? primaryRelease?.coverImageUrl;
   BookOriginalDetails? get originalDetails => BookOriginalDetails(
         originalTitle: work.originalTitle,
         originalPublisher: work.originalPublisher,

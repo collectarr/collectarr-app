@@ -63,4 +63,3 @@ abstract final class PerfTrace {
     _emit('$name: ${elapsed.inMicroseconds / 1000}ms$extra');
   }
 }
-

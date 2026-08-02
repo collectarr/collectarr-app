@@ -223,7 +223,8 @@ void main() {
     expect(raw.isDigital, isTrue);
   });
 
-  test('tracking entries repository preserves edition and progress refs', () async {
+  test('tracking entries repository preserves edition and progress refs',
+      () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repo = TrackingEntriesCacheRepository(db);
@@ -335,7 +336,8 @@ void main() {
     expect(await queue.pendingCount(), 0);
   });
 
-  test('catalog cache repository preserves title sort and series tags', () async {
+  test('catalog cache repository preserves title sort and series tags',
+      () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repo = CatalogCacheRepository(db);

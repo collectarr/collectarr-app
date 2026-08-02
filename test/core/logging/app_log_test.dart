@@ -19,7 +19,8 @@ void main() {
     expect(entries.last.message, 'message-204');
   });
 
-  test('AppLogNotifier helper methods preserve level and clear resets state', () async {
+  test('AppLogNotifier helper methods preserve level and clear resets state',
+      () async {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 

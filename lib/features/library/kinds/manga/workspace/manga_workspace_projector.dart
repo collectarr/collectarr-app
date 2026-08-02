@@ -31,7 +31,8 @@ final class MangaWorkspaceProjector
     final manga = BookCatalogMapper.mapMetadataItemToBook(source.catalogItem!);
     return MangaWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
-      personal: PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      personal:
+          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       manga: manga,
     );
   }

@@ -53,8 +53,7 @@ class _MissingComicsDialogState extends State<_MissingComicsDialog> {
         verbose: _verbose,
       );
 
-  List<MissingComicSeriesReport> get _reports =>
-      buildMissingComicSeriesReports(
+  List<MissingComicSeriesReport> get _reports => buildMissingComicSeriesReports(
         widget.projection.allItems,
         options: _options,
       );
@@ -264,13 +263,15 @@ class _CompactRangeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final numbers = report.issueGroups.map((group) => group.issueNumber).toList();
+    final numbers =
+        report.issueGroups.map((group) => group.issueNumber).toList();
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
         if (compactRanges.isNotEmpty)
-          Chip(label: Text(compactRanges), visualDensity: VisualDensity.compact),
+          Chip(
+              label: Text(compactRanges), visualDensity: VisualDensity.compact),
         for (final number in numbers.take(12))
           ActionChip(
             label: Text(formatComicIssueLabel(number)),
@@ -318,7 +319,8 @@ class _VerboseIssueRow extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       title: Text(label),
       subtitle: includeVariants && variantLabels.isNotEmpty
-          ? Text('${variantLabels.length} variant${variantLabels.length == 1 ? '' : 's'}')
+          ? Text(
+              '${variantLabels.length} variant${variantLabels.length == 1 ? '' : 's'}')
           : null,
       trailing: IconButton(
         tooltip: 'Quick add',

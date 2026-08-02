@@ -103,6 +103,7 @@ final comicLibrarySortDefinitions = [
         if (dto.isWishlisted) return 1;
         return 2;
       }
+
       final res = rank(left).compareTo(rank(right));
       return res != 0 ? res : left.title.compareTo(right.title);
     },
@@ -132,8 +133,10 @@ final comicLibraryColumnDefinitions = [
   LibraryColumnDefinition<ComicWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('status'),
     label: 'Status',
-    getValue: (dto) => dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
-    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
+    getValue: (dto) =>
+        dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
+    cellValue: (dto) =>
+        Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -189,7 +192,8 @@ final comicLibraryColumnDefinitions = [
     group: 'Personal',
     defaultWidth: 112,
   ),
-  columnFromField(ComicKindSchema.location, group: 'Personal', defaultWidth: 118),
+  columnFromField(ComicKindSchema.location,
+      group: 'Personal', defaultWidth: 118),
   columnFromField(ComicKindSchema.condition, group: 'Value', defaultWidth: 124),
   columnFromField(
     ComicKindSchema.price,
@@ -199,7 +203,8 @@ final comicLibraryColumnDefinitions = [
     defaultWidth: 92,
     minWidth: 78,
   ),
-  columnFromField(ComicKindSchema.barcode, group: 'Edition', defaultWidth: 160, maxWidth: 260),
+  columnFromField(ComicKindSchema.barcode,
+      group: 'Edition', defaultWidth: 160, maxWidth: 260),
   LibraryColumnDefinition<ComicWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('rating'),
     label: 'Rating',

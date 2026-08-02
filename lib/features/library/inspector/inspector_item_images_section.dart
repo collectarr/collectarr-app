@@ -14,8 +14,8 @@ typedef _InspectorItemImagesRequest = ({
   String ownedItemId,
 });
 
-final _inspectorItemImagesProvider =
-    FutureProvider.autoDispose.family<List<ItemImage>, _InspectorItemImagesRequest>(
+final _inspectorItemImagesProvider = FutureProvider.autoDispose
+    .family<List<ItemImage>, _InspectorItemImagesRequest>(
   (ref, request) async {
     return ItemImageRepository(request.db).listForItem(request.ownedItemId);
   },
@@ -39,10 +39,11 @@ class InspectorItemImagesSection extends ConsumerWidget {
     final imagesAsync = ref.watch(_inspectorItemImagesProvider(request));
     final images = imagesAsync.value ?? const <ItemImage>[];
     final visibleImages = images
-      .where(
-        (image) =>
-          image.imageType != 'front_cover' && image.imageType != 'back_cover',
-      )
+        .where(
+          (image) =>
+              image.imageType != 'front_cover' &&
+              image.imageType != 'back_cover',
+        )
         .toList(growable: false);
 
     final groups = <String, List<ItemImage>>{};
@@ -114,7 +115,8 @@ class InspectorItemImagesSection extends ConsumerWidget {
       ownedItemId: ownedItemId,
     );
     if (savedType != null && context.mounted) {
-      ref.invalidate(_inspectorItemImagesProvider((db: db, ownedItemId: ownedItemId)));
+      ref.invalidate(
+          _inspectorItemImagesProvider((db: db, ownedItemId: ownedItemId)));
     }
   }
 
@@ -144,7 +146,8 @@ class InspectorItemImagesSection extends ConsumerWidget {
 
     final repo = ItemImagesCacheRepository(db);
     await repo.deleteById(imageId);
-    ref.invalidate(_inspectorItemImagesProvider((db: db, ownedItemId: ownedItemId)));
+    ref.invalidate(
+        _inspectorItemImagesProvider((db: db, ownedItemId: ownedItemId)));
   }
 }
 
@@ -185,10 +188,11 @@ class _InspectorThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dismissBackground = palette.panel.withValues(alpha: 0.84);
-    final dismissForeground = ThemeData.estimateBrightnessForColor(dismissBackground) ==
-            Brightness.dark
-        ? Colors.white
-        : Colors.black87;
+    final dismissForeground =
+        ThemeData.estimateBrightnessForColor(dismissBackground) ==
+                Brightness.dark
+            ? Colors.white
+            : Colors.black87;
     return Material(
       color: Colors.transparent,
       child: InkWell(

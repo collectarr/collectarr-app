@@ -51,7 +51,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       ownedItem?.comicDetails?.coverPriceCents,
       ownedItem?.currency,
     );
-    final sellPrice = formatMoney(ownedItem?.sellPriceCents, ownedItem?.currency);
+    final sellPrice =
+        formatMoney(ownedItem?.sellPriceCents, ownedItem?.currency);
     final profitLoss = _detailProfitLossLabel(ownedItem);
     final totalPaidCents = _sumOwnedValueCents(
       effectiveOwnedCopies,
@@ -61,16 +62,18 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       effectiveOwnedCopies,
       (item) => item.marketValueCents,
     );
-    final totalsCurrency = _detailValueCurrency(effectiveOwnedCopies, ownedItem, item);
+    final totalsCurrency =
+        _detailValueCurrency(effectiveOwnedCopies, ownedItem, item);
     final totalPaid = totalPaidCents == null
         ? ''
         : formatMoney(totalPaidCents, totalsCurrency);
     final totalCurrentValue = totalMarketValueCents == null
         ? ''
         : formatMoney(totalMarketValueCents, totalsCurrency);
-    final trackingStatus = trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
-      ? ownedItem?.readStatus
-      : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
+    final trackingStatus =
+        trackingEntry?.mediaTracking.statusLabel == 'Not tracked'
+            ? ownedItem?.readStatus
+            : trackingEntry?.mediaTracking.statusLabel ?? ownedItem?.readStatus;
     final trackingRating = trackingEntry?.rating ?? ownedItem?.rating;
     final trackingProgress = _detailTrackingProgressLabel(trackingEntry);
     final trackingEpisode = _detailTrackingEpisodeLabel(trackingEntry);
@@ -80,46 +83,102 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       children: [
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Status', value: genericLibraryStatusLabel(item)),
-            LibraryDetailField(label: 'Owned ID', value: genericLibraryDash(ownedItem?.id)),
-            LibraryDetailField(label: 'Condition', value: genericLibraryDash(ownedItem?.condition ?? dto.condition)),
-            LibraryDetailField(label: 'Grade', value: genericLibraryDash(ownedItem?.grade ?? dto.grade)),
-            LibraryDetailField(label: 'Quantity', value: ownedItem == null ? '-' : ownedItem!.quantity.toString()),
-            LibraryDetailField(label: 'Location', value: genericLibraryDash(dto.locationPath)),
+            LibraryDetailField(
+                label: 'Status', value: genericLibraryStatusLabel(item)),
+            LibraryDetailField(
+                label: 'Owned ID', value: genericLibraryDash(ownedItem?.id)),
+            LibraryDetailField(
+                label: 'Condition',
+                value:
+                    genericLibraryDash(ownedItem?.condition ?? dto.condition)),
+            LibraryDetailField(
+                label: 'Grade',
+                value: genericLibraryDash(ownedItem?.grade ?? dto.grade)),
+            LibraryDetailField(
+                label: 'Quantity',
+                value:
+                    ownedItem == null ? '-' : ownedItem!.quantity.toString()),
+            LibraryDetailField(
+                label: 'Location', value: genericLibraryDash(dto.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
-            LibraryDetailField(label: 'Current value', value: currentValue.isEmpty ? '-' : currentValue),
+            LibraryDetailField(
+                label: 'Current value',
+                value: currentValue.isEmpty ? '-' : currentValue),
             if (effectiveOwnedCopies.length > 1)
-              LibraryDetailField(label: 'Total paid', value: totalPaid.isEmpty ? '-' : totalPaid),
+              LibraryDetailField(
+                  label: 'Total paid',
+                  value: totalPaid.isEmpty ? '-' : totalPaid),
             if (effectiveOwnedCopies.length > 1)
-              LibraryDetailField(label: 'Total current value', value: totalCurrentValue.isEmpty ? '-' : totalCurrentValue),
-            LibraryDetailField(label: 'Cover price', value: coverPrice.isEmpty ? '-' : coverPrice),
-            LibraryDetailField(label: 'Purchased', value: genericLibraryDash(
-                formatNullableDate(ownedItem?.purchaseDate),
-              )),
-            LibraryDetailField(label: 'Sell price', value: sellPrice.isEmpty ? '-' : sellPrice),
-            LibraryDetailField(label: 'Profit / Loss', value: profitLoss ?? '-'),
-            LibraryDetailField(label: 'Sold to', value: genericLibraryDash(ownedItem?.soldTo)),
-            LibraryDetailField(label: 'Updated', value: formatNullableDate(ownedItem?.updatedAt ?? dto.updatedAt) ?? '-'),
-            LibraryDetailField(label: 'Read status', value: genericLibraryDash(trackingStatus)),
-            LibraryDetailField(label: 'Progress', value: genericLibraryDash(trackingProgress)),
-            LibraryDetailField(label: 'Episode', value: genericLibraryDash(trackingEpisode)),
-            LibraryDetailField(label: 'Rating', value: trackingRating?.toString() ?? '-'),
-            LibraryDetailField(label: 'Features', value: genericLibraryDash(ownedItem?.videoDetails?.features)),
-            LibraryDetailField(label: 'HDR Formats', value: (ownedItem?.videoDetails?.hdrFormats.isNotEmpty ?? false)
-                  ? ownedItem!.videoDetails!.hdrFormats.join(', ')
-                  : '-'),
-            LibraryDetailField(label: 'Purchase Store', value: genericLibraryDash(ownedItem?.purchaseStore)),
-            LibraryDetailField(label: 'Box Set', value: genericLibraryDash(ownedItem?.videoDetails?.boxSetName)),
-            LibraryDetailField(label: 'Storage Device', value: genericLibraryDash(ownedItem?.musicDetails?.storageDevice)),
-            LibraryDetailField(label: 'Storage Slot', value: genericLibraryDash(ownedItem?.musicDetails?.storageSlot)),
-            LibraryDetailField(label: 'Region', value: genericLibraryDash(ownedItem?.videoDetails?.region)),
-            LibraryDetailField(label: 'Packaging', value: genericLibraryDash(ownedItem?.videoDetails?.packaging)),
-            LibraryDetailField(label: 'Distributor', value: genericLibraryDash(ownedItem?.videoDetails?.distributor)),
+              LibraryDetailField(
+                  label: 'Total current value',
+                  value: totalCurrentValue.isEmpty ? '-' : totalCurrentValue),
+            LibraryDetailField(
+                label: 'Cover price',
+                value: coverPrice.isEmpty ? '-' : coverPrice),
+            LibraryDetailField(
+                label: 'Purchased',
+                value: genericLibraryDash(
+                  formatNullableDate(ownedItem?.purchaseDate),
+                )),
+            LibraryDetailField(
+                label: 'Sell price',
+                value: sellPrice.isEmpty ? '-' : sellPrice),
+            LibraryDetailField(
+                label: 'Profit / Loss', value: profitLoss ?? '-'),
+            LibraryDetailField(
+                label: 'Sold to', value: genericLibraryDash(ownedItem?.soldTo)),
+            LibraryDetailField(
+                label: 'Updated',
+                value:
+                    formatNullableDate(ownedItem?.updatedAt ?? dto.updatedAt) ??
+                        '-'),
+            LibraryDetailField(
+                label: 'Read status',
+                value: genericLibraryDash(trackingStatus)),
+            LibraryDetailField(
+                label: 'Progress', value: genericLibraryDash(trackingProgress)),
+            LibraryDetailField(
+                label: 'Episode', value: genericLibraryDash(trackingEpisode)),
+            LibraryDetailField(
+                label: 'Rating', value: trackingRating?.toString() ?? '-'),
+            LibraryDetailField(
+                label: 'Features',
+                value: genericLibraryDash(ownedItem?.videoDetails?.features)),
+            LibraryDetailField(
+                label: 'HDR Formats',
+                value: (ownedItem?.videoDetails?.hdrFormats.isNotEmpty ?? false)
+                    ? ownedItem!.videoDetails!.hdrFormats.join(', ')
+                    : '-'),
+            LibraryDetailField(
+                label: 'Purchase Store',
+                value: genericLibraryDash(ownedItem?.purchaseStore)),
+            LibraryDetailField(
+                label: 'Box Set',
+                value: genericLibraryDash(ownedItem?.videoDetails?.boxSetName)),
+            LibraryDetailField(
+                label: 'Storage Device',
+                value:
+                    genericLibraryDash(ownedItem?.musicDetails?.storageDevice)),
+            LibraryDetailField(
+                label: 'Storage Slot',
+                value:
+                    genericLibraryDash(ownedItem?.musicDetails?.storageSlot)),
+            LibraryDetailField(
+                label: 'Region',
+                value: genericLibraryDash(ownedItem?.videoDetails?.region)),
+            LibraryDetailField(
+                label: 'Packaging',
+                value: genericLibraryDash(ownedItem?.videoDetails?.packaging)),
+            LibraryDetailField(
+                label: 'Distributor',
+                value:
+                    genericLibraryDash(ownedItem?.videoDetails?.distributor)),
           ],
         ),
         if (trackingRating != null && trackingRating > 0) ...[
           const SizedBox(height: 10),
-          _DetailStarRating(rating: trackingRating, maxRating: 10, accent: accent),
+          _DetailStarRating(
+              rating: trackingRating, maxRating: 10, accent: accent),
         ],
         if (ownedItem?.personalNotes != null &&
             ownedItem!.personalNotes!.trim().isNotEmpty) ...[
@@ -235,7 +294,7 @@ class LibraryDetailLocalSnapshotSection extends StatelessWidget {
         SelectableText(
           [
             'catalog_id: ${item.node.titleItemId}',
-            'kind: ${item.source.catalogItem?.kind ?? '-'}' ,
+            'kind: ${item.source.catalogItem?.kind ?? '-'}',
             'owned_id: ${ownedItem?.id ?? '-'}',
             'edition_id: ${ownedItem?.editionId ?? '-'}',
             'variant_id: ${ownedItem?.variantId ?? '-'}',
@@ -298,5 +357,3 @@ class _DetailStarRating extends StatelessWidget {
     );
   }
 }
-
-

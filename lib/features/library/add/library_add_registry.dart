@@ -4,13 +4,20 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_contra
 typedef LibraryAddManualKindSpecificFactory = Map<String, dynamic> Function();
 
 class LibraryAddRegistry {
-  static final Map<CatalogMediaKind, LibraryAddManualPaneBuilder> _manualBuilders = {};
-  static final Map<CatalogMediaKind, LibraryAddPreviewPaneBuilder> _previewBuilders = {};
-  static final Map<CatalogMediaKind, LibraryAddHeaderBuilder> _headerBuilders = {};
-  static final Map<CatalogMediaKind, LibraryAddModeBarBuilder> _modeBarBuilders = {};
-  static final Map<CatalogMediaKind, LibraryAddSearchPaneBuilder> _searchBuilders = {};
-  static final Map<CatalogMediaKind, LibraryAddBottomBarBuilder> _bottomBuilders = {};
-  static final Map<CatalogMediaKind, LibraryAddManualKindSpecificFactory> _manualKindSpecificFactories = {};
+  static final Map<CatalogMediaKind, LibraryAddManualPaneBuilder>
+      _manualBuilders = {};
+  static final Map<CatalogMediaKind, LibraryAddPreviewPaneBuilder>
+      _previewBuilders = {};
+  static final Map<CatalogMediaKind, LibraryAddHeaderBuilder> _headerBuilders =
+      {};
+  static final Map<CatalogMediaKind, LibraryAddModeBarBuilder>
+      _modeBarBuilders = {};
+  static final Map<CatalogMediaKind, LibraryAddSearchPaneBuilder>
+      _searchBuilders = {};
+  static final Map<CatalogMediaKind, LibraryAddBottomBarBuilder>
+      _bottomBuilders = {};
+  static final Map<CatalogMediaKind, LibraryAddManualKindSpecificFactory>
+      _manualKindSpecificFactories = {};
 
   static void registerManualBuilder(
     CatalogMediaKind kind,
@@ -30,7 +37,8 @@ class LibraryAddRegistry {
     _previewBuilders[kind] = builder;
   }
 
-  static LibraryAddPreviewPaneBuilder? previewBuilderFor(CatalogMediaKind kind) {
+  static LibraryAddPreviewPaneBuilder? previewBuilderFor(
+      CatalogMediaKind kind) {
     return _previewBuilders[kind];
   }
 
@@ -81,11 +89,13 @@ class LibraryAddRegistry {
     _manualKindSpecificFactories[kind] = factory;
   }
 
-  static LibraryAddManualKindSpecificFactory? manualKindSpecificFactoryFor(CatalogMediaKind kind) {
+  static LibraryAddManualKindSpecificFactory? manualKindSpecificFactoryFor(
+      CatalogMediaKind kind) {
     return _manualKindSpecificFactories[kind];
   }
 
-  static LibraryAddBottomBarBuilder? bottomBarBuilderFor(CatalogMediaKind kind) {
+  static LibraryAddBottomBarBuilder? bottomBarBuilderFor(
+      CatalogMediaKind kind) {
     return _bottomBuilders[kind];
   }
 }

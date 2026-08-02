@@ -30,8 +30,10 @@ void main() {
     expect(find.text('Use dev credentials'), findsOneWidget);
     expect(find.text('Local personal database'), findsNothing);
     expect(find.text('Ready'), findsNothing);
-    expect(find.text('Dev credentials: user@example.com / password123'), findsNothing);
-    expect(find.text('Metadata account gates server search only.'), findsNothing);
+    expect(find.text('Dev credentials: user@example.com / password123'),
+        findsNothing);
+    expect(
+        find.text('Metadata account gates server search only.'), findsNothing);
     expect(find.text('Last account:'), findsNothing);
   });
 }

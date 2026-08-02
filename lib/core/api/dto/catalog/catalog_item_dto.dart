@@ -305,7 +305,8 @@ sealed class CatalogItemDto {
     );
     final vMap = (json['video'] as Map<String, dynamic>?) ?? json;
     final video = VideoCatalogDetailsDto(
-      runtimeMinutes: (vMap['runtime_minutes'] ?? json['runtime_minutes']) as int?,
+      runtimeMinutes:
+          (vMap['runtime_minutes'] ?? json['runtime_minutes']) as int?,
       color: (vMap['color'] ?? json['color']) as String?,
       nrDiscs: (vMap['nr_discs'] ?? json['nr_discs']) as int?,
       screenRatio: (vMap['screen_ratio'] ?? json['screen_ratio']) as String?,
@@ -313,10 +314,12 @@ sealed class CatalogItemDto {
       subtitles: (vMap['subtitles'] ?? json['subtitles']) as String?,
       layers: (vMap['layers'] ?? json['layers']) as String?,
       ageRating: (vMap['age_rating'] ?? json['age_rating']) as String?,
-      audienceRating: (vMap['audience_rating'] ?? json['audience_rating']) as String?,
+      audienceRating:
+          (vMap['audience_rating'] ?? json['audience_rating']) as String?,
     );
     final tracks = (json['tracks'] as List<dynamic>?)
-        ?.map((track) => CatalogTrackDto.fromJson(track as Map<String, dynamic>))
+        ?.map(
+            (track) => CatalogTrackDto.fromJson(track as Map<String, dynamic>))
         .toList(growable: false);
     final musicDiscs = (json['music_discs'] as List<dynamic>?)
         ?.whereType<Map<String, dynamic>>()
@@ -381,8 +384,12 @@ sealed class CatalogItemDto {
       firstEdition: json['first_edition'] as bool?,
       dewey: json['dewey'] as String?,
     );
-    final editions = ((json['editions'] ?? json['episodes'] ?? json['releases'] ?? json['issues']) as List<dynamic>?)
-        ?.map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e as Map)))
+    final editions = ((json['editions'] ??
+            json['episodes'] ??
+            json['releases'] ??
+            json['issues']) as List<dynamic>?)
+        ?.map((e) =>
+            CatalogEditionDto.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList(growable: false);
     return CatalogItemDto(
       id: json['id'] as String,
@@ -641,8 +648,6 @@ sealed class CatalogItemDto {
   }
 }
 
-
-
 typedef CatalogItem = CatalogItemDto;
 typedef TrailerLink = TrailerLinkDto;
 
@@ -735,8 +740,6 @@ final class GenericCatalogItemDto extends TypedCatalogItemDto {
         );
 }
 
-
-
 class CatalogItemCommonDto {
   const CatalogItemCommonDto({
     required this.id,
@@ -825,7 +828,8 @@ CatalogSeriesDetailsDto? _seriesOrNull(CatalogSeriesDetailsDto details) {
   return details.hasData ? details : null;
 }
 
-CatalogPublishingDetailsDto? _publishingOrNull(CatalogPublishingDetailsDto details) {
+CatalogPublishingDetailsDto? _publishingOrNull(
+    CatalogPublishingDetailsDto details) {
   return details.hasData ? details : null;
 }
 
@@ -848,7 +852,8 @@ List<String>? _normalizeStringList(List<String>? values) {
   return values.toList(growable: false);
 }
 
-List<CatalogEditionDto>? _normalizeEditionList(List<CatalogEditionDto>? values) {
+List<CatalogEditionDto>? _normalizeEditionList(
+    List<CatalogEditionDto>? values) {
   if (values == null || values.isEmpty) {
     return null;
   }

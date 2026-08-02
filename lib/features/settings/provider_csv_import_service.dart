@@ -112,7 +112,12 @@ class ProviderCsvImportService {
   ) {
     final candidates = switch (provider) {
       ProviderImportId.imdb => const ['const', 'id'],
-      ProviderImportId.goodReads => const ['book_id', 'book id', 'id', 'isbn13'],
+      ProviderImportId.goodReads => const [
+          'book_id',
+          'book id',
+          'id',
+          'isbn13'
+        ],
       ProviderImportId.howLongToBeat => const ['id', 'game_id'],
       ProviderImportId.trakt => const ['trakt_id', 'id', 'slug'],
       ProviderImportId.simkl => const ['id', 'simkl_id'],
@@ -179,7 +184,9 @@ class ProviderCsvImportService {
         _ => ImportItemStatus.unknown,
       };
     }
-    if (raw.contains('read') || raw.contains('watched') || raw.contains('completed')) {
+    if (raw.contains('read') ||
+        raw.contains('watched') ||
+        raw.contains('completed')) {
       return ImportItemStatus.completed;
     }
     if (raw.contains('currently') ||
@@ -189,7 +196,10 @@ class ProviderCsvImportService {
         raw.contains('in progress')) {
       return ImportItemStatus.inProgress;
     }
-    if (raw.contains('plan') || raw.contains('to read') || raw.contains('to watch') || raw.contains('backlog')) {
+    if (raw.contains('plan') ||
+        raw.contains('to read') ||
+        raw.contains('to watch') ||
+        raw.contains('backlog')) {
       return ImportItemStatus.planned;
     }
     if (raw.contains('hold') || raw.contains('paused')) {
@@ -198,7 +208,9 @@ class ProviderCsvImportService {
     if (raw.contains('drop') || raw.contains('abandon')) {
       return ImportItemStatus.dropped;
     }
-    if (raw.contains('wish') || raw.contains('favorite') || raw.contains('favourite')) {
+    if (raw.contains('wish') ||
+        raw.contains('favorite') ||
+        raw.contains('favourite')) {
       return ImportItemStatus.wishlist;
     }
     return ImportItemStatus.unknown;

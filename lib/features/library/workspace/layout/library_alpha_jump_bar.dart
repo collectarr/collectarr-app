@@ -71,9 +71,8 @@ class LibraryAlphaJumpBar extends StatelessWidget {
   Widget _buildLetterChip(BuildContext context, String letter) {
     final palette = appPalette(context);
     final isAll = letter == 'All';
-    final isSelected = isAll
-        ? selectedLetter == null
-        : selectedLetter == letter;
+    final isSelected =
+        isAll ? selectedLetter == null : selectedLetter == letter;
     final isAvailable = isAll || availableLetters.contains(letter);
 
     return Expanded(
@@ -84,29 +83,29 @@ class LibraryAlphaJumpBar extends StatelessWidget {
               ? () => onLetterSelected(isAll ? null : letter)
               : null,
           child: Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isSelected ? accent.withValues(alpha: 0.35) : null,
-            border: isSelected
-                ? Border(
-                    bottom: BorderSide(color: accent, width: 2),
-                  )
-                : null,
-          ),
-          child: Text(
-            letter,
-            style: TextStyle(
-              fontSize: isAll ? 10 : 11,
-              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-              color: isSelected
-                  ? accent
-                  : isAvailable
-                      ? palette.textMuted.withValues(alpha: 0.85)
-                      : palette.textMuted.withValues(alpha: 0.35),
-              letterSpacing: 0.5,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: isSelected ? accent.withValues(alpha: 0.35) : null,
+              border: isSelected
+                  ? Border(
+                      bottom: BorderSide(color: accent, width: 2),
+                    )
+                  : null,
+            ),
+            child: Text(
+              letter,
+              style: TextStyle(
+                fontSize: isAll ? 10 : 11,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                color: isSelected
+                    ? accent
+                    : isAvailable
+                        ? palette.textMuted.withValues(alpha: 0.85)
+                        : palette.textMuted.withValues(alpha: 0.35),
+                letterSpacing: 0.5,
+              ),
             ),
           ),
-        ),
         ),
       ),
     );

@@ -170,8 +170,7 @@ void main() {
 
   test('kind ui adapter owns track search and group mode categories', () {
     expect(
-      musicLibraryConfig.kindUiAdapter
-          .supportsTrackSearch(musicLibraryConfig),
+      musicLibraryConfig.kindUiAdapter.supportsTrackSearch(musicLibraryConfig),
       isTrue,
     );
     expect(
@@ -183,11 +182,7 @@ void main() {
     final comicCategories =
         comicsLibraryConfig.kindUiAdapter.groupModeCategories(
       comicsLibraryConfig,
-      [
-        'series',
-        'grade',
-        'writer'
-      ],
+      ['series', 'grade', 'writer'],
     );
     expect(comicCategories.map((category) => category.label), [
       'Main',

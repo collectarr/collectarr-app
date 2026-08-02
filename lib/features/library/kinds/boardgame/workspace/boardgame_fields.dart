@@ -95,6 +95,7 @@ final boardGamesLibrarySortDefinitions = [
         if (dto.isWishlisted) return 1;
         return 2;
       }
+
       final res = rank(left).compareTo(rank(right));
       return res != 0 ? res : left.title.compareTo(right.title);
     },
@@ -123,8 +124,10 @@ final boardGamesLibraryColumnDefinitions = [
   LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('status'),
     label: 'Status',
-    getValue: (dto) => dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
-    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
+    getValue: (dto) =>
+        dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
+    cellValue: (dto) =>
+        Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -179,8 +182,10 @@ final boardGamesLibraryColumnDefinitions = [
     group: 'Personal',
     defaultWidth: 112,
   ),
-  columnFromField(BoardGameKindSchema.location, group: 'Personal', defaultWidth: 118),
-  columnFromField(BoardGameKindSchema.condition, group: 'Value', defaultWidth: 124),
+  columnFromField(BoardGameKindSchema.location,
+      group: 'Personal', defaultWidth: 118),
+  columnFromField(BoardGameKindSchema.condition,
+      group: 'Value', defaultWidth: 124),
   columnFromField(
     BoardGameKindSchema.price,
     cellValue: (dto) => Text(_formatCents(dto.pricePaidCents, dto.currency)),
@@ -189,7 +194,8 @@ final boardGamesLibraryColumnDefinitions = [
     defaultWidth: 92,
     minWidth: 78,
   ),
-  columnFromField(BoardGameKindSchema.barcode, group: 'Edition', defaultWidth: 160, maxWidth: 260),
+  columnFromField(BoardGameKindSchema.barcode,
+      group: 'Edition', defaultWidth: 160, maxWidth: 260),
   LibraryColumnDefinition<BoardGameWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('rating'),
     label: 'Rating',

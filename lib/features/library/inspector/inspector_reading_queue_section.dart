@@ -105,7 +105,9 @@ class _InspectorReadingQueueSectionState
               ),
             IconButton(
               icon: Icon(
-                _inQueue ? Icons.remove_circle_outline : Icons.add_circle_outline,
+                _inQueue
+                    ? Icons.remove_circle_outline
+                    : Icons.add_circle_outline,
                 size: 16,
               ),
               tooltip: _inQueue ? 'Remove from queue' : 'Add to queue',

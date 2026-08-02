@@ -193,9 +193,8 @@ class LibraryToolbarActionRegistry {
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
     final kindCapabilities = availability.capabilities;
-    final kindToolbarActions = libraryKindModuleForType(actionContext.view.type)
-        .toolbar
-        .actions;
+    final kindToolbarActions =
+        libraryKindModuleForType(actionContext.view.type).toolbar.actions;
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
     final extraUtilityActions = kindToolbarActions
         .map(
@@ -206,8 +205,7 @@ class LibraryToolbarActionRegistry {
               projection: projection,
               onJumpToNumberSubmitted: projection == null
                   ? null
-                  : (value) =>
-                      actionContext.metadata.onJumpToNumberSubmitted(
+                  : (value) => actionContext.metadata.onJumpToNumberSubmitted(
                         projection,
                         value,
                       ),
@@ -231,17 +229,18 @@ class LibraryToolbarActionRegistry {
           ? actionContext.search.onSearchTargetChanged
           : null,
       onClearSearch: actionContext.search.onClearSearch,
-      onSearchSuggestionSelected: actionContext.search.onSearchSuggestionSelected,
+      onSearchSuggestionSelected:
+          actionContext.search.onSearchSuggestionSelected,
       onEditColumns: enabled(LibraryToolbarActionId.editColumns)
           ? actionContext.view.onShowColumnChooserFlow
           : () {},
-      onSortChanged: (String column) =>
-          actionContext.view.onUpdateViewState(
+      onSortChanged: (String column) => actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) =>
             next.withSortColumn(column, actionContext.view.adapter.viewProfile),
       ),
       onEditSort: actionContext.view.onShowSortDialogFlow,
-      onSidebarVisibilityChanged: actionContext.view.onSetGroupingPanelVisibility,
+      onSidebarVisibilityChanged:
+          actionContext.view.onSetGroupingPanelVisibility,
       onViewModeChanged: (LibraryViewMode mode) =>
           actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.copyWith(viewMode: mode),
@@ -305,25 +304,28 @@ class LibraryToolbarActionRegistry {
           : null,
       onEditConditionPickList:
           actionContext.adminActions.onShowConditionPickListEditorFlow,
-      onEditGradePickList: actionContext.adminActions.onShowGradePickListEditorFlow,
+      onEditGradePickList:
+          actionContext.adminActions.onShowGradePickListEditorFlow,
       onEditTagPickList: actionContext.adminActions.onShowTagPickListEditorFlow,
       onTransferFieldData: projection == null
           ? null
-          : () => actionContext.collectionActions.onTransferFieldData(projection),
+          : () =>
+              actionContext.collectionActions.onTransferFieldData(projection),
       onReassignIndex: projection == null || !kindCapabilities.canReassignIndex
           ? null
           : () => actionContext.collectionActions.onReassignIndex(projection),
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty
           ? () => actionContext.collectionActions.onPrintReport(projection)
           : null,
-      onShareCollection:
-          projection != null && projection.filteredItems.isNotEmpty
-              ? () => actionContext.collectionActions.onShareCollection(projection)
-              : null,
+      onShareCollection: projection != null &&
+              projection.filteredItems.isNotEmpty
+          ? () => actionContext.collectionActions.onShareCollection(projection)
+          : null,
       onCompareMetadataWithServer: (() {
         if (projection == null ||
             !kindCapabilities.canCompareMetadataWithServer ||
-            !actionContext.view.type.kindUiAdapter.supportsMetadataCompareWithServer(
+            !actionContext.view.type.kindUiAdapter
+                .supportsMetadataCompareWithServer(
               actionContext.view.type,
             )) {
           return null;
@@ -331,7 +333,8 @@ class LibraryToolbarActionRegistry {
         final selected =
             actionContext.metadata.selectedProjectionItemFor(projection);
         if (selected == null ||
-            !actionContext.metadata.canCompareMetadataWithServerItem(selected)) {
+            !actionContext.metadata
+                .canCompareMetadataWithServerItem(selected)) {
           return null;
         }
         return () async {

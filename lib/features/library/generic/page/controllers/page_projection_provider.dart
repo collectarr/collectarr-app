@@ -218,10 +218,10 @@ final libraryProjectionProvider = Provider.autoDispose
 final libraryProjectionCacheProvider =
     FutureProvider.family<LibraryProjectionCache, String?>((ref, mediaKind) {
   return ref.watch(libraryCustomFieldCacheProvider(mediaKind).future).then(
-    (cache) => LibraryProjectionCache(
-      valuesByItem: cache.valuesByItem,
-      valuesByDefinitionByItem: cache.valuesByDefinitionByItem,
-      definitions: cache.definitions,
-    ),
-  );
+        (cache) => LibraryProjectionCache(
+          valuesByItem: cache.valuesByItem,
+          valuesByDefinitionByItem: cache.valuesByDefinitionByItem,
+          definitions: cache.definitions,
+        ),
+      );
 });

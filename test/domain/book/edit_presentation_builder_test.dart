@@ -57,16 +57,16 @@ void main() {
   test('maps read history to different builders through scope selection', () {
     expect(
       presentation.builderForScope(LibraryEditScope.media).buildTabSectionIds(
-        context: contextFor(LibraryEditScope.media),
-        tabId: 'read_history',
-      ),
+            context: contextFor(LibraryEditScope.media),
+            tabId: 'read_history',
+          ),
       ['book_read_history'],
     );
     expect(
       presentation.builderForScope(LibraryEditScope.release).buildTabSectionIds(
-        context: contextFor(LibraryEditScope.release),
-        tabId: 'read_history',
-      ),
+            context: contextFor(LibraryEditScope.release),
+            tabId: 'read_history',
+          ),
       ['book_read_history'],
     );
   });

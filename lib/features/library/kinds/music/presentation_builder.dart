@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:flutter/material.dart';
 
 class MusicLibraryMediaPresentationBuilder
-  extends LibraryMediaPresentationBuilder {
+    extends LibraryMediaPresentationBuilder {
   const MusicLibraryMediaPresentationBuilder({
     this.metadataLabels = const LibraryMetadataLabels(),
   });
@@ -78,7 +78,8 @@ class MusicLibraryMediaPresentationBuilder
         preview?.series?.seriesTitle ??
         candidate?.series?.seriesTitle;
     final releaseDetails = item?.music ?? preview?.music;
-    final coverUrl = item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
+    final coverUrl =
+        item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
     final genres = item?.genres ?? preview?.genres ?? const <String>[];
     final albumSubtitle = _musicAlbumSubtitle(item: item, preview: preview);
     final releaseLine = _musicReleaseLine(
@@ -111,7 +112,8 @@ class MusicLibraryMediaPresentationBuilder
       genreLine: genreLine.isEmpty ? null : genreLine,
       subLine: subLine,
       coverUrl: coverUrl,
-      itemNumber: item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber,
+      itemNumber:
+          item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber,
       tracks: tracks,
       trackCount: releaseDetails?.trackCount ?? tracks.length,
       isFetchingPreview: isFetchingPreview,
@@ -142,32 +144,51 @@ class MusicLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (series?.seriesTitle != null)
-          LibraryDetailField(label: 'Artist', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
+          LibraryDetailField(
+              label: 'Artist',
+              value: series!.seriesTitle!,
+              onTap: tapFor(series.seriesTitle)),
         if (series?.volumeName != null || series?.volumeNumber != null)
-          LibraryDetailField(label: 'Disc', value: series?.volumeName ?? 'Disc ${series?.volumeNumber}'),
+          LibraryDetailField(
+              label: 'Disc',
+              value: series?.volumeName ?? 'Disc ${series?.volumeNumber}'),
         if (dto.variant != null)
-          LibraryDetailField(label: releaseFields.variantLabel, value: dto.variant!, onTap: tapFor(dto.variant)),
+          LibraryDetailField(
+              label: releaseFields.variantLabel,
+              value: dto.variant!,
+              onTap: tapFor(dto.variant)),
         if (dto.barcode != null)
-          LibraryDetailField(label: releaseFields.barcodeLabel, value: dto.barcode!),
+          LibraryDetailField(
+              label: releaseFields.barcodeLabel, value: dto.barcode!),
       ],
       contextFacts: [
         if (series?.seriesTitle != null)
-          LibraryDetailField(label: 'Artist', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
+          LibraryDetailField(
+              label: 'Artist',
+              value: series!.seriesTitle!,
+              onTap: tapFor(series.seriesTitle)),
         LibraryDetailField(label: 'Album', value: dto.title),
         if (dto.publisher != null)
-          LibraryDetailField(label: 'Label', value: dto.publisher!, onTap: tapFor(dto.publisher)),
-        LibraryDetailField(label: 'Released', value: genericLibraryDash(
-            formatPresentationNullableDate(dto.releaseDate) ??
-                dto.releaseDate?.year.toString(),
-          )),
+          LibraryDetailField(
+              label: 'Label',
+              value: dto.publisher!,
+              onTap: tapFor(dto.publisher)),
+        LibraryDetailField(
+            label: 'Released',
+            value: genericLibraryDash(
+              formatPresentationNullableDate(dto.releaseDate) ??
+                  dto.releaseDate?.year.toString(),
+            )),
         if (music?.trackCount != null)
-          LibraryDetailField(label: 'Tracks', value: music!.trackCount.toString()),
+          LibraryDetailField(
+              label: 'Tracks', value: music!.trackCount.toString()),
         if (music?.discCount case final discCount?)
           LibraryDetailField(label: 'Disc count', value: discCount.toString()),
         if (music?.catalogNumber != null)
           LibraryDetailField(label: 'Catalog #', value: music!.catalogNumber!),
         if (music?.releaseStatus != null)
-          LibraryDetailField(label: 'Release Status', value: music!.releaseStatus!),
+          LibraryDetailField(
+              label: 'Release Status', value: music!.releaseStatus!),
         if (dto.country != null)
           LibraryDetailField(label: 'Country', value: dto.country!),
         if (dto.language != null)
@@ -179,9 +200,18 @@ class MusicLibraryMediaPresentationBuilder
         if (music?.rpm != null)
           LibraryDetailField(label: 'RPM', value: music!.rpm!),
         if (catalogItem?.audienceRating != null)
-          LibraryDetailField(label: 'Audience Rating', value: catalogItem!.audienceRating!),
-        LibraryDetailField(label: 'Cover', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty ? 'Missing' : 'Ready'),
-        LibraryDetailField(label: 'Metadata', value: dto.publisher == null || dto.publisher!.isEmpty ? 'Missing' : 'Ready'),
+          LibraryDetailField(
+              label: 'Audience Rating', value: catalogItem!.audienceRating!),
+        LibraryDetailField(
+            label: 'Cover',
+            value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
+                ? 'Missing'
+                : 'Ready'),
+        LibraryDetailField(
+            label: 'Metadata',
+            value: dto.publisher == null || dto.publisher!.isEmpty
+                ? 'Missing'
+                : 'Ready'),
       ],
       creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
       characters: catalogItem?.characters ?? const <String>[],
@@ -496,18 +526,18 @@ class _MusicAddPreviewPane extends StatelessWidget {
                           if (tracks.isNotEmpty) ...[
                             const SizedBox(height: 4),
                             Expanded(
-                                child: ListView(
-                                  children: [
-                                    for (final group in trackGroups)
-                                      ..._buildTrackGroupWidgets(group),
-                                  ],
+                              child: ListView(
+                                children: [
+                                  for (final group in trackGroups)
+                                    ..._buildTrackGroupWidgets(group),
+                                ],
                               ),
                             ),
                           ] else
                             Expanded(
                               child: Center(
                                 child: Text(
-                                    _trackListPlaceholder(),
+                                  _trackListPlaceholder(),
                                   style: TextStyle(
                                     color: palette.textMuted,
                                     fontWeight: FontWeight.w600,
@@ -562,7 +592,8 @@ class _MusicAddPreviewPane extends StatelessWidget {
   }) {
     final palette = appPalette(context);
     final stacked = maxWidth < 560;
-    final coverSize = math.min(stacked ? 160.0 : 180.0, math.max(0.0, maxWidth));
+    final coverSize =
+        math.min(stacked ? 160.0 : 180.0, math.max(0.0, maxWidth));
     final showCover = coverSize >= 72;
     final trackGroups = _groupTracksByDisc(tracks);
     final details = Column(
@@ -780,15 +811,18 @@ String? _musicLabelCatalogLine({
   required ProviderCandidate? candidate,
 }) {
   final parts = <String>[];
-  final format = item?.variant ?? preview?.variantName ?? candidate?.variantName;
+  final format =
+      item?.variant ?? preview?.variantName ?? candidate?.variantName;
   if (format != null && format.trim().isNotEmpty) {
     parts.add(format.trim());
   }
-  final catalogNumber = item?.music?.catalogNumber ?? preview?.music?.catalogNumber;
+  final catalogNumber =
+      item?.music?.catalogNumber ?? preview?.music?.catalogNumber;
   if (catalogNumber != null && catalogNumber.trim().isNotEmpty) {
     parts.add(catalogNumber.trim());
   }
-  final publisher = item?.publisher ?? preview?.publisher ?? candidate?.publisher;
+  final publisher =
+      item?.publisher ?? preview?.publisher ?? candidate?.publisher;
   if (parts.isEmpty && publisher != null && publisher.trim().isNotEmpty) {
     return publisher.trim();
   }
@@ -801,7 +835,8 @@ String? _musicSupportingLine({
   required ProviderCandidate? candidate,
 }) {
   final values = <String>[];
-  final publisher = item?.publisher ?? preview?.publisher ?? candidate?.publisher;
+  final publisher =
+      item?.publisher ?? preview?.publisher ?? candidate?.publisher;
   if (publisher != null && publisher.trim().isNotEmpty) {
     values.add(publisher.trim());
   }
@@ -828,12 +863,14 @@ String? _musicAlbumSubtitle({
     if (value == null || value.isEmpty) {
       continue;
     }
-    if (albumTitle != null && value.toLowerCase() == albumTitle.trim().toLowerCase()) {
+    if (albumTitle != null &&
+        value.toLowerCase() == albumTitle.trim().toLowerCase()) {
       continue;
     }
     return value;
   }
-  final volumeNumber = item?.series?.volumeNumber ?? preview?.series?.volumeNumber;
+  final volumeNumber =
+      item?.series?.volumeNumber ?? preview?.series?.volumeNumber;
   final volumeInt = int.tryParse(volumeNumber ?? '');
   if (volumeInt != null && volumeInt > 1) {
     return 'Disc $volumeNumber';

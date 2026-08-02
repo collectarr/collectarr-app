@@ -120,6 +120,7 @@ final bookLibrarySortDefinitions = [
         if (dto.isWishlisted) return 1;
         return 2;
       }
+
       final res = rank(left).compareTo(rank(right));
       return res != 0 ? res : left.title.compareTo(right.title);
     },
@@ -152,8 +153,10 @@ final bookLibraryColumnDefinitions = [
   LibraryColumnDefinition<BookWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('status'),
     label: 'Status',
-    getValue: (dto) => dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
-    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
+    getValue: (dto) =>
+        dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
+    cellValue: (dto) =>
+        Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -208,7 +211,8 @@ final bookLibraryColumnDefinitions = [
     group: 'Personal',
     defaultWidth: 112,
   ),
-  columnFromField(BookKindSchema.location, group: 'Personal', defaultWidth: 118),
+  columnFromField(BookKindSchema.location,
+      group: 'Personal', defaultWidth: 118),
   columnFromField(BookKindSchema.condition, group: 'Value', defaultWidth: 124),
   columnFromField(
     BookKindSchema.price,
@@ -233,7 +237,8 @@ final bookLibraryColumnDefinitions = [
     defaultWidth: 170,
     maxWidth: 420,
   ),
-  columnFromField(BookKindSchema.isbn, group: 'Edition', defaultWidth: 160, maxWidth: 260),
+  columnFromField(BookKindSchema.isbn,
+      group: 'Edition', defaultWidth: 160, maxWidth: 260),
   columnFromField(BookKindSchema.author, defaultWidth: 160),
   LibraryColumnDefinition<BookWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('read_status'),

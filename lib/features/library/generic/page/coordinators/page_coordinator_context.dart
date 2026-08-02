@@ -323,8 +323,7 @@ class LibraryPageCoordinatorContext {
 
   List<LibrarySortFavorite> get sortFavorites => _getSortFavorites();
   LibrarySortFavorite? get activeSortFavorite => _getActiveSortFavorite();
-  List<String> get scopeAvailableSortColumns =>
-      _getScopeAvailableSortColumns();
+  List<String> get scopeAvailableSortColumns => _getScopeAvailableSortColumns();
 
   bool get isScanningCover => _getIsScanningCover();
   set isScanningCover(bool value) => _setIsScanningCover(value);

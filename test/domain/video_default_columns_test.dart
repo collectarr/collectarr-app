@@ -6,13 +6,16 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('video list defaults stay media-focused', () {
     for (final config in [moviesLibraryConfig]) {
-      final defaultVisibleColumnIds = libraryKindModuleForKind(config.workspace.kind).fields.defaultVisibleColumnIds;
+      final defaultVisibleColumnIds =
+          libraryKindModuleForKind(config.workspace.kind)
+              .fields
+              .defaultVisibleColumnIds;
       expect(
         defaultVisibleColumnIds,
         containsAll(<String>{
-          'title',
-          'release_date',
-          'publisher',
+          'movie.title',
+          'movie.release_date',
+          'movie.publisher',
         }),
       );
       expect(

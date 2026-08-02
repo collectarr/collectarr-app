@@ -153,19 +153,19 @@ extension CollectionMutationsTracking on CollectionMutations {
           await _trackingCache().findActiveByItemIds([seriesRef.id]);
       final summaryEntry = _summaryTrackingEntryForItem(trackingEntries);
       final unit = TrackingUnit(
-          id: unitId,
-          targetRef: episodeRef,
-          trackingEntryId: summaryEntry?.id,
-          ownedItemId: summaryEntry?.ownedItemId,
-          editionId: summaryEntry?.editionId,
-          variantId: summaryEntry?.variantId,
-          bundleReleaseId: summaryEntry?.bundleReleaseId,
-          unitType: TrackingUnitType.episode,
-          seasonNumber: seasonNumber,
-          episodeNumber: episodeNumber,
-          completedAt: now,
-          updatedAt: now,
-        );
+        id: unitId,
+        targetRef: episodeRef,
+        trackingEntryId: summaryEntry?.id,
+        ownedItemId: summaryEntry?.ownedItemId,
+        editionId: summaryEntry?.editionId,
+        variantId: summaryEntry?.variantId,
+        bundleReleaseId: summaryEntry?.bundleReleaseId,
+        unitType: TrackingUnitType.episode,
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
+        completedAt: now,
+        updatedAt: now,
+      );
       await _trackingUnitsCache().upsert(unit);
       await _enqueueTrackingUnit(unit, 'upsert', now);
       // T6: Record a watch session for this episode.
@@ -182,7 +182,8 @@ extension CollectionMutationsTracking on CollectionMutations {
       await _enqueueWatchSession(session, 'upsert', now);
     } else if (existingUnit != null && !existingUnit.isDeleted) {
       await _trackingUnitsCache().markDeleted(existingUnit, now);
-      await _enqueueTrackingUnit(existingUnit.copyWith(deletedAt: now, updatedAt: now), 'delete', now);
+      await _enqueueTrackingUnit(
+          existingUnit.copyWith(deletedAt: now, updatedAt: now), 'delete', now);
     }
     await _reconcileTrackingEntryFromUnits(seriesRef.id, changedAt: now);
     if (notify) {
@@ -330,5 +331,4 @@ extension CollectionMutationsTracking on CollectionMutations {
       await _notifyCollectionChanged();
     }
   }
-
 }

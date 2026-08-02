@@ -33,15 +33,23 @@ class GameLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (dto.variant != null)
-          LibraryDetailField(label: releaseFields.variantLabel, value: dto.variant!, onTap: tapFor(dto.variant)),
+          LibraryDetailField(
+              label: releaseFields.variantLabel,
+              value: dto.variant!,
+              onTap: tapFor(dto.variant)),
         if (dto.barcode != null)
-          LibraryDetailField(label: releaseFields.barcodeLabel, value: dto.barcode!),
+          LibraryDetailField(
+              label: releaseFields.barcodeLabel, value: dto.barcode!),
         if (catalogItem?.ageRating != null)
-          LibraryDetailField(label: 'Age Rating', value: catalogItem!.ageRating!),
+          LibraryDetailField(
+              label: 'Age Rating', value: catalogItem!.ageRating!),
       ],
       contextFacts: [
         if (dto.publisher != null)
-          LibraryDetailField(label: mediaFields.publisherLabel, value: dto.publisher!, onTap: tapFor(dto.publisher)),
+          LibraryDetailField(
+              label: mediaFields.publisherLabel,
+              value: dto.publisher!,
+              onTap: tapFor(dto.publisher)),
         if (dto.releaseDate != null)
           LibraryDetailField(
             label: 'Released',

@@ -14,7 +14,8 @@ final class AnimeWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final anime = VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+    final anime =
+        VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
     return AnimeWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
@@ -28,10 +29,12 @@ final class AnimeWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final anime = VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+    final anime =
+        VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
     return AnimeWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
-      personal: PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      personal:
+          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       anime: anime,
     );
   }

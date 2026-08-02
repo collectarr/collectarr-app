@@ -24,9 +24,11 @@ class ReadingQueueRepository {
 
   /// Add item to end of queue.
   Future<void> addToQueue(String ownedItemId) async {
-    final maxPos = await _db.customSelect(
-      'SELECT COALESCE(MAX(position), 0) AS m FROM reading_queue_cache',
-    ).getSingle();
+    final maxPos = await _db
+        .customSelect(
+          'SELECT COALESCE(MAX(position), 0) AS m FROM reading_queue_cache',
+        )
+        .getSingle();
     final pos = (maxPos.data['m'] as int) + 1;
     await _db.into(_db.readingQueueCache).insertOnConflictUpdate(
           ReadingQueueCacheCompanion.insert(

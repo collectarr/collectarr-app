@@ -75,7 +75,8 @@ class _StoryArcDetailBody extends StatelessWidget {
     final storyArc = data.storyArc;
     final description = storyArc['description']?.toString();
     final publisher = storyArc['publisher']?.toString();
-    final itemCount = (storyArc['item_count'] as num?)?.toInt() ?? data.items.length;
+    final itemCount =
+        (storyArc['item_count'] as num?)?.toInt() ?? data.items.length;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -120,8 +121,7 @@ class _StoryArcDetailBody extends StatelessWidget {
         if (data.items.isEmpty)
           const Text('No story arc items were returned by Collectarr Core.')
         else
-          for (final item in data.items)
-            _StoryArcItemTile(item: item),
+          for (final item in data.items) _StoryArcItemTile(item: item),
       ],
     );
   }
@@ -156,7 +156,8 @@ class _StoryArcItemTile extends StatelessWidget {
             child: coverUrl == null || coverUrl.trim().isEmpty
                 ? ColoredBox(
                     color: palette.surfaceSubtle.withValues(alpha: 0.82),
-                    child: const Icon(Icons.image_not_supported_outlined, size: 18),
+                    child: const Icon(Icons.image_not_supported_outlined,
+                        size: 18),
                   )
                 : CachedNetworkImage(
                     imageUrl: coverUrl,

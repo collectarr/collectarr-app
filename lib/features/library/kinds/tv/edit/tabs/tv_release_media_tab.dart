@@ -23,7 +23,8 @@ class TvReleaseMediaTab extends ConsumerWidget {
           title: 'Release media',
           accent: accent,
           child: FutureBuilder<TvSeries?>(
-            future: videoEdit.tvSeriesFuture ??= videoEdit.loadTvSeriesSnapshot(),
+            future: videoEdit.tvSeriesFuture ??=
+                videoEdit.loadTvSeriesSnapshot(),
             builder: (context, snapshot) {
               final series = snapshot.data ?? videoEdit.tvSeriesSnapshot;
               if (snapshot.connectionState == ConnectionState.waiting &&
@@ -77,7 +78,8 @@ class TvReleaseMediaTab extends ConsumerWidget {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    disc.title ?? 'Disc ${disc.discNumber ?? 1}',
+                                    disc.title ??
+                                        'Disc ${disc.discNumber ?? 1}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                     ),

@@ -316,7 +316,9 @@ void main() {
         findsOneWidget);
     expect(find.descendant(of: actionBar, matching: find.text('Edit')),
         findsOneWidget);
-    expect(find.descendant(of: actionBar, matching: find.byIcon(Icons.fact_check_outlined)),
+    expect(
+        find.descendant(
+            of: actionBar, matching: find.byIcon(Icons.fact_check_outlined)),
         findsOneWidget);
     expect(find.text('Extra action'), findsOneWidget);
   });
@@ -689,10 +691,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     await tester.tap(
-      find.descendant(
-        of: find.byType(InspectorActionBar),
-        matching: find.widgetWithText(OutlinedButton, 'Edit'),
-      ).first,
+      find
+          .descendant(
+            of: find.byType(InspectorActionBar),
+            matching: find.widgetWithText(OutlinedButton, 'Edit'),
+          )
+          .first,
     );
     await tester.pump();
 
@@ -806,7 +810,8 @@ void main() {
     expect(find.byType(LibraryDetailsLayoutDropdown), findsOneWidget);
   });
 
-  testWidgets('inspector eBay action expands with width and collapses compactly',
+  testWidgets(
+      'inspector eBay action expands with width and collapses compactly',
       (tester) async {
     final wideToolbar = MaterialApp(
       home: Scaffold(

@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('renders split column launcher and applies favorites in list mode', (
+  testWidgets(
+      'renders split column launcher and applies favorites in list mode', (
     tester,
   ) async {
     var viewMode = LibraryViewMode.list;
@@ -83,13 +84,15 @@ void main() {
       find.byKey(viewModeDropdownKey),
     );
     dropdown.onSelected?.call(LibraryViewMode.grid);
-    final detailsDropdown = tester.widget<PopupMenuButton<LibraryDetailsLayout>>(
+    final detailsDropdown =
+        tester.widget<PopupMenuButton<LibraryDetailsLayout>>(
       find.byKey(detailsLayoutDropdownKey),
     );
     detailsDropdown.onSelected?.call(LibraryDetailsLayout.hidden);
     await tester.pump();
 
-    expect(find.byKey(const ValueKey('legacy-library-column-split-button')), findsNothing);
+    expect(find.byKey(const ValueKey('legacy-library-column-split-button')),
+        findsNothing);
     expect(detailsLayout, LibraryDetailsLayout.hidden);
 
     dropdown.onSelected?.call(LibraryViewMode.list);

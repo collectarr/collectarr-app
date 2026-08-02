@@ -298,8 +298,7 @@ class LibraryExternalLinksEditor extends StatelessWidget {
                       Expanded(
                         child: TextFormField(
                           controller: item.labelController,
-                          decoration:
-                              const InputDecoration(labelText: 'Label'),
+                          decoration: const InputDecoration(labelText: 'Label'),
                         ),
                       ),
                       const SizedBox(width: 8),

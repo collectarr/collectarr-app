@@ -38,9 +38,12 @@ class TvEpisodesTab extends ConsumerWidget {
     );
     final customEpisodesAsync =
         ref.watch(customEpisodesByCatalogRefProvider(seriesRef));
-    final trackedUnits = ref.watch(trackingUnitsByCatalogRefProvider(seriesRef));
-    final watchSessions = ref.watch(watchSessionsByCatalogRefProvider(seriesRef));
-    final future = videoEdit.tvSeriesFuture ??= videoEdit.loadTvSeriesSnapshot();
+    final trackedUnits =
+        ref.watch(trackingUnitsByCatalogRefProvider(seriesRef));
+    final watchSessions =
+        ref.watch(watchSessionsByCatalogRefProvider(seriesRef));
+    final future =
+        videoEdit.tvSeriesFuture ??= videoEdit.loadTvSeriesSnapshot();
 
     return EditTabShell(
       children: [
@@ -80,7 +83,9 @@ class TvEpisodesTab extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          series == null ? 'Local episode overrides' : 'Episodes',
+                          series == null
+                              ? 'Local episode overrides'
+                              : 'Episodes',
                           style: Theme.of(context)
                               .textTheme
                               .labelLarge
@@ -112,8 +117,9 @@ class TvEpisodesTab extends ConsumerWidget {
                       _buildSeasonCard(
                         context,
                         seasonTitle: 'Season ${season.seasonNumber}',
-                        imageUrl:
-                            season.posterUrl ?? series?.posterUrl ?? series?.backdropUrl,
+                        imageUrl: season.posterUrl ??
+                            series?.posterUrl ??
+                            series?.backdropUrl,
                         episodes: season.episodes,
                         trackedUnits: trackedUnits,
                         watchSessions: watchSessions,
@@ -179,10 +185,13 @@ class _SeasonGroup {
 List<CustomEpisode> _sortedCustomEpisodes(
   AsyncValue<Map<int, List<CustomEpisode>>> customEpisodesAsync,
 ) {
-  final episodes = customEpisodesAsync.maybeWhen(
-    data: (grouped) => grouped.values.expand((episodes) => episodes).toList(),
-    orElse: () => const <CustomEpisode>[],
-  ).toList(growable: true)
+  final episodes = customEpisodesAsync
+      .maybeWhen(
+        data: (grouped) =>
+            grouped.values.expand((episodes) => episodes).toList(),
+        orElse: () => const <CustomEpisode>[],
+      )
+      .toList(growable: true)
     ..sort((a, b) {
       final seasonCompare = a.seasonNumber.compareTo(b.seasonNumber);
       if (seasonCompare != 0) return seasonCompare;
@@ -201,7 +210,8 @@ List<_EpisodeRowData> _mergedEpisodeRows({
   final rowsByKey = <String, _EpisodeRowData>{};
 
   for (final episode in providerEpisodes) {
-    rowsByKey['${episode.seasonNumber}:${episode.episodeNumber}'] = _EpisodeRowData(
+    rowsByKey['${episode.seasonNumber}:${episode.episodeNumber}'] =
+        _EpisodeRowData(
       seasonNumber: episode.seasonNumber,
       episodeNumber: episode.episodeNumber,
       title: episode.title ?? 'Untitled',
@@ -228,7 +238,8 @@ List<_EpisodeRowData> _mergedEpisodeRows({
   }
 
   for (final episode in customEpisodes) {
-    rowsByKey['${episode.seasonNumber}:${episode.episodeNumber}'] = _EpisodeRowData(
+    rowsByKey['${episode.seasonNumber}:${episode.episodeNumber}'] =
+        _EpisodeRowData(
       seasonNumber: episode.seasonNumber,
       episodeNumber: episode.episodeNumber,
       title: episode.title,
@@ -270,7 +281,8 @@ List<_SeasonGroup> _groupBySeason(List<_EpisodeRowData> rows) {
   }
   return [
     for (final entry in grouped.entries)
-      _SeasonGroup(seasonNumber: entry.key, posterUrl: null, episodes: entry.value),
+      _SeasonGroup(
+          seasonNumber: entry.key, posterUrl: null, episodes: entry.value),
   ];
 }
 
@@ -296,7 +308,8 @@ Widget _buildSeasonCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(seasonTitle, style: const TextStyle(fontWeight: FontWeight.w800)),
+            Text(seasonTitle,
+                style: const TextStyle(fontWeight: FontWeight.w800)),
             const SizedBox(height: 10),
             if (episodes.isEmpty)
               Text(

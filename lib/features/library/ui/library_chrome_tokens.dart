@@ -23,7 +23,8 @@ const double kLibrarySectionGap = 12;
 const double kLibrarySectionTitleGap = 4;
 const double kLibrarySectionBodyGap = 8;
 
-EdgeInsets libraryPanelInsets([LibraryDensity density = LibraryDensity.comfortable]) {
+EdgeInsets libraryPanelInsets(
+    [LibraryDensity density = LibraryDensity.comfortable]) {
   final scale = density.scale;
   return EdgeInsets.symmetric(
     horizontal: kLibraryPanelHorizontalPadding * scale,

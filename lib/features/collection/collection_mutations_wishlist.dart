@@ -153,7 +153,7 @@ extension CollectionMutationsWishlist on CollectionMutations {
         trackingDeletes.add(_trackingDeletion(localEntry, now));
       } else {
         final promoted = localEntry.copyWith(
-            catalogRef: _catalogRefForItem(item.id, item),
+          catalogRef: _catalogRefForItem(item.id, item),
           updatedAt: now,
           deletedAt: null,
         );
@@ -199,7 +199,10 @@ extension CollectionMutationsWishlist on CollectionMutations {
       );
       final targetRef = localUnit.unitType == TrackingUnitType.episode
           ? _episodeTrackingRef(
-              CatalogEntityRef(kind: item.kind, entityType: CatalogEntityType.work, id: item.id),
+              CatalogEntityRef(
+                  kind: item.kind,
+                  entityType: CatalogEntityType.work,
+                  id: item.id),
               seasonNumber: localUnit.seasonNumber ?? 0,
               episodeNumber: localUnit.episodeNumber ?? 0,
             )
@@ -354,5 +357,4 @@ extension CollectionMutationsWishlist on CollectionMutations {
       );
     }
   }
-
 }

@@ -64,12 +64,14 @@ class BookAuthorSpotlight extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                    crossAxisAlignment: centered
+                        ? CrossAxisAlignment.center
+                        : CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Author view',
-                        textAlign: centered ? TextAlign.center : TextAlign.start,
+                        textAlign:
+                            centered ? TextAlign.center : TextAlign.start,
                         style: theme.textTheme.labelMedium?.copyWith(
                           color: accent,
                           fontWeight: FontWeight.w900,
@@ -79,7 +81,8 @@ class BookAuthorSpotlight extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         spotlight.name,
-                        textAlign: centered ? TextAlign.center : TextAlign.start,
+                        textAlign:
+                            centered ? TextAlign.center : TextAlign.start,
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: palette.textPrimary,
                           fontWeight: FontWeight.w900,
@@ -89,7 +92,8 @@ class BookAuthorSpotlight extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           description,
-                          textAlign: centered ? TextAlign.center : TextAlign.start,
+                          textAlign:
+                              centered ? TextAlign.center : TextAlign.start,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: palette.textMuted,
                             fontWeight: FontWeight.w600,
@@ -163,7 +167,8 @@ class _AuthorAvatar extends StatelessWidget {
                 fit: BoxFit.cover,
                 placeholder: (_, __) => ColoredBox(
                   color: accent.withValues(alpha: 0.12),
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  child: const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2)),
                 ),
                 errorWidget: (_, __, ___) => ColoredBox(
                   color: accent.withValues(alpha: 0.16),
@@ -198,7 +203,8 @@ class _AuthorSpotlightData {
   final String? supportingLabel;
   final String? imageUrl;
 
-  static _AuthorSpotlightData? fromCreators(List<Map<String, dynamic>> creators) {
+  static _AuthorSpotlightData? fromCreators(
+      List<Map<String, dynamic>> creators) {
     final normalized = creators
         .map((creator) => _NormalizedCreator.fromMap(creator))
         .whereType<_NormalizedCreator>()
@@ -215,7 +221,9 @@ class _AuthorSpotlightData {
       }
     }
 
-    final others = normalized.where((creator) => creator.name != lead.name).toList(growable: false);
+    final others = normalized
+        .where((creator) => creator.name != lead.name)
+        .toList(growable: false);
     final supportingLabel = switch (others.length) {
       0 => null,
       1 => 'with ${others.first.name}',
@@ -253,7 +261,8 @@ class _AuthorSpotlightData {
     if (parts.length == 1) {
       return parts.first.substring(0, 1).toUpperCase();
     }
-    return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
+    return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
+        .toUpperCase();
   }
 }
 

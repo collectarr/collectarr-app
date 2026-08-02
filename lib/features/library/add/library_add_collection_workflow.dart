@@ -147,29 +147,28 @@ Future<void> addLibraryItemsToTarget({
           variantId: ownedDetails?.variantId ?? reference.variantId,
           bundleReleaseId: reference.bundleReleaseId,
           condition: isDigitalOwnedItem
-            ? null
-            : ownedDetails?.condition ?? defaults.condition,
-          grade: isDigitalOwnedItem
-            ? null
-            : ownedDetails?.grade ?? defaults.grade,
+              ? null
+              : ownedDetails?.condition ?? defaults.condition,
+          grade:
+              isDigitalOwnedItem ? null : ownedDetails?.grade ?? defaults.grade,
           purchaseDate: ownedDetails?.purchaseDate ?? defaults.purchaseDate,
           pricePaidCents: ownedDetails?.pricePaidCents,
           currency: ownedDetails?.currency,
           personalNotes: ownedDetails?.personalNotes,
           quantity: ownedDetails?.quantity ?? 1,
           locationId: isDigitalOwnedItem
-            ? null
-            : ownedDetails?.locationId ?? defaults.locationId,
+              ? null
+              : ownedDetails?.locationId ?? defaults.locationId,
           coverPriceCents:
-            isDigitalOwnedItem ? null : ownedDetails?.coverPriceCents,
+              isDigitalOwnedItem ? null : ownedDetails?.coverPriceCents,
           rawOrSlabbed: isDigitalOwnedItem ? null : ownedDetails?.rawOrSlabbed,
           gradingCompany:
-            isDigitalOwnedItem ? null : ownedDetails?.gradingCompany,
+              isDigitalOwnedItem ? null : ownedDetails?.gradingCompany,
           graderNotes: isDigitalOwnedItem ? null : ownedDetails?.graderNotes,
           signedBy: isDigitalOwnedItem ? null : ownedDetails?.signedBy,
           labelType: isDigitalOwnedItem ? null : ownedDetails?.labelType,
           certificationNumber:
-            isDigitalOwnedItem ? null : ownedDetails?.certificationNumber,
+              isDigitalOwnedItem ? null : ownedDetails?.certificationNumber,
           keyComic: ownedDetails?.keyComic ?? false,
           keyReason: ownedDetails?.keyReason,
           rating: ownedDetails?.rating,
@@ -245,8 +244,9 @@ _ResolvedAddReference _resolveReferenceForItem(
         bundleReleaseId: normalizedBundleId,
       );
     case LibraryAddReferenceType.edition:
-      final edition = _selectedEditionForItem(item, editionSelection?.editionId) ??
-          _primaryEditionForItem(item);
+      final edition =
+          _selectedEditionForItem(item, editionSelection?.editionId) ??
+              _primaryEditionForItem(item);
       final variant = _selectedVariantForEdition(
         edition,
         editionSelection?.variantId,
@@ -255,8 +255,8 @@ _ResolvedAddReference _resolveReferenceForItem(
         anchorType: variant != null
             ? 'variant'
             : edition != null
-            ? 'edition'
-            : null,
+                ? 'edition'
+                : null,
         editionId: edition?.id,
         variantId: variant?.id,
       );

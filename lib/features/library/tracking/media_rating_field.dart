@@ -63,8 +63,16 @@ class _MediaRatingFieldState extends State<MediaRatingField> {
       builder: (context, constraints) {
         final isCompact = constraints.maxWidth < 220;
         final isVeryCompact = constraints.maxWidth < 150;
-        final starSize = isVeryCompact ? 20.0 : isCompact ? 22.0 : 28.0;
-        final starPadding = isVeryCompact ? 0.0 : isCompact ? 1.0 : 2.0;
+        final starSize = isVeryCompact
+            ? 20.0
+            : isCompact
+                ? 22.0
+                : 28.0;
+        final starPadding = isVeryCompact
+            ? 0.0
+            : isCompact
+                ? 1.0
+                : 2.0;
         final ratingText = Text(
           '$_value/${widget.maxRating}',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -98,10 +106,11 @@ class _MediaRatingFieldState extends State<MediaRatingField> {
                             filled: _value >= (i * pointsPerStar).round(),
                             half:
                                 _value >= ((i - 0.5) * pointsPerStar).round() &&
-                                _value < (i * pointsPerStar).round(),
+                                    _value < (i * pointsPerStar).round(),
                             size: starSize,
                             horizontalPadding: starPadding,
-                            onTap: () => _onStarTap((i * pointsPerStar).round()),
+                            onTap: () =>
+                                _onStarTap((i * pointsPerStar).round()),
                           ),
                       ],
                     ),
@@ -126,7 +135,8 @@ class _MediaRatingFieldState extends State<MediaRatingField> {
                                     _value < (i * pointsPerStar).round(),
                                 size: starSize,
                                 horizontalPadding: starPadding,
-                                onTap: () => _onStarTap((i * pointsPerStar).round()),
+                                onTap: () =>
+                                    _onStarTap((i * pointsPerStar).round()),
                               ),
                           ],
                         ),

@@ -133,13 +133,12 @@ class LibraryNavPreferencesStore {
   }
 }
 
-final libraryNavPreferencesProvider = NotifierProvider<
-    LibraryNavPreferencesController, LibraryNavPreferences>(
+final libraryNavPreferencesProvider =
+    NotifierProvider<LibraryNavPreferencesController, LibraryNavPreferences>(
   LibraryNavPreferencesController.new,
 );
 
-class LibraryNavPreferencesController
-    extends Notifier<LibraryNavPreferences> {
+class LibraryNavPreferencesController extends Notifier<LibraryNavPreferences> {
   final LibraryNavPreferencesStore _store = const LibraryNavPreferencesStore();
 
   @override

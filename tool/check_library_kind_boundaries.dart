@@ -49,7 +49,9 @@ void main(List<String> arguments) {
             '$relativePath:${index + 1}: Forbidden CatalogMediaKind switch in generic boundary code',
           );
         }
-        if (RegExp(r'if\s*\(\s*.*kind\s*==\s*CatalogMediaKind\.(comic|movie|tv|game|music|book|boardgame|manga|anime)\b\)').hasMatch(line)) {
+        if (RegExp(
+                r'if\s*\(\s*.*kind\s*==\s*CatalogMediaKind\.(comic|movie|tv|game|music|book|boardgame|manga|anime)\b\)')
+            .hasMatch(line)) {
           violations.add(
             '$relativePath:${index + 1}: Forbidden CatalogMediaKind comparison in generic boundary code',
           );
@@ -149,7 +151,8 @@ String? _kindNameForPath(String relativePath) {
   return kind;
 }
 
-String? _resolveImportPath(String repoRoot, String currentFile, String importPath) {
+String? _resolveImportPath(
+    String repoRoot, String currentFile, String importPath) {
   if (importPath.startsWith('package:collectarr_app/')) {
     return p.join(
       repoRoot,

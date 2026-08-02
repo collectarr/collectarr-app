@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -86,7 +85,8 @@ void main() {
     expect(state.gradeCounts, {'9.8': 1, 'Ungraded': 1});
     expect(state.conditionCounts, {'Near Mint': 1, 'Fine': 1});
     expect(state.entries.first.title, 'Saga #1');
-    expect(state.entries.first.watchSessions.single.sourceType, TrackingSourceType.streaming);
+    expect(state.entries.first.watchSessions.single.sourceType,
+        TrackingSourceType.streaming);
     expect(state.entries.first.itemImages.single.imageType, 'back_cover');
   });
 

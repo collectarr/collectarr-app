@@ -56,7 +56,8 @@ class EditableVideoCredit {
       'source_type': metadata['source_type']?.toString() ?? 'custom',
     };
     result.removeWhere(
-      (key, value) => value == null || (value is String && value.trim().isEmpty),
+      (key, value) =>
+          value == null || (value is String && value.trim().isEmpty),
     );
     return result;
   }

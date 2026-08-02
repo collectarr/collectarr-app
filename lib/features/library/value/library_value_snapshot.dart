@@ -48,7 +48,8 @@ class LibraryValueSnapshot {
       soldPriceCents: ownedItem?.sellPriceCents,
       manualEstimatedValueCents: manualValue,
       providerValueCents: providerValue,
-      insuranceValueCents: currentValue ?? manualValue ?? ownedItem?.pricePaidCents,
+      insuranceValueCents:
+          currentValue ?? manualValue ?? ownedItem?.pricePaidCents,
       currency: currency,
       providerName: providerName,
       providerUpdatedAt: providerUpdatedAt,

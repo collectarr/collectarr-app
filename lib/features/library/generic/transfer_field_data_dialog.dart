@@ -289,7 +289,8 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             locationId: src.key == 'locationId' ? null : item.locationId,
             tags: src.key == 'tags' ? null : item.tags,
             currency: src.key == 'currency' ? null : item.currency,
-            rawOrSlabbed: src.key == 'rawOrSlabbed' ? null : comic?.rawOrSlabbed,
+            rawOrSlabbed:
+                src.key == 'rawOrSlabbed' ? null : comic?.rawOrSlabbed,
             gradingCompany:
                 src.key == 'gradingCompany' ? null : comic?.gradingCompany,
             graderNotes: src.key == 'graderNotes' ? null : comic?.graderNotes,

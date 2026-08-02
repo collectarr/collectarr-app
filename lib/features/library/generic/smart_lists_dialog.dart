@@ -354,7 +354,8 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
                                   onTap: () =>
                                       setState(() => _selectedListId = list.id),
                                   trailing: PopupMenuButton<_SmartListAction>(
-                                    icon: const Icon(Icons.more_horiz, size: 18),
+                                    icon:
+                                        const Icon(Icons.more_horiz, size: 18),
                                     tooltip: 'Smart list actions',
                                     onSelected: (action) async {
                                       switch (action) {
@@ -379,7 +380,8 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
                                       ),
                                       PopupMenuItem<_SmartListAction>(
                                         value: _SmartListAction.overwrite,
-                                        child: Text('Overwrite with current view'),
+                                        child:
+                                            Text('Overwrite with current view'),
                                       ),
                                       PopupMenuItem<_SmartListAction>(
                                         value: _SmartListAction.delete,
@@ -399,8 +401,8 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
                             ? const SizedBox.shrink()
                             : _SmartListDetailsPane(
                                 list: selectedList,
-                              customFieldDefinitions:
-                                widget.customFieldDefinitions,
+                                customFieldDefinitions:
+                                    widget.customFieldDefinitions,
                                 onLoad: () => _load_(selectedList),
                                 onRename: () => _rename(selectedList),
                                 onOverwriteFromCurrentView: () =>
@@ -492,14 +494,17 @@ class _SmartListDetailsPane extends StatelessWidget {
                       runSpacing: 8,
                       children: [
                         if (list.quickView != null)
-                          Chip(label: Text('Quick view: ${list.quickView!.label}')),
+                          Chip(
+                              label:
+                                  Text('Quick view: ${list.quickView!.label}')),
                         if (sortSummary != null)
                           Chip(
                             label: Text(
                               'Sort: $sortSummary',
                             ),
                           ),
-                        if (list.searchQuery != null && list.searchQuery!.isNotEmpty)
+                        if (list.searchQuery != null &&
+                            list.searchQuery!.isNotEmpty)
                           Chip(label: Text('Search: ${list.searchQuery!}')),
                         if (list.mediaKind != null)
                           Chip(label: Text('Kind: ${list.mediaKind!}')),
@@ -521,7 +526,8 @@ class _SmartListDetailsPane extends StatelessWidget {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          for (final chip in criteriaChips) Chip(label: Text(chip)),
+                          for (final chip in criteriaChips)
+                            Chip(label: Text(chip)),
                         ],
                       ),
                   ],
@@ -570,16 +576,14 @@ class _SmartListDetailsPane extends StatelessWidget {
         'Tracking: ${libraryTrackingStatusFilterLabel(filter.trackingStatusFilter, mediaType: list.mediaKind)}',
       if (filter.loanStatusFilter != LibraryLoanStatusFilter.all)
         'Loan: ${libraryLoanStatusFilterLabel(filter.loanStatusFilter, mediaType: list.mediaKind)}',
-      if (filter.hasActiveDateRange)
-        'Date: ${_dateRangeLabel(filter)}',
+      if (filter.hasActiveDateRange) 'Date: ${_dateRangeLabel(filter)}',
       if (filter.customFieldDefinitionId != null)
         'Custom: ${_customFieldChipLabel(filter)}',
       if (filter.series != null && filter.series!.isNotEmpty)
         'Series: ${filter.series!}',
       if (filter.location != null && filter.location!.isNotEmpty)
         'Location: ${filter.location!}',
-      if (filter.tag != null && filter.tag!.isNotEmpty)
-        'Tag: ${filter.tag!}',
+      if (filter.tag != null && filter.tag!.isNotEmpty) 'Tag: ${filter.tag!}',
       if (filter.publisher != null && filter.publisher!.isNotEmpty)
         'Publisher: ${filter.publisher!}',
       if (filter.condition != null && filter.condition!.isNotEmpty)
@@ -602,12 +606,9 @@ class _SmartListDetailsPane extends StatelessWidget {
       filter.dateRangeField,
       mediaType: list.mediaKind,
     );
-    final from = filter.dateFrom == null
-        ? null
-        : _formatDateChip(filter.dateFrom!);
-    final to = filter.dateTo == null
-        ? null
-        : _formatDateChip(filter.dateTo!);
+    final from =
+        filter.dateFrom == null ? null : _formatDateChip(filter.dateFrom!);
+    final to = filter.dateTo == null ? null : _formatDateChip(filter.dateTo!);
     if (from != null && to != null) {
       return '$field $from-$to';
     }
@@ -657,4 +658,3 @@ String? _smartListSortSummary(List<LibrarySortRule> rules) {
       .map((rule) => '${rule.column} ${rule.ascending ? 'asc' : 'desc'}')
       .join(', ');
 }
-

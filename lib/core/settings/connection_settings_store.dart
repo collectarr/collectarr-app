@@ -17,11 +17,10 @@ class ConnectionSettingsStore {
       syncBaseUrl: (prefs.getString(_syncBaseUrlKey) ??
               ConnectionSettings.defaultSyncBaseUrl)
           .trim(),
-      syncKey: (prefs.getString(_syncKeyKey) ??
-              ConnectionSettings.defaultSyncKey)
-          .trim(),
-      preferOnlineFirstSync:
-          prefs.getBool(_preferOnlineFirstSyncKey) ?? false,
+      syncKey:
+          (prefs.getString(_syncKeyKey) ?? ConnectionSettings.defaultSyncKey)
+              .trim(),
+      preferOnlineFirstSync: prefs.getBool(_preferOnlineFirstSyncKey) ?? false,
       isLoaded: true,
     );
   }

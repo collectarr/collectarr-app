@@ -61,10 +61,11 @@ Set<String> customFieldTargetIds({
     if (source.catalogItem case final catalog?) catalog.id,
     node.titleItemId,
     if (node case LibraryReleaseNodeRef(:final releaseId)) releaseId,
-    if (node case LibraryCopyNodeRef(
-      :final ownedItemId,
-      :final copyId,
-    )) ...[
+    if (node
+        case LibraryCopyNodeRef(
+          :final ownedItemId,
+          :final copyId,
+        )) ...[
       ownedItemId,
       if (copyId != null) copyId,
     ],
@@ -75,7 +76,8 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   ShelfState shelf,
   LibraryTypeConfig type, {
   List<CustomFieldDefinition> customFieldDefinitions = const [],
-  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem = const {},
+  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+      const {},
   Map<String, List<String>> customFieldValuesByItem = const {},
   LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
   String? releaseFolderTitleItemId,
@@ -86,15 +88,15 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
       shelf,
       type,
       customFieldDefinitions: customFieldDefinitions,
-      customFieldValuesByDefinitionByItem:
-          customFieldValuesByDefinitionByItem,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
       customFieldValuesByItem: customFieldValuesByItem,
       releaseFolderTitleItemId: releaseFolderTitleItemId,
     );
   }
   return [
     for (final source in shelf.entries)
-      if (source.catalogItem != null && source.catalogItem!.kind == kind.apiValue)
+      if (source.catalogItem != null &&
+          source.catalogItem!.kind == kind.apiValue)
         LibraryProjectionItem.fromShelf(
           source,
           type,
@@ -114,7 +116,8 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> _libraryReleaseItemsForShelf(
   ShelfState shelf,
   LibraryTypeConfig type, {
   List<CustomFieldDefinition> customFieldDefinitions = const [],
-  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem = const {},
+  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
+      const {},
   Map<String, List<String>> customFieldValuesByItem = const {},
   String? releaseFolderTitleItemId,
 }) {
@@ -133,8 +136,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> _libraryReleaseItemsForShelf(
 
     final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
-      ownedItems:
-          source.ownedItem == null ? const [] : [source.ownedItem!],
+      ownedItems: source.ownedItem == null ? const [] : [source.ownedItem!],
       wishlistItems:
           source.wishlistItem == null ? const [] : [source.wishlistItem!],
     );
@@ -211,8 +213,7 @@ List<String> customFieldBadgesForNode({
   return _customFieldBadgesFromIds(
     candidateIds,
     customFieldDefinitions: customFieldDefinitions,
-    customFieldValuesByDefinitionByItem:
-        customFieldValuesByDefinitionByItem,
+    customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
     customFieldValuesByItem: customFieldValuesByItem,
   );
 }

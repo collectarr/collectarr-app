@@ -171,7 +171,8 @@ class FormatBadge extends StatelessWidget {
     final style = formatBadgeStyleForId(formatId);
     return FormatBadge(
       key: key,
-      label: labelOverride ?? style.shortLabel ?? _formatLabelFallback(formatId),
+      label:
+          labelOverride ?? style.shortLabel ?? _formatLabelFallback(formatId),
       style: style,
       compact: compact,
     );

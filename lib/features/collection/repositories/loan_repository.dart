@@ -44,15 +44,12 @@ class LoanRepository {
   }
 
   Future<void> markReturned(String loanId) async {
-    await (_db.update(_db.loansCache)
-          ..where((t) => t.id.equals(loanId)))
-      .write(LoansCacheCompanion(returnedDate: Value(DateTime.now().toUtc())));
+    await (_db.update(_db.loansCache)..where((t) => t.id.equals(loanId))).write(
+        LoansCacheCompanion(returnedDate: Value(DateTime.now().toUtc())));
   }
 
   Future<void> delete(String loanId) async {
-    await (_db.delete(_db.loansCache)
-          ..where((t) => t.id.equals(loanId)))
-        .go();
+    await (_db.delete(_db.loansCache)..where((t) => t.id.equals(loanId))).go();
   }
 
   Loan _fromRow(LoansCacheData row) {

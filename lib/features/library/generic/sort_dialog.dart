@@ -510,7 +510,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   LibrarySortRule _defaultRule() {
-    final column = libraryKindModuleForType(widget.type).fields.defaultSortId ?? 'title';
+    final column =
+        libraryKindModuleForType(widget.type).fields.defaultSortId ?? 'title';
     return LibrarySortRule(
       column: column,
       ascending: _defaultAscending(column),
@@ -564,8 +565,11 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
 
   List<String> _filteredColumns() {
     final query = _query.trim().toLowerCase();
-    final available =
-        widget.availableColumns ?? [for (final def in libraryKindModuleForType(widget.type).fields.sorts) def.id.value];
+    final available = widget.availableColumns ??
+        [
+          for (final def in libraryKindModuleForType(widget.type).fields.sorts)
+            def.id.value
+        ];
     return available.where((column) {
       if (query.isEmpty) {
         return true;
@@ -1140,7 +1144,11 @@ LibraryTableColumnGroup _sortFieldGroup(
   LibraryTypeConfig type,
   String column,
 ) {
-  final groupStr = libraryKindModuleForType(type).fields.sortDefinitionFor(column).group.toLowerCase();
+  final groupStr = libraryKindModuleForType(type)
+      .fields
+      .sortDefinitionFor(column)
+      .group
+      .toLowerCase();
   return LibraryTableColumnGroup.values.firstWhere(
     (g) => g.name.toLowerCase() == groupStr,
     orElse: () => LibraryTableColumnGroup.main,
@@ -1157,7 +1165,10 @@ String _groupLabel(LibraryTableColumnGroup group) {
 }
 
 bool _defaultSortAscending(LibraryTypeConfig type, String column) {
-  return libraryKindModuleForType(type).fields.sortDefinitionFor(column).defaultAscending;
+  return libraryKindModuleForType(type)
+      .fields
+      .sortDefinitionFor(column)
+      .defaultAscending;
 }
 
 List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
@@ -1175,9 +1186,11 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
 
 String _sortColumnLabel(LibraryTypeConfig type, String column) {
   try {
-    return libraryKindModuleForType(type).fields.sortDefinitionFor(column).label;
+    return libraryKindModuleForType(type)
+        .fields
+        .sortDefinitionFor(column)
+        .label;
   } on StateError {
     return librarySortColumnFallbackLabel(column);
   }
 }
-

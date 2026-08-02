@@ -693,10 +693,11 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           isWishlisted: dto.isWishlisted,
                           hasMissingCover: dto.coverImageUrl == null ||
                               dto.coverImageUrl!.isEmpty,
-                          hasMissingMetadata: dto.publisher == null ||
-                              dto.publisher!.isEmpty,
+                          hasMissingMetadata:
+                              dto.publisher == null || dto.publisher!.isEmpty,
                           contractDiagnosticLabel:
-                              libraryHierarchyContractDiagnosticLabel(widget.item),
+                              libraryHierarchyContractDiagnosticLabel(
+                                  widget.item),
                           notesLabel: libraryNotesMarkerLabel(dto.notes),
                         ),
                       ),
@@ -879,8 +880,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                     ],
                   ),
                 ),
-                if (dto.itemNumber != null &&
-                    dto.itemNumber!.trim().isNotEmpty)
+                if (dto.itemNumber != null && dto.itemNumber!.trim().isNotEmpty)
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -933,7 +933,8 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                 for (final edition in editions)
                   _FlowCarouselReleaseRow(
                     edition: edition,
-                    isOwned: edition.id == widget.item.source.ownedItem?.editionId,
+                    isOwned:
+                        edition.id == widget.item.source.ownedItem?.editionId,
                     accent: widget.accent,
                   ),
               ],

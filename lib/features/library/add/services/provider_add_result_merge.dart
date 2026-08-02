@@ -72,7 +72,8 @@ LibraryMetadataItem mergeResolvedProviderAddItem({
       soundType: currentMusic.soundType ?? fallbackMusic.soundType,
       vinylColor: currentMusic.vinylColor ?? fallbackMusic.vinylColor,
       vinylWeight: currentMusic.vinylWeight ?? fallbackMusic.vinylWeight,
-      mediaCondition: currentMusic.mediaCondition ?? fallbackMusic.mediaCondition,
+      mediaCondition:
+          currentMusic.mediaCondition ?? fallbackMusic.mediaCondition,
       instrument: currentMusic.instrument ?? fallbackMusic.instrument,
       isLive: currentMusic.isLive ?? fallbackMusic.isLive,
       composition: currentMusic.composition ?? fallbackMusic.composition,
@@ -87,7 +88,8 @@ LibraryMetadataItem mergeResolvedProviderAddItem({
       ? merged
       : merged.copyWith(
           coverImageUrl: fallback.coverImageUrl,
-          thumbnailImageUrl: fallback.thumbnailImageUrl ?? fallback.coverImageUrl,
+          thumbnailImageUrl:
+              fallback.thumbnailImageUrl ?? fallback.coverImageUrl,
         );
 }
 
@@ -150,11 +152,14 @@ Future<void> applyProviderIngestCorrections({
     ageRating: corrections['age_rating'] as String?,
     audienceRating: corrections['audience_rating'] as String?,
     genres: corrections.containsKey('genres') ? edited.genres : null,
-    platforms: corrections.containsKey('platforms') ? edited.game?.platforms : null,
+    platforms:
+        corrections.containsKey('platforms') ? edited.game?.platforms : null,
     tracks: corrections.containsKey('tracks') ? edited.music?.tracks : null,
-    creators:
-        corrections.containsKey('creators') ? normalizeCreators(edited.creators) : null,
-    characters: corrections.containsKey('characters') ? edited.characters : null,
+    creators: corrections.containsKey('creators')
+        ? normalizeCreators(edited.creators)
+        : null,
+    characters:
+        corrections.containsKey('characters') ? edited.characters : null,
     storyArcs: corrections.containsKey('story_arcs') ? edited.storyArcs : null,
     color: corrections['color'] as String?,
     nrDiscs: corrections.containsKey('nr_discs') ? edited.video?.nrDiscs : null,

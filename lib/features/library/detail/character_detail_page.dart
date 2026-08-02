@@ -47,7 +47,8 @@ class CharacterDetailPage extends ConsumerWidget {
         loading: () => const AppLoadingIndicator(),
         error: (error, _) => AppErrorCard(
           message: error.toString(),
-          onRetry: () => ref.invalidate(_characterDetailProvider(characterName)),
+          onRetry: () =>
+              ref.invalidate(_characterDetailProvider(characterName)),
         ),
         data: (data) => _CharacterDetailBody(data: data),
       ),
@@ -229,7 +230,8 @@ class _CharacterAppearanceTile extends StatelessWidget {
             child: coverUrl == null || coverUrl.trim().isEmpty
                 ? ColoredBox(
                     color: palette.surfaceSubtle.withValues(alpha: 0.82),
-                    child: const Icon(Icons.image_not_supported_outlined, size: 18),
+                    child: const Icon(Icons.image_not_supported_outlined,
+                        size: 18),
                   )
                 : CachedNetworkImage(
                     imageUrl: coverUrl,

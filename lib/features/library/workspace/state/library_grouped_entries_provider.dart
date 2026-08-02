@@ -80,16 +80,15 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
         LibraryGroupBucket(key: k, label: k, entries: bucketMap[k]!),
       if (bucketMap.containsKey(unknownKey))
         LibraryGroupBucket(
-            key: unknownKey,
-            label: 'Unknown',
-            entries: bucketMap[unknownKey]!),
+            key: unknownKey, label: 'Unknown', entries: bucketMap[unknownKey]!),
     ];
 
     controller.add(buckets);
   }
 
   // Emit when the display list changes.
-  final listenerEntries = ref.listen<AsyncValue<List<LibraryProjectionRuntime>>>(
+  final listenerEntries =
+      ref.listen<AsyncValue<List<LibraryProjectionRuntime>>>(
     libraryDisplayListProvider(key),
     (_, next) {
       next.whenData(emit);

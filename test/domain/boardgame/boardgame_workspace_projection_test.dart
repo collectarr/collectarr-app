@@ -8,7 +8,7 @@ void main() {
   test('boardgame workspace projector builds typed boardgame dto', () {
     final source = ShelfEntry(
       itemId: 'boardgame-1',
-      catalogItem: const CatalogItemDto(
+      catalogItem: CatalogItemDto(
         id: 'boardgame-1',
         title: 'Catan',
         kind: 'boardgame',

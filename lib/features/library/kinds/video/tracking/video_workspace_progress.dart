@@ -23,7 +23,8 @@ class VideoWorkspaceProgressCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final summary = ref.watch(_videoProgressSummaryProvider(item.node.titleItemId));
+    final summary =
+        ref.watch(_videoProgressSummaryProvider(item.node.titleItemId));
     final palette = appPalette(context);
     return Stack(
       children: [
@@ -66,7 +67,8 @@ class VideoWorkspaceProgressCell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final summary = ref.watch(_videoProgressSummaryProvider(item.node.titleItemId));
+    final summary =
+        ref.watch(_videoProgressSummaryProvider(item.node.titleItemId));
     return summary.when(
       loading: () => const Text(''),
       error: (_, __) => const Text(''),
@@ -90,9 +92,12 @@ final _videoProgressSummaryProvider =
       entityType: CatalogEntityType.work,
       id: itemId,
     );
-    final seasons = await ref.watch(seasonsByCatalogRefProvider(catalogRef).future);
-    final trackedUnits = ref.watch(trackingUnitsByCatalogRefProvider(catalogRef));
-    final watchSessions = ref.watch(watchSessionsByCatalogRefProvider(catalogRef));
+    final seasons =
+        await ref.watch(seasonsByCatalogRefProvider(catalogRef).future);
+    final trackedUnits =
+        ref.watch(trackingUnitsByCatalogRefProvider(catalogRef));
+    final watchSessions =
+        ref.watch(watchSessionsByCatalogRefProvider(catalogRef));
     return const VideoProgressPresenter().build(
       seasons: seasons,
       trackedUnits: trackedUnits,

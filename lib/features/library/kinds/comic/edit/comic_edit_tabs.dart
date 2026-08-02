@@ -52,7 +52,8 @@ extension ComicEditTabBuilders on ComicEditHost {
               const SizedBox(height: 10),
               LibraryEditResponsiveRow(children: [
                 buildComicCountryPickField(),
-                LibraryEditTextField(controller: comicLanguageController, label: 'Language'),
+                LibraryEditTextField(
+                    controller: comicLanguageController, label: 'Language'),
               ]),
               const SizedBox(height: 10),
               LayoutBuilder(
@@ -104,7 +105,7 @@ extension ComicEditTabBuilders on ComicEditHost {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child:                         TagPickListField(
+                        child: TagPickListField(
                           controller: comicGenresEditController,
                           options: comicGenreOptions,
                           label: 'Genres',
@@ -124,7 +125,8 @@ extension ComicEditTabBuilders on ComicEditHost {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(controller: comicSortKeyController, label: 'Sort title'),
+                LibraryEditTextField(
+                    controller: comicSortKeyController, label: 'Sort title'),
                 TextFormField(
                   controller: comicSearchAliasesController,
                   minLines: 1,
@@ -651,7 +653,8 @@ extension ComicEditTabBuilders on ComicEditHost {
           child: Column(
             children: [
               LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(controller: comicGradeController, label: 'Grade'),
+                LibraryEditTextField(
+                    controller: comicGradeController, label: 'Grade'),
                 LibraryEditTextField(
                   controller: comicConditionController,
                   label: 'Condition',
@@ -668,8 +671,10 @@ extension ComicEditTabBuilders on ComicEditHost {
               ]),
               const SizedBox(height: 10),
               LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(controller: comicLabelTypeController, label: 'Label type'),
-                LibraryEditTextField(controller: comicSignedByController, label: 'Signed by'),
+                LibraryEditTextField(
+                    controller: comicLabelTypeController, label: 'Label type'),
+                LibraryEditTextField(
+                    controller: comicSignedByController, label: 'Signed by'),
                 buildComicPageQualityPickField(label: 'Page quality'),
                 LibraryEditTextField(
                   controller: comicCoverPriceController,
@@ -757,8 +762,8 @@ extension ComicEditTabBuilders on ComicEditHost {
                   subtitle: comicSoldAt != null
                       ? Text(
                           'Sold on ${formatDate(comicSoldAt!)}',
-                          style:
-                              TextStyle(color: appPalette(comicContext).textMuted),
+                          style: TextStyle(
+                              color: appPalette(comicContext).textMuted),
                         )
                       : null,
                   contentPadding: EdgeInsets.zero,
@@ -786,7 +791,8 @@ extension ComicEditTabBuilders on ComicEditHost {
                 const SizedBox(height: 12),
                 SoldSummaryPanel(
                   pricePaidCents: parseMoneyCents(comicPriceController.text),
-                  sellPriceCents: parseMoneyCents(comicSellPriceController.text),
+                  sellPriceCents:
+                      parseMoneyCents(comicSellPriceController.text),
                   currency: comicCurrencyController.text,
                 ),
               ],
@@ -1001,7 +1007,8 @@ extension ComicEditTabBuilders on ComicEditHost {
                   const SizedBox(height: 10),
                   buildComicFlexRow(
                     [
-                      LibraryEditTextField(controller: comicBarcodeController, label: 'Barcode'),
+                      LibraryEditTextField(
+                          controller: comicBarcodeController, label: 'Barcode'),
                       _comicFormatField(),
                     ],
                     flexes: const [1, 1],
@@ -1018,8 +1025,11 @@ extension ComicEditTabBuilders on ComicEditHost {
                 children: [
                   buildComicFlexRow(
                     [
-                      LibraryEditTextField(controller: comicNumberController, label: 'Issue No.'),
-                      LibraryEditTextField(controller: comicVariantController, label: 'Variant'),
+                      LibraryEditTextField(
+                          controller: comicNumberController,
+                          label: 'Issue No.'),
+                      LibraryEditTextField(
+                          controller: comicVariantController, label: 'Variant'),
                       LibraryEditTextField(
                         controller: comicEditionTitleController,
                         label: 'Variant Description',
@@ -1437,7 +1447,8 @@ extension ComicEditTabBuilders on ComicEditHost {
     return [
       comicLibraryItem.title,
       if (emptyToNull(comicNumberController.text) case final issue?) '#$issue',
-      if (emptyToNull(comicPhysicalFormatLabelController.text) case final format?)
+      if (emptyToNull(comicPhysicalFormatLabelController.text)
+          case final format?)
         format,
       if (emptyToNull(comicVariantController.text) case final variant?) variant,
     ].join(' ').trim();
@@ -1466,7 +1477,8 @@ extension ComicEditTabBuilders on ComicEditHost {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              LibraryEditTextField(controller: comicCoverController, label: 'Front Cover URL'),
+              LibraryEditTextField(
+                  controller: comicCoverController, label: 'Front Cover URL'),
               const SizedBox(height: 12),
               ComicCoverPreviewRow(
                 coverUrl: coverUrl,

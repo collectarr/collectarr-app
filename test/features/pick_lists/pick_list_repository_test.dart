@@ -97,10 +97,12 @@ void main() {
   test('addValue rejects same-scope duplicates only', () async {
     expect(await repo.addValue('condition', 'Near Mint'), isTrue);
     expect(await repo.addValue('condition', 'Near Mint'), isFalse);
-    expect(await repo.addValue('condition', 'Near Mint', mediaKind: 'comic'), isTrue);
+    expect(await repo.addValue('condition', 'Near Mint', mediaKind: 'comic'),
+        isTrue);
     expect(await repo.getValues('condition'), ['Near Mint']);
     expect(
-      (await repo.valuesForList(listName: 'condition', mediaKind: 'comic')).length,
+      (await repo.valuesForList(listName: 'condition', mediaKind: 'comic'))
+          .length,
       1,
     );
   });

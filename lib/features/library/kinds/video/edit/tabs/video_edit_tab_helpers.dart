@@ -19,8 +19,8 @@ Widget buildVideoCreditsTab({
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (credits.isEmpty)
-                EditSectionStateMessage(
-                  message: emptyMessage,
+              EditSectionStateMessage(
+                message: emptyMessage,
                 icon: Icons.person_outline,
               )
             else
@@ -34,14 +34,16 @@ Widget buildVideoCreditsTab({
                           Expanded(
                             child: TextFormField(
                               controller: credit.nameController,
-                              decoration: const InputDecoration(labelText: 'Name'),
+                              decoration:
+                                  const InputDecoration(labelText: 'Name'),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextFormField(
                               controller: credit.roleController,
-                              decoration: const InputDecoration(labelText: 'Role'),
+                              decoration:
+                                  const InputDecoration(labelText: 'Role'),
                             ),
                           ),
                         ],

@@ -38,7 +38,8 @@ bool canOpenVideoShelfDrilldown(
   }
   final kind = item.source.catalogItem?.kind.trim().toLowerCase();
   if (kind == null) return false;
-  if (type != null && type.workspaceBehavior.videoShelfDrilldownEntryTypes.contains(kind)) {
+  if (type != null &&
+      type.workspaceBehavior.videoShelfDrilldownEntryTypes.contains(kind)) {
     return true;
   }
   return kind == 'movie' || kind == 'tv' || kind == 'anime';
@@ -209,9 +210,11 @@ class VideoShelfReleaseDrilldown extends StatelessWidget {
               items: items,
               maxCrossAxisExtent: coverSize,
               mainAxisExtent: coverSize / 0.68,
-              emptyBuilder: (context) => const Center(child: Text('No release variants found')),
+              emptyBuilder: (context) =>
+                  const Center(child: Text('No release variants found')),
               itemBuilder: (context, drillItem) {
-                final isSelected = drillItem.node.releaseId == selectedReleaseId;
+                final isSelected =
+                    drillItem.node.releaseId == selectedReleaseId;
                 return LibraryWorkspaceCard(
                   item: drillItem.item,
                   selected: isSelected,

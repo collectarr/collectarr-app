@@ -417,7 +417,8 @@ class _LibraryMetadataCompareDialogState
     final all = <int>{
       ...localDiscs.keys.whereType<int>(),
       ...serverDiscs.keys.whereType<int>(),
-    }.toList()..sort();
+    }.toList()
+      ..sort();
     return [
       for (final discNumber in all)
         MetadataDiffEntry(

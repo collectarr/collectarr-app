@@ -297,12 +297,12 @@ class InspectorUnifiedToolbar extends StatelessWidget {
           alignment: WrapAlignment.end,
           children: [
             if (includeLayoutControl)
-            if (ebayUri != null)
-              InspectorToolIconButton(
-                tooltip: 'Search sold prices on eBay',
-                onPressed: () => launchUrl(ebayUri!),
-                icon: Icons.storefront_outlined,
-              ),
+              if (ebayUri != null)
+                InspectorToolIconButton(
+                  tooltip: 'Search sold prices on eBay',
+                  onPressed: () => launchUrl(ebayUri!),
+                  icon: Icons.storefront_outlined,
+                ),
             if (!compactActions && onDuplicate != null)
               InspectorToolIconButton(
                 tooltip: 'Duplicate owned copy',

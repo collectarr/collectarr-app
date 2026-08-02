@@ -19,31 +19,27 @@ void main() {
       expect(isTransientSyncError(_dio(DioExceptionType.connectionTimeout)),
           isTrue);
       expect(isTransientSyncError(_dio(DioExceptionType.sendTimeout)), isTrue);
-      expect(isTransientSyncError(_dio(DioExceptionType.receiveTimeout)),
-          isTrue);
-      expect(isTransientSyncError(_dio(DioExceptionType.connectionError)),
-          isTrue);
+      expect(
+          isTransientSyncError(_dio(DioExceptionType.receiveTimeout)), isTrue);
+      expect(
+          isTransientSyncError(_dio(DioExceptionType.connectionError)), isTrue);
     });
 
     test('treats 429 and 5xx responses as transient', () {
       expect(
-          isTransientSyncError(
-              _dio(DioExceptionType.badResponse, status: 429)),
+          isTransientSyncError(_dio(DioExceptionType.badResponse, status: 429)),
           isTrue);
       expect(
-          isTransientSyncError(
-              _dio(DioExceptionType.badResponse, status: 503)),
+          isTransientSyncError(_dio(DioExceptionType.badResponse, status: 503)),
           isTrue);
     });
 
     test('treats 4xx (non-429) and non-Dio errors as permanent', () {
       expect(
-          isTransientSyncError(
-              _dio(DioExceptionType.badResponse, status: 400)),
+          isTransientSyncError(_dio(DioExceptionType.badResponse, status: 400)),
           isFalse);
       expect(
-          isTransientSyncError(
-              _dio(DioExceptionType.badResponse, status: 409)),
+          isTransientSyncError(_dio(DioExceptionType.badResponse, status: 409)),
           isFalse);
       expect(isTransientSyncError(StateError('nope')), isFalse);
     });
@@ -51,8 +47,8 @@ void main() {
 
   group('isOfflineSyncError', () {
     test('only network-level failures count as offline', () {
-      expect(isOfflineSyncError(_dio(DioExceptionType.connectionError)),
-          isTrue);
+      expect(
+          isOfflineSyncError(_dio(DioExceptionType.connectionError)), isTrue);
       expect(
           isOfflineSyncError(_dio(DioExceptionType.badResponse, status: 500)),
           isFalse);

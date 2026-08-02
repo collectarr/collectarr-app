@@ -8,7 +8,8 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 
-LibraryProjectionRuntime _makeItem(String id, {String? seriesTitle, String? title}) {
+LibraryProjectionRuntime _makeItem(String id,
+    {String? seriesTitle, String? title}) {
   final cat = CatalogItemDto(
     id: id,
     kind: 'comic',
@@ -29,7 +30,9 @@ LibraryProjectionRuntime _makeItem(String id, {String? seriesTitle, String? titl
 void main() {
   group('series bucketing with genericLibraryBucketLabelBuilder', () {
     test('groups by seriesTitle when available', () {
-      final item = _makeItem('comic-1', seriesTitle: 'Batman: The Dark Knight', title: 'Batman: The Dark Knight #1');
+      final item = _makeItem('comic-1',
+          seriesTitle: 'Batman: The Dark Knight',
+          title: 'Batman: The Dark Knight #1');
 
       final bucket = genericLibraryBucketLabelBuilder(
         LibraryBucketingContext(
@@ -57,7 +60,8 @@ void main() {
     });
 
     test('uses unknown series when seriesTitle is empty', () {
-      final item = _makeItem('comic-3', seriesTitle: '', title: 'Wonder Woman #1');
+      final item =
+          _makeItem('comic-3', seriesTitle: '', title: 'Wonder Woman #1');
 
       final bucket = genericLibraryBucketLabelBuilder(
         LibraryBucketingContext(
@@ -84,10 +88,13 @@ void main() {
       expect(bucket, 'Unknown series');
     });
 
-    test('issue: duplicate series buckets when different series have same title',
+    test(
+        'issue: duplicate series buckets when different series have same title',
         () {
-      final v0Item = _makeItem('batman-v0', seriesTitle: 'Batman', title: 'Batman #1');
-      final v1Item = _makeItem('batman-v1', seriesTitle: null, title: 'Batman #1');
+      final v0Item =
+          _makeItem('batman-v0', seriesTitle: 'Batman', title: 'Batman #1');
+      final v1Item =
+          _makeItem('batman-v1', seriesTitle: null, title: 'Batman #1');
 
       final v0Bucket = genericLibraryBucketLabelBuilder(
         LibraryBucketingContext(
@@ -113,8 +120,10 @@ void main() {
     test(
         'items with same seriesTitle share the same series bucket under the contract',
         () {
-      final item1 = _makeItem('batman-123-1', seriesTitle: 'Batman', title: 'Batman #1');
-      final item2 = _makeItem('batman-456-1', seriesTitle: 'Batman', title: 'Batman #1');
+      final item1 =
+          _makeItem('batman-123-1', seriesTitle: 'Batman', title: 'Batman #1');
+      final item2 =
+          _makeItem('batman-456-1', seriesTitle: 'Batman', title: 'Batman #1');
 
       final bucket1 = genericLibraryBucketLabelBuilder(
         LibraryBucketingContext(

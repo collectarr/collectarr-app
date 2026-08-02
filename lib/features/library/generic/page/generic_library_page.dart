@@ -367,12 +367,13 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     // Update query/filter state in Riverpod
     intent.setSearch(_searchControllerOps.state.query);
     intent.setGroup(_groupMode);
-    
+
     final primarySort = viewState.sortRules.firstOrNull;
     if (primarySort != null) {
-      intent.setSort(primarySort.column.toString(), ascending: primarySort.ascending);
+      intent.setSort(primarySort.column.toString(),
+          ascending: primarySort.ascending);
     }
-    
+
     intent.setVisibleColumns(viewState.visibleColumns.cast<String>());
 
     // Update visual config state in Riverpod
@@ -396,15 +397,16 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     final current = _viewState;
     final nextSortRule = next.sortId == null
         ? const <LibrarySortRule>[]
-        : [LibrarySortRule(column: next.sortId!, ascending: next.sortAscending)];
+        : [
+            LibrarySortRule(column: next.sortId!, ascending: next.sortAscending)
+          ];
     final nextVisibleColumns = next.visibleColumnIds;
 
     final hasChanges = next.searchQuery != _searchControllerOps.state.query ||
         next.groupId != _groupMode ||
-        (current != null && (
-            !setEquals(nextVisibleColumns, current.visibleColumns) ||
-            !listEquals(nextSortRule, current.sortRules)
-        ));
+        (current != null &&
+            (!setEquals(nextVisibleColumns, current.visibleColumns) ||
+                !listEquals(nextSortRule, current.sortRules)));
 
     if (hasChanges) {
       setState(() {
@@ -427,7 +429,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   void _applyViewConfigFromRiverpod(LibraryViewConfigState next) {
     final current = _viewState;
     if (current == null) return;
-    
+
     if (next.viewMode != current.viewMode ||
         next.coverSize != current.coverSize ||
         next.detailsLayout != current.detailsLayout ||
@@ -716,8 +718,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return false;
     }
     return projection.filteredItems.any(
-      (item) =>
-          _selection.itemIds.contains(item.node.id) && !item.dto.isOwned,
+      (item) => _selection.itemIds.contains(item.node.id) && !item.dto.isOwned,
     );
   }
 
@@ -729,8 +730,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.node.id) &&
-          !item.dto.isWishlisted,
+          _selection.itemIds.contains(item.node.id) && !item.dto.isWishlisted,
     );
   }
 
@@ -750,8 +750,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   LibrarySeriesStatusSummary? _seriesStatusSummaryForProjection(
     LibraryProjection projection,
   ) {
-    if (_activeGroupMode != 'series' ||
-        _selectedBucket == null) {
+    if (_activeGroupMode != 'series' || _selectedBucket == null) {
       return null;
     }
     LibrarySeriesBucket? selectedBucket;
@@ -770,7 +769,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     var onOrderCount = 0;
     var soldCount = 0;
     var catalogOnlyCount = 0;
-    for (final item in LibraryPageNumberNavigationControllerOps.seriesBucketItems(
+    for (final item
+        in LibraryPageNumberNavigationControllerOps.seriesBucketItems(
       this,
       projection,
     )) {

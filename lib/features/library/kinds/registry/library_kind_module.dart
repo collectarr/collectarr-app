@@ -37,19 +37,17 @@ class AnyLibraryFieldRegistry<TDto> {
     this.defaultSortId = 'title',
     this.defaultGroupId = 'series',
     this.customLinkedMetadataCandidates,
-  }) : _groups = groups,
-       _sorts = sorts,
-       _columns = columns;
+  })  : _groups = groups,
+        _sorts = sorts,
+        _columns = columns;
 
   final List<LibraryGroupDefinition<TDto, Object?>>? _groups;
   final List<LibrarySortDefinition<TDto>>? _sorts;
   final List<LibraryColumnDefinition<TDto, Object?>>? _columns;
 
-  List<LibraryGroupDefinition<TDto, Object?>> get groups =>
-      _groups ?? const [];
+  List<LibraryGroupDefinition<TDto, Object?>> get groups => _groups ?? const [];
 
-  List<LibrarySortDefinition<TDto>> get sorts =>
-      _sorts ?? const [];
+  List<LibrarySortDefinition<TDto>> get sorts => _sorts ?? const [];
 
   List<LibraryColumnDefinition<TDto, Object?>> get columns =>
       _columns ?? const [];
@@ -247,8 +245,8 @@ abstract interface class LibraryKindRuntime {
   });
 }
 
-class LibraryKindSpec<TDto extends LibraryWorkspaceDto, TDetails extends OwnedItemDetails>
-    implements LibraryKindRuntime {
+class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
+    TDetails extends OwnedItemDetails> implements LibraryKindRuntime {
   const LibraryKindSpec({
     required this.type,
     required this.mediaAdapter,
@@ -277,8 +275,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto, TDetails extends OwnedIt
       ownedDetailsCodec.fromJson(json);
 
   @override
-  OwnedItemDetails defaultOwnedDetails() =>
-      ownedDetailsCodec.defaultDetails();
+  OwnedItemDetails defaultOwnedDetails() => ownedDetailsCodec.defaultDetails();
 
   @override
   Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details) {
@@ -374,7 +371,8 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto, TDetails extends OwnedIt
   }
 }
 
-typedef LibraryKindModule<TDto extends LibraryWorkspaceDto> = LibraryKindSpec<TDto, OwnedItemDetails>;
+typedef LibraryKindModule<TDto extends LibraryWorkspaceDto>
+    = LibraryKindSpec<TDto, OwnedItemDetails>;
 
 void validateKindRuntime(LibraryKindRuntime module) {
   final columnIds = <String>{};
@@ -405,7 +403,8 @@ void validateKindRuntime(LibraryKindRuntime module) {
   }
 }
 
-void validateKindModule(LibraryKindRuntime module) => validateKindRuntime(module);
+void validateKindModule(LibraryKindRuntime module) =>
+    validateKindRuntime(module);
 
 class LibraryKindAddModule {
   const LibraryKindAddModule({
@@ -498,7 +497,8 @@ class LibraryFacetModule {
   });
 
   final LibraryFacetRowsLoader loadRows;
-  final Iterable<String> Function(LibraryProjectionRuntime item, String facetId)? getFacetValues;
+  final Iterable<String> Function(
+      LibraryProjectionRuntime item, String facetId)? getFacetValues;
 }
 
 typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({

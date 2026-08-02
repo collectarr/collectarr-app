@@ -6,7 +6,8 @@ void main() {
   test('comic workspace view profile defaults to right-side details', () {
     final defaults = comicsWorkspaceViewProfile.defaults();
 
-    expect(comicsWorkspaceViewProfile.defaultDetailsLayout, LibraryDetailsLayout.right);
+    expect(comicsWorkspaceViewProfile.defaultDetailsLayout,
+        LibraryDetailsLayout.right);
     expect(comicsWorkspaceViewProfile.defaultDetailsWidth, 350);
     expect(comicsWorkspaceViewProfile.hideDetailsWhenSelectionEmpty, isFalse);
     expect(defaults.detailsLayout, LibraryDetailsLayout.right);

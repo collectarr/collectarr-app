@@ -51,7 +51,10 @@ class PickListValuesTable extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         [
-                          if (value.isGlobal) 'Global' else value.mediaKind ?? 'Kind',
+                          if (value.isGlobal)
+                            'Global'
+                          else
+                            value.mediaKind ?? 'Kind',
                           'Used $count',
                         ].join(' · '),
                         style: Theme.of(context).textTheme.bodySmall,

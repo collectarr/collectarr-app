@@ -84,7 +84,8 @@ CatalogItem _enrichSeedItem(CatalogItem item) {
     payload.putIfAbsent('series_group', () => item.series?.seriesTitle);
     payload.putIfAbsent('publication_place', () => 'US');
     payload.putIfAbsent('original_country', () => 'US');
-    payload.putIfAbsent('original_language', () => _seedOriginalLanguage(item.kind));
+    payload.putIfAbsent(
+        'original_language', () => _seedOriginalLanguage(item.kind));
     payload.putIfAbsent(
       'original_publication_date',
       () => item.releaseDate?.toUtc().toIso8601String(),
@@ -110,7 +111,8 @@ CatalogItem _enrichSeedItem(CatalogItem item) {
   }
 
   if (_isVideoKind(item.kind)) {
-    payload.putIfAbsent('runtime_minutes', () => _seedRuntimeMinutes(item.kind));
+    payload.putIfAbsent(
+        'runtime_minutes', () => _seedRuntimeMinutes(item.kind));
     payload.putIfAbsent('color', () => 'Color');
     payload.putIfAbsent('nr_discs', () => 1);
     payload.putIfAbsent('screen_ratio', () => '16:9');
@@ -118,7 +120,8 @@ CatalogItem _enrichSeedItem(CatalogItem item) {
     payload.putIfAbsent('subtitles', () => 'English');
     payload.putIfAbsent('layers', () => 'single');
     payload.putIfAbsent('age_rating', () => _seedAgeRating(item.kind));
-    payload.putIfAbsent('audience_rating', () => _seedAudienceRating(item.kind));
+    payload.putIfAbsent(
+        'audience_rating', () => _seedAudienceRating(item.kind));
   }
 
   if (item.kind == 'music') {
@@ -154,7 +157,8 @@ CatalogItem _enrichSeedItem(CatalogItem item) {
     payload.putIfAbsent('bgg_rank', () => 1);
     payload.putIfAbsent('bgg_rating', () => 7.5);
     payload.putIfAbsent('play_count', () => 5);
-    payload.putIfAbsent('last_played', () => item.releaseDate?.toUtc().toIso8601String());
+    payload.putIfAbsent(
+        'last_played', () => item.releaseDate?.toUtc().toIso8601String());
     payload.putIfAbsent('favorite_player_count', () => 4);
     payload.putIfAbsent(
       'player_stats',
@@ -167,7 +171,8 @@ CatalogItem _enrichSeedItem(CatalogItem item) {
   return CatalogItem.fromJson(payload);
 }
 
-bool _isVideoKind(String kind) => kind == 'movie' || kind == 'tv' || kind == 'anime';
+bool _isVideoKind(String kind) =>
+    kind == 'movie' || kind == 'tv' || kind == 'anime';
 
 bool _shouldSeedPublishingDetails(String kind) =>
     kind == 'book' || kind == 'comic' || kind == 'manga' || _isVideoKind(kind);
@@ -2116,7 +2121,6 @@ List<OwnedItem> _ownedItems() {
     // Movies
     OwnedItem(
       id: 'seed-owned-movie-01',
-
       catalogRef: _seedCatalogRef('seed-movie-01'),
       createdAt: now.subtract(const Duration(days: 365)),
       updatedAt: now,
@@ -2139,7 +2143,6 @@ List<OwnedItem> _ownedItems() {
     ),
     OwnedItem(
       id: 'seed-owned-movie-02',
-
       catalogRef: _seedCatalogRef('seed-movie-02'),
       createdAt: now.subtract(const Duration(days: 300)),
       updatedAt: now,
@@ -2154,7 +2157,6 @@ List<OwnedItem> _ownedItems() {
     // Books
     OwnedItem(
       id: 'seed-owned-book-01',
-
       catalogRef: _seedCatalogRef('seed-book-01'),
       createdAt: now.subtract(const Duration(days: 500)),
       updatedAt: now,
@@ -2174,7 +2176,6 @@ List<OwnedItem> _ownedItems() {
     ),
     OwnedItem(
       id: 'seed-owned-book-07',
-
       catalogRef: _seedCatalogRef('seed-book-07'),
       createdAt: now.subtract(const Duration(days: 1000)),
       updatedAt: now,
@@ -2189,7 +2190,6 @@ List<OwnedItem> _ownedItems() {
     // Music
     OwnedItem(
       id: 'seed-owned-music-01',
-
       catalogRef: _seedCatalogRef('seed-music-01'),
       createdAt: now.subtract(const Duration(days: 200)),
       updatedAt: now,
@@ -2208,7 +2208,6 @@ List<OwnedItem> _ownedItems() {
     ),
     OwnedItem(
       id: 'seed-owned-music-07',
-
       catalogRef: _seedCatalogRef('seed-music-07'),
       createdAt: now.subtract(const Duration(days: 800)),
       updatedAt: now,
@@ -2224,7 +2223,6 @@ List<OwnedItem> _ownedItems() {
     // Games
     OwnedItem(
       id: 'seed-owned-game-01',
-
       catalogRef: _seedCatalogRef('seed-game-01'),
       createdAt: now.subtract(const Duration(days: 400)),
       updatedAt: now,
@@ -2241,7 +2239,6 @@ List<OwnedItem> _ownedItems() {
     ),
     OwnedItem(
       id: 'seed-owned-game-04',
-
       catalogRef: _seedCatalogRef('seed-game-04'),
       createdAt: now.subtract(const Duration(days: 100)),
       updatedAt: now,
@@ -2255,7 +2252,6 @@ List<OwnedItem> _ownedItems() {
     // Board Games
     OwnedItem(
       id: 'seed-owned-bg-01',
-
       catalogRef: _seedCatalogRef('seed-boardgame-01'),
       createdAt: now.subtract(const Duration(days: 600)),
       updatedAt: now,
@@ -2272,7 +2268,6 @@ List<OwnedItem> _ownedItems() {
     // Comics
     OwnedItem(
       id: 'seed-owned-comic-01',
-
       catalogRef: _seedCatalogRef('seed-comic-01'),
       createdAt: now.subtract(const Duration(days: 900)),
       updatedAt: now,
@@ -2296,7 +2291,6 @@ List<OwnedItem> _ownedItems() {
     ),
     OwnedItem(
       id: 'seed-owned-comic-03',
-
       catalogRef: _seedCatalogRef('seed-comic-03'),
       createdAt: now.subtract(const Duration(days: 1200)),
       updatedAt: now,
@@ -2322,7 +2316,6 @@ List<OwnedItem> _ownedItems() {
     for (final itemId in _seedIds('tv', 10))
       OwnedItem(
         id: 'seed-owned-$itemId',
-
         catalogRef: _seedCatalogRef(itemId),
         createdAt: now.subtract(const Duration(days: 240)),
         updatedAt: now,
@@ -2343,7 +2336,6 @@ List<OwnedItem> _ownedItems() {
     for (final itemId in _seedIds('anime', 10))
       OwnedItem(
         id: 'seed-owned-$itemId',
-
         catalogRef: _seedCatalogRef(itemId),
         createdAt: now.subtract(const Duration(days: 180)),
         updatedAt: now,
@@ -2364,7 +2356,6 @@ List<OwnedItem> _ownedItems() {
     for (final itemId in _seedIds('manga', 10))
       OwnedItem(
         id: 'seed-owned-$itemId',
-
         catalogRef: _seedCatalogRef(itemId),
         createdAt: now.subtract(const Duration(days: 120)),
         updatedAt: now,
@@ -2393,7 +2384,6 @@ List<TrackingEntry> _trackingEntries() {
     // Completed movie
     TrackingEntry(
       id: 'seed-track-01',
-
       catalogRef: _seedCatalogRef('seed-movie-01'),
       ownedItemId: 'seed-owned-movie-01',
       sourceType: TrackingSourceType.physical,
@@ -2408,7 +2398,6 @@ List<TrackingEntry> _trackingEntries() {
     // In-progress book
     TrackingEntry(
       id: 'seed-track-02',
-
       catalogRef: _seedCatalogRef('seed-book-02'),
       sourceType: TrackingSourceType.physical,
       status: MediaTrackingStatus.inProgress,
@@ -2420,7 +2409,6 @@ List<TrackingEntry> _trackingEntries() {
     // Planned game
     TrackingEntry(
       id: 'seed-track-03',
-
       catalogRef: _seedCatalogRef('seed-game-04'),
       ownedItemId: 'seed-owned-game-04',
       sourceType: TrackingSourceType.digital,
@@ -2434,7 +2422,6 @@ List<TrackingEntry> _trackingEntries() {
     // Completed music album
     TrackingEntry(
       id: 'seed-track-04',
-
       catalogRef: _seedCatalogRef('seed-music-01'),
       ownedItemId: 'seed-owned-music-01',
       sourceType: TrackingSourceType.physical,
@@ -2447,7 +2434,6 @@ List<TrackingEntry> _trackingEntries() {
     // Completed comic
     TrackingEntry(
       id: 'seed-track-05',
-
       catalogRef: _seedCatalogRef('seed-comic-01'),
       ownedItemId: 'seed-owned-comic-01',
       sourceType: TrackingSourceType.physical,
@@ -2459,7 +2445,6 @@ List<TrackingEntry> _trackingEntries() {
     // Paused board game
     TrackingEntry(
       id: 'seed-track-06',
-
       catalogRef: _seedCatalogRef('seed-boardgame-01'),
       ownedItemId: 'seed-owned-bg-01',
       sourceType: TrackingSourceType.physical,
@@ -2472,7 +2457,6 @@ List<TrackingEntry> _trackingEntries() {
     // Streaming movie
     TrackingEntry(
       id: 'seed-track-07',
-
       catalogRef: _seedCatalogRef('seed-movie-04'),
       sourceType: TrackingSourceType.streaming,
       status: MediaTrackingStatus.completed,
@@ -2484,7 +2468,6 @@ List<TrackingEntry> _trackingEntries() {
     // Dropped book
     TrackingEntry(
       id: 'seed-track-08',
-
       catalogRef: _seedCatalogRef('seed-book-05'),
       sourceType: TrackingSourceType.physical,
       status: MediaTrackingStatus.dropped,
@@ -2496,7 +2479,6 @@ List<TrackingEntry> _trackingEntries() {
     for (var i = 1; i <= 10; i++)
       TrackingEntry(
         id: 'seed-track-tv-${_seedOrdinal2(i)}',
-
         catalogRef: _seedCatalogRef('seed-tv-${_seedOrdinal2(i)}'),
         ownedItemId: 'seed-owned-seed-tv-${_seedOrdinal2(i)}',
         sourceType: TrackingSourceType.physical,
@@ -2508,7 +2490,6 @@ List<TrackingEntry> _trackingEntries() {
     for (var i = 1; i <= 10; i++)
       TrackingEntry(
         id: 'seed-track-anime-${_seedOrdinal2(i)}',
-
         catalogRef: _seedCatalogRef('seed-anime-${_seedOrdinal2(i)}'),
         ownedItemId: 'seed-owned-seed-anime-${_seedOrdinal2(i)}',
         sourceType: TrackingSourceType.physical,
@@ -2523,7 +2504,6 @@ List<TrackingEntry> _trackingEntries() {
     for (var i = 1; i <= 10; i++)
       TrackingEntry(
         id: 'seed-track-manga-${_seedOrdinal2(i)}',
-
         catalogRef: _seedCatalogRef('seed-manga-${_seedOrdinal2(i)}'),
         ownedItemId: 'seed-owned-seed-manga-${_seedOrdinal2(i)}',
         sourceType: TrackingSourceType.physical,

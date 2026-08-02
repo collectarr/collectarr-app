@@ -68,7 +68,8 @@ void main() {
     expect(find.text('Missing publisher'), findsNothing);
   });
 
-  testWidgets('game stats dashboard shows value summaries and invested drill-downs', (
+  testWidgets(
+      'game stats dashboard shows value summaries and invested drill-downs', (
     tester,
   ) async {
     final state = ShelfState(
@@ -162,7 +163,8 @@ void main() {
     expect(find.text('USD 35.00'), findsWidgets);
   });
 
-  testWidgets('comic stats dashboard surfaces missing issue gaps', (tester) async {
+  testWidgets('comic stats dashboard surfaces missing issue gaps',
+      (tester) async {
     final state = ShelfState(
       entries: [
         for (final itemNumber in ['1', '2', '4'])
@@ -217,7 +219,8 @@ void main() {
     expect(find.text('#3'), findsOneWidget);
   });
 
-  testWidgets('comic stats dashboard surfaces missing volume gaps', (tester) async {
+  testWidgets('comic stats dashboard surfaces missing volume gaps',
+      (tester) async {
     final state = ShelfState(
       entries: [
         for (final volume in [1, 3])
@@ -274,7 +277,8 @@ void main() {
     expect(find.text('Vol. 2'), findsOneWidget);
   });
 
-  testWidgets('movie stats dashboard surfaces missing season gaps', (tester) async {
+  testWidgets('movie stats dashboard surfaces missing season gaps',
+      (tester) async {
     final state = ShelfState(
       entries: [
         for (final season in [1, 3])

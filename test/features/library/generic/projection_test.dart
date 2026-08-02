@@ -24,7 +24,8 @@ void main() {
   test('music grouping fallbacks use unknown artist and label buckets', () {
     final source = ShelfEntry(
       itemId: 'music-1',
-      catalogItem: testCatalogItem(id: 'music-1', kind: 'music', title: 'Album 1'),
+      catalogItem:
+          testCatalogItem(id: 'music-1', kind: 'music', title: 'Album 1'),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(

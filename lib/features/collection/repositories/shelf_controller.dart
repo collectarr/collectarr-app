@@ -32,8 +32,10 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
       entry.key: LibraryMetadataItem.fromCatalogItem(entry.value),
   };
   final locations = await LocationRepository(db).getAll();
-  final watchSessions = await WatchSessionsCacheRepository(db).listActiveByItemIds(ids);
-  final itemImagesByOwnedItem = await ItemImageRepository(db).listForOwnedItemIds(
+  final watchSessions =
+      await WatchSessionsCacheRepository(db).listActiveByItemIds(ids);
+  final itemImagesByOwnedItem =
+      await ItemImageRepository(db).listForOwnedItemIds(
     owned.map((item) => item.id),
   );
   return ShelfState.from(
@@ -88,7 +90,8 @@ class ShelfState {
     String? fallbackOwnerLabel,
   }) {
     final locationPathsById = {
-      for (final location in locations) location.id: location.fullPath(locations),
+      for (final location in locations)
+        location.id: location.fullPath(locations),
     };
     final ownedByItemId = {
       for (final item in ownedItems)
@@ -100,7 +103,8 @@ class ShelfState {
     };
     final trackingByItemId = <String, TrackingEntry>{};
     for (final entry in trackingEntries) {
-      if (entry.isDeleted || trackingByItemId.containsKey(entry.catalogRef.id)) {
+      if (entry.isDeleted ||
+          trackingByItemId.containsKey(entry.catalogRef.id)) {
         continue;
       }
       trackingByItemId[entry.catalogRef.id] = entry;
@@ -132,8 +136,8 @@ class ShelfState {
           wishlistItem: wishlistByItemId[id],
           locationPath: locationPathsById[ownedByItemId[id]?.locationId],
           watchSessions: watchSessionsByItemId[id] ?? const <WatchSession>[],
-          itemImages:
-              itemImagesByOwnedItem[ownedByItemId[id]?.id] ?? const <ItemImage>[],
+          itemImages: itemImagesByOwnedItem[ownedByItemId[id]?.id] ??
+              const <ItemImage>[],
           fallbackOwnerLabel: fallbackOwnerLabel,
         ),
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -198,27 +202,26 @@ class ShelfState {
             .where((title) => title.trim().isNotEmpty),
       ),
       soldCount: activeOwned.where((item) => item.isSold).length,
-        coverPricedCount: coverPricedOwned.length,
-        totalCoverPriceCents: hasMixedCoverPriceCurrencies
+      coverPricedCount: coverPricedOwned.length,
+      totalCoverPriceCents: hasMixedCoverPriceCurrencies
           ? null
           : coverPricedOwned.fold<int>(
-            0,
-            (total, item) {
-              final comic = item.comicDetails;
-              return total + (comic?.coverPriceCents ?? 0);
-            },
-          ),
-        coverPriceCurrency:
+              0,
+              (total, item) {
+                final comic = item.comicDetails;
+                return total + (comic?.coverPriceCents ?? 0);
+              },
+            ),
+      coverPriceCurrency:
           coverCurrencies.length == 1 ? coverCurrencies.single : null,
-        hasMixedCoverPriceCurrencies: hasMixedCoverPriceCurrencies,
+      hasMixedCoverPriceCurrencies: hasMixedCoverPriceCurrencies,
       totalSellCents: hasMixedCurrencies
           ? null
           : activeOwned
               .where((item) => item.sellPriceCents != null)
               .fold<int>(0, (total, item) => total + item.sellPriceCents!),
-      marketValuedCount: activeOwned
-          .where((item) => item.marketValueCents != null)
-          .length,
+      marketValuedCount:
+          activeOwned.where((item) => item.marketValueCents != null).length,
       totalMarketValueCents: hasMixedCurrencies
           ? null
           : activeOwned

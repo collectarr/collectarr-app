@@ -20,10 +20,11 @@ class InspectorReleasesSection extends StatelessWidget {
     final catalogItem = request.item.source.catalogItem;
     final video = catalogItem?.video;
     final editions = catalogItem?.editions ?? const [];
-    final discCount = video?.nrDiscs ?? editions.fold<int>(
-      0,
-      (total, edition) => total + edition.discs.length,
-    );
+    final discCount = video?.nrDiscs ??
+        editions.fold<int>(
+          0,
+          (total, edition) => total + edition.discs.length,
+        );
     if (discCount == 0 && editions.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -33,10 +34,12 @@ class InspectorReleasesSection extends StatelessWidget {
       children: [
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Releases', value: editions.length.toString()),
+            LibraryDetailField(
+                label: 'Releases', value: editions.length.toString()),
             LibraryDetailField(label: 'Discs', value: discCount.toString()),
             if (video?.runtimeMinutes != null)
-              LibraryDetailField(label: 'Runtime', value: '${video!.runtimeMinutes} min'),
+              LibraryDetailField(
+                  label: 'Runtime', value: '${video!.runtimeMinutes} min'),
           ],
         ),
         if (editions.isNotEmpty) ...[
@@ -52,9 +55,8 @@ class InspectorReleasesSection extends StatelessWidget {
                       .withValues(alpha: 0.55),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: Theme.of(context)
-                        .dividerColor
-                        .withValues(alpha: 0.65),
+                    color:
+                        Theme.of(context).dividerColor.withValues(alpha: 0.65),
                   ),
                 ),
                 child: Padding(
@@ -102,6 +104,3 @@ class InspectorReleasesSection extends StatelessWidget {
     );
   }
 }
-
-
-

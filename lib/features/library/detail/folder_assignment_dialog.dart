@@ -101,9 +101,7 @@ class _FolderAssignmentDialogState extends State<_FolderAssignmentDialog> {
                         value: isMember,
                         title: Text(folder.name),
                         secondary: Icon(
-                          isMember
-                              ? Icons.folder
-                              : Icons.folder_outlined,
+                          isMember ? Icons.folder : Icons.folder_outlined,
                           size: 20,
                         ),
                         dense: true,

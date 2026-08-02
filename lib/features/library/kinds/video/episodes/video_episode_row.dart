@@ -47,9 +47,12 @@ class VideoEpisodeRow extends StatelessWidget {
       LibraryDensity.dense => const EdgeInsets.only(bottom: 4),
     };
     final resolvedInnerPadding = switch (resolvedDensity) {
-      LibraryDensity.comfortable => const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      LibraryDensity.compact => const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      LibraryDensity.dense => const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      LibraryDensity.comfortable =>
+        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      LibraryDensity.compact =>
+        const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      LibraryDensity.dense =>
+        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     };
     final palette = appPalette(context);
     return Padding(
@@ -82,7 +85,8 @@ class VideoEpisodeRow extends StatelessWidget {
                       color: watched ? accent : palette.textMuted,
                     ),
                     visualDensity: VisualDensity.compact,
-                    constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+                    constraints:
+                        const BoxConstraints(minWidth: 30, minHeight: 30),
                     padding: EdgeInsets.zero,
                   ),
                 const SizedBox(width: 4),
@@ -100,7 +104,8 @@ class VideoEpisodeRow extends StatelessWidget {
                         runSpacing: 4,
                         children: [
                           if (episode.episode.runtimeMinutes != null)
-                            _MetaPill(label: '${episode.episode.runtimeMinutes} min'),
+                            _MetaPill(
+                                label: '${episode.episode.runtimeMinutes} min'),
                           if (episode.episode.airDate != null)
                             _MetaPill(label: _date(episode.episode.airDate!)),
                           if (watchCount > 0)
@@ -116,7 +121,9 @@ class VideoEpisodeRow extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (onEdit != null || onDuplicate != null || extraActions.isNotEmpty) ...[
+                if (onEdit != null ||
+                    onDuplicate != null ||
+                    extraActions.isNotEmpty) ...[
                   const SizedBox(width: 6),
                   Wrap(
                     spacing: 0,
@@ -127,7 +134,8 @@ class VideoEpisodeRow extends StatelessWidget {
                           icon: const Icon(Icons.edit_outlined, size: 18),
                           tooltip: 'Edit',
                           visualDensity: VisualDensity.compact,
-                          constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+                          constraints:
+                              const BoxConstraints(minWidth: 30, minHeight: 30),
                         ),
                       if (onDuplicate != null)
                         IconButton(
@@ -135,7 +143,8 @@ class VideoEpisodeRow extends StatelessWidget {
                           icon: const Icon(Icons.copy_outlined, size: 18),
                           tooltip: 'Duplicate',
                           visualDensity: VisualDensity.compact,
-                          constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+                          constraints:
+                              const BoxConstraints(minWidth: 30, minHeight: 30),
                         ),
                       ...extraActions,
                     ],

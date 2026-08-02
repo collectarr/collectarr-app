@@ -42,7 +42,9 @@ void main() {
     expect(history, isEmpty);
   });
 
-  test('updateLibrarySidebarScopeHistory keeps previous bucket on group drilldown', () {
+  test(
+      'updateLibrarySidebarScopeHistory keeps previous bucket on group drilldown',
+      () {
     final previous = buildScope(
       groupMode: 'series',
       bucket: 'Batman',
@@ -81,7 +83,8 @@ void main() {
     expect(navigation.target, second);
   });
 
-  test('navigateLibrarySidebarScopeHistoryToBreadcrumb returns root target', () {
+  test('navigateLibrarySidebarScopeHistoryToBreadcrumb returns root target',
+      () {
     final root = buildScope();
     final navigation = navigateLibrarySidebarScopeHistoryToBreadcrumb(
       history: [buildScope(bucket: 'Batman')],

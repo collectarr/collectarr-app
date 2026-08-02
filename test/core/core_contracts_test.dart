@@ -18,7 +18,8 @@ void main() {
 
     expect(manifest['contractVersion'], '1.0.0');
     expect(manifest['coreCommit'], isA<String>());
-    expect(manifest['openApiHash'], _fileHash('tool/core_contracts/openapi.json'));
+    expect(
+        manifest['openApiHash'], _fileHash('tool/core_contracts/openapi.json'));
     expect(
       manifest['fieldSchemaHash'],
       _fileHash('tool/core_contracts/metadata-field-schema.json'),
@@ -31,7 +32,8 @@ void main() {
       manifest['providerSupportHash'],
       _fileHash('tool/core_contracts/provider-support.json'),
     );
-    final coreManifest = File(r'..\collectarr-core\contracts\contract-manifest.json');
+    final coreManifest =
+        File(r'..\collectarr-core\contracts\contract-manifest.json');
     if (coreManifest.existsSync()) {
       expect(manifest, jsonDecode(coreManifest.readAsStringSync()));
     }

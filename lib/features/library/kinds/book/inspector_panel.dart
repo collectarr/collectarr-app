@@ -69,11 +69,10 @@ class BookInspectorPanel extends StatelessWidget {
           slot: LibraryDetailSectionSlot.identity,
           title: 'Details',
           children: [
-            if (request.trailingSections.isNotEmpty) ...request.trailingSections,
-            if (request.ownedCopiesSection != null)
-              request.ownedCopiesSection!,
-            if (request.bundleSection != null)
-              request.bundleSection!,
+            if (request.trailingSections.isNotEmpty)
+              ...request.trailingSections,
+            if (request.ownedCopiesSection != null) request.ownedCopiesSection!,
+            if (request.bundleSection != null) request.bundleSection!,
             if (request.conditionGradeSection != null)
               request.conditionGradeSection!,
             ...sections,

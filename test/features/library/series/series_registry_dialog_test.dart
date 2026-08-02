@@ -150,7 +150,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Edit Series'), findsOneWidget);
-    await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Alpha Prime');
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Name'), 'Alpha Prime');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 

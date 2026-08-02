@@ -51,7 +51,8 @@ class LibraryEntry {
         (latest == null || trackingUpdated.isAfter(latest))) {
       latest = trackingUpdated;
     }
-    if (wishUpdated != null && (latest == null || wishUpdated.isAfter(latest))) {
+    if (wishUpdated != null &&
+        (latest == null || wishUpdated.isAfter(latest))) {
       latest = wishUpdated;
     }
     return latest ?? DateTime.fromMillisecondsSinceEpoch(0);

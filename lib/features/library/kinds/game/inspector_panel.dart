@@ -135,9 +135,8 @@ class _GameInspectorMain extends StatelessWidget {
     final palette = appPalette(context);
     final releaseYear = dto.releaseDate?.year.toString();
     final genres = catalogItem?.genres;
-    final genreText = genres == null || genres.isEmpty
-        ? null
-        : genres.join(' | ');
+    final genreText =
+        genres == null || genres.isEmpty ? null : genres.join(' | ');
     final platforms = catalogItem?.game?.platforms ?? const <String>[];
 
     return DecoratedBox(
@@ -169,12 +168,10 @@ class _GameInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (dto.publisher?.isNotEmpty == true ||
-                      releaseYear != null)
+                  if (dto.publisher?.isNotEmpty == true || releaseYear != null)
                     Text(
                       [
-                        if (dto.publisher?.isNotEmpty == true)
-                          dto.publisher!,
+                        if (dto.publisher?.isNotEmpty == true) dto.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -266,8 +263,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
       if (dto.releaseDate != null || releaseYear != null)
         (
           'Release',
-          formatNullableDate(dto.releaseDate) ??
-              releaseYear!.toString(),
+          formatNullableDate(dto.releaseDate) ?? releaseYear!.toString(),
         ),
       if (dto.referenceFormatLabel?.trim().isNotEmpty == true ||
           dto.variant?.trim().isNotEmpty == true)
@@ -277,8 +273,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
       if (dto.ageRating?.trim().isNotEmpty == true)
         ('Age rating', dto.ageRating!),
       if (dto.country?.trim().isNotEmpty == true) ('Country', dto.country!),
-      if (dto.language?.trim().isNotEmpty == true)
-        ('Language', dto.language!),
+      if (dto.language?.trim().isNotEmpty == true) ('Language', dto.language!),
       if (catalogItem?.game?.platforms.isNotEmpty == true)
         ('Platforms', catalogItem!.game!.platforms.join(', ')),
       if (catalogItem?.game?.toySubtype?.trim().isNotEmpty == true)
@@ -298,11 +293,25 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
       if (dto.locationPath?.trim().isNotEmpty == true)
         ('Location', dto.locationPath!),
       if (owned?.typedDetails is MusicOwnedDetails &&
-          (owned!.typedDetails as MusicOwnedDetails).storageDevice?.trim().isNotEmpty == true)
-        ('Storage device', (owned.typedDetails as MusicOwnedDetails).storageDevice!),
+          (owned!.typedDetails as MusicOwnedDetails)
+                  .storageDevice
+                  ?.trim()
+                  .isNotEmpty ==
+              true)
+        (
+          'Storage device',
+          (owned.typedDetails as MusicOwnedDetails).storageDevice!
+        ),
       if (owned?.typedDetails is MusicOwnedDetails &&
-          (owned!.typedDetails as MusicOwnedDetails).storageSlot?.trim().isNotEmpty == true)
-        ('Storage slot', (owned.typedDetails as MusicOwnedDetails).storageSlot!),
+          (owned!.typedDetails as MusicOwnedDetails)
+                  .storageSlot
+                  ?.trim()
+                  .isNotEmpty ==
+              true)
+        (
+          'Storage slot',
+          (owned.typedDetails as MusicOwnedDetails).storageSlot!
+        ),
       if (owned?.ownerLabel?.trim().isNotEmpty == true)
         ('Owner', owned!.ownerLabel!),
       if (owned?.pricePaidCents != null)

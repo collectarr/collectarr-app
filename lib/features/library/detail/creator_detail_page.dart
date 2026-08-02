@@ -75,7 +75,8 @@ class _CreatorDetailBody extends StatelessWidget {
     final creator = data.creator;
     final description = creator['description']?.toString();
     final imageUrl = creator['image_url']?.toString();
-    final itemCount = (creator['item_count'] as num?)?.toInt() ?? data.credits.length;
+    final itemCount =
+        (creator['item_count'] as num?)?.toInt() ?? data.credits.length;
     final roleCounts = <String, int>{};
     for (final credit in data.credits) {
       final role = credit['role']?.toString().trim();
@@ -142,8 +143,7 @@ class _CreatorDetailBody extends StatelessWidget {
         if (data.credits.isEmpty)
           const Text('No creator credits were returned for this creator.')
         else
-          for (final credit in data.credits)
-            _CreatorCreditTile(credit: credit),
+          for (final credit in data.credits) _CreatorCreditTile(credit: credit),
       ],
     );
   }
@@ -216,7 +216,8 @@ class _CreatorCreditTile extends StatelessWidget {
             child: coverUrl == null || coverUrl.trim().isEmpty
                 ? ColoredBox(
                     color: palette.surfaceSubtle.withValues(alpha: 0.82),
-                    child: const Icon(Icons.image_not_supported_outlined, size: 18),
+                    child: const Icon(Icons.image_not_supported_outlined,
+                        size: 18),
                   )
                 : CachedNetworkImage(
                     imageUrl: coverUrl,
@@ -241,7 +242,6 @@ class _CreatorCreditTile extends StatelessWidget {
     );
   }
 }
-
 
 Map<String, dynamic> _pickBestCreator(
   List<Map<String, dynamic>> results,

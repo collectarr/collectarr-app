@@ -20,4 +20,3 @@ final List<LibraryKindRuntime> collectarrKindModules = [
   animeKindModule,
   musicKindModule,
 ];
-

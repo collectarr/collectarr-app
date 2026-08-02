@@ -115,13 +115,15 @@ abstract final class _LibraryFacetControllerOps {
         item.node.id,
     };
     try {
-      final buckets = await state.fetchFacetBuckets(
-        type: state.widget.type,
-        facetId: facetId,
-        itemIds: shelfItemIds,
-        signature: signature,
-        allBucketLabel: genericAllBucketLabel(state.widget.type),
-      ).timeout(const Duration(seconds: 8));
+      final buckets = await state
+          .fetchFacetBuckets(
+            type: state.widget.type,
+            facetId: facetId,
+            itemIds: shelfItemIds,
+            signature: signature,
+            allBucketLabel: genericAllBucketLabel(state.widget.type),
+          )
+          .timeout(const Duration(seconds: 8));
       if (!state.mounted) return;
       final latestShelf = state.ref.read(shelfProvider).asData?.value;
       if (latestShelf == null ||

@@ -135,24 +135,26 @@ Widget buildLibraryAddModeBar(
                     hintText: isBarcode
                         ? 'Scan or enter barcode...'
                         : labels.searchFieldHint,
-                    prefixIcon: Icon(isBarcode ? Icons.qr_code_2 : Icons.search),
-                    suffixIcon:
-                        labels.showCoverScanSuffix && isSearch && request.canScanCover
-                            ? IconButton(
-                                tooltip: 'Scan cover',
-                                onPressed: isBusy || request.isScanningCover
-                                    ? null
-                                    : request.onScanCover,
-                                icon: request.isScanningCover
-                                    ? const SizedBox.square(
-                                        dimension: 16,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : const Icon(Icons.photo_camera_outlined),
-                              )
-                            : null,
+                    prefixIcon:
+                        Icon(isBarcode ? Icons.qr_code_2 : Icons.search),
+                    suffixIcon: labels.showCoverScanSuffix &&
+                            isSearch &&
+                            request.canScanCover
+                        ? IconButton(
+                            tooltip: 'Scan cover',
+                            onPressed: isBusy || request.isScanningCover
+                                ? null
+                                : request.onScanCover,
+                            icon: request.isScanningCover
+                                ? const SizedBox.square(
+                                    dimension: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.photo_camera_outlined),
+                          )
+                        : null,
                   ),
                 ),
               ),
@@ -162,7 +164,8 @@ Widget buildLibraryAddModeBar(
                     ? null
                     : (isBarcode ? request.onLookupBarcode : request.onSearch),
                 style: libraryAddFilledButtonStyle(request.accent),
-                icon: Icon(isBarcode ? Icons.qr_code_2 : Icons.search, size: 18),
+                icon:
+                    Icon(isBarcode ? Icons.qr_code_2 : Icons.search, size: 18),
                 label: Text(isBarcode ? 'Lookup' : searchButtonLabel),
               ),
             ],
@@ -230,8 +233,7 @@ Widget buildLibraryAddModeBar(
                       movieScope.onVideoKindFilterChanged('movie', value),
                 ),
                 FilterChip(
-                  selected:
-                      movieScope.videoKindFilters.contains('collection'),
+                  selected: movieScope.videoKindFilters.contains('collection'),
                   label: const Text('Box Sets'),
                   onSelected: (value) =>
                       movieScope.onVideoKindFilterChanged('collection', value),

@@ -27,7 +27,8 @@ LibraryMediaAdapter plannedMediaAdapter(
     viewProfile: viewProfile,
     orderedTableColumns: (columns) => orderedLibraryTableColumns(
       columns: columns,
-      defaultColumns: libraryKindModuleForType(type).fields.defaultVisibleColumnIds,
+      defaultColumns:
+          libraryKindModuleForType(type).fields.defaultVisibleColumnIds,
     ),
     tableWidthForColumns: (columns, customWidths) =>
         plannedMediaTableWidthForColumns(
@@ -49,11 +50,13 @@ LibraryMediaAdapter plannedMediaAdapter(
     tableCellBuilder: (item, column) =>
         plannedMediaTableCell(type, item, column),
     compareEntriesByColumn: compareEntriesByColumn ??
-        (left, right, column) =>
-            libraryKindModuleForType(type).fields.sortDefinitionFor(column).compare(
-                  left.dto,
-                  right.dto,
-                ),
+        (left, right, column) => libraryKindModuleForType(type)
+            .fields
+            .sortDefinitionFor(column)
+            .compare(
+              left.dto,
+              right.dto,
+            ),
     entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
     entryLinkedMetadataCandidatesBuilder: (source) =>
         plannedMediaLinkedMetadataCandidatesForEntry(type, source),
@@ -77,7 +80,8 @@ LibraryMediaAdapter collectarrMediaAdapter(
 LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
   LibraryTypeConfig type,
 ) {
-  final coverGridHeightFactor = type.capabilities.prefersSquareCovers ? 1.0 : 1.53;
+  final coverGridHeightFactor =
+      type.capabilities.prefersSquareCovers ? 1.0 : 1.53;
   return LibraryWorkspaceViewProfile(
     type: type,
     defaultCoverSize: kPlannedMediaDefaultCoverSize,
@@ -88,8 +92,10 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
     clampColumnWidth: (column, width) =>
         clampPlannedMediaTableColumnWidth(type, column as String, width),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
-    sortAscendingForColumn: (column) =>
-        libraryKindModuleForType(type).fields.sortDefinitionFor(column.toString()).defaultAscending,
+    sortAscendingForColumn: (column) => libraryKindModuleForType(type)
+        .fields
+        .sortDefinitionFor(column.toString())
+        .defaultAscending,
   );
 }
 

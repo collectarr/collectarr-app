@@ -10,9 +10,8 @@ List<String>? tryGetList(dynamic Function() fn) {
 }
 
 MusicRelease musicReleaseFromDto(MusicReleaseDto dto) {
-  final discs = dto.media
-      .map((m) => musicMediaFromDto(m))
-      .toList(growable: false);
+  final discs =
+      dto.media.map((m) => musicMediaFromDto(m)).toList(growable: false);
 
   // Flatten all tracks for the top-level tracks list.
   final allTracks = discs.expand((d) => d.tracks).toList(growable: false);
@@ -38,9 +37,8 @@ MusicRelease musicReleaseFromDto(MusicReleaseDto dto) {
 }
 
 MusicDiscRef musicMediaFromDto(MusicMediaDto dto) {
-  final tracks = dto.tracks
-      .map((t) => musicTrackFromDto(t))
-      .toList(growable: false);
+  final tracks =
+      dto.tracks.map((t) => musicTrackFromDto(t)).toList(growable: false);
   return MusicDiscRef(
     discNumber: dto.mediaNumber,
     discName: dto.titleValue,

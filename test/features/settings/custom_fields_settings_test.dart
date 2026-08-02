@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('custom fields settings renders scoped rows without tile warnings',
+  testWidgets(
+      'custom fields settings renders scoped rows without tile warnings',
       (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);

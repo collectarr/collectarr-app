@@ -94,7 +94,8 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.byType(AppBar), findsNothing);
-    expect(find.byKey(const ValueKey('detail-toolbar-copy-menu')), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('detail-toolbar-copy-menu')), findsOneWidget);
     expect(find.text('Copy'), findsOneWidget);
     expect(find.text('Selected'), findsOneWidget);
     expect(find.text('Add copy'), findsNothing);
@@ -264,7 +265,8 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    final saveButton = find.widgetWithText(FilledButton, 'Apply tracking changes');
+    final saveButton =
+        find.widgetWithText(FilledButton, 'Apply tracking changes');
     await tester.scrollUntilVisible(
       saveButton,
       300,

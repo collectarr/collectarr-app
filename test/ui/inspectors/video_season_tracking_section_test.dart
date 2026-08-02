@@ -46,7 +46,8 @@ void main() {
       ),
     );
     const node = LibraryTitleNodeRef(titleItemId: itemId);
-    final dto = const GenericWorkspaceProjector().projectTitle(source: source, node: node);
+    final dto = const GenericWorkspaceProjector()
+        .projectTitle(source: source, node: node);
     final tvItem = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     await tester.pumpWidget(

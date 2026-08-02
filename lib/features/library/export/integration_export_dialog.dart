@@ -71,8 +71,7 @@ class _IntegrationExportDialog extends StatelessWidget {
                 format: format,
                 onTap: () => _export(context, format),
               ),
-              if (format != ExportFormat.values.last)
-                const SizedBox(height: 8),
+              if (format != ExportFormat.values.last) const SizedBox(height: 8),
             ],
           ],
         ),
@@ -121,23 +120,21 @@ class _IntegrationExportDialog extends StatelessWidget {
   }
 
   String _toJson() {
-    final items = shelfState.entries
-        .map((e) {
-          final cat = e.catalogItem;
-          final own = e.ownedItem;
-          final series = cat?.series;
-          return {
-            'title': e.title,
-            if (cat?.itemNumber != null) 'issue': cat!.itemNumber,
-            if (series?.seriesTitle != null) 'series': series!.seriesTitle,
-            if (cat?.publisher != null) 'publisher': cat!.publisher,
-            if (cat?.barcode != null) 'barcode': cat!.barcode,
-            if (own?.condition != null) 'condition': own!.condition,
-            if (own?.grade != null) 'grade': own!.grade,
-            if (cat?.releaseYear != null) 'year': cat!.releaseYear,
-          };
-        })
-        .toList();
+    final items = shelfState.entries.map((e) {
+      final cat = e.catalogItem;
+      final own = e.ownedItem;
+      final series = cat?.series;
+      return {
+        'title': e.title,
+        if (cat?.itemNumber != null) 'issue': cat!.itemNumber,
+        if (series?.seriesTitle != null) 'series': series!.seriesTitle,
+        if (cat?.publisher != null) 'publisher': cat!.publisher,
+        if (cat?.barcode != null) 'barcode': cat!.barcode,
+        if (own?.condition != null) 'condition': own!.condition,
+        if (own?.grade != null) 'grade': own!.grade,
+        if (cat?.releaseYear != null) 'year': cat!.releaseYear,
+      };
+    }).toList();
     return const JsonEncoder.withIndent('  ').convert({
       'collection': type.workspace.title,
       'exported_at': DateTime.now().toIso8601String(),
@@ -149,7 +146,8 @@ class _IntegrationExportDialog extends StatelessWidget {
   String _toXml() {
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
-    buffer.writeln('<collection name="${_escapeXml(type.workspace.title)}" count="${shelfState.entries.length}">');
+    buffer.writeln(
+        '<collection name="${_escapeXml(type.workspace.title)}" count="${shelfState.entries.length}">');
     for (final entry in shelfState.entries) {
       final cat = entry.catalogItem;
       final own = entry.ownedItem;
@@ -160,16 +158,19 @@ class _IntegrationExportDialog extends StatelessWidget {
         buffer.writeln('    <issue>${_escapeXml(cat!.itemNumber!)}</issue>');
       }
       if (series?.seriesTitle != null) {
-        buffer.writeln('    <series>${_escapeXml(series!.seriesTitle!)}</series>');
+        buffer.writeln(
+            '    <series>${_escapeXml(series!.seriesTitle!)}</series>');
       }
       if (cat?.publisher != null) {
-        buffer.writeln('    <publisher>${_escapeXml(cat!.publisher!)}</publisher>');
+        buffer.writeln(
+            '    <publisher>${_escapeXml(cat!.publisher!)}</publisher>');
       }
       if (cat?.barcode != null) {
         buffer.writeln('    <barcode>${_escapeXml(cat!.barcode!)}</barcode>');
       }
       if (own?.condition != null) {
-        buffer.writeln('    <condition>${_escapeXml(own!.condition!)}</condition>');
+        buffer.writeln(
+            '    <condition>${_escapeXml(own!.condition!)}</condition>');
       }
       buffer.writeln('  </item>');
     }

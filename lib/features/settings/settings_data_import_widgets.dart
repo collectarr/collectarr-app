@@ -114,9 +114,8 @@ class _ImportSourcesGrid extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final useWide = constraints.maxWidth >= 560;
-        final cardWidth = useWide
-            ? (constraints.maxWidth - 12) / 2
-            : constraints.maxWidth;
+        final cardWidth =
+            useWide ? (constraints.maxWidth - 12) / 2 : constraints.maxWidth;
         return Wrap(
           spacing: 12,
           runSpacing: 12,
@@ -333,7 +332,8 @@ class _ProviderCsvImportCard extends ConsumerStatefulWidget {
       _ProviderCsvImportCardState();
 }
 
-class _ProviderCsvImportCardState extends ConsumerState<_ProviderCsvImportCard> {
+class _ProviderCsvImportCardState
+    extends ConsumerState<_ProviderCsvImportCard> {
   ProviderImportId _provider = ProviderImportId.trakt;
   bool _keepUnmatchedLocally = true;
   bool _isWorking = false;
@@ -690,8 +690,7 @@ class _TmdbImportInlineCard extends ConsumerStatefulWidget {
       _TmdbImportInlineCardState();
 }
 
-class _TmdbImportInlineCardState
-    extends ConsumerState<_TmdbImportInlineCard> {
+class _TmdbImportInlineCardState extends ConsumerState<_TmdbImportInlineCard> {
   late final TextEditingController _apiKeyCtrl;
   late final TextEditingController _accountIdCtrl;
   late final TextEditingController _sessionIdCtrl;
@@ -703,10 +702,8 @@ class _TmdbImportInlineCardState
   void initState() {
     super.initState();
     _apiKeyCtrl = TextEditingController(text: widget.tmdbSettings.apiKey);
-    _accountIdCtrl =
-        TextEditingController(text: widget.tmdbSettings.accountId);
-    _sessionIdCtrl =
-        TextEditingController(text: widget.tmdbSettings.sessionId);
+    _accountIdCtrl = TextEditingController(text: widget.tmdbSettings.accountId);
+    _sessionIdCtrl = TextEditingController(text: widget.tmdbSettings.sessionId);
   }
 
   @override
@@ -864,8 +861,8 @@ class _TmdbImportInlineCardState
                     icon: Icons.cloud_sync_outlined,
                     label: 'Account',
                     selected: _sourceMode == _TmdbSourceMode.accountSync,
-                    onTap: () =>
-                        setState(() => _sourceMode = _TmdbSourceMode.accountSync),
+                    onTap: () => setState(
+                        () => _sourceMode = _TmdbSourceMode.accountSync),
                   ),
                 ),
                 const SizedBox(width: 6),

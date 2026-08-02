@@ -99,8 +99,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final showEditButton = _hovered && widget.onEditTap != null;
     final scopeBadge = _scopeBadge(context, item);
     final auxiliaryBadges = _auxiliaryBadges(item);
-    final strongSelection =
-        selected && item.node is! LibraryTitleNodeRef;
+    final strongSelection = selected && item.node is! LibraryTitleNodeRef;
     final selectedBorderWidth =
         (widget.coverSize * 0.032).clamp(3.0, 6.0).toDouble();
     final activeBorderWidth =

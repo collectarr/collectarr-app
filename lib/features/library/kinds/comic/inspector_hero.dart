@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/providers/local_cover_image_p
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -37,7 +38,10 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final palette = appPalette(context);
     final item = request.item;
     final dto = item.dto;
-    final comic = item.source.catalogItem as ComicCatalogItem?;
+    final catalogItem = item.source.catalogItem;
+    final comic = catalogItem == null
+        ? null
+        : ComicCatalogMapper.mapMetadataItemToComic(catalogItem);
     final ownedItem = request.ownedItem;
     final surface = palette.surface;
     final border =
@@ -70,7 +74,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             ? '#${dto.itemNumber!.trim()}'
             : null) ??
         dto.referenceFormatLabel ??
-        libraryOwnedReferenceLabel(ownedItem, mediaType: item.source.catalogItem?.kind) ??
+        libraryOwnedReferenceLabel(ownedItem,
+            mediaType: item.source.catalogItem?.kind) ??
         request.type.singularLabel.toUpperCase();
     final seriesLabel = comic?.series?.seriesTitle?.trim().isNotEmpty == true
         ? comic!.series!.seriesTitle!.trim()
@@ -175,7 +180,9 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                     LibraryInteractiveCover(
                       title: dto.title,
                       itemNumber: dto.itemNumber,
-                      imageUrl: back ? null : (dto.coverImageUrl ?? comic?.displayCoverUrl),
+                      imageUrl: back
+                          ? null
+                          : (dto.coverImageUrl ?? comic?.displayCoverUrl),
                       localBytes: back ? localBack : localFront,
                       ownedItemId: back ? null : ownedItemId,
                       accentColor: request.accent,

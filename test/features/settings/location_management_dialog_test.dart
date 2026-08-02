@@ -82,7 +82,8 @@ void main() {
     expect(updated.description, 'Top shelf overflow');
   });
 
-  testWidgets('location management dialog deletes a location and unparents children',
+  testWidgets(
+      'location management dialog deletes a location and unparents children',
       (tester) async {
     tester.view.physicalSize = const Size(1400, 1200);
     tester.view.devicePixelRatio = 1;

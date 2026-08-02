@@ -167,7 +167,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final ownedCopies = ref.watch(collectionProvider).maybeWhen(
           data: (items) {
             final matches = items
-                .where((item) => !item.isDeleted && item.itemId == selected.source.catalogItem?.id)
+                .where((item) =>
+                    !item.isDeleted &&
+                    item.itemId == selected.source.catalogItem?.id)
                 .toList(growable: false)
               ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
             return matches;
@@ -192,9 +194,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         clearNewest: ownedResolution.clearNewest,
       );
     }
-    final trackingEntries =
-        ref.watch(trackingEntriesByCatalogItemProvider)[selected.source.catalogItem?.id] ??
-            const <TrackingEntry>[];
+    final trackingEntries = ref.watch(trackingEntriesByCatalogItemProvider)[
+            selected.source.catalogItem?.id] ??
+        const <TrackingEntry>[];
     final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
       activeOwnedItem,
@@ -204,8 +206,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             ? widget.onRemoveOwned
             : () => _removeOwnedCopy(activeOwnedItem)
         : widget.onAddOwned;
-    final onToggleWishlist =
-        selected.dto.isWishlisted ? widget.onRemoveWishlist : widget.onAddWishlist;
+    final onToggleWishlist = selected.dto.isWishlisted
+        ? widget.onRemoveWishlist
+        : widget.onAddWishlist;
     final onEdit =
         widget.onEdit == null ? null : () => widget.onEdit!(activeOwnedItem);
     final onCorrectMetadata = widget.type.supportedMetadataProviders.isNotEmpty
@@ -267,6 +270,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
       );
     }
+
     return _buildContent(
       context,
       ref,
@@ -456,7 +460,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           accent: widget.accent,
         ),
       ...?(!usesCustomInspectorPanel
-            ? buildLibraryInspectorEditorSections(
+          ? buildLibraryInspectorEditorSections(
               type: widget.type,
               item: selected,
               accent: widget.accent,
@@ -465,7 +469,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             )
           : null),
       ...?(!usesCustomInspectorPanel
-            ? buildLibraryInspectorKindSections(
+          ? buildLibraryInspectorKindSections(
               context: context,
               type: widget.type,
               item: selected,

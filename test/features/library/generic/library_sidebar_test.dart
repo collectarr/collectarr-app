@@ -113,8 +113,7 @@ void main() {
                   LibrarySeriesBucket(title: 'All Movies', count: 12),
                 ],
                 groupMode: 'release_year',
-                folderPreset:
-                    LibraryFolderPreset.single('release_year'),
+                folderPreset: LibraryFolderPreset.single('release_year'),
                 selectedBucket: 'All Movies',
                 onSelected: (_) {},
                 onGroupModeChanged: (_) {},

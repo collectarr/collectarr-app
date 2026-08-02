@@ -54,7 +54,8 @@ class _AppShellState extends ConsumerState<AppShell> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final activeLibrary = _activeLibraryKind();
-    final accent = libraryAccentForKind(catalogMediaKindFromValue(activeLibrary));
+    final accent =
+        libraryAccentForKind(catalogMediaKindFromValue(activeLibrary));
     final uiPreferences = ref.watch(uiPreferencesProvider);
     final mediaQuery = MediaQuery.maybeOf(context);
     final accentTheme = buildLibraryAccentTheme(Theme.of(context), accent);
@@ -97,8 +98,9 @@ class _AppShellState extends ConsumerState<AppShell> {
           children: [
             AnimatedTheme(
               data: accentTheme,
-              duration:
-                  uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
+              duration: uiPreferences.animationsEnabled
+                  ? kAppAnimNormal
+                  : Duration.zero,
               curve: Curves.easeOutCubic,
               child: widget.navigationShell,
             ),

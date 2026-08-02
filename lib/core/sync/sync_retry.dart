@@ -81,7 +81,8 @@ class SyncRetryPolicy {
 
   Duration _delayForAttempt(int attempt) {
     final millis = baseDelay.inMilliseconds * math.pow(2, attempt - 1);
-    final capped = math.min(millis.toDouble(), maxDelay.inMilliseconds.toDouble());
+    final capped =
+        math.min(millis.toDouble(), maxDelay.inMilliseconds.toDouble());
     return Duration(milliseconds: capped.round());
   }
 

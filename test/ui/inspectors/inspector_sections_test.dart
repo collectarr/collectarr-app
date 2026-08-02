@@ -95,8 +95,10 @@ void main() {
         ),
       );
       const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
-      final dto1 = const ComicWorkspaceProjector().projectTitle(source: source1, node: node1);
-      final comicItem = LibraryProjectionItem(source: source1, node: node1, dto: dto1);
+      final dto1 = const ComicWorkspaceProjector()
+          .projectTitle(source: source1, node: node1);
+      final comicItem =
+          LibraryProjectionItem(source: source1, node: node1, dto: dto1);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -124,8 +126,10 @@ void main() {
         ),
       );
       const node2 = LibraryTitleNodeRef(titleItemId: 'comic-1');
-      final dto2 = const ComicWorkspaceProjector().projectTitle(source: source2, node: node2);
-      final comicItem = LibraryProjectionItem(source: source2, node: node2, dto: dto2);
+      final dto2 = const ComicWorkspaceProjector()
+          .projectTitle(source: source2, node: node2);
+      final comicItem =
+          LibraryProjectionItem(source: source2, node: node2, dto: dto2);
       String? filteredValue;
       await tester.pumpWidget(
         MaterialApp(
@@ -155,8 +159,10 @@ void main() {
         ),
       );
       const node0a = LibraryTitleNodeRef(titleItemId: 'book-1');
-      final dto0a = const GenericWorkspaceProjector().projectTitle(source: source0a, node: node0a);
-      final bookItem = LibraryProjectionItem(source: source0a, node: node0a, dto: dto0a);
+      final dto0a = const GenericWorkspaceProjector()
+          .projectTitle(source: source0a, node: node0a);
+      final bookItem =
+          LibraryProjectionItem(source: source0a, node: node0a, dto: dto0a);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -198,8 +204,10 @@ void main() {
         ),
       );
       const node0b = LibraryTitleNodeRef(titleItemId: 'book-1');
-      final dto0b = const GenericWorkspaceProjector().projectTitle(source: source0b, node: node0b);
-      final bookItem = LibraryProjectionItem(source: source0b, node: node0b, dto: dto0b);
+      final dto0b = const GenericWorkspaceProjector()
+          .projectTitle(source: source0b, node: node0b);
+      final bookItem =
+          LibraryProjectionItem(source: source0b, node: node0b, dto: dto0b);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -231,8 +239,10 @@ void main() {
         ),
       );
       const node1 = LibraryTitleNodeRef(titleItemId: 'book-1');
-      final dto1 = const GenericWorkspaceProjector().projectTitle(source: source1, node: node1);
-      final bookItem = LibraryProjectionItem(source: source1, node: node1, dto: dto1);
+      final dto1 = const GenericWorkspaceProjector()
+          .projectTitle(source: source1, node: node1);
+      final bookItem =
+          LibraryProjectionItem(source: source1, node: node1, dto: dto1);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -269,8 +279,10 @@ void main() {
         ),
       );
       const node2 = LibraryTitleNodeRef(titleItemId: 'book-1');
-      final dto2 = const GenericWorkspaceProjector().projectTitle(source: source2, node: node2);
-      final bookItem = LibraryProjectionItem(source: source2, node: node2, dto: dto2);
+      final dto2 = const GenericWorkspaceProjector()
+          .projectTitle(source: source2, node: node2);
+      final bookItem =
+          LibraryProjectionItem(source: source2, node: node2, dto: dto2);
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

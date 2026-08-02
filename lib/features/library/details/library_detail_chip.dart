@@ -43,7 +43,9 @@ class _LibraryDetailChipState extends State<LibraryDetailChip> {
         color: chipColor,
         borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: _hovered ? base.withValues(alpha: 0.9) : base.withValues(alpha: 0.35),
+          color: _hovered
+              ? base.withValues(alpha: 0.9)
+              : base.withValues(alpha: 0.35),
         ),
       ),
       child: Padding(
@@ -124,4 +126,3 @@ class LibraryDetailChipGroupWidget extends StatelessWidget {
     );
   }
 }
-

@@ -7,14 +7,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart'
-  as mlkit;
+    as mlkit;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
-final _coverScanPreviewBytesProvider =
-    FutureProvider.autoDispose.family<Uint8List?, _CoverScanPreviewSource>(
-  (ref, source) async {
+final _coverScanPreviewBytesProvider = FutureProvider.autoDispose
+    .family<Uint8List?, _CoverScanPreviewSource>((ref, source) async {
   return _readPreviewBytes(source.file);
 });
 
@@ -240,7 +239,8 @@ class LocalLibraryCoverImagePreprocessor
         preparedBytes: image.imageBytes,
       );
     }
-    final sourceBytes = image.imageBytes ?? await _readPreviewBytes(image.sourceFile);
+    final sourceBytes =
+        image.imageBytes ?? await _readPreviewBytes(image.sourceFile);
     if (sourceBytes == null) {
       return LibraryCoverPreparedImage(
         reviewedImage: image,
@@ -286,7 +286,8 @@ Future<Uint8List?> _transformPreparedBytes(
 
     final cropRect = _cropRectForBounds(rotatedSize, image.cropBounds);
     croppedImage = await _renderCroppedImage(rotatedImage, cropRect);
-    final byteData = await croppedImage.toByteData(format: ui.ImageByteFormat.png);
+    final byteData =
+        await croppedImage.toByteData(format: ui.ImageByteFormat.png);
     return byteData?.buffer.asUint8List();
   } catch (error, stackTrace) {
     logRecoverableError(
@@ -339,9 +340,9 @@ Rect _cropRectForBounds(Size size, LibraryCoverCropBounds bounds) {
   final top = size.height * bounds.top;
   final width = math.max(1, (size.width * bounds.width).round()).toDouble();
   final height = math.max(1, (size.height * bounds.height).round()).toDouble();
-    final clampedLeft =
+  final clampedLeft =
       left.clamp(0.0, math.max(0.0, size.width - width)).toDouble();
-    final clampedTop =
+  final clampedTop =
       top.clamp(0.0, math.max(0.0, size.height - height)).toDouble();
   return Rect.fromLTWH(
     clampedLeft,
@@ -405,7 +406,8 @@ bool localCoverTextRecognitionSupported({
   };
 }
 
-class CompositeLibraryCoverTextRecognizer implements LibraryCoverTextRecognizer {
+class CompositeLibraryCoverTextRecognizer
+    implements LibraryCoverTextRecognizer {
   const CompositeLibraryCoverTextRecognizer({
     this.nativeRecognizer = const GoogleMlKitLibraryCoverTextRecognizer(),
     this.fallbackRecognizer = const ReviewSeedLibraryCoverTextRecognizer(),
@@ -513,8 +515,7 @@ class LibraryCoverCropBounds {
   double get width => right - left;
   double get height => bottom - top;
 
-  bool get isFullFrame =>
-      left == 0 && top == 0 && right == 1 && bottom == 1;
+  bool get isFullFrame => left == 0 && top == 0 && right == 1 && bottom == 1;
 
   LibraryCoverCropBounds copyWith({
     double? left,
@@ -553,7 +554,8 @@ class LibraryCoverReviewedImage {
     Uint8List? imageBytes,
     String? displayName,
     int rotationQuarterTurns = 0,
-    LibraryCoverCropBounds cropBounds = const LibraryCoverCropBounds.fullFrame(),
+    LibraryCoverCropBounds cropBounds =
+        const LibraryCoverCropBounds.fullFrame(),
     String? extractedText,
   }) {
     final resolvedName = displayName?.trim();
@@ -657,212 +659,210 @@ class _LibraryCoverScanReviewDialogState
       _coverScanPreviewBytesProvider(_CoverScanPreviewSource(widget.file)),
     );
     return Dialog(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 560, maxHeight: maxDialogHeight),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Review imported cover',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Keep this image local and confirm it before search hints are derived. Crop and OCR happen locally before the identify search runs.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
-                const SizedBox(height: 16),
-                _LibraryCoverScanReviewPreview(
-                  file: widget.file,
-                  previewBytes: previewBytes.value,
-                  isLoading: previewBytes.isLoading,
-                  rotationQuarterTurns: _rotationQuarterTurns,
-                  cropBounds: _cropBounds,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Crop the frame locally so later OCR and cleanup only inspect the relevant cover area.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    OutlinedButton.icon(
-                      key: const ValueKey('library-cover-review-trim-left'),
-                      onPressed: () => _trimCropEdge(left: _cropStep),
-                      icon: const Icon(Icons.keyboard_double_arrow_right),
-                      label: const Text('Trim left'),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 560, maxHeight: maxDialogHeight),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Review imported cover',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Keep this image local and confirm it before search hints are derived. Crop and OCR happen locally before the identify search runs.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
-                    OutlinedButton.icon(
-                      key: const ValueKey('library-cover-review-trim-right'),
-                      onPressed: () => _trimCropEdge(right: -_cropStep),
-                      icon: const Icon(Icons.keyboard_double_arrow_left),
-                      label: const Text('Trim right'),
+              ),
+              const SizedBox(height: 16),
+              _LibraryCoverScanReviewPreview(
+                file: widget.file,
+                previewBytes: previewBytes.value,
+                isLoading: previewBytes.isLoading,
+                rotationQuarterTurns: _rotationQuarterTurns,
+                cropBounds: _cropBounds,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Crop the frame locally so later OCR and cleanup only inspect the relevant cover area.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
-                    OutlinedButton.icon(
-                      key: const ValueKey('library-cover-review-trim-top'),
-                      onPressed: () => _trimCropEdge(top: _cropStep),
-                      icon: const Icon(Icons.keyboard_double_arrow_down),
-                      label: const Text('Trim top'),
-                    ),
-                    OutlinedButton.icon(
-                      key: const ValueKey('library-cover-review-trim-bottom'),
-                      onPressed: () => _trimCropEdge(bottom: -_cropStep),
-                      icon: const Icon(Icons.keyboard_double_arrow_up),
-                      label: const Text('Trim bottom'),
-                    ),
-                    TextButton.icon(
-                      key: const ValueKey('library-cover-review-reset-crop'),
-                      onPressed: _cropBounds.isFullFrame
-                          ? null
-                          : () => setState(
-                                () => _cropBounds =
-                                    const LibraryCoverCropBounds.fullFrame(),
-                              ),
-                      icon: const Icon(Icons.crop_free),
-                      label: const Text('Reset crop'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Crop: ${(_cropBounds.width * 100).round()}% width x ${(_cropBounds.height * 100).round()}% height',
-                  key: const ValueKey('library-cover-review-crop-label'),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    OutlinedButton.icon(
-                      key: const ValueKey('library-cover-review-rotate-left'),
-                      onPressed: () => setState(
-                        () => _rotationQuarterTurns =
-                            (_rotationQuarterTurns + 3) % 4,
-                      ),
-                      icon: const Icon(Icons.rotate_left),
-                      label: const Text('Rotate left'),
-                    ),
-                    OutlinedButton.icon(
-                      key: const ValueKey('library-cover-review-rotate-right'),
-                      onPressed: () => setState(
-                        () => _rotationQuarterTurns =
-                            (_rotationQuarterTurns + 1) % 4,
-                      ),
-                      icon: const Icon(Icons.rotate_right),
-                      label: const Text('Rotate right'),
-                    ),
-                    Padding(
-                      key: const ValueKey('library-cover-review-rotation-label'),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Text(
-                        'Rotation: ${_rotationQuarterTurns * 90}°',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                              fontWeight: FontWeight.w700,
-                            ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  key: const ValueKey('library-cover-review-label-field'),
-                  controller: _displayNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Local scan label',
-                    hintText: 'Edit the title, issue, year, or publisher hints',
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    key: const ValueKey('library-cover-review-trim-left'),
+                    onPressed: () => _trimCropEdge(left: _cropStep),
+                    icon: const Icon(Icons.keyboard_double_arrow_right),
+                    label: const Text('Trim left'),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  key: const ValueKey('library-cover-review-text-field'),
-                  controller: _extractedTextController,
-                  minLines: 2,
-                  maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: 'Auto extracted text',
-                    hintText:
-                        'Review or correct locally extracted title, issue, year, or publisher text',
+                  OutlinedButton.icon(
+                    key: const ValueKey('library-cover-review-trim-right'),
+                    onPressed: () => _trimCropEdge(right: -_cropStep),
+                    icon: const Icon(Icons.keyboard_double_arrow_left),
+                    label: const Text('Trim right'),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    TextButton.icon(
-                      key: const ValueKey('library-cover-review-refresh-text'),
-                      onPressed: _isAutofillingExtractedText
-                          ? null
-                          : () => _autofillExtractedText(forceReplace: true),
-                      icon: const Icon(Icons.auto_awesome_outlined),
-                      label: const Text('Refresh auto text'),
-                    ),
-                    if (_isAutofillingExtractedText)
-                      const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else if (_autofillStatus != null)
-                      Text(
-                        _autofillStatus!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
+                  OutlinedButton.icon(
+                    key: const ValueKey('library-cover-review-trim-top'),
+                    onPressed: () => _trimCropEdge(top: _cropStep),
+                    icon: const Icon(Icons.keyboard_double_arrow_down),
+                    label: const Text('Trim top'),
+                  ),
+                  OutlinedButton.icon(
+                    key: const ValueKey('library-cover-review-trim-bottom'),
+                    onPressed: () => _trimCropEdge(bottom: -_cropStep),
+                    icon: const Icon(Icons.keyboard_double_arrow_up),
+                    label: const Text('Trim bottom'),
+                  ),
+                  TextButton.icon(
+                    key: const ValueKey('library-cover-review-reset-crop'),
+                    onPressed: _cropBounds.isFullFrame
+                        ? null
+                        : () => setState(
+                              () => _cropBounds =
+                                  const LibraryCoverCropBounds.fullFrame(),
                             ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
+                    icon: const Icon(Icons.crop_free),
+                    label: const Text('Reset crop'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Crop: ${(_cropBounds.width * 100).round()}% width x ${(_cropBounds.height * 100).round()}% height',
+                key: const ValueKey('library-cover-review-crop-label'),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(width: 8),
-                    FilledButton.icon(
-                      onPressed: () => Navigator.of(context).pop(
-                        LibraryCoverReviewedImage.fromFile(
-                          widget.file,
-                          imageBytes: previewBytes.value,
-                          displayName: _displayNameController.text,
-                          rotationQuarterTurns: _rotationQuarterTurns,
-                          cropBounds: _cropBounds,
-                          extractedText: _extractedTextController.text,
-                        ),
-                      ),
-                      icon: const Icon(Icons.check_circle_outline),
-                      label: const Text('Use image'),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    key: const ValueKey('library-cover-review-rotate-left'),
+                    onPressed: () => setState(
+                      () => _rotationQuarterTurns =
+                          (_rotationQuarterTurns + 3) % 4,
                     ),
-                  ],
+                    icon: const Icon(Icons.rotate_left),
+                    label: const Text('Rotate left'),
+                  ),
+                  OutlinedButton.icon(
+                    key: const ValueKey('library-cover-review-rotate-right'),
+                    onPressed: () => setState(
+                      () => _rotationQuarterTurns =
+                          (_rotationQuarterTurns + 1) % 4,
+                    ),
+                    icon: const Icon(Icons.rotate_right),
+                    label: const Text('Rotate right'),
+                  ),
+                  Padding(
+                    key: const ValueKey('library-cover-review-rotation-label'),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Text(
+                      'Rotation: ${_rotationQuarterTurns * 90}°',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                key: const ValueKey('library-cover-review-label-field'),
+                controller: _displayNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Local scan label',
+                  hintText: 'Edit the title, issue, year, or publisher hints',
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                key: const ValueKey('library-cover-review-text-field'),
+                controller: _extractedTextController,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Auto extracted text',
+                  hintText:
+                      'Review or correct locally extracted title, issue, year, or publisher text',
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  TextButton.icon(
+                    key: const ValueKey('library-cover-review-refresh-text'),
+                    onPressed: _isAutofillingExtractedText
+                        ? null
+                        : () => _autofillExtractedText(forceReplace: true),
+                    icon: const Icon(Icons.auto_awesome_outlined),
+                    label: const Text('Refresh auto text'),
+                  ),
+                  if (_isAutofillingExtractedText)
+                    const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  else if (_autofillStatus != null)
+                    Text(
+                      _autofillStatus!,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton.icon(
+                    onPressed: () => Navigator.of(context).pop(
+                      LibraryCoverReviewedImage.fromFile(
+                        widget.file,
+                        imageBytes: previewBytes.value,
+                        displayName: _displayNameController.text,
+                        rotationQuarterTurns: _rotationQuarterTurns,
+                        cropBounds: _cropBounds,
+                        extractedText: _extractedTextController.text,
+                      ),
+                    ),
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: const Text('Use image'),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 
@@ -875,11 +875,13 @@ class _LibraryCoverScanReviewDialogState
     setState(() {
       var next = _cropBounds;
       if (left != 0) {
-        final nextLeft = (next.left + left).clamp(0.0, next.right - _minCropSpan);
+        final nextLeft =
+            (next.left + left).clamp(0.0, next.right - _minCropSpan);
         next = next.copyWith(left: nextLeft.toDouble());
       }
       if (right != 0) {
-        final nextRight = (next.right + right).clamp(next.left + _minCropSpan, 1.0);
+        final nextRight =
+            (next.right + right).clamp(next.left + _minCropSpan, 1.0);
         next = next.copyWith(right: nextRight.toDouble());
       }
       if (top != 0) {
@@ -887,7 +889,8 @@ class _LibraryCoverScanReviewDialogState
         next = next.copyWith(top: nextTop.toDouble());
       }
       if (bottom != 0) {
-        final nextBottom = (next.bottom + bottom).clamp(next.top + _minCropSpan, 1.0);
+        final nextBottom =
+            (next.bottom + bottom).clamp(next.top + _minCropSpan, 1.0);
         next = next.copyWith(bottom: nextBottom.toDouble());
       }
       _cropBounds = next;
@@ -903,12 +906,11 @@ class _LibraryCoverScanReviewDialogState
       _autofillStatus = 'Extracting local text...';
     });
     try {
-      final previewBytes =
-          await ref.read(
-            _coverScanPreviewBytesProvider(
-              _CoverScanPreviewSource(widget.file),
-            ).future,
-          );
+      final previewBytes = await ref.read(
+        _coverScanPreviewBytesProvider(
+          _CoverScanPreviewSource(widget.file),
+        ).future,
+      );
       final reviewed = LibraryCoverReviewedImage.fromFile(
         widget.file,
         imageBytes: previewBytes,
@@ -1149,7 +1151,8 @@ LibraryCoverScanResult _analysisDerivedResult(
 
   final drafts = <_CoverHintDraft>[
     if (primaryText != null) _draftFromText(primaryText),
-    if (fallbackText != null && fallbackText.toLowerCase() != primaryText?.toLowerCase())
+    if (fallbackText != null &&
+        fallbackText.toLowerCase() != primaryText?.toLowerCase())
       _draftFromText(fallbackText),
   ];
 

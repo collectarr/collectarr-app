@@ -29,13 +29,15 @@ class MusicCatalogMapper {
 
     final releases = dto.editions.map((edition) {
       final discs = edition.discs.map((disc) {
-        final tracks = disc.tracks.map((t) => MusicTrackRef(
-          title: t.title ?? '',
-          position: int.tryParse(t.position ?? ''),
-          durationSeconds: t.durationSeconds,
-          artist: t.artist ?? artistName,
-          discNumber: disc.discNumber,
-        )).toList();
+        final tracks = disc.tracks
+            .map((t) => MusicTrackRef(
+                  title: t.title ?? '',
+                  position: int.tryParse(t.position ?? ''),
+                  durationSeconds: t.durationSeconds,
+                  artist: t.artist ?? artistName,
+                  discNumber: disc.discNumber,
+                ))
+            .toList();
 
         return MusicDiscRef(
           discNumber: disc.discNumber ?? 0,

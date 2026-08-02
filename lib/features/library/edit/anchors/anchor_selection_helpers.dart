@@ -84,8 +84,9 @@ LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
       anchorType: anchorType,
       selectedEditionId: null,
       selectedVariantId: null,
-      selectedBundleReleaseId:
-          availableBundleReleaseIds.isEmpty ? null : availableBundleReleaseIds.first,
+      selectedBundleReleaseId: availableBundleReleaseIds.isEmpty
+          ? null
+          : availableBundleReleaseIds.first,
       selectedTrackingEditionId: null,
       selectedTrackingVariantId: null,
     );
@@ -147,8 +148,9 @@ LibraryWishlistAnchorSelectionState resolveWishlistAnchorSelectionState({
       anchorType: anchorType,
       selectedEditionId: null,
       selectedVariantId: null,
-      selectedBundleReleaseId:
-          availableBundleReleaseIds.isEmpty ? null : availableBundleReleaseIds.first,
+      selectedBundleReleaseId: availableBundleReleaseIds.isEmpty
+          ? null
+          : availableBundleReleaseIds.first,
     );
   }
 

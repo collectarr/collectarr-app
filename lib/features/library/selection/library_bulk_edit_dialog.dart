@@ -87,109 +87,111 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-            if (conditions.isNotEmpty) ...[
+              if (conditions.isNotEmpty) ...[
+                DropdownButtonFormField<String>(
+                  initialValue: _condition,
+                  dropdownColor: palette.panelRaised,
+                  borderRadius: kAppMenuBorderRadius,
+                  decoration: const InputDecoration(
+                    labelText: 'Condition',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    const DropdownMenuItem(
+                        value: '', child: Text('Keep current')),
+                    for (final option in conditions)
+                      DropdownMenuItem(value: option, child: Text(option)),
+                  ],
+                  onChanged: (value) {
+                    setState(
+                      () => _condition =
+                          value == null || value.isEmpty ? null : value,
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+              ],
+              if (grades.isNotEmpty) ...[
+                DropdownButtonFormField<String>(
+                  initialValue: _grade,
+                  dropdownColor: palette.panelRaised,
+                  borderRadius: kAppMenuBorderRadius,
+                  decoration: const InputDecoration(
+                    labelText: 'Grade',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    const DropdownMenuItem(
+                        value: '', child: Text('Keep current')),
+                    for (final option in grades)
+                      DropdownMenuItem(value: option, child: Text(option)),
+                  ],
+                  onChanged: (value) {
+                    setState(
+                      () => _grade =
+                          value == null || value.isEmpty ? null : value,
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+              ],
+              _locationField(),
+              const SizedBox(height: 12),
+              TagPickListField(
+                controller: _tagsController,
+                options: _tagOptions,
+                label: 'Tags',
+                hint: 'Leave blank to keep current',
+              ),
+              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                initialValue: _condition,
+                initialValue: _readStatus,
                 dropdownColor: palette.panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
-                  labelText: 'Condition',
+                  labelText: 'Tracking status',
                   border: OutlineInputBorder(),
                 ),
                 items: [
                   const DropdownMenuItem(
                       value: '', child: Text('Keep current')),
-                  for (final option in conditions)
-                    DropdownMenuItem(value: option, child: Text(option)),
+                  for (final option in trackingOptions)
+                    DropdownMenuItem(
+                      value: option.storageValue,
+                      child: Text(option.label),
+                    ),
                 ],
                 onChanged: (value) {
-                  setState(
-                    () => _condition =
-                        value == null || value.isEmpty ? null : value,
-                  );
+                  setState(() => _readStatus =
+                      value == null || value.isEmpty ? null : value);
                 },
               ),
               const SizedBox(height: 12),
-            ],
-            if (grades.isNotEmpty) ...[
-              DropdownButtonFormField<String>(
-                initialValue: _grade,
+              DropdownButtonFormField<int>(
+                initialValue: _rating,
                 dropdownColor: palette.panelRaised,
                 borderRadius: kAppMenuBorderRadius,
                 decoration: const InputDecoration(
-                  labelText: 'Grade',
+                  labelText: 'Rating',
                   border: OutlineInputBorder(),
                 ),
                 items: [
                   const DropdownMenuItem(
-                      value: '', child: Text('Keep current')),
-                  for (final option in grades)
-                    DropdownMenuItem(value: option, child: Text(option)),
+                      value: -1, child: Text('Keep current')),
+                  const DropdownMenuItem(value: 0, child: Text('No rating')),
+                  for (var i = 1; i <= 5; i++)
+                    DropdownMenuItem(
+                      value: i,
+                      child: Text('${'★' * i}${'☆' * (5 - i)}'),
+                    ),
                 ],
                 onChanged: (value) {
-                  setState(
-                    () =>
-                        _grade = value == null || value.isEmpty ? null : value,
-                  );
+                  setState(() =>
+                      _rating = value == null || value == -1 ? null : value);
                 },
               ),
-              const SizedBox(height: 12),
             ],
-            _locationField(),
-            const SizedBox(height: 12),
-            TagPickListField(
-              controller: _tagsController,
-              options: _tagOptions,
-              label: 'Tags',
-              hint: 'Leave blank to keep current',
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _readStatus,
-              dropdownColor: palette.panelRaised,
-              borderRadius: kAppMenuBorderRadius,
-              decoration: const InputDecoration(
-                labelText: 'Tracking status',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem(value: '', child: Text('Keep current')),
-                for (final option in trackingOptions)
-                  DropdownMenuItem(
-                    value: option.storageValue,
-                    child: Text(option.label),
-                  ),
-              ],
-              onChanged: (value) {
-                setState(() => _readStatus =
-                    value == null || value.isEmpty ? null : value);
-              },
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<int>(
-              initialValue: _rating,
-              dropdownColor: palette.panelRaised,
-              borderRadius: kAppMenuBorderRadius,
-              decoration: const InputDecoration(
-                labelText: 'Rating',
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                const DropdownMenuItem(value: -1, child: Text('Keep current')),
-                const DropdownMenuItem(value: 0, child: Text('No rating')),
-                for (var i = 1; i <= 5; i++)
-                  DropdownMenuItem(
-                    value: i,
-                    child: Text('${'★' * i}${'☆' * (5 - i)}'),
-                  ),
-              ],
-              onChanged: (value) {
-                setState(
-                    () => _rating = value == null || value == -1 ? null : value);
-              },
-            ),
-          ],
-        ),
+          ),
         ),
       ),
       actions: [
@@ -256,7 +258,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   Widget _locationField() {
     final summary = !_applyLocation
         ? 'Keep current location'
-        : locationPathForId(_availableLocations, _locationId) ?? 'Clear location';
+        : locationPathForId(_availableLocations, _locationId) ??
+            'Clear location';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -272,7 +275,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
             child: Text(
               summary,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: !_applyLocation ? appPalette(context).textMuted : null,
+                    color:
+                        !_applyLocation ? appPalette(context).textMuted : null,
                   ),
             ),
           ),

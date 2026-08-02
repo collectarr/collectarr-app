@@ -16,9 +16,11 @@ class DatabaseBackup {
       '_exportedAt': DateTime.now().toUtc().toIso8601String(),
     };
     for (final table in db.allTables) {
-      final rows = await db.customSelect(
-        'SELECT * FROM ${table.actualTableName}',
-      ).get();
+      final rows = await db
+          .customSelect(
+            'SELECT * FROM ${table.actualTableName}',
+          )
+          .get();
       result[table.actualTableName] = [
         for (final row in rows) row.data,
       ];

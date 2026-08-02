@@ -34,7 +34,8 @@ class LibraryEmptyState extends StatelessWidget {
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight,
@@ -94,7 +95,9 @@ class LibraryEmptyState extends StatelessWidget {
                               child: Text(
                                 'Manual add is enabled even without provider search.',
                                 textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodySmall
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
                                     ?.copyWith(
                                       color: palette.textMuted,
                                       fontWeight: FontWeight.w700,

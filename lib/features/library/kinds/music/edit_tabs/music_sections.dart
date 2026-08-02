@@ -816,12 +816,13 @@ extension _MusicSections on _MusicLibraryEditDialogState {
               else
                 Column(
                   children: [
-                    for (var index = 0; index < _externalLinkEdits.length; index++)
-                      ...[
-                        _buildExternalLinkRow(index),
-                        if (index < _externalLinkEdits.length - 1)
-                          const SizedBox(height: 10),
-                      ],
+                    for (var index = 0;
+                        index < _externalLinkEdits.length;
+                        index++) ...[
+                      _buildExternalLinkRow(index),
+                      if (index < _externalLinkEdits.length - 1)
+                        const SizedBox(height: 10),
+                    ],
                   ],
                 ),
               const SizedBox(height: 10),

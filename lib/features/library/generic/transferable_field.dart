@@ -383,9 +383,9 @@ class TransferableField {
 
   /// Build a complete field list including user-defined custom fields.
   static List<TransferableField> withCustomFields(
-    List<CustomFieldDefinition> definitions,
-    {Iterable<String>? fieldKeys,}
-  ) {
+    List<CustomFieldDefinition> definitions, {
+    Iterable<String>? fieldKeys,
+  }) {
     final keys = fieldKeys ?? [for (final field in sharedBuiltIn) field.key];
     return [
       for (final key in keys)
@@ -416,7 +416,8 @@ enum TransferMode {
 enum TransferConflict {
   skip('Skip', 'Leave existing target values unchanged'),
   overwrite('Overwrite', 'Replace existing target values'),
-  append('Append', 'Append source value after existing text (text fields only)');
+  append(
+      'Append', 'Append source value after existing text (text fields only)');
 
   const TransferConflict(this.label, this.description);
   final String label;

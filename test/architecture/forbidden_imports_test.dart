@@ -20,8 +20,9 @@ void main() {
     expect(
       filesWithObsoleteImport,
       isEmpty,
-      reason: 'The obsolete file catalog_item_types.dart should not be imported. '
-              'Import canonical domain/DTO models directly instead.',
+      reason:
+          'The obsolete file catalog_item_types.dart should not be imported. '
+          'Import canonical domain/DTO models directly instead.',
     );
   });
 }

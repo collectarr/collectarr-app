@@ -27,7 +27,8 @@ abstract final class _LibraryViewStateControllerOps {
     }
   }
 
-  static Future<void> warmViewStateCachesOnce(GenericLibraryPageState state) async {
+  static Future<void> warmViewStateCachesOnce(
+      GenericLibraryPageState state) async {
     if (GenericLibraryPageState._viewStateCacheWarmupStarted) {
       return;
     }

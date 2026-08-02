@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('import review panel renders items and clear action', (tester) async {
+  testWidgets('import review panel renders items and clear action',
+      (tester) async {
     var cleared = false;
     await tester.pumpWidget(
       MaterialApp(

@@ -21,7 +21,8 @@ void main() {
 
   tearDown(() => db.close());
 
-  testWidgets('smart lists dialog shows advanced filter chips and loads saved view', (
+  testWidgets(
+      'smart lists dialog shows advanced filter chips and loads saved view', (
     tester,
   ) async {
     final repo = SmartListRepository(db);

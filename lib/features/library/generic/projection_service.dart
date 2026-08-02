@@ -33,8 +33,7 @@ class LibraryProjectionService {
       shelf,
       type,
       customFieldDefinitions: customFieldDefinitions,
-      customFieldValuesByDefinitionByItem:
-          customFieldValuesByDefinitionByItem,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
       customFieldValuesByItem: customFieldValuesByItem,
       browserMode: browserMode,
       releaseFolderTitleItemId: releaseFolderTitleItemId,

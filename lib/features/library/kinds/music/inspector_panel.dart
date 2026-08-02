@@ -167,9 +167,10 @@ class _MusicInspectorMain extends StatelessWidget {
     final totalDuration =
         _formatTotalDuration(music?.tracks ?? const <CatalogTrack>[]);
     final releaseYear = catalogItem?.releaseYear?.toString();
-    final genreText = catalogItem?.genres == null || catalogItem!.genres!.isEmpty
-        ? null
-        : catalogItem.genres!.join(' | ');
+    final genreText =
+        catalogItem?.genres == null || catalogItem!.genres!.isEmpty
+            ? null
+            : catalogItem.genres!.join(' | ');
     final dto = inspector.item.dto;
     final formatLabel = dto.referenceFormatLabel ?? dto.variant ?? '-';
 
@@ -202,12 +203,10 @@ class _MusicInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (dto.publisher?.isNotEmpty == true ||
-                      releaseYear != null)
+                  if (dto.publisher?.isNotEmpty == true || releaseYear != null)
                     Text(
                       [
-                        if (dto.publisher?.isNotEmpty == true)
-                          dto.publisher!,
+                        if (dto.publisher?.isNotEmpty == true) dto.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -325,7 +324,8 @@ class _MusicInspectorTracks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tracks = inspector.item.source.catalogItem?.music?.tracks ?? const <CatalogTrack>[];
+    final tracks = inspector.item.source.catalogItem?.music?.tracks ??
+        const <CatalogTrack>[];
     final groups = _groupTracksByDisc(tracks);
     if (groups.isEmpty) {
       return const SizedBox.shrink();
@@ -351,16 +351,14 @@ class _MusicInspectorTracks extends StatelessWidget {
                   ),
             ),
             TextButton.icon(
-              onPressed: tracks.isEmpty
-                  ? null
-                  : () => _copyTracks(context, tracks),
+              onPressed:
+                  tracks.isEmpty ? null : () => _copyTracks(context, tracks),
               icon: const Icon(Icons.copy, size: 16),
               label: const Text('Copy'),
             ),
             TextButton.icon(
-              onPressed: tracks.isEmpty
-                  ? null
-                  : () => _printTracks(context, tracks),
+              onPressed:
+                  tracks.isEmpty ? null : () => _printTracks(context, tracks),
               icon: const Icon(Icons.print_outlined, size: 16),
               label: const Text('Print'),
             ),
@@ -455,7 +453,8 @@ class _MusicProductDetails extends StatelessWidget {
         ('Original release', formatDate(music!.originalReleaseDate!)),
       if (music?.recordingDate != null)
         ('Recording date', formatDate(music!.recordingDate!)),
-      if (catalogItem?.country?.trim().isNotEmpty == true) ('Country', catalogItem!.country!),
+      if (catalogItem?.country?.trim().isNotEmpty == true)
+        ('Country', catalogItem!.country!),
       if (catalogItem?.language?.trim().isNotEmpty == true)
         ('Language', catalogItem!.language!),
       if (music?.rpm?.trim().isNotEmpty == true) ('RPM', music!.rpm!),
@@ -816,12 +815,12 @@ pw.Widget _pdfCell(String value, {bool bold = false}) {
 String _tracksToCsv(List<List<String>> rows) {
   return rows
       .map(
-        (row) => row
-            .map((value) => '"${value.replaceAll('"', '""')}"')
-            .join(','),
+        (row) =>
+            row.map((value) => '"${value.replaceAll('"', '""')}"').join(','),
       )
       .join('\n');
 }
+
 class _MusicDiscCard extends StatelessWidget {
   const _MusicDiscCard({
     required this.discNumber,
@@ -881,7 +880,8 @@ class _MusicDiscCardSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final rows = <(String, String)>[
       if (disc.discName?.trim().isNotEmpty == true) ('Name', disc.discName!),
-      if (disc.discFormat?.trim().isNotEmpty == true) ('Format', disc.discFormat!),
+      if (disc.discFormat?.trim().isNotEmpty == true)
+        ('Format', disc.discFormat!),
       if (disc.trackCount != null) ('Track count', disc.trackCount.toString()),
       if (disc.expectedTrackCount != null)
         ('Expected tracks', disc.expectedTrackCount.toString()),
@@ -893,9 +893,12 @@ class _MusicDiscCardSection extends StatelessWidget {
         ('Missing positions', disc.missingTrackPositions.join(', ')),
       if (disc.toc?.trim().isNotEmpty == true) ('TOC', disc.toc!),
       if (disc.cddbId?.trim().isNotEmpty == true) ('CDDB ID', disc.cddbId!),
-      if (disc.leadoutOffset != null) ('Leadout', disc.leadoutOffset.toString()),
-      if (disc.bpDiscId?.trim().isNotEmpty == true) ('BP Disc ID', disc.bpDiscId!),
-      if (disc.packaging?.trim().isNotEmpty == true) ('Packaging', disc.packaging!),
+      if (disc.leadoutOffset != null)
+        ('Leadout', disc.leadoutOffset.toString()),
+      if (disc.bpDiscId?.trim().isNotEmpty == true)
+        ('BP Disc ID', disc.bpDiscId!),
+      if (disc.packaging?.trim().isNotEmpty == true)
+        ('Packaging', disc.packaging!),
       if (disc.mediaCondition?.trim().isNotEmpty == true)
         ('Media condition', disc.mediaCondition!),
       if (disc.soundType?.trim().isNotEmpty == true) ('Sound', disc.soundType!),
@@ -1063,6 +1066,7 @@ bool _matchesTrackTerms(CatalogTrack track, List<String> terms) {
   ].join(' ').toLowerCase();
   return terms.every(searchable.contains);
 }
+
 Uri? _ebayUri(LibraryProjectionRuntime item) {
   final dto = item.dto;
   final barcode = dto.barcode?.trim();
@@ -1072,8 +1076,7 @@ Uri? _ebayUri(LibraryProjectionRuntime item) {
   final seriesTitle = item.source.catalogItem?.series?.seriesTitle;
   final query = <String>[
     barcode,
-    if (seriesTitle?.trim().isNotEmpty == true)
-      seriesTitle!.trim(),
+    if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
     dto.title,
     if (dto.releaseDate != null) dto.releaseDate!.year.toString(),
   ].join(' ');

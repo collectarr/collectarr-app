@@ -1968,9 +1968,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       case CatalogMediaKind.comic:
       case CatalogMediaKind.manga:
         details = ComicOwnedDetails(
-          rawOrSlabbed: ctlTextOrNull('rawOrSlabbedController', _rawOrSlabbedController),
-          gradingCompany: ctlTextOrNull('gradingCompanyController', _gradingCompanyController),
-          graderNotes: ctlTextOrNull('graderNotesController', _graderNotesController),
+          rawOrSlabbed:
+              ctlTextOrNull('rawOrSlabbedController', _rawOrSlabbedController),
+          gradingCompany: ctlTextOrNull(
+              'gradingCompanyController', _gradingCompanyController),
+          graderNotes:
+              ctlTextOrNull('graderNotesController', _graderNotesController),
           signedBy: ctlTextOrNull('signedByController', _signedByController),
           labelType: ctlTextOrNull('labelTypeController', _labelTypeController),
           pageQuality: ctlTextOrNull('pageQualityController'),

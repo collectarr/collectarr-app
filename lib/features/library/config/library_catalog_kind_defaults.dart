@@ -73,7 +73,8 @@ const _catalogKindDefaults = <String, LibraryCatalogKindDefaults>{
   ),
 };
 
-LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(CatalogMediaKind kind) {
+LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(
+    CatalogMediaKind kind) {
   return _catalogKindDefaults[kind.apiValue];
 }
 
@@ -121,7 +122,8 @@ String catalogTitleFromToken(String value, {String emptyLabel = ''}) {
   ].join(' ');
 }
 
-List<PhysicalMediaFormat> fallbackPhysicalMediaFormatsForKind(CatalogMediaKind kind) {
+List<PhysicalMediaFormat> fallbackPhysicalMediaFormatsForKind(
+    CatalogMediaKind kind) {
   return libraryCatalogKindDefaultsForKind(kind)?.fallbackPhysicalFormats ??
       const [];
 }

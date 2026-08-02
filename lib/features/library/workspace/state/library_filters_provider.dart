@@ -73,8 +73,7 @@ class LibraryFilters extends StateNotifier<LibraryFilterState> {
   }
 }
 
-final libraryFiltersProvider =
-    StateNotifierProvider.family<LibraryFilters, LibraryFilterState,
-        LibraryWorkspaceKey>((ref, LibraryWorkspaceKey key) {
+final libraryFiltersProvider = StateNotifierProvider.family<LibraryFilters,
+    LibraryFilterState, LibraryWorkspaceKey>((ref, LibraryWorkspaceKey key) {
   return LibraryFilters(key);
 });

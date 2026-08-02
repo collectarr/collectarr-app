@@ -82,4 +82,3 @@ class LibraryInspectorTitleStatusCard extends StatelessWidget {
     );
   }
 }
-

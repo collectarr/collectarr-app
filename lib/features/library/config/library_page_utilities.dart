@@ -159,7 +159,8 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
           api: api,
           itemIds: itemIds,
         ),
-      LibraryFacetId.comicCharacter || LibraryFacetId.mediaCharacter =>
+      LibraryFacetId.comicCharacter ||
+      LibraryFacetId.mediaCharacter =>
         libraryCharacterFacetRows(
           api: api,
           itemIds: itemIds,
@@ -259,8 +260,9 @@ class LibraryCustomFieldCache {
   final List<CustomFieldDefinition> definitions;
 }
 
-final libraryCustomFieldCacheProvider = FutureProvider.family<
-    LibraryCustomFieldCache, String?>((ref, mediaKind) async {
+final libraryCustomFieldCacheProvider =
+    FutureProvider.family<LibraryCustomFieldCache, String?>(
+        (ref, mediaKind) async {
   final db = ref.read(localDatabaseProvider);
   final repo = CustomFieldRepository(db);
   final allValues = await repo.listAllValues();

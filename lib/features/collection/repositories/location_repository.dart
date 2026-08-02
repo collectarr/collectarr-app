@@ -49,9 +49,11 @@ class LocationRepository {
   }) async {
     final id = _uuid.v4();
     return _db.transaction(() async {
-      final maxSort = await _db.customSelect(
-        'SELECT COALESCE(MAX(sort_order), 0) AS m FROM locations_cache',
-      ).getSingle();
+      final maxSort = await _db
+          .customSelect(
+            'SELECT COALESCE(MAX(sort_order), 0) AS m FROM locations_cache',
+          )
+          .getSingle();
       final sortOrder = (maxSort.data['m'] as int) + 1;
 
       final location = StorageLocation(
@@ -119,8 +121,7 @@ class LocationRepository {
   }
 
   Future<void> _deleteLocationRow(String id) async {
-    await (_db.update(_db.locationsCache)
-          ..where((t) => t.parentId.equals(id)))
+    await (_db.update(_db.locationsCache)..where((t) => t.parentId.equals(id)))
         .write(const LocationsCacheCompanion(parentId: Value(null)));
     await (_db.update(_db.ownedItemsCache)
           ..where((t) => t.locationId.equals(id)))

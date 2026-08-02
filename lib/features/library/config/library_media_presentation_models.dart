@@ -274,8 +274,6 @@ typedef LibraryBucketLabelBuilder = String Function(
   LibraryBucketingContext context,
 );
 
-
-
 class LibrarySortFavorite {
   const LibrarySortFavorite({
     required this.id,
@@ -749,8 +747,6 @@ class LibraryMediaPresentation {
   }
 }
 
-
-
 String definitionIdFor(Object value) {
   final normalized = switch (value) {
     String text => text.trim(),
@@ -794,9 +790,7 @@ class LibraryFacetId {
 
 String librarySortColumnFallbackLabel(String column) {
   final columnName = column.contains('.') ? column.split('.').last : column;
-  final raw = columnName
-      .replaceAll('_', ' ')
-      .replaceAllMapped(
+  final raw = columnName.replaceAll('_', ' ').replaceAllMapped(
         RegExp(r'([a-z0-9])([A-Z])'),
         (match) => '${match[1]} ${match[2]}',
       );

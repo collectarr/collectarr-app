@@ -127,7 +127,8 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
   Set<String> _descendantIds(String id) {
     final descendants = <String>{};
     void collect(String currentId) {
-      for (final child in _locations.where((location) => location.parentId == currentId)) {
+      for (final child
+          in _locations.where((location) => location.parentId == currentId)) {
         if (descendants.add(child.id)) {
           collect(child.id);
         }
@@ -229,11 +230,15 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
   @override
   Widget build(BuildContext context) {
     final selected = _selectedLocation;
-    final roots = _locations.where((location) => location.parentId == null).toList();
-    final blockedParentIds = selected == null ? const <String>{} : _descendantIds(selected.id);
+    final roots =
+        _locations.where((location) => location.parentId == null).toList();
+    final blockedParentIds =
+        selected == null ? const <String>{} : _descendantIds(selected.id);
     final parentChoices = [
       for (final location in _locations)
-        if (selected == null || (location.id != selected.id && !blockedParentIds.contains(location.id)))
+        if (selected == null ||
+            (location.id != selected.id &&
+                !blockedParentIds.contains(location.id)))
           location,
     ];
 
@@ -276,14 +281,16 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
                             decoration: BoxDecoration(
                               color: Colors.black.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: appPalette(context).divider),
+                              border: Border.all(
+                                  color: appPalette(context).divider),
                             ),
                             child: _locations.isEmpty
                                 ? Center(
                                     child: Text(
                                       'No locations yet. Create a root location to start the hierarchy.',
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(color: appPalette(context).textMuted),
+                                      style: TextStyle(
+                                          color: appPalette(context).textMuted),
                                     ),
                                   )
                                 : ListView(
@@ -319,76 +326,85 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
                             ? Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                    Expanded(
-                                      child: ListView(
-                                        children: [
-                                          Text(
-                                            _creating ? 'New location' : 'Edit location',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium
-                                                ?.copyWith(fontWeight: FontWeight.w700),
+                                  Expanded(
+                                    child: ListView(
+                                      children: [
+                                        Text(
+                                          _creating
+                                              ? 'New location'
+                                              : 'Edit location',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.w700),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        TextField(
+                                          controller: _nameController,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Location name',
+                                            border: OutlineInputBorder(),
                                           ),
-                                          const SizedBox(height: 12),
-                                          TextField(
-                                            controller: _nameController,
-                                            decoration: const InputDecoration(
-                                              labelText: 'Location name',
-                                              border: OutlineInputBorder(),
-                                            ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        DropdownButtonFormField<String?>(
+                                          key: ValueKey(
+                                            'parent-${_selectedLocationId ?? 'new'}-${_draftParentId ?? 'root'}',
                                           ),
-                                          const SizedBox(height: 12),
-                                          DropdownButtonFormField<String?>(
-                                            key: ValueKey(
-                                              'parent-${_selectedLocationId ?? 'new'}-${_draftParentId ?? 'root'}',
+                                          initialValue: _draftParentId,
+                                          dropdownColor:
+                                              appPalette(context).panelRaised,
+                                          borderRadius: kAppMenuBorderRadius,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Parent location',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          items: [
+                                            const DropdownMenuItem<String?>(
+                                              value: null,
+                                              child: Text('Top level'),
                                             ),
-                                            initialValue: _draftParentId,
-                                            dropdownColor: appPalette(context).panelRaised,
-                                            borderRadius: kAppMenuBorderRadius,
-                                            decoration: const InputDecoration(
-                                              labelText: 'Parent location',
-                                              border: OutlineInputBorder(),
-                                            ),
-                                            items: [
-                                              const DropdownMenuItem<String?>(
-                                                value: null,
-                                                child: Text('Top level'),
+                                            for (final location
+                                                in parentChoices)
+                                              DropdownMenuItem<String?>(
+                                                value: location.id,
+                                                child: Text(location
+                                                    .fullPath(_locations)),
                                               ),
-                                              for (final location in parentChoices)
-                                                DropdownMenuItem<String?>(
-                                                  value: location.id,
-                                                  child: Text(location.fullPath(_locations)),
-                                                ),
-                                            ],
-                                            onChanged: (value) {
-                                              setState(() => _draftParentId = value);
-                                            },
+                                          ],
+                                          onChanged: (value) {
+                                            setState(
+                                                () => _draftParentId = value);
+                                          },
+                                        ),
+                                        const SizedBox(height: 12),
+                                        TextField(
+                                          controller: _descriptionController,
+                                          minLines: 3,
+                                          maxLines: 4,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Description',
+                                            alignLabelWithHint: true,
+                                            border: OutlineInputBorder(),
                                           ),
-                                          const SizedBox(height: 12),
-                                          TextField(
-                                            controller: _descriptionController,
-                                            minLines: 3,
-                                            maxLines: 4,
-                                            decoration: const InputDecoration(
-                                              labelText: 'Description',
-                                              alignLabelWithHint: true,
-                                              border: OutlineInputBorder(),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 12),
-                                          Text(
-                                            _creating
-                                                ? 'Create a reusable location that can be assigned across add, edit, and bulk flows.'
-                                                : 'Renaming or reparenting updates the hierarchy label everywhere this location id is resolved.',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.copyWith(color: appPalette(context).textMuted),
-                                          ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          _creating
+                                              ? 'Create a reusable location that can be assigned across add, edit, and bulk flows.'
+                                              : 'Renaming or reparenting updates the hierarchy label everywhere this location id is resolved.',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                  color: appPalette(context)
+                                                      .textMuted),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 12),
+                                  ),
+                                  const SizedBox(height: 12),
                                   Wrap(
                                     spacing: 8,
                                     runSpacing: 8,
@@ -396,19 +412,24 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
                                     children: [
                                       if (!_creating)
                                         OutlinedButton.icon(
-                                          onPressed: _saving ? null : _deleteSelected,
-                                          icon: const Icon(Icons.delete_outline),
+                                          onPressed:
+                                              _saving ? null : _deleteSelected,
+                                          icon:
+                                              const Icon(Icons.delete_outline),
                                           label: const Text('Delete location'),
                                         ),
                                       FilledButton.icon(
                                         onPressed: _saving ||
-                                                _nameController.text.trim().isEmpty
+                                                _nameController.text
+                                                    .trim()
+                                                    .isEmpty
                                             ? null
                                             : _save,
                                         icon: _saving
                                             ? const SizedBox.square(
                                                 dimension: 16,
-                                                child: CircularProgressIndicator(
+                                                child:
+                                                    CircularProgressIndicator(
                                                   strokeWidth: 2,
                                                 ),
                                               )
@@ -416,7 +437,9 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
                                                 ? Icons.add_task_outlined
                                                 : Icons.save_outlined),
                                         label: Text(
-                                          _creating ? 'Create location' : 'Save changes',
+                                          _creating
+                                              ? 'Create location'
+                                              : 'Save changes',
                                         ),
                                       ),
                                     ],
@@ -427,7 +450,8 @@ class _LocationManagementDialogState extends State<LocationManagementDialog> {
                                 child: Text(
                                   'Select a location to edit it, or create a new root or child location.',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: appPalette(context).textMuted),
+                                  style: TextStyle(
+                                      color: appPalette(context).textMuted),
                                 ),
                               ),
                       ),
@@ -463,7 +487,8 @@ class _LocationListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final children = allLocations.where((entry) => entry.parentId == location.id).toList();
+    final children =
+        allLocations.where((entry) => entry.parentId == location.id).toList();
     final selected = selectedId == location.id;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -477,7 +502,8 @@ class _LocationListTile extends StatelessWidget {
             ),
             child: ListTile(
               dense: true,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
               selected: selected,
               selectedTileColor: Colors.white.withValues(alpha: 0.06),
               leading: Icon(

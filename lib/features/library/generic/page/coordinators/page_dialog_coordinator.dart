@@ -106,8 +106,7 @@ class LibraryPageDialogCoordinator {
     if (!_page.mounted) {
       return;
     }
-    final allEntries =
-        projection?.allItems ?? const [];
+    final allEntries = projection?.allItems ?? const [];
     final options = LibraryFilterOptions.fromEntries(
       allEntries,
       adapter: _page.adapter,

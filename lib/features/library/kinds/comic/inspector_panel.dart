@@ -39,14 +39,13 @@ class ComicInspectorPanel extends StatelessWidget {
           slot: LibraryDetailSectionSlot.identity,
           title: 'Details',
           children: [
-            if (request.ownedCopiesSection != null)
-              request.ownedCopiesSection!,
-            if (request.bundleSection != null)
-              request.bundleSection!,
+            if (request.ownedCopiesSection != null) request.ownedCopiesSection!,
+            if (request.bundleSection != null) request.bundleSection!,
             if (request.conditionGradeSection != null)
               request.conditionGradeSection!,
             if (request.primarySections.isNotEmpty) ...request.primarySections,
-            if (request.trailingSections.isNotEmpty) ...request.trailingSections,
+            if (request.trailingSections.isNotEmpty)
+              ...request.trailingSections,
           ],
         ),
       ],

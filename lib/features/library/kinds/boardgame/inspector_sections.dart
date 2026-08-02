@@ -31,19 +31,25 @@ class BoardGamePlayStatsSection extends StatelessWidget {
           edition?.bestPlayers != null)
         LibraryDetailField(label: 'Players', value: _playersLabel(edition)),
       if (edition?.playingTimeMinutes != null)
-        LibraryDetailField(label: 'Play time', value: '${edition!.playingTimeMinutes} min'),
+        LibraryDetailField(
+            label: 'Play time', value: '${edition!.playingTimeMinutes} min'),
       if (edition?.minAge != null)
         LibraryDetailField(label: 'Age', value: '${edition!.minAge}+'),
       if (stats?.bggRank != null)
         LibraryDetailField(label: 'BGG rank', value: '#${stats!.bggRank}'),
       if (stats?.bggRating != null)
-        LibraryDetailField(label: 'BGG rating', value: stats!.bggRating!.toStringAsFixed(2)),
+        LibraryDetailField(
+            label: 'BGG rating', value: stats!.bggRating!.toStringAsFixed(2)),
       if (stats?.playCount != null)
-        LibraryDetailField(label: 'Play count', value: stats!.playCount.toString()),
+        LibraryDetailField(
+            label: 'Play count', value: stats!.playCount.toString()),
       if (stats?.lastPlayed != null)
-        LibraryDetailField(label: 'Last played', value: _formatDate(stats!.lastPlayed!)),
+        LibraryDetailField(
+            label: 'Last played', value: _formatDate(stats!.lastPlayed!)),
       if (stats?.favoritePlayerCount != null)
-        LibraryDetailField(label: 'Favorite players', value: stats!.favoritePlayerCount.toString()),
+        LibraryDetailField(
+            label: 'Favorite players',
+            value: stats!.favoritePlayerCount.toString()),
     ];
 
     final chipSections = <Widget>[
@@ -113,10 +119,14 @@ String _playersLabel(BoardGameEdition? edition) {
     return bestPlayers == null ? label : '$label (best $bestPlayers)';
   }
   if (minPlayers != null) {
-    return bestPlayers == null ? '$minPlayers' : '$minPlayers (best $bestPlayers)';
+    return bestPlayers == null
+        ? '$minPlayers'
+        : '$minPlayers (best $bestPlayers)';
   }
   if (maxPlayers != null) {
-    return bestPlayers == null ? '$maxPlayers' : '$maxPlayers (best $bestPlayers)';
+    return bestPlayers == null
+        ? '$maxPlayers'
+        : '$maxPlayers (best $bestPlayers)';
   }
   if (bestPlayers != null) {
     return 'Best $bestPlayers';
@@ -130,5 +140,3 @@ String _formatDate(DateTime value) {
   final d = value.day.toString().padLeft(2, '0');
   return '$y-$m-$d';
 }
-
-

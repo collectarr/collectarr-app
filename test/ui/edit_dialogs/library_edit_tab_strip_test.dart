@@ -44,7 +44,8 @@ class _MaterialTabBarHarness extends StatefulWidget {
 
 class _MaterialTabBarHarnessState extends State<_MaterialTabBarHarness>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabController = TabController(length: 2, vsync: this);
+  late final TabController _tabController =
+      TabController(length: 2, vsync: this);
   late final List<Widget> _tabs = List<Widget>.of(const [
     Tab(child: EditTab(icon: Icons.info_outline, label: 'Main')),
     Tab(child: EditTab(icon: Icons.tune, label: 'Details')),

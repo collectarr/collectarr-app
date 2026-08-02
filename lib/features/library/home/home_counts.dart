@@ -22,7 +22,8 @@ class LibraryKindCount {
   }
 }
 
-final overdueLoanOwnedItemIdsProvider = FutureProvider.autoDispose<Set<String>>((ref) async {
+final overdueLoanOwnedItemIdsProvider =
+    FutureProvider.autoDispose<Set<String>>((ref) async {
   final repo = LoanRepository(ref.watch(localDatabaseProvider));
   final loans = await repo.getActiveLoans();
   final now = DateTime.now();

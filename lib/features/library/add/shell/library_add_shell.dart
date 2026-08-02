@@ -148,4 +148,3 @@ class _ResizableDialogShell extends StatelessWidget {
     );
   }
 }
-

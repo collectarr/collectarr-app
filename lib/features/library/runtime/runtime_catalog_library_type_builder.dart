@@ -16,9 +16,10 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
   final normalizedType = normalizeCatalogMediaTypeDefaults(type);
   final mediaKind = catalogMediaKindFromApiValue(normalizedType.kind);
   final knownType = collectarrLibraryTypes.byKind(mediaKind);
-  final presentation = knownType?.presentation ?? genericLibraryMediaPresentation;
-  final editPresentation =
-      knownType?.editPresentation ?? const LibraryEditPresentation(
+  final presentation =
+      knownType?.presentation ?? genericLibraryMediaPresentation;
+  final editPresentation = knownType?.editPresentation ??
+      const LibraryEditPresentation(
         builder: DefaultLibraryEditPresentationBuilder(),
       );
   final defaultVisibleColumns = (knownType != null
@@ -59,7 +60,9 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
       plural: true,
     ),
     defaultMetadataProvider: normalizedType.defaultProvider ??
-        (normalizedType.providers.isEmpty ? '' : normalizedType.providers.first),
+        (normalizedType.providers.isEmpty
+            ? ''
+            : normalizedType.providers.first),
     metadataProviders: _resolveRuntimeMetadataProviders(normalizedType),
     trackingProfile: catalogTrackingProfileForKind(mediaKind),
     presentation: presentation,

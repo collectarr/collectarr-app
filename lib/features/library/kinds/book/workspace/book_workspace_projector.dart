@@ -31,7 +31,8 @@ final class BookWorkspaceProjector
     final book = BookCatalogMapper.mapMetadataItemToBook(source.catalogItem!);
     return BookWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
-      personal: PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      personal:
+          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       book: book,
     );
   }

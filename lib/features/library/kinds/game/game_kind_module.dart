@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 
-
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
@@ -28,10 +27,11 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     defaultSortId: 'title',
     defaultGroupId: 'series',
     customLinkedMetadataCandidates: (source) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings((source.catalogItem as GameCatalogItem?)?.work.platforms);
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(
+          (source.catalogItem as GameCatalogItem?)?.work.platforms);
     },
   ),
-  workspaceBehavior: const LibraryKindWorkspaceBehavior(  ),
+  workspaceBehavior: const LibraryKindWorkspaceBehavior(),
   providerMapper: const GameLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,

@@ -53,7 +53,8 @@ class SyncSnapshot {
       pendingCount: pendingCount ?? this.pendingCount,
       isOffline: isOffline ?? this.isOffline,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
-      warningMessage: clearWarning ? null : warningMessage ?? this.warningMessage,
+      warningMessage:
+          clearWarning ? null : warningMessage ?? this.warningMessage,
       rejectedChanges: clearRejectedChanges
           ? const []
           : rejectedChanges ?? this.rejectedChanges,
@@ -119,8 +120,7 @@ class SyncIdle extends SyncState {
           ),
         );
 
-  const SyncIdle.fromSnapshot(SyncSnapshot s)
-      : super._(snapshot: s);
+  const SyncIdle.fromSnapshot(SyncSnapshot s) : super._(snapshot: s);
 }
 
 class SyncInProgress extends SyncState {
@@ -142,8 +142,7 @@ class SyncInProgress extends SyncState {
           ),
         );
 
-  const SyncInProgress.fromSnapshot(SyncSnapshot s)
-      : super._(snapshot: s);
+  const SyncInProgress.fromSnapshot(SyncSnapshot s) : super._(snapshot: s);
 }
 
 class SyncFailure extends SyncState {

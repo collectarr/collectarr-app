@@ -63,21 +63,30 @@ void main() {
     );
 
     test('Stable channel excludes prereleases', () {
-      expect(isReleaseAllowedForChannel(stableRelease, UpdateChannel.stable), isTrue);
-      expect(isReleaseAllowedForChannel(betaRelease, UpdateChannel.stable), isFalse);
-      expect(isReleaseAllowedForChannel(nightlyRelease, UpdateChannel.stable), isFalse);
+      expect(isReleaseAllowedForChannel(stableRelease, UpdateChannel.stable),
+          isTrue);
+      expect(isReleaseAllowedForChannel(betaRelease, UpdateChannel.stable),
+          isFalse);
+      expect(isReleaseAllowedForChannel(nightlyRelease, UpdateChannel.stable),
+          isFalse);
     });
 
     test('Beta channel allows stable and beta but excludes nightly', () {
-      expect(isReleaseAllowedForChannel(stableRelease, UpdateChannel.beta), isTrue);
-      expect(isReleaseAllowedForChannel(betaRelease, UpdateChannel.beta), isTrue);
-      expect(isReleaseAllowedForChannel(nightlyRelease, UpdateChannel.beta), isFalse);
+      expect(isReleaseAllowedForChannel(stableRelease, UpdateChannel.beta),
+          isTrue);
+      expect(
+          isReleaseAllowedForChannel(betaRelease, UpdateChannel.beta), isTrue);
+      expect(isReleaseAllowedForChannel(nightlyRelease, UpdateChannel.beta),
+          isFalse);
     });
 
     test('Nightly channel allows all releases', () {
-      expect(isReleaseAllowedForChannel(stableRelease, UpdateChannel.nightly), isTrue);
-      expect(isReleaseAllowedForChannel(betaRelease, UpdateChannel.nightly), isTrue);
-      expect(isReleaseAllowedForChannel(nightlyRelease, UpdateChannel.nightly), isTrue);
+      expect(isReleaseAllowedForChannel(stableRelease, UpdateChannel.nightly),
+          isTrue);
+      expect(isReleaseAllowedForChannel(betaRelease, UpdateChannel.nightly),
+          isTrue);
+      expect(isReleaseAllowedForChannel(nightlyRelease, UpdateChannel.nightly),
+          isTrue);
     });
   });
 }

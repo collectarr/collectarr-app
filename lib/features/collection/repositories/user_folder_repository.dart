@@ -26,9 +26,11 @@ class UserFolderRepository {
 
   Future<UserFolder> create({required String name, String? parentId}) async {
     final id = const Uuid().v4();
-    final maxSort = await _db.customSelect(
-      'SELECT COALESCE(MAX(sort_order), 0) AS m FROM user_folders_cache',
-    ).getSingle();
+    final maxSort = await _db
+        .customSelect(
+          'SELECT COALESCE(MAX(sort_order), 0) AS m FROM user_folders_cache',
+        )
+        .getSingle();
     final sortOrder = (maxSort.data['m'] as int) + 1;
 
     await _db.into(_db.userFoldersCache).insert(
@@ -39,7 +41,8 @@ class UserFolderRepository {
             sortOrder: Value(sortOrder),
           ),
         );
-    return UserFolder(id: id, name: name, parentId: parentId, sortOrder: sortOrder);
+    return UserFolder(
+        id: id, name: name, parentId: parentId, sortOrder: sortOrder);
   }
 
   Future<void> rename(String id, String newName) async {
@@ -87,8 +90,8 @@ class UserFolderRepository {
 
   Future<void> removeItemFromFolder(String folderId, String ownedItemId) async {
     await (_db.delete(_db.userFolderItemsCache)
-          ..where(
-              (t) => t.folderId.equals(folderId) & t.ownedItemId.equals(ownedItemId)))
+          ..where((t) =>
+              t.folderId.equals(folderId) & t.ownedItemId.equals(ownedItemId)))
         .go();
   }
 

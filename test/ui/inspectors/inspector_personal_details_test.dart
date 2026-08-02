@@ -81,7 +81,8 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save').last);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Apply personal changes'));
+    await tester
+        .tap(find.widgetWithText(FilledButton, 'Apply personal changes'));
     await pumpUntilSettled(tester);
 
     final updated = await db.select(db.ownedItemsCache).getSingle();
@@ -156,7 +157,8 @@ void main() {
     await tester.ensureVisible(
       find.widgetWithText(FilledButton, 'Apply tracking changes'),
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Apply tracking changes'));
+    await tester
+        .tap(find.widgetWithText(FilledButton, 'Apply tracking changes'));
     await pumpUntilSettled(tester);
 
     final updated = await db.select(db.trackingEntriesCache).getSingle();

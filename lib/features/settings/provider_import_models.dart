@@ -106,7 +106,8 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
   ProviderImportDescriptor(
     id: ProviderImportId.tmdb,
     title: 'TMDB',
-    summary: 'Import rated and watchlist movies from TMDB account sync or TMDB export files.',
+    summary:
+        'Import rated and watchlist movies from TMDB account sync or TMDB export files.',
     supportsAccountSync: true,
     supportsFileImport: true,
   ),
@@ -239,8 +240,9 @@ class ProviderImportHistoryEntry {
   factory ProviderImportHistoryEntry.fromJson(Map<String, dynamic> json) {
     return ProviderImportHistoryEntry(
       id: json['id'] as String? ?? '',
-      provider: ProviderImportIdX.fromStorageValue(json['provider'] as String?) ??
-          ProviderImportId.tmdb,
+      provider:
+          ProviderImportIdX.fromStorageValue(json['provider'] as String?) ??
+              ProviderImportId.tmdb,
       status: ProviderImportHistoryStatusX.fromStorageValue(
         json['status'] as String?,
       ),

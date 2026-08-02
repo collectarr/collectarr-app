@@ -8,23 +8,23 @@ void main() {
   test('prefers catalog editions from core over local anchor synthesis', () {
     final catalogItem = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
-      id: 'movie-1',
-      kind: 'movie',
-      title: 'Blade Runner',
-      editions: [
-        CatalogEdition(
-          id: 'edition-core',
-          title: 'Final Cut 4K release',
-          releaseDate: DateTime.utc(1982, 6, 25),
-          variants: [
-            CatalogVariant(
-              id: 'variant-core',
-              name: '4K UHD',
-              isPrimary: true,
-            ),
-          ],
-        ),
-      ],
+        id: 'movie-1',
+        kind: 'movie',
+        title: 'Blade Runner',
+        editions: [
+          CatalogEdition(
+            id: 'edition-core',
+            title: 'Final Cut 4K release',
+            releaseDate: DateTime.utc(1982, 6, 25),
+            variants: [
+              CatalogVariant(
+                id: 'variant-core',
+                name: '4K UHD',
+                isPrimary: true,
+              ),
+            ],
+          ),
+        ],
       ),
     );
 
@@ -49,10 +49,10 @@ void main() {
   test('keeps local release synthesis when video item has no editions', () {
     final catalogItem = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
-      id: 'tmdb-local:movie:2',
-      kind: 'movie',
-      title: 'Dune',
-      physicalFormatLabel: '4K UHD',
+        id: 'tmdb-local:movie:2',
+        kind: 'movie',
+        title: 'Dune',
+        physicalFormatLabel: '4K UHD',
       ),
     );
 
@@ -73,13 +73,14 @@ void main() {
     expect(preferredVideoEditionVariantId(editions.single), 'variant-4k');
   });
 
-  test('treats tv items as video library kinds for local release synthesis', () {
+  test('treats tv items as video library kinds for local release synthesis',
+      () {
     final catalogItem = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
-      id: 'tmdb-local:tv:2',
-      kind: 'tv',
-      title: 'Severance',
-      physicalFormatLabel: 'Blu-ray',
+        id: 'tmdb-local:tv:2',
+        kind: 'tv',
+        title: 'Severance',
+        physicalFormatLabel: 'Blu-ray',
       ),
     );
 
@@ -100,12 +101,13 @@ void main() {
     expect(preferredVideoEditionVariantId(editions.single), 'variant-bluray');
   });
 
-  test('does not synthesize title snapshot fallback for refreshed core items', () {
+  test('does not synthesize title snapshot fallback for refreshed core items',
+      () {
     final catalogItem = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
-      id: 'movie-3',
-      kind: 'movie',
-      title: 'Arrival',
+        id: 'movie-3',
+        kind: 'movie',
+        title: 'Arrival',
       ),
     );
 
@@ -117,11 +119,11 @@ void main() {
   test('keeps title snapshot fallback for local synthetic video items', () {
     final catalogItem = LibraryMetadataItem.fromCatalogItem(
       CatalogItem(
-      id: 'tmdb-local:movie:4',
-      kind: 'movie',
-      title: 'Heat',
-      physicalFormatLabel: 'Blu-ray',
-      releaseDate: DateTime.utc(1995, 12, 15),
+        id: 'tmdb-local:movie:4',
+        kind: 'movie',
+        title: 'Heat',
+        physicalFormatLabel: 'Blu-ray',
+        releaseDate: DateTime.utc(1995, 12, 15),
       ),
     );
 
@@ -132,7 +134,9 @@ void main() {
     expect(editions.single.title, 'Blu-ray');
   });
 
-  test('matchesVideoReleaseAnchor matches edition and synthetic variant anchors', () {
+  test(
+      'matchesVideoReleaseAnchor matches edition and synthetic variant anchors',
+      () {
     const edition = CatalogEdition(
       id: 'edition-core',
       title: 'Collector Edition',

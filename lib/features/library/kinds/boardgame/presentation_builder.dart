@@ -41,25 +41,50 @@ class BoardGameLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (series?.seriesTitle != null)
-          LibraryDetailField(label: 'Series', value: series!.seriesTitle!, onTap: tapFor(series.seriesTitle)),
-        LibraryDetailField(label: mediaFields.numberLabel, value: genericLibraryDash(dto.itemNumber), onTap: tapFor(dto.itemNumber)),
-        LibraryDetailField(label: releaseFields.variantLabel, value: genericLibraryDash(dto.variant), onTap: tapFor(dto.variant)),
-        LibraryDetailField(label: releaseFields.barcodeLabel, value: genericLibraryDash(dto.barcode)),
+          LibraryDetailField(
+              label: 'Series',
+              value: series!.seriesTitle!,
+              onTap: tapFor(series.seriesTitle)),
+        LibraryDetailField(
+            label: mediaFields.numberLabel,
+            value: genericLibraryDash(dto.itemNumber),
+            onTap: tapFor(dto.itemNumber)),
+        LibraryDetailField(
+            label: releaseFields.variantLabel,
+            value: genericLibraryDash(dto.variant),
+            onTap: tapFor(dto.variant)),
+        LibraryDetailField(
+            label: releaseFields.barcodeLabel,
+            value: genericLibraryDash(dto.barcode)),
       ],
       contextFacts: [
-        LibraryDetailField(label: mediaFields.publisherLabel, value: genericLibraryDash(dto.publisher), onTap: tapFor(dto.publisher)),
-        LibraryDetailField(label: 'Released', value: genericLibraryDash(
-            formatPresentationNullableDate(dto.releaseDate) ??
-                dto.releaseDate?.year.toString(),
-          )),
+        LibraryDetailField(
+            label: mediaFields.publisherLabel,
+            value: genericLibraryDash(dto.publisher),
+            onTap: tapFor(dto.publisher)),
+        LibraryDetailField(
+            label: 'Released',
+            value: genericLibraryDash(
+              formatPresentationNullableDate(dto.releaseDate) ??
+                  dto.releaseDate?.year.toString(),
+            )),
         if (boardGameStats?.bggRank != null)
-          LibraryDetailField(label: 'BGG Rank', value: '#${boardGameStats!.bggRank}'),
+          LibraryDetailField(
+              label: 'BGG Rank', value: '#${boardGameStats!.bggRank}'),
         if (boardGameStats?.bggRating != null)
-          LibraryDetailField(label: 'BGG Rating', value: boardGameStats!.bggRating!.toStringAsFixed(1)),
+          LibraryDetailField(
+              label: 'BGG Rating',
+              value: boardGameStats!.bggRating!.toStringAsFixed(1)),
         if (dto.country != null)
-          LibraryDetailField(label: 'Country', value: dto.country!, onTap: tapFor(dto.country)),
+          LibraryDetailField(
+              label: 'Country',
+              value: dto.country!,
+              onTap: tapFor(dto.country)),
         if (dto.language != null)
-          LibraryDetailField(label: 'Language', value: dto.language!, onTap: tapFor(dto.language)),
+          LibraryDetailField(
+              label: 'Language',
+              value: dto.language!,
+              onTap: tapFor(dto.language)),
       ],
       creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
       characters: catalogItem?.characters ?? const <String>[],

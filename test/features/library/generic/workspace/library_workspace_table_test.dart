@@ -52,10 +52,8 @@ void main() {
                   ascending: false,
                 ),
               ],
-              columnWidthFor: (column) =>
-                  column == 'title' ? 180 : 80,
-              defaultColumnWidthFor: (column) =>
-                  column == 'title' ? 180 : 80,
+              columnWidthFor: (column) => column == 'title' ? 180 : 80,
+              defaultColumnWidthFor: (column) => column == 'title' ? 180 : 80,
               columnSortFor: (column) => switch (column) {
                 'title' => 'title',
                 'issue' => 'issue',
@@ -111,10 +109,8 @@ void main() {
               ],
               sortColumn: 'title',
               sortAscending: true,
-              columnWidthFor: (column) =>
-                  column == 'title' ? 180 : 80,
-              defaultColumnWidthFor: (column) =>
-                  column == 'title' ? 180 : 80,
+              columnWidthFor: (column) => column == 'title' ? 180 : 80,
+              defaultColumnWidthFor: (column) => column == 'title' ? 180 : 80,
               columnSortFor: (column) => switch (column) {
                 'title' => 'title',
                 'issue' => 'issue',
@@ -144,7 +140,8 @@ void main() {
     expect(opened, 'Batman');
   });
 
-  testWidgets('workspace table header hides secondary sort chrome in narrow columns',
+  testWidgets(
+      'workspace table header hides secondary sort chrome in narrow columns',
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -208,8 +205,7 @@ void main() {
                   ],
                   sortColumn: 'title',
                   sortAscending: true,
-                  columnWidthFor: (column) =>
-                      column == 'title' ? 180 : 80,
+                  columnWidthFor: (column) => column == 'title' ? 180 : 80,
                   defaultColumnWidthFor: (column) =>
                       column == 'title' ? 180 : 80,
                   columnSortFor: (column) => switch (column) {
@@ -218,8 +214,7 @@ void main() {
                     _ => null,
                   },
                   columnLabelFor: (column) => column,
-                  columnIsNumeric: (column) =>
-                      column == 'issue',
+                  columnIsNumeric: (column) => column == 'issue',
                   cellBuilder: (entry, column) => Text(
                     column == 'title' ? entry : '#1',
                   ),
@@ -269,17 +264,14 @@ void main() {
               ],
               sortColumn: 'title',
               sortAscending: true,
-              columnWidthFor: (column) =>
-                  column == 'title' ? 180 : 80,
-              defaultColumnWidthFor: (column) =>
-                  column == 'title' ? 180 : 80,
+              columnWidthFor: (column) => column == 'title' ? 180 : 80,
+              defaultColumnWidthFor: (column) => column == 'title' ? 180 : 80,
               columnSortFor: (column) => switch (column) {
                 'title' => 'title',
                 'issue' => 'issue',
                 _ => null,
               },
-              columnLabelFor: (column) =>
-                  column == 'title' ? '' : column,
+              columnLabelFor: (column) => column == 'title' ? '' : column,
               columnIsNumeric: (column) => column == 'issue',
               cellBuilder: (entry, column) => Text(
                 column == 'title' ? entry : '#1',
@@ -324,10 +316,8 @@ void main() {
               ],
               sortColumn: 'title',
               sortAscending: true,
-              columnWidthFor: (column) =>
-                  column == 'title' ? 180 : 80,
-              defaultColumnWidthFor: (column) =>
-                  column == 'title' ? 180 : 80,
+              columnWidthFor: (column) => column == 'title' ? 180 : 80,
+              defaultColumnWidthFor: (column) => column == 'title' ? 180 : 80,
               columnSortFor: (column) => switch (column) {
                 'title' => 'title',
                 'issue' => 'issue',

@@ -51,8 +51,8 @@ class MediaTracking {
 extension OwnedItemTracking on OwnedItem {
   MediaTracking get mediaTracking {
     return MediaTracking(
-      status: mediaTrackingStatusFromString(readStatus) ??
-          MediaTrackingStatus.none,
+      status:
+          mediaTrackingStatusFromString(readStatus) ?? MediaTrackingStatus.none,
       rating: rating,
       startedAt: startedAt,
       completedAt: finishedAt ?? purchaseDate,

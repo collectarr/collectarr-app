@@ -186,7 +186,8 @@ class SyncController extends StateNotifier<SyncState> {
   SyncState _withSnapshot(SyncSnapshot s) {
     return switch (state) {
       SyncInProgress() => SyncInProgress.fromSnapshot(s),
-      SyncFailure f => SyncFailure.fromSnapshot(s, errorMessage: f.errorMessage),
+      SyncFailure f =>
+        SyncFailure.fromSnapshot(s, errorMessage: f.errorMessage),
       SyncIdle() || _ => SyncIdle.fromSnapshot(s),
     };
   }

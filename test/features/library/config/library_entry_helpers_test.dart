@@ -15,7 +15,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  test('resolveActiveTrackingEntry prefers the tracking row for the active copy', () {
+  test(
+      'resolveActiveTrackingEntry prefers the tracking row for the active copy',
+      () {
     final trackedOnly = TrackingEntry(
       id: 'tracking-item',
       catalogRef: const CatalogEntityRef(
@@ -54,7 +56,8 @@ void main() {
     expect(resolved?.id, 'tracking-copy');
   });
 
-  test('libraryReferenceHierarchySegments builds ordered hierarchy breadcrumbs', () {
+  test('libraryReferenceHierarchySegments builds ordered hierarchy breadcrumbs',
+      () {
     final hierarchy = libraryReferenceHierarchySegments(
       mediaType: 'music',
       editions: const [
@@ -75,7 +78,8 @@ void main() {
     );
   });
 
-  test('libraryHierarchyContractDiagnosticLabel flags missing series title', () {
+  test('libraryHierarchyContractDiagnosticLabel flags missing series title',
+      () {
     final source = ShelfEntry(
       itemId: 'comic-5',
       catalogItem: CatalogItemDto(
@@ -85,7 +89,8 @@ void main() {
       ),
     );
     final node = LibraryTitleNodeRef(titleItemId: 'comic-5');
-    final dto = const GenericWorkspaceProjector().projectTitle(source: source, node: node);
+    final dto = const GenericWorkspaceProjector()
+        .projectTitle(source: source, node: node);
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     expect(
@@ -94,7 +99,8 @@ void main() {
     );
   });
 
-  test('libraryHierarchyContractDiagnosticLabel flags missing release variant', () {
+  test('libraryHierarchyContractDiagnosticLabel flags missing release variant',
+      () {
     final edition = CatalogEdition(id: 'rel-2', title: 'Standard');
     final source = ShelfEntry(
       itemId: 'movie-2',
@@ -128,7 +134,9 @@ void main() {
     );
   });
 
-  test('resolveLibraryMutationAnchor prefers explicit owned or wishlist release anchors', () {
+  test(
+      'resolveLibraryMutationAnchor prefers explicit owned or wishlist release anchors',
+      () {
     final source = ShelfEntry(
       itemId: 'movie-1',
       catalogItem: CatalogItemDto(
@@ -138,7 +146,8 @@ void main() {
       ),
     );
     final node = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dto = const GenericWorkspaceProjector().projectTitle(source: source, node: node);
+    final dto = const GenericWorkspaceProjector()
+        .projectTitle(source: source, node: node);
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     final wishlistItem = WishlistItem(

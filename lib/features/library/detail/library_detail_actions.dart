@@ -37,7 +37,8 @@ class LibraryDetailActionStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final isOwned = ownedCopies.isNotEmpty || activeOwnedItem != null || item.dto.isOwned;
+    final isOwned =
+        ownedCopies.isNotEmpty || activeOwnedItem != null || item.dto.isOwned;
     final removeLabel = ownedCopies.length > 1
         ? 'Remove selected copy'
         : 'Remove ${type.singularLabel.toLowerCase()}';
@@ -62,7 +63,8 @@ class LibraryDetailActionStrip extends StatelessWidget {
                       DropdownMenuItem<String>(
                         value: ownedCopies[index].id,
                         child: Text(
-                          buildOwnedCopyLabel(ownedCopies[index], const [], index),
+                          buildOwnedCopyLabel(
+                              ownedCopies[index], const [], index),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -83,9 +85,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
               onPressed: onAddOwned,
               icon: const Icon(Icons.add_circle_outline),
               label: Text(
-                isOwned
-                    ? 'Add another copy'
-                    : 'Add to collection',
+                isOwned ? 'Add another copy' : 'Add to collection',
               ),
             ),
             if (item.dto.isWishlisted)
@@ -135,7 +135,8 @@ class LibraryDetailStatsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final totalCopies = ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
+    final totalCopies =
+        ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
         ? (ownedItem?.quantity ?? 0)
         : ownedCopies.fold<int>(0, (sum, i) => sum + i.quantity);
@@ -144,15 +145,26 @@ class LibraryDetailStatsBar extends StatelessWidget {
         : ownedCopies.indexWhere((i) => i.id == ownedItem!.id);
     final facts = <({String label, String value})>[
       (label: 'Status', value: genericLibraryStatusLabel(item)),
-      (label: 'Cover', value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty ? 'Missing' : 'Ready'),
-      (label: 'Metadata', value: dto.publisher == null || dto.publisher!.isEmpty ? 'Missing' : 'Ready'),
+      (
+        label: 'Cover',
+        value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
+            ? 'Missing'
+            : 'Ready'
+      ),
+      (
+        label: 'Metadata',
+        value: dto.publisher == null || dto.publisher!.isEmpty
+            ? 'Missing'
+            : 'Ready'
+      ),
       (label: 'Quantity', value: totalQuantity.toString()),
       if (totalCopies > 1) (label: 'Copies', value: totalCopies.toString()),
       if (selectedCopyIndex != null && selectedCopyIndex >= 0)
         (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
       (
         label: 'Updated',
-        value: formatNullableDate(ownedItem?.updatedAt ?? dto.releaseDate) ?? '-',
+        value:
+            formatNullableDate(ownedItem?.updatedAt ?? dto.releaseDate) ?? '-',
       ),
     ];
 

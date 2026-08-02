@@ -83,8 +83,7 @@ class ImportReviewPanel extends StatelessWidget {
             if (items.isEmpty)
               Text(emptyLabel)
             else
-              for (final item in items)
-                _ImportReviewItemTile(item: item),
+              for (final item in items) _ImportReviewItemTile(item: item),
           ],
         ),
       ),

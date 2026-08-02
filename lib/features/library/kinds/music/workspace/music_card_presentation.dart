@@ -55,9 +55,11 @@ Widget _buildMusicHorizontalCard({
           baseColor: palette.cardBackground,
         )
       : palette.cardBackground;
-  final titleColor = delegate.selected ? delegate.selectedTitleColor : palette.textPrimary;
-  final subtitleColor =
-      delegate.selected ? delegate.selectedTitleColor.withValues(alpha: 0.9) : delegate.mutedColor;
+  final titleColor =
+      delegate.selected ? delegate.selectedTitleColor : palette.textPrimary;
+  final subtitleColor = delegate.selected
+      ? delegate.selectedTitleColor.withValues(alpha: 0.9)
+      : delegate.mutedColor;
   final supportColor = delegate.selected
       ? delegate.selectedTitleColor.withValues(alpha: 0.82)
       : palette.textSecondary;
@@ -271,9 +273,11 @@ Widget _buildMusicVerticalCard({
           baseColor: palette.cardBackground,
         )
       : palette.cardBackground;
-  final titleColor = delegate.selected ? delegate.selectedTitleColor : palette.textPrimary;
-  final subtitleColor =
-      delegate.selected ? delegate.selectedTitleColor.withValues(alpha: 0.9) : delegate.mutedColor;
+  final titleColor =
+      delegate.selected ? delegate.selectedTitleColor : palette.textPrimary;
+  final subtitleColor = delegate.selected
+      ? delegate.selectedTitleColor.withValues(alpha: 0.9)
+      : delegate.mutedColor;
   final artist = musicCardArtist(item);
   final year = dto.releaseDate?.year.toString() ?? '';
   return RepaintBoundary(
@@ -322,10 +326,7 @@ Widget _buildMusicVerticalCard({
                         dto.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               color: titleColor,
                               fontWeight: FontWeight.w900,
                             ),
@@ -342,13 +343,11 @@ Widget _buildMusicVerticalCard({
                           ].join(' – '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: subtitleColor,
-                                fontWeight: FontWeight.w800,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: subtitleColor,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                         ),
                       ),
                     ],
@@ -464,7 +463,8 @@ class _MusicCompactMetaPill extends StatelessWidget {
 
 /// Returns the primary artist name for a music item.
 String? musicCardArtist(LibraryProjectionRuntime item) {
-  final creators = item.source.catalogItem?.creators ?? const <Map<String, dynamic>>[];
+  final creators =
+      item.source.catalogItem?.creators ?? const <Map<String, dynamic>>[];
   String? fallbackName;
   for (final creator in creators) {
     final rawName =
@@ -525,7 +525,8 @@ int? musicCardTrackCount(LibraryProjectionRuntime item) {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionRuntime item,
 ) {
-  final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(item.source.catalogItem?.kind));
+  final type = collectarrLibraryTypes
+      .byKind(catalogMediaKindFromValue(item.source.catalogItem?.kind));
   if (type == null) return null;
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,

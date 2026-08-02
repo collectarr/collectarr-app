@@ -42,7 +42,9 @@ void main() {
     expect(updated?.series?.seriesTitle, 'Renamed Series');
   });
 
-  test('mergeEntries moves catalog rows onto the target series and removes the source entry', () async {
+  test(
+      'mergeEntries moves catalog rows onto the target series and removes the source entry',
+      () async {
     await catalog.upsertAll([
       CatalogItem(
         id: 'comic-1',
@@ -65,8 +67,10 @@ void main() {
     ]);
 
     final entries = await registry.searchEntries(mediaKind: 'comic');
-    final target = entries.firstWhere((entry) => entry.coreSeriesId == 'series-a');
-    final source = entries.firstWhere((entry) => entry.coreSeriesId == 'series-b');
+    final target =
+        entries.firstWhere((entry) => entry.coreSeriesId == 'series-a');
+    final source =
+        entries.firstWhere((entry) => entry.coreSeriesId == 'series-b');
 
     await registry.mergeEntries(
       targetEntryId: target.id,
@@ -84,7 +88,9 @@ void main() {
     );
   });
 
-  test('captureCatalogItems uses config-driven title fallback for kinds that treat title as series', () async {
+  test(
+      'captureCatalogItems uses config-driven title fallback for kinds that treat title as series',
+      () async {
     await registry.captureCatalogItemsWithoutTransaction([
       CatalogItem(
         id: 'comic-untitled-series',

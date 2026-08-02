@@ -75,8 +75,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final ValueChanged<T>? onEntryDoubleTap;
   final void Function(T entry, TapUpDetails details)? onEntrySecondaryTapUp;
   final ValueChanged<String> onSortChanged;
-  final void Function(String column, double width)
-      onColumnWidthChanged;
+  final void Function(String column, double width) onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
   final double headerHeight;
   final double rowHeight;
@@ -258,8 +257,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   final LibraryColumnSortFor columnSortFor;
   final LibraryColumnLabelFor columnLabelFor;
   final ValueChanged<String> onSortChanged;
-  final void Function(String column, double width)
-      onColumnWidthChanged;
+  final void Function(String column, double width) onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
   final double headerHeight;
   final double columnSpacing;
@@ -352,8 +350,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
   final int? sortPriority;
   final String label;
   final ValueChanged<String> onSortChanged;
-  final void Function(String column, double width)
-      onColumnWidthChanged;
+  final void Function(String column, double width) onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
   final double height;
   final Color headerColor;
@@ -438,7 +435,8 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                           Text(
                             sortPriority.toString(),
                             style: TextStyle(
-                              color: sorted ? accentColor : headerMutedTextColor,
+                              color:
+                                  sorted ? accentColor : headerMutedTextColor,
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                             ),

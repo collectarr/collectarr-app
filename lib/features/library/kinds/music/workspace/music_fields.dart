@@ -111,6 +111,7 @@ final musicLibrarySortDefinitions = [
         if (dto.isWishlisted) return 1;
         return 2;
       }
+
       final res = rank(left).compareTo(rank(right));
       return res != 0 ? res : left.title.compareTo(right.title);
     },
@@ -142,8 +143,10 @@ final musicLibraryColumnDefinitions = [
   LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('status'),
     label: 'Status',
-    getValue: (dto) => dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
-    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
+    getValue: (dto) =>
+        dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
+    cellValue: (dto) =>
+        Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -199,7 +202,8 @@ final musicLibraryColumnDefinitions = [
     group: 'Personal',
     defaultWidth: 112,
   ),
-  columnFromField(MusicKindSchema.location, group: 'Personal', defaultWidth: 118),
+  columnFromField(MusicKindSchema.location,
+      group: 'Personal', defaultWidth: 118),
   columnFromField(MusicKindSchema.condition, group: 'Value', defaultWidth: 124),
   columnFromField(
     MusicKindSchema.price,
@@ -209,8 +213,10 @@ final musicLibraryColumnDefinitions = [
     defaultWidth: 92,
     minWidth: 78,
   ),
-  columnFromField(MusicKindSchema.barcode, group: 'Edition', defaultWidth: 160, maxWidth: 260),
-  columnFromField(MusicKindSchema.trackCount, defaultWidth: 90, isNumeric: true),
+  columnFromField(MusicKindSchema.barcode,
+      group: 'Edition', defaultWidth: 160, maxWidth: 260),
+  columnFromField(MusicKindSchema.trackCount,
+      defaultWidth: 90, isNumeric: true),
   LibraryColumnDefinition<MusicWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('rating'),
     label: 'Rating',

@@ -14,7 +14,8 @@ final class MovieWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final movie = VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+    final movie =
+        VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
     return MovieWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
@@ -28,10 +29,12 @@ final class MovieWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final movie = VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
+    final movie =
+        VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
     return MovieWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
-      personal: PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      personal:
+          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       movie: movie,
     );
   }

@@ -103,6 +103,7 @@ final mangaLibrarySortDefinitions = [
         if (dto.isWishlisted) return 1;
         return 2;
       }
+
       final res = rank(left).compareTo(rank(right));
       return res != 0 ? res : left.title.compareTo(right.title);
     },
@@ -132,8 +133,10 @@ final mangaLibraryColumnDefinitions = [
   LibraryColumnDefinition<MangaWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('status'),
     label: 'Status',
-    getValue: (dto) => dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
-    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
+    getValue: (dto) =>
+        dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
+    cellValue: (dto) =>
+        Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -189,7 +192,8 @@ final mangaLibraryColumnDefinitions = [
     group: 'Personal',
     defaultWidth: 112,
   ),
-  columnFromField(MangaKindSchema.location, group: 'Personal', defaultWidth: 118),
+  columnFromField(MangaKindSchema.location,
+      group: 'Personal', defaultWidth: 118),
   columnFromField(MangaKindSchema.condition, group: 'Value', defaultWidth: 124),
   columnFromField(
     MangaKindSchema.price,
@@ -199,7 +203,8 @@ final mangaLibraryColumnDefinitions = [
     defaultWidth: 92,
     minWidth: 78,
   ),
-  columnFromField(MangaKindSchema.barcode, group: 'Edition', defaultWidth: 160, maxWidth: 260),
+  columnFromField(MangaKindSchema.barcode,
+      group: 'Edition', defaultWidth: 160, maxWidth: 260),
   LibraryColumnDefinition<MangaWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('rating'),
     label: 'Rating',

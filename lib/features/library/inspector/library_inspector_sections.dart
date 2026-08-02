@@ -86,9 +86,14 @@ class InspectorPersonalSection extends StatelessWidget {
     final trackingFinishedAt =
         trackingEntry?.finishedAt ?? ownedItem?.finishedAt;
     final ownedTags = ownedItem?.tags;
-    final List<String> tagList = (ownedTags != null && ownedTags.trim().isNotEmpty)
-        ? ownedTags.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList()
-        : (dto.tags != null ? <String>[dto.tags!] : const <String>[]);
+    final List<String> tagList =
+        (ownedTags != null && ownedTags.trim().isNotEmpty)
+            ? ownedTags
+                .split(',')
+                .map((t) => t.trim())
+                .where((t) => t.isNotEmpty)
+                .toList()
+            : (dto.tags != null ? <String>[dto.tags!] : const <String>[]);
     return LibraryDetailSection(
       title: 'Personal',
       accentColor: accent,
@@ -101,33 +106,49 @@ class InspectorPersonalSection extends StatelessWidget {
         ],
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Status', value: genericLibraryStatusLabel(item)),
+            LibraryDetailField(
+                label: 'Status', value: genericLibraryStatusLabel(item)),
             if (ownedCopyTypeLabel != null)
               LibraryDetailField(label: 'Ownership', value: ownedCopyTypeLabel),
             if (trackingStatus != null && trackingStatus.trim().isNotEmpty)
               LibraryDetailField(label: 'Tracking', value: trackingStatus),
             if (trackingStartedAt != null)
-              LibraryDetailField(label: 'Started', value: formatNullableDate(trackingStartedAt) ?? '-'),
+              LibraryDetailField(
+                  label: 'Started',
+                  value: formatNullableDate(trackingStartedAt) ?? '-'),
             if (trackingFinishedAt != null)
-              LibraryDetailField(label: 'Finished', value: formatNullableDate(trackingFinishedAt) ?? '-'),
+              LibraryDetailField(
+                  label: 'Finished',
+                  value: formatNullableDate(trackingFinishedAt) ?? '-'),
             if (ownedIsDigital != true)
-              LibraryDetailField(label: 'Condition', value: genericLibraryDash(dto.condition)),
+              LibraryDetailField(
+                  label: 'Condition', value: genericLibraryDash(dto.condition)),
             if (ownedIsDigital != true)
-              LibraryDetailField(label: 'Grade', value: genericLibraryDash(dto.grade)),
-            LibraryDetailField(label: 'Quantity', value: ownedItem == null ? '-' : ownedItem!.quantity.toString()),
+              LibraryDetailField(
+                  label: 'Grade', value: genericLibraryDash(dto.grade)),
+            LibraryDetailField(
+                label: 'Quantity',
+                value:
+                    ownedItem == null ? '-' : ownedItem!.quantity.toString()),
             if (ownedIsDigital != true)
-              LibraryDetailField(label: 'Location', value: genericLibraryDash(dto.locationPath)),
+              LibraryDetailField(
+                  label: 'Location',
+                  value: genericLibraryDash(dto.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
             if (valueSnapshot.providerValueCents != null)
-              LibraryDetailField(label: 'Provider value', value: formatMoney(
-                  valueSnapshot.providerValueCents,
-                  valueSnapshot.currency,
-                )),
+              LibraryDetailField(
+                  label: 'Provider value',
+                  value: formatMoney(
+                    valueSnapshot.providerValueCents,
+                    valueSnapshot.currency,
+                  )),
             if (valueSnapshot.manualEstimatedValueCents != null)
-              LibraryDetailField(label: 'Manual value', value: formatMoney(
-                  valueSnapshot.manualEstimatedValueCents,
-                  valueSnapshot.currency,
-                )),
+              LibraryDetailField(
+                  label: 'Manual value',
+                  value: formatMoney(
+                    valueSnapshot.manualEstimatedValueCents,
+                    valueSnapshot.currency,
+                  )),
           ],
         ),
         if (dto.notes != null && dto.notes!.trim().isNotEmpty) ...[

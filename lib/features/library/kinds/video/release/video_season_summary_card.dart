@@ -19,7 +19,8 @@ class VideoSeasonSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final canMarkWatched = onMarkWatched != null && summary.watchedEpisodes < summary.releasedEpisodes;
+    final canMarkWatched = onMarkWatched != null &&
+        summary.watchedEpisodes < summary.releasedEpisodes;
     final canClear = onClear != null && summary.watchedEpisodes > 0;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -97,7 +98,8 @@ class VideoSeasonSummaryCard extends StatelessWidget {
                     OutlinedButton(
                       onPressed: canMarkWatched ? onMarkWatched : null,
                       style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(2)),
                       ),
                       child: const Text('Mark watched'),
                     ),
@@ -105,7 +107,8 @@ class VideoSeasonSummaryCard extends StatelessWidget {
                     OutlinedButton(
                       onPressed: canClear ? onClear : null,
                       style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(2)),
                       ),
                       child: const Text('Clear'),
                     ),

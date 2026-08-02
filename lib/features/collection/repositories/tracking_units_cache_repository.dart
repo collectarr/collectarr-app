@@ -24,8 +24,12 @@ class TrackingUnitsCacheRepository {
     return rows.map(_toModel).toList(growable: false);
   }
 
-  Future<List<TrackingUnit>> findActiveByItemIds(Iterable<String> itemIds) async {
-    final ids = itemIds.where((value) => value.isNotEmpty).toSet().toList(growable: false);
+  Future<List<TrackingUnit>> findActiveByItemIds(
+      Iterable<String> itemIds) async {
+    final ids = itemIds
+        .where((value) => value.isNotEmpty)
+        .toSet()
+        .toList(growable: false);
     if (ids.isEmpty) {
       return const <TrackingUnit>[];
     }

@@ -24,11 +24,13 @@ typedef LibraryGroupItemContextMenuCallback = void Function(
   Offset globalPosition,
 );
 
-final _tvGroupProgressProvider = FutureProvider.autoDispose.family<
-    VideoProgressSummary, CatalogEntityRef>((ref, catalogRef) async {
-  final seasons = await ref.watch(seasonsByCatalogRefProvider(catalogRef).future);
+final _tvGroupProgressProvider = FutureProvider.autoDispose
+    .family<VideoProgressSummary, CatalogEntityRef>((ref, catalogRef) async {
+  final seasons =
+      await ref.watch(seasonsByCatalogRefProvider(catalogRef).future);
   final trackedUnits = ref.watch(trackingUnitsByCatalogRefProvider(catalogRef));
-  final watchSessions = ref.watch(watchSessionsByCatalogRefProvider(catalogRef));
+  final watchSessions =
+      ref.watch(watchSessionsByCatalogRefProvider(catalogRef));
   return const VideoProgressPresenter().build(
     seasons: seasons,
     trackedUnits: trackedUnits,
@@ -82,7 +84,8 @@ class LibraryGroupedShelfView extends StatelessWidget {
   final LibraryGroupItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
 
-  bool _isActive(LibraryProjectionItem item) => item.source.itemId == selectedId;
+  bool _isActive(LibraryProjectionItem item) =>
+      item.source.itemId == selectedId;
 
   bool _isSelected(LibraryProjectionItem item) =>
       selectedIds.contains(item.source.itemId);
@@ -93,8 +96,9 @@ class LibraryGroupedShelfView extends StatelessWidget {
       return emptyBuilder(context);
     }
     final presentation = groups.first.presentation;
-    final showSeasonGroupProgress =
-        libraryKindModuleForType(type).workspaceBehavior.showsSeasonGroupProgress;
+    final showSeasonGroupProgress = libraryKindModuleForType(type)
+        .workspaceBehavior
+        .showsSeasonGroupProgress;
     return switch (presentation) {
       LibraryGroupPresentation.folderGrid =>
         _buildFolderGrid(context, showSeasonGroupProgress),
@@ -143,11 +147,12 @@ class LibraryGroupedShelfView extends StatelessWidget {
         slivers: [
           if (_showsBulkCollapseControls)
             SliverToBoxAdapter(child: _buildBulkCollapseBar(context)),
-          for (final group in groups) ..._buildInlineGroupSlivers(
-            context,
-            group,
-            mainAxisExtent,
-          ),
+          for (final group in groups)
+            ..._buildInlineGroupSlivers(
+              context,
+              group,
+              mainAxisExtent,
+            ),
           const SliverPadding(padding: EdgeInsets.only(bottom: 10)),
         ],
       ),
@@ -223,7 +228,9 @@ class LibraryGroupedShelfView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: LibraryWorkspaceGrid<ItemShelfEntry>(
-                items: [for (final item in group.items) ItemShelfEntry(item: item)],
+                items: [
+                  for (final item in group.items) ItemShelfEntry(item: item)
+                ],
                 emptyBuilder: emptyBuilder,
                 maxCrossAxisExtent: viewState.coverSize,
                 mainAxisExtent: mainAxisExtent,
@@ -364,21 +371,27 @@ class LibraryGroupFolderTile extends ConsumerWidget {
       entityType: CatalogEntityType.work,
       id: representative.source.itemId,
     );
-    final progress = isTv ? ref.watch(_tvGroupProgressProvider(catalogRef)) : null;
+    final progress =
+        isTv ? ref.watch(_tvGroupProgressProvider(catalogRef)) : null;
     final ownedSeasonCount = group.items
         .where(
           (item) =>
               item.dto.isOwned &&
-              (item.dto.itemNumber?.trim().toLowerCase().startsWith('season ') ??
+              (item.dto.itemNumber
+                      ?.trim()
+                      .toLowerCase()
+                      .startsWith('season ') ??
                   false),
         )
         .length;
     final missingSeasonCount = progress == null
         ? 0
-        : math.max(progress.maybeWhen(
-            data: (summary) => summary.totalSeasons - ownedSeasonCount,
-            orElse: () => 0,
-          ), 0);
+        : math.max(
+            progress.maybeWhen(
+              data: (summary) => summary.totalSeasons - ownedSeasonCount,
+              orElse: () => 0,
+            ),
+            0);
     return Material(
       color: Colors.transparent,
       child: InkWell(

@@ -11,12 +11,10 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
-
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   type: musicLibraryConfig,
-
   mediaAdapter: musicMediaAdapter,
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),

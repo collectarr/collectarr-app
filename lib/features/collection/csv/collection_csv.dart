@@ -324,7 +324,8 @@ class CollectionCsv {
   }) {
     final o = entry.ownedItem;
     final cfValues = o != null
-        ? _customFieldCells(o.id, customFieldDefinitions, customFieldValuesByItem)
+        ? _customFieldCells(
+            o.id, customFieldDefinitions, customFieldValuesByItem)
         : List.filled(customFieldDefinitions.length, '');
     final comic = o?.comicDetails;
     return [
@@ -368,7 +369,8 @@ class CollectionCsv {
     final o = entry.ownedItem;
     final comic = o?.comicDetails;
     final cfValues = o != null
-        ? _customFieldCells(o.id, customFieldDefinitions, customFieldValuesByItem)
+        ? _customFieldCells(
+            o.id, customFieldDefinitions, customFieldValuesByItem)
         : List.filled(customFieldDefinitions.length, '');
     return [
       ..._catalogFields(entry),
@@ -559,8 +561,7 @@ class CollectionCsv {
   }) {
     final cfValues = <String, String?>{};
     for (final entry in cfColumns.entries) {
-      final v =
-          entry.value < values.length ? values[entry.value].trim() : '';
+      final v = entry.value < values.length ? values[entry.value].trim() : '';
       if (v.isNotEmpty) {
         cfValues[entry.key] = v;
       }
@@ -594,7 +595,8 @@ class CollectionCsv {
       graderNotes: _optionalValue(index, values, 'grader_notes'),
       signedBy: _optionalValue(index, values, 'signed_by'),
       labelType: _optionalValue(index, values, 'label_type'),
-      certificationNumber: _optionalValue(index, values, 'certification_number'),
+      certificationNumber:
+          _optionalValue(index, values, 'certification_number'),
       keyComic: _boolValue(index, values, 'key_comic'),
       keyReason: _optionalValue(index, values, 'key_reason'),
       rating: int.tryParse(_value(index, values, 'rating')),

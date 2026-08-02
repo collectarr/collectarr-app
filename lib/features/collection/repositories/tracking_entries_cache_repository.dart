@@ -29,7 +29,8 @@ class TrackingEntriesCacheRepository {
     return row == null ? null : _fromCache(row);
   }
 
-  Future<List<TrackingEntry>> findActiveByItemIds(Iterable<String> itemIds) async {
+  Future<List<TrackingEntry>> findActiveByItemIds(
+      Iterable<String> itemIds) async {
     final values = itemIds.toSet().toList(growable: false);
     if (values.isEmpty) {
       return const [];

@@ -168,7 +168,8 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedItems: [
-        testOwnedItem(id: 'owned-podcast-1', itemId: podcast.id, updatedAt: now),
+        testOwnedItem(
+            id: 'owned-podcast-1', itemId: podcast.id, updatedAt: now),
       ],
       wishlistItems: const [],
       catalogItems: {podcast.id: podcast},

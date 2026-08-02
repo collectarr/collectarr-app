@@ -30,9 +30,7 @@ class ProviderImportHistoryStore {
 
   Future<void> append(ProviderImportHistoryEntry entry) async {
     final existing = await read();
-    final next = [entry, ...existing]
-        .take(_maxEntries)
-        .toList(growable: false);
+    final next = [entry, ...existing].take(_maxEntries).toList(growable: false);
     await _write(next);
   }
 

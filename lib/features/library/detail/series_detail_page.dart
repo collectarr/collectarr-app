@@ -10,8 +10,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final _seriesDetailProvider =
-    FutureProvider.autoDispose.family<_SeriesDetailData, String>((ref, seriesId) async {
+final _seriesDetailProvider = FutureProvider.autoDispose
+    .family<_SeriesDetailData, String>((ref, seriesId) async {
   final api = ref.watch(apiClientProvider);
   final series = await api.getSeries(seriesId);
   final items = await api.getSeriesItems(seriesId);
@@ -74,15 +74,16 @@ class _SeriesDetailBody extends ConsumerWidget {
     final ownedItemIds = ref.watch(collectionByCatalogItemProvider);
     final series = data.series;
     final description = series['description']?.toString();
-    final itemCount = (series['item_count'] as num?)?.toInt() ?? data.items.length;
+    final itemCount =
+        (series['item_count'] as num?)?.toInt() ?? data.items.length;
     final volumeCount = (series['volume_count'] as num?)?.toInt() ?? 0;
     final status = series['status']?.toString();
     final country = series['country']?.toString();
     final language = series['language']?.toString();
     final tags = (series['tags'] as List<dynamic>? ?? const <dynamic>[])
-      .whereType<String>()
-      .where((value) => value.trim().isNotEmpty)
-      .toList(growable: false);
+        .whereType<String>()
+        .where((value) => value.trim().isNotEmpty)
+        .toList(growable: false);
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -199,7 +200,8 @@ class _SeriesDetailBody extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         Builder(builder: (context) {
-          final missingNumbers = _computeMissingIssues(data.items, ownedItemIds);
+          final missingNumbers =
+              _computeMissingIssues(data.items, ownedItemIds);
           if (missingNumbers.isEmpty) return const SizedBox.shrink();
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -317,17 +319,24 @@ class _SeriesItemTile extends StatelessWidget {
             height: 56,
             child: coverUrl == null || coverUrl.trim().isEmpty
                 ? ColoredBox(
-                    color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
-                    child: const Icon(Icons.image_not_supported_outlined, size: 18),
+                    color: appPalette(context)
+                        .surfaceSubtle
+                        .withValues(alpha: 0.82),
+                    child: const Icon(Icons.image_not_supported_outlined,
+                        size: 18),
                   )
                 : CachedNetworkImage(
                     imageUrl: coverUrl,
                     fit: BoxFit.cover,
                     placeholder: (_, __) => ColoredBox(
-                      color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
+                      color: appPalette(context)
+                          .surfaceSubtle
+                          .withValues(alpha: 0.82),
                     ),
                     errorWidget: (_, __, ___) => ColoredBox(
-                      color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
+                      color: appPalette(context)
+                          .surfaceSubtle
+                          .withValues(alpha: 0.82),
                       child: const Icon(Icons.broken_image_outlined, size: 18),
                     ),
                   ),
@@ -372,17 +381,25 @@ class _SeriesRelationCard extends StatelessWidget {
                       imageUrl: relation.imageUrl!,
                       fit: BoxFit.cover,
                       placeholder: (_, __) => ColoredBox(
-                        color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
+                        color: appPalette(context)
+                            .surfaceSubtle
+                            .withValues(alpha: 0.82),
                         child: const Icon(Icons.image, size: 30),
                       ),
                       errorWidget: (_, __, ___) => ColoredBox(
-                        color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
-                        child: const Icon(Icons.broken_image_outlined, size: 30),
+                        color: appPalette(context)
+                            .surfaceSubtle
+                            .withValues(alpha: 0.82),
+                        child:
+                            const Icon(Icons.broken_image_outlined, size: 30),
                       ),
                     )
                   : ColoredBox(
-                      color: appPalette(context).surfaceSubtle.withValues(alpha: 0.82),
-                      child: const Icon(Icons.collections_bookmark_outlined, size: 30),
+                      color: appPalette(context)
+                          .surfaceSubtle
+                          .withValues(alpha: 0.82),
+                      child: const Icon(Icons.collections_bookmark_outlined,
+                          size: 30),
                     ),
             ),
           ),

@@ -24,6 +24,7 @@ class LibraryViewConfigState {
   final double sidebarWidth;
   final double detailsWidth;
   final double detailsHeight;
+
   /// Maps stable column ID → pixel width override. Empty = all defaults.
   final Map<String, double> columnWidths;
 

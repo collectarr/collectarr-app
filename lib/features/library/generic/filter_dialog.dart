@@ -28,7 +28,8 @@ String libraryOwnershipFilterLabel(
   LibraryTypeConfig? type,
   Object? mediaType,
 }) {
-  final labels = _libraryFilterOptionLabels(type: type, mediaType: catalogMediaKindFromValue(mediaType));
+  final labels = _libraryFilterOptionLabels(
+      type: type, mediaType: catalogMediaKindFromValue(mediaType));
   return switch (filter) {
     LibraryOwnershipFilter.all => labels.ownershipAll,
     LibraryOwnershipFilter.owned => labels.ownershipOwned,
@@ -55,7 +56,8 @@ String libraryTrackingStatusFilterLabel(
   LibraryTypeConfig? type,
   Object? mediaType,
 }) {
-  final labels = _libraryFilterOptionLabels(type: type, mediaType: catalogMediaKindFromValue(mediaType));
+  final labels = _libraryFilterOptionLabels(
+      type: type, mediaType: catalogMediaKindFromValue(mediaType));
   return switch (filter) {
     LibraryTrackingStatusFilter.all => labels.trackingAny,
     LibraryTrackingStatusFilter.notTracked => labels.trackingNotTracked,
@@ -100,7 +102,8 @@ String libraryLoanStatusFilterLabel(
   LibraryTypeConfig? type,
   Object? mediaType,
 }) {
-  final labels = _libraryFilterOptionLabels(type: type, mediaType: catalogMediaKindFromValue(mediaType));
+  final labels = _libraryFilterOptionLabels(
+      type: type, mediaType: catalogMediaKindFromValue(mediaType));
   return switch (filter) {
     LibraryLoanStatusFilter.all => labels.loanAny,
     LibraryLoanStatusFilter.onLoan => labels.loanOnLoan,
@@ -115,7 +118,8 @@ String libraryDateRangeFieldLabel(
   LibraryTypeConfig? type,
   Object? mediaType,
 }) {
-  final labels = _libraryFilterOptionLabels(type: type, mediaType: catalogMediaKindFromValue(mediaType));
+  final labels = _libraryFilterOptionLabels(
+      type: type, mediaType: catalogMediaKindFromValue(mediaType));
   return switch (field) {
     LibraryDateRangeField.updated => labels.dateUpdated,
     LibraryDateRangeField.purchased => labels.datePurchased,
@@ -130,7 +134,10 @@ LibraryFilterOptionLabels _libraryFilterOptionLabels({
 }) {
   return type?.presentation.filterOptionLabels ??
       (mediaType != null
-          ? collectarrLibraryTypes.byKind(mediaType)?.presentation.filterOptionLabels
+          ? collectarrLibraryTypes
+              .byKind(mediaType)
+              ?.presentation
+              .filterOptionLabels
           : null) ??
       const LibraryFilterOptionLabels();
 }
@@ -492,8 +499,7 @@ bool libraryFilterMatches(
 ) {
   final dto = item.dto;
   final filterValues = adapter.filterValuesForEntry(item.source);
-  if (filters.ownershipFilter == LibraryOwnershipFilter.owned &&
-      !dto.isOwned) {
+  if (filters.ownershipFilter == LibraryOwnershipFilter.owned && !dto.isOwned) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.wishlist &&
@@ -501,8 +507,7 @@ bool libraryFilterMatches(
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.missingGrade &&
-      !(dto.isOwned &&
-          (dto.grade == null || dto.grade!.trim().isEmpty))) {
+      !(dto.isOwned && (dto.grade == null || dto.grade!.trim().isEmpty))) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.forSale &&
@@ -526,12 +531,10 @@ bool libraryFilterMatches(
   if (filters.grade != null && dto.grade?.trim() != filters.grade) {
     return false;
   }
-  if (filters.condition != null &&
-      dto.condition?.trim() != filters.condition) {
+  if (filters.condition != null && dto.condition?.trim() != filters.condition) {
     return false;
   }
-  if (filters.publisher != null &&
-      dto.publisher?.trim() != filters.publisher) {
+  if (filters.publisher != null && dto.publisher?.trim() != filters.publisher) {
     return false;
   }
   if (filters.releaseYear != null) {

@@ -218,7 +218,8 @@ void _mergeAnchorSeed(
   final id = normalizedEditionId ??
       (normalizedVariantId != null
           ? _variantSyntheticEditionId(input.itemId, normalizedVariantId)
-          : _bundleSyntheticEditionId(input.itemId, normalizedBundleReleaseId!));
+          : _bundleSyntheticEditionId(
+              input.itemId, normalizedBundleReleaseId!));
   final seed = seeds.putIfAbsent(
     id,
     () => _EditionSeed.localAnchor(
@@ -252,7 +253,8 @@ int _compareCatalogEditions(CatalogEdition left, CatalogEdition right) {
 
   final leftSource = left.metadata?[_videoReleaseSourceKey] as String?;
   final rightSource = right.metadata?[_videoReleaseSourceKey] as String?;
-  final bySource = _sourcePriority(leftSource).compareTo(_sourcePriority(rightSource));
+  final bySource =
+      _sourcePriority(leftSource).compareTo(_sourcePriority(rightSource));
   if (bySource != 0) {
     return bySource;
   }
@@ -352,7 +354,10 @@ class _EditionSeed {
     this.physicalFormatLabel,
     Map<String, dynamic>? metadata,
     Map<String, CatalogVariant>? variants,
-  })  : metadata = <String, dynamic>{...?metadata, _videoReleaseSourceKey: source},
+  })  : metadata = <String, dynamic>{
+          ...?metadata,
+          _videoReleaseSourceKey: source
+        },
         _variants = <String, CatalogVariant>{...?variants};
 
   factory _EditionSeed.localAnchor(
@@ -368,7 +373,8 @@ class _EditionSeed {
               ? 'bundle_release'
               : 'edition',
       if (variantId != null) _videoReleaseAnchorVariantIdKey: variantId,
-      if (bundleReleaseId != null) _videoReleaseAnchorBundleIdKey: bundleReleaseId,
+      if (bundleReleaseId != null)
+        _videoReleaseAnchorBundleIdKey: bundleReleaseId,
     };
     final seed = _EditionSeed(
       id: id,
@@ -437,7 +443,8 @@ class _EditionSeed {
   }) {
     final normalizedVariantId = _normalized(variantId);
     final normalizedBundleReleaseId = _normalized(bundleReleaseId);
-    if (normalizedVariantId != null && !_variants.containsKey(normalizedVariantId)) {
+    if (normalizedVariantId != null &&
+        !_variants.containsKey(normalizedVariantId)) {
       _variants[normalizedVariantId] = CatalogVariant(
         id: normalizedVariantId,
         name: _fallbackVariantName(input),
@@ -530,13 +537,15 @@ class _EditionSeed {
       platform: variant.platform,
       coverPriceCents: variant.coverPriceCents,
       currency: variant.currency,
-      coverImageUrl: _normalized(variant.coverImageUrl) ?? _normalized(input.coverImageUrl),
+      coverImageUrl: _normalized(variant.coverImageUrl) ??
+          _normalized(input.coverImageUrl),
       thumbnailImageUrl: _normalized(variant.thumbnailImageUrl) ??
           _normalized(variant.coverImageUrl) ??
           _normalized(input.thumbnailImageUrl) ??
           _normalized(input.coverImageUrl),
       description: variant.description,
-      physicalFormat: _normalized(variant.physicalFormat) ?? _normalized(input.physicalFormat),
+      physicalFormat: _normalized(variant.physicalFormat) ??
+          _normalized(input.physicalFormat),
       physicalFormatLabel: _normalized(variant.physicalFormatLabel) ??
           _normalized(input.physicalFormatLabel),
       metadata: variant.metadata,

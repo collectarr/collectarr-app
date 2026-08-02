@@ -134,7 +134,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
 
   static const _unmatchedConcurrency = 4;
   final TmdbImportService _service = TmdbImportService();
-  final AnimeListImportService _animeListService = const AnimeListImportService();
+  final AnimeListImportService _animeListService =
+      const AnimeListImportService();
   final ProviderCsvImportService _providerCsvService =
       const ProviderCsvImportService();
   final TmdbPendingImportStore _pendingStore = const TmdbPendingImportStore();
@@ -379,12 +380,17 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       matches.add(
         _GenericImportMatch(
           row: row,
-          catalogItem: _bestImportMatch(row, candidates.map((item) => item.toCatalogItem()).toList(growable: false)),
+          catalogItem: _bestImportMatch(
+              row,
+              candidates
+                  .map((item) => item.toCatalogItem())
+                  .toList(growable: false)),
         ),
       );
     }
 
-    final matchedCount = matches.where((match) => match.catalogItem != null).length;
+    final matchedCount =
+        matches.where((match) => match.catalogItem != null).length;
     final unmatchedCount = matches.length - matchedCount;
     _updateJob(
       jobId,
@@ -491,7 +497,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           query: entry.title,
           year: entry.releaseYear,
           limit: 10,
-      ).then((items) => [for (final item in items) item.toCatalogItem()]);
+        ).then((items) => [for (final item in items) item.toCatalogItem()]);
       },
     );
 
@@ -862,7 +868,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       startedAt: row.startedAt,
       finishedAt: row.finishedAt,
       progressCurrent: row.progress,
-      timesCompleted: trackingStatus == MediaTrackingStatus.completed ? 1 : null,
+      timesCompleted:
+          trackingStatus == MediaTrackingStatus.completed ? 1 : null,
     );
   }
 
@@ -886,7 +893,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       startedAt: row.startedAt,
       finishedAt: row.finishedAt,
       progressCurrent: row.progress,
-      timesCompleted: trackingStatus == MediaTrackingStatus.completed ? 1 : null,
+      timesCompleted:
+          trackingStatus == MediaTrackingStatus.completed ? 1 : null,
       allowEmpty: true,
     );
   }

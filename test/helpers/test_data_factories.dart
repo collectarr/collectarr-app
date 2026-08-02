@@ -260,11 +260,12 @@ ShelfEntry testShelfEntry({
   OwnedItem? ownedItem,
   String? locationPath,
 }) {
-  final resolvedCatalogItem = catalogItem ?? testCatalogItem(
-    id: itemId,
-    kind: kind,
-    title: title,
-  );
+  final resolvedCatalogItem = catalogItem ??
+      testCatalogItem(
+        id: itemId,
+        kind: kind,
+        title: title,
+      );
   return ShelfEntry(
     itemId: itemId,
     catalogItem: LibraryMetadataItem.fromCatalogItem(resolvedCatalogItem),
@@ -288,7 +289,9 @@ LibraryProjectionRuntime testProjectionItem({
     itemId: resolvedId,
     kind: kind,
     title: title,
-    catalogItem: catalogItem ?? testCatalogItem(id: resolvedId, kind: kind, title: title, barcode: barcode),
+    catalogItem: catalogItem ??
+        testCatalogItem(
+            id: resolvedId, kind: kind, title: title, barcode: barcode),
     ownedItem: ownedItem,
     locationPath: locationPath,
   );
@@ -318,4 +321,3 @@ WishlistItem testWishlistItem({
     updatedAt: dt,
   );
 }
-

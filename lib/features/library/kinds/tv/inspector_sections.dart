@@ -63,7 +63,8 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final ownedItem = request.ownedItem;
   final trackingEntry = request.trackingEntry;
   final creatorNames = <String>[
-    for (final credit in catalogItem?.creators ?? const <Map<String, dynamic>>[])
+    for (final credit
+        in catalogItem?.creators ?? const <Map<String, dynamic>>[])
       if (credit['name']?.toString().trim().isNotEmpty == true)
         credit['name'].toString().trim(),
   ];
@@ -71,13 +72,18 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     LibraryDetailField(label: 'Display title', value: dto.title),
     if (dto.publisher?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Studio', value: dto.publisher!),
-    LibraryDetailField(label: 'Releases', value: (catalogItem?.editions.length ?? 0).toString()),
+    LibraryDetailField(
+        label: 'Releases',
+        value: (catalogItem?.editions.length ?? 0).toString()),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
     if (trackingEntry?.episodeRatings.isNotEmpty == true)
-      LibraryDetailField(label: 'Rated episodes', value: trackingEntry!.episodeRatings.length.toString()),
+      LibraryDetailField(
+          label: 'Rated episodes',
+          value: trackingEntry!.episodeRatings.length.toString()),
     if (catalogItem?.trailerUrls.isNotEmpty == true)
-      LibraryDetailField(label: 'Trailers', value: catalogItem!.trailerUrls.length.toString()),
+      LibraryDetailField(
+          label: 'Trailers', value: catalogItem!.trailerUrls.length.toString()),
   ];
 
   return <LibraryDetailSectionSpec>[

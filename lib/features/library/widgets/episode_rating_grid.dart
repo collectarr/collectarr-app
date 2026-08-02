@@ -203,7 +203,8 @@ class _EpisodeRow extends StatelessWidget {
             season: season.seasonNumber,
             episode: episodeNumber,
             hasEpisode: episodeNumber <= season.episodes.length,
-            rating: ratings[episodeRatingKey(season.seasonNumber, episodeNumber)],
+            rating:
+                ratings[episodeRatingKey(season.seasonNumber, episodeNumber)],
             onTap: onRatingTap,
             size: cellSize,
             fontSize: fontSize,
@@ -244,18 +245,16 @@ class _RatingCell extends StatelessWidget {
         ? (ThemeData.estimateBrightnessForColor(color!) == Brightness.dark
             ? Colors.white
             : Colors.black87)
-      : palette.textMuted;
+        : palette.textMuted;
 
     return Padding(
       padding: const EdgeInsets.all(1),
       child: Material(
-      color: color ?? palette.surfaceSubtle.withValues(alpha: 0.7),
+        color: color ?? palette.surfaceSubtle.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(4),
         child: InkWell(
           borderRadius: BorderRadius.circular(4),
-          onTap: onTap == null
-              ? null
-              : () => onTap!(season, episode, rating),
+          onTap: onTap == null ? null : () => onTap!(season, episode, rating),
           child: SizedBox(
             width: size - 2,
             height: size - 2,

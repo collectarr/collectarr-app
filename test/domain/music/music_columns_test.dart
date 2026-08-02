@@ -19,14 +19,19 @@ void main() {
       plannedMediaTableColumnLabelForType(musicLibraryConfig, 'back_cover'),
       'Back Cover',
     );
-    expect(plannedMediaTableColumnLabelForType(musicLibraryConfig, 'album'), 'Album');
+    expect(plannedMediaTableColumnLabelForType(musicLibraryConfig, 'album'),
+        'Album');
     expect(
       plannedMediaTableColumnLabelForType(musicLibraryConfig, 'catalog_number'),
       'Catalog Number',
     );
-    expect(plannedMediaTableColumnLabelForType(musicLibraryConfig, 'disc_count'), 'Disc Count');
     expect(
-      libraryKindModuleForKind(CatalogMediaKind.music).fields.defaultVisibleColumnIds,
+        plannedMediaTableColumnLabelForType(musicLibraryConfig, 'disc_count'),
+        'Disc Count');
+    expect(
+      libraryKindModuleForKind(CatalogMediaKind.music)
+          .fields
+          .defaultVisibleColumnIds,
       containsAll([
         'music.artist',
         'music.title',

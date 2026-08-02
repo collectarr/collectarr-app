@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalo
 import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_release.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-
 class VideoCatalogMapper {
   const VideoCatalogMapper._();
 
@@ -30,19 +29,27 @@ class VideoCatalogMapper {
     );
 
     final releases = dto.editions.map((edition) {
-      final audioTracksStr = edition.metadata?['audio_tracks'] as String? ?? dto.video?.audioTracks;
-      final audioTracks = audioTracksStr != null && audioTracksStr.isNotEmpty ? [audioTracksStr] : const <String>[];
-      final subtitlesStr = edition.metadata?['subtitles'] as String? ?? dto.video?.subtitles;
-      final subtitles = subtitlesStr != null && subtitlesStr.isNotEmpty ? [subtitlesStr] : const <String>[];
+      final audioTracksStr = edition.metadata?['audio_tracks'] as String? ??
+          dto.video?.audioTracks;
+      final audioTracks = audioTracksStr != null && audioTracksStr.isNotEmpty
+          ? [audioTracksStr]
+          : const <String>[];
+      final subtitlesStr =
+          edition.metadata?['subtitles'] as String? ?? dto.video?.subtitles;
+      final subtitles = subtitlesStr != null && subtitlesStr.isNotEmpty
+          ? [subtitlesStr]
+          : const <String>[];
 
-      final media = edition.discs.map((disc) => VideoMediaRef(
-        id: '${edition.id}:disc:${disc.discNumber}',
-        title: disc.discName,
-        formatLabel: disc.discFormat,
-        discNumber: disc.discNumber,
-        audioTracks: audioTracks,
-        subtitles: subtitles,
-      )).toList();
+      final media = edition.discs
+          .map((disc) => VideoMediaRef(
+                id: '${edition.id}:disc:${disc.discNumber}',
+                title: disc.discName,
+                formatLabel: disc.discFormat,
+                discNumber: disc.discNumber,
+                audioTracks: audioTracks,
+                subtitles: subtitles,
+              ))
+          .toList();
 
       return VideoRelease(
         id: edition.id,
@@ -75,8 +82,6 @@ class VideoCatalogMapper {
     );
   }
 
-
-
   static VideoCatalogItem mapMetadataItemToVideo(LibraryMetadataItem item) {
     final v = item.video;
 
@@ -101,12 +106,14 @@ class VideoCatalogMapper {
     );
 
     final releases = item.editions.map((edition) {
-      final media = edition.discs.map((disc) => VideoMediaRef(
-        id: '${edition.id}:disc:${disc.discNumber}',
-        title: disc.discName,
-        formatLabel: disc.discFormat,
-        discNumber: disc.discNumber,
-      )).toList();
+      final media = edition.discs
+          .map((disc) => VideoMediaRef(
+                id: '${edition.id}:disc:${disc.discNumber}',
+                title: disc.discName,
+                formatLabel: disc.discFormat,
+                discNumber: disc.discNumber,
+              ))
+          .toList();
 
       return VideoRelease(
         id: edition.id,

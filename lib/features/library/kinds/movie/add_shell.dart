@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+
 Widget buildMovieAddHeader(
   BuildContext context,
   LibraryAddHeaderRequest request,

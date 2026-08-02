@@ -25,12 +25,16 @@ void main() {
       }
     });
 
-    test('field IDs across different kinds are distinctly namespaced (no collision)', () {
+    test(
+        'field IDs across different kinds are distinctly namespaced (no collision)',
+        () {
       final movieModule = libraryKindModuleForKind(CatalogMediaKind.movie);
       final gameModule = libraryKindModuleForKind(CatalogMediaKind.game);
 
-      final movieReleaseSort = movieModule.fields.sortDefinitionForId('movie.release_date');
-      final gameReleaseSort = gameModule.fields.sortDefinitionForId('game.release_date');
+      final movieReleaseSort =
+          movieModule.fields.sortDefinitionForId('movie.release_date');
+      final gameReleaseSort =
+          gameModule.fields.sortDefinitionForId('game.release_date');
 
       expect(movieReleaseSort, isNotNull);
       expect(gameReleaseSort, isNotNull);
@@ -40,12 +44,19 @@ void main() {
     test('validateKindModule throws StateError on duplicate column IDs', () {
       final invalidRegistry = AnyLibraryFieldRegistry<GenericWorkspaceDto>(
         columns: [
-          LibraryColumnDefinition(id: const LibraryFieldId('test.dup'), label: 'A', getValue: (dto) => null),
-          LibraryColumnDefinition(id: const LibraryFieldId('test.dup'), label: 'B', getValue: (dto) => null),
+          LibraryColumnDefinition(
+              id: const LibraryFieldId('test.dup'),
+              label: 'A',
+              getValue: (dto) => null),
+          LibraryColumnDefinition(
+              id: const LibraryFieldId('test.dup'),
+              label: 'B',
+              getValue: (dto) => null),
         ],
       );
 
-      final invalidModule = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
+      final invalidModule =
+          LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
         type: moviesLibraryConfig,
         mediaAdapter: movieKindModule.mediaAdapter,
         fields: invalidRegistry,
@@ -59,12 +70,19 @@ void main() {
     test('validateKindModule throws StateError on duplicate sort IDs', () {
       final invalidRegistry = AnyLibraryFieldRegistry<GenericWorkspaceDto>(
         sorts: [
-          LibrarySortDefinition(id: const LibrarySortId('test.sort'), label: 'A', compare: (a, b) => 0),
-          LibrarySortDefinition(id: const LibrarySortId('test.sort'), label: 'B', compare: (a, b) => 0),
+          LibrarySortDefinition(
+              id: const LibrarySortId('test.sort'),
+              label: 'A',
+              compare: (a, b) => 0),
+          LibrarySortDefinition(
+              id: const LibrarySortId('test.sort'),
+              label: 'B',
+              compare: (a, b) => 0),
         ],
       );
 
-      final invalidModule = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
+      final invalidModule =
+          LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
         type: moviesLibraryConfig,
         mediaAdapter: movieKindModule.mediaAdapter,
         fields: invalidRegistry,
@@ -75,7 +93,8 @@ void main() {
       expect(() => validateKindModule(invalidModule), throwsStateError);
     });
 
-    test('LibraryKindRegistry throws StateError on duplicate kind registration', () {
+    test('LibraryKindRegistry throws StateError on duplicate kind registration',
+        () {
       final registry = LibraryKindRegistry.instance;
       // Trigger initialization
       registry.getByKind(CatalogMediaKind.comic);

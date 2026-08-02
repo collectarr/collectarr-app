@@ -58,7 +58,8 @@ void main() {
               item: comicItem,
               selected: true,
               onTap: () => tapped = true,
-              dateFormatter: (value) => value.toIso8601String().split('T').first,
+              dateFormatter: (value) =>
+                  value.toIso8601String().split('T').first,
               moneyFormatter: (cents, currency) => '$currency $cents',
             ),
           ),
@@ -111,7 +112,8 @@ void main() {
               item: musicItem,
               selected: false,
               onTap: () {},
-              dateFormatter: (value) => value.toIso8601String().split('T').first,
+              dateFormatter: (value) =>
+                  value.toIso8601String().split('T').first,
               moneyFormatter: (cents, currency) => '$currency $cents',
             ),
           ),

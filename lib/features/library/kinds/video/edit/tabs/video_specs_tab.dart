@@ -35,7 +35,7 @@ class VideoEditSpecsTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-        buildVideoResponsiveFields([
+              buildVideoResponsiveFields([
                 LibraryVocabularyField(
                   label: 'Audio tracks',
                   controller: videoEdit.audioTracksController,

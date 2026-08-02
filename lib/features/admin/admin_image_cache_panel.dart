@@ -216,7 +216,8 @@ class _AdminImageCachePanelState extends ConsumerState<AdminImageCachePanel> {
                         icon: isPurgingProvider
                             ? const SizedBox.square(
                                 dimension: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Icon(Icons.delete_outline, size: 18),
                         label: Text('Purge ${provider.key}'),
@@ -273,7 +274,8 @@ class _StatChip extends StatelessWidget {
         Text(value,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         Text(label,
-            style: TextStyle(fontSize: 12, color: appPalette(context).textSecondary)),
+            style: TextStyle(
+                fontSize: 12, color: appPalette(context).textSecondary)),
       ],
     );
   }

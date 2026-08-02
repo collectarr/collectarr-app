@@ -34,17 +34,18 @@ class _GenericStatsDashboard extends StatelessWidget {
     final totalValue = state.totalPaidCents == null
         ? '-'
         : formatMoney(state.totalPaidCents, state.primaryCurrency);
-    final netValue = state.totalPaidCents == null || state.totalSellCents == null
-        ? null
-        : formatMoney(
-            state.totalSellCents! - state.totalPaidCents!,
-            state.primaryCurrency,
-          );
+    final netValue =
+        state.totalPaidCents == null || state.totalSellCents == null
+            ? null
+            : formatMoney(
+                state.totalSellCents! - state.totalPaidCents!,
+                state.primaryCurrency,
+              );
     final collectionValue = state.hasMixedCoverPriceCurrencies
-      ? '${state.coverPricedCount} valued'
-      : state.totalCoverPriceCents == null || state.totalCoverPriceCents == 0
-        ? null
-        : formatMoney(state.totalCoverPriceCents, state.coverPriceCurrency);
+        ? '${state.coverPricedCount} valued'
+        : state.totalCoverPriceCents == null || state.totalCoverPriceCents == 0
+            ? null
+            : formatMoney(state.totalCoverPriceCents, state.coverPriceCurrency);
     final sellValue = state.totalSellCents == null || state.totalSellCents == 0
         ? null
         : formatMoney(state.totalSellCents, state.primaryCurrency);
@@ -56,7 +57,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     final metadataQualityBands = _metadataQualityBands(state.entries);
     final metadataAlertCounts = _metadataAlertCounts(state.entries, type);
     final seriesGapSummary =
-      _seriesGapSummary(state.entries, type.workspace.kind.apiValue);
+        _seriesGapSummary(state.entries, type.workspace.kind.apiValue);
     final volumeGapSummary = _numberedGapSummary(
       state.entries,
       (entry) {
@@ -242,8 +243,7 @@ class _GenericStatsDashboard extends StatelessWidget {
                                   label: 'Cover coverage',
                                   fraction: state.entries.isEmpty
                                       ? 0.0
-                                      : (state.entries.length -
-                                              missingCovers) /
+                                      : (state.entries.length - missingCovers) /
                                           state.entries.length,
                                 ),
                               ],
@@ -440,10 +440,12 @@ class _GenericStatsDashboard extends StatelessWidget {
     for (final entry in entries) {
       final item = entry.catalogItem;
       if (item == null) {
-        counts['No catalog snapshot'] = (counts['No catalog snapshot'] ?? 0) + 1;
+        counts['No catalog snapshot'] =
+            (counts['No catalog snapshot'] ?? 0) + 1;
         continue;
       }
-      if (item.displayCoverUrl == null || item.displayCoverUrl!.trim().isEmpty) {
+      if (item.displayCoverUrl == null ||
+          item.displayCoverUrl!.trim().isEmpty) {
         counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
       }
       if (item.synopsis == null || item.synopsis!.trim().isEmpty) {
@@ -461,7 +463,8 @@ class _GenericStatsDashboard extends StatelessWidget {
         counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
       }
       if (item.id.startsWith('provider:')) {
-        counts['Provider placeholder'] = (counts['Provider placeholder'] ?? 0) + 1;
+        counts['Provider placeholder'] =
+            (counts['Provider placeholder'] ?? 0) + 1;
       }
     }
     return counts;
@@ -479,7 +482,8 @@ class _GenericStatsDashboard extends StatelessWidget {
       }
     }
 
-    add(item.displayCoverUrl != null && item.displayCoverUrl!.trim().isNotEmpty, 18);
+    add(item.displayCoverUrl != null && item.displayCoverUrl!.trim().isNotEmpty,
+        18);
     add(item.synopsis != null && item.synopsis!.trim().isNotEmpty, 16);
     add(item.publisher != null && item.publisher!.trim().isNotEmpty, 10);
     add(item.releaseDate != null || item.releaseYear != null, 10);
@@ -595,7 +599,8 @@ class _GenericStatsDashboard extends StatelessWidget {
         continue;
       }
       final summary = _SeriesGapSummary(series.key, missing);
-      if (best == null || summary.missingIssues.length > best.missingIssues.length) {
+      if (best == null ||
+          summary.missingIssues.length > best.missingIssues.length) {
         best = summary;
       }
     }
@@ -634,7 +639,8 @@ class _GenericStatsDashboard extends StatelessWidget {
         continue;
       }
       final summary = _MissingNumberSummary(series.key, missing);
-      if (best == null || summary.missingNumbers.length > best.missingNumbers.length) {
+      if (best == null ||
+          summary.missingNumbers.length > best.missingNumbers.length) {
         best = summary;
       }
     }

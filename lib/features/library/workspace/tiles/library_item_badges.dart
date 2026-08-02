@@ -99,7 +99,8 @@ class LibraryCoverBadges extends StatelessWidget {
         if (extraImageCount > 0)
           LibraryCoverBadge(
             icon: Icons.collections_outlined,
-            label: '$extraImageCount extra image${extraImageCount == 1 ? '' : 's'}',
+            label:
+                '$extraImageCount extra image${extraImageCount == 1 ? '' : 's'}',
             backgroundColor: colorScheme.tertiaryContainer,
             foregroundColor: colorScheme.onTertiaryContainer,
           ),
@@ -243,8 +244,7 @@ class LibraryItemStatusIcons extends StatelessWidget {
       ),
       if (isTracked)
         Icon(Icons.equalizer, size: 16, color: colorScheme.secondary),
-      if (isWishlisted)
-        Icon(Icons.star, size: 16, color: colorScheme.tertiary),
+      if (isWishlisted) Icon(Icons.star, size: 16, color: colorScheme.tertiary),
       if (hasMissingCover)
         Icon(
           Icons.image_not_supported_outlined,
@@ -316,7 +316,8 @@ class LibraryItemStatusIcons extends StatelessWidget {
           }
         }
 
-        final visibleIcons = icons.take(maxVisibleIcons).toList(growable: false);
+        final visibleIcons =
+            icons.take(maxVisibleIcons).toList(growable: false);
         final hiddenCount = icons.length - visibleIcons.length;
 
         return Row(
@@ -334,7 +335,8 @@ class LibraryItemStatusIcons extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                   child: Text(
                     '+$hiddenCount',
                     style: TextStyle(
@@ -367,7 +369,10 @@ String? librarySlabMarkerLabel(String? rawOrSlabbed, String? gradingCompany) {
   if ((slab == null || slab.isEmpty) && (company == null || company.isEmpty)) {
     return null;
   }
-  if (slab != null && slab.isNotEmpty && company != null && company.isNotEmpty) {
+  if (slab != null &&
+      slab.isNotEmpty &&
+      company != null &&
+      company.isNotEmpty) {
     return '$slab - $company';
   }
   return slab?.isNotEmpty == true ? slab : company;

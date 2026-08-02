@@ -68,7 +68,8 @@ class LibraryWorkspaceViewProfile {
   final bool hideDetailsWhenSelectionEmpty;
   final LibrarySortColumnDirectionResolver? sortAscendingForColumn;
 
-  double clampCoverSize(double value) => value.clamp(minCoverSize, maxCoverSize);
+  double clampCoverSize(double value) =>
+      value.clamp(minCoverSize, maxCoverSize);
 
   LibraryWorkspaceViewState defaults() {
     // Use cached snapshot from a previous load/save when available so that the

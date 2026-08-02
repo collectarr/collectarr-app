@@ -43,7 +43,8 @@ void main() {
     expect(find.text('1 collected edition'), findsOneWidget);
     expect(find.text('Akira Omnibus (3 items)'), findsOneWidget);
     expect(find.text('Akira Omnibus'), findsWidgets);
-    expect(find.text('Box Set • Slipcase • Kodansha • 3 items'), findsOneWidget);
+    expect(
+        find.text('Box Set • Slipcase • Kodansha • 3 items'), findsOneWidget);
     expect(find.text('Volume 1 #1'), findsOneWidget);
     expect(find.text('Volume 2 #2'), findsOneWidget);
   });
@@ -54,7 +55,8 @@ class _BundleBrowserApiClient extends ApiClient {
   int detailCalls = 0;
 
   @override
-  Future<List<BundleReleaseSummary>> getItemBundleReleases(String itemId) async {
+  Future<List<BundleReleaseSummary>> getItemBundleReleases(
+      String itemId) async {
     summaryCalls += 1;
     return const [
       BundleReleaseSummary(

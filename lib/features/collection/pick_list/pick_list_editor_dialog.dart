@@ -65,8 +65,8 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
 
   Future<void> _load() async {
     final repo = PickListRepository(widget.db);
-    final values = await repo.getValues(widget.listName,
-        mediaKind: widget.mediaKind);
+    final values =
+        await repo.getValues(widget.listName, mediaKind: widget.mediaKind);
     if (mounted) {
       setState(() {
         _customValues = values;
@@ -137,8 +137,7 @@ class _PickListEditorDialogState extends State<_PickListEditorDialog> {
                       itemCount: allValues.length,
                       itemBuilder: (context, i) {
                         final value = allValues[i];
-                        final isBuiltIn =
-                            i < widget.builtInValues.length;
+                        final isBuiltIn = i < widget.builtInValues.length;
                         return ListTile(
                           dense: true,
                           title: Text(value),

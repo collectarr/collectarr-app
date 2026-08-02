@@ -68,7 +68,8 @@ void main() {
     expect(updated.locationId, 'loc-b');
   });
 
-  test('moveSelectedToWishlist creates wishlist rows and tombstones owned rows', () async {
+  test('moveSelectedToWishlist creates wishlist rows and tombstones owned rows',
+      () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -101,7 +102,8 @@ void main() {
     expect(wishlistRows.single.deletedAt, isNull);
   });
 
-  test('removeSelected clears owned, wishlist, and tracked-only selections', () async {
+  test('removeSelected clears owned, wishlist, and tracked-only selections',
+      () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -177,7 +179,8 @@ void main() {
     expect(trackingRows.single.deletedAt, isNotNull);
   });
 
-  test('moveSelectedToOwned keeps unrelated release wishlists active', () async {
+  test('moveSelectedToOwned keeps unrelated release wishlists active',
+      () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 

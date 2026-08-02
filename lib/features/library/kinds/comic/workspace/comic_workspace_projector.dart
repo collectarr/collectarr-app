@@ -14,7 +14,8 @@ final class ComicWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final comic = ComicCatalogMapper.mapMetadataItemToComic(source.catalogItem!);
+    final comic =
+        ComicCatalogMapper.mapMetadataItemToComic(source.catalogItem!);
     return ComicWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
@@ -28,10 +29,12 @@ final class ComicWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final comic = ComicCatalogMapper.mapMetadataItemToComic(source.catalogItem!);
+    final comic =
+        ComicCatalogMapper.mapMetadataItemToComic(source.catalogItem!);
     return ComicWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
-      personal: PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      personal:
+          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       comic: comic,
     );
   }

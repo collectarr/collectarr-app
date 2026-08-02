@@ -62,7 +62,8 @@ void main() {
       ),
     );
     const node1 = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dto1 = const GenericWorkspaceProjector().projectTitle(source: source1, node: node1);
+    final dto1 = const GenericWorkspaceProjector()
+        .projectTitle(source: source1, node: node1);
     final item = LibraryProjectionItem(source: source1, node: node1, dto: dto1);
 
     final request = LibraryDetailPageRequest(
@@ -195,7 +196,8 @@ void main() {
       ),
     );
     const node2 = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final dto2 = const GenericWorkspaceProjector().projectTitle(source: source2, node: node2);
+    final dto2 = const GenericWorkspaceProjector()
+        .projectTitle(source: source2, node: node2);
     final item = LibraryProjectionItem(source: source2, node: node2, dto: dto2);
 
     final request = LibraryDetailPageRequest(
@@ -297,7 +299,8 @@ void main() {
       ),
     );
     const node3 = LibraryTitleNodeRef(titleItemId: 'movie-2');
-    final dto3 = const GenericWorkspaceProjector().projectTitle(source: source3, node: node3);
+    final dto3 = const GenericWorkspaceProjector()
+        .projectTitle(source: source3, node: node3);
     final item = LibraryProjectionItem(source: source3, node: node3, dto: dto3);
 
     final request = LibraryDetailPageRequest(

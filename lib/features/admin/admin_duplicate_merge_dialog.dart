@@ -30,8 +30,8 @@ class _DuplicateMergeReviewDialogState
   @override
   void initState() {
     super.initState();
-    _targetItemId =
-        widget.candidate.preferredTargetItemId ?? widget.candidate.itemIds.first;
+    _targetItemId = widget.candidate.preferredTargetItemId ??
+        widget.candidate.itemIds.first;
     _sourceItemIds = widget.candidate.itemIds
         .where((itemId) => itemId != _targetItemId)
         .toSet();

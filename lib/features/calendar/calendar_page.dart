@@ -15,15 +15,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 const _kMonthNames = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 const _kDayNames = [
-  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
 ];
 const _kMonthAbbr = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 String _fmtMonthYear(DateTime dt) => '${_kMonthNames[dt.month - 1]} ${dt.year}';
 String _fmtFullDate(DateTime dt) =>
@@ -307,7 +333,8 @@ class _CalendarGrid extends StatelessWidget {
       children: [
         for (var dow = 1; dow <= 7; dow++) ...[
           Expanded(
-            child: _buildDayCell(week, dow, startWeekday, daysInMonth, todayKey),
+            child:
+                _buildDayCell(week, dow, startWeekday, daysInMonth, todayKey),
           ),
         ],
       ],
@@ -427,8 +454,10 @@ class _DayEventsList extends StatelessWidget {
                 return ListTile(
                   leading: CircleAvatar(
                     radius: 16,
-                    backgroundColor: event.color(accent).withValues(alpha: 0.18),
-                    child: Icon(event.icon, size: 16, color: event.color(accent)),
+                    backgroundColor:
+                        event.color(accent).withValues(alpha: 0.18),
+                    child:
+                        Icon(event.icon, size: 16, color: event.color(accent)),
                   ),
                   title: Text(
                     event.title,

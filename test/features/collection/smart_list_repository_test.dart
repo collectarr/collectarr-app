@@ -109,7 +109,8 @@ void main() {
     expect(global.filterSelection.missingCover, isTrue);
   });
 
-  test('persisted smart list criteria uses kind-qualified sort columns', () async {
+  test('persisted smart list criteria uses kind-qualified sort columns',
+      () async {
     final created = await repo.create(
       SmartList(
         id: 'ignored-books',

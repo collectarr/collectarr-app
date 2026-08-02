@@ -49,7 +49,8 @@ void main() {
     expect(container.read(syncControllerProvider).pendingCount, 1);
   });
 
-  test('collection mutations stamp owned item createdAt and owner identity', () async {
+  test('collection mutations stamp owned item createdAt and owner identity',
+      () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final container = ProviderContainer(
@@ -161,7 +162,8 @@ void main() {
     );
   });
 
-  test('collection mutations infer digital ownership from catalog snapshots', () async {
+  test('collection mutations infer digital ownership from catalog snapshots',
+      () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final container = ProviderContainer(
@@ -477,7 +479,8 @@ void main() {
     expect(updated.targetPriceCents, 4599);
     expect(updated.currency, 'USD');
     expect(updated.notes, 'Wait for the steelbook bundle.');
-    expect(queued.where((row) => row.entityType == 'wishlist_item'), hasLength(1));
+    expect(
+        queued.where((row) => row.entityType == 'wishlist_item'), hasLength(1));
   });
 
   test('wishlist allows multiple release anchors for the same item', () async {
@@ -503,7 +506,8 @@ void main() {
           .toSet(),
       {'edition-4k', 'edition-bluray'},
     );
-    expect(queued.where((row) => row.entityType == 'wishlist_item'), hasLength(2));
+    expect(
+        queued.where((row) => row.entityType == 'wishlist_item'), hasLength(2));
   });
 
   test('wishlist removal can target a single release anchor', () async {
@@ -860,8 +864,7 @@ void main() {
     expect(owned.single.locationId, 'loc-box-6');
   });
 
-  test('collection import preserves structured location ids',
-      () async {
+  test('collection import preserves structured location ids', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final container = ProviderContainer(
@@ -869,7 +872,8 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final imported = await container.read(collectionMutationsProvider).importRows(
+    final imported =
+        await container.read(collectionMutationsProvider).importRows(
       const [
         CollectionCsvRow(
           itemId: 'comic-1',

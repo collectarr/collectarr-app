@@ -311,7 +311,9 @@ class BookLibraryReleaseEditPresentationBuilder
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   }) {
-    return switch (context.isOwned || context.isTrackingOnly || context.hasWishlistContext) {
+    return switch (context.isOwned ||
+        context.isTrackingOnly ||
+        context.hasWishlistContext) {
       true => const [
           LibraryEditTabSpec(
             id: 'details',

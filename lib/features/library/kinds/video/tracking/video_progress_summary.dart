@@ -50,8 +50,9 @@ class VideoProgressSummary {
   String get completionSummary =>
       '${(completionPercent * 100).round()}% complete';
   String get episodesLeftSummary => 'Episodes left: $episodesLeft';
-  String get currentSeasonSummary =>
-      currentSeasonNumber == null ? 'Current season: -' : 'Current season: Season $currentSeasonNumber';
+  String get currentSeasonSummary => currentSeasonNumber == null
+      ? 'Current season: -'
+      : 'Current season: Season $currentSeasonNumber';
   String get lastWatchedSummary =>
       lastWatched == null ? 'Last: -' : 'Last: ${lastWatched!.code}';
   String get nextEpisodeSummary =>

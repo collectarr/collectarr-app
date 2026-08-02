@@ -45,16 +45,20 @@ String _simpleLibraryBucketLabel(
   final dto = context.item.dto;
   final publisher = dto.publisher?.trim();
   return switch (context.groupMode) {
-    'series' => dto.seriesTitle?.trim().isNotEmpty == true ? dto.seriesTitle!.trim() : labels.unknownSeries,
+    'series' => dto.seriesTitle?.trim().isNotEmpty == true
+        ? dto.seriesTitle!.trim()
+        : labels.unknownSeries,
     'year' => dto.releaseDate?.year.toString() ?? 'Unknown year',
-    'publisher' => publisher == null || publisher.isEmpty ? labels.unknownPublisher : publisher,
+    'publisher' => publisher == null || publisher.isEmpty
+        ? labels.unknownPublisher
+        : publisher,
     'location' => _locationBucket(dto.locationPath),
     'title' => _titleBucket(dto.title),
     'ownership' => dto.isOwned
         ? overrides.owned
         : dto.isWishlisted
-        ? overrides.wishlist
-        : overrides.catalogOnly,
+            ? overrides.wishlist
+            : overrides.catalogOnly,
     _ => context.groupMode,
   };
 }

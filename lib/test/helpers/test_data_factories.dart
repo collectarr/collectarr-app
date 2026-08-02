@@ -252,11 +252,12 @@ ShelfEntry testShelfEntry({
   TrackingEntry? trackingEntry,
   String? locationPath,
 }) {
-  final resolvedCatalogItem = catalogItem ?? testCatalogItem(
-    id: itemId,
-    kind: kind,
-    title: title,
-  );
+  final resolvedCatalogItem = catalogItem ??
+      testCatalogItem(
+        id: itemId,
+        kind: kind,
+        title: title,
+      );
   return ShelfEntry(
     itemId: itemId,
     catalogItem: LibraryMetadataItem.fromCatalogItem(resolvedCatalogItem),

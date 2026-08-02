@@ -26,8 +26,7 @@ class LibraryWorkspaceIntentNotifier {
 
   // ── Filter intent ────────────────────────────────────────────────────────
 
-  void setSearch(String query) =>
-      _filters.updateSearch(query);
+  void setSearch(String query) => _filters.updateSearch(query);
 
   void clearSearch() => _filters.updateSearch('');
 
@@ -77,14 +76,12 @@ class LibraryWorkspaceIntentNotifier {
 
   // ── View config intent ───────────────────────────────────────────────────
 
-  void setViewMode(LibraryViewMode mode) =>
-      _viewConfig.setViewMode(mode);
+  void setViewMode(LibraryViewMode mode) => _viewConfig.setViewMode(mode);
 
   void setDetailsLayout(LibraryDetailsLayout layout) =>
       _viewConfig.setDetailsLayout(layout);
 
-  void setCoverSize(double size) =>
-      _viewConfig.setCoverSize(size);
+  void setCoverSize(double size) => _viewConfig.setCoverSize(size);
 
   void setDensityPreset(LibraryWorkspaceDensityPreset preset) =>
       _viewConfig.setDensityPreset(preset);
@@ -94,14 +91,11 @@ class LibraryWorkspaceIntentNotifier {
   void setSidebarVisible(bool visible) =>
       _viewConfig.setSidebarVisible(visible);
 
-  void setSidebarWidth(double width) =>
-      _viewConfig.setSidebarWidth(width);
+  void setSidebarWidth(double width) => _viewConfig.setSidebarWidth(width);
 
-  void setDetailsWidth(double width) =>
-      _viewConfig.setDetailsWidth(width);
+  void setDetailsWidth(double width) => _viewConfig.setDetailsWidth(width);
 
-  void setDetailsHeight(double height) =>
-      _viewConfig.setDetailsHeight(height);
+  void setDetailsHeight(double height) => _viewConfig.setDetailsHeight(height);
 
   void setColumnWidth(String columnId, double width) =>
       _viewConfig.setColumnWidth(columnId, width);
@@ -130,7 +124,7 @@ class LibraryWorkspaceIntentNotifier {
 ///
 /// Widgets should `ref.read` (not `ref.watch`) this provider since
 /// [LibraryWorkspaceIntentNotifier] is a dispatcher, not a state holder.
-final libraryWorkspaceIntentProvider =
-    Provider.autoDispose.family<LibraryWorkspaceIntentNotifier, LibraryWorkspaceKey>(
+final libraryWorkspaceIntentProvider = Provider.autoDispose
+    .family<LibraryWorkspaceIntentNotifier, LibraryWorkspaceKey>(
   (ref, LibraryWorkspaceKey key) => LibraryWorkspaceIntentNotifier(ref, key),
 );

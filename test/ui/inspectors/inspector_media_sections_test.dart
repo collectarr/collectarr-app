@@ -14,8 +14,10 @@ void main() {
             body: InspectorTrackList(
               accent: Colors.blue,
               tracks: const [
-                CatalogTrack(title: 'Track One', position: 1, durationSeconds: 180),
-                CatalogTrack(title: 'Track Two', position: 2, durationSeconds: 245),
+                CatalogTrack(
+                    title: 'Track One', position: 1, durationSeconds: 180),
+                CatalogTrack(
+                    title: 'Track Two', position: 2, durationSeconds: 245),
               ],
             ),
           ),
@@ -40,7 +42,8 @@ void main() {
             body: InspectorTrackList(
               accent: Colors.blue,
               tracks: const [
-                CatalogTrack(title: 'Long Track', position: 1, durationSeconds: 3661),
+                CatalogTrack(
+                    title: 'Long Track', position: 1, durationSeconds: 3661),
               ],
             ),
           ),
@@ -78,7 +81,8 @@ void main() {
               accent: Colors.blue,
               trackCount: 15,
               tracks: const [
-                CatalogTrack(title: 'Only One Cached', position: 1, durationSeconds: 60),
+                CatalogTrack(
+                    title: 'Only One Cached', position: 1, durationSeconds: 60),
               ],
             ),
           ),
@@ -114,7 +118,8 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: InspectorTrackListUnavailable(trackCount: 10, accent: Colors.blue),
+            body: InspectorTrackListUnavailable(
+                trackCount: 10, accent: Colors.blue),
           ),
         ),
       );

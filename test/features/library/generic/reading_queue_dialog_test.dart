@@ -18,7 +18,8 @@ void main() {
 
   tearDown(() => db.close());
 
-  testWidgets('reading queue dialog filters queued items and returns selection', (
+  testWidgets('reading queue dialog filters queued items and returns selection',
+      (
     tester,
   ) async {
     await ReadingQueueRepository(db).addToQueue('owned-1');

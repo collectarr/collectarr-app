@@ -20,7 +20,8 @@ typedef LibraryMoneyFormatter = String Function(int? cents, String? currency);
 
 enum LibraryCardLayout { vertical, horizontal }
 
-class _LibraryWorkspaceCardDelegateImpl implements LibraryWorkspaceCardDelegate {
+class _LibraryWorkspaceCardDelegateImpl
+    implements LibraryWorkspaceCardDelegate {
   _LibraryWorkspaceCardDelegateImpl({
     required this.item,
     required this.selected,
@@ -160,8 +161,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         ) ??
         const LibraryCardPresentation();
 
-    final strongSelection =
-        selected && item.node is! LibraryTitleNodeRef;
+    final strongSelection = selected && item.node is! LibraryTitleNodeRef;
     final coverCacheWidth = _targetCacheWidth(context);
 
     final delegate = _LibraryWorkspaceCardDelegateImpl(
@@ -189,8 +189,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
     if (presentation.customCardBuilder != null) {
       return presentation.customCardBuilder!(context, delegate);
     }
-
-
 
     if (cardLayout == LibraryCardLayout.vertical) {
       return _buildStandardVerticalCard(
@@ -236,11 +234,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
         duration: kAppAnimFast,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: selected ? libraryWorkspaceSelectionBackground(
-                context,
-                accentColor: accentColor,
-                baseColor: palette.cardBackground,
-              ) : palette.cardBackground,
+          color: selected
+              ? libraryWorkspaceSelectionBackground(
+                  context,
+                  accentColor: accentColor,
+                  baseColor: palette.cardBackground,
+                )
+              : palette.cardBackground,
           border: Border.all(
             color: selected ? accentColor : palette.cardBorder,
             width: selected ? (strongSelection ? 3 : 2) : 1,
@@ -289,10 +289,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 isOwned: item.dto.isOwned,
                                 isTracked: item.dto.isTracked,
                                 isWishlisted: item.dto.isWishlisted,
-                                hasMissingCover: item.dto.coverImageUrl == null ||
-                                    item.dto.coverImageUrl!.isEmpty,
-                                hasMissingMetadata: item.dto.publisher == null ||
-                                    item.dto.publisher!.isEmpty,
+                                hasMissingCover:
+                                    item.dto.coverImageUrl == null ||
+                                        item.dto.coverImageUrl!.isEmpty,
+                                hasMissingMetadata:
+                                    item.dto.publisher == null ||
+                                        item.dto.publisher!.isEmpty,
                                 contractDiagnosticLabel:
                                     libraryHierarchyContractDiagnosticLabel(
                                   item,
@@ -619,10 +621,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 isOwned: item.dto.isOwned,
                                 isTracked: item.dto.isTracked,
                                 isWishlisted: item.dto.isWishlisted,
-                                hasMissingCover: item.dto.coverImageUrl == null ||
-                                    item.dto.coverImageUrl!.isEmpty,
-                                hasMissingMetadata: item.dto.publisher == null ||
-                                    item.dto.publisher!.isEmpty,
+                                hasMissingCover:
+                                    item.dto.coverImageUrl == null ||
+                                        item.dto.coverImageUrl!.isEmpty,
+                                hasMissingMetadata:
+                                    item.dto.publisher == null ||
+                                        item.dto.publisher!.isEmpty,
                                 contractDiagnosticLabel:
                                     libraryHierarchyContractDiagnosticLabel(
                                   item,
@@ -723,8 +727,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
       ),
     );
   }
-
-
 
   // ---------------------------------------------------------------------------
   // Shared helpers.

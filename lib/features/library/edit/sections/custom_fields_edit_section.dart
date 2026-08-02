@@ -125,7 +125,8 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
           },
         ),
       CustomFieldValueType.number ||
-      CustomFieldValueType.currency => TextFormField(
+      CustomFieldValueType.currency =>
+        TextFormField(
           initialValue: value ?? '',
           decoration: InputDecoration(
             labelText: def.name,

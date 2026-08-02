@@ -19,7 +19,11 @@ const _musicMediaTabs = [
     id: 'main',
     icon: Icons.music_note_outlined,
     label: 'Main',
-    sectionIds: ['music_release_identity', 'music_identifiers_release', 'music_genres'],
+    sectionIds: [
+      'music_release_identity',
+      'music_identifiers_release',
+      'music_genres'
+    ],
   ),
   LibraryEditTabSpec(
     id: 'details',
@@ -82,7 +86,11 @@ const _musicReleaseTabs = [
     id: 'main',
     icon: Icons.music_note_outlined,
     label: 'Main',
-    sectionIds: ['music_release_identity', 'music_identifiers_release', 'music_genres'],
+    sectionIds: [
+      'music_release_identity',
+      'music_identifiers_release',
+      'music_genres'
+    ],
   ),
   LibraryEditTabSpec(
     id: 'details',

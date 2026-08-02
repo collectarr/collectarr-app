@@ -29,7 +29,7 @@ final class GroupShelfEntry extends ShelfPresentationEntry {
     required this.items,
     required this.representativeItem,
   }) : super(
-      id: 'group:${libraryGroupModeStorageValue(groupMode)}:$bucket',
+          id: 'group:${libraryGroupModeStorageValue(groupMode)}:$bucket',
           label: bucket,
         );
 
@@ -41,8 +41,7 @@ final class GroupShelfEntry extends ShelfPresentationEntry {
 
   int get count => items.length;
 
-  int get ownedCount =>
-      items.where((item) => item.dto.isOwned).length;
+  int get ownedCount => items.where((item) => item.dto.isOwned).length;
 }
 
 final class FolderShelfEntry extends ShelfPresentationEntry {

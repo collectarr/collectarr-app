@@ -29,7 +29,8 @@ void main() {
     final watchSession = _read('lib/core/models/watch_session.dart');
     final trackingUnit = _read('lib/core/models/tracking_unit.dart');
 
-    expect(_extractSyncPayloadBody(customEpisode), isNot(contains("'item_id'")));
+    expect(
+        _extractSyncPayloadBody(customEpisode), isNot(contains("'item_id'")));
     expect(_extractSyncPayloadBody(watchSession), isNot(contains("'item_id'")));
     expect(_extractSyncPayloadBody(trackingUnit), isNot(contains("'item_id'")));
   });

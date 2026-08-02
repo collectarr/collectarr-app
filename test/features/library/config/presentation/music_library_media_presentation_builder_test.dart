@@ -30,7 +30,8 @@ void main() {
     expect(display, isNotNull);
     expect(display!.title, 'Kinesis');
     expect(display.secondaryLine, 'Ad Infinitum');
-    expect(display.detailLine, 'Deluxe Edition - CD - 3 tracks - 1234567890 - KDCD 1022');
+    expect(display.detailLine,
+        'Deluxe Edition - CD - 3 tracks - 1234567890 - KDCD 1022');
   });
 
   testWidgets('music add preview renders album-style inspector layout', (
@@ -72,8 +73,10 @@ void main() {
           catalogNumber: 'KDCD 1022',
           releaseStatus: 'Album',
           tracks: [
-            CatalogTrack(title: 'Ad Infinitum', position: 1, durationSeconds: 506),
-            CatalogTrack(title: 'Immortality', position: 2, durationSeconds: 421),
+            CatalogTrack(
+                title: 'Ad Infinitum', position: 1, durationSeconds: 506),
+            CatalogTrack(
+                title: 'Immortality', position: 2, durationSeconds: 421),
             CatalogTrack(title: 'Waterline', position: 3, durationSeconds: 659),
           ],
         ),
@@ -96,7 +99,8 @@ void main() {
     expect(find.text('Kinesis'), findsWidgets);
     expect(find.text('Kinesis (1998)'), findsOneWidget);
     expect(find.text('CD  KDCD 1022'), findsOneWidget);
-    expect(find.text('Rock, Progressive Rock, Art Rock, Progressive'), findsOneWidget);
+    expect(find.text('Rock, Progressive Rock, Art Rock, Progressive'),
+        findsOneWidget);
     expect(find.text('Inside Out / Album'), findsOneWidget);
     expect(find.text('3 tracks (26:26)'), findsOneWidget);
     expect(find.text('Ad Infinitum'), findsWidgets);
@@ -143,8 +147,10 @@ void main() {
           catalogNumber: 'KDCD 1022',
           releaseStatus: 'Album',
           tracks: [
-            CatalogTrack(title: 'Ad Infinitum', position: 1, durationSeconds: 506),
-            CatalogTrack(title: 'Immortality', position: 2, durationSeconds: 421),
+            CatalogTrack(
+                title: 'Ad Infinitum', position: 1, durationSeconds: 506),
+            CatalogTrack(
+                title: 'Immortality', position: 2, durationSeconds: 421),
             CatalogTrack(title: 'Waterline', position: 3, durationSeconds: 659),
           ],
         ),

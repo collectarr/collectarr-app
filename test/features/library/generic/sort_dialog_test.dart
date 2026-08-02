@@ -106,7 +106,8 @@ void main() {
     );
     await tester.enterText(searchField, '');
     await pumpUntilSettled(tester);
-    final releaseDateTile = find.byKey(const ValueKey('available-sort-release_date'));
+    final releaseDateTile =
+        find.byKey(const ValueKey('available-sort-release_date'));
     await tester.ensureVisible(releaseDateTile);
     await tester.tap(releaseDateTile);
     await pumpUntilSettled(tester);

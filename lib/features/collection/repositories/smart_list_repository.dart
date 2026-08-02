@@ -13,8 +13,7 @@ class SmartListRepository {
   Future<List<SmartList>> getAll({String? mediaKind}) async {
     final query = _db.select(_db.smartListsCache);
     if (mediaKind != null) {
-      query.where(
-          (t) => t.mediaKind.equals(mediaKind) | t.mediaKind.isNull());
+      query.where((t) => t.mediaKind.equals(mediaKind) | t.mediaKind.isNull());
     }
     query.orderBy([(t) => OrderingTerm.asc(t.createdAt)]);
     final rows = await query.get();
@@ -50,7 +49,6 @@ class SmartListRepository {
   }
 
   Future<void> delete(String id) async {
-    await (_db.delete(_db.smartListsCache)..where((t) => t.id.equals(id)))
-        .go();
+    await (_db.delete(_db.smartListsCache)..where((t) => t.id.equals(id))).go();
   }
 }

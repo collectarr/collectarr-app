@@ -105,5 +105,3 @@ class _ResolvedField {
   final String label;
   final String value;
 }
-
-

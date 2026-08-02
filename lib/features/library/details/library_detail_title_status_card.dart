@@ -69,9 +69,10 @@ class LibraryDetailTitleStatusCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           statusLabel,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                  ),
                         ),
                       ],
                     ),

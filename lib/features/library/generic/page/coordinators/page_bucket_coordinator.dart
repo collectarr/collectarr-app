@@ -17,10 +17,10 @@ class LibraryPageBucketCoordinator {
     final entries = [
       for (final bucket in projection.buckets)
         if (bucket.title != allBucketLabel)
-        LibraryBucketManagerEntry(
-          label: bucket.title,
-          count: bucket.count,
-        ),
+          LibraryBucketManagerEntry(
+            label: bucket.title,
+            count: bucket.count,
+          ),
     ];
     if (entries.isEmpty) {
       return;

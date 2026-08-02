@@ -50,7 +50,9 @@ List<ResolvedComicEditImage> resolveComicEditImages({
   }
 
   for (final edit in edits) {
-    if (existing.containsKey(edit.id) || edit.deleted || edit.imageData == null) {
+    if (existing.containsKey(edit.id) ||
+        edit.deleted ||
+        edit.imageData == null) {
       continue;
     }
     resolved.add(

@@ -30,8 +30,7 @@ final apiClientProvider = Provider<ApiClient>((ref) {
       final msg = status != null
           ? '$method $path → $status'
           : '$method $path → ${e.type.name}';
-      ref.read(appLogProvider.notifier).error('api', msg,
-          detail: e.message);
+      ref.read(appLogProvider.notifier).error('api', msg, detail: e.message);
       handler.next(e);
     },
   ));

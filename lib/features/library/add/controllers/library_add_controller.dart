@@ -15,4 +15,3 @@ class LibraryAddController {
   final LibraryAddSelectionController selection;
   final LibraryAddPreviewController preview;
 }
-

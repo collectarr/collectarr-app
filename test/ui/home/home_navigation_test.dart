@@ -61,14 +61,19 @@ void main() {
     expect(config.pluralLabel, 'Podcasts');
     expect(config.defaultMetadataProvider, 'podindex');
     expect(config.presentation, genericLibraryMediaPresentation);
-    expect(libraryKindModuleForType(config).fields.defaultVisibleColumnIds, contains('title'));
+    expect(libraryKindModuleForType(config).fields.defaultVisibleColumnIds,
+        contains('title'));
     expect(config.workspace.icon, Icons.category_outlined);
     expect(config.workspace.accent, kLibraryFallbackAccent);
     expect(config.trackingProfile.name, readingTrackingProfile.name);
     expect(config.supportedMetadataProviders.single.id, 'podindex');
     expect(
-        config.supportedMetadataProviders.single.supportsKind(CatalogMediaKind.unknown), isFalse);
-    expect(config.supportedMetadataProviders.single.supportsKind(catalogMediaKindFromValue('podcast')),
+        config.supportedMetadataProviders.single
+            .supportsKind(CatalogMediaKind.unknown),
+        isFalse);
+    expect(
+        config.supportedMetadataProviders.single
+            .supportsKind(catalogMediaKindFromValue('podcast')),
         isTrue);
   });
 
@@ -90,7 +95,9 @@ void main() {
     expect(config.defaultMetadataProvider, 'openlibrary');
     expect(config.supportedMetadataProviders.single.id, 'openlibrary');
     expect(config.supportedMetadataProviders.single.label, 'Open Library');
-    expect(config.supportedMetadataProviders.single.supportsKind(catalogMediaKindFromValue('podcast')),
+    expect(
+        config.supportedMetadataProviders.single
+            .supportsKind(catalogMediaKindFromValue('podcast')),
         isTrue);
   });
 
@@ -166,6 +173,7 @@ void main() {
     expect(groups[0].types.map((type) => type.kind), ['comic']);
     expect(groups[1].types.map((type) => type.kind), ['movie']);
     expect(selectedLibraryNavGroup(groups, 'movie').label, 'Movies');
-    expect(selectedLibraryNavGroup(groups, 'comic').containsKind('comic'), isTrue);
+    expect(
+        selectedLibraryNavGroup(groups, 'comic').containsKind('comic'), isTrue);
   });
 }

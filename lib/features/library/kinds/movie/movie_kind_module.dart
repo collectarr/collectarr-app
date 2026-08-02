@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 
-
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, VideoOwnedDetails>(
@@ -29,7 +28,8 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, VideoOwnedDetails>(
     defaultSortId: 'title',
     defaultGroupId: 'series',
   ),
-  add: LibraryKindAddModule(registerBuilders: movie_add.registerMovieAddBuilders),
+  add: LibraryKindAddModule(
+      registerBuilders: movie_add.registerMovieAddBuilders),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
     defaultVideoGrouping: VideoGroupingDefault.none,

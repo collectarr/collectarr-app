@@ -159,7 +159,8 @@ class _DuplicateGroupTile extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: surfaceColor,
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.42)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.42)),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -215,7 +216,10 @@ class _DuplicateGroupTile extends StatelessWidget {
                             group.label,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
                                   fontWeight: FontWeight.w800,
                                 ),
                           ),
@@ -231,7 +235,8 @@ class _DuplicateGroupTile extends StatelessWidget {
                               ),
                               _DuplicateInfoChip(
                                 label: '${group.count} items',
-                                background: palette.surfaceSubtle.withValues(alpha: 0.9),
+                                background: palette.surfaceSubtle
+                                    .withValues(alpha: 0.9),
                                 foreground: palette.textPrimary,
                               ),
                             ],
@@ -249,7 +254,8 @@ class _DuplicateGroupTile extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(height: 10),
-                for (final entry in group.entries) _DuplicateEntryRow(entry: entry),
+                for (final entry in group.entries)
+                  _DuplicateEntryRow(entry: entry),
               ],
             ),
           ),
@@ -314,14 +320,16 @@ class _DuplicateEntryRow extends StatelessWidget {
               margin: const EdgeInsets.only(top: 1),
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: (entry.isOwned ? colorScheme.primary : colorScheme.tertiary)
-                    .withValues(alpha: 0.12),
+                color:
+                    (entry.isOwned ? colorScheme.primary : colorScheme.tertiary)
+                        .withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Icon(
                 entry.isOwned ? Icons.inventory_2 : Icons.star_border,
                 size: 15,
-                color: entry.isOwned ? colorScheme.primary : colorScheme.tertiary,
+                color:
+                    entry.isOwned ? colorScheme.primary : colorScheme.tertiary,
               ),
             ),
             const SizedBox(width: 10),

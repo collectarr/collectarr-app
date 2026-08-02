@@ -18,8 +18,8 @@ class _AssetsApiClient {
   }
 
   Future<AdminImageCacheStats> adminImageCacheStats() async {
-    final response =
-        await _client._dio.get<Map<String, dynamic>>('/admin/image-cache/stats');
+    final response = await _client._dio
+        .get<Map<String, dynamic>>('/admin/image-cache/stats');
     final data = response.data;
     if (data == null) {
       throw StateError('/admin/image-cache/stats returned empty body');

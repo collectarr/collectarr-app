@@ -16,7 +16,6 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fiel
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:flutter/material.dart';
 
-
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 
@@ -33,11 +32,14 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     defaultSortId: 'title',
     defaultGroupId: 'series',
     customLinkedMetadataCandidates: (source) sync* {
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(source.catalogItem?.characters);
-      yield* AnyLibraryFieldRegistry.nonEmptyStrings(source.catalogItem?.storyArcs);
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(
+          source.catalogItem?.characters);
+      yield* AnyLibraryFieldRegistry.nonEmptyStrings(
+          source.catalogItem?.storyArcs);
     },
   ),
-  add: LibraryKindAddModule(registerBuilders: comic_add.registerComicAddBuilders),
+  add: LibraryKindAddModule(
+      registerBuilders: comic_add.registerComicAddBuilders),
   workspaceBehavior: LibraryKindWorkspaceBehavior(
     supportsSeriesIssueJump: true,
     issueSortNumber: comicIssueSortNumber,
@@ -54,8 +56,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
             icon: Icons.tag_outlined,
             label: 'Jump to issue...',
             section: 'Collection',
-            enabled:
-                context.projection != null &&
+            enabled: context.projection != null &&
                 context.onJumpToNumberSubmitted != null,
             onSelected: context.projection == null ||
                     context.onJumpToNumberSubmitted == null
@@ -95,7 +96,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   buildCardPresentation: buildComicCardPresentation,
 );
 
-Iterable<String> _getFacetValues(LibraryProjectionRuntime item, String facetId) {
+Iterable<String> _getFacetValues(
+    LibraryProjectionRuntime item, String facetId) {
   final catalogItem = item.source.catalogItem;
   if (facetId == 'comic.character' || facetId == 'media.character') {
     return catalogItem?.characters ?? const [];

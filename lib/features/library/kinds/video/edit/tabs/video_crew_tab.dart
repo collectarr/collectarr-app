@@ -21,7 +21,8 @@ class VideoEditCrewTab extends StatelessWidget {
       addLabel: 'Add Crew',
       accent: accent,
       credits: videoEdit.crewCredits,
-      onAdd: () => videoEdit.crewCredits.add(EditableVideoCredit.custom(role: 'Director')),
+      onAdd: () => videoEdit.crewCredits
+          .add(EditableVideoCredit.custom(role: 'Director')),
     );
   }
 }

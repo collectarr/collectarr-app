@@ -23,7 +23,8 @@ List<Widget> buildMovieInspectorSections(
     if (dto.publisher?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Studio', value: dto.publisher!),
     if (dto.releaseDate != null)
-      LibraryDetailField(label: 'Release date', value: _formatDate(dto.releaseDate!)),
+      LibraryDetailField(
+          label: 'Release date', value: _formatDate(dto.releaseDate!)),
     LibraryDetailField(label: 'Releases', value: editionCount.toString()),
     if (dto.barcode?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Barcode', value: dto.barcode!),
@@ -34,9 +35,11 @@ List<Widget> buildMovieInspectorSections(
     if (catalogItem?.ageRating?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Age rating', value: catalogItem!.ageRating!),
     if (catalogItem?.audienceRating?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Audience rating', value: catalogItem!.audienceRating!),
+      LibraryDetailField(
+          label: 'Audience rating', value: catalogItem!.audienceRating!),
     if (catalogItem?.trailerUrls.isNotEmpty == true)
-      LibraryDetailField(label: 'Trailers', value: catalogItem!.trailerUrls.length.toString()),
+      LibraryDetailField(
+          label: 'Trailers', value: catalogItem!.trailerUrls.length.toString()),
   ];
 
   final sections = <Widget>[
@@ -130,7 +133,8 @@ class _MovieInspectorPanel extends StatelessWidget {
               request.conditionGradeSection!,
               const SizedBox(height: 8),
             ],
-            if (request.trailingSections.isNotEmpty) ...request.trailingSections,
+            if (request.trailingSections.isNotEmpty)
+              ...request.trailingSections,
           ],
         ),
       ],

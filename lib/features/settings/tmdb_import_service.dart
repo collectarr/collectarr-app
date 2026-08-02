@@ -77,9 +77,7 @@ enum TmdbImportCollection {
 
   bool get isRated {
     return switch (this) {
-      TmdbImportCollection.ratedMovies ||
-      TmdbImportCollection.ratedTv =>
-        true,
+      TmdbImportCollection.ratedMovies || TmdbImportCollection.ratedTv => true,
       _ => false,
     };
   }
@@ -272,9 +270,8 @@ class TmdbImportEntry {
   factory TmdbImportEntry.fromJson(Map<String, dynamic> json) {
     final rawPayload = json['raw_payload'];
     final mediaTypeValue = json['media_type'] as String?;
-    final mediaType = mediaTypeValue == 'tv'
-        ? TmdbMediaType.tv
-        : TmdbMediaType.movie;
+    final mediaType =
+        mediaTypeValue == 'tv' ? TmdbMediaType.tv : TmdbMediaType.movie;
     return TmdbImportEntry(
       tmdbId: (json['tmdb_id'] as num?)?.toInt() ?? 0,
       mediaType: mediaType,
@@ -495,12 +492,15 @@ class TmdbImportService {
     );
     final data = response.data;
     if (data == null) {
-      throw StateError('TMDB details response was empty for ${entry.mediaType.name} ${entry.tmdbId}.');
+      throw StateError(
+          'TMDB details response was empty for ${entry.mediaType.name} ${entry.tmdbId}.');
     }
     final isMovie = entry.mediaType == TmdbMediaType.movie;
-    final detailedTitle = ((data[isMovie ? 'title' : 'name']) as String?)?.trim();
+    final detailedTitle =
+        ((data[isMovie ? 'title' : 'name']) as String?)?.trim();
     final detailedOriginalTitle =
-        ((data[isMovie ? 'original_title' : 'original_name']) as String?)?.trim();
+        ((data[isMovie ? 'original_title' : 'original_name']) as String?)
+            ?.trim();
     final detailedOverview = (data['overview'] as String?)?.trim();
     final detailedPosterPath = (data['poster_path'] as String?)?.trim();
     final detailedReleaseDate = _parseDate(
@@ -520,10 +520,10 @@ class TmdbImportService {
       title: detailedTitle == null || detailedTitle.isEmpty
           ? entry.title
           : detailedTitle,
-      originalTitle: detailedOriginalTitle == null ||
-              detailedOriginalTitle.isEmpty
-          ? entry.originalTitle
-          : detailedOriginalTitle,
+      originalTitle:
+          detailedOriginalTitle == null || detailedOriginalTitle.isEmpty
+              ? entry.originalTitle
+              : detailedOriginalTitle,
       overview: detailedOverview == null || detailedOverview.isEmpty
           ? entry.overview
           : detailedOverview,
@@ -585,24 +585,25 @@ class TmdbImportService {
     final rawPayload = <String, dynamic>{
       'id': entry.tmdbId,
       'media_type': entry.mediaType.name,
-      'genres': preview.genres.map((g) => <String, dynamic>{'name': g}).toList(),
+      'genres':
+          preview.genres.map((g) => <String, dynamic>{'name': g}).toList(),
       'production_companies': preview.publisher?.isNotEmpty == true
           ? preview.publisher!
-                .split(', ')
-                .map((s) => <String, dynamic>{'name': s})
-                .toList()
+              .split(', ')
+              .map((s) => <String, dynamic>{'name': s})
+              .toList()
           : <Map<String, dynamic>>[],
       'production_countries': preview.country?.isNotEmpty == true
           ? preview.country!
-                .split(', ')
-                .map((c) => <String, dynamic>{'name': c})
-                .toList()
+              .split(', ')
+              .map((c) => <String, dynamic>{'name': c})
+              .toList()
           : <Map<String, dynamic>>[],
       'spoken_languages': preview.language?.isNotEmpty == true
           ? preview.language!
-                .split(', ')
-                .map((l) => <String, dynamic>{'name': l})
-                .toList()
+              .split(', ')
+              .map((l) => <String, dynamic>{'name': l})
+              .toList()
           : <Map<String, dynamic>>[],
       if (preview.video?.runtimeMinutes != null)
         'runtime': preview.video!.runtimeMinutes,
@@ -644,7 +645,8 @@ class TmdbImportService {
     final aliases = <String>{
       if (item.searchAliases case final currentAliases?) ...currentAliases,
       if (item.title.trim().isNotEmpty) item.title.trim(),
-      if (item.displayTitle?.trim().isNotEmpty == true) item.displayTitle!.trim(),
+      if (item.displayTitle?.trim().isNotEmpty == true)
+        item.displayTitle!.trim(),
       if (item.localizedTitle?.trim().isNotEmpty == true)
         item.localizedTitle!.trim(),
       if (item.originalTitle?.trim().isNotEmpty == true)
@@ -657,7 +659,8 @@ class TmdbImportService {
       ...?item.genres,
       ..._tmdbNamedValues(entry.rawPayload['genres']),
     ]);
-    final tmdbStudios = _tmdbNamedValues(entry.rawPayload['production_companies']);
+    final tmdbStudios =
+        _tmdbNamedValues(entry.rawPayload['production_companies']);
     final tmdbCountries = _distinctNonEmptyStrings([
       ..._tmdbNamedValues(entry.rawPayload['production_countries']),
       ..._tmdbStringValues(entry.rawPayload['origin_country']),
@@ -855,7 +858,8 @@ class TmdbImportService {
         .toList(growable: false);
   }
 
-  static String? _firstNonEmptyText(String? first, [String? second, String? third]) {
+  static String? _firstNonEmptyText(String? first,
+      [String? second, String? third]) {
     for (final candidate in [first, second, third]) {
       final normalized = _normalizedText(candidate);
       if (normalized != null) {
@@ -890,8 +894,8 @@ class TmdbImportService {
     }
     return _distinctNonEmptyStrings(
       value.whereType<Map<dynamic, dynamic>>().map(
-        (row) => _normalizedText(row['name'] as String?),
-      ),
+            (row) => _normalizedText(row['name'] as String?),
+          ),
     );
   }
 
@@ -949,7 +953,9 @@ class TmdbImportService {
       mediaType: collection.mediaType,
       collection: collection,
       title: title,
-      originalTitle: ((json['original_title'] ?? json['original_name']) as String?)?.trim(),
+      originalTitle:
+          ((json['original_title'] ?? json['original_name']) as String?)
+              ?.trim(),
       overview: (json['overview'] as String?)?.trim(),
       posterPath: (json['poster_path'] as String?)?.trim(),
       releaseDate: _parseDate(
@@ -977,7 +983,8 @@ class TmdbImportService {
       collection: seriesEntry.collection,
       title: title == null || title.isEmpty ? 'Season $seasonNumber' : title,
       originalTitle:
-          ((json['original_title'] ?? json['original_name']) as String?)?.trim(),
+          ((json['original_title'] ?? json['original_name']) as String?)
+              ?.trim(),
       overview: (json['overview'] as String?)?.trim(),
       posterPath: (json['poster_path'] as String?)?.trim(),
       releaseDate: _parseDate(
@@ -1110,9 +1117,11 @@ class TmdbImportService {
     }
 
     final preferredKeywords = switch (collection) {
-      TmdbImportCollection.ratedMovies ||
-      TmdbImportCollection.ratedTv =>
-        ['rating', 'ratings', 'rated'],
+      TmdbImportCollection.ratedMovies || TmdbImportCollection.ratedTv => [
+          'rating',
+          'ratings',
+          'rated'
+        ],
       TmdbImportCollection.watchlistMovies ||
       TmdbImportCollection.watchlistTv =>
         ['watchlist'],

@@ -22,7 +22,9 @@ class PickListMultiValueField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final remaining = values.where((value) => !selectedValues.contains(value)).toList(growable: false);
+    final remaining = values
+        .where((value) => !selectedValues.contains(value))
+        .toList(growable: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

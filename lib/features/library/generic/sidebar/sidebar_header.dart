@@ -195,64 +195,64 @@ class LibrarySidebarHeader extends StatelessWidget {
                         'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
                     icon: Icons.edit_outlined,
                     onPressed: manageBuckets,
-                active: false,
-              ),
-            ],
-            if (editFilters != null) ...[
-              const SizedBox(width: 4),
-              _LibrarySidebarToolbarButton(
-                tooltip: hasActiveFilters
-                    ? 'Edit filters (${filterSelection.activeFilterCount} active)'
-                    : 'Edit filters',
-                icon: hasActiveFilters
-                    ? Icons.filter_alt
-                    : Icons.filter_alt_outlined,
-                onPressed: editFilters,
-                active: hasActiveFilters ||
-                    searchQuery?.trim().isNotEmpty == true ||
-                    activeSmartListName?.trim().isNotEmpty == true ||
-                    linkedMetadataFilterLabel != null ||
-                    selectedLetter != null,
-                activeColor: accent,
-              ),
-            ],
-            if (hasActiveFilters && clearFilters != null) ...[
-              const SizedBox(width: 4),
-              _LibrarySidebarToolbarButton(
-                tooltip: 'Clear filters',
-                icon: Icons.filter_alt_off,
-                onPressed: clearFilters,
-                active: false,
-              ),
-            ],
-            if (navigateBack != null) ...[
-              const SizedBox(width: 4),
-              _LibrarySidebarToolbarButton(
-                tooltip: 'Back to previous scope',
-                icon: Icons.arrow_back,
-                onPressed: navigateBack,
-                active: true,
-                activeColor: accent,
-              ),
-            ] else if (!isRootScope && clearFilter != null) ...[
-              const SizedBox(width: 4),
-              _LibrarySidebarToolbarButton(
-                tooltip: 'Back to all ${type.pluralLabel.toLowerCase()}',
-                icon: Icons.arrow_back,
-                onPressed: clearFilter,
-                active: true,
-                activeColor: accent,
-              ),
-            ],
-            if (hideSidebar != null) ...[
-              const SizedBox(width: 4),
-              _LibrarySidebarToolbarButton(
-                tooltip: 'Hide folders panel',
-                icon: Icons.menu_open,
-                onPressed: hideSidebar,
-                active: false,
-              ),
-            ],
+                    active: false,
+                  ),
+                ],
+                if (editFilters != null) ...[
+                  const SizedBox(width: 4),
+                  _LibrarySidebarToolbarButton(
+                    tooltip: hasActiveFilters
+                        ? 'Edit filters (${filterSelection.activeFilterCount} active)'
+                        : 'Edit filters',
+                    icon: hasActiveFilters
+                        ? Icons.filter_alt
+                        : Icons.filter_alt_outlined,
+                    onPressed: editFilters,
+                    active: hasActiveFilters ||
+                        searchQuery?.trim().isNotEmpty == true ||
+                        activeSmartListName?.trim().isNotEmpty == true ||
+                        linkedMetadataFilterLabel != null ||
+                        selectedLetter != null,
+                    activeColor: accent,
+                  ),
+                ],
+                if (hasActiveFilters && clearFilters != null) ...[
+                  const SizedBox(width: 4),
+                  _LibrarySidebarToolbarButton(
+                    tooltip: 'Clear filters',
+                    icon: Icons.filter_alt_off,
+                    onPressed: clearFilters,
+                    active: false,
+                  ),
+                ],
+                if (navigateBack != null) ...[
+                  const SizedBox(width: 4),
+                  _LibrarySidebarToolbarButton(
+                    tooltip: 'Back to previous scope',
+                    icon: Icons.arrow_back,
+                    onPressed: navigateBack,
+                    active: true,
+                    activeColor: accent,
+                  ),
+                ] else if (!isRootScope && clearFilter != null) ...[
+                  const SizedBox(width: 4),
+                  _LibrarySidebarToolbarButton(
+                    tooltip: 'Back to all ${type.pluralLabel.toLowerCase()}',
+                    icon: Icons.arrow_back,
+                    onPressed: clearFilter,
+                    active: true,
+                    activeColor: accent,
+                  ),
+                ],
+                if (hideSidebar != null) ...[
+                  const SizedBox(width: 4),
+                  _LibrarySidebarToolbarButton(
+                    tooltip: 'Hide folders panel',
+                    icon: Icons.menu_open,
+                    onPressed: hideSidebar,
+                    active: false,
+                  ),
+                ],
               ],
             );
           },

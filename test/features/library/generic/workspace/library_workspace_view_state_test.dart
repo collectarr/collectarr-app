@@ -75,7 +75,8 @@ void main() {
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);
     expect(defaults.detailsHeight, 300);
-    expect(defaults.visibleColumns, libraryKindModuleForType(typeConfig).fields.defaultVisibleColumnIds);
+    expect(defaults.visibleColumns,
+        libraryKindModuleForType(typeConfig).fields.defaultVisibleColumnIds);
 
     final list = defaults.withPreset(LibraryWorkspacePreset.list, profile);
     expect(list.viewMode, LibraryViewMode.list);

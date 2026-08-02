@@ -82,7 +82,8 @@ class ComicCatalogItem {
   List<TrailerLink> get trailerUrls => const [];
   String? get plotSummary => work.synopsis;
   String? get plotDescription => null;
-  List<Map<String, dynamic>>? get creators => work.creators.map((c) => {'name': c, 'role': 'creator'}).toList();
+  List<Map<String, dynamic>>? get creators =>
+      work.creators.map((c) => {'name': c, 'role': 'creator'}).toList();
   List<String> get characters => work.characters;
   List<String> get storyArcs => work.storyArcs;
   List<String> get genres => work.genres;

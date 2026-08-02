@@ -14,11 +14,18 @@ sealed class OwnedItemDetails {
     Map<String, dynamic> json,
   ) {
     try {
-      return LibraryKindRegistry.instance.getByKind(kind).decodeOwnedDetails(json);
+      return LibraryKindRegistry.instance
+          .getByKind(kind)
+          .decodeOwnedDetails(json);
     } catch (_) {
       return switch (kind) {
-        CatalogMediaKind.comic || CatalogMediaKind.manga => ComicOwnedDetails.fromJson(json),
-        CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime => VideoOwnedDetails.fromJson(json),
+        CatalogMediaKind.comic ||
+        CatalogMediaKind.manga =>
+          ComicOwnedDetails.fromJson(json),
+        CatalogMediaKind.movie ||
+        CatalogMediaKind.tv ||
+        CatalogMediaKind.anime =>
+          VideoOwnedDetails.fromJson(json),
         CatalogMediaKind.game => GameOwnedDetails.fromJson(json),
         CatalogMediaKind.music => MusicOwnedDetails.fromJson(json),
         _ => const GenericOwnedDetails(),
@@ -31,8 +38,13 @@ sealed class OwnedItemDetails {
       return LibraryKindRegistry.instance.getByKind(kind).defaultOwnedDetails();
     } catch (_) {
       return switch (kind) {
-        CatalogMediaKind.comic || CatalogMediaKind.manga => const ComicOwnedDetails(),
-        CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime => const VideoOwnedDetails(),
+        CatalogMediaKind.comic ||
+        CatalogMediaKind.manga =>
+          const ComicOwnedDetails(),
+        CatalogMediaKind.movie ||
+        CatalogMediaKind.tv ||
+        CatalogMediaKind.anime =>
+          const VideoOwnedDetails(),
         CatalogMediaKind.game => const GameOwnedDetails(),
         CatalogMediaKind.music => const MusicOwnedDetails(),
         _ => const GenericOwnedDetails(),
@@ -40,10 +52,14 @@ sealed class OwnedItemDetails {
     }
   }
 
-  ComicOwnedDetails? get comic => this is ComicOwnedDetails ? this as ComicOwnedDetails : null;
-  VideoOwnedDetails? get video => this is VideoOwnedDetails ? this as VideoOwnedDetails : null;
-  GameOwnedDetails? get game => this is GameOwnedDetails ? this as GameOwnedDetails : null;
-  MusicOwnedDetails? get music => this is MusicOwnedDetails ? this as MusicOwnedDetails : null;
+  ComicOwnedDetails? get comic =>
+      this is ComicOwnedDetails ? this as ComicOwnedDetails : null;
+  VideoOwnedDetails? get video =>
+      this is VideoOwnedDetails ? this as VideoOwnedDetails : null;
+  GameOwnedDetails? get game =>
+      this is GameOwnedDetails ? this as GameOwnedDetails : null;
+  MusicOwnedDetails? get music =>
+      this is MusicOwnedDetails ? this as MusicOwnedDetails : null;
 }
 
 /// Kind-specific ownership details for comics and manga.
@@ -80,26 +96,28 @@ class ComicOwnedDetails extends OwnedItemDetails {
   final int? coverPriceCents;
   final DateTime? lastBagBoardDate;
 
-  bool get isSlabbed => rawOrSlabbed?.toLowerCase() == 'slabbed' || gradingCompany != null;
+  bool get isSlabbed =>
+      rawOrSlabbed?.toLowerCase() == 'slabbed' || gradingCompany != null;
 
   @override
   Map<String, dynamic> toJson() => {
-    if (rawOrSlabbed != null) 'raw_or_slabbed': rawOrSlabbed,
-    if (gradingCompany != null) 'grading_company': gradingCompany,
-    if (graderNotes != null) 'grader_notes': graderNotes,
-    if (signedBy != null) 'signed_by': signedBy,
-    if (labelType != null) 'label_type': labelType,
-    if (customLabel != null) 'custom_label': customLabel,
-    if (pageQuality != null) 'page_quality': pageQuality,
-    if (certificationNumber != null) 'certification_number': certificationNumber,
-    'key_comic': keyComic,
-    if (keyReason != null) 'key_reason': keyReason,
-    if (keyCategory != null) 'key_category': keyCategory,
-    if (keySeverity != null) 'key_severity': keySeverity,
-    if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
-    if (lastBagBoardDate != null)
-      'last_bag_board_date': lastBagBoardDate!.toUtc().toIso8601String(),
-  };
+        if (rawOrSlabbed != null) 'raw_or_slabbed': rawOrSlabbed,
+        if (gradingCompany != null) 'grading_company': gradingCompany,
+        if (graderNotes != null) 'grader_notes': graderNotes,
+        if (signedBy != null) 'signed_by': signedBy,
+        if (labelType != null) 'label_type': labelType,
+        if (customLabel != null) 'custom_label': customLabel,
+        if (pageQuality != null) 'page_quality': pageQuality,
+        if (certificationNumber != null)
+          'certification_number': certificationNumber,
+        'key_comic': keyComic,
+        if (keyReason != null) 'key_reason': keyReason,
+        if (keyCategory != null) 'key_category': keyCategory,
+        if (keySeverity != null) 'key_severity': keySeverity,
+        if (coverPriceCents != null) 'cover_price_cents': coverPriceCents,
+        if (lastBagBoardDate != null)
+          'last_bag_board_date': lastBagBoardDate!.toUtc().toIso8601String(),
+      };
 
   factory ComicOwnedDetails.fromJson(Map<String, dynamic> json) {
     return ComicOwnedDetails(
@@ -179,14 +197,14 @@ class VideoOwnedDetails extends OwnedItemDetails {
 
   @override
   Map<String, dynamic> toJson() => {
-    if (features != null) 'features': features,
-    if (hdrFormats.isNotEmpty) 'hdr_formats': hdrFormats,
-    if (boxSetId != null) 'box_set_id': boxSetId,
-    if (boxSetName != null) 'box_set_name': boxSetName,
-    if (region != null) 'region': region,
-    if (packaging != null) 'packaging': packaging,
-    if (distributor != null) 'distributor': distributor,
-  };
+        if (features != null) 'features': features,
+        if (hdrFormats.isNotEmpty) 'hdr_formats': hdrFormats,
+        if (boxSetId != null) 'box_set_id': boxSetId,
+        if (boxSetName != null) 'box_set_name': boxSetName,
+        if (region != null) 'region': region,
+        if (packaging != null) 'packaging': packaging,
+        if (distributor != null) 'distributor': distributor,
+      };
 
   factory VideoOwnedDetails.fromJson(Map<String, dynamic> json) {
     return VideoOwnedDetails(
@@ -244,13 +262,13 @@ class GameOwnedDetails extends OwnedItemDetails {
 
   @override
   Map<String, dynamic> toJson() => {
-    if (completeness != null) 'game_completeness': completeness,
-    if (hasBox != null) 'game_has_box': hasBox,
-    if (hasManual != null) 'game_has_manual': hasManual,
-    if (priceChartingId != null) 'game_pricecharting_id': priceChartingId,
-    if (coreRegion != null) 'game_core_region': coreRegion,
-    if (valueIsLocked != null) 'game_value_is_locked': valueIsLocked,
-  };
+        if (completeness != null) 'game_completeness': completeness,
+        if (hasBox != null) 'game_has_box': hasBox,
+        if (hasManual != null) 'game_has_manual': hasManual,
+        if (priceChartingId != null) 'game_pricecharting_id': priceChartingId,
+        if (coreRegion != null) 'game_core_region': coreRegion,
+        if (valueIsLocked != null) 'game_value_is_locked': valueIsLocked,
+      };
 
   factory GameOwnedDetails.fromJson(Map<String, dynamic> json) {
     return GameOwnedDetails(
@@ -294,9 +312,9 @@ class MusicOwnedDetails extends OwnedItemDetails {
 
   @override
   Map<String, dynamic> toJson() => {
-    if (storageDevice != null) 'storage_device': storageDevice,
-    if (storageSlot != null) 'storage_slot': storageSlot,
-  };
+        if (storageDevice != null) 'storage_device': storageDevice,
+        if (storageSlot != null) 'storage_slot': storageSlot,
+      };
 
   factory MusicOwnedDetails.fromJson(Map<String, dynamic> json) {
     return MusicOwnedDetails(

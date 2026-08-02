@@ -128,12 +128,12 @@ class LibrarySidebarFilteringPanel extends StatelessWidget {
                 ),
             ],
           ),
-            if (entries.isNotEmpty) const SizedBox(height: 6),
-            for (var index = 0; index < entries.length; index++) ...[
-              _LibrarySidebarDetailRow(entry: entries[index]),
-              if (index < entries.length - 1)
-                Divider(height: 10, color: appPalette(context).divider),
-            ],
+          if (entries.isNotEmpty) const SizedBox(height: 6),
+          for (var index = 0; index < entries.length; index++) ...[
+            _LibrarySidebarDetailRow(entry: entries[index]),
+            if (index < entries.length - 1)
+              Divider(height: 10, color: appPalette(context).divider),
+          ],
           if (hasActiveFilters && onClearFilters != null) ...[
             const SizedBox(height: 4),
             Align(
@@ -519,8 +519,10 @@ class _LibrarySidebarStatusRow extends StatelessWidget {
           child: Text(
             entry.label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: entry.selected ? FontWeight.w800 : FontWeight.w600,
-                  color: entry.selected ? palette.textPrimary : palette.textMuted,
+                  fontWeight:
+                      entry.selected ? FontWeight.w800 : FontWeight.w600,
+                  color:
+                      entry.selected ? palette.textPrimary : palette.textMuted,
                 ),
           ),
         ),

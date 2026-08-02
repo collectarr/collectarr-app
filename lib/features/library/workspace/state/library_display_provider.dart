@@ -13,8 +13,8 @@ import 'library_filters_provider.dart';
 ///
 /// The debounce duration is controlled by [librarySearchDebounceDurationProvider]
 /// so tests can override it with [Duration.zero] without any platform detection.
-final libraryDebouncedSearchProvider = StreamProvider.autoDispose
-    .family<String, LibraryWorkspaceKey>((ref, key) {
+final libraryDebouncedSearchProvider =
+    StreamProvider.autoDispose.family<String, LibraryWorkspaceKey>((ref, key) {
   final filters = ref.watch(libraryFiltersProvider(key));
   final searchQuery = filters.searchQuery;
 

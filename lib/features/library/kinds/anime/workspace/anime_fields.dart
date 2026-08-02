@@ -95,6 +95,7 @@ final animeLibrarySortDefinitions = [
         if (dto.isWishlisted) return 1;
         return 2;
       }
+
       final res = rank(left).compareTo(rank(right));
       return res != 0 ? res : left.title.compareTo(right.title);
     },
@@ -123,8 +124,10 @@ final animeLibraryColumnDefinitions = [
   LibraryColumnDefinition<AnimeWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('status'),
     label: 'Status',
-    getValue: (dto) => dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
-    cellValue: (dto) => Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
+    getValue: (dto) =>
+        dto.isWishlisted ? 'wishlist' : (dto.isOwned ? 'owned' : null),
+    cellValue: (dto) =>
+        Text(dto.isWishlisted ? 'Wishlist' : (dto.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -179,7 +182,8 @@ final animeLibraryColumnDefinitions = [
     group: 'Personal',
     defaultWidth: 112,
   ),
-  columnFromField(AnimeKindSchema.location, group: 'Personal', defaultWidth: 118),
+  columnFromField(AnimeKindSchema.location,
+      group: 'Personal', defaultWidth: 118),
   columnFromField(AnimeKindSchema.condition, group: 'Value', defaultWidth: 124),
   columnFromField(
     AnimeKindSchema.price,
@@ -189,7 +193,8 @@ final animeLibraryColumnDefinitions = [
     defaultWidth: 92,
     minWidth: 78,
   ),
-  columnFromField(AnimeKindSchema.barcode, group: 'Edition', defaultWidth: 160, maxWidth: 260),
+  columnFromField(AnimeKindSchema.barcode,
+      group: 'Edition', defaultWidth: 160, maxWidth: 260),
   LibraryColumnDefinition<AnimeWorkspaceDto, Object?>(
     id: LibraryFieldId<Object?>('rating'),
     label: 'Rating',

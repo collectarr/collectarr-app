@@ -61,11 +61,13 @@ class PersonalItemAnchor {
     return PersonalItemAnchor._(
       type: type,
       editionId: switch (type) {
-        PersonalItemAnchorType.edition || PersonalItemAnchorType.variant =>
+        PersonalItemAnchorType.edition ||
+        PersonalItemAnchorType.variant =>
           normalizedEditionId,
         _ => null,
       },
-      variantId: type == PersonalItemAnchorType.variant ? normalizedVariantId : null,
+      variantId:
+          type == PersonalItemAnchorType.variant ? normalizedVariantId : null,
       bundleReleaseId: type == PersonalItemAnchorType.bundleRelease
           ? normalizedBundleReleaseId
           : null,
@@ -134,13 +136,15 @@ PersonalItemAnchorType? resolvePersonalItemAnchor({
     return hasVariant
         ? PersonalItemAnchorType.variant
         : hasEdition
-        ? PersonalItemAnchorType.edition
-      : PersonalItemAnchorType.item;
+            ? PersonalItemAnchorType.edition
+            : PersonalItemAnchorType.item;
   }
   if (hasEdition || normalized == PersonalItemAnchorType.edition.apiValue) {
     return PersonalItemAnchorType.edition;
   }
-  return normalized == null ? null : PersonalItemAnchorType.fromApiValue(normalized);
+  return normalized == null
+      ? null
+      : PersonalItemAnchorType.fromApiValue(normalized);
 }
 
 String? resolvePersonalItemAnchorType({

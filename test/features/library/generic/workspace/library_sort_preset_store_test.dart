@@ -32,7 +32,8 @@ void main() {
     );
 
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(comicsWorkspaceConfig.preferenceKey('sort_presets'));
+    final raw =
+        prefs.getString(comicsWorkspaceConfig.preferenceKey('sort_presets'));
     expect(raw, isNotNull);
     expect(raw, contains('grade'));
   });

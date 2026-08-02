@@ -53,7 +53,8 @@ class VideoWatchRunPresenter {
     return VideoWatchRunSummary(
       sessionCount: active.length,
       uniqueEpisodeCount: uniqueEpisodeKeys.length,
-      rewatchCount: (active.length - uniqueEpisodeKeys.length).clamp(0, active.length),
+      rewatchCount:
+          (active.length - uniqueEpisodeKeys.length).clamp(0, active.length),
       firstWatchedAt: active.first.watchedAt,
       lastWatchedAt: active.last.watchedAt,
     );

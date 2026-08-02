@@ -24,8 +24,10 @@ class VideoProgressSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(seasonsByCatalogRefProvider(seriesRef));
-    final trackedUnits = ref.watch(trackingUnitsByCatalogRefProvider(seriesRef));
-    final watchSessions = ref.watch(watchSessionsByCatalogRefProvider(seriesRef));
+    final trackedUnits =
+        ref.watch(trackingUnitsByCatalogRefProvider(seriesRef));
+    final watchSessions =
+        ref.watch(watchSessionsByCatalogRefProvider(seriesRef));
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),

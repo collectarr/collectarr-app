@@ -39,26 +39,32 @@ class InsuranceValueRepository {
 
   Future<InsuranceValueSummary> getSummary({String? mediaKind}) async {
     // Count total owned items
-    final countResult = await _db.customSelect(
-      'SELECT COUNT(*) as cnt FROM owned_items_cache WHERE deleted_at IS NULL',
-    ).getSingle();
+    final countResult = await _db
+        .customSelect(
+          'SELECT COUNT(*) as cnt FROM owned_items_cache WHERE deleted_at IS NULL',
+        )
+        .getSingle();
     final totalItems = countResult.data['cnt'] as int;
 
     // Sum price_paid_cents
-    final paidResult = await _db.customSelect(
-      'SELECT COUNT(*) as cnt, COALESCE(SUM(price_paid_cents), 0) as total '
-      'FROM owned_items_cache WHERE deleted_at IS NULL AND price_paid_cents IS NOT NULL',
-    ).getSingle();
+    final paidResult = await _db
+        .customSelect(
+          'SELECT COUNT(*) as cnt, COALESCE(SUM(price_paid_cents), 0) as total '
+          'FROM owned_items_cache WHERE deleted_at IS NULL AND price_paid_cents IS NOT NULL',
+        )
+        .getSingle();
     final itemsWithValue = paidResult.data['cnt'] as int;
     final totalPaid = paidResult.data['total'] as int;
 
     // Sum cover_price_cents from catalog
-    final coverResult = await _db.customSelect(
-      'SELECT COALESCE(SUM(c.cover_price_cents), 0) as total '
-      'FROM owned_items_cache o '
-      'INNER JOIN catalog_cache c ON o.item_id = c.id '
-      'WHERE o.deleted_at IS NULL AND c.cover_price_cents IS NOT NULL',
-    ).getSingle();
+    final coverResult = await _db
+        .customSelect(
+          'SELECT COALESCE(SUM(c.cover_price_cents), 0) as total '
+          'FROM owned_items_cache o '
+          'INNER JOIN catalog_cache c ON o.item_id = c.id '
+          'WHERE o.deleted_at IS NULL AND c.cover_price_cents IS NOT NULL',
+        )
+        .getSingle();
     final totalCoverPrice = coverResult.data['total'] as int;
 
     return InsuranceValueSummary(
@@ -186,7 +192,8 @@ class _ValueRow extends StatelessWidget {
             style: TextStyle(
               fontSize: highlight ? 16 : 13,
               fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
-              color: highlight ? Theme.of(context).colorScheme.primary : onSurface,
+              color:
+                  highlight ? Theme.of(context).colorScheme.primary : onSurface,
             ),
           ),
         ],

@@ -50,13 +50,14 @@ void main() {
       ),
     ]);
 
-    expect(resolvedBooks.supportedMetadataProviders.single.id,
-        'custom-provider');
+    expect(
+        resolvedBooks.supportedMetadataProviders.single.id, 'custom-provider');
     expect(resolvedBooks.supportedMetadataProviders.single.label,
         'Custom Provider');
   });
 
-  test('catalog resolution preserves first-class manga, tv, and anime kinds', () {
+  test('catalog resolution preserves first-class manga, tv, and anime kinds',
+      () {
     final resolvedManga = mangaLibraryConfig.resolveWithCatalog(const [
       CatalogMediaType(
         kind: 'manga',

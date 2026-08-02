@@ -21,7 +21,8 @@ double plannedMediaTableWidthForColumns({
 }) {
   return libraryTableWidthForColumns(
     columns: columns,
-    defaultColumns: libraryKindModuleForType(type).fields.defaultVisibleColumnIds,
+    defaultColumns:
+        libraryKindModuleForType(type).fields.defaultVisibleColumnIds,
     customWidths: customWidths,
     sizing: (column) => plannedMediaTableColumnSizing(type, column),
     columnSpacing: kPlannedMediaTableColumnSpacing,
@@ -166,7 +167,6 @@ Widget plannedMediaTableCell(
   return LibraryTableCellText(value?.toString());
 }
 
-
 int plannedMediaCompareSubgroupKeys(
   String left,
   String right,
@@ -183,10 +183,8 @@ int plannedMediaCompareSubgroupKeys(
   return left.compareTo(right);
 }
 
-
-
-LibraryColumnDefinition<dynamic, dynamic>?
-    _tableColumnDefinition(LibraryTypeConfig type, String columnId) {
+LibraryColumnDefinition<dynamic, dynamic>? _tableColumnDefinition(
+    LibraryTypeConfig type, String columnId) {
   final module = libraryKindModuleForType(type);
   return module.fields.findColumnDefinition(columnId);
 }
@@ -216,8 +214,6 @@ String _fallbackLabel(String id) {
     return word[0].toUpperCase() + word.substring(1);
   }).join(' ');
 }
-
-
 
 int? _extractSubgroupNumber(String? value) {
   if (value == null) {

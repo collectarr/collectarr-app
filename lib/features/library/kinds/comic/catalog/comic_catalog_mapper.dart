@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalo
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-
 class ComicCatalogMapper {
   const ComicCatalogMapper._();
 
@@ -15,7 +14,11 @@ class ComicCatalogMapper {
       issueNumber: dto.itemNumber,
       synopsis: dto.synopsis,
       coverDate: dto.coverDate,
-      creators: (dto.creators?.map((c) => c['name']?.toString() ?? '').where((n) => n.isNotEmpty).toList() ?? const []),
+      creators: (dto.creators
+              ?.map((c) => c['name']?.toString() ?? '')
+              .where((n) => n.isNotEmpty)
+              .toList() ??
+          const []),
       characters: dto.characters ?? const [],
       storyArcs: dto.storyArcs ?? const [],
       genres: dto.genres ?? const [],
@@ -49,8 +52,6 @@ class ComicCatalogMapper {
     );
   }
 
-
-
   static ComicCatalogItem mapMetadataItemToComic(LibraryMetadataItem item) {
     final pub = item.publishing;
 
@@ -60,7 +61,11 @@ class ComicCatalogMapper {
       synopsis: item.synopsis,
       coverDate: item.coverDate,
       series: item.series,
-      creators: (item.creators?.map((c) => c['name']?.toString() ?? '').where((n) => n.isNotEmpty).toList() ?? const []),
+      creators: (item.creators
+              ?.map((c) => c['name']?.toString() ?? '')
+              .where((n) => n.isNotEmpty)
+              .toList() ??
+          const []),
       characters: item.characters ?? const [],
       storyArcs: item.storyArcs ?? const [],
       genres: item.genres ?? const [],

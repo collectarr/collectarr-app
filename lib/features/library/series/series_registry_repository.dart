@@ -61,7 +61,8 @@ class SeriesRegistryRepository {
     final selectedNormalizedTitle = _normalize(selectedTitle);
     final hasSelected = entries.any(
       (entry) =>
-          (selectedSeriesId != null && entry.coreSeriesId == selectedSeriesId) ||
+          (selectedSeriesId != null &&
+              entry.coreSeriesId == selectedSeriesId) ||
           _normalize(entry.title) == selectedNormalizedTitle,
     );
     if (!hasSelected && selectedNormalizedTitle != null) {
@@ -178,14 +179,16 @@ class SeriesRegistryRepository {
     });
   }
 
-  Future<void> captureCatalogItemsWithoutTransaction(List<CatalogItem> items) async {
+  Future<void> captureCatalogItemsWithoutTransaction(
+      List<CatalogItem> items) async {
     if (items.isEmpty) {
       return;
     }
     final now = DateTime.now().toUtc();
     final candidates = <String, _SeriesCandidate>{};
     for (final item in items) {
-      final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(item.kind));
+      final type =
+          collectarrLibraryTypes.byKind(catalogMediaKindFromValue(item.kind));
       final title = _emptyToNull(
         item.series?.seriesTitle ??
             (type?.usesTitleAsSeriesFallback ?? false ? item.title : null),
@@ -315,7 +318,10 @@ class SeriesRegistryRepository {
     if (target == null) {
       return;
     }
-    final uniqueSourceIds = sourceEntryIds.toSet().where((id) => id != target.id).toList(growable: false);
+    final uniqueSourceIds = sourceEntryIds
+        .toSet()
+        .where((id) => id != target.id)
+        .toList(growable: false);
     if (uniqueSourceIds.isEmpty) {
       return;
     }
@@ -412,7 +418,8 @@ class SeriesRegistryRepository {
   ) {
     final registryCoreSeriesId = _emptyToNull(registryRow.coreSeriesId);
     final catalogCoreSeriesId = _emptyToNull(catalogRow.seriesId);
-    if (registryCoreSeriesId != null && catalogCoreSeriesId == registryCoreSeriesId) {
+    if (registryCoreSeriesId != null &&
+        catalogCoreSeriesId == registryCoreSeriesId) {
       return true;
     }
     return _normalize(catalogRow.seriesTitle) == registryRow.normalizedTitle;
@@ -430,7 +437,9 @@ class SeriesRegistryRepository {
     required String? coreSeriesId,
     required String normalizedTitle,
   }) {
-    return coreSeriesId == null ? 'title:$normalizedTitle' : 'core:$coreSeriesId';
+    return coreSeriesId == null
+        ? 'title:$normalizedTitle'
+        : 'core:$coreSeriesId';
   }
 
   static String? _emptyToNull(String? value) {

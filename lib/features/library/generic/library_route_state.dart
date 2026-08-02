@@ -154,7 +154,8 @@ class LibraryRouteState {
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final allowedSortColumns = libraryKindModuleForType(type).fields.sorts.map((d) => d.id).toSet();
+    final allowedSortColumns =
+        libraryKindModuleForType(type).fields.sorts.map((d) => d.id).toSet();
     final filteredSortRules = sortRules == null
         ? null
         : [
@@ -165,10 +166,9 @@ class LibraryRouteState {
         (groupMode != null && allowedGroupModes.contains(groupMode)
             ? groupMode
             : null);
-    final filteredSeriesCompletionScope =
-        filteredGroupMode == 'series'
-            ? seriesCompletionScope
-            : LibrarySeriesCompletionScope.all;
+    final filteredSeriesCompletionScope = filteredGroupMode == 'series'
+        ? seriesCompletionScope
+        : LibrarySeriesCompletionScope.all;
     return LibraryRouteState(
       kind: expectedKind,
       searchQuery: searchQuery,
@@ -234,7 +234,10 @@ class LibraryRouteState {
       decoded.add(
         LibrarySortRule(
           column: resolvedColumn,
-          ascending: (direction ?? (legacyParts.length == 2 ? legacyParts.last.trim().toLowerCase() : 'asc')) !=
+          ascending: (direction ??
+                  (legacyParts.length == 2
+                      ? legacyParts.last.trim().toLowerCase()
+                      : 'asc')) !=
               'desc',
         ),
       );

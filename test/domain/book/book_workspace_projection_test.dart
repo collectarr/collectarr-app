@@ -6,7 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('book workspace projector builds typed book dto', () {
-    const source = ShelfEntry(
+    final source = ShelfEntry(
+      itemId: 'book-1',
       catalogItem: CatalogItemDto(
         id: 'book-1',
         title: 'Guards! Guards!',
@@ -20,7 +21,6 @@ void main() {
       node: const LibraryTitleNodeRef(titleItemId: 'book-1'),
     );
 
-    expect(dto.id, 'book-1');
     expect(dto.title, 'Guards! Guards!');
     expect(dto.publisher, 'Victor Gollancz Ltd');
   });

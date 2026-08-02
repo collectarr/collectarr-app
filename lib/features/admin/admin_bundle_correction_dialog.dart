@@ -33,10 +33,13 @@ class _BundleReleaseCorrectionDialogState
     super.initState();
     final bundle = widget.bundle;
     _titleController = TextEditingController(text: bundle.title);
-    _bundleTypeController = TextEditingController(text: bundle.bundleType ?? '');
+    _bundleTypeController =
+        TextEditingController(text: bundle.bundleType ?? '');
     _formatController = TextEditingController(text: bundle.format ?? '');
-    _variantTypeController = TextEditingController(text: bundle.variantType ?? '');
-    _packagingTypeController = TextEditingController(text: bundle.packagingType ?? '');
+    _variantTypeController =
+        TextEditingController(text: bundle.variantType ?? '');
+    _packagingTypeController =
+        TextEditingController(text: bundle.packagingType ?? '');
     _regionController = TextEditingController(text: bundle.region ?? '');
     _languageController = TextEditingController(text: bundle.language ?? '');
     _publisherController = TextEditingController(text: bundle.publisher ?? '');
@@ -46,7 +49,8 @@ class _BundleReleaseCorrectionDialogState
       text: bundle.releaseDate == null ? '' : _formatDate(bundle.releaseDate!),
     );
     _coverController = TextEditingController(text: bundle.coverImageUrl ?? '');
-    _thumbnailController = TextEditingController(text: bundle.thumbnailImageUrl ?? '');
+    _thumbnailController =
+        TextEditingController(text: bundle.thumbnailImageUrl ?? '');
     _members = bundle.members
         .map(_EditableBundleMember.fromExisting)
         .toList(growable: true);
@@ -96,7 +100,8 @@ class _BundleReleaseCorrectionDialogState
                 children: [
                   SizedBox(
                     width: 220,
-                    child: _correctionField(_bundleTypeController, 'Bundle type'),
+                    child:
+                        _correctionField(_bundleTypeController, 'Bundle type'),
                   ),
                   SizedBox(
                     width: 220,
@@ -104,11 +109,13 @@ class _BundleReleaseCorrectionDialogState
                   ),
                   SizedBox(
                     width: 220,
-                    child: _correctionField(_variantTypeController, 'Variant type'),
+                    child: _correctionField(
+                        _variantTypeController, 'Variant type'),
                   ),
                   SizedBox(
                     width: 220,
-                    child: _correctionField(_packagingTypeController, 'Packaging type'),
+                    child: _correctionField(
+                        _packagingTypeController, 'Packaging type'),
                   ),
                   SizedBox(
                     width: 220,
@@ -132,7 +139,8 @@ class _BundleReleaseCorrectionDialogState
                   ),
                   SizedBox(
                     width: 220,
-                    child: _correctionField(_releaseDateController, 'Release date'),
+                    child: _correctionField(
+                        _releaseDateController, 'Release date'),
                   ),
                 ],
               ),
@@ -262,7 +270,8 @@ class _BundleReleaseCorrectionDialogState
                 ),
                 SizedBox(
                   width: 180,
-                  child: _correctionField(member.discLabelController, 'Disc label'),
+                  child: _correctionField(
+                      member.discLabelController, 'Disc label'),
                 ),
                 SizedBox(
                   width: 120,
@@ -326,9 +335,12 @@ class _BundleReleaseCorrectionDialogState
         if (role == null) {
           throw const FormatException('Each member must have a role.');
         }
-        final sequenceNumber = _optionalInt(member.sequenceController.text, 'sequence');
-        final discNumber = _optionalInt(member.discNumberController.text, 'disc');
-        final quantity = _requiredPositiveInt(member.quantityController.text, 'quantity');
+        final sequenceNumber =
+            _optionalInt(member.sequenceController.text, 'sequence');
+        final discNumber =
+            _optionalInt(member.discNumberController.text, 'disc');
+        final quantity =
+            _requiredPositiveInt(member.quantityController.text, 'quantity');
         memberUpdates.add(
           AdminBundleReleaseMemberUpdate(
             id: member.memberId,
@@ -361,23 +373,27 @@ class _BundleReleaseCorrectionDialogState
 
     final correction = AdminBundleReleaseCorrection(
       title: _changedText(_titleController.text, widget.bundle.title),
-      bundleType: _changedText(_bundleTypeController.text, widget.bundle.bundleType),
+      bundleType:
+          _changedText(_bundleTypeController.text, widget.bundle.bundleType),
       format: _changedText(_formatController.text, widget.bundle.format),
-      variantType: _changedText(_variantTypeController.text, widget.bundle.variantType),
+      variantType:
+          _changedText(_variantTypeController.text, widget.bundle.variantType),
       packagingType: _changedText(
         _packagingTypeController.text,
         widget.bundle.packagingType,
       ),
       region: _changedText(_regionController.text, widget.bundle.region),
       language: _changedText(_languageController.text, widget.bundle.language),
-      publisher: _changedText(_publisherController.text, widget.bundle.publisher),
+      publisher:
+          _changedText(_publisherController.text, widget.bundle.publisher),
       sku: _changedText(_skuController.text, widget.bundle.sku),
       barcode: _changedText(_barcodeController.text, widget.bundle.barcode),
-      releaseDate:
-          releaseDate != null && !_sameUtcDate(releaseDate, widget.bundle.releaseDate)
-              ? releaseDate
-              : null,
-      coverImageUrl: _changedText(_coverController.text, widget.bundle.coverImageUrl),
+      releaseDate: releaseDate != null &&
+              !_sameUtcDate(releaseDate, widget.bundle.releaseDate)
+          ? releaseDate
+          : null,
+      coverImageUrl:
+          _changedText(_coverController.text, widget.bundle.coverImageUrl),
       thumbnailImageUrl: _changedText(
         _thumbnailController.text,
         widget.bundle.thumbnailImageUrl,
@@ -407,7 +423,8 @@ class _BundleReleaseCorrectionDialogState
       widget.bundle.bundleType,
       correction.bundleType ?? widget.bundle.bundleType,
     );
-    add('Format', widget.bundle.format, correction.format ?? widget.bundle.format);
+    add('Format', widget.bundle.format,
+        correction.format ?? widget.bundle.format);
     add(
       'Variant type',
       widget.bundle.variantType,
@@ -418,7 +435,8 @@ class _BundleReleaseCorrectionDialogState
       widget.bundle.packagingType,
       correction.packagingType ?? widget.bundle.packagingType,
     );
-    add('Region', widget.bundle.region, correction.region ?? widget.bundle.region);
+    add('Region', widget.bundle.region,
+        correction.region ?? widget.bundle.region);
     add(
       'Language',
       widget.bundle.language,
@@ -430,7 +448,8 @@ class _BundleReleaseCorrectionDialogState
       correction.publisher ?? widget.bundle.publisher,
     );
     add('SKU', widget.bundle.sku, correction.sku ?? widget.bundle.sku);
-    add('Barcode', widget.bundle.barcode, correction.barcode ?? widget.bundle.barcode);
+    add('Barcode', widget.bundle.barcode,
+        correction.barcode ?? widget.bundle.barcode);
     add(
       'Release date',
       widget.bundle.releaseDate,
@@ -552,44 +571,40 @@ class _BundleReleaseCorrectionDialogState
     if (members.isEmpty) {
       return '(empty)';
     }
-    return members
-        .map((member) {
-          final parts = <String>[member.role];
-          if (member.isPrimary) {
-            parts.add('primary');
-          }
-          if (member.sequenceNumber != null) {
-            parts.add('seq ${member.sequenceNumber}');
-          }
-          if (member.discNumber != null) {
-            parts.add('disc ${member.discNumber}');
-          }
-          return '${member.title} (${parts.join(', ')})';
-        })
-        .join(' | ');
+    return members.map((member) {
+      final parts = <String>[member.role];
+      if (member.isPrimary) {
+        parts.add('primary');
+      }
+      if (member.sequenceNumber != null) {
+        parts.add('seq ${member.sequenceNumber}');
+      }
+      if (member.discNumber != null) {
+        parts.add('disc ${member.discNumber}');
+      }
+      return '${member.title} (${parts.join(', ')})';
+    }).join(' | ');
   }
 
   String _bundleMembersDraftPreview(List<_EditableBundleMember> members) {
     if (members.isEmpty) {
       return '(empty)';
     }
-    return members
-        .map((member) {
-          final parts = <String>[member.roleController.text.trim()];
-          if (member.isPrimary) {
-            parts.add('primary');
-          }
-          final sequence = _emptyToNull(member.sequenceController.text);
-          if (sequence != null) {
-            parts.add('seq $sequence');
-          }
-          final disc = _emptyToNull(member.discNumberController.text);
-          if (disc != null) {
-            parts.add('disc $disc');
-          }
-          return '${member.displayLabel} (${parts.join(', ')})';
-        })
-        .join(' | ');
+    return members.map((member) {
+      final parts = <String>[member.roleController.text.trim()];
+      if (member.isPrimary) {
+        parts.add('primary');
+      }
+      final sequence = _emptyToNull(member.sequenceController.text);
+      if (sequence != null) {
+        parts.add('seq $sequence');
+      }
+      final disc = _emptyToNull(member.discNumberController.text);
+      if (disc != null) {
+        parts.add('disc $disc');
+      }
+      return '${member.displayLabel} (${parts.join(', ')})';
+    }).join(' | ');
   }
 
   bool _sameUtcDate(DateTime first, DateTime? second) {
@@ -626,7 +641,8 @@ class _EditableBundleMember {
       discNumberController:
           TextEditingController(text: member.discNumber?.toString() ?? ''),
       discLabelController: TextEditingController(text: member.discLabel ?? ''),
-      quantityController: TextEditingController(text: member.quantity.toString()),
+      quantityController:
+          TextEditingController(text: member.quantity.toString()),
       isPrimary: member.isPrimary,
     );
   }

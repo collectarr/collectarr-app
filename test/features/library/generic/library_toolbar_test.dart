@@ -124,9 +124,8 @@ void main() {
       ),
     );
 
-    final aButton = find
-        .ancestor(of: find.text('A'), matching: find.byType(InkWell))
-        .first;
+    final aButton =
+        find.ancestor(of: find.text('A'), matching: find.byType(InkWell)).first;
     expect(tester.getSize(aButton).width, greaterThanOrEqualTo(28));
   });
 
@@ -238,19 +237,26 @@ void main() {
     await expectScanCover(
       type: booksLibraryConfig,
       adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.book)!,
-      viewState: collectarrMediaAdapters.byKind(CatalogMediaKind.book)!.viewProfile.defaults(),
+      viewState: collectarrMediaAdapters
+          .byKind(CatalogMediaKind.book)!
+          .viewProfile
+          .defaults(),
       expected: true,
     );
     await expectScanCover(
       type: gamesLibraryConfig,
       adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.game)!,
-      viewState: collectarrMediaAdapters.byKind(CatalogMediaKind.game)!.viewProfile.defaults(),
+      viewState: collectarrMediaAdapters
+          .byKind(CatalogMediaKind.game)!
+          .viewProfile
+          .defaults(),
       expected: true,
     );
     await expectScanCover(
       type: boardGamesLibraryConfig,
       adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.boardgame)!,
-      viewState: collectarrMediaAdapters.byKind(CatalogMediaKind.boardgame)!
+      viewState: collectarrMediaAdapters
+          .byKind(CatalogMediaKind.boardgame)!
           .viewProfile
           .defaults(),
       expected: true,
@@ -258,7 +264,10 @@ void main() {
     await expectScanCover(
       type: comicsLibraryConfig,
       adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!,
-      viewState: collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!.viewProfile.defaults(),
+      viewState: collectarrMediaAdapters
+          .byKind(CatalogMediaKind.comic)!
+          .viewProfile
+          .defaults(),
       expected: true,
     );
   });
@@ -636,8 +645,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     for (final type in collectarrLibraryTypes.types) {
-      final adapter =
-          collectarrMediaAdapters.byKind(type.workspace.kind);
+      final adapter = collectarrMediaAdapters.byKind(type.workspace.kind);
       expect(
         adapter,
         isNotNull,

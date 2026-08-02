@@ -207,11 +207,8 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<LibrarySeriesCompletionScope>?
       onSeriesCompletionScopeChanged;
   final ValueChanged<String> onSortChanged;
-  final void Function(String column, double width)
-      onColumnWidthChanged;
-  final void Function(
-          String column, String? beforeColumn)
-      onColumnReordered;
+  final void Function(String column, double width) onColumnWidthChanged;
+  final void Function(String column, String? beforeColumn) onColumnReordered;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<double> onSidebarWidthChanged;
   final ValueChanged<bool> onSidebarVisibilityChanged;

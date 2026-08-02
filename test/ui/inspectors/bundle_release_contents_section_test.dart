@@ -25,7 +25,8 @@ void main() {
     expect(api.calls, 1);
     expect(find.text('3 items • 2 primary • 1 bonus'), findsOneWidget);
     expect(find.text('Collector Box'), findsOneWidget);
-    expect(find.text('Box Set • Slipcase • Kodansha • 3 items'), findsOneWidget);
+    expect(
+        find.text('Box Set • Slipcase • Kodansha • 3 items'), findsOneWidget);
     expect(find.text('Disc 1'), findsOneWidget);
     expect(find.text('Bonus disc'), findsOneWidget);
     expect(find.text('Episode One #1'), findsOneWidget);
@@ -47,7 +48,8 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(api.calls, 1);
-    expect(find.textContaining('Could not load bundle contents'), findsOneWidget);
+    expect(
+        find.textContaining('Could not load bundle contents'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
 
     await tester.tap(find.text('Retry'));

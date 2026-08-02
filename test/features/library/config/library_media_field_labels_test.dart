@@ -27,7 +27,7 @@ void main() {
 
     expect(musicLabels.queryHint, 'Enter album, artist, release, or label...');
     expect(musicLabels.emptySearchMessage,
-      'Enter an album, artist, release, or label.');
+        'Enter an album, artist, release, or label.');
     expect(musicLabels.seriesHint, 'Artist...');
     expect(musicLabels.publisherHint, 'Label...');
     expect(movieLabels.seriesHint, 'Series...');
@@ -75,9 +75,12 @@ void main() {
   });
 
   test('stats labels and candidate layout vary by media type', () {
-    expect(musicLibraryConfig.presentation.statsLabels.topSeries, 'Top Artists');
-    expect(musicLibraryConfig.presentation.statsLabels.topPublisher, 'Top Labels');
-    expect(moviesLibraryConfig.presentation.statsLabels.topSeries, 'Top Franchises');
+    expect(
+        musicLibraryConfig.presentation.statsLabels.topSeries, 'Top Artists');
+    expect(
+        musicLibraryConfig.presentation.statsLabels.topPublisher, 'Top Labels');
+    expect(moviesLibraryConfig.presentation.statsLabels.topSeries,
+        'Top Franchises');
     expect(gamesLibraryConfig.presentation.statsLabels.topPublisher,
         'Top Publishers / Studios');
     expect(comicsLibraryConfig.presentation.usesTreeProviderCandidates, isTrue);

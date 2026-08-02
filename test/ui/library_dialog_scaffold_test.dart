@@ -31,13 +31,13 @@ void main() {
     expect(find.text('Body'), findsOneWidget);
     expect(find.byIcon(Icons.close), findsOneWidget);
 
-    final headerContainer = tester.widgetList<Container>(find.byType(Container))
-        .firstWhere(
-          (container) =>
-              container.decoration is BoxDecoration &&
-              (container.decoration as BoxDecoration).color ==
-                  Colors.deepPurple,
-        );
+    final headerContainer =
+        tester.widgetList<Container>(find.byType(Container)).firstWhere(
+              (container) =>
+                  container.decoration is BoxDecoration &&
+                  (container.decoration as BoxDecoration).color ==
+                      Colors.deepPurple,
+            );
     expect(headerContainer, isNotNull);
   });
 }

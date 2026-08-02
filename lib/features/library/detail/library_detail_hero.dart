@@ -39,9 +39,9 @@ class LibraryDetailHero extends StatelessWidget {
     final metadataPresentation = _buildDetailMetadataPresentation(type, item);
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(item, ownedItem);
     final resolvedIsOwned = isOwned ?? (ownedItem != null || dto.isOwned);
-    final referenceLabel =
-        libraryOwnedReferenceLabel(ownedItem, mediaType: item.source.catalogItem?.kind) ??
-            dto.referenceFormatLabel;
+    final referenceLabel = libraryOwnedReferenceLabel(ownedItem,
+            mediaType: item.source.catalogItem?.kind) ??
+        dto.referenceFormatLabel;
     final releaseLabel =
         formatNullableDate(dto.releaseDate) ?? dto.releaseDate?.year.toString();
     final totalCopies =
@@ -80,8 +80,7 @@ class LibraryDetailHero extends StatelessWidget {
         (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
       (
         label: 'Updated',
-        value:
-            formatNullableDate(ownedItem?.updatedAt ?? dto.updatedAt) ?? '-',
+        value: formatNullableDate(ownedItem?.updatedAt ?? dto.updatedAt) ?? '-',
       ),
     ];
     final primaryChips = <Widget>[
@@ -159,18 +158,20 @@ class LibraryDetailHero extends StatelessWidget {
                   children: [
                     Text(
                       dto.title,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: palette.textPrimary,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: palette.textPrimary,
+                              ),
                     ),
                     if (dto.seriesTitle != null) ...[
                       const SizedBox(height: 4),
                       Text(
                         dto.seriesTitle!,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: palette.textMuted,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: palette.textMuted,
+                                ),
                       ),
                     ],
                     const SizedBox(height: 12),

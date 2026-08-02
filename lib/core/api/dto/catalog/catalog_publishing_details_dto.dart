@@ -54,7 +54,8 @@ class CatalogPublishingDetailsDto {
       (originalCountry != null && originalCountry!.isNotEmpty) ||
       (originalLanguage != null && originalLanguage!.isNotEmpty) ||
       originalPublicationDate != null ||
-      (originalPublicationPlace != null && originalPublicationPlace!.isNotEmpty) ||
+      (originalPublicationPlace != null &&
+          originalPublicationPlace!.isNotEmpty) ||
       (originalPublisher != null && originalPublisher!.isNotEmpty) ||
       (paperType != null && paperType!.isNotEmpty) ||
       (printedBy != null && printedBy!.isNotEmpty) ||

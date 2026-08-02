@@ -65,6 +65,5 @@ class LibraryCollectionActions {
 
 final genericLibraryCollectionActionsProvider =
     Provider<LibraryCollectionActions>((ref) {
-  return LibraryCollectionActions(
-      ref.watch(collectionMutationsProvider));
+  return LibraryCollectionActions(ref.watch(collectionMutationsProvider));
 });

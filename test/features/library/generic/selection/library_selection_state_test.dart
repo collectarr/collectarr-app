@@ -2,7 +2,8 @@ import 'package:collectarr_app/features/library/selection/library_selection_stat
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('selectionRangeItemIds returns inclusive forward and backward ranges', () {
+  test('selectionRangeItemIds returns inclusive forward and backward ranges',
+      () {
     const ordered = ['a', 'b', 'c', 'd', 'e'];
 
     expect(

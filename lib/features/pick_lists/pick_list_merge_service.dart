@@ -86,7 +86,8 @@ class PickListMergeService {
           await repository.deleteValue(row.id);
         }
       }
-      await repository.addValue(preview.listName, target, mediaKind: preview.mediaKind);
+      await repository.addValue(preview.listName, target,
+          mediaKind: preview.mediaKind);
     });
   }
 
@@ -97,35 +98,44 @@ class PickListMergeService {
   ) async {
     final rows = await _db.select(_db.ownedItemsCache).get();
     for (final row in rows) {
-      if (listName == 'condition' && sourceSet.contains(normalizePickListValue(row.condition ?? ''))) {
+      if (listName == 'condition' &&
+          sourceSet.contains(normalizePickListValue(row.condition ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(condition: Value(target)));
-      } else if (listName == 'grade' && sourceSet.contains(normalizePickListValue(row.grade ?? ''))) {
+      } else if (listName == 'grade' &&
+          sourceSet.contains(normalizePickListValue(row.grade ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(grade: Value(target)));
-      } else if (listName == 'purchase_store' && sourceSet.contains(normalizePickListValue(row.purchaseStore ?? ''))) {
+      } else if (listName == 'purchase_store' &&
+          sourceSet.contains(normalizePickListValue(row.purchaseStore ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(purchaseStore: Value(target)));
-      } else if (listName == 'sold_to' && sourceSet.contains(normalizePickListValue(row.soldTo ?? ''))) {
+      } else if (listName == 'sold_to' &&
+          sourceSet.contains(normalizePickListValue(row.soldTo ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(soldTo: Value(target)));
-      } else if (listName == 'region' && sourceSet.contains(normalizePickListValue(row.region ?? ''))) {
+      } else if (listName == 'region' &&
+          sourceSet.contains(normalizePickListValue(row.region ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(region: Value(target)));
-      } else if (listName == 'packaging' && sourceSet.contains(normalizePickListValue(row.packaging ?? ''))) {
+      } else if (listName == 'packaging' &&
+          sourceSet.contains(normalizePickListValue(row.packaging ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(packaging: Value(target)));
-      } else if (listName == 'distributor' && sourceSet.contains(normalizePickListValue(row.distributor ?? ''))) {
+      } else if (listName == 'distributor' &&
+          sourceSet.contains(normalizePickListValue(row.distributor ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(distributor: Value(target)));
-      } else if (listName == 'game_completeness' && sourceSet.contains(normalizePickListValue(row.gameCompleteness ?? ''))) {
+      } else if (listName == 'game_completeness' &&
+          sourceSet
+              .contains(normalizePickListValue(row.gameCompleteness ?? ''))) {
         await (_db.update(_db.ownedItemsCache)
               ..where((table) => table.id.equals(row.id)))
             .write(OwnedItemsCacheCompanion(gameCompleteness: Value(target)));
@@ -142,7 +152,8 @@ class PickListMergeService {
         if (replaced.join(', ') != row.tags) {
           await (_db.update(_db.ownedItemsCache)
                 ..where((table) => table.id.equals(row.id)))
-              .write(OwnedItemsCacheCompanion(tags: Value(replaced.join(', '))));
+              .write(
+                  OwnedItemsCacheCompanion(tags: Value(replaced.join(', '))));
         }
       }
     }
@@ -160,8 +171,8 @@ class PickListMergeService {
       await (_db.update(_db.customFieldValuesCache)
             ..where((table) => table.id.equals(row.id)))
           .write(
-            CustomFieldValuesCacheCompanion(value: Value(target)),
-          );
+        CustomFieldValuesCacheCompanion(value: Value(target)),
+      );
     }
   }
 

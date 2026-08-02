@@ -71,14 +71,14 @@ class MultiSelectPickListField extends StatelessWidget {
                   for (final value in selectedValues)
                     InputChip(
                       label: Text(value),
-                    onPressed: enabled
-                        ? () => _removeValue(selectedValues, value)
-                        : null,
-                    onDeleted: enabled
-                        ? () => _removeValue(selectedValues, value)
-                        : null,
-                    visualDensity: VisualDensity.compact,
-                  ),
+                      onPressed: enabled
+                          ? () => _removeValue(selectedValues, value)
+                          : null,
+                      onDeleted: enabled
+                          ? () => _removeValue(selectedValues, value)
+                          : null,
+                      visualDensity: VisualDensity.compact,
+                    ),
                   if (!hasValues)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -90,7 +90,8 @@ class MultiSelectPickListField extends StatelessWidget {
                         ),
                       ),
                     ),
-                  if (enabled && (selectableValues.isNotEmpty || allowCustomValues))
+                  if (enabled &&
+                      (selectableValues.isNotEmpty || allowCustomValues))
                     Padding(
                       padding: const EdgeInsets.only(left: 2),
                       child: Icon(
@@ -208,8 +209,7 @@ class MultiSelectPickListField extends StatelessWidget {
                               value: selected.contains(value),
                               title: Text(value),
                               dense: true,
-                              controlAffinity:
-                                  ListTileControlAffinity.leading,
+                              controlAffinity: ListTileControlAffinity.leading,
                               onChanged: (checked) {
                                 setState(() {
                                   if (checked == true) {
@@ -228,7 +228,8 @@ class MultiSelectPickListField extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         TextButton(
-                          onPressed: () => Navigator.of(context).pop(const <String>[]),
+                          onPressed: () =>
+                              Navigator.of(context).pop(const <String>[]),
                           child: const Text('Clear'),
                         ),
                         const SizedBox(width: 8),

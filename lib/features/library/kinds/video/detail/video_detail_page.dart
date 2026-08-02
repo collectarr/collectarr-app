@@ -76,7 +76,8 @@ class _VideoLibraryDetailPageState
   @override
   void didUpdateWidget(covariant VideoLibraryDetailPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.request.item.source.itemId != widget.request.item.source.itemId) {
+    if (oldWidget.request.item.source.itemId !=
+        widget.request.item.source.itemId) {
       final nodes = _releaseNodesFor(widget.request.type, widget.request.item);
       _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
       _selectedOwnedItemIdByRelease.clear();
@@ -435,7 +436,8 @@ List<LibraryNodeRef> _releaseNodesFor(
 ) {
   final catalogItem = item.source.catalogItem;
   if (catalogItem == null) return const [];
-  final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(catalogItem);
+  final resolvedEditions =
+      resolveVideoCatalogEditionsForCatalogItem(catalogItem);
   final nodes = <LibraryNodeRef>[];
   for (final edition in resolvedEditions) {
     nodes.add(

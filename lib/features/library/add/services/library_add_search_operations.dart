@@ -122,8 +122,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
   ).timeout(timeout);
   final foundItems = [
     for (final result in results)
-      if (result.item != null)
-        result.item!,
+      if (result.item != null) result.item!,
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,

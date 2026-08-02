@@ -102,11 +102,8 @@ class LibraryWorkspace extends ConsumerWidget {
   final ValueChanged<LibraryProjectionItem> onEditItem;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<String> onSortChanged;
-  final void Function(String column, double width)
-      onColumnWidthChanged;
-  final void Function(
-          String column, String? beforeColumn)
-      onColumnReordered;
+  final void Function(String column, double width) onColumnWidthChanged;
+  final void Function(String column, String? beforeColumn) onColumnReordered;
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final int? initialCrossAxisCount;
 
@@ -132,7 +129,9 @@ class LibraryWorkspace extends ConsumerWidget {
       final isToggleSelection = isLibraryToggleModifierPressed();
       if (isRangeSelection) {
         final anchorId = selectedAnchorId ?? selectedId ?? item.node.id;
-        final orderedIds = <String>[for (final candidate in items) candidate.node.id];
+        final orderedIds = <String>[
+          for (final candidate in items) candidate.node.id
+        ];
         final rangeIds = selectionRangeItemIds(
           orderedIds,
           anchorId: anchorId,
@@ -396,8 +395,10 @@ class LibraryWorkspace extends ConsumerWidget {
                       : (item, details) =>
                           onItemContextMenu!(item, details.globalPosition),
                   onSortChanged: (column) => onSortChanged(column as String),
-                  onColumnWidthChanged: (column, width) => onColumnWidthChanged(column as String, width),
-                  onColumnReordered: (column, beforeColumn) => onColumnReordered(
+                  onColumnWidthChanged: (column, width) =>
+                      onColumnWidthChanged(column as String, width),
+                  onColumnReordered: (column, beforeColumn) =>
+                      onColumnReordered(
                     column as String,
                     beforeColumn as String?,
                   ),
@@ -467,8 +468,7 @@ class LibraryWorkspace extends ConsumerWidget {
                 coverWidth: cardCoverWidth,
                 cardLayout: LibraryCardLayout.horizontal,
                 selectionMode: selectionEnabled,
-                onSelectionToggleTap: () =>
-                    onToggleSelectionItem(item.node.id),
+                onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
                 onEditTap: () => onEditItem(item),
               ),
             ),

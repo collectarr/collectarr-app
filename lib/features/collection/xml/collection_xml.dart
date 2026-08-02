@@ -25,8 +25,14 @@ class CollectionXml {
           final owned = entry.ownedItem;
 
           _textElement(builder, 'ItemId', entry.itemId);
-          _textElement(builder, 'Status',
-              entry.isOwned ? 'owned' : entry.isWishlisted ? 'wishlist' : 'tracked');
+          _textElement(
+              builder,
+              'Status',
+              entry.isOwned
+                  ? 'owned'
+                  : entry.isWishlisted
+                      ? 'wishlist'
+                      : 'tracked');
 
           if (catalog != null) {
             builder.element('Catalog', nest: () {
@@ -45,8 +51,8 @@ class CollectionXml {
                     catalog.releaseDate!.toIso8601String().split('T').first);
               }
               if (catalog.releaseYear != null) {
-                _textElement(builder, 'ReleaseYear',
-                    catalog.releaseYear.toString());
+                _textElement(
+                    builder, 'ReleaseYear', catalog.releaseYear.toString());
               }
               if (catalog.publishing?.pageCount != null) {
                 _textElement(builder, 'PageCount',
@@ -67,16 +73,16 @@ class CollectionXml {
                     owned.purchaseDate!.toIso8601String().split('T').first);
               }
               if (owned.pricePaidCents != null) {
-                _textElement(builder, 'PricePaidCents',
-                    owned.pricePaidCents.toString());
+                _textElement(
+                    builder, 'PricePaidCents', owned.pricePaidCents.toString());
               }
               _textElement(builder, 'Currency', owned.currency);
               _textElement(builder, 'PersonalNotes', owned.personalNotes);
               _textElement(builder, 'Quantity', owned.quantity.toString());
               _textElement(builder, 'LocationId', owned.locationId);
               if (owned.indexNumber != null) {
-                _textElement(builder, 'IndexNumber',
-                    owned.indexNumber.toString());
+                _textElement(
+                    builder, 'IndexNumber', owned.indexNumber.toString());
               }
               final comic = owned.typedDetails is ComicOwnedDetails
                   ? owned.typedDetails as ComicOwnedDetails
@@ -107,8 +113,8 @@ class CollectionXml {
                     owned.soldAt!.toIso8601String().split('T').first);
               }
               if (owned.sellPriceCents != null) {
-                _textElement(builder, 'SellPriceCents',
-                    owned.sellPriceCents.toString());
+                _textElement(
+                    builder, 'SellPriceCents', owned.sellPriceCents.toString());
               }
               _textElement(builder, 'SoldTo', owned.soldTo);
             });

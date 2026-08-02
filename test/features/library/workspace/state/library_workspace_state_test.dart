@@ -46,7 +46,8 @@ void main() {
   });
 
   group('LibraryFilters Notifier Tests', () {
-    test('notifier initializes from registry defaults and updates correctly', () {
+    test('notifier initializes from registry defaults and updates correctly',
+        () {
       final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
       final container = ProviderContainer();
       addTearDown(container.dispose);
@@ -68,14 +69,16 @@ void main() {
     });
   });
 
-  group('LocalLibraryWorkspaceRepository & display list stream provider Tests', () {
+  group('LocalLibraryWorkspaceRepository & display list stream provider Tests',
+      () {
     test('watchEntries streams filtered, sorted results correctly', () async {
       final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
 
       final mockShelfState = ShelfState(
         entries: [
           testShelfEntry(itemId: '1', kind: 'comic', title: 'Batman #1'),
-          testShelfEntry(itemId: '2', kind: 'comic', title: 'Amazing Spider-Man #1'),
+          testShelfEntry(
+              itemId: '2', kind: 'comic', title: 'Amazing Spider-Man #1'),
           testShelfEntry(itemId: '3', kind: 'music', title: 'Random Album'),
         ],
         ownedCount: 3,
@@ -90,7 +93,8 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           shelfProvider.overrideWithValue(AsyncValue.data(mockShelfState)),
-          librarySearchDebounceDurationProvider.overrideWithValue(Duration.zero),
+          librarySearchDebounceDurationProvider
+              .overrideWithValue(Duration.zero),
         ],
       );
       addTearDown(container.dispose);
@@ -101,7 +105,8 @@ void main() {
         (previous, next) {},
       );
 
-      final entries = await container.read(libraryDisplayListProvider(key).future);
+      final entries =
+          await container.read(libraryDisplayListProvider(key).future);
 
       // Should filter out kind: music, keeping only kind: comic
       expect(entries.length, equals(2));
@@ -110,10 +115,13 @@ void main() {
       expect(entries[1].dto.title, 'Batman #1');
 
       // Now apply a search query filter
-      container.read(libraryFiltersProvider(key).notifier).updateSearch('Batman');
-      
+      container
+          .read(libraryFiltersProvider(key).notifier)
+          .updateSearch('Batman');
+
       // Wait for next emission
-      final filteredEntries = await container.read(libraryDisplayListProvider(key).future);
+      final filteredEntries =
+          await container.read(libraryDisplayListProvider(key).future);
       expect(filteredEntries.length, equals(1));
       expect(filteredEntries[0].dto.title, 'Batman #1');
 
@@ -129,7 +137,8 @@ void main() {
         entries: [
           testShelfEntry(itemId: '1', kind: 'comic', title: 'Batman #1'),
           testShelfEntry(itemId: '2', kind: 'comic', title: 'Batman #2'),
-          testShelfEntry(itemId: '3', kind: 'comic', title: 'Amazing Spider-Man #1'),
+          testShelfEntry(
+              itemId: '3', kind: 'comic', title: 'Amazing Spider-Man #1'),
         ],
         ownedCount: 3,
         wishlistCount: 0,
@@ -160,7 +169,8 @@ void main() {
         (previous, next) {},
       );
 
-      var groups = await container.read(libraryGroupedEntriesProvider(key).future);
+      var groups =
+          await container.read(libraryGroupedEntriesProvider(key).future);
       expect(groups.length, equals(1));
       expect(groups[0].key, equals('_all'));
       expect(groups[0].entries.length, equals(3));
@@ -171,7 +181,9 @@ void main() {
   });
 
   group('LibraryWorkspaceIntentNotifier Tests', () {
-    test('intent dispatcher delegates mutations to both filters and view config', () {
+    test(
+        'intent dispatcher delegates mutations to both filters and view config',
+        () {
       final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
       final container = ProviderContainer();
       addTearDown(container.dispose);
@@ -189,7 +201,8 @@ void main() {
   });
 
   group('libraryLocalFacetValuesProvider Tests', () {
-    test('extracts unique sorted publisher values from shelf entries', () async {
+    test('extracts unique sorted publisher values from shelf entries',
+        () async {
       final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
 
       final mockShelfState = ShelfState(
@@ -198,19 +211,22 @@ void main() {
             itemId: '1',
             kind: 'comic',
             title: 'Batman #1',
-            catalogItem: testCatalogItem(id: '1', kind: 'comic', publisher: 'DC Comics'),
+            catalogItem:
+                testCatalogItem(id: '1', kind: 'comic', publisher: 'DC Comics'),
           ),
           testShelfEntry(
             itemId: '2',
             kind: 'comic',
             title: 'Spider-Man #1',
-            catalogItem: testCatalogItem(id: '2', kind: 'comic', publisher: 'Marvel'),
+            catalogItem:
+                testCatalogItem(id: '2', kind: 'comic', publisher: 'Marvel'),
           ),
           testShelfEntry(
             itemId: '3',
             kind: 'comic',
             title: 'Batman #2',
-            catalogItem: testCatalogItem(id: '3', kind: 'comic', publisher: 'DC Comics'),
+            catalogItem:
+                testCatalogItem(id: '3', kind: 'comic', publisher: 'DC Comics'),
           ),
         ],
         ownedCount: 3,
@@ -230,12 +246,15 @@ void main() {
       addTearDown(container.dispose);
 
       final sub = container.listen(
-        libraryLocalFacetValuesProvider(LibraryFacetValuesInput(key: key, facetId: 'publisher')),
+        libraryLocalFacetValuesProvider(
+            LibraryFacetValuesInput(key: key, facetId: 'publisher')),
         (previous, next) {},
       );
 
       final publishers = await container.read(
-        libraryLocalFacetValuesProvider(LibraryFacetValuesInput(key: key, facetId: 'publisher')).future,
+        libraryLocalFacetValuesProvider(
+                LibraryFacetValuesInput(key: key, facetId: 'publisher'))
+            .future,
       );
 
       expect(publishers, equals(['DC Comics', 'Marvel']));

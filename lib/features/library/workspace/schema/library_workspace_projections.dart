@@ -45,7 +45,8 @@ class WorkspaceCommonProjection {
           break;
         }
       }
-      primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
+      primaryVariant ??=
+          edition.variants.isEmpty ? null : edition.variants.first;
     }
 
     return WorkspaceCommonProjection(
@@ -53,15 +54,27 @@ class WorkspaceCommonProjection {
       seriesTitle: overrideSeriesTitle ?? item?.series?.seriesTitle,
       itemNumber: item?.itemNumber?.toString(),
       publisher: overridePublisher ?? edition?.publisher ?? item?.publisher,
-      releaseDate: overrideReleaseDate ?? edition?.releaseDate ?? item?.releaseDate,
-      variant: overrideVariant ?? primaryVariant?.name ?? edition?.title ?? item?.variant,
-      barcode: overrideBarcode ?? primaryVariant?.barcode ?? edition?.upc ?? item?.barcode,
+      releaseDate:
+          overrideReleaseDate ?? edition?.releaseDate ?? item?.releaseDate,
+      variant: overrideVariant ??
+          primaryVariant?.name ??
+          edition?.title ??
+          item?.variant,
+      barcode: overrideBarcode ??
+          primaryVariant?.barcode ??
+          edition?.upc ??
+          item?.barcode,
       grade: source.ownedItem?.grade,
       country: item?.country,
       language: edition?.language ?? item?.language,
       currency: source.ownedItem?.currency,
-      referenceFormatLabel: primaryVariant?.physicalFormatLabel ?? edition?.physicalFormatLabel ?? item?.physicalFormatLabel,
-      coverImageUrl: overrideCoverImageUrl ?? primaryVariant?.coverImageUrl ?? primaryVariant?.thumbnailImageUrl ?? item?.coverImageUrl,
+      referenceFormatLabel: primaryVariant?.physicalFormatLabel ??
+          edition?.physicalFormatLabel ??
+          item?.physicalFormatLabel,
+      coverImageUrl: overrideCoverImageUrl ??
+          primaryVariant?.coverImageUrl ??
+          primaryVariant?.thumbnailImageUrl ??
+          item?.coverImageUrl,
     );
   }
 

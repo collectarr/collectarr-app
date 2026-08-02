@@ -235,7 +235,8 @@ class _DefinitionTile extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         kindLabel,
-                        style: TextStyle(color: palette.textMuted, fontSize: 12),
+                        style:
+                            TextStyle(color: palette.textMuted, fontSize: 12),
                       ),
                     ],
                   ),

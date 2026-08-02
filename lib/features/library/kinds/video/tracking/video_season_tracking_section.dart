@@ -80,9 +80,8 @@ class _VideoSeasonTrackingSectionState
               ),
             )
             .length;
-        final allEpisodesWatched =
-            selectedSeason.episodes.isNotEmpty &&
-                watchedInSelectedSeason == selectedSeason.episodes.length;
+        final allEpisodesWatched = selectedSeason.episodes.isNotEmpty &&
+            watchedInSelectedSeason == selectedSeason.episodes.length;
         final seasonSummary = const VideoProgressPresenter().seasonSummary(
           season: selectedSeason,
           trackedUnits: trackedUnits,
@@ -127,13 +126,13 @@ class _VideoSeasonTrackingSectionState
                             selectedSeason,
                             completed: true,
                           ),
-                  onClear: _seasonMutationInFlight ||
-                          watchedInSelectedSeason == 0
-                      ? null
-                      : () => _setSeasonWatched(
-                            selectedSeason,
-                            completed: false,
-                          ),
+                  onClear:
+                      _seasonMutationInFlight || watchedInSelectedSeason == 0
+                          ? null
+                          : () => _setSeasonWatched(
+                                selectedSeason,
+                                completed: false,
+                              ),
                 ),
                 const SizedBox(height: 10),
                 Wrap(
@@ -142,8 +141,10 @@ class _VideoSeasonTrackingSectionState
                   children: [
                     for (final season in seasons)
                       ChoiceChip(
-                        label: Text(_seasonChipLabel(season, watchedEpisodeKeys)),
-                        selected: season.seasonNumber == selectedSeason.seasonNumber,
+                        label:
+                            Text(_seasonChipLabel(season, watchedEpisodeKeys)),
+                        selected:
+                            season.seasonNumber == selectedSeason.seasonNumber,
                         selectedColor: widget.accent.withValues(alpha: 0.24),
                         onSelected: (_) {
                           setState(() {
@@ -293,7 +294,8 @@ class _VideoSeasonTrackingSectionState
       await ref.read(collectionMutationsProvider).setSeasonEpisodesCompleted(
             widget.seriesRef,
             seasonNumber: season.seasonNumber,
-            episodeNumbers: season.episodes.map((episode) => episode.episodeNumber),
+            episodeNumbers:
+                season.episodes.map((episode) => episode.episodeNumber),
             completed: completed,
           );
     } finally {
@@ -473,7 +475,9 @@ class _CustomEpisodesPanel extends ConsumerWidget {
                   ep.episodeNumber + 1,
                 ),
                 onDelete: () async {
-                  await ref.read(collectionMutationsProvider).removeCustomEpisode(ep);
+                  await ref
+                      .read(collectionMutationsProvider)
+                      .removeCustomEpisode(ep);
                 },
               ),
         ] else ...[
@@ -551,8 +555,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
         initialEpisodeNumber:
             existing?.episodeNumber ?? providerEpisode?.episodeNumber ?? 1,
         initialTitle: existing?.title ?? providerEpisode?.title ?? '',
-        initialOverview:
-            existing?.overview ?? providerEpisode?.overview ?? '',
+        initialOverview: existing?.overview ?? providerEpisode?.overview ?? '',
         initialAirDate: existing?.airDate ?? providerEpisode?.airDate ?? '',
         initialRuntimeMinutes:
             existing?.runtimeMinutes ?? providerEpisode?.runtimeMinutes,
@@ -802,7 +805,8 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
     _titleController = TextEditingController(text: widget.initialTitle);
     _overviewController =
         TextEditingController(text: widget.initialOverview ?? '');
-    _airDateController = TextEditingController(text: widget.initialAirDate ?? '');
+    _airDateController =
+        TextEditingController(text: widget.initialAirDate ?? '');
     _runtimeController = TextEditingController(
       text: widget.initialRuntimeMinutes?.toString() ?? '',
     );
@@ -879,8 +883,8 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
             const SizedBox(height: 8),
             TextField(
               controller: _stillImageUrlController,
-              decoration:
-                  const InputDecoration(labelText: 'Still image URL (optional)'),
+              decoration: const InputDecoration(
+                  labelText: 'Still image URL (optional)'),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -920,12 +924,14 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
                           : _airDateController.text.trim(),
                       runtimeMinutes:
                           int.tryParse(_runtimeController.text.trim()),
-                      stillImageUrl: _stillImageUrlController.text.trim().isEmpty
-                          ? null
-                          : _stillImageUrlController.text.trim(),
-                      localImagePath: _localImagePathController.text.trim().isEmpty
-                          ? null
-                          : _localImagePathController.text.trim(),
+                      stillImageUrl:
+                          _stillImageUrlController.text.trim().isEmpty
+                              ? null
+                              : _stillImageUrlController.text.trim(),
+                      localImagePath:
+                          _localImagePathController.text.trim().isEmpty
+                              ? null
+                              : _localImagePathController.text.trim(),
                       thumbnailImageUrl:
                           _thumbnailImageUrlController.text.trim().isEmpty
                               ? null

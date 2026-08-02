@@ -423,7 +423,8 @@ class _InspectorPersonalDetailsEditorState
           currency: currency.isEmpty ? null : currency,
           personalNotes: _emptyToNull(_notesController.text),
           purchaseStore: _emptyToNull(_purchaseStoreController.text),
-          boxSetName: _emptyToNull(_boxSetNameController.text) ?? video?.boxSetName,
+          boxSetName:
+              _emptyToNull(_boxSetNameController.text) ?? video?.boxSetName,
           quantity: widget.ownedItem.quantity,
           locationId: _locationChanged
               ? _selectedLocationId
@@ -555,7 +556,8 @@ class _InspectorTrackingDetailsEditorState
         const LibraryDetailFieldRow(
           field: LibraryDetailField(
             label: 'Mode',
-            value: 'Quick actions save immediately. Editor changes save when applied.',
+            value:
+                'Quick actions save immediately. Editor changes save when applied.',
           ),
         ),
         if (widget.editions.isNotEmpty) ...[
@@ -886,11 +888,13 @@ class _InspectorTrackingDetailsEditorState
       final api = ref.read(apiClientProvider);
       final normalizedKind = widget.mediaType.trim().toLowerCase();
       if (normalizedKind == 'book') {
-        final edition = await api.createBookEdition(widget.itemId, title: title);
+        final edition =
+            await api.createBookEdition(widget.itemId, title: title);
         if (!mounted) return;
         setState(() => _selectedEditionId = edition.id);
       } else if (normalizedKind == 'boardgame') {
-        final edition = await api.createBoardGameEdition(widget.itemId, title: title);
+        final edition =
+            await api.createBoardGameEdition(widget.itemId, title: title);
         if (!mounted) return;
         setState(() => _selectedEditionId = edition.id);
       } else {

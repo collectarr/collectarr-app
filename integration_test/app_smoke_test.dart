@@ -33,7 +33,8 @@ import '../test/helpers/test_constants.dart';
 String _jwtExpiringAt(DateTime exp) {
   final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
   final payload = base64Url.encode(
-    utf8.encode('{"sub":"test","email":"test@example.com","exp":${exp.millisecondsSinceEpoch ~/ 1000}}'),
+    utf8.encode(
+        '{"sub":"test","email":"test@example.com","exp":${exp.millisecondsSinceEpoch ~/ 1000}}'),
   );
   return '$header.$payload.fake_signature';
 }

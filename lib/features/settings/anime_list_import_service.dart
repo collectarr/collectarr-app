@@ -28,7 +28,8 @@ class AnimeListImportService {
     final document = XmlDocument.parse(normalized);
     final entries = _entryElements(document);
     if (entries.isEmpty) {
-      throw const FormatException('Anime list export does not contain entries.');
+      throw const FormatException(
+          'Anime list export does not contain entries.');
     }
 
     final rows = <ImportRow>[];
@@ -145,7 +146,11 @@ class AnimeListImportService {
       'reading' ||
       'in progress' =>
         ImportItemStatus.inProgress,
-      '2' || 'completed' || 'finish' || 'finished' => ImportItemStatus.completed,
+      '2' ||
+      'completed' ||
+      'finish' ||
+      'finished' =>
+        ImportItemStatus.completed,
       '3' || 'on hold' || 'paused' => ImportItemStatus.paused,
       '4' || 'dropped' => ImportItemStatus.dropped,
       '6' ||
@@ -153,7 +158,10 @@ class AnimeListImportService {
       'plan to read' ||
       'plan to listen' =>
         ImportItemStatus.planned,
-      'wishlist' || 'want to watch' || 'want to read' => ImportItemStatus.wishlist,
+      'wishlist' ||
+      'want to watch' ||
+      'want to read' =>
+        ImportItemStatus.wishlist,
       _ => ImportItemStatus.unknown,
     };
   }

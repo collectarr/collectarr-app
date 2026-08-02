@@ -5,7 +5,8 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('tv workspace projections build series season episode and release nodes', () {
+  test('tv workspace projections build series season episode and release nodes',
+      () {
     final source = ShelfEntry(
       itemId: 'series-1',
       catalogItem: CatalogItemDto(

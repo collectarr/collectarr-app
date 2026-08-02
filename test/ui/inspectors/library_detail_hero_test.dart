@@ -19,7 +19,9 @@ import '../../helpers/test_constants.dart';
 import '../../helpers/test_data_factories.dart';
 
 void main() {
-  testWidgets('detail hero keeps a back cover affordance when the back image is missing', (
+  testWidgets(
+      'detail hero keeps a back cover affordance when the back image is missing',
+      (
     tester,
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
@@ -83,7 +85,8 @@ void main() {
     expect(find.byType(FilledButton), findsNothing);
   });
 
-  testWidgets('detail hero exposes back cover toggle when local back cover exists', (
+  testWidgets(
+      'detail hero exposes back cover toggle when local back cover exists', (
     tester,
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
@@ -206,7 +209,8 @@ void main() {
     expect(find.text('J.R.R. Tolkien'), findsOneWidget);
   });
 
-  testWidgets('detail hero shows collection value totals when multiple copies exist', (
+  testWidgets(
+      'detail hero shows collection value totals when multiple copies exist', (
     tester,
   ) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;

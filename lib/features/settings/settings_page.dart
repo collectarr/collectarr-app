@@ -125,8 +125,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final deviceId = ref.watch(_deviceIdentityProvider);
     final selectedLibraryKind = ref.watch(selectedLibraryKindProvider);
     final accentScope = LibraryAccentScope.maybeOf(context);
-    final accent =
-        accentScope?.accent ?? libraryAccentForKind(catalogMediaKindFromValue(selectedLibraryKind));
+    final accent = accentScope?.accent ??
+        libraryAccentForKind(catalogMediaKindFromValue(selectedLibraryKind));
     final animationDuration = accentScope?.data.animationDuration ??
         (uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero);
     final isAndroidPlatform =

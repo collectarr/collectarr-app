@@ -26,8 +26,9 @@ final _schemaExplorerProvider =
           await db.customSelect('PRAGMA table_info($quotedName)').get();
       final foreignKeyRows =
           await db.customSelect('PRAGMA foreign_key_list($quotedName)').get();
-      final rowCountRow =
-          await db.customSelect('SELECT COUNT(*) AS row_count FROM $quotedName').getSingle();
+      final rowCountRow = await db
+          .customSelect('SELECT COUNT(*) AS row_count FROM $quotedName')
+          .getSingle();
       final columns = [
         for (final row in tableInfoRows)
           _SchemaColumnSnapshot(
@@ -60,8 +61,9 @@ final _schemaExplorerProvider =
 });
 
 final _collectionSchemaSnapshotProvider =
-    FutureProvider.autoDispose<_CollectionSchemaSnapshot>((ref) async {
-  final db = ref.watch(localDatabaseProvider);
+    FutureProvider.autoDispose<_CollectionSchemaSnapshot>(
+  (ref) async {
+    final db = ref.watch(localDatabaseProvider);
     final results = await Future.wait<Object>([
       LocationRepository(db).getAll(),
       CustomFieldRepository(db).listDefinitions(),
@@ -121,7 +123,8 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
     ref.invalidate(_collectionSchemaSnapshotProvider);
   }
 
-  Future<void> _openCustomFieldManager(BuildContext context, WidgetRef ref) async {
+  Future<void> _openCustomFieldManager(
+      BuildContext context, WidgetRef ref) async {
     await showCustomFieldsManagementDialog(
       context: context,
       db: db,
@@ -152,8 +155,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
     }
     final stats = <String>['All libraries: ${data.globalCustomFieldCount}'];
     for (final type in collectarrLibraryTypes.types) {
-      final count =
-          data.customFieldCountsByKind[type.workspace.kind.apiValue];
+      final count = data.customFieldCountsByKind[type.workspace.kind.apiValue];
       if (count == null || count == 0) {
         continue;
       }
@@ -524,7 +526,8 @@ class _SchemaExplorerCardState extends ConsumerState<_SchemaExplorerCard> {
     final snapshot = ref.watch(_schemaExplorerProvider);
     final data = snapshot.value;
     final loading = snapshot.isLoading;
-    final tables = data == null ? const <_SchemaTableSnapshot>[] : _filteredTables(data);
+    final tables =
+        data == null ? const <_SchemaTableSnapshot>[] : _filteredTables(data);
     final selected = data == null
         ? null
         : data.tableByName[_selectedTableName] ??
@@ -602,12 +605,14 @@ class _SchemaExplorerCardState extends ConsumerState<_SchemaExplorerCard> {
                 FilterChip(
                   label: const Text('Show zero-row tables'),
                   selected: _showZeroRowTables,
-                  onSelected: (value) => setState(() => _showZeroRowTables = value),
+                  onSelected: (value) =>
+                      setState(() => _showZeroRowTables = value),
                 ),
                 FilterChip(
                   label: const Text('Only connected tables'),
                   selected: _showOnlyConnected,
-                  onSelected: (value) => setState(() => _showOnlyConnected = value),
+                  onSelected: (value) =>
+                      setState(() => _showOnlyConnected = value),
                 ),
                 TextButton.icon(
                   onPressed: () {
@@ -656,9 +661,12 @@ class _SchemaExplorerCardState extends ConsumerState<_SchemaExplorerCard> {
                   : LayoutBuilder(
                       builder: (context, constraints) {
                         final compact = constraints.maxWidth < 900;
-                        final grouped = <_SchemaTableCategory, List<_SchemaTableSnapshot>>{};
+                        final grouped = <_SchemaTableCategory,
+                            List<_SchemaTableSnapshot>>{};
                         for (final table in tables) {
-                          grouped.putIfAbsent(table.category, () => []).add(table);
+                          grouped
+                              .putIfAbsent(table.category, () => [])
+                              .add(table);
                         }
                         final listPane = _SchemaTableListPane(
                           groupedTables: grouped,
@@ -787,7 +795,9 @@ class _SchemaTableTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: selected ? palette.accent.withValues(alpha: 0.14) : palette.panelRaised,
+        color: selected
+            ? palette.accent.withValues(alpha: 0.14)
+            : palette.panelRaised,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onTap,
@@ -815,7 +825,9 @@ class _SchemaTableTile extends StatelessWidget {
                   spacing: 6,
                   runSpacing: 6,
                   children: [
-                    _MiniBadge(label: table.category.label, color: table.category.color),
+                    _MiniBadge(
+                        label: table.category.label,
+                        color: table.category.color),
                     if (table.foreignKeys.isNotEmpty)
                       _MiniBadge(
                         label: '${table.foreignKeys.length} fk',
@@ -896,7 +908,9 @@ class _SchemaTableDetailPane extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
-                _MiniBadge(label: current.category.label, color: current.category.color),
+                _MiniBadge(
+                    label: current.category.label,
+                    color: current.category.color),
               ],
             ),
             const SizedBox(height: 8),
@@ -908,7 +922,9 @@ class _SchemaTableDetailPane extends StatelessWidget {
                 _MiniBadge(label: '${current.columns.length} columns'),
                 _MiniBadge(label: '${current.primaryKeyColumns.length} PK'),
                 _MiniBadge(label: '${current.foreignKeys.length} FK'),
-                _MiniBadge(label: '${current.incomingReferences(snapshot).length} inbound'),
+                _MiniBadge(
+                    label:
+                        '${current.incomingReferences(snapshot).length} inbound'),
                 if (current.isJoinTable) _MiniBadge(label: 'join table'),
               ],
             ),
@@ -1012,7 +1028,8 @@ class _SchemaTableDetailPane extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   column.name,
-                                  style: const TextStyle(fontWeight: FontWeight.w700),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700),
                                 ),
                               ),
                               if (column.isPrimaryKey) ...[
@@ -1031,7 +1048,8 @@ class _SchemaTableDetailPane extends StatelessWidget {
                             '${column.type.isEmpty ? 'unknown' : column.type}'
                             '${column.notNull ? ' · required' : ' · nullable'}'
                             '${column.defaultValue == null ? '' : ' · default ${column.defaultValue}'}',
-                            style: TextStyle(color: palette.textMuted, fontSize: 12),
+                            style: TextStyle(
+                                color: palette.textMuted, fontSize: 12),
                           ),
                         ],
                       ),
@@ -1061,7 +1079,8 @@ class _SchemaTableDetailPane extends StatelessWidget {
             ],
             const SizedBox(height: 4),
             ...(() {
-              final inbound = current.incomingReferences(snapshot).toList(growable: false);
+              final inbound =
+                  current.incomingReferences(snapshot).toList(growable: false);
               if (inbound.isEmpty) {
                 return const <Widget>[];
               }
@@ -1146,9 +1165,11 @@ class _SchemaExplorerSnapshot {
         } {
     for (final table in tables) {
       for (final fk in table.foreignKeys) {
-        final outgoing = relationsBySource.putIfAbsent(table.name, () => <String>{});
+        final outgoing =
+            relationsBySource.putIfAbsent(table.name, () => <String>{});
         outgoing.add(fk.targetTable);
-        final incoming = relationsByTarget.putIfAbsent(fk.targetTable, () => <String>{});
+        final incoming =
+            relationsByTarget.putIfAbsent(fk.targetTable, () => <String>{});
         incoming.add(table.name);
       }
     }
@@ -1190,7 +1211,9 @@ class _SchemaTableSnapshot {
       columns.where((column) => column.isPrimaryKey).toList(growable: false);
 
   bool get isJoinTable =>
-      foreignKeys.length >= 2 || name.endsWith('ItemsCache') || name.endsWith('ValuesCache');
+      foreignKeys.length >= 2 ||
+      name.endsWith('ItemsCache') ||
+      name.endsWith('ValuesCache');
 
   bool isConnected(_SchemaExplorerSnapshot snapshot) =>
       foreignKeys.isNotEmpty || incomingReferences(snapshot).isNotEmpty;
@@ -1234,7 +1257,15 @@ class _SchemaForeignKeySnapshot {
   final String onDelete;
 }
 
-enum _SchemaTableCategory { content, cache, settings, lookup, sync, join, other }
+enum _SchemaTableCategory {
+  content,
+  cache,
+  settings,
+  lookup,
+  sync,
+  join,
+  other
+}
 
 extension on _SchemaTableCategory {
   String get label => switch (this) {
@@ -1283,7 +1314,8 @@ _SchemaTableCategory _inferCategory(String tableName) {
       lower.contains('genre')) {
     return _SchemaTableCategory.lookup;
   }
-  if (lower.contains('item') && (lower.contains('items') || lower.contains('units'))) {
+  if (lower.contains('item') &&
+      (lower.contains('items') || lower.contains('units'))) {
     return _SchemaTableCategory.join;
   }
   if (lower.contains('catalog') ||

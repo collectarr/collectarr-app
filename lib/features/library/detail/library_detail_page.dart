@@ -76,7 +76,9 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     final ownedCopies = ref.watch(collectionProvider).maybeWhen(
           data: (items) {
             final matches = items
-                .where((item) => !item.isDeleted && item.itemId == widget.item.source.catalogItem?.id)
+                .where((item) =>
+                    !item.isDeleted &&
+                    item.itemId == widget.item.source.catalogItem?.id)
                 .toList(growable: false)
               ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
             return matches;
@@ -92,14 +94,16 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedItem = ownedResolution.ownedItem;
-    final trackingEntries =
-        ref.watch(trackingEntriesByCatalogItemProvider)[widget.item.source.catalogItem?.id] ??
-            const <TrackingEntry>[];
+    final trackingEntries = ref.watch(trackingEntriesByCatalogItemProvider)[
+            widget.item.source.catalogItem?.id] ??
+        const <TrackingEntry>[];
     final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
       activeOwnedItem,
     );
-    final isOwned = ownedCopies.isNotEmpty || activeOwnedItem != null || widget.item.dto.isOwned;
+    final isOwned = ownedCopies.isNotEmpty ||
+        activeOwnedItem != null ||
+        widget.item.dto.isOwned;
     final palette = appPalette(context);
     return Theme(
       data: buildLibraryTheme(palette: palette),
@@ -184,9 +188,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
 
   Future<void> _searchOnEbay(LibraryProjectionRuntime item) async {
     final dto = item.dto;
-    final query = dto.itemNumber != null
-        ? '${dto.title} #${dto.itemNumber}'
-        : dto.title;
+    final query =
+        dto.itemNumber != null ? '${dto.title} #${dto.itemNumber}' : dto.title;
     await launchEbaySearch(query);
   }
 
@@ -263,7 +266,8 @@ class _LibraryDetailToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final hasCopyMenu = ownedCopies.length > 1 && onSelectOwnedItem != null;
-    final isOwned = ownedCopies.isNotEmpty || activeOwnedItem != null || item.dto.isOwned;
+    final isOwned =
+        ownedCopies.isNotEmpty || activeOwnedItem != null || item.dto.isOwned;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -314,7 +318,8 @@ class _LibraryDetailToolbar extends StatelessWidget {
                   label: 'Copy',
                   icon: Icons.copy_all_outlined,
                   tone: LibraryDenseButtonTone.subtle,
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                   entries: [
                     for (var index = 0; index < ownedCopies.length; index += 1)
                       LibraryDenseMenuEntry<String>(
@@ -341,7 +346,8 @@ class _LibraryDetailToolbar extends StatelessWidget {
                   icon: Icons.storefront_outlined,
                   onPressed: onSearchOnEbay,
                   tone: LibraryDenseButtonTone.subtle,
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 ),
               ],
               const SizedBox(width: 4),
@@ -360,8 +366,11 @@ class _LibraryDetailToolbar extends StatelessWidget {
                     ),
                   LibraryDenseMenuEntry<String>(
                     value: item.dto.isWishlisted ? 'unwishlist' : 'wishlist',
-                    label: item.dto.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
-                    icon: item.dto.isWishlisted ? Icons.star : Icons.star_border,
+                    label: item.dto.isWishlisted
+                        ? 'Remove from wishlist'
+                        : 'Move to wishlist',
+                    icon:
+                        item.dto.isWishlisted ? Icons.star : Icons.star_border,
                   ),
                   if (onAssignFolders != null)
                     const LibraryDenseMenuEntry<String>(

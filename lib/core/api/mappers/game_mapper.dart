@@ -6,7 +6,8 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 
 // ignore: avoid_unused_parameters
 GameCatalogItem gameWorkFromDto(CatalogItemDto dto) =>
-    GameCatalogMapper.mapMetadataItemToGame(LibraryMetadataItem.fromCatalogItem(dto));
+    GameCatalogMapper.mapMetadataItemToGame(
+        LibraryMetadataItem.fromCatalogItem(dto));
 
 // ignore: avoid_unused_parameters
 GameRelease gameReleaseFromDto(CatalogEdition edition) => GameRelease(

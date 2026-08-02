@@ -5,7 +5,9 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('GameWorkspaceProjector produces a typed GameWorkspaceDto with correct title', () {
+  test(
+      'GameWorkspaceProjector produces a typed GameWorkspaceDto with correct title',
+      () {
     final source = ShelfEntry(
       itemId: 'game-1',
       catalogItem: CatalogItemDto(

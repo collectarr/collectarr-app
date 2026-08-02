@@ -138,7 +138,8 @@ const _tvAllTabs = [
   ),
 ];
 
-class TvLibraryEditPresentationBuilder extends DefaultLibraryEditPresentationBuilder {
+class TvLibraryEditPresentationBuilder
+    extends DefaultLibraryEditPresentationBuilder {
   const TvLibraryEditPresentationBuilder()
       : super(
           trackingSectionTitle: 'Watch tracking',

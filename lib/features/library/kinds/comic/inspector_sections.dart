@@ -145,14 +145,21 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
           LibraryDetailSection(
             title: 'Value details',
             accentColor: request.accent,
-            children: [LibraryDetailFieldTable(fields: _valueFacts(item, request.ownedItem, request.ownedCopies))],
+            children: [
+              LibraryDetailFieldTable(
+                  fields:
+                      _valueFacts(item, request.ownedItem, request.ownedCopies))
+            ],
           ),
           if (request.ownedItem != null) ...[
             const SizedBox(height: 8),
             LibraryDetailSection(
               title: 'Collector',
               accentColor: request.accent,
-              children: [LibraryDetailFieldTable(fields: _collectorFacts(request.ownedItem))],
+              children: [
+                LibraryDetailFieldTable(
+                    fields: _collectorFacts(request.ownedItem))
+              ],
             ),
           ],
         ],
@@ -198,7 +205,9 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
           LibraryDetailSection(
             title: 'Series metadata',
             accentColor: request.accent,
-            children: [LibraryDetailFieldTable(fields: _seriesFacts(request.item))],
+            children: [
+              LibraryDetailFieldTable(fields: _seriesFacts(request.item))
+            ],
           ),
           const SizedBox(height: 8),
           ComicSeriesCompletenessSection(
@@ -218,17 +227,23 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
             LibraryDetailSection(
               title: 'Notes',
               accentColor: request.accent,
-              children: [LibraryDetailFieldTable(fields: _noteFacts(request.item, request.ownedItem))],
+              children: [
+                LibraryDetailFieldTable(
+                    fields: _noteFacts(request.item, request.ownedItem))
+              ],
             ),
           if (_linkFacts(request.item).isNotEmpty) ...[
             const SizedBox(height: 8),
             LibraryDetailSection(
               title: 'Links',
               accentColor: request.accent,
-              children: [LibraryDetailFieldTable(fields: _linkFacts(request.item))],
+              children: [
+                LibraryDetailFieldTable(fields: _linkFacts(request.item))
+              ],
             ),
           ],
-          if (request.item.source.catalogItem?.trailerUrls.isNotEmpty ?? false) ...[
+          if (request.item.source.catalogItem?.trailerUrls.isNotEmpty ??
+              false) ...[
             const SizedBox(height: 8),
             InspectorLinksTrailersSection(request: request),
           ],
@@ -314,10 +329,17 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
           children: [
             LibraryDetailFieldTable(
               fields: [
-                LibraryDetailField(label: 'Series', value: request.item.source.catalogItem?.series?.seriesTitle ?? request.item.dto.title),
-                LibraryDetailField(label: 'Items', value: items.length.toString()),
-                LibraryDetailField(label: 'Owned', value: ownedCount.toString()),
-                LibraryDetailField(label: 'Missing', value: missingNumbers.length.toString()),
+                LibraryDetailField(
+                    label: 'Series',
+                    value:
+                        request.item.source.catalogItem?.series?.seriesTitle ??
+                            request.item.dto.title),
+                LibraryDetailField(
+                    label: 'Items', value: items.length.toString()),
+                LibraryDetailField(
+                    label: 'Owned', value: ownedCount.toString()),
+                LibraryDetailField(
+                    label: 'Missing', value: missingNumbers.length.toString()),
               ],
             ),
             if (missingNumbers.isNotEmpty) ...[
@@ -336,7 +358,8 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
                 ],
               ),
             ] else
-              const Text('No missing issues detected for the owned copies in this series.'),
+              const Text(
+                  'No missing issues detected for the owned copies in this series.'),
           ],
         );
       },
@@ -390,14 +413,17 @@ class _ComicCreatorsGroupedSection extends StatelessWidget {
                 children: [
                   for (final creator in entries[i].value)
                     ActionChip(
-                      avatar: creator.imageUrl == null || creator.imageUrl!.isEmpty
+                      avatar: creator.imageUrl == null ||
+                              creator.imageUrl!.isEmpty
                           ? const Icon(Icons.person, size: 12)
                           : CircleAvatar(
                               backgroundImage: NetworkImage(creator.imageUrl!),
                               radius: 10,
                             ),
                       label: Text(creator.name),
-                      onPressed: onValueTap == null ? null : () => onValueTap!(creator.name),
+                      onPressed: onValueTap == null
+                          ? null
+                          : () => onValueTap!(creator.name),
                       visualDensity: VisualDensity.compact,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
@@ -423,7 +449,8 @@ class _ComicCreatorChipData {
 }
 
 String _comicCreatorRoleLabel(Map<String, dynamic> credit) {
-  final roleId = credit['role_id']?.toString().trim() ?? credit['roleId']?.toString().trim();
+  final roleId = credit['role_id']?.toString().trim() ??
+      credit['roleId']?.toString().trim();
   final role = credit['role']?.toString().trim();
   if (roleId != null && roleId.isNotEmpty) {
     return roleId;
@@ -447,17 +474,19 @@ List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
   final publishing = item.source.catalogItem?.publishing;
   final rows = <LibraryDetailField>[];
   if (dto.referenceFormatLabel?.trim().isNotEmpty == true) {
-    rows.add(
-        LibraryDetailField(label: 'Format', value: dto.referenceFormatLabel!.trim()));
+    rows.add(LibraryDetailField(
+        label: 'Format', value: dto.referenceFormatLabel!.trim()));
   }
   if (dto.country?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(label: 'Country', value: dto.country!.trim()));
   }
   if (dto.language?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Language', value: dto.language!.trim()));
+    rows.add(
+        LibraryDetailField(label: 'Language', value: dto.language!.trim()));
   }
   if (publishing?.pageCount != null) {
-    rows.add(LibraryDetailField(label: 'Pages', value: publishing!.pageCount.toString()));
+    rows.add(LibraryDetailField(
+        label: 'Pages', value: publishing!.pageCount.toString()));
   }
   return rows;
 }
@@ -466,19 +495,24 @@ List<LibraryDetailField> _seriesFacts(LibraryProjectionRuntime item) {
   final series = item.source.catalogItem?.series;
   final rows = <LibraryDetailField>[];
   if (series?.seriesTitle?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Series', value: series!.seriesTitle!.trim()));
+    rows.add(LibraryDetailField(
+        label: 'Series', value: series!.seriesTitle!.trim()));
   }
   if (series?.seriesId?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Series ID', value: series!.seriesId!.trim()));
+    rows.add(LibraryDetailField(
+        label: 'Series ID', value: series!.seriesId!.trim()));
   }
   if (series?.volumeName?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Volume', value: series!.volumeName!.trim()));
+    rows.add(
+        LibraryDetailField(label: 'Volume', value: series!.volumeName!.trim()));
   }
   if (series?.volumeNumber != null) {
-    rows.add(LibraryDetailField(label: 'Volume no.', value: series!.volumeNumber!.toString()));
+    rows.add(LibraryDetailField(
+        label: 'Volume no.', value: series!.volumeNumber!.toString()));
   }
   if (series?.volumeStartYear != null) {
-    rows.add(LibraryDetailField(label: 'Start year', value: series!.volumeStartYear!.toString()));
+    rows.add(LibraryDetailField(
+        label: 'Start year', value: series!.volumeStartYear!.toString()));
   }
   return rows;
 }
@@ -492,16 +526,21 @@ List<LibraryDetailField> _collectorFacts(OwnedItem? ownedItem) {
       ? ownedItem.typedDetails as ComicOwnedDetails
       : null;
   if (comic?.rawOrSlabbed?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Raw / Slabbed', value: comic!.rawOrSlabbed!.trim()));
+    rows.add(LibraryDetailField(
+        label: 'Raw / Slabbed', value: comic!.rawOrSlabbed!.trim()));
   }
   if (comic?.gradingCompany?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Grading Co.', value: comic!.gradingCompany!.trim()));
+    rows.add(LibraryDetailField(
+        label: 'Grading Co.', value: comic!.gradingCompany!.trim()));
   }
   if (comic?.certificationNumber?.trim().isNotEmpty == true) {
-    rows.add(LibraryDetailField(label: 'Certification', value: comic!.certificationNumber!.trim()));
+    rows.add(LibraryDetailField(
+        label: 'Certification', value: comic!.certificationNumber!.trim()));
   }
   if (comic?.keyComic == true) {
-    rows.add(LibraryDetailField(label: 'Key', value: comic?.keyReason?.trim().isNotEmpty == true
+    rows.add(LibraryDetailField(
+        label: 'Key',
+        value: comic?.keyReason?.trim().isNotEmpty == true
             ? comic!.keyReason!.trim()
             : 'Yes'));
   }
@@ -545,19 +584,32 @@ List<LibraryDetailField> _valueFacts(
     ));
   }
   if (snapshot.manualEstimatedValueCents != null) {
-    rows.add(LibraryDetailField(label: 'Manual Value', value: formatMoney(snapshot.manualEstimatedValueCents, snapshot.currency)));
+    rows.add(LibraryDetailField(
+        label: 'Manual Value',
+        value: formatMoney(
+            snapshot.manualEstimatedValueCents, snapshot.currency)));
   }
   if (snapshot.displayPrimaryValueCents != null) {
-    rows.add(LibraryDetailField(label: 'Current Value', value: formatMoney(snapshot.displayPrimaryValueCents, snapshot.currency)));
+    rows.add(LibraryDetailField(
+        label: 'Current Value',
+        value:
+            formatMoney(snapshot.displayPrimaryValueCents, snapshot.currency)));
   }
   if (snapshot.insuranceValueCents != null) {
-    rows.add(LibraryDetailField(label: 'Insurance Value', value: formatMoney(snapshot.insuranceValueCents, snapshot.currency)));
+    rows.add(LibraryDetailField(
+        label: 'Insurance Value',
+        value: formatMoney(snapshot.insuranceValueCents, snapshot.currency)));
   }
   if (ownedItem.pricePaidCents != null) {
-    rows.add(LibraryDetailField(label: 'Paid', value: formatMoney(ownedItem.pricePaidCents, ownedItem.currency)));
+    rows.add(LibraryDetailField(
+        label: 'Paid',
+        value: formatMoney(ownedItem.pricePaidCents, ownedItem.currency)));
   }
   if (snapshot.unrealizedGainLossCents != null) {
-    rows.add(LibraryDetailField(label: 'Profit / Loss', value: formatMoney(snapshot.unrealizedGainLossCents, snapshot.currency)));
+    rows.add(LibraryDetailField(
+        label: 'Profit / Loss',
+        value:
+            formatMoney(snapshot.unrealizedGainLossCents, snapshot.currency)));
   }
 
   if (effectiveOwnedCopies.length > 1) {
@@ -572,10 +624,13 @@ List<LibraryDetailField> _valueFacts(
       (item) => item.pricePaidCents,
     );
     if (totalMarketValue != null) {
-      rows.add(LibraryDetailField(label: 'Total Value', value: formatMoney(totalMarketValue, totalsCurrency)));
+      rows.add(LibraryDetailField(
+          label: 'Total Value',
+          value: formatMoney(totalMarketValue, totalsCurrency)));
     }
     if (totalPaid != null) {
-      rows.add(LibraryDetailField(label: 'Total Paid', value: formatMoney(totalPaid, totalsCurrency)));
+      rows.add(LibraryDetailField(
+          label: 'Total Paid', value: formatMoney(totalPaid, totalsCurrency)));
     }
   }
   return rows;
@@ -635,11 +690,14 @@ List<LibraryDetailField> _linkFacts(LibraryProjectionRuntime item) {
 
   return [
     for (final trailer in trailerUrls)
-      LibraryDetailField(label: trailer.source?.trim().isNotEmpty == true
-            ? trailer.source!.trim()
-            : 'Link', value: trailer.title?.trim().isNotEmpty == true
-            ? trailer.title!.trim()
-            : trailer.url, onTap: () => _launchUrl(trailer.url)),
+      LibraryDetailField(
+          label: trailer.source?.trim().isNotEmpty == true
+              ? trailer.source!.trim()
+              : 'Link',
+          value: trailer.title?.trim().isNotEmpty == true
+              ? trailer.title!.trim()
+              : trailer.url,
+          onTap: () => _launchUrl(trailer.url)),
   ];
 }
 
@@ -666,7 +724,8 @@ List<int> _computeMissingIssues(
       }
     }
   }
-  final missing = allIssueNumbers.difference(ownedIssueNumbers).toList(growable: false);
+  final missing =
+      allIssueNumbers.difference(ownedIssueNumbers).toList(growable: false);
   missing.sort();
   return missing;
 }
@@ -691,4 +750,3 @@ Future<void> _launchUrl(String value) async {
   }
   await launchUrl(uri, mode: LaunchMode.externalApplication);
 }
-

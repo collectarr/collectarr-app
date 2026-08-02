@@ -21,8 +21,12 @@ class LibraryDetailUserLinksSection extends ConsumerWidget {
     final linksAsync = ref.watch(userExternalLinksByItemProvider(itemId));
     return linksAsync.when(
       data: (links) {
-        final userLinks = links.where((link) => link.kind != 'trailer').toList(growable: false);
-        final trailers = links.where((link) => link.kind == 'trailer').toList(growable: false);
+        final userLinks = links
+            .where((link) => link.kind != 'trailer')
+            .toList(growable: false);
+        final trailers = links
+            .where((link) => link.kind == 'trailer')
+            .toList(growable: false);
         if (userLinks.isEmpty && trailers.isEmpty) {
           return const SizedBox.shrink();
         }
@@ -88,7 +92,9 @@ class _LinkGroupSection extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(
-                      kindIsTrailer ? Icons.play_circle_outline : Icons.link_outlined,
+                      kindIsTrailer
+                          ? Icons.play_circle_outline
+                          : Icons.link_outlined,
                       size: 16,
                       color: accent,
                     ),

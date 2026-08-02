@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalo
 import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_release.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-
 class VideoWorkMetadata {
   const VideoWorkMetadata({
     required this.title,
@@ -80,21 +79,26 @@ class VideoCatalogItem {
         ageRating: item.ageRating ?? v?.ageRating,
         audienceRating: item.audienceRating ?? v?.audienceRating,
       ),
-      releases: item.editions.map((edition) => VideoRelease(
-        id: edition.id,
-        title: edition.title ?? '',
-        publisher: edition.publisher,
-        distributor: edition.distributor,
-        barcode: edition.upc ?? edition.isbn,
-        releaseDate: edition.releaseDate,
-        formatLabel: edition.physicalFormatLabel ?? edition.physicalFormat,
-        media: edition.discs.map((disc) => VideoMediaRef(
-          id: '${edition.id}:disc:${disc.discNumber}',
-          title: disc.discName,
-          formatLabel: disc.discFormat,
-          discNumber: disc.discNumber,
-        )).toList(),
-      )).toList(),
+      releases: item.editions
+          .map((edition) => VideoRelease(
+                id: edition.id,
+                title: edition.title ?? '',
+                publisher: edition.publisher,
+                distributor: edition.distributor,
+                barcode: edition.upc ?? edition.isbn,
+                releaseDate: edition.releaseDate,
+                formatLabel:
+                    edition.physicalFormatLabel ?? edition.physicalFormat,
+                media: edition.discs
+                    .map((disc) => VideoMediaRef(
+                          id: '${edition.id}:disc:${disc.discNumber}',
+                          title: disc.discName,
+                          formatLabel: disc.discFormat,
+                          discNumber: disc.discNumber,
+                        ))
+                    .toList(),
+              ))
+          .toList(),
     );
   }
 

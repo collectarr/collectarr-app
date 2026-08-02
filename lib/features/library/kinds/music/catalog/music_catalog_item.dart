@@ -56,9 +56,11 @@ class MusicCatalogItem {
   CatalogPublishingDetails? get publishing => null;
   MusicCatalogDetails? get music => null;
   List<Map<String, dynamic>>? get contributors => null;
-  String? get coverImageUrl => releases.isEmpty ? null : releases.first.coverImageUrl;
+  String? get coverImageUrl =>
+      releases.isEmpty ? null : releases.first.coverImageUrl;
   String? get thumbnailImageUrl => coverImageUrl;
-  DateTime? get releaseDate => releases.isEmpty ? null : releases.first.releaseDate;
+  DateTime? get releaseDate =>
+      releases.isEmpty ? null : releases.first.releaseDate;
   int? get releaseYear => releaseDate?.year;
   String? get publisher => releases.isEmpty ? null : releases.first.publisher;
   String? get country => null;

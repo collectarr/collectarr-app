@@ -99,7 +99,9 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               InkWell(
-                onTap: widget.collapsible ? () => setState(() => _expanded = !_expanded) : null,
+                onTap: widget.collapsible
+                    ? () => setState(() => _expanded = !_expanded)
+                    : null,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     border: Border(
@@ -116,7 +118,10 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
                             children: [
                               Text(
                                 widget.title,
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
                                       color: palette.textMuted,
                                       fontWeight: FontWeight.w900,
                                       fontSize: 11,
@@ -128,7 +133,10 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
                                 const SizedBox(height: 2),
                                 Text(
                                   widget.subtitle!,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
                                         color: palette.textMuted,
                                         fontWeight: FontWeight.w700,
                                       ),

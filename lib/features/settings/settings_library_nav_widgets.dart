@@ -82,7 +82,8 @@ class _LibraryNavSettings extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _LibraryNavPreview(
-          groups: visibleGroups.isEmpty ? groups.take(1).toList() : visibleGroups,
+          groups:
+              visibleGroups.isEmpty ? groups.take(1).toList() : visibleGroups,
           placement: preferences.placement,
         ),
         const SizedBox(height: 12),
@@ -174,7 +175,8 @@ class _LibraryNavSettings extends StatelessWidget {
                         : () {
                             final moved = reordered.removeAt(index);
                             reordered.insert(index - 1, moved);
-                            onOrderChanged(_expandSettingsGroupKinds(reordered));
+                            onOrderChanged(
+                                _expandSettingsGroupKinds(reordered));
                           },
                     icon: const Icon(Icons.keyboard_arrow_up),
                   ),
@@ -185,7 +187,8 @@ class _LibraryNavSettings extends StatelessWidget {
                         : () {
                             final moved = reordered.removeAt(index);
                             reordered.insert(index + 1, moved);
-                            onOrderChanged(_expandSettingsGroupKinds(reordered));
+                            onOrderChanged(
+                                _expandSettingsGroupKinds(reordered));
                           },
                     icon: const Icon(Icons.keyboard_arrow_down),
                   ),
@@ -426,7 +429,8 @@ class _LibraryNavPreviewTile extends StatelessWidget {
       ),
       child: SizedBox.square(
         dimension: 36,
-        child: Icon(libraryIconForKind(type.mediaKind), size: 18, color: accent),
+        child:
+            Icon(libraryIconForKind(type.mediaKind), size: 18, color: accent),
       ),
     );
   }
@@ -497,7 +501,8 @@ List<CatalogMediaType> _orderedSettingsMediaTypes(
   };
   final topLevelByKind = {
     for (final type in catalog)
-      if (type.isTopLevel || collectarrLibraryTypes.byKind(type.mediaKind) != null)
+      if (type.isTopLevel ||
+          collectarrLibraryTypes.byKind(type.mediaKind) != null)
         type.kind: type,
   };
   final defaultKinds = [

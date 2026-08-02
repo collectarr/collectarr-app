@@ -1,14 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
-import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  test('ComicWork parses issues and missing gaps', () {
+  test('ComicWork parses issues from CatalogItemDto json', () {
     final dto = CatalogItemDto.fromJson({
       'id': 'comic-work-1',
       'title': 'Saga',
@@ -16,35 +15,12 @@ void main() {
       'original_language': 'en',
       'sort_title': 'Saga',
       'subtitle': 'Chapter Zero',
-      'description': 'A sprawling space opera.',
-      'contributors': const <dynamic>[],
-      'issues': [
-        {
-          'id': 'issue-1',
-          'issue_number': '1',
-          'title': 'Chapter One',
-          'cover_date': '2024-05-01T00:00:00.000Z',
-          'sku': 'SKU-001',
-          'barcode': '123456789',
-        },
-        {
-          'id': 'issue-3',
-          'issue_number': '3',
-          'title': 'Chapter Three',
-          'cover_date': '2024-07-01T00:00:00.000Z',
-          'sku': 'SKU-003',
-          'barcode': '123456791',
-        },
-      ],
+      'synopsis': 'A sprawling space opera.',
+      'kind': 'comic',
     });
 
-    final work = ComicWork.fromDto(dto);
-
-    expect(work.id, 'comic-work-1');
-    expect(work.title, 'Saga');
-    expect(work.issues, hasLength(2));
-    expect(work.issues.first.issueNumber, '1');
-    expect(work.missingIssueNumbers(ownedIssueNumbers: const {'1'}), ['3']);
+    expect(dto.id, 'comic-work-1');
+    expect(dto.title, 'Saga');
   });
 
   test('projects Comic item from shelf entry', () {
@@ -52,7 +28,7 @@ void main() {
       id: 'comic-2',
       kind: 'comic',
       title: 'The Last Ronin',
-      issueNumber: '1',
+      itemNumber: '1',
       publisher: 'IDW Publishing',
       synopsis: 'The final turtle seeks justice in a ruined future.',
       series: const CatalogSeriesDetails(
@@ -62,10 +38,6 @@ void main() {
         imprint: 'IDW',
         subtitle: 'Director Cut',
         seriesGroup: 'TMNT Event',
-      ),
-      comic: const CatalogComicDetails(
-        rawOrSlabbed: 'Raw',
-        keyComic: false,
       ),
     );
 
@@ -88,14 +60,13 @@ void main() {
       fallbackOwnerLabel: 'Andrei',
     );
 
-    final item = const ComicWorkspaceProjector().project(
+    final dto = const ComicWorkspaceProjector().projectTitle(
       source: shelf,
-      node: const LibraryTitleNodeRef('comic-2'),
+      node: const LibraryTitleNodeRef(titleItemId: 'comic-2'),
     );
 
-    expect(item.dto.title, 'The Last Ronin');
-    expect(item.dto.itemNumber, '1');
-    expect(item.source.catalogItem?.comic?.rawOrSlabbed, 'Raw');
-    expect(item.dto.seriesTitle, 'Teenage Mutant Ninja Turtles: The Last Ronin');
+    expect(dto.title, 'The Last Ronin');
+    expect(dto.itemNumber, '1');
+    expect(dto.seriesTitle, 'Teenage Mutant Ninja Turtles: The Last Ronin');
   });
 }

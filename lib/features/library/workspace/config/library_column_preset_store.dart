@@ -50,9 +50,11 @@ class LibraryColumnPresetStore {
       label: normalizedLabel,
       columns: {
         for (final column in columns)
-          if (_columnById(column) != null)
-            _columnById(column)!,
-        if (libraryKindModuleForType(config).fields.findColumnDefinition('title') != null)
+          if (_columnById(column) != null) _columnById(column)!,
+        if (libraryKindModuleForType(config)
+                .fields
+                .findColumnDefinition('title') !=
+            null)
           'title',
       },
     );
@@ -91,7 +93,10 @@ class LibraryColumnPresetStore {
         for (final value in (json['columns'] as List<dynamic>? ?? []))
           if (_columnById(value.toString()) != null)
             _columnById(value.toString())!,
-        if (libraryKindModuleForType(config).fields.findColumnDefinition('title') != null)
+        if (libraryKindModuleForType(config)
+                .fields
+                .findColumnDefinition('title') !=
+            null)
           'title',
       },
     );
@@ -102,8 +107,7 @@ class LibraryColumnPresetStore {
       'id': preset.id,
       'label': preset.label,
       'columns': [
-        for (final column in preset.columns)
-          column,
+        for (final column in preset.columns) column,
       ],
     };
   }

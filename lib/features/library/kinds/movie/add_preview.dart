@@ -29,8 +29,7 @@ class _MovieAddPreviewPane extends StatelessWidget {
     final title = selectedBundle?.title ??
         selectedItem?.title ??
         selectedCandidate!.title;
-    final itemNumber =
-        selectedBundle == null ? selectedItem?.itemNumber : null;
+    final itemNumber = selectedBundle == null ? selectedItem?.itemNumber : null;
     final preview = request.candidatePreview;
     final synopsis = selectedItem?.synopsis ??
         preview?.synopsis ??
@@ -42,7 +41,8 @@ class _MovieAddPreviewPane extends StatelessWidget {
     final rows = selectedItem == null
         ? (preview != null
             ? libraryAddMetadataRowsForFullPreview(preview, request.type)
-        : libraryAddMetadataRowsForCandidate(selectedCandidate!, request.type))
+            : libraryAddMetadataRowsForCandidate(
+                selectedCandidate!, request.type))
         : libraryAddMetadataRowsForItem(selectedItem, request.type);
     final discoverySections = libraryAddPreviewDiscoverySections(
       item: selectedItem,
@@ -104,7 +104,9 @@ class _MovieAddPreviewPane extends StatelessWidget {
                         runSpacing: 6,
                         children: [
                           LibraryAddResultBadge(
-                            selectedItem == null ? request.providerLabel : 'library',
+                            selectedItem == null
+                                ? request.providerLabel
+                                : 'library',
                             accent: request.accent,
                           ),
                           if (selectedItem?.releaseYear != null)
@@ -112,7 +114,9 @@ class _MovieAddPreviewPane extends StatelessWidget {
                               selectedItem!.releaseYear.toString(),
                               accent: request.accent,
                             ),
-                          if (selectedItem?.physicalFormatLabel?.trim().isNotEmpty ==
+                          if (selectedItem?.physicalFormatLabel
+                                  ?.trim()
+                                  .isNotEmpty ==
                               true)
                             LibraryAddResultBadge(
                               selectedItem!.physicalFormatLabel!,

@@ -65,7 +65,8 @@ void main() {
     expect(state.selectedTrackingVariantId, isNull);
   });
 
-  test('wishlist edition anchor clears variant but preserves resolved edition', () {
+  test('wishlist edition anchor clears variant but preserves resolved edition',
+      () {
     final state = resolveWishlistAnchorSelectionState(
       anchorType: PersonalItemAnchorType.edition.apiValue,
       editions: [buildEdition()],

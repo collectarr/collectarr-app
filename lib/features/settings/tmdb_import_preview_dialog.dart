@@ -69,10 +69,8 @@ class _TmdbImportPreviewDialogState extends State<_TmdbImportPreviewDialog> {
     final preview = widget.preview;
     final unmatchedCount = preview.unmatched.length;
     final viewSize = MediaQuery.sizeOf(context);
-    final dialogWidth =
-        (viewSize.width - 48).clamp(320.0, 820.0).toDouble();
-    final dialogHeight =
-        (viewSize.height - 96).clamp(360.0, 560.0).toDouble();
+    final dialogWidth = (viewSize.width - 48).clamp(320.0, 820.0).toDouble();
+    final dialogHeight = (viewSize.height - 96).clamp(360.0, 560.0).toDouble();
     return AccentAlertDialog(
       insetPadding: const EdgeInsets.all(24),
       title: Text(preview.collection.label),
@@ -90,14 +88,21 @@ class _TmdbImportPreviewDialogState extends State<_TmdbImportPreviewDialog> {
               const SizedBox(height: 10),
               DecoratedBox(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.3),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .errorContainer
+                      .withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.error.withValues(alpha: 0.5),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .error
+                        .withValues(alpha: 0.5),
                   ),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   child: Row(
                     children: [
                       Icon(
@@ -248,9 +253,10 @@ class _TmdbImportPreviewPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final matched = preview.matched;
     final unmatched = preview.unmatched;
-    final importModeLabel = preview.collection == TmdbImportCollection.ratedMovies
-        ? 'Completed'
-        : 'Wishlist';
+    final importModeLabel =
+        preview.collection == TmdbImportCollection.ratedMovies
+            ? 'Completed'
+            : 'Wishlist';
     final unmatchedModeLabel = skipUnmatchedRows
         ? 'Unmatched: skipped'
         : keepUnmatchedLocally

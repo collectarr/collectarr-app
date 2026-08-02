@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 
-
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 
 final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, VideoOwnedDetails>(

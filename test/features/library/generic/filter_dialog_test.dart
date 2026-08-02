@@ -241,7 +241,8 @@ void main() {
       dto: dto2,
     );
 
-    final options = LibraryFilterOptions.fromEntries([item1, item2], adapter: comicsMediaAdapter);
+    final options = LibraryFilterOptions.fromEntries([item1, item2],
+        adapter: comicsMediaAdapter);
 
     expect(options.tags, ['Signed', 'Sketched', 'Variant']);
   });

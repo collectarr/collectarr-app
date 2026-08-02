@@ -7,7 +7,8 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
 
-class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate {
+class LibraryKindWorkspaceController
+    extends LibraryReleaseFolderBrowserDelegate {
   LibraryKindWorkspaceController({super.initialReleaseFolderTitleItemId});
 
   void closeAllKindDrilldowns() {
@@ -51,7 +52,8 @@ class LibraryKindWorkspaceController extends LibraryReleaseFolderBrowserDelegate
       return null;
     }
     final drilldownState = itemDrilldownState;
-    if (drilldownState == null || drilldownState.rootItemId != selectedItem.node.titleItemId) {
+    if (drilldownState == null ||
+        drilldownState.rootItemId != selectedItem.node.titleItemId) {
       return null;
     }
     return buildLibraryKindDrilldown(

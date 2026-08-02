@@ -76,8 +76,8 @@ class _ItemBundleReleaseBrowserSectionState
       if (!mounted) {
         return;
       }
-      final firstBundleId =
-          _selectedBundleReleaseId ?? (summaries.isNotEmpty ? summaries.first.id : null);
+      final firstBundleId = _selectedBundleReleaseId ??
+          (summaries.isNotEmpty ? summaries.first.id : null);
       setState(() {
         _summaries = summaries;
         _summariesLoading = false;
@@ -149,7 +149,8 @@ class _ItemBundleReleaseBrowserSectionState
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            tilePadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
             iconColor: widget.accent,
             collapsedIconColor: widget.accent,

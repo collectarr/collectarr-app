@@ -184,13 +184,15 @@ class CollectarrApiClient {
         .toList(growable: false);
   }
 
-  Future<List<TvReleaseEpisodeMapDto>> getTvReleaseEpisodeMapDto(String id) async {
+  Future<List<TvReleaseEpisodeMapDto>> getTvReleaseEpisodeMapDto(
+      String id) async {
     final response = await _dio.get<List<dynamic>>(
       '/metadata/tv/releases/${Uri.encodeComponent(id)}/episode-map',
     );
     return (response.data ?? const <dynamic>[])
         .cast<Map<String, dynamic>>()
-        .map((value) => TvReleaseEpisodeMapDto.fromJson(_resolveImageUrls(value)))
+        .map((value) =>
+            TvReleaseEpisodeMapDto.fromJson(_resolveImageUrls(value)))
         .toList(growable: false);
   }
 

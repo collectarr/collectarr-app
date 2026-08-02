@@ -124,20 +124,20 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
           PopupMenuItem<Object>(
             value: _LibraryUtilityQuickViewSelection<T>(view.value),
             height: kLibraryToolbarPopupItemHeight,
-          child: Material(
-            type: MaterialType.transparency,
-            child: ListTile(
-              dense: true,
-              minLeadingWidth: 18,
-              horizontalTitleGap: 8,
-              leading: Icon(view.icon, size: 18),
-              title: Text(view.label, style: const TextStyle(fontSize: 13)),
-              trailing: selectedQuickView == view.value
-                  ? const Icon(Icons.check, size: 16)
-                  : null,
+            child: Material(
+              type: MaterialType.transparency,
+              child: ListTile(
+                dense: true,
+                minLeadingWidth: 18,
+                horizontalTitleGap: 8,
+                leading: Icon(view.icon, size: 18),
+                title: Text(view.label, style: const TextStyle(fontSize: 13)),
+                trailing: selectedQuickView == view.value
+                    ? const Icon(Icons.check, size: 16)
+                    : null,
+              ),
             ),
           ),
-        ),
         );
       }
     }

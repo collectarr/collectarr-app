@@ -100,9 +100,10 @@ class _BoardGameInspectorMain extends StatelessWidget {
     final palette = appPalette(context);
     final releaseYear = dto.releaseDate?.year.toString();
     final creatorsList = catalogItem?.creators
-        ?.map((c) => (c['name'] ?? '').toString())
-        .where((n) => n.trim().isNotEmpty)
-        .toList() ?? const [];
+            ?.map((c) => (c['name'] ?? '').toString())
+            .where((n) => n.trim().isNotEmpty)
+            .toList() ??
+        const [];
     final designerText = _joinNonEmpty(creatorsList);
 
     return DecoratedBox(
@@ -134,12 +135,10 @@ class _BoardGameInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (dto.publisher?.isNotEmpty == true ||
-                      releaseYear != null)
+                  if (dto.publisher?.isNotEmpty == true || releaseYear != null)
                     Text(
                       [
-                        if (dto.publisher?.isNotEmpty == true)
-                          dto.publisher!,
+                        if (dto.publisher?.isNotEmpty == true) dto.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -188,10 +187,12 @@ class _BoardGameInspectorMain extends StatelessWidget {
                               const SizedBox(width: 6),
                               Text(
                                 'Search on eBay',
-                                style:
-                                    Theme.of(context).textTheme.labelLarge?.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                        ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
                               ),
                             ],
                           ),

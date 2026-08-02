@@ -52,7 +52,7 @@ void main() {
     final catalogRows = await fixture.db.select(fixture.db.catalogCache).get();
     final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
     final trackingRows =
-      await fixture.db.select(fixture.db.trackingEntriesCache).get();
+        await fixture.db.select(fixture.db.trackingEntriesCache).get();
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
 
     expect(catalogRows.single.id, 'comic-1');
@@ -138,7 +138,8 @@ void main() {
     expect(ownedRows.single.readStatus, 'watched');
   });
 
-  test('adds edition-referenced owned item using the selected edition without forcing a physical variant',
+  test(
+      'adds edition-referenced owned item using the selected edition without forcing a physical variant',
       () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
@@ -162,7 +163,8 @@ void main() {
     expect(ownedRows.single.variantId, isNull);
   });
 
-  test('adds edition-referenced wishlist item using an explicit edition variant',
+  test(
+      'adds edition-referenced wishlist item using an explicit edition variant',
       () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
@@ -241,7 +243,8 @@ void main() {
     expect(trackingRows.single.status, 'In progress');
   });
 
-  test('adds tracking-only entry when target is track without status', () async {
+  test('adds tracking-only entry when target is track without status',
+      () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
 

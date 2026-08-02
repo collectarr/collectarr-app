@@ -48,8 +48,9 @@ class _BundleReleaseContentsSectionState
       _error = null;
     });
     try {
-      final detail =
-          await ref.read(apiClientProvider).getBundleRelease(widget.bundleReleaseId);
+      final detail = await ref
+          .read(apiClientProvider)
+          .getBundleRelease(widget.bundleReleaseId);
       if (!mounted) {
         return;
       }
@@ -82,7 +83,8 @@ class _BundleReleaseContentsSectionState
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            tilePadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
             iconColor: widget.accent,
             collapsedIconColor: widget.accent,
@@ -173,7 +175,8 @@ class BundleReleaseContentsCard extends StatelessWidget {
     final summaryParts = <String>[
       if (detail.bundleType != null && detail.bundleType!.trim().isNotEmpty)
         detail.bundleType!,
-      if (detail.packagingType != null && detail.packagingType!.trim().isNotEmpty)
+      if (detail.packagingType != null &&
+          detail.packagingType!.trim().isNotEmpty)
         detail.packagingType!,
       if (detail.publisher != null && detail.publisher!.trim().isNotEmpty)
         detail.publisher!,
@@ -362,10 +365,10 @@ List<_BundleReleaseDiscGroup> _groupBundleMembers(
       _BundleReleaseDiscGroup(
         label: _bundleDiscLabel(grouped[key]!.first),
         members: [...grouped[key]!]..sort((left, right) {
-          final leftSequence = left.sequenceNumber ?? 999999;
-          final rightSequence = right.sequenceNumber ?? 999999;
-          return leftSequence.compareTo(rightSequence);
-        }),
+            final leftSequence = left.sequenceNumber ?? 999999;
+            final rightSequence = right.sequenceNumber ?? 999999;
+            return leftSequence.compareTo(rightSequence);
+          }),
       ),
   ];
 }

@@ -80,10 +80,10 @@ class LibraryTableInkRow extends StatelessWidget {
           hoverColor: hoverColor,
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-            resolvedHorizontalMargin,
-            resolvedVerticalPadding,
-            resolvedHorizontalMargin - selectionRailWidth,
-            resolvedVerticalPadding,
+              resolvedHorizontalMargin,
+              resolvedVerticalPadding,
+              resolvedHorizontalMargin - selectionRailWidth,
+              resolvedVerticalPadding,
             ),
             child: child,
           ),

@@ -21,7 +21,8 @@ String buildCalendarIcs(
     _writeLine(buffer, 'UID:${_uidFor(event)}');
     _writeLine(buffer, 'DTSTAMP:$stamp');
     _writeLine(buffer, 'DTSTART;VALUE=DATE:${_formatDate(event.date)}');
-    _writeLine(buffer, 'SUMMARY:${_escapeText('${event.label}: ${event.title}')}');
+    _writeLine(
+        buffer, 'SUMMARY:${_escapeText('${event.label}: ${event.title}')}');
     final description = event.subtitle;
     if (description != null && description.trim().isNotEmpty) {
       _writeLine(buffer, 'DESCRIPTION:${_escapeText(description)}');

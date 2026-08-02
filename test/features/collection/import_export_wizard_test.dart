@@ -58,7 +58,8 @@ void main() {
     await tester.tap(find.text('Import collection'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Paste Collectarr CSV or CLZ-friendly CSV'), findsOneWidget);
+    expect(
+        find.text('Paste Collectarr CSV or CLZ-friendly CSV'), findsOneWidget);
     expect(find.text('Preview import'), findsOneWidget);
     expect(find.text('Import 0 rows'), findsOneWidget);
   });

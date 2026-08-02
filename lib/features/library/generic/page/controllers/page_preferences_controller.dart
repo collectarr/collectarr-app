@@ -7,8 +7,7 @@ abstract final class LibraryPagePreferencesControllerOps {
     try {
       final loadToken = ++state._columnFavoritesLoadToken;
       final expectedKind = state.widget.type.workspace.kind;
-      final presets =
-          await LibraryColumnPresetStore(state.widget.type).read();
+      final presets = await LibraryColumnPresetStore(state.widget.type).read();
       if (!state.mounted ||
           loadToken != state._columnFavoritesLoadToken ||
           state.widget.type.workspace.kind != expectedKind) {
@@ -72,7 +71,8 @@ abstract final class LibraryPagePreferencesControllerOps {
         return;
       }
       state._mutateState(() {
-        state._folderDisplayMode = displayMode ?? LibraryFolderDisplayMode.drilldown;
+        state._folderDisplayMode =
+            displayMode ?? LibraryFolderDisplayMode.drilldown;
         state._folderTreeExpandedNodeIds = expandedNodeIds;
         state._folderTreeSelectedNodeId = selectedNodeId;
         state._groupPresentationOverride = groupPresentationOverride;
@@ -102,7 +102,8 @@ abstract final class LibraryPagePreferencesControllerOps {
     });
     unawaited(state._viewPrefs.writeFolderDisplayMode(preset, mode));
     if (mode == LibraryFolderDisplayMode.drilldown) {
-      unawaited(state._viewPrefs.writeFolderTreeExpandedNodeIds(preset, const {}));
+      unawaited(
+          state._viewPrefs.writeFolderTreeExpandedNodeIds(preset, const {}));
       unawaited(state._viewPrefs.writeFolderTreeSelectedNodeId(preset, null));
     }
   }
@@ -139,7 +140,8 @@ abstract final class LibraryPagePreferencesControllerOps {
       state._folderTreeExpandedNodeIds = expanded;
       state._folderTreeSelectedNodeId = leaf.id;
     });
-    unawaited(state._viewPrefs.writeFolderTreeExpandedNodeIds(preset, expanded));
+    unawaited(
+        state._viewPrefs.writeFolderTreeExpandedNodeIds(preset, expanded));
     unawaited(state._viewPrefs.writeFolderTreeSelectedNodeId(preset, leaf.id));
     final bucketPath = [
       for (final node in path)
@@ -239,7 +241,8 @@ abstract final class LibraryPagePreferencesControllerOps {
     return null;
   }
 
-  static LibrarySortFavorite? activeSortFavorite(GenericLibraryPageState state) {
+  static LibrarySortFavorite? activeSortFavorite(
+      GenericLibraryPageState state) {
     final viewState = state._viewState ?? state._adapter.viewProfile.defaults();
     for (final favorite in state._sortFavorites) {
       if (state._sameSortRules(favorite.rules, viewState.sortRules)) {

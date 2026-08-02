@@ -92,7 +92,8 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
   final Color mutedTextColor;
   final String searchPlaceholder;
   final LibraryCollectionStatusScope collectionStatusScope;
-  final ValueChanged<LibraryCollectionStatusScope>? onCollectionStatusScopeChanged;
+  final ValueChanged<LibraryCollectionStatusScope>?
+      onCollectionStatusScopeChanged;
   final LibrarySeriesCompletionScope seriesCompletionScope;
   final ValueChanged<LibrarySeriesCompletionScope>?
       onSeriesCompletionScopeChanged;
@@ -107,7 +108,8 @@ class LibrarySeriesSidebar extends ConsumerStatefulWidget {
   final ValueChanged<String>? onToggleTreeNodeExpanded;
 
   @override
-  ConsumerState<LibrarySeriesSidebar> createState() => _LibrarySeriesSidebarState();
+  ConsumerState<LibrarySeriesSidebar> createState() =>
+      _LibrarySeriesSidebarState();
 }
 
 enum _SidebarSortMode { alphabetical, byCount }
@@ -179,14 +181,16 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
     String query,
   ) {
     final filteredChildren = _filterTreeNodes(node.children, query);
-    final expanded = query.isNotEmpty || node.isExpanded || filteredChildren.isNotEmpty;
+    final expanded =
+        query.isNotEmpty || node.isExpanded || filteredChildren.isNotEmpty;
     return node.copyWith(
       children: _sortTreeNodes(filteredChildren),
       isExpanded: expanded,
     );
   }
 
-  List<LibraryFolderTreeNode> _sortTreeNodes(List<LibraryFolderTreeNode> nodes) {
+  List<LibraryFolderTreeNode> _sortTreeNodes(
+      List<LibraryFolderTreeNode> nodes) {
     final sorted = nodes.toList(growable: true);
     switch (_sortMode) {
       case _SidebarSortMode.alphabetical:
@@ -214,23 +218,23 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
       LibraryDensity.dense => 0.8,
     };
     final resolvedBackgroundColor = widget.backgroundColor == kAppPanel
-      ? palette.panel
-      : widget.backgroundColor;
+        ? palette.panel
+        : widget.backgroundColor;
     final resolvedHeaderColor = widget.headerColor == kAppSurface
-      ? palette.surface
-      : widget.headerColor;
+        ? palette.surface
+        : widget.headerColor;
     final resolvedDividerColor = widget.dividerColor == kAppDivider
-      ? palette.divider
-      : widget.dividerColor;
+        ? palette.divider
+        : widget.dividerColor;
     final resolvedSelectionColor = widget.selectionColor == kAppSelection
-      ? palette.selection
-      : widget.selectionColor;
+        ? palette.selection
+        : widget.selectionColor;
     final resolvedBadgeColor = widget.badgeColor == kAppBadgeBackground
-      ? palette.badgeBackground
-      : widget.badgeColor;
+        ? palette.badgeBackground
+        : widget.badgeColor;
     final resolvedMutedTextColor = widget.mutedTextColor == kAppTextMuted
-      ? palette.textMuted
-      : widget.mutedTextColor;
+        ? palette.textMuted
+        : widget.mutedTextColor;
     return DecoratedBox(
       decoration: BoxDecoration(color: resolvedBackgroundColor),
       child: Column(
@@ -256,7 +260,7 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
                               fontWeight: FontWeight.w800,
-                                letterSpacing: 0.12,
+                              letterSpacing: 0.12,
                             ),
                       ),
                     ),
@@ -271,9 +275,9 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
             accentColor: widget.accentColor,
             dividerColor: resolvedDividerColor,
             mutedTextColor: resolvedMutedTextColor,
-              seriesCompletionScope: widget.seriesCompletionScope,
-              onSeriesCompletionScopeChanged:
-                  widget.onSeriesCompletionScopeChanged,
+            seriesCompletionScope: widget.seriesCompletionScope,
+            onSeriesCompletionScopeChanged:
+                widget.onSeriesCompletionScopeChanged,
             onChanged: () => setState(() {}),
             onToggleSort: () => setState(() {
               _sortMode = _sortMode == _SidebarSortMode.alphabetical
@@ -300,7 +304,8 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                     onToggleExpanded: widget.onToggleTreeNodeExpanded,
                   )
                 : ListView.builder(
-                    itemCount: widget.ancestorScopeLabels.length + filtered.length,
+                    itemCount:
+                        widget.ancestorScopeLabels.length + filtered.length,
                     itemBuilder: (context, index) {
                       if (index < widget.ancestorScopeLabels.length) {
                         return _SidebarAncestorScopeRow(
@@ -314,10 +319,12 @@ class _LibrarySeriesSidebarState extends ConsumerState<LibrarySeriesSidebar> {
                               : () => widget.onNavigateToAncestorScope!(index),
                         );
                       }
-                      final bucket = filtered[index - widget.ancestorScopeLabels.length];
+                      final bucket =
+                          filtered[index - widget.ancestorScopeLabels.length];
                       final selected = bucket.title == widget.selectedSeries;
                       final rowPadding = ref.watch(
-                        uiPreferencesProvider.select((p) => p.sidebarRowPadding),
+                        uiPreferencesProvider
+                            .select((p) => p.sidebarRowPadding),
                       );
                       return _LibrarySeriesRow(
                         bucket: bucket,
@@ -612,7 +619,8 @@ class _SidebarSortModeIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: selected ? accentColor.withValues(alpha: 0.14) : Colors.transparent,
+      color:
+          selected ? accentColor.withValues(alpha: 0.14) : Colors.transparent,
       child: Center(
         child: Icon(
           icon,
@@ -741,18 +749,21 @@ class _FolderTreeNodeView extends StatelessWidget {
                 child: hasChildren
                     ? IconButton(
                         tooltip: isExpanded ? 'Collapse' : 'Expand',
-                        onPressed:
-                            onToggleExpanded == null ? null : () => onToggleExpanded!(node.id),
+                        onPressed: onToggleExpanded == null
+                            ? null
+                            : () => onToggleExpanded!(node.id),
                         padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                        constraints:
+                            const BoxConstraints(minWidth: 18, minHeight: 18),
                         visualDensity: VisualDensity.compact,
                         iconSize: 16,
                         icon: Icon(
                           isExpanded ? Icons.expand_more : Icons.chevron_right,
-                            color: isSelected ? accentColor : mutedTextColor,
+                          color: isSelected ? accentColor : mutedTextColor,
                         ),
                       )
-                    : Icon(Icons.fiber_manual_record, size: 8, color: mutedTextColor.withValues(alpha: 0.6)),
+                    : Icon(Icons.fiber_manual_record,
+                        size: 8, color: mutedTextColor.withValues(alpha: 0.6)),
               ),
               const SizedBox(width: 4),
               SizedBox(
@@ -770,7 +781,9 @@ class _FolderTreeNodeView extends StatelessWidget {
               Expanded(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: onSelectPath == null ? null : () => onSelectPath!(nextPath),
+                  onTap: onSelectPath == null
+                      ? null
+                      : () => onSelectPath!(nextPath),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
@@ -779,7 +792,8 @@ class _FolderTreeNodeView extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: isSelected ? selectedTextColor : null,
-                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                            fontWeight:
+                                isSelected ? FontWeight.w800 : FontWeight.w600,
                           ),
                     ),
                   ),
@@ -856,9 +870,8 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
             Brightness.dark
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
-    final countTextColor = widget.selected
-        ? widget.selectedBadgeColor
-        : widget.mutedTextColor;
+    final countTextColor =
+        widget.selected ? widget.selectedBadgeColor : widget.mutedTextColor;
     final gapTooltip = widget.bucket.missingNumbers.isNotEmpty
         ? 'Missing: ${_formatMissingNumbers(widget.bucket.missingNumbers)}'
         : null;
@@ -892,7 +905,8 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
               padding: const EdgeInsets.only(left: 6, right: 8),
               child: Row(
                 children: [
-                  if (widget.leadingInset > 0) SizedBox(width: widget.leadingInset),
+                  if (widget.leadingInset > 0)
+                    SizedBox(width: widget.leadingInset),
                   SizedBox(
                     width: 20,
                     child: Text(
@@ -912,8 +926,9 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: widget.selected ? selectedTextColor : null,
-                            fontWeight:
-                                widget.selected ? FontWeight.w800 : FontWeight.w600,
+                            fontWeight: widget.selected
+                                ? FontWeight.w800
+                                : FontWeight.w600,
                           ),
                     ),
                   ),

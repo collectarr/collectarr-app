@@ -133,7 +133,8 @@ void main() {
     expect(moviesLibraryConfig.editUsesTitleAsSeries, isFalse);
     expect(moviesLibraryConfig.mediaReleaseScopeLabel, 'Media');
     expect(moviesWorkspaceConfig.accent, const Color(0xFF42AA55));
-    expect(libraryAccentForKind(CatalogMediaKind.anime), const Color(0xFFC94DFF));
+    expect(
+        libraryAccentForKind(CatalogMediaKind.anime), const Color(0xFFC94DFF));
     expect(libraryIconForKind(CatalogMediaKind.tv), Icons.tv_outlined);
     expect(moviesLibraryConfig.collectionExportTitleLabel, 'Title');
   });
@@ -190,7 +191,8 @@ void main() {
     expect(animeLibraryConfig.workspace.kind, CatalogMediaKind.anime);
     expect(animeLibraryConfig.defaultMetadataProvider, 'anilist');
     expect(animeLibraryConfig.supportsMetadataProvider('anilist'), isTrue);
-    expect(animeLibraryConfig.workspaceBehavior.videoSeriesEntryTypes, {'anime'});
+    expect(
+        animeLibraryConfig.workspaceBehavior.videoSeriesEntryTypes, {'anime'});
 
     expect(
       animeLibraryConfig.workspaceBehavior.defaultVideoDisplayLevel,
@@ -215,7 +217,8 @@ void main() {
       VideoGroupingDefault.bySeries,
     );
     expect(tvLibraryConfig.editDialogBuilder, isNotNull);
-    expect(tvLibraryConfig.detailPageBuilder, same(buildVideoLibraryDetailPage));
+    expect(
+        tvLibraryConfig.detailPageBuilder, same(buildVideoLibraryDetailPage));
   });
 
   test('movie library config keeps flat title/work defaults', () {
@@ -300,7 +303,10 @@ void main() {
       contains('title'),
     );
     expect(
-      libraryKindModuleForType(boardGamesLibraryConfig).fields.sorts.map((d) => d.id),
+      libraryKindModuleForType(boardGamesLibraryConfig)
+          .fields
+          .sorts
+          .map((d) => d.id),
       contains('title'),
     );
   });
@@ -395,74 +401,124 @@ void main() {
       'anime',
       'music',
     ]);
-    expect(collectarrLibraryTypes.byKind(CatalogMediaKind.comic), comicsLibraryConfig);
-    expect(collectarrLibraryTypes.byKind(CatalogMediaKind.manga), mangaLibraryConfig);
+    expect(collectarrLibraryTypes.byKind(CatalogMediaKind.comic),
+        comicsLibraryConfig);
+    expect(collectarrLibraryTypes.byKind(CatalogMediaKind.manga),
+        mangaLibraryConfig);
     expect(
-        collectarrLibraryTypes.byKind(CatalogMediaKind.game)?.defaultMetadataProvider, 'igdb');
-    expect(collectarrLibraryTypes.byKind(CatalogMediaKind.boardgame)?.defaultMetadataProvider,
+        collectarrLibraryTypes
+            .byKind(CatalogMediaKind.game)
+            ?.defaultMetadataProvider,
+        'igdb');
+    expect(
+        collectarrLibraryTypes
+            .byKind(CatalogMediaKind.boardgame)
+            ?.defaultMetadataProvider,
         'bgg');
-    expect(collectarrLibraryTypes.byKind(CatalogMediaKind.book)?.defaultMetadataProvider,
+    expect(
+        collectarrLibraryTypes
+            .byKind(CatalogMediaKind.book)
+            ?.defaultMetadataProvider,
         'openlibrary');
-    expect(collectarrLibraryTypes.byKind(CatalogMediaKind.movie)?.defaultMetadataProvider,
+    expect(
+        collectarrLibraryTypes
+            .byKind(CatalogMediaKind.movie)
+            ?.defaultMetadataProvider,
         'tmdb');
     expect(
-        collectarrLibraryTypes.byKind(CatalogMediaKind.tv)?.defaultMetadataProvider, 'tmdb');
-    expect(collectarrLibraryTypes.byKind(CatalogMediaKind.anime)?.defaultMetadataProvider,
+        collectarrLibraryTypes
+            .byKind(CatalogMediaKind.tv)
+            ?.defaultMetadataProvider,
+        'tmdb');
+    expect(
+        collectarrLibraryTypes
+            .byKind(CatalogMediaKind.anime)
+            ?.defaultMetadataProvider,
         'anilist');
-    expect(collectarrLibraryTypes.byKind(CatalogMediaKind.music)?.defaultMetadataProvider,
+    expect(
+        collectarrLibraryTypes
+            .byKind(CatalogMediaKind.music)
+            ?.defaultMetadataProvider,
         'musicbrainz');
     expect(collectarrLibraryTypes.byKind(CatalogMediaKind.unknown), isNull);
     expect(
-      collectarrLibraryTypes.providersForKind(CatalogMediaKind.comic).map((row) => row.id),
+      collectarrLibraryTypes
+          .providersForKind(CatalogMediaKind.comic)
+          .map((row) => row.id),
       containsAll(['gcd', 'comicvine']),
     );
     expect(
-      collectarrLibraryTypes.providersForKind(CatalogMediaKind.manga).map((row) => row.id),
+      collectarrLibraryTypes
+          .providersForKind(CatalogMediaKind.manga)
+          .map((row) => row.id),
       ['hardcover', 'comicvine', 'anilist', 'mangadex'],
     );
     expect(
-      collectarrLibraryTypes.providersForKind(CatalogMediaKind.book).map((row) => row.id),
+      collectarrLibraryTypes
+          .providersForKind(CatalogMediaKind.book)
+          .map((row) => row.id),
       ['openlibrary', 'hardcover'],
     );
     expect(
-      collectarrLibraryTypes.providersForKind(CatalogMediaKind.game).map((row) => row.id),
+      collectarrLibraryTypes
+          .providersForKind(CatalogMediaKind.game)
+          .map((row) => row.id),
       ['igdb'],
     );
     expect(
-      collectarrLibraryTypes.providersForKind(CatalogMediaKind.boardgame).map((row) => row.id),
+      collectarrLibraryTypes
+          .providersForKind(CatalogMediaKind.boardgame)
+          .map((row) => row.id),
       ['bgg'],
     );
     expect(
-      collectarrLibraryTypes.providersForKind(CatalogMediaKind.movie).map((row) => row.id),
+      collectarrLibraryTypes
+          .providersForKind(CatalogMediaKind.movie)
+          .map((row) => row.id),
       ['tmdb'],
     );
     expect(
-      collectarrLibraryTypes.providersForKind(CatalogMediaKind.tv).map((row) => row.id),
+      collectarrLibraryTypes
+          .providersForKind(CatalogMediaKind.tv)
+          .map((row) => row.id),
       ['tmdb'],
     );
     expect(
-      collectarrLibraryTypes.providersForKind(CatalogMediaKind.anime).map((row) => row.id),
+      collectarrLibraryTypes
+          .providersForKind(CatalogMediaKind.anime)
+          .map((row) => row.id),
       ['anilist'],
     );
     expect(
-      collectarrLibraryTypes.providersForKind(CatalogMediaKind.music).map((row) => row.id),
+      collectarrLibraryTypes
+          .providersForKind(CatalogMediaKind.music)
+          .map((row) => row.id),
       ['musicbrainz'],
     );
-    expect(collectarrLibraryTypes.providersForKind(CatalogMediaKind.unknown), isEmpty);
+    expect(collectarrLibraryTypes.providersForKind(CatalogMediaKind.unknown),
+        isEmpty);
     expect(
       collectarrLibraryTypes.byKind(CatalogMediaKind.movie)?.addDialogLauncher,
       same(showMovieLibraryAddDialog),
     );
     expect(
-        collectarrLibraryTypes.byKind(CatalogMediaKind.movie)?.editDialogBuilder, isNotNull);
+        collectarrLibraryTypes
+            .byKind(CatalogMediaKind.movie)
+            ?.editDialogBuilder,
+        isNotNull);
     expect(
-        collectarrLibraryTypes.byKind(CatalogMediaKind.movie)?.detailPageBuilder, isNotNull);
+        collectarrLibraryTypes
+            .byKind(CatalogMediaKind.movie)
+            ?.detailPageBuilder,
+        isNotNull);
   });
 
   test('all registered kinds declare an explicit edit dialog builder', () {
     for (final kind in collectarrLibraryTypes.supportedKinds) {
       expect(
-        collectarrLibraryTypes.byKind(catalogMediaKindFromValue(kind))?.editDialogBuilder,
+        collectarrLibraryTypes
+            .byKind(catalogMediaKindFromValue(kind))
+            ?.editDialogBuilder,
         isNotNull,
         reason: 'Expected $kind to declare an explicit edit dialog builder.',
       );
@@ -564,15 +620,13 @@ void main() {
       comicsMediaAdapter.viewProfile.type.workspace.kind,
       CatalogMediaKind.comic,
     );
-    expect(comicsMediaAdapter.columnDisplayName('title'),
-        'Series');
+    expect(comicsMediaAdapter.columnDisplayName('title'), 'Series');
     expect(comicsMediaAdapter.columnLabel('cover'), '');
     expect(
       comicsMediaAdapter.columnGroup('location'),
       LibraryTableColumnGroup.personal,
     );
-    expect(
-        comicsMediaAdapter.columnIsNumeric('price'), isTrue);
+    expect(comicsMediaAdapter.columnIsNumeric('price'), isTrue);
     expect(
       comicsMediaAdapter.columnSort('release_date'),
       'release_date',
@@ -599,12 +653,16 @@ void main() {
       'anime',
       'music',
     ]);
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.book)?.type, booksLibraryConfig);
+    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.book)?.type,
+        booksLibraryConfig);
     expect(collectarrMediaAdapters.byKind(CatalogMediaKind.boardgame)?.type,
         boardGamesLibraryConfig);
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.manga)?.type, mangaLibraryConfig);
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.tv)?.type, tvLibraryConfig);
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.anime)?.type, animeLibraryConfig);
+    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.manga)?.type,
+        mangaLibraryConfig);
+    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.tv)?.type,
+        tvLibraryConfig);
+    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.anime)?.type,
+        animeLibraryConfig);
     expect(
       collectarrMediaAdapters
           .byKind(CatalogMediaKind.movie)
@@ -614,7 +672,8 @@ void main() {
           .contains('title'),
       isTrue,
     );
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.music)?.type, musicLibraryConfig);
+    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.music)?.type,
+        musicLibraryConfig);
     expect(
       gamesMediaAdapter.columnSort('release_date'),
       'release_date',
@@ -899,4 +958,3 @@ void main() {
     ]);
   });
 }
-

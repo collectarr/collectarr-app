@@ -621,9 +621,8 @@ class LibraryKindUiAdapter {
     Object mode,
   ) {
     final modeId = type._definitionIdFor(mode);
-    final groupDef = libraryKindModuleForType(type)
-        .fields
-        .findGroupDefinition(modeId);
+    final groupDef =
+        libraryKindModuleForType(type).fields.findGroupDefinition(modeId);
     return groupDef?.supportsBucketManagement ?? false;
   }
 
@@ -674,8 +673,7 @@ class LibraryKindUiAdapter {
         type.workspaceBehavior.issueSortNumber ?? _issueSortNumber;
     return projection.allItems.any(
       (item) =>
-          genericBucketForItemMode(item, type, 'series') ==
-              selectedBucket &&
+          genericBucketForItemMode(item, type, 'series') == selectedBucket &&
           issueSortNumber(item.dto.itemNumber) != null,
     );
   }
@@ -792,7 +790,8 @@ List<LibraryGroupModeCategory> _defaultGroupModeCategories(
     'editor',
   };
   final main = modes.where((mode) => mainModes.contains(modeId(mode))).toList();
-  final edition = modes.where((mode) => editionModes.contains(modeId(mode))).toList();
+  final edition =
+      modes.where((mode) => editionModes.contains(modeId(mode))).toList();
   final crew = modes.where((mode) => crewModes.contains(modeId(mode))).toList();
   final personal = modes
       .where((mode) =>
@@ -906,8 +905,7 @@ class LibraryTypeConfig {
   List<String> get availableGroupModes {
     final module = libraryKindModuleForType(this);
     return [
-      for (final definition in module.fields.groups)
-        definition.id.value,
+      for (final definition in module.fields.groups) definition.id.value,
     ];
   }
 
@@ -916,8 +914,6 @@ class LibraryTypeConfig {
 
   List<LibraryWorkspaceDensityPreset> get availableDensityPresets =>
       workspace.availableDensityPresets;
-
-
 
   bool supportsDensityPreset(LibraryWorkspaceDensityPreset preset) {
     return workspace.availableDensityPresets.contains(preset);

@@ -42,7 +42,8 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
           title: 'Episode map',
           accent: accent,
           child: FutureBuilder<TvSeries?>(
-            future: videoEdit.tvSeriesFuture ??= videoEdit.loadTvSeriesSnapshot(),
+            future: videoEdit.tvSeriesFuture ??=
+                videoEdit.loadTvSeriesSnapshot(),
             builder: (context, snapshot) {
               final series = snapshot.data ?? videoEdit.tvSeriesSnapshot;
               if (snapshot.connectionState == ConnectionState.waiting &&
@@ -77,7 +78,8 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                 for (final media in videoEdit.tvReleaseMediaDraft)
                   media.discNumber ?? 1,
                 if (videoEdit.tvReleaseMediaDraft.isEmpty) 1,
-                for (final assignment in videoEdit.tvEpisodeDiscAssignments.values)
+                for (final assignment
+                    in videoEdit.tvEpisodeDiscAssignments.values)
                   assignment,
               }.toList()
                 ..sort();
@@ -142,8 +144,8 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                         flex: 2,
                                         child: DropdownButtonFormField<int>(
                                           initialValue: videoEdit
-                                                  .tvEpisodeDiscAssignments[
-                                              episode.id] ??
+                                                      .tvEpisodeDiscAssignments[
+                                                  episode.id] ??
                                               (discNumbers.isEmpty
                                                   ? 1
                                                   : discNumbers.first),
@@ -162,10 +164,13 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
                                             if (value == null) {
                                               return;
                                             }
-                                            videoEdit.updateTvEpisodeDiscAssignment(
+                                            videoEdit
+                                                .updateTvEpisodeDiscAssignment(
                                               episode.id,
-                                              seasonNumber: episode.seasonNumber,
-                                              episodeNumber: episode.episodeNumber,
+                                              seasonNumber:
+                                                  episode.seasonNumber,
+                                              episodeNumber:
+                                                  episode.episodeNumber,
                                               discNumber: value,
                                             );
                                           },
@@ -244,7 +249,9 @@ Widget _manualEpisodeFallbackSection(
                 trailing: IconButton(
                   tooltip: 'Delete episode',
                   onPressed: () async {
-                    await ref.read(collectionMutationsProvider).removeCustomEpisode(episode);
+                    await ref
+                        .read(collectionMutationsProvider)
+                        .removeCustomEpisode(episode);
                   },
                   icon: const Icon(Icons.delete_outline),
                 ),

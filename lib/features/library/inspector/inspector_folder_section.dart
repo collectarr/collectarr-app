@@ -125,16 +125,18 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
                       children: [
                         Text(
                           'Not in any folder',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: palette.textMuted,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: palette.textMuted,
+                                  ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           'Use the add action to place this item into a custom folder.',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                         ),
                       ],
                     ),
@@ -150,10 +152,12 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
               decoration: BoxDecoration(
                 color: palette.surfaceSubtle.withValues(alpha: 0.74),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: palette.divider.withValues(alpha: 0.8)),
+                border:
+                    Border.all(color: palette.divider.withValues(alpha: 0.8)),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
                 child: Row(
                   children: [
                     Container(
@@ -180,7 +184,8 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
                     IconButton(
                       onPressed: () => _removeFromFolder(folder.id),
                       tooltip: 'Remove from folder',
-                      icon: Icon(Icons.close, size: 16, color: palette.textMuted),
+                      icon:
+                          Icon(Icons.close, size: 16, color: palette.textMuted),
                       visualDensity: VisualDensity.compact,
                       style: IconButton.styleFrom(
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,

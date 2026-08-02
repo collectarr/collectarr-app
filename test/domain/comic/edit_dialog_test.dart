@@ -329,16 +329,26 @@ void main() {
     expect(selection!.customFieldEdits, {'cf-1': 'Signed in person'});
   });
 
-  testWidgets(
-      'comic edit dialog restores saved tab order',
-      (tester) async {
+  testWidgets('comic edit dialog restores saved tab order', (tester) async {
     tester.view.physicalSize = kDesktopTestSize;
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
     SharedPreferences.setMockInitialValues({
-      'edit_tab_order_comic': ['9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '10'],
+      'edit_tab_order_comic': [
+        '9',
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '10'
+      ],
     });
 
     final db = LocalDatabase(NativeDatabase.memory());

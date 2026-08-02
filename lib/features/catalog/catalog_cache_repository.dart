@@ -67,7 +67,9 @@ class CatalogCacheRepository {
                 seriesId: Value(series?.seriesId),
                 seriesTitle: Value(series?.seriesTitle),
                 volumeName: Value(series?.volumeName),
-                volumeNumber: Value(series?.volumeNumber != null ? double.tryParse(series!.volumeNumber!) : null),
+                volumeNumber: Value(series?.volumeNumber != null
+                    ? double.tryParse(series!.volumeNumber!)
+                    : null),
                 volumeStartYear: Value(series?.volumeStartYear),
                 seasonNumber: Value(series?.seasonNumber),
                 episodeNumber: Value(series?.episodeNumber),
@@ -122,7 +124,9 @@ class CatalogCacheRepository {
                       : null,
                 ),
                 seriesTagsJson: Value(
-                  series != null && series.tags != null && series.tags!.isNotEmpty
+                  series != null &&
+                          series.tags != null &&
+                          series.tags!.isNotEmpty
                       ? jsonEncode(series.tags)
                       : null,
                 ),
@@ -234,12 +238,14 @@ class CatalogCacheRepository {
         );
         await pickLists.captureValuesWithoutTransaction(
           kGamePlatformPickListName,
-          scopedItems.expand((item) => item.game?.platforms ?? const <String>[]),
+          scopedItems
+              .expand((item) => item.game?.platforms ?? const <String>[]),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kMusicFormatPickListName,
-          scopedItems.map((item) => item.physicalFormatLabel ?? item.physicalFormat),
+          scopedItems
+              .map((item) => item.physicalFormatLabel ?? item.physicalFormat),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(

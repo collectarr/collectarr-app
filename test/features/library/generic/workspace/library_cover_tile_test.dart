@@ -303,7 +303,8 @@ void main() {
 
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
     await gesture.addPointer();
-    final toggleCenter = tester.getCenter(find.byType(LibraryTileSelectionToggle));
+    final toggleCenter =
+        tester.getCenter(find.byType(LibraryTileSelectionToggle));
     await gesture.down(toggleCenter);
     await gesture.moveBy(const Offset(80, 0));
     await gesture.up();

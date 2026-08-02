@@ -320,8 +320,7 @@ void main() {
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
             type: comicsLibraryConfig,
-            selectedPreset:
-                LibraryFolderPreset.single('publisher'),
+            selectedPreset: LibraryFolderPreset.single('publisher'),
             availableModes: libraryGroupModesForType(comicsLibraryConfig),
             initialPinnedPresets: [
               LibraryFolderPreset.single('series'),

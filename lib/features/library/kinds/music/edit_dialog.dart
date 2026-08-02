@@ -1074,7 +1074,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       if (byDisc != 0) {
         return byDisc;
       }
-      return ((left.position ?? 0) as Comparable).compareTo(right.position ?? 0);
+      return ((left.position ?? 0) as Comparable)
+          .compareTo(right.position ?? 0);
     });
     return output;
   }
@@ -1096,7 +1097,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         ),
       );
     }
-    output.sort((left, right) => (left.discNumber ?? 0).compareTo(right.discNumber ?? 0));
+    output.sort((left, right) =>
+        (left.discNumber ?? 0).compareTo(right.discNumber ?? 0));
     return output;
   }
 
@@ -1575,7 +1577,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       onChanged: onChanged,
     );
   }
-
 
   List<String> _creatorsForRole(List<String> keywords) {
     final values = <String>[];

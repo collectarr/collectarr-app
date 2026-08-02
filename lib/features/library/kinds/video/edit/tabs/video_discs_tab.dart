@@ -31,7 +31,8 @@ class VideoEditDiscsTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const EditSectionStateMessage(
-                message: 'Read-only: disc metadata is synced from provider/Core metadata.',
+                message:
+                    'Read-only: disc metadata is synced from provider/Core metadata.',
                 icon: Icons.lock_outline,
               ),
               const SizedBox(height: 10),
@@ -49,15 +50,23 @@ class VideoEditDiscsTab extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 6),
                         child: Row(
                           children: [
-                            Icon(Icons.album, size: 16, color: appPalette(context).textMuted),
+                            Icon(Icons.album,
+                                size: 16, color: appPalette(context).textMuted),
                             const SizedBox(width: 8),
-                            Text(disc.discName ?? 'Disc ${disc.discNumber}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                            Text(disc.discName ?? 'Disc ${disc.discNumber}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700)),
                             if (disc.discFormat != null) ...[
                               const SizedBox(width: 6),
-                              Text('(${disc.discFormat})', style: TextStyle(color: appPalette(context).textMuted)),
+                              Text('(${disc.discFormat})',
+                                  style: TextStyle(
+                                      color: appPalette(context).textMuted)),
                             ],
                             const Spacer(),
-                            Text(editionTitle, style: TextStyle(color: appPalette(context).textMuted, fontSize: 12)),
+                            Text(editionTitle,
+                                style: TextStyle(
+                                    color: appPalette(context).textMuted,
+                                    fontSize: 12)),
                           ],
                         ),
                       ),
@@ -70,7 +79,8 @@ class VideoEditDiscsTab extends StatelessWidget {
           title: 'Local disc notes',
           accent: accent,
           child: const EditSectionStateMessage(
-            message: 'Use the release details tab for package/disc notes and the episode map tab for disc assignments.',
+            message:
+                'Use the release details tab for package/disc notes and the episode map tab for disc assignments.',
             icon: Icons.edit_note,
           ),
         ),

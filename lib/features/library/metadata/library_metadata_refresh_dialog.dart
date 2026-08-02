@@ -210,8 +210,9 @@ class _LibraryMetadataRefreshDialogState
             ),
             const SizedBox(width: 8),
             FilledButton.icon(
-              onPressed:
-                  _running || visibleTargets.isEmpty ? null : () => _runRefresh(),
+              onPressed: _running || visibleTargets.isEmpty
+                  ? null
+                  : () => _runRefresh(),
               icon: _running
                   ? const SizedBox.square(
                       dimension: 16,
@@ -312,7 +313,8 @@ class _LibraryMetadataRefreshDialogState
       String entryId, _RefreshRow Function(_RefreshRow row) update) {
     setState(() {
       _rows = [
-        for (final row in _rows) row.entry.node.titleItemId == entryId ? update(row) : row,
+        for (final row in _rows)
+          row.entry.node.titleItemId == entryId ? update(row) : row,
       ];
     });
   }
@@ -323,7 +325,11 @@ class _LibraryMetadataRefreshDialogState
           if (widget.selectedEntry != null) widget.selectedEntry!,
         ],
       _RefreshScope.missing => widget.allEntries
-          .where((item) => item.dto.coverImageUrl == null || item.dto.coverImageUrl!.isEmpty || item.dto.publisher == null || item.dto.publisher!.isEmpty)
+          .where((item) =>
+              item.dto.coverImageUrl == null ||
+              item.dto.coverImageUrl!.isEmpty ||
+              item.dto.publisher == null ||
+              item.dto.publisher!.isEmpty)
           .toList(growable: false),
       _RefreshScope.shown => widget.shownEntries,
       _RefreshScope.all => widget.allEntries,
@@ -552,10 +558,10 @@ class _RefreshTargetList extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              trailing:
-                  row.entry.dto.coverImageUrl == null || row.entry.dto.coverImageUrl!.isEmpty
-                      ? const Icon(Icons.priority_high, size: 16)
-                      : null,
+              trailing: row.entry.dto.coverImageUrl == null ||
+                      row.entry.dto.coverImageUrl!.isEmpty
+                  ? const Icon(Icons.priority_high, size: 16)
+                  : null,
             );
           },
         ),
@@ -644,7 +650,8 @@ class _RefreshNotice extends StatelessWidget {
   }
 }
 
-List<LibraryProjectionRuntime> _dedupe(Iterable<LibraryProjectionRuntime> values) {
+List<LibraryProjectionRuntime> _dedupe(
+    Iterable<LibraryProjectionRuntime> values) {
   final seen = <String>{};
   final result = <LibraryProjectionRuntime>[];
   for (final value in values) {
@@ -683,7 +690,8 @@ IconData _statusIcon(_RefreshRowStatus status) {
   };
 }
 
-Color _statusColor(BuildContext context, _RefreshRowStatus status, Color accent) {
+Color _statusColor(
+    BuildContext context, _RefreshRowStatus status, Color accent) {
   final palette = appPalette(context);
   final colorScheme = Theme.of(context).colorScheme;
   return switch (status) {

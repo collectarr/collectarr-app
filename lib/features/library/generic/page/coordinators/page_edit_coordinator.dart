@@ -27,7 +27,8 @@ class LibraryPageEditCoordinator {
         onRemoveOwned: item.source.ownedItem == null
             ? null
             : () => _s._collectionActionCoordinator.confirmAndRemoveOwned(item),
-        onAddWishlist: () => _s._collectionActionCoordinator.runCollectionAction(
+        onAddWishlist: () =>
+            _s._collectionActionCoordinator.runCollectionAction(
           (actions) => actions.addWishlist(item),
         ),
         onRemoveWishlist: item.source.isWishlisted
@@ -37,10 +38,9 @@ class LibraryPageEditCoordinator {
             : null,
         onEdit: (ownedItem) => unawaited(showEditDialog(item, ownedItem)),
         onFilterByValue: (value) => _s._rebuild(() {
-          _s._linkedMetadataFilter =
-              _s._linkedMetadataFilter?.value == value
-                  ? null
-                  : LibraryLinkedMetadataFilter(value: value);
+          _s._linkedMetadataFilter = _s._linkedMetadataFilter?.value == value
+              ? null
+              : LibraryLinkedMetadataFilter(value: value);
           _s._selectedBucket = null;
           _s._selectedLetter = null;
         }),
@@ -122,8 +122,7 @@ class LibraryPageEditCoordinator {
       owned,
     );
     final shelfState = _s.ref.read(shelfProvider).asData?.value;
-    final viewState =
-        _s._viewState ?? _s._adapter.viewProfile.defaults();
+    final viewState = _s._viewState ?? _s._adapter.viewProfile.defaults();
     final projection = shelfState == null
         ? null
         : _s._projectionForShelf(shelfState, viewState);
@@ -134,8 +133,7 @@ class LibraryPageEditCoordinator {
     );
     if (currentIndex < 0) {
       currentIndex = viewItems.indexWhere(
-        (candidate) =>
-            candidate.source.catalogItem?.id == freshCatalogItem.id,
+        (candidate) => candidate.source.catalogItem?.id == freshCatalogItem.id,
       );
     }
     final previousItem = currentIndex > 0 ? viewItems[currentIndex - 1] : null;
@@ -238,8 +236,7 @@ class LibraryPageEditCoordinator {
       }
       _s.ref.invalidate(shelfProvider);
       _s.ref.invalidate(
-        libraryCustomFieldCacheProvider(
-            _s.widget.type.workspace.kind.apiValue),
+        libraryCustomFieldCacheProvider(_s.widget.type.workspace.kind.apiValue),
       );
       if (result.submitAction == LibraryEditSubmitAction.saveAndNext &&
           nextItem != null) {
@@ -252,8 +249,7 @@ class LibraryPageEditCoordinator {
         return;
       }
       ScaffoldMessenger.of(_s.context).showSnackBar(
-        SnackBar(
-            content: Text('${_s.widget.type.singularLabel} updated')),
+        SnackBar(content: Text('${_s.widget.type.singularLabel} updated')),
       );
     } finally {
       _s._isEditDialogInFlight = false;
