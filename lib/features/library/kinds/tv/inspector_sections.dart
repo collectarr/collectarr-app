@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -43,7 +44,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     id: item.node.titleItemId,
   );
   final releaseOptions = [
-    for (final edition in catalogItem?.editions ?? const [])
+    for (final edition in catalogItem?.editions ?? const <CatalogEdition>[])
       WatchHistoryTargetOption(
         ref: CatalogEntityRef(
           kind: seriesRef.kind,
