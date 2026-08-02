@@ -217,7 +217,7 @@ final musicLibraryColumnDefinitions = [
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
     defaultWidth: 118,
   ),
-  columnFromField<MusicKind, MusicWorkspaceDto, int?>(
+  columnFromField<MusicKind, MusicWorkspaceDto, num?>(
     MusicKindSchema.trackCount,
     defaultWidth: 90,
   ),

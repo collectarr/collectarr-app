@@ -24,3 +24,30 @@ abstract interface class LibraryWorkspacePreferenceCodec<TKind> {
   /// Encodes a canonical typed group ID to its canonical persisted string representation.
   String encodeGroup(LibraryGroupIdRuntime id);
 }
+
+/// Default identity codec when legacy short-ID translation is not needed.
+class IdentityLibraryWorkspacePreferenceCodec<TKind>
+    implements LibraryWorkspacePreferenceCodec<TKind> {
+  const IdentityLibraryWorkspacePreferenceCodec();
+
+  @override
+  LibraryFieldId<TKind, Object?>? decodeColumn(String persisted) =>
+      LibraryFieldId<TKind, Object?>(persisted);
+
+  @override
+  LibrarySortId<TKind>? decodeSort(String persisted) =>
+      LibrarySortId<TKind>(persisted);
+
+  @override
+  LibraryGroupId<TKind, Object?>? decodeGroup(String persisted) =>
+      LibraryGroupId<TKind, Object?>(persisted);
+
+  @override
+  String encodeColumn(LibraryFieldIdRuntime id) => id.value;
+
+  @override
+  String encodeSort(LibrarySortId<TKind> id) => id.value;
+
+  @override
+  String encodeGroup(LibraryGroupIdRuntime id) => id.value;
+}

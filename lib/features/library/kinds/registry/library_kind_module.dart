@@ -17,233 +17,16 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
-class AnyLibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
-  const AnyLibraryFieldRegistry({
-    List<LibraryGroupDefinition<dynamic, TDto, Object?>>? groups,
-    List<LibrarySortDefinition<dynamic, TDto>>? sorts,
-    List<LibraryColumnDefinition<dynamic, TDto, Object?>>? columns,
-    this.defaultVisibleColumnIds = const {
-      'status',
-      'cover',
-      'title',
-      'publisher',
-      'release_date',
-      'barcode',
-      'condition',
-      'price',
-      'location',
-      'wishlist',
-      'updated',
-    },
-    this.defaultSortId = 'title',
-    this.defaultGroupId = 'series',
-    this.preferenceCodec,
-    this.customLinkedMetadataCandidates,
-  })  : _groups = groups,
-        _sorts = sorts,
-        _columns = columns;
+import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
-  final LibraryWorkspacePreferenceCodec<dynamic>? preferenceCodec;
-  final List<LibraryGroupDefinition<dynamic, TDto, Object?>>? _groups;
-  final List<LibrarySortDefinition<dynamic, TDto>>? _sorts;
-  final List<LibraryColumnDefinition<dynamic, TDto, Object?>>? _columns;
-
-  List<LibraryGroupDefinition<dynamic, TDto, Object?>> get groups =>
-      _groups ?? const [];
-
-  List<LibrarySortDefinition<dynamic, TDto>> get sorts => _sorts ?? const [];
-
-  List<LibraryColumnDefinition<dynamic, TDto, Object?>> get columns =>
-      _columns ?? const [];
-
-  final Set<String> defaultVisibleColumnIds;
-  final String? defaultSortId;
-  final String? defaultGroupId;
-  final Iterable<String> Function(ShelfEntry)? customLinkedMetadataCandidates;
-
-  Iterable<String> linkedMetadataCandidates(ShelfEntry source) sync* {
-    final item = source.catalogItem;
-    if (item == null) return;
-    final series = item.series?.seriesTitle?.trim();
-    final country = item.country?.trim();
-    final language = item.language?.trim();
-    final publishing = item.publishing;
-
-    yield* nonEmptyStrings([
-      item.title,
-      series,
-      item.itemNumber,
-      item.publisher,
-      item.variant,
-      publishing?.imprint,
-      country,
-      language,
-    ]);
-    yield* nonEmptyStrings(item.searchAliases);
-    if (item.creators case final creators?) {
-      for (final credit in creators) {
-        final name = credit['name']?.toString()?.trim();
-        if (name != null && name.isNotEmpty) {
-          yield name;
-        }
-      }
-    }
-    yield* nonEmptyStrings(item.genres);
-
-    if (customLinkedMetadataCandidates != null) {
-      yield* customLinkedMetadataCandidates!(source);
-    }
-  }
-
-  static Iterable<String> nonEmptyStrings(Iterable<String?>? values) sync* {
-    if (values == null) {
-      return;
-    }
-    for (final value in values) {
-      final trimmed = value?.trim();
-      if (trimmed != null && trimmed.isNotEmpty) {
-        yield trimmed;
-      }
-    }
-  }
-
-  LibraryColumnDefinition<dynamic, TDto, Object?>? columnDefinitionForId(
-      String id) {
-    for (final definition in columns) {
-      if (definition.id.value == id) {
-        return definition;
-      }
-    }
-    return null;
-  }
-
-  LibraryColumnDefinition<dynamic, TDto, Object?> columnDefinitionFor(
-      String columnId) {
-    final definition = columnDefinitionForId(columnId);
-    if (definition != null) {
-      return definition;
-    }
-    throw StateError(
-      'Missing column definition for $columnId. '
-      'Ensure columns declares every available table column.',
-    );
-  }
-
-  LibrarySortDefinition<dynamic, TDto>? sortDefinitionForId(String id) {
-    for (final definition in sorts) {
-      if (definition.id.value == id) {
-        return definition;
-      }
-    }
-    return null;
-  }
-
-  LibrarySortDefinition<dynamic, TDto> sortDefinitionFor(String sortId) {
-    final definition = findSortDefinition(sortId);
-    if (definition != null) {
-      return definition;
-    }
-    throw StateError(
-      'Missing sort definition for $sortId. '
-      'Ensure sorts declares every available sort field.',
-    );
-  }
-
-  LibraryGroupDefinition<dynamic, TDto, Object?>? groupDefinitionForId(
-      String id) {
-    for (final definition in groups) {
-      if (definition.id.value == id) {
-        return definition;
-      }
-    }
-    return null;
-  }
-
-  LibraryColumnDefinition<dynamic, TDto, Object?>? findColumnDefinition(
-      String id) {
-    final direct = columnDefinitionForId(id);
-    if (direct != null) return direct;
-    if (preferenceCodec != null) {
-      final decoded = preferenceCodec!.decodeColumn(id);
-      if (decoded != null) {
-        return columnDefinitionForId(decoded.value);
-      }
-    }
-    return null;
-  }
-
-  LibrarySortDefinition<dynamic, TDto>? findSortDefinition(String id) {
-    final direct = sortDefinitionForId(id);
-    if (direct != null) return direct;
-    if (preferenceCodec != null) {
-      final decoded = preferenceCodec!.decodeSort(id);
-      if (decoded != null) {
-        return sortDefinitionForId(decoded.value);
-      }
-    }
-    return null;
-  }
-
-  LibraryGroupDefinition<dynamic, TDto, Object?>? findGroupDefinition(
-      String id) {
-    final direct = groupDefinitionForId(id);
-    if (direct != null) return direct;
-    if (preferenceCodec != null) {
-      final decoded = preferenceCodec!.decodeGroup(id);
-      if (decoded != null) {
-        return groupDefinitionForId(decoded.value);
-      }
-    }
-    return null;
-  }
-
-  LibraryGroupDefinition<dynamic, TDto, Object?> groupDefinitionFor(
-      String groupId) {
-    final definition = findGroupDefinition(groupId);
-    if (definition != null) {
-      return definition;
-    }
-    throw StateError(
-      'Missing group definition for $groupId. '
-      'Ensure groups declares every available group mode.',
-    );
-  }
-
-  void sortEntries(
-    List<LibraryProjectionRuntime> items,
-    String sortId, {
-    required bool ascending,
-  }) {
-    final sortDef = sortDefinitionFor(sortId);
-
-    items.sort((l, r) {
-      final leftContext = LibraryProjectionContext<TDto>(
-        source: l.source,
-        node: l.node,
-        dto: l.dto as TDto,
-      );
-      final rightContext = LibraryProjectionContext<TDto>(
-        source: r.source,
-        node: r.node,
-        dto: r.dto as TDto,
-      );
-      final result = sortDef.compare(leftContext, rightContext);
-      if (result != 0) {
-        return ascending ? result : -result;
-      }
-      final titleCmp = l.dto.title.compareTo(r.dto.title);
-      if (titleCmp != 0) return titleCmp;
-      return l.node.id.compareTo(r.node.id);
-    });
-  }
-}
+export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
 abstract interface class LibraryKindRuntime {
   CatalogMediaKind get kind;
   LibraryTypeConfig get type;
   LibraryTypeCapabilities get capabilities;
   LibraryMediaAdapter get mediaAdapter;
-  AnyLibraryFieldRegistry<dynamic> get fields;
+  LibraryFieldRegistry<dynamic, LibraryWorkspaceDto> get fields;
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
   LibraryKindWorkspaceBehavior get workspaceBehavior;
   LibraryKindAddModule get add;
@@ -327,7 +110,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   final LibraryMediaAdapter mediaAdapter;
 
   @override
-  final AnyLibraryFieldRegistry<TDto> fields;
+  final LibraryFieldRegistry<dynamic, TDto> fields;
 
   @override
   final LibraryWorkspaceProjector<TDto> projector;
