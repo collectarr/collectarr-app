@@ -155,12 +155,12 @@ class LibraryRouteState {
       allowedModes: allowedGroupModes,
     );
     final allowedSortColumns =
-        libraryKindModuleForType(type).fields.sorts.map((d) => d.id).toSet();
+        libraryKindModuleForType(type).fields.sorts.map((d) => d.id.value).toSet();
     final filteredSortRules = sortRules == null
         ? null
         : [
             for (final rule in sortRules!)
-              if (allowedSortColumns.contains(rule.column.toString())) rule,
+              if (allowedSortColumns.contains(rule.column)) rule,
           ];
     final filteredGroupMode = filteredFolderPreset?.primaryMode ??
         (groupMode != null && allowedGroupModes.contains(groupMode)
@@ -415,13 +415,4 @@ String _normalizeBase64(String rawValue) {
     return rawValue;
   }
   return '$rawValue${'=' * (4 - remainder)}';
-}
-
-String _stableToken(String value) {
-  return value
-      .replaceAllMapped(
-        RegExp(r'([a-z0-9])([A-Z])'),
-        (match) => '${match[1]}_${match[2]}',
-      )
-      .toLowerCase();
 }

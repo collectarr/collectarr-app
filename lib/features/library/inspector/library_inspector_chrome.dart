@@ -2,7 +2,6 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
@@ -300,7 +299,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
               if (ebayUri != null)
                 InspectorToolIconButton(
                   tooltip: 'Search sold prices on eBay',
-                  onPressed: () => launchUrl(ebayUri!),
+                  onPressed: () => launchUrl(ebayUri),
                   icon: Icons.storefront_outlined,
                 ),
             if (!compactActions && onDuplicate != null)

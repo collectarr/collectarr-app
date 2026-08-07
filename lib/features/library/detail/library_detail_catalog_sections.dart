@@ -1,11 +1,8 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
@@ -334,15 +331,6 @@ extension on _MetadataSourceKind {
       _MetadataSourceKind.localSnapshot => 'Collectarr Core catalog snapshot',
       _MetadataSourceKind.providerPlaceholder =>
         'Provider placeholder snapshot',
-    };
-  }
-
-  String get helpText {
-    return switch (this) {
-      _MetadataSourceKind.localSnapshot =>
-        'This item is being shown from the app\'s cached catalog snapshot. Metadata stays available offline until you refresh it from Collectarr Core.',
-      _MetadataSourceKind.providerPlaceholder =>
-        'This record started as a provider-side placeholder. Review and refresh it after full catalog metadata is available from Collectarr Core.',
     };
   }
 }

@@ -36,7 +36,6 @@ class LibraryDetailActionStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final isOwned =
         ownedCopies.isNotEmpty || activeOwnedItem != null || item.dto.isOwned;
     final removeLabel = ownedCopies.length > 1
@@ -50,7 +49,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
             children: [
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: selectedOwnedItemId,
+                  initialValue: selectedOwnedItemId,
                   decoration: const InputDecoration(
                     labelText: 'Copy in collection',
                     contentPadding: EdgeInsets.symmetric(

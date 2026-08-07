@@ -1964,7 +1964,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       id: item.id,
     );
     OwnedItemDetails details;
-    switch (catalogRef.kind) {
+    switch (catalogMediaKindFromValue(catalogRef.kind)) {
       case CatalogMediaKind.comic:
       case CatalogMediaKind.manga:
         details = ComicOwnedDetails(

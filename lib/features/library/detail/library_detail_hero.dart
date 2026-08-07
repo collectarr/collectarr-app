@@ -1,18 +1,12 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryDetailHero extends StatelessWidget {
   const LibraryDetailHero({
@@ -36,14 +30,11 @@ class LibraryDetailHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final metadataPresentation = _buildDetailMetadataPresentation(type, item);
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(item, ownedItem);
     final resolvedIsOwned = isOwned ?? (ownedItem != null || dto.isOwned);
     final referenceLabel = libraryOwnedReferenceLabel(ownedItem,
             mediaType: item.source.catalogItem?.kind) ??
         dto.referenceFormatLabel;
-    final releaseLabel =
-        formatNullableDate(dto.releaseDate) ?? dto.releaseDate?.year.toString();
     final totalCopies =
         ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
@@ -120,8 +111,6 @@ class LibraryDetailHero extends StatelessWidget {
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
     ];
-    final authorName = _metadataFactValue(metadataPresentation, 'Author') ??
-        _metadataFactValue(metadataPresentation, 'Writer');
 
     return Container(
       decoration: BoxDecoration(
@@ -220,35 +209,6 @@ class LibraryDetailHero extends StatelessWidget {
     final rawWidth = coverWidth * pixelRatio;
     return ((rawWidth / 64).ceil() * 64).toInt();
   }
-}
-
-LibraryMetadataPresentation _buildDetailMetadataPresentation(
-  LibraryTypeConfig type,
-  LibraryProjectionRuntime item,
-) {
-  return type.presentation.builder.buildMetadataPresentation(
-    singularLabel: type.singularLabel,
-    mediaFields: type.mediaFields,
-    releaseFields: type.releaseFields,
-    item: item,
-    includeIdentityFacts: true,
-    tapFor: (_) => null,
-  );
-}
-
-String? _metadataFactValue(
-  LibraryMetadataPresentation presentation,
-  String label,
-) {
-  for (final fact in presentation.allFacts) {
-    if (fact.label == label) {
-      final trimmed = fact.value.trim();
-      if (trimmed.isNotEmpty && trimmed != '-') {
-        return trimmed;
-      }
-    }
-  }
-  return null;
 }
 
 int? _sumOwnedValueCents(

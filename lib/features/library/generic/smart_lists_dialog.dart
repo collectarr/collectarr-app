@@ -265,7 +265,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
         filterSelection: list.filterSelection,
         quickView: list.quickView,
         sortRules: list.sortRules,
-        sortColumn: list.sortColumn as String?,
+        sortColumn: list.sortColumn,
         sortAscending: list.sortAscending,
         searchQuery: list.searchQuery,
       ),

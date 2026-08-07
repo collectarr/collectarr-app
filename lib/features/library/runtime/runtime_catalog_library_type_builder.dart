@@ -22,22 +22,6 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
       const LibraryEditPresentation(
         builder: DefaultLibraryEditPresentationBuilder(),
       );
-  final defaultVisibleColumns = (knownType != null
-          ? libraryKindModuleForType(knownType).fields.defaultVisibleColumnIds
-          : const <String>{
-              'status',
-              'cover',
-              'title',
-              'publisher',
-              'release_date',
-              'barcode',
-              'condition',
-              'price',
-              'location',
-              'wishlist',
-              'updated',
-            })
-      .toSet();
   return LibraryTypeConfig(
     workspace: LibraryWorkspaceConfig(
       kind: mediaKind,

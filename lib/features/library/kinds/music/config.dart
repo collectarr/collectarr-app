@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
 const musicWorkspaceConfig = LibraryWorkspaceConfig(
   kind: CatalogMediaKind.music,

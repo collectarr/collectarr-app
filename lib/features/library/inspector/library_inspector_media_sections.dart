@@ -107,7 +107,7 @@ class InspectorTrackList extends StatelessWidget {
                 SizedBox(
                   width: 22,
                   child: Text(
-                    '${track.position ?? '-'}',
+                    track.position ?? '-',
                     style: textTheme.bodySmall?.copyWith(
                       color: palette.textMuted,
                       fontWeight: FontWeight.w700,

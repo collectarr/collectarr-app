@@ -214,7 +214,7 @@ List<_EpisodeRowData> _mergedEpisodeRows({
         _EpisodeRowData(
       seasonNumber: episode.seasonNumber,
       episodeNumber: episode.episodeNumber,
-      title: episode.title ?? 'Untitled',
+      title: episode.title.isEmpty ? 'Untitled' : episode.title,
       overview: episode.overview,
       airDate: _formatDate(episode.airDate),
       runtimeMinutes: episode.runtimeMinutes,

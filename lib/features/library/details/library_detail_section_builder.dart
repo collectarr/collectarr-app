@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/detail/library_detail_catalog_se
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';

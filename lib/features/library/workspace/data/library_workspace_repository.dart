@@ -36,8 +36,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     final bool isTesting =
         const bool.fromEnvironment('dart.vm.product') == false &&
             Platform.environment.containsKey('FLUTTER_TEST');
-    final bool isLazy = db.connection.executor is LazyDatabase ||
-        db.connection.executor.toString().contains('LazyDatabase');
+    final bool isLazy = db.executor is LazyDatabase ||
+        db.executor.toString().contains('LazyDatabase');
 
     if (isTesting && isLazy) {
       final listener = ref.listen<AsyncValue<ShelfState>>(

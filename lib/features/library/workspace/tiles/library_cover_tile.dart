@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_item_bad
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -77,7 +76,6 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
   Widget build(BuildContext context) {
     final item = widget.item;
     final dto = item.dto;
-    final cat = item.source.catalogItem;
     final active = widget.active;
     final selected = widget.selected;
     final density = LibraryDensityScope.maybeOf(context)?.density ??

@@ -7,7 +7,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_release.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
@@ -18,7 +17,6 @@ export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalo
 // Transitional typedefs
 // ---------------------------------------------------------------------------
 typedef TvWork = VideoCatalogItem;
-typedef TvRelease = _TvRelease;
 
 // ---------------------------------------------------------------------------
 // TvEpisode
@@ -188,7 +186,7 @@ class TvSeries {
   final String? posterUrl;
   final String? backdropUrl;
   final List<TvSeason> seasons;
-  final List<_TvRelease> releases;
+  final List<TvRelease> releases;
   final List<TvReleaseMedia> media;
   final List<TvReleaseEpisodeMap> releaseEpisodeMaps;
   final List<Map<String, dynamic>> contributions;
@@ -198,10 +196,10 @@ class TvSeries {
 }
 
 // ---------------------------------------------------------------------------
-// TvRelease (private class exposed via typedef)
+// TvRelease
 // ---------------------------------------------------------------------------
-class _TvRelease {
-  const _TvRelease({
+class TvRelease {
+  const TvRelease({
     required this.id,
     required this.seriesId,
     this.title,
@@ -219,7 +217,7 @@ class _TvRelease {
     this.episodeMappings = const [],
   });
 
-  factory _TvRelease.fromCatalogEdition(
+  factory TvRelease.fromCatalogEdition(
     CatalogEdition edition, {
     required String seriesId,
   }) {
@@ -233,7 +231,7 @@ class _TvRelease {
               formatLabel: disc.discFormat,
             ))
         .toList();
-    return _TvRelease(
+    return TvRelease(
       id: edition.id,
       seriesId: seriesId,
       title: edition.title,

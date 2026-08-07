@@ -82,7 +82,7 @@ class VideoCatalogItem {
       releases: item.editions
           .map((edition) => VideoRelease(
                 id: edition.id,
-                title: edition.title ?? '',
+                title: edition.title,
                 publisher: edition.publisher,
                 distributor: edition.distributor,
                 barcode: edition.upc ?? edition.isbn,

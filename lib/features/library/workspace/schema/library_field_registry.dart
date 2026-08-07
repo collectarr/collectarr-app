@@ -1,9 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 
 /// Strongly typed registry owning column, sort, group, and default definitions for a specific [TKind] and [TDto].
 final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
@@ -159,7 +157,7 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
     yield* nonEmptyStrings(item.searchAliases);
     if (item.creators case final creators?) {
       for (final credit in creators) {
-        final name = credit['name']?.toString()?.trim();
+        final name = credit['name']?.toString().trim();
         if (name != null && name.isNotEmpty) {
           yield name;
         }

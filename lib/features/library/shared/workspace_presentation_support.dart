@@ -3,10 +3,8 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/utils/text_utils.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 
 String defaultLibraryBucketLabel(
@@ -527,31 +525,7 @@ String _creatorBucketByRole(LibraryProjectionRuntime item, String? role) {
   return role != null ? 'Unknown $role' : 'Unknown creator';
 }
 
-bool _matchesCreatorRole(String creditRole, String role) {
-  return switch (role) {
-    'actor' => creditRole.contains('actor') || creditRole.contains('cast'),
-    'musician' => creditRole.contains('musician') ||
-        creditRole.contains('music') ||
-        creditRole.contains('composer'),
-    'photography' => creditRole.contains('photography') ||
-        creditRole.contains('director of photography') ||
-        creditRole.contains('cinemat'),
-    'artist' => creditRole.contains('artist') && !creditRole.contains('cover'),
-    'painter' => creditRole.contains('paint') && !creditRole.contains('cover'),
-    'cover penciller' => creditRole.contains('cover') &&
-        (creditRole.contains('pencil') || creditRole.contains('penciller')),
-    'cover painter' =>
-      creditRole.contains('cover') && creditRole.contains('paint'),
-    'cover inker' => creditRole.contains('cover') && creditRole.contains('ink'),
-    'cover colorist' =>
-      creditRole.contains('cover') && creditRole.contains('color'),
-    'cover separator' =>
-      creditRole.contains('cover') && creditRole.contains('separator'),
-    'editor in chief' => creditRole.contains('editor in chief') ||
-        creditRole.contains('editor-in-chief'),
-    _ => creditRole.contains(role),
-  };
-}
+
 
 String _seriesBucket(LibraryProjectionRuntime item, String unknownLabel) {
   final seriesTitle = item.dto.seriesTitle?.trim();

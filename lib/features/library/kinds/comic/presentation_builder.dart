@@ -5,11 +5,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 
 class ComicLibraryMediaPresentationBuilder

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
 

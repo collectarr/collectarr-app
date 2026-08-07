@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
-import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_release.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';

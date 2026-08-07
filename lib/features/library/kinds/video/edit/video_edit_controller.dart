@@ -294,6 +294,6 @@ class VideoEditController {
   String tvEpisodeLabel(TvEpisode episode) {
     final seasonPart = 'S${episode.seasonNumber.toString().padLeft(2, '0')}';
     final episodePart = 'E${episode.episodeNumber.toString().padLeft(2, '0')}';
-    return '$seasonPart$episodePart ${episode.title ?? 'Episode'}';
+    return '$seasonPart$episodePart ${episode.title.isEmpty ? 'Episode' : episode.title}';
   }
 }

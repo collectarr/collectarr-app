@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
-import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/generic/projection_item.dart';

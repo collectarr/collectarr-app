@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
@@ -22,11 +21,6 @@ import 'package:collectarr_app/features/library/kinds/video/video_season_trackin
 import 'package:collectarr_app/features/library/kinds/video/video_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/kinds/video/watch_history_section.dart';
-import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
-import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -231,7 +225,9 @@ class _VideoLibraryDetailPageState
             entityType: CatalogEntityType.release,
             id: release.node.releaseId,
           ),
-          label: release.node.edition.title ?? release.node.releaseId,
+          label: release.node.edition.title.isEmpty
+              ? release.node.releaseId
+              : release.node.edition.title,
           subtitle: release.node.edition.physicalFormat,
         ),
       ),
@@ -974,7 +970,9 @@ String _episodeTitleForId(TvSeries series, String episodeId) {
   for (final season in series.seasons) {
     for (final episode in season.episodes) {
       if (episode.id == episodeId) {
-        return episode.title ?? 'Episode ${episode.episodeNumber}';
+        return episode.title.isEmpty
+            ? 'Episode ${episode.episodeNumber}'
+            : episode.title;
       }
     }
   }

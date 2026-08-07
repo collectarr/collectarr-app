@@ -86,7 +86,7 @@ class LibraryWorkspaceViewProfile {
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
-      sortColumn: module.fields.defaultSortId ?? 'title',
+      sortColumn: module.fields.defaultSortId,
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,

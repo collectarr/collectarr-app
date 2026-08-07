@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/config/owned_details_codec.dart'
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';

@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 import 'package:collectarr_app/features/library/shared/book/book_domain.dart';
 
 export 'package:collectarr_app/features/library/shared/book/book_domain.dart'

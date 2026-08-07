@@ -463,7 +463,6 @@ class _FlowBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dto = item.dto;
     final palette = appPalette(context);
     return IgnorePointer(
       child: AnimatedSwitcher(

@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -836,14 +835,7 @@ String? _metadataFactValue(
   return null;
 }
 
-String? _compactPlatformLabel(List<String>? platforms) {
-  if (platforms == null || platforms.isEmpty) return null;
-  final first = platforms.first.trim();
-  if (first.isEmpty) return null;
-  final extra =
-      platforms.skip(1).where((value) => value.trim().isNotEmpty).length;
-  return extra == 0 ? first : '$first +$extra';
-}
+
 
 String? _compactNotesLabel(String? notes) {
   final trimmed = notes?.trim();

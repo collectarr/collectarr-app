@@ -4,9 +4,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
-// Epoch DateTime used as default updatedAt sentinel.
-const _kEpoch = Duration.zero;
-
 class WorkspaceCommonProjection {
   const WorkspaceCommonProjection({
     required this.title,

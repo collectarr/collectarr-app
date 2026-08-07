@@ -565,11 +565,7 @@ List<LibraryDetailField> _valueFacts(
   );
 
   final rows = <LibraryDetailField>[];
-  final comicVal = ownedItem.typedDetails is ComicOwnedDetails
-      ? ownedItem.typedDetails as ComicOwnedDetails
-      : null;
   final currency = snapshot.currency;
-  final isGraded = ownedItem.grade?.trim().isNotEmpty == true;
 
   if (snapshot.purchasePriceCents != null) {
     rows.add(LibraryDetailField(

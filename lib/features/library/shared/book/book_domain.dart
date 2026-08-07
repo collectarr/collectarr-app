@@ -1,6 +1,7 @@
 /// Shared book domain types used by the workspace entry model and
 /// the book catalog. Living here keeps them importable by boundary
 /// files (workspace/entry/) without violating the kind-boundary rule.
+library;
 
 /// A reference to a single edition/variant of a book release.
 class BookVariantRef {

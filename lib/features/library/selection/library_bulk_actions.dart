@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
-import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 
 class LibraryBulkActions {
   const LibraryBulkActions(this.mutations);

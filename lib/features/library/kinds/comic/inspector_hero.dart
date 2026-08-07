@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';

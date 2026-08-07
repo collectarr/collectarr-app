@@ -1,6 +1,4 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';

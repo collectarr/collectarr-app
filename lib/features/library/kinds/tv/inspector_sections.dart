@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/episode_grid_section.dart';
@@ -14,7 +12,6 @@ import 'package:collectarr_app/features/library/media/video/video_progress_secti
 import 'package:collectarr_app/features/library/media/video/video_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/media/video/watch_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
-import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +48,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           entityType: CatalogEntityType.release,
           id: '${seriesRef.id}:release:${edition.id}',
         ),
-        label: edition.title ?? edition.id,
+        label: edition.title.isEmpty ? edition.id : edition.title,
         subtitle: [
           if (edition.format?.trim().isNotEmpty == true) edition.format!,
           if (edition.releaseDate != null)
@@ -62,12 +59,6 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
 
   final ownedItem = request.ownedItem;
   final trackingEntry = request.trackingEntry;
-  final creatorNames = <String>[
-    for (final credit
-        in catalogItem?.creators ?? const <Map<String, dynamic>>[])
-      if (credit['name']?.toString().trim().isNotEmpty == true)
-        credit['name'].toString().trim(),
-  ];
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Display title', value: dto.title),
     if (dto.publisher?.trim().isNotEmpty == true)

@@ -7,10 +7,8 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_tabs/book_section_tab.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';

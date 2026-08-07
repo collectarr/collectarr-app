@@ -394,13 +394,13 @@ class LibraryWorkspace extends ConsumerWidget {
                       ? null
                       : (item, details) =>
                           onItemContextMenu!(item, details.globalPosition),
-                  onSortChanged: (column) => onSortChanged(column as String),
+                  onSortChanged: (column) => onSortChanged(column),
                   onColumnWidthChanged: (column, width) =>
-                      onColumnWidthChanged(column as String, width),
+                      onColumnWidthChanged(column, width),
                   onColumnReordered: (column, beforeColumn) =>
                       onColumnReordered(
-                    column as String,
-                    beforeColumn as String?,
+                    column,
+                    beforeColumn,
                   ),
                   headerHeight: density.tableHeaderHeight,
                   rowHeight: density.tableRowHeight,

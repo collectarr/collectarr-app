@@ -114,18 +114,11 @@ class LibraryWorkspacePreferences {
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
     final module = libraryKindModuleForType(config);
     final savedSortColumn = prefs.getString(_key('sort_column'));
-    var sortColumn = module.fields.defaultSortId ?? 'title';
+    var sortColumn = module.fields.defaultSortId;
     if (savedSortColumn != null) {
       final directDef = module.fields.findSortDefinition(savedSortColumn);
       if (directDef != null) {
         sortColumn = directDef.id.value;
-      } else {
-        for (final def in module.fields.sorts) {
-          if (def.id.value.endsWith('.$savedSortColumn')) {
-            sortColumn = def.id.value;
-            break;
-          }
-        }
       }
     }
     final sortRules = _decodeSortRules(prefs.getStringList(_key('sort_rules')));
@@ -197,7 +190,7 @@ class LibraryWorkspacePreferences {
     final writeModule = libraryKindModuleForType(config);
     final sortDef = writeModule.fields.findSortDefinition(snapshot.sortColumn);
     final normalizedSortColumn =
-        sortDef?.id.value ?? (writeModule.fields.defaultSortId ?? 'title');
+        sortDef?.id.value ?? writeModule.fields.defaultSortId;
     final normalizedSnapshot = LibraryWorkspacePreferenceSnapshot(
       browserMode: snapshot.browserMode,
       viewMode: snapshot.viewMode,

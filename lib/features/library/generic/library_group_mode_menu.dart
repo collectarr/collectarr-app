@@ -338,9 +338,9 @@ class _LibraryGroupModeDropdownMenuState
         category.label: category.modes.any(
           (mode) =>
               widget.selectedPreset ==
-                  LibraryFolderPreset.single(mode as String) ||
+                  LibraryFolderPreset.single(mode.toString()) ||
               _pinnedPresets
-                  .contains(LibraryFolderPreset.single(mode as String)),
+                  .contains(LibraryFolderPreset.single(mode.toString())),
         ),
     };
   }

@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_release.dart';
 
 export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
@@ -139,7 +138,7 @@ abstract final class MovieReleaseFactory {
         .toList();
     return VideoRelease(
       id: edition.id,
-      title: edition.title ?? '',
+      title: edition.title,
       publisher: edition.publisher,
       distributor: edition.distributor,
       barcode: edition.upc ?? edition.isbn,

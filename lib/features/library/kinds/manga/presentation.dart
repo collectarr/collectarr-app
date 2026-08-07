@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_work
 import 'package:collectarr_app/features/library/shared/comic/presentation_builder.dart';
 import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
-import 'package:flutter/material.dart';
 
 const mangaMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Manga identity',

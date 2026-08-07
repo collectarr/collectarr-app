@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/api/mappers/boardgame_mapper.dart';
-import 'package:collectarr_app/core/api/mappers/book_mapper.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -17,11 +15,8 @@ import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
-import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
-import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';

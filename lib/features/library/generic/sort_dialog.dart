@@ -393,13 +393,13 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                           },
                                           itemBuilder: (context, index) {
                                             final rule = _rules[index];
-                                            final col = rule.column as String;
+                                            final col = rule.column;
                                             return _SelectedSortRuleTile(
                                               key: ValueKey(
-                                                  'selected-sort-${col}'),
+                                                  'selected-sort-$col'),
                                               index: index,
                                               dragHandleKey: ValueKey(
-                                                'selected-sort-${col}-handle',
+                                                'selected-sort-$col-handle',
                                               ),
                                               title: _sortColumnLabel(
                                                   widget.type, col),
@@ -511,7 +511,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
 
   LibrarySortRule _defaultRule() {
     final column =
-        libraryKindModuleForType(widget.type).fields.defaultSortId ?? 'title';
+        libraryKindModuleForType(widget.type).fields.defaultSortId;
     return LibrarySortRule(
       column: column,
       ascending: _defaultAscending(column),
@@ -1135,7 +1135,7 @@ String _sortRuleSummary(LibraryTypeConfig type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
-            '${_sortColumnLabel(type, rule.column as String)} ${rule.ascending ? 'ASC' : 'DESC'}',
+            '${_sortColumnLabel(type, rule.column)} ${rule.ascending ? 'ASC' : 'DESC'}',
       )
       .join('  |  ');
 }
@@ -1175,10 +1175,8 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
   final seen = <String>{};
   final deduped = <LibrarySortRule>[];
   for (final rule in rules) {
-    if (rule.column is String) {
-      if (seen.add(rule.column as String)) {
-        deduped.add(rule);
-      }
+    if (seen.add(rule.column)) {
+      deduped.add(rule);
     }
   }
   return deduped;

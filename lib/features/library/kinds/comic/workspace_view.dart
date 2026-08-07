@@ -39,20 +39,20 @@ final comicsMediaAdapter = LibraryMediaAdapter(
   tableWidthForColumns: comicTableWidthForColumns,
   tableColumnWidth: comicTableColumnWidth,
   defaultTableColumnWidth: (column) => defaultPlannedMediaTableColumnWidth(
-      comicsLibraryConfig, column as String),
+      comicsLibraryConfig, column),
   columnLabel: (column) => plannedMediaTableColumnLabelForType(
-      comicsLibraryConfig, column as String),
+      comicsLibraryConfig, column),
   columnDisplayName: (column) => plannedMediaTableColumnDisplayNameForType(
-      comicsLibraryConfig, column as String),
+      comicsLibraryConfig, column),
   columnGroup: (column) =>
-      plannedMediaTableColumnGroup(comicsLibraryConfig, column as String),
+      plannedMediaTableColumnGroup(comicsLibraryConfig, column),
   columnGroupLabel: plannedMediaTableColumnGroupLabel,
   columnIsNumeric: (column) =>
-      plannedMediaTableColumnIsNumeric(comicsLibraryConfig, column as String),
+      plannedMediaTableColumnIsNumeric(comicsLibraryConfig, column),
   columnSort: (column) =>
-      plannedMediaTableColumnSort(comicsLibraryConfig, column as String),
+      plannedMediaTableColumnSort(comicsLibraryConfig, column),
   tableCellBuilder: (entry, column) =>
-      plannedMediaTableCell(comicsLibraryConfig, entry, column as String),
+      plannedMediaTableCell(comicsLibraryConfig, entry, column),
   compareEntriesByColumn: compareComicEntriesByColumn,
   entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
   entryLinkedMetadataCandidatesBuilder: (entry) =>

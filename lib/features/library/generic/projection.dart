@@ -8,13 +8,11 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/foundation.dart';
@@ -936,36 +934,6 @@ bool _matchesQuery(
           if (_containsQuery(v, query)) return true;
         }
       }
-    }
-  }
-  return false;
-}
-
-bool _matchesTrackQuery(
-  LibraryProjectionRuntime item,
-  String query,
-) {
-  final tracks = item.source.catalogItem?.music?.tracks;
-  if (tracks == null || tracks.isEmpty) {
-    return false;
-  }
-  final terms = query
-      .split(RegExp(r'\s+'))
-      .map((value) => value.trim())
-      .where((value) => value.isNotEmpty)
-      .toList(growable: false);
-  if (terms.isEmpty) {
-    return false;
-  }
-  for (final track in tracks) {
-    final searchableParts = <String>[
-      if (track.title != null) track.title!,
-      if (track.artist?.trim().isNotEmpty == true) track.artist!.trim(),
-      if (track.position != null) track.position!.toString(),
-    ];
-    final searchable = searchableParts.join(' ').toLowerCase();
-    if (terms.every(searchable.contains)) {
-      return true;
     }
   }
   return false;

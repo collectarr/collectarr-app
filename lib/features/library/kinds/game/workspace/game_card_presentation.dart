@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +14,6 @@ LibraryCardPresentation buildGameCardPresentation(
 
 List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionRuntime item) {
   final dto = item.dto;
-  final gameDto = dto is GameWorkspaceDto ? dto : null;
 
   final badges = <LibraryCardBadge>[];
   final releasePlatform = dto.referenceFormatLabel?.trim();

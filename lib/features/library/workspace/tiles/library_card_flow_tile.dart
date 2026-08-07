@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -46,7 +45,6 @@ class LibraryCardFlowTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = item.dto;
-    final cat = item.source.catalogItem;
     final coverCacheWidth = _targetCacheWidth(context);
     final metadataPresentation = _metadataPresentationForEntry(item);
     final theme = Theme.of(context);
