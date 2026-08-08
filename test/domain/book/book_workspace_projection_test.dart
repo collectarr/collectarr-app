@@ -21,7 +21,7 @@ void main() {
       node: const LibraryTitleNodeRef(titleItemId: 'book-1'),
     );
 
-    expect(dto.title, 'Guards! Guards!');
-    expect(dto.publisher, 'Victor Gollancz Ltd');
+    expect(dto.common.title, 'Guards! Guards!');
+    expect(dto.common.publisher, 'Victor Gollancz Ltd');
   });
 }

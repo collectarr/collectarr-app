@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 
+export 'package:collectarr_app/core/models/money.dart';
 export 'package:collectarr_app/core/models/owned_item_details.dart';
 
 const Object _ownedItemUnset = Object();
@@ -91,6 +93,11 @@ class OwnedItem {
   MusicOwnedDetails? get musicDetails => typedDetails.music;
 
   String get itemId => catalogRef.id;
+
+  OwnedItemId get typedId => OwnedItemId(id);
+  Money? get pricePaid => Money.fromCents(pricePaidCents, currency);
+  Money? get sellPrice => Money.fromCents(sellPriceCents, currency);
+  Money? get marketValue => Money.fromCents(marketValueCents, currency);
 
   String? get anchorType => anchor?.apiValue;
   String? get editionId => anchor?.editionId;

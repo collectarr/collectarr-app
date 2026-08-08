@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
@@ -507,6 +509,16 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               children: [
                 hero,
                 SizedBox(height: density.inspectorOuterGap),
+                if (!usesCustomInspectorPanel)
+                  InspectorActionBar(
+                    type: widget.type,
+                    item: selected,
+                    onToggleOwned: onToggleOwned,
+                    onToggleWishlist: onToggleWishlist,
+                    onEdit: onEdit,
+                    onCorrectMetadata: onCorrectMetadata,
+                    onOpenDetails: onOpenDetails,
+                  ),
               ],
             ),
           ),
@@ -544,31 +556,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     required String? condition,
     required String? grade,
   }) async {
-    final comic = item.typedDetails is ComicOwnedDetails
-        ? item.typedDetails as ComicOwnedDetails
-        : null;
-    await ref.read(collectionMutationsProvider).updateItem(
-          item,
-          condition: condition,
-          grade: grade,
-          purchaseDate: item.purchaseDate,
-          pricePaidCents: item.pricePaidCents,
-          currency: item.currency,
-          personalNotes: item.personalNotes,
-          quantity: item.quantity,
-          indexNumber: item.indexNumber,
-          coverPriceCents: comic?.coverPriceCents,
-          rawOrSlabbed: comic?.rawOrSlabbed,
-          gradingCompany: comic?.gradingCompany,
-          graderNotes: comic?.graderNotes,
-          signedBy: comic?.signedBy,
-          labelType: comic?.labelType,
-          certificationNumber: comic?.certificationNumber,
-          keyComic: comic?.keyComic,
-          keyReason: comic?.keyReason,
-          rating: item.rating,
-          readStatus: item.readStatus,
-          tags: item.tags,
+    await ref.read(collectionMutationsProvider).updateOwnedItem(
+          UpdateOwnedItemCommand(
+            ownedItemId: item.id,
+            condition: Patch.set(condition),
+            grade: Patch.set(grade),
+          ),
         );
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -620,12 +613,19 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       item: item,
       ownedItem: ownedItem,
     );
-    await ref.read(collectionMutationsProvider).addItem(
-          item.node.titleItemId,
-          anchorType: anchor.anchorType,
-          editionId: anchor.editionId,
-          variantId: anchor.variantId,
-          bundleReleaseId: anchor.bundleReleaseId,
+    await ref.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: CatalogEntityRef(
+              kind: widget.type.workspace.kind.apiValue,
+              entityType: CatalogEntityType.work,
+              id: item.node.titleItemId,
+            ),
+            common: OwnedItemCommonDraft(
+              editionId: anchor.editionId,
+              variantId: anchor.variantId,
+              bundleReleaseId: anchor.bundleReleaseId,
+            ),
+          ),
         );
     if (!mounted) {
       return;
@@ -653,39 +653,30 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionRuntime item,
     OwnedItem ownedItem,
   ) async {
-    final comic = ownedItem.typedDetails is ComicOwnedDetails
-        ? ownedItem.typedDetails as ComicOwnedDetails
-        : null;
-    await ref.read(collectionMutationsProvider).addItem(
-          ownedItem.itemId,
-          isDigital: ownedItem.isDigital,
-          anchorType: ownedItem.anchorType,
-          editionId: ownedItem.editionId,
-          variantId: ownedItem.variantId,
-          bundleReleaseId: ownedItem.bundleReleaseId,
-          condition: ownedItem.condition,
-          grade: ownedItem.grade,
-          purchaseDate: ownedItem.purchaseDate,
-          pricePaidCents: ownedItem.pricePaidCents,
-          currency: ownedItem.currency,
-          personalNotes: ownedItem.personalNotes,
-          quantity: ownedItem.quantity,
-          locationId: ownedItem.locationId,
-          indexNumber: ownedItem.indexNumber,
-          coverPriceCents: comic?.coverPriceCents,
-          rawOrSlabbed: comic?.rawOrSlabbed,
-          gradingCompany: comic?.gradingCompany,
-          graderNotes: comic?.graderNotes,
-          signedBy: comic?.signedBy,
-          labelType: comic?.labelType,
-          certificationNumber: comic?.certificationNumber,
-          keyComic: comic?.keyComic ?? false,
-          keyReason: comic?.keyReason,
-          rating: ownedItem.rating,
-          readStatus: ownedItem.readStatus,
-          startedAt: ownedItem.startedAt,
-          finishedAt: ownedItem.finishedAt,
-          tags: ownedItem.tags,
+    await ref.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: ownedItem.catalogRef,
+            common: OwnedItemCommonDraft(
+              isDigital: ownedItem.isDigital,
+              editionId: ownedItem.editionId,
+              variantId: ownedItem.variantId,
+              bundleReleaseId: ownedItem.bundleReleaseId,
+              condition: ownedItem.condition,
+              grade: ownedItem.grade,
+              purchaseDate: ownedItem.purchaseDate,
+              pricePaidCents: ownedItem.pricePaidCents,
+              currency: ownedItem.currency,
+              personalNotes: ownedItem.personalNotes,
+              quantity: ownedItem.quantity,
+              locationId: ownedItem.locationId,
+              rating: ownedItem.rating,
+              readStatus: ownedItem.readStatus,
+              startedAt: ownedItem.startedAt,
+              finishedAt: ownedItem.finishedAt,
+              tags: ownedItem.tags,
+            ),
+            details: ownedItem.typedDetails.toDraft(),
+          ),
         );
     if (!mounted) {
       return;

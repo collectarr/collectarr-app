@@ -461,7 +461,7 @@ void main() {
     ]);
     expect(api.lastCatalogUpdateTracks, hasLength(1));
     expect(api.lastCatalogUpdateTracks!.single.title, 'The Shire Theme');
-    expect(api.lastCatalogUpdateTracks!.single.position, 1);
+    expect(api.lastCatalogUpdateTracks!.single.position, '1');
     expect(api.lastCatalogUpdateTrailerUrls, hasLength(1));
     expect(api.lastCatalogUpdateTrailerUrls!.single.url,
         'https://trailers.example/fellowship');

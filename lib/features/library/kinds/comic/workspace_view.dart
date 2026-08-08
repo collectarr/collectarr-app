@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -71,10 +70,7 @@ int compareComicEntriesByColumn(
   final module = libraryKindModuleForType(comicsLibraryConfig);
   final definition = module.fields.findSortDefinition(sortId);
   if (definition != null) {
-    return definition.compare(
-      LibraryProjectionContext(source: left.source, node: left.node, dto: left.dto as ComicWorkspaceDto),
-      LibraryProjectionContext(source: right.source, node: right.node, dto: right.dto as ComicWorkspaceDto),
-    );
+    return definition.compareUntyped(left.dto, right.dto);
   }
   return 0;
 }
@@ -84,22 +80,20 @@ const comicsTableColumnPresets = [
     label: 'Essential',
     columns: {
       'status',
-      'title',
-      'issue',
-      'publisher',
-      'release_date',
+      'comic.title',
+      'comic.number',
+      'comic.publisher',
+      'comic.release_date',
     },
   ),
   LibraryTableColumnPreset(
     label: 'Ownership',
     columns: {
       'status',
-      'title',
-      'issue',
-      'grade',
-      'condition',
-      'value',
-      'location',
+      'comic.title',
+      'comic.number',
+      'comic.condition',
+      'comic.location',
       'updated',
     },
   ),
@@ -107,27 +101,11 @@ const comicsTableColumnPresets = [
     label: 'Value',
     columns: {
       'status',
-      'title',
-      'issue',
-      'variant',
-      'grade',
-      'condition',
-      'price',
-      'value',
-      'barcode',
-    },
-  ),
-  LibraryTableColumnPreset(
-    label: 'Images',
-    columns: {
-      'status',
-      'front_cover',
-      'back_cover',
-      'has_front',
-      'has_back',
-      'extra_images',
-      'title',
-      'issue',
+      'comic.title',
+      'comic.number',
+      'comic.condition',
+      'comic.price',
+      'comic.barcode',
     },
   ),
   LibraryTableColumnPreset(
@@ -135,22 +113,15 @@ const comicsTableColumnPresets = [
     columns: {
       'status',
       'cover',
-      'front_cover',
-      'back_cover',
-      'has_front',
-      'has_back',
-      'extra_images',
-      'title',
-      'issue',
-      'variant',
-      'publisher',
-      'release_date',
-      'barcode',
-      'grade',
-      'condition',
-      'value',
-      'price',
-      'location',
+      'comic.title',
+      'comic.number',
+      'comic.publisher',
+      'comic.release_date',
+      'comic.barcode',
+      'rating',
+      'comic.condition',
+      'comic.price',
+      'comic.location',
       'wishlist',
       'updated',
     },
@@ -180,21 +151,11 @@ LibraryWorkspaceViewPresetConfig comicsViewPresetConfig(
         coverSize: 150,
         visibleColumns: defaultComicTableColumns(),
       ),
-    LibraryWorkspacePreset.list => const LibraryWorkspaceViewPresetConfig(
+    LibraryWorkspacePreset.list => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.right,
         coverSize: kComicsDefaultCoverSize,
-        visibleColumns: {
-          'status',
-          'title',
-          'issue',
-          'variant',
-          'publisher',
-          'release_date',
-          'location',
-          'format',
-          'added',
-        },
+        visibleColumns: defaultComicTableColumns(),
       ),
     LibraryWorkspacePreset.details => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,

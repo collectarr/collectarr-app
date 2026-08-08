@@ -2,7 +2,9 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -37,10 +39,12 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final palette = appPalette(context);
     final item = request.item;
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem;
-    final comic = catalogItem == null
-        ? null
-        : ComicCatalogMapper.mapMetadataItemToComic(catalogItem);
+    final rawCatalog = item.source.catalogItem;
+    final ComicCatalogItem? comic = rawCatalog is ComicCatalogItem
+        ? rawCatalog as ComicCatalogItem
+        : (rawCatalog is LibraryMetadataItem
+            ? ComicCatalogMapper.mapMetadataItemToComic(rawCatalog)
+            : null);
     final ownedItem = request.ownedItem;
     final surface = palette.surface;
     final border =
@@ -105,7 +109,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
       if (dto.variant?.trim().isNotEmpty == true) dto.variant!.trim(),
     ];
     final subtitleLabel = subtitleParts.join(' • ');
-    final statusLabel = dto.isOwned
+    final isOwned = dto.isOwned || ownedItem != null;
+    final statusLabel = isOwned
         ? 'Owned'
         : dto.isWishlisted
             ? 'Wishlist'
@@ -306,7 +311,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                   label: 'Status',
                   value: statusLabel,
                   icon: _ComicCollectionStatusIcon(
-                    owned: dto.isOwned,
+                    owned: isOwned,
                     wishlisted: dto.isWishlisted,
                     accent: request.accent,
                     muted: muted,

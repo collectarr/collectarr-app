@@ -15,7 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
-LibraryProjectionRuntime _itemFixture() {
+LibraryProjectionItem _itemFixture() {
   final cat = CatalogItemDto(
     id: 'comic-hero-fixture',
     kind: 'comic',
@@ -32,16 +32,7 @@ LibraryProjectionRuntime _itemFixture() {
     genres: const ['Action', 'Dystopian'],
   );
   final source = ShelfEntry(itemId: 'comic-hero-fixture', catalogItem: cat);
-  final node = const LibraryTitleNodeRef(titleItemId: 'comic-hero-fixture');
-  final dto = const ComicWorkspaceProjector().projectTitle(
-    source: source,
-    node: node,
-  );
-  return LibraryProjectionItem(
-    source: source,
-    node: node,
-    dto: dto,
-  );
+  return LibraryProjectionItem.fromShelf(source, comicsLibraryConfig);
 }
 
 Widget _heroHost(OwnedItem ownedItem) {

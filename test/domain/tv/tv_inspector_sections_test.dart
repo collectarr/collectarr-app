@@ -70,8 +70,28 @@ void main() {
       ),
     );
 
-    expect(sections.whereType<InspectorMetadataFactsSection>(), hasLength(1));
-    expect(sections.whereType<InspectorReleasesSection>(), hasLength(1));
-    expect(sections.whereType<VideoExternalLinksSection>(), hasLength(1));
+    final detailSections = sections.where((w) => w is! SizedBox).toList();
+    expect(detailSections, hasLength(9));
+
+    final allChildren = <Widget>[];
+    for (final section in detailSections) {
+      if (section is LibraryDetailSection) {
+        allChildren.addAll(section.children);
+      } else {
+        allChildren.add(section);
+      }
+    }
+
+    expect(allChildren.whereType<InspectorMetadataFactsSection>(), hasLength(1));
+    final factsSection = allChildren.whereType<InspectorMetadataFactsSection>().single;
+    expect(
+      factsSection.facts.map((fact) => (fact as LibraryDetailField).label),
+      contains('Trailers'),
+    );
+    expect(allChildren.whereType<InspectorEpisodeGridSection>(), hasLength(1));
+    expect(allChildren.whereType<InspectorSessionHistorySection>(), hasLength(1));
+    expect(allChildren.whereType<InspectorReleasesSection>(), hasLength(1));
+    expect(allChildren.whereType<InspectorContributorsSection>(), hasLength(1));
+    expect(allChildren.whereType<VideoExternalLinksSection>(), hasLength(1));
   });
 }

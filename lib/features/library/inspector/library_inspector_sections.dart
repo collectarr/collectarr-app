@@ -64,7 +64,7 @@ class InspectorPersonalSection extends StatelessWidget {
       ownedItem: ownedItem,
       providerName: dto.marketValueCents != null ? 'Provider snapshot' : null,
     );
-    final paid = formatMoney(dto.pricePaidCents, dto.currency);
+    final paid = formatMoney(ownedItem?.pricePaidCents ?? dto.pricePaidCents, ownedItem?.currency ?? dto.currency);
     final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
       ownedItem,
       catalogEditions,
@@ -141,12 +141,36 @@ class InspectorPersonalSection extends StatelessWidget {
                     valueSnapshot.currency,
                   )),
             if (valueSnapshot.manualEstimatedValueCents != null)
+              LibraryDetailField(label: 'Manual value', value: formatMoney(
+                  valueSnapshot.manualEstimatedValueCents,
+                  valueSnapshot.currency,
+                )),
+            if ((ownedItem?.details is ComicOwnedDetails
+                    ? (ownedItem!.details as ComicOwnedDetails).coverPriceCents
+                    : ownedItem?.comicDetails?.coverPriceCents) !=
+                null)
               LibraryDetailField(
-                  label: 'Manual value',
-                  value: formatMoney(
-                    valueSnapshot.manualEstimatedValueCents,
-                    valueSnapshot.currency,
-                  )),
+                label: 'Cover price',
+                value: formatMoney(
+                  ownedItem?.details is ComicOwnedDetails
+                      ? (ownedItem!.details as ComicOwnedDetails).coverPriceCents
+                      : ownedItem!.comicDetails!.coverPriceCents,
+                  ownedItem?.currency ?? dto.currency,
+                ),
+              ),
+            if (ownedItem?.sellPriceCents != null)
+              LibraryDetailField(
+                label: 'Sell price',
+                value: formatMoney(ownedItem!.sellPriceCents, ownedItem?.currency ?? dto.currency),
+              ),
+            if (ownedItem?.sellPriceCents != null)
+              LibraryDetailField(
+                label: 'Profit / Loss',
+                value: formatMoney(
+                  ownedItem!.sellPriceCents! - (ownedItem!.pricePaidCents ?? 0),
+                  ownedItem?.currency ?? dto.currency,
+                ),
+              ),
           ],
         ),
         if (dto.notes != null && dto.notes!.trim().isNotEmpty) ...[

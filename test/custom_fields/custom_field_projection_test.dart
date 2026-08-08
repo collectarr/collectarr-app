@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -140,14 +141,16 @@ void main() {
         entries: [
           ShelfEntry(
             itemId: 'movie-1',
-            catalogItem: CatalogItem(
-              id: 'movie-1',
-              kind: 'comic',
-              title: 'Kimi no Na wa.',
-              displayTitle: 'Your Name',
-              localizedTitle: 'Your Name',
-              originalTitle: '君の名は。',
-              searchAliases: const ['Your Name'],
+            catalogItem: LibraryMetadataItem.fromCatalogItem(
+              CatalogItem(
+                id: 'movie-1',
+                kind: 'comic',
+                title: 'Kimi no Na wa.',
+                displayTitle: 'Your Name',
+                localizedTitle: 'Your Name',
+                originalTitle: '君の名は。',
+                searchAliases: const ['Your Name'],
+              ),
             ),
           ),
         ],

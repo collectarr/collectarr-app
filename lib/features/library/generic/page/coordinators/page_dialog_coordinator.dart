@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
@@ -513,9 +514,11 @@ class LibraryPageDialogCoordinator {
     for (var i = 0; i < items.length; i++) {
       final ownedItem = items[i].source.ownedItem;
       if (ownedItem == null) continue;
-      await mutations.updateItem(
-        ownedItem,
-        indexNumber: i + 1,
+      await mutations.updateOwnedItem(
+        UpdateOwnedItemCommand(
+          ownedItemId: ownedItem.id,
+          indexNumber: Patch.set(i + 1),
+        ),
         notify: i == items.length - 1,
       );
       count++;

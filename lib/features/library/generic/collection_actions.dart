@@ -1,4 +1,6 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,12 +16,20 @@ class LibraryCollectionActions {
       ownedItem: item.source.ownedItem,
       wishlistItem: item.source.wishlistItem,
     );
-    return mutations.addItem(
-      item.source.catalogItem!.id,
-      anchorType: anchor.anchorType,
-      editionId: anchor.editionId,
-      variantId: anchor.variantId,
-      bundleReleaseId: anchor.bundleReleaseId,
+    final catalogItem = item.source.catalogItem!;
+    return mutations.addOwnedItem(
+      AddOwnedItemCommand(
+        catalogRef: CatalogEntityRef(
+          kind: catalogItem.kind,
+          entityType: CatalogEntityType.ownedCopy,
+          id: catalogItem.id,
+        ),
+        common: OwnedItemCommonDraft(
+          editionId: anchor.editionId,
+          variantId: anchor.variantId,
+          bundleReleaseId: anchor.bundleReleaseId,
+        ),
+      ),
     );
   }
 

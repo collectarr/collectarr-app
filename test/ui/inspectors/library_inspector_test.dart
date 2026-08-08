@@ -48,6 +48,14 @@ void main() {
                 id: 'book-hero-1',
                 kind: 'book',
                 title: 'Hyperion',
+                catalogItem: testCatalogItem(
+                  id: 'book-hero-1',
+                  kind: 'book',
+                  title: 'Hyperion',
+                  creators: const [
+                    {'name': 'Dan Simmons', 'role': 'Author'},
+                  ],
+                ),
               ),
               ownedItem: null,
               accent: Colors.orange,
@@ -446,6 +454,7 @@ void main() {
                 id: 'book-1',
                 kind: 'book',
                 title: 'The Fellowship of the Ring',
+                ownedItem: testOwnedItem(id: 'owned-1', itemId: 'book-1'),
               ),
               onToggleOwned: () {},
               onToggleWishlist: () {},

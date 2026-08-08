@@ -141,6 +141,33 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    for (final ep in seasonItem.season.episodes) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Text(
+                            'E${ep.episodeNumber.toString().padLeft(2, '0')}',
+                            style: TextStyle(
+                              color: palette.accent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              ep.title,
+                              style: TextStyle(
+                                color: palette.textSecondary,
+                                fontSize: 11,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -190,7 +217,23 @@ class _TvShelfDrilldownShell extends StatelessWidget {
           ),
         ],
       ),
-      body: body,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text(
+              'Seasons',
+              style: TextStyle(
+                color: palette.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Expanded(child: body),
+        ],
+      ),
     );
   }
 }

@@ -66,6 +66,13 @@ void main() {
           title: 'Deluxe Edition',
           physicalFormat: 'Japan CD',
           physicalFormatLabel: 'Japan CD',
+          variants: [
+            CatalogVariant(
+              id: 'variant-1',
+              name: 'Japan CD',
+              physicalFormatLabel: 'Japan CD',
+            ),
+          ],
         ),
       ],
       editionId: 'edition-1',
@@ -99,9 +106,8 @@ void main() {
     );
   });
 
-  test('libraryHierarchyContractDiagnosticLabel flags missing release variant',
-      () {
-    final edition = CatalogEdition(id: 'rel-2', title: 'Standard');
+  test('libraryHierarchyContractDiagnosticLabel flags missing release variant', () {
+    final edition = CatalogEdition(id: 'rel-2', title: '');
     final source = ShelfEntry(
       itemId: 'movie-2',
       catalogItem: CatalogItemDto(

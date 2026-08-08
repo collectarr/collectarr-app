@@ -52,7 +52,6 @@ void main() {
       ownedItem: testOwnedItem(
         id: 'owned-2',
         itemId: 'comic-2',
-        anchorType: 'bundle_release',
         bundleReleaseId: 'bundle-2',
         updatedAt: DateTime.utc(2026, 5, 23),
       ),

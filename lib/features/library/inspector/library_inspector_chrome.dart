@@ -116,15 +116,15 @@ class InspectorActionBar extends StatelessWidget {
                   ),
             ),
             LibraryStatusChip(
-              icon: dto.isOwned
+              icon: (dto.isOwned || item.source.ownedItem != null)
                   ? Icons.check_circle_outline
                   : Icons.inventory_2_outlined,
-              label: dto.isOwned ? 'Owned' : 'Catalog only',
+              label: (dto.isOwned || item.source.ownedItem != null) ? 'Owned' : 'Catalog only',
               foreground: palette.textPrimary,
               background: palette.surface,
               borderColor: palette.divider,
             ),
-            if (dto.isWishlisted)
+            if (dto.isWishlisted || item.source.wishlistItem != null || onToggleWishlist != null)
               LibraryStatusChip(
                 icon: Icons.star,
                 label: 'Wish list',
@@ -296,12 +296,24 @@ class InspectorUnifiedToolbar extends StatelessWidget {
           alignment: WrapAlignment.end,
           children: [
             if (includeLayoutControl)
-              if (ebayUri != null)
-                InspectorToolIconButton(
-                  tooltip: 'Search sold prices on eBay',
-                  onPressed: () => launchUrl(ebayUri),
-                  icon: Icons.storefront_outlined,
-                ),
+              LibraryDetailsLayoutDropdown(
+                detailsLayout: detailsLayout,
+                onChanged: (val) => onDetailsLayoutChanged?.call(val),
+                iconOnly: compactActions,
+              ),
+            if (ebayUri != null)
+              compactActions
+                  ? InspectorToolIconButton(
+                      tooltip: 'Search sold prices on eBay',
+                      onPressed: () => launchUrl(ebayUri),
+                      icon: Icons.shopping_bag_outlined,
+                    )
+                  : _InspectorActionPillButton(
+                      tooltip: 'Search sold prices on eBay',
+                      onPressed: () => launchUrl(ebayUri),
+                      icon: Icons.shopping_bag_outlined,
+                      label: 'eBay',
+                    ),
             if (!compactActions && onDuplicate != null)
               InspectorToolIconButton(
                 tooltip: 'Duplicate owned copy',

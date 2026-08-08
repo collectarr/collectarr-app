@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -215,41 +216,28 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
         if (_mode == TransferMode.move && !src.isCustomField) {
           updated = src.writeTo(updated, null);
         }
-        final comic = updated.typedDetails is ComicOwnedDetails
-            ? updated.typedDetails as ComicOwnedDetails
-            : null;
-        final video = updated.typedDetails is VideoOwnedDetails
-            ? updated.typedDetails as VideoOwnedDetails
-            : null;
-        await widget.mutations.updateItem(
-          item,
-          condition: updated.condition,
-          grade: updated.grade,
-          personalNotes: updated.personalNotes,
-          locationId: updated.locationId,
-          tags: updated.tags,
-          currency: updated.currency,
-          rawOrSlabbed: comic?.rawOrSlabbed,
-          gradingCompany: comic?.gradingCompany,
-          graderNotes: comic?.graderNotes,
-          signedBy: comic?.signedBy,
-          labelType: comic?.labelType,
-          certificationNumber: comic?.certificationNumber,
-          keyReason: comic?.keyReason,
-          readStatus: updated.readStatus,
-          soldTo: updated.soldTo,
-          features: video?.features,
-          pricePaidCents: updated.pricePaidCents,
-          coverPriceCents: comic?.coverPriceCents,
-          sellPriceCents: updated.sellPriceCents,
-          quantity: updated.quantity,
-          indexNumber: updated.indexNumber,
-          rating: updated.rating,
-          purchaseDate: updated.purchaseDate,
-          startedAt: updated.startedAt,
-          finishedAt: updated.finishedAt,
-          soldAt: updated.soldAt,
-          keyComic: comic?.keyComic ?? false,
+        await widget.mutations.updateOwnedItem(
+          UpdateOwnedItemCommand(
+            ownedItemId: item.id,
+            condition: Patch.set(updated.condition),
+            grade: Patch.set(updated.grade),
+            personalNotes: Patch.set(updated.personalNotes),
+            locationId: Patch.set(updated.locationId),
+            tags: Patch.set(updated.tags),
+            currency: Patch.set(updated.currency),
+            readStatus: Patch.set(updated.readStatus),
+            soldTo: Patch.set(updated.soldTo),
+            pricePaidCents: Patch.set(updated.pricePaidCents),
+            sellPriceCents: Patch.set(updated.sellPriceCents),
+            quantity: Patch.set(updated.quantity),
+            indexNumber: Patch.set(updated.indexNumber),
+            rating: Patch.set(updated.rating),
+            purchaseDate: Patch.set(updated.purchaseDate),
+            startedAt: Patch.set(updated.startedAt),
+            finishedAt: Patch.set(updated.finishedAt),
+            soldAt: Patch.set(updated.soldAt),
+            details: Patch.set(updated.typedDetails.toDraft()),
+          ),
           notify: isLast,
         );
         transferred++;
@@ -274,35 +262,20 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             ));
           }
         } else {
-          final comic = item.typedDetails is ComicOwnedDetails
-              ? item.typedDetails as ComicOwnedDetails
-              : null;
-          final video = item.typedDetails is VideoOwnedDetails
-              ? item.typedDetails as VideoOwnedDetails
-              : null;
-          await widget.mutations.updateItem(
-            item,
-            condition: src.key == 'condition' ? null : item.condition,
-            grade: src.key == 'grade' ? null : item.grade,
-            personalNotes:
-                src.key == 'personalNotes' ? null : item.personalNotes,
-            locationId: src.key == 'locationId' ? null : item.locationId,
-            tags: src.key == 'tags' ? null : item.tags,
-            currency: src.key == 'currency' ? null : item.currency,
-            rawOrSlabbed:
-                src.key == 'rawOrSlabbed' ? null : comic?.rawOrSlabbed,
-            gradingCompany:
-                src.key == 'gradingCompany' ? null : comic?.gradingCompany,
-            graderNotes: src.key == 'graderNotes' ? null : comic?.graderNotes,
-            signedBy: src.key == 'signedBy' ? null : comic?.signedBy,
-            labelType: src.key == 'labelType' ? null : comic?.labelType,
-            certificationNumber: src.key == 'certificationNumber'
-                ? null
-                : comic?.certificationNumber,
-            keyReason: src.key == 'keyReason' ? null : comic?.keyReason,
-            readStatus: src.key == 'readStatus' ? null : item.readStatus,
-            soldTo: src.key == 'soldTo' ? null : item.soldTo,
-            features: src.key == 'features' ? null : video?.features,
+          final updated = src.writeTo(item, null);
+          await widget.mutations.updateOwnedItem(
+            UpdateOwnedItemCommand(
+              ownedItemId: item.id,
+              condition: Patch.set(updated.condition),
+              grade: Patch.set(updated.grade),
+              personalNotes: Patch.set(updated.personalNotes),
+              locationId: Patch.set(updated.locationId),
+              tags: Patch.set(updated.tags),
+              currency: Patch.set(updated.currency),
+              readStatus: Patch.set(updated.readStatus),
+              soldTo: Patch.set(updated.soldTo),
+              details: Patch.set(updated.typedDetails.toDraft()),
+            ),
             notify: isLast,
           );
         }

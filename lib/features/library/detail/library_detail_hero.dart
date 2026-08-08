@@ -186,10 +186,12 @@ class LibraryDetailHero extends StatelessWidget {
               ),
             ],
           ),
-          if ((item.source.catalogItem?.creators ?? const []).isNotEmpty) ...[
+          if (authorName != null || (item.source.catalogItem?.creators ?? const []).isNotEmpty) ...[
             const SizedBox(height: 20),
             BookAuthorSpotlight(
-              creators: item.source.catalogItem?.creators ?? const [],
+              creators: (item.source.catalogItem?.creators ?? const []).isNotEmpty
+                  ? (item.source.catalogItem?.creators ?? const [])
+                  : [if (authorName != null) {'name': authorName, 'role': 'Author'}],
               accent: accent,
             ),
           ],

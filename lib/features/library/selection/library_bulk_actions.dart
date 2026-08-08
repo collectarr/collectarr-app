@@ -1,5 +1,7 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -20,32 +22,29 @@ class LibraryBulkActions {
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
       final ownedItem = ownedEntries[index].ownedItem!;
-      final comicDetails = ownedItem.typedDetails is ComicOwnedDetails
-          ? ownedItem.typedDetails as ComicOwnedDetails
-          : null;
-      await mutations.updateItem(
-        ownedItem,
-        condition: selection.condition ?? ownedItem.condition,
-        grade: selection.grade ?? ownedItem.grade,
-        purchaseDate: ownedItem.purchaseDate,
-        pricePaidCents: ownedItem.pricePaidCents,
-        currency: ownedItem.currency,
-        personalNotes: ownedItem.personalNotes,
-        quantity: ownedItem.quantity,
-        locationId: selection.locationId ?? ownedItem.locationId,
-        indexNumber: ownedItem.indexNumber,
-        coverPriceCents: comicDetails?.coverPriceCents,
-        rawOrSlabbed: comicDetails?.rawOrSlabbed,
-        gradingCompany: comicDetails?.gradingCompany,
-        graderNotes: comicDetails?.graderNotes,
-        signedBy: comicDetails?.signedBy,
-        labelType: comicDetails?.labelType,
-        certificationNumber: comicDetails?.certificationNumber,
-        keyComic: comicDetails?.keyComic,
-        keyReason: comicDetails?.keyReason,
-        rating: selection.rating ?? ownedItem.rating,
-        readStatus: selection.readStatus ?? ownedItem.readStatus,
-        tags: selection.tags ?? ownedItem.tags,
+      final updateCmd = UpdateOwnedItemCommand(
+        ownedItemId: ownedItem.id,
+        condition: selection.condition != null
+            ? Patch.set(selection.condition)
+            : const Patch.unchanged(),
+        grade: selection.grade != null
+            ? Patch.set(selection.grade)
+            : const Patch.unchanged(),
+        locationId: selection.locationId != null
+            ? Patch.set(selection.locationId)
+            : const Patch.unchanged(),
+        rating: selection.rating != null
+            ? Patch.set(selection.rating)
+            : const Patch.unchanged(),
+        readStatus: selection.readStatus != null
+            ? Patch.set(selection.readStatus)
+            : const Patch.unchanged(),
+        tags: selection.tags != null
+            ? Patch.set(selection.tags)
+            : const Patch.unchanged(),
+      );
+      await mutations.updateOwnedItem(
+        updateCmd,
         notify: index == ownedEntries.length - 1,
       );
     }
@@ -70,19 +69,27 @@ class LibraryBulkActions {
         ownedItem: entriesToOwn[index].ownedItem,
         wishlistItem: entriesToOwn[index].wishlistItem,
       );
-      await mutations.addItem(
-        entriesToOwn[index].itemId,
-        anchorType: anchor.anchorType,
-        editionId: anchor.editionId,
-        variantId: anchor.variantId,
-        bundleReleaseId: anchor.bundleReleaseId,
-        condition: defaultCondition,
-        grade: defaultGrade,
-        locationId: defaultLocationId,
-        readStatus: defaultReadStatus,
-        tags: defaultTags,
-        notify:
-            index == entriesToOwn.length - 1 || index == lastWishlistedIndex,
+      final entry = entriesToOwn[index];
+      final addCmd = AddOwnedItemCommand(
+        catalogRef: CatalogEntityRef(
+          kind: entry.catalogItem?.kind ?? 'unknown',
+          entityType: CatalogEntityType.ownedCopy,
+          id: entry.itemId,
+        ),
+        common: OwnedItemCommonDraft(
+          editionId: anchor.editionId,
+          variantId: anchor.variantId,
+          bundleReleaseId: anchor.bundleReleaseId,
+          condition: defaultCondition,
+          grade: defaultGrade,
+          locationId: defaultLocationId,
+          readStatus: defaultReadStatus,
+          tags: defaultTags,
+        ),
+      );
+      await mutations.addOwnedItem(
+        addCmd,
+        notify: index == entriesToOwn.length - 1 || index == lastWishlistedIndex,
       );
     }
   }
@@ -116,36 +123,47 @@ class LibraryBulkActions {
       final comicDetails = src.typedDetails is ComicOwnedDetails
           ? src.typedDetails as ComicOwnedDetails
           : null;
-      await mutations.addItem(
-        src.itemId,
-        isDigital: src.isDigital,
-        anchorType: src.anchorType,
-        editionId: src.editionId,
-        variantId: src.variantId,
-        bundleReleaseId: src.bundleReleaseId,
-        condition: src.condition,
-        grade: src.grade,
-        purchaseDate: src.purchaseDate,
-        pricePaidCents: src.pricePaidCents,
-        currency: src.currency,
-        personalNotes: src.personalNotes,
-        quantity: src.quantity,
-        locationId: src.locationId,
-        indexNumber: src.indexNumber,
-        coverPriceCents: comicDetails?.coverPriceCents,
-        rawOrSlabbed: comicDetails?.rawOrSlabbed,
-        gradingCompany: comicDetails?.gradingCompany,
-        graderNotes: comicDetails?.graderNotes,
-        signedBy: comicDetails?.signedBy,
-        labelType: comicDetails?.labelType,
-        certificationNumber: comicDetails?.certificationNumber,
-        keyComic: comicDetails?.keyComic ?? false,
-        keyReason: comicDetails?.keyReason,
-        rating: src.rating,
-        readStatus: src.readStatus,
-        startedAt: src.startedAt,
-        finishedAt: src.finishedAt,
-        tags: src.tags,
+      final addCmd = AddOwnedItemCommand(
+        catalogRef: CatalogEntityRef(
+          kind: src.catalogRef.kind,
+          entityType: CatalogEntityType.ownedCopy,
+          id: src.itemId,
+        ),
+        common: OwnedItemCommonDraft(
+          isDigital: src.isDigital,
+          editionId: src.editionId,
+          variantId: src.variantId,
+          bundleReleaseId: src.bundleReleaseId,
+          condition: src.condition,
+          grade: src.grade,
+          purchaseDate: src.purchaseDate,
+          pricePaidCents: src.pricePaidCents,
+          currency: src.currency,
+          personalNotes: src.personalNotes,
+          quantity: src.quantity,
+          locationId: src.locationId,
+          rating: src.rating,
+          readStatus: src.readStatus,
+          startedAt: src.startedAt,
+          finishedAt: src.finishedAt,
+          tags: src.tags,
+        ),
+        details: comicDetails != null
+            ? ComicOwnedDetailsDraft(
+                rawOrSlabbed: comicDetails.rawOrSlabbed,
+                gradingCompany: comicDetails.gradingCompany,
+                graderNotes: comicDetails.graderNotes,
+                signedBy: comicDetails.signedBy,
+                labelType: comicDetails.labelType,
+                certificationNumber: comicDetails.certificationNumber,
+                keyComic: comicDetails.keyComic,
+                keyReason: comicDetails.keyReason,
+                coverPriceCents: comicDetails.coverPriceCents,
+              )
+            : const GenericOwnedDetailsDraft(),
+      );
+      await mutations.addOwnedItem(
+        addCmd,
         notify: index == ownedEntries.length - 1,
       );
     }

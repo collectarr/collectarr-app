@@ -902,10 +902,18 @@ class LibraryTypeConfig {
       manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
   List<String> get availableGroupModes {
+    final modes = <String>{};
     final module = libraryKindModuleForType(this);
-    return [
-      for (final definition in module.fields.groups) definition.id.value,
-    ];
+    for (final definition in module.fields.groups) {
+      modes.add(definition.id.value);
+    }
+    if (capabilities.mediaScopeGroupIds != null) {
+      modes.addAll(capabilities.mediaScopeGroupIds!);
+    }
+    if (capabilities.releaseScopeGroupIds != null) {
+      modes.addAll(capabilities.releaseScopeGroupIds!);
+    }
+    return modes.toList();
   }
 
   LibraryWorkspaceDensityPreset get defaultDensityPreset =>

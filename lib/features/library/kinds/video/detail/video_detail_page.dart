@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -95,11 +96,19 @@ class _VideoLibraryDetailPageState
 
   Future<void> _addCopyForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
-    await ref.read(collectionMutationsProvider).addItem(
-          widget.request.item.source.itemId,
-          editionId: anchor.editionId,
-          variantId: anchor.variantId,
-          bundleReleaseId: anchor.bundleReleaseId,
+    await ref.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: CatalogEntityRef(
+              kind: widget.request.type.workspace.kind.apiValue,
+              entityType: CatalogEntityType.work,
+              id: widget.request.item.source.itemId,
+            ),
+            common: OwnedItemCommonDraft(
+              editionId: anchor.editionId,
+              variantId: anchor.variantId,
+              bundleReleaseId: anchor.bundleReleaseId,
+            ),
+          ),
         );
   }
 

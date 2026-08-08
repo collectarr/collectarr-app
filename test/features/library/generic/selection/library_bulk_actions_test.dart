@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
@@ -42,9 +43,11 @@ void main() {
         );
 
     final mutations = container.read(collectionMutationsProvider);
-    await mutations.addItem(
-      'movie-1',
-      locationId: 'loc-a',
+    await mutations.addOwnedItem(
+      AddOwnedItemCommand(
+        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+        common: const OwnedItemCommonDraft(locationId: 'loc-a'),
+      ),
     );
 
     final row = await db.select(db.ownedItemsCache).getSingle();
@@ -79,7 +82,12 @@ void main() {
     addTearDown(container.dispose);
 
     final mutations = container.read(collectionMutationsProvider);
-    await mutations.addItem('movie-1');
+    await mutations.addOwnedItem(
+      AddOwnedItemCommand(
+        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+        common: const OwnedItemCommonDraft(),
+      ),
+    );
 
     final row = await db.select(db.ownedItemsCache).getSingle();
     final owned = testOwnedItem(
@@ -113,7 +121,12 @@ void main() {
     addTearDown(container.dispose);
 
     final mutations = container.read(collectionMutationsProvider);
-    await mutations.addItem('movie-1');
+    await mutations.addOwnedItem(
+      AddOwnedItemCommand(
+        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+        common: const OwnedItemCommonDraft(),
+      ),
+    );
     await mutations.addToWishlist('movie-2');
     await mutations.upsertTrackingEntry(
       'movie-3',

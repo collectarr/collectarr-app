@@ -89,72 +89,44 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
     minCoverSize: kPlannedMediaMinCoverSize,
     maxCoverSize: kPlannedMediaMaxCoverSize,
     coverGridHeightFactor: coverGridHeightFactor,
-    presetConfig: plannedMediaViewPresetConfig,
+    presetConfig: (preset) => plannedMediaViewPresetConfig(type, preset),
     clampColumnWidth: (column, width) =>
         clampPlannedMediaTableColumnWidth(type, column as String, width),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
-    sortAscendingForColumn: (column) => libraryKindModuleForType(type)
-        .fields
-        .sortDefinitionFor(column.toString())
-        .defaultAscending,
+    sortAscendingForColumn: (column) =>
+        libraryKindModuleForType(type).fields.findSortDefinition(column.toString())?.defaultAscending ?? true,
   );
 }
 
 LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
+  LibraryTypeConfig type,
   LibraryWorkspacePreset preset,
 ) {
+  final defaultCols = Set.of(libraryKindModuleForType(type).fields.defaultVisibleColumnIds);
   return switch (preset) {
-    LibraryWorkspacePreset.cover => const LibraryWorkspaceViewPresetConfig(
+    LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
         detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: kPlannedMediaDefaultCoverSize,
-        visibleColumns: {
-          'status',
-          'cover',
-          'title',
-          'publisher',
-          'release_date',
-        },
+        visibleColumns: defaultCols,
       ),
-    LibraryWorkspacePreset.card => const LibraryWorkspaceViewPresetConfig(
+    LibraryWorkspacePreset.card => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.card,
         detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: 150,
-        visibleColumns: {
-          'status',
-          'cover',
-          'title',
-          'publisher',
-          'release_date',
-          'added',
-        },
+        visibleColumns: defaultCols,
       ),
-    LibraryWorkspacePreset.details => const LibraryWorkspaceViewPresetConfig(
+    LibraryWorkspacePreset.details => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
         detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: 144,
-        visibleColumns: {
-          'status',
-          'cover',
-          'title',
-          'publisher',
-          'release_date',
-          'barcode',
-          'condition',
-          'price',
-        },
+        visibleColumns: defaultCols,
       ),
-    LibraryWorkspacePreset.list => const LibraryWorkspaceViewPresetConfig(
+    LibraryWorkspacePreset.list => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
         coverSize: 100,
-        visibleColumns: {
-          'status',
-          'cover',
-          'title',
-          'publisher',
-          'release_date',
-        },
+        visibleColumns: defaultCols,
       ),
   };
 }

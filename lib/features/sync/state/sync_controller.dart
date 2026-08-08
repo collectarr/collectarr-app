@@ -59,7 +59,9 @@ class SyncController extends StateNotifier<SyncState> {
     try {
       final deviceId = await DeviceIdentity().getOrCreate();
       final since = await _repo.getLastSyncedAt();
-      final result = await _repo.performSync(deviceId, since);
+      final result = await const SyncRetryPolicy().run(
+        () => _repo.performSync(deviceId, since),
+      );
       await _repo.saveLastSyncedAt(result.serverTime);
 
       ref.invalidate(collectionProvider);
