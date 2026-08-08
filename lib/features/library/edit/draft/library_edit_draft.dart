@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -1064,5 +1066,133 @@ class LibraryEditDraft {
       formats: effectiveFormats,
     );
     return byLabel?.id;
+  }
+
+  OwnedItemCommonDraft buildCommonDraft() {
+    return OwnedItemCommonDraft(
+      quantity: parseInt(quantityController.text) ?? 1,
+      condition: emptyToNull(conditionController.text),
+      grade: emptyToNull(gradeController.text),
+      purchaseDate: parseDate(purchaseDateController.text),
+      pricePaidCents: parseMoneyCents(priceController.text),
+      currency: emptyToNull(currencyController.text),
+      personalNotes: emptyToNull(notesController.text),
+      locationId: selectedLocationId,
+      purchaseStore: emptyToNull(purchaseStoreController.text),
+      collectionStatus: collectionStatus,
+      tags: emptyToNull(tagsController.text),
+      rating: parseInt(ratingController.text),
+      readStatus: emptyToNull(trackingController.text),
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      editionId: selectedEditionId,
+      variantId: selectedVariantId,
+      bundleReleaseId: selectedBundleReleaseId,
+    );
+  }
+
+  OwnedDetailsDraft buildDetailsDraft() {
+    return switch (type.workspace.kind) {
+      CatalogMediaKind.comic || CatalogMediaKind.manga => ComicOwnedDetailsDraft(
+          rawOrSlabbed: emptyToNull(rawOrSlabbedController.text),
+          gradingCompany: emptyToNull(gradingCompanyController.text),
+          graderNotes: emptyToNull(graderNotesController.text),
+          signedBy: emptyToNull(signedByController.text),
+          labelType: emptyToNull(labelTypeController.text),
+          pageQuality: emptyToNull(pageQualityController.text),
+          certificationNumber: emptyToNull(certificationNumberController.text),
+          keyComic: keyComic,
+          keyReason: emptyToNull(keyReasonController.text),
+          keyCategory: emptyToNull(keyCategoryController.text),
+          coverPriceCents: parseMoneyCents(coverPriceController.text),
+          lastBagBoardDate: lastBagBoardDate,
+        ),
+      CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime => VideoOwnedDetailsDraft(
+          features: emptyToNull(featuresController.text),
+          hdrFormats: hdrFormats,
+          boxSetName: emptyToNull(boxSetNameController.text),
+          region: emptyToNull(regionController.text),
+          packaging: emptyToNull(packagingController.text),
+          distributor: emptyToNull(distributorController.text),
+        ),
+      CatalogMediaKind.game => GameOwnedDetailsDraft(
+          completeness: gameCompleteness,
+          hasBox: gameHasBox,
+          hasManual: gameHasManual,
+          priceChartingId: gamePriceChartingId,
+          coreRegion: gameCoreRegion,
+          valueIsLocked: gameValueIsLocked,
+        ),
+      CatalogMediaKind.music => MusicOwnedDetailsDraft(
+          storageDevice: emptyToNull(storageDeviceController.text),
+          storageSlot: emptyToNull(storageSlotController.text),
+        ),
+      _ => const GenericOwnedDetailsDraft(),
+    };
+  }
+
+  AddOwnedItemCommand toAddOwnedItemCommand() {
+    return AddOwnedItemCommand(
+      catalogRef: CatalogEntityRef(
+        kind: type.workspace.kind.apiValue,
+        entityType: CatalogEntityType.ownedCopy,
+        id: item.id,
+      ),
+      common: buildCommonDraft(),
+      details: buildDetailsDraft(),
+    );
+  }
+
+  UpdateOwnedItemCommand toUpdateOwnedItemCommand(String ownedItemId) {
+    return UpdateOwnedItemCommand(
+      ownedItemId: ownedItemId,
+      quantity: Patch.set(parseInt(quantityController.text) ?? 1),
+      condition: conditionController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(conditionController.text.trim()),
+      grade: gradeController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(gradeController.text.trim()),
+      purchaseDate: purchaseDateController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseDate(purchaseDateController.text)),
+      pricePaidCents: priceController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseMoneyCents(priceController.text)),
+      currency: currencyController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(currencyController.text.trim()),
+      personalNotes: notesController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(notesController.text.trim()),
+      locationId: selectedLocationId != null
+          ? Patch.set(selectedLocationId)
+          : const Patch.clear(),
+      purchaseStore: purchaseStoreController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(purchaseStoreController.text.trim()),
+      collectionStatus: collectionStatus != null
+          ? Patch.set(collectionStatus)
+          : const Patch.clear(),
+      tags: tagsController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(tagsController.text.trim()),
+      rating: ratingController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseInt(ratingController.text)),
+      readStatus: trackingController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(trackingController.text.trim()),
+      startedAt: startedAt != null ? Patch.set(startedAt) : const Patch.clear(),
+      finishedAt: finishedAt != null ? Patch.set(finishedAt) : const Patch.clear(),
+      soldAt: soldAt != null ? Patch.set(soldAt) : const Patch.clear(),
+      sellPriceCents: sellPriceController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseMoneyCents(sellPriceController.text)),
+      soldTo: soldToController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(soldToController.text.trim()),
+      details: Patch.set(buildDetailsDraft()),
+    );
   }
 }

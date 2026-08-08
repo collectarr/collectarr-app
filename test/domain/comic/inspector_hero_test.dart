@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
-import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
-LibraryProjectionRuntime _itemFixture() {
+LibraryProjectionItem _itemFixture() {
   final cat = CatalogItemDto(
     id: 'comic-hero-fixture',
     kind: 'comic',
@@ -28,11 +28,8 @@ LibraryProjectionRuntime _itemFixture() {
     ),
     genres: const ['Action', 'Dystopian'],
   );
-  final source = ShelfEntry(catalogItem: cat);
-  return const ComicWorkspaceProjector().project(
-    source: source,
-    node: const LibraryTitleNodeRef('comic-hero-fixture'),
-  );
+  final source = ShelfEntry(itemId: 'comic-hero-fixture', catalogItem: cat);
+  return LibraryProjectionItem.fromShelf(source, comicsLibraryConfig);
 }
 
 Widget _heroHost(OwnedItem ownedItem) {

@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -139,47 +141,54 @@ Future<void> addLibraryItemsToTarget({
     );
     switch (target) {
       case LibraryAddTarget.owned:
-        final ownedItem = await mutations.addItem(
-          item.id,
-          isDigital: digitalOwnedItem,
-          anchorType: reference.anchorType,
-          editionId: ownedDetails?.editionId ?? reference.editionId,
-          variantId: ownedDetails?.variantId ?? reference.variantId,
-          bundleReleaseId: reference.bundleReleaseId,
-          condition: isDigitalOwnedItem
-            ? null
-            : ownedDetails?.condition ?? defaults.condition,
-          grade: isDigitalOwnedItem
-            ? null
-            : ownedDetails?.grade ?? defaults.grade,
-          purchaseDate: ownedDetails?.purchaseDate ?? defaults.purchaseDate,
-          pricePaidCents: ownedDetails?.pricePaidCents,
-          currency: ownedDetails?.currency,
-          personalNotes: ownedDetails?.personalNotes,
-          quantity: ownedDetails?.quantity ?? 1,
-          locationId: isDigitalOwnedItem
-            ? null
-            : ownedDetails?.locationId ?? defaults.locationId,
-          coverPriceCents:
-            isDigitalOwnedItem ? null : ownedDetails?.coverPriceCents,
-          rawOrSlabbed: isDigitalOwnedItem ? null : ownedDetails?.rawOrSlabbed,
-          gradingCompany:
-            isDigitalOwnedItem ? null : ownedDetails?.gradingCompany,
-          graderNotes: isDigitalOwnedItem ? null : ownedDetails?.graderNotes,
-          signedBy: isDigitalOwnedItem ? null : ownedDetails?.signedBy,
-          labelType: isDigitalOwnedItem ? null : ownedDetails?.labelType,
-          certificationNumber:
-            isDigitalOwnedItem ? null : ownedDetails?.certificationNumber,
-          keyComic: ownedDetails?.keyComic ?? false,
-          keyReason: ownedDetails?.keyReason,
-          rating: ownedDetails?.rating,
-          readStatus: ownedDetails?.readStatus ?? defaults.readStatus,
-          startedAt: ownedDetails?.startedAt,
-          finishedAt: ownedDetails?.finishedAt,
-          tags: ownedDetails?.tags ?? defaults.tags,
-          soldAt: ownedDetails?.soldAt,
-          sellPriceCents: ownedDetails?.sellPriceCents,
-          soldTo: ownedDetails?.soldTo,
+        final addCmd = AddOwnedItemCommand(
+          catalogRef: CatalogEntityRef(
+            kind: item.kind ?? 'unknown',
+            entityType: CatalogEntityType.ownedCopy,
+            id: item.id,
+          ),
+          common: OwnedItemCommonDraft(
+            isDigital: digitalOwnedItem,
+            editionId: ownedDetails?.editionId ?? reference.editionId,
+            variantId: ownedDetails?.variantId ?? reference.variantId,
+            bundleReleaseId: reference.bundleReleaseId,
+            condition: isDigitalOwnedItem
+                ? null
+                : ownedDetails?.condition ?? defaults.condition,
+            grade: isDigitalOwnedItem
+                ? null
+                : ownedDetails?.grade ?? defaults.grade,
+            purchaseDate: ownedDetails?.purchaseDate ?? defaults.purchaseDate,
+            pricePaidCents: ownedDetails?.pricePaidCents,
+            currency: ownedDetails?.currency,
+            personalNotes: ownedDetails?.personalNotes,
+            quantity: ownedDetails?.quantity ?? 1,
+            locationId: isDigitalOwnedItem
+                ? null
+                : ownedDetails?.locationId ?? defaults.locationId,
+            rating: ownedDetails?.rating,
+            readStatus: ownedDetails?.readStatus ?? defaults.readStatus,
+            startedAt: ownedDetails?.startedAt,
+            finishedAt: ownedDetails?.finishedAt,
+            tags: ownedDetails?.tags ?? defaults.tags,
+          ),
+          details: switch (item.kind?.trim().toLowerCase()) {
+            'comic' || 'manga' => ComicOwnedDetailsDraft(
+                rawOrSlabbed: isDigitalOwnedItem ? null : ownedDetails?.rawOrSlabbed,
+                gradingCompany: isDigitalOwnedItem ? null : ownedDetails?.gradingCompany,
+                graderNotes: isDigitalOwnedItem ? null : ownedDetails?.graderNotes,
+                signedBy: isDigitalOwnedItem ? null : ownedDetails?.signedBy,
+                labelType: isDigitalOwnedItem ? null : ownedDetails?.labelType,
+                certificationNumber: isDigitalOwnedItem ? null : ownedDetails?.certificationNumber,
+                keyComic: ownedDetails?.keyComic ?? false,
+                keyReason: ownedDetails?.keyReason,
+                coverPriceCents: isDigitalOwnedItem ? null : ownedDetails?.coverPriceCents,
+              ),
+            _ => const GenericOwnedDetailsDraft(),
+          },
+        );
+        final ownedItem = await mutations.addOwnedItem(
+          addCmd,
           syncTracking: false,
           notify: false,
         );

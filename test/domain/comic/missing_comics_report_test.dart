@@ -79,7 +79,10 @@ void main() {
 
     final reports = buildMissingComicSeriesReports(
       [owned, variantA, variantB, unreleased],
-      options: const MissingComicReportOptions(includeVariants: true),
+      options: const MissingComicReportOptions(
+        includeVariants: true,
+        excludeUnreleased: false,
+      ),
       now: DateTime.utc(2026, 1, 1),
     );
 

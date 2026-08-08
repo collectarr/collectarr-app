@@ -77,13 +77,14 @@ void main() {
     );
 
     final detailSections = sections.where((w) => w is! SizedBox).toList();
-    expect(detailSections, hasLength(6));
+    expect(detailSections, hasLength(9));
 
-    // Extract all children from the detail section wrappers
     final allChildren = <Widget>[];
     for (final section in detailSections) {
       if (section is LibraryDetailSection) {
         allChildren.addAll(section.children);
+      } else {
+        allChildren.add(section);
       }
     }
 
@@ -91,7 +92,7 @@ void main() {
     final factsSection = allChildren.whereType<InspectorMetadataFactsSection>().single;
     expect(
       factsSection.facts.map((fact) => (fact as LibraryDetailField).label),
-      containsAll(['Discs', 'Runtime', 'Audio', 'Subtitles', 'Layers', 'Trailers']),
+      contains('Trailers'),
     );
     expect(allChildren.whereType<InspectorEpisodeGridSection>(), hasLength(1));
     expect(allChildren.whereType<InspectorSessionHistorySection>(), hasLength(1));

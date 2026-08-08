@@ -10,9 +10,9 @@ void main() {
       expect(
         defaultVisibleColumnIds,
         containsAll(<String>{
-          'title',
-          'release_date',
-          'publisher',
+          'movie.title',
+          'movie.release_date',
+          'movie.publisher',
         }),
       );
       expect(

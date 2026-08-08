@@ -17,6 +17,6 @@ void main() {
 
     // Verify the auth screen renders with login controls.
     expect(find.byType(FilledButton), findsOneWidget);
-    expect(find.byType(OutlinedButton), findsWidgets);
+    expect(find.byType(TextField), findsWidgets);
   });
 }

@@ -199,15 +199,20 @@ LibraryGroupDefinition<dynamic, Object?>? libraryGroupModeDefinitionOrNull(
   if (type != null) {
     final module = libraryKindModuleForType(type);
     for (final definition in module.fields.groups) {
-      if (definition.id.value == targetId || definition.id.value == mode) {
+      if (definition.id.value == targetId ||
+          definition.id.value == mode ||
+          definition.id.value.endsWith('.$targetId') ||
+          definition.id.value.endsWith('.$mode')) {
         return definition;
       }
     }
-    return null;
   }
   for (final module in LibraryKindRegistry.instance.allRuntimes) {
     for (final definition in module.fields.groups) {
-      if (definition.id.value == targetId || definition.id.value == mode) {
+      if (definition.id.value == targetId ||
+          definition.id.value == mode ||
+          definition.id.value.endsWith('.$targetId') ||
+          definition.id.value.endsWith('.$mode')) {
         return definition;
       }
     }
@@ -216,11 +221,20 @@ LibraryGroupDefinition<dynamic, Object?>? libraryGroupModeDefinitionOrNull(
 }
 
 String _fallbackGroupModeLabel(String mode) {
-  final words = mode.replaceAllMapped(
+  if (mode == 'movie_or_tv_series') return 'Movie / TV Series';
+  if (mode == 'age_rating') return 'Age rating';
+  if (mode == 'release_year') return 'Release Year';
+  if (mode == 'creator') return 'All Creators';
+  if (mode == 'editor_in_chief') return 'Editor in Chief';
+  final raw = mode.replaceAllMapped(
     RegExp(r'([a-z0-9])([A-Z])'),
     (match) => '${match.group(1)} ${match.group(2)}',
   ).replaceAll('_', ' ');
-  return words[0].toUpperCase() + words.substring(1);
+  return raw
+      .split(' ')
+      .where((w) => w.isNotEmpty)
+      .map((w) => w == '&' ? '&' : '${w[0].toUpperCase()}${w.substring(1)}')
+      .join(' ');
 }
 
 String _fallbackGroupModeSidebarTitle(String mode) {
@@ -238,6 +252,9 @@ String genericGroupModeLabel(
   String mode,
   LibraryTypeConfig type,
 ) {
+  if (mode == 'publisher' && type.presentation.groupLabels.publisherMode.isNotEmpty) {
+    return type.presentation.groupLabels.publisherMode;
+  }
   return libraryGroupModeDefinitionOrNull(mode, type)?.label ??
       _fallbackGroupModeLabel(mode);
 }

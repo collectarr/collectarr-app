@@ -68,6 +68,7 @@ final booksLibraryConfig = LibraryTypeConfig(
 
 const Set<String> _bookMediaGroupModes = {
   'creator',
+  'book.author',
   'country',
   'language',
   'release_date',
@@ -75,12 +76,16 @@ const Set<String> _bookMediaGroupModes = {
   'publication_place',
   'release_year',
   'publisher',
+  'book.publisher',
   'series',
+  'book.series',
   'genre',
   'subject',
   'collection_status',
   'condition',
+  'book.condition',
   'location',
+  'book.location',
   'added_date',
   'added_month',
   'added_year',
@@ -95,6 +100,11 @@ const Set<String> _bookMediaGroupModes = {
 
 const Set<String> _bookReleaseGroupModes = {
   'audiobook_abridged',
+  'book.author',
+  'book.publisher',
+  'book.series',
+  'book.condition',
+  'book.location',
   'box_set',
   'edition',
   'extras',
