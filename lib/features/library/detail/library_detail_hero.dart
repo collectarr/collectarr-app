@@ -111,6 +111,8 @@ class LibraryDetailHero extends StatelessWidget {
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
     ];
+    final creatorsList = item.source.catalogItem?.creators ?? const [];
+    final authorName = creatorsList.isEmpty ? null : creatorsList.first['name'] as String?;
 
     return Container(
       decoration: BoxDecoration(
