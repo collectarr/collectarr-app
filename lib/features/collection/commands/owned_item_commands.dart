@@ -268,6 +268,7 @@ class UpdateOwnedItemCommand {
     this.sellPriceCents = const Patch.unchanged(),
     this.soldTo = const Patch.unchanged(),
     this.marketValueCents = const Patch.unchanged(),
+    this.indexNumber = const Patch.unchanged(),
     this.details = const Patch.unchanged(),
   });
 
@@ -292,5 +293,53 @@ class UpdateOwnedItemCommand {
   final Patch<int?> sellPriceCents;
   final Patch<String?> soldTo;
   final Patch<int?> marketValueCents;
+  final Patch<int?> indexNumber;
   final Patch<OwnedDetailsDraft> details;
 }
+
+/// Helper extension to map concrete details to drafts.
+extension OwnedItemDetailsToDraft on OwnedItemDetails {
+  OwnedDetailsDraft toDraft() {
+    return switch (this) {
+      ComicOwnedDetails c => ComicOwnedDetailsDraft(
+          rawOrSlabbed: c.rawOrSlabbed,
+          gradingCompany: c.gradingCompany,
+          graderNotes: c.graderNotes,
+          signedBy: c.signedBy,
+          labelType: c.labelType,
+          customLabel: c.customLabel,
+          pageQuality: c.pageQuality,
+          certificationNumber: c.certificationNumber,
+          keyComic: c.keyComic,
+          keyReason: c.keyReason,
+          keyCategory: c.keyCategory,
+          keySeverity: c.keySeverity,
+          coverPriceCents: c.coverPriceCents,
+          lastBagBoardDate: c.lastBagBoardDate,
+        ),
+      VideoOwnedDetails v => VideoOwnedDetailsDraft(
+          features: v.features,
+          hdrFormats: v.hdrFormats,
+          boxSetId: v.boxSetId,
+          boxSetName: v.boxSetName,
+          region: v.region,
+          packaging: v.packaging,
+          distributor: v.distributor,
+        ),
+      GameOwnedDetails g => GameOwnedDetailsDraft(
+          completeness: g.completeness,
+          hasBox: g.hasBox,
+          hasManual: g.hasManual,
+          priceChartingId: g.priceChartingId,
+          coreRegion: g.coreRegion,
+          valueIsLocked: g.valueIsLocked,
+        ),
+      MusicOwnedDetails m => MusicOwnedDetailsDraft(
+          storageDevice: m.storageDevice,
+          storageSlot: m.storageSlot,
+        ),
+      _ => const GenericOwnedDetailsDraft(),
+    };
+  }
+}
+

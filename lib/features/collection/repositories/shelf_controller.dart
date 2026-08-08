@@ -278,4 +278,21 @@ class ShelfEntry extends LibraryEntry {
   final List<WatchSession> watchSessions;
   final List<ItemImage> itemImages;
   final String? fallbackOwnerLabel;
+
+  String? get condition => ownedItem?.condition;
+  String? get grade => ownedItem?.grade;
+  int? get pricePaidCents => ownedItem?.pricePaidCents;
+  int? get marketValueCents => ownedItem?.marketValueCents;
+  String? get currency => ownedItem?.currency;
+  String? get purchaseStore => ownedItem?.purchaseStore;
+  DateTime? get purchaseDate => ownedItem?.purchaseDate;
+  String? get personalNotes => ownedItem?.personalNotes;
+  String? get tags => ownedItem?.tags;
+  List<String> get tagList {
+    final raw = ownedItem?.tags?.trim();
+    if (raw == null || raw.isEmpty) return const <String>[];
+    return raw.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
+  }
+  String? get ownerLabel => ownedItem?.ownerLabel ?? fallbackOwnerLabel;
+  int get quantity => ownedItem?.quantity ?? (isOwned ? 1 : 0);
 }

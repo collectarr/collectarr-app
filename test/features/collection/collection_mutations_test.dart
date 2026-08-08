@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -31,12 +32,17 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addItem(
-          'comic-1',
-          editionId: 'edition-1',
-          variantId: 'variant-1',
-          condition: 'Near Mint',
-          grade: '9.8',
+    await container.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('comic-1', kind: 'comic'),
+            common: const OwnedItemCommonDraft(
+              editionId: 'edition-1',
+              variantId: 'variant-1',
+              condition: 'Near Mint',
+              grade: '9.8',
+            ),
+            details: const ComicOwnedDetailsDraft(),
+          ),
         );
 
     final queued = await db.select(db.syncQueue).get();
@@ -62,7 +68,12 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addItem('movie-1');
+    await container.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+            common: const OwnedItemCommonDraft(),
+          ),
+        );
 
     final owned = await db.select(db.ownedItemsCache).getSingle();
     final queued = await db.select(db.syncQueue).getSingle();
@@ -90,7 +101,12 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addItem('comic-1');
+    await container.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('comic-1', kind: 'comic'),
+            common: const OwnedItemCommonDraft(),
+          ),
+        );
 
     expect(syncController.onlineFirstRequests, 1);
   });
@@ -106,10 +122,14 @@ void main() {
     await CatalogCacheRepository(db).upsertAll([
       CatalogItem(id: 'comic-1', kind: 'comic', title: 'Original'),
     ]);
-    await container.read(collectionMutationsProvider).addItem(
-          'comic-1',
-          condition: 'Near Mint',
-          rating: 8,
+    await container.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('comic-1', kind: 'comic'),
+            common: const OwnedItemCommonDraft(
+              condition: 'Near Mint',
+              rating: 8,
+            ),
+          ),
         );
 
     await container.read(collectionMutationsProvider).updateCatalogSnapshot(
@@ -138,12 +158,16 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addItem(
-          'movie-1',
-          rating: 8,
-          readStatus: 'Completed',
-          startedAt: DateTime.utc(2026, 5, 10),
-          finishedAt: DateTime.utc(2026, 5, 12),
+    await container.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+            common: OwnedItemCommonDraft(
+              rating: 8,
+              readStatus: 'Completed',
+              startedAt: DateTime.utc(2026, 5, 10),
+              finishedAt: DateTime.utc(2026, 5, 12),
+            ),
+          ),
         );
 
     final owned = await db.select(db.ownedItemsCache).getSingle();
@@ -179,10 +203,14 @@ void main() {
       ),
     ]);
 
-    await container.read(collectionMutationsProvider).addItem(
-          'movie-digital-1',
-          rating: 9,
-          readStatus: 'Completed',
+    await container.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('movie-digital-1', kind: 'movie'),
+            common: const OwnedItemCommonDraft(
+              rating: 9,
+              readStatus: 'Completed',
+            ),
+          ),
         );
 
     final owned = await db.select(db.ownedItemsCache).getSingle();
@@ -201,10 +229,14 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final owned = await container.read(collectionMutationsProvider).addItem(
-          'movie-2',
-          editionId: 'edition-legacy',
-          variantId: 'variant-legacy',
+    final owned = await container.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('movie-2', kind: 'movie'),
+            common: const OwnedItemCommonDraft(
+              editionId: 'edition-legacy',
+              variantId: 'variant-legacy',
+            ),
+          ),
           syncTracking: false,
         );
     await container.read(collectionMutationsProvider).syncOwnedTrackingEntry(
@@ -345,12 +377,17 @@ void main() {
       ),
     ]);
 
-    await container.read(collectionMutationsProvider).addItem('comic-1');
+    await container.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('comic-1', kind: 'comic'),
+            common: const OwnedItemCommonDraft(),
+          ),
+        );
 
     final queued = await db.select(db.syncQueue).get();
     final snapshot =
         queued.where((row) => row.entityType == 'library_item_snapshot').single;
-    // addItem enqueues the owned item, the catalog snapshot, and auto-registers
+    // addOwnedItem enqueues the owned item, the catalog snapshot, and auto-registers
     // the publisher as a pick-list value.
     expect(queued, hasLength(3));
     expect(
@@ -373,31 +410,31 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addItem(
-          'comic-1',
-          condition: 'Near Mint',
-          grade: '9.8',
-          purchaseDate: DateTime.utc(2026, 5, 10),
-          pricePaidCents: 1299,
-          currency: 'USD',
-          personalNotes: 'Signed copy',
+    await container.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('comic-1', kind: 'comic'),
+            common: OwnedItemCommonDraft(
+              condition: 'Near Mint',
+              grade: '9.8',
+              purchaseDate: DateTime.utc(2026, 5, 10),
+              pricePaidCents: 1299,
+              currency: 'USD',
+              personalNotes: 'Signed copy',
+            ),
+          ),
         );
     final original = await db.select(db.ownedItemsCache).getSingle();
 
-    await container.read(collectionMutationsProvider).updateItem(
-          testOwnedItem(
-            id: original.id,
-            itemId: original.itemId,
-            condition: original.condition,
-            grade: original.grade,
-            purchaseDate: original.purchaseDate,
-            pricePaidCents: original.pricePaidCents,
-            currency: original.currency,
-            personalNotes: original.personalNotes,
-            updatedAt: original.updatedAt,
+    await container.read(collectionMutationsProvider).updateOwnedItem(
+          UpdateOwnedItemCommand(
+            ownedItemId: original.id,
+            condition: const Patch.set('Near Mint'),
+            grade: const Patch.set('9.8'),
+            purchaseDate: const Patch.clear(),
+            pricePaidCents: const Patch.clear(),
+            currency: const Patch.clear(),
+            personalNotes: const Patch.clear(),
           ),
-          condition: 'Near Mint',
-          grade: '9.8',
         );
 
     final updated = await db.select(db.ownedItemsCache).getSingle();
@@ -415,20 +452,21 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addItem(
-          'comic-1',
-          locationId: 'loc-box-6',
+    await container.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: testCatalogRef('comic-1', kind: 'comic'),
+            common: const OwnedItemCommonDraft(
+              locationId: 'loc-box-6',
+            ),
+          ),
         );
     final original = await db.select(db.ownedItemsCache).getSingle();
 
-    await container.read(collectionMutationsProvider).updateItem(
-          testOwnedItem(
-            id: original.id,
-            itemId: original.itemId,
-            locationId: original.locationId,
-            updatedAt: original.updatedAt,
+    await container.read(collectionMutationsProvider).updateOwnedItem(
+          UpdateOwnedItemCommand(
+            ownedItemId: original.id,
+            locationId: const Patch.clear(),
           ),
-          locationId: null,
         );
 
     final updated = await db.select(db.ownedItemsCache).getSingle();
@@ -810,7 +848,13 @@ void main() {
     addTearDown(container.dispose);
     final mutations = container.read(collectionMutationsProvider);
 
-    await mutations.addItem('comic-1', grade: '4.0');
+    await mutations.addOwnedItem(
+      AddOwnedItemCommand(
+        catalogRef: testCatalogRef('comic-1', kind: 'comic'),
+        common: const OwnedItemCommonDraft(grade: '4.0'),
+        details: const ComicOwnedDetailsDraft(),
+      ),
+    );
 
     final preview = await mutations.previewImportRows(
       const [
@@ -837,7 +881,13 @@ void main() {
     addTearDown(container.dispose);
     final mutations = container.read(collectionMutationsProvider);
 
-    await mutations.addItem('comic-1', condition: 'Good', grade: '4.0');
+    await mutations.addOwnedItem(
+      AddOwnedItemCommand(
+        catalogRef: testCatalogRef('comic-1', kind: 'comic'),
+        common: const OwnedItemCommonDraft(condition: 'Good', grade: '4.0'),
+        details: const ComicOwnedDetailsDraft(),
+      ),
+    );
     final original = await db.select(db.ownedItemsCache).getSingle();
 
     final imported = await mutations.importRows(

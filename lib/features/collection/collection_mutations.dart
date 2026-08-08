@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -52,78 +53,120 @@ class CollectionMutations {
   final Uuid _uuid = const Uuid();
   final Set<String> _pendingCoverDownloads = <String>{};
 
+  LocalDatabase get _db => ref.read(localDatabaseProvider);
+
+  /// Executes DB mutations and outbox enqueues atomically within a database transaction.
+  Future<T> _runAtomicMutation<T>(Future<T> Function() action) {
+    return _db.transaction(() async {
+      return await action();
+    });
+  }
+
   Future<OwnedItem> addOwnedItem(
     AddOwnedItemCommand command, {
     bool syncTracking = true,
     bool notify = true,
   }) async {
+    final now = DateTime.now().toUtc();
     final common = command.common;
-    final details = command.details;
     final catalogRef = command.catalogRef;
-    final existingCatalog = await _catalogCache().findById(catalogRef.id);
-    if (existingCatalog == null) {
-      await _catalogCache().upsertAll([
-        CatalogItem(
-          id: catalogRef.id,
-          kind: catalogRef.kind,
-          title: catalogRef.id,
-        ),
-      ]);
-    }
+    final auth = ref.read(authControllerProvider);
 
-    return addItem(
-      catalogRef.id,
-      kind: catalogRef.kind,
-      isDigital: common.isDigital,
-      editionId: common.editionId,
-      variantId: common.variantId,
-      bundleReleaseId: common.bundleReleaseId,
-      condition: common.condition,
-      grade: common.grade,
-      purchaseDate: common.purchaseDate,
-      pricePaidCents: common.pricePaidCents,
-      currency: common.currency,
-      personalNotes: common.personalNotes,
-      quantity: common.quantity,
-      locationId: common.locationId,
-      purchaseStore: common.purchaseStore,
-      collectionStatus: common.collectionStatus,
-      tags: common.tags,
-      rating: common.rating,
-      readStatus: common.readStatus,
-      startedAt: common.startedAt,
-      finishedAt: common.finishedAt,
-      rawOrSlabbed: details is ComicOwnedDetailsDraft ? details.rawOrSlabbed : null,
-      gradingCompany: details is ComicOwnedDetailsDraft ? details.gradingCompany : null,
-      graderNotes: details is ComicOwnedDetailsDraft ? details.graderNotes : null,
-      signedBy: details is ComicOwnedDetailsDraft ? details.signedBy : null,
-      labelType: details is ComicOwnedDetailsDraft ? details.labelType : null,
-      pageQuality: details is ComicOwnedDetailsDraft ? details.pageQuality : null,
-      certificationNumber: details is ComicOwnedDetailsDraft ? details.certificationNumber : null,
-      keyComic: details is ComicOwnedDetailsDraft ? details.keyComic : false,
-      keyReason: details is ComicOwnedDetailsDraft ? details.keyReason : null,
-      keyCategory: details is ComicOwnedDetailsDraft ? details.keyCategory : null,
-      keySeverity: details is ComicOwnedDetailsDraft ? details.keySeverity : null,
-      coverPriceCents: details is ComicOwnedDetailsDraft ? details.coverPriceCents : null,
-      lastBagBoardDate: details is ComicOwnedDetailsDraft ? details.lastBagBoardDate : null,
-      features: details is VideoOwnedDetailsDraft ? details.features : null,
-      hdrFormats: details is VideoOwnedDetailsDraft ? details.hdrFormats : null,
-      boxSetId: details is VideoOwnedDetailsDraft ? details.boxSetId : null,
-      boxSetName: details is VideoOwnedDetailsDraft ? details.boxSetName : null,
-      region: details is VideoOwnedDetailsDraft ? details.region : null,
-      packaging: details is VideoOwnedDetailsDraft ? details.packaging : null,
-      distributor: details is VideoOwnedDetailsDraft ? details.distributor : null,
-      gameCompleteness: details is GameOwnedDetailsDraft ? details.completeness : null,
-      gameHasBox: details is GameOwnedDetailsDraft ? details.hasBox : null,
-      gameHasManual: details is GameOwnedDetailsDraft ? details.hasManual : null,
-      gamePriceChartingId: details is GameOwnedDetailsDraft ? details.priceChartingId : null,
-      gameCoreRegion: details is GameOwnedDetailsDraft ? details.coreRegion : null,
-      gameValueIsLocked: details is GameOwnedDetailsDraft ? (details.valueIsLocked ?? false) : false,
-      storageDevice: details is MusicOwnedDetailsDraft ? details.storageDevice : null,
-      storageSlot: details is MusicOwnedDetailsDraft ? details.storageSlot : null,
-      syncTracking: syncTracking,
-      notify: notify,
-    );
+    final ({OwnedItem ownedItem, bool wishlistChanged}) result =
+        await _runAtomicMutation(() async {
+      // Ensure catalog snapshot exists locally.
+      final existingCatalog = await _catalogCache().findById(catalogRef.id);
+      if (existingCatalog == null) {
+        await _catalogCache().upsertAll([
+          CatalogItem(
+            id: catalogRef.id,
+            kind: catalogRef.kind,
+            title: catalogRef.id,
+          ),
+        ]);
+      }
+
+      final resolvedIsDigital =
+          common.isDigital ?? await _resolveOwnedDigitalFlag(itemId: catalogRef.id);
+      final normalizedAnchorType = _normalizedPersonalAnchorType(
+        null,
+        editionId: common.editionId,
+        variantId: common.variantId,
+        bundleReleaseId: common.bundleReleaseId,
+      );
+      final resolvedCatalogRef = _catalogRefForItem(
+        catalogRef.id,
+        existingCatalog,
+        fallbackKind: catalogRef.kind,
+        anchorType: normalizedAnchorType,
+        editionId: common.editionId,
+        variantId: common.variantId,
+        bundleReleaseId: common.bundleReleaseId,
+      );
+
+      final ownedItem = OwnedItem(
+        id: _uuid.v4(),
+        catalogRef: resolvedCatalogRef,
+        createdAt: now,
+        isDigital: resolvedIsDigital,
+        anchorType: normalizedAnchorType,
+        editionId: common.editionId,
+        variantId: common.variantId,
+        bundleReleaseId: common.bundleReleaseId,
+        details: command.details.toDetails(),
+        condition: common.condition,
+        grade: common.grade,
+        purchaseDate: common.purchaseDate,
+        pricePaidCents: common.pricePaidCents,
+        currency: common.currency,
+        personalNotes: common.personalNotes,
+        quantity: common.quantity,
+        locationId: common.locationId,
+        purchaseStore: common.purchaseStore,
+        collectionStatus: common.collectionStatus,
+        tags: common.tags,
+        rating: common.rating,
+        readStatus: common.readStatus,
+        startedAt: common.startedAt,
+        finishedAt: common.finishedAt,
+        ownerUserId: auth.userId,
+        ownerLabel: auth.email,
+        updatedAt: now,
+      );
+
+      await _ownedCache().upsert(ownedItem);
+      await _enqueueOwnedItem(ownedItem, 'upsert', now);
+      if (syncTracking) {
+        await _syncTrackingForOwnedItem(ownedItem, now);
+      }
+      if (existingCatalog != null) {
+        await _enqueueCatalogSnapshotForItemId(catalogRef.id, now);
+      }
+
+      final wishlistItems = await _wishlistItemsForMutation(
+        catalogRef.id,
+        anchorType: normalizedAnchorType,
+        editionId: common.editionId,
+        variantId: common.variantId,
+        bundleReleaseId: common.bundleReleaseId,
+      );
+      for (final wishlistItem in wishlistItems) {
+        await _wishlistCache().markDeleted(wishlistItem, now);
+        await _enqueueWishlistItem(
+          wishlistItem.copyWith(updatedAt: now, deletedAt: now),
+          'delete',
+          now,
+        );
+      }
+
+      return (ownedItem: ownedItem, wishlistChanged: wishlistItems.isNotEmpty);
+    });
+
+    unawaited(_downloadCoverForOwnedItem(result.ownedItem.id, catalogRef.id));
+    if (notify) {
+      await _notifyCollectionChanged(wishlistChanged: result.wishlistChanged);
+    }
+    return result.ownedItem;
   }
 
   Future<OwnedItem> updateOwnedItem(
@@ -131,506 +174,149 @@ class CollectionMutations {
     bool syncTracking = true,
     bool notify = true,
   }) async {
-    final existing = await _ownedCache().findById(command.ownedItemId);
-    if (existing == null) {
-      throw StateError('OwnedItem not found: ${command.ownedItemId}');
-    }
-    final detailsDraft = command.details.valueOrNull();
-
-    return updateItem(
-      existing,
-      quantity: command.quantity.valueOrNull() ?? existing.quantity,
-      condition: command.condition.when(
-        unchanged: () => existing.condition,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      grade: command.grade.when(
-        unchanged: () => existing.grade,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      purchaseDate: command.purchaseDate.when(
-        unchanged: () => existing.purchaseDate,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      pricePaidCents: command.pricePaidCents.when(
-        unchanged: () => existing.pricePaidCents,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      currency: command.currency.when(
-        unchanged: () => existing.currency,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      personalNotes: command.personalNotes.when(
-        unchanged: () => existing.personalNotes,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      locationId: command.locationId.when(
-        unchanged: () => existing.locationId,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      purchaseStore: command.purchaseStore.when(
-        unchanged: () => existing.purchaseStore,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      collectionStatus: command.collectionStatus.when(
-        unchanged: () => existing.collectionStatus,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      isDigital: command.isDigital.when(
-        unchanged: () => existing.isDigital,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      tags: command.tags.when(
-        unchanged: () => existing.tags,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      rating: command.rating.when(
-        unchanged: () => existing.rating,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      readStatus: command.readStatus.when(
-        unchanged: () => existing.readStatus,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      startedAt: command.startedAt.when(
-        unchanged: () => existing.startedAt,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      finishedAt: command.finishedAt.when(
-        unchanged: () => existing.finishedAt,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      soldAt: command.soldAt.when(
-        unchanged: () => existing.soldAt,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      sellPriceCents: command.sellPriceCents.when(
-        unchanged: () => existing.sellPriceCents,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      soldTo: command.soldTo.when(
-        unchanged: () => existing.soldTo,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      marketValueCents: command.marketValueCents.when(
-        unchanged: () => existing.marketValueCents,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      rawOrSlabbed: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.rawOrSlabbed : null,
-      gradingCompany: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.gradingCompany : null,
-      graderNotes: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.graderNotes : null,
-      signedBy: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.signedBy : null,
-      labelType: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.labelType : null,
-      pageQuality: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.pageQuality : null,
-      certificationNumber: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.certificationNumber : null,
-      keyComic: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.keyComic : null,
-      keyReason: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.keyReason : null,
-      keyCategory: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.keyCategory : null,
-      keySeverity: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.keySeverity : null,
-      coverPriceCents: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.coverPriceCents : null,
-      lastBagBoardDate: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.lastBagBoardDate : null,
-      features: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.features : null,
-      hdrFormats: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.hdrFormats : null,
-      boxSetId: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.boxSetId : null,
-      boxSetName: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.boxSetName : null,
-      region: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.region : null,
-      packaging: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.packaging : null,
-      distributor: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.distributor : null,
-      gameCompleteness: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.completeness : null,
-      gameHasBox: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.hasBox : null,
-      gameHasManual: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.hasManual : null,
-      gamePriceChartingId: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.priceChartingId : null,
-      gameCoreRegion: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.coreRegion : null,
-      gameValueIsLocked: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.valueIsLocked : null,
-      storageDevice: detailsDraft is MusicOwnedDetailsDraft ? detailsDraft.storageDevice : null,
-      storageSlot: detailsDraft is MusicOwnedDetailsDraft ? detailsDraft.storageSlot : null,
-      syncTracking: syncTracking,
-      notify: notify,
-    );
-  }
-
-  Future<OwnedItem> addItem(
-    String itemId, {
-    String? kind,
-    bool? isDigital,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
-    String? condition,
-    String? grade,
-    DateTime? purchaseDate,
-    int? pricePaidCents,
-    String? currency,
-    String? personalNotes,
-    int quantity = 1,
-    String? locationId,
-    int? indexNumber,
-    int? coverPriceCents,
-    String? rawOrSlabbed,
-    String? gradingCompany,
-    String? graderNotes,
-    String? signedBy,
-    String? labelType,
-    String? pageQuality,
-    String? certificationNumber,
-    bool keyComic = false,
-    String? keyReason,
-    String? keyCategory,
-    String? keySeverity,
-    int? rating,
-    String? readStatus,
-    DateTime? startedAt,
-    DateTime? finishedAt,
-    String? tags,
-    DateTime? soldAt,
-    int? sellPriceCents,
-    String? soldTo,
-    String? features,
-    List<String>? hdrFormats,
-    String? purchaseStore,
-    String? boxSetId,
-    String? boxSetName,
-    String? storageDevice,
-    String? storageSlot,
-    String? region,
-    String? packaging,
-    String? distributor,
-    String? collectionStatus,
-    DateTime? lastBagBoardDate,
-    int? marketValueCents,
-    String? gameCompleteness,
-    bool? gameHasBox,
-    bool? gameHasManual,
-    String? gamePriceChartingId,
-    String? gameCoreRegion,
-    bool gameValueIsLocked = false,
-    bool syncTracking = true,
-    bool notify = true,
-  }) async {
     final now = DateTime.now().toUtc();
     final auth = ref.read(authControllerProvider);
-    final catalogItem = await _catalogCache().findById(itemId);
-    final resolvedIsDigital =
-        isDigital ?? await _resolveOwnedDigitalFlag(itemId: itemId);
-    final normalizedAnchorType = _normalizedPersonalAnchorType(
-      anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    final catalogRef = _catalogRefForItem(
-      itemId,
-      catalogItem,
-      fallbackKind: kind,
-      anchorType: normalizedAnchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
 
-    OwnedItemDetails details;
-    switch (catalogRef.kind) {
-      case 'comic':
-      case 'manga':
-        details = ComicOwnedDetails(
-          rawOrSlabbed: rawOrSlabbed,
-          gradingCompany: gradingCompany,
-          graderNotes: graderNotes,
-          signedBy: signedBy,
-          labelType: labelType,
-          pageQuality: pageQuality,
-          certificationNumber: certificationNumber,
-          keyComic: keyComic ?? false,
-          keyReason: keyReason,
-          keyCategory: keyCategory,
-          keySeverity: keySeverity,
-          coverPriceCents: coverPriceCents,
-          lastBagBoardDate: lastBagBoardDate,
-        );
-      case 'movie':
-      case 'tv':
-      case 'anime':
-        details = VideoOwnedDetails(
-          features: features,
-          hdrFormats: hdrFormats ?? const <String>[],
-          boxSetId: boxSetId,
-          boxSetName: boxSetName,
-          region: region,
-          packaging: packaging,
-          distributor: distributor,
-        );
-      case 'game':
-        details = GameOwnedDetails(
-          completeness: gameCompleteness,
-          hasBox: gameHasBox,
-          hasManual: gameHasManual,
-          priceChartingId: gamePriceChartingId,
-          coreRegion: gameCoreRegion,
-          valueIsLocked: gameValueIsLocked,
-        );
-      case 'music':
-        details = MusicOwnedDetails(
-          storageDevice: storageDevice,
-          storageSlot: storageSlot,
-        );
-      default:
-        details = const GenericOwnedDetails();
-    }
+    final updated = await _runAtomicMutation(() async {
+      final existing = await _ownedCache().findById(command.ownedItemId);
+      if (existing == null) {
+        throw StateError('OwnedItem not found: ${command.ownedItemId}');
+      }
 
-    final ownedItem = OwnedItem(
-      id: _uuid.v4(),
-      catalogRef: catalogRef,
-      createdAt: now,
-      isDigital: resolvedIsDigital,
-      anchorType: normalizedAnchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-      details: details,
-      condition: condition,
-      grade: grade,
-      purchaseDate: purchaseDate,
-      pricePaidCents: pricePaidCents,
-      currency: currency,
-      personalNotes: personalNotes,
-      quantity: quantity,
-      locationId: locationId,
-      indexNumber: indexNumber,
-      rating: rating,
-      readStatus: readStatus,
-      startedAt: startedAt,
-      finishedAt: finishedAt,
-      tags: tags,
-      soldAt: soldAt,
-      sellPriceCents: sellPriceCents,
-      soldTo: soldTo,
-      ownerUserId: auth.userId,
-      ownerLabel: auth.email,
-      purchaseStore: purchaseStore,
-      collectionStatus: collectionStatus,
-      marketValueCents: marketValueCents,
-      updatedAt: now,
-    );
-    await _ownedCache().upsert(ownedItem);
-    await _enqueueOwnedItem(ownedItem, 'upsert', now);
-    if (syncTracking) {
-      await _syncTrackingForOwnedItem(ownedItem, now);
-    }
-    await _enqueueCatalogSnapshotForItemId(itemId, now);
-    // Download cover image bytes in the background.
-    unawaited(_downloadCoverForOwnedItem(ownedItem.id, itemId));
-    final wishlistItems = await _wishlistItemsForMutation(
-      itemId,
-      anchorType: normalizedAnchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    for (final wishlistItem in wishlistItems) {
-      await _wishlistCache().markDeleted(wishlistItem, now);
-      await _enqueueWishlistItem(
-        wishlistItem.copyWith(updatedAt: now, deletedAt: now),
-        'delete',
-        now,
+      final resolvedDetails = command.details.when(
+        unchanged: () => existing.typedDetails,
+        set: (draft) => draft.toDetails(),
+        clear: () => const GenericOwnedDetails(),
       );
-    }
-    if (notify) {
-      await _notifyCollectionChanged(wishlistChanged: wishlistItems.isNotEmpty);
-    }
-    return ownedItem;
-  }
 
-  Future<OwnedItem> updateItem(
-    OwnedItem item, {
-    bool? isDigital,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
-    String? condition,
-    String? grade,
-    DateTime? purchaseDate,
-    int? pricePaidCents,
-    String? currency,
-    String? personalNotes,
-    int? quantity,
-    Object? locationId = _updateItemUnset,
-    int? indexNumber,
-    int? coverPriceCents,
-    String? rawOrSlabbed,
-    String? gradingCompany,
-    String? graderNotes,
-    String? signedBy,
-    String? labelType,
-    String? customLabel,
-    String? pageQuality,
-    String? certificationNumber,
-    bool? keyComic,
-    String? keyReason,
-    String? keyCategory,
-    String? keySeverity,
-    int? rating,
-    String? readStatus,
-    DateTime? startedAt,
-    DateTime? finishedAt,
-    String? tags,
-    DateTime? soldAt,
-    int? sellPriceCents,
-    String? soldTo,
-    String? features,
-    List<String>? hdrFormats,
-    String? purchaseStore,
-    String? boxSetId,
-    String? boxSetName,
-    String? storageDevice,
-    String? storageSlot,
-    String? region,
-    String? packaging,
-    String? distributor,
-    String? collectionStatus,
-    DateTime? lastBagBoardDate,
-    int? marketValueCents,
-    String? ownerLabel,
-    String? gameCompleteness,
-    bool? gameHasBox,
-    bool? gameHasManual,
-    String? gamePriceChartingId,
-    String? gameCoreRegion,
-    bool? gameValueIsLocked,
-    bool syncTracking = true,
-    bool notify = true,
-  }) async {
-    final now = DateTime.now().toUtc();
-    final auth = ref.read(authControllerProvider);
-    final resolvedIsDigital = isDigital ??
-        item.isDigital ??
-        await _resolveOwnedDigitalFlag(itemId: item.itemId);
-    final normalizedAnchorType = _normalizedPersonalAnchorType(
-      anchorType ?? item.anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-      fallbackEditionId: item.editionId,
-      fallbackVariantId: item.variantId,
-      fallbackBundleReleaseId: item.bundleReleaseId,
-    );
-    OwnedItemDetails details;
-    final existingDetails = item.typedDetails;
-    switch (item.catalogRef.kind) {
-      case 'comic':
-      case 'manga':
-        final comic = existingDetails is ComicOwnedDetails ? existingDetails : null;
-        details = ComicOwnedDetails(
-          rawOrSlabbed: rawOrSlabbed ?? comic?.rawOrSlabbed,
-          gradingCompany: gradingCompany ?? comic?.gradingCompany,
-          graderNotes: graderNotes ?? comic?.graderNotes,
-          signedBy: signedBy ?? comic?.signedBy,
-          labelType: labelType ?? comic?.labelType,
-          customLabel: customLabel ?? comic?.customLabel,
-          pageQuality: pageQuality ?? comic?.pageQuality,
-          certificationNumber: certificationNumber ?? comic?.certificationNumber,
-          keyComic: keyComic ?? comic?.keyComic ?? false,
-          keyReason: keyReason ?? comic?.keyReason,
-          keyCategory: keyCategory ?? comic?.keyCategory,
-          keySeverity: keySeverity ?? comic?.keySeverity,
-          coverPriceCents: coverPriceCents ?? comic?.coverPriceCents,
-          lastBagBoardDate: lastBagBoardDate ?? comic?.lastBagBoardDate,
-        );
-      case 'movie':
-      case 'tv':
-      case 'anime':
-        final video = existingDetails is VideoOwnedDetails ? existingDetails : null;
-        details = VideoOwnedDetails(
-          features: features ?? video?.features,
-          hdrFormats: hdrFormats ?? video?.hdrFormats ?? const <String>[],
-          boxSetId: boxSetId ?? video?.boxSetId,
-          boxSetName: boxSetName ?? video?.boxSetName,
-          region: region ?? video?.region,
-          packaging: packaging ?? video?.packaging,
-          distributor: distributor ?? video?.distributor,
-        );
-      case 'game':
-        final game = existingDetails is GameOwnedDetails ? existingDetails : null;
-        details = GameOwnedDetails(
-          completeness: gameCompleteness ?? game?.completeness,
-          hasBox: gameHasBox ?? game?.hasBox,
-          hasManual: gameHasManual ?? game?.hasManual,
-          priceChartingId: gamePriceChartingId ?? game?.priceChartingId,
-          coreRegion: gameCoreRegion ?? game?.coreRegion,
-          valueIsLocked: gameValueIsLocked ?? game?.valueIsLocked,
-        );
-      case 'music':
-        final music = existingDetails is MusicOwnedDetails ? existingDetails : null;
-        details = MusicOwnedDetails(
-          storageDevice: storageDevice ?? music?.storageDevice,
-          storageSlot: storageSlot ?? music?.storageSlot,
-        );
-      default:
-        details = const GenericOwnedDetails();
-    }
+      final updated = OwnedItem(
+        id: existing.id,
+        catalogRef: existing.catalogRef,
+        createdAt: existing.createdAt ?? now,
+        isDigital: command.isDigital.when(
+          unchanged: () => existing.isDigital,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        anchorType: existing.anchorType,
+        editionId: existing.editionId,
+        variantId: existing.variantId,
+        bundleReleaseId: existing.bundleReleaseId,
+        details: resolvedDetails,
+        condition: command.condition.when(
+          unchanged: () => existing.condition,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        grade: command.grade.when(
+          unchanged: () => existing.grade,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        purchaseDate: command.purchaseDate.when(
+          unchanged: () => existing.purchaseDate,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        pricePaidCents: command.pricePaidCents.when(
+          unchanged: () => existing.pricePaidCents,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        currency: command.currency.when(
+          unchanged: () => existing.currency,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        personalNotes: command.personalNotes.when(
+          unchanged: () => existing.personalNotes,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        quantity: command.quantity.when(
+          unchanged: () => existing.quantity,
+          set: (v) => v,
+          clear: () => 1,
+        ),
+        locationId: command.locationId.when(
+          unchanged: () => existing.locationId,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        purchaseStore: command.purchaseStore.when(
+          unchanged: () => existing.purchaseStore,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        collectionStatus: command.collectionStatus.when(
+          unchanged: () => existing.collectionStatus,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        tags: command.tags.when(
+          unchanged: () => existing.tags,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        rating: command.rating.when(
+          unchanged: () => existing.rating,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        readStatus: command.readStatus.when(
+          unchanged: () => existing.readStatus,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        startedAt: command.startedAt.when(
+          unchanged: () => existing.startedAt,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        finishedAt: command.finishedAt.when(
+          unchanged: () => existing.finishedAt,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        soldAt: command.soldAt.when(
+          unchanged: () => existing.soldAt,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        sellPriceCents: command.sellPriceCents.when(
+          unchanged: () => existing.sellPriceCents,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        soldTo: command.soldTo.when(
+          unchanged: () => existing.soldTo,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        marketValueCents: command.marketValueCents.when(
+          unchanged: () => existing.marketValueCents,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        ownerUserId: existing.ownerUserId ?? auth.userId,
+        ownerLabel: existing.ownerLabel ?? auth.email,
+        indexNumber: command.indexNumber.when(
+          unchanged: () => existing.indexNumber,
+          set: (v) => v,
+          clear: () => null,
+        ),
+        updatedAt: now,
+        deletedAt: existing.deletedAt,
+      );
 
-    final updated = OwnedItem(
-      id: item.id,
-      catalogRef: item.catalogRef,
-      createdAt: item.createdAt ?? now,
-      isDigital: resolvedIsDigital,
-      anchorType: normalizedAnchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
-      details: details,
-      condition: condition,
-      grade: grade,
-      purchaseDate: purchaseDate,
-      pricePaidCents: pricePaidCents,
-      currency: currency,
-      personalNotes: personalNotes,
-      quantity: quantity ?? item.quantity,
-      indexNumber: indexNumber,
-      rating: rating,
-      readStatus: readStatus,
-      startedAt: startedAt,
-      finishedAt: finishedAt,
-      tags: tags,
-      soldAt: soldAt,
-      sellPriceCents: sellPriceCents,
-      soldTo: soldTo,
-      ownerUserId: item.ownerUserId ?? auth.userId,
-      ownerLabel: ownerLabel ?? item.ownerLabel ?? auth.email,
-      locationId: identical(locationId, _updateItemUnset)
-          ? item.locationId
-          : locationId as String?,
-      updatedAt: now,
-      deletedAt: item.deletedAt,
-      purchaseStore: purchaseStore,
-      collectionStatus: collectionStatus ?? item.collectionStatus,
-      marketValueCents: marketValueCents ?? item.marketValueCents,
-    );
-    await _ownedCache().upsert(updated);
-    await _enqueueOwnedItem(updated, 'upsert', now);
-    if (syncTracking) {
-      await _syncTrackingForOwnedItem(updated, now);
-    }
+      await _ownedCache().upsert(updated);
+      await _enqueueOwnedItem(updated, 'upsert', now);
+      if (syncTracking) {
+        await _syncTrackingForOwnedItem(updated, now);
+      }
+      return updated;
+    });
+
     if (notify) {
       await _notifyCollectionChanged();
     }
@@ -642,8 +328,10 @@ class CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
-    await _catalogCache().upsertAll([item]);
-    await _syncQueue().enqueue(_syncChangeForCatalogItem(item, now));
+    await _runAtomicMutation(() async {
+      await _catalogCache().upsertAll([item]);
+      await _syncQueue().enqueue(_syncChangeForCatalogItem(item, now));
+    });
     if (notify) {
       await _notifyCollectionChanged();
     }
@@ -658,10 +346,12 @@ class CollectionMutations {
       return;
     }
     final now = DateTime.now().toUtc();
-    await _catalogCache().upsertAll(pendingItems);
-    await _syncQueue().enqueueAll([
-      for (final item in pendingItems) _syncChangeForCatalogItem(item, now),
-    ]);
+    await _runAtomicMutation(() async {
+      await _catalogCache().upsertAll(pendingItems);
+      await _syncQueue().enqueueAll([
+        for (final item in pendingItems) _syncChangeForCatalogItem(item, now),
+      ]);
+    });
     if (notify) {
       await _notifyCollectionChanged();
     }
@@ -669,9 +359,11 @@ class CollectionMutations {
 
   Future<void> removeItem(OwnedItem item, {bool notify = true}) async {
     final now = DateTime.now().toUtc();
-    await _ownedCache().markDeleted(item, now);
-    await _enqueueOwnedItem(
-        item.copyWith(updatedAt: now, deletedAt: now), 'delete', now);
+    await _runAtomicMutation(() async {
+      await _ownedCache().markDeleted(item, now);
+      await _enqueueOwnedItem(
+          item.copyWith(updatedAt: now, deletedAt: now), 'delete', now);
+    });
     if (notify) {
       await _notifyCollectionChanged();
     }

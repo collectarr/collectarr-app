@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -407,40 +408,36 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
-    final comic = widget.ownedItem.typedDetails is ComicOwnedDetails
-        ? widget.ownedItem.typedDetails as ComicOwnedDetails
-        : null;
     final video = widget.ownedItem.typedDetails is VideoOwnedDetails
         ? widget.ownedItem.typedDetails as VideoOwnedDetails
         : null;
+    OwnedDetailsDraft? detailsDraft;
+    if (_emptyToNull(_boxSetNameController.text) != null && video != null) {
+      detailsDraft = VideoOwnedDetailsDraft(
+        features: video.features,
+        hdrFormats: video.hdrFormats,
+        boxSetName: _emptyToNull(_boxSetNameController.text),
+        region: video.region,
+        packaging: video.packaging,
+        distributor: video.distributor,
+      );
+    }
 
-    await ref.read(collectionMutationsProvider).updateItem(
-          widget.ownedItem,
-          condition: widget.ownedItem.condition,
-          grade: widget.ownedItem.grade,
-          purchaseDate: _purchaseDate,
-          pricePaidCents: price,
-          currency: currency.isEmpty ? null : currency,
-          personalNotes: _emptyToNull(_notesController.text),
-          purchaseStore: _emptyToNull(_purchaseStoreController.text),
-          boxSetName: _emptyToNull(_boxSetNameController.text) ?? video?.boxSetName,
-          quantity: widget.ownedItem.quantity,
-          locationId: _locationChanged
-              ? _selectedLocationId
-              : widget.ownedItem.locationId,
-          indexNumber: widget.ownedItem.indexNumber,
-          coverPriceCents: comic?.coverPriceCents,
-          rawOrSlabbed: comic?.rawOrSlabbed,
-          gradingCompany: comic?.gradingCompany,
-          graderNotes: comic?.graderNotes,
-          signedBy: comic?.signedBy,
-          labelType: comic?.labelType,
-          certificationNumber: comic?.certificationNumber,
-          keyComic: comic?.keyComic,
-          keyReason: comic?.keyReason,
-          rating: widget.ownedItem.rating,
-          readStatus: widget.ownedItem.readStatus,
-          tags: widget.ownedItem.tags,
+    await ref.read(collectionMutationsProvider).updateOwnedItem(
+          UpdateOwnedItemCommand(
+            ownedItemId: widget.ownedItem.id,
+            purchaseDate: Patch.set(_purchaseDate),
+            pricePaidCents: Patch.set(price),
+            currency: Patch.set(currency.isEmpty ? null : currency),
+            personalNotes: Patch.set(_emptyToNull(_notesController.text)),
+            purchaseStore: Patch.set(_emptyToNull(_purchaseStoreController.text)),
+            locationId: _locationChanged
+                ? Patch.set(_selectedLocationId)
+                : const Patch.unchanged(),
+            details: detailsDraft != null
+                ? Patch.set(detailsDraft)
+                : const Patch.unchanged(),
+          ),
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

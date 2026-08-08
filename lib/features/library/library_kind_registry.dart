@@ -45,7 +45,12 @@ class LibraryKindRegistry {
     return getByKind(type.workspace.kind);
   }
 
-  List<LibraryKindRuntime> get allRuntimes => List.unmodifiable(_byKind.values);
+  List<LibraryKindRuntime> get allRuntimes {
+    if (_byKind.isEmpty) {
+      registerAll(collectarrKindModules);
+    }
+    return List.unmodifiable(_byKind.values);
+  }
 
   void resetForTesting() {
     _byKind.clear();

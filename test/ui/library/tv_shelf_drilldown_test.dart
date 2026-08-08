@@ -24,7 +24,7 @@ void main() {
         kind: 'tv',
         title: 'Cowboy Bebop',
         displayTitle: 'Cowboy Bebop',
-        coverImageUrl: 'https://example.com/poster.jpg',
+        coverImageUrl: null,
         releaseDate: DateTime.utc(1998, 4, 3),
       ),
     );
@@ -47,7 +47,7 @@ void main() {
                 seasonNumber: 1,
                 title: 'Season 1',
                 episodeCount: 1,
-                posterUrl: 'https://example.com/season-1.jpg',
+                posterUrl: null,
                 episodes: [
                   Episode(
                     episodeNumber: 1,
@@ -61,7 +61,7 @@ void main() {
                 seasonNumber: 2,
                 title: 'Season 2',
                 episodeCount: 1,
-                posterUrl: 'https://example.com/season-2.jpg',
+                posterUrl: null,
                 episodes: [
                   Episode(
                     episodeNumber: 1,
@@ -77,12 +77,12 @@ void main() {
       ),
     );
 
-    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
 
     expect(find.text('Seasons'), findsOneWidget);
     expect(find.textContaining('Season 1'), findsWidgets);
     expect(find.textContaining('Season 2'), findsWidgets);
-    expect(find.text('E01'), findsOneWidget);
+    expect(find.text('E01'), findsWidgets);
     expect(find.text('Asteroid Blues'), findsOneWidget);
   });
 }

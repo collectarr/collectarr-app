@@ -341,8 +341,18 @@ String? libraryGroupModeFromStorageValue(String value) {
 
   for (final module in LibraryKindRegistry.instance.allRuntimes) {
     for (final def in module.fields.groups) {
-      if (def.id.value == candidate || _stableToken(def.id.value) == candidate) {
+      if (def.id.value == candidate ||
+          _stableToken(def.id.value) == candidate ||
+          def.id.value.endsWith('.$candidate')) {
         return def.id.value;
+      }
+    }
+  }
+
+  for (final module in LibraryKindRegistry.instance.allRuntimes) {
+    for (final mode in module.type.availableGroupModes) {
+      if (mode == candidate || mode.endsWith('.$candidate')) {
+        return mode;
       }
     }
   }

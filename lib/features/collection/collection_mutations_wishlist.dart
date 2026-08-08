@@ -10,42 +10,44 @@ extension CollectionMutationsWishlist on CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
-    final catalogItem = await _catalogCache().findById(itemId);
-    final existing = await _wishlistCache().findActiveByItemAnchor(
-      itemId,
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    if (existing == null) {
-      final normalizedAnchorType = _normalizedPersonalAnchorType(
-        anchorType,
+    await _runAtomicMutation(() async {
+      final catalogItem = await _catalogCache().findById(itemId);
+      final existing = await _wishlistCache().findActiveByItemAnchor(
+        itemId,
+        anchorType: anchorType,
         editionId: editionId,
         variantId: variantId,
         bundleReleaseId: bundleReleaseId,
       );
-      final item = WishlistItem(
-        id: _uuid.v4(),
-        catalogRef: _catalogRefForItem(
-          itemId,
-          catalogItem,
+      if (existing == null) {
+        final normalizedAnchorType = _normalizedPersonalAnchorType(
+          anchorType,
+          editionId: editionId,
+          variantId: variantId,
+          bundleReleaseId: bundleReleaseId,
+        );
+        final item = WishlistItem(
+          id: _uuid.v4(),
+          catalogRef: _catalogRefForItem(
+            itemId,
+            catalogItem,
+            anchorType: normalizedAnchorType,
+            editionId: editionId,
+            variantId: variantId,
+            bundleReleaseId: bundleReleaseId,
+          ),
           anchorType: normalizedAnchorType,
           editionId: editionId,
           variantId: variantId,
           bundleReleaseId: bundleReleaseId,
-        ),
-        anchorType: normalizedAnchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-        createdAt: now,
-        updatedAt: now,
-      );
-      await _wishlistCache().upsert(item);
-      await _enqueueWishlistItem(item, 'upsert', now);
-      await _enqueueCatalogSnapshotForItemId(itemId, now);
-    }
+          createdAt: now,
+          updatedAt: now,
+        );
+        await _wishlistCache().upsert(item);
+        await _enqueueWishlistItem(item, 'upsert', now);
+        await _enqueueCatalogSnapshotForItemId(itemId, now);
+      }
+    });
     if (notify) {
       await _notifyWishlistChanged();
     }
@@ -60,41 +62,43 @@ extension CollectionMutationsWishlist on CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
-    await _catalogCache().upsertAll([item]);
-    final existing = await _wishlistCache().findActiveByItemAnchor(
-      item.id,
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    if (existing == null) {
-      final normalizedAnchorType = _normalizedPersonalAnchorType(
-        anchorType,
+    await _runAtomicMutation(() async {
+      await _catalogCache().upsertAll([item]);
+      final existing = await _wishlistCache().findActiveByItemAnchor(
+        item.id,
+        anchorType: anchorType,
         editionId: editionId,
         variantId: variantId,
         bundleReleaseId: bundleReleaseId,
       );
-      await _wishlistCache().upsert(
-        WishlistItem(
-          id: _uuid.v4(),
-          catalogRef: _catalogRefForItem(
-            item.id,
-            item,
+      if (existing == null) {
+        final normalizedAnchorType = _normalizedPersonalAnchorType(
+          anchorType,
+          editionId: editionId,
+          variantId: variantId,
+          bundleReleaseId: bundleReleaseId,
+        );
+        await _wishlistCache().upsert(
+          WishlistItem(
+            id: _uuid.v4(),
+            catalogRef: _catalogRefForItem(
+              item.id,
+              item,
+              anchorType: normalizedAnchorType,
+              editionId: editionId,
+              variantId: variantId,
+              bundleReleaseId: bundleReleaseId,
+            ),
             anchorType: normalizedAnchorType,
             editionId: editionId,
             variantId: variantId,
             bundleReleaseId: bundleReleaseId,
+            createdAt: now,
+            updatedAt: now,
           ),
-          anchorType: normalizedAnchorType,
-          editionId: editionId,
-          variantId: variantId,
-          bundleReleaseId: bundleReleaseId,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      );
-    }
+        );
+      }
+    });
 
     if (notify) {
       await _notifyWishlistChanged();
@@ -153,7 +157,7 @@ extension CollectionMutationsWishlist on CollectionMutations {
         trackingDeletes.add(_trackingDeletion(localEntry, now));
       } else {
         final promoted = localEntry.copyWith(
-            catalogRef: _catalogRefForItem(item.id, item),
+          catalogRef: _catalogRefForItem(item.id, item),
           updatedAt: now,
           deletedAt: null,
         );
@@ -225,19 +229,22 @@ extension CollectionMutationsWishlist on CollectionMutations {
       trackingUnitDeletes.add(localUnit);
     }
 
-    await _catalogCache().upsertAll([item]);
-    _addCatalogSnapshotChange(syncChanges, <String>{}, item, now);
-    await _trackingCache().upsertAll(trackingUpserts);
-    for (final deleted in trackingDeletes) {
-      await _trackingCache().markDeleted(deleted, now);
-    }
-    await _wishlistCache().upsertAll(wishlistUpserts);
-    await _wishlistCache().markDeletedAll(wishlistDeletes, now);
-    await _trackingUnitsCache().upsertAll(trackingUnitUpserts);
-    for (final deleted in trackingUnitDeletes) {
-      await _trackingUnitsCache().markDeleted(deleted, now);
-    }
-    await _syncQueue().enqueueAll(syncChanges);
+    await _runAtomicMutation(() async {
+      await _catalogCache().upsertAll([item]);
+      _addCatalogSnapshotChange(syncChanges, <String>{}, item, now);
+      await _trackingCache().upsertAll(trackingUpserts);
+      for (final deleted in trackingDeletes) {
+        await _trackingCache().markDeleted(deleted, now);
+      }
+      await _wishlistCache().upsertAll(wishlistUpserts);
+      await _wishlistCache().markDeletedAll(wishlistDeletes, now);
+      await _trackingUnitsCache().upsertAll(trackingUnitUpserts);
+      for (final deleted in trackingUnitDeletes) {
+        await _trackingUnitsCache().markDeleted(deleted, now);
+      }
+      await _syncQueue().enqueueAll(syncChanges);
+    });
+
     if (notify) {
       await _notifyCollectionChanged(
           wishlistChanged: localWishlistItems.isNotEmpty);
@@ -282,9 +289,11 @@ extension CollectionMutationsWishlist on CollectionMutations {
       updatedAt: now,
       deletedAt: item.deletedAt,
     );
-    await _wishlistCache().upsert(updated);
-    await _enqueueWishlistItem(updated, 'upsert', now);
-    await _enqueueCatalogSnapshotForItemId(item.itemId, now);
+    await _runAtomicMutation(() async {
+      await _wishlistCache().upsert(updated);
+      await _enqueueWishlistItem(updated, 'upsert', now);
+      await _enqueueCatalogSnapshotForItemId(item.itemId, now);
+    });
     if (notify) {
       await _notifyWishlistChanged();
     }
@@ -301,22 +310,24 @@ extension CollectionMutationsWishlist on CollectionMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
-    final existing = await _wishlistItemsForMutation(
-      itemId,
-      wishlistItemId: wishlistItemId,
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    for (final item in existing) {
-      await _wishlistCache().markDeleted(item, now);
-      await _enqueueWishlistItem(
-        item.copyWith(updatedAt: now, deletedAt: now),
-        'delete',
-        now,
+    await _runAtomicMutation(() async {
+      final existing = await _wishlistItemsForMutation(
+        itemId,
+        wishlistItemId: wishlistItemId,
+        anchorType: anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
       );
-    }
+      for (final item in existing) {
+        await _wishlistCache().markDeleted(item, now);
+        await _enqueueWishlistItem(
+          item.copyWith(updatedAt: now, deletedAt: now),
+          'delete',
+          now,
+        );
+      }
+    });
     if (notify) {
       await _notifyWishlistChanged();
     }

@@ -1,5 +1,7 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -198,12 +200,19 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       item: item,
       ownedItem: ownedItem,
     );
-    await ref.read(collectionMutationsProvider).addItem(
-          item.node.titleItemId,
-          anchorType: anchor.anchorType,
-          editionId: anchor.editionId,
-          variantId: anchor.variantId,
-          bundleReleaseId: anchor.bundleReleaseId,
+    await ref.read(collectionMutationsProvider).addOwnedItem(
+          AddOwnedItemCommand(
+            catalogRef: CatalogEntityRef(
+              kind: widget.type.workspace.kind.apiValue,
+              entityType: CatalogEntityType.work,
+              id: item.node.titleItemId,
+            ),
+            common: OwnedItemCommonDraft(
+              editionId: anchor.editionId,
+              variantId: anchor.variantId,
+              bundleReleaseId: anchor.bundleReleaseId,
+            ),
+          ),
         );
     if (!mounted) {
       return;
