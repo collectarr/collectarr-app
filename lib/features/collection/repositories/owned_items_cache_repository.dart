@@ -89,7 +89,7 @@ class OwnedItemsCacheRepository {
   }
 
   OwnedItem _fromCache(OwnedItemsCacheData row) {
-    final catalogRef = _catalogRefFromRow(row.itemId);
+    final catalogRef = _catalogRefFromRow(row);
     OwnedItemDetails details;
     switch (catalogRef.kind) {
       case 'comic':
@@ -251,11 +251,37 @@ class OwnedItemsCacheRepository {
     );
   }
 
-  CatalogEntityRef _catalogRefFromRow(String itemId) {
+  CatalogEntityRef _catalogRefFromRow(OwnedItemsCacheData row) {
+    String kind = 'unknown';
+    if (row.gradingCompany != null ||
+        row.rawOrSlabbed != null ||
+        row.keyComic ||
+        row.signedBy != null ||
+        row.graderNotes != null ||
+        row.labelType != null ||
+        row.customLabel != null ||
+        row.certificationNumber != null) {
+      kind = 'comic';
+    } else if (row.features != null ||
+        row.hdrFormatsJson != null ||
+        row.boxSetId != null ||
+        row.region != null ||
+        row.packaging != null ||
+        row.distributor != null) {
+      kind = 'movie';
+    } else if (row.gameCompleteness != null ||
+        row.gameHasBox != null ||
+        row.gameHasManual != null ||
+        row.gamePriceChartingId != null ||
+        row.gameCoreRegion != null) {
+      kind = 'game';
+    } else if (row.storageDevice != null || row.storageSlot != null) {
+      kind = 'music';
+    }
     return CatalogEntityRef(
-      kind: 'unknown',
+      kind: kind,
       entityType: CatalogEntityType.unknown,
-      id: itemId,
+      id: row.itemId,
     );
   }
 

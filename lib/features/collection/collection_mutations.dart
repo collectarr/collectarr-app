@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
@@ -51,8 +52,225 @@ class CollectionMutations {
   final Uuid _uuid = const Uuid();
   final Set<String> _pendingCoverDownloads = <String>{};
 
+  Future<OwnedItem> addOwnedItem(
+    AddOwnedItemCommand command, {
+    bool syncTracking = true,
+    bool notify = true,
+  }) async {
+    final common = command.common;
+    final details = command.details;
+    final catalogRef = command.catalogRef;
+    final existingCatalog = await _catalogCache().findById(catalogRef.id);
+    if (existingCatalog == null) {
+      await _catalogCache().upsertAll([
+        CatalogItem(
+          id: catalogRef.id,
+          kind: catalogRef.kind,
+          title: catalogRef.id,
+        ),
+      ]);
+    }
+
+    return addItem(
+      catalogRef.id,
+      kind: catalogRef.kind,
+      isDigital: common.isDigital,
+      editionId: common.editionId,
+      variantId: common.variantId,
+      bundleReleaseId: common.bundleReleaseId,
+      condition: common.condition,
+      grade: common.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      tags: common.tags,
+      rating: common.rating,
+      readStatus: common.readStatus,
+      startedAt: common.startedAt,
+      finishedAt: common.finishedAt,
+      rawOrSlabbed: details is ComicOwnedDetailsDraft ? details.rawOrSlabbed : null,
+      gradingCompany: details is ComicOwnedDetailsDraft ? details.gradingCompany : null,
+      graderNotes: details is ComicOwnedDetailsDraft ? details.graderNotes : null,
+      signedBy: details is ComicOwnedDetailsDraft ? details.signedBy : null,
+      labelType: details is ComicOwnedDetailsDraft ? details.labelType : null,
+      pageQuality: details is ComicOwnedDetailsDraft ? details.pageQuality : null,
+      certificationNumber: details is ComicOwnedDetailsDraft ? details.certificationNumber : null,
+      keyComic: details is ComicOwnedDetailsDraft ? details.keyComic : false,
+      keyReason: details is ComicOwnedDetailsDraft ? details.keyReason : null,
+      keyCategory: details is ComicOwnedDetailsDraft ? details.keyCategory : null,
+      keySeverity: details is ComicOwnedDetailsDraft ? details.keySeverity : null,
+      coverPriceCents: details is ComicOwnedDetailsDraft ? details.coverPriceCents : null,
+      lastBagBoardDate: details is ComicOwnedDetailsDraft ? details.lastBagBoardDate : null,
+      features: details is VideoOwnedDetailsDraft ? details.features : null,
+      hdrFormats: details is VideoOwnedDetailsDraft ? details.hdrFormats : null,
+      boxSetId: details is VideoOwnedDetailsDraft ? details.boxSetId : null,
+      boxSetName: details is VideoOwnedDetailsDraft ? details.boxSetName : null,
+      region: details is VideoOwnedDetailsDraft ? details.region : null,
+      packaging: details is VideoOwnedDetailsDraft ? details.packaging : null,
+      distributor: details is VideoOwnedDetailsDraft ? details.distributor : null,
+      gameCompleteness: details is GameOwnedDetailsDraft ? details.completeness : null,
+      gameHasBox: details is GameOwnedDetailsDraft ? details.hasBox : null,
+      gameHasManual: details is GameOwnedDetailsDraft ? details.hasManual : null,
+      gamePriceChartingId: details is GameOwnedDetailsDraft ? details.priceChartingId : null,
+      gameCoreRegion: details is GameOwnedDetailsDraft ? details.coreRegion : null,
+      gameValueIsLocked: details is GameOwnedDetailsDraft ? (details.valueIsLocked ?? false) : false,
+      storageDevice: details is MusicOwnedDetailsDraft ? details.storageDevice : null,
+      storageSlot: details is MusicOwnedDetailsDraft ? details.storageSlot : null,
+      syncTracking: syncTracking,
+      notify: notify,
+    );
+  }
+
+  Future<OwnedItem> updateOwnedItem(
+    UpdateOwnedItemCommand command, {
+    bool syncTracking = true,
+    bool notify = true,
+  }) async {
+    final existing = await _ownedCache().findById(command.ownedItemId);
+    if (existing == null) {
+      throw StateError('OwnedItem not found: ${command.ownedItemId}');
+    }
+    final detailsDraft = command.details.valueOrNull();
+
+    return updateItem(
+      existing,
+      quantity: command.quantity.valueOrNull() ?? existing.quantity,
+      condition: command.condition.when(
+        unchanged: () => existing.condition,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      grade: command.grade.when(
+        unchanged: () => existing.grade,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      purchaseDate: command.purchaseDate.when(
+        unchanged: () => existing.purchaseDate,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      pricePaidCents: command.pricePaidCents.when(
+        unchanged: () => existing.pricePaidCents,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      currency: command.currency.when(
+        unchanged: () => existing.currency,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      personalNotes: command.personalNotes.when(
+        unchanged: () => existing.personalNotes,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      locationId: command.locationId.when(
+        unchanged: () => existing.locationId,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      purchaseStore: command.purchaseStore.when(
+        unchanged: () => existing.purchaseStore,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      collectionStatus: command.collectionStatus.when(
+        unchanged: () => existing.collectionStatus,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      isDigital: command.isDigital.when(
+        unchanged: () => existing.isDigital,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      tags: command.tags.when(
+        unchanged: () => existing.tags,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      rating: command.rating.when(
+        unchanged: () => existing.rating,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      readStatus: command.readStatus.when(
+        unchanged: () => existing.readStatus,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      startedAt: command.startedAt.when(
+        unchanged: () => existing.startedAt,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      finishedAt: command.finishedAt.when(
+        unchanged: () => existing.finishedAt,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      soldAt: command.soldAt.when(
+        unchanged: () => existing.soldAt,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      sellPriceCents: command.sellPriceCents.when(
+        unchanged: () => existing.sellPriceCents,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      soldTo: command.soldTo.when(
+        unchanged: () => existing.soldTo,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      marketValueCents: command.marketValueCents.when(
+        unchanged: () => existing.marketValueCents,
+        set: (v) => v,
+        clear: () => null,
+      ),
+      rawOrSlabbed: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.rawOrSlabbed : null,
+      gradingCompany: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.gradingCompany : null,
+      graderNotes: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.graderNotes : null,
+      signedBy: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.signedBy : null,
+      labelType: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.labelType : null,
+      pageQuality: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.pageQuality : null,
+      certificationNumber: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.certificationNumber : null,
+      keyComic: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.keyComic : null,
+      keyReason: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.keyReason : null,
+      keyCategory: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.keyCategory : null,
+      keySeverity: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.keySeverity : null,
+      coverPriceCents: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.coverPriceCents : null,
+      lastBagBoardDate: detailsDraft is ComicOwnedDetailsDraft ? detailsDraft.lastBagBoardDate : null,
+      features: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.features : null,
+      hdrFormats: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.hdrFormats : null,
+      boxSetId: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.boxSetId : null,
+      boxSetName: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.boxSetName : null,
+      region: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.region : null,
+      packaging: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.packaging : null,
+      distributor: detailsDraft is VideoOwnedDetailsDraft ? detailsDraft.distributor : null,
+      gameCompleteness: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.completeness : null,
+      gameHasBox: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.hasBox : null,
+      gameHasManual: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.hasManual : null,
+      gamePriceChartingId: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.priceChartingId : null,
+      gameCoreRegion: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.coreRegion : null,
+      gameValueIsLocked: detailsDraft is GameOwnedDetailsDraft ? detailsDraft.valueIsLocked : null,
+      storageDevice: detailsDraft is MusicOwnedDetailsDraft ? detailsDraft.storageDevice : null,
+      storageSlot: detailsDraft is MusicOwnedDetailsDraft ? detailsDraft.storageSlot : null,
+      syncTracking: syncTracking,
+      notify: notify,
+    );
+  }
+
   Future<OwnedItem> addItem(
     String itemId, {
+    String? kind,
     bool? isDigital,
     String? anchorType,
     String? editionId,
@@ -123,6 +341,7 @@ class CollectionMutations {
     final catalogRef = _catalogRefForItem(
       itemId,
       catalogItem,
+      fallbackKind: kind,
       anchorType: normalizedAnchorType,
       editionId: editionId,
       variantId: variantId,
@@ -606,6 +825,7 @@ class CollectionMutations {
   CatalogEntityRef _catalogRefForItem(
     String itemId,
     CatalogItem? item, {
+    String? fallbackKind,
     String? anchorType,
     String? editionId,
     String? variantId,
@@ -613,7 +833,7 @@ class CollectionMutations {
   }) {
     if (item == null) {
       return CatalogEntityRef(
-        kind: 'unknown',
+        kind: fallbackKind ?? 'unknown',
         entityType: CatalogEntityType.unknown,
         id: itemId,
       );
