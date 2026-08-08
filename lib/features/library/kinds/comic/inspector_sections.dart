@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -77,7 +79,12 @@ class _ComicInspectorTab {
 List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
   final item = request.item;
   final dto = item.dto;
-  final catalogItem = item.source.catalogItem as ComicCatalogItem?;
+  final rawCatalog = item.source.catalogItem;
+  final ComicCatalogItem? catalogItem = rawCatalog is ComicCatalogItem
+      ? rawCatalog as ComicCatalogItem
+      : (rawCatalog is LibraryMetadataItem
+          ? ComicCatalogMapper.mapMetadataItemToComic(rawCatalog)
+          : null);
   final synopsis = dto.synopsis?.trim().isNotEmpty == true
       ? dto.synopsis!.trim()
       : catalogItem?.synopsis?.trim();

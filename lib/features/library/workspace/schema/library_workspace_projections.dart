@@ -49,7 +49,7 @@ class WorkspaceCommonProjection {
     }
 
     return WorkspaceCommonProjection(
-      title: overrideTitle ?? item?.title ?? '',
+      title: overrideTitle ?? item?.displayTitle ?? item?.title ?? '',
       seriesTitle: overrideSeriesTitle ?? item?.series?.seriesTitle,
       itemNumber: item?.itemNumber?.toString(),
       publisher: overridePublisher ?? edition?.publisher ?? item?.publisher,

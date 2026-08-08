@@ -121,11 +121,7 @@ class CatalogCacheRepository {
                       ? jsonEncode(item.storyArcs)
                       : null,
                 ),
-                seriesTagsJson: Value(
-                  series != null && series.tags != null && series.tags!.isNotEmpty
-                      ? jsonEncode(series.tags)
-                      : null,
-                ),
+                seriesTagsJson: Value(series?.tags),
                 platformsJson: Value(
                   platforms != null && platforms.isNotEmpty
                       ? jsonEncode(platforms)

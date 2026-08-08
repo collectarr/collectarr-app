@@ -503,6 +503,16 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               children: [
                 hero,
                 SizedBox(height: density.inspectorOuterGap),
+                if (!usesCustomInspectorPanel)
+                  InspectorActionBar(
+                    type: widget.type,
+                    item: selected,
+                    onToggleOwned: onToggleOwned,
+                    onToggleWishlist: onToggleWishlist,
+                    onEdit: onEdit,
+                    onCorrectMetadata: onCorrectMetadata,
+                    onOpenDetails: onOpenDetails,
+                  ),
               ],
             ),
           ),

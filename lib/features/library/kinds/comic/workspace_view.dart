@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_adapter.dar
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -69,7 +70,7 @@ int compareComicEntriesByColumn(
   final module = libraryKindModuleForType(comicsLibraryConfig);
   final definition = module.fields.findSortDefinition(sortId);
   if (definition != null) {
-    return definition.compare(left, right);
+    return definition.compareUntyped(left.dto, right.dto);
   }
   return 0;
 }

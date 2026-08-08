@@ -212,6 +212,9 @@ class LibrarySortDefinition<TDto> {
   final LibrarySortComparator<TDto> compare;
   final String group;
   final bool defaultAscending;
+
+  int compareUntyped(Object left, Object right) =>
+      compare(left as TDto, right as TDto);
 }
 
 typedef LibraryColumnCellBuilder<TDto> = Widget Function(TDto dto);

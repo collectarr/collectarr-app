@@ -924,6 +924,11 @@ bool _matchesQuery(
     return true;
   }
   if (searchTarget.includesMedia && catalog != null) {
+    if (_containsQuery(catalog.originalTitle, query) ||
+        _containsQuery(catalog.displayTitle, query) ||
+        _containsQuery(catalog.localizedTitle, query)) {
+      return true;
+    }
     final aliases = catalog.searchAliases;
     if (aliases != null && aliases.isNotEmpty) {
       for (final alias in aliases) {

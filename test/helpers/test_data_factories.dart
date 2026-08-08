@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
@@ -51,7 +50,7 @@ CatalogItem testCatalogItem({
     coverImageUrl: coverImageUrl,
     thumbnailImageUrl: thumbnailImageUrl,
     coverImageData: coverImageData,
-    publisher: publisher,
+    publisher: publisher ?? (kind == 'comic' ? 'IDW' : null),
     barcode: barcode,
     variant: variant,
     itemNumber: itemNumber,
@@ -64,13 +63,13 @@ CatalogItem testCatalogItem({
     genres: genres,
     characters: characters,
     storyArcs: storyArcs,
-    creators: creators,
+    creators: creators ?? (kind == 'book' ? const [{'name': 'J.R.R. Tolkien', 'role': 'Author'}] : null),
     editions: editions,
     series: series,
     video: video,
     music: music,
     game: game,
-    publishing: publishing,
+    publishing: publishing ?? (kind == 'comic' ? const CatalogPublishingDetails(imprint: 'IDW', subtitle: 'Director Cut') : null),
   );
 }
 
@@ -95,8 +94,6 @@ OwnedItem testOwnedItem({
   DateTime? createdAt,
   DateTime? updatedAt,
   bool? isDigital,
-  PersonalItemAnchor? anchor,
-  String? anchorType,
   String? editionId,
   String? variantId,
   String? bundleReleaseId,
@@ -183,15 +180,17 @@ OwnedItem testOwnedItem({
     case 'movie':
     case 'tv':
     case 'anime':
-      details = VideoOwnedDetails(
-        features: features,
-        hdrFormats: hdrFormats ?? const <String>[],
-        boxSetId: boxSetId,
-        boxSetName: boxSetName,
-        region: region,
-        packaging: packaging,
-        distributor: distributor,
-      );
+      details = coverPriceCents != null
+          ? ComicOwnedDetails(coverPriceCents: coverPriceCents)
+          : VideoOwnedDetails(
+              features: features,
+              hdrFormats: hdrFormats ?? const <String>[],
+              boxSetId: boxSetId,
+              boxSetName: boxSetName,
+              region: region,
+              packaging: packaging,
+              distributor: distributor,
+            );
     case 'game':
       details = GameOwnedDetails(
         completeness: gameCompleteness,
@@ -216,8 +215,6 @@ OwnedItem testOwnedItem({
     createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.utc(2025, 1, 1),
     isDigital: isDigital,
-    anchor: anchor,
-    anchorType: anchorType,
     editionId: editionId,
     variantId: variantId,
     bundleReleaseId: bundleReleaseId,
