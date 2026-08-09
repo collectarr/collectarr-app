@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/foundation.dart';
 
 /// Represents a tri-state patch operation: unchanged, set new value, or clear value.
@@ -245,18 +246,11 @@ class GenericOwnedDetailsDraft extends OwnedDetailsDraft {
 }
 
 OwnedDetailsDraft defaultDetailsDraftForKind(CatalogMediaKind kind) {
-  return switch (kind) {
-    CatalogMediaKind.comic || CatalogMediaKind.manga => const ComicOwnedDetailsDraft(),
-    CatalogMediaKind.movie ||
-    CatalogMediaKind.tv ||
-    CatalogMediaKind.anime =>
-      const VideoOwnedDetailsDraft(),
-    CatalogMediaKind.game => const GameOwnedDetailsDraft(),
-    CatalogMediaKind.music => const MusicOwnedDetailsDraft(),
-    CatalogMediaKind.book => const BookOwnedDetailsDraft(),
-    CatalogMediaKind.boardgame => const BoardgameOwnedDetailsDraft(),
-    _ => const GenericOwnedDetailsDraft(),
-  };
+  try {
+    return LibraryKindRegistry.instance.getByKind(kind).defaultOwnedDetailsDraft();
+  } catch (_) {
+    return const GenericOwnedDetailsDraft();
+  }
 }
 
 /// Command to add an owned item to collection.

@@ -1,10 +1,12 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 
 abstract interface class OwnedDetailsCodec<TDetails extends OwnedItemDetails> {
   TDetails fromJson(Map<String, dynamic> json);
   Map<String, dynamic> toJson(TDetails details);
   Map<String, dynamic> toSyncPayload(TDetails details);
   TDetails defaultDetails();
+  OwnedDetailsDraft defaultDraft();
 }
 
 class ComicOwnedDetailsCodec implements OwnedDetailsCodec<ComicOwnedDetails> {
@@ -23,6 +25,9 @@ class ComicOwnedDetailsCodec implements OwnedDetailsCodec<ComicOwnedDetails> {
 
   @override
   ComicOwnedDetails defaultDetails() => const ComicOwnedDetails();
+
+  @override
+  OwnedDetailsDraft defaultDraft() => const ComicOwnedDetailsDraft();
 }
 
 class VideoOwnedDetailsCodec implements OwnedDetailsCodec<VideoOwnedDetails> {
@@ -41,6 +46,9 @@ class VideoOwnedDetailsCodec implements OwnedDetailsCodec<VideoOwnedDetails> {
 
   @override
   VideoOwnedDetails defaultDetails() => const VideoOwnedDetails();
+
+  @override
+  OwnedDetailsDraft defaultDraft() => const VideoOwnedDetailsDraft();
 }
 
 class GameOwnedDetailsCodec implements OwnedDetailsCodec<GameOwnedDetails> {
@@ -59,6 +67,9 @@ class GameOwnedDetailsCodec implements OwnedDetailsCodec<GameOwnedDetails> {
 
   @override
   GameOwnedDetails defaultDetails() => const GameOwnedDetails();
+
+  @override
+  OwnedDetailsDraft defaultDraft() => const GameOwnedDetailsDraft();
 }
 
 class MusicOwnedDetailsCodec implements OwnedDetailsCodec<MusicOwnedDetails> {
@@ -77,6 +88,9 @@ class MusicOwnedDetailsCodec implements OwnedDetailsCodec<MusicOwnedDetails> {
 
   @override
   MusicOwnedDetails defaultDetails() => const MusicOwnedDetails();
+
+  @override
+  OwnedDetailsDraft defaultDraft() => const MusicOwnedDetailsDraft();
 }
 
 class BookOwnedDetailsCodec implements OwnedDetailsCodec<BookOwnedDetails> {
@@ -95,6 +109,9 @@ class BookOwnedDetailsCodec implements OwnedDetailsCodec<BookOwnedDetails> {
 
   @override
   BookOwnedDetails defaultDetails() => const BookOwnedDetails();
+
+  @override
+  OwnedDetailsDraft defaultDraft() => const BookOwnedDetailsDraft();
 }
 
 class BoardgameOwnedDetailsCodec
@@ -114,6 +131,9 @@ class BoardgameOwnedDetailsCodec
 
   @override
   BoardgameOwnedDetails defaultDetails() => const BoardgameOwnedDetails();
+
+  @override
+  OwnedDetailsDraft defaultDraft() => const BoardgameOwnedDetailsDraft();
 }
 
 class GenericOwnedDetailsCodec
@@ -133,4 +153,7 @@ class GenericOwnedDetailsCodec
 
   @override
   GenericOwnedDetails defaultDetails() => const GenericOwnedDetails();
+
+  @override
+  OwnedDetailsDraft defaultDraft() => const GenericOwnedDetailsDraft();
 }

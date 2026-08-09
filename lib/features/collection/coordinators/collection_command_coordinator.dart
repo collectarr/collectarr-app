@@ -15,13 +15,8 @@ final class CollectionCommandCoordinator {
   Future<OwnedItem> addOwnedItem(
     AddOwnedItemCommand command, {
     bool syncTracking = true,
-    bool notify = true,
   }) async {
-    final item = await ownedMutations.addOwnedItem(
-      command,
-      syncTracking: syncTracking,
-      notify: notify,
-    );
+    final item = await ownedMutations.addOwnedItem(command);
     if (syncTracking) {
       await trackingMutations.syncOwnedTrackingEntry(item);
     }
@@ -31,13 +26,8 @@ final class CollectionCommandCoordinator {
   Future<OwnedItem> updateOwnedItem(
     UpdateOwnedItemCommand command, {
     bool syncTracking = true,
-    bool notify = true,
   }) async {
-    final item = await ownedMutations.updateOwnedItem(
-      command,
-      syncTracking: syncTracking,
-      notify: notify,
-    );
+    final item = await ownedMutations.updateOwnedItem(command);
     if (syncTracking) {
       await trackingMutations.syncOwnedTrackingEntry(item);
     }

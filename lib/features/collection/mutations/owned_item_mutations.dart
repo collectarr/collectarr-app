@@ -44,10 +44,8 @@ final class OwnedItemMutations {
   final IdGenerator idGenerator;
 
   Future<OwnedItem> addOwnedItem(
-    AddOwnedItemCommand command, {
-    bool syncTracking = true,
-    bool notify = true,
-  }) async {
+    AddOwnedItemCommand command,
+  ) async {
     final now = DateTime.now().toUtc();
     final common = command.common;
     final catalogRef = command.catalogRef;
@@ -163,10 +161,8 @@ final class OwnedItemMutations {
   }
 
   Future<OwnedItem> updateOwnedItem(
-    UpdateOwnedItemCommand command, {
-    bool syncTracking = true,
-    bool notify = true,
-  }) async {
+    UpdateOwnedItemCommand command,
+  ) async {
     final now = DateTime.now().toUtc();
 
     final updated = await mutationRunner.run(
@@ -177,21 +173,16 @@ final class OwnedItemMutations {
         }
 
         final mediaKind = catalogMediaKindFromApiValue(existing.catalogRef.kind);
-        LibraryKindRuntime? runtime;
-        try {
-          runtime = LibraryKindRegistry.instance.getByKind(mediaKind);
-        } catch (_) {}
+        final runtime = LibraryKindRegistry.instance.getByKind(mediaKind);
 
         final resolvedDetails = command.details.when(
           unchanged: () => existing.typedDetails,
           set: (draft) {
             final details = draft.toDetails();
-            runtime?.validateOwnedDetails(details);
+            runtime.validateOwnedDetails(details);
             return details;
           },
-          clear: () =>
-              runtime?.defaultOwnedDetails() ??
-              OwnedItemDetails.defaultForKind(mediaKind),
+          clear: () => runtime.defaultOwnedDetails(),
         );
 
         final updatedItem = OwnedItem(
@@ -325,9 +316,8 @@ final class OwnedItemMutations {
   }
 
   Future<void> updateCatalogSnapshot(
-    CatalogItem item, {
-    bool notify = true,
-  }) async {
+    CatalogItem item,
+  ) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
       action: () async {
@@ -339,9 +329,8 @@ final class OwnedItemMutations {
   }
 
   Future<void> updateCatalogSnapshots(
-    Iterable<CatalogItem> items, {
-    bool notify = true,
-  }) async {
+    Iterable<CatalogItem> items,
+  ) async {
     final pendingItems = items.toList(growable: false);
     if (pendingItems.isEmpty) return;
 
@@ -359,7 +348,7 @@ final class OwnedItemMutations {
     );
   }
 
-  Future<void> removeItem(OwnedItem item, {bool notify = true}) async {
+  Future<void> removeItem(OwnedItem item) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
       action: () async {
@@ -381,12 +370,14 @@ final class OwnedItemMutations {
     CatalogItem targetCatalogItem,
   ) async {
     final now = DateTime.now().toUtc();
+    final wishlistEntries = await wishlist.findActiveByItemIds([localItemId]);
+    final trackingList = await trackingEntries.findActiveByItemIds([localItemId]);
+
     return await mutationRunner.run(
       action: () async {
         await catalogCache.upsertAll([targetCatalogItem]);
         var count = 0;
 
-        final wishlistEntries = await wishlist.findActiveByItemIds([localItemId]);
         for (final item in wishlistEntries) {
           final updated = item.copyWith(
             catalogRef: targetCatalogItem.catalogRefForAnchor(
@@ -402,7 +393,6 @@ final class OwnedItemMutations {
           count++;
         }
 
-        final trackingList = await trackingEntries.findActiveByItemIds([localItemId]);
         for (final item in trackingList) {
           final updated = item.copyWith(
             catalogRef: targetCatalogItem.catalogRefForAnchor(
@@ -432,8 +422,8 @@ final class OwnedItemMutations {
       },
       eventsToEmit: [
         CatalogItemChanged(targetCatalogItem.id),
-        WishlistChanged(targetCatalogItem.id),
-        TrackingChanged(targetCatalogItem.id),
+        for (final item in wishlistEntries) WishlistChanged(item.id),
+        for (final item in trackingList) TrackingChanged(item.id),
       ],
     );
   }

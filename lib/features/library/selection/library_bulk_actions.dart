@@ -52,10 +52,7 @@ class LibraryBulkActions {
             ? Patch.set(selection.tags)
             : const Patch.unchanged(),
       );
-      await coordinator.updateOwnedItem(
-        updateCmd,
-        notify: index == ownedEntries.length - 1,
-      );
+      await coordinator.updateOwnedItem(updateCmd);
     }
   }
 
@@ -71,17 +68,33 @@ class LibraryBulkActions {
       for (final entry in entries)
         if (entry.ownedItem == null) entry,
     ];
-    final lastWishlistedIndex =
-        entriesToOwn.lastIndexWhere((entry) => entry.isWishlisted);
-    for (var index = 0; index < entriesToOwn.length; index++) {
+    final wishlistedEntries = [
+      for (final entry in entries)
+        if (entry.isWishlisted && entry.ownedItem == null) entry,
+    ];
+    for (var index = 0; index < wishlistedEntries.length; index++) {
       final anchor = resolveLibraryMutationAnchor(
-        ownedItem: entriesToOwn[index].ownedItem,
-        wishlistItem: entriesToOwn[index].wishlistItem,
+        ownedItem: wishlistedEntries[index].ownedItem,
+        wishlistItem: wishlistedEntries[index].wishlistItem,
       );
+      await wishlistMutations.removeFromWishlist(
+        wishlistedEntries[index].itemId,
+        wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
+        anchorType: anchor.anchorType,
+        editionId: anchor.editionId,
+        variantId: anchor.variantId,
+        bundleReleaseId: anchor.bundleReleaseId,
+      );
+    }
+    for (var index = 0; index < entriesToOwn.length; index++) {
       final entry = entriesToOwn[index];
+      final anchor = resolveLibraryMutationAnchor(
+        ownedItem: entry.ownedItem,
+        wishlistItem: entry.wishlistItem,
+      );
       final addCmd = AddOwnedItemCommand(
         catalogRef: CatalogEntityRef(
-          kind: entry.catalogItem?.kind ?? 'unknown',
+          kind: entry.catalogItem?.kind ?? 'comic',
           entityType: CatalogEntityType.ownedCopy,
           id: entry.itemId,
         ),
@@ -99,30 +112,20 @@ class LibraryBulkActions {
           catalogMediaKindFromApiValue(entry.catalogItem?.kind),
         ),
       );
-      await coordinator.addOwnedItem(
-        addCmd,
-        notify:
-            index == entriesToOwn.length - 1 || index == lastWishlistedIndex,
-      );
+      await coordinator.addOwnedItem(addCmd);
     }
   }
 
   Future<void> moveSelectedToWishlist(List<ShelfEntry> entries) async {
     for (var index = 0; index < entries.length; index++) {
-      await wishlistMutations.addToWishlist(
-        entries[index].itemId,
-        notify: index == entries.length - 1,
-      );
+      await wishlistMutations.addToWishlist(entries[index].itemId);
     }
     final ownedEntries = [
       for (final entry in entries)
         if (entry.ownedItem != null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      await ownedMutations.removeItem(
-        ownedEntries[index].ownedItem!,
-        notify: index == ownedEntries.length - 1,
-      );
+      await ownedMutations.removeItem(ownedEntries[index].ownedItem!);
     }
   }
 
@@ -160,10 +163,7 @@ class LibraryBulkActions {
         ),
         details: src.typedDetails.toDraft(),
       );
-      await coordinator.addOwnedItem(
-        addCmd,
-        notify: index == ownedEntries.length - 1,
-      );
+      await coordinator.addOwnedItem(addCmd);
     }
     return ownedEntries.length;
   }
@@ -181,22 +181,14 @@ class LibraryBulkActions {
       for (final entry in entries)
         if (entry.trackingEntry != null && entry.ownedItem == null) entry,
     ];
-    final totalRemovals =
-        ownedEntries.length + wishlistedEntries.length + trackedEntries.length;
-    var completedRemovals = 0;
     for (var index = 0; index < ownedEntries.length; index++) {
-      completedRemovals += 1;
-      await ownedMutations.removeItem(
-        ownedEntries[index].ownedItem!,
-        notify: completedRemovals == totalRemovals,
-      );
+      await ownedMutations.removeItem(ownedEntries[index].ownedItem!);
     }
     for (var index = 0; index < wishlistedEntries.length; index++) {
       final anchor = resolveLibraryMutationAnchor(
         ownedItem: wishlistedEntries[index].ownedItem,
         wishlistItem: wishlistedEntries[index].wishlistItem,
       );
-      completedRemovals += 1;
       await wishlistMutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
@@ -204,14 +196,11 @@ class LibraryBulkActions {
         editionId: anchor.editionId,
         variantId: anchor.variantId,
         bundleReleaseId: anchor.bundleReleaseId,
-        notify: completedRemovals == totalRemovals,
       );
     }
     for (var index = 0; index < trackedEntries.length; index++) {
-      completedRemovals += 1;
       await trackingMutations.removeTrackingEntry(
         trackedEntries[index].trackingEntry!,
-        notify: completedRemovals == totalRemovals,
       );
     }
   }

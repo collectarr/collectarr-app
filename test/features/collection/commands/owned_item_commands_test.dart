@@ -113,7 +113,7 @@ void main() {
       ),
     );
 
-    final item = await coordinator.addOwnedItem(command, notify: false);
+    final item = await coordinator.addOwnedItem(command);
 
     expect(item.itemId, 'comic-cmd-1');
     expect(item.condition, 'Near Mint');
@@ -151,7 +151,6 @@ void main() {
           rawOrSlabbed: 'Raw',
         ),
       ),
-      notify: false,
     );
 
     final updateCmd = UpdateOwnedItemCommand(
@@ -166,7 +165,7 @@ void main() {
       ),
     );
 
-    final updated = await coordinator.updateOwnedItem(updateCmd, notify: false);
+    final updated = await coordinator.updateOwnedItem(updateCmd);
 
     expect(updated.id, initial.id);
     expect(updated.condition, 'Near Mint');

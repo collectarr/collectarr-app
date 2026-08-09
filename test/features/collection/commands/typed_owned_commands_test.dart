@@ -63,7 +63,6 @@ void main() {
             common: const OwnedItemCommonDraft(),
             details: validDraft,
           ),
-          notify: false,
         );
 
         final runtime = LibraryKindRegistry.instance.getByKind(kind);
@@ -83,7 +82,6 @@ void main() {
                 common: const OwnedItemCommonDraft(),
                 details: const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
               ),
-              notify: false,
             ),
             throwsA(isA<ArgumentError>()),
           );
@@ -100,7 +98,6 @@ void main() {
                 common: const OwnedItemCommonDraft(),
                 details: const VideoOwnedDetailsDraft(region: 'A'),
               ),
-              notify: false,
             ),
             throwsA(isA<ArgumentError>()),
           );
@@ -138,7 +135,6 @@ void main() {
             common: const OwnedItemCommonDraft(),
             details: defaultDetailsDraftForKind(kind),
           ),
-          notify: false,
         );
 
         final updated = await coordinator.updateOwnedItem(
@@ -146,7 +142,6 @@ void main() {
             ownedItemId: initial.id,
             details: const Patch.clear(),
           ),
-          notify: false,
         );
 
         final runtime = LibraryKindRegistry.instance.getByKind(kind);

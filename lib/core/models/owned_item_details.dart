@@ -18,20 +18,7 @@ sealed class OwnedItemDetails {
           .getByKind(kind)
           .decodeOwnedDetails(json);
     } catch (_) {
-      return switch (kind) {
-        CatalogMediaKind.comic ||
-        CatalogMediaKind.manga =>
-          ComicOwnedDetails.fromJson(json),
-        CatalogMediaKind.movie ||
-        CatalogMediaKind.tv ||
-        CatalogMediaKind.anime =>
-          VideoOwnedDetails.fromJson(json),
-        CatalogMediaKind.game => GameOwnedDetails.fromJson(json),
-        CatalogMediaKind.music => MusicOwnedDetails.fromJson(json),
-        CatalogMediaKind.book => BookOwnedDetails.fromJson(json),
-        CatalogMediaKind.boardgame => BoardgameOwnedDetails.fromJson(json),
-        _ => const GenericOwnedDetails(),
-      };
+      return const GenericOwnedDetails();
     }
   }
 
@@ -39,20 +26,7 @@ sealed class OwnedItemDetails {
     try {
       return LibraryKindRegistry.instance.getByKind(kind).defaultOwnedDetails();
     } catch (_) {
-      return switch (kind) {
-        CatalogMediaKind.comic ||
-        CatalogMediaKind.manga =>
-          const ComicOwnedDetails(),
-        CatalogMediaKind.movie ||
-        CatalogMediaKind.tv ||
-        CatalogMediaKind.anime =>
-          const VideoOwnedDetails(),
-        CatalogMediaKind.game => const GameOwnedDetails(),
-        CatalogMediaKind.music => const MusicOwnedDetails(),
-        CatalogMediaKind.book => const BookOwnedDetails(),
-        CatalogMediaKind.boardgame => const BoardgameOwnedDetails(),
-        _ => const GenericOwnedDetails(),
-      };
+      return const GenericOwnedDetails();
     }
   }
 
