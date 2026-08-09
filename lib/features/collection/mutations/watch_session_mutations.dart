@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:uuid/uuid.dart';
@@ -18,14 +16,12 @@ final class WatchSessionMutations {
     required this.watchSessions,
     required this.syncQueue,
     required this.mutationRunner,
-    required this.events,
     this.idGenerator = _defaultIdGenerator,
   });
 
   final WatchSessionsCacheRepository watchSessions;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
-  final CollectionEventBus events;
   final IdGenerator idGenerator;
 
   Future<WatchSession> addWatchSession(
@@ -60,7 +56,7 @@ final class WatchSessionMutations {
         await watchSessions.upsert(session);
         await syncQueue.enqueue(_syncChangeForWatchSession(session, 'upsert', now));
       },
-      eventsToEmit: [const WatchSessionChanged()],
+      eventsToEmit: [WatchSessionChanged(session.id)],
     );
 
     return session;
@@ -75,7 +71,7 @@ final class WatchSessionMutations {
         await watchSessions.markDeleted(session, now);
         await syncQueue.enqueue(_syncChangeForWatchSession(deleted, 'delete', now));
       },
-      eventsToEmit: [const WatchSessionChanged()],
+      eventsToEmit: [WatchSessionChanged(session.id)],
     );
   }
 

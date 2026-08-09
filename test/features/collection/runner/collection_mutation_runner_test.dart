@@ -44,13 +44,13 @@ void main() {
             );
         return 42;
       },
-      eventsToEmit: const [OwnedItemChanged('cat-1')],
+      eventsToEmit: const [OwnedItemAdded('owned-1')],
     );
 
     expect(result, 42);
     await Future<void>.delayed(Duration.zero);
     expect(eventsReceived, hasLength(1));
-    expect((eventsReceived.first as OwnedItemChanged).ownedItemId, 'cat-1');
+    expect((eventsReceived.first as OwnedItemAdded).ownedItemId, 'owned-1');
     expect(syncScheduled, isTrue);
 
     final items = await db.select(db.catalogCache).get();
@@ -82,7 +82,7 @@ void main() {
               );
           throw Exception('Simulated write failure');
         },
-        eventsToEmit: const [OwnedItemChanged('cat-fail')],
+        eventsToEmit: const [OwnedItemAdded('owned-fail')],
       ),
       throwsA(isA<Exception>()),
     );

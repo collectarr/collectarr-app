@@ -7,12 +7,10 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
-import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
@@ -30,7 +28,6 @@ final class TrackingMutations {
     required this.catalogCache,
     required this.syncQueue,
     required this.mutationRunner,
-    required this.events,
     this.idGenerator = _defaultIdGenerator,
   });
 
@@ -40,7 +37,6 @@ final class TrackingMutations {
   final CatalogCacheRepository catalogCache;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
-  final CollectionEventBus events;
   final IdGenerator idGenerator;
 
   Future<void> updateTrackingEntry(TrackingEntry entry) async {
@@ -51,7 +47,7 @@ final class TrackingMutations {
         await trackingEntries.upsert(updated);
         await syncQueue.enqueue(_syncChangeForTrackingEntry(updated, 'upsert', now));
       },
-      eventsToEmit: [const TrackingChanged()],
+      eventsToEmit: [TrackingChanged(updated.id)],
     );
   }
 
@@ -88,10 +84,12 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
     }
     final itemId = target.toString();
     final now = DateTime.now().toUtc();
+    final existingEntries = await trackingEntries.findActiveByItemIds([itemId]);
+    final existing = existingEntries.isEmpty ? null : existingEntries.first;
+    final entryId = existing?.id ?? idGenerator();
+
     await mutationRunner.run(
       action: () async {
-        final existingEntries = await trackingEntries.findActiveByItemIds([itemId]);
-        final existing = existingEntries.isEmpty ? null : existingEntries.first;
         final catalogItem = await catalogCache.findById(itemId);
         final catalogRef = catalogItem?.catalogRefForAnchor(
               anchorType: anchorType,
@@ -105,7 +103,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
               id: itemId,
             );
         final entry = TrackingEntry(
-          id: existing?.id ?? idGenerator(),
+          id: entryId,
           catalogRef: catalogRef,
           ownedItemId: ownedItemId ?? existing?.ownedItemId,
           editionId: editionId ?? existing?.editionId,
@@ -128,7 +126,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
         await trackingEntries.upsert(entry);
         await syncQueue.enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
       },
-      eventsToEmit: [if (notify) const TrackingChanged()],
+      eventsToEmit: [TrackingChanged(entryId)],
     );
   }
 
@@ -145,7 +143,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
           ),
         );
       },
-      eventsToEmit: [if (notify) const TrackingChanged()],
+      eventsToEmit: [TrackingChanged(entry.id)],
     );
   }
 
@@ -171,17 +169,19 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
     Map<Object, int>? episodeRatings,
   }) async {
     final now = DateTime.now().toUtc();
+    final existingEntries = await trackingEntries.findActiveByItemIds([item.itemId]);
+    final existing = existingEntries.isEmpty
+        ? null
+        : existingEntries.firstWhere(
+            (e) => e.ownedItemId == item.id,
+            orElse: () => existingEntries.first,
+          );
+    final entryId = existing?.id ?? idGenerator();
+
     await mutationRunner.run(
       action: () async {
-        final existingEntries = await trackingEntries.findActiveByItemIds([item.itemId]);
-        final existing = existingEntries.isEmpty
-            ? null
-            : existingEntries.firstWhere(
-                (e) => e.ownedItemId == item.id,
-                orElse: () => existingEntries.first,
-              );
         final entry = TrackingEntry(
-          id: existing?.id ?? idGenerator(),
+          id: entryId,
           catalogRef: item.catalogRef,
           ownedItemId: item.id,
           editionId: editionId ?? item.editionId,
@@ -207,7 +207,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
         await trackingEntries.upsert(entry);
         await syncQueue.enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
       },
-      eventsToEmit: [const TrackingChanged()],
+      eventsToEmit: [TrackingChanged(entryId)],
     );
   }
 
@@ -232,6 +232,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
   }) async {
     final now = DateTime.now().toUtc();
     final isLocalItem = item.id.startsWith('tmdb-local:');
+    final entryId = idGenerator();
     await mutationRunner.run(
       action: () async {
         await catalogCache.upsertAll([item]);
@@ -242,7 +243,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
           bundleReleaseId: bundleReleaseId,
         );
         final entry = TrackingEntry(
-          id: idGenerator(),
+          id: entryId,
           catalogRef: item.catalogRefForAnchor(
             anchorType: normalizedAnchorType,
             editionId: editionId,
@@ -270,7 +271,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
           await syncQueue.enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
         }
       },
-      eventsToEmit: [const TrackingChanged()],
+      eventsToEmit: [TrackingChanged(entryId)],
     );
   }
 
@@ -282,7 +283,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
         await trackingUnits.upsert(updated);
         await syncQueue.enqueue(_syncChangeForTrackingUnit(updated, 'upsert', now));
       },
-      eventsToEmit: [const TrackingChanged()],
+      eventsToEmit: [TrackingChanged(updated.id)],
     );
   }
 
@@ -295,9 +296,9 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
   }) async {
     final resolvedIsCompleted = completed ?? isCompleted;
     final now = DateTime.now().toUtc();
+    final unitId = 'ep:${seriesRef.id}:$seasonNumber:$episodeNumber';
     await mutationRunner.run(
       action: () async {
-        final unitId = 'ep:${seriesRef.id}:$seasonNumber:$episodeNumber';
         final existing = await trackingUnits.findById(unitId);
         if (resolvedIsCompleted) {
           final unit = TrackingUnit(
@@ -322,7 +323,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
           );
         }
       },
-      eventsToEmit: [const TrackingChanged()],
+      eventsToEmit: [TrackingChanged(unitId)],
     );
   }
 

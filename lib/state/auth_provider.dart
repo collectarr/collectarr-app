@@ -460,7 +460,8 @@ String _authErrorMessage(Object error, {required bool isRegister}) {
         'Metadata server TLS certificate was rejected.',
       DioExceptionType.cancel => 'Authentication request was cancelled.',
       DioExceptionType.badResponse => 'Unexpected authentication response.',
-      DioExceptionType.unknown =>
+      DioExceptionType.unknown ||
+      _ =>
         'Authentication failed: ${_cleanError(error.message)}',
     };
   }

@@ -85,7 +85,6 @@ final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
     trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
-    events: ref.watch(collectionEventBusProvider),
     userId: auth.userId,
     userEmail: auth.email,
   );
@@ -99,7 +98,6 @@ final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
     trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
-    events: ref.watch(collectionEventBusProvider),
   );
 });
 
@@ -111,7 +109,6 @@ final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
-    events: ref.watch(collectionEventBusProvider),
   );
 });
 
@@ -120,7 +117,6 @@ final watchSessionMutationsProvider = Provider<WatchSessionMutations>((ref) {
     watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
-    events: ref.watch(collectionEventBusProvider),
   );
 });
 
@@ -129,7 +125,6 @@ final metadataOverrideMutationsProvider = Provider<MetadataOverrideMutations>((r
     overrides: ref.watch(userMetadataOverridesCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
-    events: ref.watch(collectionEventBusProvider),
   );
 });
 
@@ -138,7 +133,6 @@ final customEpisodeMutationsProvider = Provider<CustomEpisodeMutations>((ref) {
     customEpisodes: ref.watch(customEpisodesCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
-    events: ref.watch(collectionEventBusProvider),
   );
 });
 
@@ -150,7 +144,6 @@ final collectionImportServiceProvider = Provider<CollectionImportService>((ref) 
     trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
-    events: ref.watch(collectionEventBusProvider),
   );
 });
 

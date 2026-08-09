@@ -22,11 +22,7 @@ final class CollectionCommandCoordinator {
       syncTracking: syncTracking,
       notify: notify,
     );
-    final hasTrackingInfo = command.common.rating != null ||
-        command.common.readStatus != null ||
-        command.common.startedAt != null ||
-        command.common.finishedAt != null;
-    if (syncTracking && hasTrackingInfo) {
+    if (syncTracking) {
       await trackingMutations.syncOwnedTrackingEntry(item);
     }
     return item;

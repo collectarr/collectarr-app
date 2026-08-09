@@ -10,7 +10,6 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -28,7 +27,6 @@ final class OwnedItemMutations {
     required this.trackingEntries,
     required this.syncQueue,
     required this.mutationRunner,
-    required this.events,
     this.userId,
     this.userEmail,
     this.idGenerator = _defaultIdGenerator,
@@ -40,7 +38,6 @@ final class OwnedItemMutations {
   final TrackingEntriesCacheRepository trackingEntries;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
-  final CollectionEventBus events;
   final String? userId;
   final String? userEmail;
   final IdGenerator idGenerator;
@@ -54,8 +51,23 @@ final class OwnedItemMutations {
     final common = command.common;
     final catalogRef = command.catalogRef;
 
-    final ({OwnedItem ownedItem, bool wishlistChanged}) result =
-        await mutationRunner.run(
+    final normalizedAnchorType = resolvePersonalItemAnchorType(
+      anchorType: null,
+      editionId: common.editionId,
+      variantId: common.variantId,
+      bundleReleaseId: common.bundleReleaseId,
+    );
+    final existingWishlist = await wishlist.findActiveByItemAnchor(
+      catalogRef.id,
+      anchorType: normalizedAnchorType,
+      editionId: common.editionId,
+      variantId: common.variantId,
+      bundleReleaseId: common.bundleReleaseId,
+    );
+    final wishlistChanged = existingWishlist != null;
+    final newItemId = idGenerator();
+
+    final ownedItem = await mutationRunner.run(
       action: () async {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
@@ -71,12 +83,6 @@ final class OwnedItemMutations {
         final resolvedIsDigital = common.isDigital ??
             (existingCatalog?.physicalFormat == 'digital' ||
                 existingCatalog?.physicalFormatLabel?.toLowerCase() == 'digital');
-        final normalizedAnchorType = resolvePersonalItemAnchorType(
-          anchorType: null,
-          editionId: common.editionId,
-          variantId: common.variantId,
-          bundleReleaseId: common.bundleReleaseId,
-        );
         final resolvedCatalogRef = _catalogRefForItem(
           catalogRef.id,
           existingCatalog,
@@ -87,7 +93,6 @@ final class OwnedItemMutations {
           bundleReleaseId: common.bundleReleaseId,
         );
 
-        final newItemId = idGenerator();
         final ownedItem = OwnedItem(
           id: newItemId,
           catalogRef: resolvedCatalogRef,
@@ -125,36 +130,26 @@ final class OwnedItemMutations {
           await syncQueue.enqueue(_syncChangeForCatalogItem(existingCatalog, now));
         }
 
-        final wishlistItems = await wishlist.findActiveByItemAnchor(
-          catalogRef.id,
-          anchorType: normalizedAnchorType,
-          editionId: common.editionId,
-          variantId: common.variantId,
-          bundleReleaseId: common.bundleReleaseId,
-        );
-        if (wishlistItems != null) {
-          await wishlist.markDeleted(wishlistItems, now);
+        if (existingWishlist != null) {
+          await wishlist.markDeleted(existingWishlist, now);
           await syncQueue.enqueue(
             _syncChangeForWishlistItem(
-              wishlistItems.copyWith(updatedAt: now, deletedAt: now),
+              existingWishlist.copyWith(updatedAt: now, deletedAt: now),
               'delete',
               now,
             ),
           );
         }
 
-        return (
-          ownedItem: ownedItem,
-          wishlistChanged: wishlistItems != null,
-        );
+        return ownedItem;
       },
       eventsToEmit: [
-        OwnedItemChanged(catalogRef.id),
-        if (notify) const WishlistChanged(),
+        OwnedItemAdded(newItemId),
+        if (wishlistChanged) WishlistChanged(catalogRef.id),
       ],
     );
 
-    return result.ownedItem;
+    return ownedItem;
   }
 
   Future<OwnedItem> updateOwnedItem(
@@ -301,7 +296,7 @@ final class OwnedItemMutations {
         await syncQueue.enqueue(_syncChangeForOwnedItem(updatedItem, 'upsert', now));
         return updatedItem;
       },
-      eventsToEmit: [OwnedItemChanged(command.ownedItemId)],
+      eventsToEmit: [OwnedItemUpdated(command.ownedItemId)],
     );
 
     return updated;
@@ -317,7 +312,7 @@ final class OwnedItemMutations {
         await catalogCache.upsertAll([item]);
         await syncQueue.enqueue(_syncChangeForCatalogItem(item, now));
       },
-      eventsToEmit: [OwnedItemChanged(item.id)],
+      eventsToEmit: [CatalogItemChanged(item.id)],
     );
   }
 
@@ -337,7 +332,7 @@ final class OwnedItemMutations {
         ]);
       },
       eventsToEmit: [
-        for (final item in pendingItems) OwnedItemChanged(item.id),
+        for (final item in pendingItems) CatalogItemChanged(item.id),
       ],
     );
   }
@@ -355,7 +350,7 @@ final class OwnedItemMutations {
           ),
         );
       },
-      eventsToEmit: [OwnedItemChanged(item.itemId)],
+      eventsToEmit: [OwnedItemRemoved(item.id)],
     );
   }
 
@@ -414,9 +409,9 @@ final class OwnedItemMutations {
         return count;
       },
       eventsToEmit: [
-        OwnedItemChanged(targetCatalogItem.id),
-        const WishlistChanged(),
-        const TrackingChanged(),
+        CatalogItemChanged(targetCatalogItem.id),
+        WishlistChanged(targetCatalogItem.id),
+        TrackingChanged(targetCatalogItem.id),
       ],
     );
   }

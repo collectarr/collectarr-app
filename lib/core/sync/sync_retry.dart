@@ -25,6 +25,7 @@ bool isTransientSyncError(Object error) {
     case DioExceptionType.cancel:
     case DioExceptionType.badCertificate:
     case DioExceptionType.unknown:
+    default:
       return false;
   }
 }
@@ -45,6 +46,7 @@ bool isOfflineSyncError(Object error) {
     case DioExceptionType.cancel:
     case DioExceptionType.badCertificate:
     case DioExceptionType.unknown:
+    default:
       return false;
   }
 }

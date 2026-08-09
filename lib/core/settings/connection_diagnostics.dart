@@ -64,7 +64,8 @@ class ConnectionDiagnostics {
         DioExceptionType.cancel => 'Connection check was cancelled.',
         DioExceptionType.badResponse =>
           'Unexpected response from $serviceName.',
-        DioExceptionType.unknown =>
+        DioExceptionType.unknown ||
+        _ =>
           'Could not check $serviceName: ${_cleanMessage(error.message)}',
       };
     }

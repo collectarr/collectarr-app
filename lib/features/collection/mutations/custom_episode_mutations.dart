@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:uuid/uuid.dart';
@@ -17,14 +16,12 @@ final class CustomEpisodeMutations {
     required this.customEpisodes,
     required this.syncQueue,
     required this.mutationRunner,
-    required this.events,
     this.idGenerator = _defaultIdGenerator,
   });
 
   final CustomEpisodesCacheRepository customEpisodes;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
-  final CollectionEventBus events;
   final IdGenerator idGenerator;
 
   Future<CustomEpisode> upsertCustomEpisode({
@@ -61,7 +58,7 @@ final class CustomEpisodeMutations {
         await customEpisodes.upsert(episode);
         await syncQueue.enqueue(_syncChangeForCustomEpisode(episode, 'upsert', now));
       },
-      eventsToEmit: [const CustomEpisodeChanged()],
+      eventsToEmit: [CustomEpisodeChanged(episode.id)],
     );
 
     return episode;
@@ -76,7 +73,7 @@ final class CustomEpisodeMutations {
         await customEpisodes.markDeleted(episode, now);
         await syncQueue.enqueue(_syncChangeForCustomEpisode(deleted, 'delete', now));
       },
-      eventsToEmit: [const CustomEpisodeChanged()],
+      eventsToEmit: [CustomEpisodeChanged(episode.id)],
     );
   }
 

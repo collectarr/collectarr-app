@@ -32,7 +32,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
+    await container.read(ownedItemMutationsProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(
@@ -69,7 +69,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
+    await container.read(ownedItemMutationsProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
             common: const OwnedItemCommonDraft(),
@@ -102,7 +102,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
+    await container.read(ownedItemMutationsProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(),
@@ -123,7 +123,7 @@ void main() {
     await CatalogCacheRepository(db).upsertAll([
       CatalogItem(id: 'comic-1', kind: 'comic', title: 'Original'),
     ]);
-    await container.read(collectionMutationsProvider).addOwnedItem(
+    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(
@@ -133,7 +133,7 @@ void main() {
           ),
         );
 
-    await container.read(collectionMutationsProvider).updateCatalogSnapshot(
+    await container.read(ownedItemMutationsProvider).updateCatalogSnapshot(
           CatalogItem(
             id: 'comic-1',
             kind: 'comic',
@@ -159,7 +159,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addOwnedItem(
+    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
             common: OwnedItemCommonDraft(
@@ -205,7 +205,7 @@ void main() {
       ),
     ]);
 
-    await container.read(collectionMutationsProvider).addOwnedItem(
+    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-digital-1', kind: 'movie'),
             common: const OwnedItemCommonDraft(
@@ -232,7 +232,7 @@ void main() {
     addTearDown(container.dispose);
 
     final owned =
-        await container.read(collectionMutationsProvider).addOwnedItem(
+        await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
               AddOwnedItemCommand(
                 catalogRef: testCatalogRef('movie-2', kind: 'movie'),
                 common: const OwnedItemCommonDraft(
@@ -242,7 +242,7 @@ void main() {
               ),
               syncTracking: false,
             );
-    await container.read(collectionMutationsProvider).syncOwnedTrackingEntry(
+    await container.read(trackingMutationsProvider).syncOwnedTrackingEntry(
           owned,
           editionId: 'edition-steelbook',
           variantId: 'variant-4k',
@@ -278,7 +278,7 @@ void main() {
       CatalogItem(id: 'music-1', kind: 'music', title: 'Blessed & Possessed'),
     ]);
 
-    await container.read(collectionMutationsProvider).upsertTrackingEntry(
+    await container.read(trackingMutationsProvider).upsertTrackingEntry(
           'music-1',
           sourceType: 'digital',
           status: 'In progress',
@@ -323,7 +323,7 @@ void main() {
           ),
         );
 
-    await container.read(collectionMutationsProvider).upsertTrackingEntry(
+    await container.read(trackingMutationsProvider).upsertTrackingEntry(
           'movie-1',
           sourceType: 'digital',
           status: 'Watching',
@@ -349,7 +349,7 @@ void main() {
       CatalogItem(id: 'book-1', kind: 'book', title: 'Project Hail Mary'),
     ]);
 
-    await container.read(collectionMutationsProvider).upsertTrackingEntry(
+    await container.read(trackingMutationsProvider).upsertTrackingEntry(
           'book-1',
           sourceType: 'kindle',
           status: 'Reading',
@@ -380,7 +380,7 @@ void main() {
       ),
     ]);
 
-    await container.read(collectionMutationsProvider).addOwnedItem(
+    await container.read(ownedItemMutationsProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(),
@@ -402,6 +402,7 @@ void main() {
     expect(snapshot.payloadJson, contains('https://cdn.example/absolute.jpg'));
     expect(snapshot.payloadJson,
         contains('https://cdn.example/absolute-thumb.jpg'));
+    await Future<void>.delayed(Duration.zero);
     expect(container.read(syncControllerProvider).pendingCount, 3);
   });
 
@@ -413,7 +414,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addOwnedItem(
+    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: OwnedItemCommonDraft(
@@ -428,7 +429,7 @@ void main() {
         );
     final original = await db.select(db.ownedItemsCache).getSingle();
 
-    await container.read(collectionMutationsProvider).updateOwnedItem(
+    await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           UpdateOwnedItemCommand(
             ownedItemId: original.id,
             condition: const Patch.set('Near Mint'),
@@ -455,7 +456,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addOwnedItem(
+    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(
@@ -465,7 +466,7 @@ void main() {
         );
     final original = await db.select(db.ownedItemsCache).getSingle();
 
-    await container.read(collectionMutationsProvider).updateOwnedItem(
+    await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           UpdateOwnedItemCommand(
             ownedItemId: original.id,
             locationId: const Patch.clear(),
@@ -484,7 +485,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addToWishlist('movie-1');
+    await container.read(wishlistMutationsProvider).addToWishlist('movie-1');
     final originalRow = await db.select(db.wishlistItemsCache).getSingle();
     final original = WishlistItem(
       id: originalRow.id,
@@ -501,7 +502,7 @@ void main() {
       deletedAt: originalRow.deletedAt,
     );
 
-    await container.read(collectionMutationsProvider).updateWishlistItem(
+    await container.read(wishlistMutationsProvider).updateWishlistItem(
           original,
           anchorType: 'bundle_release',
           bundleReleaseId: 'bundle-1',
@@ -530,9 +531,9 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final mutations = container.read(collectionMutationsProvider);
-    await mutations.addToWishlist('movie-1', editionId: 'edition-4k');
-    await mutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+    final wishlistMutations = container.read(wishlistMutationsProvider);
+    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-4k');
+    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-bluray');
 
     final rows = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
@@ -557,11 +558,11 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final mutations = container.read(collectionMutationsProvider);
-    await mutations.addToWishlist('movie-1', editionId: 'edition-4k');
-    await mutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+    final wishlistMutations = container.read(wishlistMutationsProvider);
+    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-4k');
+    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-bluray');
 
-    await mutations.removeFromWishlist(
+    await wishlistMutations.removeFromWishlist(
       'movie-1',
       editionId: 'edition-4k',
     );
@@ -586,7 +587,7 @@ void main() {
     addTearDown(container.dispose);
 
     final imported =
-        await container.read(collectionMutationsProvider).importRows(
+        await container.read(collectionImportServiceProvider).importRows(
       [
         CollectionCsvRow(
           itemId: 'comic-1',
@@ -618,10 +619,11 @@ void main() {
       overrides: [localDatabaseProvider.overrideWithValue(db)],
     );
     addTearDown(container.dispose);
-    final mutations = container.read(collectionMutationsProvider);
+    final wishlistMutations = container.read(wishlistMutationsProvider);
+    final importService = container.read(collectionImportServiceProvider);
 
-    await mutations.addToWishlist('comic-1');
-    await mutations.importRows([
+    await wishlistMutations.addToWishlist('comic-1');
+    await importService.importRows([
       const CollectionCsvRow(itemId: 'comic-1', status: 'owned'),
     ]);
 
@@ -657,7 +659,7 @@ void main() {
     ]);
 
     final imported =
-        await container.read(collectionMutationsProvider).importRows(
+        await container.read(collectionImportServiceProvider).importRows(
       const [
         CollectionCsvRow(
           itemId: '',
@@ -691,7 +693,7 @@ void main() {
     addTearDown(container.dispose);
 
     final imported =
-        await container.read(collectionMutationsProvider).importRows(
+        await container.read(collectionImportServiceProvider).importRows(
       const [
         CollectionCsvRow(
           itemId: 'movie-1',
@@ -746,7 +748,7 @@ void main() {
     ]);
 
     final imported =
-        await container.read(collectionMutationsProvider).importRows(
+        await container.read(collectionImportServiceProvider).importRows(
       const [
         CollectionCsvRow(
           itemId: '',
@@ -783,10 +785,11 @@ void main() {
     ]);
 
     final preview =
-        await container.read(collectionMutationsProvider).previewImportRows(
+        await container.read(collectionImportServiceProvider).previewImportRows(
       const [
         CollectionCsvRow(
           itemId: '',
+          kind: 'comic',
           status: 'owned',
           title: 'The Amazing Spider-Man, Vol. 2',
           itemNumber: '520',
@@ -816,8 +819,8 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final mutations = container.read(collectionMutationsProvider);
-    final preview = await mutations.previewImportRows(
+    final importService = container.read(collectionImportServiceProvider);
+    final preview = await importService.previewImportRows(
       const [
         CollectionCsvRow(
           itemId: 'comic-1',
@@ -837,7 +840,7 @@ void main() {
     expect(preview.duplicateRows.single.grade, '7.5');
     expect(preview.reviewCount, 1);
 
-    final imported = await mutations.importRows(preview.resolvedRows);
+    final imported = await importService.importRows(preview.resolvedRows);
     final owned = await db.select(db.ownedItemsCache).get();
     expect(imported, 1);
     expect(owned, hasLength(1));
@@ -851,9 +854,10 @@ void main() {
       overrides: [localDatabaseProvider.overrideWithValue(db)],
     );
     addTearDown(container.dispose);
-    final mutations = container.read(collectionMutationsProvider);
+    final coordinator = container.read(collectionCommandCoordinatorProvider);
+    final importService = container.read(collectionImportServiceProvider);
 
-    await mutations.addOwnedItem(
+    await coordinator.addOwnedItem(
       AddOwnedItemCommand(
         catalogRef: testCatalogRef('comic-1', kind: 'comic'),
         common: const OwnedItemCommonDraft(grade: '4.0'),
@@ -861,7 +865,7 @@ void main() {
       ),
     );
 
-    final preview = await mutations.previewImportRows(
+    final preview = await importService.previewImportRows(
       const [
         CollectionCsvRow(
           itemId: 'comic-1',
@@ -884,9 +888,10 @@ void main() {
       overrides: [localDatabaseProvider.overrideWithValue(db)],
     );
     addTearDown(container.dispose);
-    final mutations = container.read(collectionMutationsProvider);
+    final coordinator = container.read(collectionCommandCoordinatorProvider);
+    final importService = container.read(collectionImportServiceProvider);
 
-    await mutations.addOwnedItem(
+    await coordinator.addOwnedItem(
       AddOwnedItemCommand(
         catalogRef: testCatalogRef('comic-1', kind: 'comic'),
         common: const OwnedItemCommonDraft(condition: 'Good', grade: '4.0'),
@@ -895,7 +900,7 @@ void main() {
     );
     final original = await db.select(db.ownedItemsCache).getSingle();
 
-    final imported = await mutations.importRows(
+    final imported = await importService.importRows(
       const [
         CollectionCsvRow(
           itemId: 'comic-1',
@@ -924,7 +929,7 @@ void main() {
     addTearDown(container.dispose);
 
     final imported =
-        await container.read(collectionMutationsProvider).importRows(
+        await container.read(collectionImportServiceProvider).importRows(
       const [
         CollectionCsvRow(
           itemId: 'comic-1',
@@ -955,14 +960,14 @@ void main() {
       releaseYear: 1999,
     );
 
-    await container.read(collectionMutationsProvider).addLocalOnlyTrackingEntry(
+    await container.read(trackingMutationsProvider).addLocalOnlyTrackingEntry(
           snapshot,
           sourceType: 'streaming',
           status: 'Completed',
           rating: 9,
           timesCompleted: 1,
         );
-    await container.read(collectionMutationsProvider).addLocalOnlyWishlistItem(
+    await container.read(wishlistMutationsProvider).addLocalOnlyWishlistItem(
           snapshot,
         );
 
@@ -985,7 +990,9 @@ void main() {
       overrides: [localDatabaseProvider.overrideWithValue(db)],
     );
     addTearDown(container.dispose);
-    final mutations = container.read(collectionMutationsProvider);
+    final trackingMutations = container.read(trackingMutationsProvider);
+    final wishlistMutations = container.read(wishlistMutationsProvider);
+    final ownedMutations = container.read(ownedItemMutationsProvider);
 
     final localSnapshot = CatalogItem(
       id: 'tmdb-local:movie:603',
@@ -993,16 +1000,16 @@ void main() {
       title: 'The Matrix',
       releaseYear: 1999,
     );
-    await mutations.addLocalOnlyTrackingEntry(
+    await trackingMutations.addLocalOnlyTrackingEntry(
       localSnapshot,
       sourceType: 'streaming',
       status: 'Completed',
       rating: 9,
       timesCompleted: 1,
     );
-    await mutations.addLocalOnlyWishlistItem(localSnapshot);
+    await wishlistMutations.addLocalOnlyWishlistItem(localSnapshot);
 
-    final promotedCount = await mutations.promoteLocalOnlyItemToCatalog(
+    final promotedCount = await ownedMutations.promoteLocalOnlyItemToCatalog(
       'tmdb-local:movie:603',
       CatalogItem(
         id: 'movie-603',

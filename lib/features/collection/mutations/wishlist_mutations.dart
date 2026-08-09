@@ -7,7 +7,6 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -25,7 +24,6 @@ final class WishlistMutations {
     required this.trackingUnits,
     required this.syncQueue,
     required this.mutationRunner,
-    required this.events,
     this.idGenerator = _defaultIdGenerator,
   });
 
@@ -35,7 +33,6 @@ final class WishlistMutations {
   final TrackingUnitsCacheRepository trackingUnits;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
-  final CollectionEventBus events;
   final IdGenerator idGenerator;
 
   Future<void> addToWishlist(
@@ -88,7 +85,7 @@ final class WishlistMutations {
           }
         }
       },
-      eventsToEmit: [if (notify) const WishlistChanged()],
+      eventsToEmit: [WishlistChanged(itemId)],
     );
   }
 
@@ -142,7 +139,7 @@ final class WishlistMutations {
           }
         }
       },
-      eventsToEmit: [if (notify) const WishlistChanged()],
+      eventsToEmit: [WishlistChanged(item.id)],
     );
   }
 
@@ -184,7 +181,7 @@ final class WishlistMutations {
         await syncQueue.enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
         await syncQueue.enqueue(_syncChangeForCatalogItemId(item.itemId, now));
       },
-      eventsToEmit: [if (notify) const WishlistChanged()],
+      eventsToEmit: [WishlistChanged(item.itemId)],
     );
     return updated;
   }
@@ -220,7 +217,7 @@ final class WishlistMutations {
           );
         }
       },
-      eventsToEmit: [if (notify) const WishlistChanged()],
+      eventsToEmit: [WishlistChanged(itemId)],
     );
   }
 

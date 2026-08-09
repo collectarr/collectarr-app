@@ -9,7 +9,6 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -27,7 +26,6 @@ final class CollectionImportService {
     required this.trackingEntries,
     required this.syncQueue,
     required this.mutationRunner,
-    required this.events,
     this.idGenerator = _defaultIdGenerator,
   });
 
@@ -37,7 +35,6 @@ final class CollectionImportService {
   final TrackingEntriesCacheRepository trackingEntries;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
-  final CollectionEventBus events;
   final IdGenerator idGenerator;
 
   Future<int> importRows(List<CollectionCsvRow> rows) async {
@@ -189,8 +186,10 @@ final class CollectionImportService {
         }
       },
       eventsToEmit: [
-        const WishlistChanged(),
-        const TrackingChanged(),
+        for (final item in ownedItemsList) OwnedItemAdded(item.id),
+        for (final item in wishlistUpserts) WishlistChanged(item.itemId),
+        for (final item in wishlistDeletes) WishlistChanged(item.itemId),
+        for (final catItem in importedCatalogItems) CatalogItemChanged(catItem.id),
       ],
     );
 
@@ -366,6 +365,6 @@ class CollectionImportPreview {
   int get conflictCount => conflictRows.length;
   int get duplicateCount => duplicateRows.length;
   int get skippedCount => skippedRows.length;
-  int get unresolvedCount => conflictRows.length;
+  int get unresolvedCount => unresolvedRows.length;
   int get reviewCount => conflictRows.length + duplicateRows.length;
 }
