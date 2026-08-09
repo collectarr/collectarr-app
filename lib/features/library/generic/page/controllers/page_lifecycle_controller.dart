@@ -27,21 +27,6 @@ abstract final class _LibraryPageLifecycleControllerOps {
       (_, __) {},
     );
 
-    // Listen to changes in Riverpod state to update the local UI state
-    state._filtersSubscription = state.ref.listenManual<LibraryFilterState>(
-      libraryFiltersProvider(state.workspaceKey),
-      (previous, next) {
-        state._applyFiltersFromRiverpod(next);
-      },
-    );
-    state._viewConfigSubscription =
-        state.ref.listenManual<LibraryViewConfigState>(
-      libraryViewConfigProvider(state.workspaceKey),
-      (previous, next) {
-        state._applyViewConfigFromRiverpod(next);
-      },
-    );
-
     state._primeCachedViewPreferences();
     state._applyRouteStateFromUri(state.widget.routeUri);
     unawaited(state._loadViewState());
