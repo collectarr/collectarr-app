@@ -303,7 +303,10 @@ void main() {
       isNotEmpty,
     );
     expect(
-      libraryKindModuleForType(boardGamesLibraryConfig).fields.sorts.map((d) => d.id.value),
+      libraryKindModuleForType(boardGamesLibraryConfig)
+          .fields
+          .sorts
+          .map((d) => d.id.value),
       contains('boardgame.title'),
     );
   });
@@ -617,8 +620,7 @@ void main() {
       comicsMediaAdapter.viewProfile.type.workspace.kind,
       CatalogMediaKind.comic,
     );
-    expect(comicsMediaAdapter.columnDisplayName('comic.series'),
-        'Series');
+    expect(comicsMediaAdapter.columnDisplayName('comic.series'), 'Series');
     expect(comicsMediaAdapter.columnLabel('cover'), '');
     expect(
       comicsMediaAdapter.columnGroup('location'),

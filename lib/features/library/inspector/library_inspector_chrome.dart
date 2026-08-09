@@ -6,7 +6,8 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -119,12 +120,16 @@ class InspectorActionBar extends StatelessWidget {
               icon: (dto.isOwned || item.source.ownedItem != null)
                   ? Icons.check_circle_outline
                   : Icons.inventory_2_outlined,
-              label: (dto.isOwned || item.source.ownedItem != null) ? 'Owned' : 'Catalog only',
+              label: (dto.isOwned || item.source.ownedItem != null)
+                  ? 'Owned'
+                  : 'Catalog only',
               foreground: palette.textPrimary,
               background: palette.surface,
               borderColor: palette.divider,
             ),
-            if (dto.isWishlisted || item.source.wishlistItem != null || onToggleWishlist != null)
+            if (dto.isWishlisted ||
+                item.source.wishlistItem != null ||
+                onToggleWishlist != null)
               LibraryStatusChip(
                 icon: Icons.star,
                 label: 'Wish list',

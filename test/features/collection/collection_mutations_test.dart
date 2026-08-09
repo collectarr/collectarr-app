@@ -231,16 +231,17 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final owned = await container.read(collectionMutationsProvider).addOwnedItem(
-          AddOwnedItemCommand(
-            catalogRef: testCatalogRef('movie-2', kind: 'movie'),
-            common: const OwnedItemCommonDraft(
-              editionId: 'edition-legacy',
-              variantId: 'variant-legacy',
-            ),
-          ),
-          syncTracking: false,
-        );
+    final owned =
+        await container.read(collectionMutationsProvider).addOwnedItem(
+              AddOwnedItemCommand(
+                catalogRef: testCatalogRef('movie-2', kind: 'movie'),
+                common: const OwnedItemCommonDraft(
+                  editionId: 'edition-legacy',
+                  variantId: 'variant-legacy',
+                ),
+              ),
+              syncTracking: false,
+            );
     await container.read(collectionMutationsProvider).syncOwnedTrackingEntry(
           owned,
           editionId: 'edition-steelbook',
@@ -388,7 +389,7 @@ void main() {
 
     final queued = await db.select(db.syncQueue).get();
     final snapshot =
-        queued.where((row) => row.entityType == 'library_item_snapshot').single;
+        queued.where((row) => row.entityType == 'catalog_item').single;
     // addOwnedItem enqueues the owned item, the catalog snapshot, and auto-registers
     // the publisher as a pick-list value.
     expect(queued, hasLength(3));
@@ -605,8 +606,8 @@ void main() {
     expect(imported, 2);
     expect(owned, hasLength(1));
     expect(wishlist, hasLength(1));
-    expect(queued, hasLength(2));
-    expect(container.read(syncControllerProvider).pendingCount, 2);
+    expect(queued, hasLength(4));
+    expect(container.read(syncControllerProvider).pendingCount, 4);
   });
 
   test('collection import moves existing wishlist rows to owned in one batch',
@@ -630,7 +631,7 @@ void main() {
 
     expect(owned, hasLength(1));
     expect(wishlist.single.deletedAt, isNotNull);
-    expect(queued, hasLength(2));
+    expect(queued, hasLength(3));
     expect(
         queued.where((row) => row.entityType == 'wishlist_item').single.action,
         'delete');
@@ -675,7 +676,7 @@ void main() {
     expect(owned.itemId, 'comic-1');
     expect(owned.grade, '7.5');
     expect(
-      queued.where((row) => row.entityType == 'library_item_snapshot'),
+      queued.where((row) => row.entityType == 'catalog_item'),
       hasLength(1),
     );
   });
@@ -715,7 +716,7 @@ void main() {
     expect(catalog.physicalFormat, '4k-uhd');
     expect(catalog.physicalFormatLabel, '4K UHD');
     expect(
-      queued.where((row) => row.entityType == 'library_item_snapshot'),
+      queued.where((row) => row.entityType == 'catalog_item'),
       hasLength(1),
     );
   });

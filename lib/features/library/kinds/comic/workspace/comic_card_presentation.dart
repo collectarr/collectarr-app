@@ -10,8 +10,7 @@ LibraryCardPresentation buildComicCardPresentation(
   required bool musicVertical,
 }) {
   final typedDetails = item.source.ownedItem?.typedDetails;
-  final comicDetails =
-      typedDetails is ComicOwnedDetails ? typedDetails : null;
+  final comicDetails = typedDetails is ComicOwnedDetails ? typedDetails : null;
   final badges = <LibraryCardBadge>[];
 
   if (comicDetails?.keyComic == true) {

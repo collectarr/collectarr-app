@@ -106,7 +106,8 @@ void main() {
     );
   });
 
-  test('libraryHierarchyContractDiagnosticLabel flags missing release variant', () {
+  test('libraryHierarchyContractDiagnosticLabel flags missing release variant',
+      () {
     final edition = CatalogEdition(id: 'rel-2', title: '');
     final source = ShelfEntry(
       itemId: 'movie-2',

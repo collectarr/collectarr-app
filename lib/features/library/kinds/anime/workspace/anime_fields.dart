@@ -35,19 +35,22 @@ abstract final class AnimeKindSchema {
     getValue: (dto) => dto.releaseDate,
   );
 
-  static final condition = LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
+  static final condition =
+      LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
   );
 
-  static final location = LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
+  static final location =
+      LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
   );
 
-  static final pricePaid = LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
+  static final pricePaid =
+      LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
     id: AnimeFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
@@ -59,7 +62,8 @@ abstract final class AnimeKindSchema {
     getValue: (dto) => dto.barcode,
   );
 
-  static final status = LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
+  static final status =
+      LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.status,
     label: 'Status',
     getValue: (context) => context.source.isWishlisted
@@ -67,37 +71,43 @@ abstract final class AnimeKindSchema {
         : (context.source.isOwned ? 'owned' : null),
   );
 
-  static final cover = LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
+  static final cover =
+      LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
   );
 
-  static final rating = LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
+  static final rating =
+      LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
     id: AnimeFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
   );
 
-  static final wishlist = LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, bool>(
+  static final wishlist =
+      LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, bool>(
     id: AnimeFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
   );
 
-  static final updatedAt = LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, DateTime>(
+  static final updatedAt =
+      LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, DateTime>(
     id: AnimeFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
   );
 
-  static final addedAt = LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, DateTime?>(
+  static final addedAt =
+      LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, DateTime?>(
     id: AnimeFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
   );
 
-  static final watchStatus = LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
+  static final watchStatus =
+      LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.source.ownedItem?.readStatus,
@@ -131,7 +141,8 @@ final animeLibraryGroupDefinitions = [
 
 final animeLibrarySortDefinitions = [
   sortFromField<AnimeKind, AnimeWorkspaceDto, String>(AnimeKindSchema.studio),
-  sortFromField<AnimeKind, AnimeWorkspaceDto, String>(AnimeKindSchema.publisher),
+  sortFromField<AnimeKind, AnimeWorkspaceDto, String>(
+      AnimeKindSchema.publisher),
   LibrarySortDefinition<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeSortIds.status,
     compare: (left, right) {
@@ -147,7 +158,9 @@ final animeLibrarySortDefinitions = [
     label: 'Status',
   ),
   sortFromField<AnimeKind, AnimeWorkspaceDto, String>(AnimeKindSchema.title),
-  sortFromField<AnimeKind, AnimeWorkspaceDto, DateTime>(AnimeKindSchema.releaseDate, defaultAscending: false),
+  sortFromField<AnimeKind, AnimeWorkspaceDto, DateTime>(
+      AnimeKindSchema.releaseDate,
+      defaultAscending: false),
 ];
 
 final animeLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
@@ -171,8 +184,9 @@ final animeLibraryColumnDefinitions = [
     id: AnimeFieldIds.status,
     label: 'Status',
     getValue: AnimeKindSchema.status.getValue,
-    cellValue: (context) =>
-        Text(context.source.isWishlisted ? 'Wishlist' : (context.source.isOwned ? 'Owned' : '')),
+    cellValue: (context) => Text(context.source.isWishlisted
+        ? 'Wishlist'
+        : (context.source.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -195,9 +209,13 @@ final animeLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(AnimeKindSchema.studio, defaultWidth: 150),
-  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(AnimeKindSchema.title, defaultWidth: 260, maxWidth: 520),
-  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(AnimeKindSchema.publisher, defaultWidth: 140),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(AnimeKindSchema.studio,
+      defaultWidth: 150),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(AnimeKindSchema.title,
+      defaultWidth: 260, maxWidth: 520),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+      AnimeKindSchema.publisher,
+      defaultWidth: 140),
   columnFromField<AnimeKind, AnimeWorkspaceDto, DateTime?>(
     AnimeKindSchema.releaseDate,
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
@@ -240,7 +258,8 @@ final animeLibraryColumnDefinitions = [
   ),
   columnFromField<AnimeKind, AnimeWorkspaceDto, int?>(
     AnimeKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -256,7 +275,8 @@ final animeLibraryColumnDefinitions = [
     id: AnimeFieldIds.rating,
     label: 'Rating',
     getValue: AnimeKindSchema.rating.getValue,
-    cellValue: (context) => Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) =>
+        Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
 ];

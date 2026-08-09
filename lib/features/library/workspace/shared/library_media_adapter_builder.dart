@@ -55,8 +55,10 @@ LibraryMediaAdapter plannedMediaAdapter(
             .fields
             .sortDefinitionFor(column)
             .compare(
-              LibraryProjectionContext(source: left.source, node: left.node, dto: left.dto),
-              LibraryProjectionContext(source: right.source, node: right.node, dto: right.dto),
+              LibraryProjectionContext(
+                  source: left.source, node: left.node, dto: left.dto),
+              LibraryProjectionContext(
+                  source: right.source, node: right.node, dto: right.dto),
             ),
     entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
     entryLinkedMetadataCandidatesBuilder: (source) =>
@@ -94,7 +96,11 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
         clampPlannedMediaTableColumnWidth(type, column as String, width),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
     sortAscendingForColumn: (column) =>
-        libraryKindModuleForType(type).fields.findSortDefinition(column.toString())?.defaultAscending ?? true,
+        libraryKindModuleForType(type)
+            .fields
+            .findSortDefinition(column.toString())
+            ?.defaultAscending ??
+        true,
   );
 }
 
@@ -102,7 +108,8 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
   LibraryTypeConfig type,
   LibraryWorkspacePreset preset,
 ) {
-  final defaultCols = Set.of(libraryKindModuleForType(type).fields.defaultVisibleColumnIds);
+  final defaultCols =
+      Set.of(libraryKindModuleForType(type).fields.defaultVisibleColumnIds);
   return switch (preset) {
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
@@ -158,7 +165,8 @@ String? plannedMediaSubgroupKeyForEntry(
   final registry = libraryKindModuleForType(type).fields;
   final definition = registry.findGroupDefinition(groupMode.toString());
   return definition?.subgroupKey?.call(
-    LibraryProjectionContext(source: item.source, node: item.node, dto: item.dto),
+    LibraryProjectionContext(
+        source: item.source, node: item.node, dto: item.dto),
   );
 }
 

@@ -64,7 +64,8 @@ class InspectorPersonalSection extends StatelessWidget {
       ownedItem: ownedItem,
       providerName: dto.marketValueCents != null ? 'Provider snapshot' : null,
     );
-    final paid = formatMoney(ownedItem?.pricePaidCents ?? dto.pricePaidCents, ownedItem?.currency ?? dto.currency);
+    final paid = formatMoney(ownedItem?.pricePaidCents ?? dto.pricePaidCents,
+        ownedItem?.currency ?? dto.currency);
     final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
       ownedItem,
       catalogEditions,
@@ -141,10 +142,12 @@ class InspectorPersonalSection extends StatelessWidget {
                     valueSnapshot.currency,
                   )),
             if (valueSnapshot.manualEstimatedValueCents != null)
-              LibraryDetailField(label: 'Manual value', value: formatMoney(
-                  valueSnapshot.manualEstimatedValueCents,
-                  valueSnapshot.currency,
-                )),
+              LibraryDetailField(
+                  label: 'Manual value',
+                  value: formatMoney(
+                    valueSnapshot.manualEstimatedValueCents,
+                    valueSnapshot.currency,
+                  )),
             if ((ownedItem?.details is ComicOwnedDetails
                     ? (ownedItem!.details as ComicOwnedDetails).coverPriceCents
                     : ownedItem?.comicDetails?.coverPriceCents) !=
@@ -153,7 +156,8 @@ class InspectorPersonalSection extends StatelessWidget {
                 label: 'Cover price',
                 value: formatMoney(
                   ownedItem?.details is ComicOwnedDetails
-                      ? (ownedItem!.details as ComicOwnedDetails).coverPriceCents
+                      ? (ownedItem!.details as ComicOwnedDetails)
+                          .coverPriceCents
                       : ownedItem!.comicDetails!.coverPriceCents,
                   ownedItem?.currency ?? dto.currency,
                 ),
@@ -161,7 +165,8 @@ class InspectorPersonalSection extends StatelessWidget {
             if (ownedItem?.sellPriceCents != null)
               LibraryDetailField(
                 label: 'Sell price',
-                value: formatMoney(ownedItem!.sellPriceCents, ownedItem?.currency ?? dto.currency),
+                value: formatMoney(ownedItem!.sellPriceCents,
+                    ownedItem?.currency ?? dto.currency),
               ),
             if (ownedItem?.sellPriceCents != null)
               LibraryDetailField(

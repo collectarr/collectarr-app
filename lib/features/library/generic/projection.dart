@@ -189,7 +189,8 @@ String _toSnakeCase(String name) {
       .toLowerCase();
 }
 
-LibraryGroupDefinition<dynamic, dynamic, Object?>? libraryGroupModeDefinitionOrNull(
+LibraryGroupDefinition<dynamic, dynamic, Object?>?
+    libraryGroupModeDefinitionOrNull(
   String mode, [
   LibraryTypeConfig? type,
 ]) {
@@ -224,10 +225,12 @@ String _fallbackGroupModeLabel(String mode) {
   if (mode == 'release_year') return 'Release Year';
   if (mode == 'creator') return 'All Creators';
   if (mode == 'editor_in_chief') return 'Editor in Chief';
-  final raw = mode.replaceAllMapped(
-    RegExp(r'([a-z0-9])([A-Z])'),
-    (match) => '${match.group(1)} ${match.group(2)}',
-  ).replaceAll('_', ' ');
+  final raw = mode
+      .replaceAllMapped(
+        RegExp(r'([a-z0-9])([A-Z])'),
+        (match) => '${match.group(1)} ${match.group(2)}',
+      )
+      .replaceAll('_', ' ');
   return raw
       .split(' ')
       .where((w) => w.isNotEmpty)
@@ -250,7 +253,8 @@ String genericGroupModeLabel(
   String mode,
   LibraryTypeConfig type,
 ) {
-  if (mode == 'publisher' && type.presentation.groupLabels.publisherMode.isNotEmpty) {
+  if (mode == 'publisher' &&
+      type.presentation.groupLabels.publisherMode.isNotEmpty) {
     return type.presentation.groupLabels.publisherMode;
   }
   return libraryGroupModeDefinitionOrNull(mode, type)?.label ??

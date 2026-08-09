@@ -41,13 +41,15 @@ abstract final class BookKindSchema {
     getValue: (dto) => dto.isbn ?? dto.barcode,
   );
 
-  static final condition = LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+  static final condition =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
   );
 
-  static final location = LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+  static final location =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
@@ -65,13 +67,15 @@ abstract final class BookKindSchema {
     getValue: (dto) => dto.releaseDate,
   );
 
-  static final pricePaid = LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
+  static final pricePaid =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
     id: BookFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
   );
 
-  static final status = LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+  static final status =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.status,
     label: 'Status',
     getValue: (context) => context.source.isWishlisted
@@ -79,37 +83,43 @@ abstract final class BookKindSchema {
         : (context.source.isOwned ? 'owned' : null),
   );
 
-  static final cover = LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+  static final cover =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
   );
 
-  static final rating = LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
+  static final rating =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
     id: BookFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
   );
 
-  static final wishlist = LibraryFieldDefinition<BookKind, BookWorkspaceDto, bool>(
+  static final wishlist =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, bool>(
     id: BookFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
   );
 
-  static final updatedAt = LibraryFieldDefinition<BookKind, BookWorkspaceDto, DateTime>(
+  static final updatedAt =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, DateTime>(
     id: BookFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
   );
 
-  static final addedAt = LibraryFieldDefinition<BookKind, BookWorkspaceDto, DateTime?>(
+  static final addedAt =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, DateTime?>(
     id: BookFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
   );
 
-  static final readStatus = LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+  static final readStatus =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.readStatus,
     label: 'Read Status',
     getValue: (context) => context.source.ownedItem?.readStatus,
@@ -169,8 +179,11 @@ final bookLibrarySortDefinitions = [
     label: 'Status',
   ),
   sortFromField<BookKind, BookWorkspaceDto, String>(BookKindSchema.title),
-  sortFromField<BookKind, BookWorkspaceDto, DateTime>(BookKindSchema.releaseDate, defaultAscending: false),
-  sortFromField<BookKind, BookWorkspaceDto, num>(BookKindSchema.pageCount, group: 'Edition'),
+  sortFromField<BookKind, BookWorkspaceDto, DateTime>(
+      BookKindSchema.releaseDate,
+      defaultAscending: false),
+  sortFromField<BookKind, BookWorkspaceDto, num>(BookKindSchema.pageCount,
+      group: 'Edition'),
   sortFromField<BookKind, BookWorkspaceDto, String>(BookKindSchema.author),
 ];
 
@@ -196,8 +209,9 @@ final bookLibraryColumnDefinitions = [
     id: BookFieldIds.status,
     label: 'Status',
     getValue: BookKindSchema.status.getValue,
-    cellValue: (context) =>
-        Text(context.source.isWishlisted ? 'Wishlist' : (context.source.isOwned ? 'Owned' : '')),
+    cellValue: (context) => Text(context.source.isWishlisted
+        ? 'Wishlist'
+        : (context.source.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -220,9 +234,12 @@ final bookLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  columnFromField<BookKind, BookWorkspaceDto, String?>(BookKindSchema.author, defaultWidth: 150),
-  columnFromField<BookKind, BookWorkspaceDto, String?>(BookKindSchema.title, defaultWidth: 260, maxWidth: 520),
-  columnFromField<BookKind, BookWorkspaceDto, String?>(BookKindSchema.publisher, defaultWidth: 140),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(BookKindSchema.author,
+      defaultWidth: 150),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(BookKindSchema.title,
+      defaultWidth: 260, maxWidth: 520),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(BookKindSchema.publisher,
+      defaultWidth: 140),
   columnFromField<BookKind, BookWorkspaceDto, DateTime?>(
     BookKindSchema.releaseDate,
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
@@ -246,7 +263,8 @@ final bookLibraryColumnDefinitions = [
     id: BookFieldIds.rating,
     label: 'Rating',
     getValue: BookKindSchema.rating.getValue,
-    cellValue: (context) => Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) =>
+        Text(context.source.ownedItem?.rating?.toString() ?? ''),
     group: 'Personal',
     defaultWidth: 80,
   ),
@@ -257,7 +275,8 @@ final bookLibraryColumnDefinitions = [
   ),
   columnFromField<BookKind, BookWorkspaceDto, int?>(
     BookKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

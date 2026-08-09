@@ -81,39 +81,58 @@ class LibraryEditDraft {
   TextEditingController get numberController => metadata.numberController;
   TextEditingController get publisherController => metadata.publisherController;
   TextEditingController get coverDateController => metadata.coverDateController;
-  TextEditingController get coverDateYearPartController => metadata.coverDateYearPartController;
-  TextEditingController get coverDateMonthPartController => metadata.coverDateMonthPartController;
-  TextEditingController get coverDateDayPartController => metadata.coverDateDayPartController;
-  TextEditingController get releaseDateController => metadata.releaseDateController;
-  TextEditingController get releaseDateYearPartController => metadata.releaseDateYearPartController;
-  TextEditingController get releaseDateMonthPartController => metadata.releaseDateMonthPartController;
-  TextEditingController get releaseDateDayPartController => metadata.releaseDateDayPartController;
-  TextEditingController get releaseYearController => metadata.releaseYearController;
+  TextEditingController get coverDateYearPartController =>
+      metadata.coverDateYearPartController;
+  TextEditingController get coverDateMonthPartController =>
+      metadata.coverDateMonthPartController;
+  TextEditingController get coverDateDayPartController =>
+      metadata.coverDateDayPartController;
+  TextEditingController get releaseDateController =>
+      metadata.releaseDateController;
+  TextEditingController get releaseDateYearPartController =>
+      metadata.releaseDateYearPartController;
+  TextEditingController get releaseDateMonthPartController =>
+      metadata.releaseDateMonthPartController;
+  TextEditingController get releaseDateDayPartController =>
+      metadata.releaseDateDayPartController;
+  TextEditingController get releaseYearController =>
+      metadata.releaseYearController;
   TextEditingController get pageCountController => metadata.pageCountController;
-  TextEditingController get editionTitleController => metadata.editionTitleController;
+  TextEditingController get editionTitleController =>
+      metadata.editionTitleController;
   TextEditingController get barcodeController => metadata.barcodeController;
   TextEditingController get variantController => metadata.variantController;
-  TextEditingController get physicalFormatLabelController => metadata.physicalFormatLabelController;
+  TextEditingController get physicalFormatLabelController =>
+      metadata.physicalFormatLabelController;
   TextEditingController get coverController => metadata.coverController;
   TextEditingController get thumbnailController => metadata.thumbnailController;
   TextEditingController get synopsisController => metadata.synopsisController;
-  TextEditingController get displayTitleController => metadata.displayTitleController;
+  TextEditingController get displayTitleController =>
+      metadata.displayTitleController;
   TextEditingController get sortKeyController => metadata.sortKeyController;
-  TextEditingController get originalTitleController => metadata.originalTitleController;
-  TextEditingController get localizedTitleController => metadata.localizedTitleController;
-  TextEditingController get searchAliasesController => metadata.searchAliasesController;
+  TextEditingController get originalTitleController =>
+      metadata.originalTitleController;
+  TextEditingController get localizedTitleController =>
+      metadata.localizedTitleController;
+  TextEditingController get searchAliasesController =>
+      metadata.searchAliasesController;
   TextEditingController get runtimeController => metadata.runtimeController;
-  TextEditingController get audienceRatingController => metadata.audienceRatingController;
+  TextEditingController get audienceRatingController =>
+      metadata.audienceRatingController;
   TextEditingController get countryController => metadata.countryController;
   TextEditingController get languageController => metadata.languageController;
   TextEditingController get ageRatingController => metadata.ageRatingController;
-  TextEditingController get genresEditController => metadata.genresEditController;
+  TextEditingController get genresEditController =>
+      metadata.genresEditController;
   TextEditingController get crossoverController => metadata.crossoverController;
   TextEditingController get storyArcsController => metadata.storyArcsController;
-  TextEditingController get seriesTitleController => metadata.seriesTitleController;
-  TextEditingController get developersController => metadata.developersController;
+  TextEditingController get seriesTitleController =>
+      metadata.seriesTitleController;
+  TextEditingController get developersController =>
+      metadata.developersController;
   TextEditingController get imprintController => metadata.imprintController;
-  TextEditingController get seriesGroupController => metadata.seriesGroupController;
+  TextEditingController get seriesGroupController =>
+      metadata.seriesGroupController;
 
   String? get physicalFormatId => metadata.physicalFormatId;
   set physicalFormatId(String? v) => metadata.physicalFormatId = v;
@@ -122,28 +141,42 @@ class LibraryEditDraft {
   set seriesId(String? v) => metadata.seriesId = v;
 
   // PersonalStateDraft forwarding
-  TextEditingController get ownerLabelController => personal.ownerLabelController;
+  TextEditingController get ownerLabelController =>
+      personal.ownerLabelController;
   TextEditingController get conditionController => personal.conditionController;
   TextEditingController get gradeController => personal.gradeController;
-  TextEditingController get purchaseDateController => personal.purchaseDateController;
+  TextEditingController get purchaseDateController =>
+      personal.purchaseDateController;
   TextEditingController get priceController => personal.priceController;
   TextEditingController get currencyController => personal.currencyController;
   TextEditingController get quantityController => personal.quantityController;
-  TextEditingController get indexNumberController => personal.indexNumberController;
+  TextEditingController get indexNumberController =>
+      personal.indexNumberController;
   TextEditingController get notesController => personal.notesController;
-  TextEditingController get purchaseStoreController => personal.purchaseStoreController;
-  TextEditingController get marketValueController => personal.marketValueController;
-  TextEditingController get wishlistPriceController => personal.wishlistPriceController;
-  TextEditingController get wishlistCurrencyController => personal.wishlistCurrencyController;
-  TextEditingController get wishlistNotesController => personal.wishlistNotesController;
+  TextEditingController get purchaseStoreController =>
+      personal.purchaseStoreController;
+  TextEditingController get marketValueController =>
+      personal.marketValueController;
+  TextEditingController get wishlistPriceController =>
+      personal.wishlistPriceController;
+  TextEditingController get wishlistCurrencyController =>
+      personal.wishlistCurrencyController;
+  TextEditingController get wishlistNotesController =>
+      personal.wishlistNotesController;
   TextEditingController get ratingController => personal.ratingController;
   TextEditingController get trackingController => personal.trackingController;
-  TextEditingController get progressCurrentController => personal.progressCurrentController;
-  TextEditingController get progressTotalController => personal.progressTotalController;
-  TextEditingController get timesCompletedController => personal.timesCompletedController;
-  TextEditingController get seasonNumberController => personal.seasonNumberController;
-  TextEditingController get episodeNumberController => personal.episodeNumberController;
-  TextEditingController get trackingNotesController => personal.trackingNotesController;
+  TextEditingController get progressCurrentController =>
+      personal.progressCurrentController;
+  TextEditingController get progressTotalController =>
+      personal.progressTotalController;
+  TextEditingController get timesCompletedController =>
+      personal.timesCompletedController;
+  TextEditingController get seasonNumberController =>
+      personal.seasonNumberController;
+  TextEditingController get episodeNumberController =>
+      personal.episodeNumberController;
+  TextEditingController get trackingNotesController =>
+      personal.trackingNotesController;
   TextEditingController get tagsController => personal.tagsController;
   TextEditingController get sellPriceController => personal.sellPriceController;
   TextEditingController get soldToController => personal.soldToController;
@@ -152,12 +185,14 @@ class LibraryEditDraft {
   set tagOptions(List<String> v) => personal.tagOptions = v;
 
   List<StorageLocation> get availableLocations => personal.availableLocations;
-  set availableLocations(List<StorageLocation> v) => personal.availableLocations = v;
+  set availableLocations(List<StorageLocation> v) =>
+      personal.availableLocations = v;
 
   String? get selectedLocationId => personal.selectedLocationId;
   set selectedLocationId(String? v) => personal.selectedLocationId = v;
 
-  String get selectedOwnedAnchorType => personal.selectedOwnedAnchorType.apiValue;
+  String get selectedOwnedAnchorType =>
+      personal.selectedOwnedAnchorType.apiValue;
   set selectedOwnedAnchorType(String v) => personal.selectedOwnedAnchorType =
       PersonalItemAnchorType.fromApiValue(v) ?? PersonalItemAnchorType.item;
 
@@ -168,26 +203,35 @@ class LibraryEditDraft {
   set selectedVariantId(String? v) => personal.selectedVariantId = v;
 
   String? get selectedBundleReleaseId => personal.selectedBundleReleaseId;
-  set selectedBundleReleaseId(String? v) => personal.selectedBundleReleaseId = v;
+  set selectedBundleReleaseId(String? v) =>
+      personal.selectedBundleReleaseId = v;
 
   String? get selectedTrackingEditionId => personal.selectedTrackingEditionId;
-  set selectedTrackingEditionId(String? v) => personal.selectedTrackingEditionId = v;
+  set selectedTrackingEditionId(String? v) =>
+      personal.selectedTrackingEditionId = v;
 
   String? get selectedTrackingVariantId => personal.selectedTrackingVariantId;
-  set selectedTrackingVariantId(String? v) => personal.selectedTrackingVariantId = v;
+  set selectedTrackingVariantId(String? v) =>
+      personal.selectedTrackingVariantId = v;
 
-  String get selectedWishlistAnchorType => personal.selectedWishlistAnchorType.apiValue;
-  set selectedWishlistAnchorType(String v) => personal.selectedWishlistAnchorType =
-      PersonalItemAnchorType.fromApiValue(v) ?? PersonalItemAnchorType.item;
+  String get selectedWishlistAnchorType =>
+      personal.selectedWishlistAnchorType.apiValue;
+  set selectedWishlistAnchorType(String v) =>
+      personal.selectedWishlistAnchorType =
+          PersonalItemAnchorType.fromApiValue(v) ?? PersonalItemAnchorType.item;
 
   String? get selectedWishlistEditionId => personal.selectedWishlistEditionId;
-  set selectedWishlistEditionId(String? v) => personal.selectedWishlistEditionId = v;
+  set selectedWishlistEditionId(String? v) =>
+      personal.selectedWishlistEditionId = v;
 
   String? get selectedWishlistVariantId => personal.selectedWishlistVariantId;
-  set selectedWishlistVariantId(String? v) => personal.selectedWishlistVariantId = v;
+  set selectedWishlistVariantId(String? v) =>
+      personal.selectedWishlistVariantId = v;
 
-  String? get selectedWishlistBundleReleaseId => personal.selectedWishlistBundleReleaseId;
-  set selectedWishlistBundleReleaseId(String? v) => personal.selectedWishlistBundleReleaseId = v;
+  String? get selectedWishlistBundleReleaseId =>
+      personal.selectedWishlistBundleReleaseId;
+  set selectedWishlistBundleReleaseId(String? v) =>
+      personal.selectedWishlistBundleReleaseId = v;
 
   bool get locationChanged => personal.locationChanged;
   set locationChanged(bool v) => personal.locationChanged = v;
@@ -208,55 +252,106 @@ class LibraryEditDraft {
   set collectionStatus(String? v) => personal.collectionStatus = v;
 
   // Kind-specific forwarding
-  ComicEditDraft? get _comic => kindDetails is ComicEditDraft ? kindDetails as ComicEditDraft : null;
-  VideoEditDraft? get _video => kindDetails is VideoEditDraft ? kindDetails as VideoEditDraft : null;
-  GameEditDraft? get _game => kindDetails is GameEditDraft ? kindDetails as GameEditDraft : null;
-  MusicEditDraft? get _music => kindDetails is MusicEditDraft ? kindDetails as MusicEditDraft : null;
+  ComicEditDraft? get _comic =>
+      kindDetails is ComicEditDraft ? kindDetails as ComicEditDraft : null;
+  VideoEditDraft? get _video =>
+      kindDetails is VideoEditDraft ? kindDetails as VideoEditDraft : null;
+  GameEditDraft? get _game =>
+      kindDetails is GameEditDraft ? kindDetails as GameEditDraft : null;
+  MusicEditDraft? get _music =>
+      kindDetails is MusicEditDraft ? kindDetails as MusicEditDraft : null;
 
-  TextEditingController get rawOrSlabbedController => _comic?.rawOrSlabbedController ?? _dummyController;
-  TextEditingController get gradingCompanyController => _comic?.gradingCompanyController ?? _dummyController;
-  TextEditingController get graderNotesController => _comic?.graderNotesController ?? _dummyController;
-  TextEditingController get signedByController => _comic?.signedByController ?? _dummyController;
-  TextEditingController get labelTypeController => _comic?.labelTypeController ?? _dummyController;
-  TextEditingController get pageQualityController => _comic?.pageQualityController ?? _dummyController;
-  TextEditingController get certificationNumberController => _comic?.certificationNumberController ?? _dummyController;
-  TextEditingController get coverPriceController => _comic?.coverPriceController ?? _dummyController;
-  TextEditingController get keyReasonController => _comic?.keyReasonController ?? _dummyController;
-  TextEditingController get keyCategoryController => _comic?.keyCategoryController ?? _dummyController;
+  TextEditingController get rawOrSlabbedController =>
+      _comic?.rawOrSlabbedController ?? _dummyController;
+  TextEditingController get gradingCompanyController =>
+      _comic?.gradingCompanyController ?? _dummyController;
+  TextEditingController get graderNotesController =>
+      _comic?.graderNotesController ?? _dummyController;
+  TextEditingController get signedByController =>
+      _comic?.signedByController ?? _dummyController;
+  TextEditingController get labelTypeController =>
+      _comic?.labelTypeController ?? _dummyController;
+  TextEditingController get pageQualityController =>
+      _comic?.pageQualityController ?? _dummyController;
+  TextEditingController get certificationNumberController =>
+      _comic?.certificationNumberController ?? _dummyController;
+  TextEditingController get coverPriceController =>
+      _comic?.coverPriceController ?? _dummyController;
+  TextEditingController get keyReasonController =>
+      _comic?.keyReasonController ?? _dummyController;
+  TextEditingController get keyCategoryController =>
+      _comic?.keyCategoryController ?? _dummyController;
   bool get keyComic => _comic?.keyComic ?? false;
-  set keyComic(bool v) { if (_comic != null) _comic!.keyComic = v; }
-  DateTime? get lastBagBoardDate => _comic?.lastBagBoardDate;
-  set lastBagBoardDate(DateTime? v) { if (_comic != null) _comic!.lastBagBoardDate = v; }
+  set keyComic(bool v) {
+    if (_comic != null) _comic!.keyComic = v;
+  }
 
-  TextEditingController get featuresController => _video?.featuresController ?? _dummyController;
-  TextEditingController get boxSetNameController => _video?.boxSetNameController ?? _dummyController;
-  TextEditingController get regionController => _video?.regionController ?? _dummyController;
-  TextEditingController get packagingController => _video?.packagingController ?? _dummyController;
-  TextEditingController get distributorController => _video?.distributorController ?? _dummyController;
-  TextEditingController get screenRatioController => _video?.screenRatioController ?? _dummyController;
-  TextEditingController get audioTracksController => _video?.audioTracksController ?? _dummyController;
-  TextEditingController get subtitlesController => _video?.subtitlesController ?? _dummyController;
-  TextEditingController get layersController => _video?.layersController ?? _dummyController;
-  TextEditingController get colorController => _video?.colorController ?? _dummyController;
-  TextEditingController get nrDiscsController => _video?.nrDiscsController ?? _dummyController;
+  DateTime? get lastBagBoardDate => _comic?.lastBagBoardDate;
+  set lastBagBoardDate(DateTime? v) {
+    if (_comic != null) _comic!.lastBagBoardDate = v;
+  }
+
+  TextEditingController get featuresController =>
+      _video?.featuresController ?? _dummyController;
+  TextEditingController get boxSetNameController =>
+      _video?.boxSetNameController ?? _dummyController;
+  TextEditingController get regionController =>
+      _video?.regionController ?? _dummyController;
+  TextEditingController get packagingController =>
+      _video?.packagingController ?? _dummyController;
+  TextEditingController get distributorController =>
+      _video?.distributorController ?? _dummyController;
+  TextEditingController get screenRatioController =>
+      _video?.screenRatioController ?? _dummyController;
+  TextEditingController get audioTracksController =>
+      _video?.audioTracksController ?? _dummyController;
+  TextEditingController get subtitlesController =>
+      _video?.subtitlesController ?? _dummyController;
+  TextEditingController get layersController =>
+      _video?.layersController ?? _dummyController;
+  TextEditingController get colorController =>
+      _video?.colorController ?? _dummyController;
+  TextEditingController get nrDiscsController =>
+      _video?.nrDiscsController ?? _dummyController;
   List<String> get hdrFormats => _video?.hdrFormats ?? const [];
-  set hdrFormats(List<String> v) { if (_video != null) _video!.hdrFormats = v; }
+  set hdrFormats(List<String> v) {
+    if (_video != null) _video!.hdrFormats = v;
+  }
 
   String? get gameCompleteness => _game?.gameCompleteness;
-  set gameCompleteness(String? v) { if (_game != null) _game!.gameCompleteness = v; }
-  bool get gameHasBox => _game?.gameHasBox ?? true;
-  set gameHasBox(bool v) { if (_game != null) _game!.gameHasBox = v; }
-  bool get gameHasManual => _game?.gameHasManual ?? true;
-  set gameHasManual(bool v) { if (_game != null) _game!.gameHasManual = v; }
-  String? get gamePriceChartingId => _game?.gamePriceChartingId;
-  set gamePriceChartingId(String? v) { if (_game != null) _game!.gamePriceChartingId = v; }
-  String? get gameCoreRegion => _game?.gameCoreRegion;
-  set gameCoreRegion(String? v) { if (_game != null) _game!.gameCoreRegion = v; }
-  bool get gameValueIsLocked => _game?.gameValueIsLocked ?? false;
-  set gameValueIsLocked(bool v) { if (_game != null) _game!.gameValueIsLocked = v; }
+  set gameCompleteness(String? v) {
+    if (_game != null) _game!.gameCompleteness = v;
+  }
 
-  TextEditingController get storageDeviceController => _music?.storageDeviceController ?? _dummyController;
-  TextEditingController get storageSlotController => _music?.storageSlotController ?? _dummyController;
+  bool get gameHasBox => _game?.gameHasBox ?? true;
+  set gameHasBox(bool v) {
+    if (_game != null) _game!.gameHasBox = v;
+  }
+
+  bool get gameHasManual => _game?.gameHasManual ?? true;
+  set gameHasManual(bool v) {
+    if (_game != null) _game!.gameHasManual = v;
+  }
+
+  String? get gamePriceChartingId => _game?.gamePriceChartingId;
+  set gamePriceChartingId(String? v) {
+    if (_game != null) _game!.gamePriceChartingId = v;
+  }
+
+  String? get gameCoreRegion => _game?.gameCoreRegion;
+  set gameCoreRegion(String? v) {
+    if (_game != null) _game!.gameCoreRegion = v;
+  }
+
+  bool get gameValueIsLocked => _game?.gameValueIsLocked ?? false;
+  set gameValueIsLocked(bool v) {
+    if (_game != null) _game!.gameValueIsLocked = v;
+  }
+
+  TextEditingController get storageDeviceController =>
+      _music?.storageDeviceController ?? _dummyController;
+  TextEditingController get storageSlotController =>
+      _music?.storageSlotController ?? _dummyController;
 
   static final _dummyController = TextEditingController();
 
@@ -639,9 +734,10 @@ class LibraryEditDraft {
           layersController: layersController,
           colorController: colorController,
           nrDiscsController: nrDiscsController,
-          hdrFormats: List<String>.from((ownedItem?.typedDetails is VideoOwnedDetails
-              ? (ownedItem!.typedDetails as VideoOwnedDetails).hdrFormats
-              : const <String>[])),
+          hdrFormats: List<String>.from(
+              (ownedItem?.typedDetails is VideoOwnedDetails
+                  ? (ownedItem!.typedDetails as VideoOwnedDetails).hdrFormats
+                  : const <String>[])),
         );
       case CatalogMediaKind.game:
         kindDetails = GameEditDraft(
@@ -661,7 +757,8 @@ class LibraryEditDraft {
               ? (ownedItem!.typedDetails as GameOwnedDetails).coreRegion
               : null),
           gameValueIsLocked: (ownedItem?.typedDetails is GameOwnedDetails
-              ? (ownedItem!.typedDetails as GameOwnedDetails).valueIsLocked ?? false
+              ? (ownedItem!.typedDetails as GameOwnedDetails).valueIsLocked ??
+                  false
               : false),
         );
       case CatalogMediaKind.music:
@@ -1110,7 +1207,9 @@ class LibraryEditDraft {
 
   OwnedDetailsDraft buildDetailsDraft() {
     return switch (type.workspace.kind) {
-      CatalogMediaKind.comic || CatalogMediaKind.manga => ComicOwnedDetailsDraft(
+      CatalogMediaKind.comic ||
+      CatalogMediaKind.manga =>
+        ComicOwnedDetailsDraft(
           rawOrSlabbed: emptyToNull(rawOrSlabbedController.text),
           gradingCompany: emptyToNull(gradingCompanyController.text),
           graderNotes: emptyToNull(graderNotesController.text),
@@ -1124,7 +1223,10 @@ class LibraryEditDraft {
           coverPriceCents: parseMoneyCents(coverPriceController.text),
           lastBagBoardDate: lastBagBoardDate,
         ),
-      CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime => VideoOwnedDetailsDraft(
+      CatalogMediaKind.movie ||
+      CatalogMediaKind.tv ||
+      CatalogMediaKind.anime =>
+        VideoOwnedDetailsDraft(
           features: emptyToNull(featuresController.text),
           hdrFormats: hdrFormats,
           boxSetName: emptyToNull(boxSetNameController.text),
@@ -1203,7 +1305,8 @@ class LibraryEditDraft {
           ? const Patch.clear()
           : Patch.set(trackingController.text.trim()),
       startedAt: startedAt != null ? Patch.set(startedAt) : const Patch.clear(),
-      finishedAt: finishedAt != null ? Patch.set(finishedAt) : const Patch.clear(),
+      finishedAt:
+          finishedAt != null ? Patch.set(finishedAt) : const Patch.clear(),
       soldAt: soldAt != null ? Patch.set(soldAt) : const Patch.clear(),
       sellPriceCents: sellPriceController.text.trim().isEmpty
           ? const Patch.clear()

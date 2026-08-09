@@ -735,7 +735,8 @@ class LibraryMediaPresentation {
   final List<LibraryFieldDefinition<dynamic, LibraryWorkspaceDto, Object?>>
       fieldDefinitions;
 
-  LibraryFieldDefinition<dynamic, LibraryWorkspaceDto, Object?>? fieldDefinitionFor(
+  LibraryFieldDefinition<dynamic, LibraryWorkspaceDto, Object?>?
+      fieldDefinitionFor(
     String id,
   ) {
     for (final definition in fieldDefinitions) {

@@ -165,7 +165,6 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     setState(() {
       final preview = _preview!;
       _preview = CollectionImportPreview(
-        totalRows: preview.totalRows,
         resolvedRows: [...preview.resolvedRows, resolvedRow],
         conflictRows: preview.conflictRows,
         unresolvedRows: [
@@ -213,7 +212,6 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       }
       setState(() {
         _preview = CollectionImportPreview(
-          totalRows: preview.totalRows,
           resolvedRows: resolvedRows,
           conflictRows: preview.conflictRows,
           unresolvedRows: unresolvedRows,
@@ -246,7 +244,6 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     }
     setState(() {
       _preview = CollectionImportPreview(
-        totalRows: preview.totalRows,
         resolvedRows: preview.resolvedRows,
         conflictRows: preview.conflictRows,
         unresolvedRows: [
@@ -266,7 +263,6 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     }
     setState(() {
       _preview = CollectionImportPreview(
-        totalRows: preview.totalRows,
         resolvedRows: [...preview.resolvedRows, row],
         conflictRows: [
           for (final candidate in preview.conflictRows)
@@ -286,7 +282,6 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     }
     setState(() {
       _preview = CollectionImportPreview(
-        totalRows: preview.totalRows,
         resolvedRows: [
           ...preview.resolvedRows,
           row.copyWith(status: 'wishlist'),
@@ -309,7 +304,6 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     }
     setState(() {
       _preview = CollectionImportPreview(
-        totalRows: preview.totalRows,
         resolvedRows: preview.resolvedRows,
         conflictRows: [
           for (final candidate in preview.conflictRows)

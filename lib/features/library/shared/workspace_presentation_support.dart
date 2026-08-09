@@ -525,8 +525,6 @@ String _creatorBucketByRole(LibraryProjectionRuntime item, String? role) {
   return role != null ? 'Unknown $role' : 'Unknown creator';
 }
 
-
-
 String _seriesBucket(LibraryProjectionRuntime item, String unknownLabel) {
   final seriesTitle = item.dto.seriesTitle?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {

@@ -275,29 +275,69 @@ class LibraryPageEditCoordinator {
       final updateCmd = UpdateOwnedItemCommand(
         ownedItemId: owned.id,
         quantity: Patch.set(personal.quantity),
-        condition: personal.condition != null ? Patch.set(personal.condition) : const Patch.clear(),
-        grade: personal.grade != null ? Patch.set(personal.grade) : const Patch.clear(),
-        purchaseDate: personal.purchaseDate != null ? Patch.set(personal.purchaseDate) : const Patch.clear(),
-        pricePaidCents: personal.pricePaidCents != null ? Patch.set(personal.pricePaidCents) : const Patch.clear(),
-        currency: personal.currency != null ? Patch.set(personal.currency) : const Patch.clear(),
-        personalNotes: personal.personalNotes != null ? Patch.set(personal.personalNotes) : const Patch.clear(),
+        condition: personal.condition != null
+            ? Patch.set(personal.condition)
+            : const Patch.clear(),
+        grade: personal.grade != null
+            ? Patch.set(personal.grade)
+            : const Patch.clear(),
+        purchaseDate: personal.purchaseDate != null
+            ? Patch.set(personal.purchaseDate)
+            : const Patch.clear(),
+        pricePaidCents: personal.pricePaidCents != null
+            ? Patch.set(personal.pricePaidCents)
+            : const Patch.clear(),
+        currency: personal.currency != null
+            ? Patch.set(personal.currency)
+            : const Patch.clear(),
+        personalNotes: personal.personalNotes != null
+            ? Patch.set(personal.personalNotes)
+            : const Patch.clear(),
         locationId: personal.locationChanged
-            ? (personal.locationId != null ? Patch.set(personal.locationId) : const Patch.clear())
-            : (owned.locationId != null ? Patch.set(owned.locationId) : const Patch.clear()),
-        purchaseStore: personal.purchaseStore != null ? Patch.set(personal.purchaseStore) : const Patch.clear(),
-        collectionStatus: personal.collectionStatus != null ? Patch.set(personal.collectionStatus) : const Patch.clear(),
-        tags: personal.tags != null ? Patch.set(personal.tags) : const Patch.clear(),
-        rating: result.tracking?.rating != null ? Patch.set(result.tracking!.rating) : const Patch.clear(),
-        readStatus: result.tracking?.readStatus != null ? Patch.set(result.tracking!.readStatus) : const Patch.clear(),
-        startedAt: result.tracking?.startedAt != null ? Patch.set(result.tracking!.startedAt) : const Patch.clear(),
-        finishedAt: result.tracking?.finishedAt != null ? Patch.set(result.tracking!.finishedAt) : const Patch.clear(),
-        soldAt: personal.soldAt != null ? Patch.set(personal.soldAt) : const Patch.clear(),
-        sellPriceCents: personal.sellPriceCents != null ? Patch.set(personal.sellPriceCents) : const Patch.clear(),
-        soldTo: personal.soldTo != null ? Patch.set(personal.soldTo) : const Patch.clear(),
-        marketValueCents: personal.marketValueCents != null ? Patch.set(personal.marketValueCents) : const Patch.clear(),
+            ? (personal.locationId != null
+                ? Patch.set(personal.locationId)
+                : const Patch.clear())
+            : (owned.locationId != null
+                ? Patch.set(owned.locationId)
+                : const Patch.clear()),
+        purchaseStore: personal.purchaseStore != null
+            ? Patch.set(personal.purchaseStore)
+            : const Patch.clear(),
+        collectionStatus: personal.collectionStatus != null
+            ? Patch.set(personal.collectionStatus)
+            : const Patch.clear(),
+        tags: personal.tags != null
+            ? Patch.set(personal.tags)
+            : const Patch.clear(),
+        rating: result.tracking?.rating != null
+            ? Patch.set(result.tracking!.rating)
+            : const Patch.clear(),
+        readStatus: result.tracking?.readStatus != null
+            ? Patch.set(result.tracking!.readStatus)
+            : const Patch.clear(),
+        startedAt: result.tracking?.startedAt != null
+            ? Patch.set(result.tracking!.startedAt)
+            : const Patch.clear(),
+        finishedAt: result.tracking?.finishedAt != null
+            ? Patch.set(result.tracking!.finishedAt)
+            : const Patch.clear(),
+        soldAt: personal.soldAt != null
+            ? Patch.set(personal.soldAt)
+            : const Patch.clear(),
+        sellPriceCents: personal.sellPriceCents != null
+            ? Patch.set(personal.sellPriceCents)
+            : const Patch.clear(),
+        soldTo: personal.soldTo != null
+            ? Patch.set(personal.soldTo)
+            : const Patch.clear(),
+        marketValueCents: personal.marketValueCents != null
+            ? Patch.set(personal.marketValueCents)
+            : const Patch.clear(),
         details: Patch.set(
           switch (_s.widget.type.workspace.kind) {
-            CatalogMediaKind.comic || CatalogMediaKind.manga => ComicOwnedDetailsDraft(
+            CatalogMediaKind.comic ||
+            CatalogMediaKind.manga =>
+              ComicOwnedDetailsDraft(
                 rawOrSlabbed: personal.rawOrSlabbed,
                 gradingCompany: personal.gradingCompany,
                 graderNotes: personal.graderNotes,
@@ -313,7 +353,10 @@ class LibraryPageEditCoordinator {
                 coverPriceCents: personal.coverPriceCents,
                 lastBagBoardDate: personal.lastBagBoardDate,
               ),
-            CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime => VideoOwnedDetailsDraft(
+            CatalogMediaKind.movie ||
+            CatalogMediaKind.tv ||
+            CatalogMediaKind.anime =>
+              VideoOwnedDetailsDraft(
                 features: personal.features,
                 hdrFormats: personal.hdrFormats ?? const [],
                 boxSetName: personal.boxSetName,
