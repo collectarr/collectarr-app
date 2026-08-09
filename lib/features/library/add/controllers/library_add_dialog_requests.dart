@@ -1,8 +1,11 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -49,8 +52,13 @@ typedef LibraryAddBottomBarBuilder = Widget Function(
 
 class LibraryAddManualPaneRequest {
   const LibraryAddManualPaneRequest({
-    required this.type,
+    required this.kind,
     required this.accent,
+    required this.type,
+    this.commonDraft,
+    this.kindDraft,
+    this.onCommonDraftChanged,
+    this.onKindDraftChanged,
     required this.titleController,
     required this.numberController,
     required this.publisherController,
@@ -105,8 +113,13 @@ class LibraryAddManualPaneRequest {
     required this.onItemImagesChanged,
   });
 
-  final LibraryTypeConfig type;
+  final CatalogMediaKind kind;
   final Color accent;
+  final LibraryTypeConfig type;
+  final LibraryAddCommonDraft? commonDraft;
+  final LibraryAddKindDraft? kindDraft;
+  final ValueChanged<LibraryAddCommonDraft>? onCommonDraftChanged;
+  final ValueChanged<LibraryAddKindDraft>? onKindDraftChanged;
   final TextEditingController titleController;
   final TextEditingController numberController;
   final TextEditingController publisherController;

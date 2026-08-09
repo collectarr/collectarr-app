@@ -17,4 +17,16 @@ class LibraryAddSelectionState {
   bool hideComicOwnedResults = false;
   bool hideComicVariantResults = false;
   bool compactComicIssues = true;
+  String? get selectedId => selectedResultId;
+
+  LibraryAddSelectionState copyWith({
+    String? selectedId,
+    String? selectedResultId,
+    String? selectedProviderCandidateId,
+  }) {
+    final s = LibraryAddSelectionState();
+    s.selectedResultId = selectedId ?? selectedResultId ?? this.selectedResultId;
+    s.selectedProviderCandidateId = selectedProviderCandidateId ?? this.selectedProviderCandidateId;
+    return s;
+  }
 }

@@ -75,3 +75,30 @@ class LibraryAddSearchController {
     searchYearController.dispose();
   }
 }
+
+@immutable
+class LibraryAddSearchState {
+  const LibraryAddSearchState({
+    this.query = '',
+    this.isSearching = false,
+    this.error,
+  });
+
+  factory LibraryAddSearchState.initial() => const LibraryAddSearchState();
+
+  final String query;
+  final bool isSearching;
+  final String? error;
+
+  LibraryAddSearchState copyWith({
+    String? query,
+    bool? isSearching,
+    String? error,
+  }) {
+    return LibraryAddSearchState(
+      query: query ?? this.query,
+      isSearching: isSearching ?? this.isSearching,
+      error: error ?? this.error,
+    );
+  }
+}

@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:flutter/foundation.dart';
 
 class LibraryAddPreviewController {
   final providerPreviews = <String, AdminProviderPreview>{};
@@ -43,10 +44,6 @@ class LibraryAddPreviewController {
     queuedProviderIngests[candidateId] = ingest;
   }
 
-  bool hasHydratedResult(String itemId) {
-    return hydratedResults.containsKey(itemId);
-  }
-
   LibraryMetadataItem? hydratedResultFor(String itemId) {
     return hydratedResults[itemId];
   }
@@ -56,48 +53,52 @@ class LibraryAddPreviewController {
     pendingHydratedResultIds.remove(itemId);
   }
 
+  void markHydratedResultPending(String itemId) {
+    pendingHydratedResultIds.add(itemId);
+  }
+
   bool isHydratedResultPending(String itemId) {
     return pendingHydratedResultIds.contains(itemId);
   }
 
-  List<BundleReleaseSummary> bundleReleasesForItem(
-    LibraryMetadataItem? item,
-  ) {
-    if (item == null) {
-      return const <BundleReleaseSummary>[];
-    }
-    return bundleReleasesByItemId[item.id] ?? const <BundleReleaseSummary>[];
+  List<BundleReleaseSummary>? bundleReleasesFor(String itemId) {
+    return bundleReleasesByItemId[itemId];
   }
 
   void setBundleReleases(
     String itemId,
     List<BundleReleaseSummary> releases,
   ) {
-    bundleReleasesByItemId[itemId] = releases;
+    bundleReleasesByItemId[itemId] = List.unmodifiable(releases);
     pendingBundleReleaseItemIds.remove(itemId);
+  }
+
+  void markBundleReleasesPending(String itemId) {
+    pendingBundleReleaseItemIds.add(itemId);
   }
 
   bool isBundleReleasesPending(String itemId) {
     return pendingBundleReleaseItemIds.contains(itemId);
   }
 
-  BundleReleaseDetail? bundleReleaseDetailForId(String? bundleReleaseId) {
-    if (bundleReleaseId == null) {
-      return null;
-    }
-    return bundleReleaseDetailsById[bundleReleaseId];
+  BundleReleaseDetail? bundleReleaseDetailFor(String releaseId) {
+    return bundleReleaseDetailsById[releaseId];
   }
 
   void setBundleReleaseDetail(
-    String bundleReleaseId,
+    String releaseId,
     BundleReleaseDetail detail,
   ) {
-    bundleReleaseDetailsById[bundleReleaseId] = detail;
-    pendingBundleReleaseDetailIds.remove(bundleReleaseId);
+    bundleReleaseDetailsById[releaseId] = detail;
+    pendingBundleReleaseDetailIds.remove(releaseId);
   }
 
-  bool isBundleReleaseDetailPending(String bundleReleaseId) {
-    return pendingBundleReleaseDetailIds.contains(bundleReleaseId);
+  void markBundleReleaseDetailPending(String releaseId) {
+    pendingBundleReleaseDetailIds.add(releaseId);
+  }
+
+  bool isBundleReleaseDetailPending(String releaseId) {
+    return pendingBundleReleaseDetailIds.contains(releaseId);
   }
 
   void clearProviderCaches() {
@@ -115,8 +116,26 @@ class LibraryAddPreviewController {
     pendingBundleReleaseDetailIds.clear();
   }
 
-  void clearAllCaches() {
+  void reset() {
     clearProviderCaches();
     clearSelectionCaches();
   }
+
+  void dispose() {
+    providerPreviews.clear();
+    hydratedResults.clear();
+    bundleReleasesByItemId.clear();
+    bundleReleaseDetailsById.clear();
+    queuedProviderIngests.clear();
+    pendingHydratedResultIds.clear();
+    pendingBundleReleaseItemIds.clear();
+    pendingBundleReleaseDetailIds.clear();
+    pendingProviderPreviewIds.clear();
+  }
+}
+
+@immutable
+class LibraryAddPreviewState {
+  const LibraryAddPreviewState();
+  const LibraryAddPreviewState.initial();
 }
