@@ -559,7 +559,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         }
         if (match.entry.collection.isRated) {
           await trackingMutations.upsertTrackingEntry(
-            item.id,
+            TrackingTarget.catalog(item.catalogRef),
             sourceType: TrackingSourceType.streaming,
             status: MediaTrackingStatus.completed,
             rating: _normalizedRating(match.entry.rating),
@@ -868,7 +868,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       return;
     }
     await trackingMutations.upsertTrackingEntry(
-      item.id,
+      TrackingTarget.catalog(item.catalogRef),
       sourceType: TrackingSourceType.streaming,
       status: trackingStatus,
       rating: row.rating == null || row.rating == 0

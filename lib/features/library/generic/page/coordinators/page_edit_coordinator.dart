@@ -466,11 +466,11 @@ class LibraryPageEditCoordinator {
         activeTrackingEntry != null &&
         result.tracking != null) {
       await trackingMutations.upsertTrackingEntry(
-        catalogItem.id,
+        TrackingTarget.catalog(catalogItem.catalogRef),
         editionId: result.tracking!.editionId,
         variantId: result.tracking!.variantId,
         sourceType: activeTrackingEntry.sourceType,
-        status: result.tracking!.readStatus,
+        status: mediaTrackingStatusFromValue(result.tracking!.readStatus),
         rating: result.tracking!.rating,
         startedAt: result.tracking!.startedAt,
         finishedAt: result.tracking!.finishedAt,

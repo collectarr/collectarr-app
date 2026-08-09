@@ -6,16 +6,20 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/tracking_target.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:uuid/uuid.dart';
+
+export 'package:collectarr_app/core/models/tracking_target.dart';
 
 typedef IdGenerator = String Function();
 String _defaultIdGenerator() => const Uuid().v4();
@@ -28,6 +32,7 @@ final class TrackingMutations {
     required this.catalogCache,
     required this.syncQueue,
     required this.mutationRunner,
+    this.ownedItems,
     this.idGenerator = _defaultIdGenerator,
   });
 
@@ -35,6 +40,7 @@ final class TrackingMutations {
   final TrackingUnitsCacheRepository trackingUnits;
   final WatchSessionsCacheRepository watchSessions;
   final CatalogCacheRepository catalogCache;
+  final OwnedItemsCacheRepository? ownedItems;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
@@ -51,20 +57,15 @@ final class TrackingMutations {
     );
   }
 
-Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
-  if (ratings == null) return null;
-  return ratings.map((k, v) => MapEntry(k.toString(), v));
-}
-
   Future<void> upsertTrackingEntry(
-    Object target, {
+    TrackingTarget target, {
     String? ownedItemId,
     String? anchorType,
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
-    Object? sourceType,
-    Object? status,
+    TrackingSourceType? sourceType,
+    MediaTrackingStatus? status,
     int? rating,
     DateTime? startedAt,
     DateTime? finishedAt,
@@ -74,38 +75,71 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
     String? notes,
     int? seasonNumber,
     int? episodeNumber,
-    Map<Object, int>? episodeRatings,
+    Map<String, int>? episodeRatings,
     bool allowEmpty = false,
     bool notify = true,
   }) async {
-    if (target is TrackingEntry) {
-      await updateTrackingEntry(target);
-      return;
-    }
-    final itemId = target.toString();
     final now = DateTime.now().toUtc();
-    final existingEntries = await trackingEntries.findActiveByItemIds([itemId]);
+    late final CatalogEntityRef catalogRef;
+    String? targetOwnedItemId = ownedItemId;
+
+    switch (target) {
+      case CatalogTrackingTarget(:final ref):
+        catalogRef = ref;
+      case OwnedItemTrackingTarget(:final ownedItemId):
+        targetOwnedItemId = ownedItemId;
+        if (ownedItems != null) {
+          final owned = await ownedItems!.findById(ownedItemId);
+          if (owned != null) {
+            catalogRef = owned.catalogRef;
+          } else {
+            final cat = await catalogCache.findById(ownedItemId);
+            if (cat != null) {
+              catalogRef = cat.catalogRefForAnchor(
+                anchorType: anchorType,
+                editionId: editionId,
+                variantId: variantId,
+                bundleReleaseId: bundleReleaseId,
+              );
+            } else {
+              throw ArgumentError('Owned item not found for tracking target: $ownedItemId');
+            }
+          }
+        } else {
+          final cat = await catalogCache.findById(ownedItemId);
+          if (cat != null) {
+            catalogRef = cat.catalogRefForAnchor(
+              anchorType: anchorType,
+              editionId: editionId,
+              variantId: variantId,
+              bundleReleaseId: bundleReleaseId,
+            );
+          } else {
+            throw ArgumentError('Cannot resolve valid CatalogEntityRef for tracking target: $ownedItemId');
+          }
+        }
+    }
+
+    final existingEntries = await trackingEntries.findActiveByItemIds([catalogRef.id]);
     final existing = existingEntries.isEmpty ? null : existingEntries.first;
     final entryId = existing?.id ?? idGenerator();
 
     await mutationRunner.run(
       action: () async {
-        final catalogItem = await catalogCache.findById(itemId);
-        final catalogRef = catalogItem?.catalogRefForAnchor(
-              anchorType: anchorType,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
-            ) ??
-            CatalogEntityRef(
-              kind: 'comic',
-              entityType: CatalogEntityType.work,
-              id: itemId,
-            );
+        final existingCatalog = await catalogCache.findById(catalogRef.id);
+        if (existingCatalog == null) {
+          await catalogCache.upsertAll([
+            CatalogItem(
+              id: catalogRef.id,
+              kind: catalogRef.kind,
+              title: catalogRef.id,
+            ),
+          ]);
+        }
         final entry = TrackingEntry(
           id: entryId,
           catalogRef: catalogRef,
-          ownedItemId: ownedItemId ?? existing?.ownedItemId,
+          ownedItemId: targetOwnedItemId ?? existing?.ownedItemId,
           editionId: editionId ?? existing?.editionId,
           variantId: variantId ?? existing?.variantId,
           bundleReleaseId: bundleReleaseId ?? existing?.bundleReleaseId,
@@ -120,7 +154,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
           notes: notes ?? existing?.notes,
           seasonNumber: seasonNumber ?? existing?.seasonNumber,
           episodeNumber: episodeNumber ?? existing?.episodeNumber,
-          episodeRatings: _normalizeEpisodeRatings(episodeRatings) ?? existing?.episodeRatings,
+          episodeRatings: episodeRatings ?? existing?.episodeRatings,
           updatedAt: now,
         );
         await trackingEntries.upsert(entry);
@@ -155,7 +189,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
-    Object? status,
+    MediaTrackingStatus? status,
     int? rating,
     DateTime? startedAt,
     DateTime? finishedAt,
@@ -163,10 +197,10 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
     int? progressTotal,
     int? timesCompleted,
     String? notes,
-    Object? sourceType,
+    TrackingSourceType? sourceType,
     int? seasonNumber,
     int? episodeNumber,
-    Map<Object, int>? episodeRatings,
+    Map<String, int>? episodeRatings,
   }) async {
     final now = DateTime.now().toUtc();
     final existingEntries = await trackingEntries.findActiveByItemIds([item.itemId]);
@@ -187,7 +221,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
           editionId: editionId ?? item.editionId,
           variantId: variantId ?? item.variantId,
           bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
-          status: status ?? item.readStatus ?? existing?.status ?? MediaTrackingStatus.planned,
+          status: status ?? mediaTrackingStatusFromValue(item.readStatus) ?? existing?.status ?? MediaTrackingStatus.planned,
           rating: rating ?? item.rating ?? existing?.rating,
           notes: notes ?? item.personalNotes ?? existing?.notes,
           startedAt: startedAt ?? item.startedAt ?? existing?.startedAt,
@@ -196,12 +230,12 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
           progressTotal: progressTotal ?? existing?.progressTotal,
           seasonNumber: seasonNumber ?? existing?.seasonNumber,
           episodeNumber: episodeNumber ?? existing?.episodeNumber,
-          episodeRatings: _normalizeEpisodeRatings(episodeRatings) ?? existing?.episodeRatings,
+          episodeRatings: episodeRatings ?? existing?.episodeRatings,
           sourceType: sourceType ??
               existing?.sourceType ??
               (item.isDigital == true
-                  ? TrackingSourceType.digital.apiValue
-                  : TrackingSourceType.physical.apiValue),
+                  ? TrackingSourceType.digital
+                  : TrackingSourceType.physical),
           updatedAt: now,
         );
         await trackingEntries.upsert(entry);
@@ -217,8 +251,8 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
-    Object? sourceType,
-    Object? status = MediaTrackingStatus.planned,
+    TrackingSourceType? sourceType,
+    MediaTrackingStatus? status = MediaTrackingStatus.planned,
     int? rating,
     DateTime? startedAt,
     DateTime? finishedAt,
@@ -227,7 +261,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
     int? timesCompleted,
     int? seasonNumber,
     int? episodeNumber,
-    Map<Object, int>? episodeRatings,
+    Map<String, int>? episodeRatings,
     bool allowEmpty = false,
   }) async {
     final now = DateTime.now().toUtc();
@@ -263,7 +297,7 @@ Map<String, int>? _normalizeEpisodeRatings(Map<Object, int>? ratings) {
           timesCompleted: timesCompleted,
           seasonNumber: seasonNumber,
           episodeNumber: episodeNumber,
-          episodeRatings: _normalizeEpisodeRatings(episodeRatings),
+          episodeRatings: episodeRatings,
           updatedAt: now,
         );
         await trackingEntries.upsert(entry);

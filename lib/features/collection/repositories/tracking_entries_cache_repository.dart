@@ -18,7 +18,15 @@ class TrackingEntriesCacheRepository {
           ..where((row) => row.deletedAt.isNull())
           ..orderBy([(row) => OrderingTerm.desc(row.updatedAt)]))
         .get();
-    return rows.map(_fromCache).toList(growable: false);
+    if (rows.isEmpty) return const [];
+    final itemIds = rows.map((r) => r.itemId).toSet();
+    final catalogRows = await (_db.select(_db.catalogCache)
+          ..where((c) => c.id.isIn(itemIds)))
+        .get();
+    final kindByItemId = {for (final c in catalogRows) c.id: c.kind};
+    return rows
+        .map((r) => _fromCache(r, catalogKind: kindByItemId[r.itemId]))
+        .toList(growable: false);
   }
 
   Future<TrackingEntry?> findById(String id) async {
@@ -26,7 +34,12 @@ class TrackingEntriesCacheRepository {
           ..where((row) => row.id.equals(id))
           ..limit(1))
         .getSingleOrNull();
-    return row == null ? null : _fromCache(row);
+    if (row == null) return null;
+    final catalogRow = await (_db.select(_db.catalogCache)
+          ..where((c) => c.id.equals(row.itemId))
+          ..limit(1))
+        .getSingleOrNull();
+    return _fromCache(row, catalogKind: catalogRow?.kind);
   }
 
   Future<List<TrackingEntry>> findActiveByItemIds(
@@ -44,7 +57,14 @@ class TrackingEntriesCacheRepository {
               (row) => row.itemId.isIn(batch) & row.deletedAt.isNull(),
             ))
           .get();
-      items.addAll(rows.map(_fromCache));
+      final batchItemIds = rows.map((r) => r.itemId).toSet();
+      final catalogRows = await (_db.select(_db.catalogCache)
+            ..where((c) => c.id.isIn(batchItemIds)))
+          .get();
+      final kindByItemId = {for (final c in catalogRows) c.id: c.kind};
+      items.addAll(
+        rows.map((r) => _fromCache(r, catalogKind: kindByItemId[r.itemId])),
+      );
     }
     return items;
   }
@@ -78,10 +98,10 @@ class TrackingEntriesCacheRepository {
         );
   }
 
-  TrackingEntry _fromCache(TrackingEntriesCacheData row) {
+  TrackingEntry _fromCache(TrackingEntriesCacheData row, {String? catalogKind}) {
     return TrackingEntry(
       id: row.id,
-      catalogRef: _catalogRefForRow(row),
+      catalogRef: _catalogRefForRow(row, catalogKind: catalogKind),
       ownedItemId: row.ownedItemId,
       editionId: row.editionId,
       variantId: row.variantId,
@@ -128,7 +148,7 @@ class TrackingEntriesCacheRepository {
     );
   }
 
-  CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row) {
+  CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row, {String? catalogKind}) {
     final anchor = PersonalItemAnchor.fromRaw(
       anchorType: row.sourceType,
       editionId: row.editionId,
@@ -144,7 +164,7 @@ class TrackingEntriesCacheRepository {
             _ => CatalogEntityType.work,
           };
     return CatalogEntityRef(
-      kind: 'unknown',
+      kind: catalogKind ?? 'unknown',
       entityType: entityType,
       id: row.itemId,
     );

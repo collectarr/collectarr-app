@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -252,7 +253,7 @@ void main() {
           owned,
           editionId: 'edition-steelbook',
           variantId: 'variant-4k',
-          status: 'Completed',
+          status: MediaTrackingStatus.completed,
           rating: 10,
           startedAt: DateTime.utc(2026, 5, 20),
           finishedAt: DateTime.utc(2026, 5, 21),
@@ -285,9 +286,9 @@ void main() {
     ]);
 
     await container.read(trackingMutationsProvider).upsertTrackingEntry(
-          'music-1',
-          sourceType: 'digital',
-          status: 'In progress',
+          TrackingTarget.catalog(testCatalogRef('music-1', kind: 'music')),
+          sourceType: TrackingSourceType.digital,
+          status: MediaTrackingStatus.inProgress,
           rating: 7,
           progressCurrent: 6,
           progressTotal: 12,
@@ -330,9 +331,9 @@ void main() {
         );
 
     await container.read(trackingMutationsProvider).upsertTrackingEntry(
-          'movie-1',
-          sourceType: 'digital',
-          status: 'Watching',
+          TrackingTarget.catalog(testCatalogRef('movie-1', kind: 'movie')),
+          sourceType: TrackingSourceType.digital,
+          status: MediaTrackingStatus.inProgress,
           rating: 9,
         );
 
@@ -356,9 +357,9 @@ void main() {
     ]);
 
     await container.read(trackingMutationsProvider).upsertTrackingEntry(
-          'book-1',
-          sourceType: 'kindle',
-          status: 'Reading',
+          TrackingTarget.catalog(testCatalogRef('book-1', kind: 'book')),
+          sourceType: trackingSourceTypeFromValue('kindle'),
+          status: mediaTrackingStatusFromValue('Reading'),
         );
 
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
@@ -971,8 +972,8 @@ void main() {
 
     await container.read(trackingMutationsProvider).addLocalOnlyTrackingEntry(
           snapshot,
-          sourceType: 'streaming',
-          status: 'Completed',
+          sourceType: TrackingSourceType.streaming,
+          status: MediaTrackingStatus.completed,
           rating: 9,
           timesCompleted: 1,
         );
@@ -1011,8 +1012,8 @@ void main() {
     );
     await trackingMutations.addLocalOnlyTrackingEntry(
       localSnapshot,
-      sourceType: 'streaming',
-      status: 'Completed',
+      sourceType: TrackingSourceType.streaming,
+      status: MediaTrackingStatus.completed,
       rating: 9,
       timesCompleted: 1,
     );

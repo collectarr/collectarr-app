@@ -918,13 +918,16 @@ class _InspectorTrackingDetailsEditorState
   }
 
   Future<void> _save() async {
+    final target = widget.trackingEntry.ownedItemId != null
+        ? TrackingTarget.owned(widget.trackingEntry.ownedItemId!)
+        : TrackingTarget.catalog(widget.trackingEntry.catalogRef);
     await ref.read(trackingMutationsProvider).upsertTrackingEntry(
-          widget.itemId,
+          target,
           ownedItemId: widget.trackingEntry.ownedItemId,
           editionId: _selectedEditionId,
           variantId: _selectedVariantId,
           sourceType: widget.trackingEntry.sourceType,
-          status: _emptyToNull(_statusController.text),
+          status: mediaTrackingStatusFromValue(_emptyToNull(_statusController.text)),
           rating: _parseInt(_ratingController.text),
           startedAt: _startedAt,
           finishedAt: _finishedAt,

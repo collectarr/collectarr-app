@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -204,7 +205,7 @@ Future<void> addLibraryItemsToTarget({
           ownedItem,
           editionId: ownedDetails?.editionId ?? reference.editionId,
           variantId: ownedDetails?.variantId ?? reference.variantId,
-          status: ownedDetails?.readStatus ?? defaults.readStatus,
+          status: mediaTrackingStatusFromValue(ownedDetails?.readStatus ?? defaults.readStatus),
           rating: ownedDetails?.rating,
           startedAt: ownedDetails?.startedAt,
           finishedAt: ownedDetails?.finishedAt,

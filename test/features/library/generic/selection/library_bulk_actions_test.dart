@@ -159,9 +159,9 @@ void main() {
     );
     await wishlistMutations.addToWishlist('movie-2');
     await trackingMutations.upsertTrackingEntry(
-      'movie-3',
-      sourceType: 'streaming',
-      status: 'completed',
+      TrackingTarget.catalog(testCatalogRef('movie-3', kind: 'movie')),
+      sourceType: TrackingSourceType.streaming,
+      status: MediaTrackingStatus.completed,
     );
 
     final ownedRow = await db.select(db.ownedItemsCache).getSingle();

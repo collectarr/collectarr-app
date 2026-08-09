@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
@@ -143,9 +145,9 @@ void main() {
 
   test('remove tracking emits TrackingChanged only', () async {
     await trackingMutations.upsertTrackingEntry(
-      'book-300',
-      sourceType: 'digital',
-      status: 'reading',
+      TrackingTarget.catalog(testCatalogRef('book-300', kind: 'book')),
+      sourceType: TrackingSourceType.digital,
+      status: MediaTrackingStatus.inProgress,
     );
 
     final entries = await TrackingEntriesCacheRepository(db).findActiveByItemIds(['book-300']);
