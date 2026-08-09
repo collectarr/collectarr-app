@@ -109,7 +109,7 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
   }
 
   void sortEntries(
-    List<LibraryProjectionRuntime> items,
+    List<LibraryProjectionRuntime<TDto>> items,
     String sortId, {
     required bool ascending,
   }) {
@@ -119,12 +119,12 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
       final leftContext = LibraryProjectionContext<TDto>(
         source: l.source,
         node: l.node,
-        dto: l.dto as TDto,
+        dto: l.dto,
       );
       final rightContext = LibraryProjectionContext<TDto>(
         source: r.source,
         node: r.node,
-        dto: r.dto as TDto,
+        dto: r.dto,
       );
       final result = sortDef.compare(leftContext, rightContext);
       if (result != 0) {

@@ -6,15 +6,16 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 
-abstract interface class LibraryProjectionRuntime {
+abstract interface class LibraryProjectionRuntime<
+    TDto extends LibraryWorkspaceDto> {
   ShelfEntry get source;
   LibraryNodeRef get node;
   List<String> get customFieldBadges;
-  LibraryWorkspaceDto get dto;
+  TDto get dto;
 }
 
 final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
-    implements LibraryProjectionRuntime {
+    implements LibraryProjectionRuntime<TDto> {
   const LibraryProjectionItem({
     required this.source,
     required this.node,
@@ -22,7 +23,7 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
     this.customFieldBadges = const <String>[],
   });
 
-  factory LibraryProjectionItem.fromShelf(
+  static LibraryProjectionItem<LibraryWorkspaceDto> fromShelf(
     ShelfEntry source,
     LibraryTypeConfig type, {
     List<String> customFieldBadges = const <String>[],
@@ -32,8 +33,8 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
     final dto = type.presentation.projector.projectTitle(
       source: source,
       node: node,
-    ) as TDto;
-    return LibraryProjectionItem<TDto>(
+    );
+    return LibraryProjectionItem<LibraryWorkspaceDto>(
       source: source,
       node: node,
       dto: dto,

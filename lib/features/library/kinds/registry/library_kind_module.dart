@@ -165,7 +165,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required bool ascending,
   }) {
     fields.sortEntries(
-      items,
+      items.cast<LibraryProjectionRuntime<TDto>>(),
       sortId,
       ascending: ascending,
     );
