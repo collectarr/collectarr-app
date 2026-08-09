@@ -265,8 +265,12 @@ class LibraryPageEditCoordinator {
     required CustomFieldRepository customFieldRepo,
     required ItemImageRepository itemImageRepo,
   }) async {
-    final mutations = _s.ref.read(collectionMutationsProvider);
-    await mutations.updateCatalogSnapshot(
+    final ownedMutations = _s.ref.read(ownedItemMutationsProvider);
+    final coordinator = _s.ref.read(collectionCommandCoordinatorProvider);
+    final wishlistMutations = _s.ref.read(wishlistMutationsProvider);
+    final trackingMutations = _s.ref.read(trackingMutationsProvider);
+
+    await ownedMutations.updateCatalogSnapshot(
       result.item.toCatalogItem(),
       notify: owned == null && wishlist == null,
     );
@@ -380,13 +384,13 @@ class LibraryPageEditCoordinator {
           },
         ),
       );
-      final updatedOwned = await mutations.updateOwnedItem(
+      await coordinator.updateOwnedItem(
         updateCmd,
         syncTracking: false,
         notify: false,
       );
-      await mutations.syncOwnedTrackingEntry(
-        updatedOwned,
+      await trackingMutations.syncOwnedTrackingEntry(
+        owned,
         editionId: result.tracking?.editionId,
         variantId: result.tracking?.variantId,
         status: result.tracking?.readStatus,
@@ -446,7 +450,7 @@ class LibraryPageEditCoordinator {
       }
     }
     if (wishlist != null && result.wishlist != null) {
-      await mutations.updateWishlistItem(
+      await wishlistMutations.updateWishlistItem(
         wishlist,
         anchorType: result.wishlist!.anchorType,
         editionId: result.wishlist!.editionId,
@@ -461,7 +465,7 @@ class LibraryPageEditCoordinator {
     if (owned == null &&
         activeTrackingEntry != null &&
         result.tracking != null) {
-      await mutations.upsertTrackingEntry(
+      await trackingMutations.upsertTrackingEntry(
         catalogItem.id,
         editionId: result.tracking!.editionId,
         variantId: result.tracking!.variantId,

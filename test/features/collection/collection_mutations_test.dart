@@ -32,7 +32,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addOwnedItem(
+    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(
@@ -69,7 +69,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addOwnedItem(
+    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
             common: const OwnedItemCommonDraft(),
@@ -87,7 +87,7 @@ void main() {
     expect(queued.payloadJson, contains('"owner_label":"owner@example.com"'));
   });
 
-  test('collection mutations request online-first sync after local changes',
+  test('collection mutations request sync scheduler after local changes',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -102,14 +102,14 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionMutationsProvider).addOwnedItem(
+    await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(),
           ),
         );
 
-    expect(syncController.onlineFirstRequests, 1);
+    expect(syncController.syncNowRequests, 1);
   });
 
   test('catalog refresh preserves personal collection data', () async {
@@ -1053,16 +1053,13 @@ class _OwnedItemAuthController extends AuthController {
 class _SpySyncController extends SyncController {
   _SpySyncController(super.ref);
 
-  int onlineFirstRequests = 0;
+  int syncNowRequests = 0;
 
   @override
   Future<void> refreshPendingCount() async {}
 
   @override
-  Future<void> syncOnlineFirstIfEnabled() async {
-    onlineFirstRequests += 1;
+  Future<void> syncNow() async {
+    syncNowRequests += 1;
   }
-
-  @override
-  Future<void> syncNow() async {}
 }

@@ -111,7 +111,7 @@ class _ImportExportWizardDialogState
     try {
       final rows = _csv.parse(_controller.text);
       final preview =
-          await ref.read(collectionMutationsProvider).previewImportRows(rows);
+          await ref.read(collectionImportServiceProvider).previewImportRows(rows);
       if (mounted) {
         setState(() => _preview = preview);
       }
@@ -146,7 +146,7 @@ class _ImportExportWizardDialogState
     });
     try {
       final imported =
-          await ref.read(collectionMutationsProvider).importRows(rows);
+          await ref.read(collectionImportServiceProvider).importRows(rows);
       ref.invalidate(shelfProvider);
       if (mounted) {
         Navigator.of(context).pop(imported);

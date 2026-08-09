@@ -354,27 +354,6 @@ class LibraryPageDialogCoordinator {
         .toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
-    final mutations = _page.ref.read(collectionMutationsProvider);
-    if (!context.mounted) {
-      return;
-    }
-    final result = await showTransferFieldDataDialog(
-      context: context,
-      db: db,
-      type: _page.type,
-      items: items,
-      mutations: mutations,
-      customFieldDefinitions: customFieldCache.definitions,
-    );
-    if (result != null && _page.mounted && context.mounted) {
-      _page.invalidateShelf();
-      _page.ref.invalidate(
-        libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Transfer complete: ${result.transferred} transferred, '
             '${result.skipped} skipped out of ${result.total}.',
           ),
         ),
@@ -404,7 +383,7 @@ class LibraryPageDialogCoordinator {
         .toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
-    final mutations = _page.ref.read(collectionMutationsProvider);
+    final mutations = _page.ref.read(ownedItemMutationsProvider);
     if (!context.mounted) {
       return;
     }
@@ -509,12 +488,12 @@ class LibraryPageDialogCoordinator {
     );
     if (confirmed != true || !_page.mounted || !context.mounted) return;
 
-    final mutations = _page.ref.read(collectionMutationsProvider);
+    final coordinator = _page.ref.read(collectionCommandCoordinatorProvider);
     var count = 0;
     for (var i = 0; i < items.length; i++) {
       final ownedItem = items[i].source.ownedItem;
       if (ownedItem == null) continue;
-      await mutations.updateOwnedItem(
+      await coordinator.updateOwnedItem(
         UpdateOwnedItemCommand(
           ownedItemId: ownedItem.id,
           indexNumber: Patch.set(i + 1),

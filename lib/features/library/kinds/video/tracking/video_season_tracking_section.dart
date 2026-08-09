@@ -265,7 +265,7 @@ class _VideoSeasonTrackingSectionState
       _pendingEpisodeKeys.add(key);
     });
     try {
-      await ref.read(collectionMutationsProvider).setTrackingEpisodeCompleted(
+      await ref.read(trackingMutationsProvider).setTrackingEpisodeCompleted(
             widget.seriesRef,
             seasonNumber: seasonNumber,
             episodeNumber: episode.episodeNumber,
@@ -291,7 +291,7 @@ class _VideoSeasonTrackingSectionState
       _seasonMutationInFlight = true;
     });
     try {
-      await ref.read(collectionMutationsProvider).setSeasonEpisodesCompleted(
+      await ref.read(trackingMutationsProvider).setSeasonEpisodesCompleted(
             widget.seriesRef,
             seasonNumber: season.seasonNumber,
             episodeNumbers:
@@ -476,7 +476,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
                 ),
                 onDelete: () async {
                   await ref
-                      .read(collectionMutationsProvider)
+                      .read(customEpisodeMutationsProvider)
                       .removeCustomEpisode(ep);
                 },
               ),
@@ -526,7 +526,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     WidgetRef ref,
   ) async {
     for (final episode in providerSeason.episodes) {
-      await ref.read(collectionMutationsProvider).upsertCustomEpisode(
+      await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
             catalogRef: catalogRef,
             seasonNumber: providerSeason.seasonNumber,
             episodeNumber: episode.episodeNumber,
@@ -565,7 +565,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
       ),
     );
     if (result == null || !context.mounted) return;
-    await ref.read(collectionMutationsProvider).upsertCustomEpisode(
+    await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
           id: existing?.id,
           catalogRef: catalogRef,
           seasonNumber: seasonNumber,
@@ -586,7 +586,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     CustomEpisode episode,
     int newEpisodeNumber,
   ) async {
-    await ref.read(collectionMutationsProvider).upsertCustomEpisode(
+    await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
           id: episode.id,
           catalogRef: catalogRef,
           seasonNumber: episode.seasonNumber,

@@ -143,7 +143,7 @@ Future<void> showTvCustomEpisodeDialog(
     final parsedEpisode =
         int.tryParse(episodeController.text.trim()) ?? episodeNumber;
     final parsedRuntime = int.tryParse(runtimeController.text.trim());
-    await ref.read(collectionMutationsProvider).upsertCustomEpisode(
+    await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
           id: existingEpisode?.id,
           catalogRef: CatalogEntityRef(
             kind: type.workspace.kind.apiValue,

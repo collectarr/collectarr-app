@@ -32,7 +32,7 @@ Future<TransferFieldResult?> showTransferFieldDataDialog({
   required LocalDatabase db,
   required LibraryTypeConfig type,
   required List<OwnedItem> items,
-  required CollectionMutations mutations,
+  required OwnedItemMutations mutations,
   required List<CustomFieldDefinition> customFieldDefinitions,
 }) {
   return showDialog<TransferFieldResult>(
@@ -60,7 +60,7 @@ class _TransferFieldDataDialog extends StatefulWidget {
   final LocalDatabase db;
   final LibraryTypeConfig type;
   final List<OwnedItem> items;
-  final CollectionMutations mutations;
+  final OwnedItemMutations mutations;
   final List<CustomFieldDefinition> customFieldDefinitions;
 
   @override

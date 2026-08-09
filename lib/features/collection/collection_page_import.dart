@@ -108,7 +108,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     try {
       final rows = _csv.parse(_controller.text);
       final preview =
-          await ref.read(collectionMutationsProvider).previewImportRows(rows);
+          await ref.read(collectionImportServiceProvider).previewImportRows(rows);
       if (mounted) {
         setState(() => _preview = preview);
       }
@@ -135,7 +135,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     setState(() => _isWorking = true);
     try {
       final imported = await ref
-          .read(collectionMutationsProvider)
+          .read(collectionImportServiceProvider)
           .importRows(preview.resolvedRows);
       if (mounted) {
         Navigator.of(context).pop(imported);

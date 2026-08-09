@@ -190,7 +190,7 @@ class WatchHistorySection extends ConsumerWidget {
                     existing: session,
                   ),
                   onDelete: () => ref
-                      .read(collectionMutationsProvider)
+                      .read(watchSessionMutationsProvider)
                       .removeWatchSession(session),
                 ),
             ],
@@ -262,7 +262,7 @@ class WatchHistorySection extends ConsumerWidget {
     if (result == null || !context.mounted) {
       return;
     }
-    await ref.read(collectionMutationsProvider).addWatchSession(
+    await ref.read(watchSessionMutationsProvider).addWatchSession(
           result.target.ref,
           id: existing?.id,
           watchedAt: result.watchedAt,

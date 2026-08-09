@@ -76,7 +76,7 @@ class LibraryPageBucketCoordinator {
     if (updates.isEmpty) {
       return 0;
     }
-    final mutations = _page.ref.read(collectionMutationsProvider);
+    final mutations = _page.ref.read(ownedItemMutationsProvider);
     await mutations.updateCatalogSnapshots(updates);
     if (!_page.mounted) {
       return updates.length;

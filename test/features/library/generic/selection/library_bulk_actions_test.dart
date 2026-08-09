@@ -42,8 +42,17 @@ void main() {
           ),
         );
 
-    final mutations = container.read(collectionMutationsProvider);
-    await mutations.addOwnedItem(
+    final coordinator = container.read(collectionCommandCoordinatorProvider);
+    final wishlistMutations = container.read(wishlistMutationsProvider);
+    final trackingMutations = container.read(trackingMutationsProvider);
+    LibraryBulkActions buildActions() => LibraryBulkActions(
+          coordinator: coordinator,
+          ownedMutations: container.read(ownedItemMutationsProvider),
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
+        );
+
+    await coordinator.addOwnedItem(
       AddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const OwnedItemCommonDraft(locationId: 'loc-a'),
@@ -57,7 +66,7 @@ void main() {
       locationId: row.locationId,
       updatedAt: row.updatedAt,
     );
-    final actions = LibraryBulkActions(mutations);
+    final actions = buildActions();
 
     await actions.editSelected(
       entries: [ShelfEntry(itemId: 'movie-1', ownedItem: owned)],
@@ -81,8 +90,17 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final mutations = container.read(collectionMutationsProvider);
-    await mutations.addOwnedItem(
+    final coordinator = container.read(collectionCommandCoordinatorProvider);
+    final wishlistMutations = container.read(wishlistMutationsProvider);
+    final trackingMutations = container.read(trackingMutationsProvider);
+    LibraryBulkActions buildActions() => LibraryBulkActions(
+          coordinator: coordinator,
+          ownedMutations: container.read(ownedItemMutationsProvider),
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
+        );
+
+    await coordinator.addOwnedItem(
       AddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const OwnedItemCommonDraft(),
@@ -95,7 +113,7 @@ void main() {
       itemId: row.itemId,
       updatedAt: row.updatedAt,
     );
-    final actions = LibraryBulkActions(mutations);
+    final actions = buildActions();
 
     await actions.moveSelectedToWishlist([
       ShelfEntry(itemId: 'movie-1', ownedItem: owned),
@@ -120,15 +138,24 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final mutations = container.read(collectionMutationsProvider);
-    await mutations.addOwnedItem(
+    final coordinator = container.read(collectionCommandCoordinatorProvider);
+    final wishlistMutations = container.read(wishlistMutationsProvider);
+    final trackingMutations = container.read(trackingMutationsProvider);
+    LibraryBulkActions buildActions() => LibraryBulkActions(
+          coordinator: coordinator,
+          ownedMutations: container.read(ownedItemMutationsProvider),
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
+        );
+
+    await coordinator.addOwnedItem(
       AddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const OwnedItemCommonDraft(),
       ),
     );
-    await mutations.addToWishlist('movie-2');
-    await mutations.upsertTrackingEntry(
+    await wishlistMutations.addToWishlist('movie-2');
+    await trackingMutations.upsertTrackingEntry(
       'movie-3',
       sourceType: 'streaming',
       status: 'completed',
@@ -137,7 +164,7 @@ void main() {
     final ownedRow = await db.select(db.ownedItemsCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
-    final actions = LibraryBulkActions(mutations);
+    final actions = buildActions();
 
     await actions.removeSelected([
       ShelfEntry(
@@ -202,13 +229,22 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final mutations = container.read(collectionMutationsProvider);
-    await mutations.addToWishlist('movie-1', editionId: 'edition-4k');
-    await mutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+    final coordinator = container.read(collectionCommandCoordinatorProvider);
+    final wishlistMutations = container.read(wishlistMutationsProvider);
+    final trackingMutations = container.read(trackingMutationsProvider);
+    LibraryBulkActions buildActions() => LibraryBulkActions(
+          coordinator: coordinator,
+          ownedMutations: container.read(ownedItemMutationsProvider),
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
+        );
+
+    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-4k');
+    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-bluray');
 
     final rows = await db.select(db.wishlistItemsCache).get();
     final row4k = rows.firstWhere((row) => row.editionId == 'edition-4k');
-    final actions = LibraryBulkActions(mutations);
+    final actions = buildActions();
 
     await actions.moveSelectedToOwned([
       ShelfEntry(

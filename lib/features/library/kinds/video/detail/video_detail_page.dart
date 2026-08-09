@@ -96,7 +96,7 @@ class _VideoLibraryDetailPageState
 
   Future<void> _addCopyForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
-    await ref.read(collectionMutationsProvider).addOwnedItem(
+    await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
               kind: widget.request.type.workspace.kind.apiValue,
@@ -117,12 +117,12 @@ class _VideoLibraryDetailPageState
     if (selectedCopy == null) {
       return;
     }
-    await ref.read(collectionMutationsProvider).removeItem(selectedCopy);
+    await ref.read(ownedItemMutationsProvider).removeItem(selectedCopy);
   }
 
   Future<void> _addWishlistForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
-    await ref.read(collectionMutationsProvider).addToWishlist(
+    await ref.read(wishlistMutationsProvider).addToWishlist(
           widget.request.item.source.itemId,
           editionId: anchor.editionId,
           variantId: anchor.variantId,
@@ -135,7 +135,7 @@ class _VideoLibraryDetailPageState
     if (wishlistItem == null) {
       return;
     }
-    await ref.read(collectionMutationsProvider).removeFromWishlist(
+    await ref.read(wishlistMutationsProvider).removeFromWishlist(
           widget.request.item.source.itemId,
           wishlistItemId: wishlistItem.id,
         );

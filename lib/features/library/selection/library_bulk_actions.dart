@@ -8,9 +8,17 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 
 class LibraryBulkActions {
-  const LibraryBulkActions(this.mutations);
+  const LibraryBulkActions({
+    required this.coordinator,
+    required this.ownedMutations,
+    required this.wishlistMutations,
+    required this.trackingMutations,
+  });
 
-  final CollectionMutations mutations;
+  final CollectionCommandCoordinator coordinator;
+  final OwnedItemMutations ownedMutations;
+  final WishlistMutations wishlistMutations;
+  final TrackingMutations trackingMutations;
 
   Future<void> editSelected({
     required List<ShelfEntry> entries,
@@ -43,7 +51,7 @@ class LibraryBulkActions {
             ? Patch.set(selection.tags)
             : const Patch.unchanged(),
       );
-      await mutations.updateOwnedItem(
+      await coordinator.updateOwnedItem(
         updateCmd,
         notify: index == ownedEntries.length - 1,
       );
@@ -87,7 +95,7 @@ class LibraryBulkActions {
           tags: defaultTags,
         ),
       );
-      await mutations.addOwnedItem(
+      await coordinator.addOwnedItem(
         addCmd,
         notify:
             index == entriesToOwn.length - 1 || index == lastWishlistedIndex,
@@ -97,7 +105,7 @@ class LibraryBulkActions {
 
   Future<void> moveSelectedToWishlist(List<ShelfEntry> entries) async {
     for (var index = 0; index < entries.length; index++) {
-      await mutations.addToWishlist(
+      await wishlistMutations.addToWishlist(
         entries[index].itemId,
         notify: index == entries.length - 1,
       );
@@ -107,7 +115,7 @@ class LibraryBulkActions {
         if (entry.ownedItem != null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      await mutations.removeItem(
+      await ownedMutations.removeItem(
         ownedEntries[index].ownedItem!,
         notify: index == ownedEntries.length - 1,
       );
@@ -163,7 +171,7 @@ class LibraryBulkActions {
               )
             : const GenericOwnedDetailsDraft(),
       );
-      await mutations.addOwnedItem(
+      await coordinator.addOwnedItem(
         addCmd,
         notify: index == ownedEntries.length - 1,
       );
@@ -189,7 +197,7 @@ class LibraryBulkActions {
     var completedRemovals = 0;
     for (var index = 0; index < ownedEntries.length; index++) {
       completedRemovals += 1;
-      await mutations.removeItem(
+      await ownedMutations.removeItem(
         ownedEntries[index].ownedItem!,
         notify: completedRemovals == totalRemovals,
       );
@@ -200,7 +208,7 @@ class LibraryBulkActions {
         wishlistItem: wishlistedEntries[index].wishlistItem,
       );
       completedRemovals += 1;
-      await mutations.removeFromWishlist(
+      await wishlistMutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
         anchorType: anchor.anchorType,
@@ -212,7 +220,7 @@ class LibraryBulkActions {
     }
     for (var index = 0; index < trackedEntries.length; index++) {
       completedRemovals += 1;
-      await mutations.removeTrackingEntry(
+      await trackingMutations.removeTrackingEntry(
         trackedEntries[index].trackingEntry!,
         notify: completedRemovals == totalRemovals,
       );

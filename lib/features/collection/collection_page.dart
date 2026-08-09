@@ -165,7 +165,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     if (ownedItem == null) {
       return;
     }
-    await ref.read(collectionMutationsProvider).removeItem(ownedItem);
+    await ref.read(ownedItemMutationsProvider).removeItem(ownedItem);
     ref.invalidate(shelfProvider);
   }
 
@@ -174,7 +174,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
       return;
     }
     await ref
-        .read(collectionMutationsProvider)
+        .read(wishlistMutationsProvider)
         .removeFromWishlist(entry.itemId);
     ref.invalidate(shelfProvider);
   }

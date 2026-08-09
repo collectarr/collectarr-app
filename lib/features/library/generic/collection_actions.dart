@@ -6,9 +6,15 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryCollectionActions {
-  const LibraryCollectionActions(this.mutations);
+  const LibraryCollectionActions({
+    required this.coordinator,
+    required this.ownedMutations,
+    required this.wishlistMutations,
+  });
 
-  final CollectionMutations mutations;
+  final CollectionCommandCoordinator coordinator;
+  final OwnedItemMutations ownedMutations;
+  final WishlistMutations wishlistMutations;
 
   Future<void> addOwned(LibraryProjectionItem item) {
     final anchor = resolveLibraryMutationAnchor(
@@ -17,7 +23,7 @@ class LibraryCollectionActions {
       wishlistItem: item.source.wishlistItem,
     );
     final catalogItem = item.source.catalogItem!;
-    return mutations.addOwnedItem(
+    return coordinator.addOwnedItem(
       AddOwnedItemCommand(
         catalogRef: CatalogEntityRef(
           kind: catalogItem.kind,
@@ -38,7 +44,7 @@ class LibraryCollectionActions {
     if (owned == null) {
       return;
     }
-    await mutations.removeItem(owned);
+    await ownedMutations.removeItem(owned);
   }
 
   Future<void> addWishlist(LibraryProjectionItem item) {
@@ -47,7 +53,7 @@ class LibraryCollectionActions {
       ownedItem: item.source.ownedItem,
       wishlistItem: item.source.wishlistItem,
     );
-    return mutations.addToWishlist(
+    return wishlistMutations.addToWishlist(
       item.source.catalogItem!.id,
       anchorType: anchor.anchorType,
       editionId: anchor.editionId,
@@ -62,7 +68,7 @@ class LibraryCollectionActions {
       ownedItem: item.source.ownedItem,
       wishlistItem: item.source.wishlistItem,
     );
-    return mutations.removeFromWishlist(
+    return wishlistMutations.removeFromWishlist(
       item.source.catalogItem!.id,
       wishlistItemId: item.source.wishlistItem?.id,
       anchorType: anchor.anchorType,
@@ -75,5 +81,9 @@ class LibraryCollectionActions {
 
 final genericLibraryCollectionActionsProvider =
     Provider<LibraryCollectionActions>((ref) {
-  return LibraryCollectionActions(ref.watch(collectionMutationsProvider));
+  return LibraryCollectionActions(
+    coordinator: ref.watch(collectionCommandCoordinatorProvider),
+    ownedMutations: ref.watch(ownedItemMutationsProvider),
+    wishlistMutations: ref.watch(wishlistMutationsProvider),
+  );
 });

@@ -110,7 +110,9 @@ class LibraryAddEditionSelection {
 
 Future<void> addLibraryItemsToTarget({
   required CatalogCacheRepository catalog,
-  required CollectionMutations mutations,
+  required OwnedItemMutations ownedMutations,
+  required WishlistMutations wishlistMutations,
+  required TrackingMutations trackingMutations,
   required Iterable<LibraryMetadataItem> items,
   required LibraryAddTarget target,
   LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
@@ -193,12 +195,12 @@ Future<void> addLibraryItemsToTarget({
             _ => const GenericOwnedDetailsDraft(),
           },
         );
-        final ownedItem = await mutations.addOwnedItem(
+        final ownedItem = await ownedMutations.addOwnedItem(
           addCmd,
           syncTracking: false,
           notify: false,
         );
-        await mutations.syncOwnedTrackingEntry(
+        await trackingMutations.syncOwnedTrackingEntry(
           ownedItem,
           editionId: ownedDetails?.editionId ?? reference.editionId,
           variantId: ownedDetails?.variantId ?? reference.variantId,
@@ -215,7 +217,7 @@ Future<void> addLibraryItemsToTarget({
         );
         break;
       case LibraryAddTarget.wishlist:
-        await mutations.addToWishlist(
+        await wishlistMutations.addToWishlist(
           item.id,
           anchorType: reference.anchorType,
           editionId: reference.editionId,
@@ -224,10 +226,12 @@ Future<void> addLibraryItemsToTarget({
         );
         break;
       case LibraryAddTarget.track:
-        await mutations.upsertTrackingEntry(
-          item.id,
-          status: defaults.readStatus,
-          allowEmpty: true,
+        await trackingMutations.addLocalOnlyTrackingEntry(
+          item.toCatalogItem(),
+          anchorType: reference.anchorType,
+          editionId: reference.editionId,
+          variantId: reference.variantId,
+          bundleReleaseId: reference.bundleReleaseId,
         );
         break;
     }

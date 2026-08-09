@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/collection/coordinators/collection_command_coordinator.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/collection_import_service.dart';
 import 'package:collectarr_app/features/collection/mutations/custom_episode_mutations.dart';
@@ -150,5 +151,12 @@ final collectionImportServiceProvider = Provider<CollectionImportService>((ref) 
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
     events: ref.watch(collectionEventBusProvider),
+  );
+});
+
+final collectionCommandCoordinatorProvider = Provider<CollectionCommandCoordinator>((ref) {
+  return CollectionCommandCoordinator(
+    ownedMutations: ref.watch(ownedItemMutationsProvider),
+    trackingMutations: ref.watch(trackingMutationsProvider),
   );
 });

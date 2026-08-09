@@ -556,7 +556,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     required String? condition,
     required String? grade,
   }) async {
-    await ref.read(collectionMutationsProvider).updateOwnedItem(
+    await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           UpdateOwnedItemCommand(
             ownedItemId: item.id,
             condition: Patch.set(condition),
@@ -613,7 +613,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       item: item,
       ownedItem: ownedItem,
     );
-    await ref.read(collectionMutationsProvider).addOwnedItem(
+    await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
               kind: widget.type.workspace.kind.apiValue,
@@ -637,7 +637,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   Future<void> _removeOwnedCopy(OwnedItem item) async {
-    await ref.read(collectionMutationsProvider).removeItem(item);
+    await ref.read(ownedItemMutationsProvider).removeItem(item);
     if (!mounted) {
       return;
     }
@@ -653,7 +653,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionRuntime item,
     OwnedItem ownedItem,
   ) async {
-    await ref.read(collectionMutationsProvider).addOwnedItem(
+    await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: ownedItem.catalogRef,
             common: OwnedItemCommonDraft(

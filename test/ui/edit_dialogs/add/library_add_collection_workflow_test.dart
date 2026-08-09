@@ -36,7 +36,9 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      mutations: fixture.mutations,
+      ownedMutations: fixture.ownedMutations,
+      wishlistMutations: fixture.wishlistMutations,
+      trackingMutations: fixture.trackingMutations,
       items: [_comic('comic-1')],
       target: LibraryAddTarget.owned,
       defaults: LibraryAddDefaults(
@@ -79,7 +81,9 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      mutations: fixture.mutations,
+      ownedMutations: fixture.ownedMutations,
+      wishlistMutations: fixture.wishlistMutations,
+      trackingMutations: fixture.trackingMutations,
       items: [_comic('comic-2')],
       target: LibraryAddTarget.wishlist,
       defaults: const LibraryAddDefaults(
@@ -117,7 +121,9 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      mutations: fixture.mutations,
+      ownedMutations: fixture.ownedMutations,
+      wishlistMutations: fixture.wishlistMutations,
+      trackingMutations: fixture.trackingMutations,
       items: [_digitalMovie('movie-digital-1')],
       target: LibraryAddTarget.owned,
       defaults: LibraryAddDefaults(
@@ -146,7 +152,9 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      mutations: fixture.mutations,
+      ownedMutations: fixture.ownedMutations,
+      wishlistMutations: fixture.wishlistMutations,
+      trackingMutations: fixture.trackingMutations,
       items: [_comicWithRelease('comic-release-1')],
       target: LibraryAddTarget.owned,
       referenceType: LibraryAddReferenceType.edition,
@@ -171,7 +179,9 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      mutations: fixture.mutations,
+      ownedMutations: fixture.ownedMutations,
+      wishlistMutations: fixture.wishlistMutations,
+      trackingMutations: fixture.trackingMutations,
       items: [_comicWithMultipleReleases('comic-release-2')],
       target: LibraryAddTarget.wishlist,
       referenceType: LibraryAddReferenceType.edition,
@@ -200,7 +210,9 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      mutations: fixture.mutations,
+      ownedMutations: fixture.ownedMutations,
+      wishlistMutations: fixture.wishlistMutations,
+      trackingMutations: fixture.trackingMutations,
       items: [_comic('comic-bundle-1')],
       target: LibraryAddTarget.wishlist,
       referenceType: LibraryAddReferenceType.bundleRelease,
@@ -223,7 +235,9 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      mutations: fixture.mutations,
+      ownedMutations: fixture.ownedMutations,
+      wishlistMutations: fixture.wishlistMutations,
+      trackingMutations: fixture.trackingMutations,
       items: [_comic('comic-track-1')],
       target: LibraryAddTarget.track,
       defaults: const LibraryAddDefaults(readStatus: 'reading'),
@@ -250,7 +264,9 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      mutations: fixture.mutations,
+      ownedMutations: fixture.ownedMutations,
+      wishlistMutations: fixture.wishlistMutations,
+      trackingMutations: fixture.trackingMutations,
       items: [_comic('comic-track-empty-1')],
       target: LibraryAddTarget.track,
       defaults: const LibraryAddDefaults(),
@@ -282,8 +298,16 @@ class _WorkflowFixture {
 
   CatalogCacheRepository get catalog => CatalogCacheRepository(db);
 
-  CollectionMutations get mutations => container.read(
-        collectionMutationsProvider,
+  OwnedItemMutations get ownedMutations => container.read(
+        ownedItemMutationsProvider,
+      );
+
+  WishlistMutations get wishlistMutations => container.read(
+        wishlistMutationsProvider,
+      );
+
+  TrackingMutations get trackingMutations => container.read(
+        trackingMutationsProvider,
       );
 
   void dispose() {

@@ -203,7 +203,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       item: item,
       ownedItem: ownedItem,
     );
-    await ref.read(collectionMutationsProvider).addOwnedItem(
+    await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
               kind: widget.type.workspace.kind.apiValue,
@@ -227,7 +227,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
   }
 
   Future<void> _removeOwnedCopy(OwnedItem item) async {
-    await ref.read(collectionMutationsProvider).removeItem(item);
+    await ref.read(ownedItemMutationsProvider).removeItem(item);
     if (!mounted) {
       return;
     }

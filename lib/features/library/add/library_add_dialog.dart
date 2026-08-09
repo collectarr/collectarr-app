@@ -2705,7 +2705,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     LibraryAddTarget target,
   ) async {
     final catalog = CatalogCacheRepository(ref.read(localDatabaseProvider));
-    final mutations = ref.read(collectionMutationsProvider);
+    final ownedMutations = ref.read(ownedItemMutationsProvider);
+    final wishlistMutations = ref.read(wishlistMutationsProvider);
+    final trackingMutations = ref.read(trackingMutationsProvider);
     final physicalFormats = physicalMediaFormatsForKind(
       ref.read(mediaCatalogProvider).maybeWhen(
             data: (value) => value,
@@ -2732,7 +2734,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       },
       isMissingBearerTokenError: _isMissingBearerTokenError,
       catalog: catalog,
-      mutations: mutations,
+      ownedMutations: ownedMutations,
+      wishlistMutations: wishlistMutations,
+      trackingMutations: trackingMutations,
       physicalFormats: physicalFormats,
       previewState: _previewState,
       providerActionService: _providerActionService,
@@ -2976,7 +2980,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         }
       },
       catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
-      mutations: ref.read(collectionMutationsProvider),
+      ownedMutations: ref.read(ownedItemMutationsProvider),
+      wishlistMutations: ref.read(wishlistMutationsProvider),
+      trackingMutations: ref.read(trackingMutationsProvider),
       items: items,
       target: target,
       referenceType: referenceType,

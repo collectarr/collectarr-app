@@ -353,7 +353,7 @@ Widget _buildSeasonCard(
                       ? null
                       : () async {
                           await ref
-                              .read(collectionMutationsProvider)
+                              .read(customEpisodeMutationsProvider)
                               .removeCustomEpisode(episode.customEpisode!);
                         },
                 ),

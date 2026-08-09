@@ -92,7 +92,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final mutations = container.read(collectionMutationsProvider);
+    final coordinator = container.read(collectionCommandCoordinatorProvider);
     final command = AddOwnedItemCommand(
       catalogRef: const CatalogEntityRef(
         kind: 'comic',
@@ -114,7 +114,7 @@ void main() {
       ),
     );
 
-    final item = await mutations.addOwnedItem(command, notify: false);
+    final item = await coordinator.addOwnedItem(command, notify: false);
 
     expect(item.itemId, 'comic-cmd-1');
     expect(item.condition, 'Near Mint');
@@ -126,7 +126,7 @@ void main() {
   });
 
   test(
-      'CollectionMutations updateOwnedItem applies Patch operations via UpdateOwnedItemCommand',
+      'CollectionCommandCoordinator updateOwnedItem applies Patch operations via UpdateOwnedItemCommand',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -135,8 +135,8 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final mutations = container.read(collectionMutationsProvider);
-    final initial = await mutations.addOwnedItem(
+    final coordinator = container.read(collectionCommandCoordinatorProvider);
+    final initial = await coordinator.addOwnedItem(
       AddOwnedItemCommand(
         catalogRef: const CatalogEntityRef(
           kind: 'comic',
@@ -167,7 +167,7 @@ void main() {
       ),
     );
 
-    final updated = await mutations.updateOwnedItem(updateCmd, notify: false);
+    final updated = await coordinator.updateOwnedItem(updateCmd, notify: false);
 
     expect(updated.id, initial.id);
     expect(updated.condition, 'Near Mint');

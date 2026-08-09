@@ -250,7 +250,7 @@ Widget _manualEpisodeFallbackSection(
                   tooltip: 'Delete episode',
                   onPressed: () async {
                     await ref
-                        .read(collectionMutationsProvider)
+                        .read(customEpisodeMutationsProvider)
                         .removeCustomEpisode(episode);
                   },
                   icon: const Icon(Icons.delete_outline),

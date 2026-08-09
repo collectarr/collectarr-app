@@ -174,7 +174,12 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   // ---------------------------------------------------------------------------
 
   LibraryBulkActions bulkActions() =>
-      LibraryBulkActions(ref.read(collectionMutationsProvider));
+      LibraryBulkActions(
+        coordinator: ref.read(collectionCommandCoordinatorProvider),
+        ownedMutations: ref.read(ownedItemMutationsProvider),
+        wishlistMutations: ref.read(wishlistMutationsProvider),
+        trackingMutations: ref.read(trackingMutationsProvider),
+      );
 
   /// Show a confirmation dialog for bulk removal and return the user's choice.
   Future<bool> confirmBulkRemove(

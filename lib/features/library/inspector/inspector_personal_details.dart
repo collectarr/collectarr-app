@@ -418,7 +418,7 @@ class _InspectorPersonalDetailsEditorState
       );
     }
 
-    await ref.read(collectionMutationsProvider).updateOwnedItem(
+    await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           UpdateOwnedItemCommand(
             ownedItemId: widget.ownedItem.id,
             purchaseDate: Patch.set(_purchaseDate),
@@ -891,12 +891,24 @@ class _InspectorTrackingDetailsEditorState
         setState(() => _selectedEditionId = edition.id);
       } else {
         throw UnsupportedError(
-          'Edition creation is only supported for book and boardgame items.',
-        );
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Edition "$title" created')),
+      final kind = widget.ownedItem.catalogRef.kind;
+      final itemId = widget.ownedItem.catalogRef.id;
+
+      final res = await api.post(
+        '/api/v1/catalog/$kind/$itemId/editions',
+        body: {'name': title},
       );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final data = res.data as Map<String, dynamic>;
+        final newEditionId = data['id'] as String;
+
+        setState(() {
+          _selectedEditionId = newEditionId;
+          _showNewEditionField = false;
+          _newEditionTitleController.clear();
+        });
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -906,7 +918,7 @@ class _InspectorTrackingDetailsEditorState
   }
 
   Future<void> _save() async {
-    await ref.read(collectionMutationsProvider).upsertTrackingEntry(
+    await ref.read(trackingMutationsProvider).upsertTrackingEntry(
           widget.itemId,
           ownedItemId: widget.trackingEntry.ownedItemId,
           editionId: _selectedEditionId,
@@ -953,7 +965,7 @@ class _InspectorTrackingDetailsEditorState
     );
     if (confirmed != true || !mounted) return;
     await ref
-        .read(collectionMutationsProvider)
+        .read(trackingMutationsProvider)
         .removeTrackingEntry(widget.trackingEntry);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

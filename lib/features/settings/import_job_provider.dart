@@ -360,7 +360,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required bool keepUnmatchedLocally,
   }) async {
     final api = ref.read(apiClientProvider);
-    final mutations = ref.read(collectionMutationsProvider);
+    final wishlistMutations = ref.read(wishlistMutationsProvider);
+    final trackingMutations = ref.read(trackingMutationsProvider);
     final matches = <_GenericImportMatch>[];
 
     for (final row in rows) {
@@ -411,7 +412,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       final item = match.catalogItem;
       if (item != null) {
         await _applyImportRow(
-          mutations: mutations,
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
           item: item,
           row: match.row,
         );
@@ -419,7 +421,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       } else if (keepUnmatchedLocally) {
         final localItem = _syntheticImportCatalogItem(provider, match.row);
         await _applyLocalOnlyImportRow(
-          mutations: mutations,
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
           item: localItem,
           row: match.row,
         );
@@ -532,7 +535,9 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       );
     }
 
-    final mutations = ref.read(collectionMutationsProvider);
+    final ownedMutations = ref.read(ownedItemMutationsProvider);
+    final wishlistMutations = ref.read(wishlistMutationsProvider);
+    final trackingMutations = ref.read(trackingMutationsProvider);
     var importedCount = 0;
     var proposedCount = 0;
     var keptLocalCount = 0;
@@ -550,10 +555,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         final enriched = await enrichedEntry;
         final mergedItem = _service.mergeMatchedCatalogItem(item, enriched);
         if (_shouldUpdateCatalogSnapshot(item, mergedItem)) {
-          await mutations.updateCatalogSnapshot(mergedItem, notify: false);
+          await ownedMutations.updateCatalogSnapshot(mergedItem, notify: false);
         }
         if (match.entry.collection.isRated) {
-          await mutations.upsertTrackingEntry(
+          await trackingMutations.upsertTrackingEntry(
             item.id,
             sourceType: TrackingSourceType.streaming,
             status: MediaTrackingStatus.completed,
@@ -561,10 +566,11 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             timesCompleted: 1,
           );
         } else {
-          await mutations.addToWishlist(item.id);
+          await wishlistMutations.addToWishlist(item.id);
         }
         await _importTvSeasons(
-          mutations: mutations,
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
           seriesEntry: enriched,
           apiKey: apiKey,
         );
@@ -620,7 +626,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
 
             final localItem = _service.localSyntheticCatalogItem(enriched);
             if (enriched.collection.isRated) {
-              await mutations.addLocalOnlyTrackingEntry(
+              await trackingMutations.addLocalOnlyTrackingEntry(
                 localItem,
                 anchorType: 'season',
                 sourceType: TrackingSourceType.streaming,
@@ -629,10 +635,11 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
                 timesCompleted: 1,
               );
             } else {
-              await mutations.addLocalOnlyWishlistItem(localItem);
+              await wishlistMutations.addLocalOnlyWishlistItem(localItem);
             }
             await _importTvSeasons(
-              mutations: mutations,
+              wishlistMutations: wishlistMutations,
+              trackingMutations: trackingMutations,
               seriesEntry: enriched,
               apiKey: apiKey,
             );
@@ -744,7 +751,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _importTvSeasons({
-    required CollectionMutations mutations,
+    required WishlistMutations wishlistMutations,
+    required TrackingMutations trackingMutations,
     required TmdbImportEntry seriesEntry,
     required String? apiKey,
   }) async {
@@ -763,7 +771,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       final seasonNumber =
           (seasonEntry.rawPayload['season_number'] as num?)?.toInt();
       if (seriesEntry.collection.isRated) {
-        await mutations.addLocalOnlyTrackingEntry(
+        await trackingMutations.addLocalOnlyTrackingEntry(
           seasonItem,
           anchorType: 'season',
           sourceType: TrackingSourceType.streaming,
@@ -773,7 +781,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           seasonNumber: seasonNumber,
         );
       } else {
-        await mutations.addLocalOnlyWishlistItem(
+        await wishlistMutations.addLocalOnlyWishlistItem(
           seasonItem,
           anchorType: 'season',
         );
@@ -849,16 +857,17 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _applyImportRow({
-    required CollectionMutations mutations,
+    required WishlistMutations wishlistMutations,
+    required TrackingMutations trackingMutations,
     required CatalogItem item,
     required ImportRow row,
   }) async {
     final trackingStatus = _trackingStatusForImportRow(row);
     if (trackingStatus == null) {
-      await mutations.addToWishlist(item.id);
+      await wishlistMutations.addToWishlist(item.id);
       return;
     }
-    await mutations.upsertTrackingEntry(
+    await trackingMutations.upsertTrackingEntry(
       item.id,
       sourceType: TrackingSourceType.streaming,
       status: trackingStatus,
@@ -874,16 +883,17 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _applyLocalOnlyImportRow({
-    required CollectionMutations mutations,
+    required WishlistMutations wishlistMutations,
+    required TrackingMutations trackingMutations,
     required CatalogItem item,
     required ImportRow row,
   }) async {
     final trackingStatus = _trackingStatusForImportRow(row);
     if (trackingStatus == null) {
-      await mutations.addLocalOnlyWishlistItem(item);
+      await wishlistMutations.addLocalOnlyWishlistItem(item);
       return;
     }
-    await mutations.addLocalOnlyTrackingEntry(
+    await trackingMutations.addLocalOnlyTrackingEntry(
       item,
       sourceType: TrackingSourceType.streaming,
       status: trackingStatus,

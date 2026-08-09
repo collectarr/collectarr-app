@@ -203,13 +203,13 @@ void main() {
                 selectedEditionId: selectedEditionId,
                 selectedVariantId: selectedVariantId,
                 accent: Colors.orange,
-                onEditionSelected: (value) {
+                onEditionSelected: (String? value) {
                   setState(() {
                     selectedEditionId = value;
                     selectedVariantId = null;
                   });
                 },
-                onVariantSelected: (value) {
+                onVariantSelected: (String? value) {
                   setState(() => selectedVariantId = value);
                 },
               );
