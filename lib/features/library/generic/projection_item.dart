@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/media/video/video_release_source.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -84,22 +83,36 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
 }) {
   final kind = type.workspace.kind;
   if (browserMode == LibraryWorkspaceBrowserMode.releases) {
-    return _libraryReleaseItemsForShelf(
-      shelf,
-      type,
-      customFieldDefinitions: customFieldDefinitions,
-      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
-      customFieldValuesByItem: customFieldValuesByItem,
-      releaseFolderTitleItemId: releaseFolderTitleItemId,
-    );
+    final releaseCap = type.releaseCapability;
+    if (releaseCap == null) {
+      throw UnsupportedError(
+        'Release projection capability is not supported for ${kind.apiValue}',
+      );
+    }
+    return [
+      for (final source in shelf.entries)
+        if (source.catalogItem != null &&
+            source.catalogItem!.kind == kind.apiValue)
+          ...releaseCap.projectReleases(
+            source: source,
+            type: type,
+            projector: type.presentation.projector,
+            customFieldDefinitions: customFieldDefinitions,
+            customFieldValuesByDefinitionByItem:
+                customFieldValuesByDefinitionByItem,
+            customFieldValuesByItem: customFieldValuesByItem,
+            requestedTitleId: releaseFolderTitleItemId,
+          ),
+    ];
   }
   return [
     for (final source in shelf.entries)
       if (source.catalogItem != null &&
           source.catalogItem!.kind == kind.apiValue)
-        LibraryProjectionItem.fromShelf(
-          source,
-          type,
+        type.titleCapability.projectTitle(
+          source: source,
+          node: LibraryTitleNodeRef(titleItemId: source.catalogItem!.id),
+          projector: type.presentation.projector,
           customFieldBadges: customFieldBadgesForNode(
             source: source,
             node: LibraryTitleNodeRef(titleItemId: source.catalogItem!.id),
@@ -110,96 +123,6 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
           ),
         ),
   ];
-}
-
-List<LibraryProjectionItem<LibraryWorkspaceDto>> _libraryReleaseItemsForShelf(
-  ShelfState shelf,
-  LibraryTypeConfig type, {
-  List<CustomFieldDefinition> customFieldDefinitions = const [],
-  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
-      const {},
-  Map<String, List<String>> customFieldValuesByItem = const {},
-  String? releaseFolderTitleItemId,
-}) {
-  final kind = type.workspace.kind;
-  final requestedTitleId = releaseFolderTitleItemId?.trim();
-  final items = <LibraryProjectionItem<LibraryWorkspaceDto>>[];
-
-  for (final source in shelf.entries) {
-    final catalogItem = source.catalogItem;
-    if (catalogItem == null || catalogItem.kind != kind.apiValue) {
-      continue;
-    }
-    if (requestedTitleId != null && catalogItem.id != requestedTitleId) {
-      continue;
-    }
-
-    final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
-      catalogItem,
-      ownedItems: source.ownedItem == null ? const [] : [source.ownedItem!],
-      wishlistItems:
-          source.wishlistItem == null ? const [] : [source.wishlistItem!],
-    );
-    if (resolvedEditions.isEmpty) {
-      // Hide media that have no release-level data in release mode.
-      continue;
-    }
-
-    for (final edition in resolvedEditions) {
-      final ownedMatches = source.ownedItem == null
-          ? false
-          : matchesVideoReleaseAnchor(
-              edition,
-              editionId: source.ownedItem!.editionId,
-              variantId: source.ownedItem!.variantId,
-              bundleReleaseId: source.ownedItem!.bundleReleaseId,
-            );
-      final wishlistMatches = source.wishlistItem == null
-          ? false
-          : matchesVideoReleaseAnchor(
-              edition,
-              editionId: source.wishlistItem!.editionId,
-              variantId: source.wishlistItem!.variantId,
-              bundleReleaseId: source.wishlistItem!.bundleReleaseId,
-            );
-
-      final releaseNode = LibraryReleaseNodeRef(
-        titleItemId: catalogItem.id,
-        releaseId: edition.id,
-        edition: edition,
-      );
-      final releaseState = LibraryReleaseState(
-        isOwned: ownedMatches,
-        isWishlisted: wishlistMatches,
-        isTracked: source.isTracked,
-        referenceEditionId: edition.id,
-        referenceVariantId: preferredVideoEditionVariantId(edition),
-      );
-
-      final dto = type.presentation.projector.projectRelease(
-        source: source,
-        node: releaseNode,
-        releaseState: releaseState,
-      );
-
-      items.add(
-        LibraryProjectionItem<LibraryWorkspaceDto>(
-          source: source,
-          node: releaseNode,
-          dto: dto,
-          customFieldBadges: customFieldBadgesForNode(
-            source: source,
-            node: releaseNode,
-            customFieldDefinitions: customFieldDefinitions,
-            customFieldValuesByDefinitionByItem:
-                customFieldValuesByDefinitionByItem,
-            customFieldValuesByItem: customFieldValuesByItem,
-          ),
-        ),
-      );
-    }
-  }
-  return items;
 }
 
 List<String> customFieldBadgesForNode({

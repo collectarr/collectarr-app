@@ -24,6 +24,9 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/media/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
@@ -896,6 +899,19 @@ class LibraryTypeConfig {
       definitions,
       fieldKeys: transferableFieldKeysForScope(scope),
     );
+  }
+
+  TitleProjectionCapability<LibraryWorkspaceDto> get titleCapability =>
+      const DefaultTitleProjectionCapability<LibraryWorkspaceDto>();
+
+  ReleaseProjectionCapability<LibraryWorkspaceDto>? get releaseCapability {
+    final kindVal = workspace.kind;
+    if (kindVal == CatalogMediaKind.movie ||
+        kindVal == CatalogMediaKind.tv ||
+        kindVal == CatalogMediaKind.anime) {
+      return const VideoReleaseProjectionCapability<LibraryWorkspaceDto>();
+    }
+    return null;
   }
 
   bool get usesTitleAsSeriesFallback =>

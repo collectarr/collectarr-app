@@ -29,14 +29,7 @@ final class BoardGameWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final boardgame =
-        BoardGameCatalogMapper.mapMetadataItemToBoardGame(source.catalogItem!);
-    return BoardGameWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
-      personal:
-          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
-      boardgame: boardgame,
-    );
+    throw UnsupportedError('Release projection is not supported for BoardGameWorkspaceProjector');
   }
 
   @override
@@ -44,9 +37,6 @@ final class BoardGameWorkspaceProjector
     required ShelfEntry source,
     required LibraryCopyNodeRef node,
   }) {
-    return projectTitle(
-      source: source,
-      node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
-    );
+    throw UnsupportedError('Copy projection is not supported for BoardGameWorkspaceProjector');
   }
 }

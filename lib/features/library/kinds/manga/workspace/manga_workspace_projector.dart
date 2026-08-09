@@ -28,13 +28,7 @@ final class MangaWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final manga = BookCatalogMapper.mapMetadataItemToBook(source.catalogItem!);
-    return MangaWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
-      personal:
-          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
-      manga: manga,
-    );
+    throw UnsupportedError('Release projection is not supported for MangaWorkspaceProjector');
   }
 
   @override
@@ -42,9 +36,6 @@ final class MangaWorkspaceProjector
     required ShelfEntry source,
     required LibraryCopyNodeRef node,
   }) {
-    return projectTitle(
-      source: source,
-      node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
-    );
+    throw UnsupportedError('Copy projection is not supported for MangaWorkspaceProjector');
   }
 }
