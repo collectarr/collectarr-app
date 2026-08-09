@@ -10,11 +10,11 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields
 
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 
-final bookKindModule = LibraryKindSpec<BookWorkspaceDto, GenericOwnedDetails>(
+final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   type: booksLibraryConfig,
   mediaAdapter: booksMediaAdapter,
   projector: const BookWorkspaceProjector(),
-  ownedDetailsCodec: const GenericOwnedDetailsCodec(),
+  ownedDetailsCodec: const BookOwnedDetailsCodec(),
   fields: bookLibraryKindSchema.toRegistry(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,

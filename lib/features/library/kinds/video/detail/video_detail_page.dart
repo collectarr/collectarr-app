@@ -108,6 +108,7 @@ class _VideoLibraryDetailPageState
               variantId: anchor.variantId,
               bundleReleaseId: anchor.bundleReleaseId,
             ),
+            details: const VideoOwnedDetailsDraft(),
           ),
         );
   }

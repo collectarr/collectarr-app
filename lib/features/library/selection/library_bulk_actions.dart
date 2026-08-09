@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -94,6 +95,9 @@ class LibraryBulkActions {
           readStatus: defaultReadStatus,
           tags: defaultTags,
         ),
+        details: defaultDetailsDraftForKind(
+          catalogMediaKindFromApiValue(entry.catalogItem?.kind),
+        ),
       );
       await coordinator.addOwnedItem(
         addCmd,
@@ -129,9 +133,6 @@ class LibraryBulkActions {
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
       final src = ownedEntries[index].ownedItem!;
-      final comicDetails = src.typedDetails is ComicOwnedDetails
-          ? src.typedDetails as ComicOwnedDetails
-          : null;
       final addCmd = AddOwnedItemCommand(
         catalogRef: CatalogEntityRef(
           kind: src.catalogRef.kind,
@@ -157,19 +158,7 @@ class LibraryBulkActions {
           finishedAt: src.finishedAt,
           tags: src.tags,
         ),
-        details: comicDetails != null
-            ? ComicOwnedDetailsDraft(
-                rawOrSlabbed: comicDetails.rawOrSlabbed,
-                gradingCompany: comicDetails.gradingCompany,
-                graderNotes: comicDetails.graderNotes,
-                signedBy: comicDetails.signedBy,
-                labelType: comicDetails.labelType,
-                certificationNumber: comicDetails.certificationNumber,
-                keyComic: comicDetails.keyComic,
-                keyReason: comicDetails.keyReason,
-                coverPriceCents: comicDetails.coverPriceCents,
-              )
-            : const GenericOwnedDetailsDraft(),
+        details: src.typedDetails.toDraft(),
       );
       await coordinator.addOwnedItem(
         addCmd,

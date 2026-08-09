@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -34,6 +35,9 @@ class LibraryCollectionActions {
           editionId: anchor.editionId,
           variantId: anchor.variantId,
           bundleReleaseId: anchor.bundleReleaseId,
+        ),
+        details: defaultDetailsDraftForKind(
+          catalogMediaKindFromApiValue(catalogItem.kind),
         ),
       ),
     );

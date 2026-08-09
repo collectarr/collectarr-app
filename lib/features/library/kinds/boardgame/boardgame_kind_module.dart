@@ -11,11 +11,11 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 
 final boardGameKindModule =
-    LibraryKindSpec<BoardGameWorkspaceDto, GenericOwnedDetails>(
+    LibraryKindSpec<BoardGameWorkspaceDto, BoardgameOwnedDetails>(
   type: boardGamesLibraryConfig,
   mediaAdapter: boardGamesMediaAdapter,
   projector: const BoardGameWorkspaceProjector(),
-  ownedDetailsCodec: const GenericOwnedDetailsCodec(),
+  ownedDetailsCodec: const BoardgameOwnedDetailsCodec(),
   fields: boardgameLibraryKindSchema.toRegistry(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,

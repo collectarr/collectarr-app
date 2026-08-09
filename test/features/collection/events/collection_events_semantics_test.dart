@@ -86,6 +86,7 @@ void main() {
       AddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-100', kind: 'movie'),
         common: const OwnedItemCommonDraft(),
+        details: const VideoOwnedDetailsDraft(),
       ),
     );
 
@@ -106,6 +107,7 @@ void main() {
       AddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-200', kind: 'movie'),
         common: const OwnedItemCommonDraft(),
+        details: const VideoOwnedDetailsDraft(),
       ),
     );
 

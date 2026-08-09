@@ -73,6 +73,7 @@ void main() {
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
             common: const OwnedItemCommonDraft(),
+            details: const VideoOwnedDetailsDraft(),
           ),
         );
 
@@ -106,6 +107,7 @@ void main() {
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(),
+            details: const ComicOwnedDetailsDraft(),
           ),
         );
 
@@ -130,6 +132,7 @@ void main() {
               condition: 'Near Mint',
               rating: 8,
             ),
+            details: const ComicOwnedDetailsDraft(),
           ),
         );
 
@@ -168,6 +171,7 @@ void main() {
               startedAt: DateTime.utc(2026, 5, 10),
               finishedAt: DateTime.utc(2026, 5, 12),
             ),
+            details: const VideoOwnedDetailsDraft(),
           ),
         );
 
@@ -212,6 +216,7 @@ void main() {
               rating: 9,
               readStatus: 'Completed',
             ),
+            details: const VideoOwnedDetailsDraft(),
           ),
         );
 
@@ -239,6 +244,7 @@ void main() {
                   editionId: 'edition-legacy',
                   variantId: 'variant-legacy',
                 ),
+                details: const VideoOwnedDetailsDraft(),
               ),
               syncTracking: false,
             );
@@ -384,6 +390,7 @@ void main() {
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const OwnedItemCommonDraft(),
+            details: const ComicOwnedDetailsDraft(),
           ),
         );
 
@@ -425,6 +432,7 @@ void main() {
               currency: 'USD',
               personalNotes: 'Signed copy',
             ),
+            details: const ComicOwnedDetailsDraft(),
           ),
         );
     final original = await db.select(db.ownedItemsCache).getSingle();
@@ -462,6 +470,7 @@ void main() {
             common: const OwnedItemCommonDraft(
               locationId: 'loc-box-6',
             ),
+            details: const ComicOwnedDetailsDraft(),
           ),
         );
     final original = await db.select(db.ownedItemsCache).getSingle();

@@ -625,6 +625,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               variantId: anchor.variantId,
               bundleReleaseId: anchor.bundleReleaseId,
             ),
+            details: defaultDetailsDraftForKind(widget.type.workspace.kind),
           ),
         );
     if (!mounted) {

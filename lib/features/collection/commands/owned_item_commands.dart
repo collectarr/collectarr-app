@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:flutter/foundation.dart';
 
@@ -222,6 +223,20 @@ class MusicOwnedDetailsDraft extends OwnedDetailsDraft {
       );
 }
 
+class BookOwnedDetailsDraft extends OwnedDetailsDraft {
+  const BookOwnedDetailsDraft();
+
+  @override
+  BookOwnedDetails toDetails() => const BookOwnedDetails();
+}
+
+class BoardgameOwnedDetailsDraft extends OwnedDetailsDraft {
+  const BoardgameOwnedDetailsDraft();
+
+  @override
+  BoardgameOwnedDetails toDetails() => const BoardgameOwnedDetails();
+}
+
 class GenericOwnedDetailsDraft extends OwnedDetailsDraft {
   const GenericOwnedDetailsDraft();
 
@@ -229,23 +244,38 @@ class GenericOwnedDetailsDraft extends OwnedDetailsDraft {
   GenericOwnedDetails toDetails() => const GenericOwnedDetails();
 }
 
+OwnedDetailsDraft defaultDetailsDraftForKind(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.comic || CatalogMediaKind.manga => const ComicOwnedDetailsDraft(),
+    CatalogMediaKind.movie ||
+    CatalogMediaKind.tv ||
+    CatalogMediaKind.anime =>
+      const VideoOwnedDetailsDraft(),
+    CatalogMediaKind.game => const GameOwnedDetailsDraft(),
+    CatalogMediaKind.music => const MusicOwnedDetailsDraft(),
+    CatalogMediaKind.book => const BookOwnedDetailsDraft(),
+    CatalogMediaKind.boardgame => const BoardgameOwnedDetailsDraft(),
+    _ => const GenericOwnedDetailsDraft(),
+  };
+}
+
 /// Command to add an owned item to collection.
 @immutable
-class AddOwnedItemCommand {
+final class AddOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
   const AddOwnedItemCommand({
     required this.catalogRef,
     required this.common,
-    this.details = const GenericOwnedDetailsDraft(),
+    required this.details,
   });
 
   final CatalogEntityRef catalogRef;
   final OwnedItemCommonDraft common;
-  final OwnedDetailsDraft details;
+  final TDetails details;
 }
 
 /// Command to update an existing owned item in collection.
 @immutable
-class UpdateOwnedItemCommand {
+final class UpdateOwnedItemCommand<TDetails extends OwnedDetailsDraft> {
   const UpdateOwnedItemCommand({
     required this.ownedItemId,
     this.quantity = const Patch.unchanged(),
@@ -294,7 +324,7 @@ class UpdateOwnedItemCommand {
   final Patch<String?> soldTo;
   final Patch<int?> marketValueCents;
   final Patch<int?> indexNumber;
-  final Patch<OwnedDetailsDraft> details;
+  final Patch<TDetails> details;
 }
 
 /// Helper extension to map concrete details to drafts.
@@ -338,6 +368,8 @@ extension OwnedItemDetailsToDraft on OwnedItemDetails {
           storageDevice: m.storageDevice,
           storageSlot: m.storageSlot,
         ),
+      BookOwnedDetails() => const BookOwnedDetailsDraft(),
+      BoardgameOwnedDetails() => const BoardgameOwnedDetailsDraft(),
       _ => const GenericOwnedDetailsDraft(),
     };
   }

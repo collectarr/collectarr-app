@@ -38,6 +38,7 @@ abstract interface class LibraryKindRuntime {
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json);
   OwnedItemDetails defaultOwnedDetails();
   Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details);
+  void validateOwnedDetails(OwnedItemDetails details);
 
   LibraryCardPresentation? buildCardPresentation(
     LibraryProjectionRuntime item, {
@@ -90,10 +91,20 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
 
   @override
   Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details) {
+    validateOwnedDetails(details);
     if (details is TDetails) {
       return ownedDetailsCodec.toJson(details);
     }
     return details.toJson();
+  }
+
+  @override
+  void validateOwnedDetails(OwnedItemDetails details) {
+    if (details is! TDetails) {
+      throw ArgumentError(
+        'Incompatible owned details type "${details.runtimeType}" for media kind "${kind.apiValue}". Expected "$TDetails".',
+      );
+    }
   }
 
   @override

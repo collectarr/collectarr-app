@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -93,6 +94,15 @@ final class OwnedItemMutations {
           bundleReleaseId: common.bundleReleaseId,
         );
 
+        final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
+        LibraryKindRuntime? runtime;
+        try {
+          runtime = LibraryKindRegistry.instance.getByKind(mediaKind);
+        } catch (_) {}
+
+        final details = command.details.toDetails();
+        runtime?.validateOwnedDetails(details);
+
         final ownedItem = OwnedItem(
           id: newItemId,
           catalogRef: resolvedCatalogRef,
@@ -102,7 +112,7 @@ final class OwnedItemMutations {
           editionId: common.editionId,
           variantId: common.variantId,
           bundleReleaseId: common.bundleReleaseId,
-          details: command.details.toDetails(),
+          details: details,
           condition: common.condition,
           grade: common.grade,
           purchaseDate: common.purchaseDate,
@@ -166,10 +176,22 @@ final class OwnedItemMutations {
           throw StateError('OwnedItem not found: ${command.ownedItemId}');
         }
 
+        final mediaKind = catalogMediaKindFromApiValue(existing.catalogRef.kind);
+        LibraryKindRuntime? runtime;
+        try {
+          runtime = LibraryKindRegistry.instance.getByKind(mediaKind);
+        } catch (_) {}
+
         final resolvedDetails = command.details.when(
           unchanged: () => existing.typedDetails,
-          set: (draft) => draft.toDetails(),
-          clear: () => const GenericOwnedDetails(),
+          set: (draft) {
+            final details = draft.toDetails();
+            runtime?.validateOwnedDetails(details);
+            return details;
+          },
+          clear: () =>
+              runtime?.defaultOwnedDetails() ??
+              OwnedItemDetails.defaultForKind(mediaKind),
         );
 
         final updatedItem = OwnedItem(

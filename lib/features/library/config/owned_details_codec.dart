@@ -79,6 +79,43 @@ class MusicOwnedDetailsCodec implements OwnedDetailsCodec<MusicOwnedDetails> {
   MusicOwnedDetails defaultDetails() => const MusicOwnedDetails();
 }
 
+class BookOwnedDetailsCodec implements OwnedDetailsCodec<BookOwnedDetails> {
+  const BookOwnedDetailsCodec();
+
+  @override
+  BookOwnedDetails fromJson(Map<String, dynamic> json) =>
+      BookOwnedDetails.fromJson(json);
+
+  @override
+  Map<String, dynamic> toJson(BookOwnedDetails details) => details.toJson();
+
+  @override
+  Map<String, dynamic> toSyncPayload(BookOwnedDetails details) =>
+      details.toJson();
+
+  @override
+  BookOwnedDetails defaultDetails() => const BookOwnedDetails();
+}
+
+class BoardgameOwnedDetailsCodec
+    implements OwnedDetailsCodec<BoardgameOwnedDetails> {
+  const BoardgameOwnedDetailsCodec();
+
+  @override
+  BoardgameOwnedDetails fromJson(Map<String, dynamic> json) =>
+      BoardgameOwnedDetails.fromJson(json);
+
+  @override
+  Map<String, dynamic> toJson(BoardgameOwnedDetails details) => details.toJson();
+
+  @override
+  Map<String, dynamic> toSyncPayload(BoardgameOwnedDetails details) =>
+      details.toJson();
+
+  @override
+  BoardgameOwnedDetails defaultDetails() => const BoardgameOwnedDetails();
+}
+
 class GenericOwnedDetailsCodec
     implements OwnedDetailsCodec<GenericOwnedDetails> {
   const GenericOwnedDetailsCodec();

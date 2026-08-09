@@ -192,7 +192,7 @@ Future<void> addLibraryItemsToTarget({
                 coverPriceCents:
                     isDigitalOwnedItem ? null : ownedDetails?.coverPriceCents,
               ),
-            _ => const GenericOwnedDetailsDraft(),
+            _ => defaultDetailsDraftForKind(catalogMediaKindFromApiValue(item.kind)),
           },
         );
         final ownedItem = await ownedMutations.addOwnedItem(

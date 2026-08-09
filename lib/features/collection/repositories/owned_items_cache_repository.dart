@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:drift/drift.dart';
 
@@ -17,7 +18,15 @@ class OwnedItemsCacheRepository {
           ..where((row) => row.deletedAt.isNull())
           ..orderBy([(row) => OrderingTerm.desc(row.updatedAt)]))
         .get();
-    return rows.map(_fromCache).toList(growable: false);
+    if (rows.isEmpty) return const [];
+    final itemIds = rows.map((r) => r.itemId).toSet();
+    final catalogRows = await (_db.select(_db.catalogCache)
+          ..where((c) => c.id.isIn(itemIds)))
+        .get();
+    final kindByItemId = {for (final c in catalogRows) c.id: c.kind};
+    return rows
+        .map((r) => _fromCache(r, catalogKind: kindByItemId[r.itemId]))
+        .toList(growable: false);
   }
 
   Future<OwnedItem?> findById(String id) async {
@@ -25,7 +34,12 @@ class OwnedItemsCacheRepository {
           ..where((row) => row.id.equals(id))
           ..limit(1))
         .getSingleOrNull();
-    return row == null ? null : _fromCache(row);
+    if (row == null) return null;
+    final catalogRow = await (_db.select(_db.catalogCache)
+          ..where((c) => c.id.equals(row.itemId))
+          ..limit(1))
+        .getSingleOrNull();
+    return _fromCache(row, catalogKind: catalogRow?.kind);
   }
 
   Future<void> replaceAll(List<OwnedItem> items) async {
@@ -75,7 +89,14 @@ class OwnedItemsCacheRepository {
               (row) => row.itemId.isIn(batch) & row.deletedAt.isNull(),
             ))
           .get();
-      items.addAll(rows.map(_fromCache));
+      final batchItemIds = rows.map((r) => r.itemId).toSet();
+      final catalogRows = await (_db.select(_db.catalogCache)
+            ..where((c) => c.id.isIn(batchItemIds)))
+          .get();
+      final kindByItemId = {for (final c in catalogRows) c.id: c.kind};
+      items.addAll(
+        rows.map((r) => _fromCache(r, catalogKind: kindByItemId[r.itemId])),
+      );
     }
     return items;
   }
@@ -88,8 +109,8 @@ class OwnedItemsCacheRepository {
         );
   }
 
-  OwnedItem _fromCache(OwnedItemsCacheData row) {
-    final catalogRef = _catalogRefFromRow(row);
+  OwnedItem _fromCache(OwnedItemsCacheData row, {String? catalogKind}) {
+    final catalogRef = _catalogRefFromRow(row, catalogKind: catalogKind);
     OwnedItemDetails details;
     switch (catalogRef.kind) {
       case 'comic':
@@ -136,8 +157,14 @@ class OwnedItemsCacheRepository {
           storageDevice: row.storageDevice,
           storageSlot: row.storageSlot,
         );
+      case 'book':
+        details = const BookOwnedDetails();
+      case 'boardgame':
+        details = const BoardgameOwnedDetails();
       default:
-        details = const GenericOwnedDetails();
+        details = OwnedItemDetails.defaultForKind(
+          catalogMediaKindFromApiValue(catalogRef.kind),
+        );
     }
 
     return OwnedItem(
@@ -253,7 +280,14 @@ class OwnedItemsCacheRepository {
     );
   }
 
-  CatalogEntityRef _catalogRefFromRow(OwnedItemsCacheData row) {
+  CatalogEntityRef _catalogRefFromRow(OwnedItemsCacheData row, {String? catalogKind}) {
+    if (catalogKind != null && catalogKind.isNotEmpty && catalogKind != 'unknown') {
+      return CatalogEntityRef(
+        kind: catalogKind,
+        entityType: CatalogEntityType.work,
+        id: row.itemId,
+      );
+    }
     String kind = 'unknown';
     if (row.gradingCompany != null ||
         row.rawOrSlabbed != null ||

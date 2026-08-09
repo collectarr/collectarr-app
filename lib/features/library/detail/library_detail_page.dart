@@ -215,6 +215,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               variantId: anchor.variantId,
               bundleReleaseId: anchor.bundleReleaseId,
             ),
+            details: defaultDetailsDraftForKind(widget.type.workspace.kind),
           ),
         );
     if (!mounted) {

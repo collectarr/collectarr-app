@@ -28,6 +28,8 @@ sealed class OwnedItemDetails {
           VideoOwnedDetails.fromJson(json),
         CatalogMediaKind.game => GameOwnedDetails.fromJson(json),
         CatalogMediaKind.music => MusicOwnedDetails.fromJson(json),
+        CatalogMediaKind.book => BookOwnedDetails.fromJson(json),
+        CatalogMediaKind.boardgame => BoardgameOwnedDetails.fromJson(json),
         _ => const GenericOwnedDetails(),
       };
     }
@@ -47,6 +49,8 @@ sealed class OwnedItemDetails {
           const VideoOwnedDetails(),
         CatalogMediaKind.game => const GameOwnedDetails(),
         CatalogMediaKind.music => const MusicOwnedDetails(),
+        CatalogMediaKind.book => const BookOwnedDetails(),
+        CatalogMediaKind.boardgame => const BoardgameOwnedDetails(),
         _ => const GenericOwnedDetails(),
       };
     }
@@ -60,6 +64,32 @@ sealed class OwnedItemDetails {
       this is GameOwnedDetails ? this as GameOwnedDetails : null;
   MusicOwnedDetails? get music =>
       this is MusicOwnedDetails ? this as MusicOwnedDetails : null;
+  BookOwnedDetails? get book =>
+      this is BookOwnedDetails ? this as BookOwnedDetails : null;
+  BoardgameOwnedDetails? get boardgame =>
+      this is BoardgameOwnedDetails ? this as BoardgameOwnedDetails : null;
+}
+
+/// Kind-specific ownership details for books.
+class BookOwnedDetails extends OwnedItemDetails {
+  const BookOwnedDetails();
+
+  @override
+  Map<String, dynamic> toJson() => const <String, dynamic>{};
+
+  factory BookOwnedDetails.fromJson(Map<String, dynamic> json) =>
+      const BookOwnedDetails();
+}
+
+/// Kind-specific ownership details for board games.
+class BoardgameOwnedDetails extends OwnedItemDetails {
+  const BoardgameOwnedDetails();
+
+  @override
+  Map<String, dynamic> toJson() => const <String, dynamic>{};
+
+  factory BoardgameOwnedDetails.fromJson(Map<String, dynamic> json) =>
+      const BoardgameOwnedDetails();
 }
 
 /// Kind-specific ownership details for comics and manga.
