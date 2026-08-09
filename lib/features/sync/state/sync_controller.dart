@@ -26,7 +26,7 @@ class SyncController extends StateNotifier<SyncState> {
   final Ref ref;
   bool _onlineFirstSyncQueued = false;
 
-  SyncRepository get _repo => ref.read(syncRepositoryProvider);
+  late final SyncRepository _repo = ref.read(syncRepositoryProvider);
 
   Future<void> refreshPendingCount() async {
     final count = await _repo.getPendingCount();
@@ -81,6 +81,7 @@ class SyncController extends StateNotifier<SyncState> {
         ),
       );
 
+      if (!mounted) return;
       // --- Success: enter SyncIdle ---
       state = SyncIdle(
         pendingCount: count,
@@ -97,13 +98,20 @@ class SyncController extends StateNotifier<SyncState> {
         error: error,
         stackTrace: stackTrace,
       );
-      ref.read(appLogProvider.notifier).error(
-            'sync',
-            'Sync failed: $error',
-            detail: stackTrace.toString(),
-          );
+      try {
+        ref.read(appLogProvider.notifier).error(
+              'sync',
+              'Sync failed: $error',
+              detail: stackTrace.toString(),
+            );
+      } catch (_) {}
 
-      final count = await _repo.getPendingCount();
+      if (!mounted) return;
+
+      int count = 0;
+      try {
+        count = await _repo.getPendingCount();
+      } catch (_) {}
       final log = _appendLog(
         SyncLogEntry(
           timestamp: DateTime.now().toUtc(),
@@ -112,6 +120,8 @@ class SyncController extends StateNotifier<SyncState> {
           errorMessage: error.toString(),
         ),
       );
+
+      if (!mounted) return;
 
       // --- Failure: enter SyncFailure ---
       state = SyncFailure(
@@ -195,6 +205,7 @@ class SyncController extends StateNotifier<SyncState> {
   }
 
   List<SyncLogEntry> _appendLog(SyncLogEntry entry) {
+    if (!mounted) return const [];
     final log = [...state.syncLog, entry];
     if (log.length > _maxLogEntries) {
       return log.sublist(log.length - _maxLogEntries);
@@ -212,11 +223,13 @@ class SyncController extends StateNotifier<SyncState> {
         error: error,
         stackTrace: stackTrace,
       );
-      ref.read(appLogProvider.notifier).error(
-            'sync',
-            'Sync cursor read failed: $error',
-            detail: stackTrace.toString(),
-          );
+      try {
+        ref.read(appLogProvider.notifier).error(
+              'sync',
+              'Sync cursor read failed: $error',
+              detail: stackTrace.toString(),
+            );
+      } catch (_) {}
       return state.lastSyncedAt;
     }
   }

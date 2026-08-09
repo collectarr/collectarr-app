@@ -58,7 +58,8 @@ void main(List<String> arguments) {
         }
       }
 
-      if (line.contains(r"endsWith('.$id')") || line.contains(r'endsWith(".$id")')) {
+      if (line.contains(r"endsWith('.$id')") ||
+          line.contains(r'endsWith(".$id")')) {
         violations.add(
           '$relativePath:${index + 1}: Forbidden endsWith substring matching fallback in schema lookup',
         );

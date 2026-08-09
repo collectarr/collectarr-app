@@ -218,7 +218,8 @@ final mangaLibraryColumnDefinitions = [
   ),
   columnFromField<MangaKind, MangaWorkspaceDto, String?>(MangaKindSchema.series,
       defaultWidth: 160),
-  columnFromField<MangaKind, MangaWorkspaceDto, String?>(MangaKindSchema.title, defaultWidth: 260, maxWidth: 520),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(MangaKindSchema.title,
+      defaultWidth: 260, maxWidth: 520),
   columnFromField<MangaKind, MangaWorkspaceDto, String?>(
       MangaKindSchema.publisher,
       defaultWidth: 140),

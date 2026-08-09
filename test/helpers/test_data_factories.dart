@@ -63,13 +63,22 @@ CatalogItem testCatalogItem({
     genres: genres,
     characters: characters,
     storyArcs: storyArcs,
-    creators: creators ?? (kind == 'book' ? const [{'name': 'J.R.R. Tolkien', 'role': 'Author'}] : null),
+    creators: creators ??
+        (kind == 'book'
+            ? const [
+                {'name': 'J.R.R. Tolkien', 'role': 'Author'}
+              ]
+            : null),
     editions: editions,
     series: series,
     video: video,
     music: music,
     game: game,
-    publishing: publishing ?? (kind == 'comic' ? const CatalogPublishingDetails(imprint: 'IDW', subtitle: 'Director Cut') : null),
+    publishing: publishing ??
+        (kind == 'comic'
+            ? const CatalogPublishingDetails(
+                imprint: 'IDW', subtitle: 'Director Cut')
+            : null),
   );
 }
 

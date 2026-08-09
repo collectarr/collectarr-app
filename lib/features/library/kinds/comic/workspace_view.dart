@@ -37,12 +37,12 @@ final comicsMediaAdapter = LibraryMediaAdapter(
   orderedTableColumns: orderedComicTableColumns,
   tableWidthForColumns: comicTableWidthForColumns,
   tableColumnWidth: comicTableColumnWidth,
-  defaultTableColumnWidth: (column) => defaultPlannedMediaTableColumnWidth(
-      comicsLibraryConfig, column),
-  columnLabel: (column) => plannedMediaTableColumnLabelForType(
-      comicsLibraryConfig, column),
-  columnDisplayName: (column) => plannedMediaTableColumnDisplayNameForType(
-      comicsLibraryConfig, column),
+  defaultTableColumnWidth: (column) =>
+      defaultPlannedMediaTableColumnWidth(comicsLibraryConfig, column),
+  columnLabel: (column) =>
+      plannedMediaTableColumnLabelForType(comicsLibraryConfig, column),
+  columnDisplayName: (column) =>
+      plannedMediaTableColumnDisplayNameForType(comicsLibraryConfig, column),
   columnGroup: (column) =>
       plannedMediaTableColumnGroup(comicsLibraryConfig, column),
   columnGroupLabel: plannedMediaTableColumnGroupLabel,

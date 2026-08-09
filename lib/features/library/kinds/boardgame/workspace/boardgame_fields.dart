@@ -35,19 +35,22 @@ abstract final class BoardGameKindSchema {
     getValue: (dto) => dto.releaseDate,
   );
 
-  static final condition = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
+  static final condition =
+      LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
   );
 
-  static final location = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
+  static final location =
+      LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
   );
 
-  static final pricePaid = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
+  static final pricePaid =
+      LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
     id: BoardGameFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
@@ -59,7 +62,8 @@ abstract final class BoardGameKindSchema {
     getValue: (dto) => dto.barcode,
   );
 
-  static final status = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
+  static final status =
+      LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.status,
     label: 'Status',
     getValue: (context) => context.source.isWishlisted
@@ -67,31 +71,36 @@ abstract final class BoardGameKindSchema {
         : (context.source.isOwned ? 'owned' : null),
   );
 
-  static final cover = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
+  static final cover =
+      LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
   );
 
-  static final rating = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
+  static final rating =
+      LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
     id: BoardGameFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
   );
 
-  static final wishlist = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, bool>(
+  static final wishlist =
+      LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, bool>(
     id: BoardGameFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
   );
 
-  static final updatedAt = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
+  static final updatedAt =
+      LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
     id: BoardGameFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
   );
 
-  static final addedAt = LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
+  static final addedAt =
+      LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
     id: BoardGameFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
@@ -124,7 +133,8 @@ final boardGamesLibraryGroupDefinitions = [
 ];
 
 final boardGamesLibrarySortDefinitions = [
-  sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(BoardGameKindSchema.publisher),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(
+      BoardGameKindSchema.publisher),
   LibrarySortDefinition<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameSortIds.status,
     compare: (left, right) {
@@ -139,8 +149,11 @@ final boardGamesLibrarySortDefinitions = [
     },
     label: 'Status',
   ),
-  sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(BoardGameKindSchema.title),
-  sortFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime>(BoardGameKindSchema.releaseDate, defaultAscending: false),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(
+      BoardGameKindSchema.title),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
+      BoardGameKindSchema.releaseDate,
+      defaultAscending: false),
 ];
 
 final boardGamesLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
@@ -163,8 +176,9 @@ final boardgameLibraryColumnDefinitions = [
     id: BoardGameFieldIds.status,
     label: 'Status',
     getValue: BoardGameKindSchema.status.getValue,
-    cellValue: (context) =>
-        Text(context.source.isWishlisted ? 'Wishlist' : (context.source.isOwned ? 'Owned' : '')),
+    cellValue: (context) => Text(context.source.isWishlisted
+        ? 'Wishlist'
+        : (context.source.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -187,8 +201,13 @@ final boardgameLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(BoardGameKindSchema.publisher, defaultWidth: 160),
-  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(BoardGameKindSchema.title, defaultWidth: 260, maxWidth: 520),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+      BoardGameKindSchema.publisher,
+      defaultWidth: 160),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+      BoardGameKindSchema.title,
+      defaultWidth: 260,
+      maxWidth: 520),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
     BoardGameKindSchema.releaseDate,
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
@@ -231,7 +250,8 @@ final boardgameLibraryColumnDefinitions = [
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, int?>(
     BoardGameKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -247,12 +267,14 @@ final boardgameLibraryColumnDefinitions = [
     id: BoardGameFieldIds.rating,
     label: 'Rating',
     getValue: BoardGameKindSchema.rating.getValue,
-    cellValue: (context) => Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) =>
+        Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
 ];
 
-final boardgameLibraryKindSchema = LibraryKindSchema<BoardGameKind, BoardGameWorkspaceDto>(
+final boardgameLibraryKindSchema =
+    LibraryKindSchema<BoardGameKind, BoardGameWorkspaceDto>(
   kindNamespace: 'boardgame',
   fields: boardgameLibraryFieldDefinitions,
   columns: boardgameLibraryColumnDefinitions,

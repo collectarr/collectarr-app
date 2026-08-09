@@ -69,6 +69,7 @@ void main() {
 
     expect(item.common.title, 'The Last Ronin');
     expect(item.common.itemNumber, '1');
-    expect(item.common.seriesTitle, 'Teenage Mutant Ninja Turtles: The Last Ronin');
+    expect(item.common.seriesTitle,
+        'Teenage Mutant Ninja Turtles: The Last Ronin');
   });
 }

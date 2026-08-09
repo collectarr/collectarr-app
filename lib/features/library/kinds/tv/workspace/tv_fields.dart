@@ -42,13 +42,15 @@ abstract final class TvKindSchema {
     getValue: (dto) => dto.releaseDate,
   );
 
-  static final condition = LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
+  static final condition =
+      LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
   );
 
-  static final location = LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
+  static final location =
+      LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
@@ -92,19 +94,22 @@ abstract final class TvKindSchema {
     getValue: (context) => context.source.isWishlisted,
   );
 
-  static final updatedAt = LibraryFieldDefinition<TvKind, TvWorkspaceDto, DateTime>(
+  static final updatedAt =
+      LibraryFieldDefinition<TvKind, TvWorkspaceDto, DateTime>(
     id: TvFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
   );
 
-  static final addedAt = LibraryFieldDefinition<TvKind, TvWorkspaceDto, DateTime?>(
+  static final addedAt =
+      LibraryFieldDefinition<TvKind, TvWorkspaceDto, DateTime?>(
     id: TvFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
   );
 
-  static final watchStatus = LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
+  static final watchStatus =
+      LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.source.ownedItem?.readStatus,
@@ -159,7 +164,8 @@ final tvLibrarySortDefinitions = [
     label: 'Status',
   ),
   sortFromField<TvKind, TvWorkspaceDto, String>(TvKindSchema.title),
-  sortFromField<TvKind, TvWorkspaceDto, DateTime>(TvKindSchema.releaseDate, defaultAscending: false),
+  sortFromField<TvKind, TvWorkspaceDto, DateTime>(TvKindSchema.releaseDate,
+      defaultAscending: false),
 ];
 
 final tvLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
@@ -183,8 +189,9 @@ final tvLibraryColumnDefinitions = [
     id: TvFieldIds.status,
     label: 'Status',
     getValue: TvKindSchema.status.getValue,
-    cellValue: (context) =>
-        Text(context.source.isWishlisted ? 'Wishlist' : (context.source.isOwned ? 'Owned' : '')),
+    cellValue: (context) => Text(context.source.isWishlisted
+        ? 'Wishlist'
+        : (context.source.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -207,9 +214,12 @@ final tvLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  columnFromField<TvKind, TvWorkspaceDto, String?>(TvKindSchema.series, defaultWidth: 160),
-  columnFromField<TvKind, TvWorkspaceDto, String?>(TvKindSchema.title, defaultWidth: 260, maxWidth: 520),
-  columnFromField<TvKind, TvWorkspaceDto, String?>(TvKindSchema.publisher, defaultWidth: 140),
+  columnFromField<TvKind, TvWorkspaceDto, String?>(TvKindSchema.series,
+      defaultWidth: 160),
+  columnFromField<TvKind, TvWorkspaceDto, String?>(TvKindSchema.title,
+      defaultWidth: 260, maxWidth: 520),
+  columnFromField<TvKind, TvWorkspaceDto, String?>(TvKindSchema.publisher,
+      defaultWidth: 140),
   columnFromField<TvKind, TvWorkspaceDto, DateTime?>(
     TvKindSchema.releaseDate,
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
@@ -252,7 +262,8 @@ final tvLibraryColumnDefinitions = [
   ),
   columnFromField<TvKind, TvWorkspaceDto, int?>(
     TvKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -268,7 +279,8 @@ final tvLibraryColumnDefinitions = [
     id: TvFieldIds.rating,
     label: 'Rating',
     getValue: TvKindSchema.rating.getValue,
-    cellValue: (context) => Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) =>
+        Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
 ];

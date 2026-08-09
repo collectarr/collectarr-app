@@ -90,6 +90,11 @@
 - Non-UUID item ID guards on all API call sites (seasons, volumes, bundle releases) to prevent 400/422 from synthetic TMDB-local or composite release IDs
 - Friendly error messages for 401/403/connection errors during CSV import resolution
 
+### ⚡ Architecture & Collection Mutations Simplification
+- Decomposed monolithic `CollectionMutations` into dedicated modular services (`mutations/`, `events/`, `runner/`, `providers/`) for owned items, wishlist, tracking, watch sessions, custom episodes, and metadata overrides
+- Introduced strongly typed Domain Value Objects (`Money`, `OwnedItemId`) and backoff integration with `SyncRetryPolicy`
+- Refactored kind workspace preference codecs, field registry definitions, and workspace presentation adapters across all 9 supported library kinds
+
 ## 🎯 Active Roadmap
 
 ### 🧩 Shared Metadata Editing Contract (Admin + App)

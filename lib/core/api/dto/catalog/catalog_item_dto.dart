@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
@@ -522,6 +524,53 @@ sealed class CatalogItemDto {
   VideoCatalogDetailsDto? get video;
   MusicCatalogDetailsDto? get music;
   GameCatalogDetailsDto? get game;
+
+  CatalogEntityRef catalogRefForAnchor({
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+  }) {
+    final anchor = PersonalItemAnchor.fromRaw(
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
+      return CatalogEntityRef(
+        kind: kind,
+        entityType: CatalogEntityType.work,
+        id: id,
+      );
+    }
+    switch (anchor.type) {
+      case PersonalItemAnchorType.edition:
+        return CatalogEntityRef(
+          kind: kind,
+          entityType: CatalogEntityType.edition,
+          id: anchor.editionId ?? id,
+        );
+      case PersonalItemAnchorType.variant:
+        return CatalogEntityRef(
+          kind: kind,
+          entityType: CatalogEntityType.release,
+          id: anchor.variantId ?? anchor.editionId ?? id,
+        );
+      case PersonalItemAnchorType.bundleRelease:
+        return CatalogEntityRef(
+          kind: kind,
+          entityType: CatalogEntityType.bundleRelease,
+          id: anchor.bundleReleaseId ?? id,
+        );
+      default:
+        return CatalogEntityRef(
+          kind: kind,
+          entityType: CatalogEntityType.work,
+          id: id,
+        );
+    }
+  }
 
   Map<String, dynamic> toSyncPayload() {
     final series = this.series;

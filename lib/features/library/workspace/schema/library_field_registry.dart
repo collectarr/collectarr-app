@@ -79,7 +79,8 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
       String groupId) {
     final definition = findGroupDefinition(groupId);
     if (definition != null) return definition;
-    throw StateError('Missing group definition for $groupId in $kindNamespace.');
+    throw StateError(
+        'Missing group definition for $groupId in $kindNamespace.');
   }
 
   LibraryColumnDefinition<TKind, TDto, Object?>? findColumnDefinition(
@@ -99,8 +100,7 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
     return null;
   }
 
-  LibraryGroupDefinition<TKind, TDto, Object?>? findGroupDefinition(
-      String id) {
+  LibraryGroupDefinition<TKind, TDto, Object?>? findGroupDefinition(String id) {
     final direct = groupDefinitionForId(id);
     if (direct != null) return direct;
     final decoded = preferenceCodec.decodeGroup(id);

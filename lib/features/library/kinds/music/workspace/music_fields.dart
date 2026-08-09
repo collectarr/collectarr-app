@@ -47,25 +47,29 @@ abstract final class MusicKindSchema {
     getValue: (dto) => dto.barcode,
   );
 
-  static final condition = LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
+  static final condition =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
     id: MusicFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
   );
 
-  static final location = LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
+  static final location =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
     id: MusicFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
   );
 
-  static final pricePaid = LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, int?>(
+  static final pricePaid =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, int?>(
     id: MusicFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
   );
 
-  static final status = LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
+  static final status =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
     id: MusicFieldIds.status,
     label: 'Status',
     getValue: (context) => context.source.isWishlisted
@@ -73,31 +77,36 @@ abstract final class MusicKindSchema {
         : (context.source.isOwned ? 'owned' : null),
   );
 
-  static final cover = LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
+  static final cover =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
     id: MusicFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
   );
 
-  static final rating = LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, int?>(
+  static final rating =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, int?>(
     id: MusicFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
   );
 
-  static final wishlist = LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, bool>(
+  static final wishlist =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, bool>(
     id: MusicFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
   );
 
-  static final updatedAt = LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, DateTime>(
+  static final updatedAt =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, DateTime>(
     id: MusicFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
   );
 
-  static final addedAt = LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, DateTime?>(
+  static final addedAt =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, DateTime?>(
     id: MusicFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
@@ -144,7 +153,8 @@ final musicLibraryGroupDefinitions = [
 
 final musicLibrarySortDefinitions = [
   sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.artist),
-  sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.publisher),
+  sortFromField<MusicKind, MusicWorkspaceDto, String>(
+      MusicKindSchema.publisher),
   LibrarySortDefinition<MusicKind, MusicWorkspaceDto>(
     id: MusicSortIds.status,
     compare: (left, right) {
@@ -160,7 +170,9 @@ final musicLibrarySortDefinitions = [
     label: 'Status',
   ),
   sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.title),
-  sortFromField<MusicKind, MusicWorkspaceDto, DateTime>(MusicKindSchema.releaseDate, defaultAscending: false),
+  sortFromField<MusicKind, MusicWorkspaceDto, DateTime>(
+      MusicKindSchema.releaseDate,
+      defaultAscending: false),
 ];
 
 final musicLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
@@ -185,8 +197,9 @@ final musicLibraryColumnDefinitions = [
     id: MusicFieldIds.status,
     label: 'Status',
     getValue: MusicKindSchema.status.getValue,
-    cellValue: (context) =>
-        Text(context.source.isWishlisted ? 'Wishlist' : (context.source.isOwned ? 'Owned' : '')),
+    cellValue: (context) => Text(context.source.isWishlisted
+        ? 'Wishlist'
+        : (context.source.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -209,9 +222,13 @@ final musicLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  columnFromField<MusicKind, MusicWorkspaceDto, String?>(MusicKindSchema.artist, defaultWidth: 160),
-  columnFromField<MusicKind, MusicWorkspaceDto, String?>(MusicKindSchema.title, defaultWidth: 260, maxWidth: 520),
-  columnFromField<MusicKind, MusicWorkspaceDto, String?>(MusicKindSchema.publisher, defaultWidth: 140),
+  columnFromField<MusicKind, MusicWorkspaceDto, String?>(MusicKindSchema.artist,
+      defaultWidth: 160),
+  columnFromField<MusicKind, MusicWorkspaceDto, String?>(MusicKindSchema.title,
+      defaultWidth: 260, maxWidth: 520),
+  columnFromField<MusicKind, MusicWorkspaceDto, String?>(
+      MusicKindSchema.publisher,
+      defaultWidth: 140),
   columnFromField<MusicKind, MusicWorkspaceDto, DateTime?>(
     MusicKindSchema.releaseDate,
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
@@ -258,7 +275,8 @@ final musicLibraryColumnDefinitions = [
   ),
   columnFromField<MusicKind, MusicWorkspaceDto, int?>(
     MusicKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -274,7 +292,8 @@ final musicLibraryColumnDefinitions = [
     id: MusicFieldIds.rating,
     label: 'Rating',
     getValue: MusicKindSchema.rating.getValue,
-    cellValue: (context) => Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) =>
+        Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
 ];

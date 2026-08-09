@@ -342,4 +342,3 @@ extension OwnedItemDetailsToDraft on OwnedItemDetails {
     };
   }
 }
-

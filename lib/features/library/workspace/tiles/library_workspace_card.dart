@@ -835,8 +835,6 @@ String? _metadataFactValue(
   return null;
 }
 
-
-
 String? _compactNotesLabel(String? notes) {
   final trimmed = notes?.trim();
   if (trimmed == null || trimmed.isEmpty) return null;

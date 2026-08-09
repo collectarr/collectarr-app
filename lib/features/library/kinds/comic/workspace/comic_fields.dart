@@ -123,7 +123,8 @@ abstract final class ComicKindSchema {
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, bool>(
     id: ComicFieldIds.keyComic,
     label: 'Key Comic',
-    getValue: (context) => context.source.ownedItem?.comicDetails?.keyComic == true,
+    getValue: (context) =>
+        context.source.ownedItem?.comicDetails?.keyComic == true,
   );
 }
 
@@ -234,7 +235,8 @@ final comicLibraryColumnDefinitions = [
   ),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(ComicKindSchema.series,
       defaultWidth: 160),
-  columnFromField<ComicKind, ComicWorkspaceDto, String?>(ComicKindSchema.title, defaultWidth: 260, maxWidth: 520),
+  columnFromField<ComicKind, ComicWorkspaceDto, String?>(ComicKindSchema.title,
+      defaultWidth: 260, maxWidth: 520),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(
       ComicKindSchema.publisher,
       defaultWidth: 140),

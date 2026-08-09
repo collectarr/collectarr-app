@@ -425,7 +425,8 @@ class _InspectorPersonalDetailsEditorState
             pricePaidCents: Patch.set(price),
             currency: Patch.set(currency.isEmpty ? null : currency),
             personalNotes: Patch.set(_emptyToNull(_notesController.text)),
-            purchaseStore: Patch.set(_emptyToNull(_purchaseStoreController.text)),
+            purchaseStore:
+                Patch.set(_emptyToNull(_purchaseStoreController.text)),
             locationId: _locationChanged
                 ? Patch.set(_selectedLocationId)
                 : const Patch.unchanged(),

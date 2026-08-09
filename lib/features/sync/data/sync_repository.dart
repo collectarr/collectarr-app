@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 import 'package:collectarr_app/features/sync/data/sync_retry_mapper.dart';
+import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,9 +19,10 @@ class SyncRepository {
   SyncRepository(this.ref);
   final Ref ref;
 
+  late final LocalDatabase _db = ref.read(localDatabaseProvider);
+
   Future<int> getPendingCount() async {
-    final db = ref.read(localDatabaseProvider);
-    return SyncQueueRepository(db).pendingCount();
+    return SyncQueueRepository(_db).pendingCount();
   }
 
   Future<DateTime?> getLastSyncedAt() async {
@@ -32,29 +34,29 @@ class SyncRepository {
   }
 
   Future<SyncResult> performSync(String deviceId, DateTime? since) async {
-    final db = ref.read(localDatabaseProvider);
-    final settings = ref.read(connectionSettingsProvider);
+    final settings = ref.mounted
+        ? ref.read(connectionSettingsProvider)
+        : ConnectionSettings();
 
     return SyncApplyService(
       client: CollectarrSyncClient(
         baseUrl: settings.syncBaseUrl,
         syncKey: settings.syncKey,
       ),
-      db: db,
-      queue: SyncQueueRepository(db),
-      catalog: CatalogCacheRepository(db),
-      ownedItems: OwnedItemsCacheRepository(db),
-      trackingEntries: TrackingEntriesCacheRepository(db),
-      wishlistItems: WishlistItemsCacheRepository(db),
+      db: _db,
+      queue: SyncQueueRepository(_db),
+      catalog: CatalogCacheRepository(_db),
+      ownedItems: OwnedItemsCacheRepository(_db),
+      trackingEntries: TrackingEntriesCacheRepository(_db),
+      wishlistItems: WishlistItemsCacheRepository(_db),
     ).syncNow(deviceId, since: since);
   }
 
   Future<bool> keepLocalRejectedChange(SyncRejectedChange change) async {
-    final db = ref.read(localDatabaseProvider);
-    final queue = SyncQueueRepository(db);
+    final queue = SyncQueueRepository(_db);
     return queue.enqueueLocalRetry(
       change,
-      db: db,
+      db: _db,
       changedAt: DateTime.now().toUtc(),
       uuid: const Uuid(),
     );

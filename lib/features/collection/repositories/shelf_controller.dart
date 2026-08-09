@@ -294,8 +294,13 @@ class ShelfEntry extends LibraryEntry {
   List<String> get tagList {
     final raw = ownedItem?.tags?.trim();
     if (raw == null || raw.isEmpty) return const <String>[];
-    return raw.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
+    return raw
+        .split(',')
+        .map((t) => t.trim())
+        .where((t) => t.isNotEmpty)
+        .toList();
   }
+
   String? get ownerLabel => ownedItem?.ownerLabel ?? fallbackOwnerLabel;
   int get quantity => ownedItem?.quantity ?? (isOwned ? 1 : 0);
 }

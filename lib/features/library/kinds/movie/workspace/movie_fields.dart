@@ -35,19 +35,22 @@ abstract final class MovieKindSchema {
     getValue: (dto) => dto.releaseDate,
   );
 
-  static final condition = LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
+  static final condition =
+      LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
   );
 
-  static final location = LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
+  static final location =
+      LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
   );
 
-  static final pricePaid = LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, int?>(
+  static final pricePaid =
+      LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, int?>(
     id: MovieFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
@@ -59,7 +62,8 @@ abstract final class MovieKindSchema {
     getValue: (dto) => dto.barcode,
   );
 
-  static final status = LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
+  static final status =
+      LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.status,
     label: 'Status',
     getValue: (context) => context.source.isWishlisted
@@ -67,31 +71,36 @@ abstract final class MovieKindSchema {
         : (context.source.isOwned ? 'owned' : null),
   );
 
-  static final cover = LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
+  static final cover =
+      LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
   );
 
-  static final rating = LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, int?>(
+  static final rating =
+      LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, int?>(
     id: MovieFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
   );
 
-  static final wishlist = LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, bool>(
+  static final wishlist =
+      LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, bool>(
     id: MovieFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
   );
 
-  static final updatedAt = LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, DateTime>(
+  static final updatedAt =
+      LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, DateTime>(
     id: MovieFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
   );
 
-  static final addedAt = LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, DateTime?>(
+  static final addedAt =
+      LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, DateTime?>(
     id: MovieFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
@@ -103,7 +112,8 @@ abstract final class MovieKindSchema {
     getValue: (dto) => dto.format,
   );
 
-  static final watchStatus = LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
+  static final watchStatus =
+      LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.source.ownedItem?.readStatus,
@@ -155,7 +165,8 @@ final movieLibraryGroupDefinitions = [
 
 final movieLibrarySortDefinitions = [
   sortFromField<MovieKind, MovieWorkspaceDto, String>(MovieKindSchema.director),
-  sortFromField<MovieKind, MovieWorkspaceDto, String>(MovieKindSchema.publisher),
+  sortFromField<MovieKind, MovieWorkspaceDto, String>(
+      MovieKindSchema.publisher),
   LibrarySortDefinition<MovieKind, MovieWorkspaceDto>(
     id: MovieSortIds.status,
     compare: (left, right) {
@@ -171,7 +182,9 @@ final movieLibrarySortDefinitions = [
     label: 'Status',
   ),
   sortFromField<MovieKind, MovieWorkspaceDto, String>(MovieKindSchema.title),
-  sortFromField<MovieKind, MovieWorkspaceDto, DateTime>(MovieKindSchema.releaseDate, defaultAscending: false),
+  sortFromField<MovieKind, MovieWorkspaceDto, DateTime>(
+      MovieKindSchema.releaseDate,
+      defaultAscending: false),
 ];
 
 final movieLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
@@ -196,8 +209,9 @@ final movieLibraryColumnDefinitions = [
     id: MovieFieldIds.status,
     label: 'Status',
     getValue: MovieKindSchema.status.getValue,
-    cellValue: (context) =>
-        Text(context.source.isWishlisted ? 'Wishlist' : (context.source.isOwned ? 'Owned' : '')),
+    cellValue: (context) => Text(context.source.isWishlisted
+        ? 'Wishlist'
+        : (context.source.isOwned ? 'Owned' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -220,15 +234,21 @@ final movieLibraryColumnDefinitions = [
     defaultWidth: 42,
     minWidth: 44,
   ),
-  columnFromField<MovieKind, MovieWorkspaceDto, String?>(MovieKindSchema.director, defaultWidth: 150),
-  columnFromField<MovieKind, MovieWorkspaceDto, String?>(MovieKindSchema.title, defaultWidth: 260, maxWidth: 520),
-  columnFromField<MovieKind, MovieWorkspaceDto, String?>(MovieKindSchema.publisher, defaultWidth: 140),
+  columnFromField<MovieKind, MovieWorkspaceDto, String?>(
+      MovieKindSchema.director,
+      defaultWidth: 150),
+  columnFromField<MovieKind, MovieWorkspaceDto, String?>(MovieKindSchema.title,
+      defaultWidth: 260, maxWidth: 520),
+  columnFromField<MovieKind, MovieWorkspaceDto, String?>(
+      MovieKindSchema.publisher,
+      defaultWidth: 140),
   columnFromField<MovieKind, MovieWorkspaceDto, DateTime?>(
     MovieKindSchema.releaseDate,
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
     defaultWidth: 118,
   ),
-  columnFromField<MovieKind, MovieWorkspaceDto, String?>(MovieKindSchema.format, defaultWidth: 90),
+  columnFromField<MovieKind, MovieWorkspaceDto, String?>(MovieKindSchema.format,
+      defaultWidth: 90),
   LibraryColumnDefinition<MovieKind, MovieWorkspaceDto, bool>(
     id: MovieFieldIds.wishlist,
     label: 'Wishlist',
@@ -266,7 +286,8 @@ final movieLibraryColumnDefinitions = [
   ),
   columnFromField<MovieKind, MovieWorkspaceDto, int?>(
     MovieKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -282,7 +303,8 @@ final movieLibraryColumnDefinitions = [
     id: MovieFieldIds.rating,
     label: 'Rating',
     getValue: MovieKindSchema.rating.getValue,
-    cellValue: (context) => Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) =>
+        Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
 ];

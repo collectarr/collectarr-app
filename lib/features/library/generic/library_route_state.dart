@@ -154,8 +154,11 @@ class LibraryRouteState {
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final allowedSortColumns =
-        libraryKindModuleForType(type).fields.sorts.map((d) => d.id.value).toSet();
+    final allowedSortColumns = libraryKindModuleForType(type)
+        .fields
+        .sorts
+        .map((d) => d.id.value)
+        .toSet();
     final filteredSortRules = sortRules == null
         ? null
         : [

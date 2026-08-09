@@ -174,15 +174,21 @@ Future<void> addLibraryItemsToTarget({
           ),
           details: switch (item.kind?.trim().toLowerCase()) {
             'comic' || 'manga' => ComicOwnedDetailsDraft(
-                rawOrSlabbed: isDigitalOwnedItem ? null : ownedDetails?.rawOrSlabbed,
-                gradingCompany: isDigitalOwnedItem ? null : ownedDetails?.gradingCompany,
-                graderNotes: isDigitalOwnedItem ? null : ownedDetails?.graderNotes,
+                rawOrSlabbed:
+                    isDigitalOwnedItem ? null : ownedDetails?.rawOrSlabbed,
+                gradingCompany:
+                    isDigitalOwnedItem ? null : ownedDetails?.gradingCompany,
+                graderNotes:
+                    isDigitalOwnedItem ? null : ownedDetails?.graderNotes,
                 signedBy: isDigitalOwnedItem ? null : ownedDetails?.signedBy,
                 labelType: isDigitalOwnedItem ? null : ownedDetails?.labelType,
-                certificationNumber: isDigitalOwnedItem ? null : ownedDetails?.certificationNumber,
+                certificationNumber: isDigitalOwnedItem
+                    ? null
+                    : ownedDetails?.certificationNumber,
                 keyComic: ownedDetails?.keyComic ?? false,
                 keyReason: ownedDetails?.keyReason,
-                coverPriceCents: isDigitalOwnedItem ? null : ownedDetails?.coverPriceCents,
+                coverPriceCents:
+                    isDigitalOwnedItem ? null : ownedDetails?.coverPriceCents,
               ),
             _ => const GenericOwnedDetailsDraft(),
           },

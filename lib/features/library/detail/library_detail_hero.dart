@@ -112,7 +112,8 @@ class LibraryDetailHero extends StatelessWidget {
         ),
     ];
     final creatorsList = item.source.catalogItem?.creators ?? const [];
-    final authorName = creatorsList.isEmpty ? null : creatorsList.first['name'] as String?;
+    final authorName =
+        creatorsList.isEmpty ? null : creatorsList.first['name'] as String?;
 
     return Container(
       decoration: BoxDecoration(
@@ -188,12 +189,17 @@ class LibraryDetailHero extends StatelessWidget {
               ),
             ],
           ),
-          if (authorName != null || (item.source.catalogItem?.creators ?? const []).isNotEmpty) ...[
+          if (authorName != null ||
+              (item.source.catalogItem?.creators ?? const []).isNotEmpty) ...[
             const SizedBox(height: 20),
             BookAuthorSpotlight(
-              creators: (item.source.catalogItem?.creators ?? const []).isNotEmpty
-                  ? (item.source.catalogItem?.creators ?? const [])
-                  : [if (authorName != null) {'name': authorName, 'role': 'Author'}],
+              creators:
+                  (item.source.catalogItem?.creators ?? const []).isNotEmpty
+                      ? (item.source.catalogItem?.creators ?? const [])
+                      : [
+                          if (authorName != null)
+                            {'name': authorName, 'role': 'Author'}
+                        ],
               accent: accent,
             ),
           ],

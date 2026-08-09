@@ -89,7 +89,8 @@ class LibraryBulkActions {
       );
       await mutations.addOwnedItem(
         addCmd,
-        notify: index == entriesToOwn.length - 1 || index == lastWishlistedIndex,
+        notify:
+            index == entriesToOwn.length - 1 || index == lastWishlistedIndex,
       );
     }
   }

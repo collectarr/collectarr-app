@@ -510,8 +510,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   LibrarySortRule _defaultRule() {
-    final column =
-        libraryKindModuleForType(widget.type).fields.defaultSortId;
+    final column = libraryKindModuleForType(widget.type).fields.defaultSortId;
     return LibrarySortRule(
       column: column,
       ascending: _defaultAscending(column),

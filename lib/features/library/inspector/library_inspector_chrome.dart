@@ -120,12 +120,16 @@ class InspectorActionBar extends StatelessWidget {
               icon: (dto.isOwned || item.source.ownedItem != null)
                   ? Icons.check_circle_outline
                   : Icons.inventory_2_outlined,
-              label: (dto.isOwned || item.source.ownedItem != null) ? 'Owned' : 'Catalog only',
+              label: (dto.isOwned || item.source.ownedItem != null)
+                  ? 'Owned'
+                  : 'Catalog only',
               foreground: palette.textPrimary,
               background: palette.surface,
               borderColor: palette.divider,
             ),
-            if (dto.isWishlisted || item.source.wishlistItem != null || onToggleWishlist != null)
+            if (dto.isWishlisted ||
+                item.source.wishlistItem != null ||
+                onToggleWishlist != null)
               LibraryStatusChip(
                 icon: Icons.star,
                 label: 'Wish list',
