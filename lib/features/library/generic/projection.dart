@@ -20,6 +20,15 @@ import 'package:flutter/material.dart';
 
 export 'projection_item.dart';
 export 'quick_view.dart';
+export 'projection/library_filter_engine.dart';
+export 'projection/library_folder_tree_builder.dart';
+export 'projection/library_grouping_engine.dart';
+export 'projection/library_projection_engine.dart';
+export 'projection/library_projection_index.dart';
+export 'projection/library_projection_query.dart';
+export 'projection/library_search_index.dart';
+export 'projection/library_series_gap_analyzer.dart';
+export 'projection/library_toolbar_stats_calculator.dart';
 
 part 'projection_service.dart';
 
