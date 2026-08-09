@@ -39,7 +39,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ? const <OwnedItem>[]
             : <OwnedItem>[ownedItem!];
     final paid = formatMoney(
-      ownedItem?.pricePaidCents ?? dto.pricePaidCents,
+      ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
       ownedItem?.currency ?? dto.currency,
     );
     final currentValue = formatMoney(
@@ -90,16 +90,16 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             LibraryDetailField(
                 label: 'Condition',
                 value:
-                    genericLibraryDash(ownedItem?.condition ?? dto.condition)),
+                    genericLibraryDash(ownedItem?.condition ?? item.source.condition)),
             LibraryDetailField(
                 label: 'Grade',
-                value: genericLibraryDash(ownedItem?.grade ?? dto.grade)),
+                value: genericLibraryDash(ownedItem?.grade ?? item.source.grade)),
             LibraryDetailField(
                 label: 'Quantity',
                 value:
                     ownedItem == null ? '-' : ownedItem!.quantity.toString()),
             LibraryDetailField(
-                label: 'Location', value: genericLibraryDash(dto.locationPath)),
+                label: 'Location', value: genericLibraryDash(item.source.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
             LibraryDetailField(
                 label: 'Current value',

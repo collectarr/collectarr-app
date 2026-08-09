@@ -13,30 +13,15 @@ abstract interface class LibraryWorkspaceDto {
   String? get itemNumber;
   String? get publisher;
   DateTime? get releaseDate;
-  bool get isOwned;
-  bool get isWishlisted;
-  bool get isTracked;
-
-  String? get condition;
-  String? get locationPath;
-  int? get rating;
-  int? get pricePaidCents;
-  DateTime? get addedAt;
-  DateTime get updatedAt;
-  String? get tags;
-  String? get collectionStatus;
-  String? get notes;
 
   String? get variant;
   String? get barcode;
-  String? get grade;
   String? get country;
   String? get language;
   String? get currency;
   String? get referenceFormatLabel;
   String? get format;
   String? get coverImageUrl;
-  int? get marketValueCents;
   String? get creator;
   String? get synopsis;
   String? get audienceRating;

@@ -626,7 +626,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return false;
     }
     return projection.filteredItems.any(
-      (item) => _selection.itemIds.contains(item.node.id) && !item.dto.isOwned,
+      (item) => _selection.itemIds.contains(item.node.id) && !item.source.isOwned,
     );
   }
 
@@ -638,7 +638,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _selection.itemIds.contains(item.node.id) && !item.dto.isWishlisted,
+          _selection.itemIds.contains(item.node.id) && !item.source.isWishlisted,
     );
   }
 
@@ -650,7 +650,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       (item) =>
           _selection.itemIds.contains(item.node.id) &&
           (item.source.ownedItem?.id != null ||
-              item.dto.isWishlisted ||
+              item.source.isWishlisted ||
               item.source.trackingEntry != null),
     );
   }
@@ -683,7 +683,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       projection,
     )) {
       final ownedItem = item.source.ownedItem;
-      final status = item.dto.collectionStatus?.trim().toLowerCase();
+      final status = item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
       if (ownedItem?.isSold == true) {
         soldCount += 1;
         continue;

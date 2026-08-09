@@ -282,15 +282,15 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
       if (dto.barcode?.trim().isNotEmpty == true) ('Barcode', dto.barcode!),
       if (catalogItem?.genres?.isNotEmpty == true)
         ('Genres', catalogItem!.genres!.join(', ')),
-      if (dto.tags?.trim().isNotEmpty == true) ('Tags', dto.tags!),
+      if (item.source.tags?.trim().isNotEmpty == true) ('Tags', item.source.tags!),
     ];
     final personalRows = <(String, String)>[
       if (owned?.condition?.trim().isNotEmpty == true)
         ('Condition', owned!.condition!),
-      if (dto.collectionStatus?.trim().isNotEmpty == true)
-        ('Collection status', dto.collectionStatus!),
-      if (dto.locationPath?.trim().isNotEmpty == true)
-        ('Location', dto.locationPath!),
+      if (item.source.ownedItem?.collectionStatus?.trim().isNotEmpty == true)
+        ('Collection status', item.source.ownedItem!.collectionStatus!),
+      if (item.source.locationPath?.trim().isNotEmpty == true)
+        ('Location', item.source.locationPath!),
       if (owned?.typedDetails is MusicOwnedDetails &&
           (owned!.typedDetails as MusicOwnedDetails)
                   .storageDevice
@@ -321,8 +321,9 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Purchase date', formatDate(owned!.purchaseDate!)),
       if (owned?.purchaseStore?.trim().isNotEmpty == true)
         ('Purchase store', owned!.purchaseStore!),
-      if (dto.addedAt != null) ('Added', formatDate(dto.addedAt!)),
-      ('Modified', formatDate(dto.updatedAt)),
+      if (item.source.ownedItem?.createdAt != null)
+        ('Added', formatDate(item.source.ownedItem!.createdAt!)),
+      ('Modified', formatDate(item.source.updatedAt)),
     ];
     final creditRows = libraryCreatorsGroupedByRole(catalogItem?.creators);
 

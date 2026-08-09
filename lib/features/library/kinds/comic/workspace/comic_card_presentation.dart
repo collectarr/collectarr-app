@@ -28,11 +28,11 @@ LibraryCardPresentation buildComicCardPresentation(
   if (comicDetails?.rawOrSlabbed != null ||
       comicDetails?.gradingCompany != null ||
       comicDetails?.labelType != null ||
-      item.dto.grade != null) {
+      item.source.grade != null) {
     overlay = (child) => SlabFrameOverlay.maybeWrap(
           rawOrSlabbed: comicDetails?.rawOrSlabbed,
           gradingCompany: comicDetails?.gradingCompany,
-          grade: item.dto.grade,
+          grade: item.source.grade,
           labelType: comicDetails?.labelType,
           child: child,
         );

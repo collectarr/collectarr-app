@@ -203,12 +203,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       trackingEntries,
       activeOwnedItem,
     );
-    final onToggleOwned = selected.dto.isOwned
+    final onToggleOwned = selected.source.isOwned
         ? activeOwnedItem == null
             ? widget.onRemoveOwned
             : () => _removeOwnedCopy(activeOwnedItem)
         : widget.onAddOwned;
-    final onToggleWishlist = selected.dto.isWishlisted
+    final onToggleWishlist = selected.source.isWishlisted
         ? widget.onRemoveWishlist
         : widget.onAddWishlist;
     final onEdit =
@@ -256,7 +256,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           item: selected,
           ownedItem: activeOwnedItem,
           accent: widget.accent,
-          onAddOwned: selected.dto.isOwned
+          onAddOwned: selected.source.isOwned
               ? () => _addOwnedCopy(
                     selected,
                     ownedItem: activeOwnedItem,

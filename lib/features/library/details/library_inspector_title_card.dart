@@ -12,14 +12,13 @@ class LibraryEntryStatusDescriptor {
 LibraryEntryStatusDescriptor libraryEntryStatusDescriptor(
   LibraryProjectionRuntime item,
 ) {
-  final dto = item.dto;
-  if (dto.isOwned) {
+  if (item.source.isOwned) {
     return const LibraryEntryStatusDescriptor(
       icon: Icons.inventory_2_outlined,
       label: 'In collection',
     );
   }
-  if (dto.isWishlisted) {
+  if (item.source.isWishlisted) {
     return const LibraryEntryStatusDescriptor(
       icon: Icons.star_border,
       label: 'Wishlist',

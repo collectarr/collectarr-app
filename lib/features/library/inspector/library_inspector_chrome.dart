@@ -117,17 +117,17 @@ class InspectorActionBar extends StatelessWidget {
                   ),
             ),
             LibraryStatusChip(
-              icon: (dto.isOwned || item.source.ownedItem != null)
+              icon: (item.source.isOwned || item.source.ownedItem != null)
                   ? Icons.check_circle_outline
                   : Icons.inventory_2_outlined,
-              label: (dto.isOwned || item.source.ownedItem != null)
+              label: (item.source.isOwned || item.source.ownedItem != null)
                   ? 'Owned'
                   : 'Catalog only',
               foreground: palette.textPrimary,
               background: palette.surface,
               borderColor: palette.divider,
             ),
-            if (dto.isWishlisted ||
+            if (item.source.isWishlisted ||
                 item.source.wishlistItem != null ||
                 onToggleWishlist != null)
               LibraryStatusChip(
@@ -138,24 +138,24 @@ class InspectorActionBar extends StatelessWidget {
                 borderColor: palette.divider,
               ),
             _InspectorActionPillButton(
-              tooltip: dto.isOwned
+              tooltip: item.source.isOwned
                   ? 'Remove from collection'
-                  : dto.isWishlisted
+                  : item.source.isWishlisted
                       ? 'Convert wishlist to collection'
                       : 'Add to collection',
               onPressed: onToggleOwned,
-              icon: dto.isOwned
+              icon: item.source.isOwned
                   ? Icons.remove_circle_outline
                   : Icons.add_circle_outline,
-              label: dto.isOwned ? 'Remove' : 'Collect',
+              label: item.source.isOwned ? 'Remove' : 'Collect',
             ),
             _InspectorActionPillButton(
-              tooltip: dto.isWishlisted
+              tooltip: item.source.isWishlisted
                   ? 'Remove from wishlist'
                   : 'Move to wishlist',
               onPressed: onToggleWishlist,
-              icon: dto.isWishlisted ? Icons.star : Icons.star_border,
-              label: dto.isWishlisted ? 'Unwish' : 'Wishlist',
+              icon: item.source.isWishlisted ? Icons.star : Icons.star_border,
+              label: item.source.isWishlisted ? 'Unwish' : 'Wishlist',
             ),
             _InspectorActionPillButton(
               tooltip: 'Open details',
@@ -327,11 +327,11 @@ class InspectorUnifiedToolbar extends StatelessWidget {
               ),
             if (!compactActions && onToggleOwned != null)
               InspectorToolIconButton(
-                tooltip: dto.isOwned
+                tooltip: item.source.isOwned
                     ? 'Remove from collection'
                     : 'Add to collection',
                 onPressed: onToggleOwned,
-                icon: dto.isOwned
+                icon: item.source.isOwned
                     ? Icons.delete_outline
                     : Icons.add_circle_outline,
               ),
@@ -371,11 +371,11 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                       child: ListTile(
                         dense: true,
                         leading: Icon(
-                          dto.isOwned
+                          item.source.isOwned
                               ? Icons.delete_outline
                               : Icons.add_circle_outline,
                         ),
-                        title: Text(dto.isOwned ? 'Remove' : 'Collect'),
+                        title: Text(item.source.isOwned ? 'Remove' : 'Collect'),
                       ),
                     ),
                   ),

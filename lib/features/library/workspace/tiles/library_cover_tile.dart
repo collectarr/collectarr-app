@@ -17,14 +17,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 LibraryCollectionStatusScope resolveLibraryCollectionStatusScope(
   LibraryProjectionRuntime item,
 ) {
-  final dto = item.dto;
-  final status = dto.collectionStatus?.trim().toLowerCase();
+  final status = item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
   return switch (status) {
     'sold' => LibraryCollectionStatusScope.sold,
     'for_sale' => LibraryCollectionStatusScope.forSale,
     'on_order' => LibraryCollectionStatusScope.onOrder,
-    _ when dto.isOwned => LibraryCollectionStatusScope.inCollection,
-    _ when dto.isWishlisted => LibraryCollectionStatusScope.wishList,
+    _ when item.source.isOwned => LibraryCollectionStatusScope.inCollection,
+    _ when item.source.isWishlisted => LibraryCollectionStatusScope.wishList,
     _ => LibraryCollectionStatusScope.notInCollection,
   };
 }
@@ -269,10 +268,10 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
           icon: Icons.manage_search,
           label: 'Missing metadata',
         ),
-      if (dto.grade?.trim().isNotEmpty == true)
+      if (item.source.grade?.trim().isNotEmpty == true)
         LibraryCoverBadge(
           icon: Icons.star_rate,
-          label: 'Grade ${dto.grade!.trim()}',
+          label: 'Grade ${item.source.grade!.trim()}',
         ),
       if (libraryHierarchyContractDiagnosticLabel(item) case final label?)
         LibraryCoverBadge(

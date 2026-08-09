@@ -227,7 +227,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
   }) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final gradeLabel = dto.grade?.trim();
+    final gradeLabel = item.source.grade?.trim();
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -285,9 +285,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               left: 4,
                               top: 4,
                               child: LibraryCoverBadges(
-                                isOwned: item.dto.isOwned,
-                                isTracked: item.dto.isTracked,
-                                isWishlisted: item.dto.isWishlisted,
+                                isOwned: item.source.isOwned,
+                                isTracked: item.source.isTracked,
+                                isWishlisted: item.source.isWishlisted,
                                 hasMissingCover:
                                     item.dto.coverImageUrl == null ||
                                         item.dto.coverImageUrl!.isEmpty,
@@ -305,7 +305,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                         : 'Grade $gradeLabel',
                                 slabLabel: _coverSlabLabel(presentation),
                                 notesLabel:
-                                    libraryNotesMarkerLabel(item.dto.notes),
+                                    libraryNotesMarkerLabel(item.source.personalNotes),
                               ),
                             ),
                           ],
@@ -390,16 +390,16 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: 'Format: ${item.dto.format!}',
                                     accentColor: accentColor,
                                   ),
-                                if (item.dto.grade != null)
+                                if (item.source.grade != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.workspace_premium,
-                                    label: item.dto.grade!,
+                                    label: item.source.grade!,
                                     accentColor: accentColor,
                                   ),
-                                if (item.dto.condition != null)
+                                if (item.source.condition != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.fact_check_outlined,
-                                    label: item.dto.condition!,
+                                    label: item.source.condition!,
                                     accentColor: accentColor,
                                   ),
                                 if (_metadataFactValue(
@@ -434,7 +434,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: releaseStatus,
                                     accentColor: accentColor,
                                   ),
-                                if (_compactNotesLabel(item.dto.notes)
+                                if (_compactNotesLabel(item.source.personalNotes)
                                     case final noteLabel?)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.sticky_note_2_outlined,
@@ -447,22 +447,22 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: badge,
                                     accentColor: accentColor,
                                   ),
-                                if (item.dto.locationPath != null)
+                                if (item.source.locationPath != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.inventory_2_outlined,
-                                    label: item.dto.locationPath!,
+                                    label: item.source.locationPath!,
                                     accentColor: accentColor,
                                   ),
-                                if (item.dto.pricePaidCents != null)
+                                if (item.source.pricePaidCents != null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.attach_money,
                                     label: moneyFormatter(
-                                      item.dto.pricePaidCents,
-                                      item.dto.currency,
+                                      item.source.pricePaidCents,
+                                      item.source.currency,
                                     ),
                                     accentColor: accentColor,
                                   ),
-                                if (item.dto.isWishlisted)
+                                if (item.source.isWishlisted)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.star,
                                     label: 'Wishlist',
@@ -561,7 +561,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         item.dto.publisher,
     ].whereType<String>().join('  |  ');
     final support = [
-      if (item.dto.grade != null) item.dto.grade!,
+      if (item.source.grade != null) item.source.grade!,
       if (_metadataFactValue(_metadataPresentationForEntry(item), 'Runtime')
           case final runtime?)
         runtime,
@@ -617,9 +617,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               left: 6,
                               top: 6,
                               child: LibraryCoverBadges(
-                                isOwned: item.dto.isOwned,
-                                isTracked: item.dto.isTracked,
-                                isWishlisted: item.dto.isWishlisted,
+                                isOwned: item.source.isOwned,
+                                isTracked: item.source.isTracked,
+                                isWishlisted: item.source.isWishlisted,
                                 hasMissingCover:
                                     item.dto.coverImageUrl == null ||
                                         item.dto.coverImageUrl!.isEmpty,
@@ -633,7 +633,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 keyLabel: _coverKeyLabel(presentation),
                                 slabLabel: _coverSlabLabel(presentation),
                                 notesLabel:
-                                    libraryNotesMarkerLabel(item.dto.notes),
+                                    libraryNotesMarkerLabel(item.source.personalNotes),
                               ),
                             ),
                           ],

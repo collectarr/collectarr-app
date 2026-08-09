@@ -179,33 +179,6 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   @override
   String? get coverImageUrl => common.coverImageUrl;
 
-  // Delegated LibraryWorkspaceDto getters from PersonalCopyProjection:
-  @override
-  bool get isOwned => personal.isOwned;
-  @override
-  bool get isWishlisted => personal.isWishlisted;
-  @override
-  bool get isTracked => personal.isTracked;
-  @override
-  String? get condition => personal.condition;
-  @override
-  String? get locationPath => personal.locationPath;
-  @override
-  int? get rating => personal.rating;
-  @override
-  int? get pricePaidCents => personal.pricePaidCents;
-  @override
-  DateTime? get addedAt => personal.addedAt;
-  @override
-  DateTime get updatedAt => personal.updatedAt;
-  @override
-  String? get tags => personal.tags;
-  @override
-  String? get collectionStatus => personal.collectionStatus;
-  @override
-  String? get notes => personal.notes;
-  @override
-  int? get marketValueCents => null;
   @override
   String? get creator => publisher;
   @override

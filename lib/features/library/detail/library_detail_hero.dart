@@ -31,7 +31,7 @@ class LibraryDetailHero extends StatelessWidget {
     final palette = appPalette(context);
     final dto = item.dto;
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(item, ownedItem);
-    final resolvedIsOwned = isOwned ?? (ownedItem != null || dto.isOwned);
+    final resolvedIsOwned = isOwned ?? (ownedItem != null || item.source.isOwned);
     final referenceLabel = libraryOwnedReferenceLabel(ownedItem,
             mediaType: item.source.catalogItem?.kind) ??
         dto.referenceFormatLabel;
@@ -71,7 +71,7 @@ class LibraryDetailHero extends StatelessWidget {
         (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
       (
         label: 'Updated',
-        value: formatNullableDate(ownedItem?.updatedAt ?? dto.updatedAt) ?? '-',
+        value: formatNullableDate(ownedItem?.updatedAt ?? item.source.updatedAt) ?? '-',
       ),
     ];
     final primaryChips = <Widget>[
@@ -83,7 +83,7 @@ class LibraryDetailHero extends StatelessWidget {
             .withValues(alpha: palette.isDark ? 0.42 : 0.72),
         borderColor: palette.divider.withValues(alpha: 0.9),
       ),
-      if (dto.isWishlisted)
+      if (item.source.isWishlisted)
         LibraryInfoChip(
           icon: Icons.star,
           label: 'Wishlisted',

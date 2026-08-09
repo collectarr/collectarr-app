@@ -69,13 +69,13 @@ String genericLibraryStatusLabel(LibraryProjectionRuntime item) {
           ?.presentation
           .statusLabels ??
       const LibraryStatusLabels();
-  if (item.dto.isOwned) {
+  if (item.source.isOwned) {
     return labels.owned;
   }
-  if (item.dto.isTracked) {
+  if (item.source.isTracked) {
     return labels.tracked;
   }
-  if (item.dto.isWishlisted) {
+  if (item.source.isWishlisted) {
     return labels.wishlist;
   }
   return labels.localCatalog;

@@ -105,7 +105,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     );
     final isOwned = ownedCopies.isNotEmpty ||
         activeOwnedItem != null ||
-        widget.item.dto.isOwned;
+        widget.item.source.isOwned;
     final palette = appPalette(context);
     return Theme(
       data: buildLibraryTheme(palette: palette),
@@ -142,7 +142,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                           ownedItem: activeOwnedItem,
                         )
                     : null,
-                onToggleWishlist: widget.item.dto.isWishlisted
+                onToggleWishlist: widget.item.source.isWishlisted
                     ? widget.onRemoveWishlist
                     : widget.onAddWishlist,
                 onSearchOnEbay: () => _searchOnEbay(widget.item),
@@ -277,7 +277,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
     final palette = appPalette(context);
     final hasCopyMenu = ownedCopies.length > 1 && onSelectOwnedItem != null;
     final isOwned =
-        ownedCopies.isNotEmpty || activeOwnedItem != null || item.dto.isOwned;
+        ownedCopies.isNotEmpty || activeOwnedItem != null || item.source.isOwned;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -375,12 +375,12 @@ class _LibraryDetailToolbar extends StatelessWidget {
                       icon: Icons.copy_outlined,
                     ),
                   LibraryDenseMenuEntry<String>(
-                    value: item.dto.isWishlisted ? 'unwishlist' : 'wishlist',
-                    label: item.dto.isWishlisted
+                    value: item.source.isWishlisted ? 'unwishlist' : 'wishlist',
+                    label: item.source.isWishlisted
                         ? 'Remove from wishlist'
                         : 'Move to wishlist',
                     icon:
-                        item.dto.isWishlisted ? Icons.star : Icons.star_border,
+                        item.source.isWishlisted ? Icons.star : Icons.star_border,
                   ),
                   if (onAssignFolders != null)
                     const LibraryDenseMenuEntry<String>(

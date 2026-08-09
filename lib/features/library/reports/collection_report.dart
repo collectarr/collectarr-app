@@ -35,8 +35,8 @@ enum ReportColumn {
       ReportColumn.title => dto.title,
       ReportColumn.series => dto.seriesTitle ?? '',
       ReportColumn.issue => dto.itemNumber ?? '',
-      ReportColumn.condition => dto.condition ?? '',
-      ReportColumn.grade => dto.grade ?? '',
+      ReportColumn.condition => item.source.condition ?? '',
+      ReportColumn.grade => item.source.grade ?? '',
       ReportColumn.publisher => dto.publisher ?? '',
       ReportColumn.barcode => dto.barcode ?? '',
       ReportColumn.barcodeImage => dto.barcode ?? '',
@@ -44,8 +44,8 @@ enum ReportColumn {
       ReportColumn.format =>
         cat?.editions.firstOrNull?.physicalFormatLabel ?? '',
       ReportColumn.creator => dto.creator ?? '',
-      ReportColumn.tags => dto.tags ?? '',
-      ReportColumn.location => dto.locationPath ?? '',
+      ReportColumn.tags => item.source.tags ?? '',
+      ReportColumn.location => item.source.locationPath ?? '',
     };
   }
 }

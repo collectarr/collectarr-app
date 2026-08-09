@@ -109,10 +109,10 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
       if (dto.variant?.trim().isNotEmpty == true) dto.variant!.trim(),
     ];
     final subtitleLabel = subtitleParts.join(' • ');
-    final isOwned = dto.isOwned || ownedItem != null;
+    final isOwned = item.source.isOwned || ownedItem != null;
     final statusLabel = isOwned
         ? 'Owned'
-        : dto.isWishlisted
+        : item.source.isWishlisted
             ? 'Wishlist'
             : 'Not owned';
     final synopsis = dto.synopsis?.trim().isNotEmpty == true
@@ -312,7 +312,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                   value: statusLabel,
                   icon: _ComicCollectionStatusIcon(
                     owned: isOwned,
-                    wishlisted: dto.isWishlisted,
+                    wishlisted: item.source.isWishlisted,
                     accent: request.accent,
                     muted: muted,
                   ),

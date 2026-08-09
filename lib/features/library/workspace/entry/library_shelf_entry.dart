@@ -41,7 +41,7 @@ final class GroupShelfEntry extends ShelfPresentationEntry {
 
   int get count => items.length;
 
-  int get ownedCount => items.where((item) => item.dto.isOwned).length;
+  int get ownedCount => items.where((item) => item.source.isOwned).length;
 }
 
 final class FolderShelfEntry extends ShelfPresentationEntry {

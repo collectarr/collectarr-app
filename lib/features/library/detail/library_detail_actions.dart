@@ -37,7 +37,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isOwned =
-        ownedCopies.isNotEmpty || activeOwnedItem != null || item.dto.isOwned;
+        ownedCopies.isNotEmpty || activeOwnedItem != null || item.source.isOwned;
     final removeLabel = ownedCopies.length > 1
         ? 'Remove selected copy'
         : 'Remove ${type.singularLabel.toLowerCase()}';
@@ -87,7 +87,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
                 isOwned ? 'Add another copy' : 'Add to collection',
               ),
             ),
-            if (item.dto.isWishlisted)
+            if (item.source.isWishlisted)
               OutlinedButton.icon(
                 onPressed: onRemoveWishlist,
                 icon: const Icon(Icons.star),

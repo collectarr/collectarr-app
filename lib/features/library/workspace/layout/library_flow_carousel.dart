@@ -687,9 +687,9 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                         left: 8,
                         top: 8,
                         child: LibraryCoverBadges(
-                          isOwned: dto.isOwned,
-                          isTracked: dto.isTracked,
-                          isWishlisted: dto.isWishlisted,
+                          isOwned: widget.item.source.isOwned,
+                          isTracked: widget.item.source.isTracked,
+                          isWishlisted: widget.item.source.isWishlisted,
                           hasMissingCover: dto.coverImageUrl == null ||
                               dto.coverImageUrl!.isEmpty,
                           hasMissingMetadata:
@@ -697,7 +697,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           contractDiagnosticLabel:
                               libraryHierarchyContractDiagnosticLabel(
                                   widget.item),
-                          notesLabel: libraryNotesMarkerLabel(dto.notes),
+                          notesLabel: libraryNotesMarkerLabel(widget.item.source.personalNotes),
                         ),
                       ),
                       if (showEditButton)

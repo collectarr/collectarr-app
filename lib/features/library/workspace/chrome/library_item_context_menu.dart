@@ -99,7 +99,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
                 Icons.compare_arrows,
                 'Compare metadata with server...',
               ),
-            if (item.dto.isOwned)
+            if (item.source.isOwned)
               _item(
                 context,
                 LibraryItemContextAction.duplicate,
@@ -108,12 +108,12 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               ),
             const PopupMenuDivider(),
             _header('Collection', accent),
-            if (!item.dto.isOwned)
+            if (!item.source.isOwned)
               _item(
                 context,
                 LibraryItemContextAction.addToOwned,
                 Icons.add_circle_outline,
-                item.dto.isWishlisted
+                item.source.isWishlisted
                     ? 'Convert wishlist to collection'
                     : 'Add to collection',
               )
@@ -125,7 +125,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
                 'Remove from collection',
                 destructive: true,
               ),
-            if (!item.dto.isWishlisted)
+            if (!item.source.isWishlisted)
               _item(
                 context,
                 LibraryItemContextAction.addToWishlist,
@@ -139,7 +139,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
                 Icons.star_outline,
                 'Remove from wishlist',
               ),
-            if (item.dto.isTracked && !item.dto.isOwned)
+            if (item.source.isTracked && !item.source.isOwned)
               _item(
                 context,
                 LibraryItemContextAction.removeTracking,

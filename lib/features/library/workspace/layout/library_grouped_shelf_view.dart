@@ -376,7 +376,7 @@ class LibraryGroupFolderTile extends ConsumerWidget {
     final ownedSeasonCount = group.items
         .where(
           (item) =>
-              item.dto.isOwned &&
+              item.source.isOwned &&
               (item.dto.itemNumber
                       ?.trim()
                       .toLowerCase()

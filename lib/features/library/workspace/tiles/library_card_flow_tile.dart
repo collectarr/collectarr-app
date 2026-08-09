@@ -123,9 +123,9 @@ class LibraryCardFlowTile extends StatelessWidget {
                           left: 4,
                           top: 4,
                           child: LibraryCoverBadges(
-                            isOwned: dto.isOwned,
-                            isTracked: dto.isTracked,
-                            isWishlisted: dto.isWishlisted,
+                            isOwned: item.source.isOwned,
+                            isTracked: item.source.isTracked,
+                            isWishlisted: item.source.isWishlisted,
                             hasMissingCover: dto.coverImageUrl == null ||
                                 dto.coverImageUrl!.isEmpty,
                             hasMissingMetadata:
@@ -137,7 +137,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             extraImageCount: item.source.itemImages.length,
                             contractDiagnosticLabel:
                                 libraryHierarchyContractDiagnosticLabel(item),
-                            notesLabel: libraryNotesMarkerLabel(dto.notes),
+                            notesLabel: libraryNotesMarkerLabel(item.source.personalNotes),
                           ),
                         ),
                       ],
@@ -227,10 +227,10 @@ class LibraryCardFlowTile extends StatelessWidget {
                           children: [
                             _cardScopeBadge(context, item),
                             const Spacer(),
-                            if (dto.condition != null &&
-                                dto.condition!.isNotEmpty)
+                            if (item.source.condition != null &&
+                                item.source.condition!.isNotEmpty)
                               Text(
-                                dto.condition!,
+                                item.source.condition!,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: resolvedMutedTextColor,
                                   fontSize: 11,

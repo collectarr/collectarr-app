@@ -52,11 +52,11 @@ String _simpleLibraryBucketLabel(
     'publisher' => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,
-    'location' => _locationBucket(dto.locationPath),
+    'location' => _locationBucket(context.source.locationPath),
     'title' => _titleBucket(dto.title),
-    'ownership' => dto.isOwned
+    'ownership' => context.source.isOwned
         ? overrides.owned
-        : dto.isWishlisted
+        : context.source.isWishlisted
             ? overrides.wishlist
             : overrides.catalogOnly,
     _ => context.groupMode,

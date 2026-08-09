@@ -291,25 +291,26 @@ class BookLibraryMediaPresentationBuilder
       );
     }
 
+    final source = item.source;
     final personalFacts = <LibraryDetailField>[
-      if (dto.condition?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Condition', value: dto.condition!.trim()),
-      if (dto.grade?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Grade', value: dto.grade!.trim()),
-      if (dto.collectionStatus?.trim().isNotEmpty == true)
+      if (source.condition?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Condition', value: source.condition!.trim()),
+      if (source.grade?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Grade', value: source.grade!.trim()),
+      if (source.ownedItem?.collectionStatus?.trim().isNotEmpty == true)
         LibraryDetailField(
-            label: 'Collection Status', value: dto.collectionStatus!.trim()),
-      if (dto.rating != null)
-        LibraryDetailField(label: 'Rating', value: dto.rating!.toString()),
-      if (dto.locationPath?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Location', value: dto.locationPath!.trim()),
-      if (dto.pricePaidCents != null)
+            label: 'Collection Status', value: source.ownedItem!.collectionStatus!.trim()),
+      if (source.ownedItem?.rating != null)
+        LibraryDetailField(label: 'Rating', value: source.ownedItem!.rating!.toString()),
+      if (source.locationPath?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Location', value: source.locationPath!.trim()),
+      if (source.pricePaidCents != null)
         LibraryDetailField(
-            label: 'Price Paid', value: dto.pricePaidCents!.toString()),
-      if (dto.notes?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Notes', value: dto.notes!.trim()),
-      if (dto.tags?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Tags', value: dto.tags!.trim()),
+            label: 'Price Paid', value: source.pricePaidCents!.toString()),
+      if (source.personalNotes?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Notes', value: source.personalNotes!.trim()),
+      if (source.tags?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Tags', value: source.tags!.trim()),
     ];
     if (personalFacts.isNotEmpty) {
       sectionSpecs.add(

@@ -407,18 +407,18 @@ class LibraryFilterOptions {
       if (source.locationPath?.trim().isNotEmpty == true) {
         locations.add(source.locationPath!.trim());
       }
-      for (final tag in splitPickListValues(dto.tags)) {
+      for (final tag in splitPickListValues(source.tags)) {
         final normalized = tag.trim().toLowerCase();
         if (normalized.isEmpty || !normalizedTags.add(normalized)) {
           continue;
         }
         tags.add(tag);
       }
-      if (dto.grade?.trim().isNotEmpty == true) {
-        grades.add(dto.grade!.trim());
+      if (source.grade?.trim().isNotEmpty == true) {
+        grades.add(source.grade!.trim());
       }
-      if (dto.condition?.trim().isNotEmpty == true) {
-        conditions.add(dto.condition!.trim());
+      if (source.condition?.trim().isNotEmpty == true) {
+        conditions.add(source.condition!.trim());
       }
       if (dto.publisher?.trim().isNotEmpty == true) {
         publishers.add(dto.publisher!.trim());
@@ -497,25 +497,25 @@ bool libraryFilterMatches(
   LibraryFilterSelection filters,
   LibraryMediaAdapter adapter,
 ) {
-  final dto = item.dto;
+  final source = item.source;
   final filterValues = adapter.filterValuesForEntry(item.source);
-  if (filters.ownershipFilter == LibraryOwnershipFilter.owned && !dto.isOwned) {
+  if (filters.ownershipFilter == LibraryOwnershipFilter.owned && !source.isOwned) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.wishlist &&
-      !dto.isWishlisted) {
+      !source.isWishlisted) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.missingGrade &&
-      !(dto.isOwned && (dto.grade == null || dto.grade!.trim().isEmpty))) {
+      !(source.isOwned && (source.grade == null || source.grade!.trim().isEmpty))) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.forSale &&
-      !(dto.isOwned && dto.collectionStatus == 'for_sale')) {
+      !(source.isOwned && source.ownedItem?.collectionStatus == 'for_sale')) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.onOrder &&
-      !(dto.isOwned && dto.collectionStatus == 'on_order')) {
+      !(source.isOwned && source.ownedItem?.collectionStatus == 'on_order')) {
     return false;
   }
   if (filters.series != null && filterValues.series != filters.series) {
@@ -525,20 +525,20 @@ bool libraryFilterMatches(
       item.source.locationPath?.trim() != filters.location) {
     return false;
   }
-  if (filters.tag != null && !_entryHasTag(dto.tags, filters.tag!)) {
+  if (filters.tag != null && !_entryHasTag(source.tags, filters.tag!)) {
     return false;
   }
-  if (filters.grade != null && dto.grade?.trim() != filters.grade) {
+  if (filters.grade != null && source.grade?.trim() != filters.grade) {
     return false;
   }
-  if (filters.condition != null && dto.condition?.trim() != filters.condition) {
+  if (filters.condition != null && source.condition?.trim() != filters.condition) {
     return false;
   }
-  if (filters.publisher != null && dto.publisher?.trim() != filters.publisher) {
+  if (filters.publisher != null && item.dto.publisher?.trim() != filters.publisher) {
     return false;
   }
   if (filters.releaseYear != null) {
-    final year = dto.releaseDate?.year.toString();
+    final year = item.dto.releaseDate?.year.toString();
     if (year != filters.releaseYear) return false;
   }
   if (filters.country != null && filterValues.country != filters.country) {
@@ -547,7 +547,7 @@ bool libraryFilterMatches(
   if (filters.language != null && filterValues.language != filters.language) {
     return false;
   }
-  if (filters.missingCover && dto.coverImageUrl != null) return false;
+  if (filters.missingCover && item.dto.coverImageUrl != null) return false;
   if (filters.missingMetadata && item.source.catalogItem != null) return false;
   return true;
 }

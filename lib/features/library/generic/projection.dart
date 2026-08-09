@@ -452,7 +452,7 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
   final isSeries = groupMode == 'series';
   final ownedCounts = isSeries
       ? <String, int>{
-          allBucketLabel: items.where((item) => item.dto.isOwned).length,
+          allBucketLabel: items.where((item) => item.source.isOwned).length,
         }
       : null;
   final coverUrls = <String, String?>{};
@@ -466,7 +466,7 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
     if (number != null) {
       bucketNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
     }
-    if (isSeries && item.dto.isOwned) {
+    if (isSeries && item.source.isOwned) {
       ownedCounts![bucket] = (ownedCounts[bucket] ?? 0) + 1;
       if (number != null) {
         ownedNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
@@ -734,13 +734,13 @@ bool _matchesQuickView(
     LibraryProjectionItem item, LibraryQuickView? quickView) {
   return switch (quickView) {
     null => true,
-    LibraryQuickView.owned => item.dto.isOwned,
-    LibraryQuickView.wishlist => item.dto.isWishlisted,
+    LibraryQuickView.owned => item.source.isOwned,
+    LibraryQuickView.wishlist => item.source.isWishlisted,
     LibraryQuickView.missingCovers =>
       item.dto.coverImageUrl == null || item.dto.coverImageUrl!.isEmpty,
     LibraryQuickView.missingMetadata => false,
-    LibraryQuickView.missingGrade => item.dto.isOwned &&
-        (item.dto.grade == null || item.dto.grade!.trim().isEmpty),
+    LibraryQuickView.missingGrade => item.source.isOwned &&
+        (item.source.grade == null || item.source.grade!.trim().isEmpty),
   };
 }
 
@@ -750,7 +750,7 @@ bool _matchesCollectionStatusScope(
 ) {
   final ownedItem = item.source.ownedItem;
   final isSold = ownedItem?.isSold == true;
-  final collectionStatus = item.dto.collectionStatus?.trim().toLowerCase();
+  final collectionStatus = item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
   final isWishlistOnly = item.source.isWishlisted && !item.source.isOwned;
   final isCatalogOnly = !item.source.isOwned && !item.source.isWishlisted;
   final isForSale = !isSold && collectionStatus == 'for_sale';
@@ -949,9 +949,9 @@ bool _matchesQuery(
           _containsQuery(dto.variant, query) ||
           _containsQuery(dto.barcode, query) ||
           _containsQuery(dto.releaseDate?.year.toString(), query) ||
-          _containsQuery(dto.condition, query) ||
-          _containsQuery(dto.grade, query) ||
-          _containsQuery(dto.locationPath, query))) {
+          _containsQuery(item.source.condition, query) ||
+          _containsQuery(item.source.grade, query) ||
+          _containsQuery(item.source.locationPath, query))) {
     return true;
   }
   if (searchTarget.includesMedia && catalog != null) {
@@ -996,10 +996,10 @@ LibraryToolbarCounts _toolbarCountsForItems({
   for (final item in allItems) {
     final dto = item.dto;
     final ownedItem = item.source.ownedItem;
-    if (dto.isOwned) {
+    if (item.source.isOwned) {
       owned += 1;
     }
-    if (dto.isWishlisted) {
+    if (item.source.isWishlisted) {
       wishlist += 1;
     }
     if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty) {

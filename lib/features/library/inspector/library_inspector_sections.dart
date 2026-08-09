@@ -62,9 +62,9 @@ class InspectorPersonalSection extends StatelessWidget {
     final valueSnapshot = LibraryValueSnapshot.fromItem(
       item,
       ownedItem: ownedItem,
-      providerName: dto.marketValueCents != null ? 'Provider snapshot' : null,
+      providerName: item.source.ownedItem?.marketValueCents != null ? 'Provider snapshot' : null,
     );
-    final paid = formatMoney(ownedItem?.pricePaidCents ?? dto.pricePaidCents,
+    final paid = formatMoney(ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
         ownedItem?.currency ?? dto.currency);
     final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
       ownedItem,
@@ -92,7 +92,7 @@ class InspectorPersonalSection extends StatelessWidget {
                 .map((t) => t.trim())
                 .where((t) => t.isNotEmpty)
                 .toList()
-            : (dto.tags != null ? <String>[dto.tags!] : const <String>[]);
+            : (item.source.tags != null ? <String>[item.source.tags!] : const <String>[]);
     return LibraryDetailSection(
       title: 'Personal',
       accentColor: accent,
@@ -121,10 +121,10 @@ class InspectorPersonalSection extends StatelessWidget {
                   value: formatNullableDate(trackingFinishedAt) ?? '-'),
             if (ownedIsDigital != true)
               LibraryDetailField(
-                  label: 'Condition', value: genericLibraryDash(dto.condition)),
+                  label: 'Condition', value: genericLibraryDash(item.source.condition)),
             if (ownedIsDigital != true)
               LibraryDetailField(
-                  label: 'Grade', value: genericLibraryDash(dto.grade)),
+                  label: 'Grade', value: genericLibraryDash(item.source.grade)),
             LibraryDetailField(
                 label: 'Quantity',
                 value:
@@ -132,7 +132,7 @@ class InspectorPersonalSection extends StatelessWidget {
             if (ownedIsDigital != true)
               LibraryDetailField(
                   label: 'Location',
-                  value: genericLibraryDash(dto.locationPath)),
+                  value: genericLibraryDash(item.source.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
             if (valueSnapshot.providerValueCents != null)
               LibraryDetailField(
@@ -178,10 +178,10 @@ class InspectorPersonalSection extends StatelessWidget {
               ),
           ],
         ),
-        if (dto.notes != null && dto.notes!.trim().isNotEmpty) ...[
+        if (item.source.personalNotes != null && item.source.personalNotes!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
           Text(
-            dto.notes!,
+            item.source.personalNotes!,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: appPalette(context).textMuted,
                 ),

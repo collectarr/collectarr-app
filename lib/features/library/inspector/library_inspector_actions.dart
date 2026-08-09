@@ -24,17 +24,16 @@ class InspectorPrimaryActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dto = item.dto;
-    if (dto.isOwned) {
+    if (item.source.isOwned) {
       return Wrap(
         spacing: 6,
         runSpacing: 6,
         children: [
           OutlinedButton.icon(
-            onPressed: dto.isWishlisted ? onRemoveWishlist : onAddWishlist,
-            icon: Icon(dto.isWishlisted ? Icons.star : Icons.star_border),
+            onPressed: item.source.isWishlisted ? onRemoveWishlist : onAddWishlist,
+            icon: Icon(item.source.isWishlisted ? Icons.star : Icons.star_border),
             label: Text(
-              dto.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
+              item.source.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
             ),
           ),
           OutlinedButton.icon(
@@ -57,7 +56,7 @@ class InspectorPrimaryActions extends StatelessWidget {
           onPressed: onAddOwned,
           icon: const Icon(Icons.add_circle_outline),
           label: Text(
-            dto.isWishlisted
+            item.source.isWishlisted
                 ? 'Convert wishlist to collection'
                 : 'Add to collection',
           ),
@@ -67,10 +66,10 @@ class InspectorPrimaryActions extends StatelessWidget {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: dto.isWishlisted ? onRemoveWishlist : onAddWishlist,
-                icon: Icon(dto.isWishlisted ? Icons.star : Icons.star_border),
+                onPressed: item.source.isWishlisted ? onRemoveWishlist : onAddWishlist,
+                icon: Icon(item.source.isWishlisted ? Icons.star : Icons.star_border),
                 label: Text(
-                  dto.isWishlisted ? 'Remove from wishlist' : 'Add to wishlist',
+                  item.source.isWishlisted ? 'Remove from wishlist' : 'Add to wishlist',
                 ),
               ),
             ),

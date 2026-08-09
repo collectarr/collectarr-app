@@ -224,10 +224,10 @@ String defaultLibraryBucketLabel(
     'foreword_author' => _creatorBucketByRole(item, 'foreword author'),
     'ghost_writer' => _creatorBucketByRole(item, 'ghost writer'),
     'illustrator' => _creatorBucketByRole(item, 'illustrator'),
-    'location' => _locationBucket(dto.locationPath),
-    'ownership' => dto.isOwned
+    'location' => _locationBucket(source.locationPath),
+    'ownership' => source.isOwned
         ? overrides.owned
-        : dto.isWishlisted
+        : source.isWishlisted
             ? overrides.wishlist
             : overrides.catalogOnly,
     'added_date' => _dateBucket(
@@ -247,9 +247,9 @@ String defaultLibraryBucketLabel(
         'No collection status',
       ),
     'title' => _titleBucket(dto.title),
-    'grade' => dto.grade?.trim().isNotEmpty == true ? dto.grade! : 'Ungraded',
-    'condition' => dto.condition?.trim().isNotEmpty == true
-        ? dto.condition!
+    'grade' => source.grade?.trim().isNotEmpty == true ? source.grade! : 'Ungraded',
+    'condition' => source.condition?.trim().isNotEmpty == true
+        ? source.condition!
         : 'No condition',
     'raw_or_slabbed' => 'Raw',
     'is_key_comic' => 'Not special',

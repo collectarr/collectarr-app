@@ -130,7 +130,7 @@ class _CollectionShareDialog extends StatelessWidget {
           dto.itemNumber ?? '',
           dto.seriesTitle ?? '',
           dto.publisher ?? '',
-          dto.condition ?? '',
+          item.source.condition ?? '',
           dto.barcode ?? '',
         ];
       }),
@@ -146,12 +146,13 @@ class _CollectionShareDialog extends StatelessWidget {
   void _copyAsJson(BuildContext context) {
     final data = items.map((item) {
       final dto = item.dto;
+      final condition = item.source.condition;
       return {
         'title': dto.title,
         if (dto.itemNumber != null) 'issue': dto.itemNumber,
         if (dto.seriesTitle != null) 'series': dto.seriesTitle,
         if (dto.publisher != null) 'publisher': dto.publisher,
-        if (dto.condition != null) 'condition': dto.condition,
+        if (condition != null) 'condition': condition,
         if (dto.barcode != null) 'barcode': dto.barcode,
       };
     }).toList();
@@ -173,7 +174,7 @@ class _CollectionShareDialog extends StatelessWidget {
           dto.itemNumber ?? '',
           dto.seriesTitle ?? '',
           dto.publisher ?? '',
-          dto.condition ?? '',
+          item.source.condition ?? '',
           dto.barcode ?? '',
         ];
       }),
@@ -185,12 +186,13 @@ class _CollectionShareDialog extends StatelessWidget {
   Future<void> _saveJsonToFile(BuildContext context) async {
     final data = items.map((item) {
       final dto = item.dto;
+      final condition = item.source.condition;
       return {
         'title': dto.title,
         if (dto.itemNumber != null) 'issue': dto.itemNumber,
         if (dto.seriesTitle != null) 'series': dto.seriesTitle,
         if (dto.publisher != null) 'publisher': dto.publisher,
-        if (dto.condition != null) 'condition': dto.condition,
+        if (condition != null) 'condition': condition,
         if (dto.barcode != null) 'barcode': dto.barcode,
       };
     }).toList();
@@ -239,7 +241,7 @@ class _CollectionShareDialog extends StatelessWidget {
       rows.writeln('  <td>${_htmlEscape(dto.itemNumber ?? '')}</td>');
       rows.writeln('  <td>${_htmlEscape(dto.seriesTitle ?? '')}</td>');
       rows.writeln('  <td>${_htmlEscape(dto.publisher ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(dto.condition ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(item.source.condition ?? '')}</td>');
       rows.writeln('</tr>');
     }
     final html = '''<!DOCTYPE html>
