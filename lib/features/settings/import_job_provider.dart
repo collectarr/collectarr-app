@@ -566,7 +566,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             timesCompleted: 1,
           );
         } else {
-          await wishlistMutations.addToWishlist(item.id);
+          await wishlistMutations.addToWishlist(
+            item.id,
+            fallbackKind: item.kind,
+          );
         }
         await _importTvSeasons(
           wishlistMutations: wishlistMutations,
@@ -864,7 +867,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }) async {
     final trackingStatus = _trackingStatusForImportRow(row);
     if (trackingStatus == null) {
-      await wishlistMutations.addToWishlist(item.id);
+      await wishlistMutations.addToWishlist(
+        item.id,
+        fallbackKind: item.kind,
+      );
       return;
     }
     await trackingMutations.upsertTrackingEntry(

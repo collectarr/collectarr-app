@@ -125,6 +125,7 @@ class _VideoLibraryDetailPageState
     final anchor = videoReleaseAnchorForEdition(release.edition);
     await ref.read(wishlistMutationsProvider).addToWishlist(
           widget.request.item.source.itemId,
+          fallbackKind: widget.request.type.workspace.kind.apiValue,
           editionId: anchor.editionId,
           variantId: anchor.variantId,
           bundleReleaseId: anchor.bundleReleaseId,

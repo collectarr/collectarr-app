@@ -495,7 +495,9 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(wishlistMutationsProvider).addToWishlist('movie-1');
+    await container
+        .read(wishlistMutationsProvider)
+        .addToWishlist('movie-1', fallbackKind: 'movie');
     final originalRow = await db.select(db.wishlistItemsCache).getSingle();
     final original = WishlistItem(
       id: originalRow.id,
@@ -542,9 +544,10 @@ void main() {
     addTearDown(container.dispose);
 
     final wishlistMutations = container.read(wishlistMutationsProvider);
-    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-4k');
     await wishlistMutations.addToWishlist('movie-1',
-        editionId: 'edition-bluray');
+        fallbackKind: 'movie', editionId: 'edition-4k');
+    await wishlistMutations.addToWishlist('movie-1',
+        fallbackKind: 'movie', editionId: 'edition-bluray');
 
     final rows = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
@@ -570,9 +573,10 @@ void main() {
     addTearDown(container.dispose);
 
     final wishlistMutations = container.read(wishlistMutationsProvider);
-    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-4k');
     await wishlistMutations.addToWishlist('movie-1',
-        editionId: 'edition-bluray');
+        fallbackKind: 'movie', editionId: 'edition-4k');
+    await wishlistMutations.addToWishlist('movie-1',
+        fallbackKind: 'movie', editionId: 'edition-bluray');
 
     await wishlistMutations.removeFromWishlist(
       'movie-1',
@@ -634,9 +638,13 @@ void main() {
     final wishlistMutations = container.read(wishlistMutationsProvider);
     final importService = container.read(collectionImportServiceProvider);
 
-    await wishlistMutations.addToWishlist('comic-1');
+    await wishlistMutations.addToWishlist('comic-1', fallbackKind: 'comic');
     await importService.importRows([
-      const CollectionCsvRow(itemId: 'comic-1', status: 'owned'),
+      const CollectionCsvRow(
+        itemId: 'comic-1',
+        kind: 'comic',
+        status: 'owned',
+      ),
     ]);
 
     final owned = await db.select(db.ownedItemsCache).get();

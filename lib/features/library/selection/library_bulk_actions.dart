@@ -118,7 +118,11 @@ class LibraryBulkActions {
 
   Future<void> moveSelectedToWishlist(List<ShelfEntry> entries) async {
     for (var index = 0; index < entries.length; index++) {
-      await wishlistMutations.addToWishlist(entries[index].itemId);
+      await wishlistMutations.addToWishlist(
+        entries[index].itemId,
+        fallbackKind: entries[index].catalogItem?.kind ??
+            entries[index].ownedItem?.catalogRef.kind,
+      );
     }
     final ownedEntries = [
       for (final entry in entries)

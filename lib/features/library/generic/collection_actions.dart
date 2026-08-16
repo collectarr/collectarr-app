@@ -59,6 +59,7 @@ class LibraryCollectionActions {
     );
     return wishlistMutations.addToWishlist(
       item.source.catalogItem!.id,
+      fallbackKind: item.source.catalogItem?.kind,
       anchorType: anchor.anchorType,
       editionId: anchor.editionId,
       variantId: anchor.variantId,

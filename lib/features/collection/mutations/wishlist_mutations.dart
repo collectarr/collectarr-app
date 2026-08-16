@@ -37,6 +37,7 @@ final class WishlistMutations {
 
   Future<void> addToWishlist(
     String itemId, {
+    String? fallbackKind,
     String? anchorType,
     String? editionId,
     String? variantId,
@@ -66,6 +67,7 @@ final class WishlistMutations {
             catalogRef: _catalogRefForItem(
               itemId,
               catalogItem,
+              fallbackKind: fallbackKind,
               anchorType: normalizedAnchorType,
               editionId: editionId,
               variantId: variantId,
@@ -314,8 +316,14 @@ final class WishlistMutations {
         bundleReleaseId: bundleReleaseId,
       );
     }
+    final resolvedKind = fallbackKind?.trim();
+    if (resolvedKind == null || resolvedKind.isEmpty) {
+      throw StateError(
+        'Cannot resolve CatalogEntityRef for item "$itemId": no catalog item found and no fallback kind provided.',
+      );
+    }
     return CatalogEntityRef(
-      kind: fallbackKind ?? 'comic',
+      kind: resolvedKind,
       entityType: CatalogEntityType.work,
       id: itemId,
     );

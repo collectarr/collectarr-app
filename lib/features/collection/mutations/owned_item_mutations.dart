@@ -456,8 +456,14 @@ final class OwnedItemMutations {
         bundleReleaseId: bundleReleaseId,
       );
     }
+    final resolvedKind = fallbackKind?.trim();
+    if (resolvedKind == null || resolvedKind.isEmpty) {
+      throw StateError(
+        'Cannot resolve CatalogEntityRef for item "$itemId": no catalog item found and no fallback kind provided.',
+      );
+    }
     return CatalogEntityRef(
-      kind: fallbackKind ?? 'comic',
+      kind: resolvedKind,
       entityType: CatalogEntityType.work,
       id: itemId,
     );

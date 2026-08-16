@@ -144,7 +144,8 @@ final class CollectionImportService {
         final wishlistItem = WishlistItem(
           id: idGenerator(),
           catalogRef: CatalogEntityRef(
-            kind: row.kind ?? 'comic',
+            kind:
+                row.kind ?? catItem?.kind ?? CatalogMediaKind.unknown.apiValue,
             entityType: CatalogEntityType.work,
             id: row.itemId,
           ),
@@ -289,7 +290,7 @@ final class CollectionImportService {
     if (existing != null) return existing;
     return CatalogItem(
       id: row.itemId,
-      kind: row.kind ?? 'comic',
+      kind: row.kind ?? CatalogMediaKind.unknown.apiValue,
       title: row.title ?? row.itemId,
       itemNumber: row.itemNumber,
       variant: row.variant,
@@ -320,7 +321,7 @@ final class CollectionImportService {
     return OwnedItem(
       id: idGenerator(),
       catalogRef: CatalogEntityRef(
-        kind: row.kind ?? 'comic',
+        kind: row.kind ?? CatalogMediaKind.unknown.apiValue,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),

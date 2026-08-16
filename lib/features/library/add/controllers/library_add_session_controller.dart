@@ -1251,7 +1251,10 @@ class LibraryAddSessionController
         case LibraryAddTarget.owned:
           await ownedMutations.addOwnedItem(command);
         case LibraryAddTarget.wishlist:
-          await wishlistMutations.addToWishlist(item.id);
+          await wishlistMutations.addToWishlist(
+            item.id,
+            fallbackKind: item.kind,
+          );
         case LibraryAddTarget.track:
           await trackingMutations.addLocalOnlyTrackingEntry(item);
       }
@@ -1384,7 +1387,10 @@ class LibraryAddSessionController
           case LibraryAddTarget.owned:
             await ownedMutations.addOwnedItem(command);
           case LibraryAddTarget.wishlist:
-            await wishlistMutations.addToWishlist(item.id);
+            await wishlistMutations.addToWishlist(
+              item.id,
+              fallbackKind: item.kind,
+            );
           case LibraryAddTarget.track:
             await trackingMutations.addLocalOnlyTrackingEntry(item);
         }
