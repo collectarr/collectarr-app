@@ -16,16 +16,14 @@ sealed class OwnedItemDetails {
     if (kind == CatalogMediaKind.unknown) {
       return const GenericOwnedDetails();
     }
-    return LibraryKindRegistry.instance
-        .getByKind(kind)
-        .decodeOwnedDetails(json);
+    return defaultLibraryKindRegistry.getByKind(kind).decodeOwnedDetails(json);
   }
 
   static OwnedItemDetails defaultForKind(CatalogMediaKind kind) {
     if (kind == CatalogMediaKind.unknown) {
       return const GenericOwnedDetails();
     }
-    return LibraryKindRegistry.instance.getByKind(kind).defaultOwnedDetails();
+    return libraryKindRuntimeForKind(kind).defaultOwnedDetails();
   }
 
   ComicOwnedDetails? get comic =>

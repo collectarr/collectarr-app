@@ -249,9 +249,7 @@ OwnedDetailsDraft defaultDetailsDraftForKind(CatalogMediaKind kind) {
   if (kind == CatalogMediaKind.unknown) {
     return const GenericOwnedDetailsDraft();
   }
-  return LibraryKindRegistry.instance
-      .getByKind(kind)
-      .defaultOwnedDetailsDraft();
+  return defaultLibraryKindRegistry.getByKind(kind).defaultOwnedDetailsDraft();
 }
 
 /// Command to add an owned item to collection.

@@ -74,12 +74,21 @@ void main() {
       }
     });
 
-    test('registry throws StateError on duplicate registration', () {
-      final registry = LibraryKindRegistry.instance;
-      // Ensure registry is initialized
-      registry.getByKind(CatalogMediaKind.comic);
+    test('immutable registry requires and tryGets specs correctly', () {
+      final registry = LibraryKindRegistry(collectarrKindModules);
+      expect(registry.allRuntimes.length, 9);
+      expect(registry.require(CatalogMediaKind.comic), comicKindModule);
+      expect(registry.tryGet(CatalogMediaKind.comic), comicKindModule);
+      expect(registry.tryGet(CatalogMediaKind.unknown), isNull);
       expect(
-        () => registry.register(comicKindModule),
+        () => registry.require(CatalogMediaKind.unknown),
+        throwsArgumentError,
+      );
+    });
+
+    test('registry throws StateError on duplicate registration', () {
+      expect(
+        () => LibraryKindRegistry([comicKindModule, comicKindModule]),
         throwsStateError,
       );
     });

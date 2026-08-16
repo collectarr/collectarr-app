@@ -82,7 +82,7 @@ void main() {
           ),
         );
 
-        final runtime = LibraryKindRegistry.instance.getByKind(kind);
+        final runtime = libraryKindRuntimeForKind(kind);
         expect(item.details, isNot(isA<GenericOwnedDetails>()));
         expect(item.details.runtimeType,
             runtime.defaultOwnedDetails().runtimeType);
@@ -155,7 +155,7 @@ void main() {
           ),
         );
 
-        final runtime = LibraryKindRegistry.instance.getByKind(kind);
+        final runtime = libraryKindRuntimeForKind(kind);
         final defaultDetails = runtime.defaultOwnedDetails();
 
         expect(updated.details, isNot(isA<GenericOwnedDetails>()));

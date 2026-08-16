@@ -22,7 +22,7 @@ void main() {
     test('all 9 active kinds have explicit add capability and correct drafts',
         () {
       for (final kind in activeKinds) {
-        final runtime = LibraryKindRegistry.instance.getByKind(kind);
+        final runtime = libraryKindRuntimeForKind(kind);
         expect(runtime, isNotNull,
             reason: '$kind must be registered in LibraryKindRegistry');
 
@@ -98,7 +98,7 @@ void main() {
         'no supported kind resolves to unknown or generic fallback in registry',
         () {
       for (final kind in activeKinds) {
-        final runtime = LibraryKindRegistry.instance.getByKind(kind);
+        final runtime = libraryKindRuntimeForKind(kind);
         expect(runtime.kind, isNot(CatalogMediaKind.unknown));
         expect(runtime.add.kind, isNot(CatalogMediaKind.unknown));
         expect(runtime.add.createInitialDraft(), isNot(isA<GenericAddDraft>()));

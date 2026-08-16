@@ -96,7 +96,7 @@ final class OwnedItemMutations {
         final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
         final details = command.details.toDetails();
         if (mediaKind != CatalogMediaKind.unknown) {
-          final runtime = LibraryKindRegistry.instance.getByKind(mediaKind);
+          final runtime = libraryKindRuntimeForKind(mediaKind);
           runtime.validateOwnedDetails(details);
         }
 
@@ -176,7 +176,7 @@ final class OwnedItemMutations {
         final mediaKind =
             catalogMediaKindFromApiValue(existing.catalogRef.kind);
         final runtime = mediaKind != CatalogMediaKind.unknown
-            ? LibraryKindRegistry.instance.getByKind(mediaKind)
+            ? libraryKindRuntimeForKind(mediaKind)
             : null;
 
         final resolvedDetails = command.details.when(

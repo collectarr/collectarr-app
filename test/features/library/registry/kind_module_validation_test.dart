@@ -75,12 +75,8 @@ void main() {
 
     test('LibraryKindRegistry throws StateError on duplicate kind registration',
         () {
-      final registry = LibraryKindRegistry.instance;
-      // Trigger initialization
-      registry.getByKind(CatalogMediaKind.comic);
-
       expect(
-        () => registry.register(comicKindModule),
+        () => LibraryKindRegistry([comicKindModule, comicKindModule]),
         throwsStateError,
       );
     });

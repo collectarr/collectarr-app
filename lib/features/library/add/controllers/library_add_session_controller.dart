@@ -65,20 +65,20 @@ class LibraryAddSessionController
                 mode: LibraryAddDialogMode.search,
                 target: LibraryAddTarget.owned,
                 search: LibraryAddSearchState.initial(
-                  selectedProvider: (type ??
-                          LibraryKindRegistry.instance.getByKind(kind).type)
-                      .defaultSupportedMetadataProvider,
-                  videoKindFilters: (type ??
-                          LibraryKindRegistry.instance.getByKind(kind).type)
-                      .addChrome
-                      .defaultVideoKindFilters
-                      .map((k) => catalogMediaKindFromValue(k).apiValue)
-                      .toSet(),
+                  selectedProvider:
+                      (type ?? libraryKindRuntimeForKind(kind).type)
+                          .defaultSupportedMetadataProvider,
+                  videoKindFilters:
+                      (type ?? libraryKindRuntimeForKind(kind).type)
+                          .addChrome
+                          .defaultVideoKindFilters
+                          .map((k) => catalogMediaKindFromValue(k).apiValue)
+                          .toSet(),
                 ),
                 selection: const LibraryAddSelectionState(),
                 preview: const LibraryAddPreviewState.initial(),
                 commonDraft: const LibraryAddCommonDraft(),
-                manualDraft: LibraryKindRegistry.instance
+                manualDraft: defaultLibraryKindRegistry
                     .getByKind(kind)
                     .add
                     .createInitialDraft(),
@@ -103,7 +103,7 @@ class LibraryAddSessionController
       onAuthSessionExpired;
 
   LibraryTypeConfig get type =>
-      _typeConfig ?? LibraryKindRegistry.instance.getByKind(kind).type;
+      _typeConfig ?? libraryKindRuntimeForKind(kind).type;
 
   Timer? _searchDebounceTimer;
   Timer? _autocompleteTimer;
@@ -1240,7 +1240,7 @@ class LibraryAddSessionController
       submitState: const AsyncValue.loading(),
     );
     try {
-      final capability = LibraryKindRegistry.instance.getByKind(kind).add;
+      final capability = libraryKindRuntimeForKind(kind).add;
       final command = capability.buildCommand(
         item,
         state.commonDraft,
@@ -1377,7 +1377,7 @@ class LibraryAddSessionController
           kind: selectedResult.kind,
           title: selectedResult.title,
         );
-        final capability = LibraryKindRegistry.instance.getByKind(kind).add;
+        final capability = libraryKindRuntimeForKind(kind).add;
         final command = capability.buildCommand(
           item,
           state.commonDraft,
@@ -1460,8 +1460,7 @@ class LibraryAddSessionController
       selection: const LibraryAddSelectionState(),
       preview: const LibraryAddPreviewState.initial(),
       commonDraft: const LibraryAddCommonDraft(),
-      manualDraft:
-          LibraryKindRegistry.instance.getByKind(kind).add.createInitialDraft(),
+      manualDraft: libraryKindRuntimeForKind(kind).add.createInitialDraft(),
       submitState: const AsyncValue.data(null),
     );
   }
