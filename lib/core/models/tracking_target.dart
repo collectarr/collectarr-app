@@ -5,8 +5,9 @@ import 'package:flutter/foundation.dart';
 sealed class TrackingTarget {
   const TrackingTarget();
 
-  factory TrackingTarget.catalog(CatalogEntityRef ref) = CatalogTrackingTarget;
-  factory TrackingTarget.owned(String ownedItemId) = OwnedItemTrackingTarget;
+  const factory TrackingTarget.catalog(CatalogEntityRef ref) = CatalogTrackingTarget;
+  const factory TrackingTarget.owned(String ownedItemId) =
+      OwnedItemTrackingTarget;
 }
 
 final class CatalogTrackingTarget extends TrackingTarget {

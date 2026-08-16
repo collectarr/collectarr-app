@@ -13,21 +13,19 @@ sealed class OwnedItemDetails {
     CatalogMediaKind kind,
     Map<String, dynamic> json,
   ) {
-    try {
-      return LibraryKindRegistry.instance
-          .getByKind(kind)
-          .decodeOwnedDetails(json);
-    } catch (_) {
+    if (kind == CatalogMediaKind.unknown) {
       return const GenericOwnedDetails();
     }
+    return LibraryKindRegistry.instance
+        .getByKind(kind)
+        .decodeOwnedDetails(json);
   }
 
   static OwnedItemDetails defaultForKind(CatalogMediaKind kind) {
-    try {
-      return LibraryKindRegistry.instance.getByKind(kind).defaultOwnedDetails();
-    } catch (_) {
+    if (kind == CatalogMediaKind.unknown) {
       return const GenericOwnedDetails();
     }
+    return LibraryKindRegistry.instance.getByKind(kind).defaultOwnedDetails();
   }
 
   ComicOwnedDetails? get comic =>

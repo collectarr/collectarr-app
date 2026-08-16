@@ -94,13 +94,11 @@ final class OwnedItemMutations {
         );
 
         final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
-        LibraryKindRuntime? runtime;
-        try {
-          runtime = LibraryKindRegistry.instance.getByKind(mediaKind);
-        } catch (_) {}
-
         final details = command.details.toDetails();
-        runtime?.validateOwnedDetails(details);
+        if (mediaKind != CatalogMediaKind.unknown) {
+          final runtime = LibraryKindRegistry.instance.getByKind(mediaKind);
+          runtime.validateOwnedDetails(details);
+        }
 
         final ownedItem = OwnedItem(
           id: newItemId,
@@ -177,16 +175,19 @@ final class OwnedItemMutations {
 
         final mediaKind =
             catalogMediaKindFromApiValue(existing.catalogRef.kind);
-        final runtime = LibraryKindRegistry.instance.getByKind(mediaKind);
+        final runtime = mediaKind != CatalogMediaKind.unknown
+            ? LibraryKindRegistry.instance.getByKind(mediaKind)
+            : null;
 
         final resolvedDetails = command.details.when(
           unchanged: () => existing.typedDetails,
           set: (draft) {
             final details = draft.toDetails();
-            runtime.validateOwnedDetails(details);
+            runtime?.validateOwnedDetails(details);
             return details;
           },
-          clear: () => runtime.defaultOwnedDetails(),
+          clear: () =>
+              runtime?.defaultOwnedDetails() ?? const GenericOwnedDetails(),
         );
 
         final updatedItem = OwnedItem(

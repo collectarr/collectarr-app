@@ -246,13 +246,12 @@ class GenericOwnedDetailsDraft extends OwnedDetailsDraft {
 }
 
 OwnedDetailsDraft defaultDetailsDraftForKind(CatalogMediaKind kind) {
-  try {
-    return LibraryKindRegistry.instance
-        .getByKind(kind)
-        .defaultOwnedDetailsDraft();
-  } catch (_) {
+  if (kind == CatalogMediaKind.unknown) {
     return const GenericOwnedDetailsDraft();
   }
+  return LibraryKindRegistry.instance
+      .getByKind(kind)
+      .defaultOwnedDetailsDraft();
 }
 
 /// Command to add an owned item to collection.
@@ -366,7 +365,7 @@ extension OwnedItemDetailsToDraft on OwnedItemDetails {
         ),
       BookOwnedDetails() => const BookOwnedDetailsDraft(),
       BoardgameOwnedDetails() => const BoardgameOwnedDetailsDraft(),
-      _ => const GenericOwnedDetailsDraft(),
+      GenericOwnedDetails() => const GenericOwnedDetailsDraft(),
     };
   }
 }

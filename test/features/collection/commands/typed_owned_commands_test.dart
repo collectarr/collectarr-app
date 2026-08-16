@@ -15,6 +15,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  const allActiveKinds = [
+    CatalogMediaKind.comic,
+    CatalogMediaKind.manga,
+    CatalogMediaKind.anime,
+    CatalogMediaKind.book,
+    CatalogMediaKind.game,
+    CatalogMediaKind.boardgame,
+    CatalogMediaKind.movie,
+    CatalogMediaKind.tv,
+    CatalogMediaKind.music,
+  ];
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     PackageInfo.setMockInitialValues(
@@ -75,7 +87,7 @@ void main() {
         expect(item.details.runtimeType,
             runtime.defaultOwnedDetails().runtimeType);
 
-        // Mismatched details test: movie kind with ComicOwnedDetailsDraft
+        // Mismatched details test: non-comic kind with ComicOwnedDetailsDraft
         if (kind != CatalogMediaKind.comic && kind != CatalogMediaKind.manga) {
           expect(
             () => coordinator.addOwnedItem(
@@ -112,7 +124,7 @@ void main() {
     });
 
     test(
-        'updating details with Patch.clear resets to kind default empty details, never GenericOwnedDetails',
+        'updating details with Patch.clear resets to kind default empty details, never GenericOwnedDetails for all 9 kinds',
         () async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
@@ -123,16 +135,7 @@ void main() {
 
       final coordinator = container.read(collectionCommandCoordinatorProvider);
 
-      final kinds = [
-        CatalogMediaKind.comic,
-        CatalogMediaKind.movie,
-        CatalogMediaKind.game,
-        CatalogMediaKind.music,
-        CatalogMediaKind.book,
-        CatalogMediaKind.boardgame,
-      ];
-
-      for (final kind in kinds) {
+      for (final kind in allActiveKinds) {
         final initial = await coordinator.addOwnedItem(
           AddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
@@ -158,6 +161,31 @@ void main() {
         expect(updated.details, isNot(isA<GenericOwnedDetails>()));
         expect(updated.details.runtimeType, defaultDetails.runtimeType);
       }
+    });
+
+    test('default details for all 9 kinds resolves to non-generic details', () {
+      for (final kind in allActiveKinds) {
+        final defaultDetails = OwnedItemDetails.defaultForKind(kind);
+        expect(defaultDetails, isNot(isA<GenericOwnedDetails>()),
+            reason: '$kind default details must not be GenericOwnedDetails');
+
+        final defaultDraft = defaultDetailsDraftForKind(kind);
+        expect(defaultDraft, isNot(isA<GenericOwnedDetailsDraft>()),
+            reason: '$kind default draft must not be GenericOwnedDetailsDraft');
+      }
+    });
+
+    test('unknown kind resolves to GenericOwnedDetails cleanly', () {
+      final unknownDetails =
+          OwnedItemDetails.defaultForKind(CatalogMediaKind.unknown);
+      expect(unknownDetails, isA<GenericOwnedDetails>());
+
+      final unknownDraft = defaultDetailsDraftForKind(CatalogMediaKind.unknown);
+      expect(unknownDraft, isA<GenericOwnedDetailsDraft>());
+
+      final parsed = OwnedItemDetails.parseForKind(
+          CatalogMediaKind.unknown, {'test': 123});
+      expect(parsed, isA<GenericOwnedDetails>());
     });
 
     test(
