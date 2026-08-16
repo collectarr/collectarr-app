@@ -54,6 +54,19 @@ abstract interface class LibraryKindRuntime {
     required bool ascending,
   });
 
+  int compareEntries(
+    LibraryProjectionRuntime left,
+    LibraryProjectionRuntime right,
+    String sortId,
+  );
+
+  Object? getGroupValue(
+    LibraryProjectionRuntime item,
+    String groupId,
+  );
+
+  void validateProjection(LibraryProjectionRuntime item);
+
   LibraryWorkspaceDto createWorkspaceDto({
     required ShelfEntry source,
     required LibraryNodeRef node,
@@ -166,11 +179,43 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     String sortId, {
     required bool ascending,
   }) {
+    for (final item in items) {
+      validateProjection(item);
+    }
     fields.sortEntries(
-      items.cast<LibraryProjectionRuntime<TDto>>(),
+      items,
       sortId,
       ascending: ascending,
     );
+  }
+
+  @override
+  int compareEntries(
+    LibraryProjectionRuntime left,
+    LibraryProjectionRuntime right,
+    String sortId,
+  ) {
+    validateProjection(left);
+    validateProjection(right);
+    return fields.compareEntries(left, right, sortId);
+  }
+
+  @override
+  Object? getGroupValue(
+    LibraryProjectionRuntime item,
+    String groupId,
+  ) {
+    validateProjection(item);
+    return fields.getGroupValue(item, groupId);
+  }
+
+  @override
+  void validateProjection(LibraryProjectionRuntime item) {
+    if (item.dto is! TDto) {
+      throw ArgumentError(
+        'Incompatible projection item DTO "${item.dto.runtimeType}" for media kind "${kind.apiValue}". Expected "$TDto".',
+      );
+    }
   }
 
   @override

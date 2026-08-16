@@ -116,8 +116,39 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
     return null;
   }
 
+  int compareEntries(
+    LibraryProjectionRuntime left,
+    LibraryProjectionRuntime right,
+    String sortId,
+  ) {
+    final sortDef = findSortDefinition(sortId);
+    if (sortDef == null) return 0;
+    final leftContext = LibraryProjectionContext<TDto>(
+      source: left.source,
+      node: left.node,
+      dto: left.dto as TDto,
+    );
+    final rightContext = LibraryProjectionContext<TDto>(
+      source: right.source,
+      node: right.node,
+      dto: right.dto as TDto,
+    );
+    return sortDef.compare(leftContext, rightContext);
+  }
+
+  Object? getGroupValue(LibraryProjectionRuntime item, String groupId) {
+    final groupDef = findGroupDefinition(groupId);
+    if (groupDef == null) return null;
+    final context = LibraryProjectionContext<TDto>(
+      source: item.source,
+      node: item.node,
+      dto: item.dto as TDto,
+    );
+    return groupDef.getValue(context);
+  }
+
   void sortEntries(
-    List<LibraryProjectionRuntime<TDto>> items,
+    List<LibraryProjectionRuntime> items,
     String sortId, {
     required bool ascending,
   }) {
@@ -127,12 +158,12 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
       final leftContext = LibraryProjectionContext<TDto>(
         source: l.source,
         node: l.node,
-        dto: l.dto,
+        dto: l.dto as TDto,
       );
       final rightContext = LibraryProjectionContext<TDto>(
         source: r.source,
         node: r.node,
-        dto: r.dto,
+        dto: r.dto as TDto,
       );
       final result = sortDef.compare(leftContext, rightContext);
       if (result != 0) {

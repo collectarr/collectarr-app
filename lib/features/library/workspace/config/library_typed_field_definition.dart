@@ -167,10 +167,6 @@ class LibrarySortDefinition<TKind, TDto extends LibraryWorkspaceDto> {
   final LibrarySortComparator<TDto> compare;
   final String group;
   final bool defaultAscending;
-
-  int compareUntyped(Object left, Object right) => compare(
-      left as LibraryProjectionContext<TDto>,
-      right as LibraryProjectionContext<TDto>);
 }
 
 typedef LibraryColumnCellBuilder<TDto extends LibraryWorkspaceDto> = Widget
