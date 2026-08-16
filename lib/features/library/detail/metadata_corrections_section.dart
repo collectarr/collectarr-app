@@ -146,6 +146,13 @@ class _OverrideTile extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ActiveOverridesList extends ConsumerWidget {
   const _ActiveOverridesList({
     required this.itemId,
@@ -250,7 +257,9 @@ class _ActiveOverridesList extends ConsumerWidget {
       ),
     );
     if (confirmed == true && context.mounted) {
-      await ref.read(metadataOverrideMutationsProvider).removeMetadataOverride(entry);
+      await ref
+          .read(metadataOverrideMutationsProvider)
+          .removeMetadataOverride(entry);
     }
   }
 

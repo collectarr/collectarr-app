@@ -484,7 +484,8 @@ class LibraryAddSessionController
           }
         });
         final allResults = await Future.wait(futures);
-        results = allResults.expand((r) => r).cast<ProviderCandidate>().toList();
+        results =
+            allResults.expand((r) => r).cast<ProviderCandidate>().toList();
       } else if (kindsToSearch.length == 1) {
         results = await runLibraryAddProviderSearch(
           api: api!,

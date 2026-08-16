@@ -192,9 +192,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
             if (selectedValues.isEmpty) {
               continue;
             }
-            final values =
-                module.facets?.getFacetValues?.call(item, facetId) ??
-                    const <String>[];
+            final values = module.facets?.getFacetValues?.call(item, facetId) ??
+                const <String>[];
             final hasMatch = values.any((val) => selectedValues.contains(val));
             if (!hasMatch) {
               return false;
@@ -273,9 +272,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
           if (selectedValues.isEmpty) {
             continue;
           }
-          final values =
-              module.facets?.getFacetValues?.call(item, facetId) ??
-                  const <String>[];
+          final values = module.facets?.getFacetValues?.call(item, facetId) ??
+              const <String>[];
           final hasMatch = values.any((val) => selectedValues.contains(val));
           if (!hasMatch) {
             return false;
