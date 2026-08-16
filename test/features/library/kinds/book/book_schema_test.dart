@@ -6,7 +6,8 @@ void main() {
       'every book defaultVisibleColumnId resolves exactly to a column definition',
       () {
     final registry = bookKindModule.fields;
-    final columnIds = bookKindModule.fields.columns.map((c) => c.id.value).toSet();
+    final columnIds =
+        bookKindModule.fields.columns.map((c) => c.id.value).toSet();
 
     for (final defaultId in bookKindModule.fields.defaultVisibleColumnIds) {
       final definition = registry.columnDefinitionForId(defaultId);

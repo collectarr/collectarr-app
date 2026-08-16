@@ -164,7 +164,6 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   String? get variant => common.variant;
   @override
   String? get barcode => common.barcode;
-  @override
   String? get grade => common.grade;
   @override
   String? get country => common.country;

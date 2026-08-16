@@ -31,22 +31,6 @@ void main() {
       'page_count': 288,
       'edition_title': 'Paperback',
       'crossover': 'City Watch',
-      'editions': [
-        {
-          'id': 'e1',
-          'title': 'Paperback',
-          'physical_format_label': 'Paperback',
-          'publisher': 'Victor Gollancz Ltd',
-          'variants': [
-            {
-              'id': 'v1',
-              'name': 'Standard',
-              'cover_image_url': 'https://example.com/book.jpg',
-              'thumbnail_image_url': 'https://example.com/book-thumb.jpg',
-            }
-          ]
-        }
-      ],
       'plot_summary': 'The city needs a dragon.',
       'plot_description': 'A dragon threatens Ankh-Morpork.',
       'creators': [
@@ -72,6 +56,7 @@ void main() {
           'work_id': 'book-1',
           'display_title': 'Paperback',
           'format': 'paperback',
+          'physical_format_label': 'Paperback',
           'publisher': 'Victor Gollancz Ltd',
           'isbn': '9780062225729',
           'page_count': 288,
@@ -86,6 +71,14 @@ void main() {
           'cover_image_path': '/covers/book-edition-1-front.jpg',
           'thumbnail_image_path': '/covers/book-edition-1-thumb.jpg',
           'back_image_path': '/covers/book-edition-1-back.jpg',
+          'variants': [
+            {
+              'id': 'v1',
+              'name': 'Standard',
+              'cover_image_url': 'https://example.com/book.jpg',
+              'thumbnail_image_url': 'https://example.com/book-thumb.jpg',
+            }
+          ]
         },
       ],
     });

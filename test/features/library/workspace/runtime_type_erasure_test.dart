@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -72,7 +70,7 @@ void main() {
     test('runtime extracts group value without caller recovering types', () {
       final item = createComicItem('1', 'Saga');
       final groupVal = comicModule.getGroupValue(item, 'comic.series');
-      // For comic title projection without explicit series title, getValue returns null or title
+      expect(groupVal, isA<String?>());
       expect(comicModule.fields.findGroupDefinition('comic.series'), isNotNull);
       expect(() => comicModule.getGroupValue(item, 'comic.series'),
           returnsNormally);

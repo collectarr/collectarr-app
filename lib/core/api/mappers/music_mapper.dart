@@ -27,10 +27,12 @@ MusicRelease musicReleaseFromDto(MusicReleaseDto dto) {
     releaseStatus: dto.releaseStatus,
     releaseType: dto.releaseType,
     coverImageUrl: dto.coverImageUrl,
-    genres: (tryGetList(() => (dto as dynamic).genres) ??
-            tryGetList(() => (dto as dynamic).toJson()['genres']) ??
-            (dto is Map ? tryGetList(() => (dto as Map)['genres']) : null)) ??
-        const <String>[],
+    genres: () {
+      final rawGenres = dto.toJson()['genres'];
+      return rawGenres is List
+          ? rawGenres.whereType<String>().toList()
+          : const <String>[];
+    }(),
     discs: discs,
     tracks: allTracks,
   );

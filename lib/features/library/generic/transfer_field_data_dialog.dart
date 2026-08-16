@@ -140,7 +140,6 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
 
     for (int i = 0; i < widget.items.length; i++) {
       final item = widget.items[i];
-      final isLast = i == widget.items.length - 1;
 
       // Read source value (built-in or custom field).
       String? sourceValue;

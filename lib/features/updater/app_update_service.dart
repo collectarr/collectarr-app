@@ -338,8 +338,9 @@ class AppUpdateController extends Notifier<AppUpdateState> {
         if (item['draft'] as bool? ?? false) continue;
         final candidate = GitHubRelease.fromJson(item);
         if (candidate.msixDownloadUrl.isEmpty) continue;
-        if (!isReleaseAllowedForChannel(candidate, state.settings.channel))
+        if (!isReleaseAllowedForChannel(candidate, state.settings.channel)) {
           continue;
+        }
         if (!isNewerVersion(state.currentVersion, candidate.version)) continue;
         release = candidate;
         break;

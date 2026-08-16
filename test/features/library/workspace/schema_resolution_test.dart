@@ -50,15 +50,13 @@ void main() {
         final defaultSortId = registry.defaultSortId;
         expect(defaultSortId, isNotNull,
             reason: '$name defaultSortId should not be null.');
-        if (defaultSortId != null) {
-          final sort = registry.findSortDefinition(defaultSortId);
-          expect(
-            sort,
-            isNotNull,
-            reason:
-                '$name defaultSortId "$defaultSortId" must resolve to a valid sort definition.',
-          );
-        }
+        final sort = registry.findSortDefinition(defaultSortId);
+        expect(
+          sort,
+          isNotNull,
+          reason:
+              '$name defaultSortId "$defaultSortId" must resolve to a valid sort definition.',
+        );
       });
 
       test('defaultGroupId resolves to valid group definition', () {

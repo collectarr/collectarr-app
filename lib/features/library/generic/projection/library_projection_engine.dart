@@ -3,21 +3,10 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/generic/quick_view.dart';
-import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
-
-import 'library_filter_engine.dart';
-import 'library_folder_tree_builder.dart';
-import 'library_grouping_engine.dart';
-import 'library_projection_index.dart';
-import 'library_projection_query.dart';
-import 'library_toolbar_stats_calculator.dart';
 
 class LibraryProjectionEngine {
   LibraryProjectionEngine({

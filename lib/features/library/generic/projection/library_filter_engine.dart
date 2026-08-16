@@ -3,15 +3,8 @@ import 'package:collectarr_app/features/library/config/library_media_adapter.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:flutter/material.dart';
-
-import 'library_grouping_engine.dart';
-import 'library_projection_index.dart';
-import 'library_projection_query.dart';
-import 'library_search_index.dart';
 
 class LibraryFilterEngine {
   const LibraryFilterEngine({

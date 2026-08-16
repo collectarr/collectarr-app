@@ -1,13 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
-
-import 'library_projection_index.dart';
-import 'library_series_gap_analyzer.dart';
 
 final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
 

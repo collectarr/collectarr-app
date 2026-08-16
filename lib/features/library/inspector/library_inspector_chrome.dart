@@ -94,7 +94,6 @@ class InspectorActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final dto = item.dto;
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border(

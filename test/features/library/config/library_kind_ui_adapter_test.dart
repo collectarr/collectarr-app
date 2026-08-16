@@ -37,7 +37,7 @@ void main() {
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,
       isSidebarVisible: true,
-      sortColumn: bookModule.fields.defaultSortId ?? 'title',
+      sortColumn: bookModule.fields.defaultSortId,
       sortAscending: true,
       coverSize: 180,
       sidebarWidth: 320,

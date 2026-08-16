@@ -1,9 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
-
-import 'library_grouping_engine.dart';
-import 'library_projection_index.dart';
 
 class LibraryFolderTreeBuilder {
   const LibraryFolderTreeBuilder({

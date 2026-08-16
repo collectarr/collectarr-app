@@ -9,12 +9,10 @@ import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart'
     show moviesMediaAdapter;
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
@@ -26,12 +24,8 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
-import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -48,26 +42,9 @@ import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/video/video_detail_page.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-class _TestPresentationBuilder extends LibraryMediaPresentationBuilder {
-  const _TestPresentationBuilder();
-
-  @override
-  LibraryMetadataPresentation buildMetadataPresentation({
-    required String singularLabel,
-    required MediaEditFields mediaFields,
-    required ReleaseEditFields releaseFields,
-    required LibraryProjectionRuntime item,
-    required bool includeIdentityFacts,
-    required LibraryMetadataFactTapResolver tapFor,
-  }) {
-    throw UnimplementedError();
-  }
-}
 
 void main() {
   test('comics library config groups reusable media behavior', () {

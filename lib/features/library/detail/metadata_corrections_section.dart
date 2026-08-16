@@ -88,6 +88,10 @@ class MetadataCorrectionsSection extends ConsumerWidget {
   }
 }
 
+String _humanFieldPath(String path) {
+  return path.replaceAll('_', ' ').replaceAll('.', ' > ');
+}
+
 class _OverrideTile extends ConsumerWidget {
   const _OverrideTile({required this.entry, required this.accent});
 
@@ -151,92 +155,8 @@ class _OverrideTile extends ConsumerWidget {
       ),
     );
   }
-}
 
-class _ActiveOverridesList extends ConsumerWidget {
-  const _ActiveOverridesList({
-    required this.itemId,
-    required this.overrides,
-    required this.accent,
-  });
-
-  final String itemId;
-  final List<UserMetadataOverride> overrides;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (overrides.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 12),
-        Text(
-          'ACTIVE LOCAL OVERRIDES',
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            color: accent,
-            letterSpacing: 0.5,
-          ),
-        ),
-        const SizedBox(height: 6),
-        ...overrides.map(
-          (entry) => Container(
-            margin: const EdgeInsets.only(bottom: 6),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.04),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: Colors.white10),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _humanFieldPath(entry.fieldPath),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${entry.overrideValue}'
-                        '${entry.originalValue != null ? " (was: ${entry.originalValue})" : ""}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withOpacity(0.7),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 16),
-                  color: Colors.white54,
-                  tooltip: 'Remove override',
-                  onPressed: () => _removeOverride(context, ref, entry),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _removeOverride(
-    BuildContext context,
-    WidgetRef ref,
-    UserMetadataOverride entry,
-  ) async {
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -261,10 +181,6 @@ class _ActiveOverridesList extends ConsumerWidget {
           .read(metadataOverrideMutationsProvider)
           .removeMetadataOverride(entry);
     }
-  }
-
-  static String _humanFieldPath(String path) {
-    return path.replaceAll('_', ' ').replaceAll('.', ' > ');
   }
 }
 

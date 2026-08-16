@@ -87,7 +87,7 @@ void main() {
     expect(work.releases.single.media, hasLength(1));
     expect(work.videoDetails.audioTracks, 'Dolby Atmos, DTS-HD MA 5.1');
     expect(work.releases.single.videoDetails?.nrDiscs, 1);
-    expect(work.videoDetails?.runtimeMinutes, 136);
+    expect(work.videoDetails.runtimeMinutes, 136);
     expect(work.trailerUrls, hasLength(1));
   });
 }

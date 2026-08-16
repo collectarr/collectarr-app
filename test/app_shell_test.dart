@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
-import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';

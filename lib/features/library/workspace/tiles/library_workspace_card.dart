@@ -226,7 +226,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required List<String> referenceHierarchy,
   }) {
     final palette = appPalette(context);
-    final dto = item.dto;
     final gradeLabel = item.source.grade?.trim();
     return RepaintBoundary(
       child: AnimatedContainer(

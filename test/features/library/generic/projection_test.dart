@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,17 +59,12 @@ void main() {
       node: node1,
     );
 
-    final item1 = LibraryProjectionItem(
-      source: source1,
-      node: node1,
-      dto: dto1,
-    );
     final groupDef = comicKindModule.fields.findGroupDefinition('comic.series');
     expect(groupDef, isNotNull);
     final ctx = LibraryProjectionContext<ComicWorkspaceDto>(
       source: source1,
       node: node1,
-      dto: dto1 as ComicWorkspaceDto,
+      dto: dto1,
     );
     expect(groupDef!.getValue(ctx), 'Saga');
   });

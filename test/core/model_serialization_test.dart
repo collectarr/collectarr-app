@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
-import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -196,7 +195,7 @@ void main() {
     final videoItem = VideoCatalogMapper.mapDtoToVideo(item);
     expect(videoItem, isA<VideoCatalogItem>());
     expect(videoItem.videoDetails, isNotNull);
-    expect(videoItem.videoDetails!.runtimeMinutes, 164);
+    expect(videoItem.videoDetails.runtimeMinutes, 164);
   });
 
   test('personal models preserve catalog entity refs in sync payloads', () {

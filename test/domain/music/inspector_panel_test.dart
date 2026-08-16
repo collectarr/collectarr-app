@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/inspector_panel.dart';
-import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -14,7 +13,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
-import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
 
 void main() {
   testWidgets('music inspector renders CLZ-like panel with disc groups', (
