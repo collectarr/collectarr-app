@@ -697,7 +697,8 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           contractDiagnosticLabel:
                               libraryHierarchyContractDiagnosticLabel(
                                   widget.item),
-                          notesLabel: libraryNotesMarkerLabel(widget.item.source.personalNotes),
+                          notesLabel: libraryNotesMarkerLabel(
+                              widget.item.source.personalNotes),
                         ),
                       ),
                       if (showEditButton)

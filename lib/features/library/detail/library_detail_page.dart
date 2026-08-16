@@ -276,8 +276,9 @@ class _LibraryDetailToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final hasCopyMenu = ownedCopies.length > 1 && onSelectOwnedItem != null;
-    final isOwned =
-        ownedCopies.isNotEmpty || activeOwnedItem != null || item.source.isOwned;
+    final isOwned = ownedCopies.isNotEmpty ||
+        activeOwnedItem != null ||
+        item.source.isOwned;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -379,8 +380,9 @@ class _LibraryDetailToolbar extends StatelessWidget {
                     label: item.source.isWishlisted
                         ? 'Remove from wishlist'
                         : 'Move to wishlist',
-                    icon:
-                        item.source.isWishlisted ? Icons.star : Icons.star_border,
+                    icon: item.source.isWishlisted
+                        ? Icons.star
+                        : Icons.star_border,
                   ),
                   if (onAssignFolders != null)
                     const LibraryDenseMenuEntry<String>(

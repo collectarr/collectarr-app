@@ -29,7 +29,8 @@ final class BoardGameWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    throw UnsupportedError('Release projection is not supported for BoardGameWorkspaceProjector');
+    throw UnsupportedError(
+        'Release projection is not supported for BoardGameWorkspaceProjector');
   }
 
   @override
@@ -37,6 +38,7 @@ final class BoardGameWorkspaceProjector
     required ShelfEntry source,
     required LibraryCopyNodeRef node,
   }) {
-    throw UnsupportedError('Copy projection is not supported for BoardGameWorkspaceProjector');
+    throw UnsupportedError(
+        'Copy projection is not supported for BoardGameWorkspaceProjector');
   }
 }

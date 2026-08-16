@@ -34,7 +34,8 @@ class LibraryFolderTreeBuilder {
           groupMode: primaryPreset.primaryMode,
           bucketValue: entry.key,
           children: const [],
-          isExpanded: expandedNodeIds.contains('${primaryPreset.primaryMode}:${entry.key}'),
+          isExpanded: expandedNodeIds
+              .contains('${primaryPreset.primaryMode}:${entry.key}'),
         ),
     ];
   }

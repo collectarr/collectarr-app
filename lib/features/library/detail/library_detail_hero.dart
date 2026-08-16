@@ -31,7 +31,8 @@ class LibraryDetailHero extends StatelessWidget {
     final palette = appPalette(context);
     final dto = item.dto;
     final resolvedOwnedItemId = resolveLibraryOwnedItemId(item, ownedItem);
-    final resolvedIsOwned = isOwned ?? (ownedItem != null || item.source.isOwned);
+    final resolvedIsOwned =
+        isOwned ?? (ownedItem != null || item.source.isOwned);
     final referenceLabel = libraryOwnedReferenceLabel(ownedItem,
             mediaType: item.source.catalogItem?.kind) ??
         dto.referenceFormatLabel;
@@ -71,7 +72,9 @@ class LibraryDetailHero extends StatelessWidget {
         (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
       (
         label: 'Updated',
-        value: formatNullableDate(ownedItem?.updatedAt ?? item.source.updatedAt) ?? '-',
+        value:
+            formatNullableDate(ownedItem?.updatedAt ?? item.source.updatedAt) ??
+                '-',
       ),
     ];
     final primaryChips = <Widget>[

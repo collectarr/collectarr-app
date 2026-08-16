@@ -107,8 +107,9 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
     try {
       final rows = _csv.parse(_controller.text);
-      final preview =
-          await ref.read(collectionImportServiceProvider).previewImportRows(rows);
+      final preview = await ref
+          .read(collectionImportServiceProvider)
+          .previewImportRows(rows);
       if (mounted) {
         setState(() => _preview = preview);
       }

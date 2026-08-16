@@ -51,7 +51,8 @@ final class TrackingMutations {
     await mutationRunner.run(
       action: () async {
         await trackingEntries.upsert(updated);
-        await syncQueue.enqueue(_syncChangeForTrackingEntry(updated, 'upsert', now));
+        await syncQueue
+            .enqueue(_syncChangeForTrackingEntry(updated, 'upsert', now));
       },
       eventsToEmit: [TrackingChanged(updated.id)],
     );
@@ -102,7 +103,8 @@ final class TrackingMutations {
                 bundleReleaseId: bundleReleaseId,
               );
             } else {
-              throw ArgumentError('Owned item not found for tracking target: $ownedItemId');
+              throw ArgumentError(
+                  'Owned item not found for tracking target: $ownedItemId');
             }
           }
         } else {
@@ -115,12 +117,14 @@ final class TrackingMutations {
               bundleReleaseId: bundleReleaseId,
             );
           } else {
-            throw ArgumentError('Cannot resolve valid CatalogEntityRef for tracking target: $ownedItemId');
+            throw ArgumentError(
+                'Cannot resolve valid CatalogEntityRef for tracking target: $ownedItemId');
           }
         }
     }
 
-    final existingEntries = await trackingEntries.findActiveByItemIds([catalogRef.id]);
+    final existingEntries =
+        await trackingEntries.findActiveByItemIds([catalogRef.id]);
     final existing = existingEntries.isEmpty ? null : existingEntries.first;
     final entryId = existing?.id ?? idGenerator();
 
@@ -158,13 +162,15 @@ final class TrackingMutations {
           updatedAt: now,
         );
         await trackingEntries.upsert(entry);
-        await syncQueue.enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
+        await syncQueue
+            .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
       },
       eventsToEmit: [TrackingChanged(entryId)],
     );
   }
 
-  Future<void> deleteTrackingEntry(TrackingEntry entry, {bool notify = true}) async {
+  Future<void> deleteTrackingEntry(TrackingEntry entry,
+      {bool notify = true}) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
       action: () async {
@@ -203,7 +209,8 @@ final class TrackingMutations {
     Map<String, int>? episodeRatings,
   }) async {
     final now = DateTime.now().toUtc();
-    final existingEntries = await trackingEntries.findActiveByItemIds([item.itemId]);
+    final existingEntries =
+        await trackingEntries.findActiveByItemIds([item.itemId]);
     final existing = existingEntries.isEmpty
         ? null
         : existingEntries.firstWhere(
@@ -221,7 +228,10 @@ final class TrackingMutations {
           editionId: editionId ?? item.editionId,
           variantId: variantId ?? item.variantId,
           bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
-          status: status ?? mediaTrackingStatusFromValue(item.readStatus) ?? existing?.status ?? MediaTrackingStatus.planned,
+          status: status ??
+              mediaTrackingStatusFromValue(item.readStatus) ??
+              existing?.status ??
+              MediaTrackingStatus.planned,
           rating: rating ?? item.rating ?? existing?.rating,
           notes: notes ?? item.personalNotes ?? existing?.notes,
           startedAt: startedAt ?? item.startedAt ?? existing?.startedAt,
@@ -239,7 +249,8 @@ final class TrackingMutations {
           updatedAt: now,
         );
         await trackingEntries.upsert(entry);
-        await syncQueue.enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
+        await syncQueue
+            .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
       },
       eventsToEmit: [TrackingChanged(entryId)],
     );
@@ -302,7 +313,8 @@ final class TrackingMutations {
         );
         await trackingEntries.upsert(entry);
         if (!isLocalItem) {
-          await syncQueue.enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
+          await syncQueue
+              .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
         }
       },
       eventsToEmit: [TrackingChanged(entryId)],
@@ -315,7 +327,8 @@ final class TrackingMutations {
     await mutationRunner.run(
       action: () async {
         await trackingUnits.upsert(updated);
-        await syncQueue.enqueue(_syncChangeForTrackingUnit(updated, 'upsert', now));
+        await syncQueue
+            .enqueue(_syncChangeForTrackingUnit(updated, 'upsert', now));
       },
       eventsToEmit: [TrackingChanged(updated.id)],
     );
@@ -345,7 +358,8 @@ final class TrackingMutations {
             updatedAt: now,
           );
           await trackingUnits.upsert(unit);
-          await syncQueue.enqueue(_syncChangeForTrackingUnit(unit, 'upsert', now));
+          await syncQueue
+              .enqueue(_syncChangeForTrackingUnit(unit, 'upsert', now));
         } else if (existing != null) {
           await trackingUnits.markDeleted(existing, now);
           await syncQueue.enqueue(
@@ -384,7 +398,8 @@ final class TrackingMutations {
     }
   }
 
-  SyncChange _syncChangeForTrackingEntry(TrackingEntry entry, String action, DateTime now) {
+  SyncChange _syncChangeForTrackingEntry(
+      TrackingEntry entry, String action, DateTime now) {
     return SyncChange(
       id: 'tracking_entry:${entry.id}:$action:${now.millisecondsSinceEpoch}',
       entityType: 'tracking_entry',
@@ -395,7 +410,8 @@ final class TrackingMutations {
     );
   }
 
-  SyncChange _syncChangeForTrackingUnit(TrackingUnit unit, String action, DateTime now) {
+  SyncChange _syncChangeForTrackingUnit(
+      TrackingUnit unit, String action, DateTime now) {
     return SyncChange(
       id: 'tracking_unit:${unit.id}:$action:${now.millisecondsSinceEpoch}',
       entityType: 'tracking_unit',

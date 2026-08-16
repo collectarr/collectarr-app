@@ -26,11 +26,13 @@ final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
   return SyncQueueRepository(ref.watch(localDatabaseProvider));
 });
 
-final ownedItemsCacheRepositoryProvider = Provider<OwnedItemsCacheRepository>((ref) {
+final ownedItemsCacheRepositoryProvider =
+    Provider<OwnedItemsCacheRepository>((ref) {
   return OwnedItemsCacheRepository(ref.watch(localDatabaseProvider));
 });
 
-final wishlistItemsCacheRepositoryProvider = Provider<WishlistItemsCacheRepository>((ref) {
+final wishlistItemsCacheRepositoryProvider =
+    Provider<WishlistItemsCacheRepository>((ref) {
   return WishlistItemsCacheRepository(ref.watch(localDatabaseProvider));
 });
 
@@ -38,23 +40,28 @@ final catalogCacheRepositoryProvider = Provider<CatalogCacheRepository>((ref) {
   return CatalogCacheRepository(ref.watch(localDatabaseProvider));
 });
 
-final trackingEntriesCacheRepositoryProvider = Provider<TrackingEntriesCacheRepository>((ref) {
+final trackingEntriesCacheRepositoryProvider =
+    Provider<TrackingEntriesCacheRepository>((ref) {
   return TrackingEntriesCacheRepository(ref.watch(localDatabaseProvider));
 });
 
-final trackingUnitsCacheRepositoryProvider = Provider<TrackingUnitsCacheRepository>((ref) {
+final trackingUnitsCacheRepositoryProvider =
+    Provider<TrackingUnitsCacheRepository>((ref) {
   return TrackingUnitsCacheRepository(ref.watch(localDatabaseProvider));
 });
 
-final watchSessionsCacheRepositoryProvider = Provider<WatchSessionsCacheRepository>((ref) {
+final watchSessionsCacheRepositoryProvider =
+    Provider<WatchSessionsCacheRepository>((ref) {
   return WatchSessionsCacheRepository(ref.watch(localDatabaseProvider));
 });
 
-final userMetadataOverridesCacheRepositoryProvider = Provider<UserMetadataOverridesCacheRepository>((ref) {
+final userMetadataOverridesCacheRepositoryProvider =
+    Provider<UserMetadataOverridesCacheRepository>((ref) {
   return UserMetadataOverridesCacheRepository(ref.watch(localDatabaseProvider));
 });
 
-final customEpisodesCacheRepositoryProvider = Provider<CustomEpisodesCacheRepository>((ref) {
+final customEpisodesCacheRepositoryProvider =
+    Provider<CustomEpisodesCacheRepository>((ref) {
   return CustomEpisodesCacheRepository(ref.watch(localDatabaseProvider));
 });
 
@@ -64,7 +71,8 @@ final collectionEventBusProvider = Provider<CollectionEventBus>((ref) {
   return bus;
 });
 
-final collectionMutationRunnerProvider = Provider<CollectionMutationRunner>((ref) {
+final collectionMutationRunnerProvider =
+    Provider<CollectionMutationRunner>((ref) {
   return CollectionMutationRunner(
     database: ref.watch(localDatabaseProvider),
     events: ref.watch(collectionEventBusProvider),
@@ -121,7 +129,8 @@ final watchSessionMutationsProvider = Provider<WatchSessionMutations>((ref) {
   );
 });
 
-final metadataOverrideMutationsProvider = Provider<MetadataOverrideMutations>((ref) {
+final metadataOverrideMutationsProvider =
+    Provider<MetadataOverrideMutations>((ref) {
   return MetadataOverrideMutations(
     overrides: ref.watch(userMetadataOverridesCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
@@ -137,7 +146,8 @@ final customEpisodeMutationsProvider = Provider<CustomEpisodeMutations>((ref) {
   );
 });
 
-final collectionImportServiceProvider = Provider<CollectionImportService>((ref) {
+final collectionImportServiceProvider =
+    Provider<CollectionImportService>((ref) {
   return CollectionImportService(
     ownedItems: ref.watch(ownedItemsCacheRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
@@ -148,7 +158,8 @@ final collectionImportServiceProvider = Provider<CollectionImportService>((ref) 
   );
 });
 
-final collectionCommandCoordinatorProvider = Provider<CollectionCommandCoordinator>((ref) {
+final collectionCommandCoordinatorProvider =
+    Provider<CollectionCommandCoordinator>((ref) {
   return CollectionCommandCoordinator(
     ownedMutations: ref.watch(ownedItemMutationsProvider),
     trackingMutations: ref.watch(trackingMutationsProvider),

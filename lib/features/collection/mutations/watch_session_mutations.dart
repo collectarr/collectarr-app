@@ -54,7 +54,8 @@ final class WatchSessionMutations {
     await mutationRunner.run(
       action: () async {
         await watchSessions.upsert(session);
-        await syncQueue.enqueue(_syncChangeForWatchSession(session, 'upsert', now));
+        await syncQueue
+            .enqueue(_syncChangeForWatchSession(session, 'upsert', now));
       },
       eventsToEmit: [WatchSessionChanged(session.id)],
     );
@@ -69,7 +70,8 @@ final class WatchSessionMutations {
     await mutationRunner.run(
       action: () async {
         await watchSessions.markDeleted(session, now);
-        await syncQueue.enqueue(_syncChangeForWatchSession(deleted, 'delete', now));
+        await syncQueue
+            .enqueue(_syncChangeForWatchSession(deleted, 'delete', now));
       },
       eventsToEmit: [WatchSessionChanged(session.id)],
     );

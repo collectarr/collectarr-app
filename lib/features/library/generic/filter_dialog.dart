@@ -499,7 +499,8 @@ bool libraryFilterMatches(
 ) {
   final source = item.source;
   final filterValues = adapter.filterValuesForEntry(item.source);
-  if (filters.ownershipFilter == LibraryOwnershipFilter.owned && !source.isOwned) {
+  if (filters.ownershipFilter == LibraryOwnershipFilter.owned &&
+      !source.isOwned) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.wishlist &&
@@ -507,7 +508,8 @@ bool libraryFilterMatches(
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.missingGrade &&
-      !(source.isOwned && (source.grade == null || source.grade!.trim().isEmpty))) {
+      !(source.isOwned &&
+          (source.grade == null || source.grade!.trim().isEmpty))) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.forSale &&
@@ -531,10 +533,12 @@ bool libraryFilterMatches(
   if (filters.grade != null && source.grade?.trim() != filters.grade) {
     return false;
   }
-  if (filters.condition != null && source.condition?.trim() != filters.condition) {
+  if (filters.condition != null &&
+      source.condition?.trim() != filters.condition) {
     return false;
   }
-  if (filters.publisher != null && item.dto.publisher?.trim() != filters.publisher) {
+  if (filters.publisher != null &&
+      item.dto.publisher?.trim() != filters.publisher) {
     return false;
   }
   if (filters.releaseYear != null) {

@@ -56,7 +56,9 @@ void main() {
       expect(supplierCalls, 1);
     });
 
-    test('LibraryProjectionIndex caches group values without redundant extractor calls', () {
+    test(
+        'LibraryProjectionIndex caches group values without redundant extractor calls',
+        () {
       final index = LibraryProjectionIndex();
       final source = ShelfEntry(
         itemId: '2',
@@ -84,12 +86,14 @@ void main() {
         ),
       );
 
-      final bucket1 = index.getGroupBucket(item, 'publisher', (item, mode) => 'DC Comics');
+      final bucket1 =
+          index.getGroupBucket(item, 'publisher', (item, mode) => 'DC Comics');
       expect(bucket1, 'DC Comics');
       expect(index.extractorCallCount, 1);
 
       // Second query for same item & groupMode hits index cache
-      final bucket2 = index.getGroupBucket(item, 'publisher', (item, mode) => 'DC Comics');
+      final bucket2 =
+          index.getGroupBucket(item, 'publisher', (item, mode) => 'DC Comics');
       expect(bucket2, 'DC Comics');
       expect(index.extractorCallCount, 1);
     });
@@ -112,7 +116,8 @@ void main() {
       expect(counts.shown, 42);
     });
 
-    test('LibraryFolderTreeBuilder creates tree nodes from projection index', () {
+    test('LibraryFolderTreeBuilder creates tree nodes from projection index',
+        () {
       const builder = LibraryFolderTreeBuilder();
       final index = LibraryProjectionIndex();
       final source = ShelfEntry(

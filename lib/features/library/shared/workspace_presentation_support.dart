@@ -247,7 +247,8 @@ String defaultLibraryBucketLabel(
         'No collection status',
       ),
     'title' => _titleBucket(dto.title),
-    'grade' => source.grade?.trim().isNotEmpty == true ? source.grade! : 'Ungraded',
+    'grade' =>
+      source.grade?.trim().isNotEmpty == true ? source.grade! : 'Ungraded',
     'condition' => source.condition?.trim().isNotEmpty == true
         ? source.condition!
         : 'No condition',

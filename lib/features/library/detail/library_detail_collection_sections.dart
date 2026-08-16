@@ -89,17 +89,19 @@ class LibraryDetailPersonalSection extends StatelessWidget {
                 label: 'Owned ID', value: genericLibraryDash(ownedItem?.id)),
             LibraryDetailField(
                 label: 'Condition',
-                value:
-                    genericLibraryDash(ownedItem?.condition ?? item.source.condition)),
+                value: genericLibraryDash(
+                    ownedItem?.condition ?? item.source.condition)),
             LibraryDetailField(
                 label: 'Grade',
-                value: genericLibraryDash(ownedItem?.grade ?? item.source.grade)),
+                value:
+                    genericLibraryDash(ownedItem?.grade ?? item.source.grade)),
             LibraryDetailField(
                 label: 'Quantity',
                 value:
                     ownedItem == null ? '-' : ownedItem!.quantity.toString()),
             LibraryDetailField(
-                label: 'Location', value: genericLibraryDash(item.source.locationPath)),
+                label: 'Location',
+                value: genericLibraryDash(item.source.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
             LibraryDetailField(
                 label: 'Current value',

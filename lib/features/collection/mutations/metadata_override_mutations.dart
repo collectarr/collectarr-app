@@ -53,7 +53,8 @@ final class MetadataOverrideMutations {
     await mutationRunner.run(
       action: () async {
         await overrides.upsert(override);
-        await syncQueue.enqueue(_syncChangeForMetadataOverride(override, 'upsert', now));
+        await syncQueue
+            .enqueue(_syncChangeForMetadataOverride(override, 'upsert', now));
       },
       eventsToEmit: [MetadataOverrideChanged(itemId)],
     );
@@ -68,7 +69,8 @@ final class MetadataOverrideMutations {
     await mutationRunner.run(
       action: () async {
         await overrides.markDeleted(override, now);
-        await syncQueue.enqueue(_syncChangeForMetadataOverride(deleted, 'delete', now));
+        await syncQueue
+            .enqueue(_syncChangeForMetadataOverride(deleted, 'delete', now));
       },
       eventsToEmit: [MetadataOverrideChanged(override.itemId)],
     );

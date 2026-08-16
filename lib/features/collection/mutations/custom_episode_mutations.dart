@@ -56,7 +56,8 @@ final class CustomEpisodeMutations {
     await mutationRunner.run(
       action: () async {
         await customEpisodes.upsert(episode);
-        await syncQueue.enqueue(_syncChangeForCustomEpisode(episode, 'upsert', now));
+        await syncQueue
+            .enqueue(_syncChangeForCustomEpisode(episode, 'upsert', now));
       },
       eventsToEmit: [CustomEpisodeChanged(episode.id)],
     );
@@ -71,7 +72,8 @@ final class CustomEpisodeMutations {
     await mutationRunner.run(
       action: () async {
         await customEpisodes.markDeleted(episode, now);
-        await syncQueue.enqueue(_syncChangeForCustomEpisode(deleted, 'delete', now));
+        await syncQueue
+            .enqueue(_syncChangeForCustomEpisode(deleted, 'delete', now));
       },
       eventsToEmit: [CustomEpisodeChanged(episode.id)],
     );

@@ -189,7 +189,8 @@ final class CollectionImportService {
         for (final item in ownedItemsList) OwnedItemAdded(item.id),
         for (final item in wishlistUpserts) WishlistChanged(item.itemId),
         for (final item in wishlistDeletes) WishlistChanged(item.itemId),
-        for (final catItem in importedCatalogItems) CatalogItemChanged(catItem.id),
+        for (final catItem in importedCatalogItems)
+          CatalogItemChanged(catItem.id),
       ],
     );
 

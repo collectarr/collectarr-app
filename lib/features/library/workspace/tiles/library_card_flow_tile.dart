@@ -137,7 +137,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                             extraImageCount: item.source.itemImages.length,
                             contractDiagnosticLabel:
                                 libraryHierarchyContractDiagnosticLabel(item),
-                            notesLabel: libraryNotesMarkerLabel(item.source.personalNotes),
+                            notesLabel: libraryNotesMarkerLabel(
+                                item.source.personalNotes),
                           ),
                         ),
                       ],

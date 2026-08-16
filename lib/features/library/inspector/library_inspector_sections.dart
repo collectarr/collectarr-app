@@ -62,9 +62,12 @@ class InspectorPersonalSection extends StatelessWidget {
     final valueSnapshot = LibraryValueSnapshot.fromItem(
       item,
       ownedItem: ownedItem,
-      providerName: item.source.ownedItem?.marketValueCents != null ? 'Provider snapshot' : null,
+      providerName: item.source.ownedItem?.marketValueCents != null
+          ? 'Provider snapshot'
+          : null,
     );
-    final paid = formatMoney(ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
+    final paid = formatMoney(
+        ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
         ownedItem?.currency ?? dto.currency);
     final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
       ownedItem,
@@ -92,7 +95,9 @@ class InspectorPersonalSection extends StatelessWidget {
                 .map((t) => t.trim())
                 .where((t) => t.isNotEmpty)
                 .toList()
-            : (item.source.tags != null ? <String>[item.source.tags!] : const <String>[]);
+            : (item.source.tags != null
+                ? <String>[item.source.tags!]
+                : const <String>[]);
     return LibraryDetailSection(
       title: 'Personal',
       accentColor: accent,
@@ -121,7 +126,8 @@ class InspectorPersonalSection extends StatelessWidget {
                   value: formatNullableDate(trackingFinishedAt) ?? '-'),
             if (ownedIsDigital != true)
               LibraryDetailField(
-                  label: 'Condition', value: genericLibraryDash(item.source.condition)),
+                  label: 'Condition',
+                  value: genericLibraryDash(item.source.condition)),
             if (ownedIsDigital != true)
               LibraryDetailField(
                   label: 'Grade', value: genericLibraryDash(item.source.grade)),
@@ -178,7 +184,8 @@ class InspectorPersonalSection extends StatelessWidget {
               ),
           ],
         ),
-        if (item.source.personalNotes != null && item.source.personalNotes!.trim().isNotEmpty) ...[
+        if (item.source.personalNotes != null &&
+            item.source.personalNotes!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
           Text(
             item.source.personalNotes!,

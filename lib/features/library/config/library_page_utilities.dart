@@ -173,8 +173,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   // Bulk actions
   // ---------------------------------------------------------------------------
 
-  LibraryBulkActions bulkActions() =>
-      LibraryBulkActions(
+  LibraryBulkActions bulkActions() => LibraryBulkActions(
         coordinator: ref.read(collectionCommandCoordinatorProvider),
         ownedMutations: ref.read(ownedItemMutationsProvider),
         wishlistMutations: ref.read(wishlistMutationsProvider),

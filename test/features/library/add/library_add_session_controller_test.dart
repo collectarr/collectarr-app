@@ -17,7 +17,9 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_sess
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -126,7 +128,9 @@ void main() {
       expect(controller.state.mode, LibraryAddDialogMode.search);
     });
 
-    test('submits selected item to owned items using capability command building', () async {
+    test(
+        'submits selected item to owned items using capability command building',
+        () async {
       final item = CatalogItem(
         id: 'comic-sub-1',
         kind: 'comic',
@@ -139,6 +143,126 @@ void main() {
       final owned = await db.select(db.ownedItemsCache).getSingle();
       expect(owned.itemId, 'comic-sub-1');
     });
+
+    test('submits item to wishlist target', () async {
+      controller.setTarget(LibraryAddTarget.wishlist);
+      final item = CatalogItem(
+        id: 'comic-wish-1',
+        kind: 'comic',
+        title: 'Action Comics #1',
+      );
+
+      final success = await controller.submitSelectedItem(item);
+      expect(success, true);
+
+      final wishlist = await db.select(db.wishlistItemsCache).getSingle();
+      expect(wishlist.itemId, 'comic-wish-1');
+    });
+
+    test('submits item to tracking target', () async {
+      controller.setTarget(LibraryAddTarget.track);
+      final item = CatalogItem(
+        id: 'comic-track-1',
+        kind: 'comic',
+        title: 'Detective Comics #27',
+      );
+
+      final success = await controller.submitSelectedItem(item);
+      expect(success, true);
+
+      final tracking = await db.select(db.trackingEntriesCache).getSingle();
+      expect(tracking.itemId, 'comic-track-1');
+    });
+
+    test('toggleCheckedResult and toggleCheckedProvider update selection', () {
+      controller.toggleCheckedResult('res-1');
+      expect(controller.state.selection.checkedResultIds, contains('res-1'));
+
+      controller.toggleCheckedResult('res-1');
+      expect(controller.state.selection.checkedResultIds, isEmpty);
+
+      controller.toggleCheckedProvider('cand-1');
+      expect(controller.state.selection.checkedProviderIds, contains('cand-1'));
+
+      controller.toggleCheckedProvider('cand-1');
+      expect(controller.state.selection.checkedProviderIds, isEmpty);
+    });
+
+    test(
+        'selectProviderCandidate updates selection state and clears result selection',
+        () {
+      controller.selectResult('res-1');
+      expect(controller.state.selection.selectedResultId, 'res-1');
+
+      controller.selectProviderCandidate('prov-cand-1');
+      expect(controller.state.selection.selectedProviderCandidateId,
+          'prov-cand-1');
+      expect(controller.state.selection.selectedResultId, isNull);
+    });
+
+    test('reference type selection and configuration', () {
+      controller.setReferenceType(LibraryAddReferenceType.edition);
+      expect(controller.state.selection.referenceType,
+          LibraryAddReferenceType.edition);
+
+      controller.selectReferenceVariant('Variant A');
+      expect(
+          controller.state.selection.selectedReferenceVariantId, 'Variant A');
+    });
+
+    test('empty search sets validation error', () async {
+      controller.updateQuery('  ');
+      await controller.executeSearch();
+      expect(controller.state.search.error, isNotNull);
+      expect(controller.state.search.isSearching, false);
+    });
+
+    test('selectSuggestion updates query and selects suggestion', () {
+      final suggestion = LibraryMetadataItem(
+        id: 'sugg-1',
+        kind: 'comic',
+        title: 'Daredevil',
+      );
+
+      controller.selectSuggestion(suggestion);
+
+      expect(controller.state.search.query, 'Daredevil');
+      expect(controller.state.selection.selectedResultId, 'sugg-1');
+      expect(controller.state.search.showSuggestions, false);
+    });
+
+    test('advanced search fields update state', () {
+      controller.updateSearchSeries('X-Men');
+      controller.updateSearchNumber('1');
+      controller.updateSearchPublisher('Marvel');
+      controller.updateSearchYear('1963');
+      controller.toggleAdvancedSearch();
+
+      expect(controller.state.search.series, 'X-Men');
+      expect(controller.state.search.number, '1');
+      expect(controller.state.search.publisher, 'Marvel');
+      expect(controller.state.search.year, '1963');
+      expect(controller.state.search.showAdvancedSearch, true);
+    });
+
+    test('defaults configuration updates state', () {
+      final now = DateTime.now();
+      controller.setDefaultCondition('Fine');
+      controller.setDefaultGrade('9.8');
+      controller.setDefaultPurchaseDate(now);
+      controller.setDefaultLocationId('loc-1');
+      controller.setDefaultReadStatus('read');
+      controller.setDefaultTags('key,rare');
+      controller.setPhysicalFormatId('cgc_slab');
+
+      expect(controller.state.defaultCondition, 'Fine');
+      expect(controller.state.defaultGrade, '9.8');
+      expect(controller.state.defaultPurchaseDate, now);
+      expect(controller.state.defaultLocationId, 'loc-1');
+      expect(controller.state.defaultReadStatus, 'read');
+      expect(controller.state.defaultTags, 'key,rare');
+      expect(controller.state.physicalFormatId, 'cgc_slab');
+    });
   });
 
   group('Kind-Specific Add Draft to Command Capability Tests', () {
@@ -147,7 +271,8 @@ void main() {
       const common = LibraryAddCommonDraft(condition: 'NM', rating: 10);
       const draft = ComicAddDraft(gradingCompany: 'CBCS', signedBy: 'Stan Lee');
 
-      final cap = LibraryAddCapabilityRegistry.instance.getForKind(CatalogMediaKind.comic);
+      final cap = LibraryAddCapabilityRegistry.instance
+          .getForKind(CatalogMediaKind.comic);
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'c1');
@@ -161,7 +286,8 @@ void main() {
       const common = LibraryAddCommonDraft(condition: 'New');
       const draft = VideoAddDraft(packaging: 'SteelBook', region: 'Region A');
 
-      final cap = LibraryAddCapabilityRegistry.instance.getForKind(CatalogMediaKind.movie);
+      final cap = LibraryAddCapabilityRegistry.instance
+          .getForKind(CatalogMediaKind.movie);
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'v1');
@@ -174,7 +300,8 @@ void main() {
       const common = LibraryAddCommonDraft(quantity: 2);
       const draft = GameAddDraft(completeness: 'CIB', hasBox: true);
 
-      final cap = LibraryAddCapabilityRegistry.instance.getForKind(CatalogMediaKind.game);
+      final cap = LibraryAddCapabilityRegistry.instance
+          .getForKind(CatalogMediaKind.game);
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'g1');
@@ -187,7 +314,8 @@ void main() {
       const common = LibraryAddCommonDraft();
       const draft = MusicAddDraft(storageDevice: 'Shelf A', storageSlot: '12');
 
-      final cap = LibraryAddCapabilityRegistry.instance.getForKind(CatalogMediaKind.music);
+      final cap = LibraryAddCapabilityRegistry.instance
+          .getForKind(CatalogMediaKind.music);
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'm1');

@@ -280,8 +280,11 @@ class OwnedItemsCacheRepository {
     );
   }
 
-  CatalogEntityRef _catalogRefFromRow(OwnedItemsCacheData row, {String? catalogKind}) {
-    if (catalogKind != null && catalogKind.isNotEmpty && catalogKind != 'unknown') {
+  CatalogEntityRef _catalogRefFromRow(OwnedItemsCacheData row,
+      {String? catalogKind}) {
+    if (catalogKind != null &&
+        catalogKind.isNotEmpty &&
+        catalogKind != 'unknown') {
       return CatalogEntityRef(
         kind: catalogKind,
         entityType: CatalogEntityType.work,

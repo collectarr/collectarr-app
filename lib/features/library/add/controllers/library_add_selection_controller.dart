@@ -5,139 +5,179 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 
 class LibraryAddSelectionController {
   LibraryAddSelectionController({LibraryAddSelectionState? state})
-      : state = state ?? LibraryAddSelectionState();
+      : state = state ?? const LibraryAddSelectionState();
 
-  final LibraryAddSelectionState state;
+  LibraryAddSelectionState state;
 
   String? get selectedResultId => state.selectedResultId;
-  set selectedResultId(String? value) => state.selectedResultId = value;
+  set selectedResultId(String? value) => state = state.copyWith(
+      selectedResultId: value, clearSelectedResultId: value == null);
 
   String? get selectedProviderCandidateId => state.selectedProviderCandidateId;
-  set selectedProviderCandidateId(String? value) =>
-      state.selectedProviderCandidateId = value;
+  set selectedProviderCandidateId(String? value) => state = state.copyWith(
+      selectedProviderCandidateId: value,
+      clearSelectedProviderCandidateId: value == null);
 
   String? get selectedBundleReleaseId => state.selectedBundleReleaseId;
-  set selectedBundleReleaseId(String? value) =>
-      state.selectedBundleReleaseId = value;
+  set selectedBundleReleaseId(String? value) => state = state.copyWith(
+      selectedBundleReleaseId: value,
+      clearSelectedBundleReleaseId: value == null);
 
   String? get selectedReferenceEditionId => state.selectedReferenceEditionId;
-  set selectedReferenceEditionId(String? value) =>
-      state.selectedReferenceEditionId = value;
+  set selectedReferenceEditionId(String? value) => state = state.copyWith(
+      selectedReferenceEditionId: value,
+      clearSelectedReferenceEditionId: value == null);
 
   String? get selectedReferenceVariantId => state.selectedReferenceVariantId;
-  set selectedReferenceVariantId(String? value) =>
-      state.selectedReferenceVariantId = value;
+  set selectedReferenceVariantId(String? value) => state = state.copyWith(
+      selectedReferenceVariantId: value,
+      clearSelectedReferenceVariantId: value == null);
 
   Set<String> get checkedResultIds => state.checkedResultIds;
   Set<String> get checkedProviderIds => state.checkedProviderIds;
 
   LibraryAddReferenceType get referenceType => state.referenceType;
   set referenceType(LibraryAddReferenceType value) =>
-      state.referenceType = value;
+      state = state.copyWith(referenceType: value);
 
   bool get showCoreResults => state.showCoreResults;
-  set showCoreResults(bool value) => state.showCoreResults = value;
+  set showCoreResults(bool value) =>
+      state = state.copyWith(showCoreResults: value);
 
   bool get showProviderResults => state.showProviderResults;
-  set showProviderResults(bool value) => state.showProviderResults = value;
+  set showProviderResults(bool value) =>
+      state = state.copyWith(showProviderResults: value);
 
   bool get showMediaResults => state.showMediaResults;
-  set showMediaResults(bool value) => state.showMediaResults = value;
+  set showMediaResults(bool value) =>
+      state = state.copyWith(showMediaResults: value);
 
   bool get showSeasonResults => state.showSeasonResults;
-  set showSeasonResults(bool value) => state.showSeasonResults = value;
+  set showSeasonResults(bool value) =>
+      state = state.copyWith(showSeasonResults: value);
 
   bool get showReleaseResults => state.showReleaseResults;
-  set showReleaseResults(bool value) => state.showReleaseResults = value;
+  set showReleaseResults(bool value) =>
+      state = state.copyWith(showReleaseResults: value);
 
   bool get hideComicOwnedResults => state.hideComicOwnedResults;
-  set hideComicOwnedResults(bool value) => state.hideComicOwnedResults = value;
+  set hideComicOwnedResults(bool value) =>
+      state = state.copyWith(hideComicOwnedResults: value);
 
   bool get hideComicVariantResults => state.hideComicVariantResults;
   set hideComicVariantResults(bool value) =>
-      state.hideComicVariantResults = value;
+      state = state.copyWith(hideComicVariantResults: value);
 
   bool get compactComicIssues => state.compactComicIssues;
-  set compactComicIssues(bool value) => state.compactComicIssues = value;
+  set compactComicIssues(bool value) =>
+      state = state.copyWith(compactComicIssues: value);
 
   void toggleCheckedResult(String id) {
-    if (!checkedResultIds.remove(id)) {
-      checkedResultIds.add(id);
+    final updated = Set<String>.from(state.checkedResultIds);
+    if (!updated.remove(id)) {
+      updated.add(id);
     }
+    state = state.copyWith(checkedResultIds: updated);
   }
 
   void toggleCheckedProvider(String id) {
-    if (!checkedProviderIds.remove(id)) {
-      checkedProviderIds.add(id);
+    final updated = Set<String>.from(state.checkedProviderIds);
+    if (!updated.remove(id)) {
+      updated.add(id);
     }
+    state = state.copyWith(checkedProviderIds: updated);
   }
 
   void resetReferenceSelection() {
-    selectedBundleReleaseId = null;
-    selectedReferenceEditionId = null;
-    selectedReferenceVariantId = null;
-    referenceType = LibraryAddReferenceType.media;
+    state = state.copyWith(
+      clearSelectedBundleReleaseId: true,
+      clearSelectedReferenceEditionId: true,
+      clearSelectedReferenceVariantId: true,
+      referenceType: LibraryAddReferenceType.media,
+    );
   }
 
   void selectCoreResult(String id) {
-    selectedResultId = id;
-    selectedProviderCandidateId = null;
-    resetReferenceSelection();
+    state = state.copyWith(
+      selectedResultId: id,
+      clearSelectedProviderCandidateId: true,
+      clearSelectedBundleReleaseId: true,
+      clearSelectedReferenceEditionId: true,
+      clearSelectedReferenceVariantId: true,
+      referenceType: LibraryAddReferenceType.media,
+    );
   }
 
   void selectProviderCandidate(String id) {
-    selectedProviderCandidateId = id;
-    selectedResultId = null;
-    resetReferenceSelection();
+    state = state.copyWith(
+      selectedProviderCandidateId: id,
+      clearSelectedResultId: true,
+      clearSelectedBundleReleaseId: true,
+      clearSelectedReferenceEditionId: true,
+      clearSelectedReferenceVariantId: true,
+      referenceType: LibraryAddReferenceType.media,
+    );
   }
 
   void handleReferenceTypeChanged({
     required LibraryAddReferenceType value,
     required List<BundleReleaseSummary> bundleReleases,
   }) {
-    referenceType = value;
-    if (value != LibraryAddReferenceType.bundleRelease) {
-      selectedBundleReleaseId = null;
-    } else {
-      selectedBundleReleaseId ??=
-          bundleReleases.isNotEmpty ? bundleReleases.first.id : null;
+    String? firstBundleId;
+    if (value == LibraryAddReferenceType.bundleRelease) {
+      firstBundleId = state.selectedBundleReleaseId ??
+          (bundleReleases.isNotEmpty ? bundleReleases.first.id : null);
     }
-    if (value != LibraryAddReferenceType.edition) {
-      selectedReferenceEditionId = null;
-      selectedReferenceVariantId = null;
-    }
+    state = state.copyWith(
+      referenceType: value,
+      selectedBundleReleaseId: firstBundleId,
+      clearSelectedBundleReleaseId:
+          value != LibraryAddReferenceType.bundleRelease,
+      clearSelectedReferenceEditionId: value != LibraryAddReferenceType.edition,
+      clearSelectedReferenceVariantId: value != LibraryAddReferenceType.edition,
+    );
   }
 
   void handleReferenceEditionSelected(
       LibraryMetadataItem? item, String? editionId) {
-    if (item == null) {
-      return;
-    }
-    selectedReferenceEditionId = editionId;
-    selectedReferenceVariantId = null;
+    if (item == null) return;
+    state = state.copyWith(
+      selectedReferenceEditionId: editionId,
+      clearSelectedReferenceEditionId: editionId == null,
+      clearSelectedReferenceVariantId: true,
+    );
   }
 
   void handleReferenceVariantSelected(String? variantId) {
-    selectedReferenceVariantId = variantId;
+    state = state.copyWith(
+      selectedReferenceVariantId: variantId,
+      clearSelectedReferenceVariantId: variantId == null,
+    );
   }
 
   void handleBundleReleaseSelected(String bundleReleaseId) {
-    selectedBundleReleaseId = bundleReleaseId;
+    state = state.copyWith(
+      selectedBundleReleaseId: bundleReleaseId,
+    );
   }
 
   void pruneSelectionsForVisibility({
     required Set<String> visibleResultIds,
     required Set<String> visibleProviderIds,
   }) {
-    if (selectedResultId != null &&
-        !visibleResultIds.contains(selectedResultId)) {
-      selectedResultId = null;
-    }
-    if (selectedProviderCandidateId != null &&
-        !visibleProviderIds.contains(selectedProviderCandidateId)) {
-      selectedProviderCandidateId = null;
-    }
-    checkedResultIds.removeWhere((id) => !visibleResultIds.contains(id));
-    checkedProviderIds.removeWhere((id) => !visibleProviderIds.contains(id));
+    final checkedResults = Set<String>.from(state.checkedResultIds)
+      ..removeWhere((id) => !visibleResultIds.contains(id));
+    final checkedProviders = Set<String>.from(state.checkedProviderIds)
+      ..removeWhere((id) => !visibleProviderIds.contains(id));
+
+    state = state.copyWith(
+      clearSelectedResultId: state.selectedResultId != null &&
+          !visibleResultIds.contains(state.selectedResultId),
+      clearSelectedProviderCandidateId:
+          state.selectedProviderCandidateId != null &&
+              !visibleProviderIds.contains(state.selectedProviderCandidateId),
+      checkedResultIds: checkedResults,
+      checkedProviderIds: checkedProviders,
+    );
   }
 }

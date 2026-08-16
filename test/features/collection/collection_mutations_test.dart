@@ -543,7 +543,8 @@ void main() {
 
     final wishlistMutations = container.read(wishlistMutationsProvider);
     await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-4k');
-    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+    await wishlistMutations.addToWishlist('movie-1',
+        editionId: 'edition-bluray');
 
     final rows = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
@@ -570,7 +571,8 @@ void main() {
 
     final wishlistMutations = container.read(wishlistMutationsProvider);
     await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-4k');
-    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+    await wishlistMutations.addToWishlist('movie-1',
+        editionId: 'edition-bluray');
 
     await wishlistMutations.removeFromWishlist(
       'movie-1',

@@ -81,7 +81,8 @@ final class OwnedItemMutations {
 
         final resolvedIsDigital = common.isDigital ??
             (existingCatalog?.physicalFormat == 'digital' ||
-                existingCatalog?.physicalFormatLabel?.toLowerCase() == 'digital');
+                existingCatalog?.physicalFormatLabel?.toLowerCase() ==
+                    'digital');
         final resolvedCatalogRef = _catalogRefForItem(
           catalogRef.id,
           existingCatalog,
@@ -132,10 +133,12 @@ final class OwnedItemMutations {
         );
 
         await ownedItems.upsert(ownedItem);
-        await syncQueue.enqueue(_syncChangeForOwnedItem(ownedItem, 'upsert', now));
+        await syncQueue
+            .enqueue(_syncChangeForOwnedItem(ownedItem, 'upsert', now));
 
         if (existingCatalog != null) {
-          await syncQueue.enqueue(_syncChangeForCatalogItem(existingCatalog, now));
+          await syncQueue
+              .enqueue(_syncChangeForCatalogItem(existingCatalog, now));
         }
 
         if (existingWishlist != null) {
@@ -172,7 +175,8 @@ final class OwnedItemMutations {
           throw StateError('OwnedItem not found: ${command.ownedItemId}');
         }
 
-        final mediaKind = catalogMediaKindFromApiValue(existing.catalogRef.kind);
+        final mediaKind =
+            catalogMediaKindFromApiValue(existing.catalogRef.kind);
         final runtime = LibraryKindRegistry.instance.getByKind(mediaKind);
 
         final resolvedDetails = command.details.when(
@@ -306,7 +310,8 @@ final class OwnedItemMutations {
         );
 
         await ownedItems.upsert(updatedItem);
-        await syncQueue.enqueue(_syncChangeForOwnedItem(updatedItem, 'upsert', now));
+        await syncQueue
+            .enqueue(_syncChangeForOwnedItem(updatedItem, 'upsert', now));
         return updatedItem;
       },
       eventsToEmit: [OwnedItemUpdated(command.ownedItemId)],
@@ -371,7 +376,8 @@ final class OwnedItemMutations {
   ) async {
     final now = DateTime.now().toUtc();
     final wishlistEntries = await wishlist.findActiveByItemIds([localItemId]);
-    final trackingList = await trackingEntries.findActiveByItemIds([localItemId]);
+    final trackingList =
+        await trackingEntries.findActiveByItemIds([localItemId]);
 
     return await mutationRunner.run(
       action: () async {
@@ -389,7 +395,8 @@ final class OwnedItemMutations {
             updatedAt: now,
           );
           await wishlist.upsert(updated);
-          await syncQueue.enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
+          await syncQueue
+              .enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
           count++;
         }
 
@@ -403,7 +410,8 @@ final class OwnedItemMutations {
             updatedAt: now,
           );
           await trackingEntries.upsert(updated);
-          await syncQueue.enqueue(_syncChangeForTrackingEntry(updated, 'upsert', now));
+          await syncQueue
+              .enqueue(_syncChangeForTrackingEntry(updated, 'upsert', now));
           count++;
         }
 
@@ -454,7 +462,8 @@ final class OwnedItemMutations {
     );
   }
 
-  SyncChange _syncChangeForOwnedItem(OwnedItem item, String action, DateTime now) {
+  SyncChange _syncChangeForOwnedItem(
+      OwnedItem item, String action, DateTime now) {
     return SyncChange(
       id: 'owned_item:${item.id}:$action:${now.millisecondsSinceEpoch}',
       entityType: 'owned_item',
@@ -465,7 +474,8 @@ final class OwnedItemMutations {
     );
   }
 
-  SyncChange _syncChangeForWishlistItem(WishlistItem item, String action, DateTime now) {
+  SyncChange _syncChangeForWishlistItem(
+      WishlistItem item, String action, DateTime now) {
     return SyncChange(
       id: 'wishlist:${item.id}:$action:${now.millisecondsSinceEpoch}',
       entityType: 'wishlist_item',
@@ -476,7 +486,8 @@ final class OwnedItemMutations {
     );
   }
 
-  SyncChange _syncChangeForTrackingEntry(TrackingEntry entry, String action, DateTime now) {
+  SyncChange _syncChangeForTrackingEntry(
+      TrackingEntry entry, String action, DateTime now) {
     return SyncChange(
       id: 'tracking_entry:${entry.id}:$action:${now.millisecondsSinceEpoch}',
       entityType: 'tracking_entry',

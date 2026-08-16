@@ -28,7 +28,8 @@ final class MangaWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    throw UnsupportedError('Release projection is not supported for MangaWorkspaceProjector');
+    throw UnsupportedError(
+        'Release projection is not supported for MangaWorkspaceProjector');
   }
 
   @override
@@ -36,6 +37,7 @@ final class MangaWorkspaceProjector
     required ShelfEntry source,
     required LibraryCopyNodeRef node,
   }) {
-    throw UnsupportedError('Copy projection is not supported for MangaWorkspaceProjector');
+    throw UnsupportedError(
+        'Copy projection is not supported for MangaWorkspaceProjector');
   }
 }

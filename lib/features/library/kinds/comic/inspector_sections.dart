@@ -568,7 +568,9 @@ List<LibraryDetailField> _valueFacts(
   final snapshot = LibraryValueSnapshot.fromItem(
     item,
     ownedItem: ownedItem,
-    providerName: item.source.ownedItem?.marketValueCents != null ? 'Provider snapshot' : null,
+    providerName: item.source.ownedItem?.marketValueCents != null
+        ? 'Provider snapshot'
+        : null,
   );
 
   final rows = <LibraryDetailField>[];

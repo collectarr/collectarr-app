@@ -19,8 +19,8 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionRuntime item) {
   final releasePlatform = dto.referenceFormatLabel?.trim();
   final developer = dto.publisher?.trim();
   final ageRating = item.source.catalogItem?.ageRating?.trim();
-  final completion =
-      item.source.ownedItem?.collectionStatus?.trim() ?? (item.source.isOwned ? 'Owned' : null);
+  final completion = item.source.ownedItem?.collectionStatus?.trim() ??
+      (item.source.isOwned ? 'Owned' : null);
 
   if (releasePlatform != null && releasePlatform.isNotEmpty) {
     badges.add(

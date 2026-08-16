@@ -49,7 +49,8 @@ void main() {
   });
 
   group('Typed Tracking Mutations Contract Tests', () {
-    test('supports CatalogTrackingTarget with valid CatalogEntityRef', () async {
+    test('supports CatalogTrackingTarget with valid CatalogEntityRef',
+        () async {
       const ref = CatalogEntityRef(
         kind: 'movie',
         entityType: CatalogEntityType.work,
@@ -63,7 +64,9 @@ void main() {
         rating: 8,
       );
 
-      final entry = (await trackingEntries.findActiveByItemIds(['movie-target-1'])).single;
+      final entry =
+          (await trackingEntries.findActiveByItemIds(['movie-target-1']))
+              .single;
       expect(entry.catalogRef.kind, 'movie');
       expect(entry.catalogRef.id, 'movie-target-1');
       expect(entry.sourceType, TrackingSourceType.streaming);
@@ -71,7 +74,8 @@ void main() {
       expect(entry.rating, 8);
     });
 
-    test('supports OwnedItemTrackingTarget and resolves its CatalogEntityRef', () async {
+    test('supports OwnedItemTrackingTarget and resolves its CatalogEntityRef',
+        () async {
       final owned = OwnedItem(
         id: 'owned-item-77',
         catalogRef: const CatalogEntityRef(
@@ -92,13 +96,15 @@ void main() {
         status: MediaTrackingStatus.completed,
       );
 
-      final entry = (await trackingEntries.findActiveByItemIds(['book-77'])).single;
+      final entry =
+          (await trackingEntries.findActiveByItemIds(['book-77'])).single;
       expect(entry.ownedItemId, 'owned-item-77');
       expect(entry.catalogRef.kind, 'book');
       expect(entry.status, MediaTrackingStatus.completed);
     });
 
-    test('rejects invalid or unresolvable tracking target with ArgumentError', () async {
+    test('rejects invalid or unresolvable tracking target with ArgumentError',
+        () async {
       expect(
         () => trackingMutations.upsertTrackingEntry(
           TrackingTarget.owned('non-existent-owned-id'),
@@ -120,7 +126,8 @@ void main() {
         status: MediaTrackingStatus.planned,
       );
 
-      final entry = (await trackingEntries.findActiveByItemIds(['game-100'])).single;
+      final entry =
+          (await trackingEntries.findActiveByItemIds(['game-100'])).single;
       expect(entry.sourceType, isNull);
     });
 
@@ -142,7 +149,8 @@ void main() {
         episodeRatings: unitRatings,
       );
 
-      final entry = (await trackingEntries.findActiveByItemIds(['tv-series-1'])).single;
+      final entry =
+          (await trackingEntries.findActiveByItemIds(['tv-series-1'])).single;
       expect(entry.episodeRatings, equals(unitRatings));
     });
 
@@ -158,7 +166,9 @@ void main() {
         status: MediaTrackingStatus.completed,
       );
 
-      final entry = (await trackingEntries.findActiveByItemIds(['music-album-99'])).single;
+      final entry =
+          (await trackingEntries.findActiveByItemIds(['music-album-99']))
+              .single;
       expect(entry.catalogRef.kind, 'music');
       expect(entry.catalogRef.kind, isNot('comic'));
     });

@@ -4,7 +4,8 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 
-abstract interface class LibraryAddCapability<TDraft extends LibraryAddKindDraft> {
+abstract interface class LibraryAddCapability<
+    TDraft extends LibraryAddKindDraft> {
   CatalogMediaKind get kind;
 
   TDraft createInitialDraft();
@@ -50,7 +51,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
 class LibraryAddCapabilityRegistry {
   LibraryAddCapabilityRegistry._();
-  static final LibraryAddCapabilityRegistry instance = LibraryAddCapabilityRegistry._();
+  static final LibraryAddCapabilityRegistry instance =
+      LibraryAddCapabilityRegistry._();
 
   final Map<CatalogMediaKind, LibraryAddCapability> _capabilities = {
     CatalogMediaKind.comic: StandardLibraryAddCapability<ComicAddDraft>(

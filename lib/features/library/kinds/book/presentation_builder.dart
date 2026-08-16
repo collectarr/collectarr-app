@@ -299,11 +299,14 @@ class BookLibraryMediaPresentationBuilder
         LibraryDetailField(label: 'Grade', value: source.grade!.trim()),
       if (source.ownedItem?.collectionStatus?.trim().isNotEmpty == true)
         LibraryDetailField(
-            label: 'Collection Status', value: source.ownedItem!.collectionStatus!.trim()),
+            label: 'Collection Status',
+            value: source.ownedItem!.collectionStatus!.trim()),
       if (source.ownedItem?.rating != null)
-        LibraryDetailField(label: 'Rating', value: source.ownedItem!.rating!.toString()),
+        LibraryDetailField(
+            label: 'Rating', value: source.ownedItem!.rating!.toString()),
       if (source.locationPath?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Location', value: source.locationPath!.trim()),
+        LibraryDetailField(
+            label: 'Location', value: source.locationPath!.trim()),
       if (source.pricePaidCents != null)
         LibraryDetailField(
             label: 'Price Paid', value: source.pricePaidCents!.toString()),

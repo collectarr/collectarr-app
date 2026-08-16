@@ -29,7 +29,8 @@ final class ComicWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    throw UnsupportedError('Release projection is not supported for ComicWorkspaceProjector');
+    throw UnsupportedError(
+        'Release projection is not supported for ComicWorkspaceProjector');
   }
 
   @override
@@ -37,6 +38,7 @@ final class ComicWorkspaceProjector
     required ShelfEntry source,
     required LibraryCopyNodeRef node,
   }) {
-    throw UnsupportedError('Copy projection is not supported for ComicWorkspaceProjector');
+    throw UnsupportedError(
+        'Copy projection is not supported for ComicWorkspaceProjector');
   }
 }

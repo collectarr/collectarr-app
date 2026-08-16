@@ -30,10 +30,14 @@ class InspectorPrimaryActions extends StatelessWidget {
         runSpacing: 6,
         children: [
           OutlinedButton.icon(
-            onPressed: item.source.isWishlisted ? onRemoveWishlist : onAddWishlist,
-            icon: Icon(item.source.isWishlisted ? Icons.star : Icons.star_border),
+            onPressed:
+                item.source.isWishlisted ? onRemoveWishlist : onAddWishlist,
+            icon:
+                Icon(item.source.isWishlisted ? Icons.star : Icons.star_border),
             label: Text(
-              item.source.isWishlisted ? 'Remove from wishlist' : 'Move to wishlist',
+              item.source.isWishlisted
+                  ? 'Remove from wishlist'
+                  : 'Move to wishlist',
             ),
           ),
           OutlinedButton.icon(
@@ -66,10 +70,14 @@ class InspectorPrimaryActions extends StatelessWidget {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: item.source.isWishlisted ? onRemoveWishlist : onAddWishlist,
-                icon: Icon(item.source.isWishlisted ? Icons.star : Icons.star_border),
+                onPressed:
+                    item.source.isWishlisted ? onRemoveWishlist : onAddWishlist,
+                icon: Icon(
+                    item.source.isWishlisted ? Icons.star : Icons.star_border),
                 label: Text(
-                  item.source.isWishlisted ? 'Remove from wishlist' : 'Add to wishlist',
+                  item.source.isWishlisted
+                      ? 'Remove from wishlist'
+                      : 'Add to wishlist',
                 ),
               ),
             ),

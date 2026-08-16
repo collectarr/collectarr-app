@@ -17,7 +17,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('VideoReleaseProjectionCapability', () {
     const capability = VideoReleaseProjectionCapability<LibraryWorkspaceDto>();
-    final typeConfig = LibraryKindRegistry.instance.getByKind(CatalogMediaKind.movie).type;
+    final typeConfig =
+        LibraryKindRegistry.instance.getByKind(CatalogMediaKind.movie).type;
 
     test('no edition returns empty list', () {
       final catalogItem = CatalogItemDto(
@@ -100,7 +101,9 @@ void main() {
       );
 
       expect(items.length, 2);
-      final releaseIds = items.map((i) => (i.node as LibraryReleaseNodeRef).releaseId).toList();
+      final releaseIds = items
+          .map((i) => (i.node as LibraryReleaseNodeRef).releaseId)
+          .toList();
       expect(releaseIds, ['ed_1', 'ed_2']);
     });
 
@@ -123,7 +126,8 @@ void main() {
           id: 'movie_1',
         ),
       );
-      final source = ShelfEntry(itemId: 'movie_1', catalogItem: catalogItem, ownedItem: owned);
+      final source = ShelfEntry(
+          itemId: 'movie_1', catalogItem: catalogItem, ownedItem: owned);
 
       final items = capability.projectReleases(
         source: source,
@@ -158,7 +162,8 @@ void main() {
           id: 'movie_1',
         ),
       );
-      final source = ShelfEntry(itemId: 'movie_1', catalogItem: catalogItem, wishlistItem: wishlist);
+      final source = ShelfEntry(
+          itemId: 'movie_1', catalogItem: catalogItem, wishlistItem: wishlist);
 
       final items = capability.projectReleases(
         source: source,
@@ -200,7 +205,8 @@ void main() {
           id: 'movie_1',
         ),
       );
-      final source = ShelfEntry(itemId: 'movie_1', catalogItem: catalogItem, ownedItem: owned);
+      final source = ShelfEntry(
+          itemId: 'movie_1', catalogItem: catalogItem, ownedItem: owned);
 
       final items = capability.projectReleases(
         source: source,
@@ -234,7 +240,8 @@ void main() {
           id: 'movie_1',
         ),
       );
-      final source = ShelfEntry(itemId: 'movie_1', catalogItem: catalogItem, ownedItem: owned);
+      final source = ShelfEntry(
+          itemId: 'movie_1', catalogItem: catalogItem, ownedItem: owned);
 
       final items = capability.projectReleases(
         source: source,
@@ -249,7 +256,8 @@ void main() {
       expect(items.first.source.isOwned, isTrue);
     });
 
-    test('release cover, release date, and release barcode projected cleanly', () {
+    test('release cover, release date, and release barcode projected cleanly',
+        () {
       final catalogItem = CatalogItemDto(
         id: 'movie_1',
         kind: 'movie',
@@ -344,7 +352,8 @@ void main() {
     });
 
     test('unsupported scope fails explicitly for non-release kinds', () {
-      final comicConfig = LibraryKindRegistry.instance.getByKind(CatalogMediaKind.comic).type;
+      final comicConfig =
+          LibraryKindRegistry.instance.getByKind(CatalogMediaKind.comic).type;
       expect(comicConfig.releaseCapability, isNull);
 
       final shelf = ShelfState(

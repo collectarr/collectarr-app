@@ -92,7 +92,8 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   OwnedItemDetails defaultOwnedDetails() => ownedDetailsCodec.defaultDetails();
 
   @override
-  OwnedDetailsDraft defaultOwnedDetailsDraft() => ownedDetailsCodec.defaultDraft();
+  OwnedDetailsDraft defaultOwnedDetailsDraft() =>
+      ownedDetailsCodec.defaultDraft();
 
   @override
   Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details) {

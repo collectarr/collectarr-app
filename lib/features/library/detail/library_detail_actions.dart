@@ -36,8 +36,9 @@ class LibraryDetailActionStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isOwned =
-        ownedCopies.isNotEmpty || activeOwnedItem != null || item.source.isOwned;
+    final isOwned = ownedCopies.isNotEmpty ||
+        activeOwnedItem != null ||
+        item.source.isOwned;
     final removeLabel = ownedCopies.length > 1
         ? 'Remove selected copy'
         : 'Remove ${type.singularLabel.toLowerCase()}';

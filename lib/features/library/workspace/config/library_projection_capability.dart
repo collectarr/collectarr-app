@@ -6,7 +6,8 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 
-abstract interface class TitleProjectionCapability<TDto extends LibraryWorkspaceDto> {
+abstract interface class TitleProjectionCapability<
+    TDto extends LibraryWorkspaceDto> {
   LibraryProjectionItem<TDto> projectTitle({
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
@@ -15,25 +16,29 @@ abstract interface class TitleProjectionCapability<TDto extends LibraryWorkspace
   });
 }
 
-abstract interface class ReleaseProjectionCapability<TDto extends LibraryWorkspaceDto> {
+abstract interface class ReleaseProjectionCapability<
+    TDto extends LibraryWorkspaceDto> {
   List<LibraryProjectionItem<TDto>> projectReleases({
     required ShelfEntry source,
     required LibraryTypeConfig type,
     required LibraryWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
-    required Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
+    required Map<String, Map<String, String>>
+        customFieldValuesByDefinitionByItem,
     required Map<String, List<String>> customFieldValuesByItem,
     String? requestedTitleId,
   });
 }
 
-abstract interface class CopyProjectionCapability<TDto extends LibraryWorkspaceDto> {
+abstract interface class CopyProjectionCapability<
+    TDto extends LibraryWorkspaceDto> {
   List<LibraryProjectionItem<TDto>> projectCopies({
     required ShelfEntry source,
     required LibraryTypeConfig type,
     required LibraryWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
-    required Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
+    required Map<String, Map<String, String>>
+        customFieldValuesByDefinitionByItem,
     required Map<String, List<String>> customFieldValuesByItem,
     String? requestedTitleId,
   });

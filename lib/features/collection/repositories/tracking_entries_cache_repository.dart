@@ -98,7 +98,8 @@ class TrackingEntriesCacheRepository {
         );
   }
 
-  TrackingEntry _fromCache(TrackingEntriesCacheData row, {String? catalogKind}) {
+  TrackingEntry _fromCache(TrackingEntriesCacheData row,
+      {String? catalogKind}) {
     return TrackingEntry(
       id: row.id,
       catalogRef: _catalogRefForRow(row, catalogKind: catalogKind),
@@ -148,7 +149,8 @@ class TrackingEntriesCacheRepository {
     );
   }
 
-  CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row, {String? catalogKind}) {
+  CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row,
+      {String? catalogKind}) {
     final anchor = PersonalItemAnchor.fromRaw(
       anchorType: row.sourceType,
       editionId: row.editionId,

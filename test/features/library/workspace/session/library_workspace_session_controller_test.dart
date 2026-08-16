@@ -46,7 +46,8 @@ void main() {
       expect(controller.value.filters.visibleColumnIds, contains('publisher'));
 
       controller.toggleColumn('publisher');
-      expect(controller.value.filters.visibleColumnIds, isNot(contains('publisher')));
+      expect(controller.value.filters.visibleColumnIds,
+          isNot(contains('publisher')));
     });
 
     test('selectItem handles single and multi selection', () {
@@ -66,9 +67,11 @@ void main() {
     });
 
     test('setFolder updates selected folder node and display mode', () {
-      controller.setFolder('folder-123', displayMode: LibraryFolderDisplayMode.tree);
+      controller.setFolder('folder-123',
+          displayMode: LibraryFolderDisplayMode.tree);
       expect(controller.value.folder.selectedNodeId, 'folder-123');
-      expect(controller.value.folder.displayMode, LibraryFolderDisplayMode.tree);
+      expect(
+          controller.value.folder.displayMode, LibraryFolderDisplayMode.tree);
     });
 
     test('applyPreset updates viewMode', () {

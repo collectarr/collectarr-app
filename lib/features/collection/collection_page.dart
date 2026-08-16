@@ -173,9 +173,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     if (!entry.isWishlisted) {
       return;
     }
-    await ref
-        .read(wishlistMutationsProvider)
-        .removeFromWishlist(entry.itemId);
+    await ref.read(wishlistMutationsProvider).removeFromWishlist(entry.itemId);
     ref.invalidate(shelfProvider);
   }
 

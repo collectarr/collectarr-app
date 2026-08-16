@@ -21,7 +21,9 @@ void main() {
     await db.close();
   });
 
-  test('successful transaction commits write, emits event, and calls sync scheduler', () async {
+  test(
+      'successful transaction commits write, emits event, and calls sync scheduler',
+      () async {
     var syncScheduled = false;
     final runner = CollectionMutationRunner(
       database: db,
@@ -58,7 +60,8 @@ void main() {
     await sub.cancel();
   });
 
-  test('action failure rolls back transaction and emits no events or sync', () async {
+  test('action failure rolls back transaction and emits no events or sync',
+      () async {
     var syncScheduled = false;
     final runner = CollectionMutationRunner(
       database: db,

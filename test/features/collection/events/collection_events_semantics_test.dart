@@ -150,7 +150,8 @@ void main() {
       status: MediaTrackingStatus.inProgress,
     );
 
-    final entries = await TrackingEntriesCacheRepository(db).findActiveByItemIds(['book-300']);
+    final entries = await TrackingEntriesCacheRepository(db)
+        .findActiveByItemIds(['book-300']);
     final trackingEntry = entries.single;
 
     final events = <CollectionEvent>[];

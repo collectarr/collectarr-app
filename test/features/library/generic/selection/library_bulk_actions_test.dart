@@ -243,7 +243,8 @@ void main() {
         );
 
     await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-4k');
-    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-bluray');
+    await wishlistMutations.addToWishlist('movie-1',
+        editionId: 'edition-bluray');
 
     final rows = await db.select(db.wishlistItemsCache).get();
     final row4k = rows.firstWhere((row) => row.editionId == 'edition-4k');

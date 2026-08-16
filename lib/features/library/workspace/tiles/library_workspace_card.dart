@@ -304,8 +304,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                         ? null
                                         : 'Grade $gradeLabel',
                                 slabLabel: _coverSlabLabel(presentation),
-                                notesLabel:
-                                    libraryNotesMarkerLabel(item.source.personalNotes),
+                                notesLabel: libraryNotesMarkerLabel(
+                                    item.source.personalNotes),
                               ),
                             ),
                           ],
@@ -434,7 +434,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: releaseStatus,
                                     accentColor: accentColor,
                                   ),
-                                if (_compactNotesLabel(item.source.personalNotes)
+                                if (_compactNotesLabel(
+                                        item.source.personalNotes)
                                     case final noteLabel?)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.sticky_note_2_outlined,
@@ -632,8 +633,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 ),
                                 keyLabel: _coverKeyLabel(presentation),
                                 slabLabel: _coverSlabLabel(presentation),
-                                notesLabel:
-                                    libraryNotesMarkerLabel(item.source.personalNotes),
+                                notesLabel: libraryNotesMarkerLabel(
+                                    item.source.personalNotes),
                               ),
                             ),
                           ],

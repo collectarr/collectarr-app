@@ -49,7 +49,8 @@ class LibraryFilterEngine {
       LibraryCollectionStatusScope.forSale ||
       LibraryCollectionStatusScope.onOrder ||
       LibraryCollectionStatusScope.sold ||
-      LibraryCollectionStatusScope.notInCollection => true,
+      LibraryCollectionStatusScope.notInCollection =>
+        true,
     };
   }
 

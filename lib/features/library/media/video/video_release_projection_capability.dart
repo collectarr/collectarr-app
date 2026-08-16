@@ -18,14 +18,17 @@ final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
     required LibraryTypeConfig type,
     required LibraryWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
-    required Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
+    required Map<String, Map<String, String>>
+        customFieldValuesByDefinitionByItem,
     required Map<String, List<String>> customFieldValuesByItem,
     String? requestedTitleId,
   }) {
     final catalogItem = source.catalogItem;
     if (catalogItem == null) return const [];
     final requestedId = requestedTitleId?.trim();
-    if (requestedId != null && requestedId.isNotEmpty && catalogItem.id != requestedId) {
+    if (requestedId != null &&
+        requestedId.isNotEmpty &&
+        catalogItem.id != requestedId) {
       return const [];
     }
 

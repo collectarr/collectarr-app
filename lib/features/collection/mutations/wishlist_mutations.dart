@@ -80,7 +80,8 @@ final class WishlistMutations {
           );
           await wishlist.upsert(item);
           if (!itemId.startsWith('tmdb-local:')) {
-            await syncQueue.enqueue(_syncChangeForWishlistItem(item, 'upsert', now));
+            await syncQueue
+                .enqueue(_syncChangeForWishlistItem(item, 'upsert', now));
             await syncQueue.enqueue(_syncChangeForCatalogItemId(itemId, now));
           }
         }
@@ -135,7 +136,8 @@ final class WishlistMutations {
           );
           await wishlist.upsert(wishlistItem);
           if (!isLocalItem) {
-            await syncQueue.enqueue(_syncChangeForWishlistItem(wishlistItem, 'upsert', now));
+            await syncQueue.enqueue(
+                _syncChangeForWishlistItem(wishlistItem, 'upsert', now));
           }
         }
       },
@@ -178,7 +180,8 @@ final class WishlistMutations {
     await mutationRunner.run(
       action: () async {
         await wishlist.upsert(updated);
-        await syncQueue.enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
+        await syncQueue
+            .enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
         await syncQueue.enqueue(_syncChangeForCatalogItemId(item.itemId, now));
       },
       eventsToEmit: [WishlistChanged(item.itemId)],
@@ -318,7 +321,8 @@ final class WishlistMutations {
     );
   }
 
-  SyncChange _syncChangeForWishlistItem(WishlistItem item, String action, DateTime now) {
+  SyncChange _syncChangeForWishlistItem(
+      WishlistItem item, String action, DateTime now) {
     return SyncChange(
       id: 'wishlist:${item.id}:$action:${now.millisecondsSinceEpoch}',
       entityType: 'wishlist_item',

@@ -750,7 +750,8 @@ bool _matchesCollectionStatusScope(
 ) {
   final ownedItem = item.source.ownedItem;
   final isSold = ownedItem?.isSold == true;
-  final collectionStatus = item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
+  final collectionStatus =
+      item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
   final isWishlistOnly = item.source.isWishlisted && !item.source.isOwned;
   final isCatalogOnly = !item.source.isOwned && !item.source.isWishlisted;
   final isForSale = !isSold && collectionStatus == 'for_sale';

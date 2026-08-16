@@ -282,7 +282,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
       if (dto.barcode?.trim().isNotEmpty == true) ('Barcode', dto.barcode!),
       if (catalogItem?.genres?.isNotEmpty == true)
         ('Genres', catalogItem!.genres!.join(', ')),
-      if (item.source.tags?.trim().isNotEmpty == true) ('Tags', item.source.tags!),
+      if (item.source.tags?.trim().isNotEmpty == true)
+        ('Tags', item.source.tags!),
     ];
     final personalRows = <(String, String)>[
       if (owned?.condition?.trim().isNotEmpty == true)

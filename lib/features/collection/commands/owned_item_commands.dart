@@ -247,7 +247,9 @@ class GenericOwnedDetailsDraft extends OwnedDetailsDraft {
 
 OwnedDetailsDraft defaultDetailsDraftForKind(CatalogMediaKind kind) {
   try {
-    return LibraryKindRegistry.instance.getByKind(kind).defaultOwnedDetailsDraft();
+    return LibraryKindRegistry.instance
+        .getByKind(kind)
+        .defaultOwnedDetailsDraft();
   } catch (_) {
     return const GenericOwnedDetailsDraft();
   }

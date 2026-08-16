@@ -1,12 +1,19 @@
 export 'package:collectarr_app/features/collection/coordinators/collection_command_coordinator.dart';
 export 'package:collectarr_app/features/collection/events/collection_event.dart';
 export 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
-export 'package:collectarr_app/features/collection/mutations/collection_import_service.dart' hide IdGenerator;
-export 'package:collectarr_app/features/collection/mutations/custom_episode_mutations.dart' hide IdGenerator;
-export 'package:collectarr_app/features/collection/mutations/metadata_override_mutations.dart' hide IdGenerator;
-export 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart' hide IdGenerator;
-export 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart' hide IdGenerator;
-export 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart' hide IdGenerator;
-export 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart' hide IdGenerator;
+export 'package:collectarr_app/features/collection/mutations/collection_import_service.dart'
+    hide IdGenerator;
+export 'package:collectarr_app/features/collection/mutations/custom_episode_mutations.dart'
+    hide IdGenerator;
+export 'package:collectarr_app/features/collection/mutations/metadata_override_mutations.dart'
+    hide IdGenerator;
+export 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart'
+    hide IdGenerator;
+export 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart'
+    hide IdGenerator;
+export 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart'
+    hide IdGenerator;
+export 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart'
+    hide IdGenerator;
 export 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 export 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';

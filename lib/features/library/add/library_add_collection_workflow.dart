@@ -146,7 +146,7 @@ Future<void> addLibraryItemsToTarget({
       case LibraryAddTarget.owned:
         final addCmd = AddOwnedItemCommand(
           catalogRef: CatalogEntityRef(
-            kind: item.kind ?? 'unknown',
+            kind: item.kind,
             entityType: CatalogEntityType.ownedCopy,
             id: item.id,
           ),
@@ -175,7 +175,7 @@ Future<void> addLibraryItemsToTarget({
             finishedAt: ownedDetails?.finishedAt,
             tags: ownedDetails?.tags ?? defaults.tags,
           ),
-          details: switch (item.kind?.trim().toLowerCase()) {
+          details: switch (item.kind.trim().toLowerCase()) {
             'comic' || 'manga' => ComicOwnedDetailsDraft(
                 rawOrSlabbed:
                     isDigitalOwnedItem ? null : ownedDetails?.rawOrSlabbed,
@@ -193,19 +193,19 @@ Future<void> addLibraryItemsToTarget({
                 coverPriceCents:
                     isDigitalOwnedItem ? null : ownedDetails?.coverPriceCents,
               ),
-            _ => defaultDetailsDraftForKind(catalogMediaKindFromApiValue(item.kind)),
+            _ => defaultDetailsDraftForKind(
+                catalogMediaKindFromApiValue(item.kind)),
           },
         );
         final ownedItem = await ownedMutations.addOwnedItem(
           addCmd,
-          syncTracking: false,
-          notify: false,
         );
         await trackingMutations.syncOwnedTrackingEntry(
           ownedItem,
           editionId: ownedDetails?.editionId ?? reference.editionId,
           variantId: ownedDetails?.variantId ?? reference.variantId,
-          status: mediaTrackingStatusFromValue(ownedDetails?.readStatus ?? defaults.readStatus),
+          status: mediaTrackingStatusFromValue(
+              ownedDetails?.readStatus ?? defaults.readStatus),
           rating: ownedDetails?.rating,
           startedAt: ownedDetails?.startedAt,
           finishedAt: ownedDetails?.finishedAt,

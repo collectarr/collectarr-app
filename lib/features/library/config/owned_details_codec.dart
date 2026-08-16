@@ -123,7 +123,8 @@ class BoardgameOwnedDetailsCodec
       BoardgameOwnedDetails.fromJson(json);
 
   @override
-  Map<String, dynamic> toJson(BoardgameOwnedDetails details) => details.toJson();
+  Map<String, dynamic> toJson(BoardgameOwnedDetails details) =>
+      details.toJson();
 
   @override
   Map<String, dynamic> toSyncPayload(BoardgameOwnedDetails details) =>
