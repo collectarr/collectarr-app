@@ -131,9 +131,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
                 label: 'Sold to', value: genericLibraryDash(ownedItem?.soldTo)),
             LibraryDetailField(
                 label: 'Updated',
-                value:
-                    formatNullableDate(ownedItem?.updatedAt ?? dto.updatedAt) ??
-                        '-'),
+                value: formatNullableDate(ownedItem?.updatedAt) ?? '-'),
             LibraryDetailField(
                 label: 'Read status',
                 value: genericLibraryDash(trackingStatus)),
@@ -300,7 +298,7 @@ class LibraryDetailLocalSnapshotSection extends StatelessWidget {
             'owned_id: ${ownedItem?.id ?? '-'}',
             'edition_id: ${ownedItem?.editionId ?? '-'}',
             'variant_id: ${ownedItem?.variantId ?? '-'}',
-            'updated_at: ${item.dto.updatedAt.toUtc().toIso8601String()}',
+            'updated_at: ${(ownedItem?.updatedAt ?? DateTime.now()).toUtc().toIso8601String()}',
           ].join('\n'),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: appPalette(context).textMuted,

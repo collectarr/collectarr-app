@@ -1,10 +1,4 @@
-/// End-to-end smoke test for the Collectarr app across desktop and mobile form factors.
-///
-/// Launches the full [CollectarrApp] with mocked auth/sync/database providers
-/// and navigates through the main navigation destinations.
-///
-/// Run with:
-///   flutter test integration_test/app_smoke_test.dart
+/// Desktop and mobile smoke tests for navigation and mandatory destination keys.
 library;
 
 import 'dart:convert';
@@ -20,11 +14,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../test/helpers/secure_storage_mock.dart';
-import '../test/helpers/test_constants.dart';
+import '../helpers/secure_storage_mock.dart';
+import '../helpers/test_constants.dart';
 
 // ---------------------------------------------------------------------------
 // Fake auth / sync helpers
@@ -54,7 +47,7 @@ class _NoOpSyncController extends SyncController {
 // Test app builder
 // ---------------------------------------------------------------------------
 
-Widget _integrationApp({List<Override> overrides = const []}) {
+Widget _smokeApp({List<Override> overrides = const []}) {
   return ProviderScope(
     overrides: overrides,
     child: Consumer(
@@ -108,11 +101,9 @@ void _mockAuthPreferences() {
 // ---------------------------------------------------------------------------
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
   setUp(setUpSecureStorageMock);
 
-  group('App Smoke Tests', () {
+  group('App Mandatory Destination Smoke Tests', () {
     testWidgets(
         'desktop smoke: can navigate through all mandatory destinations',
         (tester) async {
@@ -124,7 +115,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        _integrationApp(overrides: _testOverrides()),
+        _smokeApp(overrides: _testOverrides()),
       );
       await pumpUntilSettled(tester);
 
@@ -175,8 +166,15 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
+      final originalOnError = FlutterError.onError;
+      FlutterError.onError = (details) {
+        debugPrint('FLUTTER ON ERROR CAUGHT:\n${details.toString()}');
+        originalOnError?.call(details);
+      };
+      addTearDown(() => FlutterError.onError = originalOnError);
+
       await tester.pumpWidget(
-        _integrationApp(overrides: _testOverrides()),
+        _smokeApp(overrides: _testOverrides()),
       );
       await pumpUntilSettled(tester);
 
@@ -197,8 +195,14 @@ void main() {
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 
-      // Verify no exceptions or RenderFlex overflows occurred
-      expect(tester.takeException(), isNull);
+      final err = tester.takeException();
+      if (err is FlutterError) {
+        debugPrint('FULL FLUTTER ERROR:\n${err.message}');
+        for (final d in err.diagnostics) {
+          debugPrint('  diag: ${d.toStringDeep()}');
+        }
+      }
+      expect(err, isNull);
     });
   });
 }

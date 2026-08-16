@@ -337,6 +337,8 @@ class LibraryTypeConfig {
   bool get supportsMetadataCompareWithServer =>
       capabilities.supportsMetadataCompareWithServer;
 
+  bool get supportsIndexReassignment => capabilities.supportsIndexReassignment;
+
   bool get supportsSeriesIssueJump =>
       workspaceBehavior.supportsSeriesIssueJump ||
       presentation.supportsSeriesIssueJump;

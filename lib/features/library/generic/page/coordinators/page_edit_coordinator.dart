@@ -272,7 +272,6 @@ class LibraryPageEditCoordinator {
 
     await ownedMutations.updateCatalogSnapshot(
       result.item.toCatalogItem(),
-      notify: owned == null && wishlist == null,
     );
     final personal = result.personal;
     if (owned != null && personal != null) {
@@ -284,15 +283,6 @@ class LibraryPageEditCoordinator {
             : const Patch.clear(),
         grade: personal.grade != null
             ? Patch.set(personal.grade)
-            : const Patch.clear(),
-        purchaseDate: personal.purchaseDate != null
-            ? Patch.set(personal.purchaseDate)
-            : const Patch.clear(),
-        pricePaidCents: personal.pricePaidCents != null
-            ? Patch.set(personal.pricePaidCents)
-            : const Patch.clear(),
-        currency: personal.currency != null
-            ? Patch.set(personal.currency)
             : const Patch.clear(),
         personalNotes: personal.personalNotes != null
             ? Patch.set(personal.personalNotes)
@@ -387,13 +377,12 @@ class LibraryPageEditCoordinator {
       await coordinator.updateOwnedItem(
         updateCmd,
         syncTracking: false,
-        notify: false,
       );
       await trackingMutations.syncOwnedTrackingEntry(
         owned,
         editionId: result.tracking?.editionId,
         variantId: result.tracking?.variantId,
-        status: result.tracking?.readStatus,
+        status: mediaTrackingStatusFromValue(result.tracking?.readStatus),
         rating: result.tracking?.rating,
         startedAt: result.tracking?.startedAt,
         finishedAt: result.tracking?.finishedAt,

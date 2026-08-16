@@ -76,17 +76,38 @@ class _AppShellState extends ConsumerState<AppShell> {
         .clamp(0, visibleBranches.length - 1);
 
     final pages = [
-      const _ShellPage(label: 'Libraries', icon: Icons.apps_outlined),
-      const _ShellPage(label: 'Shelf', icon: Icons.inventory_2),
-      const _ShellPage(label: 'Loans', icon: Icons.handshake_outlined),
-      const _ShellPage(label: 'Calendar', icon: Icons.calendar_month_outlined),
+      const _ShellPage(
+        key: Key('nav.library'),
+        label: 'Libraries',
+        icon: Icons.apps_outlined,
+      ),
+      const _ShellPage(
+        key: Key('nav.shelf'),
+        label: 'Shelf',
+        icon: Icons.inventory_2,
+      ),
+      const _ShellPage(
+        key: Key('nav.more'),
+        label: 'Loans',
+        icon: Icons.handshake_outlined,
+      ),
+      const _ShellPage(
+        key: Key('nav.calendar'),
+        label: 'Calendar',
+        icon: Icons.calendar_month_outlined,
+      ),
       if (isAdmin)
         const _ShellPage(
+          key: Key('nav.admin'),
           label: 'Admin',
           icon: Icons.admin_panel_settings_outlined,
           adminOnly: true,
         ),
-      const _ShellPage(label: 'Settings', icon: Icons.settings_outlined),
+      const _ShellPage(
+        key: Key('nav.settings'),
+        label: 'Settings',
+        icon: Icons.settings_outlined,
+      ),
     ];
 
     final shell = LibraryAccentScope(
@@ -164,11 +185,13 @@ class _AppShellState extends ConsumerState<AppShell> {
 
 class _ShellPage {
   const _ShellPage({
+    required this.key,
     required this.label,
     required this.icon,
     this.adminOnly = false,
   });
 
+  final Key key;
   final String label;
   final IconData icon;
   final bool adminOnly;
@@ -192,6 +215,11 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
     const bottomNavHeight = 44.0;
     final palette = appPalette(context);
     final accentData = LibraryAccentScope.of(context);
+    final isCompact = MediaQuery.sizeOf(context).width < 480;
+    final labelBehavior = isCompact
+        ? NavigationDestinationLabelBehavior.onlyShowSelected
+        : NavigationDestinationLabelBehavior.alwaysShow;
+
     return AnimatedLibraryChromeGradient(
       accent: accentData.accent,
       begin: Alignment.topLeft,
@@ -214,6 +242,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
                   palette.selection,
                 ),
           height: bottomNavHeight,
+          labelBehavior: labelBehavior,
           labelTextStyle: WidgetStatePropertyAll(
             TextStyle(
               color: palette.isDark ? Colors.white : palette.textPrimary,
@@ -234,6 +263,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
             Expanded(
               child: NavigationBar(
                 backgroundColor: Colors.transparent,
+                labelBehavior: labelBehavior,
                 indicatorColor: palette.isDark
                     ? accentData.accent.withValues(alpha: 0.52)
                     : Color.alphaBlend(
@@ -245,6 +275,7 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
                 destinations: [
                   for (final page in pages)
                     NavigationDestination(
+                      key: page.key,
                       icon: page.adminOnly
                           ? Badge(
                               label: const Text(
@@ -267,21 +298,23 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
                 ],
               ),
             ),
-            Tooltip(
-              message: 'Hide bottom navigation',
-              child: InkWell(
-                onTap: onToggleCollapsed,
-                child: SizedBox(
-                  width: 44,
-                  height: bottomNavHeight,
-                  child: Icon(
-                    Icons.expand_more,
-                    color: palette.isDark ? Colors.white : palette.textPrimary,
-                    size: 16,
+            if (!isCompact)
+              Tooltip(
+                message: 'Hide bottom navigation',
+                child: InkWell(
+                  onTap: onToggleCollapsed,
+                  child: SizedBox(
+                    width: 44,
+                    height: bottomNavHeight,
+                    child: Icon(
+                      Icons.expand_more,
+                      color:
+                          palette.isDark ? Colors.white : palette.textPrimary,
+                      size: 16,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

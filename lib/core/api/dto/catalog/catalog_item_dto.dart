@@ -525,6 +525,8 @@ sealed class CatalogItemDto {
   MusicCatalogDetailsDto? get music;
   GameCatalogDetailsDto? get game;
 
+  CatalogEntityRef get catalogRef => catalogRefForAnchor();
+
   CatalogEntityRef catalogRefForAnchor({
     String? anchorType,
     String? editionId,

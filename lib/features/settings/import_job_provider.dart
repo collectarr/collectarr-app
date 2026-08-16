@@ -555,7 +555,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         final enriched = await enrichedEntry;
         final mergedItem = _service.mergeMatchedCatalogItem(item, enriched);
         if (_shouldUpdateCatalogSnapshot(item, mergedItem)) {
-          await ownedMutations.updateCatalogSnapshot(mergedItem, notify: false);
+          await ownedMutations.updateCatalogSnapshot(mergedItem);
         }
         if (match.entry.collection.isRated) {
           await trackingMutations.upsertTrackingEntry(
