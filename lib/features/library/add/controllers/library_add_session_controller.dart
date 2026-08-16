@@ -465,7 +465,8 @@ class LibraryAddSessionController
 
       List<ProviderCandidate> results;
       if (kindsToSearch.length > 1) {
-        final futures = kindsToSearch.map((k) async {
+        final futures =
+            kindsToSearch.map<Future<List<ProviderCandidate>>>((k) async {
           try {
             return await runLibraryAddProviderSearch(
               api: api!,
@@ -483,7 +484,7 @@ class LibraryAddSessionController
           }
         });
         final allResults = await Future.wait(futures);
-        results = allResults.expand((r) => r).toList();
+        results = allResults.expand((r) => r).cast<ProviderCandidate>().toList();
       } else if (kindsToSearch.length == 1) {
         results = await runLibraryAddProviderSearch(
           api: api!,

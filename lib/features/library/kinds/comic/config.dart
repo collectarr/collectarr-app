@@ -89,7 +89,7 @@ final comicsLibraryConfig = LibraryTypeConfig(
 );
 
 List<LibraryGroupModeCategory> buildComicGroupModeCategories(
-  List<Object> modes,
+  List<String> modes,
 ) {
   String modeId(Object mode) {
     final normalized = mode.toString().contains('.')

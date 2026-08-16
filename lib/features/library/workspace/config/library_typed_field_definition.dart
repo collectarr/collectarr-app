@@ -98,6 +98,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.drilldownChildId,
     this.folderSetLabel,
     this.subgroupKey,
+    this.category,
   });
 
   final LibraryGroupId<TKind, TValue> id;
@@ -111,8 +112,10 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final String? drilldownChildId;
   final String? folderSetLabel;
   final String? Function(LibraryProjectionContext<TDto> context)? subgroupKey;
+  final String? category;
 
   String get resolvedSidebarTitle => sidebarTitle ?? label;
+  String get resolvedCategory => category ?? 'Main';
 
   String get resolvedBucketManagerListLabel =>
       bucketManagerListLabel ?? '$label list';
@@ -129,6 +132,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     String? drilldownChildId,
     String? folderSetLabel,
     String? Function(LibraryProjectionContext<TDto> context)? subgroupKey,
+    String? category,
   }) {
     return LibraryGroupDefinition<TKind, TDto, TValue>(
       id: id ?? this.id,
@@ -144,6 +148,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
       drilldownChildId: drilldownChildId ?? this.drilldownChildId,
       folderSetLabel: folderSetLabel ?? this.folderSetLabel,
       subgroupKey: subgroupKey ?? this.subgroupKey,
+      category: category ?? this.category,
     );
   }
 }
