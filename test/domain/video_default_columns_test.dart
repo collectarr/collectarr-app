@@ -7,7 +7,7 @@ void main() {
   test('video list defaults stay media-focused', () {
     for (final config in [moviesLibraryConfig]) {
       final defaultVisibleColumnIds =
-          libraryKindModuleForKind(config.workspace.kind)
+          libraryKindRuntimeForKind(config.workspace.kind)
               .fields
               .defaultVisibleColumnIds;
       expect(

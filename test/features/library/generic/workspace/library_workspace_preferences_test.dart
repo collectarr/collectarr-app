@@ -205,7 +205,7 @@ void main() {
     expect(restored.sortColumn, 'title');
     expect(
         restored.visibleColumns,
-        libraryKindModuleForType(mangaTypeConfig)
+        libraryKindRuntimeForType(mangaTypeConfig)
             .fields
             .defaultVisibleColumnIds);
     expect(restored.columnWidths, isEmpty);

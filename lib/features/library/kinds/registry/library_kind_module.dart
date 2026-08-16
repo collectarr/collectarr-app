@@ -29,13 +29,12 @@ abstract interface class LibraryKindRuntime {
   LibraryMediaAdapter get mediaAdapter;
   LibraryFieldRegistry<dynamic, LibraryWorkspaceDto> get fields;
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
-  LibraryKindWorkspaceBehavior get workspaceBehavior;
   LibraryAddCapability get add;
-  LibraryKindEditModule get edit;
-  LibraryKindDetailModule get detail;
-  LibraryKindToolbarModule get toolbar;
-  LibraryKindProviderMapper get providerMapper;
-  LibraryFacetModule get facets;
+
+  LibraryKindWorkspaceBehavior get workspaceBehavior;
+  LibraryKindToolbarModule? get toolbar;
+  LibraryKindProviderMapper? get providerMapper;
+  LibraryFacetModule? get facets;
 
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json);
   OwnedItemDetails defaultOwnedDetails();
@@ -83,13 +82,9 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required this.ownedDetailsCodec,
     required this.add,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
-    this.edit = const LibraryKindEditModule(),
-    this.detail = const LibraryKindDetailModule(),
-    this.toolbar = const LibraryKindToolbarModule(),
-    this.providerMapper = const NoopLibraryKindProviderMapper(),
-    this.facets = const LibraryFacetModule(
-      loadRows: _emptyFacetRows,
-    ),
+    this.toolbar,
+    this.providerMapper,
+    this.facets,
     LibraryCardPresentation Function(
       LibraryProjectionRuntime item, {
       required bool musicVertical,
@@ -112,10 +107,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   @override
   Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details) {
     validateOwnedDetails(details);
-    if (details is TDetails) {
-      return ownedDetailsCodec.toJson(details);
-    }
-    return details.toJson();
+    return ownedDetailsCodec.toJson(details as TDetails);
   }
 
   @override
@@ -150,15 +142,11 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   @override
   final LibraryAddCapability add;
   @override
-  final LibraryKindEditModule edit;
+  final LibraryKindToolbarModule? toolbar;
   @override
-  final LibraryKindDetailModule detail;
+  final LibraryKindProviderMapper? providerMapper;
   @override
-  final LibraryKindToolbarModule toolbar;
-  @override
-  final LibraryKindProviderMapper providerMapper;
-  @override
-  final LibraryFacetModule facets;
+  final LibraryFacetModule? facets;
 
   final LibraryCardPresentation Function(
     LibraryProjectionRuntime item, {
@@ -245,47 +233,69 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   }
 }
 
-typedef LibraryKindModule<TDto extends LibraryWorkspaceDto>
-    = LibraryKindSpec<TDto, OwnedItemDetails>;
+void validateKindRuntime(LibraryKindRuntime runtime) {
+  if (runtime.kind != runtime.type.workspace.kind) {
+    throw StateError(
+      'Kind mismatch in spec for "${runtime.type.workspace.title}": runtime.kind=${runtime.kind}, type.kind=${runtime.type.workspace.kind}',
+    );
+  }
 
-void validateKindRuntime(LibraryKindRuntime module) {
+  if (runtime.fields.kindNamespace != runtime.kind.apiValue) {
+    throw StateError(
+      'Namespace mismatch in spec for "${runtime.type.workspace.title}": fields.kindNamespace=${runtime.fields.kindNamespace}, expected=${runtime.kind.apiValue}',
+    );
+  }
+
   final columnIds = <String>{};
-  for (final col in module.fields.columns) {
+  for (final col in runtime.fields.columns) {
     if (!columnIds.add(col.id.value)) {
       throw StateError(
-        'Duplicate column ID "${col.id.value}" in kind spec "${module.type.workspace.title}"',
+        'Duplicate column ID "${col.id.value}" in kind spec "${runtime.type.workspace.title}"',
       );
     }
   }
 
   final sortIds = <String>{};
-  for (final sort in module.fields.sorts) {
+  for (final sort in runtime.fields.sorts) {
     if (!sortIds.add(sort.id.value)) {
       throw StateError(
-        'Duplicate sort ID "${sort.id.value}" in kind spec "${module.type.workspace.title}"',
+        'Duplicate sort ID "${sort.id.value}" in kind spec "${runtime.type.workspace.title}"',
       );
     }
   }
 
   final groupIds = <String>{};
-  for (final group in module.fields.groups) {
+  for (final group in runtime.fields.groups) {
     if (!groupIds.add(group.id.value)) {
       throw StateError(
-        'Duplicate group ID "${group.id.value}" in kind spec "${module.type.workspace.title}"',
+        'Duplicate group ID "${group.id.value}" in kind spec "${runtime.type.workspace.title}"',
       );
     }
   }
-}
 
-void validateKindModule(LibraryKindRuntime module) =>
-    validateKindRuntime(module);
+  for (final colId in runtime.fields.defaultVisibleColumnIds) {
+    if (runtime.fields.findColumnDefinition(colId) == null) {
+      throw StateError(
+        'Default visible column ID "$colId" not found in columns for kind spec "${runtime.type.workspace.title}"',
+      );
+    }
+  }
 
-class LibraryKindEditModule {
-  const LibraryKindEditModule();
-}
+  if (runtime.fields.findSortDefinition(runtime.fields.defaultSortId) == null) {
+    throw StateError(
+      'Default sort ID "${runtime.fields.defaultSortId}" not found in sorts for kind spec "${runtime.type.workspace.title}"',
+    );
+  }
 
-class LibraryKindDetailModule {
-  const LibraryKindDetailModule();
+  if (runtime.fields.defaultGroupId != null &&
+      runtime.fields.findGroupDefinition(runtime.fields.defaultGroupId!) ==
+          null) {
+    throw StateError(
+      'Default group ID "${runtime.fields.defaultGroupId}" not found in groups for kind spec "${runtime.type.workspace.title}"',
+    );
+  }
+
+  runtime.validateOwnedDetails(runtime.defaultOwnedDetails());
 }
 
 class LibraryKindToolbarModule {
@@ -307,8 +317,8 @@ abstract class LibraryKindProviderMapper {
   });
 }
 
-class NoopLibraryKindProviderMapper extends LibraryKindProviderMapper {
-  const NoopLibraryKindProviderMapper();
+class DefaultLibraryKindProviderMapper extends LibraryKindProviderMapper {
+  const DefaultLibraryKindProviderMapper();
 
   @override
   LibraryMetadataItem metadataItemFromPreview(AdminProviderPreview preview) {
@@ -350,7 +360,7 @@ class NoopLibraryKindProviderMapper extends LibraryKindProviderMapper {
   }
 }
 
-class CommonLibraryKindProviderMapper extends NoopLibraryKindProviderMapper {
+class CommonLibraryKindProviderMapper extends DefaultLibraryKindProviderMapper {
   const CommonLibraryKindProviderMapper();
 }
 
@@ -370,57 +380,3 @@ typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
   required String facetId,
   required Set<String> itemIds,
 });
-
-class LibraryFacetModuleProvider extends LibraryFacetProvider {
-  const LibraryFacetModuleProvider(this.module);
-
-  final LibraryFacetModule module;
-
-  @override
-  Future<FacetBuckets> load(LibraryFacetRequest request) async {
-    final rows = await module.loadRows(
-      api: request.api,
-      facetId: request.facetId,
-      itemIds: request.itemIds,
-    );
-    final byBucket = LibraryPageUtilities.parseFacetRows(rows, request.itemIds);
-    return LibraryPageUtilities.buildFacetBuckets(
-      signature: request.signature,
-      byBucket: byBucket,
-      allBucketLabel: request.allBucketLabel,
-      totalItemCount: request.itemIds.length,
-    );
-  }
-}
-
-Future<List<Map<String, dynamic>>> _emptyFacetRows({
-  required ApiClient api,
-  required String facetId,
-  required Set<String> itemIds,
-}) async {
-  return const <Map<String, dynamic>>[];
-}
-
-class LibraryFacetRequest {
-  const LibraryFacetRequest({
-    required this.api,
-    required this.type,
-    required this.facetId,
-    required this.itemIds,
-    required this.signature,
-    this.allBucketLabel,
-  });
-
-  final ApiClient api;
-  final LibraryTypeConfig type;
-  final String facetId;
-  final Set<String> itemIds;
-  final String signature;
-  final String? allBucketLabel;
-}
-
-abstract class LibraryFacetProvider {
-  const LibraryFacetProvider();
-
-  Future<FacetBuckets> load(LibraryFacetRequest request);
-}

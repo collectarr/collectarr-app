@@ -1323,8 +1323,9 @@ class LibraryAddSessionController
             previewState: previewController,
             providerActionService: providerActionService,
             providerOrchestrationService: providerOrchestrationService,
-            providerMapper:
-                libraryKindProviderMapperForType(type).buildCorrections,
+            providerMapper: (libraryKindProviderMapperForType(type) ??
+                    const DefaultLibraryKindProviderMapper())
+                .buildCorrections,
             visibleProviderResults: () => state.visibleProviderResults(type),
             showEditDialog: (ctx, req) =>
                 showLibraryEditDialog(context: ctx, request: req),

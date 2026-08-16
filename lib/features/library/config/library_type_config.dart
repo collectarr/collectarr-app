@@ -623,7 +623,7 @@ class LibraryKindUiAdapter {
   ) {
     final modeId = type._definitionIdFor(mode);
     final groupDef =
-        libraryKindModuleForType(type).fields.findGroupDefinition(modeId);
+        libraryKindRuntimeForType(type).fields.findGroupDefinition(modeId);
     return groupDef?.supportsBucketManagement ?? false;
   }
 
@@ -909,7 +909,7 @@ class LibraryTypeConfig {
       manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
   List<String> get availableGroupModes {
-    final module = libraryKindModuleForType(this);
+    final module = libraryKindRuntimeForType(this);
     return [for (final definition in module.fields.groups) definition.id.value];
   }
 
@@ -964,7 +964,7 @@ class LibraryTypeConfig {
   List<String> availableSortColumnsForBrowserMode(
     LibraryWorkspaceBrowserMode browserMode,
   ) {
-    final module = libraryKindModuleForType(this);
+    final module = libraryKindRuntimeForType(this);
     final allSorts = [
       for (final def in module.fields.sorts) def.id.value,
     ];

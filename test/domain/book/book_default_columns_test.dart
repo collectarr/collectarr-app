@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('book list defaults stay book-focused', () {
     expect(
-      libraryKindModuleForKind(CatalogMediaKind.book)
+      libraryKindRuntimeForKind(CatalogMediaKind.book)
           .fields
           .defaultVisibleColumnIds,
       containsAll(<Object>{

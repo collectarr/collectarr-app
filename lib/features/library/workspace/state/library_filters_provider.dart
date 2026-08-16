@@ -57,7 +57,7 @@ class LibraryFilters extends StateNotifier<LibraryFilterState> {
   }
 
   void reset() {
-    final module = libraryKindModuleForKind(key.kind);
+    final module = libraryKindRuntimeForKind(key.kind);
 
     state = LibraryFilterState(
       groupId: module.fields.defaultGroupId,

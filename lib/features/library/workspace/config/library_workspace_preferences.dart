@@ -112,7 +112,7 @@ class LibraryWorkspacePreferences {
         prefs.getDouble(_key('details_width')) ?? defaultDetailsWidth;
     final detailsHeight =
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     final savedSortColumn = prefs.getString(_key('sort_column'));
     var sortColumn = module.fields.defaultSortId;
     if (savedSortColumn != null) {
@@ -187,7 +187,7 @@ class LibraryWorkspacePreferences {
       snapshot.columnWidths,
     );
     final normalizedSortRules = _normalizeSortRules(snapshot.sortRules);
-    final writeModule = libraryKindModuleForType(config);
+    final writeModule = libraryKindRuntimeForType(config);
     final sortDef = writeModule.fields.findSortDefinition(snapshot.sortColumn);
     final normalizedSortColumn =
         sortDef?.id.value ?? writeModule.fields.defaultSortId;
@@ -257,7 +257,7 @@ class LibraryWorkspacePreferences {
   String _key(String suffix) => config.preferenceKey(suffix);
 
   Set<String> _decodeVisibleColumns(List<String>? values) {
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     final defaultCols = module.fields.defaultVisibleColumnIds;
     if (values == null || values.isEmpty) {
       return Set.of(defaultCols);
@@ -296,7 +296,7 @@ class LibraryWorkspacePreferences {
     if (values == null || values.isEmpty) {
       return null;
     }
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     final rules = <LibrarySortRule>[];
     for (final value in values) {
       final parts = value.split(':');
@@ -322,7 +322,7 @@ class LibraryWorkspacePreferences {
     if (values == null || values.isEmpty) {
       return const {};
     }
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     final widths = <String, double>{};
     for (final value in values) {
       final parts = value.split(':');
@@ -343,7 +343,7 @@ class LibraryWorkspacePreferences {
   Set<String> _normalizeVisibleColumns(
     Set<String> columns,
   ) {
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     final defaultCols = module.fields.defaultVisibleColumnIds;
     final normalized = <String>{};
     for (final column in columns) {
@@ -362,7 +362,7 @@ class LibraryWorkspacePreferences {
   Map<String, double> _normalizeColumnWidths(
     Map<String, double> widths,
   ) {
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     final normalized = <String, double>{};
     for (final entry in widths.entries) {
       final colDef = module.fields.findColumnDefinition(entry.key);
@@ -377,7 +377,7 @@ class LibraryWorkspacePreferences {
     if (rules == null || rules.isEmpty) {
       return null;
     }
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     final normalized = <LibrarySortRule>[];
     final seen = <String>{};
     for (final rule in rules) {

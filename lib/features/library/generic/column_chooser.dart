@@ -24,7 +24,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
       availableColumns: [
-        for (final def in libraryKindModuleForType(type).fields.columns)
+        for (final def in libraryKindRuntimeForType(type).fields.columns)
           def.id.value,
       ],
       selectedColumns: viewState.visibleColumns,

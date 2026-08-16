@@ -194,7 +194,8 @@ class LibraryToolbarActionRegistry {
     final availability = actionContext.view.type.toolbarActionAvailability;
     final kindCapabilities = availability.capabilities;
     final kindToolbarActions =
-        libraryKindModuleForType(actionContext.view.type).toolbar.actions;
+        libraryKindRuntimeForType(actionContext.view.type).toolbar?.actions ??
+            const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
     final extraUtilityActions = kindToolbarActions
         .map(

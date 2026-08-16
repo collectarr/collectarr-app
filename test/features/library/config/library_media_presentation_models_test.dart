@@ -17,12 +17,12 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('all library presentations declare complete group mode definitions', () {
     final registries = <String, LibraryFieldRegistry<dynamic, dynamic>>{
-      'books': libraryKindModuleForType(booksLibraryConfig).fields,
-      'board games': libraryKindModuleForType(boardGamesLibraryConfig).fields,
-      'comics': libraryKindModuleForType(comicsLibraryConfig).fields,
-      'games': libraryKindModuleForType(gamesLibraryConfig).fields,
-      'movies': libraryKindModuleForType(moviesLibraryConfig).fields,
-      'music': libraryKindModuleForType(musicLibraryConfig).fields,
+      'books': libraryKindRuntimeForType(booksLibraryConfig).fields,
+      'board games': libraryKindRuntimeForType(boardGamesLibraryConfig).fields,
+      'comics': libraryKindRuntimeForType(comicsLibraryConfig).fields,
+      'games': libraryKindRuntimeForType(gamesLibraryConfig).fields,
+      'movies': libraryKindRuntimeForType(moviesLibraryConfig).fields,
+      'music': libraryKindRuntimeForType(musicLibraryConfig).fields,
     };
 
     for (final entry in registries.entries) {
@@ -50,12 +50,12 @@ void main() {
   test('all library presentations declare complete sort column definitions',
       () {
     final registries = <String, LibraryFieldRegistry<dynamic, dynamic>>{
-      'books': libraryKindModuleForType(booksLibraryConfig).fields,
-      'board games': libraryKindModuleForType(boardGamesLibraryConfig).fields,
-      'comics': libraryKindModuleForType(comicsLibraryConfig).fields,
-      'games': libraryKindModuleForType(gamesLibraryConfig).fields,
-      'movies': libraryKindModuleForType(moviesLibraryConfig).fields,
-      'music': libraryKindModuleForType(musicLibraryConfig).fields,
+      'books': libraryKindRuntimeForType(booksLibraryConfig).fields,
+      'board games': libraryKindRuntimeForType(boardGamesLibraryConfig).fields,
+      'comics': libraryKindRuntimeForType(comicsLibraryConfig).fields,
+      'games': libraryKindRuntimeForType(gamesLibraryConfig).fields,
+      'movies': libraryKindRuntimeForType(moviesLibraryConfig).fields,
+      'music': libraryKindRuntimeForType(musicLibraryConfig).fields,
     };
     final configuredSortColumns = <String, Set<String>>{
       'books': registries['books']!

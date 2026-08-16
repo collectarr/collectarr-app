@@ -122,7 +122,7 @@ class LibraryMediaAdapter {
 
   Set<String> defaultTableColumns() {
     return Set.of(
-        libraryKindModuleForType(type).fields.defaultVisibleColumnIds);
+        libraryKindRuntimeForType(type).fields.defaultVisibleColumnIds);
   }
 
   Widget buildTableCell(LibraryProjectionRuntime item, String column) {

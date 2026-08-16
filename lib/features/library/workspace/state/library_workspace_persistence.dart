@@ -23,7 +23,7 @@ Future<LibraryFilterState> loadPersistedFilterState(
   LibraryWorkspaceKey key,
 ) async {
   final prefs = await SharedPreferences.getInstance();
-  final module = libraryKindModuleForKind(key.kind);
+  final module = libraryKindRuntimeForKind(key.kind);
 
   final sortId =
       prefs.getString(_k(key, 'sort_id')) ?? module.fields.defaultSortId;

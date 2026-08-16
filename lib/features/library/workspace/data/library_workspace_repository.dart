@@ -110,7 +110,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
   Stream<List<LibraryProjectionRuntime>> _watchFromDb(
       LibraryWorkspaceQuery query) {
     final db = ref.read(localDatabaseProvider);
-    final module = libraryKindModuleForKind(query.kind);
+    final module = libraryKindRuntimeForKind(query.kind);
 
     final statement = db.select(db.catalogCache).join([
       leftOuterJoin(
@@ -228,7 +228,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     List<ShelfEntry> shelfEntries,
     LibraryWorkspaceQuery query,
   ) {
-    final module = libraryKindModuleForKind(query.kind);
+    final module = libraryKindRuntimeForKind(query.kind);
 
     final items = <LibraryProjectionRuntime>[];
     for (final source in shelfEntries) {

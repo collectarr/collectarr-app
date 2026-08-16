@@ -11,8 +11,8 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   group('Isolated Runtime Type Erasure Tests', () {
-    final comicModule = libraryKindModuleForKind(CatalogMediaKind.comic);
-    final bookModule = libraryKindModuleForKind(CatalogMediaKind.book);
+    final comicModule = libraryKindRuntimeForKind(CatalogMediaKind.comic);
+    final bookModule = libraryKindRuntimeForKind(CatalogMediaKind.book);
 
     LibraryProjectionItem createComicItem(String id, String title) {
       final source = ShelfEntry(
@@ -109,7 +109,7 @@ void main() {
         () {
       for (final kind in CatalogMediaKind.values
           .where((k) => k != CatalogMediaKind.unknown)) {
-        final runtime = libraryKindModuleForKind(kind);
+        final runtime = libraryKindRuntimeForKind(kind);
         expect(runtime.kind, kind);
         expect(runtime.fields, isNotNull);
         expect(runtime.projector, isNotNull);

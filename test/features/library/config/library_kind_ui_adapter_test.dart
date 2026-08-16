@@ -32,7 +32,7 @@ void main() {
 
   test('browser mode resolution stays in the kind adapter', () {
     final adapter = booksLibraryConfig.kindUiAdapter;
-    final bookModule = libraryKindModuleForType(booksLibraryConfig);
+    final bookModule = libraryKindRuntimeForType(booksLibraryConfig);
     final state = LibraryWorkspaceViewState(
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,

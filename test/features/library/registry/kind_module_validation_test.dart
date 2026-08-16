@@ -11,7 +11,7 @@ void main() {
   group('Kind Module Validation & Namespacing (Tasks 8 & 9)', () {
     test('all registered kind modules pass validation', () {
       for (final module in collectarrKindModules) {
-        expect(() => validateKindModule(module), returnsNormally);
+        expect(() => validateKindRuntime(module), returnsNormally);
       }
     });
 
@@ -24,8 +24,8 @@ void main() {
     test(
         'field IDs across different kinds are distinctly namespaced (no collision)',
         () {
-      final movieModule = libraryKindModuleForKind(CatalogMediaKind.movie);
-      final gameModule = libraryKindModuleForKind(CatalogMediaKind.game);
+      final movieModule = libraryKindRuntimeForKind(CatalogMediaKind.movie);
+      final gameModule = libraryKindRuntimeForKind(CatalogMediaKind.game);
 
       final movieReleaseSort =
           movieModule.fields.sortDefinitionForId('movie.release_date');

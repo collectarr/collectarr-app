@@ -51,7 +51,7 @@ class LibraryColumnPresetStore {
       columns: {
         for (final column in columns)
           if (_columnById(column) != null) _columnById(column)!,
-        if (libraryKindModuleForType(config)
+        if (libraryKindRuntimeForType(config)
                 .fields
                 .findColumnDefinition('title') !=
             null)
@@ -93,7 +93,7 @@ class LibraryColumnPresetStore {
         for (final value in (json['columns'] as List<dynamic>? ?? []))
           if (_columnById(value.toString()) != null)
             _columnById(value.toString())!,
-        if (libraryKindModuleForType(config)
+        if (libraryKindRuntimeForType(config)
                 .fields
                 .findColumnDefinition('title') !=
             null)
@@ -113,7 +113,7 @@ class LibraryColumnPresetStore {
   }
 
   String? _columnById(String id) {
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     final colDef = module.fields.findColumnDefinition(id);
     return colDef?.id.value;
   }

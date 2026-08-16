@@ -32,7 +32,7 @@ class LibraryFacetValuesInput {
 /// present in the user's local collection for this kind.
 final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
     .family<List<String>, LibraryFacetValuesInput>((ref, input) {
-  final module = libraryKindModuleForKind(input.key.kind);
+  final module = libraryKindRuntimeForKind(input.key.kind);
   final groupDef = module.fields.findGroupDefinition(input.facetId);
   final columnDef = module.fields.findColumnDefinition(input.facetId);
 

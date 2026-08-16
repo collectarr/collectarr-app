@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Canonical & Kind-Scoped Group Mode Resolution Tests', () {
-    final comicModule = libraryKindModuleForKind(CatalogMediaKind.comic);
-    final bookModule = libraryKindModuleForKind(CatalogMediaKind.book);
+    final comicModule = libraryKindRuntimeForKind(CatalogMediaKind.comic);
+    final bookModule = libraryKindRuntimeForKind(CatalogMediaKind.book);
 
     test('findGroupDefinition resolves canonical kind-qualified group ID', () {
       final comicSeriesDef =

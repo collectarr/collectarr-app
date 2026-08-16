@@ -61,7 +61,7 @@ void main() {
     expect(config.pluralLabel, 'Podcasts');
     expect(config.defaultMetadataProvider, 'podindex');
     expect(config.presentation, genericLibraryMediaPresentation);
-    expect(libraryKindModuleForType(config).fields.defaultVisibleColumnIds,
+    expect(libraryKindRuntimeForType(config).fields.defaultVisibleColumnIds,
         contains('title'));
     expect(config.workspace.icon, Icons.category_outlined);
     expect(config.workspace.accent, kLibraryFallbackAccent);

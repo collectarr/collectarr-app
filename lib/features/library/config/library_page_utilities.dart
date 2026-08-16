@@ -121,15 +121,28 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
     required String signature,
     String? allBucketLabel,
   }) async {
-    return libraryFacetProviderForType(type).load(
-      LibraryFacetRequest(
-        api: ref.read(apiClientProvider),
-        type: type,
-        facetId: facetId,
-        itemIds: itemIds,
-        signature: signature,
-        allBucketLabel: allBucketLabel,
-      ),
+    final facets = libraryKindRuntimeForType(type).facets;
+    if (facets == null) {
+      return FacetBuckets(
+        shelfSignature: signature,
+        buckets: const [],
+        itemIdsByBucket: const {},
+      );
+    }
+    final rows = await facets.loadRows(
+      api: ref.read(apiClientProvider),
+      facetId: facetId,
+      itemIds: itemIds,
+    );
+    final byBucket = LibraryPageUtilities.parseFacetRows(
+      rows,
+      itemIds,
+    );
+    return LibraryPageUtilities.buildFacetBuckets(
+      signature: signature,
+      byBucket: byBucket,
+      allBucketLabel: allBucketLabel,
+      totalItemCount: itemIds.length,
     );
   }
 

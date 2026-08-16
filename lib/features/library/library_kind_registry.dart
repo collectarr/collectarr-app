@@ -65,19 +65,7 @@ LibraryKindRuntime libraryKindRuntimeForType(LibraryTypeConfig type) {
   return LibraryKindRegistry.instance.getByType(type);
 }
 
-LibraryKindRuntime libraryKindModuleForKind(CatalogMediaKind kind) {
-  return libraryKindRuntimeForKind(kind);
-}
-
-LibraryKindRuntime libraryKindModuleForType(LibraryTypeConfig type) {
-  return libraryKindRuntimeForType(type);
-}
-
-LibraryKindProviderMapper libraryKindProviderMapperForType(
+LibraryKindProviderMapper? libraryKindProviderMapperForType(
     LibraryTypeConfig type) {
   return libraryKindRuntimeForType(type).providerMapper;
-}
-
-LibraryFacetProvider libraryFacetProviderForType(LibraryTypeConfig type) {
-  return LibraryFacetModuleProvider(libraryKindRuntimeForType(type).facets);
 }

@@ -96,7 +96,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
       return emptyBuilder(context);
     }
     final presentation = groups.first.presentation;
-    final showSeasonGroupProgress = libraryKindModuleForType(type)
+    final showSeasonGroupProgress = libraryKindRuntimeForType(type)
         .workspaceBehavior
         .showsSeasonGroupProgress;
     return switch (presentation) {

@@ -152,7 +152,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final type = collectarrLibraryTypes.byKind(
       catalogMediaKindFromValue(item.source.catalogItem?.kind),
     );
-    final module = type != null ? libraryKindModuleForType(type) : null;
+    final module = type != null ? libraryKindRuntimeForType(type) : null;
     final musicVertical = cardLayout == LibraryCardLayout.vertical;
     final presentation = module?.buildCardPresentation(
           item,

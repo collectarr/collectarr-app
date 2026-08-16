@@ -199,7 +199,7 @@ LibraryGroupDefinition<dynamic, dynamic, Object?>?
   LibraryTypeConfig? type,
 ]) {
   if (type != null) {
-    final module = libraryKindModuleForType(type);
+    final module = libraryKindRuntimeForType(type);
     return module.fields.findGroupDefinition(mode);
   }
   return null;
@@ -296,7 +296,7 @@ String? libraryGroupModeFromStorageValue(String value,
       normalized.startsWith('group.') ? normalized.substring(6) : normalized;
 
   if (type != null) {
-    final module = libraryKindModuleForType(type);
+    final module = libraryKindRuntimeForType(type);
     return module.fields.findGroupDefinition(candidate)?.id.value;
   }
 

@@ -80,7 +80,7 @@ class LibraryWorkspaceViewProfile {
       return fromPreferences(cached)
           .withChrome(LibraryWorkspacePreferences.cachedChromeFor(type));
     }
-    final module = libraryKindModuleForType(type);
+    final module = libraryKindRuntimeForType(type);
     final defaults = LibraryWorkspaceViewState(
       browserMode: LibraryWorkspaceBrowserMode.media,
       viewMode: defaultViewMode,

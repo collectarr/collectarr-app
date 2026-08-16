@@ -29,7 +29,7 @@ void main() {
         plannedMediaTableColumnLabelForType(musicLibraryConfig, 'disc_count'),
         'Disc Count');
     expect(
-      libraryKindModuleForKind(CatalogMediaKind.music)
+      libraryKindRuntimeForKind(CatalogMediaKind.music)
           .fields
           .defaultVisibleColumnIds,
       containsAll([

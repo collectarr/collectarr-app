@@ -29,7 +29,7 @@ LibraryMediaAdapter plannedMediaAdapter(
     orderedTableColumns: (columns) => orderedLibraryTableColumns(
       columns: columns,
       defaultColumns:
-          libraryKindModuleForType(type).fields.defaultVisibleColumnIds,
+          libraryKindRuntimeForType(type).fields.defaultVisibleColumnIds,
     ),
     tableWidthForColumns: (columns, customWidths) =>
         plannedMediaTableWidthForColumns(
@@ -51,7 +51,7 @@ LibraryMediaAdapter plannedMediaAdapter(
     tableCellBuilder: (item, column) =>
         plannedMediaTableCell(type, item, column),
     compareEntriesByColumn: compareEntriesByColumn ??
-        (left, right, column) => libraryKindModuleForType(type)
+        (left, right, column) => libraryKindRuntimeForType(type)
             .fields
             .sortDefinitionFor(column)
             .compare(
@@ -96,7 +96,7 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
         clampPlannedMediaTableColumnWidth(type, column as String, width),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
     sortAscendingForColumn: (column) =>
-        libraryKindModuleForType(type)
+        libraryKindRuntimeForType(type)
             .fields
             .findSortDefinition(column.toString())
             ?.defaultAscending ??
@@ -109,7 +109,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
   LibraryWorkspacePreset preset,
 ) {
   final defaultCols =
-      Set.of(libraryKindModuleForType(type).fields.defaultVisibleColumnIds);
+      Set.of(libraryKindRuntimeForType(type).fields.defaultVisibleColumnIds);
   return switch (preset) {
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
@@ -153,7 +153,7 @@ Iterable<String> plannedMediaLinkedMetadataCandidatesForEntry(
   LibraryTypeConfig type,
   ShelfEntry source,
 ) {
-  final registry = libraryKindModuleForType(type).fields;
+  final registry = libraryKindRuntimeForType(type).fields;
   return registry.linkedMetadataCandidates(source);
 }
 
@@ -162,7 +162,7 @@ String? plannedMediaSubgroupKeyForEntry(
   LibraryProjectionRuntime item,
   Object groupMode,
 ) {
-  final registry = libraryKindModuleForType(type).fields;
+  final registry = libraryKindRuntimeForType(type).fields;
   final definition = registry.findGroupDefinition(groupMode.toString());
   return definition?.subgroupKey?.call(
     LibraryProjectionContext(

@@ -95,7 +95,7 @@ class LibrarySortPresetStore {
   }
 
   Map<String, dynamic> _presetToJson(LibrarySortPreset preset) {
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     return {
       'id': preset.id,
       'label': preset.label,
@@ -115,7 +115,7 @@ class LibrarySortPresetStore {
     if (rawRules is! List) {
       return const [];
     }
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     final rules = <LibrarySortRule>[];
     for (final value in rawRules) {
       final json = switch (value) {
@@ -143,7 +143,7 @@ class LibrarySortPresetStore {
   }
 
   List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
-    final module = libraryKindModuleForType(config);
+    final module = libraryKindRuntimeForType(config);
     final seen = <String>{};
     final deduped = <LibrarySortRule>[];
     for (final rule in rules) {

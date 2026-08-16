@@ -303,7 +303,7 @@ void main() {
       isNotEmpty,
     );
     expect(
-      libraryKindModuleForType(boardGamesLibraryConfig)
+      libraryKindRuntimeForType(boardGamesLibraryConfig)
           .fields
           .sorts
           .map((d) => d.id.value),

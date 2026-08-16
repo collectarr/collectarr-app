@@ -21,7 +21,7 @@ double plannedMediaTableWidthForColumns({
   return libraryTableWidthForColumns(
     columns: columns,
     defaultColumns:
-        libraryKindModuleForType(type).fields.defaultVisibleColumnIds,
+        libraryKindRuntimeForType(type).fields.defaultVisibleColumnIds,
     customWidths: customWidths,
     sizing: (column) => plannedMediaTableColumnSizing(type, column),
     columnSpacing: kPlannedMediaTableColumnSpacing,
@@ -188,7 +188,7 @@ int plannedMediaCompareSubgroupKeys(
 
 LibraryColumnDefinition<dynamic, dynamic, dynamic>? _tableColumnDefinition(
     LibraryTypeConfig type, String columnId) {
-  final module = libraryKindModuleForType(type);
+  final module = libraryKindRuntimeForType(type);
   return module.fields.findColumnDefinition(columnId);
 }
 

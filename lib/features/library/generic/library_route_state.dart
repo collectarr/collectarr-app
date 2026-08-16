@@ -154,7 +154,7 @@ class LibraryRouteState {
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final allowedSortColumns = libraryKindModuleForType(type)
+    final allowedSortColumns = libraryKindRuntimeForType(type)
         .fields
         .sorts
         .map((d) => d.id.value)

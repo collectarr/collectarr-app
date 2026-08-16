@@ -76,7 +76,7 @@ void main() {
     expect(defaults.detailsWidth, 340);
     expect(defaults.detailsHeight, 300);
     expect(defaults.visibleColumns,
-        libraryKindModuleForType(typeConfig).fields.defaultVisibleColumnIds);
+        libraryKindRuntimeForType(typeConfig).fields.defaultVisibleColumnIds);
 
     final list = defaults.withPreset(LibraryWorkspacePreset.list, profile);
     expect(list.viewMode, LibraryViewMode.list);

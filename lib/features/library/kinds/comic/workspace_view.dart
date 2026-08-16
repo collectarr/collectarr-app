@@ -66,7 +66,7 @@ int compareComicEntriesByColumn(
   Object column,
 ) {
   final sortId = column.toString();
-  final module = libraryKindModuleForType(comicsLibraryConfig);
+  final module = libraryKindRuntimeForType(comicsLibraryConfig);
   return module.compareEntries(left, right, sortId);
 }
 
@@ -125,7 +125,7 @@ const comicsTableColumnPresets = [
 
 bool comicInitialSortAscending(Object column) {
   final sortId = column.toString();
-  final module = libraryKindModuleForType(comicsLibraryConfig);
+  final module = libraryKindRuntimeForType(comicsLibraryConfig);
   final definition = module.fields.findSortDefinition(sortId);
   return definition?.defaultAscending ?? true;
 }
@@ -170,7 +170,7 @@ List<String> orderedComicTableColumns(
     );
 
 Set<String> defaultComicTableColumns() =>
-    Set.of(libraryKindModuleForType(comicsLibraryConfig)
+    Set.of(libraryKindRuntimeForType(comicsLibraryConfig)
         .fields
         .defaultVisibleColumnIds);
 

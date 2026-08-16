@@ -35,7 +35,7 @@ class LibraryWorkspaceSessionController
 
   void _initDefaults() {
     if (_key == null) return;
-    final module = libraryKindModuleForKind(_key.kind);
+    final module = libraryKindRuntimeForKind(_key.kind);
     state = state.copyWith(
       filters: state.filters.copyWith(
         groupId: () => module.fields.defaultGroupId,
@@ -173,7 +173,7 @@ class LibraryWorkspaceSessionController
 
   void resetFilters() {
     if (_key != null) {
-      final module = libraryKindModuleForKind(_key.kind);
+      final module = libraryKindRuntimeForKind(_key.kind);
       state = state.copyWith(
         filters: LibrarySessionFilterState(
           groupId: module.fields.defaultGroupId,
