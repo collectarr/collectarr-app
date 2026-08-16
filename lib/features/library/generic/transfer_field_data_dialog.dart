@@ -238,7 +238,6 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             soldAt: Patch.set(updated.soldAt),
             details: Patch.set(updated.typedDetails.toDraft()),
           ),
-          notify: isLast,
         );
         transferred++;
         continue;
@@ -276,7 +275,6 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
               soldTo: Patch.set(updated.soldTo),
               details: Patch.set(updated.typedDetails.toDraft()),
             ),
-            notify: isLast,
           );
         }
       }

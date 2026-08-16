@@ -354,6 +354,27 @@ class LibraryPageDialogCoordinator {
         .toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
+    final mutations = _page.ref.read(ownedItemMutationsProvider);
+    if (!context.mounted) {
+      return;
+    }
+    final result = await showTransferFieldDataDialog(
+      context: context,
+      db: db,
+      type: _page.type,
+      items: items,
+      mutations: mutations,
+      customFieldDefinitions: customFieldCache.definitions,
+    );
+    if (result != null && _page.mounted && context.mounted) {
+      _page.ref.invalidate(shelfProvider);
+      _page.ref.invalidate(
+        libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Transfer complete: ${result.transferred} transferred, '
             '${result.skipped} skipped out of ${result.total}.',
           ),
         ),
@@ -396,7 +417,7 @@ class LibraryPageDialogCoordinator {
       customFieldDefinitions: customFieldCache.definitions,
     );
     if (result != null && _page.mounted && context.mounted) {
-      _page.invalidateShelf();
+      _page.ref.invalidate(shelfProvider);
       _page.ref.invalidate(
         libraryCustomFieldCacheProvider(_page.type.workspace.kind.apiValue),
       );
@@ -498,11 +519,10 @@ class LibraryPageDialogCoordinator {
           ownedItemId: ownedItem.id,
           indexNumber: Patch.set(i + 1),
         ),
-        notify: i == items.length - 1,
       );
       count++;
     }
-    _page.invalidateShelf();
+    _page.ref.invalidate(shelfProvider);
     if (_page.mounted && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

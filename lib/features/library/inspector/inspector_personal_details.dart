@@ -891,23 +891,8 @@ class _InspectorTrackingDetailsEditorState
         setState(() => _selectedEditionId = edition.id);
       } else {
         throw UnsupportedError(
-      final kind = widget.ownedItem.catalogRef.kind;
-      final itemId = widget.ownedItem.catalogRef.id;
-
-      final res = await api.post(
-        '/api/v1/catalog/$kind/$itemId/editions',
-        body: {'name': title},
-      );
-
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        final data = res.data as Map<String, dynamic>;
-        final newEditionId = data['id'] as String;
-
-        setState(() {
-          _selectedEditionId = newEditionId;
-          _showNewEditionField = false;
-          _newEditionTitleController.clear();
-        });
+          'Edition creation not supported for $normalizedKind',
+        );
       }
     } catch (e) {
       if (!mounted) return;
@@ -927,7 +912,8 @@ class _InspectorTrackingDetailsEditorState
           editionId: _selectedEditionId,
           variantId: _selectedVariantId,
           sourceType: widget.trackingEntry.sourceType,
-          status: mediaTrackingStatusFromValue(_emptyToNull(_statusController.text)),
+          status: mediaTrackingStatusFromValue(
+              _emptyToNull(_statusController.text)),
           rating: _parseInt(_ratingController.text),
           startedAt: _startedAt,
           finishedAt: _finishedAt,

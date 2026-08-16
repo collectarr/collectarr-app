@@ -16,7 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('all library presentations declare complete group mode definitions', () {
-    final registries = <String, AnyLibraryFieldRegistry<Object?>>{
+    final registries = <String, LibraryFieldRegistry<dynamic, dynamic>>{
       'books': libraryKindModuleForType(booksLibraryConfig).fields,
       'board games': libraryKindModuleForType(boardGamesLibraryConfig).fields,
       'comics': libraryKindModuleForType(comicsLibraryConfig).fields,
@@ -49,7 +49,7 @@ void main() {
 
   test('all library presentations declare complete sort column definitions',
       () {
-    final registries = <String, AnyLibraryFieldRegistry<Object?>>{
+    final registries = <String, LibraryFieldRegistry<dynamic, dynamic>>{
       'books': libraryKindModuleForType(booksLibraryConfig).fields,
       'board games': libraryKindModuleForType(boardGamesLibraryConfig).fields,
       'comics': libraryKindModuleForType(comicsLibraryConfig).fields,

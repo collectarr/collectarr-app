@@ -38,3 +38,7 @@ export 'library_workspace_intent.dart';
 
 // Local facet values provider
 export 'library_facet_values_provider.dart';
+
+// Unified workspace session
+export '../session/library_workspace_session_state.dart';
+export '../session/library_workspace_session_controller.dart';

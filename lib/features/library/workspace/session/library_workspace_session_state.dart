@@ -1,52 +1,347 @@
-import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/features/library/workspace/state/library_filter_state.dart';
-import 'package:collectarr_app/features/library/workspace/state/library_view_config_state.dart';
+import 'package:collectarr_app/core/models/smart_list.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
+import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:flutter/foundation.dart';
+
+// ─── Filter Subsection ───────────────────────────────────────────────────────
 
 @immutable
-final class LibraryFolderState {
-  const LibraryFolderState({
-    this.activeFolderPreset,
-    this.displayMode = LibraryFolderDisplayMode.drilldown,
-    this.expandedNodeIds = const <String>{},
-    this.selectedNodeId,
-    this.releaseFolderTitleItemId,
+final class LibrarySessionFilterState {
+  const LibrarySessionFilterState({
+    this.searchQuery = '',
+    this.searchDraft = '',
+    this.facetValues = const {},
+    this.groupId,
+    this.sortId,
+    this.sortAscending = true,
+    this.visibleColumnIds = const {},
+    this.presentationLevelId,
+    this.collectionStatusScope = LibraryCollectionStatusScope.all,
+    this.seriesCompletionScope = LibrarySeriesCompletionScope.all,
+    this.selectedLetter,
+    this.quickView,
+    this.linkedMetadataFilter,
+    this.filterSelection = LibraryFilterSelection.none,
   });
 
-  final LibraryFolderPreset? activeFolderPreset;
-  final LibraryFolderDisplayMode displayMode;
-  final Set<String> expandedNodeIds;
-  final String? selectedNodeId;
-  final String? releaseFolderTitleItemId;
+  final String searchQuery;
+  final String searchDraft;
+  final Map<String, Set<String>> facetValues;
+  final String? groupId;
+  final String? sortId;
+  final bool sortAscending;
+  final Set<String> visibleColumnIds;
+  final String? presentationLevelId;
+  final LibraryCollectionStatusScope collectionStatusScope;
+  final LibrarySeriesCompletionScope seriesCompletionScope;
+  final String? selectedLetter;
+  final LibraryQuickView? quickView;
+  final LibraryLinkedMetadataFilter? linkedMetadataFilter;
+  final LibraryFilterSelection filterSelection;
 
-  LibraryFolderState copyWith({
-    LibraryFolderPreset? Function()? activeFolderPreset,
-    LibraryFolderDisplayMode? displayMode,
-    Set<String>? expandedNodeIds,
-    String? Function()? selectedNodeId,
-    String? Function()? releaseFolderTitleItemId,
+  LibrarySessionFilterState copyWith({
+    String? searchQuery,
+    String? searchDraft,
+    Map<String, Set<String>>? facetValues,
+    String? Function()? groupId,
+    String? Function()? sortId,
+    bool? sortAscending,
+    Set<String>? visibleColumnIds,
+    String? Function()? presentationLevelId,
+    LibraryCollectionStatusScope? collectionStatusScope,
+    LibrarySeriesCompletionScope? seriesCompletionScope,
+    String? Function()? selectedLetter,
+    LibraryQuickView? Function()? quickView,
+    LibraryLinkedMetadataFilter? Function()? linkedMetadataFilter,
+    LibraryFilterSelection? filterSelection,
   }) {
-    return LibraryFolderState(
-      activeFolderPreset: activeFolderPreset != null
-          ? activeFolderPreset()
-          : this.activeFolderPreset,
-      displayMode: displayMode ?? this.displayMode,
-      expandedNodeIds: expandedNodeIds ?? this.expandedNodeIds,
-      selectedNodeId:
-          selectedNodeId != null ? selectedNodeId() : this.selectedNodeId,
-      releaseFolderTitleItemId: releaseFolderTitleItemId != null
-          ? releaseFolderTitleItemId()
-          : this.releaseFolderTitleItemId,
+    return LibrarySessionFilterState(
+      searchQuery: searchQuery ?? this.searchQuery,
+      searchDraft: searchDraft ?? this.searchDraft,
+      facetValues: facetValues ?? this.facetValues,
+      groupId: groupId != null ? groupId() : this.groupId,
+      sortId: sortId != null ? sortId() : this.sortId,
+      sortAscending: sortAscending ?? this.sortAscending,
+      visibleColumnIds: visibleColumnIds ?? this.visibleColumnIds,
+      presentationLevelId: presentationLevelId != null
+          ? presentationLevelId()
+          : this.presentationLevelId,
+      collectionStatusScope:
+          collectionStatusScope ?? this.collectionStatusScope,
+      seriesCompletionScope:
+          seriesCompletionScope ?? this.seriesCompletionScope,
+      selectedLetter:
+          selectedLetter != null ? selectedLetter() : this.selectedLetter,
+      quickView: quickView != null ? quickView() : this.quickView,
+      linkedMetadataFilter: linkedMetadataFilter != null
+          ? linkedMetadataFilter()
+          : this.linkedMetadataFilter,
+      filterSelection: filterSelection ?? this.filterSelection,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibrarySessionFilterState &&
+          runtimeType == other.runtimeType &&
+          searchQuery == other.searchQuery &&
+          searchDraft == other.searchDraft &&
+          mapEquals(facetValues, other.facetValues) &&
+          groupId == other.groupId &&
+          sortId == other.sortId &&
+          sortAscending == other.sortAscending &&
+          setEquals(visibleColumnIds, other.visibleColumnIds) &&
+          presentationLevelId == other.presentationLevelId &&
+          collectionStatusScope == other.collectionStatusScope &&
+          seriesCompletionScope == other.seriesCompletionScope &&
+          selectedLetter == other.selectedLetter &&
+          quickView == other.quickView &&
+          linkedMetadataFilter == other.linkedMetadataFilter &&
+          filterSelection == other.filterSelection;
+
+  @override
+  int get hashCode => Object.hash(
+        searchQuery,
+        searchDraft,
+        Object.hashAll(facetValues.entries
+            .map((e) => Object.hash(e.key, Object.hashAll(e.value)))),
+        groupId,
+        sortId,
+        sortAscending,
+        Object.hashAll(visibleColumnIds),
+        presentationLevelId,
+        collectionStatusScope,
+        seriesCompletionScope,
+        selectedLetter,
+        quickView,
+        linkedMetadataFilter,
+        filterSelection,
+      );
 }
 
+// ─── View Subsection ─────────────────────────────────────────────────────────
+
 @immutable
-final class LibraryPresetState {
-  const LibraryPresetState({
+final class LibrarySessionViewState {
+  const LibrarySessionViewState({
+    this.viewMode = LibraryViewMode.grid,
+    this.coverSize = 180.0,
+    this.detailsLayout = LibraryDetailsLayout.right,
+    this.densityPreset = LibraryWorkspaceDensityPreset.comfortable,
+    this.sidebarVisible = true,
+    this.sidebarWidth = 260.0,
+    this.detailsWidth = 360.0,
+    this.detailsHeight = 240.0,
+    this.columnWidths = const {},
+    this.groupPresentationOverride,
+  });
+
+  final LibraryViewMode viewMode;
+  final double coverSize;
+  final LibraryDetailsLayout detailsLayout;
+  final LibraryWorkspaceDensityPreset densityPreset;
+  final bool sidebarVisible;
+  final double sidebarWidth;
+  final double detailsWidth;
+  final double detailsHeight;
+  final Map<String, double> columnWidths;
+  final LibraryGroupPresentation? groupPresentationOverride;
+
+  LibrarySessionViewState copyWith({
+    LibraryViewMode? viewMode,
+    double? coverSize,
+    LibraryDetailsLayout? detailsLayout,
+    LibraryWorkspaceDensityPreset? densityPreset,
+    bool? sidebarVisible,
+    double? sidebarWidth,
+    double? detailsWidth,
+    double? detailsHeight,
+    Map<String, double>? columnWidths,
+    LibraryGroupPresentation? Function()? groupPresentationOverride,
+  }) {
+    return LibrarySessionViewState(
+      viewMode: viewMode ?? this.viewMode,
+      coverSize: coverSize ?? this.coverSize,
+      detailsLayout: detailsLayout ?? this.detailsLayout,
+      densityPreset: densityPreset ?? this.densityPreset,
+      sidebarVisible: sidebarVisible ?? this.sidebarVisible,
+      sidebarWidth: sidebarWidth ?? this.sidebarWidth,
+      detailsWidth: detailsWidth ?? this.detailsWidth,
+      detailsHeight: detailsHeight ?? this.detailsHeight,
+      columnWidths: columnWidths ?? this.columnWidths,
+      groupPresentationOverride: groupPresentationOverride != null
+          ? groupPresentationOverride()
+          : this.groupPresentationOverride,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibrarySessionViewState &&
+          runtimeType == other.runtimeType &&
+          viewMode == other.viewMode &&
+          coverSize == other.coverSize &&
+          detailsLayout == other.detailsLayout &&
+          densityPreset == other.densityPreset &&
+          sidebarVisible == other.sidebarVisible &&
+          sidebarWidth == other.sidebarWidth &&
+          detailsWidth == other.detailsWidth &&
+          detailsHeight == other.detailsHeight &&
+          mapEquals(columnWidths, other.columnWidths) &&
+          groupPresentationOverride == other.groupPresentationOverride;
+
+  @override
+  int get hashCode => Object.hash(
+        viewMode,
+        coverSize,
+        detailsLayout,
+        densityPreset,
+        sidebarVisible,
+        sidebarWidth,
+        detailsWidth,
+        detailsHeight,
+        Object.hashAll(columnWidths.entries),
+        groupPresentationOverride,
+      );
+}
+
+// ─── Selection Subsection ───────────────────────────────────────────────────
+
+@immutable
+final class LibrarySessionSelectionState {
+  const LibrarySessionSelectionState({
+    this.selectedId,
+    this.selectedIds = const {},
+    this.anchorId,
+  });
+
+  final String? selectedId;
+  final Set<String> selectedIds;
+  final String? anchorId;
+
+  /// Compatibility alias for [selectedIds].
+  Set<String> get itemIds => selectedIds;
+
+  bool get isMultiSelecting => selectedIds.isNotEmpty;
+  int get selectedCount => selectedIds.length;
+
+  LibrarySessionSelectionState copyWith({
+    String? Function()? selectedId,
+    Set<String>? selectedIds,
+    String? Function()? anchorId,
+  }) {
+    return LibrarySessionSelectionState(
+      selectedId: selectedId != null ? selectedId() : this.selectedId,
+      selectedIds: selectedIds ?? this.selectedIds,
+      anchorId: anchorId != null ? anchorId() : this.anchorId,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibrarySessionSelectionState &&
+          runtimeType == other.runtimeType &&
+          selectedId == other.selectedId &&
+          setEquals(selectedIds, other.selectedIds) &&
+          anchorId == other.anchorId;
+
+  @override
+  int get hashCode => Object.hash(
+        selectedId,
+        Object.hashAll(selectedIds),
+        anchorId,
+      );
+}
+
+// ─── Folder Subsection ──────────────────────────────────────────────────────
+
+@immutable
+final class LibrarySessionFolderState {
+  const LibrarySessionFolderState({
+    this.selectedBucket,
+    this.preset,
+    this.collapsedBuckets = const {},
+    this.displayMode = LibraryFolderDisplayMode.drilldown,
+    this.treeExpandedNodeIds = const {},
+    this.treeSelectedNodeId,
+    this.scopeHistory = const [],
+  });
+
+  final String? selectedBucket;
+  final LibraryFolderPreset? preset;
+  final Set<String> collapsedBuckets;
+  final LibraryFolderDisplayMode displayMode;
+  final Set<String> treeExpandedNodeIds;
+  final String? treeSelectedNodeId;
+  final List<LibrarySidebarScopeSnapshot> scopeHistory;
+
+  /// Compatibility alias for [treeSelectedNodeId].
+  String? get selectedNodeId => treeSelectedNodeId;
+
+  LibrarySessionFolderState copyWith({
+    String? Function()? selectedBucket,
+    LibraryFolderPreset? Function()? preset,
+    Set<String>? collapsedBuckets,
+    LibraryFolderDisplayMode? displayMode,
+    Set<String>? treeExpandedNodeIds,
+    String? Function()? treeSelectedNodeId,
+    List<LibrarySidebarScopeSnapshot>? scopeHistory,
+  }) {
+    return LibrarySessionFolderState(
+      selectedBucket:
+          selectedBucket != null ? selectedBucket() : this.selectedBucket,
+      preset: preset != null ? preset() : this.preset,
+      collapsedBuckets: collapsedBuckets ?? this.collapsedBuckets,
+      displayMode: displayMode ?? this.displayMode,
+      treeExpandedNodeIds: treeExpandedNodeIds ?? this.treeExpandedNodeIds,
+      treeSelectedNodeId: treeSelectedNodeId != null
+          ? treeSelectedNodeId()
+          : this.treeSelectedNodeId,
+      scopeHistory: scopeHistory ?? this.scopeHistory,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibrarySessionFolderState &&
+          runtimeType == other.runtimeType &&
+          selectedBucket == other.selectedBucket &&
+          preset == other.preset &&
+          setEquals(collapsedBuckets, other.collapsedBuckets) &&
+          displayMode == other.displayMode &&
+          setEquals(treeExpandedNodeIds, other.treeExpandedNodeIds) &&
+          treeSelectedNodeId == other.treeSelectedNodeId &&
+          listEquals(scopeHistory, other.scopeHistory);
+
+  @override
+  int get hashCode => Object.hash(
+        selectedBucket,
+        preset,
+        Object.hashAll(collapsedBuckets),
+        displayMode,
+        Object.hashAll(treeExpandedNodeIds),
+        treeSelectedNodeId,
+        Object.hashAll(scopeHistory),
+      );
+}
+
+// ─── Presets Subsection ─────────────────────────────────────────────────────
+
+@immutable
+final class LibrarySessionPresetState {
+  const LibrarySessionPresetState({
     this.pinnedFolderPresets = const [],
+    this.activeSmartListId,
+    this.activeSmartListName,
     this.pinnedViewPresets = const {},
     this.pinnedSortFavoriteIds = const {},
     this.pinnedColumnFavoriteKeys = const {},
@@ -54,20 +349,30 @@ final class LibraryPresetState {
   });
 
   final List<LibraryFolderPreset> pinnedFolderPresets;
+  final String? activeSmartListId;
+  final String? activeSmartListName;
   final Set<LibraryWorkspacePreset> pinnedViewPresets;
   final Set<String> pinnedSortFavoriteIds;
   final Set<String> pinnedColumnFavoriteKeys;
   final List<LibraryTableColumnPreset> savedColumnFavoritePresets;
 
-  LibraryPresetState copyWith({
+  LibrarySessionPresetState copyWith({
     List<LibraryFolderPreset>? pinnedFolderPresets,
+    String? Function()? activeSmartListId,
+    String? Function()? activeSmartListName,
     Set<LibraryWorkspacePreset>? pinnedViewPresets,
     Set<String>? pinnedSortFavoriteIds,
     Set<String>? pinnedColumnFavoriteKeys,
     List<LibraryTableColumnPreset>? savedColumnFavoritePresets,
   }) {
-    return LibraryPresetState(
+    return LibrarySessionPresetState(
       pinnedFolderPresets: pinnedFolderPresets ?? this.pinnedFolderPresets,
+      activeSmartListId: activeSmartListId != null
+          ? activeSmartListId()
+          : this.activeSmartListId,
+      activeSmartListName: activeSmartListName != null
+          ? activeSmartListName()
+          : this.activeSmartListName,
       pinnedViewPresets: pinnedViewPresets ?? this.pinnedViewPresets,
       pinnedSortFavoriteIds:
           pinnedSortFavoriteIds ?? this.pinnedSortFavoriteIds,
@@ -77,29 +382,56 @@ final class LibraryPresetState {
           savedColumnFavoritePresets ?? this.savedColumnFavoritePresets,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibrarySessionPresetState &&
+          runtimeType == other.runtimeType &&
+          listEquals(pinnedFolderPresets, other.pinnedFolderPresets) &&
+          activeSmartListId == other.activeSmartListId &&
+          activeSmartListName == other.activeSmartListName &&
+          setEquals(pinnedViewPresets, other.pinnedViewPresets) &&
+          setEquals(pinnedSortFavoriteIds, other.pinnedSortFavoriteIds) &&
+          setEquals(pinnedColumnFavoriteKeys, other.pinnedColumnFavoriteKeys) &&
+          listEquals(
+              savedColumnFavoritePresets, other.savedColumnFavoritePresets);
+
+  @override
+  int get hashCode => Object.hash(
+        Object.hashAll(pinnedFolderPresets),
+        activeSmartListId,
+        activeSmartListName,
+        Object.hashAll(pinnedViewPresets),
+        Object.hashAll(pinnedSortFavoriteIds),
+        Object.hashAll(pinnedColumnFavoriteKeys),
+        Object.hashAll(savedColumnFavoritePresets),
+      );
 }
 
+// ─── Async State Subsection ──────────────────────────────────────────────────
+
 @immutable
-final class LibraryAsyncState {
-  const LibraryAsyncState({
+final class LibrarySessionAsyncState {
+  const LibrarySessionAsyncState({
     this.isLoading = false,
     this.error,
-    this.detailHydrationInFlight = const <String>{},
-    this.activeLoanOwnedItemIds = const <String>{},
+    this.detailHydrationInFlight = const {},
+    this.activeLoanOwnedItemIds = const {},
   });
 
   final bool isLoading;
-  final String? error;
+  final Object? error;
   final Set<String> detailHydrationInFlight;
   final Set<String> activeLoanOwnedItemIds;
 
-  LibraryAsyncState copyWith({
+  LibrarySessionAsyncState copyWith({
     bool? isLoading,
-    String? Function()? error,
+    Object? Function()? error,
     Set<String>? detailHydrationInFlight,
     Set<String>? activeLoanOwnedItemIds,
   }) {
-    return LibraryAsyncState(
+    return LibrarySessionAsyncState(
       isLoading: isLoading ?? this.isLoading,
       error: error != null ? error() : this.error,
       detailHydrationInFlight:
@@ -108,44 +440,53 @@ final class LibraryAsyncState {
           activeLoanOwnedItemIds ?? this.activeLoanOwnedItemIds,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibrarySessionAsyncState &&
+          runtimeType == other.runtimeType &&
+          isLoading == other.isLoading &&
+          error == other.error &&
+          setEquals(detailHydrationInFlight, other.detailHydrationInFlight) &&
+          setEquals(activeLoanOwnedItemIds, other.activeLoanOwnedItemIds);
+
+  @override
+  int get hashCode => Object.hash(
+        isLoading,
+        error,
+        Object.hashAll(detailHydrationInFlight),
+        Object.hashAll(activeLoanOwnedItemIds),
+      );
 }
+
+// ─── Master Unified Session State ────────────────────────────────────────────
 
 @immutable
 final class LibraryWorkspaceSessionState {
   const LibraryWorkspaceSessionState({
-    required this.filters,
-    required this.view,
-    required this.selection,
-    required this.folder,
-    required this.presets,
-    required this.asyncState,
+    this.filters = const LibrarySessionFilterState(),
+    this.view = const LibrarySessionViewState(),
+    this.selection = const LibrarySessionSelectionState(),
+    this.folder = const LibrarySessionFolderState(),
+    this.presets = const LibrarySessionPresetState(),
+    this.asyncState = const LibrarySessionAsyncState(),
   });
 
-  factory LibraryWorkspaceSessionState.initial() {
-    return LibraryWorkspaceSessionState(
-      filters: const LibraryFilterState(),
-      view: const LibraryViewConfigState(),
-      selection: LibrarySelectionState.empty(),
-      folder: const LibraryFolderState(),
-      presets: const LibraryPresetState(),
-      asyncState: const LibraryAsyncState(),
-    );
-  }
-
-  final LibraryFilterState filters;
-  final LibraryViewConfigState view;
-  final LibrarySelectionState selection;
-  final LibraryFolderState folder;
-  final LibraryPresetState presets;
-  final LibraryAsyncState asyncState;
+  final LibrarySessionFilterState filters;
+  final LibrarySessionViewState view;
+  final LibrarySessionSelectionState selection;
+  final LibrarySessionFolderState folder;
+  final LibrarySessionPresetState presets;
+  final LibrarySessionAsyncState asyncState;
 
   LibraryWorkspaceSessionState copyWith({
-    LibraryFilterState? filters,
-    LibraryViewConfigState? view,
-    LibrarySelectionState? selection,
-    LibraryFolderState? folder,
-    LibraryPresetState? presets,
-    LibraryAsyncState? asyncState,
+    LibrarySessionFilterState? filters,
+    LibrarySessionViewState? view,
+    LibrarySessionSelectionState? selection,
+    LibrarySessionFolderState? folder,
+    LibrarySessionPresetState? presets,
+    LibrarySessionAsyncState? asyncState,
   }) {
     return LibraryWorkspaceSessionState(
       filters: filters ?? this.filters,
@@ -156,4 +497,26 @@ final class LibraryWorkspaceSessionState {
       asyncState: asyncState ?? this.asyncState,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibraryWorkspaceSessionState &&
+          runtimeType == other.runtimeType &&
+          filters == other.filters &&
+          view == other.view &&
+          selection == other.selection &&
+          folder == other.folder &&
+          presets == other.presets &&
+          asyncState == other.asyncState;
+
+  @override
+  int get hashCode => Object.hash(
+        filters,
+        view,
+        selection,
+        folder,
+        presets,
+        asyncState,
+      );
 }
