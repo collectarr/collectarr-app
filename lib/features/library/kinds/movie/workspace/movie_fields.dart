@@ -148,17 +148,20 @@ final movieLibraryGroupDefinitions = [
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieKindSchema.director,
     sidebarTitle: 'Directors',
+    category: 'Cast & Crew',
     icon: Icons.movie_creation_outlined,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieKindSchema.publisher,
     sidebarTitle: 'Studios',
+    category: 'Main',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieKindSchema.location,
     sidebarTitle: 'Locations',
+    category: 'Personal',
     icon: Icons.place_outlined,
   ),
 ];

@@ -5,12 +5,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/state/library_filter_state.dart';
-import 'package:collectarr_app/features/library/workspace/state/library_filters_provider.dart';
-import 'package:collectarr_app/features/library/workspace/state/library_view_config_provider.dart';
-import 'package:collectarr_app/features/library/workspace/state/library_view_config_state.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_key.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
 import 'library_workspace_session_state.dart';
@@ -18,14 +13,13 @@ import 'library_workspace_session_state.dart';
 /// Single source of truth managing all library workspace session UI state.
 class LibraryWorkspaceSessionController
     extends StateNotifier<LibraryWorkspaceSessionState> {
-  LibraryWorkspaceSessionController([this._ref, this._key])
+  LibraryWorkspaceSessionController([this._key])
       : super(const LibraryWorkspaceSessionState()) {
     if (_key != null) {
       _initDefaults();
     }
   }
 
-  final Ref? _ref;
   final LibraryWorkspaceKey? _key;
 
   LibraryWorkspaceSessionState get value => state;
@@ -52,9 +46,6 @@ class LibraryWorkspaceSessionController
         searchQuery: query,
       ),
     );
-    if (_ref != null && _key != null) {
-      _ref.read(libraryFiltersProvider(_key).notifier).updateSearch(query);
-    }
   }
 
   void clearSearch() => updateSearch('');
@@ -69,11 +60,6 @@ class LibraryWorkspaceSessionController
     state = state.copyWith(
       filters: state.filters.copyWith(facetValues: next),
     );
-    if (_ref != null && _key != null) {
-      _ref
-          .read(libraryFiltersProvider(_key).notifier)
-          .setFacetValues(facetId, values);
-    }
   }
 
   void clearFacet(String facetId) {
@@ -82,21 +68,12 @@ class LibraryWorkspaceSessionController
     state = state.copyWith(
       filters: state.filters.copyWith(facetValues: next),
     );
-    if (_ref != null && _key != null) {
-      _ref.read(libraryFiltersProvider(_key).notifier).clearFacet(facetId);
-    }
   }
 
   void clearAllFacets() {
     state = state.copyWith(
       filters: state.filters.copyWith(facetValues: const {}),
     );
-    if (_ref != null && _key != null) {
-      final filtersNotifier = _ref.read(libraryFiltersProvider(_key).notifier);
-      for (final facetId in state.filters.facetValues.keys.toList()) {
-        filtersNotifier.clearFacet(facetId);
-      }
-    }
   }
 
   void setSort(String sortId, {bool? ascending}) {
@@ -106,11 +83,6 @@ class LibraryWorkspaceSessionController
         sortAscending: ascending ?? state.filters.sortAscending,
       ),
     );
-    if (_ref != null && _key != null) {
-      _ref
-          .read(libraryFiltersProvider(_key).notifier)
-          .setSort(sortId, ascending: ascending);
-    }
   }
 
   void updateSort(String sortId, {bool? ascending}) =>
@@ -125,9 +97,6 @@ class LibraryWorkspaceSessionController
     state = state.copyWith(
       filters: state.filters.copyWith(groupId: () => groupId),
     );
-    if (_ref != null && _key != null) {
-      _ref.read(libraryFiltersProvider(_key).notifier).setGroup(groupId);
-    }
   }
 
   void updateGroup(String? groupId) => setGroup(groupId);
@@ -179,9 +148,6 @@ class LibraryWorkspaceSessionController
           presentationLevelId: _key.presentationLevelId,
         ),
       );
-      if (_ref != null) {
-        _ref.read(libraryFiltersProvider(_key).notifier).reset();
-      }
     } else {
       state = state.copyWith(
         filters: const LibrarySessionFilterState(),
@@ -202,40 +168,24 @@ class LibraryWorkspaceSessionController
     state = state.copyWith(
       view: state.view.copyWith(viewMode: mode),
     );
-    if (_ref != null && _key != null) {
-      _ref.read(libraryViewConfigProvider(_key).notifier).setViewMode(mode);
-    }
   }
 
   void setCoverSize(double size) {
     state = state.copyWith(
       view: state.view.copyWith(coverSize: size),
     );
-    if (_ref != null && _key != null) {
-      _ref.read(libraryViewConfigProvider(_key).notifier).setCoverSize(size);
-    }
   }
 
   void setDetailsLayout(LibraryDetailsLayout layout) {
     state = state.copyWith(
       view: state.view.copyWith(detailsLayout: layout),
     );
-    if (_ref != null && _key != null) {
-      _ref
-          .read(libraryViewConfigProvider(_key).notifier)
-          .setDetailsLayout(layout);
-    }
   }
 
   void setDensityPreset(LibraryWorkspaceDensityPreset preset) {
     state = state.copyWith(
       view: state.view.copyWith(densityPreset: preset),
     );
-    if (_ref != null && _key != null) {
-      _ref
-          .read(libraryViewConfigProvider(_key).notifier)
-          .setDensityPreset(preset);
-    }
   }
 
   void toggleSidebar() {
@@ -247,44 +197,24 @@ class LibraryWorkspaceSessionController
     state = state.copyWith(
       view: state.view.copyWith(sidebarVisible: visible),
     );
-    if (_ref != null && _key != null) {
-      _ref
-          .read(libraryViewConfigProvider(_key).notifier)
-          .setSidebarVisible(visible);
-    }
   }
 
   void setSidebarWidth(double width) {
     state = state.copyWith(
       view: state.view.copyWith(sidebarWidth: width),
     );
-    if (_ref != null && _key != null) {
-      _ref
-          .read(libraryViewConfigProvider(_key).notifier)
-          .setSidebarWidth(width);
-    }
   }
 
   void setDetailsWidth(double width) {
     state = state.copyWith(
       view: state.view.copyWith(detailsWidth: width),
     );
-    if (_ref != null && _key != null) {
-      _ref
-          .read(libraryViewConfigProvider(_key).notifier)
-          .setDetailsWidth(width);
-    }
   }
 
   void setDetailsHeight(double height) {
     state = state.copyWith(
       view: state.view.copyWith(detailsHeight: height),
     );
-    if (_ref != null && _key != null) {
-      _ref
-          .read(libraryViewConfigProvider(_key).notifier)
-          .setDetailsHeight(height);
-    }
   }
 
   void setColumnWidth(String columnId, double width) {
@@ -293,22 +223,12 @@ class LibraryWorkspaceSessionController
     state = state.copyWith(
       view: state.view.copyWith(columnWidths: next),
     );
-    if (_ref != null && _key != null) {
-      _ref
-          .read(libraryViewConfigProvider(_key).notifier)
-          .setColumnWidth(columnId, width);
-    }
   }
 
   void setVisibleColumns(Set<String> columnIds) {
     state = state.copyWith(
       filters: state.filters.copyWith(visibleColumnIds: columnIds),
     );
-    if (_ref != null && _key != null) {
-      _ref
-          .read(libraryFiltersProvider(_key).notifier)
-          .setVisibleColumns(columnIds);
-    }
   }
 
   void toggleColumn(String columnId) {
@@ -646,7 +566,7 @@ class LibraryWorkspaceSessionController
 
   // ── Bulk Restore ──────────────────────────────────────────────────────────
 
-  void restoreFromSavedState({
+  void bulkRestore({
     LibrarySessionFilterState? filters,
     LibrarySessionViewState? view,
     LibrarySessionFolderState? folder,
@@ -658,38 +578,20 @@ class LibraryWorkspaceSessionController
       folder: folder ?? state.folder,
       presets: presets ?? state.presets,
     );
-    if (_ref != null && _key != null) {
-      if (filters != null) {
-        _ref.read(libraryFiltersProvider(_key).notifier).restoreFrom(
-              LibraryFilterState(
-                searchQuery: filters.searchQuery,
-                searchDraft: filters.searchDraft,
-                facetValues: filters.facetValues,
-                groupId: filters.groupId,
-                sortId: filters.sortId,
-                sortAscending: filters.sortAscending,
-                visibleColumnIds: filters.visibleColumnIds,
-                presentationLevelId: filters.presentationLevelId,
-              ),
-            );
-      }
-      if (view != null) {
-        _ref.read(libraryViewConfigProvider(_key).notifier).restoreFrom(
-              LibraryViewConfigState(
-                viewMode: view.viewMode,
-                coverSize: view.coverSize,
-                detailsLayout: view.detailsLayout,
-                densityPreset: view.densityPreset,
-                isSidebarVisible: view.sidebarVisible,
-                sidebarWidth: view.sidebarWidth,
-                detailsWidth: view.detailsWidth,
-                detailsHeight: view.detailsHeight,
-                columnWidths: view.columnWidths,
-              ),
-            );
-      }
-    }
   }
+
+  void restoreFromSavedState({
+    LibrarySessionFilterState? filters,
+    LibrarySessionViewState? view,
+    LibrarySessionFolderState? folder,
+    LibrarySessionPresetState? presets,
+  }) =>
+      bulkRestore(
+        filters: filters,
+        view: view,
+        folder: folder,
+        presets: presets,
+      );
 }
 
 /// Provider for the unified library workspace session controller.
@@ -697,5 +599,5 @@ final libraryWorkspaceSessionProvider = StateNotifierProvider.family<
     LibraryWorkspaceSessionController,
     LibraryWorkspaceSessionState,
     LibraryWorkspaceKey>((ref, LibraryWorkspaceKey key) {
-  return LibraryWorkspaceSessionController(ref, key);
+  return LibraryWorkspaceSessionController(key);
 });

@@ -53,18 +53,19 @@ void main() {
       addTearDown(container.dispose);
 
       final filters = container.read(libraryFiltersProvider(key));
-      expect(filters.groupId, equals('series'));
-      expect(filters.sortId, equals('title'));
+      expect(filters.groupId, equals('comic.series'));
+      expect(filters.sortId, equals('comic.series'));
 
-      final notifier = container.read(libraryFiltersProvider(key).notifier);
-      notifier.updateSearch('batman');
-      notifier.setGroup('publisher');
-      notifier.setSort('issue', ascending: false);
+      final sessionController =
+          container.read(libraryWorkspaceSessionProvider(key).notifier);
+      sessionController.updateSearch('batman');
+      sessionController.setGroup('comic.publisher');
+      sessionController.setSort('comic.issue', ascending: false);
 
       final next = container.read(libraryFiltersProvider(key));
       expect(next.searchQuery, 'batman');
-      expect(next.groupId, 'publisher');
-      expect(next.sortId, 'issue');
+      expect(next.groupId, 'comic.publisher');
+      expect(next.sortId, 'comic.issue');
       expect(next.sortAscending, isFalse);
     });
   });
@@ -116,7 +117,7 @@ void main() {
 
       // Now apply a search query filter
       container
-          .read(libraryFiltersProvider(key).notifier)
+          .read(libraryWorkspaceSessionProvider(key).notifier)
           .updateSearch('Batman');
 
       // Wait for next emission
@@ -157,7 +158,9 @@ void main() {
       addTearDown(container.dispose);
 
       // Default grouping for comic is 'series'. Set group to null before reading.
-      container.read(libraryFiltersProvider(key).notifier).setGroup(null);
+      container
+          .read(libraryWorkspaceSessionProvider(key).notifier)
+          .setGroup(null);
 
       // Keep both display list and grouped entries provider alive
       final subDisplay = container.listen(

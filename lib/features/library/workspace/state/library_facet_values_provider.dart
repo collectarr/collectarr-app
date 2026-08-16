@@ -41,9 +41,8 @@ final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
   }
 
   Object? getValue(LibraryProjectionRuntime item) {
-    final dto = item.dto;
-    if (groupDef != null) return (groupDef as dynamic).getValue(dto);
-    if (columnDef != null) return (columnDef as dynamic).getValue(dto);
+    if (groupDef != null) return module.getGroupValue(item, input.facetId);
+    if (columnDef != null) return module.getColumnValue(item, input.facetId);
     return null;
   }
 

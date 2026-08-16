@@ -2,11 +2,11 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import '../session/library_workspace_session_controller.dart';
+import '../session/library_workspace_session_state.dart';
 import 'library_workspace_key.dart';
 import 'library_filter_state.dart';
-import 'library_filters_provider.dart';
 import 'library_view_config_state.dart';
-import 'library_view_config_provider.dart';
 
 // ─── Key helpers ──────────────────────────────────────────────────────────────
 
@@ -100,8 +100,8 @@ Future<void> persistViewConfig(
 
 // ─── Riverpod bridge ──────────────────────────────────────────────────────────
 
-/// Async provider that loads persisted state for [key] and hydrates both
-/// [libraryFiltersProvider] and [libraryViewConfigProvider] on first access.
+/// Async provider that loads persisted state for [key] and hydrates
+/// [libraryWorkspaceSessionProvider] on first access.
 ///
 /// Widgets should watch this provider and wait for it to be in [AsyncData]
 /// before allowing user interactions that depend on persisted defaults.
@@ -110,40 +110,58 @@ final libraryWorkspaceHydrationProvider = FutureProvider.autoDispose
   final filterState = await loadPersistedFilterState(key);
   final viewConfig = await loadPersistedViewConfig(key);
 
-  // Restore both notifiers from persisted state.
-  ref.read(libraryFiltersProvider(key).notifier).restoreFrom(filterState);
-  ref.read(libraryViewConfigProvider(key).notifier).restoreFrom(viewConfig);
+  ref.read(libraryWorkspaceSessionProvider(key).notifier).bulkRestore(
+        filters: LibrarySessionFilterState(
+          groupId: filterState.groupId,
+          sortId: filterState.sortId,
+          sortAscending: filterState.sortAscending,
+          visibleColumnIds: filterState.visibleColumnIds,
+          presentationLevelId: filterState.presentationLevelId,
+        ),
+        view: LibrarySessionViewState(
+          coverSize: viewConfig.coverSize,
+          sidebarVisible: viewConfig.isSidebarVisible,
+          sidebarWidth: viewConfig.sidebarWidth,
+          detailsWidth: viewConfig.detailsWidth,
+          detailsHeight: viewConfig.detailsHeight,
+        ),
+      );
 });
 
-/// Debounced auto-save: listens to filter and view config changes and persists
-/// them after a short delay to avoid excessive disk writes during rapid changes
-/// (e.g. dragging a slider).
-///
-/// Activate by watching this provider in the workspace root widget:
-/// ```dart
-/// ref.watch(libraryWorkspacePersistenceProvider(key));
-/// ```
+/// Debounced auto-save: listens to unified workspace session changes and
+/// persists filters and view preferences after a short delay.
 final libraryWorkspacePersistenceProvider =
     Provider.autoDispose.family<void, LibraryWorkspaceKey>((ref, key) {
   Timer? debounce;
 
-  ref.listen<LibraryFilterState>(
-    libraryFiltersProvider(key),
-    (_, next) {
-      debounce?.cancel();
-      debounce = Timer(const Duration(milliseconds: 800), () {
-        persistFilterState(key, next);
-      });
-    },
-  );
-
-  ref.listen<LibraryViewConfigState>(
-    libraryViewConfigProvider(key),
-    (_, next) {
-      debounce?.cancel();
-      debounce = Timer(const Duration(milliseconds: 800), () {
-        persistViewConfig(key, next);
-      });
+  ref.listen<LibraryWorkspaceSessionState>(
+    libraryWorkspaceSessionProvider(key),
+    (prev, next) {
+      if (prev?.filters != next.filters || prev?.view != next.view) {
+        debounce?.cancel();
+        debounce = Timer(const Duration(milliseconds: 800), () {
+          persistFilterState(
+            key,
+            LibraryFilterState(
+              sortId: next.filters.sortId,
+              sortAscending: next.filters.sortAscending,
+              groupId: next.filters.groupId,
+              visibleColumnIds: next.filters.visibleColumnIds,
+              presentationLevelId: next.filters.presentationLevelId,
+            ),
+          );
+          persistViewConfig(
+            key,
+            LibraryViewConfigState(
+              coverSize: next.view.coverSize,
+              isSidebarVisible: next.view.sidebarVisible,
+              sidebarWidth: next.view.sidebarWidth,
+              detailsWidth: next.view.detailsWidth,
+              detailsHeight: next.view.detailsHeight,
+            ),
+          );
+        });
+      }
     },
   );
 

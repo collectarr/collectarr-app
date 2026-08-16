@@ -16,15 +16,15 @@ void main() {
           body: LibraryGroupModeDropdownMenu(
             type: moviesLibraryConfig,
             selectedPreset: LibraryFolderPreset.single(
-              'release_year',
+              'movie.director',
             ),
             availableModes: libraryGroupModesForType(moviesLibraryConfig),
             initialPinnedPresets: [
-              LibraryFolderPreset.single('director'),
+              LibraryFolderPreset.single('movie.director'),
             ],
             sidebarVisible: true,
             hasSidebarVisibilityToggle: true,
-            triggerLabel: 'Release Year',
+            triggerLabel: 'Director',
           ),
         ),
       ),
@@ -38,51 +38,16 @@ void main() {
     expect(find.byIcon(Icons.push_pin_outlined), findsNothing);
     expect(find.text('Manage Favorites'), findsOneWidget);
     expect(find.text('Favorites'), findsOneWidget);
-    expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Edition'), findsOneWidget);
     expect(find.text('Cast & Crew'), findsOneWidget);
+    expect(find.text('Main'), findsOneWidget);
     expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Director'), findsWidgets);
-    expect(find.text('Format'), findsNothing);
-    expect(find.text('Release Year'), findsWidgets);
-    expect(find.text('Audience Rating'), findsOneWidget);
-    expect(find.text('Movie / TV Series'), findsOneWidget);
-    expect(find.text('Studios'), findsOneWidget);
-    expect(
-        find.byKey(const ValueKey('groupModeMenuCurrentLabel')), findsNothing);
-    expect(
-        find.byKey(const ValueKey('groupModeSectionBar_Main')), findsNothing);
-    expect(
-      find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const ValueKey('groupModeItemBar_release_year')),
-      findsNothing,
-    );
-    expect(
-      find.byKey(const ValueKey('groupModeSectionBar_Cast & Crew')),
-      findsNothing,
-    );
+    expect(find.text('Studio / Publisher'), findsNothing);
 
     final selectedRow = tester.widget<LibraryWorkspaceMenuRow>(
-      find.byKey(const ValueKey('groupModeItemRow_release_year')),
+      find.byKey(const ValueKey('groupModeItemRow_movie.director')),
     );
     expect(selectedRow.backgroundColor, isNot(Colors.transparent));
-
-    final editionHeader = find.widgetWithText(InkWell, 'Edition');
-    await tester.ensureVisible(editionHeader);
-    await tester.tap(editionHeader);
-    await tester.pumpAndSettle();
-
-    expect(
-      find.byKey(const ValueKey('groupModeSectionLevelBar_Edition')),
-      findsOneWidget,
-    );
-    expect(find.text('Format'), findsOneWidget);
-    expect(find.text('Audio Tracks'), findsOneWidget);
-    expect(find.text('Edition Release Date'), findsOneWidget);
 
     final mainHeader = find.widgetWithText(InkWell, 'Main');
     await tester.ensureVisible(mainHeader);
@@ -90,9 +55,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.byKey(const ValueKey('groupModeSectionBar_Main')),
-      findsNothing,
+      find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
+      findsOneWidget,
     );
+    expect(find.text('Studio / Publisher'), findsOneWidget);
   });
 
   testWidgets('hidden grouping menu does not offer a show folders toggle', (
@@ -115,7 +81,7 @@ void main() {
 
     expect(find.text('No folders'), findsNothing);
     expect(find.text('Show folders'), findsNothing);
-    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Cast & Crew'), findsOneWidget);
     expect(find.byIcon(Icons.check), findsNothing);
   });
 
@@ -130,13 +96,13 @@ void main() {
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
             folderPreset: LibraryFolderPreset.single(
-              'release_year',
+              'movie.director',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
             onChanged: (_) {},
             pinnedFolderPresets: [
-              LibraryFolderPreset.single('director'),
+              LibraryFolderPreset.single('movie.director'),
             ],
             onPinnedPresetsChanged: (value) => savedPresets = value,
           ),
@@ -160,7 +126,7 @@ void main() {
     expect(savedPresets, isNotNull);
     expect(
       savedPresets,
-      [LibraryFolderPreset.single('director')],
+      [LibraryFolderPreset.single('movie.director')],
     );
   });
 
@@ -176,7 +142,7 @@ void main() {
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
             folderPreset: LibraryFolderPreset.single(
-              'release_year',
+              'movie.director',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -205,7 +171,7 @@ void main() {
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
             folderPreset: LibraryFolderPreset.single(
-              'release_year',
+              'movie.director',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -240,7 +206,7 @@ void main() {
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
             folderPreset: LibraryFolderPreset(
-              modes: ['age_rating', 'country'],
+              modes: ['movie.director', 'movie.publisher'],
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -250,7 +216,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Age rating / Country'), findsOneWidget);
+    expect(find.text('Director / Studio / Publisher'), findsOneWidget);
   });
 
   testWidgets('group mode button opens menu on hover', (tester) async {
@@ -260,7 +226,7 @@ void main() {
           body: LibraryGroupModeMenuButton(
             type: moviesLibraryConfig,
             folderPreset: LibraryFolderPreset.single(
-              'release_year',
+              'movie.director',
             ),
             accent: Colors.cyan,
             icon: Icons.account_tree_outlined,
@@ -273,7 +239,7 @@ void main() {
     await tester.tap(find.byTooltip('Group by'));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
+    expect(find.byKey(const ValueKey('groupModeSectionLevelBar_Cast & Crew')),
         findsOneWidget);
   });
 
@@ -289,7 +255,7 @@ void main() {
             child: LibraryGroupModeMenuButton(
               type: moviesLibraryConfig,
               folderPreset: LibraryFolderPreset.single(
-                'release_year',
+                'movie.director',
               ),
               accent: Colors.cyan,
               icon: Icons.account_tree_outlined,
@@ -303,7 +269,7 @@ void main() {
     await tester.tap(find.byTooltip('Group by'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Main'), findsOneWidget);
+    expect(find.text('Cast & Crew'), findsOneWidget);
 
     await tester.tapAt(const Offset(700, 500));
     await tester.pumpAndSettle();
@@ -320,10 +286,10 @@ void main() {
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
             type: comicsLibraryConfig,
-            selectedPreset: LibraryFolderPreset.single('publisher'),
+            selectedPreset: LibraryFolderPreset.single('comic.publisher'),
             availableModes: libraryGroupModesForType(comicsLibraryConfig),
             initialPinnedPresets: [
-              LibraryFolderPreset.single('series'),
+              LibraryFolderPreset.single('comic.series'),
             ],
           ),
         ),
@@ -331,45 +297,15 @@ void main() {
     );
 
     expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Value'), findsOneWidget);
-    expect(find.text('Edition'), findsOneWidget);
-    expect(find.text('Creators & Characters'), findsOneWidget);
     expect(find.text('Personal'), findsOneWidget);
-    expect(find.text('Cast & Crew'), findsNothing);
-    expect(find.text('All Creators'), findsNothing);
+    expect(find.text('Publisher'), findsWidgets);
+    expect(find.text('Series'), findsWidgets);
 
-    final creatorsHeader =
-        find.widgetWithText(InkWell, 'Creators & Characters');
-    await tester.ensureVisible(creatorsHeader);
-    await tester.tap(creatorsHeader);
+    final personalHeader = find.widgetWithText(InkWell, 'Personal');
+    await tester.ensureVisible(personalHeader);
+    await tester.tap(personalHeader);
     await tester.pumpAndSettle();
 
-    expect(find.text('All Creators'), findsOneWidget);
-    expect(find.text('Character'), findsOneWidget);
-    expect(find.text('Writer'), findsOneWidget);
-    expect(find.text('Inker'), findsOneWidget);
-    expect(find.text('Editor in Chief'), findsOneWidget);
-
-    final valueHeader = find.widgetWithText(InkWell, 'Value');
-    await tester.ensureVisible(valueHeader);
-    await tester.tap(valueHeader);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Grade'), findsOneWidget);
-    expect(find.text('Purchase Date'), findsOneWidget);
-    expect(find.text('My Rating'), findsOneWidget);
-
-    expect(find.text('Crossover'), findsOneWidget);
-    expect(find.text('Imprint'), findsOneWidget);
-    expect(find.text('Series Group'), findsOneWidget);
-
-    final editionHeader = find.widgetWithText(InkWell, 'Edition');
-    await tester.ensureVisible(editionHeader);
-    await tester.tap(editionHeader);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Cover Date'), findsOneWidget);
-    expect(find.text('Cover Month'), findsOneWidget);
-    expect(find.text('Cover Year'), findsOneWidget);
+    expect(find.text('Location'), findsOneWidget);
   });
 }

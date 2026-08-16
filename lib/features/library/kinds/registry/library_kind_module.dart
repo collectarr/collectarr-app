@@ -63,6 +63,11 @@ abstract interface class LibraryKindRuntime {
     String groupId,
   );
 
+  Object? getColumnValue(
+    LibraryProjectionRuntime item,
+    String columnId,
+  );
+
   void validateProjection(LibraryProjectionRuntime item);
 
   LibraryWorkspaceDto createWorkspaceDto({
@@ -194,6 +199,15 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   ) {
     validateProjection(item);
     return fields.getGroupValue(item, groupId);
+  }
+
+  @override
+  Object? getColumnValue(
+    LibraryProjectionRuntime item,
+    String columnId,
+  ) {
+    validateProjection(item);
+    return fields.getColumnValue(item, columnId);
   }
 
   @override

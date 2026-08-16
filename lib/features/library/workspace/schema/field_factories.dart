@@ -108,6 +108,7 @@ LibraryGroupDefinition<TKind, TDto, V>
     groupFromField<TKind, TDto extends LibraryWorkspaceDto, V>(
   LibraryFieldDefinition<TKind, TDto, V> field, {
   String? sidebarTitle,
+  String? category,
   IconData? icon,
   bool supportsBucketManagement = false,
 }) {
@@ -116,6 +117,7 @@ LibraryGroupDefinition<TKind, TDto, V>
     label: field.label,
     getValue: field.getValue,
     sidebarTitle: sidebarTitle,
+    category: category,
     icon: icon,
     supportsBucketManagement: supportsBucketManagement,
   );

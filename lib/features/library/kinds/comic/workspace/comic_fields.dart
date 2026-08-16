@@ -146,17 +146,20 @@ final comicLibraryGroupDefinitions = [
   groupFromField<ComicKind, ComicWorkspaceDto, String?>(
     ComicKindSchema.series,
     sidebarTitle: 'Series',
+    category: 'Main',
     icon: Icons.collections_bookmark_outlined,
   ),
   groupFromField<ComicKind, ComicWorkspaceDto, String?>(
     ComicKindSchema.publisher,
     sidebarTitle: 'Publishers',
+    category: 'Main',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
   ),
   groupFromField<ComicKind, ComicWorkspaceDto, String?>(
     ComicKindSchema.location,
     sidebarTitle: 'Locations',
+    category: 'Personal',
     icon: Icons.place_outlined,
   ),
 ];

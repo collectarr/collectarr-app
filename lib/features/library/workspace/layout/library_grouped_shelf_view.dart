@@ -304,33 +304,36 @@ class _GroupHeader extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: InkWell(
-              onTap: onToggleExpanded,
-              child: Row(
-                children: [
-                  Icon(Icons.folder_outlined, color: accent, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                          ),
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                onTap: onToggleExpanded,
+                child: Row(
+                  children: [
+                    Icon(Icons.folder_outlined, color: accent, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                            ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '$count',
-                    style: TextStyle(color: palette.textMuted),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    isExpanded ? Icons.expand_less : Icons.expand_more,
-                    color: palette.textMuted,
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      '$count',
+                      style: TextStyle(color: palette.textMuted),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      isExpanded ? Icons.expand_less : Icons.expand_more,
+                      color: palette.textMuted,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

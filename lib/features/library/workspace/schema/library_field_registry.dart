@@ -147,6 +147,17 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
     return groupDef.getValue(context);
   }
 
+  Object? getColumnValue(LibraryProjectionRuntime item, String columnId) {
+    final columnDef = findColumnDefinition(columnId);
+    if (columnDef == null) return null;
+    final context = LibraryProjectionContext<TDto>(
+      source: item.source,
+      node: item.node,
+      dto: item.dto as TDto,
+    );
+    return columnDef.getValue(context);
+  }
+
   void sortEntries(
     List<LibraryProjectionRuntime> items,
     String sortId, {

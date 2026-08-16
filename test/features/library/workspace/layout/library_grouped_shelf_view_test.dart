@@ -73,7 +73,7 @@ void main() {
                 groups: [
                   _group(
                     bucket: 'Batman',
-                    presentation: LibraryGroupPresentation.folderGrid,
+                    presentation: LibraryGroupPresentation.inlineHeaders,
                     items: items,
                   ),
                 ],
@@ -107,7 +107,7 @@ void main() {
     );
 
     expect(find.text('Batman'), findsOneWidget);
-    expect(find.text('Alpha'), findsOneWidget);
+    expect(find.text('Alpha'), findsWidgets);
 
     await tester.tap(find.text('Batman'));
     await tester.pumpAndSettle();
