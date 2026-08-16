@@ -1,25 +1,31 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/projection/library_filter_engine.dart';
+import 'package:collectarr_app/features/library/generic/projection/library_folder_tree_builder.dart';
+import 'package:collectarr_app/features/library/generic/projection/library_grouping_engine.dart';
+import 'package:collectarr_app/features/library/generic/projection/library_projection_engine.dart';
+import 'package:collectarr_app/features/library/generic/projection/library_projection_index.dart';
+import 'package:collectarr_app/features/library/generic/projection/library_projection_query.dart';
+import 'package:collectarr_app/features/library/generic/projection/library_search_index.dart';
+import 'package:collectarr_app/features/library/generic/projection/library_series_gap_analyzer.dart';
+import 'package:collectarr_app/features/library/generic/projection/library_toolbar_stats_calculator.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-export 'projection_item.dart';
-export 'quick_view.dart';
 export 'projection/library_filter_engine.dart';
 export 'projection/library_folder_tree_builder.dart';
 export 'projection/library_grouping_engine.dart';
@@ -29,6 +35,8 @@ export 'projection/library_projection_query.dart';
 export 'projection/library_search_index.dart';
 export 'projection/library_series_gap_analyzer.dart';
 export 'projection/library_toolbar_stats_calculator.dart';
+export 'projection_item.dart';
+export 'quick_view.dart';
 
 part 'projection_service.dart';
 
@@ -340,7 +348,6 @@ String? libraryGroupModeFromStorageValue(String value) {
   if (normalized.isEmpty) {
     return null;
   }
-  // Strip 'group.' prefix if present
   final candidate =
       normalized.startsWith('group.') ? normalized.substring(6) : normalized;
 
@@ -447,81 +454,7 @@ List<LibrarySeriesBucket> libraryBucketsForItems(
   LibraryTypeConfig type,
   String groupMode,
 ) {
-  final allBucketLabel = genericAllBucketLabel(type);
-  final counts = <String, int>{allBucketLabel: items.length};
-  final isSeries = groupMode == 'series';
-  final ownedCounts = isSeries
-      ? <String, int>{
-          allBucketLabel: items.where((item) => item.source.isOwned).length,
-        }
-      : null;
-  final coverUrls = <String, String?>{};
-  final startYears = <String, int?>{};
-  final bucketNumbers = isSeries ? <String, Set<int>>{} : null;
-  final ownedNumbers = isSeries ? <String, Set<int>>{} : null;
-  for (final item in items) {
-    final bucket = genericBucketForItemMode(item, type, groupMode);
-    counts[bucket] = (counts[bucket] ?? 0) + 1;
-    final number = isSeries ? _wholeNumber(item.dto.itemNumber) : null;
-    if (number != null) {
-      bucketNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
-    }
-    if (isSeries && item.source.isOwned) {
-      ownedCounts![bucket] = (ownedCounts[bucket] ?? 0) + 1;
-      if (number != null) {
-        ownedNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
-      }
-    }
-    if (!coverUrls.containsKey(bucket)) {
-      coverUrls[bucket] = item.dto.coverImageUrl;
-    }
-    final year = item.dto.releaseDate?.year;
-    if (year != null) {
-      final existing = startYears[bucket];
-      if (existing == null || year < existing) {
-        startYears[bucket] = year;
-      }
-    }
-  }
-  final gapNumbers = <String, List<int>>{};
-  if (ownedNumbers != null && bucketNumbers != null) {
-    for (final entry in ownedNumbers.entries) {
-      final sorted = entry.value.toList(growable: false)..sort();
-      if (sorted.length < 2) continue;
-      final existingNumbers = bucketNumbers[entry.key];
-      if (existingNumbers == null || existingNumbers.length < 2) continue;
-      final sortedExisting = existingNumbers.toList(growable: false)..sort();
-      final missing = <int>[];
-      for (final number in sortedExisting) {
-        if (number < sorted.first || number > sorted.last) continue;
-        if (entry.value.contains(number)) continue;
-        missing.add(number);
-        if (missing.length > 1000) break;
-      }
-      if (missing.isNotEmpty) gapNumbers[entry.key] = missing;
-    }
-  }
-  final buckets = [
-    for (final entry in counts.entries)
-      LibrarySeriesBucket(
-        title: entry.key,
-        count: entry.value,
-        coverUrl: coverUrls[entry.key],
-        startYear: startYears[entry.key],
-        ownedCount: ownedCounts?[entry.key],
-        missingNumbers: gapNumbers[entry.key] ?? const <int>[],
-      ),
-  ];
-  buckets.sort((a, b) {
-    if (a.title == allBucketLabel) {
-      return -1;
-    }
-    if (b.title == allBucketLabel) {
-      return 1;
-    }
-    return a.title.compareTo(b.title);
-  });
-  return buckets;
+  return const LibraryGroupingEngine().buildBuckets(items, type, groupMode);
 }
 
 List<GroupShelfEntry> libraryGroupEntriesForItems(
@@ -530,32 +463,12 @@ List<GroupShelfEntry> libraryGroupEntriesForItems(
   String groupMode, {
   LibraryGroupPresentation? presentationOverride,
 }) {
-  final grouped = <String, List<LibraryProjectionItem>>{};
-  final presentation =
-      presentationOverride ?? genericGroupPresentationForMode(groupMode, type);
-  for (final item in items) {
-    final bucket = genericBucketForItemMode(item, type, groupMode);
-    (grouped[bucket] ??= []).add(item);
-  }
-  final sortedBuckets = grouped.keys.toList()..sort();
-  return [
-    for (final bucket in sortedBuckets)
-      GroupShelfEntry(
-        groupMode: groupMode,
-        bucket: bucket,
-        presentation: presentation,
-        items: List<LibraryProjectionItem>.unmodifiable(grouped[bucket]!),
-        representativeItem: grouped[bucket]!.first,
-      ),
-  ];
-}
-
-final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
-
-int? _wholeNumber(String? value) {
-  if (value == null || value.trim().isEmpty) return null;
-  final match = _issueNumberRegExp.firstMatch(value);
-  return match == null ? null : int.tryParse(match.group(1)!);
+  return const LibraryGroupingEngine().buildGroupEntries(
+    items,
+    type,
+    groupMode,
+    presentationOverride: presentationOverride,
+  );
 }
 
 LibraryProjectionItem? librarySelectedItem(
@@ -574,8 +487,10 @@ LibraryProjectionItem? librarySelectedItem(
 }
 
 String genericBucketForItem(
-    LibraryProjectionItem item, LibraryTypeConfig type) {
-  return genericBucketForItemMode(
+  LibraryProjectionItem item,
+  LibraryTypeConfig type,
+) {
+  return const LibraryGroupingEngine().getGroupBucketForItem(
     item,
     type,
     libraryDefaultGroupMode(type),
@@ -587,12 +502,10 @@ String genericBucketForItemMode(
   LibraryTypeConfig type,
   Object groupMode,
 ) {
-  return type.presentation.bucketLabelBuilder(
-    LibraryBucketingContext(
-      source: item.source,
-      item: item,
-      groupMode: groupMode.toString(),
-    ),
+  return const LibraryGroupingEngine().getGroupBucketForItem(
+    item,
+    type,
+    groupMode.toString(),
   );
 }
 
@@ -620,296 +533,12 @@ List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
   Set<String> expandedNodeIds = const {},
   String? selectedNodeId,
 }) {
-  final nodes = _buildFolderTreeNodes(
-    items,
+  return const LibraryFolderTreeBuilder().buildTree(
+    items: items,
     type: type,
-    modes: preset.modes,
-    depth: 0,
-    pathBuckets: const <String>[],
+    preset: preset,
     expandedNodeIds: expandedNodeIds,
     selectedNodeId: selectedNodeId,
-  );
-  return [
-    LibraryFolderTreeNode(
-      id: 'root',
-      label: genericAllBucketLabel(type),
-      count: items.length,
-      cumulativeCount: items.length,
-      groupMode: preset.primaryMode,
-      children: nodes,
-      isExpanded: true,
-    ),
-  ];
-}
-
-List<LibraryFolderTreeNode> _buildFolderTreeNodes(
-  List<LibraryProjectionItem> items, {
-  required LibraryTypeConfig type,
-  required List<String> modes,
-  required int depth,
-  required List<String> pathBuckets,
-  required Set<String> expandedNodeIds,
-  required String? selectedNodeId,
-}) {
-  if (depth >= modes.length) {
-    return const <LibraryFolderTreeNode>[];
-  }
-
-  final groupMode = modes[depth];
-  final buckets = libraryBucketsForItems(items, type, groupMode)
-      .where((bucket) => bucket.title != genericAllBucketLabel(type));
-  final children = <LibraryFolderTreeNode>[];
-
-  for (final bucket in buckets) {
-    final nextPath = [...pathBuckets, bucket.title];
-    final childItems = [
-      for (final item in items)
-        if (genericBucketForItemMode(item, type, groupMode) == bucket.title)
-          item,
-    ];
-    final subtree = _buildFolderTreeNodes(
-      childItems,
-      type: type,
-      modes: modes,
-      depth: depth + 1,
-      pathBuckets: nextPath,
-      expandedNodeIds: expandedNodeIds,
-      selectedNodeId: selectedNodeId,
-    );
-    final id = libraryFolderTreeNodeId(modes: modes, buckets: nextPath);
-    final descendantSelected =
-        selectedNodeId != null && selectedNodeId.startsWith('$id|');
-    children.add(
-      LibraryFolderTreeNode(
-        id: id,
-        label: bucket.title,
-        count: bucket.count,
-        cumulativeCount: bucket.count,
-        groupMode: groupMode,
-        bucketValue: bucket.title,
-        children: subtree,
-        isExpanded: expandedNodeIds.contains(id) ||
-            descendantSelected ||
-            subtree.isNotEmpty && subtree.any((node) => node.isExpanded),
-      ),
-    );
-  }
-
-  return children;
-}
-
-bool _matchesBucket(
-  LibraryProjectionItem item,
-  LibraryTypeConfig type,
-  String groupMode,
-  String? selectedBucket,
-) {
-  return selectedBucket == null ||
-      genericBucketForItemMode(item, type, groupMode) == selectedBucket;
-}
-
-bool _matchesBucketScopeFilters(
-  LibraryProjectionItem item,
-  LibraryTypeConfig type,
-  List<LibraryBucketScopeFilter> filters,
-) {
-  for (final filter in filters) {
-    if (genericBucketForItemMode(item, type, filter.groupMode) !=
-        filter.bucket) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool _matchesConstrainedItemIds(
-  LibraryProjectionItem item,
-  Set<String>? constrainedItemIds,
-) {
-  return constrainedItemIds == null ||
-      constrainedItemIds.contains(item.node.id);
-}
-
-bool _matchesQuickView(
-    LibraryProjectionItem item, LibraryQuickView? quickView) {
-  return switch (quickView) {
-    null => true,
-    LibraryQuickView.owned => item.source.isOwned,
-    LibraryQuickView.wishlist => item.source.isWishlisted,
-    LibraryQuickView.missingCovers =>
-      item.dto.coverImageUrl == null || item.dto.coverImageUrl!.isEmpty,
-    LibraryQuickView.missingMetadata => false,
-    LibraryQuickView.missingGrade => item.source.isOwned &&
-        (item.source.grade == null || item.source.grade!.trim().isEmpty),
-  };
-}
-
-bool _matchesCollectionStatusScope(
-  LibraryProjectionItem item,
-  LibraryCollectionStatusScope scope,
-) {
-  final ownedItem = item.source.ownedItem;
-  final isSold = ownedItem?.isSold == true;
-  final collectionStatus =
-      item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
-  final isWishlistOnly = item.source.isWishlisted && !item.source.isOwned;
-  final isCatalogOnly = !item.source.isOwned && !item.source.isWishlisted;
-  final isForSale = !isSold && collectionStatus == 'for_sale';
-  final isOnOrder = !isSold && collectionStatus == 'on_order';
-  final isInCollection =
-      item.source.isOwned && !isSold && !isForSale && !isOnOrder;
-
-  return switch (scope) {
-    LibraryCollectionStatusScope.all => true,
-    LibraryCollectionStatusScope.inCollection => isInCollection,
-    LibraryCollectionStatusScope.forSale => isForSale,
-    LibraryCollectionStatusScope.wishList => isWishlistOnly,
-    LibraryCollectionStatusScope.onOrder => isOnOrder,
-    LibraryCollectionStatusScope.sold => isSold,
-    LibraryCollectionStatusScope.notInCollection => isCatalogOnly,
-  };
-}
-
-bool _matchesFilter(
-  LibraryProjectionItem item,
-  LibraryFilterSelection filters,
-  LibraryMediaAdapter adapter,
-  Set<String> activeLoanOwnedItemIds,
-  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
-) {
-  if (!filters.hasActiveFilters) {
-    return true;
-  }
-  if (!libraryFilterMatches(item, filters, adapter)) {
-    return false;
-  }
-  if (!libraryTrackingStatusMatchesFilter(
-    item.source.tracking.status,
-    filters.trackingStatusFilter,
-  )) {
-    return false;
-  }
-  if (!_matchesLoanFilter(
-      item, filters.loanStatusFilter, activeLoanOwnedItemIds)) {
-    return false;
-  }
-  if (!_matchesDateRange(item, filters)) {
-    return false;
-  }
-  if (!_matchesCustomField(
-    item,
-    filters,
-    customFieldValuesByDefinitionByItem,
-  )) {
-    return false;
-  }
-  return true;
-}
-
-bool _matchesCustomField(
-  LibraryProjectionItem item,
-  LibraryFilterSelection filters,
-  Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
-) {
-  final definitionId = filters.customFieldDefinitionId;
-  if (definitionId == null || definitionId.isEmpty) {
-    return true;
-  }
-  final ownedItemId = item.source.ownedItem?.id;
-  if (ownedItemId == null) {
-    return false;
-  }
-  final values = customFieldValuesByDefinitionByItem[ownedItemId];
-  final actualValue = values?[definitionId]?.trim();
-  if (actualValue == null || actualValue.isEmpty) {
-    return false;
-  }
-  final expectedValue = filters.customFieldValue?.trim();
-  if (expectedValue == null || expectedValue.isEmpty) {
-    return true;
-  }
-  final parsedValues = parseCustomFieldMultiValues(actualValue);
-  if (parsedValues.isNotEmpty) {
-    return parsedValues.contains(expectedValue);
-  }
-  return actualValue == expectedValue;
-}
-
-bool _matchesLoanFilter(
-  LibraryProjectionItem item,
-  LibraryLoanStatusFilter filter,
-  Set<String> activeLoanOwnedItemIds,
-) {
-  if (filter == LibraryLoanStatusFilter.all) {
-    return true;
-  }
-  final ownedItemId = item.source.ownedItem?.id;
-  if (ownedItemId == null) {
-    return false;
-  }
-  final hasActiveLoan = activeLoanOwnedItemIds.contains(ownedItemId);
-  return switch (filter) {
-    LibraryLoanStatusFilter.all => true,
-    LibraryLoanStatusFilter.onLoan => hasActiveLoan,
-    LibraryLoanStatusFilter.available => !hasActiveLoan,
-  };
-}
-
-bool _matchesDateRange(
-  LibraryProjectionItem item,
-  LibraryFilterSelection filters,
-) {
-  if (!filters.hasActiveDateRange) {
-    return true;
-  }
-  final value = _filterDateForItem(item, filters.dateRangeField);
-  if (value == null) {
-    return false;
-  }
-  final candidate = DateUtils.dateOnly(value.toLocal());
-  final from = filters.dateFrom == null
-      ? null
-      : DateUtils.dateOnly(filters.dateFrom!.toLocal());
-  final to = filters.dateTo == null
-      ? null
-      : DateUtils.dateOnly(filters.dateTo!.toLocal());
-  if (from != null && candidate.isBefore(from)) {
-    return false;
-  }
-  if (to != null && candidate.isAfter(to)) {
-    return false;
-  }
-  return true;
-}
-
-DateTime? _filterDateForItem(
-  LibraryProjectionItem item,
-  LibraryDateRangeField field,
-) {
-  final ownedItem = item.source.ownedItem;
-  final trackingEntry = item.source.trackingEntry;
-  return switch (field) {
-    LibraryDateRangeField.updated => item.source.updatedAt,
-    LibraryDateRangeField.purchased => ownedItem?.purchaseDate,
-    LibraryDateRangeField.started =>
-      trackingEntry?.startedAt ?? ownedItem?.startedAt,
-    LibraryDateRangeField.finished =>
-      trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
-  };
-}
-
-bool _matchesLinkedMetadataFilter(
-  LibraryProjectionItem item,
-  LibraryLinkedMetadataFilter? linkedMetadataFilter,
-  LibraryMediaAdapter adapter,
-) {
-  if (linkedMetadataFilter == null) {
-    return true;
-  }
-  return libraryEntryMatchesLinkedMetadataFilter(
-    item,
-    linkedMetadataFilter.value,
-    adapter,
   );
 }
 
@@ -929,107 +558,4 @@ bool libraryEntryMatchesLinkedMetadataFilter(
     }
   }
   return false;
-}
-
-bool _matchesQuery(
-  LibraryProjectionRuntime item,
-  String query,
-  Map<String, List<String>> customFieldValuesByItem,
-  LibrarySearchTarget searchTarget,
-) {
-  if (query.isEmpty) {
-    return true;
-  }
-  final dto = item.dto;
-  final catalog = item.source.catalogItem;
-  if (searchTarget.includesMedia &&
-      (_containsQuery(dto.title, query) ||
-          _containsQuery(dto.seriesTitle, query) ||
-          _containsQuery(dto.itemNumber, query) ||
-          _containsQuery(dto.publisher, query) ||
-          _containsQuery(dto.variant, query) ||
-          _containsQuery(dto.barcode, query) ||
-          _containsQuery(dto.releaseDate?.year.toString(), query) ||
-          _containsQuery(item.source.condition, query) ||
-          _containsQuery(item.source.grade, query) ||
-          _containsQuery(item.source.locationPath, query))) {
-    return true;
-  }
-  if (searchTarget.includesMedia && catalog != null) {
-    if (_containsQuery(catalog.originalTitle, query) ||
-        _containsQuery(catalog.displayTitle, query) ||
-        _containsQuery(catalog.localizedTitle, query)) {
-      return true;
-    }
-    final aliases = catalog.searchAliases;
-    if (aliases != null && aliases.isNotEmpty) {
-      for (final alias in aliases) {
-        if (_containsQuery(alias, query)) {
-          return true;
-        }
-      }
-    }
-    final ownedId = item.source.ownedItem?.id;
-    if (ownedId != null) {
-      final cfValues = customFieldValuesByItem[ownedId];
-      if (cfValues != null) {
-        for (final v in cfValues) {
-          if (_containsQuery(v, query)) return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
-LibraryToolbarCounts _toolbarCountsForItems({
-  required List<LibraryProjectionItem> allItems,
-  required int shown,
-}) {
-  var owned = 0;
-  var wishlist = 0;
-  var missingCover = 0;
-  var missingMetadata = 0;
-  var totalPricePaid = 0;
-  var totalCoverPrice = 0;
-  var totalSellPrice = 0;
-  String? currency;
-  for (final item in allItems) {
-    final dto = item.dto;
-    final ownedItem = item.source.ownedItem;
-    if (item.source.isOwned) {
-      owned += 1;
-    }
-    if (item.source.isWishlisted) {
-      wishlist += 1;
-    }
-    if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty) {
-      missingCover += 1;
-    }
-    if (ownedItem != null) {
-      totalPricePaid += ownedItem.pricePaidCents ?? 0;
-      totalCoverPrice += (ownedItem.typedDetails is ComicOwnedDetails
-              ? (ownedItem.typedDetails as ComicOwnedDetails).coverPriceCents
-              : null) ??
-          0;
-      totalSellPrice += ownedItem.sellPriceCents ?? 0;
-      currency ??= ownedItem.currency;
-    }
-  }
-  return LibraryToolbarCounts(
-    shown: shown,
-    total: allItems.length,
-    owned: owned,
-    wishlist: wishlist,
-    missingCover: missingCover,
-    missingMetadata: missingMetadata,
-    totalPricePaidCents: totalPricePaid,
-    totalCoverPriceCents: totalCoverPrice,
-    totalSellPriceCents: totalSellPrice,
-    priceCurrency: currency,
-  );
-}
-
-bool _containsQuery(String? value, String query) {
-  return value != null && value.toLowerCase().contains(query);
 }

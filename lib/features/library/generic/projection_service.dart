@@ -29,60 +29,34 @@ class LibraryProjectionService {
     Set<String> activeLoanOwnedItemIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
-    final allItems = libraryItemsForShelf(
-      shelf,
-      type,
-      customFieldDefinitions: customFieldDefinitions,
-      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
-      customFieldValuesByItem: customFieldValuesByItem,
+    final projectionQuery = LibraryProjectionQuery(
+      searchQuery: query,
+      groupMode: groupMode,
+      selectedBucket: selectedBucket,
+      selectedItemId: selectedItemId,
+      quickView: quickView,
+      collectionStatusScope: collectionStatusScope,
+      bucketScopeFilters: bucketScopeFilters,
+      filterSelection: filterSelection,
+      linkedMetadataFilter: linkedMetadataFilter,
+      constrainedItemIds: constrainedItemIds,
+    );
+
+    final engine = LibraryProjectionEngine();
+    return engine.execute(
+      shelf: shelf,
+      type: type,
+      adapter: adapter,
+      viewState: viewState,
+      query: projectionQuery,
       browserMode: browserMode,
       releaseFolderTitleItemId: releaseFolderTitleItemId,
-    );
-    final scopedBucketItems = [
-      for (final item in allItems)
-        if (_matchesBucketScopeFilters(item, type, bucketScopeFilters) &&
-            _matchesConstrainedItemIds(item, constrainedItemIds))
-          item,
-    ];
-    final normalizedQuery = query.trim().toLowerCase();
-    final filteredItems = [
-      for (final item in allItems)
-        if (_matchesBucketScopeFilters(item, type, bucketScopeFilters) &&
-            _matchesBucket(item, type, groupMode, selectedBucket) &&
-            _matchesConstrainedItemIds(item, constrainedItemIds) &&
-            _matchesCollectionStatusScope(item, collectionStatusScope) &&
-            _matchesQuickView(item, quickView) &&
-            _matchesFilter(
-              item,
-              filterSelection,
-              adapter,
-              activeLoanOwnedItemIds,
-              customFieldValuesByDefinitionByItem,
-            ) &&
-            _matchesLinkedMetadataFilter(item, linkedMetadataFilter, adapter) &&
-            _matchesQuery(
-              item,
-              normalizedQuery,
-              customFieldValuesByItem,
-              searchTarget,
-            ))
-          item,
-    ]..sort((a, b) => adapter.compareEntriesByRules(
-          a,
-          b,
-          viewState.sortRules,
-        ));
-    final counts = _toolbarCountsForItems(
-      allItems: allItems,
-      shown: filteredItems.length,
-    );
-    return LibraryProjection(
-      allItems: allItems,
-      filteredItems: filteredItems,
-      buckets: overrideBuckets ??
-          libraryBucketsForItems(scopedBucketItems, type, groupMode),
-      selectedItem: librarySelectedItem(filteredItems, selectedItemId),
-      counts: counts,
+      overrideBuckets: overrideBuckets,
+      customFieldDefinitions: customFieldDefinitions,
+      customFieldValuesByItem: customFieldValuesByItem,
+      customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
+      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+      searchTarget: searchTarget,
     );
   }
 }

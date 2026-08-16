@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -6,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -48,6 +50,7 @@ void main() {
         id: 'comic-1',
         kind: 'comic',
         title: 'Saga #1',
+        series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
       ),
       ownedItem: testOwnedItem(id: 'o1', itemId: 'comic-1'),
     );
@@ -57,8 +60,18 @@ void main() {
       node: node1,
     );
 
-    final groupDef = comicKindModule.fields.findGroupDefinition('series');
+    final item1 = LibraryProjectionItem(
+      source: source1,
+      node: node1,
+      dto: dto1,
+    );
+    final groupDef = comicKindModule.fields.findGroupDefinition('comic.series');
     expect(groupDef, isNotNull);
-    expect(groupDef!.getValue(dto1 as ComicWorkspaceDto), 'Saga #1');
+    final ctx = LibraryProjectionContext<ComicWorkspaceDto>(
+      source: source1,
+      node: node1,
+      dto: dto1 as ComicWorkspaceDto,
+    );
+    expect(groupDef!.getValue(ctx), 'Saga');
   });
 }

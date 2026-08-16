@@ -167,9 +167,9 @@ class LibraryPageCollectionActionCoordinator {
             const <TrackingEntry>[];
         final active = resolveActiveTrackingEntry(trackingEntries, null);
         if (active != null) {
-          await runCollectionAction(
-            (a) => a.mutations.removeTrackingEntry(active),
-          );
+          await _page.ref
+              .read(trackingMutationsProvider)
+              .removeTrackingEntry(active);
         }
       case LibraryItemContextAction.copyTitle:
         await Clipboard.setData(ClipboardData(text: item.dto.title));
