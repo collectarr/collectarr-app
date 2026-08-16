@@ -23,23 +23,26 @@ jobs:
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
 
+      - name: Check code formatting
+        run: dart format --output=none --set-exit-if-changed .
+
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Verify generated files are clean
+        run: git diff --exit-code
 
       - name: Check library kind boundaries
         run: dart run tool/check_library_kind_boundaries.dart
 
       - name: Analyze
-        run: |
-          set -euo pipefail
-          output="$(flutter analyze 2>&1 || true)"
-          printf '%s\n' "$output"
-          if printf '%s\n' "$output" | grep -q 'error •'; then
-            exit 1
-          fi
+        run: flutter analyze --fatal-warnings --fatal-infos
 
-      - name: Run tests
+      - name: Run unit and widget tests
         run: flutter test
+
+      - name: Run integration smoke tests
+        run: flutter test integration_test/app_smoke_test.dart
 
   build-web:
     runs-on: ubuntu-latest
