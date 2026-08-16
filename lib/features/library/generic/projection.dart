@@ -121,14 +121,14 @@ class LibraryFolderPreset {
   factory LibraryFolderPreset.single(String mode) =>
       LibraryFolderPreset(modes: [mode]);
 
-  factory LibraryFolderPreset.parse(String raw) {
+  factory LibraryFolderPreset.parse(String raw, [LibraryTypeConfig? type]) {
     final names = raw
         .split('>')
         .map((value) => value.trim())
         .where((value) => value.isNotEmpty);
     final modes = <String>[];
     for (final name in names) {
-      final mode = libraryGroupModeFromStorageValue(name);
+      final mode = libraryGroupModeFromStorageValue(name, type);
       if (mode == null) {
         throw ArgumentError('Unknown folder preset mode: $name');
       }
@@ -193,77 +193,16 @@ IconData genericFolderPresetIcon(
   return genericGroupModeIcon(preset.primaryMode, type);
 }
 
-String _toSnakeCase(String name) {
-  final s1 = name.replaceAllMapped(
-    RegExp(r'(.)([A-Z][a-z]+)'),
-    (match) => '${match.group(1)}_${match.group(2)}',
-  );
-  return s1
-      .replaceAllMapped(
-        RegExp(r'([a-z0-9])([A-Z])'),
-        (match) => '${match.group(1)}_${match.group(2)}',
-      )
-      .toLowerCase();
-}
-
 LibraryGroupDefinition<dynamic, dynamic, Object?>?
     libraryGroupModeDefinitionOrNull(
   String mode, [
   LibraryTypeConfig? type,
 ]) {
-  final targetId = _toSnakeCase(mode);
   if (type != null) {
     final module = libraryKindModuleForType(type);
-    for (final definition in module.fields.groups) {
-      if (definition.id.value == targetId ||
-          definition.id.value == mode ||
-          definition.id.value.endsWith('.$targetId') ||
-          definition.id.value.endsWith('.$mode')) {
-        return definition;
-      }
-    }
-  }
-  for (final module in LibraryKindRegistry.instance.allRuntimes) {
-    for (final definition in module.fields.groups) {
-      if (definition.id.value == targetId ||
-          definition.id.value == mode ||
-          definition.id.value.endsWith('.$targetId') ||
-          definition.id.value.endsWith('.$mode')) {
-        return definition;
-      }
-    }
+    return module.fields.findGroupDefinition(mode);
   }
   return null;
-}
-
-String _fallbackGroupModeLabel(String mode) {
-  if (mode == 'movie_or_tv_series') return 'Movie / TV Series';
-  if (mode == 'age_rating') return 'Age rating';
-  if (mode == 'release_year') return 'Release Year';
-  if (mode == 'creator') return 'All Creators';
-  if (mode == 'editor_in_chief') return 'Editor in Chief';
-  final raw = mode
-      .replaceAllMapped(
-        RegExp(r'([a-z0-9])([A-Z])'),
-        (match) => '${match.group(1)} ${match.group(2)}',
-      )
-      .replaceAll('_', ' ');
-  return raw
-      .split(' ')
-      .where((w) => w.isNotEmpty)
-      .map((w) => w == '&' ? '&' : '${w[0].toUpperCase()}${w.substring(1)}')
-      .join(' ');
-}
-
-String _fallbackGroupModeSidebarTitle(String mode) {
-  final label = _fallbackGroupModeLabel(mode);
-  if (label.endsWith('s')) {
-    return label;
-  }
-  if (label.endsWith('y')) {
-    return '${label.substring(0, label.length - 1)}ies';
-  }
-  return '${label}s';
 }
 
 String genericGroupModeLabel(
@@ -274,8 +213,7 @@ String genericGroupModeLabel(
       type.presentation.groupLabels.publisherMode.isNotEmpty) {
     return type.presentation.groupLabels.publisherMode;
   }
-  return libraryGroupModeDefinitionOrNull(mode, type)?.label ??
-      _fallbackGroupModeLabel(mode);
+  return libraryGroupModeDefinitionOrNull(mode, type)?.label ?? mode;
 }
 
 String? genericGroupModeDrilldownChildMode(
@@ -288,12 +226,16 @@ String? genericGroupModeDrilldownChildMode(
 bool libraryAllowsGroupDrilldown({
   required String currentMode,
   required String? childMode,
+  LibraryTypeConfig? type,
 }) {
   if (childMode == null || childMode == currentMode) {
     return false;
   }
-  if (currentMode == 'series' && childMode == 'title') {
-    return false;
+  if (type != null) {
+    final def = libraryGroupModeDefinitionOrNull(currentMode, type);
+    if (def?.drilldownChildId != null) {
+      return childMode == def!.drilldownChildId;
+    }
   }
   return true;
 }
@@ -309,8 +251,8 @@ String genericGroupModeSidebarTitle(
   String mode,
   LibraryTypeConfig type,
 ) {
-  return libraryGroupModeDefinitionOrNull(mode, type)?.sidebarTitle ??
-      _fallbackGroupModeSidebarTitle(mode);
+  return libraryGroupModeDefinitionOrNull(mode, type)?.resolvedSidebarTitle ??
+      genericGroupModeLabel(mode, type);
 }
 
 IconData genericGroupModeIcon(
@@ -339,11 +281,13 @@ String libraryDefaultGroupMode(LibraryTypeConfig type) {
   return libraryGroupModesForType(type).first;
 }
 
-String libraryGroupModeStorageValue(String mode) {
-  return 'group.${libraryGroupModeDefinitionOrNull(mode)?.id ?? _stableToken(mode)}';
+String libraryGroupModeStorageValue(String mode, [LibraryTypeConfig? type]) {
+  final def = libraryGroupModeDefinitionOrNull(mode, type);
+  return 'group.${def?.id.value ?? mode}';
 }
 
-String? libraryGroupModeFromStorageValue(String value) {
+String? libraryGroupModeFromStorageValue(String value,
+    [LibraryTypeConfig? type]) {
   final normalized = value.trim();
   if (normalized.isEmpty) {
     return null;
@@ -351,34 +295,12 @@ String? libraryGroupModeFromStorageValue(String value) {
   final candidate =
       normalized.startsWith('group.') ? normalized.substring(6) : normalized;
 
-  for (final module in LibraryKindRegistry.instance.allRuntimes) {
-    for (final def in module.fields.groups) {
-      if (def.id.value == candidate ||
-          _stableToken(def.id.value) == candidate ||
-          def.id.value.endsWith('.$candidate')) {
-        return def.id.value;
-      }
-    }
+  if (type != null) {
+    final module = libraryKindModuleForType(type);
+    return module.fields.findGroupDefinition(candidate)?.id.value;
   }
 
-  for (final module in LibraryKindRegistry.instance.allRuntimes) {
-    for (final mode in module.type.availableGroupModes) {
-      if (mode == candidate || mode.endsWith('.$candidate')) {
-        return mode;
-      }
-    }
-  }
-
-  return null;
-}
-
-String _stableToken(String value) {
-  return value
-      .replaceAllMapped(
-        RegExp(r'([a-z0-9])([A-Z])'),
-        (match) => '${match[1]}_${match[2]}',
-      )
-      .toLowerCase();
+  return candidate;
 }
 
 class LibraryProjection {

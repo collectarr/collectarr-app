@@ -101,9 +101,15 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
   }
 
   LibraryGroupDefinition<TKind, TDto, Object?>? findGroupDefinition(String id) {
-    final direct = groupDefinitionForId(id);
+    var normalized = id.trim();
+    if (normalized.startsWith('group.')) {
+      normalized = normalized.substring(6);
+    }
+    final direct = groupDefinitionForId(normalized);
     if (direct != null) return direct;
-    final decoded = preferenceCodec.decodeGroup(id);
+    final qualified = groupDefinitionForId('$kindNamespace.$normalized');
+    if (qualified != null) return qualified;
+    final decoded = preferenceCodec.decodeGroup(normalized);
     if (decoded != null) return groupDefinitionForId(decoded.value);
     return null;
   }
