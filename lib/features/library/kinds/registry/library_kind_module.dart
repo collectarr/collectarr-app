@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
@@ -29,7 +30,7 @@ abstract interface class LibraryKindRuntime {
   LibraryFieldRegistry<dynamic, LibraryWorkspaceDto> get fields;
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
   LibraryKindWorkspaceBehavior get workspaceBehavior;
-  LibraryKindAddModule get add;
+  LibraryAddCapability get add;
   LibraryKindEditModule get edit;
   LibraryKindDetailModule get detail;
   LibraryKindToolbarModule get toolbar;
@@ -67,8 +68,8 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required this.fields,
     required this.projector,
     required this.ownedDetailsCodec,
+    required this.add,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
-    this.add = const LibraryKindAddModule(),
     this.edit = const LibraryKindEditModule(),
     this.detail = const LibraryKindDetailModule(),
     this.toolbar = const LibraryKindToolbarModule(),
@@ -134,7 +135,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   @override
   final LibraryKindWorkspaceBehavior workspaceBehavior;
   @override
-  final LibraryKindAddModule add;
+  final LibraryAddCapability add;
   @override
   final LibraryKindEditModule edit;
   @override
@@ -233,16 +234,6 @@ void validateKindRuntime(LibraryKindRuntime module) {
 
 void validateKindModule(LibraryKindRuntime module) =>
     validateKindRuntime(module);
-
-class LibraryKindAddModule {
-  const LibraryKindAddModule({
-    this.registerBuilders = _noop,
-  });
-
-  final void Function() registerBuilders;
-
-  static void _noop() {}
-}
 
 class LibraryKindEditModule {
   const LibraryKindEditModule();

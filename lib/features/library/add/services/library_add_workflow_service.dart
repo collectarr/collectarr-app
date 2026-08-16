@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -150,7 +152,8 @@ class LibraryAddWorkflowService {
     required LibraryAddTarget target,
     LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
     LibraryAddDefaults defaults = const LibraryAddDefaults(),
-    Map<String, LibraryAddOwnedDetails> ownedDetailsByItemId = const {},
+    LibraryAddCommonDraft? commonDraft,
+    Map<String, LibraryAddKindDraft> kindDraftsByItemId = const {},
     Map<String, LibraryAddEditionSelection> editionSelectionsByItemId =
         const {},
     Map<String, String> bundleReleaseIdsByItemId = const {},
@@ -173,7 +176,8 @@ class LibraryAddWorkflowService {
         target: target,
         referenceType: referenceType,
         defaults: defaults,
-        ownedDetailsByItemId: ownedDetailsByItemId,
+        commonDraft: commonDraft,
+        kindDraftsByItemId: kindDraftsByItemId,
         editionSelectionsByItemId: editionSelectionsByItemId,
         bundleReleaseIdsByItemId: bundleReleaseIdsByItemId,
       );

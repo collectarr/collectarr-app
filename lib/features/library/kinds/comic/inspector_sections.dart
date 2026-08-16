@@ -562,7 +562,6 @@ List<LibraryDetailField> _valueFacts(
   if (ownedItem == null) {
     return const [];
   }
-  final dto = item.dto;
   final effectiveOwnedCopies =
       ownedCopies.isNotEmpty ? ownedCopies : <OwnedItem>[ownedItem];
   final snapshot = LibraryValueSnapshot.fromItem(

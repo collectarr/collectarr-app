@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart'
-    as movie_add;
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
@@ -11,6 +9,9 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
@@ -21,8 +22,10 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, VideoOwnedDetails>(
   projector: const MovieWorkspaceProjector(),
   ownedDetailsCodec: const VideoOwnedDetailsCodec(),
   fields: movieLibraryKindSchema.toRegistry(),
-  add: LibraryKindAddModule(
-      registerBuilders: movie_add.registerMovieAddBuilders),
+  add: const StandardLibraryAddCapability<VideoAddDraft>(
+    kind: CatalogMediaKind.movie,
+    initialDraftBuilder: VideoAddDraft.new,
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
     defaultVideoGrouping: VideoGroupingDefault.none,

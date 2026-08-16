@@ -175,18 +175,3 @@ final class GenericAddDraft extends LibraryAddKindDraft {
   @override
   OwnedDetailsDraft toOwnedDetailsDraft() => const GenericOwnedDetailsDraft();
 }
-
-LibraryAddKindDraft defaultAddKindDraftForKind(CatalogMediaKind kind) {
-  return switch (kind) {
-    CatalogMediaKind.comic || CatalogMediaKind.manga => const ComicAddDraft(),
-    CatalogMediaKind.movie ||
-    CatalogMediaKind.tv ||
-    CatalogMediaKind.anime =>
-      const VideoAddDraft(),
-    CatalogMediaKind.game => const GameAddDraft(),
-    CatalogMediaKind.music => const MusicAddDraft(),
-    CatalogMediaKind.book => const BookAddDraft(),
-    CatalogMediaKind.boardgame => const BoardGameAddDraft(),
-    _ => const GenericAddDraft(),
-  };
-}

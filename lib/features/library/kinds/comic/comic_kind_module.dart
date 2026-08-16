@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart'
-    as comic_add;
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -12,6 +10,9 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:flutter/material.dart';
 
@@ -24,8 +25,10 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   projector: const ComicWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: comicLibraryKindSchema.toRegistry(),
-  add: LibraryKindAddModule(
-      registerBuilders: comic_add.registerComicAddBuilders),
+  add: const StandardLibraryAddCapability<ComicAddDraft>(
+    kind: CatalogMediaKind.comic,
+    initialDraftBuilder: ComicAddDraft.new,
+  ),
   workspaceBehavior: LibraryKindWorkspaceBehavior(
     supportsSeriesIssueJump: true,
     issueSortNumber: comicIssueSortNumber,

@@ -1,14 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -41,56 +37,40 @@ void main() {
       expect(movieReleaseSort!.id, isNot(equals(gameReleaseSort!.id)));
     });
 
-    test('validateKindModule throws StateError on duplicate column IDs', () {
-      final invalidRegistry = AnyLibraryFieldRegistry<GenericWorkspaceDto>(
-        columns: [
-          LibraryColumnDefinition(
-              id: const LibraryFieldId('test.dup'),
-              label: 'A',
-              getValue: (dto) => null),
-          LibraryColumnDefinition(
-              id: const LibraryFieldId('test.dup'),
-              label: 'B',
-              getValue: (dto) => null),
-        ],
+    test('LibraryFieldRegistry throws StateError on duplicate column IDs', () {
+      expect(
+        () => LibraryFieldRegistry<ComicKind, ComicWorkspaceDto>(
+          kindNamespace: 'comic',
+          columns: [
+            comicLibraryColumnDefinitions.first,
+            comicLibraryColumnDefinitions.first,
+          ],
+          sorts: const [],
+          groups: const [],
+          defaultVisibleColumns: const {},
+          defaultSort: ComicSortIds.series,
+          preferenceCodec: const ComicPreferenceCodec(),
+        ),
+        throwsStateError,
       );
-
-      final invalidModule =
-          LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
-        type: moviesLibraryConfig,
-        mediaAdapter: movieKindModule.mediaAdapter,
-        fields: invalidRegistry,
-        projector: const GenericWorkspaceProjector(),
-        ownedDetailsCodec: const GenericOwnedDetailsCodec(),
-      );
-
-      expect(() => validateKindModule(invalidModule), throwsStateError);
     });
 
-    test('validateKindModule throws StateError on duplicate sort IDs', () {
-      final invalidRegistry = AnyLibraryFieldRegistry<GenericWorkspaceDto>(
-        sorts: [
-          LibrarySortDefinition(
-              id: const LibrarySortId('test.sort'),
-              label: 'A',
-              compare: (a, b) => 0),
-          LibrarySortDefinition(
-              id: const LibrarySortId('test.sort'),
-              label: 'B',
-              compare: (a, b) => 0),
-        ],
+    test('LibraryFieldRegistry throws StateError on duplicate sort IDs', () {
+      expect(
+        () => LibraryFieldRegistry<ComicKind, ComicWorkspaceDto>(
+          kindNamespace: 'comic',
+          columns: const [],
+          sorts: [
+            comicLibrarySortDefinitions.first,
+            comicLibrarySortDefinitions.first,
+          ],
+          groups: const [],
+          defaultVisibleColumns: const {},
+          defaultSort: ComicSortIds.series,
+          preferenceCodec: const ComicPreferenceCodec(),
+        ),
+        throwsStateError,
       );
-
-      final invalidModule =
-          LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
-        type: moviesLibraryConfig,
-        mediaAdapter: movieKindModule.mediaAdapter,
-        fields: invalidRegistry,
-        projector: const GenericWorkspaceProjector(),
-        ownedDetailsCodec: const GenericOwnedDetailsCodec(),
-      );
-
-      expect(() => validateKindModule(invalidModule), throwsStateError);
     });
 
     test('LibraryKindRegistry throws StateError on duplicate kind registration',

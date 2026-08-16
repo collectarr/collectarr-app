@@ -19,7 +19,6 @@ void registerLibraryAddBuilders() {
       module.type.workspace.kind,
       () => <String, dynamic>{},
     );
-    module.add.registerBuilders();
   }
 }
 

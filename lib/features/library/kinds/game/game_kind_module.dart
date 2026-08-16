@@ -9,6 +9,9 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
@@ -19,6 +22,10 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   projector: const GameWorkspaceProjector(),
   ownedDetailsCodec: const GameOwnedDetailsCodec(),
   fields: gameLibraryKindSchema.toRegistry(),
+  add: const StandardLibraryAddCapability<GameAddDraft>(
+    kind: CatalogMediaKind.game,
+    initialDraftBuilder: GameAddDraft.new,
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(),
   providerMapper: const GameLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(

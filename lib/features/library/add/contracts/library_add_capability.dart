@@ -13,7 +13,7 @@ abstract interface class LibraryAddCapability<
   AddOwnedItemCommand buildCommand(
     CatalogItem item,
     LibraryAddCommonDraft common,
-    TDraft draft,
+    LibraryAddKindDraft draft,
   );
 }
 
@@ -35,8 +35,9 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   AddOwnedItemCommand buildCommand(
     CatalogItem item,
     LibraryAddCommonDraft common,
-    TDraft draft,
+    LibraryAddKindDraft draft,
   ) {
+    final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
         kind: item.kind,
@@ -44,48 +45,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
         id: item.id,
       ),
       common: common.toOwnedItemCommonDraft(),
-      details: draft.toOwnedDetailsDraft(),
+      details: effectiveDraft.toOwnedDetailsDraft(),
     );
-  }
-}
-
-class LibraryAddCapabilityRegistry {
-  LibraryAddCapabilityRegistry._();
-  static final LibraryAddCapabilityRegistry instance =
-      LibraryAddCapabilityRegistry._();
-
-  final Map<CatalogMediaKind, LibraryAddCapability> _capabilities = {
-    CatalogMediaKind.comic: StandardLibraryAddCapability<ComicAddDraft>(
-      kind: CatalogMediaKind.comic,
-      initialDraftBuilder: () => const ComicAddDraft(),
-    ),
-    CatalogMediaKind.movie: StandardLibraryAddCapability<VideoAddDraft>(
-      kind: CatalogMediaKind.movie,
-      initialDraftBuilder: () => const VideoAddDraft(),
-    ),
-    CatalogMediaKind.game: StandardLibraryAddCapability<GameAddDraft>(
-      kind: CatalogMediaKind.game,
-      initialDraftBuilder: () => const GameAddDraft(),
-    ),
-    CatalogMediaKind.music: StandardLibraryAddCapability<MusicAddDraft>(
-      kind: CatalogMediaKind.music,
-      initialDraftBuilder: () => const MusicAddDraft(),
-    ),
-    CatalogMediaKind.book: StandardLibraryAddCapability<BookAddDraft>(
-      kind: CatalogMediaKind.book,
-      initialDraftBuilder: () => const BookAddDraft(),
-    ),
-    CatalogMediaKind.boardgame: StandardLibraryAddCapability<BoardGameAddDraft>(
-      kind: CatalogMediaKind.boardgame,
-      initialDraftBuilder: () => const BoardGameAddDraft(),
-    ),
-  };
-
-  LibraryAddCapability getForKind(CatalogMediaKind kind) {
-    return _capabilities[kind] ??
-        StandardLibraryAddCapability<GenericAddDraft>(
-          kind: CatalogMediaKind.unknown,
-          initialDraftBuilder: () => const GenericAddDraft(),
-        );
   }
 }

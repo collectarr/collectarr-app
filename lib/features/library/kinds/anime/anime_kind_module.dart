@@ -9,6 +9,9 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
@@ -19,6 +22,10 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, VideoOwnedDetails>(
   projector: const AnimeWorkspaceProjector(),
   ownedDetailsCodec: const VideoOwnedDetailsCodec(),
   fields: animeLibraryKindSchema.toRegistry(),
+  add: const StandardLibraryAddCapability<VideoAddDraft>(
+    kind: CatalogMediaKind.anime,
+    initialDraftBuilder: VideoAddDraft.new,
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsSeriesIssueJump: true,
     defaultVideoDisplayLevel: VideoDisplayLevel.season,

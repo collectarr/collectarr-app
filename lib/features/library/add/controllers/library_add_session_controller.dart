@@ -8,7 +8,6 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
@@ -79,7 +78,10 @@ class LibraryAddSessionController
                 selection: const LibraryAddSelectionState(),
                 preview: const LibraryAddPreviewState.initial(),
                 commonDraft: const LibraryAddCommonDraft(),
-                manualDraft: defaultAddKindDraftForKind(kind),
+                manualDraft: LibraryKindRegistry.instance
+                    .getByKind(kind)
+                    .add
+                    .createInitialDraft(),
                 submitState: const AsyncValue.data(null),
               ),
         );
@@ -1238,7 +1240,7 @@ class LibraryAddSessionController
       submitState: const AsyncValue.loading(),
     );
     try {
-      final capability = LibraryAddCapabilityRegistry.instance.getForKind(kind);
+      final capability = LibraryKindRegistry.instance.getByKind(kind).add;
       final command = capability.buildCommand(
         item,
         state.commonDraft,
@@ -1371,8 +1373,7 @@ class LibraryAddSessionController
           kind: selectedResult.kind,
           title: selectedResult.title,
         );
-        final capability =
-            LibraryAddCapabilityRegistry.instance.getForKind(kind);
+        final capability = LibraryKindRegistry.instance.getByKind(kind).add;
         final command = capability.buildCommand(
           item,
           state.commonDraft,
@@ -1452,7 +1453,8 @@ class LibraryAddSessionController
       selection: const LibraryAddSelectionState(),
       preview: const LibraryAddPreviewState.initial(),
       commonDraft: const LibraryAddCommonDraft(),
-      manualDraft: defaultAddKindDraftForKind(kind),
+      manualDraft:
+          LibraryKindRegistry.instance.getByKind(kind).add.createInitialDraft(),
       submitState: const AsyncValue.data(null),
     );
   }

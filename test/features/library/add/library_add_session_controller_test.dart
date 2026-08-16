@@ -12,13 +12,13 @@ import 'package:collectarr_app/features/collection/repositories/tracking_units_c
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -271,8 +271,8 @@ void main() {
       const common = LibraryAddCommonDraft(condition: 'NM', rating: 10);
       const draft = ComicAddDraft(gradingCompany: 'CBCS', signedBy: 'Stan Lee');
 
-      final cap = LibraryAddCapabilityRegistry.instance
-          .getForKind(CatalogMediaKind.comic);
+      final cap =
+          LibraryKindRegistry.instance.getByKind(CatalogMediaKind.comic).add;
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'c1');
@@ -286,8 +286,8 @@ void main() {
       const common = LibraryAddCommonDraft(condition: 'New');
       const draft = VideoAddDraft(packaging: 'SteelBook', region: 'Region A');
 
-      final cap = LibraryAddCapabilityRegistry.instance
-          .getForKind(CatalogMediaKind.movie);
+      final cap =
+          LibraryKindRegistry.instance.getByKind(CatalogMediaKind.movie).add;
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'v1');
@@ -300,8 +300,8 @@ void main() {
       const common = LibraryAddCommonDraft(quantity: 2);
       const draft = GameAddDraft(completeness: 'CIB', hasBox: true);
 
-      final cap = LibraryAddCapabilityRegistry.instance
-          .getForKind(CatalogMediaKind.game);
+      final cap =
+          LibraryKindRegistry.instance.getByKind(CatalogMediaKind.game).add;
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'g1');
@@ -314,8 +314,8 @@ void main() {
       const common = LibraryAddCommonDraft();
       const draft = MusicAddDraft(storageDevice: 'Shelf A', storageSlot: '12');
 
-      final cap = LibraryAddCapabilityRegistry.instance
-          .getForKind(CatalogMediaKind.music);
+      final cap =
+          LibraryKindRegistry.instance.getByKind(CatalogMediaKind.music).add;
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'm1');

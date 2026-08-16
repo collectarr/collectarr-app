@@ -6,6 +6,9 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_work
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -17,6 +20,10 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, ComicOwnedDetails>(
   projector: const MangaWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: mangaLibraryKindSchema.toRegistry(),
+  add: const StandardLibraryAddCapability<ComicAddDraft>(
+    kind: CatalogMediaKind.manga,
+    initialDraftBuilder: ComicAddDraft.new,
+  ),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
     getFacetValues: _getFacetValues,

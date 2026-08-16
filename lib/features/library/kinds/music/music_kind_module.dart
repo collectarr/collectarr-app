@@ -9,6 +9,9 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
@@ -19,6 +22,10 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
   fields: musicLibraryKindSchema.toRegistry(),
+  add: const StandardLibraryAddCapability<MusicAddDraft>(
+    kind: CatalogMediaKind.music,
+    initialDraftBuilder: MusicAddDraft.new,
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsTrackSearch: true,
   ),
