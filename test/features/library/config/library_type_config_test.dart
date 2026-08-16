@@ -633,11 +633,11 @@ void main() {
     );
     expect(
       comicsTableColumnPresets.map((preset) => preset.label),
-      ['Essential', 'Ownership', 'Value', 'Images', 'Full'],
+      ['Essential', 'Ownership', 'Value', 'Full'],
     );
     expect(
       comicsMediaAdapter.orderedTableColumns(const {}).first,
-      'status',
+      'comic.status',
     );
   });
 
@@ -716,8 +716,8 @@ void main() {
       'book.location',
     ]);
     expect(gamesLibraryConfig.availableGroupModes, [
+      'game.platform',
       'game.publisher',
-      'game.series',
       'game.location',
     ]);
     expect(comicsLibraryConfig.presentation.externalFacetBucketIdsByMode.keys, [
@@ -750,8 +750,8 @@ void main() {
       ' Physical formats are tracked as editions.',
     );
     expect(moviesLibraryConfig.availableGroupModes, [
+      'movie.director',
       'movie.publisher',
-      'movie.series',
       'movie.location',
     ]);
   });

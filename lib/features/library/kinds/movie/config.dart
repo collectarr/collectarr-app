@@ -8,8 +8,10 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/media/video/detail/video_detail_page.dart';
+import 'package:collectarr_app/features/library/media/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -29,8 +31,10 @@ final moviesLibraryConfig = LibraryTypeConfig(
   metadataProviders: [
     tmdbMetadataProvider,
   ],
-  addDialogLauncher: showMovieLibraryAddDialog,
   trackingProfile: videoTrackingProfile,
+  releaseCapability:
+      const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
+  addDialogLauncher: showMovieLibraryAddDialog,
   editDialogBuilder: buildMovieLibraryEditDialog,
   detailPageBuilder: buildVideoLibraryDetailPage,
   presentation: moviesLibraryMediaPresentation,

@@ -87,6 +87,8 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
       String id) {
     final direct = columnDefinitionForId(id);
     if (direct != null) return direct;
+    final qualified = columnDefinitionForId('$kindNamespace.$id');
+    if (qualified != null) return qualified;
     final decoded = preferenceCodec.decodeColumn(id);
     if (decoded != null) return columnDefinitionForId(decoded.value);
     return null;

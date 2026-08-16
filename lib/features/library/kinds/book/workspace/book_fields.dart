@@ -157,6 +157,11 @@ final bookLibraryGroupDefinitions = [
     icon: Icons.collections_bookmark_outlined,
   ),
   groupFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.condition,
+    sidebarTitle: 'Conditions',
+    icon: Icons.verified_outlined,
+  ),
+  groupFromField<BookKind, BookWorkspaceDto, String?>(
     BookKindSchema.location,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,

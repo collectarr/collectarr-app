@@ -26,7 +26,6 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
-import 'package:collectarr_app/features/library/media/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
@@ -845,6 +844,9 @@ class LibraryTypeConfig {
     this.showsDefaultInspectorPersonalSection = true,
     this.kindBrowserDelegateBuilder,
     this.kindUiAdapter = const LibraryKindUiAdapter(),
+    this.titleCapability =
+        const DefaultTitleProjectionCapability<LibraryWorkspaceDto>(),
+    this.releaseCapability,
   });
 
   final LibraryWorkspaceConfig workspace;
@@ -882,6 +884,8 @@ class LibraryTypeConfig {
   final bool showsDefaultInspectorPersonalSection;
   final LibraryKindBrowserDelegate Function()? kindBrowserDelegateBuilder;
   final LibraryKindUiAdapter kindUiAdapter;
+  final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
+  final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
 
   List<String> transferableFieldKeysForScope(LibraryEditScope scope) {
     return switch (scope) {
@@ -901,35 +905,12 @@ class LibraryTypeConfig {
     );
   }
 
-  TitleProjectionCapability<LibraryWorkspaceDto> get titleCapability =>
-      const DefaultTitleProjectionCapability<LibraryWorkspaceDto>();
-
-  ReleaseProjectionCapability<LibraryWorkspaceDto>? get releaseCapability {
-    final kindVal = workspace.kind;
-    if (kindVal == CatalogMediaKind.movie ||
-        kindVal == CatalogMediaKind.tv ||
-        kindVal == CatalogMediaKind.anime) {
-      return const VideoReleaseProjectionCapability<LibraryWorkspaceDto>();
-    }
-    return null;
-  }
-
   bool get usesTitleAsSeriesFallback =>
       manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
   List<String> get availableGroupModes {
-    final modes = <String>{};
     final module = libraryKindModuleForType(this);
-    for (final definition in module.fields.groups) {
-      modes.add(definition.id.value);
-    }
-    if (capabilities.mediaScopeGroupIds != null) {
-      modes.addAll(capabilities.mediaScopeGroupIds!);
-    }
-    if (capabilities.releaseScopeGroupIds != null) {
-      modes.addAll(capabilities.releaseScopeGroupIds!);
-    }
-    return modes.toList();
+    return [for (final definition in module.fields.groups) definition.id.value];
   }
 
   LibraryWorkspaceDensityPreset get defaultDensityPreset =>
@@ -975,7 +956,8 @@ class LibraryTypeConfig {
     }
     return [
       for (final mode in availableGroupModes)
-        if (scoped.contains(mode)) mode,
+        if (scoped.contains(mode) || scoped.contains(mode.split('.').last))
+          mode,
     ];
   }
 
@@ -997,7 +979,8 @@ class LibraryTypeConfig {
     }
     return [
       for (final column in allSorts)
-        if (scoped.contains(column)) column,
+        if (scoped.contains(column) || scoped.contains(column.split('.').last))
+          column,
     ];
   }
 
