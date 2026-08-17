@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:flutter/material.dart';
 
 Future<LibraryAddDialogResult?> showLibraryAddDialog({
@@ -23,6 +24,24 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
   BuildContext context,
   LibraryAddDialogRequest request,
 ) {
+  final windowClass = AppWindowClass.of(context);
+  if (windowClass.isCompact) {
+    return Navigator.of(context).push<LibraryAddDialogResult>(
+      MaterialPageRoute<LibraryAddDialogResult>(
+        fullscreenDialog: true,
+        builder: (context) => Scaffold(
+          body: SafeArea(
+            child: LibraryAddDialog(
+              type: request.type,
+              accent: request.accent,
+              initialQuery: request.initialQuery,
+              initialBarcode: request.initialBarcode,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
   return showDialog<LibraryAddDialogResult>(
     context: context,
     builder: (context) => LibraryAddDialog(

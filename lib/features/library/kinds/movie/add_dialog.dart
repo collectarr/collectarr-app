@@ -16,10 +16,25 @@ import 'package:flutter/services.dart';
 import 'package:collectarr_app/features/library/add/library_add_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
+
 Future<LibraryAddDialogResult?> showMovieLibraryAddDialog(
   BuildContext context,
   LibraryAddDialogRequest request,
 ) {
+  final windowClass = AppWindowClass.of(context);
+  if (windowClass.isCompact) {
+    return Navigator.of(context).push<LibraryAddDialogResult>(
+      MaterialPageRoute<LibraryAddDialogResult>(
+        fullscreenDialog: true,
+        builder: (context) => Scaffold(
+          body: SafeArea(
+            child: MovieLibraryAddDialog(request: request),
+          ),
+        ),
+      ),
+    );
+  }
   return showDialog<LibraryAddDialogResult>(
     context: context,
     builder: (context) => MovieLibraryAddDialog(request: request),

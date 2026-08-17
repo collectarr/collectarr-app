@@ -2129,6 +2129,52 @@ void main() {
     await pumpUntilSettled(tester);
     expect(find.text('Blade Runner 2049'), findsWidgets);
   });
+
+  testWidgets('showLibraryAddDialog pushes fullscreen route on compact screen',
+      (
+    tester,
+  ) async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final api = _FakeLibraryAddApiClient();
+
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          localDatabaseProvider.overrideWithValue(db),
+          apiClientProvider.overrideWithValue(api),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryAddDialog(
+                    context: context,
+                    type: comicsLibraryConfig,
+                  );
+                },
+                child: const Text('Open compact add'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open compact add'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Add Comics'), findsOneWidget);
+    expect(find.byType(LibraryAddDialog), findsOneWidget);
+  });
 }
 
 class _FakeLibraryAddApiClient extends ApiClient {

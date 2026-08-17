@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -35,12 +36,32 @@ class LibraryAddShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final windowClass = AppWindowClass.of(context);
+
+    if (windowClass.isCompact) {
+      return Theme(
+        data: buildLibraryAddDialogTheme(accent, palette),
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: palette.panel),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              header,
+              Expanded(child: body),
+              if (footer != null) footer!,
+            ],
+          ),
+        ),
+      );
+    }
+
     return Theme(
       data: buildLibraryAddDialogTheme(accent, palette),
       child: Dialog(
         insetPadding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.sizeOf(context).width < 720 ? 10 : 32,
-          vertical: 24,
+          horizontal: windowClass.isMedium ? 16 : 32,
+          vertical: windowClass.isMedium ? 16 : 24,
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
