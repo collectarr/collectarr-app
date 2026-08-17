@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/calendar/calendar_ics.dart';
 import 'package:collectarr_app/features/calendar/calendar_provider.dart';
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:file_selector/file_selector.dart';
@@ -57,6 +58,8 @@ String _fmtFullDate(DateTime dt) =>
 String _fmtTime(DateTime dt) =>
     '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 
+enum CalendarViewMode { agenda, month }
+
 class CalendarPage extends ConsumerStatefulWidget {
   const CalendarPage({super.key});
 
@@ -67,12 +70,20 @@ class CalendarPage extends ConsumerStatefulWidget {
 class _CalendarPageState extends ConsumerState<CalendarPage> {
   late DateTime _focusedMonth;
   DateTime? _selectedDay;
+  CalendarViewMode? _viewMode;
 
   @override
   void initState() {
     super.initState();
     final now = DateTime.now();
     _focusedMonth = DateTime(now.year, now.month);
+  }
+
+  CalendarViewMode _effectiveViewMode(AppWindowClass windowClass) {
+    if (_viewMode != null) return _viewMode!;
+    return windowClass.isCompact
+        ? CalendarViewMode.agenda
+        : CalendarViewMode.month;
   }
 
   void _previousMonth() {
@@ -140,6 +151,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
     final eventsAsync = ref.watch(calendarEventsProvider);
+    final windowClass = AppWindowClass.of(context);
+    final effectiveMode = _effectiveViewMode(windowClass);
 
     return Scaffold(
       appBar: AppBar(
@@ -189,27 +202,62 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
           return Column(
             children: [
-              _CalendarHeader(
-                month: _focusedMonth,
-                onPrevious: _previousMonth,
-                onNext: _nextMonth,
-              ),
-              _CalendarGrid(
-                month: _focusedMonth,
-                eventsByDay: eventsByDay,
-                selectedDay: _selectedDay,
-                accent: accent,
-                onDaySelected: (day) {
-                  setState(() => _selectedDay = day);
-                },
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Center(
+                  child: SegmentedButton<CalendarViewMode>(
+                    segments: const [
+                      ButtonSegment(
+                        value: CalendarViewMode.agenda,
+                        icon: Icon(Icons.view_agenda_outlined, size: 16),
+                        label: Text('Agenda'),
+                      ),
+                      ButtonSegment(
+                        value: CalendarViewMode.month,
+                        icon: Icon(Icons.calendar_month_outlined, size: 16),
+                        label: Text('Month'),
+                      ),
+                    ],
+                    selected: {effectiveMode},
+                    onSelectionChanged: (selected) =>
+                        setState(() => _viewMode = selected.first),
+                  ),
+                ),
               ),
               const Divider(height: 1),
               Expanded(
-                child: _DayEventsList(
-                  day: _selectedDay,
-                  events: selectedDayEvents,
-                  accent: accent,
-                ),
+                child: effectiveMode == CalendarViewMode.agenda
+                    ? _AgendaView(
+                        events: events,
+                        accent: accent,
+                      )
+                    : Column(
+                        children: [
+                          _CalendarHeader(
+                            month: _focusedMonth,
+                            onPrevious: _previousMonth,
+                            onNext: _nextMonth,
+                          ),
+                          _CalendarGrid(
+                            month: _focusedMonth,
+                            eventsByDay: eventsByDay,
+                            selectedDay: _selectedDay,
+                            accent: accent,
+                            onDaySelected: (day) {
+                              setState(() => _selectedDay = day);
+                            },
+                          ),
+                          const Divider(height: 1),
+                          Expanded(
+                            child: _DayEventsList(
+                              day: _selectedDay,
+                              events: selectedDayEvents,
+                              accent: accent,
+                            ),
+                          ),
+                        ],
+                      ),
               ),
             ],
           );
@@ -485,3 +533,131 @@ class _DayEventsList extends StatelessWidget {
     );
   }
 }
+
+class _AgendaView extends StatelessWidget {
+  const _AgendaView({
+    required this.events,
+    required this.accent,
+  });
+
+  final List<CalendarEvent> events;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    if (events.isEmpty) {
+      return const Center(
+        child: Text(
+          'No scheduled events',
+          style: TextStyle(color: kAppTextMuted),
+        ),
+      );
+    }
+
+    final sorted = List<CalendarEvent>.from(events)
+      ..sort((a, b) => a.date.compareTo(b.date));
+
+    final groups = <DateTime, List<CalendarEvent>>{};
+    for (final event in sorted) {
+      final day = DateTime(event.date.year, event.date.month, event.date.day);
+      (groups[day] ??= []).add(event);
+    }
+
+    final today = DateTime.now();
+    final todayKey = DateTime(today.year, today.month, today.day);
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      itemCount: groups.length,
+      itemBuilder: (context, index) {
+        final day = groups.keys.elementAt(index);
+        final dayEvents = groups[day]!;
+        final isToday = day == todayKey;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
+              child: Row(
+                children: [
+                  Text(
+                    _fmtFullDate(day),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: isToday ? accent : null,
+                    ),
+                  ),
+                  if (isToday) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: accent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'TODAY',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: accent,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            for (final event in dayEvents)
+              Card(
+                elevation: 0,
+                margin: const EdgeInsets.only(bottom: 6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                ),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    radius: 16,
+                    backgroundColor:
+                        event.color(accent).withValues(alpha: 0.18),
+                    child:
+                        Icon(event.icon, size: 16, color: event.color(accent)),
+                  ),
+                  title: Text(
+                    event.title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    [
+                      event.label,
+                      _fmtTime(event.date.toLocal()),
+                      if (event.subtitle != null) event.subtitle!,
+                    ].join(' \u00b7 '),
+                    style: const TextStyle(
+                      color: kAppTextMuted,
+                      fontSize: 12,
+                    ),
+                  ),
+                  dense: true,
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
