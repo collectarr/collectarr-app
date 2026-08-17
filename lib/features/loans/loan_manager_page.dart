@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/collection/repositories/loan_repository.
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -431,41 +432,66 @@ class _LoanActionStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final windowClass = AppWindowClass.of(context);
+    final barcodeField = TextField(
+      controller: barcodeController,
+      decoration: InputDecoration(
+        labelText: 'Barcode / UPC / ISBN',
+        prefixIcon: const Icon(Icons.qr_code_scanner),
+        border: const OutlineInputBorder(),
+        suffixIcon: IconButton(
+          tooltip: 'Scan barcode',
+          onPressed: onScanBarcode,
+          icon: const Icon(Icons.document_scanner_outlined),
+        ),
+      ),
+      onSubmitted: (_) => onLoanByBarcode(),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: barcodeController,
-                decoration: InputDecoration(
-                  labelText: 'Barcode / UPC / ISBN',
-                  prefixIcon: const Icon(Icons.qr_code_scanner),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    tooltip: 'Scan barcode',
-                    onPressed: onScanBarcode,
-                    icon: const Icon(Icons.document_scanner_outlined),
-                  ),
+        if (windowClass.isCompact) ...[
+          barcodeField,
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.tonalIcon(
+                  onPressed: onLoanByBarcode,
+                  icon: const Icon(Icons.book_outlined),
+                  label: const Text('Loan out'),
                 ),
-                onSubmitted: (_) => onLoanByBarcode(),
               ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.tonalIcon(
-              onPressed: onLoanByBarcode,
-              icon: const Icon(Icons.book_outlined),
-              label: const Text('Loan out'),
-            ),
-            const SizedBox(width: 8),
-            OutlinedButton.icon(
-              onPressed: onReturnByBarcode,
-              icon: const Icon(Icons.assignment_return_outlined),
-              label: const Text('Return'),
-            ),
-          ],
-        ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onReturnByBarcode,
+                  icon: const Icon(Icons.assignment_return_outlined),
+                  label: const Text('Return'),
+                ),
+              ),
+            ],
+          ),
+        ] else ...[
+          Row(
+            children: [
+              Expanded(child: barcodeField),
+              const SizedBox(width: 8),
+              FilledButton.tonalIcon(
+                onPressed: onLoanByBarcode,
+                icon: const Icon(Icons.book_outlined),
+                label: const Text('Loan out'),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: onReturnByBarcode,
+                icon: const Icon(Icons.assignment_return_outlined),
+                label: const Text('Return'),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 10),
         TextField(
           controller: queryController,
@@ -521,6 +547,118 @@ class _LoanRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final windowClass = AppWindowClass.of(context);
+
+    if (windowClass.isCompact) {
+      return Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(
+            color: isOverdue
+                ? Colors.orange.withValues(alpha: 0.5)
+                : colorScheme.outlineVariant,
+          ),
+        ),
+        color: isOverdue
+            ? Colors.orange.withValues(alpha: 0.05)
+            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Icon(
+                    loan.isActive
+                        ? (isOverdue
+                            ? Icons.warning_amber_outlined
+                            : Icons.book_outlined)
+                        : Icons.assignment_return_outlined,
+                    color: isOverdue
+                        ? Colors.orange
+                        : loan.isActive
+                            ? accent
+                            : colorScheme.onSurfaceVariant,
+                    size: 18,
+                  ),
+                  if (loan.dueDate != null)
+                    _MiniChip(
+                      label: isOverdue
+                          ? 'OVERDUE: ${_fmt(loan.dueDate!)}'
+                          : 'due ${_fmt(loan.dueDate!)}',
+                    ),
+                  _MiniChip(label: loan.borrowerName),
+                  _MiniChip(label: loan.isActive ? 'loaned' : 'returned'),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: [
+                  _MiniChip(label: 'lent ${_fmt(loan.lentDate)}'),
+                  if (loan.returnedDate != null)
+                    _MiniChip(label: 'returned ${_fmt(loan.returnedDate!)}'),
+                  if (barcode != null) _MiniChip(label: barcode!),
+                ],
+              ),
+              if (loan.notes != null && loan.notes!.trim().isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  loan.notes!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (onReturn != null) ...[
+                    FilledButton.tonalIcon(
+                      style: FilledButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      onPressed: onReturn,
+                      icon: const Icon(
+                        Icons.assignment_return_outlined,
+                        size: 16,
+                      ),
+                      label: const Text('Return'),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    onPressed: onDelete,
+                    icon: const Icon(Icons.delete_outline, size: 16),
+                    label: const Text('Delete'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
