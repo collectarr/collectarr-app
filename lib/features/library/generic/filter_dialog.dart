@@ -246,6 +246,67 @@ class LibraryFilterSelection {
     return count;
   }
 
+  LibraryFilterSelection copyWith({
+    LibraryOwnershipFilter? ownershipFilter,
+    LibraryTrackingStatusFilter? trackingStatusFilter,
+    LibraryLoanStatusFilter? loanStatusFilter,
+    LibraryDateRangeField? dateRangeField,
+    DateTime? dateFrom,
+    bool clearDateFrom = false,
+    DateTime? dateTo,
+    bool clearDateTo = false,
+    String? customFieldDefinitionId,
+    bool clearCustomFieldDefinitionId = false,
+    String? customFieldValue,
+    bool clearCustomFieldValue = false,
+    String? series,
+    bool clearSeries = false,
+    String? location,
+    bool clearLocation = false,
+    String? tag,
+    bool clearTag = false,
+    String? grade,
+    bool clearGrade = false,
+    String? condition,
+    bool clearCondition = false,
+    String? publisher,
+    bool clearPublisher = false,
+    String? releaseYear,
+    bool clearReleaseYear = false,
+    String? country,
+    bool clearCountry = false,
+    String? language,
+    bool clearLanguage = false,
+    bool? missingCover,
+    bool? missingMetadata,
+  }) {
+    return LibraryFilterSelection(
+      ownershipFilter: ownershipFilter ?? this.ownershipFilter,
+      trackingStatusFilter: trackingStatusFilter ?? this.trackingStatusFilter,
+      loanStatusFilter: loanStatusFilter ?? this.loanStatusFilter,
+      dateRangeField: dateRangeField ?? this.dateRangeField,
+      dateFrom: clearDateFrom ? null : (dateFrom ?? this.dateFrom),
+      dateTo: clearDateTo ? null : (dateTo ?? this.dateTo),
+      customFieldDefinitionId: clearCustomFieldDefinitionId
+          ? null
+          : (customFieldDefinitionId ?? this.customFieldDefinitionId),
+      customFieldValue: clearCustomFieldValue
+          ? null
+          : (customFieldValue ?? this.customFieldValue),
+      series: clearSeries ? null : (series ?? this.series),
+      location: clearLocation ? null : (location ?? this.location),
+      tag: clearTag ? null : (tag ?? this.tag),
+      grade: clearGrade ? null : (grade ?? this.grade),
+      condition: clearCondition ? null : (condition ?? this.condition),
+      publisher: clearPublisher ? null : (publisher ?? this.publisher),
+      releaseYear: clearReleaseYear ? null : (releaseYear ?? this.releaseYear),
+      country: clearCountry ? null : (country ?? this.country),
+      language: clearLanguage ? null : (language ?? this.language),
+      missingCover: missingCover ?? this.missingCover,
+      missingMetadata: missingMetadata ?? this.missingMetadata,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
