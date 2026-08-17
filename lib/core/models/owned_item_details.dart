@@ -40,6 +40,8 @@ sealed class OwnedItemDetails {
       this is BoardgameOwnedDetails ? this as BoardgameOwnedDetails : null;
 }
 
+const Object _detailsUnset = Object();
+
 /// Kind-specific ownership details for books.
 class BookOwnedDetails extends OwnedItemDetails {
   const BookOwnedDetails({
@@ -57,6 +59,16 @@ class BookOwnedDetails extends OwnedItemDetails {
       BookOwnedDetails(
         signedBy: json['signed_by'] as String?,
       );
+
+  BookOwnedDetails copyWith({
+    Object? signedBy = _detailsUnset,
+  }) {
+    return BookOwnedDetails(
+      signedBy: identical(signedBy, _detailsUnset)
+          ? this.signedBy
+          : signedBy as String?,
+    );
+  }
 }
 
 /// Kind-specific ownership details for board games.
@@ -149,36 +161,62 @@ class ComicOwnedDetails extends OwnedItemDetails {
   }
 
   ComicOwnedDetails copyWith({
-    String? rawOrSlabbed,
-    String? gradingCompany,
-    String? graderNotes,
-    String? signedBy,
-    String? labelType,
-    String? customLabel,
-    String? pageQuality,
-    String? certificationNumber,
+    Object? rawOrSlabbed = _detailsUnset,
+    Object? gradingCompany = _detailsUnset,
+    Object? graderNotes = _detailsUnset,
+    Object? signedBy = _detailsUnset,
+    Object? labelType = _detailsUnset,
+    Object? customLabel = _detailsUnset,
+    Object? pageQuality = _detailsUnset,
+    Object? certificationNumber = _detailsUnset,
     bool? keyComic,
-    String? keyReason,
-    String? keyCategory,
-    String? keySeverity,
-    int? coverPriceCents,
-    DateTime? lastBagBoardDate,
+    Object? keyReason = _detailsUnset,
+    Object? keyCategory = _detailsUnset,
+    Object? keySeverity = _detailsUnset,
+    Object? coverPriceCents = _detailsUnset,
+    Object? lastBagBoardDate = _detailsUnset,
   }) {
     return ComicOwnedDetails(
-      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
-      gradingCompany: gradingCompany ?? this.gradingCompany,
-      graderNotes: graderNotes ?? this.graderNotes,
-      signedBy: signedBy ?? this.signedBy,
-      labelType: labelType ?? this.labelType,
-      customLabel: customLabel ?? this.customLabel,
-      pageQuality: pageQuality ?? this.pageQuality,
-      certificationNumber: certificationNumber ?? this.certificationNumber,
+      rawOrSlabbed: identical(rawOrSlabbed, _detailsUnset)
+          ? this.rawOrSlabbed
+          : rawOrSlabbed as String?,
+      gradingCompany: identical(gradingCompany, _detailsUnset)
+          ? this.gradingCompany
+          : gradingCompany as String?,
+      graderNotes: identical(graderNotes, _detailsUnset)
+          ? this.graderNotes
+          : graderNotes as String?,
+      signedBy: identical(signedBy, _detailsUnset)
+          ? this.signedBy
+          : signedBy as String?,
+      labelType: identical(labelType, _detailsUnset)
+          ? this.labelType
+          : labelType as String?,
+      customLabel: identical(customLabel, _detailsUnset)
+          ? this.customLabel
+          : customLabel as String?,
+      pageQuality: identical(pageQuality, _detailsUnset)
+          ? this.pageQuality
+          : pageQuality as String?,
+      certificationNumber: identical(certificationNumber, _detailsUnset)
+          ? this.certificationNumber
+          : certificationNumber as String?,
       keyComic: keyComic ?? this.keyComic,
-      keyReason: keyReason ?? this.keyReason,
-      keyCategory: keyCategory ?? this.keyCategory,
-      keySeverity: keySeverity ?? this.keySeverity,
-      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
-      lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
+      keyReason: identical(keyReason, _detailsUnset)
+          ? this.keyReason
+          : keyReason as String?,
+      keyCategory: identical(keyCategory, _detailsUnset)
+          ? this.keyCategory
+          : keyCategory as String?,
+      keySeverity: identical(keySeverity, _detailsUnset)
+          ? this.keySeverity
+          : keySeverity as String?,
+      coverPriceCents: identical(coverPriceCents, _detailsUnset)
+          ? this.coverPriceCents
+          : coverPriceCents as int?,
+      lastBagBoardDate: identical(lastBagBoardDate, _detailsUnset)
+          ? this.lastBagBoardDate
+          : lastBagBoardDate as DateTime?,
     );
   }
 }
@@ -230,22 +268,33 @@ class VideoOwnedDetails extends OwnedItemDetails {
   }
 
   VideoOwnedDetails copyWith({
-    String? features,
+    Object? features = _detailsUnset,
     List<String>? hdrFormats,
-    String? boxSetId,
-    String? boxSetName,
-    String? region,
-    String? packaging,
-    String? distributor,
+    Object? boxSetId = _detailsUnset,
+    Object? boxSetName = _detailsUnset,
+    Object? region = _detailsUnset,
+    Object? packaging = _detailsUnset,
+    Object? distributor = _detailsUnset,
   }) {
     return VideoOwnedDetails(
-      features: features ?? this.features,
+      features: identical(features, _detailsUnset)
+          ? this.features
+          : features as String?,
       hdrFormats: hdrFormats ?? this.hdrFormats,
-      boxSetId: boxSetId ?? this.boxSetId,
-      boxSetName: boxSetName ?? this.boxSetName,
-      region: region ?? this.region,
-      packaging: packaging ?? this.packaging,
-      distributor: distributor ?? this.distributor,
+      boxSetId: identical(boxSetId, _detailsUnset)
+          ? this.boxSetId
+          : boxSetId as String?,
+      boxSetName: identical(boxSetName, _detailsUnset)
+          ? this.boxSetName
+          : boxSetName as String?,
+      region:
+          identical(region, _detailsUnset) ? this.region : region as String?,
+      packaging: identical(packaging, _detailsUnset)
+          ? this.packaging
+          : packaging as String?,
+      distributor: identical(distributor, _detailsUnset)
+          ? this.distributor
+          : distributor as String?,
     );
   }
 }
@@ -290,20 +339,30 @@ class GameOwnedDetails extends OwnedItemDetails {
   }
 
   GameOwnedDetails copyWith({
-    String? completeness,
-    bool? hasBox,
-    bool? hasManual,
-    String? priceChartingId,
-    String? coreRegion,
-    bool? valueIsLocked,
+    Object? completeness = _detailsUnset,
+    Object? hasBox = _detailsUnset,
+    Object? hasManual = _detailsUnset,
+    Object? priceChartingId = _detailsUnset,
+    Object? coreRegion = _detailsUnset,
+    Object? valueIsLocked = _detailsUnset,
   }) {
     return GameOwnedDetails(
-      completeness: completeness ?? this.completeness,
-      hasBox: hasBox ?? this.hasBox,
-      hasManual: hasManual ?? this.hasManual,
-      priceChartingId: priceChartingId ?? this.priceChartingId,
-      coreRegion: coreRegion ?? this.coreRegion,
-      valueIsLocked: valueIsLocked ?? this.valueIsLocked,
+      completeness: identical(completeness, _detailsUnset)
+          ? this.completeness
+          : completeness as String?,
+      hasBox: identical(hasBox, _detailsUnset) ? this.hasBox : hasBox as bool?,
+      hasManual: identical(hasManual, _detailsUnset)
+          ? this.hasManual
+          : hasManual as bool?,
+      priceChartingId: identical(priceChartingId, _detailsUnset)
+          ? this.priceChartingId
+          : priceChartingId as String?,
+      coreRegion: identical(coreRegion, _detailsUnset)
+          ? this.coreRegion
+          : coreRegion as String?,
+      valueIsLocked: identical(valueIsLocked, _detailsUnset)
+          ? this.valueIsLocked
+          : valueIsLocked as bool?,
     );
   }
 }
@@ -332,12 +391,16 @@ class MusicOwnedDetails extends OwnedItemDetails {
   }
 
   MusicOwnedDetails copyWith({
-    String? storageDevice,
-    String? storageSlot,
+    Object? storageDevice = _detailsUnset,
+    Object? storageSlot = _detailsUnset,
   }) {
     return MusicOwnedDetails(
-      storageDevice: storageDevice ?? this.storageDevice,
-      storageSlot: storageSlot ?? this.storageSlot,
+      storageDevice: identical(storageDevice, _detailsUnset)
+          ? this.storageDevice
+          : storageDevice as String?,
+      storageSlot: identical(storageSlot, _detailsUnset)
+          ? this.storageSlot
+          : storageSlot as String?,
     );
   }
 }

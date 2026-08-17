@@ -88,12 +88,12 @@ class WishlistItem {
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
-    int? targetPriceCents,
-    String? currency,
-    String? notes,
+    Object? targetPriceCents = _wishlistItemUnset,
+    Object? currency = _wishlistItemUnset,
+    Object? notes = _wishlistItemUnset,
     DateTime? createdAt,
     DateTime? updatedAt,
-    DateTime? deletedAt,
+    Object? deletedAt = _wishlistItemUnset,
   }) {
     final resolvedAnchor = identical(anchor, _wishlistItemUnset)
         ? PersonalItemAnchor.fromRaw(
@@ -108,12 +108,19 @@ class WishlistItem {
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
       anchor: resolvedAnchor,
-      targetPriceCents: targetPriceCents ?? this.targetPriceCents,
-      currency: currency ?? this.currency,
-      notes: notes ?? this.notes,
+      targetPriceCents: identical(targetPriceCents, _wishlistItemUnset)
+          ? this.targetPriceCents
+          : targetPriceCents as int?,
+      currency: identical(currency, _wishlistItemUnset)
+          ? this.currency
+          : currency as String?,
+      notes:
+          identical(notes, _wishlistItemUnset) ? this.notes : notes as String?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: identical(deletedAt, _wishlistItemUnset)
+          ? this.deletedAt
+          : deletedAt as DateTime?,
     );
   }
 }

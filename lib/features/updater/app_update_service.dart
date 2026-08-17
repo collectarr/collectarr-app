@@ -233,6 +233,8 @@ enum UpdateStatus {
   error,
 }
 
+const Object _updateUnset = Object();
+
 class AppUpdateState {
   const AppUpdateState({
     this.status = UpdateStatus.idle,
@@ -255,19 +257,25 @@ class AppUpdateState {
   AppUpdateState copyWith({
     UpdateStatus? status,
     String? currentVersion,
-    GitHubRelease? release,
+    Object? release = _updateUnset,
     double? downloadProgress,
-    String? downloadedPath,
-    String? errorMessage,
+    Object? downloadedPath = _updateUnset,
+    Object? errorMessage = _updateUnset,
     UpdateSettings? settings,
   }) {
     return AppUpdateState(
       status: status ?? this.status,
       currentVersion: currentVersion ?? this.currentVersion,
-      release: release ?? this.release,
+      release: identical(release, _updateUnset)
+          ? this.release
+          : release as GitHubRelease?,
       downloadProgress: downloadProgress ?? this.downloadProgress,
-      downloadedPath: downloadedPath ?? this.downloadedPath,
-      errorMessage: errorMessage ?? this.errorMessage,
+      downloadedPath: identical(downloadedPath, _updateUnset)
+          ? this.downloadedPath
+          : downloadedPath as String?,
+      errorMessage: identical(errorMessage, _updateUnset)
+          ? this.errorMessage
+          : errorMessage as String?,
       settings: settings ?? this.settings,
     );
   }

@@ -225,10 +225,12 @@ class MusicOwnedDetailsDraft extends OwnedDetailsDraft {
 }
 
 class BookOwnedDetailsDraft extends OwnedDetailsDraft {
-  const BookOwnedDetailsDraft();
+  const BookOwnedDetailsDraft({this.signedBy});
+
+  final String? signedBy;
 
   @override
-  BookOwnedDetails toDetails() => const BookOwnedDetails();
+  BookOwnedDetails toDetails() => BookOwnedDetails(signedBy: signedBy);
 }
 
 class BoardgameOwnedDetailsDraft extends OwnedDetailsDraft {
@@ -361,7 +363,7 @@ extension OwnedItemDetailsToDraft on OwnedItemDetails {
           storageDevice: m.storageDevice,
           storageSlot: m.storageSlot,
         ),
-      BookOwnedDetails() => const BookOwnedDetailsDraft(),
+      BookOwnedDetails b => BookOwnedDetailsDraft(signedBy: b.signedBy),
       BoardgameOwnedDetails() => const BoardgameOwnedDetailsDraft(),
       GenericOwnedDetails() => const GenericOwnedDetailsDraft(),
     };

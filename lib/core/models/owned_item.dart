@@ -238,38 +238,38 @@ class OwnedItem {
   OwnedItem copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    DateTime? createdAt,
-    bool? isDigital,
+    Object? createdAt = _ownedItemUnset,
+    Object? isDigital = _ownedItemUnset,
     Object? anchor = _ownedItemUnset,
     String? anchorType,
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
     OwnedItemDetails? details,
-    String? condition,
-    String? grade,
-    DateTime? purchaseDate,
-    int? pricePaidCents,
-    String? currency,
-    String? personalNotes,
+    Object? condition = _ownedItemUnset,
+    Object? grade = _ownedItemUnset,
+    Object? purchaseDate = _ownedItemUnset,
+    Object? pricePaidCents = _ownedItemUnset,
+    Object? currency = _ownedItemUnset,
+    Object? personalNotes = _ownedItemUnset,
     int? quantity,
-    int? indexNumber,
-    int? rating,
-    String? readStatus,
-    DateTime? startedAt,
-    DateTime? finishedAt,
-    String? tags,
+    Object? indexNumber = _ownedItemUnset,
+    Object? rating = _ownedItemUnset,
+    Object? readStatus = _ownedItemUnset,
+    Object? startedAt = _ownedItemUnset,
+    Object? finishedAt = _ownedItemUnset,
+    Object? tags = _ownedItemUnset,
     DateTime? updatedAt,
-    DateTime? deletedAt,
-    DateTime? soldAt,
-    int? sellPriceCents,
-    String? soldTo,
-    String? ownerUserId,
-    String? ownerLabel,
-    String? locationId,
-    String? purchaseStore,
-    String? collectionStatus,
-    int? marketValueCents,
+    Object? deletedAt = _ownedItemUnset,
+    Object? soldAt = _ownedItemUnset,
+    Object? sellPriceCents = _ownedItemUnset,
+    Object? soldTo = _ownedItemUnset,
+    Object? ownerUserId = _ownedItemUnset,
+    Object? ownerLabel = _ownedItemUnset,
+    Object? locationId = _ownedItemUnset,
+    Object? purchaseStore = _ownedItemUnset,
+    Object? collectionStatus = _ownedItemUnset,
+    Object? marketValueCents = _ownedItemUnset,
   }) {
     final resolvedAnchor = identical(anchor, _ownedItemUnset)
         ? PersonalItemAnchor.fromRaw(
@@ -283,34 +283,75 @@ class OwnedItem {
     return OwnedItem(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
-      createdAt: createdAt ?? this.createdAt,
-      isDigital: isDigital ?? this.isDigital,
+      createdAt: identical(createdAt, _ownedItemUnset)
+          ? this.createdAt
+          : createdAt as DateTime?,
+      isDigital: identical(isDigital, _ownedItemUnset)
+          ? this.isDigital
+          : isDigital as bool?,
       anchor: resolvedAnchor,
       details: details ?? this.details,
-      condition: condition ?? this.condition,
-      grade: grade ?? this.grade,
-      purchaseDate: purchaseDate ?? this.purchaseDate,
-      pricePaidCents: pricePaidCents ?? this.pricePaidCents,
-      currency: currency ?? this.currency,
-      personalNotes: personalNotes ?? this.personalNotes,
+      condition: identical(condition, _ownedItemUnset)
+          ? this.condition
+          : condition as String?,
+      grade: identical(grade, _ownedItemUnset) ? this.grade : grade as String?,
+      purchaseDate: identical(purchaseDate, _ownedItemUnset)
+          ? this.purchaseDate
+          : purchaseDate as DateTime?,
+      pricePaidCents: identical(pricePaidCents, _ownedItemUnset)
+          ? this.pricePaidCents
+          : pricePaidCents as int?,
+      currency: identical(currency, _ownedItemUnset)
+          ? this.currency
+          : currency as String?,
+      personalNotes: identical(personalNotes, _ownedItemUnset)
+          ? this.personalNotes
+          : personalNotes as String?,
       quantity: quantity ?? this.quantity,
-      indexNumber: indexNumber ?? this.indexNumber,
-      rating: rating ?? this.rating,
-      readStatus: readStatus ?? this.readStatus,
-      startedAt: startedAt ?? this.startedAt,
-      finishedAt: finishedAt ?? this.finishedAt,
-      tags: tags ?? this.tags,
+      indexNumber: identical(indexNumber, _ownedItemUnset)
+          ? this.indexNumber
+          : indexNumber as int?,
+      rating: identical(rating, _ownedItemUnset) ? this.rating : rating as int?,
+      readStatus: identical(readStatus, _ownedItemUnset)
+          ? this.readStatus
+          : readStatus as String?,
+      startedAt: identical(startedAt, _ownedItemUnset)
+          ? this.startedAt
+          : startedAt as DateTime?,
+      finishedAt: identical(finishedAt, _ownedItemUnset)
+          ? this.finishedAt
+          : finishedAt as DateTime?,
+      tags: identical(tags, _ownedItemUnset) ? this.tags : tags as String?,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      soldAt: soldAt ?? this.soldAt,
-      sellPriceCents: sellPriceCents ?? this.sellPriceCents,
-      soldTo: soldTo ?? this.soldTo,
-      ownerUserId: ownerUserId ?? this.ownerUserId,
-      ownerLabel: ownerLabel ?? this.ownerLabel,
-      locationId: locationId ?? this.locationId,
-      purchaseStore: purchaseStore ?? this.purchaseStore,
-      collectionStatus: collectionStatus ?? this.collectionStatus,
-      marketValueCents: marketValueCents ?? this.marketValueCents,
+      deletedAt: identical(deletedAt, _ownedItemUnset)
+          ? this.deletedAt
+          : deletedAt as DateTime?,
+      soldAt: identical(soldAt, _ownedItemUnset)
+          ? this.soldAt
+          : soldAt as DateTime?,
+      sellPriceCents: identical(sellPriceCents, _ownedItemUnset)
+          ? this.sellPriceCents
+          : sellPriceCents as int?,
+      soldTo:
+          identical(soldTo, _ownedItemUnset) ? this.soldTo : soldTo as String?,
+      ownerUserId: identical(ownerUserId, _ownedItemUnset)
+          ? this.ownerUserId
+          : ownerUserId as String?,
+      ownerLabel: identical(ownerLabel, _ownedItemUnset)
+          ? this.ownerLabel
+          : ownerLabel as String?,
+      locationId: identical(locationId, _ownedItemUnset)
+          ? this.locationId
+          : locationId as String?,
+      purchaseStore: identical(purchaseStore, _ownedItemUnset)
+          ? this.purchaseStore
+          : purchaseStore as String?,
+      collectionStatus: identical(collectionStatus, _ownedItemUnset)
+          ? this.collectionStatus
+          : collectionStatus as String?,
+      marketValueCents: identical(marketValueCents, _ownedItemUnset)
+          ? this.marketValueCents
+          : marketValueCents as int?,
     );
   }
 }

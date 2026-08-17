@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
+const Object _trackingUnset = Object();
+
 class TrackingEntry {
   TrackingEntry({
     required this.id,
@@ -116,46 +118,74 @@ class TrackingEntry {
   TrackingEntry copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    String? ownedItemId,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
-    Object? sourceType,
-    Object? status,
-    int? rating,
-    DateTime? startedAt,
-    DateTime? finishedAt,
-    int? progressCurrent,
-    int? progressTotal,
-    int? timesCompleted,
-    String? notes,
-    int? seasonNumber,
-    int? episodeNumber,
+    Object? ownedItemId = _trackingUnset,
+    Object? editionId = _trackingUnset,
+    Object? variantId = _trackingUnset,
+    Object? bundleReleaseId = _trackingUnset,
+    Object? sourceType = _trackingUnset,
+    Object? status = _trackingUnset,
+    Object? rating = _trackingUnset,
+    Object? startedAt = _trackingUnset,
+    Object? finishedAt = _trackingUnset,
+    Object? progressCurrent = _trackingUnset,
+    Object? progressTotal = _trackingUnset,
+    Object? timesCompleted = _trackingUnset,
+    Object? notes = _trackingUnset,
+    Object? seasonNumber = _trackingUnset,
+    Object? episodeNumber = _trackingUnset,
     Map<String, int>? episodeRatings,
     DateTime? updatedAt,
-    DateTime? deletedAt,
+    Object? deletedAt = _trackingUnset,
   }) {
     return TrackingEntry(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
-      sourceType: trackingSourceTypeFromValue(sourceType) ?? this.sourceType,
-      status: mediaTrackingStatusFromValue(status) ?? this.status,
-      rating: rating ?? this.rating,
-      startedAt: startedAt ?? this.startedAt,
-      finishedAt: finishedAt ?? this.finishedAt,
-      progressCurrent: progressCurrent ?? this.progressCurrent,
-      progressTotal: progressTotal ?? this.progressTotal,
-      timesCompleted: timesCompleted ?? this.timesCompleted,
-      notes: notes ?? this.notes,
-      seasonNumber: seasonNumber ?? this.seasonNumber,
-      episodeNumber: episodeNumber ?? this.episodeNumber,
+      ownedItemId: identical(ownedItemId, _trackingUnset)
+          ? this.ownedItemId
+          : ownedItemId as String?,
+      editionId: identical(editionId, _trackingUnset)
+          ? this.editionId
+          : editionId as String?,
+      variantId: identical(variantId, _trackingUnset)
+          ? this.variantId
+          : variantId as String?,
+      bundleReleaseId: identical(bundleReleaseId, _trackingUnset)
+          ? this.bundleReleaseId
+          : bundleReleaseId as String?,
+      sourceType: identical(sourceType, _trackingUnset)
+          ? this.sourceType
+          : trackingSourceTypeFromValue(sourceType),
+      status: identical(status, _trackingUnset)
+          ? this.status
+          : mediaTrackingStatusFromValue(status),
+      rating: identical(rating, _trackingUnset) ? this.rating : rating as int?,
+      startedAt: identical(startedAt, _trackingUnset)
+          ? this.startedAt
+          : startedAt as DateTime?,
+      finishedAt: identical(finishedAt, _trackingUnset)
+          ? this.finishedAt
+          : finishedAt as DateTime?,
+      progressCurrent: identical(progressCurrent, _trackingUnset)
+          ? this.progressCurrent
+          : progressCurrent as int?,
+      progressTotal: identical(progressTotal, _trackingUnset)
+          ? this.progressTotal
+          : progressTotal as int?,
+      timesCompleted: identical(timesCompleted, _trackingUnset)
+          ? this.timesCompleted
+          : timesCompleted as int?,
+      notes: identical(notes, _trackingUnset) ? this.notes : notes as String?,
+      seasonNumber: identical(seasonNumber, _trackingUnset)
+          ? this.seasonNumber
+          : seasonNumber as int?,
+      episodeNumber: identical(episodeNumber, _trackingUnset)
+          ? this.episodeNumber
+          : episodeNumber as int?,
       episodeRatings: episodeRatings ?? this.episodeRatings,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
+      deletedAt: identical(deletedAt, _trackingUnset)
+          ? this.deletedAt
+          : deletedAt as DateTime?,
     );
   }
 }
