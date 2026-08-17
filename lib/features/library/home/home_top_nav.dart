@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/providers/library_nav_preference
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 
+import 'package:collectarr_app/features/library/home/compact_kind_picker.dart';
+import 'package:collectarr_app/ui/adaptive/adaptive.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/gestures.dart';
@@ -45,6 +47,8 @@ class MediaLibraryNav extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = selectedLibraryHomeType(types, selectedKind);
     final accentData = LibraryAccentScope.of(context);
+    final windowClass = AppWindowClass.of(context);
+    final isCompact = windowClass.isCompact;
 
     return AnimatedLibraryChromeGradient(
       accent: accentData.accent,
@@ -77,14 +81,25 @@ class MediaLibraryNav extends ConsumerWidget {
               ),
             ),
             Expanded(
-              child: MediaLibraryNavStrip(
-                types: types,
-                counts: counts,
-                registry: registry,
-                selectedKind: selected.kind,
-                onSelected: onSelected,
-                animationDuration: animationDuration,
-              ),
+              child: isCompact
+                  ? Align(
+                      alignment: Alignment.centerLeft,
+                      child: CompactLibraryKindPicker(
+                        types: types,
+                        counts: counts,
+                        registry: registry,
+                        selectedKind: selected.kind,
+                        onSelected: onSelected,
+                      ),
+                    )
+                  : MediaLibraryNavStrip(
+                      types: types,
+                      counts: counts,
+                      registry: registry,
+                      selectedKind: selected.kind,
+                      onSelected: onSelected,
+                      animationDuration: animationDuration,
+                    ),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 4, right: 6),
