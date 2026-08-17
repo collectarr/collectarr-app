@@ -82,6 +82,9 @@ class AuthController extends StateNotifier<AuthState> {
     try {
       await _restoreSession().timeout(_authRestoreTimeout);
     } on TimeoutException catch (error, stackTrace) {
+      if (!mounted) {
+        return;
+      }
       logRecoverableError(
         source: 'auth',
         message: 'Timed out restoring the persisted auth session.',
@@ -268,6 +271,9 @@ class AuthController extends StateNotifier<AuthState> {
         state = AuthState(userId: userId, email: email);
       }
     } catch (error) {
+      if (!mounted) {
+        return;
+      }
       ref.read(apiAuthTokenProvider.notifier).set(null);
       state = AuthState(error: error.toString());
     }

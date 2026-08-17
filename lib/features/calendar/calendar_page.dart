@@ -660,4 +660,3 @@ class _AgendaView extends StatelessWidget {
     );
   }
 }
-

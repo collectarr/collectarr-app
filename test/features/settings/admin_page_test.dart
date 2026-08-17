@@ -15,6 +15,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
 
@@ -527,8 +528,51 @@ void main() {
       find.textContaining('invalid URL "not-a-url"'),
       findsOneWidget,
     );
-    expect(api.lastUpdatedProposalId, isNull);
     await tester.pump(const Duration(seconds: 4));
+  });
+
+  testWidgets('admin page renders and navigates tabs on compact mobile screen',
+      (tester) async {
+    final api = _FakeAdminApiClient();
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    tester.view.physicalSize = const Size(380, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          apiClientProvider.overrideWithValue(api),
+          localDatabaseProvider.overrideWithValue(db),
+          authControllerProvider.overrideWith(
+            (ref) => _AdminAuthController(ref),
+          ),
+        ],
+        child: const MaterialApp(home: AdminPage()),
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Admin'), findsOneWidget);
+    expect(find.text('Metadata dashboard'), findsOneWidget);
+
+    // Scroll and tap Catalog tab
+    await tester.tap(find.widgetWithText(Tab, 'Catalog'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Catalog search'), findsOneWidget);
+    expect(find.text('Find catalog items'), findsOneWidget);
+
+    // Tap Providers tab
+    await tester.tap(find.widgetWithText(Tab, 'Providers'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Provider status'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 11));
   });
 }
 

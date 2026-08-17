@@ -47,7 +47,8 @@ void main() {
       Loan(
         id: 'loan-1',
         ownedItemId: 'owned-1',
-        catalogRef: const CatalogEntityRef(entityType: CatalogEntityType.work, kind: 'comic', id: 'comic-1'),
+        catalogRef: const CatalogEntityRef(
+            entityType: CatalogEntityType.work, kind: 'comic', id: 'comic-1'),
         borrowerName: 'Alice',
         lentDate: DateTime.utc(2026, 5, 1),
         dueDate: DateTime.utc(2026, 5, 15),
@@ -102,7 +103,8 @@ void main() {
       Loan(
         id: 'loan-2',
         ownedItemId: 'owned-2',
-        catalogRef: const CatalogEntityRef(entityType: CatalogEntityType.work, kind: 'comic', id: 'comic-2'),
+        catalogRef: const CatalogEntityRef(
+            entityType: CatalogEntityType.work, kind: 'comic', id: 'comic-2'),
         borrowerName: 'Bob',
         lentDate: DateTime.utc(2020, 1, 1),
         dueDate: DateTime.utc(2020, 1, 15),

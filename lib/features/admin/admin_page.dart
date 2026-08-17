@@ -474,7 +474,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             accent: accent,
             animationDuration: animationDuration,
           ),
-          bottom: TabBar(tabs: tabs),
+          bottom: TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            tabs: tabs,
+          ),
         ),
         body: TabBarView(children: tabViews),
       ),
