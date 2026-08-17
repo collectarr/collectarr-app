@@ -10,6 +10,7 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 
 import 'package:collectarr_app/features/sync/presentation/sync_status_overlay.dart';
+import 'package:collectarr_app/ui/adaptive/adaptive.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -215,7 +216,8 @@ class _LibraryAwareNavigationBar extends StatelessWidget {
     const bottomNavHeight = 44.0;
     final palette = appPalette(context);
     final accentData = LibraryAccentScope.of(context);
-    final isCompact = MediaQuery.sizeOf(context).width < 480;
+    final windowClass = AppWindowClass.of(context);
+    final isCompact = windowClass.size.width < 480;
     final labelBehavior = isCompact
         ? NavigationDestinationLabelBehavior.onlyShowSelected
         : NavigationDestinationLabelBehavior.alwaysShow;

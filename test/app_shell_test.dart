@@ -358,6 +358,36 @@ void main() {
     expect(find.byType(LibraryHomePage), findsOneWidget);
     expect(find.byType(AppShell), findsOneWidget);
   });
+
+  testWidgets('app shell adapts navigation on mobile viewport (< 480 dp width)',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'collectarr.auth.token': _jwtExpiringAt(
+        DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+      'collectarr.auth.email': 'test@example.com',
+      'collectarr.auth.is_admin': false,
+    });
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      _shellTestApp(
+        overrides: [
+          authControllerProvider.overrideWith(
+            (ref) => _AuthenticatedAuthController(ref),
+          ),
+          ..._baseShellOverrides(),
+        ],
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(AppShell), findsOneWidget);
+  });
 }
 
 List<Override> _baseShellOverrides() {
