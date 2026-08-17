@@ -17,10 +17,12 @@ import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft
 import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,7 @@ import 'package:flutter/material.dart';
 export 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 export 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+export 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 
 class LibraryEditDraft {
   LibraryEditDraft._({
@@ -45,6 +48,7 @@ class LibraryEditDraft {
     required this.itemImages,
     required this.metadata,
     required this.personal,
+    required this.tracking,
     required this.kindDetails,
     required this.customFieldEdits,
     required this.itemImageEdits,
@@ -67,6 +71,7 @@ class LibraryEditDraft {
   /// Modular Sub-Drafts
   final CommonMetadataDraft metadata;
   final PersonalStateDraft personal;
+  final TrackingDraft tracking;
   final KindEditDraft kindDetails;
 
   Map<String, String?> customFieldEdits;
@@ -163,20 +168,20 @@ class LibraryEditDraft {
       personal.wishlistCurrencyController;
   TextEditingController get wishlistNotesController =>
       personal.wishlistNotesController;
-  TextEditingController get ratingController => personal.ratingController;
-  TextEditingController get trackingController => personal.trackingController;
+  TextEditingController get ratingController => tracking.ratingController;
+  TextEditingController get trackingController => tracking.trackingController;
   TextEditingController get progressCurrentController =>
-      personal.progressCurrentController;
+      tracking.progressCurrentController;
   TextEditingController get progressTotalController =>
-      personal.progressTotalController;
+      tracking.progressTotalController;
   TextEditingController get timesCompletedController =>
-      personal.timesCompletedController;
+      tracking.timesCompletedController;
   TextEditingController get seasonNumberController =>
-      personal.seasonNumberController;
+      tracking.seasonNumberController;
   TextEditingController get episodeNumberController =>
-      personal.episodeNumberController;
+      tracking.episodeNumberController;
   TextEditingController get trackingNotesController =>
-      personal.trackingNotesController;
+      tracking.trackingNotesController;
   TextEditingController get tagsController => personal.tagsController;
   TextEditingController get sellPriceController => personal.sellPriceController;
   TextEditingController get soldToController => personal.soldToController;
@@ -206,13 +211,13 @@ class LibraryEditDraft {
   set selectedBundleReleaseId(String? v) =>
       personal.selectedBundleReleaseId = v;
 
-  String? get selectedTrackingEditionId => personal.selectedTrackingEditionId;
+  String? get selectedTrackingEditionId => tracking.selectedTrackingEditionId;
   set selectedTrackingEditionId(String? v) =>
-      personal.selectedTrackingEditionId = v;
+      tracking.selectedTrackingEditionId = v;
 
-  String? get selectedTrackingVariantId => personal.selectedTrackingVariantId;
+  String? get selectedTrackingVariantId => tracking.selectedTrackingVariantId;
   set selectedTrackingVariantId(String? v) =>
-      personal.selectedTrackingVariantId = v;
+      tracking.selectedTrackingVariantId = v;
 
   String get selectedWishlistAnchorType =>
       personal.selectedWishlistAnchorType.apiValue;
@@ -239,14 +244,14 @@ class LibraryEditDraft {
   DateTime? get soldAt => personal.soldAt;
   set soldAt(DateTime? v) => personal.soldAt = v;
 
-  DateTime? get startedAt => personal.startedAt;
-  set startedAt(DateTime? v) => personal.startedAt = v;
+  DateTime? get startedAt => tracking.startedAt;
+  set startedAt(DateTime? v) => tracking.startedAt = v;
 
-  DateTime? get finishedAt => personal.finishedAt;
-  set finishedAt(DateTime? v) => personal.finishedAt = v;
+  DateTime? get finishedAt => tracking.finishedAt;
+  set finishedAt(DateTime? v) => tracking.finishedAt = v;
 
-  Map<String, int> get episodeRatings => personal.episodeRatings;
-  set episodeRatings(Map<String, int> v) => personal.episodeRatings = v;
+  Map<String, int> get episodeRatings => tracking.episodeRatings;
+  set episodeRatings(Map<String, int> v) => tracking.episodeRatings = v;
 
   String? get collectionStatus => personal.collectionStatus;
   set collectionStatus(String? v) => personal.collectionStatus = v;
@@ -536,46 +541,17 @@ class LibraryEditDraft {
           : (ownedItem!.sellPriceCents! / 100).toStringAsFixed(2),
     );
     final soldToController = create(ownedItem?.soldTo ?? '');
-    final comicDetails = ownedItem?.comicDetails;
-    final videoDetails = ownedItem?.videoDetails;
-    final musicDetails = ownedItem?.musicDetails;
-    final bookDetails = ownedItem?.bookDetails;
-    final rawOrSlabbedController = create(comicDetails?.rawOrSlabbed ?? '');
-    final gradingCompanyController = create(comicDetails?.gradingCompany ?? '');
-    final graderNotesController = create(comicDetails?.graderNotes ?? '');
-    final signedByController =
-        create(comicDetails?.signedBy ?? bookDetails?.signedBy ?? '');
-    final labelTypeController = create(comicDetails?.labelType ?? '');
-    final pageQualityController = create(comicDetails?.pageQuality ?? '');
-    final certificationNumberController = create(
-      comicDetails?.certificationNumber ?? '',
+    final signedByController = create(
+      ownedItem?.comicDetails?.signedBy ??
+          ownedItem?.bookDetails?.signedBy ??
+          '',
     );
-    final coverPriceController = create(
-      comicDetails?.coverPriceCents == null
-          ? ''
-          : (comicDetails!.coverPriceCents! / 100).toStringAsFixed(2),
-    );
-    final keyReasonController = create(comicDetails?.keyReason ?? '');
-    final keyCategoryController = create(comicDetails?.keyCategory ?? '');
-    final featuresController = create(videoDetails?.features ?? '');
     final purchaseStoreController = create(ownedItem?.purchaseStore ?? '');
-    final boxSetNameController = create(videoDetails?.boxSetName ?? '');
-    final storageDeviceController = create(musicDetails?.storageDevice ?? '');
-    final storageSlotController = create(musicDetails?.storageSlot ?? '');
-    final regionController = create(videoDetails?.region ?? '');
-    final packagingController = create(videoDetails?.packaging ?? '');
-    final distributorController = create(videoDetails?.distributor ?? '');
     final marketValueController = create(
       ownedItem?.marketValueCents == null
           ? ''
           : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
     );
-    final screenRatioController = create(item.video?.screenRatio ?? '');
-    final audioTracksController = create(item.video?.audioTracks ?? '');
-    final subtitlesController = create(item.video?.subtitles ?? '');
-    final layersController = create(item.video?.layers ?? '');
-    final colorController = create(item.video?.color ?? '');
-    final nrDiscsController = create(item.video?.nrDiscs?.toString() ?? '');
 
     final editionSelection = resolveLibraryEditionSelection(
       item.editions,
@@ -649,14 +625,6 @@ class LibraryEditDraft {
       wishlistPriceController: wishlistPriceController,
       wishlistCurrencyController: wishlistCurrencyController,
       wishlistNotesController: wishlistNotesController,
-      ratingController: ratingController,
-      trackingController: trackingController,
-      progressCurrentController: progressCurrentController,
-      progressTotalController: progressTotalController,
-      timesCompletedController: timesCompletedController,
-      seasonNumberController: seasonNumberController,
-      episodeNumberController: episodeNumberController,
-      trackingNotesController: trackingNotesController,
       tagsController: tagsController,
       signedByController: signedByController,
       sellPriceController: sellPriceController,
@@ -672,10 +640,6 @@ class LibraryEditDraft {
       selectedVariantId: editionSelection.variant?.id,
       selectedBundleReleaseId:
           normalizeLibrarySelectionId(ownedItem?.bundleReleaseId),
-      selectedTrackingEditionId:
-          trackingEntry?.editionId ?? editionSelection.edition?.id,
-      selectedTrackingVariantId:
-          trackingEntry?.variantId ?? editionSelection.variant?.id,
       selectedWishlistAnchorType: PersonalItemAnchorType.fromApiValue(
             wishlistItem?.personalAnchor?.apiValue,
           ) ??
@@ -686,66 +650,37 @@ class LibraryEditDraft {
           normalizeLibrarySelectionId(wishlistItem?.bundleReleaseId),
       locationChanged: false,
       soldAt: ownedItem?.soldAt,
+      collectionStatus: ownedItem?.collectionStatus,
+    );
+
+    final tracking = TrackingDraft(
+      ratingController: ratingController,
+      trackingController: trackingController,
+      progressCurrentController: progressCurrentController,
+      progressTotalController: progressTotalController,
+      timesCompletedController: timesCompletedController,
+      seasonNumberController: seasonNumberController,
+      episodeNumberController: episodeNumberController,
+      trackingNotesController: trackingNotesController,
+      selectedTrackingEditionId:
+          trackingEntry?.editionId ?? editionSelection.edition?.id,
+      selectedTrackingVariantId:
+          trackingEntry?.variantId ?? editionSelection.variant?.id,
       startedAt: trackingEntry?.startedAt ?? ownedItem?.startedAt,
       finishedAt: trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
       episodeRatings:
           Map<String, int>.from(trackingEntry?.episodeRatings ?? const {}),
-      collectionStatus: ownedItem?.collectionStatus,
     );
 
-    KindEditDraft kindDetails;
-    switch (type.workspace.kind) {
-      case CatalogMediaKind.comic:
-      case CatalogMediaKind.manga:
-        kindDetails = ComicEditDraft(
-          rawOrSlabbedController: rawOrSlabbedController,
-          gradingCompanyController: gradingCompanyController,
-          graderNotesController: graderNotesController,
-          signedByController: signedByController,
-          labelTypeController: labelTypeController,
-          pageQualityController: pageQualityController,
-          certificationNumberController: certificationNumberController,
-          coverPriceController: coverPriceController,
-          keyReasonController: keyReasonController,
-          keyCategoryController: keyCategoryController,
-          keyComic: ownedItem?.comicDetails?.keyComic ?? false,
-          lastBagBoardDate: ownedItem?.comicDetails?.lastBagBoardDate,
+    final kindDetails = defaultLibraryKindRegistry
+        .getByKind(type.workspace.kind)
+        .edit
+        .createDraft(
+          item: item,
+          ownedItem: ownedItem,
+          trackingEntry: trackingEntry,
+          textControllers: textControllers,
         );
-      case CatalogMediaKind.movie:
-      case CatalogMediaKind.tv:
-      case CatalogMediaKind.anime:
-        kindDetails = VideoEditDraft(
-          featuresController: featuresController,
-          boxSetNameController: boxSetNameController,
-          regionController: regionController,
-          packagingController: packagingController,
-          distributorController: distributorController,
-          screenRatioController: screenRatioController,
-          audioTracksController: audioTracksController,
-          subtitlesController: subtitlesController,
-          layersController: layersController,
-          colorController: colorController,
-          nrDiscsController: nrDiscsController,
-          hdrFormats: List<String>.from(
-              ownedItem?.videoDetails?.hdrFormats ?? const <String>[]),
-        );
-      case CatalogMediaKind.game:
-        kindDetails = GameEditDraft(
-          gameCompleteness: ownedItem?.gameDetails?.completeness,
-          gameHasBox: ownedItem?.gameDetails?.hasBox ?? true,
-          gameHasManual: ownedItem?.gameDetails?.hasManual ?? true,
-          gamePriceChartingId: ownedItem?.gameDetails?.priceChartingId,
-          gameCoreRegion: ownedItem?.gameDetails?.coreRegion,
-          gameValueIsLocked: ownedItem?.gameDetails?.valueIsLocked ?? false,
-        );
-      case CatalogMediaKind.music:
-        kindDetails = MusicEditDraft(
-          storageDeviceController: storageDeviceController,
-          storageSlotController: storageSlotController,
-        );
-      default:
-        kindDetails = const GenericEditDraft();
-    }
 
     return LibraryEditDraft._(
       textControllers: textControllers,
@@ -765,6 +700,7 @@ class LibraryEditDraft {
       itemImages: List<ItemImage>.unmodifiable(itemImages),
       metadata: metadata,
       personal: personal,
+      tracking: tracking,
       kindDetails: kindDetails,
       customFieldEdits: {
         for (final value in customFieldValues)

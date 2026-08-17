@@ -18,14 +18,6 @@ class PersonalStateDraft {
     required this.wishlistPriceController,
     required this.wishlistCurrencyController,
     required this.wishlistNotesController,
-    required this.ratingController,
-    required this.trackingController,
-    required this.progressCurrentController,
-    required this.progressTotalController,
-    required this.timesCompletedController,
-    required this.seasonNumberController,
-    required this.episodeNumberController,
-    required this.trackingNotesController,
     required this.tagsController,
     required this.signedByController,
     required this.sellPriceController,
@@ -37,17 +29,12 @@ class PersonalStateDraft {
     required this.selectedEditionId,
     required this.selectedVariantId,
     required this.selectedBundleReleaseId,
-    required this.selectedTrackingEditionId,
-    required this.selectedTrackingVariantId,
     required this.selectedWishlistAnchorType,
     required this.selectedWishlistEditionId,
     required this.selectedWishlistVariantId,
     required this.selectedWishlistBundleReleaseId,
     required this.locationChanged,
     required this.soldAt,
-    required this.startedAt,
-    required this.finishedAt,
-    required this.episodeRatings,
     required this.collectionStatus,
   });
 
@@ -65,14 +52,6 @@ class PersonalStateDraft {
   final TextEditingController wishlistPriceController;
   final TextEditingController wishlistCurrencyController;
   final TextEditingController wishlistNotesController;
-  final TextEditingController ratingController;
-  final TextEditingController trackingController;
-  final TextEditingController progressCurrentController;
-  final TextEditingController progressTotalController;
-  final TextEditingController timesCompletedController;
-  final TextEditingController seasonNumberController;
-  final TextEditingController episodeNumberController;
-  final TextEditingController trackingNotesController;
   final TextEditingController tagsController;
   final TextEditingController signedByController;
   final TextEditingController sellPriceController;
@@ -86,9 +65,6 @@ class PersonalStateDraft {
   String? selectedVariantId;
   String? selectedBundleReleaseId;
 
-  String? selectedTrackingEditionId;
-  String? selectedTrackingVariantId;
-
   PersonalItemAnchorType selectedWishlistAnchorType;
   String? selectedWishlistEditionId;
   String? selectedWishlistVariantId;
@@ -96,8 +72,5 @@ class PersonalStateDraft {
 
   bool locationChanged;
   DateTime? soldAt;
-  DateTime? startedAt;
-  DateTime? finishedAt;
-  Map<String, int> episodeRatings;
   String? collectionStatus;
 }

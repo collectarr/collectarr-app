@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
@@ -211,6 +212,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
         defaultGrade: type.defaultGrade,
         manualAddUsesTitleAsSeries: type.manualAddUsesTitleAsSeries,
         editUsesTitleAsSeries: type.editUsesTitleAsSeries,
+        createDraft: _editDraftFactoryForKind(kind),
       );
 
   @override
@@ -575,3 +577,17 @@ typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
   required String facetId,
   required Set<String> itemIds,
 });
+
+KindEditDraftFactory _editDraftFactoryForKind(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.comic || CatalogMediaKind.manga => createComicEditDraft,
+    CatalogMediaKind.movie ||
+    CatalogMediaKind.tv ||
+    CatalogMediaKind.anime =>
+      createVideoEditDraft,
+    CatalogMediaKind.game => createGameEditDraft,
+    CatalogMediaKind.music => createMusicEditDraft,
+    CatalogMediaKind.book => createBookEditDraft,
+    _ => createGenericEditDraft,
+  };
+}

@@ -1,3 +1,7 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
 /// Sealed domain hierarchy for kind-specific edit drafts.
@@ -99,7 +103,134 @@ class MusicEditDraft extends KindEditDraft {
   final TextEditingController storageSlotController;
 }
 
+/// Kind-specific edit state for Book items.
+class BookEditDraft extends KindEditDraft {
+  BookEditDraft({
+    required this.signedByController,
+  });
+
+  final TextEditingController signedByController;
+}
+
 /// Fallback kind edit state for generic catalog items.
 class GenericEditDraft extends KindEditDraft {
   const GenericEditDraft();
+}
+
+// -----------------------------------------------------------------------------
+// Kind-owned Edit Draft Factories
+// -----------------------------------------------------------------------------
+
+KindEditDraft createComicEditDraft({
+  required LibraryMetadataItem item,
+  OwnedItem? ownedItem,
+  TrackingEntry? trackingEntry,
+  required TextControllerGroup textControllers,
+}) {
+  final comic = ownedItem?.comicDetails;
+  return ComicEditDraft(
+    rawOrSlabbedController:
+        textControllers.create(text: comic?.rawOrSlabbed ?? ''),
+    gradingCompanyController:
+        textControllers.create(text: comic?.gradingCompany ?? ''),
+    graderNotesController:
+        textControllers.create(text: comic?.graderNotes ?? ''),
+    signedByController: textControllers.create(text: comic?.signedBy ?? ''),
+    labelTypeController: textControllers.create(text: comic?.labelType ?? ''),
+    pageQualityController:
+        textControllers.create(text: comic?.pageQuality ?? ''),
+    certificationNumberController:
+        textControllers.create(text: comic?.certificationNumber ?? ''),
+    coverPriceController: textControllers.create(
+      text: comic?.coverPriceCents == null
+          ? ''
+          : (comic!.coverPriceCents! / 100).toStringAsFixed(2),
+    ),
+    keyReasonController: textControllers.create(text: comic?.keyReason ?? ''),
+    keyCategoryController:
+        textControllers.create(text: comic?.keyCategory ?? ''),
+    keyComic: comic?.keyComic ?? false,
+    lastBagBoardDate: comic?.lastBagBoardDate,
+  );
+}
+
+KindEditDraft createVideoEditDraft({
+  required LibraryMetadataItem item,
+  OwnedItem? ownedItem,
+  TrackingEntry? trackingEntry,
+  required TextControllerGroup textControllers,
+}) {
+  final video = ownedItem?.videoDetails;
+  return VideoEditDraft(
+    featuresController: textControllers.create(text: video?.features ?? ''),
+    boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
+    regionController: textControllers.create(text: video?.region ?? ''),
+    packagingController: textControllers.create(text: video?.packaging ?? ''),
+    distributorController:
+        textControllers.create(text: video?.distributor ?? ''),
+    screenRatioController:
+        textControllers.create(text: item.video?.screenRatio ?? ''),
+    audioTracksController:
+        textControllers.create(text: item.video?.audioTracks ?? ''),
+    subtitlesController:
+        textControllers.create(text: item.video?.subtitles ?? ''),
+    layersController: textControllers.create(text: item.video?.layers ?? ''),
+    colorController: textControllers.create(text: item.video?.color ?? ''),
+    nrDiscsController:
+        textControllers.create(text: item.video?.nrDiscs?.toString() ?? ''),
+    hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
+  );
+}
+
+KindEditDraft createGameEditDraft({
+  required LibraryMetadataItem item,
+  OwnedItem? ownedItem,
+  TrackingEntry? trackingEntry,
+  required TextControllerGroup textControllers,
+}) {
+  final game = ownedItem?.gameDetails;
+  return GameEditDraft(
+    gameCompleteness: game?.completeness,
+    gameHasBox: game?.hasBox,
+    gameHasManual: game?.hasManual,
+    gamePriceChartingId: game?.priceChartingId,
+    gameCoreRegion: game?.coreRegion,
+    gameValueIsLocked: game?.valueIsLocked ?? false,
+  );
+}
+
+KindEditDraft createMusicEditDraft({
+  required LibraryMetadataItem item,
+  OwnedItem? ownedItem,
+  TrackingEntry? trackingEntry,
+  required TextControllerGroup textControllers,
+}) {
+  final music = ownedItem?.musicDetails;
+  return MusicEditDraft(
+    storageDeviceController:
+        textControllers.create(text: music?.storageDevice ?? ''),
+    storageSlotController:
+        textControllers.create(text: music?.storageSlot ?? ''),
+  );
+}
+
+KindEditDraft createBookEditDraft({
+  required LibraryMetadataItem item,
+  OwnedItem? ownedItem,
+  TrackingEntry? trackingEntry,
+  required TextControllerGroup textControllers,
+}) {
+  final book = ownedItem?.bookDetails;
+  return BookEditDraft(
+    signedByController: textControllers.create(text: book?.signedBy ?? ''),
+  );
+}
+
+KindEditDraft createGenericEditDraft({
+  required LibraryMetadataItem item,
+  OwnedItem? ownedItem,
+  TrackingEntry? trackingEntry,
+  required TextControllerGroup textControllers,
+}) {
+  return const GenericEditDraft();
 }
