@@ -83,7 +83,7 @@ void main() {
     expect(find.text('Copy Collectarr export'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly export'), findsOneWidget);
     expect(find.text('Copy sync backup guide'), findsOneWidget);
-    expect(find.text('Custom fields'), findsNothing);
+    await _openSettingsTab(tester, 'Providers');
     await _scrollToText(tester, 'Metadata proposals');
     expect(find.text('Metadata proposals'), findsOneWidget);
     expect(find.text('No local proposal submissions yet.'), findsOneWidget);
@@ -98,6 +98,89 @@ void main() {
     expect(find.text('Device identity'), findsOneWidget);
     expect(find.text('Session expiry unavailable'), findsNothing);
     expect(find.text('Save settings'), findsNothing);
+  });
+
+  testWidgets(
+      'settings page renders drill-down list on compact screen and navigates',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(380, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.android),
+          home: const SettingsPage(),
+        ),
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    // List of settings sections
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Connection'), findsOneWidget);
+    expect(find.text('Libraries'), findsOneWidget);
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Providers'), findsOneWidget);
+    expect(find.text('Data'), findsOneWidget);
+    expect(find.text('Account'), findsOneWidget);
+    expect(find.text('Logs'), findsOneWidget);
+
+    // Tap into Connection
+    await tester.tap(find.text('Connection'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Metadata server'), findsOneWidget);
+    expect(find.text('Personal sync service'), findsOneWidget);
+
+    // Back to root
+    await tester.tap(find.byType(BackButton));
+    await pumpUntilSettled(tester);
+
+    // Tap into Appearance
+    await tester.tap(find.text('Appearance'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Dark mode'), findsOneWidget);
+    expect(find.text('Animations'), findsOneWidget);
+  });
+
+  testWidgets('settings page renders two-pane layout on medium screen',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(700, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.windows),
+          home: const SettingsPage(),
+        ),
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    // Two-pane: left sidebar with sections, right panel with content
+    expect(find.text('Metadata server'), findsOneWidget);
+
+    // Switch section via left pane
+    await tester.tap(find.text('Appearance'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Dark mode'), findsOneWidget);
+    expect(find.text('Animations'), findsOneWidget);
   });
 
   testWidgets('settings page hides keyboard shortcuts on Android',

@@ -47,6 +47,7 @@ import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
 
 import 'package:collectarr_app/state/theme_mode_provider.dart';
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:file_selector/file_selector.dart';
@@ -72,6 +73,20 @@ final _deviceIdentityProvider = FutureProvider.autoDispose<String>((ref) async {
   return DeviceIdentity().getOrCreate();
 });
 
+enum SettingsSection {
+  connection('Connection', Icons.route_outlined),
+  libraries('Libraries', Icons.view_comfy_alt_outlined),
+  appearance('Appearance', Icons.palette_outlined),
+  providers('Providers', Icons.hub_outlined),
+  data('Data', Icons.backup_outlined),
+  account('Account', Icons.account_circle_outlined),
+  logs('Logs', Icons.bug_report_outlined);
+
+  const SettingsSection(this.title, this.icon);
+  final String title;
+  final IconData icon;
+}
+
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({
     super.key,
@@ -94,6 +109,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   List<Map<String, dynamic>> _syncDevices = const [];
   ConnectionSettings? _lastSyncedSettings;
   Timer? _connectionSaveDebounce;
+  SettingsSection _selectedSection = SettingsSection.connection;
 
   @override
   void initState() {
@@ -133,10 +149,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         Theme.of(context).platform == TargetPlatform.android;
     _syncTextControllers(settings);
 
-    return Theme(
-      data: buildLibraryAccentTheme(Theme.of(context), accent),
-      child: DefaultTabController(
-        length: 6,
+    final windowClass = AppWindowClass.of(context);
+
+    Widget buildSection(SettingsSection section) {
+      return _buildSectionContent(
+        section: section,
+        settings: settings,
+        auth: auth,
+        sync: sync,
+        mediaCatalog: mediaCatalog,
+        navPreferences: navPreferences,
+        uiPreferences: uiPreferences,
+        tmdbImportSettings: tmdbImportSettings,
+        metadataProposalHistory: metadataProposalHistory,
+        deviceId: deviceId,
+        isAndroidPlatform: isAndroidPlatform,
+      );
+    }
+
+    if (windowClass.isCompact) {
+      return Theme(
+        data: buildLibraryAccentTheme(Theme.of(context), accent),
         child: Scaffold(
           appBar: AppBar(
             title: const Text('Settings'),
@@ -147,742 +180,894 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               accent: accent,
               animationDuration: animationDuration,
             ),
-            bottom: const TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.route_outlined), text: 'Connection'),
-                Tab(
-                  icon: Icon(Icons.view_comfy_alt_outlined),
-                  text: 'Libraries',
+          ),
+          body: ListView.separated(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: SettingsSection.values.length,
+            separatorBuilder: (_, __) => const Divider(height: 1),
+            itemBuilder: (context, index) {
+              final section = SettingsSection.values[index];
+              return ListTile(
+                leading: Icon(section.icon, color: accent),
+                title: Text(
+                  section.title,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
-                Tab(icon: Icon(Icons.palette_outlined), text: 'Appearance'),
-                Tab(icon: Icon(Icons.backup_outlined), text: 'Data'),
-                Tab(icon: Icon(Icons.account_circle_outlined), text: 'Account'),
-                Tab(icon: Icon(Icons.bug_report_outlined), text: 'Logs'),
-              ],
+                trailing: const Icon(Icons.chevron_right, size: 20),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (ctx) => Theme(
+                        data: buildLibraryAccentTheme(Theme.of(ctx), accent),
+                        child: Scaffold(
+                          appBar: AppBar(
+                            title: Text(section.title),
+                            backgroundColor:
+                                libraryAccentChromeFallbackColor(accent),
+                            surfaceTintColor: Colors.transparent,
+                            flexibleSpace: LibraryAccentChrome(
+                              key: ValueKey(accent),
+                              accent: accent,
+                              animationDuration: animationDuration,
+                            ),
+                          ),
+                          body: buildSection(section),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    if (windowClass.isMedium) {
+      return Theme(
+        data: buildLibraryAccentTheme(Theme.of(context), accent),
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Settings'),
+            backgroundColor: libraryAccentChromeFallbackColor(accent),
+            surfaceTintColor: Colors.transparent,
+            flexibleSpace: LibraryAccentChrome(
+              key: ValueKey(accent),
+              accent: accent,
+              animationDuration: animationDuration,
+            ),
+          ),
+          body: Row(
+            children: [
+              SizedBox(
+                width: 240,
+                child: Material(
+                  color: appPalette(context).panel,
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    children: SettingsSection.values.map((section) {
+                      final isSelected = section == _selectedSection;
+                      return ListTile(
+                        leading: Icon(section.icon,
+                            color: isSelected ? accent : null),
+                        title: Text(
+                          section.title,
+                          style: TextStyle(
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w500,
+                            color: isSelected ? accent : null,
+                          ),
+                        ),
+                        selected: isSelected,
+                        onTap: () => setState(() => _selectedSection = section),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              const VerticalDivider(width: 1, thickness: 1),
+              Expanded(
+                child: buildSection(_selectedSection),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Theme(
+      data: buildLibraryAccentTheme(Theme.of(context), accent),
+      child: DefaultTabController(
+        length: SettingsSection.values.length,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Settings'),
+            backgroundColor: libraryAccentChromeFallbackColor(accent),
+            surfaceTintColor: Colors.transparent,
+            flexibleSpace: LibraryAccentChrome(
+              key: ValueKey(accent),
+              accent: accent,
+              animationDuration: animationDuration,
+            ),
+            bottom: TabBar(
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              tabs: SettingsSection.values
+                  .map((s) => Tab(icon: Icon(s.icon), text: s.title))
+                  .toList(),
             ),
           ),
           body: TabBarView(
+            children: SettingsSection.values.map(buildSection).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionContent({
+    required SettingsSection section,
+    required ConnectionSettings settings,
+    required AuthState auth,
+    required SyncState sync,
+    required List<CatalogMediaType> mediaCatalog,
+    required LibraryNavPreferences navPreferences,
+    required UiPreferences uiPreferences,
+    required TmdbImportSettings tmdbImportSettings,
+    required AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
+    required AsyncValue<String> deviceId,
+    required bool isAndroidPlatform,
+  }) {
+    switch (section) {
+      case SettingsSection.connection:
+        return _buildConnectionSection(settings, sync);
+      case SettingsSection.libraries:
+        return _buildLibrariesSection(
+            mediaCatalog, navPreferences, isAndroidPlatform);
+      case SettingsSection.appearance:
+        return _buildAppearanceSection(uiPreferences);
+      case SettingsSection.providers:
+        return _buildProvidersSection(
+            tmdbImportSettings, metadataProposalHistory);
+      case SettingsSection.data:
+        return _buildDataSection();
+      case SettingsSection.account:
+        return _buildAccountSection(auth, deviceId);
+      case SettingsSection.logs:
+        return _buildLogsSection();
+    }
+  }
+
+  Widget _buildConnectionSection(
+    ConnectionSettings settings,
+    SyncState sync,
+  ) {
+    return _SettingsTabBody(
+      children: [
+        _SettingsPanel(
+          icon: Icons.dns_outlined,
+          title: 'Metadata server',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _SettingsTabBody(
-                children: [
-                  _SettingsPanel(
-                    icon: Icons.dns_outlined,
-                    title: 'Metadata server',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextField(
-                          controller: _metadataController,
-                          maxLines: 1,
-                          readOnly: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Metadata API URL',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _DiagnosticRow(
-                          diagnostic: _metadataDiagnostic,
-                          idleLabel: 'Not checked',
-                        ),
-                        const SizedBox(height: 12),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: OutlinedButton.icon(
-                            onPressed: _checkMetadata,
-                            icon: const Icon(Icons.health_and_safety_outlined),
-                            label: const Text('Check metadata server'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  _SettingsPanel(
-                    icon: Icons.cloud_sync_outlined,
-                    title: 'Personal sync service',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (widget.showWebSyncWarning) ...[
-                          const _SyncWebWarning(),
-                          const SizedBox(height: 12),
-                        ],
-                        TextField(
-                          controller: _syncController,
-                          maxLines: 1,
-                          onChanged: (_) => _scheduleConnectionAutoSave(),
-                          decoration: const InputDecoration(
-                            labelText: 'Sync service URL',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        TextField(
-                          controller: _syncKeyController,
-                          maxLines: 1,
-                          onChanged: (_) => _scheduleConnectionAutoSave(),
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Sync key',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SwitchListTile.adaptive(
-                          contentPadding: EdgeInsets.zero,
-                          value: settings.preferOnlineFirstSync,
-                          onChanged: (value) async {
-                            await ref
-                                .read(connectionSettingsProvider.notifier)
-                                .save(
-                                  metadataBaseUrl: _metadataController.text,
-                                  syncBaseUrl: _syncController.text,
-                                  syncKey: _syncKeyController.text,
-                                  preferOnlineFirstSync: value,
-                                );
-                            if (!mounted) {
-                              return;
-                            }
-                            unawaited(ref
-                                .read(syncControllerProvider.notifier)
-                                .refreshPendingCount());
-                            if (value) {
-                              unawaited(ref
-                                  .read(syncControllerProvider.notifier)
-                                  .syncOnlineFirstIfEnabled());
-                            }
-                          },
-                          title:
-                              const Text('Prefer online-first personal sync'),
-                          subtitle: const Text(
-                            'Keep the local cache, but sync automatically on startup and after local personal changes when your sync service is available.',
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _DiagnosticRow(
-                          diagnostic: _syncDiagnostic,
-                          idleLabel: 'Not checked',
-                        ),
-                        if (_syncStatusDetails != null) ...[
-                          const SizedBox(height: 12),
-                          _SyncServiceSummary(
-                            status: _syncStatusDetails!,
-                            devices: _syncDevices,
-                          ),
-                        ],
-                        const SizedBox(height: 12),
-                        if (sync.rejectedChanges.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          _SyncConflictSummary(
-                            changes: sync.rejectedChanges,
-                            onKeepLocal: _keepLocalConflict,
-                            onDismiss: (change) => ref
-                                .read(syncControllerProvider.notifier)
-                                .dismissRejectedChange(change.key),
-                            onDismissAll: () => ref
-                                .read(syncControllerProvider.notifier)
-                                .dismissAllRejectedChanges(),
-                          ),
-                        ],
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            OutlinedButton.icon(
-                              onPressed: _checkSyncConnection,
-                              icon:
-                                  const Icon(Icons.health_and_safety_outlined),
-                              label: const Text('Check sync server connection'),
-                            ),
-                            FilledButton.tonalIcon(
-                              onPressed: sync.isSyncing ? null : _syncNow,
-                              icon: sync.isSyncing
-                                  ? const SizedBox.square(
-                                      dimension: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : const Icon(Icons.sync),
-                              label: const Text('Sync now'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (sync.syncLog.isNotEmpty)
-                    _SettingsPanel(
-                      icon: Icons.history_outlined,
-                      title: 'Sync history',
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (final entry in sync.syncLog.reversed)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    entry.success
-                                        ? Icons.check_circle_outline
-                                        : Icons.error_outline,
-                                    size: 16,
-                                    color: entry.success
-                                        ? Colors.green
-                                        : Colors.red,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    _formatSyncTime(entry.timestamp),
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  if (entry.success)
-                                    Text(
-                                      '${entry.pushed} pushed'
-                                      '${entry.rejected > 0 ? ', ${entry.rejected} rejected' : ''}',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color:
-                                            appPalette(context).textSecondary,
-                                      ),
-                                    )
-                                  else
-                                    Expanded(
-                                      child: Text(
-                                        entry.errorMessage ?? 'Failed',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.red,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  _SettingsPanel(
-                    icon: Icons.qr_code_2_outlined,
-                    title: 'Device pairing',
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: _copyPairingCode,
-                          icon: const Icon(Icons.copy_outlined),
-                          label: const Text('Copy pairing code'),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => _showPairingQrDialog(context),
-                          icon: const Icon(Icons.qr_code_2_outlined),
-                          label: const Text('Show pairing QR'),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => _scanPairingQr(context),
-                          icon: const Icon(Icons.qr_code_scanner),
-                          label: const Text('Scan pairing QR'),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => _showPairingCodeDialog(context),
-                          icon: const Icon(Icons.input_outlined),
-                          label: const Text('Apply pairing code'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  _TabResetActions(
-                    label: 'Reset connection defaults',
-                    onReset: _resetConnectionDefaults,
-                  ),
-                ],
+              TextField(
+                controller: _metadataController,
+                maxLines: 1,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Metadata API URL',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              _SettingsTabBody(
-                children: [
-                  _SettingsPanel(
-                    icon: Icons.view_comfy_alt_outlined,
-                    title: 'Library navigation',
-                    child: _LibraryNavSettings(
-                      catalog: mediaCatalog,
-                      preferences: navPreferences,
-                      onPlacementChanged: (placement) => ref
-                          .read(libraryNavPreferencesProvider.notifier)
-                          .setPlacement(placement),
-                      onOrderChanged: (order) => ref
-                          .read(libraryNavPreferencesProvider.notifier)
-                          .setOrder(order),
-                      onVisibilityChanged: (kind, visible) => ref
-                          .read(libraryNavPreferencesProvider.notifier)
-                          .setKindVisible(kind, visible),
-                      onAccentChanged: (kind, color) => ref
-                          .read(libraryNavPreferencesProvider.notifier)
-                          .setKindAccent(kind, color),
-                      onReset: () => ref
-                          .read(libraryNavPreferencesProvider.notifier)
-                          .reset(),
-                    ),
-                  ),
-                  _SettingsPanel(
-                    icon: Icons.view_list_outlined,
-                    title: 'Library customization',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Manage reusable pick lists for edit dialogs, custom fields, filters, and cleanup flows.',
-                        ),
-                        const SizedBox(height: 12),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: OutlinedButton.icon(
-                            onPressed: () => showPickListManagerDialog(
-                              context: context,
-                              db: ref.read(localDatabaseProvider),
-                            ),
-                            icon: const Icon(Icons.tune),
-                            label: const Text('Manage pick lists'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (!isAndroidPlatform)
-                    _SettingsPanel(
-                      icon: Icons.keyboard_command_key,
-                      title: 'Keyboard shortcuts',
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            'Review current shortcuts and manage key bindings. Shortcut remapping will be configurable here.',
-                          ),
-                          const SizedBox(height: 10),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: OutlinedButton.icon(
-                              onPressed: () =>
-                                  showKeyboardShortcutsDialog(context),
-                              icon: const Icon(Icons.keyboard_outlined),
-                              label: const Text('View shortcuts'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
+              const SizedBox(height: 12),
+              _DiagnosticRow(
+                diagnostic: _metadataDiagnostic,
+                idleLabel: 'Not checked',
               ),
-              _SettingsTabBody(
-                children: [
-                  _SettingsPanel(
-                    icon: Icons.motion_photos_auto_outlined,
-                    title: 'Appearance',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          secondary: Icon(
-                            ref.watch(appThemeModeProvider) == ThemeMode.dark
-                                ? Icons.dark_mode
-                                : Icons.light_mode,
-                          ),
-                          title: const Text('Dark mode'),
-                          subtitle: const Text(
-                            'Switch between dark and light theme.',
-                          ),
-                          value:
-                              ref.watch(appThemeModeProvider) == ThemeMode.dark,
-                          onChanged: (value) => ref
-                              .read(appThemeModeProvider.notifier)
-                              .setMode(
-                                  value ? ThemeMode.dark : ThemeMode.light),
-                        ),
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          secondary: const Icon(Icons.gradient_outlined),
-                          title: const Text('Animations'),
-                          subtitle: const Text(
-                            'Enable or disable all UI animations, transitions and effects.',
-                          ),
-                          value: uiPreferences.animationsEnabled,
-                          onChanged: (value) => ref
-                              .read(uiPreferencesProvider.notifier)
-                              .setAnimationsEnabled(value),
-                        ),
-                        const Divider(height: 24),
-                        Text('Cover grid',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          secondary: const Icon(Icons.grid_view_sharp),
-                          title: const Text('Flat covers'),
-                          subtitle: const Text(
-                            'Remove shadows and borders from cover tiles.',
-                          ),
-                          value: uiPreferences.flatCovers,
-                          onChanged: (value) => ref
-                              .read(uiPreferencesProvider.notifier)
-                              .setFlatCovers(value),
-                        ),
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          secondary: const Icon(Icons.title),
-                          title: const Text('Show titles in grid'),
-                          subtitle: const Text(
-                            'Show title text below covers in grid view.',
-                          ),
-                          value: uiPreferences.showCoverTitles,
-                          onChanged: (value) => ref
-                              .read(uiPreferencesProvider.notifier)
-                              .setShowCoverTitles(value),
-                        ),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.space_bar),
-                          title: const Text('Grid spacing'),
-                          subtitle: Slider(
-                            value: uiPreferences.gridSpacing,
-                            min: 4,
-                            max: 14,
-                            divisions: 10,
-                            label: '${uiPreferences.gridSpacing.round()} px',
-                            onChanged: (value) => ref
-                                .read(uiPreferencesProvider.notifier)
-                                .setGridSpacing(value.roundToDouble()),
-                          ),
-                        ),
-                        const Divider(height: 24),
-                        Text('Card view',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.photo_size_select_large),
-                          title: const Text('Card cover width'),
-                          subtitle: Slider(
-                            value: uiPreferences.cardCoverWidth,
-                            min: 60,
-                            max: 120,
-                            divisions: 12,
-                            label: '${uiPreferences.cardCoverWidth.round()} px',
-                            onChanged: (value) => ref
-                                .read(uiPreferencesProvider.notifier)
-                                .setCardCoverWidth(value.roundToDouble()),
-                          ),
-                        ),
-                        const Divider(height: 24),
-                        Text('Layout',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          secondary: const Icon(Icons.add_circle_outline),
-                          title: const Text('Floating Add button'),
-                          subtitle: const Text(
-                            'Use a floating action button instead of inline toolbar button.',
-                          ),
-                          value: uiPreferences.fabAddButton,
-                          onChanged: (value) => ref
-                              .read(uiPreferencesProvider.notifier)
-                              .setFabAddButton(value),
-                        ),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.density_small),
-                          title: const Text('Sidebar row padding'),
-                          subtitle: Slider(
-                            value: uiPreferences.sidebarRowPadding,
-                            min: 0,
-                            max: 8,
-                            divisions: 8,
-                            label:
-                                '${uiPreferences.sidebarRowPadding.round()} px',
-                            onChanged: (value) => ref
-                                .read(uiPreferencesProvider.notifier)
-                                .setSidebarRowPadding(value.roundToDouble()),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: OutlinedButton.icon(
-                            onPressed: _resetAppearanceDefaults,
-                            icon: const Icon(Icons.restart_alt),
-                            label: const Text('Reset appearance defaults'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const _SettingsPanel(
-                    icon: Icons.text_fields_outlined,
-                    title: 'Typography',
-                    child: _FontDiagnosticsPanel(),
-                  ),
-                ],
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: _checkMetadata,
+                  icon: const Icon(Icons.health_and_safety_outlined),
+                  label: const Text('Check metadata server'),
+                ),
               ),
-              _SettingsTabBody(
-                children: [
-                  _SettingsPanel(
-                    icon: Icons.backup_outlined,
-                    title: 'Local backup',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Import or export your local collection as Collectarr CSV, CLZ-friendly CSV, or ComicInfo.xml. Personal fields stored on this device stay in the exported data.',
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            FilledButton.tonalIcon(
-                              onPressed: () =>
-                                  _showImportExportWizard(initialIndex: 1),
-                              icon: const Icon(Icons.upload_file_outlined),
-                              label: const Text('Import collection'),
-                            ),
-                            FilledButton.tonalIcon(
-                              onPressed: () =>
-                                  _showImportExportWizard(initialIndex: 0),
-                              icon: const Icon(Icons.download_outlined),
-                              label: const Text('Export collection'),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: () => _copyBackup(clzFriendly: false),
-                              icon: const Icon(Icons.copy_all),
-                              label: const Text('Copy Collectarr export'),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: () => _copyBackup(clzFriendly: true),
-                              icon: const Icon(Icons.table_view),
-                              label: const Text('Copy CLZ-friendly export'),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: _copySyncBackupGuide,
-                              icon: const Icon(Icons.description_outlined),
-                              label: const Text('Copy sync backup guide'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  _SettingsPanel(
-                    icon: Icons.download_outlined,
-                    title: 'Import data',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Import your collection and tracking data from external services.',
-                        ),
-                        const SizedBox(height: 12),
-                        const _ImportJobsPanel(),
-                        const SizedBox(height: 12),
-                        const _TmdbPendingImportsPanel(),
-                        const SizedBox(height: 12),
-                        _ImportSourcesGrid(
-                          tmdbSettings: tmdbImportSettings,
-                        ),
-                      ],
-                    ),
-                  ),
-                  _SettingsPanel(
-                    icon: Icons.outbox_outlined,
-                    title: 'Metadata proposals',
-                    child: _MetadataProposalHistory(
-                      records: metadataProposalHistory.value ?? const [],
-                      isLoading: metadataProposalHistory.isLoading,
-                      onClear: _clearProposalHistory,
-                    ),
-                  ),
-                  _SettingsPanel(
-                    icon: Icons.save_outlined,
-                    title: 'Database backup & restore',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Create a full JSON backup of your local database, or restore from a previous backup. '
-                          'This includes all collection, wishlist, tracking, custom fields, locations, smart lists, and queue data.',
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            FilledButton.tonalIcon(
-                              onPressed: _backupDatabase,
-                              icon: const Icon(Icons.save_alt_outlined),
-                              label: const Text('Backup to JSON'),
-                            ),
-                            FilledButton.tonalIcon(
-                              onPressed: _restoreDatabase,
-                              icon: const Icon(Icons.restore_outlined),
-                              label: const Text('Restore from JSON'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  _SettingsPanel(
-                    icon: Icons.delete_forever_outlined,
-                    title: 'Clear database',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Permanently delete ALL local data including collection, wishlist, tracking, custom fields, and settings. '
-                          'This cannot be undone.',
-                        ),
-                        const SizedBox(height: 12),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: FilledButton.tonalIcon(
-                            onPressed: _clearDatabase,
-                            icon: const Icon(Icons.delete_forever),
-                            label: const Text('Clear entire database'),
-                            style: FilledButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.errorContainer,
-                              foregroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .onErrorContainer,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            ],
+          ),
+        ),
+        _SettingsPanel(
+          icon: Icons.cloud_sync_outlined,
+          title: 'Personal sync service',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (widget.showWebSyncWarning) ...[
+                const _SyncWebWarning(),
+                const SizedBox(height: 12),
+              ],
+              TextField(
+                controller: _syncController,
+                maxLines: 1,
+                onChanged: (_) => _scheduleConnectionAutoSave(),
+                decoration: const InputDecoration(
+                  labelText: 'Sync service URL',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              _SettingsTabBody(
-                children: [
-                  _SettingsPanel(
-                    icon: Icons.devices_outlined,
-                    title: 'Device identity',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SelectableText(
-                            deviceId.value ?? 'Loading device id...'),
-                        const SizedBox(height: 12),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: OutlinedButton.icon(
-                            onPressed:
-                                deviceId.isLoading ? null : _regenerateDeviceId,
-                            icon: const Icon(Icons.refresh_outlined),
-                            label: const Text('Regenerate device id'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  _SettingsPanel(
-                    icon: Icons.account_circle_outlined,
-                    title: 'Account',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SelectableText(auth.email ?? 'Not signed in'),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            if (auth.token != null || auth.isExpired)
-                              _StatusChip(
-                                icon: auth.isExpired
-                                    ? Icons.lock_clock_outlined
-                                    : Icons.verified_user_outlined,
-                                label: _sessionStatusLabel(auth),
-                                isError: auth.isExpired,
-                              ),
-                            if (auth.isAuthenticated)
-                              _StatusChip(
-                                icon: auth.isAdmin
-                                    ? Icons.admin_panel_settings_outlined
-                                    : Icons.person_outline,
-                                label: auth.isAdmin
-                                    ? 'Core admin'
-                                    : 'Standard account',
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          auth.isAuthenticated
-                              ? auth.isAdmin
-                                  ? 'Full admin access: dashboard, ingest jobs, logs, system management, and all catalog operations.'
-                                  : 'Catalog search, proposals, corrections, and provider workflows are available. Admin-only tools (dashboard, ingest jobs, logs) are hidden.'
-                              : 'You can browse the app and send metadata proposals without signing in. Admin sign in is only needed for admin/server features.',
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            if (auth.isAuthenticated) ...[
-                              OutlinedButton.icon(
-                                onPressed: _refreshAccountPermissions,
-                                icon:
-                                    const Icon(Icons.manage_accounts_outlined),
-                                label: const Text('Refresh permissions'),
-                              ),
-                              OutlinedButton.icon(
-                                onPressed: () => ref
-                                    .read(authControllerProvider.notifier)
-                                    .logout(),
-                                icon: const Icon(Icons.logout),
-                                label: const Text('Sign out'),
-                              ),
-                            ] else
-                              FilledButton.icon(
-                                onPressed: () => context.go(AppRoutes.auth),
-                                icon: const Icon(Icons.login),
-                                label: const Text('Admin sign in'),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 12),
+              TextField(
+                controller: _syncKeyController,
+                maxLines: 1,
+                onChanged: (_) => _scheduleConnectionAutoSave(),
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Sync key',
+                  border: OutlineInputBorder(),
+                ),
               ),
-              // ── Logs tab ─────────────────────────────────────────────
-              _SettingsTabBody(
+              const SizedBox(height: 12),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                value: settings.preferOnlineFirstSync,
+                onChanged: (value) async {
+                  await ref.read(connectionSettingsProvider.notifier).save(
+                        metadataBaseUrl: _metadataController.text,
+                        syncBaseUrl: _syncController.text,
+                        syncKey: _syncKeyController.text,
+                        preferOnlineFirstSync: value,
+                      );
+                  if (!mounted) {
+                    return;
+                  }
+                  unawaited(ref
+                      .read(syncControllerProvider.notifier)
+                      .refreshPendingCount());
+                  if (value) {
+                    unawaited(ref
+                        .read(syncControllerProvider.notifier)
+                        .syncOnlineFirstIfEnabled());
+                  }
+                },
+                title: const Text('Prefer online-first personal sync'),
+                subtitle: const Text(
+                  'Keep the local cache, but sync automatically on startup and after local personal changes when your sync service is available.',
+                ),
+              ),
+              const SizedBox(height: 8),
+              _DiagnosticRow(
+                diagnostic: _syncDiagnostic,
+                idleLabel: 'Not checked',
+              ),
+              if (_syncStatusDetails != null) ...[
+                const SizedBox(height: 12),
+                _SyncServiceSummary(
+                  status: _syncStatusDetails!,
+                  devices: _syncDevices,
+                ),
+              ],
+              const SizedBox(height: 12),
+              if (sync.rejectedChanges.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _SyncConflictSummary(
+                  changes: sync.rejectedChanges,
+                  onKeepLocal: _keepLocalConflict,
+                  onDismiss: (change) => ref
+                      .read(syncControllerProvider.notifier)
+                      .dismissRejectedChange(change.key),
+                  onDismissAll: () => ref
+                      .read(syncControllerProvider.notifier)
+                      .dismissAllRejectedChanges(),
+                ),
+              ],
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [
-                  _SettingsPanel(
-                    icon: Icons.bug_report_outlined,
-                    title: 'Application log',
-                    child: const AppLogViewerPanel(),
+                  OutlinedButton.icon(
+                    onPressed: _checkSyncConnection,
+                    icon: const Icon(Icons.health_and_safety_outlined),
+                    label: const Text('Check sync server connection'),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: sync.isSyncing ? null : _syncNow,
+                    icon: sync.isSyncing
+                        ? const SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Icon(Icons.sync),
+                    label: const Text('Sync now'),
                   ),
                 ],
               ),
             ],
           ),
         ),
-      ),
+        if (sync.syncLog.isNotEmpty)
+          _SettingsPanel(
+            icon: Icons.history_outlined,
+            title: 'Sync history',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final entry in sync.syncLog.reversed)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
+                      children: [
+                        Icon(
+                          entry.success
+                              ? Icons.check_circle_outline
+                              : Icons.error_outline,
+                          size: 16,
+                          color: entry.success ? Colors.green : Colors.red,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _formatSyncTime(entry.timestamp),
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        const SizedBox(width: 8),
+                        if (entry.success)
+                          Text(
+                            '${entry.pushed} pushed'
+                            '${entry.rejected > 0 ? ', ${entry.rejected} rejected' : ''}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: appPalette(context).textSecondary,
+                            ),
+                          )
+                        else
+                          Expanded(
+                            child: Text(
+                              entry.errorMessage ?? 'Failed',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.red,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        _SettingsPanel(
+          icon: Icons.qr_code_2_outlined,
+          title: 'Device pairing',
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: _copyPairingCode,
+                icon: const Icon(Icons.copy_outlined),
+                label: const Text('Copy pairing code'),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => _showPairingQrDialog(context),
+                icon: const Icon(Icons.qr_code_2_outlined),
+                label: const Text('Show pairing QR'),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => _scanPairingQr(context),
+                icon: const Icon(Icons.qr_code_scanner),
+                label: const Text('Scan pairing QR'),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => _showPairingCodeDialog(context),
+                icon: const Icon(Icons.input_outlined),
+                label: const Text('Apply pairing code'),
+              ),
+            ],
+          ),
+        ),
+        _TabResetActions(
+          label: 'Reset connection defaults',
+          onReset: _resetConnectionDefaults,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLibrariesSection(
+    List<CatalogMediaType> mediaCatalog,
+    LibraryNavPreferences navPreferences,
+    bool isAndroidPlatform,
+  ) {
+    return _SettingsTabBody(
+      children: [
+        _SettingsPanel(
+          icon: Icons.view_comfy_alt_outlined,
+          title: 'Library navigation',
+          child: _LibraryNavSettings(
+            catalog: mediaCatalog,
+            preferences: navPreferences,
+            onPlacementChanged: (placement) => ref
+                .read(libraryNavPreferencesProvider.notifier)
+                .setPlacement(placement),
+            onOrderChanged: (order) => ref
+                .read(libraryNavPreferencesProvider.notifier)
+                .setOrder(order),
+            onVisibilityChanged: (kind, visible) => ref
+                .read(libraryNavPreferencesProvider.notifier)
+                .setKindVisible(kind, visible),
+            onAccentChanged: (kind, color) => ref
+                .read(libraryNavPreferencesProvider.notifier)
+                .setKindAccent(kind, color),
+            onReset: () =>
+                ref.read(libraryNavPreferencesProvider.notifier).reset(),
+          ),
+        ),
+        _SettingsPanel(
+          icon: Icons.view_list_outlined,
+          title: 'Library customization',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Manage reusable pick lists for edit dialogs, custom fields, filters, and cleanup flows.',
+              ),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: () => showPickListManagerDialog(
+                    context: context,
+                    db: ref.read(localDatabaseProvider),
+                  ),
+                  icon: const Icon(Icons.tune),
+                  label: const Text('Manage pick lists'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (!isAndroidPlatform)
+          _SettingsPanel(
+            icon: Icons.keyboard_command_key,
+            title: 'Keyboard shortcuts',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Review current shortcuts and manage key bindings. Shortcut remapping will be configurable here.',
+                ),
+                const SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    onPressed: () => showKeyboardShortcutsDialog(context),
+                    icon: const Icon(Icons.keyboard_outlined),
+                    label: const Text('View shortcuts'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildAppearanceSection(UiPreferences uiPreferences) {
+    return _SettingsTabBody(
+      children: [
+        _SettingsPanel(
+          icon: Icons.motion_photos_auto_outlined,
+          title: 'Appearance',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: Icon(
+                  ref.watch(appThemeModeProvider) == ThemeMode.dark
+                      ? Icons.dark_mode
+                      : Icons.light_mode,
+                ),
+                title: const Text('Dark mode'),
+                subtitle: const Text(
+                  'Switch between dark and light theme.',
+                ),
+                value: ref.watch(appThemeModeProvider) == ThemeMode.dark,
+                onChanged: (value) => ref
+                    .read(appThemeModeProvider.notifier)
+                    .setMode(value ? ThemeMode.dark : ThemeMode.light),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.gradient_outlined),
+                title: const Text('Animations'),
+                subtitle: const Text(
+                  'Enable or disable all UI animations, transitions and effects.',
+                ),
+                value: uiPreferences.animationsEnabled,
+                onChanged: (value) => ref
+                    .read(uiPreferencesProvider.notifier)
+                    .setAnimationsEnabled(value),
+              ),
+              const Divider(height: 24),
+              Text('Cover grid',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.grid_view_sharp),
+                title: const Text('Flat covers'),
+                subtitle: const Text(
+                  'Remove shadows and borders from cover tiles.',
+                ),
+                value: uiPreferences.flatCovers,
+                onChanged: (value) => ref
+                    .read(uiPreferencesProvider.notifier)
+                    .setFlatCovers(value),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.title),
+                title: const Text('Show titles in grid'),
+                subtitle: const Text(
+                  'Show title text below covers in grid view.',
+                ),
+                value: uiPreferences.showCoverTitles,
+                onChanged: (value) => ref
+                    .read(uiPreferencesProvider.notifier)
+                    .setShowCoverTitles(value),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.space_bar),
+                title: const Text('Grid spacing'),
+                subtitle: Slider(
+                  value: uiPreferences.gridSpacing,
+                  min: 4,
+                  max: 14,
+                  divisions: 10,
+                  label: '${uiPreferences.gridSpacing.round()} px',
+                  onChanged: (value) => ref
+                      .read(uiPreferencesProvider.notifier)
+                      .setGridSpacing(value.roundToDouble()),
+                ),
+              ),
+              const Divider(height: 24),
+              Text('Card view',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.photo_size_select_large),
+                title: const Text('Card cover width'),
+                subtitle: Slider(
+                  value: uiPreferences.cardCoverWidth,
+                  min: 60,
+                  max: 120,
+                  divisions: 12,
+                  label: '${uiPreferences.cardCoverWidth.round()} px',
+                  onChanged: (value) => ref
+                      .read(uiPreferencesProvider.notifier)
+                      .setCardCoverWidth(value.roundToDouble()),
+                ),
+              ),
+              const Divider(height: 24),
+              Text('Layout',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleSmall
+                      ?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.add_circle_outline),
+                title: const Text('Floating Add button'),
+                subtitle: const Text(
+                  'Use a floating action button instead of inline toolbar button.',
+                ),
+                value: uiPreferences.fabAddButton,
+                onChanged: (value) => ref
+                    .read(uiPreferencesProvider.notifier)
+                    .setFabAddButton(value),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.density_small),
+                title: const Text('Sidebar row padding'),
+                subtitle: Slider(
+                  value: uiPreferences.sidebarRowPadding,
+                  min: 0,
+                  max: 8,
+                  divisions: 8,
+                  label: '${uiPreferences.sidebarRowPadding.round()} px',
+                  onChanged: (value) => ref
+                      .read(uiPreferencesProvider.notifier)
+                      .setSidebarRowPadding(value.roundToDouble()),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: _resetAppearanceDefaults,
+                  icon: const Icon(Icons.restart_alt),
+                  label: const Text('Reset appearance defaults'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const _SettingsPanel(
+          icon: Icons.text_fields_outlined,
+          title: 'Typography',
+          child: _FontDiagnosticsPanel(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProvidersSection(
+    TmdbImportSettings tmdbImportSettings,
+    AsyncValue<List<MetadataProposalRecord>> metadataProposalHistory,
+  ) {
+    return _SettingsTabBody(
+      children: [
+        _SettingsPanel(
+          icon: Icons.download_outlined,
+          title: 'Import data',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Import your collection and tracking data from external services.',
+              ),
+              const SizedBox(height: 12),
+              const _ImportJobsPanel(),
+              const SizedBox(height: 12),
+              const _TmdbPendingImportsPanel(),
+              const SizedBox(height: 12),
+              _ImportSourcesGrid(
+                tmdbSettings: tmdbImportSettings,
+              ),
+            ],
+          ),
+        ),
+        _SettingsPanel(
+          icon: Icons.outbox_outlined,
+          title: 'Metadata proposals',
+          child: _MetadataProposalHistory(
+            records: metadataProposalHistory.value ?? const [],
+            isLoading: metadataProposalHistory.isLoading,
+            onClear: _clearProposalHistory,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDataSection() {
+    return _SettingsTabBody(
+      children: [
+        _SettingsPanel(
+          icon: Icons.backup_outlined,
+          title: 'Local backup',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Import or export your local collection as Collectarr CSV, CLZ-friendly CSV, or ComicInfo.xml. Personal fields stored on this device stay in the exported data.',
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FilledButton.tonalIcon(
+                    onPressed: () => _showImportExportWizard(initialIndex: 1),
+                    icon: const Icon(Icons.upload_file_outlined),
+                    label: const Text('Import collection'),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: () => _showImportExportWizard(initialIndex: 0),
+                    icon: const Icon(Icons.download_outlined),
+                    label: const Text('Export collection'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => _copyBackup(clzFriendly: false),
+                    icon: const Icon(Icons.copy_all),
+                    label: const Text('Copy Collectarr export'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => _copyBackup(clzFriendly: true),
+                    icon: const Icon(Icons.table_view),
+                    label: const Text('Copy CLZ-friendly export'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: _copySyncBackupGuide,
+                    icon: const Icon(Icons.description_outlined),
+                    label: const Text('Copy sync backup guide'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        _SettingsPanel(
+          icon: Icons.save_outlined,
+          title: 'Database backup & restore',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Create a full JSON backup of your local database, or restore from a previous backup. '
+                'This includes all collection, wishlist, tracking, custom fields, locations, smart lists, and queue data.',
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FilledButton.tonalIcon(
+                    onPressed: _backupDatabase,
+                    icon: const Icon(Icons.save_alt_outlined),
+                    label: const Text('Backup to JSON'),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: _restoreDatabase,
+                    icon: const Icon(Icons.restore_outlined),
+                    label: const Text('Restore from JSON'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        _SettingsPanel(
+          icon: Icons.delete_forever_outlined,
+          title: 'Clear database',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Permanently delete ALL local data including collection, wishlist, tracking, custom fields, and settings. '
+                'This cannot be undone.',
+              ),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: FilledButton.tonalIcon(
+                  onPressed: _clearDatabase,
+                  icon: const Icon(Icons.delete_forever),
+                  label: const Text('Clear entire database'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.errorContainer,
+                    foregroundColor:
+                        Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAccountSection(
+    AuthState auth,
+    AsyncValue<String> deviceId,
+  ) {
+    return _SettingsTabBody(
+      children: [
+        _SettingsPanel(
+          icon: Icons.devices_outlined,
+          title: 'Device identity',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SelectableText(deviceId.value ?? 'Loading device id...'),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: deviceId.isLoading ? null : _regenerateDeviceId,
+                  icon: const Icon(Icons.refresh_outlined),
+                  label: const Text('Regenerate device id'),
+                ),
+              ),
+            ],
+          ),
+        ),
+        _SettingsPanel(
+          icon: Icons.account_circle_outlined,
+          title: 'Account',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SelectableText(auth.email ?? 'Not signed in'),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (auth.token != null || auth.isExpired)
+                    _StatusChip(
+                      icon: auth.isExpired
+                          ? Icons.lock_clock_outlined
+                          : Icons.verified_user_outlined,
+                      label: _sessionStatusLabel(auth),
+                      isError: auth.isExpired,
+                    ),
+                  if (auth.isAuthenticated)
+                    _StatusChip(
+                      icon: auth.isAdmin
+                          ? Icons.admin_panel_settings_outlined
+                          : Icons.person_outline,
+                      label: auth.isAdmin ? 'Core admin' : 'Standard account',
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                auth.isAuthenticated
+                    ? auth.isAdmin
+                        ? 'Full admin access: dashboard, ingest jobs, logs, system management, and all catalog operations.'
+                        : 'Catalog search, proposals, corrections, and provider workflows are available. Admin-only tools (dashboard, ingest jobs, logs) are hidden.'
+                    : 'You can browse the app and send metadata proposals without signing in. Admin sign in is only needed for admin/server features.',
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (auth.isAuthenticated) ...[
+                    OutlinedButton.icon(
+                      onPressed: _refreshAccountPermissions,
+                      icon: const Icon(Icons.manage_accounts_outlined),
+                      label: const Text('Refresh permissions'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () =>
+                          ref.read(authControllerProvider.notifier).logout(),
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Sign out'),
+                    ),
+                  ] else
+                    FilledButton.icon(
+                      onPressed: () => context.go(AppRoutes.auth),
+                      icon: const Icon(Icons.login),
+                      label: const Text('Admin sign in'),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLogsSection() {
+    return const _SettingsTabBody(
+      children: [
+        _SettingsPanel(
+          icon: Icons.bug_report_outlined,
+          title: 'Application log',
+          child: AppLogViewerPanel(),
+        ),
+      ],
     );
   }
 
