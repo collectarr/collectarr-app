@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "attribution": {
+      "properties": {
+        "license_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "required"
+      ],
+      "type": "object"
+    },
+    "images": {
+      "items": {
+        "properties": {
+          "attribution": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cache_policy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "headers": {
+            "type": "object"
+          },
+          "image_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "mirror_policy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "provider": {
+            "type": "string"
+          },
+          "thumbnail_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "url"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "normalized": {
+      "type": "object"
+    },
+    "provenance": {
+      "properties": {
+        "fetched_at": {
+          "type": "string"
+        },
+        "provider_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "raw_payload_hash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "fetched_at"
+      ],
+      "type": "object"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "provider_item_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "enum": [
+        "v1"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "provider",
+    "provider_item_id",
+    "kind",
+    "normalized",
+    "provenance",
+    "images",
+    "attribution"
+  ],
+  "title": "NormalizedProviderEnvelopeV1",
+  "type": "object"
+}

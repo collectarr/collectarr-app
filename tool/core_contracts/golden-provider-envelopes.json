@@ -1,0 +1,710 @@
+[
+  {
+    "attribution": {
+      "license_name": "Open Library Data",
+      "required": true,
+      "text": "Data provided by Open Library",
+      "url": "https://openlibrary.org/"
+    },
+    "images": [
+      {
+        "attribution": "Open Library",
+        "cache_policy": "Cache bibliographic metadata with attribution. Prefer Open Library cover URLs for public covers; do not crawl the cover API.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "cover",
+        "mirror_policy": null,
+        "provider": "openlibrary",
+        "thumbnail_url": null,
+        "url": "https://covers.openlibrary.org/b/id/12345-L.jpg"
+      }
+    ],
+    "kind": "book",
+    "normalized": {
+      "characters": [],
+      "cover_image_url": "https://covers.openlibrary.org/b/id/12345-L.jpg",
+      "creators": [
+        {
+          "external_ids": {},
+          "name": "J.R.R. Tolkien",
+          "role": "author"
+        }
+      ],
+      "external_ids": {},
+      "external_links": [],
+      "genres": [
+        "Fantasy",
+        "Adventure"
+      ],
+      "isbn": "9780261102354",
+      "kind": "book",
+      "page_count": 423,
+      "platforms": [],
+      "provider_ids": {
+        "openlibrary": "OL27479W",
+        "openlibrary_edition": "OL82563M"
+      },
+      "publisher": "George Allen & Unwin",
+      "relations": [],
+      "story_arcs": [],
+      "subtitle": "Being the First Part of The Lord of the Rings",
+      "synopsis": "The first volume of the epic high-fantasy novel.",
+      "title": "The Fellowship of the Ring",
+      "tracks": [],
+      "trailer_urls": [],
+      "variant_covers": [],
+      "volume_provider_ids": {}
+    },
+    "provenance": {
+      "fetched_at": "2026-08-17T12:00:00Z",
+      "provider_version": "1.0.0",
+      "raw_payload_hash": "bfdb9cb0981ea61d5d13ba4a02a3e37027833c88fbcb195e9eaa52212756b51a",
+      "source_url": "https://openlibrary.org/works/OL27479W"
+    },
+    "provider": "openlibrary",
+    "provider_item_id": "OL27479W",
+    "schema_version": "v1"
+  },
+  {
+    "attribution": {
+      "license_name": "AniList API Terms",
+      "required": true,
+      "text": "Data provided by AniList",
+      "url": "https://anilist.co/"
+    },
+    "images": [
+      {
+        "attribution": "AniList",
+        "cache_policy": "Cache per instance to minimize GraphQL calls; preserve AniList attribution links.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "cover",
+        "mirror_policy": null,
+        "provider": "anilist",
+        "thumbnail_url": null,
+        "url": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx30002-777.jpg"
+      }
+    ],
+    "kind": "manga",
+    "normalized": {
+      "characters": [],
+      "cover_image_url": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx30002-777.jpg",
+      "creators": [
+        {
+          "external_ids": {},
+          "name": "Kentarou Miura",
+          "role": "Story & Art"
+        }
+      ],
+      "external_ids": {},
+      "external_links": [],
+      "genres": [
+        "Action",
+        "Adventure",
+        "Dark Fantasy"
+      ],
+      "kind": "manga",
+      "platforms": [],
+      "provider_ids": {
+        "anilist": "30002",
+        "mal": "2"
+      },
+      "publisher": "Hakusensha",
+      "relations": [],
+      "story_arcs": [],
+      "synopsis": "Guts, a former mercenary known as the Black Swordsman, seeks revenge.",
+      "title": "Berserk",
+      "tracks": [],
+      "trailer_urls": [],
+      "variant_covers": [],
+      "volume_provider_ids": {}
+    },
+    "provenance": {
+      "fetched_at": "2026-08-17T12:00:00Z",
+      "provider_version": "1.0.0",
+      "raw_payload_hash": "24fde0555a57b89878dfe7c4e248e2aba157acf8a5c0ba6d4ecfa4145d1f4a4a",
+      "source_url": "https://anilist.co/manga/30002"
+    },
+    "provider": "anilist",
+    "provider_item_id": "30002",
+    "schema_version": "v1"
+  },
+  {
+    "attribution": {
+      "license_name": "MusicBrainz Data Licenses",
+      "required": true,
+      "text": "Data provided by MusicBrainz",
+      "url": "https://musicbrainz.org/"
+    },
+    "images": [
+      {
+        "attribution": "MusicBrainz",
+        "cache_policy": "Cache MusicBrainz metadata with attribution; cover art references use Cover Art Archive URLs.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "cover",
+        "mirror_policy": null,
+        "provider": "musicbrainz",
+        "thumbnail_url": null,
+        "url": "https://coverartarchive.org/release/a1b2c3d4/front.jpg"
+      }
+    ],
+    "kind": "music",
+    "normalized": {
+      "characters": [],
+      "cover_image_url": "https://coverartarchive.org/release/a1b2c3d4/front.jpg",
+      "creators": [
+        {
+          "external_ids": {},
+          "name": "Pink Floyd",
+          "role": "Artist"
+        }
+      ],
+      "external_ids": {},
+      "external_links": [],
+      "genres": [
+        "Progressive Rock",
+        "Psychedelic Rock"
+      ],
+      "kind": "music",
+      "platforms": [],
+      "provider_ids": {
+        "musicbrainz": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"
+      },
+      "publisher": "Harvest",
+      "relations": [],
+      "story_arcs": [],
+      "title": "The Dark Side of the Moon",
+      "track_count": 3,
+      "tracks": [
+        {
+          "duration_seconds": 67,
+          "position": 1,
+          "title": "Speak to Me"
+        },
+        {
+          "duration_seconds": 169,
+          "position": 2,
+          "title": "Breathe (In the Air)"
+        },
+        {
+          "duration_seconds": 425,
+          "position": 3,
+          "title": "Time"
+        }
+      ],
+      "trailer_urls": [],
+      "variant_covers": [],
+      "volume_provider_ids": {}
+    },
+    "provenance": {
+      "fetched_at": "2026-08-17T12:00:00Z",
+      "provider_version": "1.0.0",
+      "raw_payload_hash": "fffb76596af1a1de539ea6f5d50a1dfb7f180d890305c5ba0ee7b11d1846957a",
+      "source_url": "https://musicbrainz.org/release/a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"
+    },
+    "provider": "musicbrainz",
+    "provider_item_id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+    "schema_version": "v1"
+  },
+  {
+    "attribution": {
+      "license_name": "MangaDex API Terms",
+      "required": true,
+      "text": "Data provided by MangaDex",
+      "url": "https://mangadex.org/"
+    },
+    "images": [
+      {
+        "attribution": "MangaDex",
+        "cache_policy": "Cache manga detail and chapter feeds to minimize API calls.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "cover",
+        "mirror_policy": null,
+        "provider": "mangadex",
+        "thumbnail_url": null,
+        "url": "https://uploads.mangadex.org/covers/d7037b2a-874a-4360-8a7b-07f2001542a9/cover.jpg"
+      }
+    ],
+    "kind": "manga",
+    "normalized": {
+      "characters": [],
+      "cover_image_url": "https://uploads.mangadex.org/covers/d7037b2a-874a-4360-8a7b-07f2001542a9/cover.jpg",
+      "creators": [
+        {
+          "external_ids": {},
+          "name": "Tatsuki Fujimoto",
+          "role": "Author/Artist"
+        }
+      ],
+      "external_ids": {},
+      "external_links": [],
+      "genres": [
+        "Action",
+        "Supernatural",
+        "Comedy"
+      ],
+      "kind": "manga",
+      "platforms": [],
+      "provider_ids": {
+        "mangadex": "d7037b2a-874a-4360-8a7b-07f2001542a9"
+      },
+      "publisher": "Shueisha",
+      "relations": [],
+      "story_arcs": [],
+      "synopsis": "Denji is a teenage boy living with a Chainsaw Devil named Pochita.",
+      "title": "Chainsaw Man",
+      "tracks": [],
+      "trailer_urls": [],
+      "variant_covers": [],
+      "volume_provider_ids": {}
+    },
+    "provenance": {
+      "fetched_at": "2026-08-17T12:00:00Z",
+      "provider_version": "1.0.0",
+      "raw_payload_hash": "b956dd770e65d56fc3ebe8bff1d2417ff8cbb8d5e42854be5e2fff9545f56cc5",
+      "source_url": "https://mangadex.org/title/d7037b2a-874a-4360-8a7b-07f2001542a9"
+    },
+    "provider": "mangadex",
+    "provider_item_id": "d7037b2a-874a-4360-8a7b-07f2001542a9",
+    "schema_version": "v1"
+  },
+  {
+    "attribution": {
+      "license_name": "CC BY-SA 4.0",
+      "required": true,
+      "text": "Data provided by Grand Comics Database",
+      "url": "https://www.comics.org/"
+    },
+    "images": [
+      {
+        "attribution": "Grand Comics Database",
+        "cache_policy": "Cache with attribution and share-alike provenance; cover rights vary.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "cover",
+        "mirror_policy": null,
+        "provider": "gcd",
+        "thumbnail_url": null,
+        "url": "https://www.comics.org/media/img/covers/12345.jpg"
+      }
+    ],
+    "kind": "comic",
+    "normalized": {
+      "characters": [
+        {
+          "external_ids": {},
+          "name": "Spider-Man"
+        },
+        {
+          "external_ids": {},
+          "name": "Venom"
+        }
+      ],
+      "cover_image_url": "https://www.comics.org/media/img/covers/12345.jpg",
+      "creators": [
+        {
+          "external_ids": {},
+          "name": "David Michelinie",
+          "role": "writer"
+        },
+        {
+          "external_ids": {},
+          "name": "Todd McFarlane",
+          "role": "penciller"
+        }
+      ],
+      "external_ids": {},
+      "external_links": [],
+      "genres": [],
+      "item_number": "300",
+      "kind": "comic",
+      "platforms": [],
+      "provider_ids": {
+        "gcd": "12345"
+      },
+      "publisher": "Marvel Comics",
+      "relations": [],
+      "series_title": "The Amazing Spider-Man",
+      "story_arcs": [],
+      "synopsis": "Venom makes his first full appearance.",
+      "title": "Amazing Spider-Man #300",
+      "tracks": [],
+      "trailer_urls": [],
+      "variant_covers": [],
+      "volume_provider_ids": {}
+    },
+    "provenance": {
+      "fetched_at": "2026-08-17T12:00:00Z",
+      "provider_version": "1.0.0",
+      "raw_payload_hash": "7e78088496c67164658d11799085cfd76c0a52a0e6ad816301efb5224de28be9",
+      "source_url": "https://www.comics.org/issue/12345/"
+    },
+    "provider": "gcd",
+    "provider_item_id": "12345",
+    "schema_version": "v1"
+  },
+  {
+    "attribution": {
+      "license_name": "TMDb API Terms",
+      "required": true,
+      "text": "Data provided by TMDb",
+      "url": "https://www.themoviedb.org/"
+    },
+    "images": [
+      {
+        "attribution": "TMDb",
+        "cache_policy": "Use TMDb as movie/TV metadata source with attribution. Store provider IDs and public poster URLs; keep physical video releases as editions/variants.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "cover",
+        "mirror_policy": null,
+        "provider": "tmdb",
+        "thumbnail_url": null,
+        "url": "https://image.tmdb.org/t/p/w500/bptfVGEQuv6vDTIMVCHjJ9Dz8PX.jpg"
+      }
+    ],
+    "kind": "movie",
+    "normalized": {
+      "audience_rating": "8.4",
+      "characters": [],
+      "cover_image_url": "https://image.tmdb.org/t/p/w500/bptfVGEQuv6vDTIMVCHjJ9Dz8PX.jpg",
+      "creators": [
+        {
+          "external_ids": {},
+          "name": "David Fincher",
+          "role": "Director"
+        },
+        {
+          "external_ids": {},
+          "name": "Brad Pitt",
+          "role": "Actor"
+        },
+        {
+          "external_ids": {},
+          "name": "Edward Norton",
+          "role": "Actor"
+        }
+      ],
+      "external_ids": {},
+      "external_links": [],
+      "genres": [
+        "Drama",
+        "Thriller"
+      ],
+      "kind": "movie",
+      "platforms": [],
+      "provider_ids": {
+        "imdb": "tt0137523",
+        "tmdb": "550"
+      },
+      "publisher": "20th Century Fox",
+      "relations": [],
+      "runtime_minutes": 139,
+      "story_arcs": [],
+      "synopsis": "A ticking-time-bomb insomniac and a slippery soap salesman channel raw male aggression into a shocking new form of therapy.",
+      "title": "Fight Club",
+      "tracks": [],
+      "trailer_urls": [],
+      "variant_covers": [],
+      "volume_provider_ids": {}
+    },
+    "provenance": {
+      "fetched_at": "2026-08-17T12:00:00Z",
+      "provider_version": "1.0.0",
+      "raw_payload_hash": "c8ef59f23d01ad5b2a2da50d14d80f09a1175276850a8fdad665cd6e1c983985",
+      "source_url": "https://www.themoviedb.org/movie/550"
+    },
+    "provider": "tmdb",
+    "provider_item_id": "550",
+    "schema_version": "v1"
+  },
+  {
+    "attribution": {
+      "license_name": "Hardcover API Terms",
+      "required": true,
+      "text": "Data provided by Hardcover",
+      "url": "https://hardcover.app/"
+    },
+    "images": [
+      {
+        "attribution": "Hardcover",
+        "cache_policy": "Cache book/series details; search results are ephemeral.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "cover",
+        "mirror_policy": null,
+        "provider": "hardcover",
+        "thumbnail_url": null,
+        "url": "https://assets.hardcover.app/covers/dune.jpg"
+      }
+    ],
+    "kind": "book",
+    "normalized": {
+      "characters": [],
+      "cover_image_url": "https://assets.hardcover.app/covers/dune.jpg",
+      "creators": [
+        {
+          "external_ids": {},
+          "name": "Frank Herbert",
+          "role": "Author"
+        }
+      ],
+      "external_ids": {},
+      "external_links": [],
+      "genres": [
+        "Science Fiction",
+        "Space Opera"
+      ],
+      "kind": "book",
+      "page_count": 688,
+      "platforms": [],
+      "provider_ids": {
+        "hardcover": "1234"
+      },
+      "publisher": "Chilton Books",
+      "relations": [],
+      "story_arcs": [],
+      "synopsis": "Set on the desert planet Arrakis, Dune is the story of the boy Paul Atreides.",
+      "title": "Dune",
+      "tracks": [],
+      "trailer_urls": [],
+      "variant_covers": [],
+      "volume_provider_ids": {}
+    },
+    "provenance": {
+      "fetched_at": "2026-08-17T12:00:00Z",
+      "provider_version": "1.0.0",
+      "raw_payload_hash": "6a19430a456eac910de5e51b32b180b6ab97857ac267f73dec32afa314aa1a93",
+      "source_url": "https://hardcover.app/books/dune"
+    },
+    "provider": "hardcover",
+    "provider_item_id": "1234",
+    "schema_version": "v1"
+  },
+  {
+    "attribution": {
+      "license_name": "Comic Vine API Terms",
+      "required": true,
+      "text": "Data provided by Comic Vine",
+      "url": "https://comicvine.gamespot.com/"
+    },
+    "images": [
+      {
+        "attribution": "Comic Vine",
+        "cache_policy": "Cache per instance to reduce duplicate API calls; do not redistribute.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "cover",
+        "mirror_policy": null,
+        "provider": "comicvine",
+        "thumbnail_url": null,
+        "url": "https://comicvine.gamespot.com/a/uploads/scale_large/1/1/batman1.jpg"
+      },
+      {
+        "attribution": "Comic Vine",
+        "cache_policy": "Cache per instance to reduce duplicate API calls; do not redistribute.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "variant_cover",
+        "mirror_policy": null,
+        "provider": "comicvine",
+        "thumbnail_url": "https://comicvine.gamespot.com/a/uploads/square_mini/1/1/batman1b.jpg",
+        "url": "https://comicvine.gamespot.com/a/uploads/scale_large/1/1/batman1b.jpg"
+      }
+    ],
+    "kind": "comic",
+    "normalized": {
+      "characters": [],
+      "cover_image_url": "https://comicvine.gamespot.com/a/uploads/scale_large/1/1/batman1.jpg",
+      "creators": [
+        {
+          "external_ids": {},
+          "name": "Scott Snyder",
+          "role": "Writer"
+        },
+        {
+          "external_ids": {},
+          "name": "Nick Dragotta",
+          "role": "Artist"
+        }
+      ],
+      "external_ids": {},
+      "external_links": [],
+      "genres": [],
+      "item_number": "1",
+      "kind": "comic",
+      "platforms": [],
+      "provider_ids": {
+        "comicvine": "4000-160294"
+      },
+      "publisher": "DC Comics",
+      "relations": [],
+      "series_title": "Absolute Batman",
+      "story_arcs": [],
+      "synopsis": "In this new DC Absolute universe, Bruce Wayne has no money, no mansion, and no butler.",
+      "title": "Absolute Batman #1",
+      "tracks": [],
+      "trailer_urls": [],
+      "variant_covers": [
+        {
+          "cover_image_url": "https://comicvine.gamespot.com/a/uploads/scale_large/1/1/batman1b.jpg",
+          "name": "Variant Cover B",
+          "thumbnail_image_url": "https://comicvine.gamespot.com/a/uploads/square_mini/1/1/batman1b.jpg"
+        }
+      ],
+      "volume_provider_ids": {},
+      "volume_start_year": 2024
+    },
+    "provenance": {
+      "fetched_at": "2026-08-17T12:00:00Z",
+      "provider_version": "1.0.0",
+      "raw_payload_hash": "1b435acde844da06fcdc978c60e8ccdfdcac5cef7c8b5ccdd9bb3f884c0fb887",
+      "source_url": "https://comicvine.gamespot.com/absolute-batman-1/4000-160294/"
+    },
+    "provider": "comicvine",
+    "provider_item_id": "4000-160294",
+    "schema_version": "v1"
+  },
+  {
+    "attribution": {
+      "license_name": "BoardGameGeek XML API Terms",
+      "required": true,
+      "text": "Data provided by BoardGameGeek",
+      "url": "https://boardgamegeek.com/"
+    },
+    "images": [
+      {
+        "attribution": "BoardGameGeek",
+        "cache_policy": "Cache per instance to minimize XML API calls; do not redistribute as a competing database.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "cover",
+        "mirror_policy": null,
+        "provider": "bgg",
+        "thumbnail_url": null,
+        "url": "https://cf.geekdo-images.com/gloomhaven.jpg"
+      }
+    ],
+    "kind": "boardgame",
+    "normalized": {
+      "characters": [],
+      "cover_image_url": "https://cf.geekdo-images.com/gloomhaven.jpg",
+      "creators": [
+        {
+          "external_ids": {},
+          "name": "Isaac Childres",
+          "role": "Designer"
+        }
+      ],
+      "external_ids": {},
+      "external_links": [],
+      "genres": [
+        "Adventure",
+        "Fantasy",
+        "Miniatures"
+      ],
+      "kind": "boardgame",
+      "max_players": 4,
+      "min_age": 14,
+      "min_players": 1,
+      "platforms": [],
+      "playing_time_minutes": 120,
+      "provider_ids": {
+        "bgg": "174430"
+      },
+      "publisher": "Cephalofair Games",
+      "relations": [],
+      "story_arcs": [],
+      "synopsis": "Gloomhaven is a game of Euro-inspired tactical combat in a persistent world of shifting motives.",
+      "title": "Gloomhaven",
+      "tracks": [],
+      "trailer_urls": [],
+      "variant_covers": [],
+      "volume_provider_ids": {}
+    },
+    "provenance": {
+      "fetched_at": "2026-08-17T12:00:00Z",
+      "provider_version": "1.0.0",
+      "raw_payload_hash": "0dcb3aebb8604bdc8dd442fff31421a783f1b565e31a929e9c8886c84b31781e",
+      "source_url": "https://boardgamegeek.com/boardgame/174430/gloomhaven"
+    },
+    "provider": "bgg",
+    "provider_item_id": "174430",
+    "schema_version": "v1"
+  },
+  {
+    "attribution": {
+      "license_name": "IGDB API Terms",
+      "required": true,
+      "text": "Data provided by IGDB",
+      "url": "https://www.igdb.com/"
+    },
+    "images": [
+      {
+        "attribution": "IGDB",
+        "cache_policy": "Cache per instance; respect IGDB/Twitch non-commercial API terms.",
+        "expires_at": null,
+        "headers": {},
+        "image_id": null,
+        "kind": "cover",
+        "mirror_policy": null,
+        "provider": "igdb",
+        "thumbnail_url": null,
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1wyy.jpg"
+      }
+    ],
+    "kind": "game",
+    "normalized": {
+      "audience_rating": "92.0",
+      "characters": [],
+      "cover_image_url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1wyy.jpg",
+      "creators": [],
+      "external_ids": {},
+      "external_links": [],
+      "genres": [
+        "Role-playing (RPG)",
+        "Adventure"
+      ],
+      "kind": "game",
+      "platforms": [
+        "PC",
+        "PlayStation 4",
+        "Xbox One",
+        "Nintendo Switch"
+      ],
+      "provider_ids": {
+        "igdb": "1942"
+      },
+      "publisher": "CD PROJEKT RED",
+      "relations": [],
+      "story_arcs": [],
+      "synopsis": "The Witcher: Wild Hunt is a story-driven open world RPG set in a visually stunning fantasy universe.",
+      "title": "The Witcher 3: Wild Hunt",
+      "tracks": [],
+      "trailer_urls": [],
+      "variant_covers": [],
+      "volume_provider_ids": {}
+    },
+    "provenance": {
+      "fetched_at": "2026-08-17T12:00:00Z",
+      "provider_version": "1.0.0",
+      "raw_payload_hash": "8defc817e4b19fdeaa52f27000a5e6e17759fb727470b6f8ea71588d7b633a4d",
+      "source_url": "https://www.igdb.com/games/the-witcher-3-wild-hunt"
+    },
+    "provider": "igdb",
+    "provider_item_id": "1942",
+    "schema_version": "v1"
+  }
+]

@@ -25,6 +25,8 @@ $files = @(
   "metadata-field-schema.json",
   "active-kinds.json",
   "provider-support.json",
+  "provider-envelope-schema-v1.json",
+  "golden-provider-envelopes.json",
   "contract-manifest.json"
 )
 
@@ -41,10 +43,12 @@ foreach ($file in $files) {
 $manifestPath = Join-Path $TargetDir "contract-manifest.json"
 $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
 $hashKeyByFile = @{
-  "openapi.json"               = "openApiHash"
-  "metadata-field-schema.json" = "fieldSchemaHash"
-  "active-kinds.json"          = "activeKindsHash"
-  "provider-support.json"      = "providerSupportHash"
+  "openapi.json"                     = "openApiHash"
+  "metadata-field-schema.json"       = "fieldSchemaHash"
+  "active-kinds.json"                = "activeKindsHash"
+  "provider-support.json"            = "providerSupportHash"
+  "provider-envelope-schema-v1.json" = "providerEnvelopeSchemaHash"
+  "golden-provider-envelopes.json"   = "goldenProviderEnvelopesHash"
 }
 
 foreach ($entry in $hashKeyByFile.GetEnumerator()) {
