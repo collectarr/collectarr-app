@@ -1,12 +1,16 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
 /// Sealed domain hierarchy for kind-specific edit drafts.
 abstract class KindEditDraft {
   const KindEditDraft();
+
+  OwnedDetailsDraft toDetailsDraft();
 }
 
 /// Kind-specific edit state for Comic/Manga items.
@@ -39,6 +43,22 @@ class ComicEditDraft extends KindEditDraft {
 
   bool keyComic;
   DateTime? lastBagBoardDate;
+
+  @override
+  OwnedDetailsDraft toDetailsDraft() => ComicOwnedDetailsDraft(
+        rawOrSlabbed: emptyToNull(rawOrSlabbedController.text),
+        gradingCompany: emptyToNull(gradingCompanyController.text),
+        graderNotes: emptyToNull(graderNotesController.text),
+        signedBy: emptyToNull(signedByController.text),
+        labelType: emptyToNull(labelTypeController.text),
+        pageQuality: emptyToNull(pageQualityController.text),
+        certificationNumber: emptyToNull(certificationNumberController.text),
+        keyComic: keyComic,
+        keyReason: emptyToNull(keyReasonController.text),
+        keyCategory: emptyToNull(keyCategoryController.text),
+        coverPriceCents: parseMoneyCents(coverPriceController.text),
+        lastBagBoardDate: lastBagBoardDate,
+      );
 }
 
 /// Kind-specific edit state for Movie/TV/Anime items.
@@ -71,6 +91,16 @@ class VideoEditDraft extends KindEditDraft {
   final TextEditingController nrDiscsController;
 
   List<String> hdrFormats;
+
+  @override
+  OwnedDetailsDraft toDetailsDraft() => VideoOwnedDetailsDraft(
+        features: emptyToNull(featuresController.text),
+        hdrFormats: hdrFormats,
+        boxSetName: emptyToNull(boxSetNameController.text),
+        region: emptyToNull(regionController.text),
+        packaging: emptyToNull(packagingController.text),
+        distributor: emptyToNull(distributorController.text),
+      );
 }
 
 /// Kind-specific edit state for Video Game items.
@@ -90,6 +120,16 @@ class GameEditDraft extends KindEditDraft {
   String? gamePriceChartingId;
   String? gameCoreRegion;
   bool gameValueIsLocked;
+
+  @override
+  OwnedDetailsDraft toDetailsDraft() => GameOwnedDetailsDraft(
+        completeness: gameCompleteness,
+        hasBox: gameHasBox,
+        hasManual: gameHasManual,
+        priceChartingId: gamePriceChartingId,
+        coreRegion: gameCoreRegion,
+        valueIsLocked: gameValueIsLocked,
+      );
 }
 
 /// Kind-specific edit state for Music items.
@@ -101,6 +141,12 @@ class MusicEditDraft extends KindEditDraft {
 
   final TextEditingController storageDeviceController;
   final TextEditingController storageSlotController;
+
+  @override
+  OwnedDetailsDraft toDetailsDraft() => MusicOwnedDetailsDraft(
+        storageDevice: emptyToNull(storageDeviceController.text),
+        storageSlot: emptyToNull(storageSlotController.text),
+      );
 }
 
 /// Kind-specific edit state for Book items.
@@ -110,11 +156,19 @@ class BookEditDraft extends KindEditDraft {
   });
 
   final TextEditingController signedByController;
+
+  @override
+  OwnedDetailsDraft toDetailsDraft() => BookOwnedDetailsDraft(
+        signedBy: emptyToNull(signedByController.text),
+      );
 }
 
 /// Fallback kind edit state for generic catalog items.
 class GenericEditDraft extends KindEditDraft {
   const GenericEditDraft();
+
+  @override
+  OwnedDetailsDraft toDetailsDraft() => const GenericOwnedDetailsDraft();
 }
 
 // -----------------------------------------------------------------------------

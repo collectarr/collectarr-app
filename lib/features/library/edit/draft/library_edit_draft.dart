@@ -1118,52 +1118,10 @@ class LibraryEditDraft {
     );
   }
 
-  OwnedDetailsDraft buildDetailsDraft() {
-    return switch (type.workspace.kind) {
-      CatalogMediaKind.comic ||
-      CatalogMediaKind.manga =>
-        ComicOwnedDetailsDraft(
-          rawOrSlabbed: emptyToNull(rawOrSlabbedController.text),
-          gradingCompany: emptyToNull(gradingCompanyController.text),
-          graderNotes: emptyToNull(graderNotesController.text),
-          signedBy: emptyToNull(signedByController.text),
-          labelType: emptyToNull(labelTypeController.text),
-          pageQuality: emptyToNull(pageQualityController.text),
-          certificationNumber: emptyToNull(certificationNumberController.text),
-          keyComic: keyComic,
-          keyReason: emptyToNull(keyReasonController.text),
-          keyCategory: emptyToNull(keyCategoryController.text),
-          coverPriceCents: parseMoneyCents(coverPriceController.text),
-          lastBagBoardDate: lastBagBoardDate,
-        ),
-      CatalogMediaKind.movie ||
-      CatalogMediaKind.tv ||
-      CatalogMediaKind.anime =>
-        VideoOwnedDetailsDraft(
-          features: emptyToNull(featuresController.text),
-          hdrFormats: hdrFormats,
-          boxSetName: emptyToNull(boxSetNameController.text),
-          region: emptyToNull(regionController.text),
-          packaging: emptyToNull(packagingController.text),
-          distributor: emptyToNull(distributorController.text),
-        ),
-      CatalogMediaKind.game => GameOwnedDetailsDraft(
-          completeness: gameCompleteness,
-          hasBox: gameHasBox,
-          hasManual: gameHasManual,
-          priceChartingId: gamePriceChartingId,
-          coreRegion: gameCoreRegion,
-          valueIsLocked: gameValueIsLocked,
-        ),
-      CatalogMediaKind.music => MusicOwnedDetailsDraft(
-          storageDevice: emptyToNull(storageDeviceController.text),
-          storageSlot: storageSlotController.text.trim().isEmpty
-              ? null
-              : storageSlotController.text.trim(),
-        ),
-      _ => const GenericOwnedDetailsDraft(),
-    };
-  }
+  OwnedDetailsDraft buildDetailsDraft() => defaultLibraryKindRegistry
+      .getByKind(type.workspace.kind)
+      .edit
+      .buildDetailsDraft(kindDetails);
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
     return AddOwnedItemCommand(
@@ -1178,56 +1136,13 @@ class LibraryEditDraft {
   }
 
   UpdateOwnedItemCommand toUpdateOwnedItemCommand(String ownedItemId) {
-    return UpdateOwnedItemCommand(
-      ownedItemId: ownedItemId,
-      quantity: Patch.set(parseInt(quantityController.text) ?? 1),
-      condition: conditionController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(conditionController.text.trim()),
-      grade: gradeController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(gradeController.text.trim()),
-      purchaseDate: purchaseDateController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseDate(purchaseDateController.text)),
-      pricePaidCents: priceController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseMoneyCents(priceController.text)),
-      currency: currencyController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(currencyController.text.trim()),
-      personalNotes: notesController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(notesController.text.trim()),
-      locationId: selectedLocationId != null
-          ? Patch.set(selectedLocationId)
-          : const Patch.clear(),
-      purchaseStore: purchaseStoreController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(purchaseStoreController.text.trim()),
-      collectionStatus: collectionStatus != null
-          ? Patch.set(collectionStatus)
-          : const Patch.clear(),
-      tags: tagsController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(tagsController.text.trim()),
-      rating: ratingController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseInt(ratingController.text)),
-      readStatus: trackingController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(trackingController.text.trim()),
-      startedAt: startedAt != null ? Patch.set(startedAt) : const Patch.clear(),
-      finishedAt:
-          finishedAt != null ? Patch.set(finishedAt) : const Patch.clear(),
-      soldAt: soldAt != null ? Patch.set(soldAt) : const Patch.clear(),
-      sellPriceCents: sellPriceController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseMoneyCents(sellPriceController.text)),
-      soldTo: soldToController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(soldToController.text.trim()),
-      details: Patch.set(buildDetailsDraft()),
-    );
+    return defaultLibraryKindRegistry
+        .getByKind(type.workspace.kind)
+        .edit
+        .buildUpdateCommand(
+          session: this,
+          ownedItemId: ownedItemId,
+          kindDraft: kindDetails,
+        );
   }
 }
