@@ -8,6 +8,7 @@ import '../config/library_workspace_config.dart';
 
 export 'compact_filter_surface.dart';
 export 'compact_library_top_chrome.dart';
+export 'compact_selection_action_bar.dart';
 export 'library_workspace_actions.dart';
 export 'view_and_organize_sheet.dart';
 export 'library_workspace_controls.dart';

@@ -20,7 +20,6 @@ void main() {
   testWidgets(
       'CompactWorkspaceListView renders items and handles taps and selection',
       (tester) async {
-    _TestItem? tappedItem;
     _TestItem? longPressedItem;
     _TestItem? selectedItem;
     bool? selectState;
@@ -37,7 +36,6 @@ void main() {
               titleBuilder: (i) => i.title,
               subtitleBuilder: (i) => i.subtitle,
               idExtractor: (i) => i.id,
-              onItemTap: (i) => tappedItem = i,
               onItemLongPress: (i) => longPressedItem = i,
               onItemSelect: (i, sel) {
                 selectedItem = i;
@@ -66,6 +64,33 @@ void main() {
     await tester.longPress(find.text('Batman #1'));
     await tester.pumpAndSettle();
     expect(longPressedItem?.id, '2');
+  });
+
+  testWidgets(
+      'CompactWorkspaceListView triggers onItemTap when not in selection mode',
+      (tester) async {
+    _TestItem? tappedItem;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibraryAccentScope(
+            kind: 'comic',
+            accent: Colors.deepOrange,
+            animationsEnabled: true,
+            child: CompactWorkspaceListView<_TestItem>(
+              items: testItems,
+              titleBuilder: (i) => i.title,
+              onItemTap: (i) => tappedItem = i,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Spider-Man #1'));
+    await tester.pumpAndSettle();
+    expect(tappedItem?.id, '1');
   });
 
   testWidgets('CompactWorkspaceGridView renders items in responsive grid',
