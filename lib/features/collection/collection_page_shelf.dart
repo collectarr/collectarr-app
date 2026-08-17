@@ -17,62 +17,83 @@ class _ShelfHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final windowClass = AppWindowClass.of(context);
+    final stats = [
+      _ShelfStatCard(
+        icon: Icons.inventory_2_outlined,
+        label: 'Owned',
+        value: state.ownedCount.toString(),
+      ),
+      _ShelfStatCard(
+        icon: Icons.tag_outlined,
+        label: 'Quantity',
+        value: state.totalQuantity.toString(),
+      ),
+      _ShelfStatCard(
+        icon: Icons.star_border,
+        label: 'Wishlist',
+        value: state.wishlistCount.toString(),
+      ),
+      _ShelfStatCard(
+        icon: Icons.key_outlined,
+        label: 'Key comics',
+        value: state.keyComicCount.toString(),
+      ),
+      _ShelfStatCard(
+        icon: Icons.verified_outlined,
+        label: 'Missing grade',
+        value: state.missingGradeCount.toString(),
+      ),
+      _ShelfStatCard(
+        icon: Icons.payments_outlined,
+        label: 'Paid',
+        value: _totalPaidLabel(state),
+      ),
+      _ShelfStatCard(
+        icon: Icons.cloud_off_outlined,
+        label: 'Missing metadata',
+        value: state.missingMetadataCount.toString(),
+      ),
+      _ShelfStatCard(
+        icon: Icons.trending_up_outlined,
+        label: 'Market value',
+        value: _totalMarketValueLabel(state),
+      ),
+      _ShelfStatCard(
+        icon: Icons.sell_outlined,
+        label: 'Sold',
+        value: _totalSoldLabel(state),
+      ),
+    ];
+
+    Widget statsWidget;
+    if (windowClass.isCompact) {
+      statsWidget = LayoutBuilder(
+        builder: (context, constraints) {
+          final itemWidth = (constraints.maxWidth - 8) / 2;
+          return Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: stats
+                .map((card) => SizedBox(width: itemWidth, child: card))
+                .toList(),
+          );
+        },
+      );
+    } else {
+      statsWidget = Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: stats,
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _ShelfStatCard(
-                icon: Icons.inventory_2_outlined,
-                label: 'Owned',
-                value: state.ownedCount.toString(),
-              ),
-              _ShelfStatCard(
-                icon: Icons.tag_outlined,
-                label: 'Quantity',
-                value: state.totalQuantity.toString(),
-              ),
-              _ShelfStatCard(
-                icon: Icons.star_border,
-                label: 'Wishlist',
-                value: state.wishlistCount.toString(),
-              ),
-              _ShelfStatCard(
-                icon: Icons.key_outlined,
-                label: 'Key comics',
-                value: state.keyComicCount.toString(),
-              ),
-              _ShelfStatCard(
-                icon: Icons.verified_outlined,
-                label: 'Missing grade',
-                value: state.missingGradeCount.toString(),
-              ),
-              _ShelfStatCard(
-                icon: Icons.payments_outlined,
-                label: 'Paid',
-                value: _totalPaidLabel(state),
-              ),
-              _ShelfStatCard(
-                icon: Icons.cloud_off_outlined,
-                label: 'Missing metadata',
-                value: state.missingMetadataCount.toString(),
-              ),
-              _ShelfStatCard(
-                icon: Icons.trending_up_outlined,
-                label: 'Market value',
-                value: _totalMarketValueLabel(state),
-              ),
-              _ShelfStatCard(
-                icon: Icons.sell_outlined,
-                label: 'Sold',
-                value: _totalSoldLabel(state),
-              ),
-            ],
-          ),
+          statsWidget,
           const SizedBox(height: 12),
           _ShelfDistributionPanel(state: state),
           const SizedBox(height: 12),
@@ -278,8 +299,9 @@ class _ShelfStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final windowClass = AppWindowClass.of(context);
     return SizedBox(
-      width: 170,
+      width: windowClass.isCompact ? null : 170,
       child: Card(
         elevation: 0,
         shape: RoundedRectangleBorder(

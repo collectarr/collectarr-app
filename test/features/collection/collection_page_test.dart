@@ -108,4 +108,54 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
   });
+
+  testWidgets('shelf page renders on compact screen', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(380, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await db.into(db.catalogCache).insert(
+          CatalogCacheCompanion.insert(
+            id: 'comic-1',
+            kind: 'comic',
+            title: 'Superman, Vol. 4',
+            itemNumber: const Value('8A'),
+            cachedAt: DateTime.utc(2026, 5, 11),
+          ),
+        );
+    await db.into(db.ownedItemsCache).insert(
+          OwnedItemsCacheCompanion.insert(
+            id: 'owned-1',
+            itemId: 'comic-1',
+            condition: const Value('Near Mint'),
+            grade: const Value('9.8'),
+            pricePaidCents: const Value(1299),
+            currency: const Value('USD'),
+            quantity: const Value(1),
+            updatedAt: DateTime.utc(2026, 5, 11),
+          ),
+        );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: CollectionPage()),
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Shelf'), findsOneWidget);
+    expect(find.text('Owned'), findsWidgets);
+    await tester.scrollUntilVisible(
+      find.text('Superman, Vol. 4 #8A'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Superman, Vol. 4 #8A'), findsOneWidget);
+  });
 }
