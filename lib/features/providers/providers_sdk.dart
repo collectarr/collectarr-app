@@ -1,3 +1,4 @@
+export 'adapters/openlibrary/openlibrary_provider.dart';
 export 'adapters/provider_adapter.dart';
 export 'credentials/models/bgg_credentials.dart';
 export 'credentials/models/comicvine_credentials.dart';
