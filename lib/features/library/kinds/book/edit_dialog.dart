@@ -254,31 +254,31 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
         }
       });
 
-    _titleController = _draft.titleController;
-    _sortKeyController = _draft.sortKeyController;
+    _titleController = _draft.metadata.titleController;
+    _sortKeyController = _draft.metadata.sortKeyController;
     _subtitleController =
         TextEditingController(text: item.publishing?.subtitle ?? '');
-    _numberController = _draft.numberController;
-    _publisherController = _draft.publisherController;
-    _editionTitleController = _draft.editionTitleController;
-    _countryController = _draft.countryController;
-    _languageController = _draft.languageController;
-    _imprintController = _draft.imprintController;
-    _seriesGroupController = _draft.seriesGroupController;
+    _numberController = _draft.metadata.numberController;
+    _publisherController = _draft.metadata.publisherController;
+    _editionTitleController = _draft.metadata.editionTitleController;
+    _countryController = _draft.metadata.countryController;
+    _languageController = _draft.metadata.languageController;
+    _imprintController = _draft.metadata.imprintController;
+    _seriesGroupController = _draft.metadata.seriesGroupController;
     _seriesTitleController =
         TextEditingController(text: item.series?.seriesTitle ?? '');
     _volumeNameController =
         TextEditingController(text: item.series?.volumeName ?? '');
     _volumeNumberController = TextEditingController(
         text: item.series?.volumeNumber?.toString() ?? '');
-    _releaseDateController = _draft.releaseDateController;
-    _releaseYearController = _draft.releaseYearController;
-    _pageCountController = _draft.pageCountController;
-    _barcodeController = _draft.barcodeController;
-    _variantController = _draft.variantController;
-    _coverController = _draft.coverController;
-    _thumbnailController = _draft.thumbnailController;
-    _synopsisController = _draft.synopsisController;
+    _releaseDateController = _draft.metadata.releaseDateController;
+    _releaseYearController = _draft.metadata.releaseYearController;
+    _pageCountController = _draft.metadata.pageCountController;
+    _barcodeController = _draft.metadata.barcodeController;
+    _variantController = _draft.metadata.variantController;
+    _coverController = _draft.metadata.coverController;
+    _thumbnailController = _draft.metadata.thumbnailController;
+    _synopsisController = _draft.metadata.synopsisController;
     _seriesTagsController =
         TextEditingController(text: item.series?.tags ?? '');
     _creatorsController = TextEditingController(
@@ -311,13 +311,13 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _originalPublicationPlaceController = TextEditingController(
       text: item.publishing?.originalPublicationPlace ?? '',
     );
-    _ownerLabelController = _draft.ownerLabelController;
-    _signedByController = _draft.signedByController;
-    _purchaseStoreController = _draft.purchaseStoreController;
-    _marketValueController = _draft.marketValueController;
-    _progressCurrentController = _draft.progressCurrentController;
-    _progressTotalController = _draft.progressTotalController;
-    _timesCompletedController = _draft.timesCompletedController;
+    _ownerLabelController = _draft.personal.ownerLabelController;
+    _signedByController = _draft.personal.signedByController;
+    _purchaseStoreController = _draft.personal.purchaseStoreController;
+    _marketValueController = _draft.personal.marketValueController;
+    _progressCurrentController = _draft.tracking.progressCurrentController;
+    _progressTotalController = _draft.tracking.progressTotalController;
+    _timesCompletedController = _draft.tracking.timesCompletedController;
 
     _authorController = TextEditingController(
       text: _creatorNamesForRoles(item.creators, const ['author', 'writer'])
@@ -353,28 +353,28 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
       text: _creatorNamesForRoles(item.creators, const ['narrator']).join(', '),
     );
 
-    _conditionController = _draft.conditionController;
-    _gradeController = _draft.gradeController;
-    _purchaseDateController = _draft.purchaseDateController;
-    _priceController = _draft.priceController;
-    _currencyController = _draft.currencyController;
-    _quantityController = _draft.quantityController;
+    _conditionController = _draft.personal.conditionController;
+    _gradeController = _draft.personal.gradeController;
+    _purchaseDateController = _draft.personal.purchaseDateController;
+    _priceController = _draft.personal.priceController;
+    _currencyController = _draft.personal.currencyController;
+    _quantityController = _draft.personal.quantityController;
     _indexNumberController = TextEditingController(
       text: widget.request.ownedItem?.indexNumber?.toString() ?? '',
     );
-    _notesController = _draft.notesController;
-    _ratingController = _draft.ratingController;
-    _trackingController = _draft.trackingController;
+    _notesController = _draft.personal.notesController;
+    _ratingController = _draft.tracking.ratingController;
+    _trackingController = _draft.tracking.trackingController;
     _trackingController.text =
         _type.trackingProfile.normalizeStorageValue(_trackingController.text) ??
             '';
-    _tagsController = _draft.tagsController;
-    _tagOptions = List<String>.from(_draft.tagOptions);
-    _sellPriceController = _draft.sellPriceController;
-    _soldToController = _draft.soldToController;
-    _wishlistPriceController = _draft.wishlistPriceController;
-    _wishlistCurrencyController = _draft.wishlistCurrencyController;
-    _wishlistNotesController = _draft.wishlistNotesController;
+    _tagsController = _draft.personal.tagsController;
+    _tagOptions = List<String>.from(_draft.personal.tagOptions);
+    _sellPriceController = _draft.personal.sellPriceController;
+    _soldToController = _draft.personal.soldToController;
+    _wishlistPriceController = _draft.personal.wishlistPriceController;
+    _wishlistCurrencyController = _draft.personal.wishlistCurrencyController;
+    _wishlistNotesController = _draft.personal.wishlistNotesController;
     final dialogState = _draft.cloneDialogState();
     _selectedLocationId = dialogState.selectedLocationId;
     _startedAt = dialogState.startedAt;
@@ -384,11 +384,13 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     _selectedVariantId = dialogState.selectedVariantId;
     _customFieldEdits = dialogState.customFieldEdits;
     _itemImageEdits = dialogState.itemImageEdits;
-    _collectionStatus = _draft.collectionStatus;
+    _collectionStatus = _draft.personal.collectionStatus;
     _collectionStatusController = TextEditingController(
       text: _collectionStatusToLabel(_collectionStatus),
     );
-    _lastBagBoardDate = _draft.lastBagBoardDate;
+    _lastBagBoardDate = (_draft.kindDetails is ComicEditDraft)
+        ? (_draft.kindDetails as ComicEditDraft).lastBagBoardDate
+        : null;
     _originalPublicationDate = item.publishing?.originalPublicationDate;
     _firstEdition = item.publishing?.firstEdition ?? false;
     _audiobookAbridged = item.publishing?.audiobookAbridged ?? false;
@@ -1172,17 +1174,21 @@ class _BookLibraryEditDialogState extends ConsumerState<BookLibraryEditDialog>
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    _draft.tagOptions = List<String>.from(_tagOptions);
-    _draft.availableLocations = List<StorageLocation>.from(_availableLocations);
-    _draft.selectedLocationId = _selectedLocationId;
-    _draft.selectedEditionId = _selectedEditionId;
-    _draft.selectedVariantId = _selectedVariantId;
-    _draft.locationChanged = _locationChanged;
-    _draft.startedAt = _startedAt;
-    _draft.finishedAt = _finishedAt;
-    _draft.soldAt = _soldAt;
-    _draft.collectionStatus = _collectionStatus;
-    _draft.lastBagBoardDate = _lastBagBoardDate;
+    _draft.personal.tagOptions = List<String>.from(_tagOptions);
+    _draft.personal.availableLocations =
+        List<StorageLocation>.from(_availableLocations);
+    _draft.personal.selectedLocationId = _selectedLocationId;
+    _draft.personal.selectedEditionId = _selectedEditionId;
+    _draft.personal.selectedVariantId = _selectedVariantId;
+    _draft.personal.locationChanged = _locationChanged;
+    _draft.tracking.startedAt = _startedAt;
+    _draft.tracking.finishedAt = _finishedAt;
+    _draft.personal.soldAt = _soldAt;
+    _draft.personal.collectionStatus = _collectionStatus;
+    if (_draft.kindDetails is ComicEditDraft) {
+      (_draft.kindDetails as ComicEditDraft).lastBagBoardDate =
+          _lastBagBoardDate;
+    }
     _draft.replaceMediaEdits(
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,

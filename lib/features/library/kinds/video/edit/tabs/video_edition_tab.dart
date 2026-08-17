@@ -28,12 +28,13 @@ class VideoEditEditionTab extends StatelessWidget {
           title: 'Edition',
           accent: accent,
           child: LibraryReleaseIdentityFields(
-            editionTitleController: draft.editionTitleController,
-            variantController: draft.variantController,
-            barcodeController: draft.barcodeController,
-            releaseDateController: draft.releaseDateController,
-            releaseYearController: draft.releaseYearController,
-            physicalFormatController: draft.physicalFormatLabelController,
+            editionTitleController: draft.metadata.editionTitleController,
+            variantController: draft.metadata.variantController,
+            barcodeController: draft.metadata.barcodeController,
+            releaseDateController: draft.metadata.releaseDateController,
+            releaseYearController: draft.metadata.releaseYearController,
+            physicalFormatController:
+                draft.metadata.physicalFormatLabelController,
             physicalFormatOptions: [
               for (final format in physicalFormats) format.label,
             ],
@@ -41,13 +42,13 @@ class VideoEditEditionTab extends StatelessWidget {
               final normalized = emptyToNull(value ?? '');
               final selected = _physicalFormatForLabel(normalized);
               final previousLabel =
-                  _physicalFormatLabelForId(draft.physicalFormatId);
-              final variant = draft.variantController.text.trim();
+                  _physicalFormatLabelForId(draft.metadata.physicalFormatId);
+              final variant = draft.metadata.variantController.text.trim();
               final shouldReplaceVariant =
                   variant.isEmpty || previousLabel == variant;
-              draft.physicalFormatId = selected?.id;
+              draft.metadata.physicalFormatId = selected?.id;
               if (selected != null && shouldReplaceVariant) {
-                draft.variantController.text = selected.label;
+                draft.metadata.variantController.text = selected.label;
               }
             },
             editionTitleLabel: releaseFields.editionTitleLabel,

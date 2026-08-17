@@ -20,10 +20,10 @@ class GameEditController {
     required LibraryEditDraft draft,
   }) {
     developerOptions = _mergePickListOptions(
-      splitPickListValues(draft.developersController.text),
+      splitPickListValues(draft.metadata.developersController.text),
     );
     genreOptions = _mergePickListOptions(
-      splitPickListValues(draft.genresEditController.text),
+      splitPickListValues(draft.metadata.genresEditController.text),
       item.genres ?? const <String>[],
     );
     platformOptions = splitPickListValues(platformsController.text);

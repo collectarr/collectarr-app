@@ -69,60 +69,62 @@ class LibraryEditCapability {
     required String ownedItemId,
     required KindEditDraft kindDraft,
   }) {
+    final personal = session.personal;
+    final tracking = session.tracking;
     return UpdateOwnedItemCommand(
       ownedItemId: ownedItemId,
-      quantity: Patch.set(parseInt(session.quantityController.text) ?? 1),
-      condition: session.conditionController.text.trim().isEmpty
+      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+      condition: personal.conditionController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(session.conditionController.text.trim()),
-      grade: session.gradeController.text.trim().isEmpty
+          : Patch.set(personal.conditionController.text.trim()),
+      grade: personal.gradeController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(session.gradeController.text.trim()),
-      purchaseDate: session.purchaseDateController.text.trim().isEmpty
+          : Patch.set(personal.gradeController.text.trim()),
+      purchaseDate: personal.purchaseDateController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(parseDate(session.purchaseDateController.text)),
-      pricePaidCents: session.priceController.text.trim().isEmpty
+          : Patch.set(parseDate(personal.purchaseDateController.text)),
+      pricePaidCents: personal.priceController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(parseMoneyCents(session.priceController.text)),
-      currency: session.currencyController.text.trim().isEmpty
+          : Patch.set(parseMoneyCents(personal.priceController.text)),
+      currency: personal.currencyController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(session.currencyController.text.trim()),
-      personalNotes: session.notesController.text.trim().isEmpty
+          : Patch.set(personal.currencyController.text.trim()),
+      personalNotes: personal.notesController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(session.notesController.text.trim()),
-      locationId: session.selectedLocationId != null
-          ? Patch.set(session.selectedLocationId)
+          : Patch.set(personal.notesController.text.trim()),
+      locationId: personal.selectedLocationId != null
+          ? Patch.set(personal.selectedLocationId)
           : const Patch.clear(),
-      purchaseStore: session.purchaseStoreController.text.trim().isEmpty
+      purchaseStore: personal.purchaseStoreController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(session.purchaseStoreController.text.trim()),
-      collectionStatus: session.collectionStatus != null
-          ? Patch.set(session.collectionStatus)
+          : Patch.set(personal.purchaseStoreController.text.trim()),
+      collectionStatus: personal.collectionStatus != null
+          ? Patch.set(personal.collectionStatus)
           : const Patch.clear(),
-      tags: session.tagsController.text.trim().isEmpty
+      tags: personal.tagsController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(session.tagsController.text.trim()),
-      rating: session.ratingController.text.trim().isEmpty
+          : Patch.set(personal.tagsController.text.trim()),
+      rating: tracking.ratingController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(parseInt(session.ratingController.text)),
-      readStatus: session.trackingController.text.trim().isEmpty
+          : Patch.set(parseInt(tracking.ratingController.text)),
+      readStatus: tracking.trackingController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(session.trackingController.text.trim()),
-      startedAt: session.startedAt != null
-          ? Patch.set(session.startedAt)
+          : Patch.set(tracking.trackingController.text.trim()),
+      startedAt: tracking.startedAt != null
+          ? Patch.set(tracking.startedAt)
           : const Patch.clear(),
-      finishedAt: session.finishedAt != null
-          ? Patch.set(session.finishedAt)
+      finishedAt: tracking.finishedAt != null
+          ? Patch.set(tracking.finishedAt)
           : const Patch.clear(),
-      soldAt: session.soldAt != null
-          ? Patch.set(session.soldAt)
+      soldAt: personal.soldAt != null
+          ? Patch.set(personal.soldAt)
           : const Patch.clear(),
-      sellPriceCents: session.sellPriceController.text.trim().isEmpty
+      sellPriceCents: personal.sellPriceController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(parseMoneyCents(session.sellPriceController.text)),
-      soldTo: session.soldToController.text.trim().isEmpty
+          : Patch.set(parseMoneyCents(personal.sellPriceController.text)),
+      soldTo: personal.soldToController.text.trim().isEmpty
           ? const Patch.clear()
-          : Patch.set(session.soldToController.text.trim()),
+          : Patch.set(personal.soldToController.text.trim()),
       details: Patch.set(buildDetailsDraft(kindDraft)),
     );
   }

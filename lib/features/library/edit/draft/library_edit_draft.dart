@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -76,288 +75,6 @@ class LibraryEditDraft {
 
   Map<String, String?> customFieldEdits;
   List<ItemImageEdit> itemImageEdits;
-
-  // ---------------------------------------------------------------------------
-  // Convenience Forwarding Getters (for backward compatibility with UI code)
-  // ---------------------------------------------------------------------------
-
-  // CommonMetadataDraft forwarding
-  TextEditingController get titleController => metadata.titleController;
-  TextEditingController get numberController => metadata.numberController;
-  TextEditingController get publisherController => metadata.publisherController;
-  TextEditingController get coverDateController => metadata.coverDateController;
-  TextEditingController get coverDateYearPartController =>
-      metadata.coverDateYearPartController;
-  TextEditingController get coverDateMonthPartController =>
-      metadata.coverDateMonthPartController;
-  TextEditingController get coverDateDayPartController =>
-      metadata.coverDateDayPartController;
-  TextEditingController get releaseDateController =>
-      metadata.releaseDateController;
-  TextEditingController get releaseDateYearPartController =>
-      metadata.releaseDateYearPartController;
-  TextEditingController get releaseDateMonthPartController =>
-      metadata.releaseDateMonthPartController;
-  TextEditingController get releaseDateDayPartController =>
-      metadata.releaseDateDayPartController;
-  TextEditingController get releaseYearController =>
-      metadata.releaseYearController;
-  TextEditingController get pageCountController => metadata.pageCountController;
-  TextEditingController get editionTitleController =>
-      metadata.editionTitleController;
-  TextEditingController get barcodeController => metadata.barcodeController;
-  TextEditingController get variantController => metadata.variantController;
-  TextEditingController get physicalFormatLabelController =>
-      metadata.physicalFormatLabelController;
-  TextEditingController get coverController => metadata.coverController;
-  TextEditingController get thumbnailController => metadata.thumbnailController;
-  TextEditingController get synopsisController => metadata.synopsisController;
-  TextEditingController get displayTitleController =>
-      metadata.displayTitleController;
-  TextEditingController get sortKeyController => metadata.sortKeyController;
-  TextEditingController get originalTitleController =>
-      metadata.originalTitleController;
-  TextEditingController get localizedTitleController =>
-      metadata.localizedTitleController;
-  TextEditingController get searchAliasesController =>
-      metadata.searchAliasesController;
-  TextEditingController get runtimeController => metadata.runtimeController;
-  TextEditingController get audienceRatingController =>
-      metadata.audienceRatingController;
-  TextEditingController get countryController => metadata.countryController;
-  TextEditingController get languageController => metadata.languageController;
-  TextEditingController get ageRatingController => metadata.ageRatingController;
-  TextEditingController get genresEditController =>
-      metadata.genresEditController;
-  TextEditingController get crossoverController => metadata.crossoverController;
-  TextEditingController get storyArcsController => metadata.storyArcsController;
-  TextEditingController get seriesTitleController =>
-      metadata.seriesTitleController;
-  TextEditingController get developersController =>
-      metadata.developersController;
-  TextEditingController get imprintController => metadata.imprintController;
-  TextEditingController get seriesGroupController =>
-      metadata.seriesGroupController;
-
-  String? get physicalFormatId => metadata.physicalFormatId;
-  set physicalFormatId(String? v) => metadata.physicalFormatId = v;
-
-  String? get seriesId => metadata.seriesId;
-  set seriesId(String? v) => metadata.seriesId = v;
-
-  // PersonalStateDraft forwarding
-  TextEditingController get ownerLabelController =>
-      personal.ownerLabelController;
-  TextEditingController get conditionController => personal.conditionController;
-  TextEditingController get gradeController => personal.gradeController;
-  TextEditingController get purchaseDateController =>
-      personal.purchaseDateController;
-  TextEditingController get priceController => personal.priceController;
-  TextEditingController get currencyController => personal.currencyController;
-  TextEditingController get quantityController => personal.quantityController;
-  TextEditingController get indexNumberController =>
-      personal.indexNumberController;
-  TextEditingController get notesController => personal.notesController;
-  TextEditingController get purchaseStoreController =>
-      personal.purchaseStoreController;
-  TextEditingController get marketValueController =>
-      personal.marketValueController;
-  TextEditingController get wishlistPriceController =>
-      personal.wishlistPriceController;
-  TextEditingController get wishlistCurrencyController =>
-      personal.wishlistCurrencyController;
-  TextEditingController get wishlistNotesController =>
-      personal.wishlistNotesController;
-  TextEditingController get ratingController => tracking.ratingController;
-  TextEditingController get trackingController => tracking.trackingController;
-  TextEditingController get progressCurrentController =>
-      tracking.progressCurrentController;
-  TextEditingController get progressTotalController =>
-      tracking.progressTotalController;
-  TextEditingController get timesCompletedController =>
-      tracking.timesCompletedController;
-  TextEditingController get seasonNumberController =>
-      tracking.seasonNumberController;
-  TextEditingController get episodeNumberController =>
-      tracking.episodeNumberController;
-  TextEditingController get trackingNotesController =>
-      tracking.trackingNotesController;
-  TextEditingController get tagsController => personal.tagsController;
-  TextEditingController get sellPriceController => personal.sellPriceController;
-  TextEditingController get soldToController => personal.soldToController;
-
-  List<String> get tagOptions => personal.tagOptions;
-  set tagOptions(List<String> v) => personal.tagOptions = v;
-
-  List<StorageLocation> get availableLocations => personal.availableLocations;
-  set availableLocations(List<StorageLocation> v) =>
-      personal.availableLocations = v;
-
-  String? get selectedLocationId => personal.selectedLocationId;
-  set selectedLocationId(String? v) => personal.selectedLocationId = v;
-
-  String get selectedOwnedAnchorType =>
-      personal.selectedOwnedAnchorType.apiValue;
-  set selectedOwnedAnchorType(String v) => personal.selectedOwnedAnchorType =
-      PersonalItemAnchorType.fromApiValue(v) ?? PersonalItemAnchorType.item;
-
-  String? get selectedEditionId => personal.selectedEditionId;
-  set selectedEditionId(String? v) => personal.selectedEditionId = v;
-
-  String? get selectedVariantId => personal.selectedVariantId;
-  set selectedVariantId(String? v) => personal.selectedVariantId = v;
-
-  String? get selectedBundleReleaseId => personal.selectedBundleReleaseId;
-  set selectedBundleReleaseId(String? v) =>
-      personal.selectedBundleReleaseId = v;
-
-  String? get selectedTrackingEditionId => tracking.selectedTrackingEditionId;
-  set selectedTrackingEditionId(String? v) =>
-      tracking.selectedTrackingEditionId = v;
-
-  String? get selectedTrackingVariantId => tracking.selectedTrackingVariantId;
-  set selectedTrackingVariantId(String? v) =>
-      tracking.selectedTrackingVariantId = v;
-
-  String get selectedWishlistAnchorType =>
-      personal.selectedWishlistAnchorType.apiValue;
-  set selectedWishlistAnchorType(String v) =>
-      personal.selectedWishlistAnchorType =
-          PersonalItemAnchorType.fromApiValue(v) ?? PersonalItemAnchorType.item;
-
-  String? get selectedWishlistEditionId => personal.selectedWishlistEditionId;
-  set selectedWishlistEditionId(String? v) =>
-      personal.selectedWishlistEditionId = v;
-
-  String? get selectedWishlistVariantId => personal.selectedWishlistVariantId;
-  set selectedWishlistVariantId(String? v) =>
-      personal.selectedWishlistVariantId = v;
-
-  String? get selectedWishlistBundleReleaseId =>
-      personal.selectedWishlistBundleReleaseId;
-  set selectedWishlistBundleReleaseId(String? v) =>
-      personal.selectedWishlistBundleReleaseId = v;
-
-  bool get locationChanged => personal.locationChanged;
-  set locationChanged(bool v) => personal.locationChanged = v;
-
-  DateTime? get soldAt => personal.soldAt;
-  set soldAt(DateTime? v) => personal.soldAt = v;
-
-  DateTime? get startedAt => tracking.startedAt;
-  set startedAt(DateTime? v) => tracking.startedAt = v;
-
-  DateTime? get finishedAt => tracking.finishedAt;
-  set finishedAt(DateTime? v) => tracking.finishedAt = v;
-
-  Map<String, int> get episodeRatings => tracking.episodeRatings;
-  set episodeRatings(Map<String, int> v) => tracking.episodeRatings = v;
-
-  String? get collectionStatus => personal.collectionStatus;
-  set collectionStatus(String? v) => personal.collectionStatus = v;
-
-  // Kind-specific forwarding
-  ComicEditDraft? get _comic =>
-      kindDetails is ComicEditDraft ? kindDetails as ComicEditDraft : null;
-  VideoEditDraft? get _video =>
-      kindDetails is VideoEditDraft ? kindDetails as VideoEditDraft : null;
-  GameEditDraft? get _game =>
-      kindDetails is GameEditDraft ? kindDetails as GameEditDraft : null;
-  MusicEditDraft? get _music =>
-      kindDetails is MusicEditDraft ? kindDetails as MusicEditDraft : null;
-
-  TextEditingController get rawOrSlabbedController =>
-      _comic?.rawOrSlabbedController ?? _dummyController;
-  TextEditingController get gradingCompanyController =>
-      _comic?.gradingCompanyController ?? _dummyController;
-  TextEditingController get graderNotesController =>
-      _comic?.graderNotesController ?? _dummyController;
-  TextEditingController get signedByController => personal.signedByController;
-  TextEditingController get labelTypeController =>
-      _comic?.labelTypeController ?? _dummyController;
-  TextEditingController get pageQualityController =>
-      _comic?.pageQualityController ?? _dummyController;
-  TextEditingController get certificationNumberController =>
-      _comic?.certificationNumberController ?? _dummyController;
-  TextEditingController get coverPriceController =>
-      _comic?.coverPriceController ?? _dummyController;
-  TextEditingController get keyReasonController =>
-      _comic?.keyReasonController ?? _dummyController;
-  TextEditingController get keyCategoryController =>
-      _comic?.keyCategoryController ?? _dummyController;
-  bool get keyComic => _comic?.keyComic ?? false;
-  set keyComic(bool v) {
-    if (_comic != null) _comic!.keyComic = v;
-  }
-
-  DateTime? get lastBagBoardDate => _comic?.lastBagBoardDate;
-  set lastBagBoardDate(DateTime? v) {
-    if (_comic != null) _comic!.lastBagBoardDate = v;
-  }
-
-  TextEditingController get featuresController =>
-      _video?.featuresController ?? _dummyController;
-  TextEditingController get boxSetNameController =>
-      _video?.boxSetNameController ?? _dummyController;
-  TextEditingController get regionController =>
-      _video?.regionController ?? _dummyController;
-  TextEditingController get packagingController =>
-      _video?.packagingController ?? _dummyController;
-  TextEditingController get distributorController =>
-      _video?.distributorController ?? _dummyController;
-  TextEditingController get screenRatioController =>
-      _video?.screenRatioController ?? _dummyController;
-  TextEditingController get audioTracksController =>
-      _video?.audioTracksController ?? _dummyController;
-  TextEditingController get subtitlesController =>
-      _video?.subtitlesController ?? _dummyController;
-  TextEditingController get layersController =>
-      _video?.layersController ?? _dummyController;
-  TextEditingController get colorController =>
-      _video?.colorController ?? _dummyController;
-  TextEditingController get nrDiscsController =>
-      _video?.nrDiscsController ?? _dummyController;
-  List<String> get hdrFormats => _video?.hdrFormats ?? const [];
-  set hdrFormats(List<String> v) {
-    if (_video != null) _video!.hdrFormats = v;
-  }
-
-  String? get gameCompleteness => _game?.gameCompleteness;
-  set gameCompleteness(String? v) {
-    if (_game != null) _game!.gameCompleteness = v;
-  }
-
-  bool get gameHasBox => _game?.gameHasBox ?? true;
-  set gameHasBox(bool v) {
-    if (_game != null) _game!.gameHasBox = v;
-  }
-
-  bool get gameHasManual => _game?.gameHasManual ?? true;
-  set gameHasManual(bool v) {
-    if (_game != null) _game!.gameHasManual = v;
-  }
-
-  String? get gamePriceChartingId => _game?.gamePriceChartingId;
-  set gamePriceChartingId(String? v) {
-    if (_game != null) _game!.gamePriceChartingId = v;
-  }
-
-  String? get gameCoreRegion => _game?.gameCoreRegion;
-  set gameCoreRegion(String? v) {
-    if (_game != null) _game!.gameCoreRegion = v;
-  }
-
-  bool get gameValueIsLocked => _game?.gameValueIsLocked ?? false;
-  set gameValueIsLocked(bool v) {
-    if (_game != null) _game!.gameValueIsLocked = v;
-  }
-
-  TextEditingController get storageDeviceController =>
-      _music?.storageDeviceController ?? _dummyController;
-  TextEditingController get storageSlotController =>
-      _music?.storageSlotController ?? _dummyController;
-
-  static final _dummyController = TextEditingController();
 
   // ---------------------------------------------------------------------------
   // Factory Constructors
@@ -729,11 +446,11 @@ class LibraryEditDraft {
 
   bool get isDigitalFormat {
     return isDigitalPhysicalMediaFormat(
-      physicalFormatId,
-      label: physicalFormatForId(physicalFormatId)?.label ??
-          emptyToNull(physicalFormatLabelController.text) ??
+      metadata.physicalFormatId,
+      label: physicalFormatForId(metadata.physicalFormatId)?.label ??
+          emptyToNull(metadata.physicalFormatLabelController.text) ??
           item.physicalFormatLabel ??
-          variantController.text,
+          metadata.variantController.text,
       formats: physicalFormats.isEmpty
           ? allKnownPhysicalMediaFormats
           : physicalFormats,
@@ -760,10 +477,10 @@ class LibraryEditDraft {
       variantName: item.variant,
     );
     return (
-      selectedLocationId: selectedLocationId,
-      startedAt: startedAt,
-      finishedAt: finishedAt,
-      soldAt: soldAt,
+      selectedLocationId: personal.selectedLocationId,
+      startedAt: tracking.startedAt,
+      finishedAt: tracking.finishedAt,
+      soldAt: personal.soldAt,
       selectedEditionId: editionSelection.edition?.id,
       selectedVariantId: editionSelection.variant?.id,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),
@@ -784,69 +501,79 @@ class LibraryEditDraft {
     return type.trackingProfile.name == videoTrackingProfile.name ||
         series?.seasonNumber != null ||
         series?.episodeNumber != null ||
-        seasonNumberController.text.trim().isNotEmpty ||
-        episodeNumberController.text.trim().isNotEmpty;
+        tracking.seasonNumberController.text.trim().isNotEmpty ||
+        tracking.episodeNumberController.text.trim().isNotEmpty;
   }
 
   LibraryEditSelection buildSelection({
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
+    final comic =
+        kindDetails is ComicEditDraft ? kindDetails as ComicEditDraft : null;
+    final video =
+        kindDetails is VideoEditDraft ? kindDetails as VideoEditDraft : null;
+    final game =
+        kindDetails is GameEditDraft ? kindDetails as GameEditDraft : null;
+    final music =
+        kindDetails is MusicEditDraft ? kindDetails as MusicEditDraft : null;
+
     final updatedPublishing = CatalogPublishingDetails(
-      pageCount: parseInt(pageCountController.text),
+      pageCount: parseInt(metadata.pageCountController.text),
       coverPriceCents: item.publishing?.coverPriceCents,
       currency: item.publishing?.currency,
-      imprint: emptyToNull(imprintController.text),
+      imprint: emptyToNull(metadata.imprintController.text),
       subtitle: item.publishing?.subtitle,
-      seriesGroup: emptyToNull(seriesGroupController.text),
+      seriesGroup: emptyToNull(metadata.seriesGroupController.text),
     );
-    final parsedStoryArcs = storyArcsController.text
+    final parsedStoryArcs = metadata.storyArcsController.text
         .split(RegExp(r'[,\r\n]+'))
         .map((storyArc) => storyArc.trim())
         .where((storyArc) => storyArc.isNotEmpty)
         .toList();
     final updatedVideo = VideoCatalogDetails(
-      runtimeMinutes: int.tryParse(runtimeController.text),
-      color: emptyToNull(colorController.text),
-      nrDiscs: int.tryParse(nrDiscsController.text),
-      screenRatio: emptyToNull(screenRatioController.text),
-      audioTracks: emptyToNull(audioTracksController.text),
-      subtitles: emptyToNull(subtitlesController.text),
-      layers: emptyToNull(layersController.text),
+      runtimeMinutes: int.tryParse(metadata.runtimeController.text),
+      color: emptyToNull(video?.colorController.text ?? ''),
+      nrDiscs: int.tryParse(video?.nrDiscsController.text ?? ''),
+      screenRatio: emptyToNull(video?.screenRatioController.text ?? ''),
+      audioTracks: emptyToNull(video?.audioTracksController.text ?? ''),
+      subtitles: emptyToNull(video?.subtitlesController.text ?? ''),
+      layers: emptyToNull(video?.layersController.text ?? ''),
     );
-    final parsedGenres = genresEditController.text
+    final parsedGenres = metadata.genresEditController.text
         .split(RegExp(r'[,\r\n]+'))
         .map((genre) => genre.trim())
         .where((genre) => genre.isNotEmpty)
         .toList();
     return LibraryEditSelection(
       item: item.copyWith(
-        title: titleController.text.trim(),
-        sortKey: emptyToNull(sortKeyController.text),
-        originalTitle: emptyToNull(originalTitleController.text),
-        displayTitle: emptyToNull(displayTitleController.text),
-        localizedTitle: emptyToNull(localizedTitleController.text),
-        searchAliases: _splitList(searchAliasesController.text),
-        itemNumber: emptyToNull(numberController.text),
-        synopsis: emptyToNull(synopsisController.text),
-        coverImageUrl: emptyToNull(coverController.text),
-        thumbnailImageUrl: emptyToNull(thumbnailController.text),
-        editionTitle: emptyToNull(editionTitleController.text),
-        physicalFormat: physicalFormatId,
-        physicalFormatLabel: emptyToNull(physicalFormatLabelController.text) ??
-            physicalFormatForId(physicalFormatId)?.label,
-        publisher: emptyToNull(publisherController.text),
-        coverDate: parseDate(coverDateController.text),
-        releaseDate: parseDate(releaseDateController.text),
-        releaseYear: parseInt(releaseYearController.text),
-        barcode: emptyToNull(barcodeController.text),
-        variant: emptyToNull(variantController.text),
-        crossover: emptyToNull(crossoverController.text),
+        title: metadata.titleController.text.trim(),
+        sortKey: emptyToNull(metadata.sortKeyController.text),
+        originalTitle: emptyToNull(metadata.originalTitleController.text),
+        displayTitle: emptyToNull(metadata.displayTitleController.text),
+        localizedTitle: emptyToNull(metadata.localizedTitleController.text),
+        searchAliases: _splitList(metadata.searchAliasesController.text),
+        itemNumber: emptyToNull(metadata.numberController.text),
+        synopsis: emptyToNull(metadata.synopsisController.text),
+        coverImageUrl: emptyToNull(metadata.coverController.text),
+        thumbnailImageUrl: emptyToNull(metadata.thumbnailController.text),
+        editionTitle: emptyToNull(metadata.editionTitleController.text),
+        physicalFormat: metadata.physicalFormatId,
+        physicalFormatLabel:
+            emptyToNull(metadata.physicalFormatLabelController.text) ??
+                physicalFormatForId(metadata.physicalFormatId)?.label,
+        publisher: emptyToNull(metadata.publisherController.text),
+        coverDate: parseDate(metadata.coverDateController.text),
+        releaseDate: parseDate(metadata.releaseDateController.text),
+        releaseYear: parseInt(metadata.releaseYearController.text),
+        barcode: emptyToNull(metadata.barcodeController.text),
+        variant: emptyToNull(metadata.variantController.text),
+        crossover: emptyToNull(metadata.crossoverController.text),
         series: _buildUpdatedSeries(),
         creators: _buildUpdatedCreators(),
-        country: emptyToNull(countryController.text),
-        language: emptyToNull(languageController.text),
-        ageRating: emptyToNull(ageRatingController.text),
-        audienceRating: emptyToNull(audienceRatingController.text),
+        country: emptyToNull(metadata.countryController.text),
+        language: emptyToNull(metadata.languageController.text),
+        ageRating: emptyToNull(metadata.ageRatingController.text),
+        audienceRating: emptyToNull(metadata.audienceRatingController.text),
         genres: parsedGenres.isEmpty ? null : parsedGenres,
         storyArcs: parsedStoryArcs.isEmpty ? null : parsedStoryArcs,
         publishing: updatedPublishing.hasData ? updatedPublishing : null,
@@ -855,130 +582,142 @@ class LibraryEditDraft {
       personal: ownedItem == null
           ? null
           : LibraryPersonalEditSelection(
-              anchorType: selectedOwnedAnchorType,
-              editionId: selectedOwnedAnchorType ==
-                          PersonalItemAnchorType.edition.apiValue ||
-                      selectedOwnedAnchorType ==
-                          PersonalItemAnchorType.variant.apiValue
-                  ? selectedEditionId
+              anchorType: personal.selectedOwnedAnchorType.apiValue,
+              editionId: personal.selectedOwnedAnchorType ==
+                          PersonalItemAnchorType.edition ||
+                      personal.selectedOwnedAnchorType ==
+                          PersonalItemAnchorType.variant
+                  ? personal.selectedEditionId
                   : null,
-              variantId: selectedOwnedAnchorType ==
-                      PersonalItemAnchorType.variant.apiValue
-                  ? selectedVariantId
+              variantId: personal.selectedOwnedAnchorType ==
+                      PersonalItemAnchorType.variant
+                  ? personal.selectedVariantId
                   : null,
-              bundleReleaseId: selectedOwnedAnchorType ==
-                      PersonalItemAnchorType.bundleRelease.apiValue
-                  ? selectedBundleReleaseId
+              bundleReleaseId: personal.selectedOwnedAnchorType ==
+                      PersonalItemAnchorType.bundleRelease
+                  ? personal.selectedBundleReleaseId
                   : null,
               condition: showPhysicalOwnedFields
-                  ? emptyToNull(conditionController.text)
+                  ? emptyToNull(personal.conditionController.text)
                   : null,
               grade: showPhysicalOwnedFields
-                  ? emptyToNull(gradeController.text)
+                  ? emptyToNull(personal.gradeController.text)
                   : null,
-              purchaseDate: parseDate(purchaseDateController.text),
-              pricePaidCents: parseMoneyCents(priceController.text),
-              currency: emptyToNull(currencyController.text),
-              personalNotes: emptyToNull(notesController.text),
-              quantity: parseInt(quantityController.text) ?? 1,
-              indexNumber: parseInt(indexNumberController.text),
-              locationId: showPhysicalOwnedFields ? selectedLocationId : null,
+              purchaseDate: parseDate(personal.purchaseDateController.text),
+              pricePaidCents: parseMoneyCents(personal.priceController.text),
+              currency: emptyToNull(personal.currencyController.text),
+              personalNotes: emptyToNull(personal.notesController.text),
+              quantity: parseInt(personal.quantityController.text) ?? 1,
+              indexNumber: parseInt(personal.indexNumberController.text),
+              locationId:
+                  showPhysicalOwnedFields ? personal.selectedLocationId : null,
               locationChanged:
-                  showPhysicalOwnedFields ? locationChanged : false,
-              tags: emptyToNull(tagsController.text),
-              soldAt: soldAt,
-              sellPriceCents: parseMoneyCents(sellPriceController.text),
-              soldTo: emptyToNull(soldToController.text),
+                  showPhysicalOwnedFields ? personal.locationChanged : false,
+              tags: emptyToNull(personal.tagsController.text),
+              soldAt: personal.soldAt,
+              sellPriceCents:
+                  parseMoneyCents(personal.sellPriceController.text),
+              soldTo: emptyToNull(personal.soldToController.text),
               rawOrSlabbed: isDigitalFormat
                   ? null
-                  : emptyToNull(rawOrSlabbedController.text),
+                  : emptyToNull(comic?.rawOrSlabbedController.text ?? ''),
               gradingCompany: isDigitalFormat
                   ? null
-                  : emptyToNull(gradingCompanyController.text),
+                  : emptyToNull(comic?.gradingCompanyController.text ?? ''),
               graderNotes: isDigitalFormat
                   ? null
-                  : emptyToNull(graderNotesController.text),
-              signedBy:
-                  isDigitalFormat ? null : emptyToNull(signedByController.text),
+                  : emptyToNull(comic?.graderNotesController.text ?? ''),
+              signedBy: isDigitalFormat
+                  ? null
+                  : emptyToNull(personal.signedByController.text),
               labelType: isDigitalFormat
                   ? null
-                  : emptyToNull(labelTypeController.text),
+                  : emptyToNull(comic?.labelTypeController.text ?? ''),
               pageQuality: isDigitalFormat
                   ? null
-                  : emptyToNull(pageQualityController.text),
+                  : emptyToNull(comic?.pageQualityController.text ?? ''),
               certificationNumber: isDigitalFormat
                   ? null
-                  : emptyToNull(certificationNumberController.text),
-              keyComic: keyComic,
-              keyReason: emptyToNull(keyReasonController.text),
-              keyCategory: emptyToNull(keyCategoryController.text),
+                  : emptyToNull(
+                      comic?.certificationNumberController.text ?? ''),
+              keyComic: comic?.keyComic ?? false,
+              keyReason: emptyToNull(comic?.keyReasonController.text ?? ''),
+              keyCategory: emptyToNull(comic?.keyCategoryController.text ?? ''),
               coverPriceCents: isDigitalFormat
                   ? null
-                  : parseMoneyCents(coverPriceController.text),
-              features: emptyToNull(featuresController.text),
-              hdrFormats: hdrFormats.isEmpty ? null : hdrFormats,
-              purchaseStore: emptyToNull(purchaseStoreController.text),
-              boxSetName: emptyToNull(boxSetNameController.text),
-              storageDevice: emptyToNull(storageDeviceController.text),
-              storageSlot: emptyToNull(storageSlotController.text),
-              region: emptyToNull(regionController.text),
-              packaging: emptyToNull(packagingController.text),
-              distributor: emptyToNull(distributorController.text),
-              screenRatio: emptyToNull(screenRatioController.text),
-              audioTracks: emptyToNull(audioTracksController.text),
-              subtitles: emptyToNull(subtitlesController.text),
-              layers: emptyToNull(layersController.text),
-              color: emptyToNull(colorController.text),
-              nrDiscs: int.tryParse(nrDiscsController.text),
-              collectionStatus: collectionStatus,
-              lastBagBoardDate: lastBagBoardDate,
-              marketValueCents: parseMoneyCents(marketValueController.text),
-              ownerLabel: emptyToNull(ownerLabelController.text),
-              gameCompleteness: gameCompleteness,
-              gameHasBox: gameHasBox,
-              gameHasManual: gameHasManual,
-              gamePriceChartingId: emptyToNull(gamePriceChartingId ?? ''),
-              gameCoreRegion: emptyToNull(gameCoreRegion ?? ''),
-              gameValueIsLocked: gameValueIsLocked,
+                  : parseMoneyCents(comic?.coverPriceController.text ?? ''),
+              features: emptyToNull(video?.featuresController.text ?? ''),
+              hdrFormats: (video?.hdrFormats.isEmpty ?? true)
+                  ? null
+                  : video!.hdrFormats,
+              purchaseStore: emptyToNull(personal.purchaseStoreController.text),
+              boxSetName: emptyToNull(video?.boxSetNameController.text ?? ''),
+              storageDevice:
+                  emptyToNull(music?.storageDeviceController.text ?? ''),
+              storageSlot: emptyToNull(music?.storageSlotController.text ?? ''),
+              region: emptyToNull(video?.regionController.text ?? ''),
+              packaging: emptyToNull(video?.packagingController.text ?? ''),
+              distributor: emptyToNull(video?.distributorController.text ?? ''),
+              screenRatio: emptyToNull(video?.screenRatioController.text ?? ''),
+              audioTracks: emptyToNull(video?.audioTracksController.text ?? ''),
+              subtitles: emptyToNull(video?.subtitlesController.text ?? ''),
+              layers: emptyToNull(video?.layersController.text ?? ''),
+              color: emptyToNull(video?.colorController.text ?? ''),
+              nrDiscs: int.tryParse(video?.nrDiscsController.text ?? ''),
+              collectionStatus: personal.collectionStatus,
+              lastBagBoardDate: comic?.lastBagBoardDate,
+              marketValueCents:
+                  parseMoneyCents(personal.marketValueController.text),
+              ownerLabel: emptyToNull(personal.ownerLabelController.text),
+              gameCompleteness: game?.gameCompleteness,
+              gameHasBox: game?.gameHasBox,
+              gameHasManual: game?.gameHasManual,
+              gamePriceChartingId: emptyToNull(game?.gamePriceChartingId ?? ''),
+              gameCoreRegion: emptyToNull(game?.gameCoreRegion ?? ''),
+              gameValueIsLocked: game?.gameValueIsLocked ?? false,
             ),
       wishlist: wishlistItem == null
           ? null
           : LibraryWishlistEditSelection(
-              anchorType: selectedWishlistAnchorType,
-              editionId: selectedWishlistAnchorType ==
-                          PersonalItemAnchorType.edition.apiValue ||
-                      selectedWishlistAnchorType ==
-                          PersonalItemAnchorType.variant.apiValue
-                  ? selectedWishlistEditionId
+              anchorType: personal.selectedWishlistAnchorType.apiValue,
+              editionId: personal.selectedWishlistAnchorType ==
+                          PersonalItemAnchorType.edition ||
+                      personal.selectedWishlistAnchorType ==
+                          PersonalItemAnchorType.variant
+                  ? personal.selectedWishlistEditionId
                   : null,
-              variantId: selectedWishlistAnchorType ==
-                      PersonalItemAnchorType.variant.apiValue
-                  ? selectedWishlistVariantId
+              variantId: personal.selectedWishlistAnchorType ==
+                      PersonalItemAnchorType.variant
+                  ? personal.selectedWishlistVariantId
                   : null,
-              bundleReleaseId: selectedWishlistAnchorType ==
-                      PersonalItemAnchorType.bundleRelease.apiValue
-                  ? selectedWishlistBundleReleaseId
+              bundleReleaseId: personal.selectedWishlistAnchorType ==
+                      PersonalItemAnchorType.bundleRelease
+                  ? personal.selectedWishlistBundleReleaseId
                   : null,
-              targetPriceCents: parseMoneyCents(wishlistPriceController.text),
-              currency: emptyToNull(wishlistCurrencyController.text),
-              notes: emptyToNull(wishlistNotesController.text),
+              targetPriceCents:
+                  parseMoneyCents(personal.wishlistPriceController.text),
+              currency: emptyToNull(personal.wishlistCurrencyController.text),
+              notes: emptyToNull(personal.wishlistNotesController.text),
             ),
       tracking: !hasTrackingContext
           ? null
           : LibraryTrackingEditSelection(
-              editionId: selectedTrackingEditionId,
-              variantId: selectedTrackingVariantId,
-              rating: parseInt(ratingController.text),
-              readStatus: emptyToNull(trackingController.text),
-              startedAt: startedAt,
-              finishedAt: finishedAt,
-              progressCurrent: parseInt(progressCurrentController.text),
-              progressTotal: parseInt(progressTotalController.text),
-              timesCompleted: parseInt(timesCompletedController.text),
-              notes: emptyToNull(trackingNotesController.text),
-              seasonNumber: parseInt(seasonNumberController.text),
-              episodeNumber: parseInt(episodeNumberController.text),
-              episodeRatings: episodeRatings.isEmpty ? null : episodeRatings,
+              editionId: tracking.selectedTrackingEditionId,
+              variantId: tracking.selectedTrackingVariantId,
+              rating: parseInt(tracking.ratingController.text),
+              readStatus: emptyToNull(tracking.trackingController.text),
+              startedAt: tracking.startedAt,
+              finishedAt: tracking.finishedAt,
+              progressCurrent:
+                  parseInt(tracking.progressCurrentController.text),
+              progressTotal: parseInt(tracking.progressTotalController.text),
+              timesCompleted: parseInt(tracking.timesCompletedController.text),
+              notes: emptyToNull(tracking.trackingNotesController.text),
+              seasonNumber: parseInt(tracking.seasonNumberController.text),
+              episodeNumber: parseInt(tracking.episodeNumberController.text),
+              episodeRatings: tracking.episodeRatings.isEmpty
+                  ? null
+                  : tracking.episodeRatings,
             ),
       customFieldEdits: customFieldEdits,
       itemImageEdits: itemImageEdits,
@@ -1000,16 +739,16 @@ class LibraryEditDraft {
   }
 
   CatalogSeriesDetails? _buildUpdatedSeries() {
-    final typedSeriesTitle = emptyToNull(seriesTitleController.text);
+    final typedSeriesTitle = emptyToNull(metadata.seriesTitleController.text);
     final seriesTitle = type.editUsesTitleAsSeries
-        ? emptyToNull(titleController.text)
+        ? emptyToNull(metadata.titleController.text)
         : typedSeriesTitle;
     final currentSeries = item.series;
     if (seriesTitle == null && currentSeries == null) {
       return null;
     }
     return CatalogSeriesDetails(
-      seriesId: seriesId,
+      seriesId: metadata.seriesId,
       seriesTitle: seriesTitle,
       volumeName: currentSeries?.volumeName,
       volumeNumber: currentSeries?.volumeNumber,
@@ -1035,7 +774,7 @@ class LibraryEditDraft {
       preserved.add(Map<String, dynamic>.from(entry));
     }
 
-    final developerNames = developersController.text
+    final developerNames = metadata.developersController.text
         .split(RegExp(r'[,\r\n]+'))
         .map((value) => value.trim())
         .where((value) => value.isNotEmpty)
@@ -1097,24 +836,24 @@ class LibraryEditDraft {
 
   OwnedItemCommonDraft buildCommonDraft() {
     return OwnedItemCommonDraft(
-      quantity: parseInt(quantityController.text) ?? 1,
-      condition: emptyToNull(conditionController.text),
-      grade: emptyToNull(gradeController.text),
-      purchaseDate: parseDate(purchaseDateController.text),
-      pricePaidCents: parseMoneyCents(priceController.text),
-      currency: emptyToNull(currencyController.text),
-      personalNotes: emptyToNull(notesController.text),
-      locationId: selectedLocationId,
-      purchaseStore: emptyToNull(purchaseStoreController.text),
-      collectionStatus: collectionStatus,
-      tags: emptyToNull(tagsController.text),
-      rating: parseInt(ratingController.text),
-      readStatus: emptyToNull(trackingController.text),
-      startedAt: startedAt,
-      finishedAt: finishedAt,
-      editionId: selectedEditionId,
-      variantId: selectedVariantId,
-      bundleReleaseId: selectedBundleReleaseId,
+      quantity: parseInt(personal.quantityController.text) ?? 1,
+      condition: emptyToNull(personal.conditionController.text),
+      grade: emptyToNull(personal.gradeController.text),
+      purchaseDate: parseDate(personal.purchaseDateController.text),
+      pricePaidCents: parseMoneyCents(personal.priceController.text),
+      currency: emptyToNull(personal.currencyController.text),
+      personalNotes: emptyToNull(personal.notesController.text),
+      locationId: personal.selectedLocationId,
+      purchaseStore: emptyToNull(personal.purchaseStoreController.text),
+      collectionStatus: personal.collectionStatus,
+      tags: emptyToNull(personal.tagsController.text),
+      rating: parseInt(tracking.ratingController.text),
+      readStatus: emptyToNull(tracking.trackingController.text),
+      startedAt: tracking.startedAt,
+      finishedAt: tracking.finishedAt,
+      editionId: personal.selectedEditionId,
+      variantId: personal.selectedVariantId,
+      bundleReleaseId: personal.selectedBundleReleaseId,
     );
   }
 

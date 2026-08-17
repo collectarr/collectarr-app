@@ -23,13 +23,14 @@ void main() {
       accent: Colors.blue,
     );
 
-    draft.conditionController.text = 'Near Mint';
-    draft.gradeController.text = '9.8';
-    draft.priceController.text = '19.99';
-    draft.currencyController.text = 'USD';
-    draft.rawOrSlabbedController.text = 'Slabbed';
-    draft.gradingCompanyController.text = 'CGC';
-    draft.coverPriceController.text = '3.99';
+    draft.personal.conditionController.text = 'Near Mint';
+    draft.personal.gradeController.text = '9.8';
+    draft.personal.priceController.text = '19.99';
+    draft.personal.currencyController.text = 'USD';
+    final comicDraft = draft.kindDetails as ComicEditDraft;
+    comicDraft.rawOrSlabbedController.text = 'Slabbed';
+    comicDraft.gradingCompanyController.text = 'CGC';
+    comicDraft.coverPriceController.text = '3.99';
 
     final cmd = draft.toAddOwnedItemCommand();
 
@@ -63,9 +64,9 @@ void main() {
       accent: Colors.blue,
     );
 
-    draft.conditionController.text = 'Mint';
-    draft.gradeController.text = '9.9';
-    draft.priceController.text = '49.99';
+    draft.personal.conditionController.text = 'Mint';
+    draft.personal.gradeController.text = '9.9';
+    draft.personal.priceController.text = '49.99';
 
     final cmd = draft.toUpdateOwnedItemCommand('owned-item-99');
 

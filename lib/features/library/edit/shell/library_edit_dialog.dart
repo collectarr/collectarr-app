@@ -126,90 +126,125 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final VideoEditController _videoEdit;
   late final LibraryEditVocabularyController _vocabularyController;
 
-  TextEditingController get _titleController => _draft.titleController;
-  TextEditingController get _numberController => _draft.numberController;
-  TextEditingController get _publisherController => _draft.publisherController;
-  TextEditingController get _coverDateController => _draft.coverDateController;
+  ComicEditDraft? get _comicDraft => _draft.kindDetails is ComicEditDraft
+      ? _draft.kindDetails as ComicEditDraft
+      : null;
+  VideoEditDraft? get _videoDraft => _draft.kindDetails is VideoEditDraft
+      ? _draft.kindDetails as VideoEditDraft
+      : null;
+  GameEditDraft? get _gameDraft => _draft.kindDetails is GameEditDraft
+      ? _draft.kindDetails as GameEditDraft
+      : null;
+  MusicEditDraft? get _musicDraft => _draft.kindDetails is MusicEditDraft
+      ? _draft.kindDetails as MusicEditDraft
+      : null;
+
+  static final _dummyController = TextEditingController();
+
+  TextEditingController get _titleController => _draft.metadata.titleController;
+  TextEditingController get _numberController =>
+      _draft.metadata.numberController;
+  TextEditingController get _publisherController =>
+      _draft.metadata.publisherController;
+  TextEditingController get _coverDateController =>
+      _draft.metadata.coverDateController;
   TextEditingController get _coverDateYearPartController =>
-      _draft.coverDateYearPartController;
+      _draft.metadata.coverDateYearPartController;
   TextEditingController get _coverDateMonthPartController =>
-      _draft.coverDateMonthPartController;
+      _draft.metadata.coverDateMonthPartController;
   TextEditingController get _coverDateDayPartController =>
-      _draft.coverDateDayPartController;
+      _draft.metadata.coverDateDayPartController;
   TextEditingController get _releaseDateController =>
-      _draft.releaseDateController;
+      _draft.metadata.releaseDateController;
   TextEditingController get _releaseDateYearPartController =>
-      _draft.releaseDateYearPartController;
+      _draft.metadata.releaseDateYearPartController;
   TextEditingController get _releaseDateMonthPartController =>
-      _draft.releaseDateMonthPartController;
+      _draft.metadata.releaseDateMonthPartController;
   TextEditingController get _releaseDateDayPartController =>
-      _draft.releaseDateDayPartController;
+      _draft.metadata.releaseDateDayPartController;
   TextEditingController get _releaseYearController =>
-      _draft.releaseYearController;
-  TextEditingController get _pageCountController => _draft.pageCountController;
+      _draft.metadata.releaseYearController;
+  TextEditingController get _pageCountController =>
+      _draft.metadata.pageCountController;
   TextEditingController get _editionTitleController =>
-      _draft.editionTitleController;
-  TextEditingController get _barcodeController => _draft.barcodeController;
-  TextEditingController get _variantController => _draft.variantController;
+      _draft.metadata.editionTitleController;
+  TextEditingController get _barcodeController =>
+      _draft.metadata.barcodeController;
+  TextEditingController get _variantController =>
+      _draft.metadata.variantController;
   TextEditingController get _physicalFormatLabelController =>
-      _draft.physicalFormatLabelController;
-  TextEditingController get _coverController => _draft.coverController;
-  TextEditingController get _thumbnailController => _draft.thumbnailController;
-  TextEditingController get _synopsisController => _draft.synopsisController;
-  TextEditingController get _sortKeyController => _draft.sortKeyController;
+      _draft.metadata.physicalFormatLabelController;
+  TextEditingController get _coverController => _draft.metadata.coverController;
+  TextEditingController get _thumbnailController =>
+      _draft.metadata.thumbnailController;
+  TextEditingController get _synopsisController =>
+      _draft.metadata.synopsisController;
+  TextEditingController get _sortKeyController =>
+      _draft.metadata.sortKeyController;
   TextEditingController get _originalTitleController =>
-      _draft.originalTitleController;
+      _draft.metadata.originalTitleController;
   TextEditingController get _localizedTitleController =>
-      _draft.localizedTitleController;
+      _draft.metadata.localizedTitleController;
   TextEditingController get _searchAliasesController =>
-      _draft.searchAliasesController;
+      _draft.metadata.searchAliasesController;
   TextEditingController get _seriesTitleController =>
-      _draft.seriesTitleController;
+      _draft.metadata.seriesTitleController;
   TextEditingController get _audienceRatingController =>
-      _draft.audienceRatingController;
-  TextEditingController get _countryController => _draft.countryController;
-  TextEditingController get _languageController => _draft.languageController;
-  TextEditingController get _ageRatingController => _draft.ageRatingController;
+      _draft.metadata.audienceRatingController;
+  TextEditingController get _countryController =>
+      _draft.metadata.countryController;
+  TextEditingController get _languageController =>
+      _draft.metadata.languageController;
+  TextEditingController get _ageRatingController =>
+      _draft.metadata.ageRatingController;
   TextEditingController get _genresEditController =>
-      _draft.genresEditController;
-  TextEditingController get _crossoverController => _draft.crossoverController;
-  TextEditingController get _storyArcsController => _draft.storyArcsController;
+      _draft.metadata.genresEditController;
+  TextEditingController get _crossoverController =>
+      _draft.metadata.crossoverController;
+  TextEditingController get _storyArcsController =>
+      _draft.metadata.storyArcsController;
   TextEditingController get _developersController =>
-      _draft.developersController;
+      _draft.metadata.developersController;
   TextEditingController get _ownerLabelController =>
-      _draft.ownerLabelController;
-  TextEditingController get _imprintController => _draft.imprintController;
+      _draft.personal.ownerLabelController;
+  TextEditingController get _imprintController =>
+      _draft.metadata.imprintController;
   TextEditingController get _seriesGroupController =>
-      _draft.seriesGroupController;
-  TextEditingController get _conditionController => _draft.conditionController;
-  TextEditingController get _gradeController => _draft.gradeController;
+      _draft.metadata.seriesGroupController;
+  TextEditingController get _conditionController =>
+      _draft.personal.conditionController;
+  TextEditingController get _gradeController => _draft.personal.gradeController;
   TextEditingController get _purchaseDateController =>
-      _draft.purchaseDateController;
-  TextEditingController get _priceController => _draft.priceController;
-  TextEditingController get _currencyController => _draft.currencyController;
-  TextEditingController get _quantityController => _draft.quantityController;
+      _draft.personal.purchaseDateController;
+  TextEditingController get _priceController => _draft.personal.priceController;
+  TextEditingController get _currencyController =>
+      _draft.personal.currencyController;
+  TextEditingController get _quantityController =>
+      _draft.personal.quantityController;
   TextEditingController get _indexNumberController =>
-      _draft.indexNumberController;
-  TextEditingController get _notesController => _draft.notesController;
+      _draft.personal.indexNumberController;
+  TextEditingController get _notesController => _draft.personal.notesController;
   TextEditingController get _wishlistPriceController =>
-      _draft.wishlistPriceController;
+      _draft.personal.wishlistPriceController;
   TextEditingController get _wishlistCurrencyController =>
-      _draft.wishlistCurrencyController;
+      _draft.personal.wishlistCurrencyController;
   TextEditingController get _wishlistNotesController =>
-      _draft.wishlistNotesController;
-  TextEditingController get _ratingController => _draft.ratingController;
-  TextEditingController get _trackingController => _draft.trackingController;
+      _draft.personal.wishlistNotesController;
+  TextEditingController get _ratingController =>
+      _draft.tracking.ratingController;
+  TextEditingController get _trackingController =>
+      _draft.tracking.trackingController;
   TextEditingController get _progressCurrentController =>
-      _draft.progressCurrentController;
+      _draft.tracking.progressCurrentController;
   TextEditingController get _progressTotalController =>
-      _draft.progressTotalController;
+      _draft.tracking.progressTotalController;
   TextEditingController get _timesCompletedController =>
-      _draft.timesCompletedController;
+      _draft.tracking.timesCompletedController;
   TextEditingController get _trackingNotesController =>
-      _draft.trackingNotesController;
-  TextEditingController get _tagsController => _draft.tagsController;
-  List<String> get _tagOptions => _draft.tagOptions;
-  set _tagOptions(List<String> value) => _draft.tagOptions = value;
+      _draft.tracking.trackingNotesController;
+  TextEditingController get _tagsController => _draft.personal.tagsController;
+  List<String> get _tagOptions => _draft.personal.tagOptions;
+  set _tagOptions(List<String> value) => _draft.personal.tagOptions = value;
   List<String> _genreOptions = const [];
   List<String> _publisherOptions = const [];
   List<String> _imprintOptions = const [];
@@ -236,117 +271,165 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   List<String> _keyCategoryOptions = const [];
   List<SeriesRegistryEntry> _seriesEntries = const [];
   late final TextEditingController _collectionStatusController;
-  List<StorageLocation> get _availableLocations => _draft.availableLocations;
+  List<StorageLocation> get _availableLocations =>
+      _draft.personal.availableLocations;
   set _availableLocations(List<StorageLocation> value) =>
-      _draft.availableLocations = value;
-  String? get _selectedLocationId => _draft.selectedLocationId;
-  set _selectedLocationId(String? value) => _draft.selectedLocationId = value;
-  String get _selectedOwnedAnchorType => _draft.selectedOwnedAnchorType;
-  set _selectedOwnedAnchorType(String value) =>
-      _draft.selectedOwnedAnchorType = value;
-  String? get _selectedEditionId => _draft.selectedEditionId;
-  set _selectedEditionId(String? value) => _draft.selectedEditionId = value;
-  String? get _selectedVariantId => _draft.selectedVariantId;
-  set _selectedVariantId(String? value) => _draft.selectedVariantId = value;
-  String? get _selectedBundleReleaseId => _draft.selectedBundleReleaseId;
+      _draft.personal.availableLocations = value;
+  String? get _selectedLocationId => _draft.personal.selectedLocationId;
+  set _selectedLocationId(String? value) =>
+      _draft.personal.selectedLocationId = value;
+  String get _selectedOwnedAnchorType =>
+      _draft.personal.selectedOwnedAnchorType.apiValue;
+  set _selectedOwnedAnchorType(String value) => _draft
+          .personal.selectedOwnedAnchorType =
+      PersonalItemAnchorType.fromApiValue(value) ?? PersonalItemAnchorType.item;
+  String? get _selectedEditionId => _draft.personal.selectedEditionId;
+  set _selectedEditionId(String? value) =>
+      _draft.personal.selectedEditionId = value;
+  String? get _selectedVariantId => _draft.personal.selectedVariantId;
+  set _selectedVariantId(String? value) =>
+      _draft.personal.selectedVariantId = value;
+  String? get _selectedBundleReleaseId =>
+      _draft.personal.selectedBundleReleaseId;
   set _selectedBundleReleaseId(String? value) =>
-      _draft.selectedBundleReleaseId = value;
-  String? get _selectedTrackingEditionId => _draft.selectedTrackingEditionId;
+      _draft.personal.selectedBundleReleaseId = value;
+  String? get _selectedTrackingEditionId =>
+      _draft.tracking.selectedTrackingEditionId;
   set _selectedTrackingEditionId(String? value) =>
-      _draft.selectedTrackingEditionId = value;
-  String? get _selectedTrackingVariantId => _draft.selectedTrackingVariantId;
+      _draft.tracking.selectedTrackingEditionId = value;
+  String? get _selectedTrackingVariantId =>
+      _draft.tracking.selectedTrackingVariantId;
   set _selectedTrackingVariantId(String? value) =>
-      _draft.selectedTrackingVariantId = value;
-  String get _selectedWishlistAnchorType => _draft.selectedWishlistAnchorType;
-  set _selectedWishlistAnchorType(String value) =>
-      _draft.selectedWishlistAnchorType = value;
-  String? get _selectedWishlistEditionId => _draft.selectedWishlistEditionId;
+      _draft.tracking.selectedTrackingVariantId = value;
+  String get _selectedWishlistAnchorType =>
+      _draft.personal.selectedWishlistAnchorType.apiValue;
+  set _selectedWishlistAnchorType(String value) => _draft
+          .personal.selectedWishlistAnchorType =
+      PersonalItemAnchorType.fromApiValue(value) ?? PersonalItemAnchorType.item;
+  String? get _selectedWishlistEditionId =>
+      _draft.personal.selectedWishlistEditionId;
   set _selectedWishlistEditionId(String? value) =>
-      _draft.selectedWishlistEditionId = value;
-  String? get _selectedWishlistVariantId => _draft.selectedWishlistVariantId;
+      _draft.personal.selectedWishlistEditionId = value;
+  String? get _selectedWishlistVariantId =>
+      _draft.personal.selectedWishlistVariantId;
   set _selectedWishlistVariantId(String? value) =>
-      _draft.selectedWishlistVariantId = value;
+      _draft.personal.selectedWishlistVariantId = value;
   String? get _selectedWishlistBundleReleaseId =>
-      _draft.selectedWishlistBundleReleaseId;
+      _draft.personal.selectedWishlistBundleReleaseId;
   set _selectedWishlistBundleReleaseId(String? value) =>
-      _draft.selectedWishlistBundleReleaseId = value;
-  set _locationChanged(bool value) => _draft.locationChanged = value;
+      _draft.personal.selectedWishlistBundleReleaseId = value;
+  set _locationChanged(bool value) => _draft.personal.locationChanged = value;
 
-  TextEditingController get _sellPriceController => _draft.sellPriceController;
-  TextEditingController get _soldToController => _draft.soldToController;
-  DateTime? get _soldAt => _draft.soldAt;
-  set _soldAt(DateTime? value) => _draft.soldAt = value;
+  TextEditingController get _sellPriceController =>
+      _draft.personal.sellPriceController;
+  TextEditingController get _soldToController =>
+      _draft.personal.soldToController;
+  DateTime? get _soldAt => _draft.personal.soldAt;
+  set _soldAt(DateTime? value) => _draft.personal.soldAt = value;
 
   // Reading progress
-  DateTime? get _startedAt => _draft.startedAt;
-  set _startedAt(DateTime? value) => _draft.startedAt = value;
-  DateTime? get _finishedAt => _draft.finishedAt;
-  set _finishedAt(DateTime? value) => _draft.finishedAt = value;
-  Map<String, int> get _episodeRatings => _draft.episodeRatings;
-  set _episodeRatings(Map<String, int> value) => _draft.episodeRatings = value;
+  DateTime? get _startedAt => _draft.tracking.startedAt;
+  set _startedAt(DateTime? value) => _draft.tracking.startedAt = value;
+  DateTime? get _finishedAt => _draft.tracking.finishedAt;
+  set _finishedAt(DateTime? value) => _draft.tracking.finishedAt = value;
+  Map<String, int> get _episodeRatings => _draft.tracking.episodeRatings;
+  set _episodeRatings(Map<String, int> value) =>
+      _draft.tracking.episodeRatings = value;
 
   TextEditingController get _rawOrSlabbedController =>
-      _draft.rawOrSlabbedController;
+      _comicDraft?.rawOrSlabbedController ?? _dummyController;
   TextEditingController get _gradingCompanyController =>
-      _draft.gradingCompanyController;
+      _comicDraft?.gradingCompanyController ?? _dummyController;
   TextEditingController get _graderNotesController =>
-      _draft.graderNotesController;
-  TextEditingController get _signedByController => _draft.signedByController;
-  TextEditingController get _labelTypeController => _draft.labelTypeController;
+      _comicDraft?.graderNotesController ?? _dummyController;
+  TextEditingController get _signedByController =>
+      _draft.personal.signedByController;
+  TextEditingController get _labelTypeController =>
+      _comicDraft?.labelTypeController ?? _dummyController;
   TextEditingController get _pageQualityController =>
-      _draft.pageQualityController;
+      _comicDraft?.pageQualityController ?? _dummyController;
   TextEditingController get _certificationNumberController =>
-      _draft.certificationNumberController;
+      _comicDraft?.certificationNumberController ?? _dummyController;
   TextEditingController get _coverPriceController =>
-      _draft.coverPriceController;
-  bool get _keyComic => _draft.keyComic;
-  set _keyComic(bool value) => _draft.keyComic = value;
-  TextEditingController get _keyReasonController => _draft.keyReasonController;
+      _comicDraft?.coverPriceController ?? _dummyController;
+  bool get _keyComic => _comicDraft?.keyComic ?? false;
+  set _keyComic(bool value) {
+    if (_comicDraft != null) _comicDraft!.keyComic = value;
+  }
+
+  TextEditingController get _keyReasonController =>
+      _comicDraft?.keyReasonController ?? _dummyController;
   TextEditingController get _keyCategoryController =>
-      _draft.keyCategoryController;
+      _comicDraft?.keyCategoryController ?? _dummyController;
 
-  TextEditingController get _featuresController => _draft.featuresController;
+  TextEditingController get _featuresController =>
+      _videoDraft?.featuresController ?? _dummyController;
   TextEditingController get _purchaseStoreController =>
-      _draft.purchaseStoreController;
+      _draft.personal.purchaseStoreController;
   TextEditingController get _boxSetNameController =>
-      _draft.boxSetNameController;
+      _videoDraft?.boxSetNameController ?? _dummyController;
   TextEditingController get _storageDeviceController =>
-      _draft.storageDeviceController;
+      _musicDraft?.storageDeviceController ?? _dummyController;
   TextEditingController get _storageSlotController =>
-      _draft.storageSlotController;
-  List<String> get _hdrFormats => _draft.hdrFormats;
+      _musicDraft?.storageSlotController ?? _dummyController;
+  List<String> get _hdrFormats => _videoDraft?.hdrFormats ?? const [];
 
-  TextEditingController get _regionController => _draft.regionController;
-  TextEditingController get _packagingController => _draft.packagingController;
+  TextEditingController get _regionController =>
+      _videoDraft?.regionController ?? _dummyController;
+  TextEditingController get _packagingController =>
+      _videoDraft?.packagingController ?? _dummyController;
   TextEditingController get _distributorController =>
-      _draft.distributorController;
+      _videoDraft?.distributorController ?? _dummyController;
   TextEditingController get _screenRatioController =>
-      _draft.screenRatioController;
+      _videoDraft?.screenRatioController ?? _dummyController;
 
   // Collection status & bag/board
-  String? get _collectionStatus => _draft.collectionStatus;
-  set _collectionStatus(String? value) => _draft.collectionStatus = value;
-  DateTime? get _lastBagBoardDate => _draft.lastBagBoardDate;
-  set _lastBagBoardDate(DateTime? value) => _draft.lastBagBoardDate = value;
-  String? get _gameCompleteness => _draft.gameCompleteness;
-  set _gameCompleteness(String? value) => _draft.gameCompleteness = value;
-  bool get _gameHasBox => _draft.gameHasBox;
-  set _gameHasBox(bool value) => _draft.gameHasBox = value;
-  bool get _gameHasManual => _draft.gameHasManual;
-  set _gameHasManual(bool value) => _draft.gameHasManual = value;
-  String? get _gamePriceChartingId => _draft.gamePriceChartingId;
-  set _gamePriceChartingId(String? value) => _draft.gamePriceChartingId = value;
-  String? get _gameCoreRegion => _draft.gameCoreRegion;
-  set _gameCoreRegion(String? value) => _draft.gameCoreRegion = value;
-  bool get _gameValueIsLocked => _draft.gameValueIsLocked;
-  set _gameValueIsLocked(bool value) => _draft.gameValueIsLocked = value;
-  TextEditingController get _marketValueController =>
-      _draft.marketValueController;
+  String? get _collectionStatus => _draft.personal.collectionStatus;
+  set _collectionStatus(String? value) =>
+      _draft.personal.collectionStatus = value;
+  DateTime? get _lastBagBoardDate => _comicDraft?.lastBagBoardDate;
+  set _lastBagBoardDate(DateTime? value) {
+    if (_comicDraft != null) _comicDraft!.lastBagBoardDate = value;
+  }
 
-  String? get _physicalFormatId => _draft.physicalFormatId;
-  set _physicalFormatId(String? value) => _draft.physicalFormatId = value;
-  String? get _selectedSeriesId => _draft.seriesId;
-  set _selectedSeriesId(String? value) => _draft.seriesId = value;
+  String? get _gameCompleteness => _gameDraft?.gameCompleteness;
+  set _gameCompleteness(String? value) {
+    if (_gameDraft != null) _gameDraft!.gameCompleteness = value;
+  }
+
+  bool get _gameHasBox => _gameDraft?.gameHasBox ?? true;
+  set _gameHasBox(bool value) {
+    if (_gameDraft != null) _gameDraft!.gameHasBox = value;
+  }
+
+  bool get _gameHasManual => _gameDraft?.gameHasManual ?? true;
+  set _gameHasManual(bool value) {
+    if (_gameDraft != null) _gameDraft!.gameHasManual = value;
+  }
+
+  String? get _gamePriceChartingId => _gameDraft?.gamePriceChartingId;
+  set _gamePriceChartingId(String? value) {
+    if (_gameDraft != null) _gameDraft!.gamePriceChartingId = value;
+  }
+
+  String? get _gameCoreRegion => _gameDraft?.gameCoreRegion;
+  set _gameCoreRegion(String? value) {
+    if (_gameDraft != null) _gameDraft!.gameCoreRegion = value;
+  }
+
+  bool get _gameValueIsLocked => _gameDraft?.gameValueIsLocked ?? false;
+  set _gameValueIsLocked(bool value) {
+    if (_gameDraft != null) _gameDraft!.gameValueIsLocked = value;
+  }
+
+  TextEditingController get _marketValueController =>
+      _draft.personal.marketValueController;
+
+  String? get _physicalFormatId => _draft.metadata.physicalFormatId;
+  set _physicalFormatId(String? value) =>
+      _draft.metadata.physicalFormatId = value;
+  String? get _selectedSeriesId => _draft.metadata.seriesId;
+  set _selectedSeriesId(String? value) => _draft.metadata.seriesId = value;
   Map<String, String?> get _customFieldEdits => _draft.customFieldEdits;
   set _customFieldEdits(Map<String, String?> value) =>
       _draft.customFieldEdits = value;

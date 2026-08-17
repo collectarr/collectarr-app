@@ -38,17 +38,27 @@ class VideoEditController {
   List<TvReleaseMedia> tvReleaseMediaDraft = const <TvReleaseMedia>[];
   Map<String, int> tvEpisodeDiscAssignments = <String, int>{};
 
-  TextEditingController get runtimeController => draft.runtimeController;
+  VideoEditDraft? get _videoDraft => draft.kindDetails is VideoEditDraft
+      ? draft.kindDetails as VideoEditDraft
+      : null;
+  static final _dummyController = TextEditingController();
+
+  TextEditingController get runtimeController =>
+      draft.metadata.runtimeController;
   TextEditingController get seasonNumberController =>
-      draft.seasonNumberController;
+      draft.tracking.seasonNumberController;
   TextEditingController get episodeNumberController =>
-      draft.episodeNumberController;
+      draft.tracking.episodeNumberController;
   TextEditingController get audioTracksController =>
-      draft.audioTracksController;
-  TextEditingController get subtitlesController => draft.subtitlesController;
-  TextEditingController get layersController => draft.layersController;
-  TextEditingController get colorController => draft.colorController;
-  TextEditingController get nrDiscsController => draft.nrDiscsController;
+      _videoDraft?.audioTracksController ?? _dummyController;
+  TextEditingController get subtitlesController =>
+      _videoDraft?.subtitlesController ?? _dummyController;
+  TextEditingController get layersController =>
+      _videoDraft?.layersController ?? _dummyController;
+  TextEditingController get colorController =>
+      _videoDraft?.colorController ?? _dummyController;
+  TextEditingController get nrDiscsController =>
+      _videoDraft?.nrDiscsController ?? _dummyController;
 
   bool get isVideoKind => item.mediaKind.isVideoLibraryKind;
 

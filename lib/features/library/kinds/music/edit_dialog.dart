@@ -216,19 +216,26 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         }
       });
 
-    _titleController = _draft.titleController;
-    _sortKeyController = _draft.sortKeyController;
+    final musicDraft = _draft.kindDetails is MusicEditDraft
+        ? _draft.kindDetails as MusicEditDraft
+        : null;
+    final videoDraft = _draft.kindDetails is VideoEditDraft
+        ? _draft.kindDetails as VideoEditDraft
+        : null;
+
+    _titleController = _draft.metadata.titleController;
+    _sortKeyController = _draft.metadata.sortKeyController;
     _artistController =
         TextEditingController(text: item.series?.seriesTitle ?? '');
     _subtitleController =
         TextEditingController(text: item.publishing?.subtitle ?? '');
-    _publisherController = _draft.publisherController;
-    _editionTitleController = _draft.editionTitleController;
-    _variantController = _draft.variantController;
-    _barcodeController = _draft.barcodeController;
+    _publisherController = _draft.metadata.publisherController;
+    _editionTitleController = _draft.metadata.editionTitleController;
+    _variantController = _draft.metadata.variantController;
+    _barcodeController = _draft.metadata.barcodeController;
     _catalogNumberController =
         TextEditingController(text: item.music?.catalogNumber ?? '');
-    _releaseDateController = _draft.releaseDateController;
+    _releaseDateController = _draft.metadata.releaseDateController;
     _originalReleaseDateController = TextEditingController(
       text: item.music?.originalReleaseDate == null
           ? ''
@@ -239,11 +246,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           ? ''
           : formatDate(item.music!.recordingDate!),
     );
-    _releaseYearController = _draft.releaseYearController;
+    _releaseYearController = _draft.metadata.releaseYearController;
     _releaseStatusController =
         TextEditingController(text: item.music?.releaseStatus ?? '');
     _studioController = TextEditingController(text: item.music?.studio ?? '');
-    _packagingController = _draft.packagingController;
+    _packagingController =
+        videoDraft?.packagingController ?? TextEditingController();
     _mediaConditionController = TextEditingController(
       text: item.music?.mediaCondition ?? '',
     );
@@ -264,9 +272,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _compositionController = TextEditingController(
       text: item.music?.composition ?? '',
     );
-    _extrasController = _draft.featuresController;
-    _countryController = _draft.countryController;
-    _languageController = _draft.languageController;
+    _extrasController =
+        videoDraft?.featuresController ?? TextEditingController();
+    _countryController = _draft.metadata.countryController;
+    _languageController = _draft.metadata.languageController;
     _genresController = TextEditingController(
       text: (item.genres ?? const <String>[]).join(', '),
     );
@@ -275,49 +284,52 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         _splitCommaList(_soundTypeController.text) ?? const <String>[];
     _externalLinkEdits
         .addAll(_buildInitialExternalLinkEdits(_item.trailerUrls));
-    _coverController = _draft.coverController;
-    _thumbnailController = _draft.thumbnailController;
-    _synopsisController = _draft.synopsisController;
-    _notesController = _draft.notesController;
+    _coverController = _draft.metadata.coverController;
+    _thumbnailController = _draft.metadata.thumbnailController;
+    _synopsisController = _draft.metadata.synopsisController;
+    _notesController = _draft.personal.notesController;
 
-    _conditionController = _draft.conditionController;
-    _gradeController = _draft.gradeController;
-    _purchaseDateController = _draft.purchaseDateController;
-    _priceController = _draft.priceController;
-    _currencyController = _draft.currencyController;
-    _quantityController = _draft.quantityController;
+    _conditionController = _draft.personal.conditionController;
+    _gradeController = _draft.personal.gradeController;
+    _purchaseDateController = _draft.personal.purchaseDateController;
+    _priceController = _draft.personal.priceController;
+    _currencyController = _draft.personal.currencyController;
+    _quantityController = _draft.personal.quantityController;
     _indexNumberController = TextEditingController(
       text: widget.request.ownedItem?.indexNumber?.toString() ?? '',
     );
-    _ratingController = _draft.ratingController;
-    _trackingController = _draft.trackingController;
+    _ratingController = _draft.tracking.ratingController;
+    _trackingController = _draft.tracking.trackingController;
     _trackingController.text =
         widget.request.type.trackingProfile.normalizeStorageValue(
               _trackingController.text,
             ) ??
             '';
-    _tagsController = _draft.tagsController;
-    _sellPriceController = _draft.sellPriceController;
-    _soldToController = _draft.soldToController;
+    _tagsController = _draft.personal.tagsController;
+    _sellPriceController = _draft.personal.sellPriceController;
+    _soldToController = _draft.personal.soldToController;
 
-    _progressCurrentController = _draft.progressCurrentController;
-    _progressTotalController = _draft.progressTotalController;
-    _timesCompletedController = _draft.timesCompletedController;
-    _trackingNotesController = _draft.trackingNotesController;
-    _wishlistPriceController = _draft.wishlistPriceController;
-    _wishlistCurrencyController = _draft.wishlistCurrencyController;
-    _wishlistNotesController = _draft.wishlistNotesController;
-    _purchaseStoreController = _draft.purchaseStoreController;
-    _boxSetController = _draft.boxSetNameController;
-    _storageDeviceController = _draft.storageDeviceController;
-    _storageSlotController = _draft.storageSlotController;
-    _signedByController = _draft.signedByController;
+    _progressCurrentController = _draft.tracking.progressCurrentController;
+    _progressTotalController = _draft.tracking.progressTotalController;
+    _timesCompletedController = _draft.tracking.timesCompletedController;
+    _trackingNotesController = _draft.tracking.trackingNotesController;
+    _wishlistPriceController = _draft.personal.wishlistPriceController;
+    _wishlistCurrencyController = _draft.personal.wishlistCurrencyController;
+    _wishlistNotesController = _draft.personal.wishlistNotesController;
+    _purchaseStoreController = _draft.personal.purchaseStoreController;
+    _boxSetController =
+        videoDraft?.boxSetNameController ?? TextEditingController();
+    _storageDeviceController =
+        musicDraft?.storageDeviceController ?? TextEditingController();
+    _storageSlotController =
+        musicDraft?.storageSlotController ?? TextEditingController();
+    _signedByController = _draft.personal.signedByController;
     _collectionStatusController = TextEditingController(
       text:
           _collectionStatusToLabel(widget.request.ownedItem?.collectionStatus),
     );
 
-    _physicalFormatId = _draft.physicalFormatId;
+    _physicalFormatId = _draft.metadata.physicalFormatId;
     final dialogState = _draft.cloneDialogState();
     _selectedLocationId = dialogState.selectedLocationId;
     _startedAt = dialogState.startedAt;
@@ -1752,15 +1764,16 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    _draft.availableLocations = List<StorageLocation>.from(_availableLocations);
-    _draft.selectedLocationId = _selectedLocationId;
-    _draft.selectedEditionId = _selectedEditionId;
-    _draft.selectedVariantId = _selectedVariantId;
-    _draft.locationChanged = _locationChanged;
-    _draft.startedAt = _startedAt;
-    _draft.finishedAt = _finishedAt;
-    _draft.soldAt = _soldAt;
-    _draft.physicalFormatId = _physicalFormatId;
+    _draft.personal.availableLocations =
+        List<StorageLocation>.from(_availableLocations);
+    _draft.personal.selectedLocationId = _selectedLocationId;
+    _draft.personal.selectedEditionId = _selectedEditionId;
+    _draft.personal.selectedVariantId = _selectedVariantId;
+    _draft.personal.locationChanged = _locationChanged;
+    _draft.tracking.startedAt = _startedAt;
+    _draft.tracking.finishedAt = _finishedAt;
+    _draft.personal.soldAt = _soldAt;
+    _draft.metadata.physicalFormatId = _physicalFormatId;
     _draft.replaceMediaEdits(
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,
