@@ -1,5 +1,12 @@
 export 'adapters/provider_adapter.dart';
+export 'credentials/models/bgg_credentials.dart';
+export 'credentials/models/comicvine_credentials.dart';
+export 'credentials/models/hardcover_credentials.dart';
+export 'credentials/models/igdb_credentials.dart';
+export 'credentials/models/tmdb_credentials.dart';
 export 'credentials/provider_credential_store.dart';
+export 'credentials/provider_credentials_provider.dart';
+export 'credentials/secure_provider_credential_store.dart';
 export 'domain/contracts/metadata_provider.dart';
 export 'domain/contracts/provider_registry.dart';
 export 'domain/models/normalized_provider_envelope_v1.dart';
