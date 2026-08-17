@@ -6,6 +6,7 @@ import '../layout/library_pane_widths.dart';
 import '../layout/library_resizable_pane.dart';
 import '../config/library_workspace_config.dart';
 
+export 'compact_library_top_chrome.dart';
 export 'library_workspace_actions.dart';
 export 'library_workspace_controls.dart';
 export 'library_workspace_menus.dart';
