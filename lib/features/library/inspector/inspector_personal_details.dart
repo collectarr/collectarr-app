@@ -335,10 +335,7 @@ class _InspectorPersonalDetailsEditorState
     _currencyController.text = item.currency ?? 'USD';
     _notesController.text = item.personalNotes ?? '';
     _purchaseStoreController.text = item.purchaseStore ?? '';
-    _boxSetNameController.text = (item.typedDetails is VideoOwnedDetails
-            ? (item.typedDetails as VideoOwnedDetails).boxSetName
-            : null) ??
-        '';
+    _boxSetNameController.text = item.videoDetails?.boxSetName ?? '';
     _selectedLocationId = item.locationId;
     _locationChanged = false;
   }
@@ -404,9 +401,7 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
-    final video = widget.ownedItem.typedDetails is VideoOwnedDetails
-        ? widget.ownedItem.typedDetails as VideoOwnedDetails
-        : null;
+    final video = widget.ownedItem.videoDetails;
     OwnedDetailsDraft? detailsDraft;
     if (_emptyToNull(_boxSetNameController.text) != null && video != null) {
       detailsDraft = VideoOwnedDetailsDraft(

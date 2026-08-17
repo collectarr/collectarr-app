@@ -529,9 +529,7 @@ List<LibraryDetailField> _collectorFacts(OwnedItem? ownedItem) {
     return const [];
   }
   final rows = <LibraryDetailField>[];
-  final comic = ownedItem.typedDetails is ComicOwnedDetails
-      ? ownedItem.typedDetails as ComicOwnedDetails
-      : null;
+  final comic = ownedItem.comicDetails;
   if (comic?.rawOrSlabbed?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
         label: 'Raw / Slabbed', value: comic!.rawOrSlabbed!.trim()));

@@ -536,18 +536,10 @@ class LibraryEditDraft {
           : (ownedItem!.sellPriceCents! / 100).toStringAsFixed(2),
     );
     final soldToController = create(ownedItem?.soldTo ?? '');
-    final comicDetails = ownedItem?.typedDetails is ComicOwnedDetails
-        ? ownedItem!.typedDetails as ComicOwnedDetails
-        : null;
-    final videoDetails = ownedItem?.typedDetails is VideoOwnedDetails
-        ? ownedItem!.typedDetails as VideoOwnedDetails
-        : null;
-    final musicDetails = ownedItem?.typedDetails is MusicOwnedDetails
-        ? ownedItem!.typedDetails as MusicOwnedDetails
-        : null;
-    final bookDetails = ownedItem?.typedDetails is BookOwnedDetails
-        ? ownedItem!.typedDetails as BookOwnedDetails
-        : null;
+    final comicDetails = ownedItem?.comicDetails;
+    final videoDetails = ownedItem?.videoDetails;
+    final musicDetails = ownedItem?.musicDetails;
+    final bookDetails = ownedItem?.bookDetails;
     final rawOrSlabbedController = create(comicDetails?.rawOrSlabbed ?? '');
     final gradingCompanyController = create(comicDetails?.gradingCompany ?? '');
     final graderNotesController = create(comicDetails?.graderNotes ?? '');
@@ -716,12 +708,8 @@ class LibraryEditDraft {
           coverPriceController: coverPriceController,
           keyReasonController: keyReasonController,
           keyCategoryController: keyCategoryController,
-          keyComic: (ownedItem?.typedDetails is ComicOwnedDetails
-              ? (ownedItem!.typedDetails as ComicOwnedDetails).keyComic
-              : false),
-          lastBagBoardDate: (ownedItem?.typedDetails is ComicOwnedDetails
-              ? (ownedItem!.typedDetails as ComicOwnedDetails).lastBagBoardDate
-              : null),
+          keyComic: ownedItem?.comicDetails?.keyComic ?? false,
+          lastBagBoardDate: ownedItem?.comicDetails?.lastBagBoardDate,
         );
       case CatalogMediaKind.movie:
       case CatalogMediaKind.tv:
@@ -739,31 +727,16 @@ class LibraryEditDraft {
           colorController: colorController,
           nrDiscsController: nrDiscsController,
           hdrFormats: List<String>.from(
-              (ownedItem?.typedDetails is VideoOwnedDetails
-                  ? (ownedItem!.typedDetails as VideoOwnedDetails).hdrFormats
-                  : const <String>[])),
+              ownedItem?.videoDetails?.hdrFormats ?? const <String>[]),
         );
       case CatalogMediaKind.game:
         kindDetails = GameEditDraft(
-          gameCompleteness: (ownedItem?.typedDetails is GameOwnedDetails
-              ? (ownedItem!.typedDetails as GameOwnedDetails).completeness
-              : null),
-          gameHasBox: (ownedItem?.typedDetails is GameOwnedDetails
-              ? (ownedItem!.typedDetails as GameOwnedDetails).hasBox ?? true
-              : true),
-          gameHasManual: (ownedItem?.typedDetails is GameOwnedDetails
-              ? (ownedItem!.typedDetails as GameOwnedDetails).hasManual ?? true
-              : true),
-          gamePriceChartingId: (ownedItem?.typedDetails is GameOwnedDetails
-              ? (ownedItem!.typedDetails as GameOwnedDetails).priceChartingId
-              : null),
-          gameCoreRegion: (ownedItem?.typedDetails is GameOwnedDetails
-              ? (ownedItem!.typedDetails as GameOwnedDetails).coreRegion
-              : null),
-          gameValueIsLocked: (ownedItem?.typedDetails is GameOwnedDetails
-              ? (ownedItem!.typedDetails as GameOwnedDetails).valueIsLocked ??
-                  false
-              : false),
+          gameCompleteness: ownedItem?.gameDetails?.completeness,
+          gameHasBox: ownedItem?.gameDetails?.hasBox ?? true,
+          gameHasManual: ownedItem?.gameDetails?.hasManual ?? true,
+          gamePriceChartingId: ownedItem?.gameDetails?.priceChartingId,
+          gameCoreRegion: ownedItem?.gameDetails?.coreRegion,
+          gameValueIsLocked: ownedItem?.gameDetails?.valueIsLocked ?? false,
         );
       case CatalogMediaKind.music:
         kindDetails = MusicEditDraft(

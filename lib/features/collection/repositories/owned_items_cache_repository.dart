@@ -205,7 +205,7 @@ class OwnedItemsCacheRepository {
   }
 
   OwnedItemsCacheCompanion _toCompanion(OwnedItem item) {
-    final details = item.typedDetails;
+    final details = item.details;
     final comic = details is ComicOwnedDetails ? details : null;
     final video = details is VideoOwnedDetails ? details : null;
     final game = details is GameOwnedDetails ? details : null;

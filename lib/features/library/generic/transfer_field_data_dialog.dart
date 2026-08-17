@@ -235,7 +235,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             startedAt: Patch.set(updated.startedAt),
             finishedAt: Patch.set(updated.finishedAt),
             soldAt: Patch.set(updated.soldAt),
-            details: Patch.set(updated.typedDetails.toDraft()),
+            details: Patch.set(updated.details.toDraft()),
           ),
         );
         transferred++;
@@ -272,7 +272,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
               currency: Patch.set(updated.currency),
               readStatus: Patch.set(updated.readStatus),
               soldTo: Patch.set(updated.soldTo),
-              details: Patch.set(updated.typedDetails.toDraft()),
+              details: Patch.set(updated.details.toDraft()),
             ),
           );
         }

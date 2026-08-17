@@ -166,7 +166,7 @@ class LibraryBulkActions {
           finishedAt: src.finishedAt,
           tags: src.tags,
         ),
-        details: src.typedDetails.toDraft(),
+        details: src.details.toDraft(),
       );
       await coordinator.addOwnedItem(addCmd);
     }

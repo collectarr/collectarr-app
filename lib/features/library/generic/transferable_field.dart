@@ -47,46 +47,29 @@ class TransferableField {
       case 'currency':
         return item.currency;
       case 'rawOrSlabbed':
-        return (item.typedDetails is ComicOwnedDetails
-            ? (item.typedDetails as ComicOwnedDetails).rawOrSlabbed
-            : null);
+        return item.comicDetails?.rawOrSlabbed;
       case 'gradingCompany':
-        return (item.typedDetails is ComicOwnedDetails
-            ? (item.typedDetails as ComicOwnedDetails).gradingCompany
-            : null);
+        return item.comicDetails?.gradingCompany;
       case 'graderNotes':
-        return (item.typedDetails is ComicOwnedDetails
-            ? (item.typedDetails as ComicOwnedDetails).graderNotes
-            : null);
+        return item.comicDetails?.graderNotes;
       case 'signedBy':
-        return (item.typedDetails is ComicOwnedDetails
-            ? (item.typedDetails as ComicOwnedDetails).signedBy
-            : null);
+        return item.comicDetails?.signedBy;
       case 'keyReason':
-        return (item.typedDetails is ComicOwnedDetails
-            ? (item.typedDetails as ComicOwnedDetails).keyReason
-            : null);
+        return item.comicDetails?.keyReason;
       case 'readStatus':
         return item.readStatus;
       case 'soldTo':
         return item.soldTo;
       case 'features':
-        return (item.typedDetails is VideoOwnedDetails
-            ? (item.typedDetails as VideoOwnedDetails).features
-            : null);
+        return item.videoDetails?.features;
       case 'purchaseStore':
         return item.purchaseStore;
       case 'boxSetName':
-        return (item.typedDetails is VideoOwnedDetails
-            ? (item.typedDetails as VideoOwnedDetails).boxSetName
-            : null);
+        return item.videoDetails?.boxSetName;
       case 'pricePaidCents':
         return item.pricePaidCents?.toString();
       case 'coverPriceCents':
-        return (item.typedDetails is ComicOwnedDetails
-                ? (item.typedDetails as ComicOwnedDetails).coverPriceCents
-                : null)
-            ?.toString();
+        return item.comicDetails?.coverPriceCents?.toString();
       case 'sellPriceCents':
         return item.sellPriceCents?.toString();
       case 'quantity':
@@ -104,10 +87,7 @@ class TransferableField {
       case 'soldAt':
         return item.soldAt?.toIso8601String();
       case 'keyComic':
-        return (item.typedDetails is ComicOwnedDetails &&
-                (item.typedDetails as ComicOwnedDetails).keyComic)
-            ? 'true'
-            : null;
+        return (item.comicDetails?.keyComic == true) ? 'true' : null;
       default:
         return null;
     }
@@ -115,12 +95,8 @@ class TransferableField {
 
   /// Apply [value] (or null to clear) onto [item], returning the updated copy.
   OwnedItem writeTo(OwnedItem item, String? value) {
-    final comic = item.typedDetails is ComicOwnedDetails
-        ? item.typedDetails as ComicOwnedDetails
-        : null;
-    final video = item.typedDetails is VideoOwnedDetails
-        ? item.typedDetails as VideoOwnedDetails
-        : null;
+    final comic = item.comicDetails;
+    final video = item.videoDetails;
 
     switch (key) {
       case 'condition':

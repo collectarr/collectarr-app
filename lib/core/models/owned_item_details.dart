@@ -16,7 +16,7 @@ sealed class OwnedItemDetails {
     if (kind == CatalogMediaKind.unknown) {
       return const GenericOwnedDetails();
     }
-    return defaultLibraryKindRegistry.getByKind(kind).decodeOwnedDetails(json);
+    return libraryKindRuntimeForKind(kind).decodeOwnedDetails(json);
   }
 
   static OwnedItemDetails defaultForKind(CatalogMediaKind kind) {

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 
@@ -33,10 +32,8 @@ class LibraryToolbarStatsCalculator {
       }
       if (ownedItem != null) {
         totalPricePaid += ownedItem.pricePaidCents ?? 0;
-        if (ownedItem.typedDetails is ComicOwnedDetails) {
-          totalCoverPrice +=
-              (ownedItem.typedDetails as ComicOwnedDetails).coverPriceCents ??
-                  0;
+        if (ownedItem.comicDetails case final comic?) {
+          totalCoverPrice += comic.coverPriceCents ?? 0;
         }
         totalSellPrice += ownedItem.sellPriceCents ?? 0;
         currency ??= ownedItem.currency;

@@ -180,7 +180,7 @@ final class OwnedItemMutations {
             : null;
 
         final resolvedDetails = command.details.when(
-          unchanged: () => existing.typedDetails,
+          unchanged: () => existing.details,
           set: (draft) {
             final details = draft.toDetails();
             runtime?.validateOwnedDetails(details);

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -119,9 +118,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         ? dto.synopsis?.trim()
         : comic?.plotSummary?.trim();
     final plotDescription = comic?.plotDescription?.trim();
-    final comicDetails = ownedItem?.typedDetails is ComicOwnedDetails
-        ? ownedItem!.typedDetails as ComicOwnedDetails
-        : null;
+    final comicDetails = ownedItem?.comicDetails;
     final slabLabel = librarySlabMarkerLabel(
       comicDetails?.rawOrSlabbed,
       comicDetails?.gradingCompany,

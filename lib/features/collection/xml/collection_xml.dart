@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:xml/xml.dart';
 
@@ -84,9 +83,7 @@ class CollectionXml {
                 _textElement(
                     builder, 'IndexNumber', owned.indexNumber.toString());
               }
-              final comic = owned.typedDetails is ComicOwnedDetails
-                  ? owned.typedDetails as ComicOwnedDetails
-                  : null;
+              final comic = owned.comicDetails;
               _textElement(builder, 'RawOrSlabbed', comic?.rawOrSlabbed);
               _textElement(builder, 'GradingCompany', comic?.gradingCompany);
               _textElement(builder, 'GraderNotes', comic?.graderNotes);

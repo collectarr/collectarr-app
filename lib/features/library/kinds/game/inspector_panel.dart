@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
@@ -292,26 +291,10 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Collection status', item.source.ownedItem!.collectionStatus!),
       if (item.source.locationPath?.trim().isNotEmpty == true)
         ('Location', item.source.locationPath!),
-      if (owned?.typedDetails is MusicOwnedDetails &&
-          (owned!.typedDetails as MusicOwnedDetails)
-                  .storageDevice
-                  ?.trim()
-                  .isNotEmpty ==
-              true)
-        (
-          'Storage device',
-          (owned.typedDetails as MusicOwnedDetails).storageDevice!
-        ),
-      if (owned?.typedDetails is MusicOwnedDetails &&
-          (owned!.typedDetails as MusicOwnedDetails)
-                  .storageSlot
-                  ?.trim()
-                  .isNotEmpty ==
-              true)
-        (
-          'Storage slot',
-          (owned.typedDetails as MusicOwnedDetails).storageSlot!
-        ),
+      if (owned?.musicDetails?.storageDevice?.trim().isNotEmpty == true)
+        ('Storage device', owned!.musicDetails!.storageDevice!),
+      if (owned?.musicDetails?.storageSlot?.trim().isNotEmpty == true)
+        ('Storage slot', owned!.musicDetails!.storageSlot!),
       if (owned?.ownerLabel?.trim().isNotEmpty == true)
         ('Owner', owned!.ownerLabel!),
       if (owned?.pricePaidCents != null)

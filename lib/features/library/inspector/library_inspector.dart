@@ -676,7 +676,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               finishedAt: ownedItem.finishedAt,
               tags: ownedItem.tags,
             ),
-            details: ownedItem.typedDetails.toDraft(),
+            details: ownedItem.details.toDraft(),
           ),
         );
     if (!mounted) {

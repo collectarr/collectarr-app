@@ -22,9 +22,7 @@ final class ComicPersonalOverlay {
   });
 
   factory ComicPersonalOverlay.fromShelf(ShelfEntry source) {
-    final comicDetails = source.ownedItem?.typedDetails is ComicOwnedDetails
-        ? source.ownedItem!.typedDetails as ComicOwnedDetails
-        : null;
+    final comicDetails = source.ownedItem?.comicDetails;
     return ComicPersonalOverlay(
       ownedItem: source.ownedItem,
       trackingEntry: source.trackingEntry,
@@ -44,10 +42,7 @@ final class ComicPersonalOverlay {
   final String? signedBy;
   final DateTime? updatedAt;
 
-  ComicOwnedDetails? get _comicDetails =>
-      ownedItem?.typedDetails is ComicOwnedDetails
-          ? ownedItem!.typedDetails as ComicOwnedDetails
-          : null;
+  ComicOwnedDetails? get _comicDetails => ownedItem?.comicDetails;
 
   bool get isSlabbed => _comicDetails?.rawOrSlabbed == 'Slabbed';
   bool get keyComic => _comicDetails?.keyComic ?? false;

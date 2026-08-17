@@ -19,7 +19,7 @@ class OwnedItem {
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
-    this.details,
+    OwnedItemDetails? details,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -44,13 +44,15 @@ class OwnedItem {
     this.purchaseStore,
     this.collectionStatus,
     this.marketValueCents,
-  }) : anchor = anchor ??
+  })  : anchor = anchor ??
             PersonalItemAnchor.fromRaw(
               anchorType: anchorType,
               editionId: editionId,
               variantId: variantId,
               bundleReleaseId: bundleReleaseId,
-            );
+            ),
+        details =
+            details ?? OwnedItemDetails.defaultForKind(catalogRef.mediaKind);
 
   final String id;
   final CatalogEntityRef catalogRef;
@@ -81,15 +83,14 @@ class OwnedItem {
   final String? purchaseStore;
   final String? collectionStatus;
   final int? marketValueCents;
-  final OwnedItemDetails? details;
+  final OwnedItemDetails details;
 
-  OwnedItemDetails get typedDetails =>
-      details ?? OwnedItemDetails.defaultForKind(catalogRef.mediaKind);
-
-  ComicOwnedDetails? get comicDetails => typedDetails.comic;
-  VideoOwnedDetails? get videoDetails => typedDetails.video;
-  GameOwnedDetails? get gameDetails => typedDetails.game;
-  MusicOwnedDetails? get musicDetails => typedDetails.music;
+  ComicOwnedDetails? get comicDetails => details.comic;
+  VideoOwnedDetails? get videoDetails => details.video;
+  GameOwnedDetails? get gameDetails => details.game;
+  MusicOwnedDetails? get musicDetails => details.music;
+  BookOwnedDetails? get bookDetails => details.book;
+  BoardgameOwnedDetails? get boardgameDetails => details.boardgame;
 
   String get itemId => catalogRef.id;
 
@@ -136,7 +137,45 @@ class OwnedItem {
       if (purchaseStore != null) 'purchase_store': purchaseStore,
       if (collectionStatus != null) 'collection_status': collectionStatus,
       if (marketValueCents != null) 'market_value_cents': marketValueCents,
-      ...typedDetails.toJson(),
+      ...details.toJson(),
+    };
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'catalog_ref': catalogRef.toJson(),
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'is_digital': isDigital,
+      'anchor_type': anchorType,
+      'edition_id': editionId,
+      'variant_id': variantId,
+      'bundle_release_id': bundleReleaseId,
+      'condition': condition,
+      'grade': grade,
+      'purchase_date': purchaseDate?.toUtc().toIso8601String(),
+      'price_paid_cents': pricePaidCents,
+      'currency': currency,
+      'personal_notes': personalNotes,
+      'quantity': quantity,
+      'index_number': indexNumber,
+      'rating': rating,
+      'read_status': readStatus,
+      'started_at': startedAt?.toUtc().toIso8601String(),
+      'finished_at': finishedAt?.toUtc().toIso8601String(),
+      'tags': tags,
+      'updated_at': updatedAt.toUtc().toIso8601String(),
+      'deleted_at': deletedAt?.toUtc().toIso8601String(),
+      'sold_at': soldAt?.toUtc().toIso8601String(),
+      'sell_price_cents': sellPriceCents,
+      'sold_to': soldTo,
+      'owner_user_id': ownerUserId,
+      if (ownerLabel != null) 'owner_label': ownerLabel,
+      'location_id': locationId,
+      if (purchaseStore != null) 'purchase_store': purchaseStore,
+      if (collectionStatus != null) 'collection_status': collectionStatus,
+      if (marketValueCents != null) 'market_value_cents': marketValueCents,
+      ...details.toJson(),
     };
   }
 
