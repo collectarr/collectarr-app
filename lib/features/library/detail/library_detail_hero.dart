@@ -286,12 +286,16 @@ class _DetailSummaryFact extends StatelessWidget {
               ),
         ),
         const SizedBox(width: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: palette.textPrimary,
-                fontWeight: FontWeight.w800,
-              ),
+        Flexible(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: palette.textPrimary,
+                  fontWeight: FontWeight.w800,
+                ),
+          ),
         ),
       ],
     );
