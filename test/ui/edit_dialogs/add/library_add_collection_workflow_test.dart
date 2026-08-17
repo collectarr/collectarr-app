@@ -71,7 +71,7 @@ void main() {
     expect(syncRows.map((row) => row.entityType), contains('tracking_entry'));
     expect(
       syncRows.map((row) => row.entityType),
-      contains('library_item_snapshot'),
+      contains('catalog_item'),
     );
   });
 
@@ -103,7 +103,7 @@ void main() {
     expect(syncRows.map((row) => row.entityType), contains('wishlist_item'));
     expect(
       syncRows.map((row) => row.entityType),
-      contains('library_item_snapshot'),
+      contains('catalog_item'),
     );
   });
 
@@ -162,7 +162,7 @@ void main() {
 
     final ownedRows = await fixture.db.select(fixture.db.ownedItemsCache).get();
 
-    expect(ownedRows.single.itemId, 'comic-release-1');
+    expect(ownedRows.single.itemId, 'edition-1');
     expect(
       ownedRows.single.anchorType,
       PersonalItemAnchorType.edition.apiValue,

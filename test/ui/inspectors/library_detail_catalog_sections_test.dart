@@ -91,7 +91,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Creators & cast'), findsOneWidget);
+    expect(find.text('Creators'), findsOneWidget);
     expect(find.text('Brian K. Vaughan'), findsOneWidget);
   });
 }

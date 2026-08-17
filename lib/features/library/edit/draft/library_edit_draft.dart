@@ -267,8 +267,7 @@ class LibraryEditDraft {
       _comic?.gradingCompanyController ?? _dummyController;
   TextEditingController get graderNotesController =>
       _comic?.graderNotesController ?? _dummyController;
-  TextEditingController get signedByController =>
-      _comic?.signedByController ?? _dummyController;
+  TextEditingController get signedByController => personal.signedByController;
   TextEditingController get labelTypeController =>
       _comic?.labelTypeController ?? _dummyController;
   TextEditingController get pageQualityController =>
@@ -546,10 +545,14 @@ class LibraryEditDraft {
     final musicDetails = ownedItem?.typedDetails is MusicOwnedDetails
         ? ownedItem!.typedDetails as MusicOwnedDetails
         : null;
+    final bookDetails = ownedItem?.typedDetails is BookOwnedDetails
+        ? ownedItem!.typedDetails as BookOwnedDetails
+        : null;
     final rawOrSlabbedController = create(comicDetails?.rawOrSlabbed ?? '');
     final gradingCompanyController = create(comicDetails?.gradingCompany ?? '');
     final graderNotesController = create(comicDetails?.graderNotes ?? '');
-    final signedByController = create(comicDetails?.signedBy ?? '');
+    final signedByController =
+        create(comicDetails?.signedBy ?? bookDetails?.signedBy ?? '');
     final labelTypeController = create(comicDetails?.labelType ?? '');
     final pageQualityController = create(comicDetails?.pageQuality ?? '');
     final certificationNumberController = create(
@@ -663,6 +666,7 @@ class LibraryEditDraft {
       episodeNumberController: episodeNumberController,
       trackingNotesController: trackingNotesController,
       tagsController: tagsController,
+      signedByController: signedByController,
       sellPriceController: sellPriceController,
       soldToController: soldToController,
       tagOptions: splitPickListValues(ownedItem?.tags),

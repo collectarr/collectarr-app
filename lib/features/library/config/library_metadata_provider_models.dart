@@ -20,6 +20,11 @@ class LibraryMetadataProviderOption {
   bool supportsKind(CatalogMediaKind kind) {
     return supportedKinds.isEmpty || supportedKinds.contains(kind.apiValue);
   }
+
+  bool supportsRawKind(String kind) {
+    return supportedKinds.isEmpty ||
+        supportedKinds.contains(kind.trim().toLowerCase());
+  }
 }
 
 class LibraryMetadataProviderUsagePolicy {

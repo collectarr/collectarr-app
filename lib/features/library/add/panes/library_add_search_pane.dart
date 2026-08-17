@@ -99,35 +99,54 @@ class LibraryAddSearchPane extends StatelessWidget {
         color: palette.panelRaised,
         border: Border(right: BorderSide(color: palette.divider)),
       ),
-      child: _SearchResultsList(
-        type: type,
-        accent: accent,
-        isMovieDesktopChrome: isMovieDesktopChrome,
-        selectedProvider: selectedProvider,
-        isBusy: isBusy,
-        error: error,
-        searchedProvider: searchedProvider,
-        results: results,
-        providerResults: providerResults,
-        queuedProviderIngests: queuedProviderIngests,
-        selectedResultId: selectedResultId,
-        selectedProviderCandidateId: selectedProviderCandidateId,
-        checkedResultIds: checkedResultIds,
-        checkedProviderIds: checkedProviderIds,
-        ownedCatalogItemIds: ownedCatalogItemIds,
-        providerQueryText: providerQueryText,
-        providerSeriesText: providerSeriesText,
-        providerNumberText: providerNumberText,
-        providerPublisherText: providerPublisherText,
-        providerYearText: providerYearText,
-        hideComicOwnedResults: hideComicOwnedResults,
-        hideComicVariantResults: hideComicVariantResults,
-        compactComicIssues: compactComicIssues,
-        onSearchCore: onSearchCore,
-        onSelectResult: onSelectResult,
-        onSelectProviderCandidate: onSelectProviderCandidate,
-        onToggleResultCheck: onToggleResultCheck,
-        onToggleProviderCheck: onToggleProviderCheck,
+      child: Column(
+        children: [
+          LibraryAddSearchSourceToggles(
+            type: type,
+            showCoreResults: showCoreResults,
+            showProviderResults: showProviderResults,
+            showMediaResults: showMediaResults,
+            showSeasonResults: showSeasonResults,
+            showReleaseResults: showReleaseResults,
+            onShowCoreResultsChanged: onShowCoreResultsChanged,
+            onShowProviderResultsChanged: onShowProviderResultsChanged,
+            onShowMediaResultsChanged: onShowMediaResultsChanged,
+            onShowSeasonResultsChanged: onShowSeasonResultsChanged,
+            onShowReleaseResultsChanged: onShowReleaseResultsChanged,
+          ),
+          Expanded(
+            child: _SearchResultsList(
+              type: type,
+              accent: accent,
+              isMovieDesktopChrome: isMovieDesktopChrome,
+              selectedProvider: selectedProvider,
+              isBusy: isBusy,
+              error: error,
+              searchedProvider: searchedProvider,
+              results: results,
+              providerResults: providerResults,
+              queuedProviderIngests: queuedProviderIngests,
+              selectedResultId: selectedResultId,
+              selectedProviderCandidateId: selectedProviderCandidateId,
+              checkedResultIds: checkedResultIds,
+              checkedProviderIds: checkedProviderIds,
+              ownedCatalogItemIds: ownedCatalogItemIds,
+              providerQueryText: providerQueryText,
+              providerSeriesText: providerSeriesText,
+              providerNumberText: providerNumberText,
+              providerPublisherText: providerPublisherText,
+              providerYearText: providerYearText,
+              hideComicOwnedResults: hideComicOwnedResults,
+              hideComicVariantResults: hideComicVariantResults,
+              compactComicIssues: compactComicIssues,
+              onSearchCore: onSearchCore,
+              onSelectResult: onSelectResult,
+              onSelectProviderCandidate: onSelectProviderCandidate,
+              onToggleResultCheck: onToggleResultCheck,
+              onToggleProviderCheck: onToggleProviderCheck,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -224,8 +243,8 @@ class _SearchSourceToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return InkWell(
-      borderRadius: BorderRadius.circular(4),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => onChanged(!value),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
@@ -234,11 +253,13 @@ class _SearchSourceToggle extends StatelessWidget {
           children: [
             SizedBox.square(
               dimension: 18,
-              child: Checkbox(
-                value: value,
-                onChanged: (checked) => onChanged(checked ?? false),
-                visualDensity: VisualDensity.compact,
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              child: IgnorePointer(
+                child: Checkbox(
+                  value: value,
+                  onChanged: null,
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
               ),
             ),
             const SizedBox(width: 6),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -13,6 +14,7 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_contra
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
+import 'package:collectarr_app/features/library/add/library_add_registry.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/comic_add_search_options_scope.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -20,6 +22,7 @@ import 'package:collectarr_app/features/library/add/models/movie_add_chrome_scop
 import 'package:collectarr_app/features/library/add/panes/library_add_bottom_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_shell.dart';
@@ -127,9 +130,30 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   static const _minDialogHeight = 560.0;
   static const _maxDialogHeight = 1200.0;
 
+  double _resultsPaneWidth = 500;
+
+  double _clampedResultsPaneWidth(double totalWidth) {
+    final minResultsWidth = 320.0;
+    final minPreviewWidth = 320.0;
+    final maxResultsWidth = (totalWidth - minPreviewWidth).clamp(
+      minResultsWidth,
+      totalWidth,
+    );
+    return _resultsPaneWidth.clamp(minResultsWidth, maxResultsWidth);
+  }
+
+  void _resizeResultsPane(double delta, double totalWidth) {
+    setState(() {
+      _resultsPaneWidth = _clampedResultsPaneWidth(totalWidth) + delta;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    if (widget.type.capabilities.wideDialog) {
+      _resultsPaneWidth = 720;
+    }
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
     _barcodeController =
         TextEditingController(text: widget.initialBarcode ?? '');
@@ -495,6 +519,20 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final selectedCandidate = state.selectedCandidate;
     final selectedItem = state.selectedItem;
 
+    final kind = widget.type.workspace.kind;
+    final headerBuilder =
+        widget.headerBuilder ?? LibraryAddRegistry.headerBuilderFor(kind);
+    final modeBarBuilder =
+        widget.modeBarBuilder ?? LibraryAddRegistry.modeBarBuilderFor(kind);
+    final searchPaneBuilder =
+        widget.searchPaneBuilder ?? LibraryAddRegistry.searchBuilderFor(kind);
+    final manualPaneBuilder =
+        widget.manualPaneBuilder ?? LibraryAddRegistry.manualBuilderFor(kind);
+    final previewPaneBuilder =
+        widget.previewPaneBuilder ?? LibraryAddRegistry.previewBuilderFor(kind);
+    final bottomBarBuilder =
+        widget.bottomBarBuilder ?? LibraryAddRegistry.bottomBarBuilderFor(kind);
+
     final headerRequest = LibraryAddHeaderRequest(
       type: widget.type,
       accent: accent,
@@ -518,6 +556,16 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       },
       onSearch: () {
         _controller.dismissSuggestions();
+        final series = _searchSeriesController.text;
+        final number = _searchNumberController.text;
+        final publisher = _searchPublisherController.text;
+        final year = _searchYearController.text;
+        final query = _queryController.text;
+        _controller.updateSearchSeries(series);
+        _controller.updateSearchNumber(number);
+        _controller.updateSearchPublisher(publisher);
+        _controller.updateSearchYear(year);
+        _controller.updateQuery(query);
         _controller.executeSearch();
       },
       onQueryChanged: _controller.updateQuery,
@@ -562,62 +610,71 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _dialogHeight = ((_dialogHeight ?? _defaultDialogHeight) + delta)
             .clamp(_minDialogHeight, _maxDialogHeight);
       }),
-      header: widget.headerBuilder?.call(context, headerRequest) ??
-          AccentDialogHeader(
-            title: 'Add ${widget.type.workspace.kind.apiValue}',
-            accent: accent,
-            icon: widget.type.workspace.icon,
-            onClose: () => Navigator.of(context).pop(),
-          ),
+      header: const SizedBox.shrink(),
       body: Column(
         children: [
-          widget.modeBarBuilder?.call(context, modeBarRequest) ??
-              MovieAddChromeScope(
-                isWideChrome: isMovieDesktopChrome,
-                videoKindFilters: state.search.videoKindFilters,
-                showVideoKindFilters:
-                    widget.type.addChrome.videoKindFilterOptions.isNotEmpty,
-                onVideoKindFilterChanged: (k, checked) {
-                  _controller.setVideoKindFilter(k, checked);
-                },
-                child: LibraryAddModeBar(
-                  type: modeBarRequest.type,
-                  accent: modeBarRequest.accent,
-                  isMovieDesktopChrome: isMovieDesktopChrome,
-                  mode: modeBarRequest.mode,
-                  queryController: modeBarRequest.queryController,
-                  barcodeController: modeBarRequest.barcodeController,
-                  isSearching: modeBarRequest.isSearching,
-                  isSearchingProvider: modeBarRequest.isSearchingProvider,
-                  onModeChanged: modeBarRequest.onModeChanged,
-                  onSearch: modeBarRequest.onSearch,
-                  onQueryChanged: modeBarRequest.onQueryChanged,
-                  suggestions: modeBarRequest.suggestions,
-                  showSuggestions: modeBarRequest.showSuggestions,
-                  onSelectSuggestion: modeBarRequest.onSelectSuggestion,
-                  onDismissSuggestions: modeBarRequest.onDismissSuggestions,
-                  canScanCover: modeBarRequest.canScanCover,
-                  isScanningCover: modeBarRequest.isScanningCover,
-                  onScanCover: modeBarRequest.onScanCover,
-                  onLookupBarcode: modeBarRequest.onLookupBarcode,
-                  onManual: modeBarRequest.onManual,
-                  showAdvanced: modeBarRequest.showAdvanced,
-                  onToggleAdvanced: modeBarRequest.onToggleAdvanced,
-                  seriesController: modeBarRequest.seriesController,
-                  numberController: modeBarRequest.numberController,
-                  publisherController: modeBarRequest.publisherController,
-                  yearController: modeBarRequest.yearController,
-                  videoKindFilters:
-                      widget.type.addChrome.videoKindFilterOptions.isNotEmpty
-                          ? state.search.videoKindFilters
-                          : null,
-                  onVideoKindFilterChanged:
-                      widget.type.addChrome.videoKindFilterOptions.isNotEmpty
-                          ? (k, checked) =>
-                              _controller.setVideoKindFilter(k, checked)
-                          : null,
-                ),
+          headerBuilder?.call(context, headerRequest) ??
+              AccentDialogHeader(
+                title: 'Add ${widget.type.pluralLabel}',
+                accent: accent,
+                icon: widget.type.workspace.icon,
+                onClose: () => Navigator.of(context).pop(),
               ),
+          MovieAddChromeScope(
+            isWideChrome: isMovieDesktopChrome,
+            videoKindFilters: state.search.videoKindFilters,
+            showVideoKindFilters:
+                widget.type.addChrome.videoKindFilterOptions.isNotEmpty,
+            onVideoKindFilterChanged: (k, checked) {
+              _controller.setVideoKindFilter(k, checked);
+            },
+            child: Builder(
+              builder: (scopedContext) =>
+                  modeBarBuilder?.call(scopedContext, modeBarRequest) ??
+                  LibraryAddModeBar(
+                    type: modeBarRequest.type,
+                    accent: modeBarRequest.accent,
+                    isMovieDesktopChrome: isMovieDesktopChrome,
+                    mode: modeBarRequest.mode,
+                    queryController: modeBarRequest.queryController,
+                    barcodeController: modeBarRequest.barcodeController,
+                    isSearching: modeBarRequest.isSearching,
+                    isSearchingProvider: modeBarRequest.isSearchingProvider,
+                    onModeChanged: modeBarRequest.onModeChanged,
+                    onSearch: modeBarRequest.onSearch,
+                    onQueryChanged: modeBarRequest.onQueryChanged,
+                    suggestions: modeBarRequest.suggestions,
+                    showSuggestions: modeBarRequest.showSuggestions,
+                    onSelectSuggestion: modeBarRequest.onSelectSuggestion,
+                    onDismissSuggestions: modeBarRequest.onDismissSuggestions,
+                    canScanCover: modeBarRequest.canScanCover,
+                    isScanningCover: modeBarRequest.isScanningCover,
+                    onScanCover: modeBarRequest.onScanCover,
+                    onLookupBarcode: modeBarRequest.onLookupBarcode,
+                    onManual: modeBarRequest.onManual,
+                    showAdvanced: modeBarRequest.showAdvanced,
+                    onToggleAdvanced: modeBarRequest.onToggleAdvanced,
+                    seriesController: modeBarRequest.seriesController,
+                    numberController: modeBarRequest.numberController,
+                    publisherController: modeBarRequest.publisherController,
+                    yearController: modeBarRequest.yearController,
+                    videoKindFilters:
+                        widget.type.addChrome.videoKindFilterOptions.isNotEmpty
+                            ? state.search.videoKindFilters
+                            : null,
+                    onVideoKindFilterChanged:
+                        widget.type.addChrome.videoKindFilterOptions.isNotEmpty
+                            ? (k, checked) =>
+                                _controller.setVideoKindFilter(k, checked)
+                            : null,
+                  ),
+            ),
+          ),
+          if (_barcodeController.text.trim().isNotEmpty)
+            LibraryAddBarcodePrefillBanner(
+              type: widget.type,
+              barcode: _barcodeController.text.trim(),
+            ),
           Expanded(
             child: switch (state.mode) {
               LibraryAddDialogMode.search ||
@@ -669,21 +726,19 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       onSearchCore: _controller.executeSearch,
                     );
 
-                    return widget.searchPaneBuilder
-                            ?.call(context, searchPaneRequest) ??
-                        ComicAddSearchOptionsScope(
-                          hideOwnedResults:
-                              state.selection.hideComicOwnedResults,
-                          hideVariantResults:
-                              state.selection.hideComicVariantResults,
-                          compactIssues: state.selection.compactComicIssues,
-                          onHideOwnedResultsChanged:
-                              _controller.setHideComicOwnedResults,
-                          onHideVariantResultsChanged:
-                              _controller.setHideComicVariantResults,
-                          onCompactIssuesChanged:
-                              _controller.setCompactComicIssues,
-                          child: LibraryAddSearchPane(
+                    final searchPaneWidget = ComicAddSearchOptionsScope(
+                      hideOwnedResults: state.selection.hideComicOwnedResults,
+                      hideVariantResults:
+                          state.selection.hideComicVariantResults,
+                      compactIssues: state.selection.compactComicIssues,
+                      onHideOwnedResultsChanged:
+                          _controller.setHideComicOwnedResults,
+                      onHideVariantResultsChanged:
+                          _controller.setHideComicVariantResults,
+                      onCompactIssuesChanged: _controller.setCompactComicIssues,
+                      child: searchPaneBuilder?.call(
+                              context, searchPaneRequest) ??
+                          LibraryAddSearchPane(
                             type: searchPaneRequest.type,
                             isBusy: searchPaneRequest.isBusy,
                             isMovieDesktopChrome: isMovieDesktopChrome,
@@ -758,10 +813,98 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                                 _controller.setCompactComicIssues,
                             onSearchCore: searchPaneRequest.onSearchCore,
                           ),
-                        );
+                    );
+
+                    final previewPaneWidget = LibraryAddPreviewPane(
+                      type: widget.type,
+                      accent: accent,
+                      isMovieDesktopChrome: isMovieDesktopChrome,
+                      previewPaneBuilder: previewPaneBuilder,
+                      item: selectedItem,
+                      candidate: selectedCandidate,
+                      candidatePreview: selectedCandidate == null
+                          ? null
+                          : state.preview.providerPreviews[
+                              selectedCandidate.localCatalogId],
+                      isFetchingPreview: (selectedCandidate != null &&
+                              state.preview.pendingProviderPreviewIds.contains(
+                                  selectedCandidate.localCatalogId)) ||
+                          (selectedItem != null &&
+                              state.preview.pendingHydratedResultIds
+                                  .contains(selectedItem.id)),
+                      providerLabel: widget.type
+                          .metadataProviderLabel(state.search.selectedProvider),
+                      searched: state.search.results.isNotEmpty ||
+                          state.search.searchedProvider,
+                      addTarget: state.target,
+                      referenceType: state.selection.referenceType,
+                      availableBundleReleases: selectedItem == null
+                          ? const <BundleReleaseSummary>[]
+                          : state.preview
+                                  .bundleReleasesByItemId[selectedItem.id] ??
+                              const <BundleReleaseSummary>[],
+                      selectedBundleReleaseId:
+                          state.selection.selectedBundleReleaseId,
+                      selectedBundleReleaseDetail:
+                          state.selection.selectedBundleReleaseId == null
+                              ? null
+                              : state.preview.bundleReleaseDetailsById[
+                                  state.selection.selectedBundleReleaseId],
+                      selectedEditionId:
+                          state.selection.selectedReferenceEditionId,
+                      selectedVariantId:
+                          state.selection.selectedReferenceVariantId,
+                      isLoadingBundleReleases: selectedItem != null &&
+                          state.preview.pendingBundleReleaseItemIds
+                              .contains(selectedItem.id),
+                      isLoadingBundleReleaseDetail:
+                          state.selection.selectedBundleReleaseId != null &&
+                              state.preview.pendingBundleReleaseDetailIds
+                                  .contains(
+                                      state.selection.selectedBundleReleaseId),
+                      onReferenceTypeChanged: (value) =>
+                          _controller.setReferenceType(value),
+                      onEditionSelected: (editionId) =>
+                          _controller.selectReferenceEdition(editionId),
+                      onVariantSelected: (variantId) =>
+                          _controller.selectReferenceVariant(variantId),
+                      onBundleReleaseSelected: (bundleReleaseId) =>
+                          _controller.selectBundleRelease(bundleReleaseId),
+                    );
+
+                    if (constraints.maxWidth < 720) {
+                      final searchHeight = constraints.maxHeight > 400
+                          ? 300.0
+                          : constraints.maxHeight * 0.5;
+                      return Column(
+                        children: [
+                          SizedBox(
+                            height: searchHeight,
+                            child: searchPaneWidget,
+                          ),
+                          Expanded(child: previewPaneWidget),
+                        ],
+                      );
+                    }
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                          width: _clampedResultsPaneWidth(constraints.maxWidth),
+                          child: searchPaneWidget,
+                        ),
+                        LibraryAddPaneResizeDivider(
+                          onDragDelta: (delta) => _resizeResultsPane(
+                            delta,
+                            constraints.maxWidth,
+                          ),
+                        ),
+                        Expanded(child: previewPaneWidget),
+                      ],
+                    );
                   },
                 ),
-              LibraryAddDialogMode.manual => widget.manualPaneBuilder?.call(
+              LibraryAddDialogMode.manual => manualPaneBuilder?.call(
                     context,
                     LibraryAddManualPaneRequest(
                       kind: widget.type.workspace.kind,
@@ -985,7 +1128,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           ),
         ],
       ),
-      footer: widget.bottomBarBuilder?.call(
+      footer: bottomBarBuilder?.call(
             context,
             LibraryAddBottomBarRequest(
               type: widget.type,

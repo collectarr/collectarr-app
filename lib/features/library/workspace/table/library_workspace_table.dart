@@ -434,6 +434,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                           const SizedBox(width: 2),
                           Text(
                             sortPriority.toString(),
+                            key: ValueKey('sort-priority-$column'),
                             style: TextStyle(
                               color:
                                   sorted ? accentColor : headerMutedTextColor,

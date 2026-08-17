@@ -159,7 +159,7 @@ void main() {
         details: const VideoOwnedDetailsDraft(),
       ),
     );
-    await wishlistMutations.addToWishlist('movie-2');
+    await wishlistMutations.addToWishlist('movie-2', fallbackKind: 'movie');
     await trackingMutations.upsertTrackingEntry(
       TrackingTarget.catalog(testCatalogRef('movie-3', kind: 'movie')),
       sourceType: TrackingSourceType.streaming,
@@ -168,7 +168,8 @@ void main() {
 
     final ownedRow = await db.select(db.ownedItemsCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
-    final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
+    final trackingRow = (await db.select(db.trackingEntriesCache).get())
+        .firstWhere((row) => row.itemId == 'movie-3');
     final actions = buildActions();
 
     await actions.removeSelected([
@@ -221,7 +222,10 @@ void main() {
 
     expect(ownedRows.single.deletedAt, isNotNull);
     expect(wishlistRows.single.deletedAt, isNotNull);
-    expect(trackingRows.single.deletedAt, isNotNull);
+    expect(
+      trackingRows.firstWhere((r) => r.itemId == 'movie-3').deletedAt,
+      isNotNull,
+    );
   });
 
   test('moveSelectedToOwned keeps unrelated release wishlists active',
@@ -244,9 +248,10 @@ void main() {
           trackingMutations: trackingMutations,
         );
 
-    await wishlistMutations.addToWishlist('movie-1', editionId: 'edition-4k');
     await wishlistMutations.addToWishlist('movie-1',
-        editionId: 'edition-bluray');
+        fallbackKind: 'movie', editionId: 'edition-4k');
+    await wishlistMutations.addToWishlist('movie-1',
+        fallbackKind: 'movie', editionId: 'edition-bluray');
 
     final rows = await db.select(db.wishlistItemsCache).get();
     final row4k = rows.firstWhere((row) => row.editionId == 'edition-4k');

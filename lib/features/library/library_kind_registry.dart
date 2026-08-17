@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,22 +57,30 @@ final class LibraryKindRegistry {
 
 final defaultLibraryKindRegistry = LibraryKindRegistry(collectarrKindModules);
 
-final libraryKindRegistryProvider = Provider<LibraryKindRegistry>(
-  (ref) => defaultLibraryKindRegistry,
-);
+final libraryKindRegistryProvider = Provider<LibraryKindRegistry>((ref) {
+  return defaultLibraryKindRegistry;
+});
 
 LibraryKindRuntime libraryKindRuntimeForKind(
   CatalogMediaKind kind, {
   LibraryKindRegistry? registry,
 }) {
-  return (registry ?? defaultLibraryKindRegistry).require(kind);
+  final reg = registry ?? defaultLibraryKindRegistry;
+  final runtime = reg.tryGet(kind);
+  if (runtime != null) {
+    return runtime;
+  }
+  if (kind == CatalogMediaKind.unknown) {
+    return genericKindModule;
+  }
+  return reg.require(kind);
 }
 
 LibraryKindRuntime libraryKindRuntimeForType(
   LibraryTypeConfig type, {
   LibraryKindRegistry? registry,
 }) {
-  return (registry ?? defaultLibraryKindRegistry).requireForType(type);
+  return libraryKindRuntimeForKind(type.workspace.kind, registry: registry);
 }
 
 LibraryKindProviderMapper? libraryKindProviderMapperForType(

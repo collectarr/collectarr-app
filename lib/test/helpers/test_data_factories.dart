@@ -200,6 +200,10 @@ OwnedItem testOwnedItem({
         storageDevice: storageDevice,
         storageSlot: storageSlot,
       );
+    case 'book':
+      details = BookOwnedDetails(
+        signedBy: signedBy,
+      );
     default:
       details = const GenericOwnedDetails();
   }

@@ -188,6 +188,11 @@ final comicLibrarySortDefinitions = [
   sortFromField<ComicKind, ComicWorkspaceDto, DateTime>(
       ComicKindSchema.releaseDate,
       defaultAscending: false),
+  sortFromField<ComicKind, ComicWorkspaceDto, String>(
+      ComicKindSchema.condition),
+  sortFromField<ComicKind, ComicWorkspaceDto, DateTime>(
+      ComicKindSchema.updatedAt,
+      defaultAscending: false),
 ];
 
 final comicLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{

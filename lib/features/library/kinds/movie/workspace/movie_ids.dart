@@ -28,6 +28,16 @@ abstract final class MovieFieldIds {
       LibraryFieldId<MovieKind, String?>('movie.watch_status');
   static const editionLabel =
       LibraryFieldId<MovieKind, String?>('movie.edition_label');
+  static const genre = LibraryFieldId<MovieKind, String?>('movie.genre');
+  static const audienceRating =
+      LibraryFieldId<MovieKind, String?>('movie.audience_rating');
+  static const movieOrTvSeries =
+      LibraryFieldId<MovieKind, String?>('movie.movie_or_tv_series');
+  static const edition = LibraryFieldId<MovieKind, String?>('movie.edition');
+  static const audioTracks =
+      LibraryFieldId<MovieKind, String?>('movie.audio_tracks');
+  static const editionReleaseDate =
+      LibraryFieldId<MovieKind, DateTime?>('movie.edition_release_date');
 }
 
 abstract final class MovieSortIds {

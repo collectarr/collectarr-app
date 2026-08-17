@@ -11,6 +11,23 @@ class ComicPreferenceCodec
     if (persisted == 'price' || persisted == 'price_paid') {
       return ComicFieldIds.pricePaid;
     }
+    if (persisted == 'grade' || persisted == 'condition') {
+      return ComicFieldIds.condition;
+    }
+    if (persisted == 'updated') {
+      return ComicFieldIds.updatedAt;
+    }
     return super.decodeColumn(persisted);
+  }
+
+  @override
+  LibrarySortId<ComicKind>? decodeSort(String persisted) {
+    if (persisted == 'grade' || persisted == 'condition') {
+      return ComicSortIds.condition;
+    }
+    if (persisted == 'updated') {
+      return ComicSortIds.updatedAt;
+    }
+    return super.decodeSort(persisted);
   }
 }

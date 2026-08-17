@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -30,6 +31,9 @@ void main() {
         id: 'comic-1',
         kind: 'comic',
         title: 'Sample Comic',
+        publishing: const CatalogPublishingDetailsDto(
+          coverPriceCents: 2500,
+        ),
       ),
       ownedItem: ownedItem,
     );

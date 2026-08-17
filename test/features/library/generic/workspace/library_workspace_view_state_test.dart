@@ -70,7 +70,7 @@ void main() {
 
     expect(defaults.viewMode, LibraryViewMode.grid);
     expect(defaults.detailsLayout, LibraryDetailsLayout.bottom);
-    expect(defaults.sortColumn, 'title');
+    expect(defaults.sortColumn, 'comic.series');
     expect(defaults.coverSize, 128);
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);
@@ -218,11 +218,11 @@ void main() {
     expect(restored.viewMode, LibraryViewMode.card);
     expect(restored.sortRules, [
       const LibrarySortRule(
-        column: 'publisher',
+        column: 'comic.publisher',
         ascending: true,
       ),
       const LibrarySortRule(
-        column: 'updated',
+        column: 'comic.updated_at',
         ascending: false,
       ),
     ]);

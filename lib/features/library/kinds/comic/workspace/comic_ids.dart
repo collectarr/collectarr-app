@@ -34,6 +34,7 @@ abstract final class ComicSortIds {
   static const status = LibrarySortId<ComicKind>('comic.status');
   static const title = LibrarySortId<ComicKind>('comic.title');
   static const releaseDate = LibrarySortId<ComicKind>('comic.release_date');
+  static const condition = LibrarySortId<ComicKind>('comic.condition');
   static const rating = LibrarySortId<ComicKind>('comic.rating');
   static const pricePaid = LibrarySortId<ComicKind>('comic.price_paid');
   static const updatedAt = LibrarySortId<ComicKind>('comic.updated_at');

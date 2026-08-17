@@ -27,6 +27,7 @@ class PersonalStateDraft {
     required this.episodeNumberController,
     required this.trackingNotesController,
     required this.tagsController,
+    required this.signedByController,
     required this.sellPriceController,
     required this.soldToController,
     required this.tagOptions,
@@ -73,6 +74,7 @@ class PersonalStateDraft {
   final TextEditingController episodeNumberController;
   final TextEditingController trackingNotesController;
   final TextEditingController tagsController;
+  final TextEditingController signedByController;
   final TextEditingController sellPriceController;
   final TextEditingController soldToController;
 

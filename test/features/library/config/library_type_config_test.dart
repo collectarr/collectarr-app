@@ -729,6 +729,13 @@ void main() {
     expect(moviesLibraryConfig.availableGroupModes, [
       'movie.director',
       'movie.publisher',
+      'movie.genre',
+      'movie.release_year',
+      'movie.audience_rating',
+      'movie.movie_or_tv_series',
+      'movie.format',
+      'movie.audio_tracks',
+      'movie.edition_release_date',
       'movie.location',
     ]);
   });

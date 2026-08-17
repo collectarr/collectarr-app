@@ -41,7 +41,7 @@ void main() {
     await tester.tap(find.text('Manual'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Save'), findsWidgets);
+    expect(find.text('Add to Collection'), findsWidgets);
     expect(find.byTooltip('Close'), findsWidgets);
 
     await tester.pumpWidget(const SizedBox.shrink());

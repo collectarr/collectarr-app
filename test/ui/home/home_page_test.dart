@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -73,7 +74,6 @@ void main() {
     expect(find.text('Add Games'), findsOneWidget);
     expect(find.text('Hades'), findsWidgets);
     expect(find.text('No game selected'), findsOneWidget);
-    expect(find.byTooltip('Open details'), findsNothing);
 
     // Toolbar controls are available.
     expect(find.byTooltip('Library tools'), findsOneWidget);
@@ -81,9 +81,9 @@ void main() {
 
     await tester.tap(find.byTooltip('Group by'));
     await pumpUntilSettled(tester);
-    final yearOption = find.textContaining('Year').last;
-    await tester.ensureVisible(yearOption);
-    await tester.tap(yearOption);
+    final option = find.textContaining('Platform').last;
+    await tester.ensureVisible(option);
+    await tester.tap(option);
     await pumpUntilSettled(tester);
   });
 
@@ -157,6 +157,7 @@ void main() {
       routeSegments: ['podcasts'],
       defaultProvider: 'podindex',
       providers: ['podindex'],
+      isTopLevel: true,
     );
     final now = DateTime.utc(2026, 5, 15);
     final podcast = CatalogItem(
@@ -194,12 +195,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     await tester.dragUntilVisible(
-      find.text('Podcasts'),
-      find.byType(ListView).first,
+      find.widgetWithText(MediaLibraryNavButton, 'Podcasts'),
+      find.byType(Scrollable).first,
       const Offset(-100, 0),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Podcasts'));
+    await tester.tap(find.widgetWithText(MediaLibraryNavButton, 'Podcasts'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Add Podcasts'), findsOneWidget);

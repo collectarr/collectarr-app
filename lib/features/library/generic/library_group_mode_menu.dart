@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -259,7 +260,12 @@ class _LibraryGroupModeMenuButtonState
       for (final mode in modes)
         genericGroupModeFolderSetLabel(mode, widget.type),
       for (final preset in widget.pinnedFolderPresets)
-        if (preset.modes.every(modes.contains))
+        if (preset.modes.every((m) =>
+            modes.contains(m) ||
+            libraryKindRuntimeForType(widget.type)
+                    .fields
+                    .findGroupDefinition(m) !=
+                null))
           genericFolderPresetLabel(preset, widget.type),
     ];
     var maxLabelWidth = 0.0;
@@ -324,6 +330,26 @@ class _LibraryGroupModeDropdownMenuState
     Navigator.of(context).pop(value);
   }
 
+  bool _isModeMatching(String m1, String m2) {
+    if (m1 == m2) return true;
+    final def1 =
+        libraryKindRuntimeForType(widget.type).fields.findGroupDefinition(m1);
+    final def2 =
+        libraryKindRuntimeForType(widget.type).fields.findGroupDefinition(m2);
+    if (def1 != null && def2 != null) {
+      return def1.id.value == def2.id.value;
+    }
+    return def1?.id.value == m2 || def2?.id.value == m1;
+  }
+
+  bool _isPresetMatching(LibraryFolderPreset p1, LibraryFolderPreset p2) {
+    if (p1.modes.length != p2.modes.length) return false;
+    for (var i = 0; i < p1.modes.length; i++) {
+      if (!_isModeMatching(p1.modes[i], p2.modes[i])) return false;
+    }
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -337,10 +363,13 @@ class _LibraryGroupModeDropdownMenuState
       for (final category in _categories)
         category.label: category.modes.any(
           (mode) =>
-              widget.selectedPreset ==
-                  LibraryFolderPreset.single(mode.toString()) ||
-              _pinnedPresets
-                  .contains(LibraryFolderPreset.single(mode.toString())),
+              (widget.selectedPreset != null &&
+                  widget.selectedPreset!.modes.length == 1 &&
+                  _isModeMatching(
+                      widget.selectedPreset!.primaryMode, mode.toString())) ||
+              _pinnedPresets.any((p) =>
+                  p.modes.length == 1 &&
+                  _isModeMatching(p.primaryMode, mode.toString())),
         ),
     };
   }
@@ -349,7 +378,13 @@ class _LibraryGroupModeDropdownMenuState
   Widget build(BuildContext context) {
     final favoritePresets = [
       for (final preset in _pinnedPresets)
-        if (preset.modes.every(widget.availableModes.contains)) preset,
+        if (preset.modes.every((m) =>
+            widget.availableModes.contains(m) ||
+            libraryKindRuntimeForType(widget.type)
+                    .fields
+                    .findGroupDefinition(m) !=
+                null))
+          preset,
     ];
     return Material(
       color: libraryToolbarMenuSurface(context),
@@ -467,8 +502,12 @@ class _LibraryGroupModeDropdownMenuState
             widget.selectedPreset!.modes.length == 1
         ? widget.selectedPreset!.primaryMode
         : null;
-    final hasSelectedMode = modes.contains(selectedSingleMode) ||
-        presets.contains(widget.selectedPreset);
+    final hasSelectedMode = modes.any((m) =>
+            selectedSingleMode != null &&
+            _isModeMatching(m, selectedSingleMode)) ||
+        presets.any((p) =>
+            widget.selectedPreset != null &&
+            _isPresetMatching(p, widget.selectedPreset!));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       child: Column(
@@ -549,8 +588,9 @@ class _LibraryGroupModeDropdownMenuState
   }
 
   Widget _buildModeItem(BuildContext context, String mode) {
-    final isSelected =
-        widget.selectedPreset == LibraryFolderPreset.single(mode);
+    final isSelected = widget.selectedPreset != null &&
+        widget.selectedPreset!.modes.length == 1 &&
+        _isModeMatching(widget.selectedPreset!.primaryMode, mode);
     final selectedBackground = _selectedRowBackground(context, isSelected);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),

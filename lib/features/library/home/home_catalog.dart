@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
@@ -17,12 +18,14 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
   final topLevelByKind = {
     for (final type in catalog)
       if (type.isTopLevel ||
-          collectarrLibraryTypes.byKind(type.mediaKind) != null)
+          (type.mediaKind != CatalogMediaKind.unknown &&
+              collectarrLibraryTypes.byKind(type.mediaKind) != null))
         type.kind: type,
   };
   final defaultKinds = [
     for (final config in collectarrLibraryTypes.types)
-      config.workspace.kind.apiValue,
+      if (config.workspace.kind != CatalogMediaKind.unknown)
+        config.workspace.kind.apiValue,
   ];
   for (final kind in defaultKinds) {
     topLevelByKind.putIfAbsent(kind, () {
@@ -96,6 +99,9 @@ LibraryTypeConfig libraryConfigForCatalogType(
   CatalogMediaType type,
   LibraryTypeRegistry registry,
 ) {
+  if (type.mediaKind == CatalogMediaKind.unknown) {
+    return buildRuntimeCatalogLibraryTypeConfig(type);
+  }
   final known = registry.byKind(type.mediaKind);
   if (known != null) {
     return known;

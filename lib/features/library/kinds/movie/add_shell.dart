@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -53,6 +54,19 @@ Widget buildMovieAddSearchPane(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (request.error != null) AppErrorBanner(request.error!),
+        LibraryAddSearchSourceToggles(
+          type: request.type,
+          showCoreResults: request.showCoreResults,
+          showProviderResults: request.showProviderResults,
+          showMediaResults: request.showMediaResults,
+          showSeasonResults: request.showSeasonResults,
+          showReleaseResults: request.showReleaseResults,
+          onShowCoreResultsChanged: request.onShowCoreResultsChanged,
+          onShowProviderResultsChanged: request.onShowProviderResultsChanged,
+          onShowMediaResultsChanged: request.onShowMediaResultsChanged,
+          onShowSeasonResultsChanged: request.onShowSeasonResultsChanged,
+          onShowReleaseResultsChanged: request.onShowReleaseResultsChanged,
+        ),
         Expanded(
           child: request.isBusy && entries.isEmpty
               ? const Center(child: CircularProgressIndicator())

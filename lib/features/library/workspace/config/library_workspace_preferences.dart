@@ -112,6 +112,7 @@ class LibraryWorkspacePreferences {
         prefs.getDouble(_key('details_width')) ?? defaultDetailsWidth;
     final detailsHeight =
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
+    final sortRules = _decodeSortRules(prefs.getStringList(_key('sort_rules')));
     final module = libraryKindRuntimeForType(config);
     final savedSortColumn = prefs.getString(_key('sort_column'));
     var sortColumn = module.fields.defaultSortId;
@@ -120,8 +121,9 @@ class LibraryWorkspacePreferences {
       if (directDef != null) {
         sortColumn = directDef.id.value;
       }
+    } else if (sortRules != null && sortRules.isNotEmpty) {
+      sortColumn = sortRules.first.column;
     }
-    final sortRules = _decodeSortRules(prefs.getStringList(_key('sort_rules')));
     final visibleColumns = _decodeVisibleColumns(
       prefs.getStringList(_key('visible_columns')),
     );

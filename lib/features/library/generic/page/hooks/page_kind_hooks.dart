@@ -4,7 +4,7 @@ part of '../generic_library_page.dart';
 
 extension _PageKindHooks on GenericLibraryPageState {
   LibraryMediaAdapter get _adapter =>
-      collectarrMediaAdapters.byKind(widget.type.workspace.kind)!;
+      libraryKindRuntimeForType(widget.type).mediaAdapter;
 
   bool get _supportsTrackSearch =>
       widget.type.kindUiAdapter.supportsTrackSearch(widget.type);

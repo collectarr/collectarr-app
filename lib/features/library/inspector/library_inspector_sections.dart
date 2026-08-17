@@ -168,6 +168,17 @@ class InspectorPersonalSection extends StatelessWidget {
                   ownedItem?.currency ?? dto.currency,
                 ),
               ),
+            if (ownedItem?.soldAt != null)
+              LibraryDetailField(
+                label: 'Sold',
+                value: formatNullableDate(ownedItem!.soldAt) ?? '-',
+              ),
+            if (ownedItem?.soldTo != null &&
+                ownedItem!.soldTo!.trim().isNotEmpty)
+              LibraryDetailField(
+                label: 'Sold to',
+                value: ownedItem!.soldTo!,
+              ),
             if (ownedItem?.sellPriceCents != null)
               LibraryDetailField(
                 label: 'Sell price',

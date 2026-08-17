@@ -42,13 +42,21 @@ sealed class OwnedItemDetails {
 
 /// Kind-specific ownership details for books.
 class BookOwnedDetails extends OwnedItemDetails {
-  const BookOwnedDetails();
+  const BookOwnedDetails({
+    this.signedBy,
+  });
+
+  final String? signedBy;
 
   @override
-  Map<String, dynamic> toJson() => const <String, dynamic>{};
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (signedBy != null) 'signed_by': signedBy,
+      };
 
   factory BookOwnedDetails.fromJson(Map<String, dynamic> json) =>
-      const BookOwnedDetails();
+      BookOwnedDetails(
+        signedBy: json['signed_by'] as String?,
+      );
 }
 
 /// Kind-specific ownership details for board games.

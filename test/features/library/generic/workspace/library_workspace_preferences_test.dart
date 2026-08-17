@@ -202,7 +202,7 @@ void main() {
     expect(restored.detailsWidth, kLibraryDetailsDefaultWidth);
     expect(restored.detailsHeight, kLibraryDetailsDefaultHeight);
     expect(restored.viewMode, LibraryViewMode.grid);
-    expect(restored.sortColumn, 'title');
+    expect(restored.sortColumn, 'comic.series');
     expect(
         restored.visibleColumns,
         libraryKindRuntimeForType(mangaTypeConfig)

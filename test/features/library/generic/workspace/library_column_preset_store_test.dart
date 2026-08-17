@@ -19,7 +19,7 @@ void main() {
     expect(saved.single.id, isNotNull);
     expect(saved.single.label, 'My Value View');
     expect(saved.single.columns, contains('title'));
-    expect(saved.single.columns, contains('price'));
+    expect(saved.single.columns, contains('comic.price_paid'));
 
     final updated = await store.savePreset(
       label: 'my value view',
@@ -30,8 +30,8 @@ void main() {
     );
 
     expect(updated.length, 1);
-    expect(updated.single.columns, contains('grade'));
-    expect(updated.single.columns, isNot(contains('price')));
+    expect(updated.single.columns, contains('comic.condition'));
+    expect(updated.single.columns, isNot(contains('comic.price_paid')));
 
     final deleted = await store.deletePreset(updated.single.id!);
     expect(deleted, isEmpty);

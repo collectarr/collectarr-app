@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
@@ -186,13 +187,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       hasEditionAnchors: widget.request.item.editions.isNotEmpty,
       hasBundleReleaseAnchors: false,
       hasCustomFields: widget.request.customFieldDefinitions.isNotEmpty,
-      scope: widget.request.resolvedScope,
+      scope: widget.request.scope ?? LibraryEditScope.all,
     );
   }
 
   List<LibraryEditTabSpec> get _tabSpecs {
     return widget.request.type.editPresentation
-        .builderForScope(widget.request.resolvedScope)
+        .builderForScope(widget.request.scope ?? LibraryEditScope.all)
         .buildTabs(
           context: _editPresentationContext,
         );
@@ -424,7 +425,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   List<String> _tabSectionIds(String tabId) {
     return widget.request.type.editPresentation
-        .builderForScope(widget.request.resolvedScope)
+        .builderForScope(widget.request.scope ?? LibraryEditScope.all)
         .buildTabSectionIds(
           context: _editPresentationContext,
           tabId: tabId,

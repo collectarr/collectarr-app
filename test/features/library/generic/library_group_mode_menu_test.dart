@@ -42,7 +42,7 @@ void main() {
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Personal'), findsOneWidget);
     expect(find.text('Director'), findsWidgets);
-    expect(find.text('Studio / Publisher'), findsNothing);
+    expect(find.text('Studios'), findsNothing);
 
     final selectedRow = tester.widget<LibraryWorkspaceMenuRow>(
       find.byKey(const ValueKey('groupModeItemRow_movie.director')),
@@ -58,7 +58,7 @@ void main() {
       find.byKey(const ValueKey('groupModeSectionLevelBar_Main')),
       findsOneWidget,
     );
-    expect(find.text('Studio / Publisher'), findsOneWidget);
+    expect(find.text('Studios'), findsOneWidget);
   });
 
   testWidgets('hidden grouping menu does not offer a show folders toggle', (
@@ -216,7 +216,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Director / Studio / Publisher'), findsOneWidget);
+    expect(find.text('Director / Studios'), findsOneWidget);
   });
 
   testWidgets('group mode button opens menu on hover', (tester) async {
@@ -306,6 +306,6 @@ void main() {
     await tester.tap(personalHeader);
     await tester.pumpAndSettle();
 
-    expect(find.text('Location'), findsOneWidget);
+    expect(find.text('Locations'), findsOneWidget);
   });
 }

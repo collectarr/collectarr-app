@@ -23,19 +23,22 @@ class LibrarySquareCloseButton extends StatelessWidget {
     return SizedBox(
       width: 32,
       height: 32,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          padding: EdgeInsets.zero,
-          minimumSize: const Size(32, 32),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero,
+      child: Tooltip(
+        message: tooltip,
+        child: OutlinedButton(
+          onPressed: onPressed,
+          style: OutlinedButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: const Size(32, 32),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
+            side: BorderSide(color: resolvedBorderColor),
+            foregroundColor: resolvedForegroundColor,
           ),
-          side: BorderSide(color: resolvedBorderColor),
-          foregroundColor: resolvedForegroundColor,
+          child: const Icon(Icons.close, size: 18),
         ),
-        child: const Icon(Icons.close, size: 18),
       ),
     );
   }

@@ -97,6 +97,8 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
   LibrarySortDefinition<TKind, TDto>? findSortDefinition(String id) {
     final direct = sortDefinitionForId(id);
     if (direct != null) return direct;
+    final qualified = sortDefinitionForId('$kindNamespace.$id');
+    if (qualified != null) return qualified;
     final decoded = preferenceCodec.decodeSort(id);
     if (decoded != null) return sortDefinitionForId(decoded.value);
     return null;

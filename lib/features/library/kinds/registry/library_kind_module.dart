@@ -23,6 +23,12 @@ export 'package:collectarr_app/features/library/workspace/schema/library_field_r
 
 abstract interface class LibraryKindRuntime {
   CatalogMediaKind get kind;
+  LibraryKindIdentity get identity;
+  LibraryMetadataCapability get metadata;
+  LibraryHierarchyCapability get hierarchy;
+  LibraryInspectorCapability get inspector;
+  LibraryEditCapability get edit;
+  LibraryTransferCapability get transfer;
   LibraryTypeConfig get type;
   LibraryTypeCapabilities get capabilities;
   LibraryMediaAdapter get mediaAdapter;
@@ -85,6 +91,12 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required this.projector,
     required this.ownedDetailsCodec,
     required this.add,
+    LibraryKindIdentity? identity,
+    LibraryMetadataCapability? metadata,
+    LibraryHierarchyCapability? hierarchy,
+    LibraryInspectorCapability? inspector,
+    LibraryEditCapability? edit,
+    LibraryTransferCapability? transfer,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.toolbar,
     this.providerMapper,
@@ -93,9 +105,88 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
       LibraryProjectionRuntime item, {
       required bool musicVertical,
     })? buildCardPresentation,
-  }) : _buildCardPresentation = buildCardPresentation;
+  })  : _identity = identity,
+        _metadata = metadata,
+        _hierarchy = hierarchy,
+        _inspector = inspector,
+        _edit = edit,
+        _transfer = transfer,
+        _buildCardPresentation = buildCardPresentation;
 
   final OwnedDetailsCodec<TDetails> ownedDetailsCodec;
+  final LibraryKindIdentity? _identity;
+  final LibraryMetadataCapability? _metadata;
+  final LibraryHierarchyCapability? _hierarchy;
+  final LibraryInspectorCapability? _inspector;
+  final LibraryEditCapability? _edit;
+  final LibraryTransferCapability? _transfer;
+
+  @override
+  LibraryKindIdentity get identity =>
+      _identity ??
+      LibraryKindIdentity.fromWorkspaceConfig(
+        workspace: type.workspace,
+        singularLabel: type.singularLabel,
+        pluralLabel: type.pluralLabel,
+      );
+
+  @override
+  LibraryMetadataCapability get metadata =>
+      _metadata ??
+      LibraryMetadataCapability(
+        defaultProviderId: type.defaultMetadataProvider,
+        providers: type.metadataProviders,
+        supportsServerCompare: type.supportsMetadataCompareWithServer,
+      );
+
+  @override
+  LibraryHierarchyCapability get hierarchy =>
+      _hierarchy ??
+      LibraryHierarchyCapability(
+        contentHierarchy: type.capabilities.contentHierarchy,
+        supportsSeriesSubgroups: type.capabilities.supportsSeriesSubgroups,
+        supportsMediaReleaseSplit: type.capabilities.supportsMediaReleaseSplit,
+        supportsIndexReassignment: type.capabilities.supportsIndexReassignment,
+        showsReadingQueue: type.capabilities.showsReadingQueue,
+        collectionExportTitleLabel: type.collectionExportTitleLabel,
+        mediaReleaseScopeLabel: type.mediaReleaseScopeLabel,
+      );
+
+  @override
+  LibraryInspectorCapability get inspector =>
+      _inspector ??
+      LibraryInspectorCapability(
+        heroBuilder: type.inspectorHeroBuilder,
+        sectionsBuilder: type.inspectorSectionsBuilder,
+        detailPageBuilder: type.detailPageBuilder,
+        showsDefaultPersonalSection: type.showsDefaultInspectorPersonalSection,
+      );
+
+  @override
+  LibraryEditCapability get edit =>
+      _edit ??
+      LibraryEditCapability(
+        editDialogBuilder: type.editDialogBuilder,
+        mediaEditDialogBuilder: type.mediaEditDialogBuilder,
+        releaseEditDialogBuilder: type.releaseEditDialogBuilder,
+        presentation: type.editPresentation,
+        editChrome: type.editChrome,
+        mediaFields: type.mediaFields,
+        releaseFields: type.releaseFields,
+        conditions: type.conditions,
+        grades: type.grades,
+        defaultCondition: type.defaultCondition,
+        defaultGrade: type.defaultGrade,
+        manualAddUsesTitleAsSeries: type.manualAddUsesTitleAsSeries,
+        editUsesTitleAsSeries: type.editUsesTitleAsSeries,
+      );
+
+  @override
+  LibraryTransferCapability get transfer =>
+      _transfer ??
+      LibraryTransferCapability(
+        transferableFieldKeys: type.transferableFieldKeys,
+      );
 
   @override
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json) =>
@@ -124,7 +215,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   }
 
   @override
-  CatalogMediaKind get kind => type.workspace.kind;
+  CatalogMediaKind get kind => identity.kind;
 
   @override
   final LibraryTypeConfig type;

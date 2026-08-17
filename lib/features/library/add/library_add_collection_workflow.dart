@@ -86,14 +86,26 @@ Future<void> addLibraryItemsToTarget({
       bundleReleaseId: bundleReleaseIdsByItemId[item.id],
     );
 
-    final itemCommon = baseCommon.copyWith(
-      isDigital: digitalOwnedItem,
-      editionId: reference.editionId,
-      variantId: reference.variantId,
-      bundleReleaseId: reference.bundleReleaseId,
+    final itemCommon = LibraryAddCommonDraft(
       condition: isDigitalOwnedItem ? null : baseCommon.condition,
       grade: isDigitalOwnedItem ? null : baseCommon.grade,
+      purchaseDate: baseCommon.purchaseDate,
+      pricePaidCents: baseCommon.pricePaidCents,
+      currency: baseCommon.currency,
+      personalNotes: baseCommon.personalNotes,
+      quantity: baseCommon.quantity,
+      rating: baseCommon.rating,
+      readStatus: baseCommon.readStatus,
+      startedAt: baseCommon.startedAt,
+      finishedAt: baseCommon.finishedAt,
+      tags: baseCommon.tags,
       locationId: isDigitalOwnedItem ? null : baseCommon.locationId,
+      purchaseStore: baseCommon.purchaseStore,
+      collectionStatus: baseCommon.collectionStatus,
+      isDigital: digitalOwnedItem ?? baseCommon.isDigital,
+      editionId: reference.editionId ?? baseCommon.editionId,
+      variantId: reference.variantId ?? baseCommon.variantId,
+      bundleReleaseId: reference.bundleReleaseId ?? baseCommon.bundleReleaseId,
     );
 
     switch (target) {
@@ -134,6 +146,10 @@ Future<void> addLibraryItemsToTarget({
           editionId: reference.editionId,
           variantId: reference.variantId,
           bundleReleaseId: reference.bundleReleaseId,
+          status: itemCommon.readStatus == null
+              ? null
+              : mediaTrackingStatusFromValue(itemCommon.readStatus),
+          allowEmpty: true,
         );
         break;
     }
@@ -182,19 +198,11 @@ _ResolvedAddReference _resolveReferenceForItem(
       }
       final firstEdition = editions.first;
       final explicitVariantId = editionSelection?.variantId?.trim();
-      if (explicitVariantId != null && explicitVariantId.isNotEmpty) {
-        return _ResolvedAddReference(
-          anchorType: 'edition',
-          editionId: firstEdition.id,
-          variantId: explicitVariantId,
-        );
-      }
-      final variants = firstEdition.variants;
-      final firstVariantId = variants.isEmpty ? null : variants.first.id;
       return _ResolvedAddReference(
         anchorType: 'edition',
         editionId: firstEdition.id,
-        variantId: firstVariantId,
+        variantId:
+            explicitVariantId?.isEmpty == true ? null : explicitVariantId,
       );
   }
 }

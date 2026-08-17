@@ -22,13 +22,25 @@ import 'package:collectarr_app/features/library/workspace/config/library_project
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
+import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
+import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
+import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
+import 'package:collectarr_app/features/library/config/library_kind_identity.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
+import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
+export 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 export 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
+export 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
+export 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
 export 'package:collectarr_app/features/library/config/library_item_actions.dart';
+export 'package:collectarr_app/features/library/config/library_kind_identity.dart';
+export 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
 export 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
+export 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 export 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
 
 const kTransferableMediaFieldKeys = <String>[];
@@ -252,6 +264,74 @@ class LibraryTypeConfig {
         const DefaultTitleProjectionCapability<LibraryWorkspaceDto>(),
     this.releaseCapability,
   });
+
+  factory LibraryTypeConfig.fromCapabilities({
+    required LibraryKindIdentity identity,
+    LibraryMetadataCapability metadata = const LibraryMetadataCapability(
+      defaultProviderId: '',
+      providers: <LibraryMetadataProviderOption>[],
+    ),
+    LibraryHierarchyCapability hierarchy = const LibraryHierarchyCapability(),
+    LibraryInspectorCapability inspector = const LibraryInspectorCapability(),
+    LibraryEditCapability edit = const LibraryEditCapability(),
+    LibraryTransferCapability transfer = const LibraryTransferCapability(),
+    LibraryKindWorkspaceBehavior workspaceBehavior =
+        const LibraryKindWorkspaceBehavior(),
+    LibraryMediaPresentation presentation = genericLibraryMediaPresentation,
+    MediaTrackingProfile trackingProfile = readingTrackingProfile,
+    LibraryAddDialogLauncher? addDialogLauncher,
+    LibraryKindBrowserDelegate Function()? kindBrowserDelegateBuilder,
+    LibraryKindUiAdapter kindUiAdapter = const LibraryKindUiAdapter(),
+    TitleProjectionCapability<LibraryWorkspaceDto> titleCapability =
+        const DefaultTitleProjectionCapability<LibraryWorkspaceDto>(),
+    ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability,
+  }) {
+    return LibraryTypeConfig(
+      workspace: identity.toWorkspaceConfig(),
+      singularLabel: identity.singularLabel,
+      pluralLabel: identity.pluralLabel,
+      defaultMetadataProvider: metadata.defaultProviderId,
+      metadataProviders: metadata.providers,
+      trackingProfile: trackingProfile,
+      conditions: edit.conditions,
+      grades: edit.grades,
+      defaultCondition: edit.defaultCondition,
+      defaultGrade: edit.defaultGrade,
+      capabilities: LibraryTypeCapabilities(
+        contentHierarchy: hierarchy.contentHierarchy,
+        supportsSeriesSubgroups: hierarchy.supportsSeriesSubgroups,
+        supportsMediaReleaseSplit: hierarchy.supportsMediaReleaseSplit,
+        supportsIndexReassignment: hierarchy.supportsIndexReassignment,
+        supportsMetadataCompareWithServer: metadata.supportsServerCompare,
+        showsReadingQueue: hierarchy.showsReadingQueue,
+      ),
+      workspaceBehavior: workspaceBehavior,
+      presentation: presentation,
+      editPresentation: edit.presentation,
+      addChrome: const LibraryAddChromeConfig(),
+      editChrome: edit.editChrome,
+      mediaFields: edit.mediaFields,
+      releaseFields: edit.releaseFields,
+      collectionExportTitleLabel: hierarchy.collectionExportTitleLabel,
+      mediaReleaseScopeLabel: hierarchy.mediaReleaseScopeLabel,
+      manualAddUsesTitleAsSeries: edit.manualAddUsesTitleAsSeries,
+      editUsesTitleAsSeries: edit.editUsesTitleAsSeries,
+      transferableFieldKeys: transfer.transferableFieldKeys,
+      addDialogLauncher: addDialogLauncher,
+      editDialogBuilder: edit.editDialogBuilder,
+      mediaEditDialogBuilder: edit.mediaEditDialogBuilder,
+      releaseEditDialogBuilder: edit.releaseEditDialogBuilder,
+      detailPageBuilder: inspector.detailPageBuilder,
+      inspectorHeroBuilder: inspector.heroBuilder,
+      inspectorSectionsBuilder: inspector.sectionsBuilder,
+      showsDefaultInspectorPersonalSection:
+          inspector.showsDefaultPersonalSection,
+      kindBrowserDelegateBuilder: kindBrowserDelegateBuilder,
+      kindUiAdapter: kindUiAdapter,
+      titleCapability: titleCapability,
+      releaseCapability: releaseCapability,
+    );
+  }
 
   final LibraryWorkspaceConfig workspace;
   final String singularLabel;

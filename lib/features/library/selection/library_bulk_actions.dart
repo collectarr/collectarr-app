@@ -91,9 +91,13 @@ class LibraryBulkActions {
         ownedItem: entry.ownedItem,
         wishlistItem: entry.wishlistItem,
       );
+      final resolvedKindStr = entry.catalogItem?.kind ??
+          entry.wishlistItem?.catalogRef.kind ??
+          entry.trackingEntry?.catalogRef.kind;
+      final resolvedKind = catalogMediaKindFromApiValue(resolvedKindStr);
       final addCmd = AddOwnedItemCommand(
         catalogRef: CatalogEntityRef(
-          kind: entry.catalogItem?.kind ?? 'comic',
+          kind: resolvedKindStr ?? 'comic',
           entityType: CatalogEntityType.ownedCopy,
           id: entry.itemId,
         ),
@@ -107,9 +111,7 @@ class LibraryBulkActions {
           readStatus: defaultReadStatus,
           tags: defaultTags,
         ),
-        details: defaultDetailsDraftForKind(
-          catalogMediaKindFromApiValue(entry.catalogItem?.kind),
-        ),
+        details: defaultDetailsDraftForKind(resolvedKind),
       );
       await coordinator.addOwnedItem(addCmd);
     }

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -69,6 +70,7 @@ void main() {
         id: 'music-1',
         kind: 'music',
         title: 'Discovery',
+        music: const MusicCatalogDetailsDto(trackCount: 10),
       ),
     );
     const nodeMusic = LibraryTitleNodeRef(titleItemId: 'music-1');
@@ -184,14 +186,14 @@ void main() {
     expect(
       sections
           .whereType<LibraryDetailSection>()
-          .map((LibraryDetailSection section) => section.title),
-      contains('Book'),
-    );
-    expect(
-      sections
-          .whereType<LibraryDetailSection>()
-          .map((LibraryDetailSection section) => section.title),
-      contains('Edition facts'),
+          .map((section) => section.title),
+      containsAll(<String>[
+        'Product Details',
+        'Contributors',
+        'Images',
+        'Identifiers',
+        'Personal Details',
+      ]),
     );
   });
 }

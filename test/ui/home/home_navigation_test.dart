@@ -62,7 +62,7 @@ void main() {
     expect(config.defaultMetadataProvider, 'podindex');
     expect(config.presentation, genericLibraryMediaPresentation);
     expect(libraryKindRuntimeForType(config).fields.defaultVisibleColumnIds,
-        contains('title'));
+        contains('unknown.title'));
     expect(config.workspace.icon, Icons.category_outlined);
     expect(config.workspace.accent, kLibraryFallbackAccent);
     expect(config.trackingProfile.name, readingTrackingProfile.name);
@@ -71,9 +71,7 @@ void main() {
         config.supportedMetadataProviders.single
             .supportsKind(CatalogMediaKind.unknown),
         isFalse);
-    expect(
-        config.supportedMetadataProviders.single
-            .supportsKind(catalogMediaKindFromValue('podcast')),
+    expect(config.supportedMetadataProviders.single.supportsRawKind('podcast'),
         isTrue);
   });
 
@@ -95,9 +93,7 @@ void main() {
     expect(config.defaultMetadataProvider, 'openlibrary');
     expect(config.supportedMetadataProviders.single.id, 'openlibrary');
     expect(config.supportedMetadataProviders.single.label, 'Open Library');
-    expect(
-        config.supportedMetadataProviders.single
-            .supportsKind(catalogMediaKindFromValue('podcast')),
+    expect(config.supportedMetadataProviders.single.supportsRawKind('podcast'),
         isTrue);
   });
 

@@ -23,7 +23,7 @@ void main() {
     final restored = await store.read();
 
     expect(restored, hasLength(1));
-    expect(restored.single.rules.single.column, 'grade');
+    expect(restored.single.rules.single.column, 'comic.condition');
 
     await store.savePreset(
       id: restored.single.id,
@@ -35,6 +35,6 @@ void main() {
     final raw =
         prefs.getString(comicsWorkspaceConfig.preferenceKey('sort_presets'));
     expect(raw, isNotNull);
-    expect(raw, contains('grade'));
+    expect(raw, contains('comic.condition'));
   });
 }

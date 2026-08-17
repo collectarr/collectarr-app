@@ -102,9 +102,11 @@ class LibrarySortPresetStore {
       'rules': [
         for (final rule in _dedupeRules(preset.rules))
           {
-            'column':
-                module.fields.findSortDefinition(rule.column.toString())?.id ??
-                    rule.column.toString(),
+            'column': module.fields
+                    .findSortDefinition(rule.column.toString())
+                    ?.id
+                    .value ??
+                rule.column.toString(),
             'ascending': rule.ascending,
           },
       ],

@@ -14,9 +14,9 @@ void main() {
     final state = LibraryRouteState(
       kind: 'movie',
       searchQuery: 'alien',
-      groupMode: 'genre',
+      groupMode: 'movie.director',
       folderPreset: LibraryFolderPreset(
-        modes: ['genre', 'release_year'],
+        modes: ['movie.director', 'movie.publisher'],
       ),
       selectedBucket: 'Action',
       selectedLetter: 'A',
@@ -41,17 +41,18 @@ void main() {
     final parsed = LibraryRouteState.fromUri(uri);
 
     expect(uri.queryParameters['kind'], 'movie');
-    expect(uri.queryParameters['folder'], 'group.genre>group.release_year');
+    expect(uri.queryParameters['folder'],
+        'group.movie.director>group.movie.publisher');
     expect(uri.queryParameters['filterValue'], 'Action');
     expect(uri.queryParameters['sort'], 'title:asc,updated:desc');
     expect(uri.queryParameters['seriesScope'], 'completed');
     expect(parsed.kind, 'movie');
     expect(parsed.searchQuery, 'alien');
-    expect(parsed.groupMode, 'genre');
+    expect(parsed.groupMode, 'movie.director');
     expect(
       parsed.folderPreset,
       LibraryFolderPreset(
-        modes: ['genre', 'release_year'],
+        modes: ['movie.director', 'movie.publisher'],
       ),
     );
     expect(parsed.selectedBucket, 'Action');
@@ -159,7 +160,7 @@ void main() {
     );
 
     final filtered = state.filteredForType(booksLibraryConfig);
-    expect(filtered.groupMode, 'publisher');
+    expect(filtered.groupMode, 'book.publisher');
     expect(filtered.seriesCompletionScope, LibrarySeriesCompletionScope.all);
 
     final seriesFiltered = LibraryRouteState(

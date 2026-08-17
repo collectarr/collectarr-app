@@ -37,8 +37,10 @@ class LibraryToolbarSearch extends StatelessWidget {
     this.searchActive = false,
     this.suggestions = const <LibraryToolbarSearchSuggestion>[],
     this.onSuggestionSelected,
+    this.textFieldKey,
   });
 
+  final Key? textFieldKey;
   final TextEditingController controller;
   final String hintText;
   final String? selectedFilterLabel;
@@ -129,6 +131,7 @@ class LibraryToolbarSearch extends StatelessWidget {
                                 ),
                               Expanded(
                                 child: TextField(
+                                  key: textFieldKey,
                                   controller: controller,
                                   onChanged: onChanged,
                                   onSubmitted: onSearch,

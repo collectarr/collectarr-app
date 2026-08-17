@@ -130,6 +130,42 @@ abstract final class MovieKindSchema {
     label: 'Runtime (min)',
     getValue: (dto) => null,
   );
+
+  static final genre = textField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.genre,
+    label: 'Genre',
+    getValue: (dto) => null,
+  );
+
+  static final audienceRating = textField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.audienceRating,
+    label: 'Audience Rating',
+    getValue: (dto) => dto.audienceRating,
+  );
+
+  static final movieOrTvSeries = textField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.movieOrTvSeries,
+    label: 'Movie / TV Series',
+    getValue: (dto) => null,
+  );
+
+  static final edition = textField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.edition,
+    label: 'Edition',
+    getValue: (dto) => null,
+  );
+
+  static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.audioTracks,
+    label: 'Audio Tracks',
+    getValue: (dto) => null,
+  );
+
+  static final editionReleaseDate = dateField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.editionReleaseDate,
+    label: 'Edition Release Date',
+    getValue: (dto) => null,
+  );
 }
 
 final movieLibraryFieldDefinitions = [
@@ -147,7 +183,6 @@ final movieLibraryFieldDefinitions = [
 final movieLibraryGroupDefinitions = [
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieKindSchema.director,
-    sidebarTitle: 'Directors',
     category: 'Cast & Crew',
     icon: Icons.movie_creation_outlined,
   ),
@@ -157,6 +192,43 @@ final movieLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+    MovieKindSchema.genre,
+    sidebarTitle: 'Genres',
+    category: 'Main',
+    icon: Icons.category_outlined,
+    supportsBucketManagement: true,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, num?>(
+    MovieKindSchema.releaseYear,
+    category: 'Main',
+    icon: Icons.calendar_today_outlined,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+    MovieKindSchema.audienceRating,
+    category: 'Main',
+    icon: Icons.star_outline,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+    MovieKindSchema.movieOrTvSeries,
+    category: 'Main',
+    icon: Icons.tv_outlined,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+    MovieKindSchema.format,
+    category: 'Edition',
+    icon: Icons.album_outlined,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+    MovieKindSchema.audioTracks,
+    category: 'Edition',
+    icon: Icons.audiotrack_outlined,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, DateTime?>(
+    MovieKindSchema.editionReleaseDate,
+    category: 'Edition',
+    icon: Icons.calendar_today_outlined,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieKindSchema.location,

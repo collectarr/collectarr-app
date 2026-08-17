@@ -76,6 +76,6 @@ void main() {
       ),
     );
 
-    expect(find.text('Personal Copy Details'), findsOneWidget);
+    expect(find.text('Local collection'), findsOneWidget);
   });
 }

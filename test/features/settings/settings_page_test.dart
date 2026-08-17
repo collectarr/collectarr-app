@@ -90,8 +90,8 @@ void main() {
     await _scrollToText(tester, 'Pending TMDB imports');
     expect(find.text('Pending TMDB imports'), findsOneWidget);
     expect(find.text('No queued local TMDB proposals.'), findsOneWidget);
-    await _scrollToText(tester, 'AniList');
-    expect(find.text('AniList'), findsOneWidget);
+    await _scrollToText(tester, 'MyAnimeList');
+    expect(find.text('MyAnimeList'), findsOneWidget);
     expect(find.text('Available'), findsWidgets);
 
     await _openSettingsTab(tester, 'Account');

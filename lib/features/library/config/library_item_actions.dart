@@ -14,7 +14,22 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
-class LibraryItemActions {
+abstract interface class LibraryItemActionRunner {
+  Future<void> addCopy();
+  Future<void> openDetails();
+  Future<void> selectOwnedItem(String id);
+  Future<void> toggleOwned();
+  Future<void> toggleWishlist();
+  Future<void> edit();
+  Future<void> correctMetadata();
+  Future<void> duplicate();
+  Future<void> loan();
+  Future<void> refreshMetadata();
+  Future<void> share();
+  Future<void> unlinkFromCore();
+}
+
+class LibraryItemActions implements LibraryItemActionRunner {
   const LibraryItemActions({
     this.onAddCopy,
     this.onOpenDetails,
@@ -42,6 +57,42 @@ class LibraryItemActions {
   final VoidCallback? onRefreshMetadata;
   final VoidCallback? onShare;
   final VoidCallback? onUnlinkFromCore;
+
+  @override
+  Future<void> addCopy() async => onAddCopy?.call();
+
+  @override
+  Future<void> openDetails() async => onOpenDetails?.call();
+
+  @override
+  Future<void> selectOwnedItem(String id) async => onSelectOwnedItem?.call(id);
+
+  @override
+  Future<void> toggleOwned() async => onToggleOwned?.call();
+
+  @override
+  Future<void> toggleWishlist() async => onToggleWishlist?.call();
+
+  @override
+  Future<void> edit() async => onEdit?.call();
+
+  @override
+  Future<void> correctMetadata() async => onCorrectMetadata?.call();
+
+  @override
+  Future<void> duplicate() async => onDuplicate?.call();
+
+  @override
+  Future<void> loan() async => onLoan?.call();
+
+  @override
+  Future<void> refreshMetadata() async => onRefreshMetadata?.call();
+
+  @override
+  Future<void> share() async => onShare?.call();
+
+  @override
+  Future<void> unlinkFromCore() async => onUnlinkFromCore?.call();
 }
 
 class LibraryAddDialogRequest {

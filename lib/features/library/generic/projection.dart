@@ -203,11 +203,15 @@ String genericGroupModeLabel(
   String mode,
   LibraryTypeConfig type,
 ) {
-  if (mode == 'publisher' &&
+  final normalizedMode = mode.startsWith('${type.workspace.kind.name}.')
+      ? mode.substring(type.workspace.kind.name.length + 1)
+      : mode;
+  if (normalizedMode == 'publisher' &&
       type.presentation.groupLabels.publisherMode.isNotEmpty) {
     return type.presentation.groupLabels.publisherMode;
   }
-  return libraryGroupModeDefinitionOrNull(mode, type)?.label ?? mode;
+  final def = libraryGroupModeDefinitionOrNull(mode, type);
+  return def?.sidebarTitle ?? def?.label ?? mode;
 }
 
 String? genericGroupModeDrilldownChildMode(

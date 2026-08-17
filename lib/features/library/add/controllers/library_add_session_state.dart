@@ -54,6 +54,10 @@ final class LibraryAddSessionState {
   final bool isAdding;
 
   LibraryMetadataItem? get selectedItem {
+    if (!selection.showCoreResults) return null;
+    if (!selection.showMediaResults && !selection.showReleaseResults) {
+      return null;
+    }
     final id = selection.selectedResultId;
     if (id == null) return null;
     final hydrated = preview.hydratedResultFor(id);
@@ -65,6 +69,10 @@ final class LibraryAddSessionState {
   }
 
   ProviderCandidate? get selectedCandidate {
+    if (!selection.showProviderResults) return null;
+    if (!selection.showMediaResults && !selection.showReleaseResults) {
+      return null;
+    }
     final id = selection.selectedProviderCandidateId;
     if (id == null) return null;
     for (final candidate in search.providerResults) {
@@ -90,14 +98,16 @@ final class LibraryAddSessionState {
     required bool Function(String id) isOwnedCatalogItem,
   }) {
     if (!selection.showCoreResults) return const <LibraryMetadataItem>[];
+    final isVideoKind = type.capabilities.wideDialog;
     return search.results.where((item) {
-      if (!libraryAddMatchesContentScope(
-        type: type,
-        item: item,
-        showSeriesResults: selection.showMediaResults,
-        showSeasonResults: selection.showSeasonResults,
-        showReleaseResults: selection.showReleaseResults,
-      )) {
+      if (isVideoKind &&
+          !libraryAddMatchesContentScope(
+            type: type,
+            item: item,
+            showSeriesResults: selection.showMediaResults,
+            showSeasonResults: selection.showSeasonResults,
+            showReleaseResults: selection.showReleaseResults,
+          )) {
         return false;
       }
       if (selection.hideComicOwnedResults && isOwnedCatalogItem(item.id)) {
@@ -115,14 +125,17 @@ final class LibraryAddSessionState {
 
   List<ProviderCandidate> visibleProviderResults(LibraryTypeConfig type) {
     if (!selection.showProviderResults) return const <ProviderCandidate>[];
+    final isVideoKind = type.capabilities.wideDialog;
     return search.providerResults.where((candidate) {
-      final isRelease = !isSeriesCandidate(candidate);
-      final matchesScope =
-          (selection.showMediaResults && selection.showReleaseResults) ||
-              (isRelease
-                  ? selection.showReleaseResults
-                  : selection.showMediaResults);
-      if (!matchesScope) return false;
+      if (isVideoKind) {
+        final isRelease = !isSeriesCandidate(candidate);
+        final matchesScope =
+            (selection.showMediaResults && selection.showReleaseResults) ||
+                (isRelease
+                    ? selection.showReleaseResults
+                    : selection.showMediaResults);
+        if (!matchesScope) return false;
+      }
       if (selection.hideComicVariantResults && candidate.isVariant) {
         return false;
       }

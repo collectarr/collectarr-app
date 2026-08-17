@@ -146,6 +146,8 @@ class LibraryAddModeBar extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: LibraryToolbarSearch(
+                          textFieldKey:
+                              const ValueKey('library-add-query-field'),
                           controller: queryController,
                           hintText: searchLabels.queryHint,
                           onSearch: (_) => onSearch(),
@@ -288,6 +290,8 @@ class LibraryAddModeBar extends StatelessWidget {
                           child: Align(
                             alignment: Alignment.centerRight,
                             child: LibraryToolbarSearch(
+                              textFieldKey:
+                                  const ValueKey('library-add-query-field'),
                               controller: queryController,
                               hintText: searchLabels.queryHint,
                               onSearch: (_) => onSearch(),

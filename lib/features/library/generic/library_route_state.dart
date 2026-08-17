@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -68,9 +69,18 @@ class LibraryRouteState {
 
   factory LibraryRouteState.fromUri(Uri uri) {
     final params = uri.queryParameters;
-    final folderPreset = _decodeFolderPreset(params[folderKey]);
+    final kindStr = _trimmed(params[kindKey])?.toLowerCase();
+    final kindEnum = kindStr != null
+        ? CatalogMediaKind.values
+            .where((k) => k.apiValue == kindStr)
+            .firstOrNull
+        : null;
+    final type = kindEnum != null
+        ? defaultLibraryKindRegistry.tryGet(kindEnum)?.type
+        : null;
+    final folderPreset = _decodeFolderPreset(params[folderKey], type);
     return LibraryRouteState(
-      kind: _trimmed(params[kindKey])?.toLowerCase(),
+      kind: kindStr,
       searchQuery: _trimmed(params[searchKey]),
       groupMode: folderPreset?.primaryMode,
       folderPreset: folderPreset,
@@ -100,13 +110,11 @@ class LibraryRouteState {
     if (trimmedQuery != null) {
       params[searchKey] = trimmedQuery;
     }
-    final activeGroupMode = groupMode;
-    final encodedFolderPreset = folderPreset?.storageValue ??
-        (activeGroupMode == null
-            ? null
-            : libraryGroupModeStorageValue(activeGroupMode));
-    if (encodedFolderPreset != null) {
-      params[folderKey] = encodedFolderPreset;
+    final activePreset = folderPreset;
+    if (activePreset != null) {
+      params[folderKey] = activePreset.storageValue;
+    } else if (groupMode != null && groupMode!.isNotEmpty) {
+      params[folderKey] = libraryGroupModeStorageValue(groupMode!, type);
     }
     final trimmedBucket = _trimmed(selectedBucket);
     if (trimmedBucket != null) {
@@ -165,13 +173,21 @@ class LibraryRouteState {
             for (final rule in sortRules!)
               if (allowedSortColumns.contains(rule.column)) rule,
           ];
+    final resolvedGroupDef = groupMode != null
+        ? libraryKindRuntimeForType(type).fields.findGroupDefinition(groupMode!)
+        : null;
     final filteredGroupMode = filteredFolderPreset?.primaryMode ??
-        (groupMode != null && allowedGroupModes.contains(groupMode)
-            ? groupMode
+        (groupMode != null &&
+                (allowedGroupModes.contains(groupMode) ||
+                    resolvedGroupDef != null)
+            ? (resolvedGroupDef?.id.value ?? groupMode)
             : null);
-    final filteredSeriesCompletionScope = filteredGroupMode == 'series'
-        ? seriesCompletionScope
-        : LibrarySeriesCompletionScope.all;
+    final isSeries = filteredGroupMode == 'series' ||
+        (filteredGroupMode != null &&
+            (filteredGroupMode == 'book.series' ||
+                filteredGroupMode.endsWith('.series')));
+    final filteredSeriesCompletionScope =
+        isSeries ? seriesCompletionScope : LibrarySeriesCompletionScope.all;
     return LibraryRouteState(
       kind: expectedKind,
       searchQuery: searchQuery,
@@ -257,13 +273,14 @@ class LibraryRouteState {
     return trimmed.split('.').last;
   }
 
-  static LibraryFolderPreset? _decodeFolderPreset(String? rawValue) {
+  static LibraryFolderPreset? _decodeFolderPreset(String? rawValue,
+      [LibraryTypeConfig? type]) {
     final trimmedValue = _trimmed(rawValue);
     if (trimmedValue == null) {
       return null;
     }
     try {
-      return LibraryFolderPreset.parse(trimmedValue);
+      return LibraryFolderPreset.parse(trimmedValue, type);
     } catch (_) {
       return null;
     }

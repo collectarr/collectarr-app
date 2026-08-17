@@ -39,7 +39,7 @@ class LibraryValueSnapshot {
         : dto.currency?.trim().isNotEmpty == true
             ? dto.currency!.trim()
             : null;
-    final providerValue = ownedItem?.marketValueCents;
+    final providerValue = item.source.catalogItem?.publishing?.coverPriceCents;
     final manualValue = ownedItem?.marketValueCents;
     final currentValue = providerValue ?? manualValue;
     return LibraryValueSnapshot(

@@ -110,7 +110,11 @@ LibraryGroupDefinition<TKind, TDto, V>
   String? sidebarTitle,
   String? category,
   IconData? icon,
+  LibraryGroupPresentation presentation = LibraryGroupPresentation.folderGrid,
   bool supportsBucketManagement = false,
+  String? drilldownChildId,
+  String? folderSetLabel,
+  String? Function(LibraryProjectionContext<TDto> context)? subgroupKey,
 }) {
   return LibraryGroupDefinition<TKind, TDto, V>(
     id: LibraryGroupId<TKind, V>(field.id.value),
@@ -119,6 +123,10 @@ LibraryGroupDefinition<TKind, TDto, V>
     sidebarTitle: sidebarTitle,
     category: category,
     icon: icon,
+    presentation: presentation,
     supportsBucketManagement: supportsBucketManagement,
+    drilldownChildId: drilldownChildId,
+    folderSetLabel: folderSetLabel,
+    subgroupKey: subgroupKey,
   );
 }
