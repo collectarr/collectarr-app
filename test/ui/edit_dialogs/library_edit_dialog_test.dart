@@ -1853,4 +1853,60 @@ void main() {
     expect(find.widgetWithText(TextField, 'Title'), findsNothing);
     expect(find.text('Edition title'), findsOneWidget);
   });
+
+  testWidgets('showLibraryEditDialog pushes fullscreen route on compact screen',
+      (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          localDatabaseProvider.overrideWithValue(db),
+        ],
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () {
+                  showLibraryEditDialog(
+                    context: context,
+                    request: LibraryEditDialogRequest(
+                      type: type,
+                      item: LibraryMetadataItem.fromCatalogItem(
+                        testCatalogItem(
+                          id: 'comic-1',
+                          kind: 'comic',
+                          title: 'Batman: Year One',
+                        ),
+                      ),
+                      ownedItem: null,
+                      accent: Colors.deepOrange,
+                      scope: LibraryEditScope.all,
+                    ),
+                  );
+                },
+                child: const Text('Open compact edit'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open compact edit'));
+    await pumpUntilSettled(tester);
+
+    expect(find.text('Batman: Year One'), findsWidgets);
+    expect(find.text('Save'), findsOneWidget);
+    expect(find.text('Cancel'), findsOneWidget);
+  });
 }

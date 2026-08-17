@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -438,60 +439,66 @@ class _LibraryEditFooter extends StatelessWidget {
       minimumSize: const Size(44, kLibraryDialogFooterButtonHeight),
       visualDensity: VisualDensity.compact,
     );
+    final windowClass = AppWindowClass.of(context);
+    final showNav =
+        !windowClass.isCompact || onPrevious != null || onNext != null;
+
     return LibraryActionFooter(
       backgroundColor: appPalette(context).toolbar,
       borderColor: appPalette(context).divider,
       child: Row(
         children: [
-          SizedBox(
-            width: isMovieDesktop ? 44 : 112,
-            child: isMovieDesktop
-                ? OutlinedButton(
-                    style: compactIconButtonStyle,
-                    onPressed: onPrevious,
-                    child: const Icon(Icons.chevron_left, size: 16),
-                  )
-                : OutlinedButton.icon(
-                    style: navButtonStyle,
-                    onPressed: onPrevious,
-                    icon: const Icon(Icons.chevron_left),
-                    label: const Text('Previous'),
-                  ),
-          ),
-          const SizedBox(width: 8),
-          SizedBox(
-            width: isMovieDesktop ? 44 : 112,
-            child: isMovieDesktop
-                ? OutlinedButton(
-                    style: compactIconButtonStyle,
-                    onPressed: onNext,
-                    child: const Icon(Icons.chevron_right, size: 16),
-                  )
-                : OutlinedButton(
-                    style: navButtonStyle,
-                    onPressed: onNext,
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Next'),
-                        SizedBox(width: 4),
-                        Icon(Icons.chevron_right),
-                      ],
+          if (showNav) ...[
+            SizedBox(
+              width: isMovieDesktop || windowClass.isCompact ? 44 : 112,
+              child: isMovieDesktop || windowClass.isCompact
+                  ? OutlinedButton(
+                      style: compactIconButtonStyle,
+                      onPressed: onPrevious,
+                      child: const Icon(Icons.chevron_left, size: 16),
+                    )
+                  : OutlinedButton.icon(
+                      style: navButtonStyle,
+                      onPressed: onPrevious,
+                      icon: const Icon(Icons.chevron_left),
+                      label: const Text('Previous'),
                     ),
-                  ),
-          ),
+            ),
+            const SizedBox(width: 8),
+            SizedBox(
+              width: isMovieDesktop || windowClass.isCompact ? 44 : 112,
+              child: isMovieDesktop || windowClass.isCompact
+                  ? OutlinedButton(
+                      style: compactIconButtonStyle,
+                      onPressed: onNext,
+                      child: const Icon(Icons.chevron_right, size: 16),
+                    )
+                  : OutlinedButton(
+                      style: navButtonStyle,
+                      onPressed: onNext,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Next'),
+                          SizedBox(width: 4),
+                          Icon(Icons.chevron_right),
+                        ],
+                      ),
+                    ),
+            ),
+          ],
           const Spacer(),
           SizedBox(
-            width: isMovieDesktop ? 44 : 112,
+            width: isMovieDesktop ? 44 : (windowClass.isCompact ? 92 : 112),
             child: OutlinedButton(
               style: isMovieDesktop
                   ? compactIconButtonStyle
                   : OutlinedButton.styleFrom(
                       shape: kLibraryDialogFooterButtonShape,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 9),
-                      minimumSize:
-                          const Size(112, kLibraryDialogFooterButtonHeight),
+                          horizontal: 10, vertical: 9),
+                      minimumSize: Size(windowClass.isCompact ? 92 : 112,
+                          kLibraryDialogFooterButtonHeight),
                       visualDensity: VisualDensity.compact,
                     ),
               onPressed: onCancel,
@@ -502,7 +509,7 @@ class _LibraryEditFooter extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           SizedBox(
-            width: 112,
+            width: windowClass.isCompact ? 96 : 112,
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: isMovieDesktop
@@ -511,14 +518,15 @@ class _LibraryEditFooter extends StatelessWidget {
                     : accent,
                 foregroundColor: isMovieDesktop ? Colors.black87 : null,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                minimumSize: Size(windowClass.isCompact ? 96 : 112,
+                    kLibraryDialogFooterButtonHeight),
                 shape: kLibraryDialogFooterButtonShape,
                 textStyle: const TextStyle(fontWeight: FontWeight.w700),
                 visualDensity: VisualDensity.compact,
               ),
               onPressed: onSave,
-              icon: const Icon(Icons.save_outlined),
+              icon: const Icon(Icons.save_outlined, size: 18),
               label: const Text('Save'),
             ),
           ),

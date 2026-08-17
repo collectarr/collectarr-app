@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
+
 typedef LibraryEditDialogRequestLoader = Future<LibraryEditDialogRequest>
     Function();
 
@@ -24,15 +26,32 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
       'No edit dialog builder registered for ${request.type.workspace.kind.apiValue}.',
     );
   }
+
+  final windowClass = AppWindowClass.of(context);
+  final widgetBuilder = (BuildContext ctx) => requestLoader == null
+      ? builder(ctx, request)
+      : _DeferredLibraryEditDialog(
+          initialRequest: request,
+          requestLoader: requestLoader,
+          builder: builder,
+        );
+
+  if (windowClass.isCompact) {
+    return Navigator.of(context).push<LibraryEditSelection>(
+      MaterialPageRoute<LibraryEditSelection>(
+        fullscreenDialog: true,
+        builder: (ctx) => Scaffold(
+          body: SafeArea(
+            child: widgetBuilder(ctx),
+          ),
+        ),
+      ),
+    );
+  }
+
   return showDialog<LibraryEditSelection>(
     context: context,
-    builder: (context) => requestLoader == null
-        ? builder(context, request)
-        : _DeferredLibraryEditDialog(
-            initialRequest: request,
-            requestLoader: requestLoader,
-            builder: builder,
-          ),
+    builder: widgetBuilder,
   );
 }
 
