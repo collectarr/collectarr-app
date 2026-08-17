@@ -138,6 +138,24 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
     return sortDef.compare(leftContext, rightContext);
   }
 
+  LibrarySortIdRuntime decodeSortId(String raw) {
+    final def = findSortDefinition(raw);
+    if (def != null) return def.id;
+    return DynamicLibrarySortId(raw);
+  }
+
+  LibraryGroupIdRuntime decodeGroupId(String raw) {
+    final def = findGroupDefinition(raw);
+    if (def != null) return def.id;
+    return DynamicLibraryGroupId(raw);
+  }
+
+  LibraryFieldIdRuntime decodeColumnId(String raw) {
+    final def = findColumnDefinition(raw);
+    if (def != null) return def.id;
+    return DynamicLibraryFieldId(raw);
+  }
+
   Object? getGroupValue(LibraryProjectionRuntime item, String groupId) {
     final groupDef = findGroupDefinition(groupId);
     if (groupDef == null) return null;

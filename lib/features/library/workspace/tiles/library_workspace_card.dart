@@ -149,16 +149,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
     );
 
     // Resolve the kind-supplied card presentation (or fall back to default).
-    final type = collectarrLibraryTypes.byKind(
-      catalogMediaKindFromValue(item.source.catalogItem?.kind),
-    );
-    final module = type != null ? libraryKindRuntimeForType(type) : null;
+    final kind = catalogMediaKindFromValue(item.source.catalogItem?.kind);
+    final module = libraryKindRuntimeForKind(kind);
     final musicVertical = cardLayout == LibraryCardLayout.vertical;
-    final presentation = module?.buildCardPresentation(
-          item,
-          musicVertical: musicVertical,
-        ) ??
-        const LibraryCardPresentation();
+    final presentation = module.buildCard(
+      item,
+      musicVertical: musicVertical,
+    );
 
     final strongSelection = selected && item.node is! LibraryTitleNodeRef;
     final coverCacheWidth = _targetCacheWidth(context);

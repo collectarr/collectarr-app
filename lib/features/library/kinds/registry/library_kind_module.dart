@@ -47,9 +47,25 @@ abstract interface class LibraryKindRuntime {
   Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details);
   void validateOwnedDetails(OwnedItemDetails details);
 
+  LibraryProjectionRuntime project({
+    required ShelfEntry source,
+    required LibraryNodeRef node,
+  });
+
+  LibraryCardPresentation buildCard(
+    LibraryProjectionRuntime item, {
+    required bool musicVertical,
+  });
+
   LibraryCardPresentation? buildCardPresentation(
     LibraryProjectionRuntime item, {
     required bool musicVertical,
+  });
+
+  void sort(
+    List<LibraryProjectionRuntime> items,
+    LibrarySortIdRuntime sortId, {
+    bool ascending = true,
   });
 
   void sortEntries(
@@ -58,15 +74,31 @@ abstract interface class LibraryKindRuntime {
     required bool ascending,
   });
 
+  int compare(
+    LibraryProjectionRuntime left,
+    LibraryProjectionRuntime right,
+    LibrarySortIdRuntime sortId,
+  );
+
   int compareEntries(
     LibraryProjectionRuntime left,
     LibraryProjectionRuntime right,
     String sortId,
   );
 
+  Object? groupValue(
+    LibraryProjectionRuntime item,
+    LibraryGroupIdRuntime groupId,
+  );
+
   Object? getGroupValue(
     LibraryProjectionRuntime item,
     String groupId,
+  );
+
+  Object? columnValue(
+    LibraryProjectionRuntime item,
+    LibraryFieldIdRuntime columnId,
   );
 
   Object? getColumnValue(
@@ -249,11 +281,52 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   })? _buildCardPresentation;
 
   @override
+  LibraryProjectionRuntime project({
+    required ShelfEntry source,
+    required LibraryNodeRef node,
+  }) {
+    final dto = createWorkspaceDto(source: source, node: node);
+    return LibraryProjectionItem(
+      source: source,
+      node: node,
+      dto: dto,
+    );
+  }
+
+  @override
+  LibraryCardPresentation buildCard(
+    LibraryProjectionRuntime item, {
+    required bool musicVertical,
+  }) {
+    validateProjection(item);
+    final custom =
+        _buildCardPresentation?.call(item, musicVertical: musicVertical);
+    if (custom != null) return custom;
+    return const LibraryCardPresentation();
+  }
+
+  @override
   LibraryCardPresentation? buildCardPresentation(
     LibraryProjectionRuntime item, {
     required bool musicVertical,
   }) {
-    return _buildCardPresentation?.call(item, musicVertical: musicVertical);
+    return buildCard(item, musicVertical: musicVertical);
+  }
+
+  @override
+  void sort(
+    List<LibraryProjectionRuntime> items,
+    LibrarySortIdRuntime sortId, {
+    bool ascending = true,
+  }) {
+    for (final item in items) {
+      validateProjection(item);
+    }
+    fields.sortEntries(
+      items,
+      sortId.value,
+      ascending: ascending,
+    );
   }
 
   @override
@@ -262,14 +335,18 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     String sortId, {
     required bool ascending,
   }) {
-    for (final item in items) {
-      validateProjection(item);
-    }
-    fields.sortEntries(
-      items,
-      sortId,
-      ascending: ascending,
-    );
+    sort(items, fields.decodeSortId(sortId), ascending: ascending);
+  }
+
+  @override
+  int compare(
+    LibraryProjectionRuntime left,
+    LibraryProjectionRuntime right,
+    LibrarySortIdRuntime sortId,
+  ) {
+    validateProjection(left);
+    validateProjection(right);
+    return fields.compareEntries(left, right, sortId.value);
   }
 
   @override
@@ -278,9 +355,16 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     LibraryProjectionRuntime right,
     String sortId,
   ) {
-    validateProjection(left);
-    validateProjection(right);
-    return fields.compareEntries(left, right, sortId);
+    return compare(left, right, fields.decodeSortId(sortId));
+  }
+
+  @override
+  Object? groupValue(
+    LibraryProjectionRuntime item,
+    LibraryGroupIdRuntime groupId,
+  ) {
+    validateProjection(item);
+    return fields.getGroupValue(item, groupId.value);
   }
 
   @override
@@ -288,8 +372,16 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     LibraryProjectionRuntime item,
     String groupId,
   ) {
+    return groupValue(item, fields.decodeGroupId(groupId));
+  }
+
+  @override
+  Object? columnValue(
+    LibraryProjectionRuntime item,
+    LibraryFieldIdRuntime columnId,
+  ) {
     validateProjection(item);
-    return fields.getGroupValue(item, groupId);
+    return fields.getColumnValue(item, columnId.value);
   }
 
   @override
@@ -297,8 +389,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     LibraryProjectionRuntime item,
     String columnId,
   ) {
-    validateProjection(item);
-    return fields.getColumnValue(item, columnId);
+    return columnValue(item, fields.decodeColumnId(columnId));
   }
 
   @override
@@ -315,25 +406,25 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required ShelfEntry source,
     required LibraryNodeRef node,
   }) {
-    if (node is LibraryTitleNodeRef) {
-      return projector.projectTitle(source: source, node: node);
-    } else if (node is LibraryReleaseNodeRef) {
-      return projector.projectRelease(
-        source: source,
-        node: node,
-        releaseState: LibraryReleaseState(
-          isOwned: source.isOwned,
-          isWishlisted: source.isWishlisted,
-          isTracked: source.isTracked,
+    return switch (node) {
+      LibraryTitleNodeRef() => projector.projectTitle(
+          source: source,
+          node: node,
         ),
-      );
-    } else if (node is LibraryCopyNodeRef) {
-      return projector.projectCopy(source: source, node: node);
-    }
-    return projector.projectTitle(
-      source: source,
-      node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
-    );
+      LibraryReleaseNodeRef() => projector.projectRelease(
+          source: source,
+          node: node,
+          releaseState: LibraryReleaseState(
+            isOwned: source.isOwned,
+            isWishlisted: source.isWishlisted,
+            isTracked: source.isTracked,
+          ),
+        ),
+      LibraryCopyNodeRef() => projector.projectCopy(
+          source: source,
+          node: node,
+        ),
+    };
   }
 }
 

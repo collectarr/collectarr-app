@@ -46,6 +46,11 @@ abstract interface class LibraryGroupIdRuntime {
   String get value;
 }
 
+/// Controlled runtime interface for sort identifiers to allow heterogeneous collection handling without type erasure to dynamic.
+abstract interface class LibrarySortIdRuntime {
+  String get value;
+}
+
 /// Strongly typed field identifier bound to a concrete kind [TKind] and field value type [TValue].
 final class LibraryFieldId<TKind, TValue> implements LibraryFieldIdRuntime {
   const LibraryFieldId(this.value);
@@ -65,10 +70,29 @@ final class LibraryFieldId<TKind, TValue> implements LibraryFieldIdRuntime {
   String toString() => value;
 }
 
+/// Dynamic or decoded runtime field identifier.
+final class DynamicLibraryFieldId implements LibraryFieldIdRuntime {
+  const DynamicLibraryFieldId(this.value);
+
+  @override
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      other is LibraryFieldIdRuntime && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  String toString() => value;
+}
+
 /// Strongly typed sort identifier bound to a concrete kind [TKind].
-final class LibrarySortId<TKind> {
+final class LibrarySortId<TKind> implements LibrarySortIdRuntime {
   const LibrarySortId(this.value);
 
+  @override
   final String value;
 
   @override
@@ -78,6 +102,24 @@ final class LibrarySortId<TKind> {
 
   @override
   int get hashCode => Object.hash(TKind, value);
+
+  @override
+  String toString() => value;
+}
+
+/// Dynamic or decoded runtime sort identifier.
+final class DynamicLibrarySortId implements LibrarySortIdRuntime {
+  const DynamicLibrarySortId(this.value);
+
+  @override
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      other is LibrarySortIdRuntime && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
 
   @override
   String toString() => value;
@@ -97,6 +139,24 @@ final class LibraryGroupId<TKind, TValue> implements LibraryGroupIdRuntime {
 
   @override
   int get hashCode => Object.hash(TKind, TValue, value);
+
+  @override
+  String toString() => value;
+}
+
+/// Dynamic or decoded runtime group identifier.
+final class DynamicLibraryGroupId implements LibraryGroupIdRuntime {
+  const DynamicLibraryGroupId(this.value);
+
+  @override
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      other is LibraryGroupIdRuntime && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
 
   @override
   String toString() => value;

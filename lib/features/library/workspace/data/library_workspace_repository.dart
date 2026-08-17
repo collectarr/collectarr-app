@@ -178,8 +178,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
 
       final items = shelfEntries.map((se) {
         final node = LibraryTitleNodeRef(titleItemId: se.catalogItem!.id);
-        final dto = module.projector.projectTitle(source: se, node: node);
-        return LibraryProjectionItem(source: se, node: node, dto: dto);
+        return module.project(source: se, node: node);
       }).toList();
 
       var filtered = items;
@@ -235,8 +234,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       final catalogItem = source.catalogItem;
       if (catalogItem != null && catalogItem.kind == query.kind.apiValue) {
         final node = LibraryTitleNodeRef(titleItemId: catalogItem.id);
-        final dto = module.projector.projectTitle(source: source, node: node);
-        items.add(LibraryProjectionItem(source: source, node: node, dto: dto));
+        items.add(module.project(source: source, node: node));
       }
     }
 
