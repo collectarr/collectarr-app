@@ -1,4 +1,5 @@
 export 'adapters/anilist/anilist_provider.dart';
+export 'adapters/musicbrainz/musicbrainz_provider.dart';
 export 'adapters/openlibrary/openlibrary_provider.dart';
 export 'adapters/provider_adapter.dart';
 export 'credentials/models/bgg_credentials.dart';
