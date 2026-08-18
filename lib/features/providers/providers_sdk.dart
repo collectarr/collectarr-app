@@ -22,6 +22,7 @@ export 'domain/models/provider_image_ref.dart';
 export 'domain/models/provider_provenance.dart';
 export 'domain/models/provider_search_result.dart';
 export 'runtime/provider_http_client.dart';
+export 'runtime/provider_image_cache.dart';
 export 'runtime/provider_rate_limiter.dart';
 export 'runtime/provider_retry_policy.dart';
 export 'runtime/provider_runtime.dart';
