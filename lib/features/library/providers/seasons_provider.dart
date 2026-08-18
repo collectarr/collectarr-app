@@ -22,8 +22,7 @@ final seasonsProvider = FutureProvider.autoDispose
       }
     } catch (_) {}
   }
-  final api = ref.watch(apiClientProvider);
-  return api.getProviderSeasons(params.provider, params.providerItemId);
+  return const <Season>[];
 });
 
 final tvSeriesSeasonsProvider =
@@ -59,22 +58,10 @@ List<Season> _seasonDtosToSeasonModels(List<TvSeasonDto> seasons) {
       Season(
         seasonNumber: season.seasonNumber ?? 0,
         title: season.title,
-        providerItemId: season.id,
         overview: season.description,
-        airDate: season.releaseDate?.toIso8601String(),
-        episodeCount: season.episodeCount,
-        posterUrl: season.coverImageUrl,
-        episodes: [
-          for (final episode in season.episodes)
-            Episode(
-              episodeNumber: episode.episodeNumber?.toInt() ?? 0,
-              title: episode.title,
-              providerItemId: episode.id,
-              overview: episode.description,
-              airDate: episode.releaseDate?.toIso8601String(),
-              runtimeMinutes: episode.runtimeMinutes,
-            ),
-        ],
+        episodeCount: season.episodeCount ?? 0,
+        airDate: season.airDateValue?.toIso8601String(),
+        posterUrl: season.coverImageUrlValue,
       ),
   ];
 }

@@ -64,31 +64,3 @@ Future<LibraryMetadataItem> lookupLibraryBarcode(
     ),
   );
 }
-
-Future<List<ProviderCandidate>> searchLibraryProviderCandidates(
-  ApiClient api,
-  LibraryTypeConfig type, {
-  String? provider,
-  required String query,
-  String? series,
-  String? issueNumber,
-  int? year,
-  String? kindOverride,
-}) async {
-  final rows = await api.searchProvider(
-    provider: provider,
-    query: query,
-    kind: kindOverride ?? type.workspace.kind.apiValue,
-    series: series,
-    issueNumber: issueNumber,
-    year: year,
-  );
-  return rows
-      .map(
-        (row) => ProviderCandidate.fromJson(
-          row,
-          fallbackKind: type.workspace.kind.apiValue,
-        ),
-      )
-      .toList(growable: false);
-}

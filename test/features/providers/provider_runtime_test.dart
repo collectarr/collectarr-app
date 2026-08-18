@@ -105,7 +105,7 @@ void main() {
     });
 
     test('parseRetryAfter parses seconds and Unix reset timestamps', () {
-      final respWithSec = Response(
+      final respWithSec = Response<dynamic>(
         requestOptions: RequestOptions(),
         headers: Headers.fromMap({
           'retry-after': ['10'],
@@ -114,7 +114,7 @@ void main() {
       expect(ProviderRetryPolicy.parseRetryAfter(respWithSec)?.inSeconds, 10);
 
       final nowUnix = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-      final respWithReset = Response(
+      final respWithReset = Response<dynamic>(
         requestOptions: RequestOptions(),
         headers: Headers.fromMap({
           'x-ratelimit-reset': ['${nowUnix + 5}'],

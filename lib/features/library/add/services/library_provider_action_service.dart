@@ -8,16 +8,6 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 class LibraryProviderActionService {
   const LibraryProviderActionService();
 
-  Future<AdminProviderPreview> fetchPreview({
-    required ApiClient api,
-    required ProviderCandidate candidate,
-  }) {
-    return api.adminProviderPreview(
-      provider: candidate.provider,
-      providerItemId: candidate.providerItemId,
-    );
-  }
-
   Future<AdminProviderIngestJob> queueIngest({
     required ApiClient api,
     required ProviderCandidate candidate,

@@ -20,10 +20,7 @@ final volumesProvider = FutureProvider.autoDispose
       }
     } catch (_) {}
   }
-  final api = ref.watch(apiClientProvider);
-  return api
-      .getProviderVolumes(params.provider, params.providerItemId)
-      .timeout(const Duration(seconds: 60));
+  return const <Season>[];
 });
 
 final itemVolumesProvider = FutureProvider.autoDispose.family<

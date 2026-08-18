@@ -207,15 +207,16 @@ void main() {
 }
 
 class _CatalogApiClient extends ApiClient {
-  _CatalogApiClient(this.catalog) : super(baseUrl: 'http://core.local');
+  _CatalogApiClient(this.catalogMediaTypes)
+      : super(baseUrl: 'http://core.local');
 
-  final List<CatalogMediaType> catalog;
+  final List<CatalogMediaType> catalogMediaTypes;
   int calls = 0;
 
   @override
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
     calls += 1;
-    return catalog;
+    return catalogMediaTypes;
   }
 }
 

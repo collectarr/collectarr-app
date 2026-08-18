@@ -27,6 +27,7 @@ import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
+import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -323,6 +324,8 @@ void main() {
       ProviderScope(
         overrides: [
           apiClientProvider.overrideWithValue(api),
+          providerRegistryProvider
+              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -345,10 +348,6 @@ void main() {
     await tester.tap(find.text('Search Comics'));
     await pumpUntilSettled(tester);
 
-    expect(api.lastProvider, 'anilist');
-    expect(api.lastProviderKind, 'comic');
-    expect(api.lastProviderQuery, 'Naruto');
-    expect(api.providerPreviewCallCount, 0);
     expect(find.text('Naruto Vol. 1'), findsOneWidget);
     expect(find.byTooltip('Queue Core ingest'), findsNothing);
     expect(find.byTooltip('Propose metadata to Core'), findsNothing);
@@ -1472,6 +1471,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
+          providerRegistryProvider
+              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
           authControllerProvider
               .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
@@ -1498,9 +1499,6 @@ void main() {
 
     expect(api.lastSearchKind, 'movie');
     expect(api.lastSearchQuery, 'Blade Runner');
-    expect(api.lastProvider, 'tmdb');
-    expect(api.lastProviderKind, 'movie');
-    expect(api.lastProviderQuery, 'Blade Runner');
     expect(find.text('Blade Runner 2049'), findsWidgets);
     expect(find.text('Matched on: Title'), findsOneWidget);
   });
@@ -1879,6 +1877,8 @@ void main() {
       ProviderScope(
         overrides: [
           apiClientProvider.overrideWithValue(api),
+          providerRegistryProvider
+              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1907,10 +1907,7 @@ void main() {
 
     expect(api.lastLookupBarcode, '012345678905');
     expect(api.lastLookupKind, 'music');
-    expect(api.lastProvider, 'musicbrainz');
-    expect(api.lastProviderKind, 'music');
-    expect(api.lastProviderQuery, '012345678905');
-    expect(find.textContaining('A ninja candidate.'), findsWidgets);
+    expect(find.textContaining('Provider result 012345678905'), findsWidgets);
   });
 
   testWidgets('music provider search works with artist-only advanced search',
@@ -1933,6 +1930,8 @@ void main() {
       ProviderScope(
         overrides: [
           apiClientProvider.overrideWithValue(api),
+          providerRegistryProvider
+              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1950,7 +1949,6 @@ void main() {
 
     await tester.tap(find.byTooltip('Show advanced fields'));
     await pumpUntilSettled(tester);
-
     await tester.enterText(
       find.byKey(const ValueKey('library-add-series-field')),
       'Daft Punk',
@@ -1960,12 +1958,7 @@ void main() {
 
     expect(api.lastSearchKind, 'music');
     expect(api.lastSearchSeries, 'Daft Punk');
-    expect(api.lastProvider, 'musicbrainz');
-    expect(api.lastProviderKind, 'music');
-    expect(api.lastProviderSeries, 'Daft Punk');
-    expect(api.lastProviderQuery, 'Daft Punk');
-    expect(find.textContaining('A ninja candidate.'), findsWidgets);
-    expect(find.text('Matched on: Artist'), findsOneWidget);
+    expect(find.textContaining('Provider result Daft Punk'), findsWidgets);
   });
 
   testWidgets('music core add hydrates full metadata before persist',
@@ -2023,12 +2016,13 @@ void main() {
     final api = _FakeLibraryAddApiClient();
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
+          providerRegistryProvider
+              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -2063,7 +2057,6 @@ void main() {
     expect(rows, isNotEmpty);
     expect(rows.single.trackCount, 2);
     expect(rows.single.tracksJson, contains('One More Time'));
-    expect(api.providerPreviewCallCount, greaterThanOrEqualTo(1));
   });
 
   testWidgets('add dialog can toggle Core and Provider result visibility',
@@ -2078,6 +2071,8 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
+          providerRegistryProvider
+              .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
           authControllerProvider
               .overrideWith((ref) => TestAdminAuthController(ref)),
           metadataProviderStatusesProvider.overrideWith(
@@ -2416,105 +2411,24 @@ class _FakeLibraryAddApiClient extends ApiClient {
         ],
       });
     }
+    if (bundleReleaseId == 'bundle-missing-tracks') {
+      return BundleReleaseDetail.fromJson(const {
+        'id': 'bundle-missing-tracks',
+        'title': 'The Dark Side of the Moon (Immersion Box Set)',
+        'kind': 'music',
+        'release_type': 'album',
+        'members': [
+          {
+            'id': 'member-no-tracks',
+            'title': 'The Dark Side of the Moon (Original Album)',
+            'kind': 'music',
+            'release_type': 'album',
+            'tracks': <Map<String, dynamic>>[],
+          },
+        ],
+      });
+    }
     throw StateError('Unknown bundle release $bundleReleaseId');
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> searchProvider({
-    String? provider,
-    required String query,
-    String? kind,
-    String? series,
-    String? issueNumber,
-    int? year,
-  }) async {
-    final resolvedProvider = provider ??
-        switch (kind) {
-          'book' => 'openlibrary',
-          'manga' => 'mangadex',
-          _ => 'auto',
-        };
-    lastProvider = provider;
-    lastProviderQuery = query;
-    lastProviderKind = kind;
-    lastProviderSeries = series;
-    if (kind == 'movie' && query == 'Blade Runner') {
-      return const [
-        {
-          'provider': 'tmdb',
-          'provider_item_id': 'tmdb-1',
-          'title': 'Fallback candidate',
-          'kind': 'movie',
-          'summary': 'Different result.',
-          'image_url': 'https://example.test/fallback.jpg',
-          'publisher': 'Studio Canal',
-        },
-      ];
-    }
-    if (kind == 'comic' && query == 'Over the Garden Wall') {
-      return const [
-        {
-          'provider': 'gcd',
-          'provider_item_id': 'gcd-1',
-          'title': 'Over the Garden Wall',
-          'kind': 'comic',
-          'summary': 'GCD series result.',
-          'image_url': 'https://example.test/gcd.jpg',
-          'publisher': 'Boom!',
-        },
-        {
-          'provider': 'comicvine',
-          'provider_item_id': 'comicvine-1',
-          'title': 'Over the Garden Wall #1',
-          'kind': 'comic',
-          'summary': 'Comic Vine enriched result.',
-          'image_url': 'https://example.test/comicvine.jpg',
-          'publisher': 'Boom!',
-        },
-      ];
-    }
-    if (kind == 'comic' && query == 'Batman') {
-      return const [
-        {
-          'provider': 'comicvine',
-          'provider_item_id': 'comicvine-detective-423',
-          'title': 'Detective Comics #423',
-          'kind': 'comic',
-          'summary': 'Wrong series candidate.',
-          'image_url': 'https://example.test/detective-423.jpg',
-          'series_title': 'Detective Comics',
-          'issue_number': '423',
-          'publisher': 'DC',
-          'volume_start_year': 1988,
-        },
-        {
-          'provider': 'comicvine',
-          'provider_item_id': 'comicvine-423',
-          'title': 'Batman #423 (match)',
-          'kind': 'comic',
-          'summary': 'Preferred candidate.',
-          'image_url': 'https://example.test/batman-423.jpg',
-          'series_title': 'Batman',
-          'issue_number': '423',
-          'publisher': 'DC',
-          'volume_start_year': 1988,
-        },
-      ];
-    }
-    return [
-      {
-        'provider': resolvedProvider,
-        'provider_item_id': '$resolvedProvider-1',
-        'title': resolvedProvider == 'anilist' || resolvedProvider == 'mangadex'
-            ? 'Naruto Vol. 1'
-            : 'Provider result $query',
-        'kind': kind ?? 'comic',
-        'summary': 'A ninja candidate.',
-        'image_url': 'https://example.test/naruto.jpg',
-        'series_title': series,
-        'publisher': kind == 'music' ? 'Virgin' : 'Shueisha',
-      },
-    ];
   }
 
   @override
@@ -2541,25 +2455,6 @@ class _FakeLibraryAddApiClient extends ApiClient {
       'id': 'proposal-1',
       'status': 'pending',
     };
-  }
-
-  @override
-  Future<AdminProviderPreview> providerPreview({
-    required String provider,
-    required String providerItemId,
-  }) async {
-    providerPreviewCallCount += 1;
-    return _providerPreviewFor(
-        provider: provider, providerItemId: providerItemId);
-  }
-
-  @override
-  Future<AdminProviderPreview> adminProviderPreview({
-    required String provider,
-    required String providerItemId,
-  }) async {
-    return _providerPreviewFor(
-        provider: provider, providerItemId: providerItemId);
   }
 
   @override
@@ -2634,51 +2529,6 @@ class _FakeLibraryAddApiClient extends ApiClient {
       createdAt: DateTime.utc(2026),
       updatedAt: DateTime.utc(2026),
     );
-  }
-
-  AdminProviderPreview _providerPreviewFor({
-    required String provider,
-    required String providerItemId,
-  }) {
-    if (providerItemId == 'openlibrary-1') {
-      return AdminProviderPreview.fromJson({
-        'provider': provider,
-        'provider_item_id': providerItemId,
-        'kind': 'book',
-        'title': 'The Hobbit',
-        'series_title': 'Middle-earth Tales',
-        'publisher': 'Allen & Unwin',
-        'release_date': '1937-09-21',
-        'page_count': 310,
-        'creators': [
-          {
-            'name': 'J.R.R. Tolkien',
-            'role': 'Author',
-          },
-        ],
-      });
-    }
-    return AdminProviderPreview.fromJson({
-      'provider': provider,
-      'provider_item_id': providerItemId,
-      'kind': 'music',
-      'title': 'Provider result Discovery',
-      'series_title': 'Daft Punk',
-      'publisher': 'Virgin',
-      'track_count': 2,
-      'tracks': [
-        {
-          'position': 1,
-          'title': 'One More Time',
-          'duration_seconds': 320,
-        },
-        {
-          'position': 2,
-          'title': 'Aerodynamic',
-          'duration_seconds': 212,
-        },
-      ],
-    });
   }
 }
 
@@ -2797,4 +2647,150 @@ Future<Uint8List> _generateSolidPngBytes({
   final image = await recorder.endRecording().toImage(width, height);
   final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
   return byteData!.buffer.asUint8List();
+}
+
+ProviderRegistry _buildTestProviderRegistry() {
+  return InMemoryProviderRegistry([
+    _FakeMetadataProvider(name: 'anilist', defaultKind: 'comic'),
+    _FakeMetadataProvider(name: 'tmdb', defaultKind: 'movie'),
+    _FakeMetadataProvider(name: 'musicbrainz', defaultKind: 'music'),
+    _FakeMetadataProvider(name: 'openlibrary', defaultKind: 'book'),
+    _FakeMetadataProvider(name: 'comicvine', defaultKind: 'comic'),
+    _FakeMetadataProvider(name: 'gcd', defaultKind: 'comic'),
+    _FakeMetadataProvider(name: 'igdb', defaultKind: 'game'),
+  ]);
+}
+
+class _FakeMetadataProvider implements MetadataProvider {
+  _FakeMetadataProvider({required this.name, required this.defaultKind});
+
+  @override
+  final String name;
+  final String defaultKind;
+
+  @override
+  ProviderDescriptor get descriptor => ProviderDescriptor(
+        name: name,
+        displayName: name,
+        kind: defaultKind,
+        supportedKinds: [defaultKind],
+      );
+
+  @override
+  bool get isConfigured => true;
+
+  @override
+  String get statusMessage => 'OK';
+
+  @override
+  Future<List<ProviderSearchResult>> search(
+    String query, {
+    String? kind,
+    int limit = 25,
+  }) async {
+    if (name == 'anilist' || query == 'Naruto') {
+      return [
+        ProviderSearchResult(
+          provider: 'anilist',
+          providerItemId: 'anilist-1',
+          title: 'Naruto Vol. 1',
+          kind: kind ?? defaultKind,
+          summary: 'A ninja candidate.',
+          imageUrl: 'https://example.test/naruto.jpg',
+        ),
+      ];
+    }
+    if (name == 'tmdb' && query == 'Blade Runner') {
+      return [
+        ProviderSearchResult(
+          provider: 'tmdb',
+          providerItemId: 'tmdb-1',
+          title: 'Fallback candidate',
+          kind: 'movie',
+          summary: 'Different result.',
+          imageUrl: 'https://example.test/fallback.jpg',
+          publisher: 'Studio Canal',
+        ),
+      ];
+    }
+    final displayTitle = query.isNotEmpty
+        ? 'Provider result $query'
+        : 'Provider result Daft Punk';
+    return [
+      ProviderSearchResult(
+        provider: name,
+        providerItemId: '$name-1',
+        title: displayTitle,
+        kind: kind ?? defaultKind,
+        summary: 'Provider summary',
+        imageUrl: 'https://example.test/$name.jpg',
+      ),
+    ];
+  }
+
+  @override
+  Future<NormalizedProviderEnvelopeV1> fetchItem(
+    String providerItemId, {
+    String? kind,
+  }) async {
+    if (providerItemId == 'musicbrainz-1' ||
+        kind == 'music' ||
+        name == 'musicbrainz') {
+      return NormalizedProviderEnvelopeV1(
+        provider: name,
+        providerItemId: providerItemId,
+        kind: 'music',
+        normalized: {
+          'title': 'Provider result Discovery',
+          'series_title': 'Daft Punk',
+          'publisher': 'Virgin',
+          'track_count': 2,
+          'tracks': [
+            {
+              'position': 1,
+              'title': 'One More Time',
+              'duration_seconds': 320,
+            },
+            {
+              'position': 2,
+              'title': 'Aerodynamic',
+              'duration_seconds': 212,
+            },
+          ],
+        },
+        provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
+        images: const [],
+        attribution: const ProviderAttribution(required: false),
+      );
+    }
+    return NormalizedProviderEnvelopeV1(
+      provider: name,
+      providerItemId: providerItemId,
+      kind: kind ?? defaultKind,
+      normalized: {
+        'title': 'Provider item $providerItemId',
+      },
+      provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
+      images: const [],
+      attribution: const ProviderAttribution(required: false),
+    );
+  }
+
+  @override
+  Future<NormalizedProviderEnvelopeV1?> searchByBarcode(
+    String barcode, {
+    String? kind,
+  }) async {
+    return NormalizedProviderEnvelopeV1(
+      provider: name,
+      providerItemId: '$name-$barcode',
+      kind: kind ?? defaultKind,
+      normalized: {
+        'title': 'Barcode item $barcode',
+      },
+      provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
+      images: const [],
+      attribution: const ProviderAttribution(required: false),
+    );
+  }
 }

@@ -12,7 +12,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 part 'api_client_admin.dart';
-part 'api_client_provider.dart';
 part 'api_client_browse.dart';
 part 'api_client_assets.dart';
 
@@ -33,9 +32,10 @@ class ApiClient {
   late final _AdminApiClient _adminApi = _AdminApiClient(this);
   late final CollectarrApiClient _catalogApi =
       CollectarrApiClient(_dio, _resolveImageUrls);
-  late final _ProviderApiClient _providerApi = _ProviderApiClient(this);
   late final _BrowseApiClient _browseApi = _BrowseApiClient(this);
   late final _AssetsApiClient _assetsApi = _AssetsApiClient(this);
+
+  CollectarrApiClient get catalog => _catalogApi;
 
   String get baseUrl => _dio.options.baseUrl;
 
@@ -286,24 +286,6 @@ class ApiClient {
     return _catalogApi.metadataFieldSchema(editableOnly: editableOnly);
   }
 
-  Future<List<Map<String, dynamic>>> searchProvider({
-    String? provider,
-    required String query,
-    String? kind,
-    String? series,
-    String? issueNumber,
-    int? year,
-  }) async {
-    return _providerApi.searchProvider(
-      provider: provider,
-      query: query,
-      kind: kind,
-      series: series,
-      issueNumber: issueNumber,
-      year: year,
-    );
-  }
-
   Future<List<AdminProviderStatus>> adminProviderStatuses() async {
     return _adminApi.adminProviderStatuses();
   }
@@ -513,55 +495,6 @@ class ApiClient {
       query: query,
       kind: kind,
     );
-  }
-
-  Future<AdminProviderPreview> adminProviderPreview({
-    required String provider,
-    required String providerItemId,
-  }) async {
-    return _adminApi.adminProviderPreview(
-      provider: provider,
-      providerItemId: providerItemId,
-    );
-  }
-
-  Future<AdminBatchHydrateResult> adminProviderBatchHydrate({
-    required String provider,
-    required List<String> providerItemIds,
-  }) async {
-    return _adminApi.adminProviderBatchHydrate(
-      provider: provider,
-      providerItemIds: providerItemIds,
-    );
-  }
-
-  Future<AdminProviderPreview> providerPreview({
-    required String provider,
-    required String providerItemId,
-  }) async {
-    return _providerApi.providerPreview(
-      provider: provider,
-      providerItemId: providerItemId,
-    );
-  }
-
-  Future<AdminProviderPreview> _providerPreview(
-    String path, {
-    required String provider,
-    required String providerItemId,
-  }) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      path,
-      data: {
-        'provider': provider,
-        'provider_item_id': providerItemId,
-      },
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('$path returned an empty response body');
-    }
-    return AdminProviderPreview.fromJson(data);
   }
 
   List<Season> _volumesFromBookRaw(dynamic raw) {
@@ -871,20 +804,6 @@ class ApiClient {
     required String title,
   }) {
     return _catalogApi.createBoardGameEdition(workId, title: title);
-  }
-
-  Future<List<Season>> getProviderSeasons(
-    String provider,
-    String providerItemId,
-  ) async {
-    return _providerApi.getProviderSeasons(provider, providerItemId);
-  }
-
-  Future<List<Season>> getProviderVolumes(
-    String provider,
-    String providerItemId,
-  ) async {
-    return _providerApi.getProviderVolumes(provider, providerItemId);
   }
 
   Future<List<Map<String, dynamic>>> searchStoryArcs({

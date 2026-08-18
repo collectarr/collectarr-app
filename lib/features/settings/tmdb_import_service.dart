@@ -10,6 +10,8 @@ import 'package:csv/csv.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_runner.dart';
+import 'package:collectarr_app/features/providers/domain/mappers/provider_preview_mapper.dart';
+import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 
 /// The TMDB media type for import entries.
@@ -535,41 +537,28 @@ class TmdbImportService {
     );
   }
 
-  /// Batch-enrich entries using the backend provider system instead of the
-  /// TMDB API directly. Returns a map keyed by provider item ID (e.g.
-  /// `movie:603`) to the enriched entry.
+  /// Batch-enrich entries using the provider system.
   Future<Map<String, TmdbImportEntry>> batchEnrichEntries({
-    required ApiClient api,
+    ApiClient? api,
+    ProviderRegistry? providerRegistry,
     required List<TmdbImportEntry> entries,
   }) async {
     if (entries.isEmpty) {
       return const <String, TmdbImportEntry>{};
     }
-    const batchSize = 200;
-    final providerIds = <String>[];
-    final entryByProviderId = <String, TmdbImportEntry>{};
+    final adapter = providerRegistry?.get('tmdb');
+    final enriched = <String, TmdbImportEntry>{};
     for (final entry in entries) {
       final pid = entry.mediaType.providerItemId(entry.tmdbId);
-      providerIds.add(pid);
-      entryByProviderId[pid] = entry;
-    }
-    final enriched = <String, TmdbImportEntry>{};
-    for (var i = 0; i < providerIds.length; i += batchSize) {
-      final chunk = providerIds.sublist(
-        i,
-        (i + batchSize).clamp(0, providerIds.length),
-      );
-      final result = await api.adminProviderBatchHydrate(
-        provider: 'tmdb',
-        providerItemIds: chunk,
-      );
-      for (final item in result.results) {
-        final entry = entryByProviderId[item.providerItemId];
-        if (entry == null || !item.success || item.preview == null) {
-          continue;
-        }
-        enriched[item.providerItemId] =
-            enrichEntryFromPreview(entry, item.preview!);
+      if (adapter != null) {
+        try {
+          final envelope = await adapter.fetchItem(
+            pid,
+            kind: entry.mediaType.name,
+          );
+          final preview = providerPreviewFromEnvelope(envelope);
+          enriched[pid] = enrichEntryFromPreview(entry, preview);
+        } catch (_) {}
       }
     }
     return enriched;

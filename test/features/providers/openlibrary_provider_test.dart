@@ -85,7 +85,7 @@ void main() {
       dio.httpClientAdapter = _MockHttpAdapter((options) async {
         queriedQ = options.queryParameters['q']?.toString();
         return ResponseBody.fromString(
-          jsonEncode({'docs': []}),
+          jsonEncode({'docs': <dynamic>[]}),
           200,
           headers: {
             Headers.contentTypeHeader: [Headers.jsonContentType],

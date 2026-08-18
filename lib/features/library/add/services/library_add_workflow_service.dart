@@ -85,7 +85,7 @@ class LibraryAddWorkflowService {
   }
 
   Future<LibraryMetadataItem> providerAddItemForCandidate({
-    required ApiClient api,
+    required ApiClient? api,
     required ProviderCandidate candidate,
     required bool mounted,
     required void Function(VoidCallback fn) rebuild,
@@ -107,34 +107,7 @@ class LibraryAddWorkflowService {
         ),
       );
     }
-    try {
-      final preview = await api.providerPreview(
-        provider: candidate.provider,
-        providerItemId: candidate.providerItemId,
-      );
-      if (mounted) {
-        rebuild(() {
-          previewState.setProviderPreview(candidate.localCatalogId, preview);
-        });
-      }
-      return metadataItemFromPreview(preview).copyWith(
-        id: buildPreviewCatalogItemId(
-          kind: preview.kind,
-          provider: preview.provider,
-          providerItemId: preview.providerItemId,
-        ),
-      );
-    } catch (error) {
-      if (mounted && isMissingBearerTokenError(error)) {
-        rebuild(
-          () => setError(
-            'Provider preview needs authentication. Adding basic provider metadata only.',
-          ),
-        );
-        return candidate.placeholderItem();
-      }
-      rethrow;
-    }
+    return candidate.placeholderItem();
   }
 
   Future<void> addItems({
@@ -265,21 +238,17 @@ class LibraryAddWorkflowService {
     var currentCandidate = candidate;
     try {
       while (mounted) {
-        final preview = await providerActionService.fetchPreview(
-          api: api,
-          candidate: currentCandidate,
-        );
-        if (!mounted) {
-          return;
-        }
-
-        final previewItem = metadataItemFromPreview(preview).copyWith(
-          id: buildPreviewCatalogItemId(
-            kind: preview.kind,
-            provider: preview.provider,
-            providerItemId: preview.providerItemId,
-          ),
-        );
+        final cached =
+            previewState.providerPreviewFor(currentCandidate.localCatalogId);
+        final previewItem = cached != null
+            ? metadataItemFromPreview(cached).copyWith(
+                id: buildPreviewCatalogItemId(
+                  kind: cached.kind,
+                  provider: cached.provider,
+                  providerItemId: cached.providerItemId,
+                ),
+              )
+            : currentCandidate.placeholderItem();
 
         final visibleCandidates = visibleProviderResults();
         final currentIndex = visibleCandidates.indexWhere(

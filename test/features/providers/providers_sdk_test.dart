@@ -4,18 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 class _FakeTestProvider implements MetadataProvider {
   _FakeTestProvider({
     required this.descriptor,
-    this.isConfigured = true,
-    this.statusMessage = 'OK',
   });
 
   @override
   final ProviderDescriptor descriptor;
 
   @override
-  final bool isConfigured;
+  bool get isConfigured => true;
 
   @override
-  final String statusMessage;
+  String get statusMessage => 'OK';
 
   @override
   String get name => descriptor.name;

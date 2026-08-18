@@ -147,15 +147,17 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
   final targetKind = kindOverride ?? type.workspace.kind.apiValue;
   final normalizedProvider =
       provider.trim().isEmpty ? null : provider.trim().toLowerCase();
+  final effectiveQuery =
+      query.trim().isNotEmpty ? query.trim() : (series?.trim() ?? '');
 
   List<ProviderCandidate> candidates = [];
 
-  if (providerRegistry != null) {
+  if (providerRegistry != null && effectiveQuery.isNotEmpty) {
     if (normalizedProvider != null && normalizedProvider != 'all') {
       final p = providerRegistry.get(normalizedProvider);
       if (p != null) {
         try {
-          final results = await p.search(query, kind: targetKind);
+          final results = await p.search(effectiveQuery, kind: targetKind);
           candidates = results
               .map((r) => ProviderCandidate(
                     provider: r.provider,
@@ -178,7 +180,7 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       final providers = providerRegistry.getForKind(targetKind);
       final futures = providers.map((p) async {
         try {
-          final results = await p.search(query, kind: targetKind);
+          final results = await p.search(effectiveQuery, kind: targetKind);
           return results
               .map((r) => ProviderCandidate(
                     provider: r.provider,
@@ -203,55 +205,5 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
     }
   }
 
-  // Fallback to Core provider search if registry produced no results and api is present
-  if (candidates.isEmpty && api != null) {
-    try {
-      final rawResults = await searchLibraryProviderCandidates(
-        api,
-        type,
-        provider: normalizedProvider,
-        query: query,
-        series: series,
-        issueNumber: issueNumber,
-        year: year,
-        kindOverride: kindOverride,
-      );
-      candidates = rawResults;
-    } catch (error) {
-      if (_isMissingBearerTokenError(error) && normalizedProvider != null) {
-        try {
-          final fallbackResults = await searchLibraryProviderCandidates(
-            api,
-            type,
-            provider: null,
-            query: query,
-            series: series,
-            issueNumber: issueNumber,
-            year: year,
-            kindOverride: kindOverride,
-          );
-          candidates = fallbackResults;
-        } catch (_) {
-          candidates = const [];
-        }
-      }
-    }
-  }
-
   return rerankProviderCandidates(candidates, rerankHints);
-}
-
-bool _isMissingBearerTokenError(Object error) {
-  if (error is! DioException) {
-    return false;
-  }
-  if (error.response?.statusCode != 401) {
-    return false;
-  }
-  final data = error.response?.data;
-  if (data is! Map) {
-    return false;
-  }
-  final code = data['code']?.toString().trim();
-  return code == 'missing_bearer_token';
 }

@@ -1157,11 +1157,6 @@ class LibraryAddSessionController
           kind: candidate.kind,
         );
         preview = providerPreviewFromEnvelope(envelope);
-      } else if (api != null) {
-        preview = await api!.providerPreview(
-          provider: candidate.provider,
-          providerItemId: candidate.providerItemId,
-        );
       }
 
       if (preview == null) {
