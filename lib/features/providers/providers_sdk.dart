@@ -4,6 +4,7 @@ export 'adapters/mangadex/mangadex_provider.dart';
 export 'adapters/musicbrainz/musicbrainz_provider.dart';
 export 'adapters/openlibrary/openlibrary_provider.dart';
 export 'adapters/provider_adapter.dart';
+export 'adapters/tmdb/tmdb_provider.dart';
 export 'credentials/models/bgg_credentials.dart';
 export 'credentials/models/comicvine_credentials.dart';
 export 'credentials/models/hardcover_credentials.dart';
