@@ -457,6 +457,109 @@ void main() {
 
       sessionController.dispose();
     });
+
+    test(
+        'submitCurrentSelection performs local add without Core ingest using deterministic provisional identity',
+        () async {
+      final registry = InMemoryProviderRegistry();
+
+      final comicProvider = _MockProvider(
+        name: 'comic_prov',
+        kind: 'comic',
+        searchHandler: (query, {kind, limit = 25}) async => [
+          const ProviderSearchResult(
+            provider: 'comic_prov',
+            providerItemId: 'c-99',
+            title: 'Action Comics #1',
+            kind: 'comic',
+          ),
+        ],
+        fetchHandler: (id, {kind}) async => NormalizedProviderEnvelopeV1(
+          schemaVersion: 'v1',
+          provider: 'comic_prov',
+          providerItemId: id,
+          kind: 'comic',
+          normalized: {
+            'title': 'Action Comics #1',
+            'publisher': 'DC Comics',
+            'synopsis': 'The first appearance of Superman.',
+            'genres': ['Superhero'],
+            'creators': [
+              {'name': 'Jerry Siegel', 'role': 'Writer'},
+              {'name': 'Joe Shuster', 'role': 'Artist'},
+            ],
+          },
+          provenance: ProviderProvenance(
+            fetchedAt: DateTime.now().toIso8601String(),
+            sourceUrl: 'https://example.com/comics/99',
+            rawPayloadHash: 'hash99',
+            providerVersion: '1.0.0',
+          ),
+          images: const [],
+          attribution: const ProviderAttribution(
+            required: true,
+            text: 'Data by ComicProv',
+          ),
+        ),
+      );
+
+      registry.register(comicProvider);
+
+      final catalog = CatalogCacheRepository(db);
+
+      final sessionController = LibraryAddSessionController(
+        kind: CatalogMediaKind.comic,
+        ownedMutations: ownedMutations,
+        wishlistMutations: wishlistMutations,
+        trackingMutations: trackingMutations,
+        catalog: catalog,
+        providerRegistry: registry,
+      );
+
+      const candidate = ProviderCandidate(
+        provider: 'comic_prov',
+        providerItemId: 'c-99',
+        title: 'Action Comics #1',
+        kind: 'comic',
+        publisher: 'DC Comics',
+      );
+
+      sessionController.state = sessionController.state.copyWith(
+        search: sessionController.state.search.copyWith(
+          providerResults: [candidate],
+        ),
+      );
+
+      // Select candidate and ensure preview loads
+      sessionController.selectProviderCandidate(candidate.localCatalogId);
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+
+      expect(
+          sessionController.state.preview
+              .providerPreviewFor(candidate.localCatalogId),
+          isNotNull);
+
+      // Submit to owned locally without Core (api is null)
+      final success = await sessionController.submitCurrentSelection();
+      expect(success, isTrue);
+
+      // Verify item exists in local database and catalog cache with deterministic provisional identity
+      final expectedProvisionalId = candidate.localCatalogId;
+      final cachedItem = await catalog.findById(expectedProvisionalId);
+      expect(cachedItem, isNotNull);
+      expect(cachedItem!.id, expectedProvisionalId);
+      expect(cachedItem.title, 'Action Comics #1');
+      expect(cachedItem.publisher, 'DC Comics');
+
+      // Verify owned item record exists in DB
+      final ownedItem = await db.managers.ownedItemsCache
+          .filter((f) => f.itemId.equals(expectedProvisionalId))
+          .getSingleOrNull();
+      expect(ownedItem, isNotNull);
+      expect(ownedItem!.itemId, expectedProvisionalId);
+
+      sessionController.dispose();
+    });
   });
 }
 

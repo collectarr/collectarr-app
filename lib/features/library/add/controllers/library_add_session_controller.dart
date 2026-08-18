@@ -1366,6 +1366,50 @@ class LibraryAddSessionController
               tags: state.defaultTags,
             ),
           );
+        } else {
+          // Local-only add without Core ingest using deterministic provisional provider identity
+          final preview = state.preview
+              .providerPreviewFor(selectedCandidate.localCatalogId);
+          final catalogItem = CatalogItem(
+            id: selectedCandidate.localCatalogId,
+            kind: selectedCandidate.kind,
+            title: preview?.title ?? selectedCandidate.title,
+            synopsis: preview?.synopsis ?? selectedCandidate.summary,
+            coverImageUrl: preview?.coverImageUrl ?? selectedCandidate.imageUrl,
+            thumbnailImageUrl:
+                preview?.coverImageUrl ?? selectedCandidate.imageUrl,
+            publisher: preview?.publisher ?? selectedCandidate.publisher,
+            releaseYear: preview?.releaseDate?.year ??
+                selectedCandidate.series?.volumeStartYear,
+            series: preview?.series ?? selectedCandidate.series,
+            publishing: preview?.publishing,
+            game: preview?.game,
+            music: preview?.music,
+            video: preview?.video,
+          );
+
+          if (catalog != null) {
+            await catalog!.upsertAll([catalogItem]);
+          }
+
+          final capability = libraryKindRuntimeForKind(kind).add;
+          final command = capability.buildCommand(
+            catalogItem,
+            state.commonDraft,
+            state.manualDraft,
+          );
+
+          switch (state.target) {
+            case LibraryAddTarget.owned:
+              await ownedMutations.addOwnedItem(command);
+            case LibraryAddTarget.wishlist:
+              await wishlistMutations.addToWishlist(
+                catalogItem.id,
+                fallbackKind: catalogItem.kind,
+              );
+            case LibraryAddTarget.track:
+              await trackingMutations.addLocalOnlyTrackingEntry(catalogItem);
+          }
         }
       } else if (checkedResults.isNotEmpty) {
         final itemsToAdd = state.search.results
