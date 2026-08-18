@@ -4,10 +4,10 @@ import 'package:collectarr_app/features/updater/app_installer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _FakeProcess implements Process {
-  _FakeProcess({this.pid = 123});
+  _FakeProcess();
 
   @override
-  final int pid;
+  final int pid = 123;
 
   @override
   Future<int> get exitCode async => 0;

@@ -11,6 +11,8 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -45,6 +47,8 @@ abstract interface class LibraryKindRuntime {
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json);
   OwnedItemDetails defaultOwnedDetails();
   OwnedDetailsDraft defaultOwnedDetailsDraft();
+  OwnedDetailsDraft buildPersonalDetailsDraft(
+      LibraryPersonalEditSelection personal);
   Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details);
   void validateOwnedDetails(OwnedItemDetails details);
 
@@ -232,6 +236,55 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   @override
   OwnedDetailsDraft defaultOwnedDetailsDraft() =>
       ownedDetailsCodec.defaultDraft();
+
+  @override
+  OwnedDetailsDraft buildPersonalDetailsDraft(
+      LibraryPersonalEditSelection personal) {
+    return switch (kind) {
+      CatalogMediaKind.comic ||
+      CatalogMediaKind.manga =>
+        ComicOwnedDetailsDraft(
+          rawOrSlabbed: personal.rawOrSlabbed,
+          gradingCompany: personal.gradingCompany,
+          graderNotes: personal.graderNotes,
+          signedBy: personal.signedBy,
+          labelType: personal.labelType,
+          customLabel: personal.customLabel,
+          pageQuality: personal.pageQuality,
+          certificationNumber: personal.certificationNumber,
+          keyComic: personal.keyComic ?? false,
+          keyReason: personal.keyReason,
+          keyCategory: personal.keyCategory,
+          keySeverity: personal.keySeverity,
+          coverPriceCents: personal.coverPriceCents,
+          lastBagBoardDate: personal.lastBagBoardDate,
+        ),
+      CatalogMediaKind.movie ||
+      CatalogMediaKind.tv ||
+      CatalogMediaKind.anime =>
+        VideoOwnedDetailsDraft(
+          features: personal.features,
+          hdrFormats: personal.hdrFormats ?? const [],
+          boxSetName: personal.boxSetName,
+          region: personal.region,
+          packaging: personal.packaging,
+          distributor: personal.distributor,
+        ),
+      CatalogMediaKind.game => GameOwnedDetailsDraft(
+          completeness: personal.gameCompleteness,
+          hasBox: personal.gameHasBox,
+          hasManual: personal.gameHasManual,
+          priceChartingId: personal.gamePriceChartingId,
+          coreRegion: personal.gameCoreRegion,
+          valueIsLocked: personal.gameValueIsLocked,
+        ),
+      CatalogMediaKind.music => MusicOwnedDetailsDraft(
+          storageDevice: personal.storageDevice,
+          storageSlot: personal.storageSlot,
+        ),
+      _ => const GenericOwnedDetailsDraft(),
+    };
+  }
 
   @override
   Map<String, dynamic> encodeOwnedDetails(OwnedItemDetails details) {

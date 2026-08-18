@@ -43,6 +43,7 @@ final boardGamesLibraryConfig = LibraryTypeConfig(
   ),
   capabilities: LibraryTypeCapabilities(
     canScanCover: true,
+    supportsSeriesSubgroups: true,
   ),
   showsDefaultInspectorPersonalSection: false,
 );

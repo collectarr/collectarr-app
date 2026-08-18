@@ -73,7 +73,6 @@ final comicsLibraryConfig = LibraryTypeConfig(
     supportsIndexReassignment: true,
     supportsMetadataCompare: true,
     contentHierarchy: LibraryContentHierarchy.volumes,
-    supportsSeriesSubgroups: true,
     mediaScopeGroupIds: _comicMediaGroupModes,
     releaseScopeGroupIds: _comicReleaseGroupModes,
     groupModeCategoriesBuilder: buildComicGroupModeCategories,

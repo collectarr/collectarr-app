@@ -328,50 +328,7 @@ class LibraryPageEditCoordinator {
             ? Patch.set(personal.marketValueCents)
             : const Patch.clear(),
         details: Patch.set(
-          switch (_s.widget.type.workspace.kind) {
-            CatalogMediaKind.comic ||
-            CatalogMediaKind.manga =>
-              ComicOwnedDetailsDraft(
-                rawOrSlabbed: personal.rawOrSlabbed,
-                gradingCompany: personal.gradingCompany,
-                graderNotes: personal.graderNotes,
-                signedBy: personal.signedBy,
-                labelType: personal.labelType,
-                customLabel: personal.customLabel,
-                pageQuality: personal.pageQuality,
-                certificationNumber: personal.certificationNumber,
-                keyComic: personal.keyComic ?? false,
-                keyReason: personal.keyReason,
-                keyCategory: personal.keyCategory,
-                keySeverity: personal.keySeverity,
-                coverPriceCents: personal.coverPriceCents,
-                lastBagBoardDate: personal.lastBagBoardDate,
-              ),
-            CatalogMediaKind.movie ||
-            CatalogMediaKind.tv ||
-            CatalogMediaKind.anime =>
-              VideoOwnedDetailsDraft(
-                features: personal.features,
-                hdrFormats: personal.hdrFormats ?? const [],
-                boxSetName: personal.boxSetName,
-                region: personal.region,
-                packaging: personal.packaging,
-                distributor: personal.distributor,
-              ),
-            CatalogMediaKind.game => GameOwnedDetailsDraft(
-                completeness: personal.gameCompleteness,
-                hasBox: personal.gameHasBox,
-                hasManual: personal.gameHasManual,
-                priceChartingId: personal.gamePriceChartingId,
-                coreRegion: personal.gameCoreRegion,
-                valueIsLocked: personal.gameValueIsLocked,
-              ),
-            CatalogMediaKind.music => MusicOwnedDetailsDraft(
-                storageDevice: personal.storageDevice,
-                storageSlot: personal.storageSlot,
-              ),
-            _ => const GenericOwnedDetailsDraft(),
-          },
+          _s.widget.type.buildPersonalOwnedDetailsDraft(personal),
         ),
       );
       await coordinator.updateOwnedItem(

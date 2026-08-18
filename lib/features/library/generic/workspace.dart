@@ -37,8 +37,7 @@ double libraryWorkspaceGridMainAxisExtent({
 }
 
 bool libraryShouldUseSeriesSubgroups(LibraryTypeConfig type) {
-  final kind = catalogMediaKindFromValue(type.workspace.kind);
-  return kind != CatalogMediaKind.comic && !kind.isVideoLibraryKind;
+  return type.supportsSeriesSubgroups;
 }
 
 class LibraryWorkspace extends ConsumerWidget {

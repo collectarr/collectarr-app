@@ -8,7 +8,10 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
@@ -125,6 +128,13 @@ class LibraryKindUiAdapter {
 
   bool supportsMetadataCompareWithServer(LibraryTypeConfig type) {
     return type.supportsMetadataCompareWithServer;
+  }
+
+  OwnedDetailsDraft buildPersonalDetailsDraft(
+    LibraryTypeConfig type,
+    LibraryPersonalEditSelection personal,
+  ) {
+    return libraryKindRuntimeForType(type).buildPersonalDetailsDraft(personal);
   }
 
   LibraryWorkspaceBrowserMode browserModeForViewState(
@@ -425,6 +435,14 @@ class LibraryTypeConfig {
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
 
+  bool get supportsSeriesSubgroups => capabilities.supportsSeriesSubgroups;
+
+  OwnedDetailsDraft buildPersonalOwnedDetailsDraft(
+    LibraryPersonalEditSelection personal,
+  ) {
+    return kindUiAdapter.buildPersonalDetailsDraft(this, personal);
+  }
+
   List<String> availableGroupModesForBrowserMode(
     LibraryWorkspaceBrowserMode browserMode,
   ) {
@@ -507,7 +525,7 @@ class LibraryTypeConfig {
   }
 
   List<LibraryMetadataProviderOption> get supportedMetadataProviders {
-    if (workspace.kind == CatalogMediaKind.unknown) {
+    if (workspace.kind.isUnknown) {
       return metadataProviders;
     }
     return [

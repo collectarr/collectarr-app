@@ -56,6 +56,7 @@ final booksLibraryConfig = LibraryTypeConfig(
     supportsOwnedItemImages: false,
     supportsMediaReleaseSplit: true,
     supportsReadingQueue: true,
+    supportsSeriesSubgroups: true,
     mediaScopeGroupIds: _bookMediaGroupModes,
     releaseScopeGroupIds: _bookReleaseGroupModes,
     mediaScopeSortIds: _bookMediaSortColumns,

@@ -2776,7 +2776,6 @@ class _FakeMetadataProvider implements MetadataProvider {
     );
   }
 
-  @override
   Future<NormalizedProviderEnvelopeV1?> searchByBarcode(
     String barcode, {
     String? kind,

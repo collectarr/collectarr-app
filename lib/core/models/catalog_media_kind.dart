@@ -13,6 +13,8 @@ enum CatalogMediaKind {
   const CatalogMediaKind(this.apiValue);
 
   final String apiValue;
+
+  bool get isUnknown => this == CatalogMediaKind.unknown;
 }
 
 extension CatalogMediaKindLibrarySemantics on CatalogMediaKind {

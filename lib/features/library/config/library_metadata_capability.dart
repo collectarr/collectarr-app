@@ -15,7 +15,7 @@ class LibraryMetadataCapability {
 
   List<LibraryMetadataProviderOption> supportedProvidersForKind(
       CatalogMediaKind kind) {
-    if (kind == CatalogMediaKind.unknown) {
+    if (kind.isUnknown) {
       return providers;
     }
     return [
