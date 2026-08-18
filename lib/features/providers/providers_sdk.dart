@@ -3,6 +3,7 @@ export 'adapters/bgg/bgg_provider.dart';
 export 'adapters/comicvine/comicvine_provider.dart';
 export 'adapters/gcd/gcd_provider.dart';
 export 'adapters/hardcover/hardcover_provider.dart';
+export 'adapters/igdb/igdb_provider.dart';
 export 'adapters/mangadex/mangadex_provider.dart';
 export 'adapters/musicbrainz/musicbrainz_provider.dart';
 export 'adapters/openlibrary/openlibrary_provider.dart';
