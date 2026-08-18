@@ -1,12 +1,19 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 
-abstract interface class OwnedDetailsCodec<TDetails extends OwnedItemDetails> {
+abstract interface class LibraryOwnershipCapability<
+    TDetails extends OwnedItemDetails> {
+  OwnedDetailsDraft defaultDraft();
+  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal);
+}
+
+abstract interface class OwnedDetailsCodec<TDetails extends OwnedItemDetails>
+    implements LibraryOwnershipCapability<TDetails> {
   TDetails fromJson(Map<String, dynamic> json);
   Map<String, dynamic> toJson(TDetails details);
   Map<String, dynamic> toSyncPayload(TDetails details);
   TDetails defaultDetails();
-  OwnedDetailsDraft defaultDraft();
 }
 
 class ComicOwnedDetailsCodec implements OwnedDetailsCodec<ComicOwnedDetails> {
@@ -28,6 +35,26 @@ class ComicOwnedDetailsCodec implements OwnedDetailsCodec<ComicOwnedDetails> {
 
   @override
   OwnedDetailsDraft defaultDraft() => const ComicOwnedDetailsDraft();
+
+  @override
+  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+    return ComicOwnedDetailsDraft(
+      rawOrSlabbed: personal.rawOrSlabbed,
+      gradingCompany: personal.gradingCompany,
+      graderNotes: personal.graderNotes,
+      signedBy: personal.signedBy,
+      labelType: personal.labelType,
+      customLabel: personal.customLabel,
+      pageQuality: personal.pageQuality,
+      certificationNumber: personal.certificationNumber,
+      keyComic: personal.keyComic ?? false,
+      keyReason: personal.keyReason,
+      keyCategory: personal.keyCategory,
+      keySeverity: personal.keySeverity,
+      coverPriceCents: personal.coverPriceCents,
+      lastBagBoardDate: personal.lastBagBoardDate,
+    );
+  }
 }
 
 class VideoOwnedDetailsCodec implements OwnedDetailsCodec<VideoOwnedDetails> {
@@ -49,6 +76,18 @@ class VideoOwnedDetailsCodec implements OwnedDetailsCodec<VideoOwnedDetails> {
 
   @override
   OwnedDetailsDraft defaultDraft() => const VideoOwnedDetailsDraft();
+
+  @override
+  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+    return VideoOwnedDetailsDraft(
+      features: personal.features,
+      hdrFormats: personal.hdrFormats ?? const [],
+      boxSetName: personal.boxSetName,
+      region: personal.region,
+      packaging: personal.packaging,
+      distributor: personal.distributor,
+    );
+  }
 }
 
 class GameOwnedDetailsCodec implements OwnedDetailsCodec<GameOwnedDetails> {
@@ -70,6 +109,18 @@ class GameOwnedDetailsCodec implements OwnedDetailsCodec<GameOwnedDetails> {
 
   @override
   OwnedDetailsDraft defaultDraft() => const GameOwnedDetailsDraft();
+
+  @override
+  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+    return GameOwnedDetailsDraft(
+      completeness: personal.gameCompleteness,
+      hasBox: personal.gameHasBox,
+      hasManual: personal.gameHasManual,
+      priceChartingId: personal.gamePriceChartingId,
+      coreRegion: personal.gameCoreRegion,
+      valueIsLocked: personal.gameValueIsLocked,
+    );
+  }
 }
 
 class MusicOwnedDetailsCodec implements OwnedDetailsCodec<MusicOwnedDetails> {
@@ -91,6 +142,14 @@ class MusicOwnedDetailsCodec implements OwnedDetailsCodec<MusicOwnedDetails> {
 
   @override
   OwnedDetailsDraft defaultDraft() => const MusicOwnedDetailsDraft();
+
+  @override
+  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+    return MusicOwnedDetailsDraft(
+      storageDevice: personal.storageDevice,
+      storageSlot: personal.storageSlot,
+    );
+  }
 }
 
 class BookOwnedDetailsCodec implements OwnedDetailsCodec<BookOwnedDetails> {
@@ -112,6 +171,10 @@ class BookOwnedDetailsCodec implements OwnedDetailsCodec<BookOwnedDetails> {
 
   @override
   OwnedDetailsDraft defaultDraft() => const BookOwnedDetailsDraft();
+
+  @override
+  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
+      const BookOwnedDetailsDraft();
 }
 
 class BoardgameOwnedDetailsCodec
@@ -135,6 +198,10 @@ class BoardgameOwnedDetailsCodec
 
   @override
   OwnedDetailsDraft defaultDraft() => const BoardgameOwnedDetailsDraft();
+
+  @override
+  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
+      const BoardgameOwnedDetailsDraft();
 }
 
 class GenericOwnedDetailsCodec
@@ -157,4 +224,8 @@ class GenericOwnedDetailsCodec
 
   @override
   OwnedDetailsDraft defaultDraft() => const GenericOwnedDetailsDraft();
+
+  @override
+  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
+      const GenericOwnedDetailsDraft();
 }
