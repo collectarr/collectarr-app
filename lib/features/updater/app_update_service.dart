@@ -7,6 +7,11 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:collectarr_app/features/updater/app_installer.dart';
+import 'package:collectarr_app/features/updater/release_asset.dart';
+export 'package:collectarr_app/features/updater/app_installer.dart';
+export 'package:collectarr_app/features/updater/release_asset.dart';
+
 // ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
@@ -95,26 +100,62 @@ class GitHubRelease {
     required this.name,
     required this.body,
     required this.publishedAt,
-    required this.msixDownloadUrl,
-    required this.msixSize,
+    this.assets = const [],
+    this.primaryAsset,
+    String? msixDownloadUrl,
+    int? msixSize,
     required this.isPrerelease,
-  });
+  })  : _msixDownloadUrl = msixDownloadUrl,
+        _msixSize = msixSize;
 
   final String version; // e.g. "0.2.0-beta.1"
   final String tagName;
   final String name;
   final String body; // markdown release notes
   final DateTime publishedAt;
-  final String msixDownloadUrl;
-  final int msixSize; // bytes
+  final List<ReleaseAsset> assets;
+  final ReleaseAsset? primaryAsset;
+  final String? _msixDownloadUrl;
+  final int? _msixSize;
   final bool isPrerelease;
 
-  factory GitHubRelease.fromJson(Map<String, dynamic> json) {
-    final assets = json['assets'] as List<dynamic>? ?? [];
-    final msixAsset = assets.cast<Map<String, dynamic>>().firstWhere(
-          (a) => (a['name'] as String? ?? '').endsWith('.msix'),
-          orElse: () => <String, dynamic>{},
-        );
+  String get msixDownloadUrl =>
+      _msixDownloadUrl ??
+      primaryAsset?.downloadUrl ??
+      assets
+          .firstWhere(
+            (a) => a.assetType == ReleaseAssetType.msix,
+            orElse: () => const ReleaseAsset.empty(),
+          )
+          .downloadUrl;
+
+  int get msixSize =>
+      _msixSize ??
+      primaryAsset?.size ??
+      assets
+          .firstWhere(
+            (a) => a.assetType == ReleaseAssetType.msix,
+            orElse: () => const ReleaseAsset.empty(),
+          )
+          .size;
+
+  String get downloadUrl => primaryAsset?.downloadUrl ?? msixDownloadUrl;
+
+  factory GitHubRelease.fromJson(
+    Map<String, dynamic> json, {
+    ReleaseAssetResolver resolver = const ReleaseAssetResolver(),
+    AppUpdatePlatform? targetPlatform,
+  }) {
+    final rawAssets = json['assets'] as List<dynamic>? ?? [];
+    final assets = rawAssets
+        .whereType<Map<String, dynamic>>()
+        .map(ReleaseAsset.fromJson)
+        .toList();
+
+    final primary = resolver.resolve(
+      assets: assets,
+      targetPlatform: targetPlatform,
+    );
 
     final tag = json['tag_name'] as String? ?? '';
     final version = tag.startsWith('v') ? tag.substring(1) : tag;
@@ -128,8 +169,8 @@ class GitHubRelease {
             json['published_at'] as String? ?? '',
           ) ??
           DateTime.now(),
-      msixDownloadUrl: msixAsset['browser_download_url'] as String? ?? '',
-      msixSize: msixAsset['size'] as int? ?? 0,
+      assets: assets,
+      primaryAsset: primary,
       isPrerelease: json['prerelease'] as bool? ?? false,
     );
   }
@@ -281,27 +322,41 @@ class AppUpdateState {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Controller
-// ---------------------------------------------------------------------------
-
 class AppUpdateController extends Notifier<AppUpdateState> {
+  AppUpdateController({
+    Dio? dio,
+    ReleaseAssetResolver? resolver,
+    AppInstaller? installer,
+    AppUpdatePlatform? targetPlatform,
+  })  : _customDio = dio,
+        _resolver = resolver ?? const ReleaseAssetResolver(),
+        _installer = installer ?? const DefaultAppInstaller(),
+        _targetPlatform = targetPlatform;
+
+  final Dio? _customDio;
+  final ReleaseAssetResolver _resolver;
+  final AppInstaller _installer;
+  final AppUpdatePlatform? _targetPlatform;
+
+  late final Dio _dio = _customDio ??
+      Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+      ));
+
+  CancelToken? _cancelToken;
+
   @override
   AppUpdateState build() {
     ref.onDispose(() {
       _cancelToken?.cancel();
-      _dio.close();
+      if (_customDio == null) {
+        _dio.close();
+      }
     });
     init();
     return const AppUpdateState();
   }
-
-  final _dio = Dio(BaseOptions(
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-  ));
-
-  CancelToken? _cancelToken;
 
   Future<void> init() async {
     final info = await PackageInfo.fromPlatform();
@@ -344,8 +399,12 @@ class AppUpdateController extends Notifier<AppUpdateState> {
       for (final item in response.data!) {
         if (item is! Map<String, dynamic>) continue;
         if (item['draft'] as bool? ?? false) continue;
-        final candidate = GitHubRelease.fromJson(item);
-        if (candidate.msixDownloadUrl.isEmpty) continue;
+        final candidate = GitHubRelease.fromJson(
+          item,
+          resolver: _resolver,
+          targetPlatform: _targetPlatform,
+        );
+        if (candidate.downloadUrl.isEmpty) continue;
         if (!isReleaseAllowedForChannel(candidate, state.settings.channel)) {
           continue;
         }
@@ -379,7 +438,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
 
   Future<void> downloadUpdate() async {
     final release = state.release;
-    if (release == null || release.msixDownloadUrl.isEmpty) return;
+    if (release == null || release.downloadUrl.isEmpty) return;
 
     _cancelToken = CancelToken();
     state = state.copyWith(
@@ -390,11 +449,13 @@ class AppUpdateController extends Notifier<AppUpdateState> {
 
     try {
       final tempDir = await getTemporaryDirectory();
-      final fileName = 'collectarr-${release.version}.msix';
-      final savePath = p.join(tempDir.path, fileName);
+      final assetName = release.primaryAsset?.name.isNotEmpty == true
+          ? release.primaryAsset!.name
+          : 'collectarr-${release.version}.msix';
+      final savePath = p.join(tempDir.path, assetName);
 
       await _dio.download(
-        release.msixDownloadUrl,
+        release.downloadUrl,
         savePath,
         cancelToken: _cancelToken,
         onReceiveProgress: (received, total) {
@@ -438,11 +499,7 @@ class AppUpdateController extends Notifier<AppUpdateState> {
 
     state = state.copyWith(status: UpdateStatus.installing);
     try {
-      await Process.start(
-        'powershell',
-        ['-Command', 'Start-Process', '"$path"'],
-        mode: ProcessStartMode.detached,
-      );
+      await _installer.install(path);
     } catch (e) {
       state = state.copyWith(
         status: UpdateStatus.error,

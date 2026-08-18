@@ -89,4 +89,47 @@ void main() {
           isTrue);
     });
   });
+
+  group('GitHubRelease.fromJson platform asset resolution', () {
+    test('resolves primaryAsset based on targetPlatform', () {
+      final json = {
+        'tag_name': 'v0.3.0',
+        'name': 'Release v0.3.0',
+        'body': 'Notes',
+        'published_at': '2026-08-18T12:00:00Z',
+        'prerelease': false,
+        'assets': [
+          {
+            'name': 'collectarr-0.3.0-windows-x64.msix',
+            'browser_download_url': 'https://example.test/app.msix',
+            'size': 5000,
+          },
+          {
+            'name': 'collectarr-0.3.0-macos.dmg',
+            'browser_download_url': 'https://example.test/app.dmg',
+            'size': 6000,
+          },
+        ],
+      };
+
+      final winRelease = GitHubRelease.fromJson(
+        json,
+        targetPlatform: AppUpdatePlatform.windows,
+      );
+      expect(winRelease.version, '0.3.0');
+      expect(winRelease.primaryAsset, isNotNull);
+      expect(winRelease.primaryAsset!.assetType, ReleaseAssetType.msix);
+      expect(winRelease.downloadUrl, 'https://example.test/app.msix');
+      expect(winRelease.msixDownloadUrl, 'https://example.test/app.msix');
+      expect(winRelease.msixSize, 5000);
+
+      final macRelease = GitHubRelease.fromJson(
+        json,
+        targetPlatform: AppUpdatePlatform.macOS,
+      );
+      expect(macRelease.primaryAsset, isNotNull);
+      expect(macRelease.primaryAsset!.assetType, ReleaseAssetType.dmg);
+      expect(macRelease.downloadUrl, 'https://example.test/app.dmg');
+    });
+  });
 }
