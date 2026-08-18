@@ -1,5 +1,6 @@
 export 'adapters/anilist/anilist_provider.dart';
 export 'adapters/gcd/gcd_provider.dart';
+export 'adapters/hardcover/hardcover_provider.dart';
 export 'adapters/mangadex/mangadex_provider.dart';
 export 'adapters/musicbrainz/musicbrainz_provider.dart';
 export 'adapters/openlibrary/openlibrary_provider.dart';
