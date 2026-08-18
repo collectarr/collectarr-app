@@ -35,6 +35,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_cache_
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
+import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,6 +50,7 @@ class LibraryAddSessionController
     required this.trackingMutations,
     this.api,
     this.catalog,
+    this.providerRegistry,
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.workflowService = const LibraryAddWorkflowService(),
     this.providerActionService = const LibraryProviderActionService(),
@@ -93,6 +95,7 @@ class LibraryAddSessionController
   final TrackingMutations trackingMutations;
   final ApiClient? api;
   final CatalogCacheRepository? catalog;
+  final ProviderRegistry? providerRegistry;
   final LibraryCoverScanService coverScanService;
   final LibraryAddWorkflowService workflowService;
   final LibraryProviderActionService providerActionService;
@@ -469,11 +472,12 @@ class LibraryAddSessionController
             kindsToSearch.map<Future<List<ProviderCandidate>>>((k) async {
           try {
             return await runLibraryAddProviderSearch(
-              api: api!,
+              api: api,
               type: type,
               provider: provider,
               query: query,
               rerankHints: rerankHints,
+              providerRegistry: providerRegistry,
               series: seriesText,
               issueNumber: issueText,
               year: yearValue,
@@ -488,11 +492,12 @@ class LibraryAddSessionController
             allResults.expand((r) => r).cast<ProviderCandidate>().toList();
       } else if (kindsToSearch.length == 1) {
         results = await runLibraryAddProviderSearch(
-          api: api!,
+          api: api,
           type: type,
           provider: provider,
           query: query,
           rerankHints: rerankHints,
+          providerRegistry: providerRegistry,
           series: seriesText,
           issueNumber: issueText,
           year: yearValue,
@@ -500,11 +505,12 @@ class LibraryAddSessionController
         );
       } else {
         results = await runLibraryAddProviderSearch(
-          api: api!,
+          api: api,
           type: type,
           provider: provider,
           query: query,
           rerankHints: rerankHints,
+          providerRegistry: providerRegistry,
           series: seriesText,
           issueNumber: issueText,
           year: yearValue,
@@ -1121,7 +1127,6 @@ class LibraryAddSessionController
   }
 
   Future<void> _ensureProviderPreviewLoaded(String candidateId) async {
-    if (api == null) return;
     if (state.preview.providerPreviewFor(candidateId) != null ||
         state.preview.isProviderPreviewPending(candidateId)) {
       return;
@@ -1144,10 +1149,29 @@ class LibraryAddSessionController
     );
 
     try {
-      final preview = await api!.providerPreview(
-        provider: candidate.provider,
-        providerItemId: candidate.providerItemId,
-      );
+      AdminProviderPreview? preview;
+      final adapter = providerRegistry?.get(candidate.provider);
+      if (adapter != null) {
+        final envelope = await adapter.fetchItem(
+          candidate.providerItemId,
+          kind: candidate.kind,
+        );
+        preview = providerPreviewFromEnvelope(envelope);
+      } else if (api != null) {
+        preview = await api!.providerPreview(
+          provider: candidate.provider,
+          providerItemId: candidate.providerItemId,
+        );
+      }
+
+      if (preview == null) {
+        throw ProviderNotFoundException(
+          provider: candidate.provider,
+          message:
+              'No preview available for ${candidate.provider}:${candidate.providerItemId}',
+        );
+      }
+
       if (searchGen != state.search.providerSearchGeneration) return;
 
       final previewsMap = Map<String, AdminProviderPreview>.from(

@@ -34,6 +34,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
+import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -177,6 +178,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       trackingMutations: ref.read(trackingMutationsProvider),
       api: ref.read(apiClientProvider),
       catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
+      providerRegistry: ref.read(providerRegistryProvider).value ??
+          buildDefaultProviderRegistry(),
       coverScanService: widget.coverScanService,
       onAuthSessionExpired: (error, action) => ref
           .read(authControllerProvider.notifier)

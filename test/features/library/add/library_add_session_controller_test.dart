@@ -13,13 +13,17 @@ import 'package:collectarr_app/features/collection/repositories/watch_sessions_c
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
+import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -318,7 +322,198 @@ void main() {
       expect(command.details.toDetails().music?.storageDevice, 'Shelf A');
       expect(command.details.toDetails().music?.storageSlot, '12');
     });
+
+    test(
+        'runLibraryAddProviderSearch uses ProviderRegistry and isolates broken provider',
+        () async {
+      final registry = InMemoryProviderRegistry();
+
+      final goodProvider = _MockProvider(
+        name: 'good_prov',
+        kind: 'comic',
+        searchHandler: (query, {kind, limit = 25}) async => [
+          ProviderSearchResult(
+            provider: 'good_prov',
+            providerItemId: 'item-good-1',
+            title: 'Good Result for $query',
+            kind: 'comic',
+          ),
+        ],
+      );
+
+      final brokenProvider = _MockProvider(
+        name: 'broken_prov',
+        kind: 'comic',
+        searchHandler: (query, {kind, limit = 25}) async =>
+            throw Exception('Broken network connection!'),
+      );
+
+      registry.register(goodProvider);
+      registry.register(brokenProvider);
+
+      final sessionController = LibraryAddSessionController(
+        kind: CatalogMediaKind.comic,
+        ownedMutations: ownedMutations,
+        wishlistMutations: wishlistMutations,
+        trackingMutations: trackingMutations,
+        providerRegistry: registry,
+      );
+
+      final results = await runLibraryAddProviderSearch(
+        type: libraryKindRuntimeForKind(CatalogMediaKind.comic).type,
+        provider: 'all',
+        query: 'Batman',
+        rerankHints: const LibraryAddLocalRerankHints(query: 'Batman'),
+        providerRegistry: registry,
+      );
+
+      expect(results, hasLength(1));
+      expect(results.first.provider, 'good_prov');
+      expect(results.first.title, 'Good Result for Batman');
+
+      sessionController.dispose();
+    });
+
+    test(
+        'selectProviderCandidate fetches preview from ProviderRegistry and converts via mapper',
+        () async {
+      final registry = InMemoryProviderRegistry();
+
+      final testProvider = _MockProvider(
+        name: 'test_prov',
+        kind: 'book',
+        searchHandler: (query, {kind, limit = 25}) async => [
+          const ProviderSearchResult(
+            provider: 'test_prov',
+            providerItemId: 'book-42',
+            title: 'Hitchhiker Guide',
+            kind: 'book',
+          ),
+        ],
+        fetchHandler: (id, {kind}) async => NormalizedProviderEnvelopeV1(
+          schemaVersion: 'v1',
+          provider: 'test_prov',
+          providerItemId: id,
+          kind: 'book',
+          normalized: {
+            'title': 'The Hitchhiker\'s Guide to the Galaxy',
+            'publisher': 'Pan Books',
+            'synopsis': 'Don\'t Panic.',
+            'genres': ['Sci-Fi', 'Comedy'],
+            'creators': [
+              {'name': 'Douglas Adams', 'role': 'Author'}
+            ],
+            'page_count': 224,
+          },
+          provenance: ProviderProvenance(
+            fetchedAt: DateTime.now().toIso8601String(),
+            sourceUrl: 'https://example.com/books/42',
+            rawPayloadHash: 'hash42',
+            providerVersion: '1.0.0',
+          ),
+          images: const [],
+          attribution: const ProviderAttribution(
+            required: true,
+            text: 'Data by TestProv',
+          ),
+        ),
+      );
+
+      registry.register(testProvider);
+
+      final sessionController = LibraryAddSessionController(
+        kind: CatalogMediaKind.book,
+        ownedMutations: ownedMutations,
+        wishlistMutations: wishlistMutations,
+        trackingMutations: trackingMutations,
+        providerRegistry: registry,
+      );
+
+      const candidate = ProviderCandidate(
+        provider: 'test_prov',
+        providerItemId: 'book-42',
+        title: 'The Hitchhiker\'s Guide to the Galaxy',
+        kind: 'book',
+      );
+
+      sessionController.state = sessionController.state.copyWith(
+        search: sessionController.state.search.copyWith(
+          providerResults: [candidate],
+        ),
+      );
+
+      sessionController.selectProviderCandidate(candidate.localCatalogId);
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+
+      final preview = sessionController.state.preview
+          .providerPreviewFor(candidate.localCatalogId);
+      expect(preview, isNotNull);
+      expect(preview!.title, 'The Hitchhiker\'s Guide to the Galaxy');
+      expect(preview.publisher, 'Pan Books');
+      expect(preview.synopsis, 'Don\'t Panic.');
+      expect(preview.genres, containsAll(['Sci-Fi', 'Comedy']));
+      expect(preview.creators, hasLength(1));
+      expect(preview.creators.first.name, 'Douglas Adams');
+
+      sessionController.dispose();
+    });
   });
+}
+
+class _MockProvider extends MetadataProvider {
+  _MockProvider({
+    required this.name,
+    required this.kind,
+    this.searchHandler,
+    this.fetchHandler,
+  });
+
+  @override
+  final String name;
+  final String kind;
+  final Future<List<ProviderSearchResult>> Function(String query,
+      {String? kind, int limit})? searchHandler;
+  final Future<NormalizedProviderEnvelopeV1> Function(String id,
+      {String? kind})? fetchHandler;
+
+  @override
+  ProviderDescriptor get descriptor => ProviderDescriptor(
+        name: name,
+        displayName: name,
+        kind: kind,
+        supportedKinds: [kind],
+        supportsSearch: true,
+        supportsIngest: true,
+      );
+
+  @override
+  bool get isConfigured => true;
+
+  @override
+  String get statusMessage => 'Configured';
+
+  @override
+  Future<List<ProviderSearchResult>> search(
+    String query, {
+    String? kind,
+    int limit = 25,
+  }) async {
+    if (searchHandler != null) {
+      return searchHandler!(query, kind: kind, limit: limit);
+    }
+    return [];
+  }
+
+  @override
+  Future<NormalizedProviderEnvelopeV1> fetchItem(
+    String providerItemId, {
+    String? kind,
+  }) async {
+    if (fetchHandler != null) {
+      return fetchHandler!(providerItemId, kind: kind);
+    }
+    throw UnimplementedError();
+  }
 }
 
 extension on ComicAddDraft {

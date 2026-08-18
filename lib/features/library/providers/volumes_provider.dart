@@ -1,10 +1,25 @@
 import 'package:collectarr_app/core/models/season.dart';
+import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final volumesProvider = FutureProvider.autoDispose
     .family<List<Season>, ({String provider, String providerItemId})>(
         (ref, params) async {
+  final registry = await ref.watch(providerRegistryProvider.future);
+  final adapter = registry.get(params.provider);
+  if (adapter != null) {
+    try {
+      final envelope =
+          await adapter.fetchItem(params.providerItemId, kind: 'book');
+      if (envelope.normalized['volumes'] is List) {
+        final volList = envelope.normalized['volumes'] as List;
+        return volList
+            .map((v) => Season.fromJson(Map<String, dynamic>.from(v as Map)))
+            .toList();
+      }
+    } catch (_) {}
+  }
   final api = ref.watch(apiClientProvider);
   return api
       .getProviderVolumes(params.provider, params.providerItemId)

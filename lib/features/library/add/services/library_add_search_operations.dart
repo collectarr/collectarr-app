@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -6,6 +7,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_cache_
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 
 class LibraryAddCoreSearchResult {
@@ -131,48 +133,112 @@ Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
 }
 
 Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
-  required ApiClient api,
+  ApiClient? api,
   required LibraryTypeConfig type,
   required String provider,
   required String query,
   required LibraryAddLocalRerankHints rerankHints,
+  ProviderRegistry? providerRegistry,
   String? series,
   String? issueNumber,
   int? year,
   String? kindOverride,
 }) async {
-  final normalizedProvider = provider.trim().isEmpty ? null : provider.trim();
-  List<ProviderCandidate> rawResults;
-  try {
-    rawResults = await searchLibraryProviderCandidates(
-      api,
-      type,
-      provider: normalizedProvider,
-      query: query,
-      series: series,
-      issueNumber: issueNumber,
-      year: year,
-      kindOverride: kindOverride,
-    );
-  } catch (error) {
-    if (_isMissingBearerTokenError(error) && normalizedProvider != null) {
-      // Some deployments require auth for provider-specific routes; fall back
-      // to the aggregated providers endpoint so anonymous search still works.
-      rawResults = await searchLibraryProviderCandidates(
+  final targetKind = kindOverride ?? type.workspace.kind.apiValue;
+  final normalizedProvider =
+      provider.trim().isEmpty ? null : provider.trim().toLowerCase();
+
+  List<ProviderCandidate> candidates = [];
+
+  if (providerRegistry != null) {
+    if (normalizedProvider != null && normalizedProvider != 'all') {
+      final p = providerRegistry.get(normalizedProvider);
+      if (p != null) {
+        try {
+          final results = await p.search(query, kind: targetKind);
+          candidates = results
+              .map((r) => ProviderCandidate(
+                    provider: r.provider,
+                    providerItemId: r.providerItemId,
+                    title: r.title,
+                    kind: r.kind,
+                    summary: r.summary,
+                    imageUrl: r.imageUrl,
+                    series: r.seriesTitle != null
+                        ? CatalogSeriesDetails(seriesTitle: r.seriesTitle)
+                        : null,
+                    issueNumber: r.issueNumber,
+                  ))
+              .toList();
+        } catch (_) {
+          candidates = const [];
+        }
+      }
+    } else {
+      final providers = providerRegistry.getForKind(targetKind);
+      final futures = providers.map((p) async {
+        try {
+          final results = await p.search(query, kind: targetKind);
+          return results
+              .map((r) => ProviderCandidate(
+                    provider: r.provider,
+                    providerItemId: r.providerItemId,
+                    title: r.title,
+                    kind: r.kind,
+                    summary: r.summary,
+                    imageUrl: r.imageUrl,
+                    series: r.seriesTitle != null
+                        ? CatalogSeriesDetails(seriesTitle: r.seriesTitle)
+                        : null,
+                    issueNumber: r.issueNumber,
+                  ))
+              .toList();
+        } catch (_) {
+          // A broken provider must NOT destroy the rest of the search!
+          return const <ProviderCandidate>[];
+        }
+      });
+      final lists = await Future.wait(futures);
+      candidates = lists.expand((l) => l).toList();
+    }
+  }
+
+  // Fallback to Core provider search if registry produced no results and api is present
+  if (candidates.isEmpty && api != null) {
+    try {
+      final rawResults = await searchLibraryProviderCandidates(
         api,
         type,
-        provider: null,
+        provider: normalizedProvider,
         query: query,
         series: series,
         issueNumber: issueNumber,
         year: year,
         kindOverride: kindOverride,
       );
-    } else {
-      rethrow;
+      candidates = rawResults;
+    } catch (error) {
+      if (_isMissingBearerTokenError(error) && normalizedProvider != null) {
+        try {
+          final fallbackResults = await searchLibraryProviderCandidates(
+            api,
+            type,
+            provider: null,
+            query: query,
+            series: series,
+            issueNumber: issueNumber,
+            year: year,
+            kindOverride: kindOverride,
+          );
+          candidates = fallbackResults;
+        } catch (_) {
+          candidates = const [];
+        }
+      }
     }
   }
-  return rerankProviderCandidates(rawResults, rerankHints);
+
+  return rerankProviderCandidates(candidates, rerankHints);
 }
 
 bool _isMissingBearerTokenError(Object error) {

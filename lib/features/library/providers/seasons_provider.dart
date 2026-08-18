@@ -1,12 +1,27 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final seasonsProvider = FutureProvider.autoDispose
     .family<List<Season>, ({String provider, String providerItemId})>(
         (ref, params) async {
+  final registry = await ref.watch(providerRegistryProvider.future);
+  final adapter = registry.get(params.provider);
+  if (adapter != null) {
+    try {
+      final envelope =
+          await adapter.fetchItem(params.providerItemId, kind: 'tv');
+      if (envelope.normalized['seasons'] is List) {
+        final seasonsList = envelope.normalized['seasons'] as List;
+        return seasonsList
+            .map((s) => Season.fromJson(Map<String, dynamic>.from(s as Map)))
+            .toList();
+      }
+    } catch (_) {}
+  }
   final api = ref.watch(apiClientProvider);
   return api.getProviderSeasons(params.provider, params.providerItemId);
 });
