@@ -1,0 +1,25 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
+import 'package:collectarr_app/features/library/add/primitives/signature_draft.dart';
+import 'package:flutter/foundation.dart';
+
+@immutable
+final class BookAddDraft extends LibraryAddKindDraft {
+  const BookAddDraft({
+    this.signature = const SignatureDraft(),
+    String? signedBy,
+  }) : _signedBy = signedBy;
+
+  final SignatureDraft signature;
+  final String? _signedBy;
+
+  String? get signedBy => _signedBy ?? signature.signedBy;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.book;
+
+  @override
+  OwnedDetailsDraft toOwnedDetailsDraft() =>
+      BookOwnedDetailsDraft(signedBy: signedBy);
+}

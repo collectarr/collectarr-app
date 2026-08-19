@@ -103,5 +103,22 @@ void main() {
           reason:
               'Every production kind must have its own distinct owned details type');
     });
+
+    test('add draft identity contract matches kind exactly for all 9 kinds',
+        () {
+      final addDraftTypes = <Type>{};
+      for (final kind in activeKinds) {
+        final runtime = libraryKindRuntimeForKind(kind);
+        final initialDraft = runtime.add.createInitialDraft();
+        expect(initialDraft.kind, equals(runtime.kind),
+            reason: '$kind add draft kind must match runtime.kind');
+        expect(initialDraft.kind, isNot(equals(CatalogMediaKind.unknown)),
+            reason: '$kind add draft must not be unknown');
+        addDraftTypes.add(initialDraft.runtimeType);
+      }
+      expect(addDraftTypes.length, equals(9),
+          reason:
+              'Every production kind must have its own distinct add draft type');
+    });
   });
 }

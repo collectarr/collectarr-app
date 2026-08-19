@@ -1,7 +1,18 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -36,15 +47,20 @@ void main() {
         final initialDraft = addCap.createInitialDraft();
         expect(initialDraft, isNot(isA<GenericAddDraft>()),
             reason: '$kind must not produce a GenericAddDraft');
+        expect(initialDraft.kind, kind,
+            reason: '$kind initialDraft.kind must strictly match $kind');
 
         switch (kind) {
           case CatalogMediaKind.comic:
-          case CatalogMediaKind.manga:
             expect(initialDraft, isA<ComicAddDraft>());
+          case CatalogMediaKind.manga:
+            expect(initialDraft, isA<MangaAddDraft>());
           case CatalogMediaKind.movie:
+            expect(initialDraft, isA<MovieAddDraft>());
           case CatalogMediaKind.tv:
+            expect(initialDraft, isA<TvAddDraft>());
           case CatalogMediaKind.anime:
-            expect(initialDraft, isA<VideoAddDraft>());
+            expect(initialDraft, isA<AnimeAddDraft>());
           case CatalogMediaKind.book:
             expect(initialDraft, isA<BookAddDraft>());
           case CatalogMediaKind.game:
@@ -74,12 +90,15 @@ void main() {
 
         switch (kind) {
           case CatalogMediaKind.comic:
-          case CatalogMediaKind.manga:
             expect(command.details, isA<ComicOwnedDetailsDraft>());
+          case CatalogMediaKind.manga:
+            expect(command.details, isA<MangaOwnedDetailsDraft>());
           case CatalogMediaKind.movie:
+            expect(command.details, isA<MovieOwnedDetailsDraft>());
           case CatalogMediaKind.tv:
+            expect(command.details, isA<TvOwnedDetailsDraft>());
           case CatalogMediaKind.anime:
-            expect(command.details, isA<VideoOwnedDetailsDraft>());
+            expect(command.details, isA<AnimeOwnedDetailsDraft>());
           case CatalogMediaKind.book:
             expect(command.details, isA<BookOwnedDetailsDraft>());
           case CatalogMediaKind.game:

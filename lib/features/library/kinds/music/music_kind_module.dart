@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
