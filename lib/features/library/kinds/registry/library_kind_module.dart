@@ -22,6 +22,8 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_capabi
 import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
+export 'package:collectarr_app/features/library/config/library_edit_capability.dart';
+export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
 abstract interface class LibraryKindRuntime {
@@ -128,11 +130,11 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required this.projector,
     required this.ownedDetailsCodec,
     required this.add,
+    required this.edit,
     LibraryKindIdentity? identity,
     LibraryMetadataCapability? metadata,
     LibraryHierarchyCapability? hierarchy,
     LibraryInspectorCapability? inspector,
-    LibraryEditCapability? edit,
     LibraryTransferCapability? transfer,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.toolbar,
@@ -146,7 +148,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
         _metadata = metadata,
         _hierarchy = hierarchy,
         _inspector = inspector,
-        _edit = edit,
         _transfer = transfer,
         _buildCardPresentation = buildCardPresentation;
 
@@ -155,7 +156,8 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   final LibraryMetadataCapability? _metadata;
   final LibraryHierarchyCapability? _hierarchy;
   final LibraryInspectorCapability? _inspector;
-  final LibraryEditCapability? _edit;
+  @override
+  final LibraryEditCapability edit;
   final LibraryTransferCapability? _transfer;
 
   @override
@@ -197,26 +199,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
         sectionsBuilder: type.inspectorSectionsBuilder,
         detailPageBuilder: type.detailPageBuilder,
         showsDefaultPersonalSection: type.showsDefaultInspectorPersonalSection,
-      );
-
-  @override
-  LibraryEditCapability get edit =>
-      _edit ??
-      LibraryEditCapability(
-        editDialogBuilder: type.editDialogBuilder,
-        mediaEditDialogBuilder: type.mediaEditDialogBuilder,
-        releaseEditDialogBuilder: type.releaseEditDialogBuilder,
-        presentation: type.editPresentation,
-        editChrome: type.editChrome,
-        mediaFields: type.mediaFields,
-        releaseFields: type.releaseFields,
-        conditions: type.conditions,
-        grades: type.grades,
-        defaultCondition: type.defaultCondition,
-        defaultGrade: type.defaultGrade,
-        manualAddUsesTitleAsSeries: type.manualAddUsesTitleAsSeries,
-        editUsesTitleAsSeries: type.editUsesTitleAsSeries,
-        createDraft: _editDraftFactoryForKind(kind),
       );
 
   @override
@@ -586,17 +568,3 @@ typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
   required String facetId,
   required Set<String> itemIds,
 });
-
-KindEditDraftFactory _editDraftFactoryForKind(CatalogMediaKind kind) {
-  return switch (kind) {
-    CatalogMediaKind.comic || CatalogMediaKind.manga => createComicEditDraft,
-    CatalogMediaKind.movie ||
-    CatalogMediaKind.tv ||
-    CatalogMediaKind.anime =>
-      createVideoEditDraft,
-    CatalogMediaKind.game => createGameEditDraft,
-    CatalogMediaKind.music => createMusicEditDraft,
-    CatalogMediaKind.book => createBookEditDraft,
-    _ => createGenericEditDraft,
-  };
-}

@@ -101,6 +101,7 @@ void main() {
         projector: comicKindModule.projector,
         ownedDetailsCodec: comicKindModule.ownedDetailsCodec,
         add: comicKindModule.add,
+        edit: comicKindModule.edit,
       );
       expect(
         () => validateKindRuntime(mismatchedTypeSpec),

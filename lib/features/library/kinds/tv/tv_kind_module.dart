@@ -26,6 +26,10 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, VideoOwnedDetails>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: VideoAddDraft.new,
   ),
+  edit: LibraryEditCapability.fromTypeConfig(
+    tvLibraryConfig,
+    createDraft: createVideoEditDraft,
+  ),
   workspaceBehavior: LibraryKindWorkspaceBehavior(
     showsSeasonGroupProgress: true,
     defaultVideoDisplayLevel: tvDefaultVideoDisplayLevel,

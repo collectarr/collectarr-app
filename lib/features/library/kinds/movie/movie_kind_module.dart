@@ -26,6 +26,10 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, VideoOwnedDetails>(
     kind: CatalogMediaKind.movie,
     initialDraftBuilder: VideoAddDraft.new,
   ),
+  edit: LibraryEditCapability.fromTypeConfig(
+    moviesLibraryConfig,
+    createDraft: createVideoEditDraft,
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
     defaultVideoGrouping: VideoGroupingDefault.none,

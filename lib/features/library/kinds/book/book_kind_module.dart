@@ -23,6 +23,10 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,
   ),
+  edit: LibraryEditCapability.fromTypeConfig(
+    booksLibraryConfig,
+    createDraft: createBookEditDraft,
+  ),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

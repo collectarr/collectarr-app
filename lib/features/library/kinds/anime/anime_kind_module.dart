@@ -26,6 +26,10 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, VideoOwnedDetails>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: VideoAddDraft.new,
   ),
+  edit: LibraryEditCapability.fromTypeConfig(
+    animeLibraryConfig,
+    createDraft: createVideoEditDraft,
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsSeriesIssueJump: true,
     defaultVideoDisplayLevel: VideoDisplayLevel.season,

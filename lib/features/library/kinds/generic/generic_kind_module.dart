@@ -44,6 +44,10 @@ final genericKindModule =
     kind: CatalogMediaKind.unknown,
     initialDraftBuilder: GenericAddDraft.new,
   ),
+  edit: LibraryEditCapability.fromTypeConfig(
+    genericLibraryConfig,
+    createDraft: createGenericEditDraft,
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(),
   buildCardPresentation: (item, {required musicVertical}) =>
       const LibraryCardPresentation(),

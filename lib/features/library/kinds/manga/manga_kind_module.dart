@@ -24,6 +24,10 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, ComicOwnedDetails>(
     kind: CatalogMediaKind.manga,
     initialDraftBuilder: ComicAddDraft.new,
   ),
+  edit: LibraryEditCapability.fromTypeConfig(
+    mangaLibraryConfig,
+    createDraft: createComicEditDraft,
+  ),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
     getFacetValues: _getFacetValues,

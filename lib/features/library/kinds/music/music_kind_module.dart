@@ -26,6 +26,10 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
   ),
+  edit: LibraryEditCapability.fromTypeConfig(
+    musicLibraryConfig,
+    createDraft: createMusicEditDraft,
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     supportsTrackSearch: true,
   ),

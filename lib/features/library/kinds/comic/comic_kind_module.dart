@@ -29,6 +29,10 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     kind: CatalogMediaKind.comic,
     initialDraftBuilder: ComicAddDraft.new,
   ),
+  edit: LibraryEditCapability.fromTypeConfig(
+    comicsLibraryConfig,
+    createDraft: createComicEditDraft,
+  ),
   workspaceBehavior: LibraryKindWorkspaceBehavior(
     supportsSeriesIssueJump: true,
     issueSortNumber: comicIssueSortNumber,

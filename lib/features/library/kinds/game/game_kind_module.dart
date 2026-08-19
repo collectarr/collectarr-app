@@ -26,6 +26,10 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
   ),
+  edit: LibraryEditCapability.fromTypeConfig(
+    gamesLibraryConfig,
+    createDraft: createGameEditDraft,
+  ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(),
   providerMapper: const GameLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(

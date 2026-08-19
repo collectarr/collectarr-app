@@ -24,6 +24,10 @@ final boardGameKindModule =
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardGameAddDraft.new,
   ),
+  edit: LibraryEditCapability.fromTypeConfig(
+    boardGamesLibraryConfig,
+    createDraft: createGenericEditDraft,
+  ),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

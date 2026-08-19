@@ -41,6 +41,28 @@ class LibraryEditCapability {
     this.createDraft = createGenericEditDraft,
   });
 
+  factory LibraryEditCapability.fromTypeConfig(
+    dynamic type, {
+    required KindEditDraftFactory createDraft,
+  }) {
+    return LibraryEditCapability(
+      editDialogBuilder: type.editDialogBuilder,
+      mediaEditDialogBuilder: type.mediaEditDialogBuilder,
+      releaseEditDialogBuilder: type.releaseEditDialogBuilder,
+      presentation: type.editPresentation,
+      editChrome: type.editChrome,
+      mediaFields: type.mediaFields,
+      releaseFields: type.releaseFields,
+      conditions: type.conditions,
+      grades: type.grades,
+      defaultCondition: type.defaultCondition,
+      defaultGrade: type.defaultGrade,
+      manualAddUsesTitleAsSeries: type.manualAddUsesTitleAsSeries,
+      editUsesTitleAsSeries: type.editUsesTitleAsSeries,
+      createDraft: createDraft,
+    );
+  }
+
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryEditDialogBuilder? mediaEditDialogBuilder;
   final LibraryEditDialogBuilder? releaseEditDialogBuilder;
