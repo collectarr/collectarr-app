@@ -126,6 +126,101 @@ abstract final class ComicKindSchema {
     getValue: (context) =>
         context.source.ownedItem?.comicDetails?.keyComic == true,
   );
+
+  static final keyReason =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.keyReason,
+    label: 'Key Reason',
+    getValue: (context) => context.source.ownedItem?.comicDetails?.keyReason,
+  );
+
+  static final keyCategory =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.keyCategory,
+    label: 'Key Category',
+    getValue: (context) => context.source.ownedItem?.comicDetails?.keyCategory,
+  );
+
+  static final keySeverity =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.keySeverity,
+    label: 'Key Severity',
+    getValue: (context) => context.source.ownedItem?.comicDetails?.keySeverity,
+  );
+
+  static final rawOrSlabbed =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.rawOrSlabbed,
+    label: 'Raw / Slabbed',
+    getValue: (context) => context.source.ownedItem?.comicDetails?.rawOrSlabbed,
+  );
+
+  static final gradingCompany =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.gradingCompany,
+    label: 'Grading Company',
+    getValue: (context) =>
+        context.source.ownedItem?.comicDetails?.gradingCompany,
+  );
+
+  static final graderNotes =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.graderNotes,
+    label: 'Grader Notes',
+    getValue: (context) => context.source.ownedItem?.comicDetails?.graderNotes,
+  );
+
+  static final signedBy =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.signedBy,
+    label: 'Signed By',
+    getValue: (context) => context.source.ownedItem?.comicDetails?.signedBy,
+  );
+
+  static final labelType =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.labelType,
+    label: 'Label Type',
+    getValue: (context) => context.source.ownedItem?.comicDetails?.labelType,
+  );
+
+  static final customLabel =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.customLabel,
+    label: 'Custom Label',
+    getValue: (context) => context.source.ownedItem?.comicDetails?.customLabel,
+  );
+
+  static final pageQuality =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.pageQuality,
+    label: 'Page Quality',
+    getValue: (context) => context.source.ownedItem?.comicDetails?.pageQuality,
+  );
+
+  static final certificationNumber =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
+    id: ComicFieldIds.certificationNumber,
+    label: 'Certification Number',
+    getValue: (context) =>
+        context.source.ownedItem?.comicDetails?.certificationNumber,
+  );
+
+  static final coverPrice =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, int?>(
+    id: ComicFieldIds.coverPrice,
+    label: 'Cover Price',
+    getValue: (context) =>
+        context.source.ownedItem?.comicDetails?.coverPriceCents,
+  );
+
+  static final lastBagBoardDate =
+      LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, DateTime?>(
+    id: ComicFieldIds.lastBagBoardDate,
+    label: 'Last Bag & Board Date',
+    getValue: (context) =>
+        context.source.ownedItem?.comicDetails?.lastBagBoardDate,
+  );
 }
 
 final comicLibraryFieldDefinitions = [
@@ -140,6 +235,11 @@ final comicLibraryFieldDefinitions = [
   ComicKindSchema.barcode,
   ComicKindSchema.grade,
   ComicKindSchema.keyComic,
+  ComicKindSchema.keyReason,
+  ComicKindSchema.keyCategory,
+  ComicKindSchema.rawOrSlabbed,
+  ComicKindSchema.gradingCompany,
+  ComicKindSchema.signedBy,
 ];
 
 final comicLibraryGroupDefinitions = [

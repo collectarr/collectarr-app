@@ -25,6 +25,31 @@ abstract final class ComicFieldIds {
       LibraryFieldId<ComicKind, String?>('comic.read_status');
   static const grade = LibraryFieldId<ComicKind, String?>('comic.grade');
   static const keyComic = LibraryFieldId<ComicKind, bool>('comic.key_comic');
+  static const keyReason =
+      LibraryFieldId<ComicKind, String?>('comic.key_reason');
+  static const keyCategory =
+      LibraryFieldId<ComicKind, String?>('comic.key_category');
+  static const keySeverity =
+      LibraryFieldId<ComicKind, String?>('comic.key_severity');
+  static const rawOrSlabbed =
+      LibraryFieldId<ComicKind, String?>('comic.raw_or_slabbed');
+  static const gradingCompany =
+      LibraryFieldId<ComicKind, String?>('comic.grading_company');
+  static const graderNotes =
+      LibraryFieldId<ComicKind, String?>('comic.grader_notes');
+  static const signedBy = LibraryFieldId<ComicKind, String?>('comic.signed_by');
+  static const labelType =
+      LibraryFieldId<ComicKind, String?>('comic.label_type');
+  static const customLabel =
+      LibraryFieldId<ComicKind, String?>('comic.custom_label');
+  static const pageQuality =
+      LibraryFieldId<ComicKind, String?>('comic.page_quality');
+  static const certificationNumber =
+      LibraryFieldId<ComicKind, String?>('comic.certification_number');
+  static const coverPrice =
+      LibraryFieldId<ComicKind, int?>('comic.cover_price');
+  static const lastBagBoardDate =
+      LibraryFieldId<ComicKind, DateTime?>('comic.last_bag_board_date');
 }
 
 abstract final class ComicSortIds {
