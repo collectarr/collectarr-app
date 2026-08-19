@@ -350,10 +350,40 @@ class BookOwnedDetailsDraft extends OwnedDetailsDraft {
 }
 
 class BoardgameOwnedDetailsDraft extends OwnedDetailsDraft {
-  const BoardgameOwnedDetailsDraft();
+  const BoardgameOwnedDetailsDraft({
+    this.editionLanguage,
+    this.editionRegion,
+    this.componentCondition,
+    this.componentCompleteness,
+    this.missingPiecesNotes,
+    this.isSleeved = false,
+    this.hasCustomInsert = false,
+    this.hasPaintedMiniatures = false,
+    this.storageNotes,
+  });
+
+  final String? editionLanguage;
+  final String? editionRegion;
+  final String? componentCondition;
+  final String? componentCompleteness;
+  final String? missingPiecesNotes;
+  final bool isSleeved;
+  final bool hasCustomInsert;
+  final bool hasPaintedMiniatures;
+  final String? storageNotes;
 
   @override
-  BoardgameOwnedDetails toDetails() => const BoardgameOwnedDetails();
+  BoardgameOwnedDetails toDetails() => BoardgameOwnedDetails(
+        editionLanguage: editionLanguage,
+        editionRegion: editionRegion,
+        componentCondition: componentCondition,
+        componentCompleteness: componentCompleteness,
+        missingPiecesNotes: missingPiecesNotes,
+        isSleeved: isSleeved,
+        hasCustomInsert: hasCustomInsert,
+        hasPaintedMiniatures: hasPaintedMiniatures,
+        storageNotes: storageNotes,
+      );
 }
 
 class GenericOwnedDetailsDraft extends OwnedDetailsDraft {

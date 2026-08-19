@@ -9,7 +9,7 @@ class BoardgameOwnedDetailsCodec
 
   @override
   BoardgameOwnedDetails fromJson(Map<String, dynamic> json) =>
-      const BoardgameOwnedDetails();
+      BoardgameOwnedDetails.fromJson(json);
 
   @override
   Map<String, dynamic> toJson(BoardgameOwnedDetails details) =>
@@ -26,6 +26,7 @@ class BoardgameOwnedDetailsCodec
   OwnedDetailsDraft defaultDraft() => const BoardgameOwnedDetailsDraft();
 
   @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
-      const BoardgameOwnedDetailsDraft();
+  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
+    return const BoardgameOwnedDetailsDraft();
+  }
 }
