@@ -9,6 +9,13 @@ import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalo
 import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
+export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
+export 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
+export 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
 export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_release.dart';
