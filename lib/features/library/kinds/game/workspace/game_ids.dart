@@ -20,6 +20,16 @@ abstract final class GameFieldIds {
   static const addedAt = LibraryFieldId<GameKind, DateTime?>('game.added_at');
   static const completionStatus =
       LibraryFieldId<GameKind, String?>('game.completion_status');
+  static const completeness =
+      LibraryFieldId<GameKind, String?>('game.completeness');
+  static const hasBox = LibraryFieldId<GameKind, bool?>('game.has_box');
+  static const hasManual = LibraryFieldId<GameKind, bool?>('game.has_manual');
+  static const priceChartingId =
+      LibraryFieldId<GameKind, String?>('game.pricecharting_id');
+  static const coreRegion =
+      LibraryFieldId<GameKind, String?>('game.core_region');
+  static const valueLocked =
+      LibraryFieldId<GameKind, bool?>('game.value_locked');
 }
 
 abstract final class GameSortIds {
@@ -42,6 +52,10 @@ abstract final class GameGroupIds {
   static const rating = LibraryGroupId<GameKind, int?>('game.rating');
   static const completionStatus =
       LibraryGroupId<GameKind, String?>('game.completion_status');
+  static const completeness =
+      LibraryGroupId<GameKind, String?>('game.completeness');
+  static const coreRegion =
+      LibraryGroupId<GameKind, String?>('game.core_region');
 }
 
 abstract final class GameFacetIds {

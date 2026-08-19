@@ -118,6 +118,49 @@ abstract final class GameKindSchema {
     label: 'Completion',
     getValue: (context) => context.source.ownedItem?.collectionStatus,
   );
+
+  static final completeness =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: GameFieldIds.completeness,
+    label: 'Completeness',
+    getValue: (context) => context.source.ownedItem?.gameDetails?.completeness,
+  );
+
+  static final hasBox =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?>(
+    id: GameFieldIds.hasBox,
+    label: 'Has Box',
+    getValue: (context) => context.source.ownedItem?.gameDetails?.hasBox,
+  );
+
+  static final hasManual =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?>(
+    id: GameFieldIds.hasManual,
+    label: 'Has Manual',
+    getValue: (context) => context.source.ownedItem?.gameDetails?.hasManual,
+  );
+
+  static final priceChartingId =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: GameFieldIds.priceChartingId,
+    label: 'PriceCharting ID',
+    getValue: (context) =>
+        context.source.ownedItem?.gameDetails?.priceChartingId,
+  );
+
+  static final coreRegion =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
+    id: GameFieldIds.coreRegion,
+    label: 'Region',
+    getValue: (context) => context.source.ownedItem?.gameDetails?.coreRegion,
+  );
+
+  static final valueLocked =
+      LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?>(
+    id: GameFieldIds.valueLocked,
+    label: 'Value Locked',
+    getValue: (context) => context.source.ownedItem?.gameDetails?.valueIsLocked,
+  );
 }
 
 final gameLibraryFieldDefinitions = [
@@ -130,6 +173,10 @@ final gameLibraryFieldDefinitions = [
   GameKindSchema.location,
   GameKindSchema.pricePaid,
   GameKindSchema.barcode,
+  GameKindSchema.completeness,
+  GameKindSchema.coreRegion,
+  GameKindSchema.hasBox,
+  GameKindSchema.hasManual,
 ];
 
 final gameLibraryGroupDefinitions = [
