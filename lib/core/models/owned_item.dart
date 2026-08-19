@@ -86,6 +86,10 @@ class OwnedItem {
   final OwnedItemDetails details;
 
   ComicOwnedDetails? get comicDetails => details.comic;
+  MangaOwnedDetails? get mangaDetails => details.manga;
+  MovieOwnedDetails? get movieDetails => details.movie;
+  TvOwnedDetails? get tvDetails => details.tv;
+  AnimeOwnedDetails? get animeDetails => details.anime;
   VideoOwnedDetails? get videoDetails => details.video;
   GameOwnedDetails? get gameDetails => details.game;
   MusicOwnedDetails? get musicDetails => details.music;

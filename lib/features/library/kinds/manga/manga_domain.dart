@@ -1,9 +1,8 @@
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
-
-export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
-export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
-
-typedef MangaWork = BookCatalogItem;
-typedef MangaEdition = BookRelease;
+export 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+export 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';
+export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
+export 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
+export 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
+export 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
