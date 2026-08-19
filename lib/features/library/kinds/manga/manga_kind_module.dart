@@ -39,11 +39,15 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
 Iterable<String> _getFacetValues(
     LibraryProjectionRuntime item, String facetId) {
   final catalog = item.source.catalogItem;
-  if (facetId == 'comic.character' || facetId == 'media.character') {
+  if (facetId == MangaFacetIds.character.value) {
     return catalog?.characters ?? const [];
   }
-  if (facetId == 'comic.story_arc') {
-    return catalog?.storyArcs ?? const [];
+  if (facetId == MangaFacetIds.genre.value) {
+    return catalog?.genres ?? const [];
+  }
+  if (facetId == MangaFacetIds.publisher.value) {
+    final pub = catalog?.publisher;
+    return pub != null ? [pub] : const [];
   }
   return const [];
 }

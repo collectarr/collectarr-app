@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/kinds/video/release/video_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/media/video/video_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 
 class VideoLibraryMediaPresentationBuilder

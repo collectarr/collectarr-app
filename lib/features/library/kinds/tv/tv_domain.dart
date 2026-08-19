@@ -5,8 +5,8 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/media/video/catalog/video_catalog_item.dart';
+import 'package:collectarr_app/features/library/media/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
@@ -16,9 +16,9 @@ export 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
-export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
-export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_release.dart';
+export 'package:collectarr_app/features/library/media/video/catalog/video_catalog_item.dart';
+export 'package:collectarr_app/features/library/media/video/catalog/video_catalog_mapper.dart';
+export 'package:collectarr_app/features/library/media/video/catalog/video_catalog_release.dart';
 
 // ---------------------------------------------------------------------------
 // Transitional typedefs

@@ -292,16 +292,6 @@ bool _isBoundaryFile(String relativePath) {
 }
 
 bool _isAllowedKindImport(String sourceKind, String importedKind) {
-  if (importedKind == 'video' &&
-      (sourceKind == 'movie' || sourceKind == 'tv' || sourceKind == 'anime')) {
-    return true;
-  }
-  if (importedKind == 'book' && sourceKind == 'manga') {
-    return true;
-  }
-  if (importedKind == 'movie' && sourceKind == 'anime') {
-    return true;
-  }
   return false;
 }
 

@@ -50,4 +50,6 @@ abstract final class MangaGroupIds {
 abstract final class MangaFacetIds {
   static const publisher = LibraryFacetId<MangaKind, String>('manga.publisher');
   static const genre = LibraryFacetId<MangaKind, String>('manga.genre');
+  static const character = LibraryFacetId<MangaKind, String>('manga.character');
+  static const theme = LibraryFacetId<MangaKind, String>('manga.theme');
 }

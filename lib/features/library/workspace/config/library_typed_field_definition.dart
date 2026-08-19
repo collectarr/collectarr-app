@@ -62,6 +62,13 @@ class LibraryCellValue {
   bool get isEmpty => value == null;
 }
 
+enum LibraryFieldScope {
+  media,
+  release,
+  copy,
+  derived,
+}
+
 typedef LibraryFieldValueGetter<TDto extends LibraryWorkspaceDto, TValue>
     = TValue Function(
   LibraryProjectionContext<TDto> context,
@@ -72,6 +79,7 @@ class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     required this.id,
     required this.label,
     required this.getValue,
+    this.scope = LibraryFieldScope.media,
     this.cellValue,
     this.sortable = true,
     this.groupable = true,
@@ -80,6 +88,7 @@ class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final LibraryFieldId<TKind, TValue> id;
   final String label;
   final LibraryFieldValueGetter<TDto, TValue> getValue;
+  final LibraryFieldScope scope;
   final LibraryCellValue Function(TValue value)? cellValue;
   final bool sortable;
   final bool groupable;
