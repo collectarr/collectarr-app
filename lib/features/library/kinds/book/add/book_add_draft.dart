@@ -9,10 +9,14 @@ final class BookAddDraft extends LibraryAddKindDraft {
   const BookAddDraft({
     this.signature = const SignatureDraft(),
     String? signedBy,
+    this.dustJacketPresent = false,
+    this.dustJacketCondition,
   }) : _signedBy = signedBy;
 
   final SignatureDraft signature;
   final String? _signedBy;
+  final bool dustJacketPresent;
+  final String? dustJacketCondition;
 
   String? get signedBy => _signedBy ?? signature.signedBy;
 
@@ -20,6 +24,9 @@ final class BookAddDraft extends LibraryAddKindDraft {
   CatalogMediaKind get kind => CatalogMediaKind.book;
 
   @override
-  OwnedDetailsDraft toOwnedDetailsDraft() =>
-      BookOwnedDetailsDraft(signedBy: signedBy);
+  OwnedDetailsDraft toOwnedDetailsDraft() => BookOwnedDetailsDraft(
+        signedBy: signedBy,
+        dustJacketPresent: dustJacketPresent,
+        dustJacketCondition: dustJacketCondition,
+      );
 }

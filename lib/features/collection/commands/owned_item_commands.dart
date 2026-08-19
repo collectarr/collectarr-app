@@ -341,12 +341,22 @@ class MusicOwnedDetailsDraft extends OwnedDetailsDraft {
 }
 
 class BookOwnedDetailsDraft extends OwnedDetailsDraft {
-  const BookOwnedDetailsDraft({this.signedBy});
+  const BookOwnedDetailsDraft({
+    this.signedBy,
+    this.dustJacketPresent = false,
+    this.dustJacketCondition,
+  });
 
   final String? signedBy;
+  final bool dustJacketPresent;
+  final String? dustJacketCondition;
 
   @override
-  BookOwnedDetails toDetails() => BookOwnedDetails(signedBy: signedBy);
+  BookOwnedDetails toDetails() => BookOwnedDetails(
+        signedBy: signedBy,
+        dustJacketPresent: dustJacketPresent,
+        dustJacketCondition: dustJacketCondition,
+      );
 }
 
 class BoardgameOwnedDetailsDraft extends OwnedDetailsDraft {

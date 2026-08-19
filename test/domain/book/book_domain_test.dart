@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_domain.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -101,5 +103,95 @@ void main() {
     expect(book.editions.first.dimensions, '198 x 129 mm');
     expect(book.editions.first.firstEdition, isTrue);
     expect(book.physicalFormatLabel, 'Paperback');
+  });
+
+  test('BookCatalogMetadata and BookEditionMetadata roundtrip', () {
+    final meta = BookCatalogMetadata(
+      title: 'The Lord of the Rings',
+      subtitle: 'The Fellowship of the Ring',
+      sortTitle: 'Lord of the Rings, The',
+      authors: const ['J.R.R. Tolkien'],
+      genres: const ['Fantasy', 'High Fantasy'],
+      subjects: const ['Quests', 'Middle-earth'],
+      editors: const ['Christopher Tolkien'],
+      illustrators: const ['Alan Lee'],
+      originalTitle: 'The Lord of the Rings',
+      originalLanguage: 'en',
+      originalCountry: 'GB',
+      originalPublisher: 'George Allen & Unwin',
+      originalPublicationDate: DateTime.utc(1954, 7, 29),
+      editions: [
+        BookEditionMetadata(
+          id: 'ed-1',
+          title: 'Collector Hardcover',
+          isbn: '9780544003415',
+          format: 'Hardcover',
+          publisher: 'Houghton Mifflin Harcourt',
+          pageCount: 423,
+          firstEdition: true,
+          printing: '1st',
+          numberLine: '1 2 3 4 5',
+          printedBy: 'Clays Ltd',
+          paperType: 'Acid-free 80gsm',
+          locClassification: 'PR6039.O32',
+          locControlNumber: '2004052341',
+          dewey: '823.912',
+          boxSetName: 'The Lord of the Rings 50th Anniversary Set',
+        ),
+        const BookEditionMetadata(
+          id: 'ed-audio',
+          title: 'Unabridged Audiobook',
+          format: 'Audiobook',
+          publisher: 'Recorded Books',
+          audiobook: AudiobookDetails(
+            narrator: 'Andy Serkis',
+            durationMinutes: 1320,
+            isAbridged: false,
+          ),
+        ),
+      ],
+    );
+
+    final json = meta.toJson();
+    final fromJson = BookCatalogMetadata.fromJson(json);
+
+    expect(fromJson.title, 'The Lord of the Rings');
+    expect(fromJson.subtitle, 'The Fellowship of the Ring');
+    expect(fromJson.illustrators, contains('Alan Lee'));
+    expect(fromJson.editions, hasLength(2));
+
+    final printEdition = fromJson.editions.first;
+    expect(printEdition.firstEdition, isTrue);
+    expect(printEdition.locClassification, 'PR6039.O32');
+    expect(printEdition.isAudiobook, isFalse);
+
+    final audioEdition = fromJson.editions.last;
+    expect(audioEdition.isAudiobook, isTrue);
+    expect(audioEdition.audiobook?.narrator, 'Andy Serkis');
+    expect(audioEdition.audiobook?.durationMinutes, 1320);
+    expect(audioEdition.audiobook?.isAbridged, isFalse);
+  });
+
+  test('BookOwnedDetails supports dust jacket and signature copy fields', () {
+    const details = BookOwnedDetails(
+      signedBy: 'J.R.R. Tolkien',
+      dustJacketPresent: true,
+      dustJacketCondition: 'Near Fine',
+    );
+
+    final json = details.toJson();
+    final fromJson = BookOwnedDetails.fromJson(json);
+
+    expect(fromJson.signedBy, 'J.R.R. Tolkien');
+    expect(fromJson.dustJacketPresent, isTrue);
+    expect(fromJson.dustJacketCondition, 'Near Fine');
+  });
+
+  test('bookKindModule registers dedicated Book capabilities', () {
+    expect(bookKindModule.kind, CatalogMediaKind.book);
+    expect(bookKindModule.add.kind, CatalogMediaKind.book);
+    expect(bookKindModule.add.createInitialDraft(), isA<BookAddDraft>());
+    expect(bookKindModule.ownedDetailsCodec, isA<BookOwnedDetailsCodec>());
+    expect(bookKindModule.defaultOwnedDetails(), isA<BookOwnedDetails>());
   });
 }
