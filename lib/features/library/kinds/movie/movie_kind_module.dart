@@ -1,22 +1,21 @@
-import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
-import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
-import 'package:collectarr_app/features/library/media/video/workspace/video_card_presentation.dart';
-import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
-
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
+import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
-
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   type: moviesLibraryConfig,
@@ -30,7 +29,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   ),
   edit: LibraryEditCapability.fromTypeConfig(
     moviesLibraryConfig,
-    createDraft: createVideoEditDraft,
+    createDraft: createMovieEditDraft,
   ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(
     defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
@@ -42,5 +41,5 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),
-  buildCardPresentation: buildVideoCardPresentation,
+  buildCardPresentation: buildMovieCardPresentation,
 );
