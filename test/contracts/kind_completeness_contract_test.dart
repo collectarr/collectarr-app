@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -85,6 +86,22 @@ void main() {
         expect(runtime.identity.singularLabel.isNotEmpty, isTrue);
         expect(runtime.identity.pluralLabel.isNotEmpty, isTrue);
       }
+    });
+
+    test(
+        'all 9 production kinds have distinct kind-owned details runtime types',
+        () {
+      final detailsTypes = <Type>{};
+      for (final kind in activeKinds) {
+        final runtime = libraryKindRuntimeForKind(kind);
+        final defaultDetails = runtime.defaultOwnedDetails();
+        expect(defaultDetails, isNotNull);
+        expect(defaultDetails.runtimeType, isNot(equals(GenericOwnedDetails)));
+        detailsTypes.add(defaultDetails.runtimeType);
+      }
+      expect(detailsTypes.length, equals(9),
+          reason:
+              'Every production kind must have its own distinct owned details type');
     });
   });
 }

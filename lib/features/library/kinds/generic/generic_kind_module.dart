@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';

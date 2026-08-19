@@ -114,7 +114,6 @@ class OwnedItemsCacheRepository {
     OwnedItemDetails details;
     switch (catalogRef.kind) {
       case 'comic':
-      case 'manga':
         details = ComicOwnedDetails(
           rawOrSlabbed: row.rawOrSlabbed,
           gradingCompany: row.gradingCompany,
@@ -131,10 +130,45 @@ class OwnedItemsCacheRepository {
           coverPriceCents: row.coverPriceCents,
           lastBagBoardDate: row.lastBagBoardDate,
         );
+      case 'manga':
+        details = MangaOwnedDetails(
+          rawOrSlabbed: row.rawOrSlabbed,
+          gradingCompany: row.gradingCompany,
+          graderNotes: row.graderNotes,
+          signedBy: row.signedBy,
+          labelType: row.labelType,
+          customLabel: row.customLabel,
+          pageQuality: row.pageQuality,
+          certificationNumber: row.certificationNumber,
+          keyComic: row.keyComic,
+          keyReason: row.keyReason,
+          keyCategory: row.keyCategory,
+          keySeverity: row.keySeverity,
+          coverPriceCents: row.coverPriceCents,
+          lastBagBoardDate: row.lastBagBoardDate,
+        );
       case 'movie':
+        details = MovieOwnedDetails(
+          features: row.features,
+          hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
+          boxSetId: row.boxSetId,
+          boxSetName: row.boxSetName,
+          region: row.region,
+          packaging: row.packaging,
+          distributor: row.distributor,
+        );
       case 'tv':
+        details = TvOwnedDetails(
+          features: row.features,
+          hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
+          boxSetId: row.boxSetId,
+          boxSetName: row.boxSetName,
+          region: row.region,
+          packaging: row.packaging,
+          distributor: row.distributor,
+        );
       case 'anime':
-        details = VideoOwnedDetails(
+        details = AnimeOwnedDetails(
           features: row.features,
           hdrFormats: _decodeStringList(row.hdrFormatsJson) ?? const <String>[],
           boxSetId: row.boxSetId,

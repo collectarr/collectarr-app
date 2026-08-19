@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
@@ -16,11 +17,11 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dar
 
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 
-final tvKindModule = LibraryKindSpec<TvWorkspaceDto, VideoOwnedDetails>(
+final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   type: tvLibraryConfig,
   mediaAdapter: tvMediaAdapter,
   projector: const TvWorkspaceProjector(),
-  ownedDetailsCodec: const VideoOwnedDetailsCodec(),
+  ownedDetailsCodec: const TvOwnedDetailsCodec(),
   fields: tvLibraryKindSchema.toRegistry(),
   add: const StandardLibraryAddCapability<VideoAddDraft>(
     kind: CatalogMediaKind.tv,

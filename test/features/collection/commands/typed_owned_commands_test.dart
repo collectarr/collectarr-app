@@ -55,10 +55,10 @@ void main() {
         CatalogMediaKind.comic:
             const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
         CatalogMediaKind.manga:
-            const ComicOwnedDetailsDraft(gradingCompany: 'CBCS'),
-        CatalogMediaKind.movie: const VideoOwnedDetailsDraft(region: 'A'),
-        CatalogMediaKind.tv: const VideoOwnedDetailsDraft(region: 'B'),
-        CatalogMediaKind.anime: const VideoOwnedDetailsDraft(region: 'Free'),
+            const MangaOwnedDetailsDraft(gradingCompany: 'CBCS'),
+        CatalogMediaKind.movie: const MovieOwnedDetailsDraft(region: 'A'),
+        CatalogMediaKind.tv: const TvOwnedDetailsDraft(region: 'B'),
+        CatalogMediaKind.anime: const AnimeOwnedDetailsDraft(region: 'Free'),
         CatalogMediaKind.game: const GameOwnedDetailsDraft(hasBox: true),
         CatalogMediaKind.music:
             const MusicOwnedDetailsDraft(storageDevice: 'Shelf A'),

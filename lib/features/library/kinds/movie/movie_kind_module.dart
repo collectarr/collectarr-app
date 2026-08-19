@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
@@ -16,11 +17,11 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fiel
 
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 
-final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, VideoOwnedDetails>(
+final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   type: moviesLibraryConfig,
   mediaAdapter: moviesMediaAdapter,
   projector: const MovieWorkspaceProjector(),
-  ownedDetailsCodec: const VideoOwnedDetailsCodec(),
+  ownedDetailsCodec: const MovieOwnedDetailsCodec(),
   fields: movieLibraryKindSchema.toRegistry(),
   add: const StandardLibraryAddCapability<VideoAddDraft>(
     kind: CatalogMediaKind.movie,
