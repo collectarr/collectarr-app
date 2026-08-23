@@ -96,6 +96,34 @@ class LibraryEditDraft {
     );
   }
 
+  factory LibraryEditDraft.fromItem({
+    required LibraryTypeConfig type,
+    required LibraryMetadataItem item,
+    OwnedItem? ownedItem,
+    WishlistItem? wishlistItem,
+    TrackingEntry? trackingEntry,
+    required Color accent,
+    List<BundleReleaseSummary> availableBundleReleases = const [],
+    List<PhysicalMediaFormat> physicalFormats = const [],
+    List<CustomFieldDefinition> customFieldDefinitions = const [],
+    List<CustomFieldValue> customFieldValues = const [],
+    List<ItemImage> itemImages = const [],
+  }) {
+    return LibraryEditDraft.fromFields(
+      type: type,
+      item: item,
+      ownedItem: ownedItem,
+      wishlistItem: wishlistItem,
+      trackingEntry: trackingEntry,
+      accent: accent,
+      availableBundleReleases: availableBundleReleases,
+      physicalFormats: physicalFormats,
+      customFieldDefinitions: customFieldDefinitions,
+      customFieldValues: customFieldValues,
+      itemImages: itemImages,
+    );
+  }
+
   factory LibraryEditDraft.fromFields({
     required LibraryTypeConfig type,
     required LibraryMetadataItem item,
@@ -258,11 +286,7 @@ class LibraryEditDraft {
           : (ownedItem!.sellPriceCents! / 100).toStringAsFixed(2),
     );
     final soldToController = create(ownedItem?.soldTo ?? '');
-    final signedByController = create(
-      ownedItem?.comicDetails?.signedBy ??
-          ownedItem?.bookDetails?.signedBy ??
-          '',
-    );
+    final signedByController = create();
     final purchaseStoreController = create(ownedItem?.purchaseStore ?? '');
     final marketValueController = create(
       ownedItem?.marketValueCents == null
@@ -505,18 +529,14 @@ class LibraryEditDraft {
         tracking.episodeNumberController.text.trim().isNotEmpty;
   }
 
+  LibraryEditSelection toSelection({
+    LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
+  }) =>
+      buildSelection(submitAction: submitAction);
+
   LibraryEditSelection buildSelection({
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
-    final comic =
-        kindDetails is ComicEditDraft ? kindDetails as ComicEditDraft : null;
-    final video =
-        kindDetails is VideoEditDraft ? kindDetails as VideoEditDraft : null;
-    final game =
-        kindDetails is GameEditDraft ? kindDetails as GameEditDraft : null;
-    final music =
-        kindDetails is MusicEditDraft ? kindDetails as MusicEditDraft : null;
-
     final updatedPublishing = CatalogPublishingDetails(
       pageCount: parseInt(metadata.pageCountController.text),
       coverPriceCents: item.publishing?.coverPriceCents,
@@ -532,12 +552,6 @@ class LibraryEditDraft {
         .toList();
     final updatedVideo = VideoCatalogDetails(
       runtimeMinutes: int.tryParse(metadata.runtimeController.text),
-      color: emptyToNull(video?.colorController.text ?? ''),
-      nrDiscs: int.tryParse(video?.nrDiscsController.text ?? ''),
-      screenRatio: emptyToNull(video?.screenRatioController.text ?? ''),
-      audioTracks: emptyToNull(video?.audioTracksController.text ?? ''),
-      subtitles: emptyToNull(video?.subtitlesController.text ?? ''),
-      layers: emptyToNull(video?.layersController.text ?? ''),
     );
     final parsedGenres = metadata.genresEditController.text
         .split(RegExp(r'[,\r\n]+'))
@@ -618,63 +632,24 @@ class LibraryEditDraft {
               sellPriceCents:
                   parseMoneyCents(personal.sellPriceController.text),
               soldTo: emptyToNull(personal.soldToController.text),
-              rawOrSlabbed: isDigitalFormat
-                  ? null
-                  : emptyToNull(comic?.rawOrSlabbedController.text ?? ''),
-              gradingCompany: isDigitalFormat
-                  ? null
-                  : emptyToNull(comic?.gradingCompanyController.text ?? ''),
-              graderNotes: isDigitalFormat
-                  ? null
-                  : emptyToNull(comic?.graderNotesController.text ?? ''),
+              rawOrSlabbed: null,
+              gradingCompany: null,
+              graderNotes: null,
               signedBy: isDigitalFormat
                   ? null
                   : emptyToNull(personal.signedByController.text),
-              labelType: isDigitalFormat
-                  ? null
-                  : emptyToNull(comic?.labelTypeController.text ?? ''),
-              pageQuality: isDigitalFormat
-                  ? null
-                  : emptyToNull(comic?.pageQualityController.text ?? ''),
-              certificationNumber: isDigitalFormat
-                  ? null
-                  : emptyToNull(
-                      comic?.certificationNumberController.text ?? ''),
-              keyComic: comic?.keyComic ?? false,
-              keyReason: emptyToNull(comic?.keyReasonController.text ?? ''),
-              keyCategory: emptyToNull(comic?.keyCategoryController.text ?? ''),
-              coverPriceCents: isDigitalFormat
-                  ? null
-                  : parseMoneyCents(comic?.coverPriceController.text ?? ''),
-              features: emptyToNull(video?.featuresController.text ?? ''),
-              hdrFormats: (video?.hdrFormats.isEmpty ?? true)
-                  ? null
-                  : video!.hdrFormats,
+              labelType: null,
+              pageQuality: null,
+              certificationNumber: null,
+              keyComic: null,
+              keyReason: null,
+              keyCategory: null,
+              coverPriceCents: null,
               purchaseStore: emptyToNull(personal.purchaseStoreController.text),
-              boxSetName: emptyToNull(video?.boxSetNameController.text ?? ''),
-              storageDevice:
-                  emptyToNull(music?.storageDeviceController.text ?? ''),
-              storageSlot: emptyToNull(music?.storageSlotController.text ?? ''),
-              region: emptyToNull(video?.regionController.text ?? ''),
-              packaging: emptyToNull(video?.packagingController.text ?? ''),
-              distributor: emptyToNull(video?.distributorController.text ?? ''),
-              screenRatio: emptyToNull(video?.screenRatioController.text ?? ''),
-              audioTracks: emptyToNull(video?.audioTracksController.text ?? ''),
-              subtitles: emptyToNull(video?.subtitlesController.text ?? ''),
-              layers: emptyToNull(video?.layersController.text ?? ''),
-              color: emptyToNull(video?.colorController.text ?? ''),
-              nrDiscs: int.tryParse(video?.nrDiscsController.text ?? ''),
               collectionStatus: personal.collectionStatus,
-              lastBagBoardDate: comic?.lastBagBoardDate,
               marketValueCents:
                   parseMoneyCents(personal.marketValueController.text),
               ownerLabel: emptyToNull(personal.ownerLabelController.text),
-              gameCompleteness: game?.gameCompleteness,
-              gameHasBox: game?.gameHasBox,
-              gameHasManual: game?.gameHasManual,
-              gamePriceChartingId: emptyToNull(game?.gamePriceChartingId ?? ''),
-              gameCoreRegion: emptyToNull(game?.gameCoreRegion ?? ''),
-              gameValueIsLocked: game?.gameValueIsLocked ?? false,
             ),
       wishlist: wishlistItem == null
           ? null

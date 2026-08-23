@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 // ---------------------------------------------------------------------------
-// Shared edit-dialog building blocks used by both the comics-specific and
-// the generic library edit dialogs.
+// Shared edit-dialog building blocks used across library edit dialogs.
 // ---------------------------------------------------------------------------
 
 const Color kEditAccent = kAppAccent;
@@ -338,18 +337,24 @@ class LibraryEditTextField extends StatelessWidget {
     required this.label,
     this.hint,
     this.validator,
+    this.maxLines = 1,
+    this.keyboardType,
   });
 
   final TextEditingController controller;
   final String label;
   final String? hint;
   final String? Function(String?)? validator;
+  final int maxLines;
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       validator: validator,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
       decoration: InputDecoration(labelText: label, hintText: hint),
     );
   }
@@ -1306,7 +1311,7 @@ class _EditTokenListFieldState extends State<EditTokenListField> {
 }
 
 // ---------------------------------------------------------------------------
-// Issue pill (comics-specific but placed here for consistency)
+// Issue / number badge pill
 // ---------------------------------------------------------------------------
 
 class IssuePill extends StatelessWidget {
