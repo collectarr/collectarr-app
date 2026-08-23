@@ -9,6 +9,8 @@ import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.
 import 'package:collectarr_app/features/library/kinds/anime/anime_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
@@ -23,6 +25,29 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   projector: const AnimeWorkspaceProjector(),
   ownedDetailsCodec: const AnimeOwnedDetailsCodec(),
   fields: animeLibraryKindSchema.toRegistry(),
+  identity: const LibraryKindIdentity(
+    kind: CatalogMediaKind.anime,
+    singularLabel: 'Anime',
+    pluralLabel: 'Anime',
+    title: 'Anime',
+    icon: Icons.movie_filter_outlined,
+    accent: Color(0xFFC94DFF),
+    preferencePrefix: 'anime',
+  ),
+  metadata: const LibraryMetadataCapability(
+    defaultProviderId: 'anilist',
+    providers: [anilistMetadataProvider],
+  ),
+  hierarchy: const LibraryHierarchyCapability(
+    contentHierarchy: LibraryContentHierarchy.seasons,
+    supportsMediaReleaseSplit: true,
+    collectionExportTitleLabel: 'Title',
+    mediaReleaseScopeLabel: 'Media',
+  ),
+  inspector: const LibraryInspectorCapability(
+    showsDefaultPersonalSection: false,
+  ),
+  transfer: const LibraryTransferCapability(),
   add: const StandardLibraryAddCapability<AnimeAddDraft>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,

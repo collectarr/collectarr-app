@@ -7,6 +7,9 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
+import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
@@ -27,6 +30,45 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   projector: const ComicWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: comicLibraryKindSchema.toRegistry(),
+  identity: const LibraryKindIdentity(
+    kind: CatalogMediaKind.comic,
+    singularLabel: 'Comic',
+    pluralLabel: 'Comics',
+    title: 'Comics',
+    icon: Icons.collections_bookmark_outlined,
+    accent: Color(0xFF44BFE7),
+    preferencePrefix: 'comics',
+  ),
+  metadata: LibraryMetadataCapability(
+    defaultProviderId: 'gcd',
+    providers: [
+      gcdMetadataProvider,
+      comicVineMetadataProvider,
+      mangadexMetadataProvider,
+      anilistMetadataProvider,
+      hardcoverMetadataProvider,
+    ],
+  ),
+  hierarchy: const LibraryHierarchyCapability(
+    contentHierarchy: LibraryContentHierarchy.volumes,
+    supportsSeriesSubgroups: true,
+    supportsMediaReleaseSplit: false,
+    supportsIndexReassignment: true,
+    showsReadingQueue: true,
+    collectionExportTitleLabel: 'Series',
+    mediaReleaseScopeLabel: 'Series',
+  ),
+  inspector: const LibraryInspectorCapability(
+    heroBuilder: buildComicInspectorHero,
+    sectionsBuilder: buildComicInspectorSections,
+    showsDefaultPersonalSection: false,
+  ),
+  transfer: const LibraryTransferCapability(
+    transferableFieldKeys: [
+      ...kDefaultTransferableFieldKeys,
+      ...kComicTransferableFieldKeys,
+    ],
+  ),
   add: const StandardLibraryAddCapability<ComicAddDraft>(
     kind: CatalogMediaKind.comic,
     initialDraftBuilder: ComicAddDraft.new,

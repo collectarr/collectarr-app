@@ -23,6 +23,12 @@ import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart'
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
 export 'package:collectarr_app/features/library/config/library_edit_capability.dart';
+export 'package:collectarr_app/features/library/config/library_kind_identity.dart';
+export 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
+export 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
+export 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
+export 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
+export 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
 export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
@@ -131,11 +137,11 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required this.ownedDetailsCodec,
     required this.add,
     required this.edit,
-    LibraryKindIdentity? identity,
-    LibraryMetadataCapability? metadata,
-    LibraryHierarchyCapability? hierarchy,
-    LibraryInspectorCapability? inspector,
-    LibraryTransferCapability? transfer,
+    required this.identity,
+    required this.metadata,
+    required this.hierarchy,
+    required this.inspector,
+    required this.transfer,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.toolbar,
     this.providerMapper,
@@ -144,69 +150,21 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
       LibraryProjectionRuntime item, {
       required bool musicVertical,
     })? buildCardPresentation,
-  })  : _identity = identity,
-        _metadata = metadata,
-        _hierarchy = hierarchy,
-        _inspector = inspector,
-        _transfer = transfer,
-        _buildCardPresentation = buildCardPresentation;
+  }) : _buildCardPresentation = buildCardPresentation;
 
   final OwnedDetailsCodec<TDetails> ownedDetailsCodec;
-  final LibraryKindIdentity? _identity;
-  final LibraryMetadataCapability? _metadata;
-  final LibraryHierarchyCapability? _hierarchy;
-  final LibraryInspectorCapability? _inspector;
+  @override
+  final LibraryKindIdentity identity;
+  @override
+  final LibraryMetadataCapability metadata;
+  @override
+  final LibraryHierarchyCapability hierarchy;
+  @override
+  final LibraryInspectorCapability inspector;
+  @override
+  final LibraryTransferCapability transfer;
   @override
   final LibraryEditCapability edit;
-  final LibraryTransferCapability? _transfer;
-
-  @override
-  LibraryKindIdentity get identity =>
-      _identity ??
-      LibraryKindIdentity.fromWorkspaceConfig(
-        workspace: type.workspace,
-        singularLabel: type.singularLabel,
-        pluralLabel: type.pluralLabel,
-      );
-
-  @override
-  LibraryMetadataCapability get metadata =>
-      _metadata ??
-      LibraryMetadataCapability(
-        defaultProviderId: type.defaultMetadataProvider,
-        providers: type.metadataProviders,
-        supportsServerCompare: type.supportsMetadataCompareWithServer,
-      );
-
-  @override
-  LibraryHierarchyCapability get hierarchy =>
-      _hierarchy ??
-      LibraryHierarchyCapability(
-        contentHierarchy: type.capabilities.contentHierarchy,
-        supportsSeriesSubgroups: type.capabilities.supportsSeriesSubgroups,
-        supportsMediaReleaseSplit: type.capabilities.supportsMediaReleaseSplit,
-        supportsIndexReassignment: type.capabilities.supportsIndexReassignment,
-        showsReadingQueue: type.capabilities.showsReadingQueue,
-        collectionExportTitleLabel: type.collectionExportTitleLabel,
-        mediaReleaseScopeLabel: type.mediaReleaseScopeLabel,
-      );
-
-  @override
-  LibraryInspectorCapability get inspector =>
-      _inspector ??
-      LibraryInspectorCapability(
-        heroBuilder: type.inspectorHeroBuilder,
-        sectionsBuilder: type.inspectorSectionsBuilder,
-        detailPageBuilder: type.detailPageBuilder,
-        showsDefaultPersonalSection: type.showsDefaultInspectorPersonalSection,
-      );
-
-  @override
-  LibraryTransferCapability get transfer =>
-      _transfer ??
-      LibraryTransferCapability(
-        transferableFieldKeys: type.transferableFieldKeys,
-      );
 
   @override
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json) =>

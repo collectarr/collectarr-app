@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
@@ -24,6 +26,30 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
   fields: musicLibraryKindSchema.toRegistry(),
+  identity: const LibraryKindIdentity(
+    kind: CatalogMediaKind.music,
+    singularLabel: 'Music',
+    pluralLabel: 'Music',
+    title: 'Music',
+    icon: Icons.music_note,
+    accent: Color(0xFFFDAD49),
+    preferencePrefix: 'music',
+  ),
+  metadata: const LibraryMetadataCapability(
+    defaultProviderId: 'musicbrainz',
+    providers: [musicBrainzMetadataProvider],
+  ),
+  hierarchy: const LibraryHierarchyCapability(
+    contentHierarchy: LibraryContentHierarchy.flat,
+    supportsSeriesSubgroups: true,
+    supportsMediaReleaseSplit: true,
+    collectionExportTitleLabel: 'Release',
+    mediaReleaseScopeLabel: 'Media',
+  ),
+  inspector: const LibraryInspectorCapability(
+    showsDefaultPersonalSection: false,
+  ),
+  transfer: const LibraryTransferCapability(),
   add: const StandardLibraryAddCapability<MusicAddDraft>(
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,

@@ -46,49 +46,6 @@ export 'package:collectarr_app/features/library/config/library_metadata_provider
 export 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 export 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
 
-const kTransferableMediaFieldKeys = <String>[];
-
-const kTransferableReleaseFieldKeys = <String>[
-  'features',
-  'boxSetName',
-  'coverPriceCents',
-];
-
-const kTransferablePersonalFieldKeys = <String>[
-  'condition',
-  'grade',
-  'personalNotes',
-  'locationId',
-  'tags',
-  'currency',
-  'readStatus',
-  'soldTo',
-  'purchaseStore',
-  'pricePaidCents',
-  'sellPriceCents',
-  'quantity',
-  'indexNumber',
-  'rating',
-  'purchaseDate',
-  'startedAt',
-  'finishedAt',
-  'soldAt',
-];
-
-const kDefaultTransferableFieldKeys = <String>[
-  ...kTransferableReleaseFieldKeys,
-  ...kTransferablePersonalFieldKeys,
-];
-
-const kComicTransferableFieldKeys = [
-  'rawOrSlabbed',
-  'gradingCompany',
-  'graderNotes',
-  'signedBy',
-  'keyReason',
-  'keyComic',
-];
-
 class LibraryKindUiAdapter {
   const LibraryKindUiAdapter();
 

@@ -42,6 +42,22 @@ final genericKindModule =
   projector: const GenericWorkspaceProjector(),
   ownedDetailsCodec: const GenericOwnedDetailsCodec(),
   fields: genericLibraryKindSchema.toRegistry(),
+  identity: const LibraryKindIdentity(
+    kind: CatalogMediaKind.unknown,
+    singularLabel: 'Item',
+    pluralLabel: 'Items',
+    title: 'Generic',
+    icon: Icons.category_outlined,
+    accent: kLibraryFallbackAccent,
+    preferencePrefix: 'generic',
+  ),
+  metadata: const LibraryMetadataCapability(
+    defaultProviderId: '',
+    providers: [],
+  ),
+  hierarchy: const LibraryHierarchyCapability(),
+  inspector: const LibraryInspectorCapability(),
+  transfer: const LibraryTransferCapability(),
   add: const StandardLibraryAddCapability<GenericAddDraft>(
     kind: CatalogMediaKind.unknown,
     initialDraftBuilder: GenericAddDraft.new,

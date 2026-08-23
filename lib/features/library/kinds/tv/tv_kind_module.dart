@@ -9,6 +9,10 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/media/video/detail/video_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_media_adapter.dart';
@@ -23,6 +27,31 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   projector: const TvWorkspaceProjector(),
   ownedDetailsCodec: const TvOwnedDetailsCodec(),
   fields: tvLibraryKindSchema.toRegistry(),
+  identity: const LibraryKindIdentity(
+    kind: CatalogMediaKind.tv,
+    singularLabel: 'TV Show',
+    pluralLabel: 'TV Shows',
+    title: 'TV',
+    icon: Icons.tv_outlined,
+    accent: Color(0xFF00A7A0),
+    preferencePrefix: 'tv',
+  ),
+  metadata: const LibraryMetadataCapability(
+    defaultProviderId: 'tmdb',
+    providers: [tmdbMetadataProvider],
+  ),
+  hierarchy: const LibraryHierarchyCapability(
+    contentHierarchy: LibraryContentHierarchy.seasons,
+    supportsMediaReleaseSplit: true,
+    collectionExportTitleLabel: 'Title',
+    mediaReleaseScopeLabel: 'Media',
+  ),
+  inspector: const LibraryInspectorCapability(
+    sectionsBuilder: buildTvInspectorSections,
+    detailPageBuilder: buildVideoLibraryDetailPage,
+    showsDefaultPersonalSection: false,
+  ),
+  transfer: const LibraryTransferCapability(),
   add: const StandardLibraryAddCapability<TvAddDraft>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,

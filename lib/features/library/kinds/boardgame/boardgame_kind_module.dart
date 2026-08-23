@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -21,6 +23,30 @@ final boardGameKindModule =
   projector: const BoardGameWorkspaceProjector(),
   ownedDetailsCodec: const BoardgameOwnedDetailsCodec(),
   fields: boardgameLibraryKindSchema.toRegistry(),
+  identity: const LibraryKindIdentity(
+    kind: CatalogMediaKind.boardgame,
+    singularLabel: 'Board Game',
+    pluralLabel: 'Board Games',
+    title: 'Board Games',
+    icon: Icons.casino_outlined,
+    accent: Color(0xFFE0A52B),
+    preferencePrefix: 'boardgames',
+  ),
+  metadata: const LibraryMetadataCapability(
+    defaultProviderId: 'bgg',
+    providers: [bggMetadataProvider],
+  ),
+  hierarchy: const LibraryHierarchyCapability(
+    contentHierarchy: LibraryContentHierarchy.flat,
+    supportsSeriesSubgroups: true,
+    supportsMediaReleaseSplit: false,
+    collectionExportTitleLabel: 'Title',
+    mediaReleaseScopeLabel: 'Media',
+  ),
+  inspector: const LibraryInspectorCapability(
+    showsDefaultPersonalSection: false,
+  ),
+  transfer: const LibraryTransferCapability(),
   add: const StandardLibraryAddCapability<BoardGameAddDraft>(
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardGameAddDraft.new,

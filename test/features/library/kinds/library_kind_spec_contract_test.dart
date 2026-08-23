@@ -100,6 +100,11 @@ void main() {
         fields: comicKindModule.fields,
         projector: comicKindModule.projector,
         ownedDetailsCodec: comicKindModule.ownedDetailsCodec,
+        identity: comicKindModule.identity,
+        metadata: comicKindModule.metadata,
+        hierarchy: comicKindModule.hierarchy,
+        inspector: comicKindModule.inspector,
+        transfer: comicKindModule.transfer,
         add: comicKindModule.add,
         edit: comicKindModule.edit,
       );

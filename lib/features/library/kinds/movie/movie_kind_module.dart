@@ -9,6 +9,10 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/media/video/detail/video_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
@@ -23,6 +27,30 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   projector: const MovieWorkspaceProjector(),
   ownedDetailsCodec: const MovieOwnedDetailsCodec(),
   fields: movieLibraryKindSchema.toRegistry(),
+  identity: const LibraryKindIdentity(
+    kind: CatalogMediaKind.movie,
+    singularLabel: 'Movie',
+    pluralLabel: 'Movies',
+    title: 'Movies',
+    icon: Icons.movie_outlined,
+    accent: Color(0xFF42AA55),
+    preferencePrefix: 'movies',
+  ),
+  metadata: const LibraryMetadataCapability(
+    defaultProviderId: 'tmdb',
+    providers: [tmdbMetadataProvider],
+  ),
+  hierarchy: const LibraryHierarchyCapability(
+    contentHierarchy: LibraryContentHierarchy.flat,
+    supportsMediaReleaseSplit: true,
+    collectionExportTitleLabel: 'Title',
+    mediaReleaseScopeLabel: 'Media',
+  ),
+  inspector: const LibraryInspectorCapability(
+    sectionsBuilder: buildMovieInspectorSections,
+    detailPageBuilder: buildVideoLibraryDetailPage,
+  ),
+  transfer: const LibraryTransferCapability(),
   add: const StandardLibraryAddCapability<MovieAddDraft>(
     kind: CatalogMediaKind.movie,
     initialDraftBuilder: MovieAddDraft.new,

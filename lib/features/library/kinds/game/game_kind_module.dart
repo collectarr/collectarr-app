@@ -10,6 +10,9 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/kinds/game/inspector_panel.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
@@ -24,6 +27,31 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   projector: const GameWorkspaceProjector(),
   ownedDetailsCodec: const GameOwnedDetailsCodec(),
   fields: gameLibraryKindSchema.toRegistry(),
+  identity: const LibraryKindIdentity(
+    kind: CatalogMediaKind.game,
+    singularLabel: 'Game',
+    pluralLabel: 'Games',
+    title: 'Games',
+    icon: Icons.sports_esports,
+    accent: Color(0xFFF64458),
+    preferencePrefix: 'games',
+  ),
+  metadata: const LibraryMetadataCapability(
+    defaultProviderId: 'igdb',
+    providers: [igdbMetadataProvider],
+  ),
+  hierarchy: const LibraryHierarchyCapability(
+    contentHierarchy: LibraryContentHierarchy.flat,
+    supportsSeriesSubgroups: true,
+    supportsMediaReleaseSplit: true,
+    collectionExportTitleLabel: 'Title',
+    mediaReleaseScopeLabel: 'Media',
+  ),
+  inspector: const LibraryInspectorCapability(
+    sectionsBuilder: buildGameInspectorSections,
+    showsDefaultPersonalSection: false,
+  ),
+  transfer: const LibraryTransferCapability(),
   add: const StandardLibraryAddCapability<GameAddDraft>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,

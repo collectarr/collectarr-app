@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_capabi
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
@@ -21,6 +23,36 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   projector: const MangaWorkspaceProjector(),
   ownedDetailsCodec: const MangaOwnedDetailsCodec(),
   fields: mangaLibraryKindSchema.toRegistry(),
+  identity: const LibraryKindIdentity(
+    kind: CatalogMediaKind.manga,
+    singularLabel: 'Manga',
+    pluralLabel: 'Manga',
+    title: 'Manga',
+    icon: Icons.import_contacts_outlined,
+    accent: Color(0xFFFF6F91),
+    preferencePrefix: 'manga',
+  ),
+  metadata: LibraryMetadataCapability(
+    defaultProviderId: 'hardcover',
+    providers: [
+      hardcoverMetadataProvider,
+      comicVineMetadataProvider,
+      anilistMetadataProvider,
+      mangadexMetadataProvider,
+    ],
+  ),
+  hierarchy: const LibraryHierarchyCapability(
+    contentHierarchy: LibraryContentHierarchy.volumes,
+    supportsSeriesSubgroups: true,
+    supportsMediaReleaseSplit: true,
+    supportsIndexReassignment: true,
+    collectionExportTitleLabel: 'Series',
+    mediaReleaseScopeLabel: 'Series',
+  ),
+  inspector: const LibraryInspectorCapability(
+    showsDefaultPersonalSection: false,
+  ),
+  transfer: const LibraryTransferCapability(),
   add: const StandardLibraryAddCapability<MangaAddDraft>(
     kind: CatalogMediaKind.manga,
     initialDraftBuilder: MangaAddDraft.new,
