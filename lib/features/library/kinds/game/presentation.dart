@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/game/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
-import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
+import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const gamesLibraryMediaBuilder = GameLibraryMediaPresentationBuilder();
 
