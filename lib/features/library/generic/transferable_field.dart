@@ -61,11 +61,11 @@ class TransferableField {
       case 'soldTo':
         return item.soldTo;
       case 'features':
-        return item.videoDetails?.features;
+        return item.videoLikeDetails?.features;
       case 'purchaseStore':
         return item.purchaseStore;
       case 'boxSetName':
-        return item.videoDetails?.boxSetName;
+        return item.videoLikeDetails?.boxSetName;
       case 'pricePaidCents':
         return item.pricePaidCents?.toString();
       case 'coverPriceCents':
@@ -96,7 +96,6 @@ class TransferableField {
   /// Apply [value] (or null to clear) onto [item], returning the updated copy.
   OwnedItem writeTo(OwnedItem item, String? value) {
     final comic = item.comicDetails;
-    final video = item.videoDetails;
 
     switch (key) {
       case 'condition':
@@ -131,13 +130,25 @@ class TransferableField {
       case 'soldTo':
         return item.copyWith(soldTo: value);
       case 'features':
-        final v = video ?? const VideoOwnedDetails();
-        return item.copyWith(details: v.copyWith(features: value));
+        final d = item.details;
+        if (d is MovieOwnedDetails)
+          return item.copyWith(details: d.copyWith(features: value));
+        if (d is TvOwnedDetails)
+          return item.copyWith(details: d.copyWith(features: value));
+        if (d is AnimeOwnedDetails)
+          return item.copyWith(details: d.copyWith(features: value));
+        return item.copyWith(details: const MovieOwnedDetails());
       case 'purchaseStore':
         return item.copyWith(purchaseStore: value);
       case 'boxSetName':
-        final v = video ?? const VideoOwnedDetails();
-        return item.copyWith(details: v.copyWith(boxSetName: value));
+        final d = item.details;
+        if (d is MovieOwnedDetails)
+          return item.copyWith(details: d.copyWith(boxSetName: value));
+        if (d is TvOwnedDetails)
+          return item.copyWith(details: d.copyWith(boxSetName: value));
+        if (d is AnimeOwnedDetails)
+          return item.copyWith(details: d.copyWith(boxSetName: value));
+        return item.copyWith(details: const MovieOwnedDetails());
       case 'pricePaidCents':
         return item.copyWith(
             pricePaidCents: value != null ? int.tryParse(value) : null);

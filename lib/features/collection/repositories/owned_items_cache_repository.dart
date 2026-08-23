@@ -132,20 +132,9 @@ class OwnedItemsCacheRepository {
         );
       case 'manga':
         details = MangaOwnedDetails(
-          rawOrSlabbed: row.rawOrSlabbed,
           gradingCompany: row.gradingCompany,
           graderNotes: row.graderNotes,
           signedBy: row.signedBy,
-          labelType: row.labelType,
-          customLabel: row.customLabel,
-          pageQuality: row.pageQuality,
-          certificationNumber: row.certificationNumber,
-          keyComic: row.keyComic,
-          keyReason: row.keyReason,
-          keyCategory: row.keyCategory,
-          keySeverity: row.keySeverity,
-          coverPriceCents: row.coverPriceCents,
-          lastBagBoardDate: row.lastBagBoardDate,
         );
       case 'movie':
         details = MovieOwnedDetails(
@@ -241,9 +230,23 @@ class OwnedItemsCacheRepository {
   OwnedItemsCacheCompanion _toCompanion(OwnedItem item) {
     final details = item.details;
     final comic = details is ComicOwnedDetails ? details : null;
-    final video = details is VideoOwnedDetails ? details : null;
+    final movie = details is MovieOwnedDetails ? details : null;
+    final tv = details is TvOwnedDetails ? details : null;
+    final anime = details is AnimeOwnedDetails ? details : null;
     final game = details is GameOwnedDetails ? details : null;
     final music = details is MusicOwnedDetails ? details : null;
+
+    final features = movie?.features ?? tv?.features ?? anime?.features;
+    final hdrFormats = movie?.hdrFormats ??
+        tv?.hdrFormats ??
+        anime?.hdrFormats ??
+        const <String>[];
+    final boxSetId = movie?.boxSetId ?? tv?.boxSetId ?? anime?.boxSetId;
+    final boxSetName = movie?.boxSetName ?? tv?.boxSetName ?? anime?.boxSetName;
+    final region = movie?.region ?? tv?.region ?? anime?.region;
+    final packaging = movie?.packaging ?? tv?.packaging ?? anime?.packaging;
+    final distributor =
+        movie?.distributor ?? tv?.distributor ?? anime?.distributor;
 
     return OwnedItemsCacheCompanion.insert(
       id: item.id,
@@ -288,20 +291,18 @@ class OwnedItemsCacheRepository {
       ownerUserId: Value(item.ownerUserId),
       ownerLabel: Value(item.ownerLabel),
       locationId: Value(item.locationId),
-      features: Value(video?.features),
+      features: Value(features),
       hdrFormatsJson: Value(
-        video != null && video.hdrFormats.isNotEmpty
-            ? jsonEncode(video.hdrFormats)
-            : null,
+        hdrFormats.isNotEmpty ? jsonEncode(hdrFormats) : null,
       ),
       purchaseStore: Value(item.purchaseStore),
-      boxSetId: Value(video?.boxSetId),
-      boxSetName: Value(video?.boxSetName),
+      boxSetId: Value(boxSetId),
+      boxSetName: Value(boxSetName),
       storageDevice: Value(music?.storageDevice),
       storageSlot: Value(music?.storageSlot),
-      region: Value(video?.region),
-      packaging: Value(video?.packaging),
-      distributor: Value(video?.distributor),
+      region: Value(region),
+      packaging: Value(packaging),
+      distributor: Value(distributor),
       collectionStatus: Value(item.collectionStatus),
       lastBagBoardDate: Value(comic?.lastBagBoardDate),
       marketValueCents: Value(item.marketValueCents),

@@ -175,9 +175,27 @@ OwnedItem testOwnedItem({
         lastBagBoardDate: lastBagBoardDate,
       );
     case 'movie':
+      details = MovieOwnedDetails(
+        features: features,
+        hdrFormats: hdrFormats ?? const <String>[],
+        boxSetId: boxSetId,
+        boxSetName: boxSetName,
+        region: region,
+        packaging: packaging,
+        distributor: distributor,
+      );
     case 'tv':
+      details = TvOwnedDetails(
+        features: features,
+        hdrFormats: hdrFormats ?? const <String>[],
+        boxSetId: boxSetId,
+        boxSetName: boxSetName,
+        region: region,
+        packaging: packaging,
+        distributor: distributor,
+      );
     case 'anime':
-      details = VideoOwnedDetails(
+      details = AnimeOwnedDetails(
         features: features,
         hdrFormats: hdrFormats ?? const <String>[],
         boxSetId: boxSetId,

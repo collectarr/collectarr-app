@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/ownership/primitives/video_physical_copy_details.dart';
+import 'package:collectarr_app/features/library/ownership/primitives/video_like_owned_details.dart';
 
 const Object _movieDetailsUnset = Object();
 
 @immutable
-class MovieOwnedDetails extends OwnedItemDetails {
+class MovieOwnedDetails extends OwnedItemDetails with VideoLikeOwnedDetails {
   const MovieOwnedDetails({
     this.physical = const VideoPhysicalCopyDetails(),
     String? features,

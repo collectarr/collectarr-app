@@ -55,5 +55,3 @@ final class MovieAddDraft extends LibraryAddKindDraft {
         distributor: distributor,
       );
 }
-
-typedef VideoAddDraft = MovieAddDraft;

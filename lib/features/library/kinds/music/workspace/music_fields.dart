@@ -45,6 +45,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
+    scope: LibraryFieldScope.release,
   );
 
   static final condition =
@@ -52,6 +53,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
+    scope: LibraryFieldScope.copy,
   );
 
   static final location =
@@ -59,6 +61,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
+    scope: LibraryFieldScope.copy,
   );
 
   static final pricePaid =
@@ -66,6 +69,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    scope: LibraryFieldScope.copy,
   );
 
   static final status =
@@ -75,6 +79,7 @@ abstract final class MusicKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
+    scope: LibraryFieldScope.copy,
   );
 
   static final cover =
@@ -82,6 +87,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
+    scope: LibraryFieldScope.media,
   );
 
   static final rating =
@@ -89,6 +95,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
+    scope: LibraryFieldScope.copy,
   );
 
   static final wishlist =
@@ -96,6 +103,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
+    scope: LibraryFieldScope.copy,
   );
 
   static final updatedAt =
@@ -103,6 +111,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
+    scope: LibraryFieldScope.copy,
   );
 
   static final addedAt =
@@ -110,6 +119,7 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
+    scope: LibraryFieldScope.copy,
   );
 }
 

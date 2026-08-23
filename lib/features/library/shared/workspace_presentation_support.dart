@@ -106,7 +106,7 @@ String defaultLibraryBucketLabel(
     'cover_year' => _yearBucket(cat?.coverDate, 'Unknown cover year'),
     'audio_tracks' => _stringBucket(cat?.video?.audioTracks, 'No audio tracks'),
     'box_set' => _stringBucket(
-        source.ownedItem?.videoDetails?.boxSetName,
+        source.ownedItem?.videoLikeDetails?.boxSetName,
         'No box set',
       ),
     'completeness' => _stringBucket(
@@ -119,7 +119,7 @@ String defaultLibraryBucketLabel(
     'dust_jacket_condition' => _stringBucket(
         cat?.publishing?.dustJacketCondition, 'No dust jacket condition'),
     'distributor' => _stringBucket(
-        source.ownedItem?.videoDetails?.distributor,
+        source.ownedItem?.videoLikeDetails?.distributor,
         'No distributor',
       ),
     'instrument' => _stringBucket(cat?.music?.instrument, 'No instrument'),
@@ -156,17 +156,17 @@ String defaultLibraryBucketLabel(
         'Unknown edition release year',
       ),
     'extras' => _stringBucket(
-        source.ownedItem?.videoDetails?.features,
+        source.ownedItem?.videoLikeDetails?.features,
         'No extras',
       ),
     'format' => _editionFormatBucket(item),
     'hdr' => _firstOrDefault(
-        source.ownedItem?.videoDetails?.hdrFormats,
+        source.ownedItem?.videoLikeDetails?.hdrFormats,
         'No HDR',
       ),
     'layers' => _stringBucket(cat?.video?.layers, 'No layers'),
     'packaging' => _stringBucket(
-        source.ownedItem?.videoDetails?.packaging,
+        source.ownedItem?.videoLikeDetails?.packaging,
         'No packaging',
       ),
     'regions' => _stringBucket(_referenceRegionFor(source, item), 'No region'),
@@ -482,7 +482,7 @@ String? _referenceRegionFor(ShelfEntry source, LibraryProjectionRuntime item) {
   if (editionRegion != null && editionRegion.isNotEmpty) {
     return editionRegion;
   }
-  final video = source.ownedItem?.videoDetails;
+  final video = source.ownedItem?.videoLikeDetails;
   final ownedRegion = video?.region?.trim();
   if (ownedRegion != null && ownedRegion.isNotEmpty) {
     return ownedRegion;

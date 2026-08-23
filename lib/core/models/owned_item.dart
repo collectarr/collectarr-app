@@ -2,9 +2,11 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/features/library/ownership/primitives/video_like_owned_details.dart';
 
 export 'package:collectarr_app/core/models/money.dart';
 export 'package:collectarr_app/core/models/owned_item_details.dart';
+export 'package:collectarr_app/features/library/ownership/primitives/video_like_owned_details.dart';
 
 const Object _ownedItemUnset = Object();
 
@@ -90,11 +92,17 @@ class OwnedItem {
   MovieOwnedDetails? get movieDetails => details.movie;
   TvOwnedDetails? get tvDetails => details.tv;
   AnimeOwnedDetails? get animeDetails => details.anime;
-  VideoOwnedDetails? get videoDetails => details.video;
   GameOwnedDetails? get gameDetails => details.game;
   MusicOwnedDetails? get musicDetails => details.music;
   BookOwnedDetails? get bookDetails => details.book;
   BoardgameOwnedDetails? get boardgameDetails => details.boardgame;
+
+  /// Returns the shared video physical-copy fields if this item is
+  /// a Movie, TV show, or Anime; otherwise null.
+  VideoLikeOwnedDetails? get videoLikeDetails =>
+      details is VideoLikeOwnedDetails
+          ? details as VideoLikeOwnedDetails
+          : null;
 
   String get itemId => catalogRef.id;
 

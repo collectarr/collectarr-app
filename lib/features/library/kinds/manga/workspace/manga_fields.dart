@@ -46,6 +46,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
+    scope: LibraryFieldScope.copy,
   );
 
   static final location =
@@ -53,6 +54,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
+    scope: LibraryFieldScope.copy,
   );
 
   static final pricePaid =
@@ -60,12 +62,14 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    scope: LibraryFieldScope.copy,
   );
 
   static final barcode = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.barcode,
     label: 'ISBN / Barcode',
     getValue: (dto) => dto.barcode,
+    scope: LibraryFieldScope.release,
   );
 
   static final status =
@@ -75,6 +79,7 @@ abstract final class MangaKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
+    scope: LibraryFieldScope.copy,
   );
 
   static final cover =
@@ -82,6 +87,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
+    scope: LibraryFieldScope.media,
   );
 
   static final rating =
@@ -89,6 +95,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
+    scope: LibraryFieldScope.copy,
   );
 
   static final wishlist =
@@ -96,6 +103,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
+    scope: LibraryFieldScope.copy,
   );
 
   static final updatedAt =
@@ -103,6 +111,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
+    scope: LibraryFieldScope.copy,
   );
 
   static final addedAt =
@@ -110,6 +119,7 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
+    scope: LibraryFieldScope.copy,
   );
 }
 

@@ -23,8 +23,6 @@ export 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardg
 export 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
 
-typedef VideoOwnedDetails = MovieOwnedDetails;
-
 /// Shared abstract base class of kind-specific details for an [OwnedItem].
 @immutable
 abstract class OwnedItemDetails {
@@ -59,8 +57,6 @@ abstract class OwnedItemDetails {
       this is MovieOwnedDetails ? this as MovieOwnedDetails : null;
   TvOwnedDetails? get tv =>
       this is TvOwnedDetails ? this as TvOwnedDetails : null;
-  MovieOwnedDetails? get video =>
-      this is MovieOwnedDetails ? this as MovieOwnedDetails : null;
   GameOwnedDetails? get game =>
       this is GameOwnedDetails ? this as GameOwnedDetails : null;
   MusicOwnedDetails? get music =>

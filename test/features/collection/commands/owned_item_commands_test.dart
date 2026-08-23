@@ -56,7 +56,7 @@ void main() {
     expect(comicDetails.gradingCompany, 'CGC');
     expect(comicDetails.coverPriceCents, 399);
 
-    const videoDraft = VideoOwnedDetailsDraft(
+    const videoDraft = MovieOwnedDetailsDraft(
       features: 'Director Commentary',
       region: 'Region A',
     );

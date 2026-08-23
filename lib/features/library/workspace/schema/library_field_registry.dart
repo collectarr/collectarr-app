@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_prefere
 final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
   LibraryFieldRegistry({
     required this.kindNamespace,
+    this.fields = const [],
     required this.columns,
     required this.sorts,
     required this.groups,
@@ -20,6 +21,7 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
   }
 
   final String kindNamespace;
+  final List<LibraryFieldDefinition<TKind, TDto, Object?>> fields;
   final List<LibraryColumnDefinition<TKind, TDto, Object?>> columns;
   final List<LibrarySortDefinition<TKind, TDto>> sorts;
   final List<LibraryGroupDefinition<TKind, TDto, Object?>> groups;

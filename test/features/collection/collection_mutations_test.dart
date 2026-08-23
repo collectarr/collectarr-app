@@ -74,7 +74,7 @@ void main() {
           AddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
             common: const OwnedItemCommonDraft(),
-            details: const VideoOwnedDetailsDraft(),
+            details: const MovieOwnedDetailsDraft(),
           ),
         );
 
@@ -172,7 +172,7 @@ void main() {
               startedAt: DateTime.utc(2026, 5, 10),
               finishedAt: DateTime.utc(2026, 5, 12),
             ),
-            details: const VideoOwnedDetailsDraft(),
+            details: const MovieOwnedDetailsDraft(),
           ),
         );
 
@@ -217,7 +217,7 @@ void main() {
               rating: 9,
               readStatus: 'Completed',
             ),
-            details: const VideoOwnedDetailsDraft(),
+            details: const MovieOwnedDetailsDraft(),
           ),
         );
 
@@ -245,7 +245,7 @@ void main() {
                   editionId: 'edition-legacy',
                   variantId: 'variant-legacy',
                 ),
-                details: const VideoOwnedDetailsDraft(),
+                details: const MovieOwnedDetailsDraft(),
               ),
               syncTracking: false,
             );

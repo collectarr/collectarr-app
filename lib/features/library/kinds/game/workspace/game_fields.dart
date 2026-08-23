@@ -46,6 +46,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
+    scope: LibraryFieldScope.copy,
   );
 
   static final location =
@@ -53,6 +54,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
+    scope: LibraryFieldScope.copy,
   );
 
   static final pricePaid =
@@ -60,12 +62,14 @@ abstract final class GameKindSchema {
     id: GameFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    scope: LibraryFieldScope.copy,
   );
 
   static final barcode = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
+    scope: LibraryFieldScope.release,
   );
 
   static final status =
@@ -75,6 +79,7 @@ abstract final class GameKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
+    scope: LibraryFieldScope.copy,
   );
 
   static final cover =
@@ -82,6 +87,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
+    scope: LibraryFieldScope.media,
   );
 
   static final rating =
@@ -89,6 +95,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
+    scope: LibraryFieldScope.copy,
   );
 
   static final wishlist =
@@ -96,6 +103,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
+    scope: LibraryFieldScope.copy,
   );
 
   static final updatedAt =
@@ -103,6 +111,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
+    scope: LibraryFieldScope.copy,
   );
 
   static final addedAt =
@@ -110,6 +119,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
+    scope: LibraryFieldScope.copy,
   );
 
   static final completionStatus =
@@ -117,6 +127,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.completionStatus,
     label: 'Completion',
     getValue: (context) => context.source.ownedItem?.collectionStatus,
+    scope: LibraryFieldScope.copy,
   );
 
   static final completeness =
@@ -124,6 +135,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.completeness,
     label: 'Completeness',
     getValue: (context) => context.source.ownedItem?.gameDetails?.completeness,
+    scope: LibraryFieldScope.copy,
   );
 
   static final hasBox =
@@ -131,6 +143,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.hasBox,
     label: 'Has Box',
     getValue: (context) => context.source.ownedItem?.gameDetails?.hasBox,
+    scope: LibraryFieldScope.copy,
   );
 
   static final hasManual =
@@ -138,6 +151,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.hasManual,
     label: 'Has Manual',
     getValue: (context) => context.source.ownedItem?.gameDetails?.hasManual,
+    scope: LibraryFieldScope.copy,
   );
 
   static final priceChartingId =
@@ -146,6 +160,7 @@ abstract final class GameKindSchema {
     label: 'PriceCharting ID',
     getValue: (context) =>
         context.source.ownedItem?.gameDetails?.priceChartingId,
+    scope: LibraryFieldScope.release,
   );
 
   static final coreRegion =
@@ -153,6 +168,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.coreRegion,
     label: 'Region',
     getValue: (context) => context.source.ownedItem?.gameDetails?.coreRegion,
+    scope: LibraryFieldScope.release,
   );
 
   static final valueLocked =
@@ -160,6 +176,7 @@ abstract final class GameKindSchema {
     id: GameFieldIds.valueLocked,
     label: 'Value Locked',
     getValue: (context) => context.source.ownedItem?.gameDetails?.valueIsLocked,
+    scope: LibraryFieldScope.copy,
   );
 }
 

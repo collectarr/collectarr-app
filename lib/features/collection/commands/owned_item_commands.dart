@@ -151,53 +151,44 @@ class ComicOwnedDetailsDraft extends OwnedDetailsDraft {
 
 class MangaOwnedDetailsDraft extends OwnedDetailsDraft {
   const MangaOwnedDetailsDraft({
-    this.rawOrSlabbed,
+    this.signedBy,
     this.gradingCompany,
     this.graderNotes,
-    this.signedBy,
-    this.labelType,
-    this.customLabel,
-    this.pageQuality,
-    this.certificationNumber,
-    this.keyComic = false,
-    this.keyReason,
-    this.keyCategory,
-    this.keySeverity,
-    this.coverPriceCents,
-    this.lastBagBoardDate,
+    this.obiStripPresent = false,
+    this.slipcoverPresent = false,
+    this.dustJacketPresent = false,
+    this.dustJacketCondition,
+    this.boxSetOuterCondition,
+    this.insertsPresent = false,
+    this.printing,
+    this.localizedEdition,
   });
 
-  final String? rawOrSlabbed;
+  final String? signedBy;
   final String? gradingCompany;
   final String? graderNotes;
-  final String? signedBy;
-  final String? labelType;
-  final String? customLabel;
-  final String? pageQuality;
-  final String? certificationNumber;
-  final bool keyComic;
-  final String? keyReason;
-  final String? keyCategory;
-  final String? keySeverity;
-  final int? coverPriceCents;
-  final DateTime? lastBagBoardDate;
+  final bool obiStripPresent;
+  final bool slipcoverPresent;
+  final bool dustJacketPresent;
+  final String? dustJacketCondition;
+  final String? boxSetOuterCondition;
+  final bool insertsPresent;
+  final String? printing;
+  final String? localizedEdition;
 
   @override
   MangaOwnedDetails toDetails() => MangaOwnedDetails(
-        rawOrSlabbed: rawOrSlabbed,
+        signedBy: signedBy,
         gradingCompany: gradingCompany,
         graderNotes: graderNotes,
-        signedBy: signedBy,
-        labelType: labelType,
-        customLabel: customLabel,
-        pageQuality: pageQuality,
-        certificationNumber: certificationNumber,
-        keyComic: keyComic,
-        keyReason: keyReason,
-        keyCategory: keyCategory,
-        keySeverity: keySeverity,
-        coverPriceCents: coverPriceCents,
-        lastBagBoardDate: lastBagBoardDate,
+        obiStripPresent: obiStripPresent,
+        slipcoverPresent: slipcoverPresent,
+        dustJacketPresent: dustJacketPresent,
+        dustJacketCondition: dustJacketCondition,
+        boxSetOuterCondition: boxSetOuterCondition,
+        insertsPresent: insertsPresent,
+        printing: printing,
+        localizedEdition: localizedEdition,
       );
 }
 
@@ -293,8 +284,6 @@ class AnimeOwnedDetailsDraft extends OwnedDetailsDraft {
         distributor: distributor,
       );
 }
-
-typedef VideoOwnedDetailsDraft = MovieOwnedDetailsDraft;
 
 class GameOwnedDetailsDraft extends OwnedDetailsDraft {
   const GameOwnedDetailsDraft({
@@ -507,23 +496,20 @@ extension OwnedItemDetailsToDraft on OwnedItemDetails {
           coverPriceCents: c.coverPriceCents,
           lastBagBoardDate: c.lastBagBoardDate,
         ),
-      MangaOwnedDetails c => ComicOwnedDetailsDraft(
-          rawOrSlabbed: c.rawOrSlabbed,
+      MangaOwnedDetails c => MangaOwnedDetailsDraft(
+          signedBy: c.signedBy,
           gradingCompany: c.gradingCompany,
           graderNotes: c.graderNotes,
-          signedBy: c.signedBy,
-          labelType: c.labelType,
-          customLabel: c.customLabel,
-          pageQuality: c.pageQuality,
-          certificationNumber: c.certificationNumber,
-          keyComic: c.keyComic,
-          keyReason: c.keyReason,
-          keyCategory: c.keyCategory,
-          keySeverity: c.keySeverity,
-          coverPriceCents: c.coverPriceCents,
-          lastBagBoardDate: c.lastBagBoardDate,
+          obiStripPresent: c.obiStripPresent,
+          slipcoverPresent: c.slipcoverPresent,
+          dustJacketPresent: c.dustJacketPresent,
+          dustJacketCondition: c.dustJacketCondition,
+          boxSetOuterCondition: c.boxSetOuterCondition,
+          insertsPresent: c.insertsPresent,
+          printing: c.printing,
+          localizedEdition: c.localizedEdition,
         ),
-      MovieOwnedDetails v => VideoOwnedDetailsDraft(
+      MovieOwnedDetails v => MovieOwnedDetailsDraft(
           features: v.features,
           hdrFormats: v.hdrFormats,
           boxSetId: v.boxSetId,
@@ -532,7 +518,7 @@ extension OwnedItemDetailsToDraft on OwnedItemDetails {
           packaging: v.packaging,
           distributor: v.distributor,
         ),
-      TvOwnedDetails v => VideoOwnedDetailsDraft(
+      TvOwnedDetails v => TvOwnedDetailsDraft(
           features: v.features,
           hdrFormats: v.hdrFormats,
           boxSetId: v.boxSetId,
@@ -541,7 +527,7 @@ extension OwnedItemDetailsToDraft on OwnedItemDetails {
           packaging: v.packaging,
           distributor: v.distributor,
         ),
-      AnimeOwnedDetails v => VideoOwnedDetailsDraft(
+      AnimeOwnedDetails v => AnimeOwnedDetailsDraft(
           features: v.features,
           hdrFormats: v.hdrFormats,
           boxSetId: v.boxSetId,

@@ -23,8 +23,8 @@ void main() {
       expect(restored.isSlabbed, isTrue);
     });
 
-    test('VideoOwnedDetails serializes and deserializes correctly', () {
-      final details = const VideoOwnedDetails(
+    test('MovieOwnedDetails serializes and deserializes correctly', () {
+      final details = const MovieOwnedDetails(
         features: 'Director Cut',
         hdrFormats: ['HDR10', 'Dolby Vision'],
         region: 'A',
@@ -32,7 +32,7 @@ void main() {
       );
 
       final json = details.toJson();
-      final restored = VideoOwnedDetails.fromJson(json);
+      final restored = MovieOwnedDetails.fromJson(json);
 
       expect(restored.features, 'Director Cut');
       expect(restored.hdrFormats, ['HDR10', 'Dolby Vision']);

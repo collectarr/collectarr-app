@@ -104,7 +104,7 @@ void main() {
             throwsA(isA<ArgumentError>()),
           );
         } else {
-          // Comic/manga kind with VideoOwnedDetailsDraft
+          // Comic/manga kind with MovieOwnedDetailsDraft
           expect(
             () => coordinator.addOwnedItem(
               AddOwnedItemCommand(
@@ -114,7 +114,7 @@ void main() {
                   id: 'test-${kind.apiValue}-bad',
                 ),
                 common: const OwnedItemCommonDraft(),
-                details: const VideoOwnedDetailsDraft(region: 'A'),
+                details: const MovieOwnedDetailsDraft(region: 'A'),
               ),
             ),
             throwsA(isA<ArgumentError>()),

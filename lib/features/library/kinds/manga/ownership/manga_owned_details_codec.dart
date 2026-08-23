@@ -26,20 +26,9 @@ class MangaOwnedDetailsCodec implements OwnedDetailsCodec<MangaOwnedDetails> {
   @override
   OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
     return MangaOwnedDetailsDraft(
-      rawOrSlabbed: personal.rawOrSlabbed,
+      signedBy: personal.signedBy,
       gradingCompany: personal.gradingCompany,
       graderNotes: personal.graderNotes,
-      signedBy: personal.signedBy,
-      labelType: personal.labelType,
-      customLabel: personal.customLabel,
-      pageQuality: personal.pageQuality,
-      certificationNumber: personal.certificationNumber,
-      keyComic: personal.keyComic ?? false,
-      keyReason: personal.keyReason,
-      keyCategory: personal.keyCategory,
-      keySeverity: personal.keySeverity,
-      coverPriceCents: personal.coverPriceCents,
-      lastBagBoardDate: personal.lastBagBoardDate,
     );
   }
 }

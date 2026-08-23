@@ -109,9 +109,9 @@ void main() {
     });
 
     test(
-        'VideoOwnedDetails.copyWith allows preserving, updating, and clearing fields',
+        'MovieOwnedDetails.copyWith allows preserving, updating, and clearing fields',
         () {
-      final video = const VideoOwnedDetails(
+      final video = const MovieOwnedDetails(
         boxSetId: 'box-1',
         boxSetName: 'Trilogy Set',
         distributor: 'Criterion',

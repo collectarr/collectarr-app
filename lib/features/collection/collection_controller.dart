@@ -259,7 +259,7 @@ final boxSetGroupsProvider = Provider<Map<String, List<OwnedItem>>>((ref) {
       final grouped = <String, List<OwnedItem>>{};
       for (final item in items) {
         if (item.isDeleted) continue;
-        final videoDetails = item.videoDetails;
+        final videoDetails = item.videoLikeDetails;
         final name = videoDetails?.boxSetName;
         if (name != null && name.isNotEmpty) {
           grouped.putIfAbsent(name, () => <OwnedItem>[]).add(item);

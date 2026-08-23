@@ -187,11 +187,33 @@ OwnedItem testOwnedItem({
         lastBagBoardDate: lastBagBoardDate,
       );
     case 'movie':
+      details = coverPriceCents != null
+          ? ComicOwnedDetails(coverPriceCents: coverPriceCents)
+          : MovieOwnedDetails(
+              features: features,
+              hdrFormats: hdrFormats ?? const <String>[],
+              boxSetId: boxSetId,
+              boxSetName: boxSetName,
+              region: region,
+              packaging: packaging,
+              distributor: distributor,
+            );
     case 'tv':
+      details = coverPriceCents != null
+          ? ComicOwnedDetails(coverPriceCents: coverPriceCents)
+          : TvOwnedDetails(
+              features: features,
+              hdrFormats: hdrFormats ?? const <String>[],
+              boxSetId: boxSetId,
+              boxSetName: boxSetName,
+              region: region,
+              packaging: packaging,
+              distributor: distributor,
+            );
     case 'anime':
       details = coverPriceCents != null
           ? ComicOwnedDetails(coverPriceCents: coverPriceCents)
-          : VideoOwnedDetails(
+          : AnimeOwnedDetails(
               features: features,
               hdrFormats: hdrFormats ?? const <String>[],
               boxSetId: boxSetId,

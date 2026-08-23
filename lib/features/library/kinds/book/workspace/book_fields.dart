@@ -39,6 +39,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.isbn,
     label: 'ISBN',
     getValue: (dto) => dto.isbn ?? dto.barcode,
+    scope: LibraryFieldScope.release,
   );
 
   static final condition =
@@ -46,6 +47,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
+    scope: LibraryFieldScope.copy,
   );
 
   static final location =
@@ -53,6 +55,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
+    scope: LibraryFieldScope.copy,
   );
 
   static final series = textField<BookKind, BookWorkspaceDto>(
@@ -72,6 +75,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    scope: LibraryFieldScope.copy,
   );
 
   static final status =
@@ -81,6 +85,7 @@ abstract final class BookKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
+    scope: LibraryFieldScope.copy,
   );
 
   static final cover =
@@ -88,6 +93,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
+    scope: LibraryFieldScope.media,
   );
 
   static final rating =
@@ -95,6 +101,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
+    scope: LibraryFieldScope.copy,
   );
 
   static final wishlist =
@@ -102,6 +109,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
+    scope: LibraryFieldScope.copy,
   );
 
   static final updatedAt =
@@ -109,6 +117,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
+    scope: LibraryFieldScope.copy,
   );
 
   static final addedAt =
@@ -116,6 +125,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
+    scope: LibraryFieldScope.copy,
   );
 
   static final readStatus =
@@ -123,6 +133,7 @@ abstract final class BookKindSchema {
     id: BookFieldIds.readStatus,
     label: 'Read Status',
     getValue: (context) => context.source.ownedItem?.readStatus,
+    scope: LibraryFieldScope.copy,
   );
 }
 

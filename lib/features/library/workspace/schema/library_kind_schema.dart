@@ -19,6 +19,7 @@ class LibraryKindSchema<TKind, TDto extends LibraryWorkspaceDto> {
     this.customLinkedMetadataCandidates,
   }) : registry = LibraryFieldRegistry<TKind, TDto>(
           kindNamespace: kindNamespace,
+          fields: fields,
           columns: columns,
           sorts: sorts,
           groups: groups,

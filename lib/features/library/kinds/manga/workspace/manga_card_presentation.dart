@@ -11,27 +11,31 @@ LibraryCardPresentation buildMangaCardPresentation(
   final mangaDetails = item.source.ownedItem?.mangaDetails;
   final badges = <LibraryCardBadge>[];
 
-  if (mangaDetails?.keyComic == true) {
+  if (mangaDetails?.signedBy != null && mangaDetails!.signedBy!.isNotEmpty) {
     badges.add(
       LibraryCardBadge(
-        icon: Icons.label_important,
-        label: mangaDetails?.keyReason?.isNotEmpty == true
-            ? mangaDetails!.keyReason!
-            : 'Key volume',
+        icon: Icons.draw_outlined,
+        label: 'Signed',
+      ),
+    );
+  }
+
+  if (mangaDetails?.obiStripPresent == true) {
+    badges.add(
+      const LibraryCardBadge(
+        icon: Icons.bookmark_outline,
+        label: 'Obi',
       ),
     );
   }
 
   Widget Function(Widget child)? overlay;
-  if (mangaDetails?.rawOrSlabbed != null ||
-      mangaDetails?.gradingCompany != null ||
-      mangaDetails?.labelType != null ||
-      item.source.grade != null) {
+  if (mangaDetails?.gradingCompany != null && item.source.grade != null) {
     overlay = (child) => SlabFrameOverlay.maybeWrap(
-          rawOrSlabbed: mangaDetails?.rawOrSlabbed,
+          rawOrSlabbed: 'slabbed',
           gradingCompany: mangaDetails?.gradingCompany,
           grade: item.source.grade,
-          labelType: mangaDetails?.labelType,
+          labelType: null,
           child: child,
         );
   }

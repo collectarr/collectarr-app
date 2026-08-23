@@ -93,7 +93,7 @@ class VideoEditDraft extends KindEditDraft {
   List<String> hdrFormats;
 
   @override
-  OwnedDetailsDraft toDetailsDraft() => VideoOwnedDetailsDraft(
+  OwnedDetailsDraft toDetailsDraft() => MovieOwnedDetailsDraft(
         features: emptyToNull(featuresController.text),
         hdrFormats: hdrFormats,
         boxSetName: emptyToNull(boxSetNameController.text),
@@ -214,7 +214,7 @@ KindEditDraft createVideoEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final video = ownedItem?.videoDetails;
+  final video = ownedItem?.videoLikeDetails;
   return VideoEditDraft(
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),

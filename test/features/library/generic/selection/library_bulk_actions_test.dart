@@ -58,7 +58,7 @@ void main() {
       AddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const OwnedItemCommonDraft(locationId: 'loc-a'),
-        details: const VideoOwnedDetailsDraft(),
+        details: const MovieOwnedDetailsDraft(),
       ),
     );
 
@@ -107,7 +107,7 @@ void main() {
       AddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const OwnedItemCommonDraft(),
-        details: const VideoOwnedDetailsDraft(),
+        details: const MovieOwnedDetailsDraft(),
       ),
     );
 
@@ -156,7 +156,7 @@ void main() {
       AddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
         common: const OwnedItemCommonDraft(),
-        details: const VideoOwnedDetailsDraft(),
+        details: const MovieOwnedDetailsDraft(),
       ),
     );
     await wishlistMutations.addToWishlist('movie-2', fallbackKind: 'movie');

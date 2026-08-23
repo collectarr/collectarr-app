@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -119,6 +120,43 @@ void main() {
       expect(addDraftTypes.length, equals(9),
           reason:
               'Every production kind must have its own distinct add draft type');
+    });
+
+    test(
+        'all personal fields have copy scope and release fields have release scope',
+        () {
+      for (final kind in activeKinds) {
+        final runtime = libraryKindRuntimeForKind(kind);
+        for (final field in runtime.fields.fields) {
+          final id = field.id.value.toLowerCase();
+          if (id.contains('condition') ||
+              id.contains('location') ||
+              id.contains('pricepaid') ||
+              id.contains('rating') ||
+              id.contains('wishlist') ||
+              id.contains('grade') ||
+              id.contains('updatedat') ||
+              id.contains('addedat')) {
+            expect(field.scope, equals(LibraryFieldScope.copy),
+                reason: '$kind field ${field.id.value} must have copy scope');
+          }
+          if (id.contains('barcode') || id.contains('isbn')) {
+            expect(field.scope, equals(LibraryFieldScope.release),
+                reason:
+                    '$kind field ${field.id.value} must have release scope');
+          }
+        }
+      }
+    });
+
+    test(
+        'edit draft creation produces kind-owned edit drafts with non-null factories',
+        () {
+      for (final kind in activeKinds) {
+        final runtime = libraryKindRuntimeForKind(kind);
+        expect(runtime.edit, isNotNull);
+        expect(runtime.edit.createDraft, isNotNull);
+      }
     });
   });
 }

@@ -62,20 +62,25 @@ class ProviderDescriptor {
           '',
       kind: json['kind']?.toString() ?? '',
       supportedKinds: supportedKinds,
-      supportsSearch: (json['supportsSearch'] ?? json['supports_search']) as bool? ?? true,
-      supportsIngest: (json['supportsIngest'] ?? json['supports_ingest']) as bool? ?? true,
+      supportsSearch:
+          (json['supportsSearch'] ?? json['supports_search']) as bool? ?? true,
+      supportsIngest:
+          (json['supportsIngest'] ?? json['supports_ingest']) as bool? ?? true,
       requiresUserKey:
-          (json['requiresUserKey'] ?? json['requires_user_key']) as bool? ?? false,
+          (json['requiresUserKey'] ?? json['requires_user_key']) as bool? ??
+              false,
       nonCommercialOnly:
-          (json['nonCommercialOnly'] ?? json['non_commercial_only']) as bool? ?? false,
+          (json['nonCommercialOnly'] ?? json['non_commercial_only']) as bool? ??
+              false,
       allowsRedistribution: (json['allowsRedistribution'] ??
-          json['allows_redistribution']) as bool? ??
+              json['allows_redistribution']) as bool? ??
           false,
       allowsImageMirroring: (json['allowsImageMirroring'] ??
-          json['allows_image_mirroring']) as bool? ??
+              json['allows_image_mirroring']) as bool? ??
           false,
-      requiresAttribution:
-          (json['requiresAttribution'] ?? json['requires_attribution']) as bool? ?? false,
+      requiresAttribution: (json['requiresAttribution'] ??
+              json['requires_attribution']) as bool? ??
+          false,
       licenseName:
           json['licenseName']?.toString() ?? json['license_name']?.toString(),
       termsUrl: json['termsUrl']?.toString() ?? json['terms_url']?.toString(),

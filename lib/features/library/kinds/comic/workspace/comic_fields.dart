@@ -46,6 +46,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
+    scope: LibraryFieldScope.copy,
   );
 
   static final location =
@@ -53,6 +54,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
+    scope: LibraryFieldScope.copy,
   );
 
   static final pricePaid =
@@ -60,12 +62,14 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    scope: LibraryFieldScope.copy,
   );
 
   static final barcode = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
+    scope: LibraryFieldScope.release,
   );
 
   static final status =
@@ -75,6 +79,7 @@ abstract final class ComicKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
+    scope: LibraryFieldScope.copy,
   );
 
   static final cover =
@@ -82,6 +87,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
+    scope: LibraryFieldScope.media,
   );
 
   static final rating =
@@ -89,6 +95,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
+    scope: LibraryFieldScope.copy,
   );
 
   static final wishlist =
@@ -96,6 +103,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
+    scope: LibraryFieldScope.copy,
   );
 
   static final updatedAt =
@@ -103,6 +111,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
+    scope: LibraryFieldScope.copy,
   );
 
   static final addedAt =
@@ -110,6 +119,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
+    scope: LibraryFieldScope.copy,
   );
 
   static final grade =
@@ -117,6 +127,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.grade,
     label: 'Grade',
     getValue: (context) => context.source.ownedItem?.grade,
+    scope: LibraryFieldScope.copy,
   );
 
   static final keyComic =
@@ -125,6 +136,7 @@ abstract final class ComicKindSchema {
     label: 'Key Comic',
     getValue: (context) =>
         context.source.ownedItem?.comicDetails?.keyComic == true,
+    scope: LibraryFieldScope.copy,
   );
 
   static final keyReason =
@@ -132,6 +144,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.keyReason,
     label: 'Key Reason',
     getValue: (context) => context.source.ownedItem?.comicDetails?.keyReason,
+    scope: LibraryFieldScope.copy,
   );
 
   static final keyCategory =
@@ -139,6 +152,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.keyCategory,
     label: 'Key Category',
     getValue: (context) => context.source.ownedItem?.comicDetails?.keyCategory,
+    scope: LibraryFieldScope.copy,
   );
 
   static final keySeverity =
@@ -146,6 +160,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.keySeverity,
     label: 'Key Severity',
     getValue: (context) => context.source.ownedItem?.comicDetails?.keySeverity,
+    scope: LibraryFieldScope.copy,
   );
 
   static final rawOrSlabbed =
@@ -153,6 +168,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.rawOrSlabbed,
     label: 'Raw / Slabbed',
     getValue: (context) => context.source.ownedItem?.comicDetails?.rawOrSlabbed,
+    scope: LibraryFieldScope.copy,
   );
 
   static final gradingCompany =
@@ -161,6 +177,7 @@ abstract final class ComicKindSchema {
     label: 'Grading Company',
     getValue: (context) =>
         context.source.ownedItem?.comicDetails?.gradingCompany,
+    scope: LibraryFieldScope.copy,
   );
 
   static final graderNotes =
@@ -168,6 +185,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.graderNotes,
     label: 'Grader Notes',
     getValue: (context) => context.source.ownedItem?.comicDetails?.graderNotes,
+    scope: LibraryFieldScope.copy,
   );
 
   static final signedBy =
@@ -175,6 +193,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.signedBy,
     label: 'Signed By',
     getValue: (context) => context.source.ownedItem?.comicDetails?.signedBy,
+    scope: LibraryFieldScope.copy,
   );
 
   static final labelType =
@@ -182,6 +201,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.labelType,
     label: 'Label Type',
     getValue: (context) => context.source.ownedItem?.comicDetails?.labelType,
+    scope: LibraryFieldScope.copy,
   );
 
   static final customLabel =
@@ -189,6 +209,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.customLabel,
     label: 'Custom Label',
     getValue: (context) => context.source.ownedItem?.comicDetails?.customLabel,
+    scope: LibraryFieldScope.copy,
   );
 
   static final pageQuality =
@@ -196,6 +217,7 @@ abstract final class ComicKindSchema {
     id: ComicFieldIds.pageQuality,
     label: 'Page Quality',
     getValue: (context) => context.source.ownedItem?.comicDetails?.pageQuality,
+    scope: LibraryFieldScope.copy,
   );
 
   static final certificationNumber =
@@ -204,6 +226,7 @@ abstract final class ComicKindSchema {
     label: 'Certification Number',
     getValue: (context) =>
         context.source.ownedItem?.comicDetails?.certificationNumber,
+    scope: LibraryFieldScope.copy,
   );
 
   static final coverPrice =
@@ -212,6 +235,7 @@ abstract final class ComicKindSchema {
     label: 'Cover Price',
     getValue: (context) =>
         context.source.ownedItem?.comicDetails?.coverPriceCents,
+    scope: LibraryFieldScope.release,
   );
 
   static final lastBagBoardDate =
@@ -220,6 +244,7 @@ abstract final class ComicKindSchema {
     label: 'Last Bag & Board Date',
     getValue: (context) =>
         context.source.ownedItem?.comicDetails?.lastBagBoardDate,
+    scope: LibraryFieldScope.copy,
   );
 }
 

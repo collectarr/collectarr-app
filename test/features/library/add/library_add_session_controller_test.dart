@@ -288,17 +288,17 @@ void main() {
       expect(command.details.toDetails().comic?.signedBy, 'Stan Lee');
     });
 
-    test('VideoAddDraft produces valid AddOwnedItemCommand', () {
+    test('MovieAddDraft produces valid AddOwnedItemCommand', () {
       final item = CatalogItem(id: 'v1', kind: 'movie', title: 'Video 1');
       const common = LibraryAddCommonDraft(condition: 'New');
-      const draft = VideoAddDraft(packaging: 'SteelBook', region: 'Region A');
+      const draft = MovieAddDraft(packaging: 'SteelBook', region: 'Region A');
 
       final cap = libraryKindRuntimeForKind(CatalogMediaKind.movie).add;
       final command = cap.buildCommand(item, common, draft);
 
       expect(command.catalogRef.id, 'v1');
-      expect(command.details.toDetails().video?.packaging, 'SteelBook');
-      expect(command.details.toDetails().video?.region, 'Region A');
+      expect(command.details.toDetails().movie?.packaging, 'SteelBook');
+      expect(command.details.toDetails().movie?.region, 'Region A');
     });
 
     test('GameAddDraft produces valid AddOwnedItemCommand', () {

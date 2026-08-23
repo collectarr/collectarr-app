@@ -2135,9 +2135,10 @@ List<OwnedItem> _ownedItems() {
       readStatus: 'completed',
       finishedAt: DateTime.utc(2018, 6, 5),
       purchaseStore: 'Amazon',
-      details: const VideoOwnedDetails(
-        region: 'US',
+      details: const MovieOwnedDetails(
+        region: 'Region A',
         packaging: 'Keep Case',
+        distributor: 'Universal Pictures',
       ),
       collectionStatus: 'collected',
     ),

@@ -40,6 +40,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.condition,
     label: 'Condition',
     getValue: (context) => context.source.ownedItem?.condition,
+    scope: LibraryFieldScope.copy,
   );
 
   static final location =
@@ -47,6 +48,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.location,
     label: 'Location',
     getValue: (context) => context.source.locationPath,
+    scope: LibraryFieldScope.copy,
   );
 
   static final pricePaid =
@@ -54,12 +56,14 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    scope: LibraryFieldScope.copy,
   );
 
   static final barcode = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
+    scope: LibraryFieldScope.release,
   );
 
   static final status =
@@ -69,6 +73,7 @@ abstract final class MovieKindSchema {
     getValue: (context) => context.source.isWishlisted
         ? 'wishlist'
         : (context.source.isOwned ? 'owned' : null),
+    scope: LibraryFieldScope.copy,
   );
 
   static final cover =
@@ -76,6 +81,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
+    scope: LibraryFieldScope.media,
   );
 
   static final rating =
@@ -83,6 +89,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.source.ownedItem?.rating,
+    scope: LibraryFieldScope.copy,
   );
 
   static final wishlist =
@@ -90,6 +97,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.wishlist,
     label: 'Wishlist',
     getValue: (context) => context.source.isWishlisted,
+    scope: LibraryFieldScope.copy,
   );
 
   static final updatedAt =
@@ -97,6 +105,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.updatedAt,
     label: 'Updated',
     getValue: (context) => context.source.updatedAt,
+    scope: LibraryFieldScope.copy,
   );
 
   static final addedAt =
@@ -104,6 +113,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.addedAt,
     label: 'Added',
     getValue: (context) => context.source.addedAt,
+    scope: LibraryFieldScope.copy,
   );
 
   static final format = textField<MovieKind, MovieWorkspaceDto>(
@@ -117,6 +127,7 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.source.ownedItem?.readStatus,
+    scope: LibraryFieldScope.copy,
   );
 
   static final releaseYear = numberField<MovieKind, MovieWorkspaceDto>(
@@ -156,12 +167,14 @@ abstract final class MovieKindSchema {
     label: 'Edition',
     getValue: (dto) =>
         dto.movie.releases.isNotEmpty ? dto.movie.releases.first.title : null,
+    scope: LibraryFieldScope.release,
   );
 
   static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audioTracks,
     label: 'Audio Tracks',
     getValue: (dto) => dto.movie.technical.audioTracks,
+    scope: LibraryFieldScope.release,
   );
 
   static final editionReleaseDate = dateField<MovieKind, MovieWorkspaceDto>(
@@ -170,6 +183,7 @@ abstract final class MovieKindSchema {
     getValue: (dto) => dto.movie.releases.isNotEmpty
         ? dto.movie.releases.first.releaseDate
         : null,
+    scope: LibraryFieldScope.release,
   );
 }
 
