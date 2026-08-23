@@ -67,7 +67,7 @@ int compareComicEntriesByColumn(
 ) {
   final sortId = column.toString();
   final module = libraryKindRuntimeForType(comicsLibraryConfig);
-  return module.compareEntries(left, right, sortId);
+  return module.compare(left, right, module.fields.decodeSortId(sortId));
 }
 
 const comicsTableColumnPresets = [

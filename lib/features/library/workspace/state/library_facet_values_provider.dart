@@ -41,8 +41,8 @@ final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
   }
 
   Object? getValue(LibraryProjectionRuntime item) {
-    if (groupDef != null) return module.getGroupValue(item, input.facetId);
-    if (columnDef != null) return module.getColumnValue(item, input.facetId);
+    if (groupDef != null) return module.groupValue(item, groupDef.id);
+    if (columnDef != null) return module.columnValue(item, columnDef.id);
     return null;
   }
 

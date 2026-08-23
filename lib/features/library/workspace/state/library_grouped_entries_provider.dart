@@ -64,7 +64,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     // Group items by the bucket key returned by the group definition.
     final bucketMap = <String, List<LibraryProjectionRuntime>>{};
     for (final item in items) {
-      final raw = module.getGroupValue(item, groupId);
+      final raw = module.groupValue(item, groupDef.id);
       final bucketKey = _bucketKeyFor(raw);
       bucketMap.putIfAbsent(bucketKey, () => []).add(item);
     }

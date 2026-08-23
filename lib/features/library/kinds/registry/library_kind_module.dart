@@ -81,22 +81,10 @@ abstract interface class LibraryKindRuntime {
     bool ascending = true,
   });
 
-  void sortEntries(
-    List<LibraryProjectionRuntime> items,
-    String sortId, {
-    required bool ascending,
-  });
-
   int compare(
     LibraryProjectionRuntime left,
     LibraryProjectionRuntime right,
     LibrarySortIdRuntime sortId,
-  );
-
-  int compareEntries(
-    LibraryProjectionRuntime left,
-    LibraryProjectionRuntime right,
-    String sortId,
   );
 
   Object? groupValue(
@@ -104,19 +92,9 @@ abstract interface class LibraryKindRuntime {
     LibraryGroupIdRuntime groupId,
   );
 
-  Object? getGroupValue(
-    LibraryProjectionRuntime item,
-    String groupId,
-  );
-
   Object? columnValue(
     LibraryProjectionRuntime item,
     LibraryFieldIdRuntime columnId,
-  );
-
-  Object? getColumnValue(
-    LibraryProjectionRuntime item,
-    String columnId,
   );
 
   void validateProjection(LibraryProjectionRuntime item);
@@ -281,15 +259,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   }
 
   @override
-  void sortEntries(
-    List<LibraryProjectionRuntime> items,
-    String sortId, {
-    required bool ascending,
-  }) {
-    sort(items, fields.decodeSortId(sortId), ascending: ascending);
-  }
-
-  @override
   int compare(
     LibraryProjectionRuntime left,
     LibraryProjectionRuntime right,
@@ -298,15 +267,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     validateProjection(left);
     validateProjection(right);
     return fields.compareEntries(left, right, sortId.value);
-  }
-
-  @override
-  int compareEntries(
-    LibraryProjectionRuntime left,
-    LibraryProjectionRuntime right,
-    String sortId,
-  ) {
-    return compare(left, right, fields.decodeSortId(sortId));
   }
 
   @override
@@ -319,28 +279,12 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   }
 
   @override
-  Object? getGroupValue(
-    LibraryProjectionRuntime item,
-    String groupId,
-  ) {
-    return groupValue(item, fields.decodeGroupId(groupId));
-  }
-
-  @override
   Object? columnValue(
     LibraryProjectionRuntime item,
     LibraryFieldIdRuntime columnId,
   ) {
     validateProjection(item);
     return fields.getColumnValue(item, columnId.value);
-  }
-
-  @override
-  Object? getColumnValue(
-    LibraryProjectionRuntime item,
-    String columnId,
-  ) {
-    return columnValue(item, fields.decodeColumnId(columnId));
   }
 
   @override
