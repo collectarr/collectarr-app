@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/presentation_builder
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
-import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
+import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
