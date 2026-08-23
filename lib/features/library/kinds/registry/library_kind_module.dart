@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/providers/domain/mappers/provider_previe
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
 export 'package:collectarr_app/features/library/config/library_edit_capability.dart';
@@ -31,6 +32,7 @@ export 'package:collectarr_app/features/library/config/library_hierarchy_capabil
 export 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
 export 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 export 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
+export 'package:collectarr_app/features/library/config/library_facet_types.dart';
 export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
@@ -469,11 +471,13 @@ class LibraryFacetModule {
   const LibraryFacetModule({
     required this.loadRows,
     this.getFacetValues,
+    this.definitions = const [],
   });
 
   final LibraryFacetRowsLoader loadRows;
   final Iterable<String> Function(
       LibraryProjectionRuntime item, String facetId)? getFacetValues;
+  final List<LibraryFacetDefinition<dynamic, dynamic, dynamic>> definitions;
 }
 
 typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
