@@ -8,26 +8,27 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/shared/tv/tv_domain.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'video_edit_models.dart';
+import 'video_kind_edit_draft.dart';
 
 class VideoEditController {
   VideoEditController({
-    required this.ref,
-    required this.type,
+    this.ref,
+    this.type,
     required this.item,
-    required this.draft,
+    this.draft,
   });
 
-  final WidgetRef ref;
-  final LibraryTypeConfig type;
+  final WidgetRef? ref;
+  final LibraryTypeConfig? type;
   final LibraryMetadataItem item;
-  final LibraryEditDraft draft;
+  final LibraryEditDraft? draft;
 
   final List<EditableVideoCredit> castCredits = [];
   final List<EditableVideoCredit> crewCredits = [];
@@ -38,17 +39,18 @@ class VideoEditController {
   List<TvReleaseMedia> tvReleaseMediaDraft = const <TvReleaseMedia>[];
   Map<String, int> tvEpisodeDiscAssignments = <String, int>{};
 
-  VideoEditDraft? get _videoDraft => draft.kindDetails is VideoEditDraft
-      ? draft.kindDetails as VideoEditDraft
-      : null;
+  VideoKindEditDraft? get _videoDraft =>
+      draft?.kindDetails is VideoKindEditDraft
+          ? draft!.kindDetails as VideoKindEditDraft
+          : null;
   static final _dummyController = TextEditingController();
 
   TextEditingController get runtimeController =>
-      draft.metadata.runtimeController;
+      draft?.metadata.runtimeController ?? _dummyController;
   TextEditingController get seasonNumberController =>
-      draft.tracking.seasonNumberController;
+      draft?.tracking.seasonNumberController ?? _dummyController;
   TextEditingController get episodeNumberController =>
-      draft.tracking.episodeNumberController;
+      draft?.tracking.episodeNumberController ?? _dummyController;
   TextEditingController get audioTracksController =>
       _videoDraft?.audioTracksController ?? _dummyController;
   TextEditingController get subtitlesController =>
@@ -62,7 +64,9 @@ class VideoEditController {
 
   bool get isVideoKind => item.mediaKind.isVideoLibraryKind;
 
-  bool get isTvKind => isVideoKind && type.workspace.kind.apiValue == 'tv';
+  bool get isTvKind =>
+      isVideoKind &&
+      (type?.workspace.kind.apiValue ?? item.mediaKind.apiValue) == 'tv';
 
   void initializeVideoEditors() {
     if (!isVideoKind) {
@@ -78,10 +82,10 @@ class VideoEditController {
   }
 
   Future<void> loadUserExternalLinks() async {
-    if (!isVideoKind) {
+    if (!isVideoKind || ref == null) {
       return;
     }
-    final db = ref.read(localDatabaseProvider);
+    final db = ref!.read(localDatabaseProvider);
     final repo = UserExternalLinksCacheRepository(db);
     final links = [
       ...await repo.listByItemId(item.id),
@@ -172,10 +176,10 @@ class VideoEditController {
   }
 
   Future<void> persistUserExternalLinks() async {
-    if (!isVideoKind) {
+    if (!isVideoKind || ref == null) {
       return;
     }
-    final db = ref.read(localDatabaseProvider);
+    final db = ref!.read(localDatabaseProvider);
     final repo = UserExternalLinksCacheRepository(db);
     final links = <UserExternalLink>[];
     for (final link in userLinkEdits) {
@@ -194,7 +198,8 @@ class VideoEditController {
   }
 
   Future<TvSeries?> loadTvSeriesSnapshot() async {
-    final api = ref.read(apiClientProvider);
+    if (ref == null) return null;
+    final api = ref!.read(apiClientProvider);
     final seriesId = item.series?.seriesId ?? item.id;
     try {
       final dto = await api

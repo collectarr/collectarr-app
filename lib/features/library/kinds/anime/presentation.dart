@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
-import 'package:collectarr_app/features/library/shared/movie/presentation_builder.dart';
-import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
+import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_library_media_presentation_builder.dart';
 import 'package:flutter/material.dart';
 
 const animeMetadataLabels = LibraryMetadataLabels(

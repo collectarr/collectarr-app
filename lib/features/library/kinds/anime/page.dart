@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/generic/page.dart';
-import 'package:collectarr_app/features/library/shared/movie/page.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_drilldown_library_page_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AnimeLibraryPage extends GenericLibraryPage {
@@ -10,7 +10,7 @@ class AnimeLibraryPage extends GenericLibraryPage {
     required super.accent,
     required super.routeUri,
     super.switchLayoutSnapshot,
-  }) : super();
+  });
 
   @override
   ConsumerState<GenericLibraryPage> createState() => AnimeLibraryPageState();

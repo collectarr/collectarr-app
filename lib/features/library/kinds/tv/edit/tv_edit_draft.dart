@@ -3,10 +3,15 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/video/edit/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
-class TvEditDraft extends KindEditDraft {
+import 'package:collectarr_app/features/library/kinds/video/edit/video_kind_edit_draft.dart';
+
+class TvEditDraft extends KindEditDraft implements VideoKindEditDraft {
   TvEditDraft({
     required this.featuresController,
     required this.boxSetNameController,
@@ -20,6 +25,7 @@ class TvEditDraft extends KindEditDraft {
     required this.colorController,
     required this.nrDiscsController,
     required this.hdrFormats,
+    required this.videoEdit,
   });
 
   final TextEditingController featuresController;
@@ -33,27 +39,47 @@ class TvEditDraft extends KindEditDraft {
   final TextEditingController layersController;
   final TextEditingController colorController;
   final TextEditingController nrDiscsController;
-  final List<String> hdrFormats;
+
+  List<String> hdrFormats;
+  final VideoEditController videoEdit;
 
   @override
   OwnedDetailsDraft toDetailsDraft() => TvOwnedDetailsDraft(
-        features: featuresController.text.trim().isEmpty
-            ? null
-            : featuresController.text.trim(),
-        boxSetName: boxSetNameController.text.trim().isEmpty
-            ? null
-            : boxSetNameController.text.trim(),
-        region: regionController.text.trim().isEmpty
-            ? null
-            : regionController.text.trim(),
-        packaging: packagingController.text.trim().isEmpty
-            ? null
-            : packagingController.text.trim(),
-        distributor: distributorController.text.trim().isEmpty
-            ? null
-            : distributorController.text.trim(),
-        hdrFormats: List.unmodifiable(hdrFormats),
+        features: emptyToNull(featuresController.text),
+        hdrFormats: hdrFormats,
+        boxSetName: emptyToNull(boxSetNameController.text),
+        region: emptyToNull(regionController.text),
+        packaging: emptyToNull(packagingController.text),
+        distributor: emptyToNull(distributorController.text),
       );
+
+  @override
+  LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
+    if (selection.personal != null) {
+      return selection.copyWith(
+        personal: selection.personal!.copyWith(
+          features: emptyToNull(featuresController.text),
+          hdrFormats: hdrFormats.isEmpty ? null : hdrFormats,
+          boxSetName: emptyToNull(boxSetNameController.text),
+          region: emptyToNull(regionController.text),
+          packaging: emptyToNull(packagingController.text),
+          distributor: emptyToNull(distributorController.text),
+          screenRatio: emptyToNull(screenRatioController.text),
+          audioTracks: emptyToNull(audioTracksController.text),
+          subtitles: emptyToNull(subtitlesController.text),
+          layers: emptyToNull(layersController.text),
+          color: emptyToNull(colorController.text),
+          nrDiscs: int.tryParse(nrDiscsController.text),
+        ),
+      );
+    }
+    return selection;
+  }
+
+  @override
+  void dispose() {
+    videoEdit.dispose();
+  }
 }
 
 KindEditDraft createTvEditDraft({
@@ -62,13 +88,17 @@ KindEditDraft createTvEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final tv = ownedItem?.tvDetails;
+  final video = ownedItem?.tvDetails;
+  final videoEdit = VideoEditController(item: item);
+  videoEdit.initializeVideoEditors();
+
   return TvEditDraft(
-    featuresController: textControllers.create(text: tv?.features ?? ''),
-    boxSetNameController: textControllers.create(text: tv?.boxSetName ?? ''),
-    regionController: textControllers.create(text: tv?.region ?? ''),
-    packagingController: textControllers.create(text: tv?.packaging ?? ''),
-    distributorController: textControllers.create(text: tv?.distributor ?? ''),
+    featuresController: textControllers.create(text: video?.features ?? ''),
+    boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
+    regionController: textControllers.create(text: video?.region ?? ''),
+    packagingController: textControllers.create(text: video?.packaging ?? ''),
+    distributorController:
+        textControllers.create(text: video?.distributor ?? ''),
     screenRatioController:
         textControllers.create(text: item.video?.screenRatio ?? ''),
     audioTracksController:
@@ -79,6 +109,7 @@ KindEditDraft createTvEditDraft({
     colorController: textControllers.create(text: item.video?.color ?? ''),
     nrDiscsController:
         textControllers.create(text: item.video?.nrDiscs?.toString() ?? ''),
-    hdrFormats: List<String>.from(tv?.hdrFormats ?? const <String>[]),
+    hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
+    videoEdit: videoEdit,
   );
 }
