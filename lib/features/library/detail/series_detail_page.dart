@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/series_relation.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
+import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';

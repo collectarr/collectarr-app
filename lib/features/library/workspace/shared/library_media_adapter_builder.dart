@@ -7,9 +7,9 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
-import 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
+import 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
 
-export 'package:collectarr_app/features/library/shared/table/media_table_columns.dart';
+export 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
 
 const double kPlannedMediaMinCoverSize = 96;
 const double kPlannedMediaDefaultCoverSize = 128;

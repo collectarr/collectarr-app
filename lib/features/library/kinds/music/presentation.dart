@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
-import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
+import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:flutter/material.dart';
 
 const musicMetadataLabels = LibraryMetadataLabels(

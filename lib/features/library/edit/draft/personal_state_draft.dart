@@ -73,4 +73,12 @@ class PersonalStateDraft {
   bool locationChanged;
   DateTime? soldAt;
   String? collectionStatus;
+
+  String? get selectedLocationName {
+    if (selectedLocationId == null) return null;
+    return availableLocations
+        .where((loc) => loc.id == selectedLocationId)
+        .firstOrNull
+        ?.name;
+  }
 }

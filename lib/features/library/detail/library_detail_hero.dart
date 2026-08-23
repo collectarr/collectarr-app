@@ -4,7 +4,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
-import 'package:collectarr_app/features/library/shared/library_info_chip.dart';
+import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/material.dart';
 

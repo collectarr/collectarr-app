@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_section_registry.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
 class DefaultLibraryEditPresentationBuilder
@@ -50,6 +52,7 @@ class DefaultLibraryEditPresentationBuilder
       LibraryEditTabSpec(id: 'cover', icon: Icons.image, label: 'Cover'),
       LibraryEditTabSpec(id: 'synopsis', icon: Icons.notes, label: 'Synopsis'),
     ],
+    this.customTabBuilder,
   });
 
   final bool showOwnershipReferenceSection;
@@ -75,6 +78,36 @@ class DefaultLibraryEditPresentationBuilder
   final List<LibraryEditTabSpec> ownedTabs;
   final List<LibraryEditTabSpec> trackedTabs;
   final List<LibraryEditTabSpec> catalogTabs;
+  final Widget? Function({
+    required String tabId,
+    required BuildContext context,
+    required LibraryEditDraft draft,
+    required Color accent,
+    required LibraryEditScope scope,
+    required LibraryMetadataItem item,
+    required VoidCallback markDirty,
+  })? customTabBuilder;
+
+  @override
+  Widget? buildCustomTabView({
+    required String tabId,
+    required BuildContext context,
+    required LibraryEditDraft draft,
+    required Color accent,
+    required LibraryEditScope scope,
+    required LibraryMetadataItem item,
+    required VoidCallback markDirty,
+  }) {
+    return customTabBuilder?.call(
+      tabId: tabId,
+      context: context,
+      draft: draft,
+      accent: accent,
+      scope: scope,
+      item: item,
+      markDirty: markDirty,
+    );
+  }
 
   @override
   List<LibraryEditTabSpec> buildTabs({

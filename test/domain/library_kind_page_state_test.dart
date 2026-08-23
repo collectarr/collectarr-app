@@ -27,6 +27,8 @@ import 'package:collectarr_app/features/library/generic/page.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/video/video_drilldown_library_page_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -212,9 +214,9 @@ void main() {
     final dialog = buildBookLibraryEditDialog(
       context,
       request,
-    ) as BookLibraryEditDialog;
+    ) as LibraryEditRenderer;
 
-    expect(dialog.request.scope, LibraryEditScope.media);
+    expect(dialog.scope, LibraryEditScope.media);
   });
 
   test(

@@ -6,28 +6,22 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
-class MangaEditDraft extends KindEditDraft {
-  MangaEditDraft({
+class BookEditDraft extends KindEditDraft {
+  BookEditDraft({
     this.signedBy,
-    this.obiStripPresent = false,
-    this.slipcoverPresent = false,
     this.dustJacketPresent = false,
-    this.insertsPresent = false,
+    this.dustJacketCondition,
   });
 
   String? signedBy;
-  bool obiStripPresent;
-  bool slipcoverPresent;
   bool dustJacketPresent;
-  bool insertsPresent;
+  String? dustJacketCondition;
 
   @override
-  OwnedDetailsDraft toDetailsDraft() => MangaOwnedDetailsDraft(
+  OwnedDetailsDraft toDetailsDraft() => BookOwnedDetailsDraft(
         signedBy: signedBy,
-        obiStripPresent: obiStripPresent,
-        slipcoverPresent: slipcoverPresent,
         dustJacketPresent: dustJacketPresent,
-        insertsPresent: insertsPresent,
+        dustJacketCondition: dustJacketCondition,
       );
 
   @override
@@ -43,18 +37,16 @@ class MangaEditDraft extends KindEditDraft {
   }
 }
 
-KindEditDraft createMangaEditDraft({
+KindEditDraft createBookEditDraft({
   required LibraryMetadataItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final manga = ownedItem?.mangaDetails;
-  return MangaEditDraft(
-    signedBy: manga?.signedBy,
-    obiStripPresent: manga?.obiStripPresent ?? false,
-    slipcoverPresent: manga?.slipcoverPresent ?? false,
-    dustJacketPresent: manga?.dustJacketPresent ?? false,
-    insertsPresent: manga?.insertsPresent ?? false,
+  final book = ownedItem?.bookDetails;
+  return BookEditDraft(
+    signedBy: book?.signedBy,
+    dustJacketPresent: book?.dustJacketPresent ?? false,
+    dustJacketCondition: book?.dustJacketCondition,
   );
 }

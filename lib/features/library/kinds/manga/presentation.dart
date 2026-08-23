@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
-import 'package:collectarr_app/features/library/shared/comic/presentation_builder.dart';
-import 'package:collectarr_app/features/library/shared/workspace_presentation_support.dart';
+import 'package:collectarr_app/features/library/config/presentation/print_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 
 const mangaMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Manga identity',
@@ -13,7 +13,7 @@ const mangaMetadataLabels = LibraryMetadataLabels(
 );
 
 class MangaLibraryMediaPresentationBuilder
-    extends ComicLibraryMediaPresentationBuilder {
+    extends PrintLibraryMediaPresentationBuilder {
   const MangaLibraryMediaPresentationBuilder()
       : super(
           showSummary: true,
@@ -80,8 +80,8 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   statsLabels: mangaStatsLabels,
   usesTreeProviderCandidates: true,
   externalFacetBucketIdsByMode: const {
-    'comic.story_arc': LibraryFacetId.comicStoryArc,
-    'comic.character': LibraryFacetId.comicCharacter,
+    'manga.genre': 'manga.genre',
+    'manga.demographic': 'manga.demographic',
   },
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,
