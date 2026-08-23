@@ -18,6 +18,8 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
+import 'package:collectarr_app/features/providers/domain/mappers/provider_preview_mapper.dart';
+import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
@@ -401,6 +403,9 @@ abstract class LibraryKindProviderMapper {
 
   LibraryMetadataItem metadataItemFromPreview(AdminProviderPreview preview);
 
+  LibraryMetadataItem metadataItemFromEnvelope(
+      NormalizedProviderEnvelopeV1 envelope);
+
   Map<String, Object?> buildCorrections({
     required LibraryMetadataItem preview,
     required LibraryMetadataItem edited,
@@ -409,6 +414,12 @@ abstract class LibraryKindProviderMapper {
 
 class DefaultLibraryKindProviderMapper extends LibraryKindProviderMapper {
   const DefaultLibraryKindProviderMapper();
+
+  @override
+  LibraryMetadataItem metadataItemFromEnvelope(
+      NormalizedProviderEnvelopeV1 envelope) {
+    return metadataItemFromPreview(providerPreviewFromEnvelope(envelope));
+  }
 
   @override
   LibraryMetadataItem metadataItemFromPreview(AdminProviderPreview preview) {

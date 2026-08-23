@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
@@ -135,6 +136,37 @@ void main() {
           'attribution',
         ]),
       );
+    });
+
+    test(
+        'metadataItemFromEnvelope maps NormalizedProviderEnvelopeV1 into LibraryMetadataItem correctly',
+        () {
+      final comicEnvelope = NormalizedProviderEnvelopeV1(
+        provider: 'gcd',
+        providerItemId: '123',
+        kind: 'comic',
+        normalized: {
+          'title': 'Spider-Man',
+          'item_number': '300',
+          'publisher': 'Marvel Comics',
+        },
+        provenance: const ProviderProvenance(fetchedAt: '2026-08-20T00:00:00Z'),
+        images: const [
+          ProviderImageRef(
+              provider: 'gcd',
+              url: 'https://example.com/cover.jpg',
+              kind: 'cover')
+        ],
+        attribution: const ProviderAttribution(required: false),
+      );
+
+      final mapper = const ComicLibraryKindProviderMapper();
+      final item = mapper.metadataItemFromEnvelope(comicEnvelope);
+
+      expect(item.title, 'Spider-Man');
+      expect(item.itemNumber, '300');
+      expect(item.publisher, 'Marvel Comics');
+      expect(item.coverImageUrl, 'https://example.com/cover.jpg');
     });
   });
 }
