@@ -21,6 +21,19 @@ abstract final class TvFieldIds {
   static const updatedAt = LibraryFieldId<TvKind, DateTime>('tv.updated_at');
   static const addedAt = LibraryFieldId<TvKind, DateTime?>('tv.added_at');
   static const watchStatus = LibraryFieldId<TvKind, String?>('tv.watch_status');
+
+  // Rich TV Metadata Fields
+  static const firstAirDate =
+      LibraryFieldId<TvKind, DateTime?>('tv.first_air_date');
+  static const lastAirDate =
+      LibraryFieldId<TvKind, DateTime?>('tv.last_air_date');
+  static const tvStatus = LibraryFieldId<TvKind, String?>('tv.tv_status');
+  static const streamingService =
+      LibraryFieldId<TvKind, String?>('tv.streaming_service');
+  static const contentRating =
+      LibraryFieldId<TvKind, String?>('tv.content_rating');
+  static const episodeRuntimeMinutes =
+      LibraryFieldId<TvKind, int?>('tv.episode_runtime_minutes');
 }
 
 abstract final class TvSortIds {
@@ -33,6 +46,8 @@ abstract final class TvSortIds {
   static const rating = LibrarySortId<TvKind>('tv.rating');
   static const pricePaid = LibrarySortId<TvKind>('tv.price_paid');
   static const updatedAt = LibrarySortId<TvKind>('tv.updated_at');
+  static const seasonCount = LibrarySortId<TvKind>('tv.season_count');
+  static const episodeCount = LibrarySortId<TvKind>('tv.episode_count');
 }
 
 abstract final class TvGroupIds {
@@ -44,10 +59,12 @@ abstract final class TvGroupIds {
   static const condition = LibraryGroupId<TvKind, String?>('tv.condition');
   static const rating = LibraryGroupId<TvKind, int?>('tv.rating');
   static const watchStatus = LibraryGroupId<TvKind, String?>('tv.watch_status');
+  static const status = LibraryGroupId<TvKind, String?>('tv.status');
 }
 
 abstract final class TvFacetIds {
   static const network = LibraryFacetId<TvKind, String>('tv.network');
   static const genre = LibraryFacetId<TvKind, String>('tv.genre');
   static const creator = LibraryFacetId<TvKind, String>('tv.creator');
+  static const streamer = LibraryFacetId<TvKind, String>('tv.streamer');
 }

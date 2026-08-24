@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
@@ -125,6 +126,55 @@ abstract final class TvKindSchema {
     getValue: (context) => context.source.ownedItem?.readStatus,
     scope: LibraryFieldScope.copy,
   );
+
+  // Rich TV Metadata Fields
+  static final firstAirDate = dateField<TvKind, TvWorkspaceDto>(
+    id: TvFieldIds.firstAirDate,
+    label: 'First Air Date',
+    getValue: (dto) => dto.metadata?.firstAirDate,
+  );
+
+  static final lastAirDate = dateField<TvKind, TvWorkspaceDto>(
+    id: TvFieldIds.lastAirDate,
+    label: 'Last Air Date',
+    getValue: (dto) => dto.metadata?.lastAirDate,
+  );
+
+  static final tvStatus = textField<TvKind, TvWorkspaceDto>(
+    id: TvFieldIds.tvStatus,
+    label: 'Series Status',
+    getValue: (dto) => dto.metadata?.status,
+  );
+
+  static final streamingService = textField<TvKind, TvWorkspaceDto>(
+    id: TvFieldIds.streamingService,
+    label: 'Streamer',
+    getValue: (dto) => dto.metadata?.streamingService,
+  );
+
+  static final contentRating = textField<TvKind, TvWorkspaceDto>(
+    id: TvFieldIds.contentRating,
+    label: 'Content Rating',
+    getValue: (dto) => dto.metadata?.contentRating,
+  );
+
+  static final seasonCount = numberField<TvKind, TvWorkspaceDto>(
+    id: TvFieldIds.seasonCount,
+    label: 'Seasons',
+    getValue: (dto) => dto.metadata?.seasonCount,
+  );
+
+  static final episodeCount = numberField<TvKind, TvWorkspaceDto>(
+    id: TvFieldIds.episodeCount,
+    label: 'Episodes',
+    getValue: (dto) => dto.metadata?.episodeCount,
+  );
+
+  static final episodeRuntimeMinutes = numberField<TvKind, TvWorkspaceDto>(
+    id: TvFieldIds.episodeRuntimeMinutes,
+    label: 'Episode Runtime (m)',
+    getValue: (dto) => dto.metadata?.episodeRuntimeMinutes,
+  );
 }
 
 final tvLibraryFieldDefinitions = [
@@ -136,6 +186,14 @@ final tvLibraryFieldDefinitions = [
   TvKindSchema.location,
   TvKindSchema.pricePaid,
   TvKindSchema.barcode,
+  TvKindSchema.firstAirDate,
+  TvKindSchema.lastAirDate,
+  TvKindSchema.tvStatus,
+  TvKindSchema.streamingService,
+  TvKindSchema.contentRating,
+  TvKindSchema.seasonCount,
+  TvKindSchema.episodeCount,
+  TvKindSchema.episodeRuntimeMinutes,
 ];
 
 final tvLibraryGroupDefinitions = [
@@ -149,6 +207,16 @@ final tvLibraryGroupDefinitions = [
     TvKindSchema.series,
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
+  ),
+  groupFromField<TvKind, TvWorkspaceDto, String?>(
+    TvKindSchema.streamingService,
+    sidebarTitle: 'Streaming Services',
+    icon: Icons.tv_outlined,
+  ),
+  groupFromField<TvKind, TvWorkspaceDto, String?>(
+    TvKindSchema.tvStatus,
+    sidebarTitle: 'Status',
+    icon: Icons.flag_outlined,
   ),
   groupFromField<TvKind, TvWorkspaceDto, String?>(
     TvKindSchema.location,
@@ -176,6 +244,10 @@ final tvLibrarySortDefinitions = [
   ),
   sortFromField<TvKind, TvWorkspaceDto, String>(TvKindSchema.title),
   sortFromField<TvKind, TvWorkspaceDto, DateTime>(TvKindSchema.releaseDate,
+      defaultAscending: false),
+  sortFromField<TvKind, TvWorkspaceDto, num>(TvKindSchema.seasonCount,
+      defaultAscending: false),
+  sortFromField<TvKind, TvWorkspaceDto, num>(TvKindSchema.episodeCount,
       defaultAscending: false),
 ];
 
@@ -293,6 +365,33 @@ final tvLibraryColumnDefinitions = [
     cellValue: (context) =>
         Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
+  ),
+  columnFromField<TvKind, TvWorkspaceDto, String?>(
+    TvKindSchema.tvStatus,
+    group: 'Metadata',
+    defaultWidth: 110,
+  ),
+  columnFromField<TvKind, TvWorkspaceDto, String?>(
+    TvKindSchema.streamingService,
+    group: 'Metadata',
+    defaultWidth: 120,
+  ),
+  columnFromField<TvKind, TvWorkspaceDto, num?>(
+    TvKindSchema.seasonCount,
+    group: 'Metadata',
+    isNumeric: true,
+    defaultWidth: 90,
+  ),
+  columnFromField<TvKind, TvWorkspaceDto, num?>(
+    TvKindSchema.episodeCount,
+    group: 'Metadata',
+    isNumeric: true,
+    defaultWidth: 90,
+  ),
+  columnFromField<TvKind, TvWorkspaceDto, String?>(
+    TvKindSchema.contentRating,
+    group: 'Metadata',
+    defaultWidth: 100,
   ),
 ];
 
