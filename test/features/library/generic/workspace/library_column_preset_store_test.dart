@@ -30,7 +30,7 @@ void main() {
     );
 
     expect(updated.length, 1);
-    expect(updated.single.columns, contains('comic.condition'));
+    expect(updated.single.columns, contains('comic.grade'));
     expect(updated.single.columns, isNot(contains('comic.price_paid')));
 
     final deleted = await store.deletePreset(updated.single.id!);
