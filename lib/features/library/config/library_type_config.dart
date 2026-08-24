@@ -53,7 +53,9 @@ class LibraryKindUiAdapter {
     LibraryTypeConfig type, {
     required LibraryEditPresentationContext context,
   }) {
-    return type.editPresentation
+    return libraryKindRuntimeForType(type)
+        .edit
+        .presentation
         .builderForScope(context.scope)
         .buildTabs(context: context);
   }
@@ -317,15 +319,23 @@ class LibraryTypeConfig {
   final LibraryTypeCapabilities capabilities;
   final LibraryKindWorkspaceBehavior workspaceBehavior;
   final LibraryMediaPresentation presentation;
+  @Deprecated('Use LibraryKindRuntime.edit.presentation instead')
   final LibraryEditPresentation editPresentation;
   final LibraryAddChromeConfig addChrome;
   final LibraryEditChromeConfig editChrome;
+  @Deprecated('Use LibraryKindRuntime.edit.mediaFields instead')
   final MediaEditFields mediaFields;
+  @Deprecated('Use LibraryKindRuntime.edit.releaseFields instead')
   final ReleaseEditFields releaseFields;
+  @Deprecated('Use LibraryKindRuntime.hierarchy.collectionExportTitleLabel instead')
   final String collectionExportTitleLabel;
+  @Deprecated('Use LibraryKindRuntime.hierarchy.mediaReleaseScopeLabel instead')
   final String mediaReleaseScopeLabel;
+  @Deprecated('Use LibraryKindRuntime.edit.manualAddUsesTitleAsSeries instead')
   final bool manualAddUsesTitleAsSeries;
+  @Deprecated('Use LibraryKindRuntime.edit.editUsesTitleAsSeries instead')
   final bool editUsesTitleAsSeries;
+  @Deprecated('Use LibraryKindRuntime.transfer.transferableFieldKeys instead')
   final List<String> transferableFieldKeys;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
