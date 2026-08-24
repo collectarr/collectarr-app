@@ -154,17 +154,11 @@ class InspectorPersonalSection extends StatelessWidget {
                     valueSnapshot.manualEstimatedValueCents,
                     valueSnapshot.currency,
                   )),
-            if ((ownedItem?.details is ComicOwnedDetails
-                    ? (ownedItem!.details as ComicOwnedDetails).coverPriceCents
-                    : ownedItem?.comicDetails?.coverPriceCents) !=
-                null)
+            if (ownedItem?.coverPriceCents != null)
               LibraryDetailField(
                 label: 'Cover price',
                 value: formatMoney(
-                  ownedItem?.details is ComicOwnedDetails
-                      ? (ownedItem!.details as ComicOwnedDetails)
-                          .coverPriceCents
-                      : ownedItem!.comicDetails!.coverPriceCents,
+                  ownedItem!.coverPriceCents,
                   ownedItem?.currency ?? dto.currency,
                 ),
               ),

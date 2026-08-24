@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/video/video_tracking_rules.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_tracking_rules.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:flutter_test/flutter_test.dart';
 

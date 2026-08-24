@@ -104,6 +104,11 @@ class OwnedItem {
           ? details as VideoLikeOwnedDetails
           : null;
 
+  String? get signedBy =>
+      comicDetails?.signedBy ?? bookDetails?.signedBy ?? musicDetails?.signedBy;
+
+  int? get coverPriceCents => comicDetails?.coverPriceCents;
+
   String get itemId => catalogRef.id;
 
   OwnedItemId get typedId => OwnedItemId(id);

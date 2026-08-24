@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.da
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/video/catalog/video_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:flutter_test/flutter_test.dart';

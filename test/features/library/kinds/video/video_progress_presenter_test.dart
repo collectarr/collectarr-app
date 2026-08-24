@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_progress_presenter.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_progress_presenter.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 CatalogEntityRef _ref() {

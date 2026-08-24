@@ -32,9 +32,7 @@ class LibraryToolbarStatsCalculator {
       }
       if (ownedItem != null) {
         totalPricePaid += ownedItem.pricePaidCents ?? 0;
-        if (ownedItem.comicDetails case final comic?) {
-          totalCoverPrice += comic.coverPriceCents ?? 0;
-        }
+        totalCoverPrice += ownedItem.coverPriceCents ?? 0;
         totalSellPrice += ownedItem.sellPriceCents ?? 0;
         currency ??= ownedItem.currency;
       }

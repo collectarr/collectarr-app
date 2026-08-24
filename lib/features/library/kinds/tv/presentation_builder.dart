@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';

@@ -262,12 +262,11 @@ String defaultLibraryBucketLabel(
       ),
     'read_year' =>
       _yearBucket(source.tracking.completedAt, 'Unknown read year'),
-    'is_signed' =>
-      source.ownedItem?.comicDetails?.signedBy?.trim().isNotEmpty == true
-          ? 'Signed'
-          : 'Not signed',
+    'is_signed' => source.ownedItem?.signedBy?.trim().isNotEmpty == true
+        ? 'Signed'
+        : 'Not signed',
     'signed_by' => _stringBucket(
-        source.ownedItem?.comicDetails?.signedBy,
+        source.ownedItem?.signedBy,
         'Not signed',
       ),
     'purchase_date' => _dateBucket(

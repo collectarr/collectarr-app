@@ -302,7 +302,10 @@ String? _kindNameForPath(String relativePath) {
   }
   final rest = relativePath.substring(prefix.length);
   final parts = rest.split('/');
-  if (parts.isEmpty || parts.first.isEmpty || parts.first == 'registry') {
+  if (parts.isEmpty ||
+      parts.first.isEmpty ||
+      parts.first == 'registry' ||
+      parts.first == '_shared') {
     return null;
   }
   return parts.first;

@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/video/video_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_library_media_presentation_builder.dart';
 import 'package:flutter/material.dart';
 
 const animeMetadataLabels = LibraryMetadataLabels(

@@ -46,10 +46,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       ownedItem?.marketValueCents,
       ownedItem?.currency,
     );
-    final coverPriceCents = ownedItem?.comicDetails?.coverPriceCents ??
-        (ownedItem?.details is ComicOwnedDetails
-            ? (ownedItem!.details as ComicOwnedDetails).coverPriceCents
-            : null);
+    final coverPriceCents = ownedItem?.coverPriceCents;
     final currency = ownedItem?.currency ?? dto.currency;
     final coverPrice = formatMoney(coverPriceCents, currency);
     final sellPrice = formatMoney(ownedItem?.sellPriceCents, currency);
