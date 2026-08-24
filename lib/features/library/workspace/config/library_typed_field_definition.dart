@@ -67,6 +67,7 @@ enum LibraryFieldScope {
   release,
   copy,
   derived,
+  provenance,
 }
 
 typedef LibraryFieldValueGetter<TDto extends LibraryWorkspaceDto, TValue>

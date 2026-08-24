@@ -131,28 +131,60 @@ void main() {
     });
 
     test(
-        'all personal fields have copy scope and release fields have release scope',
+        'all fields are explicitly and strictly classified into correct scopes (Plan D)',
         () {
       for (final kind in activeKinds) {
         final runtime = libraryKindRuntimeForKind(kind);
         for (final field in runtime.fields.fields) {
           final id = field.id.value.toLowerCase();
+
+          // 1. Copy / Personal fields
           if (id.contains('condition') ||
               id.contains('location') ||
+              id.contains('price_paid') ||
               id.contains('pricepaid') ||
               id.endsWith('.rating') ||
               id.contains('wishlist') ||
               id.endsWith('.grade') ||
               id.contains('.grading_') ||
-              id.contains('updatedat') ||
-              id.contains('addedat')) {
+              id.contains('signed_by') ||
+              id.contains('last_bag_board_date') ||
+              id.contains('last_cleaned') ||
+              id.contains('watch_status') ||
+              id.contains('read_status') ||
+              id.contains('updated_at') ||
+              id.contains('added_at') ||
+              id.contains('completeness')) {
             expect(field.scope, equals(LibraryFieldScope.copy),
                 reason: '$kind field ${field.id.value} must have copy scope');
           }
-          if (id.contains('barcode') || id.contains('isbn')) {
+
+          // 2. Release / Edition fields
+          if (id.contains('barcode') ||
+              id.contains('isbn') ||
+              id.endsWith('.region') ||
+              id.contains('.hdr') ||
+              id.contains('catalog_number') ||
+              id.endsWith('.edition') ||
+              id.endsWith('.variant')) {
             expect(field.scope, equals(LibraryFieldScope.release),
                 reason:
                     '$kind field ${field.id.value} must have release scope');
+          }
+
+          // 3. Media / Work fields
+          if (id.contains('runtime') ||
+              id.contains('genre') ||
+              id.contains('mechanic') ||
+              id.endsWith('.title') ||
+              id.endsWith('.publisher') ||
+              id.endsWith('.author') ||
+              id.endsWith('.artist') ||
+              id.endsWith('.writer') ||
+              id.endsWith('.director') ||
+              id.endsWith('.developer')) {
+            expect(field.scope, equals(LibraryFieldScope.media),
+                reason: '$kind field ${field.id.value} must have media scope');
           }
         }
       }
