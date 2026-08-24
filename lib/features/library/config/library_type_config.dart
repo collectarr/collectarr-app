@@ -128,16 +128,19 @@ class LibraryKindUiAdapter {
     required String activeGroupMode,
     required String? selectedBucket,
   }) {
-    if (projection == null ||
-        activeGroupMode != 'series' ||
-        selectedBucket == null) {
+    if (projection == null || selectedBucket == null) {
+      return false;
+    }
+    final runtime = libraryKindRuntimeForType(type);
+    final groupDef = runtime.fields.findGroupDefinition(activeGroupMode);
+    if (groupDef == null || !groupDef.supportsJump) {
       return false;
     }
     final issueSortNumber =
         type.workspaceBehavior.issueSortNumber ?? _issueSortNumber;
     return projection.allItems.any(
       (item) =>
-          genericBucketForItemMode(item, type, 'series') == selectedBucket &&
+          runtime.groupValue(item, groupDef.id) == selectedBucket &&
           issueSortNumber(item.dto.itemNumber) != null,
     );
   }
@@ -414,8 +417,7 @@ class LibraryTypeConfig {
     }
     return [
       for (final mode in availableGroupModes)
-        if (scoped.contains(mode) || scoped.contains(mode.split('.').last))
-          mode,
+        if (scoped.contains(mode)) mode,
     ];
   }
 
@@ -437,8 +439,7 @@ class LibraryTypeConfig {
     }
     return [
       for (final column in allSorts)
-        if (scoped.contains(column) || scoped.contains(column.split('.').last))
-          column,
+        if (scoped.contains(column)) column,
     ];
   }
 

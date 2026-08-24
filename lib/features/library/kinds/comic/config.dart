@@ -22,12 +22,22 @@ const comicsWorkspaceConfig = LibraryWorkspaceConfig(
   preferencePrefix: 'comics',
 );
 
+const comicTransferableFieldKeys = <String>[
+  ...kDefaultTransferableFieldKeys,
+  'rawOrSlabbed',
+  'gradingCompany',
+  'graderNotes',
+  'signedBy',
+  'keyReason',
+  'keyComic',
+];
+
 final comicsLibraryConfig = LibraryTypeConfig(
   workspace: comicsWorkspaceConfig,
   singularLabel: 'Comic',
   pluralLabel: 'Comics',
   defaultMetadataProvider: 'gcd',
-  metadataProviders: [
+  metadataProviders: const [
     gcdMetadataProvider,
     comicVineMetadataProvider,
     mangadexMetadataProvider,
@@ -42,6 +52,7 @@ final comicsLibraryConfig = LibraryTypeConfig(
   showsDefaultInspectorPersonalSection: false,
   presentation: comicLibraryMediaPresentation,
   editPresentation: comicsLibraryEditPresentation,
+  addChrome: const LibraryAddChromeConfig(),
   editChrome: LibraryEditChromeConfig(
     titleUsesItemTitle: true,
     synopsisLabel: 'Plot',
@@ -57,10 +68,7 @@ final comicsLibraryConfig = LibraryTypeConfig(
   mediaReleaseScopeLabel: 'Series',
   manualAddUsesTitleAsSeries: true,
   editUsesTitleAsSeries: true,
-  transferableFieldKeys: [
-    ...kDefaultTransferableFieldKeys,
-    ...kComicTransferableFieldKeys,
-  ],
+  transferableFieldKeys: comicTransferableFieldKeys,
   releaseFields: ReleaseEditFields(
     variantLabel: 'Edition / Variant / Format',
     barcodeLabel: 'Barcode / UPC / ISBN',

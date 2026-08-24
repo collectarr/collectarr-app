@@ -521,7 +521,7 @@ void main() {
         kDefaultTransferableFieldKeys);
     expect(
       comicsLibraryConfig.transferableFieldKeys,
-      containsAll(kComicTransferableFieldKeys),
+      containsAll(comicTransferableFieldKeys),
     );
     expect(
         booksLibraryConfig.transferableFieldKeys, isNot(contains('keyComic')));

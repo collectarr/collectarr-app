@@ -65,10 +65,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     showsDefaultPersonalSection: false,
   ),
   transfer: const LibraryTransferCapability(
-    transferableFieldKeys: [
-      ...kDefaultTransferableFieldKeys,
-      ...kComicTransferableFieldKeys,
-    ],
+    transferableFieldKeys: comicTransferableFieldKeys,
   ),
   add: const StandardLibraryAddCapability<ComicAddDraft>(
     kind: CatalogMediaKind.comic,

@@ -273,6 +273,7 @@ final comicLibraryGroupDefinitions = [
     sidebarTitle: 'Series',
     category: 'Main',
     icon: Icons.collections_bookmark_outlined,
+    supportsJump: true,
   ),
   groupFromField<ComicKind, ComicWorkspaceDto, String?>(
     ComicKindSchema.publisher,

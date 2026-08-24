@@ -36,15 +36,6 @@ const kDefaultTransferableFieldKeys = <String>[
   ...kTransferablePersonalFieldKeys,
 ];
 
-const kComicTransferableFieldKeys = [
-  'rawOrSlabbed',
-  'gradingCompany',
-  'graderNotes',
-  'signedBy',
-  'keyReason',
-  'keyComic',
-];
-
 /// Encapsulates transferable field logic when moving copies between editions or media items.
 class LibraryTransferCapability {
   const LibraryTransferCapability({
