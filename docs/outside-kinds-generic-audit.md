@@ -128,14 +128,18 @@ The subtype-replacement fallback has been removed: unsupported video writes now 
 the existing owned-details value unchanged. The remaining concrete read/write switch
 still belongs behind typed transfer definitions and remains a PR7/PR8 migration item.
 
+Regression coverage now verifies kind-owned child-title callbacks and the generic
+`Contents` fallback in
+`test/features/library/hierarchy/library_hierarchy_capability_test.dart`.
+
 Move read/write functions into typed transfer definitions owned by the kind runtime
 or owned-details codec. Unsupported fields must fail explicitly or be unavailable;
 they must never silently change the owned-details subtype.
 
 ### P1: Finish hierarchy ownership
 
-`hierarchy/ui/hierarchy_children_section.dart` still maps TV/anime to seasons,
-print kinds to volumes, and music to discs. `providers/seasons_provider.dart`,
+`hierarchy/ui/hierarchy_children_section.dart` now delegates child labels to the
+kind capability. `providers/seasons_provider.dart`,
 `providers/volumes_provider.dart`, and the legacy section widgets must be removed or
 made transport-only.
 
