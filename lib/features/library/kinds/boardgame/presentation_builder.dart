@@ -63,6 +63,40 @@ class BoardGameLibraryMediaPresentationBuilder
               formatPresentationNullableDate(dto.releaseDate) ??
                   dto.releaseDate?.year.toString(),
             )),
+        if (boardGameStats?.minPlayers != null ||
+            boardGameStats?.maxPlayers != null)
+          LibraryDetailField(
+            label: 'Players',
+            value: (boardGameStats?.minPlayers != null &&
+                    boardGameStats?.maxPlayers != null &&
+                    boardGameStats!.minPlayers != boardGameStats.maxPlayers)
+                ? '${boardGameStats.minPlayers}–${boardGameStats.maxPlayers}'
+                : '${boardGameStats?.maxPlayers ?? boardGameStats?.minPlayers}',
+          ),
+        if (boardGameStats?.playingTimeMinutes != null ||
+            boardGameStats?.minPlayingTimeMinutes != null ||
+            boardGameStats?.maxPlayingTimeMinutes != null)
+          LibraryDetailField(
+            label: 'Playtime',
+            value: (boardGameStats?.minPlayingTimeMinutes != null &&
+                    boardGameStats?.maxPlayingTimeMinutes != null &&
+                    boardGameStats!.minPlayingTimeMinutes !=
+                        boardGameStats.maxPlayingTimeMinutes)
+                ? '${boardGameStats.minPlayingTimeMinutes}–${boardGameStats.maxPlayingTimeMinutes} min'
+                : '${boardGameStats?.playingTimeMinutes ?? boardGameStats?.maxPlayingTimeMinutes ?? boardGameStats?.minPlayingTimeMinutes} min',
+          ),
+        if (boardGameStats?.minAgeYears != null)
+          LibraryDetailField(
+            label: 'Min Age',
+            value: '${boardGameStats!.minAgeYears}+',
+          ),
+        if (boardGameStats?.complexityRating != null ||
+            boardGameStats?.bggWeight != null)
+          LibraryDetailField(
+            label: 'Complexity',
+            value:
+                '${(boardGameStats?.complexityRating ?? boardGameStats?.bggWeight)!.toStringAsFixed(2)} / 5.0',
+          ),
         if (boardGameStats?.bggRank != null)
           LibraryDetailField(
               label: 'BGG Rank', value: '#${boardGameStats!.bggRank}'),
