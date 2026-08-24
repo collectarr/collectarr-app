@@ -13,6 +13,8 @@ export 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.da
 export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
+export 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
+export 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 
 typedef BookWork = BookCatalogItem;
 typedef BookEdition = BookRelease;

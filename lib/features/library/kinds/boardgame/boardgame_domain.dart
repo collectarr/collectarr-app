@@ -11,6 +11,8 @@ export 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_e
 export 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_release.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 
 typedef BoardGameWork = BoardGameCatalogItem;
 typedef BoardGameEdition = BoardGameRelease;

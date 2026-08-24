@@ -7,3 +7,5 @@ export 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.
 export 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
+export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
+export 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';

@@ -12,6 +12,8 @@ export 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.
 export 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 export 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
+export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
+export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 
 typedef ComicWork = ComicCatalogItem;
 typedef ComicIssue = ComicCatalogItem;

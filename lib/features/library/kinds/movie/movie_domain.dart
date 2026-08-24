@@ -6,3 +6,5 @@ export 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.
 export 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft.dart';
 export 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
+export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
+export 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';

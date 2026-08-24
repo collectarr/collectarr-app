@@ -21,6 +21,8 @@ export 'package:collectarr_app/features/library/kinds/_shared/video/catalog/vide
 export 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_release.dart';
 export 'package:collectarr_app/features/library/kinds/_shared/video/domain/video_episode.dart';
+export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
+export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 
 // ---------------------------------------------------------------------------
 // Transitional typedefs
