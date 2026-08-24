@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
+import 'package:collectarr_app/features/library/kinds/game/contracts/game_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
@@ -236,6 +237,78 @@ void main() {
       expect(meta.franchise, 'Super Mario');
       expect(meta.ageRating, 'ESRB: E');
       expect(meta.valuations?.cib?.amountCents, 9000);
+    });
+
+    test('GameCatalog and GameEntry round-trip and preserve all kind fields',
+        () {
+      final catalog = GameCatalog.fromJson({
+        'id': 'game_zelda_oot',
+        'kind': 'game',
+        'title': 'The Legend of Zelda: Ocarina of Time',
+        'platform': 'Nintendo 64',
+        'release_region': 'NTSC-U',
+        'edition': 'Collector\'s Edition',
+        'developers': ['Nintendo EAD'],
+        'publishers': ['Nintendo'],
+        'franchise': 'The Legend of Zelda',
+        'series': 'The Legend of Zelda',
+        'genres': ['Action-Adventure'],
+        'age_rating': 'ESRB: E',
+        'release_date': '1998-11-23T00:00:00.000Z',
+        'barcode': '045496870034',
+        'price_charting_id': '12345',
+        'valuations': {
+          'loose': {
+            'amount_cents': 4500,
+            'source': 'priceCharting',
+            'captured_at': '2026-08-20T00:00:00.000Z'
+          },
+          'cib': {
+            'amount_cents': 12000,
+            'source': 'priceCharting',
+            'captured_at': '2026-08-20T00:00:00.000Z'
+          },
+        },
+        'synopsis': 'Link must save the land of Hyrule from Ganondorf.',
+        'cover_image_url': 'https://example.com/zelda.jpg',
+        'thumbnail_image_url': 'https://example.com/zelda_thumb.jpg',
+      });
+
+      expect(catalog.id, 'game_zelda_oot');
+      expect(catalog.mediaKind, CatalogMediaKind.game);
+      expect(catalog.title, 'The Legend of Zelda: Ocarina of Time');
+      expect(catalog.platform, 'Nintendo 64');
+      expect(catalog.publisher, 'Nintendo');
+      expect(catalog.developer, 'Nintendo EAD');
+      expect(catalog.displayCoverUrl, 'https://example.com/zelda_thumb.jpg');
+      expect(catalog.valuations?.loose?.amountCents, 4500);
+
+      final envelope = catalog.toEnvelope();
+      expect(envelope.kind, CatalogMediaKind.game);
+      expect(envelope.common.title, 'The Legend of Zelda: Ocarina of Time');
+
+      final json = catalog.toJson();
+      final restored = GameCatalog.fromJson(json);
+      expect(restored.id, 'game_zelda_oot');
+      expect(restored.developers, contains('Nintendo EAD'));
+      expect(restored.valuations?.cib?.amountCents, 12000);
+
+      final shelfEntry = ShelfEntry(
+        itemId: 'game_zelda_oot',
+        catalogItem: LibraryMetadataItem(
+          identity: const LibraryItemIdentity(
+            id: 'game_zelda_oot',
+            mediaKind: CatalogMediaKind.game,
+          ),
+          common: const LibraryCommonMetadata(
+              title: 'The Legend of Zelda: Ocarina of Time'),
+          kindMetadata: GameCatalogMetadata.fromJson(json),
+        ),
+      );
+
+      final entry = GameEntry.fromShelf(shelfEntry);
+      expect(entry.id, 'game_zelda_oot');
+      expect(entry.title, 'The Legend of Zelda: Ocarina of Time');
     });
   });
 }

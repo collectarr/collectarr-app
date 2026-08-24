@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/music/contracts/music_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
@@ -206,6 +207,80 @@ void main() {
       expect(meta.artist, 'The Beatles');
       expect(meta.releases.first.catalogNumber, 'PCS 7088');
       expect(meta.releases.first.format, 'Vinyl');
+    });
+
+    test('MusicCatalog and MusicEntry round-trip and preserve all kind fields',
+        () {
+      final catalog = MusicCatalog.fromJson({
+        'id': 'music_dsotm',
+        'kind': 'music',
+        'title': 'The Dark Side of the Moon',
+        'artist': 'Pink Floyd',
+        'original_release_date': '1973-03-01T00:00:00.000Z',
+        'studio': 'Abbey Road Studios',
+        'is_live': false,
+        'genres': ['Progressive Rock', 'Psychedelic Rock'],
+        'credits': [
+          {'name': 'Alan Parsons', 'role': 'Engineer'}
+        ],
+        'releases': [
+          {
+            'id': 'rel_1',
+            'title': 'The Dark Side of the Moon (Vinyl)',
+            'catalog_number': 'SHVL 804',
+            'format': 'Vinyl',
+            'country': 'UK',
+            'media_or_disc_count': 1,
+            'barcode': '5099902987613',
+            'tracks': [
+              {
+                'disc': 1,
+                'side': 'A',
+                'number': '1',
+                'title': 'Speak to Me',
+                'duration_seconds': 65,
+              }
+            ],
+          }
+        ],
+        'synopsis': 'The eighth studio album by English rock band Pink Floyd.',
+        'cover_image_url': 'https://example.com/dsotm.jpg',
+        'thumbnail_image_url': 'https://example.com/dsotm_thumb.jpg',
+      });
+
+      expect(catalog.id, 'music_dsotm');
+      expect(catalog.mediaKind, CatalogMediaKind.music);
+      expect(catalog.title, 'The Dark Side of the Moon');
+      expect(catalog.artist, 'Pink Floyd');
+      expect(catalog.displayCoverUrl, 'https://example.com/dsotm_thumb.jpg');
+      expect(catalog.releases.first.tracks.first.title, 'Speak to Me');
+
+      final envelope = catalog.toEnvelope();
+      expect(envelope.kind, CatalogMediaKind.music);
+      expect(envelope.common.title, 'The Dark Side of the Moon');
+
+      final json = catalog.toJson();
+      final restored = MusicCatalog.fromJson(json);
+      expect(restored.id, 'music_dsotm');
+      expect(restored.studio, 'Abbey Road Studios');
+      expect(restored.releases.first.catalogNumber, 'SHVL 804');
+
+      final shelfEntry = ShelfEntry(
+        itemId: 'music_dsotm',
+        catalogItem: LibraryMetadataItem(
+          identity: const LibraryItemIdentity(
+            id: 'music_dsotm',
+            mediaKind: CatalogMediaKind.music,
+          ),
+          common:
+              const LibraryCommonMetadata(title: 'The Dark Side of the Moon'),
+          kindMetadata: MusicCatalogMetadata.fromJson(json),
+        ),
+      );
+
+      final entry = MusicEntry.fromShelf(shelfEntry);
+      expect(entry.id, 'music_dsotm');
+      expect(entry.title, 'The Dark Side of the Moon');
     });
   });
 }

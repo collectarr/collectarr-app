@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
@@ -170,6 +171,68 @@ void main() {
       expect(meta.runtimeMinutes, 180);
       expect(meta.ageRating, 'R');
       expect(meta.directors.first.name, 'Christopher Nolan');
+    });
+
+    test('MovieCatalog and MovieEntry round-trip and preserve all kind fields',
+        () {
+      final catalog = MovieCatalog.fromJson({
+        'id': 'movie_inception',
+        'kind': 'movie',
+        'title': 'Inception',
+        'original_title': 'Inception',
+        'sort_title': 'Inception',
+        'synopsis': 'A thief who steals secrets through dream technology.',
+        'genres': ['Action', 'Sci-Fi', 'Thriller'],
+        'runtime_minutes': 148,
+        'audience_rating': '8.8',
+        'age_rating': 'PG-13',
+        'studio': 'Warner Bros. Pictures',
+        'country': 'US',
+        'original_language': 'en',
+        'release_date': '2010-07-16T00:00:00.000Z',
+        'directors': [
+          {'name': 'Christopher Nolan', 'role': 'Director'}
+        ],
+        'cast': [
+          {'name': 'Leonardo DiCaprio', 'character': 'Dom Cobb'}
+        ],
+        'trailer_urls': ['https://youtube.com/watch?v=inception'],
+        'cover_image_url': 'https://example.com/inception.jpg',
+        'thumbnail_image_url': 'https://example.com/inception_thumb.jpg',
+      });
+
+      expect(catalog.id, 'movie_inception');
+      expect(catalog.mediaKind, CatalogMediaKind.movie);
+      expect(catalog.title, 'Inception');
+      expect(catalog.director, 'Christopher Nolan');
+      expect(catalog.runtimeMinutes, 148);
+      expect(catalog.displayCoverUrl, 'https://example.com/inception_thumb.jpg');
+
+      final envelope = catalog.toEnvelope();
+      expect(envelope.kind, CatalogMediaKind.movie);
+      expect(envelope.common.title, 'Inception');
+
+      final json = catalog.toJson();
+      final restored = MovieCatalog.fromJson(json);
+      expect(restored.id, 'movie_inception');
+      expect(restored.runtimeMinutes, 148);
+      expect(restored.studio, 'Warner Bros. Pictures');
+
+      final shelfEntry = ShelfEntry(
+        itemId: 'movie_inception',
+        catalogItem: LibraryMetadataItem(
+          identity: const LibraryItemIdentity(
+            id: 'movie_inception',
+            mediaKind: CatalogMediaKind.movie,
+          ),
+          common: const LibraryCommonMetadata(title: 'Inception'),
+          kindMetadata: MovieCatalogMetadata.fromJson(json),
+        ),
+      );
+
+      final entry = MovieEntry.fromShelf(shelfEntry);
+      expect(entry.id, 'movie_inception');
+      expect(entry.title, 'Inception');
     });
   });
 }

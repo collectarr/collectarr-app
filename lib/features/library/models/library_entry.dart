@@ -1,33 +1,23 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
 class LibraryEntry {
   const LibraryEntry({
     required this.itemId,
-    Object? catalogItem,
+    this.catalogItem,
     this.ownedItem,
     this.trackingEntry,
     this.wishlistItem,
-  }) : _catalogItem = catalogItem;
+  });
 
   final String itemId;
-  final Object? _catalogItem;
+  final LibraryMetadataItem? catalogItem;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final WishlistItem? wishlistItem;
-
-  LibraryMetadataItem? get catalogItem {
-    return switch (_catalogItem) {
-      null => null,
-      LibraryMetadataItem item => item,
-      CatalogItem item => LibraryMetadataItem.fromCatalogItem(item),
-      _ => null,
-    };
-  }
 
   bool get isOwned => ownedItem != null;
   bool get isTracked => trackingEntry != null;

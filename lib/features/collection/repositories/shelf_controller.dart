@@ -83,7 +83,7 @@ class ShelfState {
     required List<WishlistItem> wishlistItems,
     List<TrackingEntry> trackingEntries = const [],
     List<WatchSession> watchSessions = const [],
-    required Map<String, Object?> catalogItems,
+    required Map<String, LibraryMetadataItem?> catalogItems,
     List<StorageLocation> locations = const [],
     Map<String, List<ItemImage>> itemImagesByOwnedItem =
         const <String, List<ItemImage>>{},

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/contracts/boardgame_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
@@ -177,6 +178,69 @@ void main() {
       expect(meta.bestPlayers, '3-4');
       expect(meta.bggRank, 1);
       expect(meta.designers, contains('Martin Wallace'));
+    });
+
+    test('BoardGameCatalog and BoardGameEntry round-trip and preserve all kind fields',
+        () {
+      final catalog = BoardGameCatalog.fromJson({
+        'id': 'bg_brass_birmingham',
+        'kind': 'boardgame',
+        'title': 'Brass: Birmingham',
+        'original_title': 'Brass: Birmingham',
+        'synopsis': 'Economic strategy board game in Industrial Revolution Britain.',
+        'year_published': 2018,
+        'min_players': 2,
+        'max_players': 4,
+        'best_players': '3-4',
+        'recommended_players': '2-4',
+        'min_playtime_minutes': 60,
+        'max_playtime_minutes': 120,
+        'minimum_age': 14,
+        'complexity_weight': 3.9,
+        'designers': ['Gavan Brown', 'Matt Tolman', 'Martin Wallace'],
+        'artists': ['Lina Cossette', 'David Forest'],
+        'publishers': ['Roxley'],
+        'mechanics': ['Hand Management', 'Income', 'Market'],
+        'categories': ['Economic', 'Industry'],
+        'bgg_rating': 8.6,
+        'bgg_rating_count': 45000,
+        'bgg_rank': 1,
+        'cover_image_url': 'https://example.com/brass.jpg',
+        'thumbnail_image_url': 'https://example.com/brass_thumb.jpg',
+      });
+
+      expect(catalog.id, 'bg_brass_birmingham');
+      expect(catalog.mediaKind, CatalogMediaKind.boardgame);
+      expect(catalog.title, 'Brass: Birmingham');
+      expect(catalog.designer, 'Gavan Brown');
+      expect(catalog.bggRank, 1);
+      expect(catalog.displayCoverUrl, 'https://example.com/brass_thumb.jpg');
+
+      final envelope = catalog.toEnvelope();
+      expect(envelope.kind, CatalogMediaKind.boardgame);
+      expect(envelope.common.title, 'Brass: Birmingham');
+
+      final json = catalog.toJson();
+      final restored = BoardGameCatalog.fromJson(json);
+      expect(restored.id, 'bg_brass_birmingham');
+      expect(restored.yearPublished, 2018);
+      expect(restored.complexityWeight, 3.9);
+
+      final shelfEntry = ShelfEntry(
+        itemId: 'bg_brass_birmingham',
+        catalogItem: LibraryMetadataItem(
+          identity: const LibraryItemIdentity(
+            id: 'bg_brass_birmingham',
+            mediaKind: CatalogMediaKind.boardgame,
+          ),
+          common: const LibraryCommonMetadata(title: 'Brass: Birmingham'),
+          kindMetadata: BoardGameMetadata.fromJson(json),
+        ),
+      );
+
+      final entry = BoardGameEntry.fromShelf(shelfEntry);
+      expect(entry.id, 'bg_brass_birmingham');
+      expect(entry.title, 'Brass: Birmingham');
     });
   });
 }

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/anime/contracts/anime_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
@@ -171,6 +172,78 @@ void main() {
       expect(meta.seasonYear, 2023);
       expect(meta.episodeCount, 28);
       expect(meta.studios, contains('Madhouse'));
+    });
+
+    test('AnimeCatalog and AnimeEntry round-trip and preserve all kind fields',
+        () {
+      final catalog = AnimeCatalog.fromJson({
+        'id': 'anime_frieren',
+        'kind': 'anime',
+        'title': 'Frieren: Beyond Journey\'s End',
+        'native_title': '葬送のフリーレン',
+        'romaji_title': 'Sousou no Frieren',
+        'english_title': 'Frieren: Beyond Journey\'s End',
+        'format': 'tv',
+        'season': 'fall',
+        'season_year': 2023,
+        'episode_count': 28,
+        'episode_runtime_minutes': 24,
+        'airing_status': 'finished',
+        'start_date': '2023-09-29T00:00:00.000Z',
+        'end_date': '2024-03-22T00:00:00.000Z',
+        'studios': ['Madhouse'],
+        'producers': ['TOHO animation', 'Shogakukan'],
+        'licensors': ['Crunchyroll'],
+        'source_material': 'manga',
+        'genres': ['Adventure', 'Drama', 'Fantasy'],
+        'themes': ['Magic', 'Time Skip'],
+        'country': 'JP',
+        'language': 'ja',
+        'relations': [
+          {
+            'relation_type': 'sequel',
+            'target_title': 'Sousou no Frieren 2nd Season',
+          }
+        ],
+        'synopsis': 'An elf mage and her companions defeat the Demon King.',
+        'cover_image_url': 'https://example.com/frieren.jpg',
+        'thumbnail_image_url': 'https://example.com/frieren_thumb.jpg',
+      });
+
+      expect(catalog.id, 'anime_frieren');
+      expect(catalog.mediaKind, CatalogMediaKind.anime);
+      expect(catalog.title, 'Frieren: Beyond Journey\'s End');
+      expect(catalog.nativeTitle, '葬送のフリーレン');
+      expect(catalog.studio, 'Madhouse');
+      expect(catalog.displayCoverUrl, 'https://example.com/frieren_thumb.jpg');
+      expect(catalog.relations.first.relationType, AnimeRelationType.sequel);
+
+      final envelope = catalog.toEnvelope();
+      expect(envelope.kind, CatalogMediaKind.anime);
+      expect(envelope.common.title, 'Frieren: Beyond Journey\'s End');
+
+      final json = catalog.toJson();
+      final restored = AnimeCatalog.fromJson(json);
+      expect(restored.id, 'anime_frieren');
+      expect(restored.studios, contains('Madhouse'));
+      expect(restored.seasonYear, 2023);
+
+      final shelfEntry = ShelfEntry(
+        itemId: 'anime_frieren',
+        catalogItem: LibraryMetadataItem(
+          identity: const LibraryItemIdentity(
+            id: 'anime_frieren',
+            mediaKind: CatalogMediaKind.anime,
+          ),
+          common: const LibraryCommonMetadata(
+              title: 'Frieren: Beyond Journey\'s End'),
+          kindMetadata: AnimeMetadata.fromJson(json),
+        ),
+      );
+
+      final entry = AnimeEntry.fromShelf(shelfEntry);
+      expect(entry.id, 'anime_frieren');
+      expect(entry.title, 'Frieren: Beyond Journey\'s End');
     });
   });
 }

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
@@ -174,6 +175,82 @@ void main() {
       expect(meta.network, 'AMC');
       expect(meta.seasonCount, 5);
       expect(meta.episodeCount, 62);
+    });
+
+    test('TvCatalog and TvEntry round-trip and preserve all kind fields',
+        () {
+      final catalog = TvCatalog.fromJson({
+        'id': 'tv_breaking_bad',
+        'kind': 'tv',
+        'title': 'Breaking Bad',
+        'original_title': 'Breaking Bad',
+        'synopsis': 'A high school chemistry teacher turns to meth manufacturing.',
+        'first_air_date': '2008-01-20T00:00:00.000Z',
+        'last_air_date': '2013-09-29T00:00:00.000Z',
+        'status': 'Ended',
+        'network': 'AMC',
+        'streaming_service': 'Netflix',
+        'country': 'US',
+        'original_language': 'en',
+        'genres': ['Crime', 'Drama', 'Thriller'],
+        'content_rating': 'TV-MA',
+        'season_count': 5,
+        'episode_count': 62,
+        'episode_runtime_minutes': 47,
+        'seasons': [
+          {
+            'season_number': 1,
+            'title': 'Season 1',
+            'air_date': '2008-01-20T00:00:00.000Z',
+            'episode_count': 7,
+            'episodes': [
+              {
+                'number': 1,
+                'title': 'Pilot',
+                'air_date': '2008-01-20T00:00:00.000Z',
+                'runtime_minutes': 58,
+              }
+            ],
+          }
+        ],
+        'cover_image_url': 'https://example.com/bb.jpg',
+        'thumbnail_image_url': 'https://example.com/bb_thumb.jpg',
+      });
+
+      expect(catalog.id, 'tv_breaking_bad');
+      expect(catalog.mediaKind, CatalogMediaKind.tv);
+      expect(catalog.title, 'Breaking Bad');
+      expect(catalog.network, 'AMC');
+      expect(catalog.seasonCount, 5);
+      expect(catalog.episodeCount, 62);
+      expect(catalog.displayCoverUrl, 'https://example.com/bb_thumb.jpg');
+      expect(catalog.seasons.first.episodes.first.title, 'Pilot');
+
+      final envelope = catalog.toEnvelope();
+      expect(envelope.kind, CatalogMediaKind.tv);
+      expect(envelope.common.title, 'Breaking Bad');
+
+      final json = catalog.toJson();
+      final restored = TvCatalog.fromJson(json);
+      expect(restored.id, 'tv_breaking_bad');
+      expect(restored.seasonCount, 5);
+      expect(restored.network, 'AMC');
+
+      final shelfEntry = ShelfEntry(
+        itemId: 'tv_breaking_bad',
+        catalogItem: LibraryMetadataItem(
+          identity: const LibraryItemIdentity(
+            id: 'tv_breaking_bad',
+            mediaKind: CatalogMediaKind.tv,
+          ),
+          common: const LibraryCommonMetadata(title: 'Breaking Bad'),
+          kindMetadata: TvSeriesMetadata.fromJson(json),
+        ),
+      );
+
+      final entry = TvEntry.fromShelf(shelfEntry);
+      expect(entry.id, 'tv_breaking_bad');
+      expect(entry.title, 'Breaking Bad');
     });
   });
 }

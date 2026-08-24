@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
@@ -193,6 +194,81 @@ void main() {
       expect(meta.editions.first.isbn, '9780441013593');
       expect(meta.editions.first.pageCount, 896);
       expect(meta.editions.first.firstEdition, isTrue);
+    });
+
+    test('BookCatalog and BookEntry round-trip and preserve all kind fields',
+        () {
+      final catalog = BookCatalog.fromJson({
+        'id': 'book_lotr',
+        'kind': 'book',
+        'title': 'The Lord of the Rings',
+        'subtitle': 'The Fellowship of the Ring',
+        'sort_title': 'Lord of the Rings 1',
+        'synopsis': 'An epic high fantasy novel by J. R. R. Tolkien.',
+        'authors': ['J. R. R. Tolkien'],
+        'genres': ['High Fantasy', 'Adventure'],
+        'subjects': ['Middle-earth', 'Rings of Power'],
+        'editors': ['Christopher Tolkien'],
+        'translators': ['Ion Luca'],
+        'illustrators': ['Alan Lee'],
+        'original_title': 'The Fellowship of the Ring',
+        'original_country': 'UK',
+        'original_language': 'en',
+        'original_publisher': 'Allen & Unwin',
+        'original_publication_date': '1954-07-29T00:00:00.000Z',
+        'cover_image_url': 'https://example.com/lotr.jpg',
+        'thumbnail_image_url': 'https://example.com/lotr_thumb.jpg',
+        'editions': [
+          {
+            'id': 'ed_1',
+            'title': '50th Anniversary Edition',
+            'isbn': '9780007203581',
+            'format': 'Hardcover',
+            'page_count': 432,
+            'first_edition': true,
+            'audiobook': {
+              'narrator': 'Andy Serkis',
+              'duration_minutes': 1380,
+            },
+          }
+        ],
+      });
+
+      expect(catalog.id, 'book_lotr');
+      expect(catalog.mediaKind, CatalogMediaKind.book);
+      expect(catalog.title, 'The Lord of the Rings');
+      expect(catalog.subtitle, 'The Fellowship of the Ring');
+      expect(catalog.author, 'J. R. R. Tolkien');
+      expect(catalog.displayCoverUrl, 'https://example.com/lotr_thumb.jpg');
+      expect(catalog.editions.first.isbn, '9780007203581');
+      expect(catalog.editions.first.audiobook?.narrator, 'Andy Serkis');
+
+      final envelope = catalog.toEnvelope();
+      expect(envelope.kind, CatalogMediaKind.book);
+      expect(envelope.common.title, 'The Lord of the Rings');
+      expect(envelope.common.releaseDate?.year, 1954);
+
+      final json = catalog.toJson();
+      final restored = BookCatalog.fromJson(json);
+      expect(restored.id, 'book_lotr');
+      expect(restored.authors, contains('J. R. R. Tolkien'));
+      expect(restored.editions.first.format, 'Hardcover');
+
+      final shelfEntry = ShelfEntry(
+        itemId: 'book_lotr',
+        catalogItem: LibraryMetadataItem(
+          identity: const LibraryItemIdentity(
+            id: 'book_lotr',
+            mediaKind: CatalogMediaKind.book,
+          ),
+          common: const LibraryCommonMetadata(title: 'The Lord of the Rings'),
+          kindMetadata: BookCatalogMetadata.fromJson(json),
+        ),
+      );
+
+      final entry = BookEntry.fromShelf(shelfEntry);
+      expect(entry.id, 'book_lotr');
+      expect(entry.title, 'The Lord of the Rings');
     });
   });
 }

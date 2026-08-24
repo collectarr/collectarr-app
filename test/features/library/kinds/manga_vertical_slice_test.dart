@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
@@ -234,6 +235,76 @@ void main() {
       expect(savedDetails.localizedEdition, 'VIZ Signature');
 
       draft.dispose();
+    });
+
+    test('MangaCatalog and MangaEntry round-trip and preserve all kind fields',
+        () {
+      final catalog = MangaCatalog.fromJson({
+        'id': 'manga_frieren',
+        'kind': 'manga',
+        'title': 'Frieren: Beyond Journey\'s End',
+        'native_title': '葬送のフリーレン',
+        'romaji_title': 'Sousou no Frieren',
+        'english_title': 'Frieren: Beyond Journey\'s End',
+        'authors': ['Kanehito Yamada'],
+        'artists': ['Tsukasa Abe'],
+        'demographic': 'shonen',
+        'serialization_platform': 'Weekly Shonen Sunday',
+        'publication_status': 'ongoing',
+        'original_publisher': 'Shogakukan',
+        'localized_publisher': 'VIZ Media',
+        'volume_number': 1,
+        'total_volumes': 13,
+        'chapter_count': 130,
+        'original_publication_date': '2020-04-28T00:00:00.000Z',
+        'localized_release_date': '2021-11-09T00:00:00.000Z',
+        'isbn': '9781974725762',
+        'edition_format': 'tankobon',
+        'language': 'en',
+        'country': 'US',
+        'genres': ['Adventure', 'Drama', 'Fantasy'],
+        'themes': ['Magic', 'Time Skip'],
+        'translator': 'Amanda Haley',
+        'reading_direction': 'rightToLeft',
+        'synopsis': 'The adventure is over but life goes on for an elf mage.',
+        'cover_image_url': 'https://example.com/frieren.jpg',
+        'thumbnail_image_url': 'https://example.com/frieren_thumb.jpg',
+      });
+
+      expect(catalog.id, 'manga_frieren');
+      expect(catalog.mediaKind, CatalogMediaKind.manga);
+      expect(catalog.title, 'Frieren: Beyond Journey\'s End');
+      expect(catalog.nativeTitle, '葬送のフリーレン');
+      expect(catalog.demographic, MangaDemographic.shonen);
+      expect(catalog.readingDirection, MangaReadingDirection.rightToLeft);
+      expect(catalog.displayCoverUrl, 'https://example.com/frieren_thumb.jpg');
+
+      final envelope = catalog.toEnvelope();
+      expect(envelope.kind, CatalogMediaKind.manga);
+      expect(envelope.common.title, 'Frieren: Beyond Journey\'s End');
+
+      final json = catalog.toJson();
+      final restored = MangaCatalog.fromJson(json);
+      expect(restored.id, 'manga_frieren');
+      expect(restored.artists, contains('Tsukasa Abe'));
+      expect(restored.totalVolumes, 13);
+
+      final shelfEntry = ShelfEntry(
+        itemId: 'manga_frieren',
+        catalogItem: LibraryMetadataItem(
+          identity: const LibraryItemIdentity(
+            id: 'manga_frieren',
+            mediaKind: CatalogMediaKind.manga,
+          ),
+          common: const LibraryCommonMetadata(
+              title: 'Frieren: Beyond Journey\'s End'),
+          kindMetadata: MangaMetadata.fromJson(json),
+        ),
+      );
+
+      final entry = MangaEntry.fromShelf(shelfEntry);
+      expect(entry.id, 'manga_frieren');
+      expect(entry.title, 'Frieren: Beyond Journey\'s End');
     });
   });
 }
