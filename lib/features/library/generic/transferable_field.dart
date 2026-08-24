@@ -137,7 +137,7 @@ class TransferableField {
           return item.copyWith(details: d.copyWith(features: value));
         if (d is AnimeOwnedDetails)
           return item.copyWith(details: d.copyWith(features: value));
-        return item.copyWith(details: const MovieOwnedDetails());
+        return item;
       case 'purchaseStore':
         return item.copyWith(purchaseStore: value);
       case 'boxSetName':
@@ -148,7 +148,7 @@ class TransferableField {
           return item.copyWith(details: d.copyWith(boxSetName: value));
         if (d is AnimeOwnedDetails)
           return item.copyWith(details: d.copyWith(boxSetName: value));
-        return item.copyWith(details: const MovieOwnedDetails());
+        return item;
       case 'pricePaidCents':
         return item.copyWith(
             pricePaidCents: value != null ? int.tryParse(value) : null);

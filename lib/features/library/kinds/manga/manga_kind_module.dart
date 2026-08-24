@@ -44,6 +44,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.volumes,
+    childrenTitleBuilder: _mangaChildrenTitle,
     supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: true,
     supportsIndexReassignment: true,
@@ -85,3 +86,5 @@ Iterable<String> _getFacetValues(
   }
   return const [];
 }
+
+String _mangaChildrenTitle(int count) => 'Volumes ($count)';

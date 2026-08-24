@@ -17,6 +17,7 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
     this.showsReadingQueue = false,
     this.collectionExportTitleLabel = 'Title',
     this.mediaReleaseScopeLabel = 'Media',
+    this.childrenTitleBuilder,
     this.fetchChildrenCallback,
   });
 
@@ -27,6 +28,7 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   final bool showsReadingQueue;
   final String collectionExportTitleLabel;
   final String mediaReleaseScopeLabel;
+  final String Function(int count)? childrenTitleBuilder;
   final Future<List<LibraryHierarchyNode>> Function({
     required String itemId,
     String? provider,
@@ -48,6 +50,9 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
     }
     return const <LibraryHierarchyNode>[];
   }
+
+  String childrenTitle(int count) =>
+      childrenTitleBuilder?.call(count) ?? 'Contents ($count)';
 
   LibraryWorkspaceBrowserMode browserModeForViewState(
     LibraryWorkspaceViewState viewState, {

@@ -52,6 +52,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.volumes,
+    childrenTitleBuilder: _comicChildrenTitle,
     supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: false,
     supportsIndexReassignment: true,
@@ -130,6 +131,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   ),
   buildCardPresentation: buildComicCardPresentation,
 );
+
+String _comicChildrenTitle(int count) => 'Volumes ($count)';
 
 Iterable<String> _getFacetValues(
     LibraryProjectionRuntime item, String facetId) {

@@ -42,6 +42,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.seasons,
+    childrenTitleBuilder: _tvChildrenTitle,
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',
@@ -73,3 +74,5 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   ),
   buildCardPresentation: buildTvCardPresentation,
 );
+
+String _tvChildrenTitle(int count) => 'Seasons ($count)';

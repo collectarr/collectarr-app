@@ -40,6 +40,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.seasons,
+    childrenTitleBuilder: _animeChildrenTitle,
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Title',
     mediaReleaseScopeLabel: 'Media',
@@ -69,3 +70,5 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   ),
   buildCardPresentation: buildAnimeCardPresentation,
 );
+
+String _animeChildrenTitle(int count) => 'Seasons ($count)';

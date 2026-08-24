@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/hierarchy/providers/library_hierarchy_provider.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,10 @@ class HierarchyChildrenSection extends ConsumerWidget {
         if (nodes.isEmpty) {
           return const SizedBox.shrink();
         }
-        final resolvedTitle = title ?? _defaultTitleForKind(kind, nodes.length);
+        final resolvedTitle = title ??
+          libraryKindRuntimeForKind(kind)
+            .hierarchy
+            .childrenTitle(nodes.length);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -74,17 +78,6 @@ class HierarchyChildrenSection extends ConsumerWidget {
     );
   }
 
-  static String _defaultTitleForKind(CatalogMediaKind kind, int count) {
-    return switch (kind) {
-      CatalogMediaKind.tv || CatalogMediaKind.anime => 'Seasons ($count)',
-      CatalogMediaKind.manga ||
-      CatalogMediaKind.comic ||
-      CatalogMediaKind.book =>
-        'Volumes ($count)',
-      CatalogMediaKind.music => 'Discs ($count)',
-      _ => 'Contents ($count)',
-    };
-  }
 }
 
 class _HierarchyNodeTile extends StatefulWidget {
