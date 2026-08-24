@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -15,10 +16,16 @@ final class GameWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final game = GameCatalogMapper.mapMetadataItemToGame(source.catalogItem!);
+    GameCatalogMetadata? metadata;
+    final km = source.catalogItem?.kindMetadata;
+    if (km is GameCatalogMetadata) {
+      metadata = km;
+    }
     return GameWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       game: game,
+      metadata: metadata,
     );
   }
 
@@ -29,11 +36,17 @@ final class GameWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final game = GameCatalogMapper.mapMetadataItemToGame(source.catalogItem!);
+    GameCatalogMetadata? metadata;
+    final km = source.catalogItem?.kindMetadata;
+    if (km is GameCatalogMetadata) {
+      metadata = km;
+    }
     return GameWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       game: game,
+      metadata: metadata,
     );
   }
 

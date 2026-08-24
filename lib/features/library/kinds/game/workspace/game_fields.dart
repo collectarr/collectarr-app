@@ -32,7 +32,7 @@ abstract final class GameKindSchema {
   static final developer = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.developer,
     label: 'Developer',
-    getValue: (dto) => dto.creator,
+    getValue: (dto) => dto.developer,
   );
 
   static final releaseDate = dateField<GameKind, GameWorkspaceDto>(
@@ -167,7 +167,8 @@ abstract final class GameKindSchema {
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.coreRegion,
     label: 'Region',
-    getValue: (context) => context.source.ownedItem?.gameDetails?.coreRegion,
+    getValue: (context) =>
+        context.dto.region ?? context.source.ownedItem?.gameDetails?.coreRegion,
     scope: LibraryFieldScope.release,
   );
 
@@ -177,6 +178,56 @@ abstract final class GameKindSchema {
     label: 'Value Locked',
     getValue: (context) => context.source.ownedItem?.gameDetails?.valueIsLocked,
     scope: LibraryFieldScope.copy,
+  );
+
+  // Rich Game Metadata Fields
+  static final franchise = textField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.franchise,
+    label: 'Franchise',
+    getValue: (dto) => dto.franchise,
+  );
+
+  static final series = textField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.series,
+    label: 'Series',
+    getValue: (dto) => dto.seriesTitle,
+  );
+
+  static final ageRating = textField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.ageRating,
+    label: 'Age Rating',
+    getValue: (dto) => dto.ageRating,
+  );
+
+  static final edition = textField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.edition,
+    label: 'Edition',
+    getValue: (dto) => dto.edition,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final loosePrice = numberField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.loosePrice,
+    label: 'Loose Price',
+    getValue: (dto) => dto.loosePrice,
+  );
+
+  static final cibPrice = numberField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.cibPrice,
+    label: 'CIB Price',
+    getValue: (dto) => dto.cibPrice,
+  );
+
+  static final newPrice = numberField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.newPrice,
+    label: 'New/Sealed Price',
+    getValue: (dto) => dto.newPrice,
+  );
+
+  static final gradedPrice = numberField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.gradedPrice,
+    label: 'Graded Price',
+    getValue: (dto) => dto.gradedPrice,
   );
 }
 
@@ -194,6 +245,14 @@ final gameLibraryFieldDefinitions = [
   GameKindSchema.coreRegion,
   GameKindSchema.hasBox,
   GameKindSchema.hasManual,
+  GameKindSchema.franchise,
+  GameKindSchema.series,
+  GameKindSchema.ageRating,
+  GameKindSchema.edition,
+  GameKindSchema.loosePrice,
+  GameKindSchema.cibPrice,
+  GameKindSchema.newPrice,
+  GameKindSchema.gradedPrice,
 ];
 
 final gameLibraryGroupDefinitions = [
@@ -209,9 +268,19 @@ final gameLibraryGroupDefinitions = [
     supportsBucketManagement: true,
   ),
   groupFromField<GameKind, GameWorkspaceDto, String?>(
+    GameKindSchema.franchise,
+    sidebarTitle: 'Franchises',
+    icon: Icons.auto_stories_outlined,
+  ),
+  groupFromField<GameKind, GameWorkspaceDto, String?>(
     GameKindSchema.location,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
+  ),
+  groupFromField<GameKind, GameWorkspaceDto, String?>(
+    GameKindSchema.completeness,
+    sidebarTitle: 'Completeness',
+    icon: Icons.inventory_2_outlined,
   ),
 ];
 
@@ -235,6 +304,10 @@ final gameLibrarySortDefinitions = [
   sortFromField<GameKind, GameWorkspaceDto, String>(GameKindSchema.title),
   sortFromField<GameKind, GameWorkspaceDto, DateTime>(
       GameKindSchema.releaseDate,
+      defaultAscending: false),
+  sortFromField<GameKind, GameWorkspaceDto, num>(GameKindSchema.cibPrice,
+      defaultAscending: false),
+  sortFromField<GameKind, GameWorkspaceDto, num>(GameKindSchema.loosePrice,
       defaultAscending: false),
 ];
 
@@ -352,6 +425,32 @@ final gameLibraryColumnDefinitions = [
     cellValue: (context) =>
         Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameKindSchema.franchise,
+    group: 'Classification',
+    defaultWidth: 130,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, String?>(
+    GameKindSchema.edition,
+    group: 'Edition',
+    defaultWidth: 110,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, num?>(
+    GameKindSchema.cibPrice,
+    cellValue: (context) =>
+        Text(_formatCents(context.dto.cibPrice, context.dto.currency)),
+    group: 'Valuation',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, num?>(
+    GameKindSchema.loosePrice,
+    cellValue: (context) =>
+        Text(_formatCents(context.dto.loosePrice, context.dto.currency)),
+    group: 'Valuation',
+    isNumeric: true,
+    defaultWidth: 100,
   ),
 ];
 

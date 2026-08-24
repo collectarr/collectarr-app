@@ -1,10 +1,12 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 typedef GameMetadata = GameCatalogMetadata;
 
 @immutable
-class GameCatalogMetadata {
+class GameCatalogMetadata implements LibraryKindMetadataRuntime {
   const GameCatalogMetadata({
     required this.title,
     this.platform,
@@ -24,6 +26,12 @@ class GameCatalogMetadata {
     this.priceChartingId,
     this.valuations,
   });
+
+  @override
+  CatalogMediaKind get mediaKind => CatalogMediaKind.game;
+
+  @override
+  Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
   final String? platform;

@@ -30,6 +30,21 @@ abstract final class GameFieldIds {
       LibraryFieldId<GameKind, String?>('game.core_region');
   static const valueLocked =
       LibraryFieldId<GameKind, bool?>('game.value_locked');
+
+  // Rich Game Metadata Fields
+  static const franchise = LibraryFieldId<GameKind, String?>('game.franchise');
+  static const series = LibraryFieldId<GameKind, String?>('game.series');
+  static const ageRating = LibraryFieldId<GameKind, String?>('game.age_rating');
+  static const edition = LibraryFieldId<GameKind, String?>('game.edition');
+  static const loosePrice = LibraryFieldId<GameKind, int?>('game.loose_price');
+  static const cibPrice = LibraryFieldId<GameKind, int?>('game.cib_price');
+  static const newPrice = LibraryFieldId<GameKind, int?>('game.new_price');
+  static const gradedPrice =
+      LibraryFieldId<GameKind, int?>('game.graded_price');
+  static const boxOnlyPrice =
+      LibraryFieldId<GameKind, int?>('game.box_only_price');
+  static const manualOnlyPrice =
+      LibraryFieldId<GameKind, int?>('game.manual_only_price');
 }
 
 abstract final class GameSortIds {
@@ -41,12 +56,15 @@ abstract final class GameSortIds {
   static const rating = LibrarySortId<GameKind>('game.rating');
   static const pricePaid = LibrarySortId<GameKind>('game.price_paid');
   static const updatedAt = LibrarySortId<GameKind>('game.updated_at');
+  static const loosePrice = LibrarySortId<GameKind>('game.loose_price');
+  static const cibPrice = LibrarySortId<GameKind>('game.cib_price');
 }
 
 abstract final class GameGroupIds {
   static const platform = LibraryGroupId<GameKind, String?>('game.platform');
   static const publisher = LibraryGroupId<GameKind, String?>('game.publisher');
   static const developer = LibraryGroupId<GameKind, String?>('game.developer');
+  static const franchise = LibraryGroupId<GameKind, String?>('game.franchise');
   static const location = LibraryGroupId<GameKind, String?>('game.location');
   static const condition = LibraryGroupId<GameKind, String?>('game.condition');
   static const rating = LibraryGroupId<GameKind, int?>('game.rating');
@@ -61,5 +79,8 @@ abstract final class GameGroupIds {
 abstract final class GameFacetIds {
   static const platform = LibraryFacetId<GameKind, String>('game.platform');
   static const publisher = LibraryFacetId<GameKind, String>('game.publisher');
+  static const developer = LibraryFacetId<GameKind, String>('game.developer');
+  static const franchise = LibraryFacetId<GameKind, String>('game.franchise');
   static const genre = LibraryFacetId<GameKind, String>('game.genre');
+  static const region = LibraryFacetId<GameKind, String>('game.region');
 }

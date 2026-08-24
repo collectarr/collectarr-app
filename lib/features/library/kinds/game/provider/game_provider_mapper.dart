@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -18,8 +19,8 @@ class GameLibraryKindProviderMapper implements LibraryKindProviderMapper {
     final physicalFormatLabel = norm['physical_format_label']?.toString();
     final coverImageUrl = norm['cover_image_url']?.toString() ??
         (envelope.images.isNotEmpty ? envelope.images.first.url : null);
-    final country = norm['country']?.toString();
-    final language = norm['language']?.toString();
+    final country = norm['country']?.toString() ?? 'US';
+    final language = norm['language']?.toString() ?? 'en';
     final ageRating = norm['age_rating']?.toString();
     final audienceRating = norm['audience_rating']?.toString();
 
@@ -45,6 +46,8 @@ class GameLibraryKindProviderMapper implements LibraryKindProviderMapper {
         ? (norm['genres'] as List).map((g) => g.toString()).toList()
         : null;
 
+    final gameMetadata = GameCatalogMetadata.fromJson(norm);
+
     return LibraryMetadataItem(
       id: '',
       kind: 'game',
@@ -65,6 +68,7 @@ class GameLibraryKindProviderMapper implements LibraryKindProviderMapper {
       audienceRating: audienceRating,
       creators: creators,
       genres: genres,
+      kindMetadata: gameMetadata,
     );
   }
 
