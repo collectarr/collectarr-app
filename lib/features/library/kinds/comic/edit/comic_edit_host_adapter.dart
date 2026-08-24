@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/comic_creator_r
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
+import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
@@ -379,14 +380,21 @@ class ComicEditHostAdapter implements ComicEditHost {
   List<ItemImageEdit> get comicItemImageEdits => draft.itemImageEdits;
 
   @override
+  @override
   set comicItemImageEdits(List<ItemImageEdit> value) {
-    draft.itemImageEdits.clear();
-    draft.itemImageEdits.addAll(value);
+    draft.itemImageEdits = List.of(value);
     markDirty();
   }
 
   @override
-  List<String> get comicGenreOptions => const [
+  List<String> get comicSeriesOptions =>
+      draft.seriesEntries.map((e) => e.title).toList();
+
+  @override
+  @override
+  List<String> get comicGenreOptions =>
+      draft.vocabulary?.genreOptions ??
+      const [
         'Action',
         'Adventure',
         'Fantasy',
@@ -398,10 +406,11 @@ class ComicEditHostAdapter implements ComicEditHost {
       ];
 
   @override
-  List<String> get comicTagOptions => const [];
+  List<String> get comicTagOptions => draft.vocabulary?.tagOptions ?? const [];
 
   @override
-  List<String> get comicOwnerOptions => const [];
+  List<String> get comicOwnerOptions =>
+      draft.vocabulary?.ownerOptions ?? const [];
 
   @override
   void comicMutateState(VoidCallback fn) {
@@ -430,7 +439,8 @@ class ComicEditHostAdapter implements ComicEditHost {
     return SingleValuePickField(
       controller: draft.metadata.crossoverController,
       label: label,
-      options: const [],
+      options: draft.vocabulary?.crossoverOptions ?? const [],
+      showPickerListAction: true,
     );
   }
 
@@ -439,7 +449,8 @@ class ComicEditHostAdapter implements ComicEditHost {
     return SingleValuePickField(
       controller: draft.metadata.storyArcsController,
       label: label,
-      options: const [],
+      options: draft.vocabulary?.storyArcOptions ?? const [],
+      showPickerListAction: true,
     );
   }
 
@@ -448,7 +459,8 @@ class ComicEditHostAdapter implements ComicEditHost {
     return SingleValuePickField(
       controller: draft.metadata.countryController,
       label: label,
-      options: const [],
+      options: draft.vocabulary?.countryOptions ?? const [],
+      showPickerListAction: true,
     );
   }
 
@@ -487,33 +499,63 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   Widget buildComicSeriesField() {
-    return LibraryEditTextField(
+    return SingleValuePickField(
       controller: draft.metadata.seriesTitleController,
       label: 'Series',
+      options: comicSeriesOptions,
+      showPickerListAction: true,
+      onChanged: (value) {
+        if (value != null && value.isNotEmpty) {
+          draft.metadata.titleController.text = value;
+        }
+        markDirty();
+      },
+      onManage: () async {
+        final db = ProviderScope.containerOf(context, listen: false)
+            .read(localDatabaseProvider);
+        final entry = await showSeriesPickerDialog(
+          context: context,
+          db: db,
+          mediaKind: draft.type.workspace.kind.apiValue,
+          selectedTitle: draft.metadata.seriesTitleController.text,
+        );
+        if (entry != null) {
+          draft.metadata.seriesTitleController.text = entry.title;
+          draft.metadata.titleController.text = entry.title;
+          markDirty();
+        }
+      },
+      manageTooltip: 'Select or manage series',
     );
   }
 
   @override
   Widget buildComicPublisherField({String label = 'Publisher'}) {
-    return LibraryEditTextField(
+    return SingleValuePickField(
       controller: draft.metadata.publisherController,
       label: label,
+      options: draft.vocabulary?.publisherOptions ?? const [],
+      showPickerListAction: true,
     );
   }
 
   @override
   Widget buildComicImprintField() {
-    return LibraryEditTextField(
+    return SingleValuePickField(
       controller: draft.metadata.imprintController,
       label: 'Imprint',
+      options: draft.vocabulary?.imprintOptions ?? const [],
+      showPickerListAction: true,
     );
   }
 
   @override
   Widget buildComicSeriesGroupField({String label = 'Series Group'}) {
-    return LibraryEditTextField(
+    return SingleValuePickField(
       controller: draft.metadata.seriesGroupController,
       label: label,
+      options: draft.vocabulary?.seriesGroupOptions ?? const [],
+      showPickerListAction: true,
     );
   }
 
@@ -522,13 +564,15 @@ class ComicEditHostAdapter implements ComicEditHost {
     return SingleValuePickField(
       controller: draft.metadata.physicalFormatLabelController,
       label: label,
-      options: const [
-        'Floppy',
-        'Trade Paperback',
-        'Hardcover',
-        'Omnibus',
-        'Digital'
-      ],
+      options: draft.vocabulary?.physicalFormatOptions ??
+          const [
+            'Floppy',
+            'Trade Paperback',
+            'Hardcover',
+            'Omnibus',
+            'Digital'
+          ],
+      showPickerListAction: true,
     );
   }
 
@@ -536,7 +580,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   Widget buildComicTagsDropdownField({String label = 'Tags'}) {
     return TagPickListField(
       controller: draft.personal.tagsController,
-      options: const [],
+      options: draft.vocabulary?.tagOptions ?? const [],
       label: label,
     );
   }
@@ -573,6 +617,87 @@ class ComicEditHostAdapter implements ComicEditHost {
     required ValueChanged<String?> onChanged,
   }) {
     return const SizedBox.shrink();
+  }
+
+  @override
+  TextEditingController get comicIndexNumberController =>
+      draft.personal.indexNumberController;
+
+  @override
+  TextEditingController get comicQuantityController =>
+      draft.personal.quantityController;
+
+  @override
+  String? get comicCollectionStatus => draft.personal.collectionStatus;
+
+  @override
+  set comicCollectionStatus(String? value) {
+    draft.personal.collectionStatus = value;
+    markDirty();
+  }
+
+  @override
+  String? get comicSelectedLocationId => draft.personal.selectedLocationId;
+
+  @override
+  String? get comicSelectedLocationName => draft.personal.availableLocations
+      .where((l) => l.id == draft.personal.selectedLocationId)
+      .firstOrNull
+      ?.name;
+
+  @override
+  Widget buildComicCollectionStatusPickField(
+      {String label = 'Collection Status'}) {
+    return SingleValuePickField(
+      controller:
+          TextEditingController(text: draft.personal.collectionStatus ?? ''),
+      label: label,
+      options: const [
+        'In Collection',
+        'Wishlist',
+        'For Sale',
+        'Sold',
+        'On Loan'
+      ],
+      onChanged: (val) {
+        draft.personal.collectionStatus = val;
+        markDirty();
+      },
+    );
+  }
+
+  @override
+  Widget buildComicLocationPickerField({String label = 'Location'}) {
+    return InkWell(
+      onTap: () async {
+        final db =
+            ProviderScope.containerOf(context).read(localDatabaseProvider);
+        final locationId = await showLocationPickerDialog(
+          context: context,
+          db: db,
+          currentLocationId: draft.personal.selectedLocationId,
+        );
+        if (locationId != null) {
+          draft.personal.selectedLocationId = locationId;
+          draft.personal.locationChanged = true;
+          markDirty();
+        }
+      },
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: const Icon(Icons.place),
+        ),
+        child: Text(
+          comicSelectedLocationName ?? 'Pick location...',
+          style: TextStyle(
+            color: comicSelectedLocationName != null
+                ? Theme.of(context).colorScheme.onSurface
+                : Theme.of(context).hintColor,
+          ),
+        ),
+      ),
+    );
   }
 
   @override

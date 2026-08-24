@@ -572,6 +572,21 @@ extension ComicEditTabBuilders on ComicEditHost {
             children: [
               if (comicShowPhysicalOwnedFields) ...[
                 LibraryEditResponsiveRow(children: [
+                  buildComicCollectionStatusPickField(),
+                  buildComicLocationPickerField(),
+                ]),
+                const SizedBox(height: 10),
+                LibraryEditResponsiveRow(children: [
+                  LibraryEditTextField(
+                    controller: comicIndexNumberController,
+                    label: 'Index',
+                    validator: optionalIntValidator,
+                  ),
+                  LibraryEditTextField(
+                    controller: comicQuantityController,
+                    label: 'Quantity',
+                    validator: optionalIntValidator,
+                  ),
                   LibraryEditTextField(
                     controller: comicOwnerLabelController,
                     label: 'Owner',

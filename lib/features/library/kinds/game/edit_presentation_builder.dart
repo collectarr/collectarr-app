@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/game_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
 const _gameMainTab = LibraryEditTabSpec(
@@ -106,6 +107,7 @@ class GameLibraryCombinedEditPresentationBuilder
           ownedTabs: _gameCombinedTabs,
           trackedTabs: _gameCombinedTabs,
           catalogTabs: _gameCombinedTabs,
+          customTabBuilder: buildGameCustomTabView,
         );
 }
 
@@ -117,6 +119,7 @@ class GameLibraryMediaEditPresentationBuilder
           ownedTabs: _gameMediaTabs,
           trackedTabs: _gameMediaTabs,
           catalogTabs: _gameMediaTabs,
+          customTabBuilder: buildGameCustomTabView,
         );
 }
 
@@ -128,6 +131,7 @@ class GameLibraryReleaseEditPresentationBuilder
           ownedTabs: _gameReleaseTabs,
           trackedTabs: _gameReleaseTabs,
           catalogTabs: _gameReleaseTabs,
+          customTabBuilder: buildGameCustomTabView,
         );
 }
 

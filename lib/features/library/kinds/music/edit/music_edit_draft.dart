@@ -8,18 +8,54 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
+class MusicExternalLinkEdit {
+  MusicExternalLinkEdit({
+    String url = '',
+    String description = '',
+  })  : urlController = TextEditingController(text: url),
+        descriptionController = TextEditingController(text: description);
+
+  final TextEditingController urlController;
+  final TextEditingController descriptionController;
+
+  void dispose() {
+    urlController.dispose();
+    descriptionController.dispose();
+  }
+}
+
 class MusicEditDraft extends KindEditDraft {
   MusicEditDraft({
     required this.storageDeviceController,
     required this.storageSlotController,
     this.signedBy,
     this.lastCleaned,
-  });
+    List<MusicExternalLinkEdit>? externalLinks,
+  }) : externalLinks = externalLinks ?? <MusicExternalLinkEdit>[];
 
   final TextEditingController storageDeviceController;
   final TextEditingController storageSlotController;
   String? signedBy;
   DateTime? lastCleaned;
+  final List<MusicExternalLinkEdit> externalLinks;
+
+  void addExternalLink() {
+    externalLinks.add(MusicExternalLinkEdit());
+  }
+
+  void removeExternalLinkAt(int index) {
+    if (index >= 0 && index < externalLinks.length) {
+      final removed = externalLinks.removeAt(index);
+      removed.dispose();
+    }
+  }
+
+  void moveExternalLink(int fromIndex, int toIndex) {
+    if (toIndex >= 0 && toIndex < externalLinks.length) {
+      final entry = externalLinks.removeAt(fromIndex);
+      externalLinks.insert(toIndex, entry);
+    }
+  }
 
   @override
   OwnedDetailsDraft toDetailsDraft() => MusicOwnedDetailsDraft(
@@ -31,16 +67,17 @@ class MusicEditDraft extends KindEditDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    if (selection.personal != null) {
-      return selection.copyWith(
-        personal: selection.personal!.copyWith(
+    var result = selection;
+    if (result.personal != null) {
+      result = result.copyWith(
+        personal: result.personal!.copyWith(
           signedBy: signedBy,
           storageDevice: emptyToNull(storageDeviceController.text),
           storageSlot: emptyToNull(storageSlotController.text),
         ),
       );
     }
-    return selection;
+    return result;
   }
 }
 
@@ -51,6 +88,14 @@ KindEditDraft createMusicEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final music = ownedItem?.musicDetails;
+  final externalLinks = [
+    for (final link in item.trailerUrls.where((l) => l.isExternalLink))
+      MusicExternalLinkEdit(
+        url: link.url,
+        description: link.description ?? link.title ?? '',
+      ),
+  ];
+
   return MusicEditDraft(
     storageDeviceController:
         textControllers.create(text: music?.storageDevice ?? ''),
@@ -58,5 +103,6 @@ KindEditDraft createMusicEditDraft({
         textControllers.create(text: music?.storageSlot ?? ''),
     signedBy: music?.signedBy,
     lastCleaned: music?.lastCleanedDate,
+    externalLinks: externalLinks,
   );
 }

@@ -149,19 +149,7 @@ class LibraryEditDialogRequest {
   final Color accent;
   final LibraryEditScope? scope;
 
-  LibraryEditScope get resolvedScope {
-    if (scope != null) {
-      return scope!;
-    }
-    if (ownedItem != null) {
-      return type.supportsMediaReleaseSplit
-          ? LibraryEditScope.release
-          : LibraryEditScope.all;
-    }
-    return type.supportsMediaReleaseSplit
-        ? LibraryEditScope.all
-        : LibraryEditScope.media;
-  }
+  LibraryEditScope get resolvedScope => scope ?? LibraryEditScope.all;
 
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -22,6 +24,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_status_f
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
+import 'package:collectarr_app/features/library/edit/vocabulary/library_edit_vocabulary_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -86,12 +89,30 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
       _LibraryEditRendererState();
 }
 
+class _LinkEntry {
+  _LinkEntry({
+    required this.urlController,
+    required this.descriptionController,
+    this.original,
+  });
+
+  final TextEditingController urlController;
+  final TextEditingController descriptionController;
+  final TrailerLinkDto? original;
+
+  void dispose() {
+    urlController.dispose();
+    descriptionController.dispose();
+  }
+}
+
 class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late final LibraryEditDraft _draft;
   late final TabController _tabController;
   late List<LibraryEditTabSpec> _tabSpecs;
+  late final List<_LinkEntry> _links;
 
   bool get _isOwned => _draft.isOwned;
 
@@ -130,6 +151,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           itemImages: widget.itemImages,
         );
 
+    _links = [
+      for (final link in widget.item.trailerUrls ?? const <TrailerLinkDto>[])
+        _LinkEntry(
+          urlController: TextEditingController(text: link.url),
+          descriptionController:
+              TextEditingController(text: link.title ?? link.description ?? ''),
+          original: link,
+        ),
+    ];
+
     _tabSpecs = widget.type.editPresentation
         .builderForScope(widget.scope)
         .buildTabs(context: _editPresentationContext);
@@ -138,11 +169,62 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       length: _tabSpecs.length,
       vsync: this,
     );
+
+    _loadVocabulary();
+  }
+
+  Future<void> _loadVocabulary() async {
+    final db = ref.read(localDatabaseProvider);
+    final vocab =
+        await const LibraryEditVocabularyController().loadVocabularyOptions(
+      LibraryEditVocabularyRequest(
+        db: db,
+        mediaKind: widget.type.workspace.kind.apiValue,
+        selectedPublisher: _draft.metadata.publisherController.text,
+        selectedImprint: _draft.metadata.imprintController.text,
+        selectedSeriesGroup: _draft.metadata.seriesGroupController.text,
+        selectedPhysicalFormat:
+            _draft.metadata.physicalFormatLabelController.text,
+        selectedCondition: _draft.personal.conditionController.text,
+        selectedGrade: _draft.personal.gradeController.text,
+        selectedCountry: _draft.metadata.countryController.text,
+        selectedLanguage: _draft.metadata.languageController.text,
+        selectedAgeRating: _draft.metadata.ageRatingController.text,
+        selectedAudienceRating: _draft.metadata.audienceRatingController.text,
+        selectedRegion: null,
+        selectedPackaging: null,
+        selectedDistributor: null,
+        selectedScreenRatio: null,
+        selectedAudioTracks: null,
+        selectedSubtitles: null,
+        selectedLayers: null,
+        selectedColor: null,
+        selectedGamePlatforms: null,
+        selectedCrossover: _draft.metadata.crossoverController.text,
+        selectedStoryArc: _draft.metadata.storyArcsController.text,
+        selectedPageQuality: null,
+        selectedKeyCategory: null,
+        selectedGenreValues: _draft.metadata.genresEditController.text,
+        selectedTagValues: _draft.personal.tagsController.text,
+        selectedSeriesTitle: _draft.metadata.seriesTitleController.text,
+        selectedSeriesId: null,
+        builtInPhysicalFormats: widget.physicalFormats,
+      ),
+    );
+    if (mounted) {
+      setState(() {
+        _draft.vocabulary = vocab;
+        _draft.seriesEntries = vocab.seriesEntries;
+      });
+    }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    for (final link in _links) {
+      link.dispose();
+    }
     if (widget.draft == null) {
       _draft.dispose();
     }
@@ -155,14 +237,42 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   void _submit(LibraryEditSubmitAction action) {
     if (_formKey.currentState?.validate() == false) return;
+    final updatedLinks = [
+      for (final link in _links)
+        if (link.urlController.text.trim().isNotEmpty)
+          TrailerLinkDto(
+            url: link.urlController.text.trim(),
+            title: emptyToNull(link.descriptionController.text.trim()),
+            description: emptyToNull(link.descriptionController.text.trim()),
+            kind: link.original?.kind ?? 'external',
+            source: link.original?.source ?? 'External Link',
+            isAutomatic: link.original?.isAutomatic ?? false,
+          ),
+    ];
     var selection = _draft.toSelection(submitAction: action);
+    if (_links.isNotEmpty || (widget.item.trailerUrls?.isNotEmpty ?? false)) {
+      selection = selection.copyWith(
+        item: selection.item.copyWith(
+          trailerUrls: updatedLinks,
+        ),
+      );
+    }
     selection = _draft.kindDetails?.applySelectionEdits(selection) ?? selection;
     Navigator.of(context).pop(selection);
   }
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.item.displayTitle ?? widget.item.title;
+    final firstCreator =
+        (widget.item.creators != null && widget.item.creators!.isNotEmpty)
+            ? widget.item.creators!.first['name']?.toString()
+            : null;
+    final yearSuffix =
+        widget.item.releaseYear != null ? ' (${widget.item.releaseYear})' : '';
+    final title = widget.item.displayTitle ??
+        (firstCreator != null
+            ? '${widget.item.title} / $firstCreator'
+            : '${widget.item.title}$yearSuffix');
     final subtitle = widget.type.singularLabel;
 
     return LibraryEditDialogScaffold(
@@ -231,6 +341,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       'photos' => _photosTab(),
       'cover' => _coverTab(),
       'synopsis' => _synopsisTab(),
+      'links' => _linksTab(),
       _ => EditTabShell(
           children: [
             EditSectionStateMessage(
@@ -243,6 +354,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _mainTab() {
+    final hasSeparateReleaseTab = _tabSpecs.any((t) => t.id == 'release');
     return EditTabShell(
       children: [
         EditSection(
@@ -258,43 +370,52 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   validator: _requiredValidator,
                 ),
                 LibraryEditTextField(
-                  controller: _draft.metadata.originalTitleController,
-                  label: 'Original title',
+                  controller: _draft.metadata.sortKeyController,
+                  label: 'Sort title',
                 ),
               ]),
               const SizedBox(height: 10),
               LibraryEditResponsiveRow(children: [
+                LibraryEditTextField(
+                  controller: _draft.metadata.originalTitleController,
+                  label: 'Original title',
+                ),
                 LibraryEditTextField(
                   controller: _draft.metadata.seriesTitleController,
                   label: 'Series',
                 ),
-                LibraryEditTextField(
-                  controller: _draft.metadata.numberController,
-                  label: widget.type.mediaFields.numberLabel,
-                ),
               ]),
               const SizedBox(height: 10),
               LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
+                  controller: _draft.metadata.numberController,
+                  label: widget.type.mediaFields.numberLabel,
+                ),
+                LibraryEditTextField(
                   controller: _draft.metadata.publisherController,
                   label: widget.type.mediaFields.publisherLabel,
                 ),
+              ]),
+              const SizedBox(height: 10),
+              LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
                   controller: _draft.metadata.releaseDateController,
                   label: widget.type.mediaFields.releaseDateLabel,
                 ),
               ]),
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: _draft.metadata.barcodeController,
-                  label: widget.type.releaseFields.barcodeLabel,
-                ),
-                LibraryEditTextField(
-                  controller: _draft.metadata.physicalFormatLabelController,
-                  label: widget.type.releaseFields.variantLabel,
-                ),
-              ]),
+              if (!hasSeparateReleaseTab) ...[
+                const SizedBox(height: 10),
+                LibraryEditResponsiveRow(children: [
+                  LibraryEditTextField(
+                    controller: _draft.metadata.barcodeController,
+                    label: widget.type.releaseFields.barcodeLabel,
+                  ),
+                  LibraryEditTextField(
+                    controller: _draft.metadata.physicalFormatLabelController,
+                    label: widget.type.releaseFields.variantLabel,
+                  ),
+                ]),
+              ],
             ],
           ),
         ),
@@ -306,9 +427,196 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _genericMediaTab() => _mainTab();
 
-  Widget _releaseTab() => _mainTab();
+  Widget _releaseTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Release Details',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LibraryEditResponsiveRow(children: [
+                LibraryEditTextField(
+                  controller: _draft.metadata.editionTitleController,
+                  label: 'Edition title',
+                ),
+                LibraryEditTextField(
+                  controller: _draft.metadata.variantController,
+                  label: widget.type.releaseFields.variantLabel,
+                ),
+              ]),
+              const SizedBox(height: 10),
+              LibraryEditResponsiveRow(children: [
+                LibraryEditTextField(
+                  controller: _draft.metadata.barcodeController,
+                  label: widget.type.releaseFields.barcodeLabel,
+                ),
+                LibraryEditTextField(
+                  controller: _draft.metadata.physicalFormatLabelController,
+                  label: 'Format',
+                ),
+              ]),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _linksTab() {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Links',
+          accent: widget.accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _links.add(_LinkEntry(
+                        urlController: TextEditingController(),
+                        descriptionController: TextEditingController(),
+                      ));
+                    });
+                  },
+                  icon: const Icon(Icons.add, size: 16),
+                  label: const Text('Add Link'),
+                ),
+              ),
+              const SizedBox(height: 10),
+              if (_links.isEmpty)
+                Text(
+                  'No links added.',
+                  style: TextStyle(color: Theme.of(context).hintColor),
+                ),
+              for (var i = 0; i < _links.length; i++) ...[
+                if (i > 0) const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: LibraryEditTextField(
+                        key: ValueKey('bookExternalLinkUrlField_$i'),
+                        controller: _links[i].urlController,
+                        label: 'URL',
+                        hint: 'https://',
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 2,
+                      child: LibraryEditTextField(
+                        key: ValueKey('bookExternalLinkDescriptionField_$i'),
+                        controller: _links[i].descriptionController,
+                        label: 'Link title',
+                        hint: 'Description',
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, size: 20),
+                      onPressed: () {
+                        setState(() {
+                          _links.removeAt(i).dispose();
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _personalTab() {
+    if (_draft.hasWishlistContext) {
+      return EditTabShell(
+        children: [
+          EditSection(
+            title: 'Wishlist Reference',
+            accent: widget.accent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButtonFormField<PersonalItemAnchorType>(
+                  key: const Key('library-edit-wishlist-anchor-field'),
+                  initialValue: _draft.personal.selectedWishlistAnchorType,
+                  decoration:
+                      const InputDecoration(labelText: 'Wishlist target'),
+                  items: [
+                    const DropdownMenuItem(
+                      value: PersonalItemAnchorType.item,
+                      child: Text('Item / Work'),
+                    ),
+                    if (widget.availableBundleReleases.isNotEmpty)
+                      const DropdownMenuItem(
+                        value: PersonalItemAnchorType.bundleRelease,
+                        child: Text('Bundle release'),
+                      ),
+                  ],
+                  onChanged: (val) {
+                    setState(() {
+                      _draft.personal.selectedWishlistAnchorType =
+                          val ?? PersonalItemAnchorType.item;
+                      if (val == PersonalItemAnchorType.bundleRelease &&
+                          widget.availableBundleReleases.isNotEmpty) {
+                        _draft.personal.selectedWishlistBundleReleaseId =
+                            widget.availableBundleReleases.first.id;
+                      }
+                    });
+                  },
+                ),
+                const SizedBox(height: 10),
+                LibraryEditResponsiveRow(children: [
+                  LibraryEditTextField(
+                    controller: _draft.personal.wishlistPriceController,
+                    label: 'Target price',
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Currency'),
+                    value:
+                        _draft.personal.wishlistCurrencyController.text.isEmpty
+                            ? 'USD'
+                            : _draft.personal.wishlistCurrencyController.text,
+                    items: const [
+                      DropdownMenuItem(value: 'USD', child: Text('USD')),
+                      DropdownMenuItem(value: 'EUR', child: Text('EUR')),
+                      DropdownMenuItem(value: 'GBP', child: Text('GBP')),
+                      DropdownMenuItem(value: 'RON', child: Text('RON')),
+                      DropdownMenuItem(value: 'JPY', child: Text('JPY')),
+                    ],
+                    onChanged: (val) {
+                      setState(() {
+                        _draft.personal.wishlistCurrencyController.text =
+                            val ?? 'USD';
+                      });
+                    },
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _draft.personal.wishlistNotesController,
+                  decoration:
+                      const InputDecoration(labelText: 'Wishlist notes'),
+                  maxLines: 3,
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
     return EditTabShell(
       children: [
         EditSection(
@@ -317,26 +625,35 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              LibraryEditResponsiveRow(children: [
-                SingleValuePickField(
-                  controller: _draft.personal.conditionController,
-                  label: 'Condition',
-                  options: widget.type.conditions,
+              if (_draft.isDigitalFormat) ...[
+                Text(
+                  'Digital copies do not expose physical storage fields.',
+                  style: TextStyle(color: Theme.of(context).hintColor),
                 ),
-                SingleValuePickField(
-                  controller: _draft.personal.gradeController,
-                  label: 'Grade',
-                  options: widget.type.grades,
-                ),
-              ]),
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
+                const SizedBox(height: 10),
                 _buildLocationPickerField(),
-                LibraryEditTextField(
-                  controller: _draft.personal.ownerLabelController,
-                  label: 'Owner',
-                ),
-              ]),
+              ] else ...[
+                LibraryEditResponsiveRow(children: [
+                  SingleValuePickField(
+                    controller: _draft.personal.conditionController,
+                    label: 'Condition',
+                    options: widget.type.conditions,
+                  ),
+                  SingleValuePickField(
+                    controller: _draft.personal.gradeController,
+                    label: 'Grade',
+                    options: widget.type.grades,
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                LibraryEditResponsiveRow(children: [
+                  _buildLocationPickerField(),
+                  LibraryEditTextField(
+                    controller: _draft.personal.ownerLabelController,
+                    label: 'Owner',
+                  ),
+                ]),
+              ],
               const SizedBox(height: 10),
               LibraryEditResponsiveRow(children: [
                 TagPickListField(
@@ -457,6 +774,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             children: [
               LibraryEditResponsiveRow(children: [
                 MediaTrackingStatusField(
+                  label: 'Tracking status',
                   value: _draft.tracking.trackingController.text.isEmpty
                       ? null
                       : _draft.tracking.trackingController.text,
@@ -562,7 +880,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         }
       },
       child: InputDecorator(
-        decoration: const InputDecoration(labelText: 'Location'),
+        decoration: const InputDecoration(
+          labelText: 'Location',
+          prefixIcon: Icon(Icons.place),
+        ),
         child: Text(
           _draft.personal.selectedLocationName ?? 'Pick location...',
           style: TextStyle(

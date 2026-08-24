@@ -71,6 +71,12 @@ abstract class ComicEditHost {
   TextEditingController get comicSoldToController;
   TextEditingController get comicCoverController;
   TextEditingController get comicThumbnailController;
+  TextEditingController get comicIndexNumberController;
+  TextEditingController get comicQuantityController;
+  String? get comicCollectionStatus;
+  set comicCollectionStatus(String? value);
+  String? get comicSelectedLocationId;
+  String? get comicSelectedLocationName;
 
   bool get comicKeyComic;
   set comicKeyComic(bool value);
@@ -112,6 +118,9 @@ abstract class ComicEditHost {
   Widget buildComicPhysicalFormatField({String label = 'Format'});
   Widget buildComicTagsDropdownField({String label = 'Tags'});
   Widget buildComicOwnerPickField({String label = 'Owner'});
+  Widget buildComicCollectionStatusPickField(
+      {String label = 'Collection Status'});
+  Widget buildComicLocationPickerField({String label = 'Location'});
 
   Widget buildComicOwnershipAnchorSelectionField();
   Widget buildComicEditionSelectionField();

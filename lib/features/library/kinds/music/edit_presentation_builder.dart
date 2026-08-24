@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
 List<String> _musicPersonalSections(
@@ -131,8 +132,82 @@ const _musicReleaseTabs = [
 ];
 
 const _musicCombinedTabs = [
-  ..._musicMediaTabs,
-  ..._musicReleaseTabs,
+  LibraryEditTabSpec(
+    id: 'main',
+    icon: Icons.music_note_outlined,
+    label: 'Main',
+    sectionIds: [
+      'music_release_identity',
+      'music_identifiers_release',
+      'music_genres'
+    ],
+  ),
+  LibraryEditTabSpec(
+    id: 'details',
+    icon: Icons.info_outline,
+    label: 'Details',
+    sectionIds: ['music_format_audio_details', 'music_album_notes'],
+  ),
+  LibraryEditTabSpec(
+    id: 'classical',
+    icon: Icons.piano_outlined,
+    label: 'Classical',
+    sectionIds: [
+      'music_classical_metadata',
+      'music_composer',
+      'music_conductor',
+      'music_orchestra',
+      'music_chorus',
+    ],
+  ),
+  LibraryEditTabSpec(
+    id: 'people',
+    icon: Icons.groups_2_outlined,
+    label: 'People',
+    sectionIds: [
+      'music_primary_artist',
+      'music_songwriter',
+      'music_producer',
+      'music_engineer',
+      'music_musician',
+    ],
+  ),
+  LibraryEditTabSpec(
+    id: 'tracks',
+    icon: Icons.format_list_numbered_outlined,
+    label: 'Tracks',
+    sectionIds: ['music_track_listing'],
+  ),
+  LibraryEditTabSpec(
+    id: 'personal',
+    icon: Icons.person_outline,
+    label: 'Personal',
+    sectionIdsForContext: _musicPersonalSections,
+  ),
+  LibraryEditTabSpec(
+    id: 'custom',
+    icon: Icons.edit_note_outlined,
+    label: 'Custom Fields',
+    sectionIds: ['music_custom_fields'],
+  ),
+  LibraryEditTabSpec(
+    id: 'covers',
+    icon: Icons.camera_alt_outlined,
+    label: 'Covers',
+    sectionIds: ['music_remote_cover_assets'],
+  ),
+  LibraryEditTabSpec(
+    id: 'photos',
+    icon: Icons.image_outlined,
+    label: 'My Images',
+    sectionIds: ['music_local_images'],
+  ),
+  LibraryEditTabSpec(
+    id: 'links',
+    icon: Icons.language_outlined,
+    label: 'Links',
+    sectionIds: ['music_metadata_source_notes', 'music_identifiers'],
+  ),
 ];
 
 class MusicLibraryCombinedEditPresentationBuilder
@@ -142,6 +217,7 @@ class MusicLibraryCombinedEditPresentationBuilder
           ownedTabs: _musicCombinedTabs,
           trackedTabs: _musicCombinedTabs,
           catalogTabs: _musicCombinedTabs,
+          customTabBuilder: buildMusicCustomTabView,
         );
 }
 
@@ -152,6 +228,7 @@ class MusicLibraryReleaseEditPresentationBuilder
           ownedTabs: _musicReleaseTabs,
           trackedTabs: _musicReleaseTabs,
           catalogTabs: _musicReleaseTabs,
+          customTabBuilder: buildMusicCustomTabView,
         );
 
   @override
@@ -179,6 +256,7 @@ class MusicLibraryMediaEditPresentationBuilder
           ownedTabs: _musicMediaTabs,
           trackedTabs: _musicMediaTabs,
           catalogTabs: _musicMediaTabs,
+          customTabBuilder: buildMusicCustomTabView,
         );
 }
 

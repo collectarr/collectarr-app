@@ -44,8 +44,9 @@ KindEditDraft createBookEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final book = ownedItem?.bookDetails;
+  final comic = ownedItem?.comicDetails;
   return BookEditDraft(
-    signedBy: book?.signedBy,
+    signedBy: book?.signedBy ?? comic?.signedBy,
     dustJacketPresent: book?.dustJacketPresent ?? false,
     dustJacketCondition: book?.dustJacketCondition,
   );

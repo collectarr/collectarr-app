@@ -23,6 +23,8 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/edit/vocabulary/library_edit_vocabulary_controller.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 
@@ -75,6 +77,8 @@ class LibraryEditDraft {
 
   Map<String, String?> customFieldEdits;
   List<ItemImageEdit> itemImageEdits;
+  List<SeriesRegistryEntry> seriesEntries = const [];
+  LibraryEditVocabularyOptions? vocabulary;
 
   // ---------------------------------------------------------------------------
   // Factory Constructors
@@ -447,7 +451,7 @@ class LibraryEditDraft {
         for (final value in customFieldValues)
           value.fieldDefinitionId: value.value,
       },
-      itemImageEdits: const [],
+      itemImageEdits: <ItemImageEdit>[],
     );
   }
 
@@ -537,13 +541,31 @@ class LibraryEditDraft {
   LibraryEditSelection buildSelection({
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
+    final existingPublishing = item.publishing;
     final updatedPublishing = CatalogPublishingDetails(
-      pageCount: parseInt(metadata.pageCountController.text),
-      coverPriceCents: item.publishing?.coverPriceCents,
-      currency: item.publishing?.currency,
-      imprint: emptyToNull(metadata.imprintController.text),
-      subtitle: item.publishing?.subtitle,
-      seriesGroup: emptyToNull(metadata.seriesGroupController.text),
+      pageCount: parseInt(metadata.pageCountController.text) ??
+          existingPublishing?.pageCount,
+      coverPriceCents: existingPublishing?.coverPriceCents,
+      currency: existingPublishing?.currency,
+      imprint: emptyToNull(metadata.imprintController.text) ??
+          existingPublishing?.imprint,
+      subtitle: existingPublishing?.subtitle,
+      seriesGroup: emptyToNull(metadata.seriesGroupController.text) ??
+          existingPublishing?.seriesGroup,
+      publicationPlace: existingPublishing?.publicationPlace,
+      originalCountry: existingPublishing?.originalCountry,
+      originalLanguage: existingPublishing?.originalLanguage,
+      originalPublicationDate: existingPublishing?.originalPublicationDate,
+      originalPublicationPlace: existingPublishing?.originalPublicationPlace,
+      originalPublisher: existingPublishing?.originalPublisher,
+      paperType: existingPublishing?.paperType,
+      printedBy: existingPublishing?.printedBy,
+      subjects: existingPublishing?.subjects ?? const [],
+      dustJacketCondition: existingPublishing?.dustJacketCondition,
+      dustJacket: existingPublishing?.dustJacket,
+      audiobookAbridged: existingPublishing?.audiobookAbridged,
+      firstEdition: existingPublishing?.firstEdition,
+      dewey: existingPublishing?.dewey,
     );
     final parsedStoryArcs = metadata.storyArcsController.text
         .split(RegExp(r'[,\r\n]+'))
@@ -588,10 +610,12 @@ class LibraryEditDraft {
         language: emptyToNull(metadata.languageController.text),
         ageRating: emptyToNull(metadata.ageRatingController.text),
         audienceRating: emptyToNull(metadata.audienceRatingController.text),
-        genres: parsedGenres.isEmpty ? null : parsedGenres,
-        storyArcs: parsedStoryArcs.isEmpty ? null : parsedStoryArcs,
+        genres: parsedGenres.isNotEmpty ? parsedGenres : item.genres,
+        storyArcs:
+            parsedStoryArcs.isNotEmpty ? parsedStoryArcs : item.storyArcs,
         publishing: updatedPublishing.hasData ? updatedPublishing : null,
         video: updatedVideo.hasData ? updatedVideo : null,
+        trailerUrls: item.trailerUrls,
       ),
       personal: ownedItem == null
           ? null
@@ -645,11 +669,16 @@ class LibraryEditDraft {
               keyReason: null,
               keyCategory: null,
               coverPriceCents: null,
-              purchaseStore: emptyToNull(personal.purchaseStoreController.text),
-              collectionStatus: personal.collectionStatus,
+              purchaseStore:
+                  emptyToNull(personal.purchaseStoreController.text) ??
+                      ownedItem?.purchaseStore,
+              collectionStatus:
+                  personal.collectionStatus ?? ownedItem?.collectionStatus,
               marketValueCents:
-                  parseMoneyCents(personal.marketValueController.text),
-              ownerLabel: emptyToNull(personal.ownerLabelController.text),
+                  parseMoneyCents(personal.marketValueController.text) ??
+                      ownedItem?.marketValueCents,
+              ownerLabel: emptyToNull(personal.ownerLabelController.text) ??
+                  ownedItem?.ownerLabel,
             ),
       wishlist: wishlistItem == null
           ? null
