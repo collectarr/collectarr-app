@@ -36,11 +36,17 @@ final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
   final groupDef = module.fields.findGroupDefinition(input.facetId);
   final columnDef = module.fields.findColumnDefinition(input.facetId);
 
-  if (groupDef == null && columnDef == null) {
+  if (groupDef == null &&
+      columnDef == null &&
+      module.facets?.getFacetValues == null) {
     return Stream.value(const <String>[]);
   }
 
   Object? getValue(LibraryProjectionRuntime item) {
+    if (module.facets?.getFacetValues != null) {
+      final custom = module.facets!.getFacetValues!(item, input.facetId);
+      if (custom.isNotEmpty) return custom;
+    }
     if (groupDef != null) return module.groupValue(item, groupDef.id);
     if (columnDef != null) return module.columnValue(item, columnDef.id);
     return null;
