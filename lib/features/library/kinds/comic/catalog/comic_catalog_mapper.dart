@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class ComicCatalogMapper {
@@ -54,6 +55,49 @@ class ComicCatalogMapper {
   }
 
   static ComicCatalogItem mapMetadataItemToComic(LibraryMetadataItem item) {
-    return mapDtoToComic(item.toCatalogItem());
+    final metadata = item.kindMetadata;
+    if (metadata is! ComicCatalogMetadata) {
+      throw StateError(
+        'Expected ComicCatalogMetadata, got ${metadata.runtimeType}',
+      );
+    }
+
+    return mapMetadataToComic(metadata, id: item.identity.id);
+  }
+
+  static ComicCatalogItem mapMetadataToComic(
+    ComicCatalogMetadata metadata, {
+    required String id,
+  }) {
+    final work = ComicWorkMetadata(
+      title: metadata.title,
+      issueNumber: metadata.issueNumber,
+      synopsis: metadata.synopsis,
+      coverDate: metadata.coverDate,
+      series: metadata.series,
+      creators: metadata.creators
+          .map((creator) => creator['name']?.toString() ?? '')
+          .where((name) => name.isNotEmpty)
+          .toList(growable: false),
+      characters: metadata.characters,
+      storyArcs: metadata.storyArcs,
+      genres: metadata.genres,
+    );
+
+    final publishing = ComicPublishingMetadata(
+      pageCount: metadata.pageCount,
+      coverPriceCents: metadata.publishing?.coverPriceCents,
+      currency: metadata.publishing?.currency,
+      publisher: metadata.publisher,
+      imprint: metadata.imprint,
+      subtitle: metadata.publishing?.subtitle,
+    );
+
+    return ComicCatalogItem(
+      id: id,
+      work: work,
+      publishing: publishing,
+      releases: metadata.releases,
+    );
   }
 }

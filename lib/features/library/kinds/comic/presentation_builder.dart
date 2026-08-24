@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -28,10 +29,10 @@ class ComicLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem?.toCatalogItem();
-    final series = catalogItem?.series;
-    final publishing = catalogItem?.publishing;
-    final music = catalogItem?.music;
+    final rawMetadata = item.source.catalogItem?.kindMetadata;
+    final metadata = rawMetadata is ComicCatalogMetadata ? rawMetadata : null;
+    final series = metadata?.series;
+    final publishing = metadata?.publishing;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
     final referencePlatforms = libraryReferencePlatforms(item);
@@ -92,9 +93,6 @@ class ComicLibraryMediaPresentationBuilder
         if (publishing?.pageCount != null)
           LibraryDetailField(
               label: 'Pages', value: publishing!.pageCount.toString()),
-        if (music?.catalogNumber != null)
-          LibraryDetailField(
-              label: 'Catalog No.', value: music!.catalogNumber!),
         if (publishing?.coverPriceCents != null)
           LibraryDetailField(
               label: 'Cover Price',
@@ -107,26 +105,14 @@ class ComicLibraryMediaPresentationBuilder
               label: 'Imprint',
               value: publishing!.imprint!,
               onTap: tapFor(publishing.imprint)),
-        if (publishing?.seriesGroup != null)
-          LibraryDetailField(
-              label: 'Series Group',
-              value: publishing!.seriesGroup!,
-              onTap: tapFor(publishing.seriesGroup)),
         if (publishing?.subtitle != null)
           LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
         if (dto.country != null)
           LibraryDetailField(label: 'Country', value: dto.country!),
-        if (music?.releaseStatus != null)
-          LibraryDetailField(
-              label: 'Release Status', value: music!.releaseStatus!),
         if (dto.language != null)
           LibraryDetailField(label: 'Language', value: dto.language!),
-        if (catalogItem?.ageRating != null)
-          LibraryDetailField(
-              label: 'Age Rating', value: catalogItem!.ageRating!),
-        if (catalogItem?.audienceRating != null)
-          LibraryDetailField(
-              label: 'Audience Rating', value: catalogItem!.audienceRating!),
+        if (metadata?.ageRating != null)
+          LibraryDetailField(label: 'Age Rating', value: metadata!.ageRating!),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
@@ -155,10 +141,10 @@ class ComicLibraryMediaPresentationBuilder
                 ? 'Missing'
                 : 'Ready'),
       ],
-      creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
-      characters: catalogItem?.characters ?? const <String>[],
-      storyArcs: catalogItem?.storyArcs ?? const <String>[],
-      genres: catalogItem?.genres ?? const <String>[],
+      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
+      characters: metadata?.characters ?? const <String>[],
+      storyArcs: metadata?.storyArcs ?? const <String>[],
+      genres: metadata?.genres ?? const <String>[],
     );
   }
 
@@ -169,7 +155,9 @@ class ComicLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = item.source.catalogItem?.synopsis;
+    final rawMetadata = item.source.catalogItem?.kindMetadata;
+    final synopsis =
+        rawMetadata is ComicCatalogMetadata ? rawMetadata.synopsis : null;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }

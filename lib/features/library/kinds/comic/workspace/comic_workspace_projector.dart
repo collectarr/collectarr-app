@@ -18,7 +18,8 @@ final class ComicWorkspaceProjector
     final comic =
         ComicCatalogMapper.mapMetadataItemToComic(source.catalogItem!);
     ComicCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
+    final catalog = source.catalogItem;
+    final km = catalog?.kindMetadata;
     if (km is ComicCatalogMetadata) {
       metadata = km;
     }

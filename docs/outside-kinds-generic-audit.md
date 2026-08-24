@@ -14,6 +14,23 @@ The current checked-out `main` has advanced to `a2e4321c`. In this revision,
 as evidence against the current tree. The current, reproducible PR1 debt is the
 forwarding getter facade and the broad `toCatalogItem()` interoperability path.
 
+### Current working-tree status
+
+The forwarding getter declarations have now been removed and the known callers
+have been moved to explicit `toCatalogItem()` calls. This is still a transition
+state, not the target architecture: `LibraryMetadataItem` retains an internal
+interoperability catalog and remains widely used by runtime APIs. The current
+working tree is not a commit-ready PR because the full semantic migration is
+not complete and the transition bridge is still carrying behavior.
+
+The implementation plan now intentionally favors semantic duplication per kind.
+Shared code is limited to technical shell, transport, persistence primitives,
+layout, and registry composition. The comic catalog/workspace/presentation/
+inspector projection slice now reads `ComicCatalogMetadata` directly and has no
+`toCatalogItem()` usage under `kinds/comic/`; the remaining comic provider, add,
+edit, detail, export, hierarchy, and entry paths still require migration. The
+bridge must shrink and then be deleted rather than receive more fallback logic.
+
 The intended boundary remains: generic library code consumes typed capabilities and
 workspace DTOs; concrete schemas and behavior live in `kinds/<kind>/`, with registry
 and composition roots as the only explicit exceptions.
@@ -24,18 +41,18 @@ and composition roots as the only explicit exceptions.
 | :--- | :--- | :--- |
 | No concrete kind imports outside `kinds/` | **Mostly passed** | No `kinds/<kind>/` import was found outside the registry; `CatalogMediaKind` is still used by generic boundary APIs. |
 | No concrete kind branches in generic behavior | **Partial** | Hierarchy child labels now come from `LibraryHierarchyCapability`; presentation and transfer semantic fallbacks remain. |
-| No broad central metadata superset | **Failed** | `LibraryMetadataItem` still exposes concrete forwarding getters and reconstructs `CatalogItem`. |
+| No broad central metadata superset | **Partial** | Forwarding getters are gone, but `LibraryMetadataItem` still retains an interoperability catalog and reconstructs `CatalogItem`. |
 | No runtime `GenericKindMetadataPayload` | **Passed** | Zero matches under `lib/`. |
 | Generic sync envelope plus kind codec | **Partial** | `toSyncPayload()` delegates encoding, but `toCatalogItem()` remains a central transport bridge used by generic code. |
 | No generic `LibraryFieldRegistry<dynamic, ...>` | **Failed** | `LibraryKindRuntime.fields` is declared as `LibraryFieldRegistry<dynamic, LibraryWorkspaceDto>`. |
 | No generic semantic `Map<String, Object?>` | **Failed** | Provider preview and add mapping pass concrete semantic payload maps to the central decoder. |
-| PR 1 decomposition complete | **Not complete** | Concrete field families remain reachable from the central metadata item and generic callers still use them. |
+| PR 1 decomposition complete | **Not complete** | Callers were migrated mechanically, but typed per-kind catalog and entry contracts have not replaced the central runtime object. |
 
 ## Inventory and Classification
 
 | Location | Match | Classification | Remaining action |
 | :--- | :--- | :--- | :--- |
-| `lib/features/library/models/library_metadata_item.dart` | `series`, `itemNumber`, `publisher`, `editionTitle`, `physicalFormat`, `barcode`, `variant`, `editions`, `trailerUrls`, and related forwarding getters | **Compatibility debt** | Remove the forwarding API and migrate callers to kind projections/capabilities. `toCatalogItem()` is an interop boundary, not a generic metadata API. |
+| `lib/features/library/models/library_metadata_item.dart` | Internal catalog bridge plus former semantic field surface | **Compatibility debt** | Replace the central runtime object with kind-owned catalog/entry contracts. `toCatalogItem()` is temporary interoperability only. |
 | `lib/features/library/models/library_metadata_item.dart` | `CatalogMediaKind` identity and `LibraryKindMetadataRuntime` | **Allowed boundary** | Keep the typed identity and runtime envelope. Do not add concrete schema switches here. |
 | `lib/features/library/add/services/library_add_workflow_service.dart` | `metadataItemFromPreview()` builds item-number, publishing, music, video, and game maps | **Kind-specific violation** | Move preview-to-kind decoding into the provider/kind mapper. Keep only the generic envelope in this service. |
 | `lib/features/library/add/controllers/library_add_preview_controller.dart` | `Map<String, AdminProviderPreview>` | **Transport-only** | The preview DTO may remain at the provider boundary; mapping semantics must be owned by the kind mapper. |
@@ -58,7 +75,7 @@ and composition roots as the only explicit exceptions.
 
 | Surface | Current finding | Classification |
 | :--- | :--- | :--- |
-| `LibraryMetadataItem` | Envelope shape exists, but concrete compatibility getters remain. | **Compatibility debt / PR 1 incomplete** |
+| `LibraryMetadataItem` | Forwarding getters are removed, but the internal catalog bridge remains. | **Compatibility debt / PR 1 incomplete** |
 | `CatalogItemDto` | Sealed transport DTO factory normalizes and dispatches concrete wire DTOs. | **Transport-only / allowed boundary** |
 | Hierarchy providers and UI | Child-section labels now come from kind-owned `LibraryHierarchyCapability`; legacy provider files still require review. | **Partial / hierarchy UI resolved** |
 | `LibraryKindRuntime` | A capability owner exists, but its field registry contract still exposes `dynamic` and generic workspace DTOs. | **Compatibility debt** |
@@ -69,27 +86,27 @@ and composition roots as the only explicit exceptions.
 
 ## PR 1 Exit Criteria
 
-PR 1 is **not complete on current main**. The required follow-up is to remove the
-forwarding getters from `LibraryMetadataItem`, migrate every caller to typed kind
-projection/capability access, and move provider preview decoding and edit fallback
-out of generic services. The central object must retain only identity, universal
-common metadata, and one `LibraryKindMetadataRuntime`; it must not grow a new generic
-payload superset or a generic semantic fallback.
+PR 1 is **not complete on current main**. The forwarding getters are gone, but
+the required follow-up is to replace the central runtime object itself with
+typed per-kind catalog and entry contracts, migrate every caller to kind-owned
+projection/capability access, and move provider preview decoding and edit
+fallback out of generic services. Do not add more state to the bridge or grow a
+new generic payload superset.
 
 ## Full Ownership Audit
 
 ### P0: Remove the metadata facade
 
-`LibraryMetadataItem` already has the desired envelope shape, but its forwarding
-getters (`series`, `publisher`, `editions`, `barcode`, `trailerUrls`, and related
-fields) reconstruct a broad `CatalogItem` and expose concrete schemas to every
-caller. This is the largest compatibility shortcut.
+`LibraryMetadataItem` no longer exposes forwarding getters, but its internal
+interoperability catalog and `toCatalogItem()` still reconstruct a broad
+`CatalogItem` and expose concrete schemas to callers. This is the largest
+remaining compatibility shortcut.
 
 Required sequence:
 
-1. Define typed projections on the existing kind runtime/capabilities for the
-	 metadata operations callers actually need: release/variant selection, creator
-	 presentation, links, and kind metadata.
+1. Define typed per-kind catalog and entry contracts on the existing kind
+	runtime/capabilities for release/variant selection, creator presentation,
+	links, and kind metadata.
 2. Migrate add, edit, inspector, detail, export, metadata comparison, series, and
 	 stats callers.
 3. Keep `toCatalogItem()` only as an explicit transport/interoperability bridge.

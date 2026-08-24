@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
@@ -478,7 +479,9 @@ final _comicSeriesItemsProvider =
 
 List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
   final dto = item.dto;
-  final publishing = item.source.catalogItem?.toCatalogItem().publishing;
+  final rawMetadata = item.source.catalogItem?.kindMetadata;
+  final publishing =
+      rawMetadata is ComicCatalogMetadata ? rawMetadata.publishing : null;
   final rows = <LibraryDetailField>[];
   if (dto.referenceFormatLabel?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
@@ -499,7 +502,9 @@ List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
 }
 
 List<LibraryDetailField> _seriesFacts(LibraryProjectionRuntime item) {
-  final series = item.source.catalogItem?.series;
+  final rawMetadata = item.source.catalogItem?.kindMetadata;
+  final series =
+      rawMetadata is ComicCatalogMetadata ? rawMetadata.series : null;
   final rows = <LibraryDetailField>[];
   if (series?.seriesTitle?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
