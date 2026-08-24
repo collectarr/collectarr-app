@@ -5,6 +5,15 @@ This is the PR 0 rebaseline and full ownership audit for `main` at `eac0e7c7` (2
 such as widget names and user-facing labels are recorded as false positives unless
 they carry kind semantics.
 
+### Revision note
+
+The current checked-out `main` has advanced to `a2e4321c`. In this revision,
+`lib/features/library/models/library_metadata_item.dart` is 131 lines and
+`GenericKindMetadataPayload` has zero matches under `lib/`. A report showing roughly
+468 lines or that symbol is from an older/stale served revision and must not be used
+as evidence against the current tree. The current, reproducible PR1 debt is the
+forwarding getter facade and the broad `toCatalogItem()` interoperability path.
+
 The intended boundary remains: generic library code consumes typed capabilities and
 workspace DTOs; concrete schemas and behavior live in `kinds/<kind>/`, with registry
 and composition roots as the only explicit exceptions.
