@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sections.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -96,11 +97,12 @@ class _BoardGameInspectorMain extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem?.toCatalogItem();
+    final kindMetadata = item.source.catalogItem?.kindMetadata;
+    final metadata = kindMetadata is BoardGameMetadata ? kindMetadata : null;
     final palette = appPalette(context);
     final releaseYear = dto.releaseDate?.year.toString();
-    final creatorsList = catalogItem?.creators
-            ?.map((Map<String, dynamic> c) => (c['name'] ?? '').toString())
+    final creatorsList = metadata?.creators
+            .map((Map<String, dynamic> c) => (c['name'] ?? '').toString())
             .where((n) => n.trim().isNotEmpty)
             .toList() ??
         const [];
@@ -200,10 +202,10 @@ class _BoardGameInspectorMain extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (catalogItem?.synopsis?.trim().isNotEmpty == true) ...[
+                  if (metadata?.synopsis?.trim().isNotEmpty == true) ...[
                     const SizedBox(height: 10),
                     Text(
-                      catalogItem!.synopsis!,
+                      metadata!.synopsis!,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],

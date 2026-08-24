@@ -72,6 +72,66 @@ class MusicCatalogMapper {
   }
 
   static MusicCatalogItem mapMetadataItemToMusic(LibraryMetadataItem item) {
-    return mapDtoToMusic(item.toCatalogItem());
+    final metadata = item.kindMetadata;
+    if (metadata is! MusicCatalogMetadata) {
+      throw ArgumentError.value(
+        metadata,
+        'item.kindMetadata',
+        'Expected MusicCatalogMetadata',
+      );
+    }
+    final music = metadata.music;
+    final releases = metadata.releases.map((release) {
+      final discsByNumber = <int, List<MusicTrackMetadata>>{};
+      for (final track in release.tracks) {
+        discsByNumber.putIfAbsent(track.disc, () => []).add(track);
+      }
+      final discs = discsByNumber.entries.map((entry) {
+        final tracks = entry.value
+            .map((track) => MusicTrackRef(
+                  title: track.title,
+                  position: int.tryParse(track.number),
+                  durationSeconds: track.durationSeconds,
+                  artist: track.artist ?? metadata.artist,
+                  discNumber: entry.key,
+                ))
+            .toList();
+        return MusicDiscRef(
+          discNumber: entry.key,
+          trackCount: tracks.length,
+          tracks: tracks,
+        );
+      }).toList();
+      return MusicRelease(
+        id: release.id,
+        title: release.title,
+        artist: metadata.artist,
+        publisher: release.label ?? metadata.publisher,
+        catalogNumber: release.catalogNumber ?? music?.catalogNumber,
+        upc: release.barcode ?? metadata.barcode,
+        releaseDate: release.releaseDate,
+        releaseStatus: music?.releaseStatus,
+        discs: discs,
+      );
+    }).toList();
+    return MusicCatalogItem(
+      id: item.id,
+      work: MusicWorkMetadata(
+        title: metadata.title,
+        originalTitle: null,
+        synopsis: metadata.synopsis,
+        artist: metadata.artist,
+        genres: metadata.genres,
+      ),
+      recording: MusicRecordingMetadata(
+        trackCount: metadata.trackCount,
+        studio: music?.studio ?? metadata.studio,
+        originalReleaseDate: metadata.originalReleaseDate,
+        recordingDate: metadata.recordingDate,
+        isLive: metadata.isLive,
+        composition: music?.composition,
+      ),
+      releases: releases,
+    );
   }
 }

@@ -5,28 +5,28 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 
 class GameCatalogMapper {
   static GameCatalogItem mapMetadataItemToGame(LibraryMetadataItem item) {
-    final meta = item.kindMetadata is GameCatalogMetadata
-        ? item.kindMetadata as GameCatalogMetadata
-        : null;
-    final payload = item.kindMetadata.toSyncPayload();
-    final catalogItem = item.toCatalogItem();
+    if (item.kindMetadata is! GameCatalogMetadata) {
+      throw ArgumentError.value(
+        item.kindMetadata,
+        'item.kindMetadata',
+        'Expected GameCatalogMetadata',
+      );
+    }
+    final meta = item.kindMetadata as GameCatalogMetadata;
 
     final work = GameWorkMetadata(
       title: item.title,
       originalTitle: item.originalTitle,
       synopsis: item.synopsis,
       releaseDate: item.releaseDate,
-      platforms: (payload['platforms'] as List?)?.cast<String>() ??
-          (meta?.platform != null ? [meta!.platform!] : const []),
-      genres: meta?.genres ??
-          (payload['genres'] as List?)?.cast<String>() ??
-          const [],
+      platforms: meta.platforms,
+      genres: meta.genres,
     );
 
-    final releases = catalogItem.editions.map((edition) {
+    final releases = item.editions.map((edition) {
       return GameRelease(
         id: edition.id,
-        title: edition.title ?? '',
+        title: edition.title,
         platform: edition.region,
         publisher: edition.publisher,
         barcode: edition.upc ?? edition.isbn,

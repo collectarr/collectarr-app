@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class TvEpisode {
   const TvEpisode({
@@ -122,25 +121,6 @@ class TvSeries {
     this.characterAppearances = const [],
     this.metadata = const {},
   });
-
-  factory TvSeries.fromMetadataItem(LibraryMetadataItem item) {
-    final catalog = item.toCatalogItem();
-    return TvSeries(
-      id: item.id,
-      title: item.title,
-      originalTitle: item.originalTitle,
-      overview: item.synopsis,
-      firstAirDate: item.releaseDate,
-      network: item.publisher,
-      originalLanguage: item.language,
-      country: item.country,
-      runtimeMinutes: catalog.video?.runtimeMinutes,
-      seriesDetails: item.series,
-      publishingDetails: catalog.publishing,
-      contributions: catalog.creators ?? const [],
-      characterAppearances: catalog.characterDetails ?? const [],
-    );
-  }
 
   final String id;
   final String title;

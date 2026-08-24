@@ -44,8 +44,8 @@ class MovieLibraryKindProviderMapper
     final movieMetadata = MovieCatalogMetadata.fromJson(norm);
 
     return LibraryMetadataItem(
-      identity: const LibraryItemIdentity(
-        id: '',
+      identity: LibraryItemIdentity(
+        id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.movie,
       ),
       common: LibraryCommonMetadata(

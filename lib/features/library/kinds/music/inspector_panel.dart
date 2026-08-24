@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,11 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
+  final metadata = item.source.catalogItem?.kindMetadata;
+  return metadata is MusicCatalogMetadata ? metadata : null;
+}
 
 Widget buildMusicInspectorPanel(
   BuildContext context,
@@ -140,8 +146,8 @@ class _MusicInspectorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catalogItem = inspector.item.source.catalogItem;
-    final artist = catalogItem?.series?.seriesTitle?.trim();
+    final metadata = _musicMetadata(inspector.item);
+    final artist = metadata?.artist?.trim();
     return LibraryInspectorTitleCard(
       item: inspector.item,
       eyebrow: artist,
@@ -157,8 +163,8 @@ class _MusicInspectorMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catalogItem = inspector.item.source.catalogItem?.toCatalogItem();
-    final music = catalogItem?.music;
+    final metadata = _musicMetadata(inspector.item);
+    final music = metadata?.music;
     final palette = appPalette(context);
     final discGroups =
         _groupTracksByDisc(music?.tracks ?? const <CatalogTrack>[]);
@@ -166,11 +172,9 @@ class _MusicInspectorMain extends StatelessWidget {
     final totalTracks = music?.trackCount ?? (music?.tracks.length ?? 0);
     final totalDuration =
         _formatTotalDuration(music?.tracks ?? const <CatalogTrack>[]);
-    final releaseYear = catalogItem?.releaseYear?.toString();
+    final releaseYear = metadata?.originalReleaseDate?.year.toString();
     final genreText =
-        catalogItem?.genres == null || catalogItem!.genres!.isEmpty
-            ? null
-            : catalogItem.genres!.join(' | ');
+        metadata?.genres.isEmpty != false ? null : metadata!.genres.join(' | ');
     final dto = inspector.item.dto;
     final formatLabel = dto.referenceFormatLabel ?? dto.variant ?? '-';
 
@@ -192,8 +196,8 @@ class _MusicInspectorMain extends StatelessWidget {
                 height: 164,
                 child: LibraryInteractiveCover(
                   title: dto.title,
-                  itemNumber: catalogItem?.itemNumber,
-                  imageUrl: catalogItem?.displayCoverUrl,
+                  itemNumber: dto.itemNumber,
+                  imageUrl: dto.coverImageUrl,
                   accentColor: inspector.accent,
                 ),
               ),
@@ -267,7 +271,7 @@ class _MusicInspectorMain extends StatelessWidget {
                       Expanded(
                         child: _MusicCoverCard(
                           title: 'Front cover',
-                          coverUrl: catalogItem?.displayCoverUrl,
+                          coverUrl: dto.coverImageUrl,
                           accent: inspector.accent,
                         ),
                       ),
@@ -325,8 +329,7 @@ class _MusicInspectorTracks extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tracks =
-        inspector.item.source.catalogItem?.toCatalogItem().music?.tracks ??
-            const <CatalogTrack>[];
+        _musicMetadata(inspector.item)?.tracks ?? const <CatalogTrack>[];
     final groups = _groupTracksByDisc(tracks);
     if (groups.isEmpty) {
       return const SizedBox.shrink();
@@ -387,8 +390,8 @@ class _MusicDiscDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catalogItem = inspector.item.source.catalogItem?.toCatalogItem();
-    final music = catalogItem?.music;
+    final metadata = _musicMetadata(inspector.item);
+    final music = metadata?.music;
     final discs = music?.discs ?? const <CatalogDisc>[];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,9 +439,9 @@ class _MusicProductDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catalogItem = inspector.item.source.catalogItem?.toCatalogItem();
     final dto = inspector.item.dto;
-    final music = catalogItem?.music;
+    final metadata = _musicMetadata(inspector.item);
+    final music = metadata?.music;
     final rows = <(String, String)>[
       if (dto.publisher?.trim().isNotEmpty == true) ('Label', dto.publisher!),
       if (music?.catalogNumber?.trim().isNotEmpty == true)
@@ -454,10 +457,10 @@ class _MusicProductDetails extends StatelessWidget {
         ('Original release', formatDate(music!.originalReleaseDate!)),
       if (music?.recordingDate != null)
         ('Recording date', formatDate(music!.recordingDate!)),
-      if (catalogItem?.country?.trim().isNotEmpty == true)
-        ('Country', catalogItem!.country!),
-      if (catalogItem?.language?.trim().isNotEmpty == true)
-        ('Language', catalogItem!.language!),
+      if (metadata?.country?.trim().isNotEmpty == true)
+        ('Country', metadata!.country!),
+      if (metadata?.language?.trim().isNotEmpty == true)
+        ('Language', metadata!.language!),
       if (music?.rpm?.trim().isNotEmpty == true) ('RPM', music!.rpm!),
       if (music?.soundType?.trim().isNotEmpty == true)
         ('Sound', music!.soundType!),
@@ -529,8 +532,8 @@ class _MusicInspectorCredits extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final creditRows = libraryCreatorsGroupedByRole(
-        inspector.item.source.catalogItem?.toCatalogItem().creators);
+    final creditRows =
+        libraryCreatorsGroupedByRole(_musicMetadata(inspector.item)?.creators);
     if (creditRows.isEmpty) {
       return Text(
         '-',

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
@@ -116,6 +115,8 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
     this.seriesTitle,
     this.itemNumber,
     this.editionTitle,
+    this.pageCount,
+    this.imprint,
     this.physicalFormat,
     this.physicalFormatLabel,
     this.publisher,
@@ -161,6 +162,8 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
   final String? seriesTitle;
   final String? itemNumber;
   final String? editionTitle;
+  final int? pageCount;
+  final String? imprint;
   final String? physicalFormat;
   final String? physicalFormatLabel;
   final String? publisher;
@@ -207,6 +210,8 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
         },
         if (itemNumber != null) 'item_number': itemNumber,
         if (editionTitle != null) 'edition_title': editionTitle,
+        if (pageCount != null) 'page_count': pageCount,
+        if (imprint != null) 'imprint': imprint,
         if (physicalFormat != null) 'physical_format': physicalFormat,
         if (physicalFormatLabel != null)
           'physical_format_label': physicalFormatLabel,
@@ -237,18 +242,18 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
         (json['series_title'] ?? series?.seriesTitle) as String?;
 
     final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<Object?, Object?>>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList() ??
         const <Map<String, dynamic>>[];
 
     final rawLinks = <TrailerLink>[
       ...((json['trailer_urls'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<Object?, Object?>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
       ...((json['external_links'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<Object?, Object?>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
     ];
@@ -312,6 +317,8 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
       seriesTitle: resolvedSeriesTitle,
       itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
       editionTitle: json['edition_title'] as String?,
+      pageCount: json['page_count'] as int?,
+      imprint: json['imprint'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
       publisher: (json['publisher'] ??

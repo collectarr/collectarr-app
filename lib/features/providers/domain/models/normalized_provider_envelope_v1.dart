@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'provider_attribution.dart';
 import 'provider_image_ref.dart';
 import 'provider_provenance.dart';
@@ -25,6 +26,74 @@ class NormalizedProviderEnvelopeV1 {
   final ProviderProvenance provenance;
   final List<ProviderImageRef> images;
   final ProviderAttribution attribution;
+
+  factory NormalizedProviderEnvelopeV1.fromAdminPreview(
+    AdminProviderPreview preview, {
+    required String itemId,
+  }) {
+    return NormalizedProviderEnvelopeV1(
+      provider: preview.provider,
+      providerItemId: itemId,
+      kind: preview.kind,
+      normalized: {
+        'title': preview.title,
+        'item_number': preview.itemNumber,
+        'synopsis': preview.synopsis,
+        'cover_image_url': preview.coverImageUrl,
+        'edition_title': preview.editionTitle,
+        'physical_format': preview.physicalFormat,
+        'physical_format_label': preview.physicalFormatLabel,
+        'publisher': preview.publisher,
+        'release_date': preview.releaseDate?.toIso8601String(),
+        'barcode': preview.barcode,
+        'isbn': preview.isbn,
+        'variant': preview.variantName,
+        'country': preview.country,
+        'language': preview.language,
+        'age_rating': preview.ageRating,
+        'audience_rating': preview.audienceRating,
+        'genres': preview.genres,
+        'characters': preview.characters,
+        'story_arcs': preview.storyArcs,
+        if (preview.creators.isNotEmpty)
+          'creators': [
+            for (final creator in preview.creators)
+              {
+                'name': creator.name,
+                if (creator.role != null) 'role': creator.role,
+                if (creator.imageUrl != null) 'image_url': creator.imageUrl,
+              },
+          ],
+        if (preview.series != null) 'series_title': preview.series!.seriesTitle,
+        if (preview.publishing != null)
+          'publishing': preview.publishing!.toJson(),
+        if (preview.music != null) ...{
+          'track_count': preview.music!.trackCount,
+          if (preview.music!.tracks.isNotEmpty)
+            'tracks':
+                preview.music!.tracks.map((track) => track.toJson()).toList(),
+          'music': preview.music!.toJson(),
+        },
+        if (preview.video != null) 'video': preview.video!.toJson(),
+        if (preview.game != null)
+          'game': {
+            'platforms': preview.game!.platforms,
+            'toy_subtype': preview.game!.toySubtype,
+            'toy_type': preview.game!.toyType,
+          },
+      },
+      provenance: const ProviderProvenance(fetchedAt: ''),
+      images: preview.coverImageUrl == null
+          ? const []
+          : [
+              ProviderImageRef(
+                provider: preview.provider,
+                url: preview.coverImageUrl!,
+              ),
+            ],
+      attribution: const ProviderAttribution(required: false),
+    );
+  }
 
   factory NormalizedProviderEnvelopeV1.fromJson(Map<String, dynamic> json) {
     final rawNormalized = json['normalized'];

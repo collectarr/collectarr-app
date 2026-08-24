@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -79,7 +80,7 @@ List<LibraryDetailSectionSpec> _buildGameSectionSpecs(
   LibraryInspectorRequest inspector,
 ) {
   final creditRows = libraryCreatorsGroupedByRole(
-    inspector.item.source.catalogItem?.toCatalogItem().creators,
+    _gameMetadata(inspector.item)?.creators,
   );
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
@@ -129,13 +130,13 @@ class _GameInspectorMain extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem?.toCatalogItem();
+    final metadata = _gameMetadata(item);
     final palette = appPalette(context);
     final releaseYear = dto.releaseDate?.year.toString();
-    final genres = catalogItem?.genres;
+    final genres = metadata?.genres;
     final genreText =
         genres == null || genres.isEmpty ? null : genres.join(' | ');
-    final platforms = catalogItem?.game?.platforms ?? const <String>[];
+    final platforms = metadata?.platforms ?? const <String>[];
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -252,7 +253,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem?.toCatalogItem();
+    final metadata = _gameMetadata(item);
     final owned = item.source.ownedItem;
     final releaseYear = dto.releaseDate?.year;
     final detailRows = <(String, String)>[
@@ -272,15 +273,15 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Age rating', dto.ageRating!),
       if (dto.country?.trim().isNotEmpty == true) ('Country', dto.country!),
       if (dto.language?.trim().isNotEmpty == true) ('Language', dto.language!),
-      if (catalogItem?.game?.platforms.isNotEmpty == true)
-        ('Platforms', catalogItem!.game!.platforms.join(', ')),
-      if (catalogItem?.game?.toySubtype?.trim().isNotEmpty == true)
-        ('Subtype', catalogItem!.game!.toySubtype!),
-      if (catalogItem?.game?.toyType?.trim().isNotEmpty == true)
-        ('Type', catalogItem!.game!.toyType!),
+      if (metadata?.platforms.isNotEmpty == true)
+        ('Platforms', metadata!.platforms.join(', ')),
+      if (metadata?.toySubtype?.trim().isNotEmpty == true)
+        ('Subtype', metadata!.toySubtype!),
+      if (metadata?.toyType?.trim().isNotEmpty == true)
+        ('Type', metadata!.toyType!),
       if (dto.barcode?.trim().isNotEmpty == true) ('Barcode', dto.barcode!),
-      if (catalogItem?.genres?.isNotEmpty == true)
-        ('Genres', catalogItem!.genres!.join(', ')),
+      if (metadata?.genres.isNotEmpty == true)
+        ('Genres', metadata!.genres.join(', ')),
       if (item.source.tags?.trim().isNotEmpty == true)
         ('Tags', item.source.tags!),
     ];
@@ -309,7 +310,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Added', formatDate(item.source.ownedItem!.createdAt!)),
       ('Modified', formatDate(item.source.updatedAt)),
     ];
-    final creditRows = libraryCreatorsGroupedByRole(catalogItem?.creators);
+    final creditRows = libraryCreatorsGroupedByRole(metadata?.creators);
 
     return Column(
       children: [
@@ -337,6 +338,11 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
       ],
     );
   }
+}
+
+GameCatalogMetadata? _gameMetadata(LibraryProjectionRuntime item) {
+  final metadata = item.source.catalogItem?.kindMetadata;
+  return metadata is GameCatalogMetadata ? metadata : null;
 }
 
 class _GameInspectorFactRows extends StatelessWidget {

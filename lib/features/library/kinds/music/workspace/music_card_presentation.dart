@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -462,7 +463,7 @@ class _MusicCompactMetaPill extends StatelessWidget {
 
 /// Returns the primary artist name for a music item.
 String? musicCardArtist(LibraryProjectionRuntime item) {
-  final creators = item.source.catalogItem?.toCatalogItem().creators ??
+  final creators = _musicMetadata(item)?.creators ??
       const <Map<String, dynamic>>[];
   String? fallbackName;
   for (final creator in creators) {
@@ -495,7 +496,7 @@ String? musicCardDuration(LibraryProjectionRuntime item) {
   if (runtimeFact != null && runtimeFact.isNotEmpty) {
     return runtimeFact;
   }
-  final musicDetails = item.source.catalogItem?.toCatalogItem().music;
+  final musicDetails = _musicMetadata(item)?.music;
   final totalSeconds = musicDetails?.trackCount; // Fallback estimate
   if (totalSeconds == null || totalSeconds <= 0) {
     return null;
@@ -511,7 +512,7 @@ String? musicCardDuration(LibraryProjectionRuntime item) {
 
 /// Returns the track count for the album.
 int? musicCardTrackCount(LibraryProjectionRuntime item) {
-  return item.source.catalogItem?.toCatalogItem().music?.trackCount ??
+  return _musicMetadata(item)?.trackCount ??
       int.tryParse(
         _metadataFactValue(
               _metadataPresentationForEntry(item),
@@ -519,6 +520,11 @@ int? musicCardTrackCount(LibraryProjectionRuntime item) {
             ) ??
             '',
       );
+}
+
+MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
+  final metadata = item.source.catalogItem?.kindMetadata;
+  return metadata is MusicCatalogMetadata ? metadata : null;
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(

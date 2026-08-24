@@ -44,8 +44,8 @@ class TvLibraryKindProviderMapper
     final tvMetadata = TvSeriesMetadata.fromJson(norm);
 
     return LibraryMetadataItem(
-      identity: const LibraryItemIdentity(
-        id: '',
+      identity: LibraryItemIdentity(
+        id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.tv,
       ),
       common: LibraryCommonMetadata(

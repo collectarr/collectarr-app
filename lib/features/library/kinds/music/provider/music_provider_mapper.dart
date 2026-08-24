@@ -44,8 +44,8 @@ class MusicLibraryKindProviderMapper
     final musicMetadata = MusicCatalogMetadata.fromJson(norm);
 
     return LibraryMetadataItem(
-      identity: const LibraryItemIdentity(
-        id: '',
+      identity: LibraryItemIdentity(
+        id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.music,
       ),
       common: LibraryCommonMetadata(

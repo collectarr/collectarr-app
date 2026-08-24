@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/volumes_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -38,10 +39,9 @@ class BookLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem?.toCatalogItem();
-    final series = catalogItem?.series;
-    final publishing = catalogItem?.publishing;
-    final music = catalogItem?.music;
+    final metadata = _bookMetadata(item);
+    final series = metadata?.series;
+    final publishing = metadata?.publishing;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
     final referencePlatforms = libraryReferencePlatforms(item);
@@ -102,9 +102,6 @@ class BookLibraryMediaPresentationBuilder
         if (publishing?.pageCount != null)
           LibraryDetailField(
               label: 'Pages', value: publishing!.pageCount.toString()),
-        if (music?.catalogNumber != null)
-          LibraryDetailField(
-              label: 'Catalog No.', value: music!.catalogNumber!),
         if (publishing?.coverPriceCents != null)
           LibraryDetailField(
               label: 'Cover Price',
@@ -126,17 +123,13 @@ class BookLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
         if (dto.country != null)
           LibraryDetailField(label: 'Country', value: dto.country!),
-        if (music?.releaseStatus != null)
-          LibraryDetailField(
-              label: 'Release Status', value: music!.releaseStatus!),
         if (dto.language != null)
           LibraryDetailField(label: 'Language', value: dto.language!),
-        if (catalogItem?.ageRating != null)
+        if (dto.ageRating != null)
+          LibraryDetailField(label: 'Age Rating', value: dto.ageRating!),
+        if (dto.audienceRating != null)
           LibraryDetailField(
-              label: 'Age Rating', value: catalogItem!.ageRating!),
-        if (catalogItem?.audienceRating != null)
-          LibraryDetailField(
-              label: 'Audience Rating', value: catalogItem!.audienceRating!),
+              label: 'Audience Rating', value: dto.audienceRating!),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
@@ -165,10 +158,10 @@ class BookLibraryMediaPresentationBuilder
                 ? 'Missing'
                 : 'Ready'),
       ],
-      creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
-      characters: catalogItem?.characters ?? const <String>[],
-      storyArcs: catalogItem?.storyArcs ?? const <String>[],
-      genres: catalogItem?.genres ?? const <String>[],
+      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
+      characters: const <String>[],
+      storyArcs: const <String>[],
+      genres: metadata?.genres ?? const <String>[],
     );
   }
 
@@ -190,17 +183,15 @@ class BookLibraryMediaPresentationBuilder
       );
     }
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem?.toCatalogItem();
-    final series = catalogItem?.series;
+    final metadata = _bookMetadata(item);
+    final series = metadata?.series;
     final sectionSpecs = <LibraryDetailSectionSpec>[];
 
     final originalFacts = <LibraryDetailField>[
       if (series?.seriesTitle?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Series', value: series!.seriesTitle!.trim()),
-      if (catalogItem?.synopsis != null &&
-          catalogItem!.synopsis!.trim().isNotEmpty)
-        LibraryDetailField(
-            label: 'Summary', value: catalogItem.synopsis!.trim()),
+      if (metadata?.synopsis != null && metadata!.synopsis!.trim().isNotEmpty)
+        LibraryDetailField(label: 'Summary', value: metadata.synopsis!.trim()),
     ];
     if (originalFacts.isNotEmpty) {
       sectionSpecs.add(
@@ -224,9 +215,8 @@ class BookLibraryMediaPresentationBuilder
         LibraryDetailField(label: 'Country', value: dto.country!.trim()),
       if (dto.language?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Language', value: dto.language!.trim()),
-      if (catalogItem?.ageRating?.trim().isNotEmpty == true)
-        LibraryDetailField(
-            label: 'Age Rating', value: catalogItem!.ageRating!.trim()),
+      if (dto.ageRating?.trim().isNotEmpty == true)
+        LibraryDetailField(label: 'Age Rating', value: dto.ageRating!.trim()),
     ];
     if (productFacts.isNotEmpty) {
       sectionSpecs.add(
@@ -240,7 +230,7 @@ class BookLibraryMediaPresentationBuilder
 
     final creatorNames = <String>[
       for (final creator
-          in catalogItem?.creators ?? const <Map<String, dynamic>>[])
+          in metadata?.creators ?? const <Map<String, dynamic>>[])
         if (creator['name']?.toString().trim().isNotEmpty == true)
           creator['name']!.toString().trim(),
     ];
@@ -695,7 +685,7 @@ String? _bookSubtitleForSelection({
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
-  final subtitle = item?.toCatalogItem().publishing?.subtitle ??
+  final subtitle = _bookMetadataItem(item)?.publishing?.subtitle ??
       preview?.publishing?.subtitle;
   if (subtitle != null &&
       subtitle.trim().isNotEmpty &&
@@ -748,7 +738,7 @@ String? _bookCreatorLineForSelection({
   }
 
   for (final credit
-      in item?.toCatalogItem().creators ?? const <Map<String, dynamic>>[]) {
+      in _bookMetadataItem(item)?.creators ?? const <Map<String, dynamic>>[]) {
     addName(credit['name']?.toString(), credit['role']?.toString());
   }
   for (final credit in preview?.creators ?? const <ProviderPreviewCredit>[]) {
@@ -821,7 +811,7 @@ int? _bookPageCountForSelection({
   required LibraryMetadataItem? item,
   required AdminProviderPreview? preview,
 }) {
-  return item?.toCatalogItem().publishing?.pageCount ??
+  return _bookMetadataItem(item)?.publishing?.pageCount ??
       preview?.publishing?.pageCount;
 }
 
@@ -846,22 +836,21 @@ List<String> _bookDiscoveryTagsForSelection({
     }
   }
 
-  addAll(item?.toCatalogItem().genres ?? preview?.genres ?? const <String>[]);
+  addAll(
+      _bookMetadataItem(item)?.genres ?? preview?.genres ?? const <String>[]);
   addAll(item?.series?.tags?.split(', ') ??
       (preview?.series?.tags != null
           ? [preview!.series!.tags!]
           : const <String>[]));
-  addAll(
-    item?.toCatalogItem().characters ??
-        preview?.characters ??
-        candidate?.characterPreview ??
-        const <String>[],
-  );
-  addAll(
-    item?.toCatalogItem().storyArcs ??
-        preview?.storyArcs ??
-        candidate?.storyArcPreview ??
-        const <String>[],
-  );
   return tags;
+}
+
+BookCatalogMetadata? _bookMetadata(LibraryProjectionRuntime item) {
+  final metadata = item.source.catalogItem?.kindMetadata;
+  return metadata is BookCatalogMetadata ? metadata : null;
+}
+
+BookCatalogMetadata? _bookMetadataItem(LibraryMetadataItem? item) {
+  final metadata = item?.kindMetadata;
+  return metadata is BookCatalogMetadata ? metadata : null;
 }

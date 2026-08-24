@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -7,6 +6,8 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 export 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
@@ -96,8 +97,50 @@ class TvWorkspaceNode {
 // ---------------------------------------------------------------------------
 extension TvVideoCatalogMapperExt on VideoCatalogMapper {
   static VideoCatalogItem fromTvMetadataItem(LibraryMetadataItem item) {
-    return VideoCatalogMapper.mapDtoToVideo(
-      CatalogItemDto.fromJson(item.toSyncPayload()),
+    final metadata = item.kindMetadata;
+    if (metadata is! TvSeriesMetadata) {
+      throw ArgumentError.value(
+        metadata,
+        'item.kindMetadata',
+        'Expected TvSeriesMetadata',
+      );
+    }
+    return VideoCatalogItem(
+      id: item.id,
+      work: VideoWorkMetadata(
+        title: metadata.title,
+        originalTitle: metadata.originalTitle,
+        synopsis: metadata.synopsis,
+        releaseDate: metadata.firstAirDate,
+        originalLanguage: metadata.originalLanguage,
+        genres: metadata.genres,
+        series: metadata.series,
+      ),
+      technical: VideoTechnicalMetadata(
+        runtimeMinutes: metadata.episodeRuntimeMinutes,
+        ageRating: metadata.contentRating,
+        audienceRating: metadata.contentRating,
+      ),
+      releases: [
+        for (final release in metadata.releases)
+          VideoRelease(
+            id: release.id,
+            title: release.title,
+            publisher: metadata.publisher,
+            barcode: release.barcode,
+            releaseDate: release.releaseDate,
+            formatLabel: release.packaging,
+            media: [
+              for (var disc = 1; disc <= (release.discCount ?? 0); disc++)
+                VideoMediaRef(
+                  id: '${release.id}:disc:$disc',
+                  title: 'Disc $disc',
+                  discNumber: disc,
+                ),
+            ],
+          ),
+      ],
+      trailerUrls: metadata.links,
     );
   }
 }

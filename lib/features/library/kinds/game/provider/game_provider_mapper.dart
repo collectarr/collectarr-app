@@ -44,8 +44,8 @@ class GameLibraryKindProviderMapper
     final gameMetadata = GameCatalogMetadata.fromJson(norm);
 
     return LibraryMetadataItem(
-      identity: const LibraryItemIdentity(
-        id: '',
+      identity: LibraryItemIdentity(
+        id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.game,
       ),
       common: LibraryCommonMetadata(

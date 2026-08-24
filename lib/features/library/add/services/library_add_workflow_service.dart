@@ -19,10 +19,9 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -37,94 +36,14 @@ class LibraryAddWorkflowService {
       provider: preview.provider,
       providerItemId: preview.providerItemId,
     );
-    return LibraryMetadataItem(
-      identity: LibraryItemIdentity(
-        id: id,
-        mediaKind: mediaKind,
-      ),
-      common: LibraryCommonMetadata(
-        title: preview.title,
-        synopsis: preview.synopsis,
-        coverImageUrl: preview.coverImageUrl,
-        thumbnailImageUrl: preview.coverImageUrl,
-        releaseDate: preview.releaseDate,
-        releaseYear:
-            preview.releaseDate?.year ?? preview.series?.volumeStartYear,
-      ),
-      kindMetadata: LibraryKindMetadataDecoders.decode(
-        mediaKind,
-        {
-          'id': id,
-          'kind': preview.kind,
-          'title': preview.title,
-          'item_number': preview.itemNumber,
-          'synopsis': preview.synopsis,
-          'cover_image_url': preview.coverImageUrl,
-          'edition_title': preview.editionTitle,
-          'physical_format': preview.physicalFormat,
-          'physical_format_label': preview.physicalFormatLabel,
-          'publisher': preview.publisher,
-          'release_date': preview.releaseDate?.toIso8601String(),
-          'barcode': preview.barcode,
-          'variant': preview.variantName,
-          'country': preview.country,
-          'language': preview.language,
-          'genres': preview.genres,
-          'characters': preview.characters,
-          'story_arcs': preview.storyArcs,
-          if (preview.creators.isNotEmpty)
-            'creators': [
-              for (final c in preview.creators)
-                {
-                  'name': c.name,
-                  if (c.role != null) 'role': c.role,
-                  if (c.imageUrl != null) 'image_url': c.imageUrl,
-                },
-            ],
-          if (preview.series != null)
-            'series_title': preview.series!.seriesTitle,
-          if (preview.publishing != null)
-            'publishing': {
-              'page_count': preview.publishing!.pageCount,
-              'cover_price_cents': preview.publishing!.coverPriceCents,
-              'imprint': preview.publishing!.imprint,
-              'subtitle': preview.publishing!.subtitle,
-              'series_group': preview.publishing!.seriesGroup,
-            },
-          if (preview.music != null) ...{
-            'track_count': preview.music!.trackCount,
-            if (preview.music!.tracks.isNotEmpty)
-              'tracks': preview.music!.tracks.map((t) => t.toJson()).toList(),
-            'music': {
-              'track_count': preview.music!.trackCount,
-              'catalog_number': preview.music!.catalogNumber,
-              'release_status': preview.music!.releaseStatus,
-              'rpm': preview.music!.rpm,
-              'sound_type': preview.music!.soundType,
-              'is_live': preview.music!.isLive,
-              if (preview.music!.tracks.isNotEmpty)
-                'tracks': preview.music!.tracks.map((t) => t.toJson()).toList(),
-            },
-          },
-          if (preview.video != null)
-            'video': {
-              'runtime_minutes': preview.video!.runtimeMinutes,
-              'color': preview.video!.color,
-              'nr_discs': preview.video!.nrDiscs,
-              'screen_ratio': preview.video!.screenRatio,
-              'audio_tracks': preview.video!.audioTracks,
-              'subtitles': preview.video!.subtitles,
-              'layers': preview.video!.layers,
-            },
-          if (preview.game != null)
-            'game': {
-              'platforms': preview.game!.platforms,
-              if (preview.game!.toySubtype != null)
-                'toy_subtype': preview.game!.toySubtype,
-              if (preview.game!.toyType != null)
-                'toy_type': preview.game!.toyType,
-            },
-        },
+    final mapper = libraryKindRuntimeForKind(mediaKind).providerMapper;
+    if (mapper == null) {
+      throw StateError('No provider mapper registered for ${preview.kind}');
+    }
+    return mapper.metadataItemFromEnvelope(
+      NormalizedProviderEnvelopeV1.fromAdminPreview(
+        preview,
+        itemId: id,
       ),
     );
   }

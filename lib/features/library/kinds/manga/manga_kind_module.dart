@@ -2,12 +2,12 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
@@ -73,15 +73,16 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
 
 Iterable<String> _getFacetValues(
     LibraryProjectionRuntime item, String facetId) {
-  final catalog = item.source.catalogItem?.toCatalogItem();
+  final kindMetadata = item.source.catalogItem?.kindMetadata;
+  final metadata = kindMetadata is MangaMetadata ? kindMetadata : null;
   if (facetId == MangaFacetIds.character.value) {
-    return catalog?.characters ?? const [];
+    return const [];
   }
   if (facetId == MangaFacetIds.genre.value) {
-    return catalog?.genres ?? const [];
+    return metadata?.genres ?? const [];
   }
   if (facetId == MangaFacetIds.publisher.value) {
-    final pub = catalog?.publisher;
+    final pub = metadata?.publisher;
     return pub != null ? [pub] : const [];
   }
   return const [];

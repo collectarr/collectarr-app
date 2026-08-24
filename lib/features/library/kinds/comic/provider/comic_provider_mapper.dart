@@ -44,8 +44,8 @@ class ComicLibraryKindProviderMapper
     final comicMetadata = ComicCatalogMetadata.fromJson(norm);
 
     return LibraryMetadataItem(
-      identity: const LibraryItemIdentity(
-        id: '',
+      identity: LibraryItemIdentity(
+        id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.comic,
       ),
       common: LibraryCommonMetadata(

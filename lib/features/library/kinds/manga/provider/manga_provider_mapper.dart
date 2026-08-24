@@ -44,8 +44,8 @@ class MangaLibraryKindProviderMapper
     final mangaMetadata = MangaMetadata.fromJson(norm);
 
     return LibraryMetadataItem(
-      identity: const LibraryItemIdentity(
-        id: '',
+      identity: LibraryItemIdentity(
+        id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.manga,
       ),
       common: LibraryCommonMetadata(

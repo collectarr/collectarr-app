@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -7,6 +6,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
@@ -75,16 +75,23 @@ KindEditDraft createBookEditDraft({
 }) {
   final book = ownedItem?.bookDetails;
   final comic = ownedItem?.comicDetails;
-  final cat = item.toCatalogItem();
+  final metadata = item.kindMetadata;
+  if (metadata is! BookCatalogMetadata) {
+    throw ArgumentError.value(
+      metadata,
+      'item.kindMetadata',
+      'Expected BookCatalogMetadata',
+    );
+  }
   return BookEditDraft(
     signedBy: book?.signedBy ?? comic?.signedBy,
     dustJacketPresent: book?.dustJacketPresent ?? false,
     dustJacketCondition: book?.dustJacketCondition,
     pageCountController: textControllers.create(
-      text: cat.publishing?.pageCount?.toString() ?? '',
+      text: metadata.publishing?.pageCount?.toString() ?? '',
     ),
     imprintController: textControllers.create(
-      text: cat.publishing?.imprint ?? '',
+      text: metadata.publishing?.imprint ?? '',
     ),
   );
 }

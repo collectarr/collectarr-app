@@ -28,7 +28,6 @@ class VideoLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final cat = item.source.catalogItem?.toCatalogItem();
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -72,9 +71,9 @@ class VideoLibraryMediaPresentationBuilder
               <String, dynamic>{'name': dto.creator}
             ]
           : const [],
-      characters: cat?.genres ?? const [],
+      characters: const [],
       storyArcs: const [],
-      genres: cat?.genres ?? const [],
+      genres: const [],
     );
   }
 
@@ -85,7 +84,7 @@ class VideoLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = item.dto.synopsis ?? item.source.catalogItem?.synopsis;
+    final synopsis = item.dto.synopsis;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }

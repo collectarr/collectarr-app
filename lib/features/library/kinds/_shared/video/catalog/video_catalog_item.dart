@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_release.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class VideoWorkMetadata {
   const VideoWorkMetadata({
@@ -56,54 +55,6 @@ class VideoCatalogItem {
 
   static VideoCatalogItem fromDto(CatalogItemDto dto) =>
       VideoCatalogMapper.mapDtoToVideo(dto);
-
-  factory VideoCatalogItem.fromMetadataItem(LibraryMetadataItem item) {
-    final catalog = item.toCatalogItem();
-    final v = catalog.video;
-    return VideoCatalogItem(
-      id: item.id,
-      work: VideoWorkMetadata(
-        title: item.title,
-        originalTitle: item.originalTitle,
-        synopsis: item.synopsis,
-        releaseDate: item.releaseDate,
-        originalLanguage: item.language,
-        genres: catalog.genres ?? const [],
-        series: item.series,
-      ),
-      technical: VideoTechnicalMetadata(
-        runtimeMinutes: v?.runtimeMinutes,
-        color: v?.color,
-        screenRatio: v?.screenRatio,
-        audioTracks: v?.audioTracks,
-        subtitles: v?.subtitles,
-        ageRating: item.ageRating ?? v?.ageRating,
-        audienceRating: item.audienceRating ?? v?.audienceRating,
-        nrDiscs: v?.nrDiscs,
-      ),
-      releases: catalog.editions
-          .map((edition) => VideoRelease(
-                id: edition.id,
-                title: edition.title ?? '',
-                publisher: edition.publisher,
-                distributor: edition.distributor,
-                barcode: edition.upc ?? edition.isbn,
-                releaseDate: edition.releaseDate,
-                formatLabel:
-                    edition.physicalFormatLabel ?? edition.physicalFormat,
-                media: edition.discs
-                    .map((disc) => VideoMediaRef(
-                          id: '${edition.id}:disc:${disc.discNumber}',
-                          title: disc.discName,
-                          formatLabel: disc.discFormat,
-                          discNumber: disc.discNumber,
-                        ))
-                    .toList(),
-              ))
-          .toList(),
-      trailerUrls: item.trailerUrls,
-    );
-  }
 
   final String id;
   final VideoWorkMetadata work;

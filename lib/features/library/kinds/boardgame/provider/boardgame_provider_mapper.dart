@@ -43,8 +43,8 @@ class BoardGameLibraryKindProviderMapper
     final boardGameMetadata = BoardGameMetadata.fromJson(norm);
 
     return LibraryMetadataItem(
-      identity: const LibraryItemIdentity(
-        id: '',
+      identity: LibraryItemIdentity(
+        id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.boardgame,
       ),
       common: LibraryCommonMetadata(

@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class BookCatalogMapper {
@@ -103,7 +104,98 @@ class BookCatalogMapper {
 
   /// Maps [LibraryMetadataItem] directly to domain [BookCatalogItem].
   static BookCatalogItem mapMetadataItemToBook(LibraryMetadataItem item) {
-    return mapDtoToBook(item.toCatalogItem());
+    final metadata = item.kindMetadata;
+    if (metadata is! BookCatalogMetadata) {
+      throw ArgumentError.value(
+        metadata,
+        'item.kindMetadata',
+        'Expected BookCatalogMetadata',
+      );
+    }
+
+    final seriesDetails = metadata.series;
+    final publishing = metadata.publishing;
+    final series = seriesDetails == null ||
+            seriesDetails.seriesId == null ||
+            seriesDetails.seriesTitle == null
+        ? null
+        : BookSeriesRef(
+            seriesId: seriesDetails.seriesId!,
+            seriesTitle: seriesDetails.seriesTitle!,
+            volumeNumber: seriesDetails.volumeNumber == null
+                ? null
+                : double.tryParse(seriesDetails.volumeNumber!),
+            seriesGroup: publishing?.seriesGroup,
+          );
+    final creators = metadata.creators
+        .map((creator) => BookCreatorCredit(
+              name:
+                  (creator['name'] ?? creator['display_name'] ?? '').toString(),
+              role: (creator['role'] ?? creator['type'] ?? '').toString(),
+            ))
+        .toList();
+    final work = BookWorkMetadata(
+      title: metadata.title,
+      subtitle: publishing?.subtitle ?? metadata.subtitle,
+      originalTitle: metadata.originalTitle,
+      synopsis: metadata.synopsis,
+      originalCountry: publishing?.originalCountry ?? metadata.country,
+      originalLanguage: publishing?.originalLanguage ?? metadata.language,
+      originalPublicationDate: publishing?.originalPublicationDate,
+      originalPublicationPlace: publishing?.originalPublicationPlace,
+      originalPublisher: publishing?.originalPublisher,
+      series: series,
+      creators: creators,
+      subjects: publishing?.subjects ?? metadata.subjects,
+      genres: metadata.genres,
+      characters: const [],
+      storyArcs: const [],
+    );
+    final publishingMetadata = BookPublishingMetadata(
+      pageCount: publishing?.pageCount,
+      imprint: publishing?.imprint,
+      publicationPlace: publishing?.publicationPlace,
+      paperType: publishing?.paperType,
+      printedBy: publishing?.printedBy,
+      dustJacket: publishing?.dustJacket,
+      dustJacketCondition: publishing?.dustJacketCondition,
+      firstEdition: publishing?.firstEdition,
+      audiobookAbridged: publishing?.audiobookAbridged,
+      coverPriceCents: publishing?.coverPriceCents,
+      currency: publishing?.currency,
+      dewey: publishing?.dewey,
+    );
+    final releases = metadata.editions
+        .map(
+          (edition) => BookRelease(
+            id: edition.id,
+            title: edition.title,
+            publisher: edition.publisher,
+            isbn: edition.isbn,
+            releaseDate: edition.publicationDate,
+            physicalFormat: edition.format,
+            physicalFormatLabel: edition.format,
+            firstEdition: edition.firstEdition,
+          ),
+        )
+        .toList();
+    if (releases.isEmpty) {
+      releases.add(BookRelease(
+        id: '${item.id}-release',
+        title: metadata.editionTitle ?? metadata.variant ?? metadata.title,
+        publisher: metadata.publisher,
+        releaseDate: metadata.publishing?.originalPublicationDate,
+        physicalFormat: metadata.physicalFormat,
+        physicalFormatLabel: metadata.physicalFormatLabel,
+        upc: metadata.barcode,
+      ));
+    }
+    return BookCatalogItem(
+      id: item.id,
+      work: work,
+      publishing: publishingMetadata,
+      releases: releases,
+    );
   }
 
   static BookRelease _mapEditionDtoToRelease(

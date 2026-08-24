@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 
 class VideoLibraryMediaPresentationBuilder
@@ -32,9 +33,10 @@ class VideoLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem?.toCatalogItem();
-    final series = catalogItem?.series;
-    final video = catalogItem?.video;
+    final movie = item.source.catalogItem?.kindMetadata;
+    final metadata = movie is MovieCatalogMetadata ? movie : null;
+    final series = metadata?.series;
+    final video = metadata?.video;
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
@@ -111,16 +113,16 @@ class VideoLibraryMediaPresentationBuilder
               label: 'Language',
               value: dto.language!,
               onTap: tapFor(dto.language)),
-        if (catalogItem?.ageRating != null)
+        if (metadata?.ageRating != null)
           LibraryDetailField(
               label: 'Age Rating',
-              value: catalogItem!.ageRating!,
-              onTap: tapFor(catalogItem.ageRating)),
-        if (catalogItem?.audienceRating != null)
+              value: metadata!.ageRating!,
+              onTap: tapFor(metadata.ageRating)),
+        if (metadata?.audienceRating != null)
           LibraryDetailField(
               label: 'Audience Rating',
-              value: catalogItem!.audienceRating!,
-              onTap: tapFor(catalogItem.audienceRating)),
+              value: metadata!.audienceRating!,
+              onTap: tapFor(metadata.audienceRating)),
         LibraryDetailField(
             label: 'Cover',
             value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
@@ -132,10 +134,10 @@ class VideoLibraryMediaPresentationBuilder
                 ? 'Missing'
                 : 'Ready'),
       ],
-      creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
-      characters: catalogItem?.characters ?? const <String>[],
-      storyArcs: catalogItem?.storyArcs ?? const <String>[],
-      genres: catalogItem?.genres ?? const <String>[],
+      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
+      characters: const <String>[],
+      storyArcs: const <String>[],
+      genres: metadata?.genres ?? const <String>[],
     );
   }
 

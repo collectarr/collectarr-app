@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -9,6 +8,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 
 class MangaEditDraft extends KindEditDraft {
@@ -95,7 +95,14 @@ KindEditDraft createMangaEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final manga = ownedItem?.mangaDetails;
-  final cat = item.toCatalogItem();
+  final metadata = item.kindMetadata;
+  if (metadata is! MangaMetadata) {
+    throw ArgumentError.value(
+      metadata,
+      'item.kindMetadata',
+      'Expected MangaMetadata',
+    );
+  }
   return MangaEditDraft(
     signedBy: manga?.signedBy,
     obiStripPresent: manga?.obiStripPresent ?? false,
@@ -107,10 +114,10 @@ KindEditDraft createMangaEditDraft({
     printing: manga?.printing,
     localizedEdition: manga?.localizedEdition,
     pageCountController: textControllers.create(
-      text: cat.publishing?.pageCount?.toString() ?? '',
+      text: metadata.pageCount?.toString() ?? '',
     ),
     imprintController: textControllers.create(
-      text: cat.publishing?.imprint ?? '',
+      text: metadata.imprint ?? '',
     ),
   );
 }

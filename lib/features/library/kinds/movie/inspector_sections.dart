@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/inspector/sections/releases_sect
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildMovieInspectorSections(
@@ -16,8 +17,9 @@ List<Widget> buildMovieInspectorSections(
 ) {
   final item = request.item;
   final dto = item.dto;
-  final catalogItem = item.source.catalogItem?.toCatalogItem();
-  final editionCount = catalogItem?.editions.length ?? 0;
+  final kindMetadata = item.source.catalogItem?.kindMetadata;
+  final metadata = kindMetadata is MovieCatalogMetadata ? kindMetadata : null;
+  final editionCount = metadata?.releases.length ?? 0;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Title', value: dto.title),
     if (dto.publisher?.trim().isNotEmpty == true)
@@ -32,14 +34,14 @@ List<Widget> buildMovieInspectorSections(
       LibraryDetailField(label: 'Country', value: dto.country!),
     if (dto.language?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Language', value: dto.language!),
-    if (catalogItem?.ageRating?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Age rating', value: catalogItem!.ageRating!),
-    if (catalogItem?.audienceRating?.trim().isNotEmpty == true)
+    if (metadata?.ageRating?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Age rating', value: metadata!.ageRating!),
+    if (metadata?.audienceRating?.trim().isNotEmpty == true)
       LibraryDetailField(
-          label: 'Audience rating', value: catalogItem!.audienceRating!),
-    if (catalogItem?.trailerUrls.isNotEmpty == true)
+          label: 'Audience rating', value: metadata!.audienceRating!),
+    if (metadata?.trailerUrls.isNotEmpty == true)
       LibraryDetailField(
-          label: 'Trailers', value: catalogItem!.trailerUrls.length.toString()),
+          label: 'Trailers', value: metadata!.trailerUrls.length.toString()),
   ];
 
   final sections = <Widget>[
@@ -48,21 +50,21 @@ List<Widget> buildMovieInspectorSections(
       accent: request.accent,
       facts: facts,
       children: [
-        if (catalogItem?.synopsis?.trim().isNotEmpty == true)
+        if (metadata?.synopsis?.trim().isNotEmpty == true)
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              catalogItem!.synopsis!,
+              metadata!.synopsis!,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
       ],
     ),
-    if ((catalogItem?.editions.isNotEmpty ?? false))
+    if ((metadata?.releases.isNotEmpty ?? false))
       InspectorReleasesSection(request: request),
-    if ((catalogItem?.creators ?? const <Map<String, dynamic>>[]).isNotEmpty)
+    if ((metadata?.creators ?? const <Map<String, dynamic>>[]).isNotEmpty)
       InspectorContributorsSection(request: request),
-    if ((catalogItem?.trailerUrls.isNotEmpty ?? false))
+    if ((metadata?.links.isNotEmpty ?? false))
       InspectorLinksTrailersSection(request: request),
     if (request.ownedItem != null || request.trackingEntry != null)
       InspectorPersonalStatusSection(

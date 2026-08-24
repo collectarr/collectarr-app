@@ -44,8 +44,8 @@ class AnimeLibraryKindProviderMapper
     final animeMetadata = AnimeMetadata.fromJson(norm);
 
     return LibraryMetadataItem(
-      identity: const LibraryItemIdentity(
-        id: '',
+      identity: LibraryItemIdentity(
+        id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.anime,
       ),
       common: LibraryCommonMetadata(

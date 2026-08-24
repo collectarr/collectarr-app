@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +11,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
     required this.title,
     this.platform,
     this.platforms = const [],
+    this.toySubtype,
+    this.toyType,
     this.releaseRegion,
     this.edition,
     this.developers = const [],
@@ -40,6 +41,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
   final String title;
   final String? platform;
   final List<String> platforms;
+  final String? toySubtype;
+  final String? toyType;
   final String? releaseRegion;
   final String? edition;
   final List<String> developers;
@@ -62,6 +65,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
         'title': title,
         if (platform != null) 'platform': platform,
         if (platforms.isNotEmpty) 'platforms': platforms,
+        if (toySubtype != null) 'toy_subtype': toySubtype,
+        if (toyType != null) 'toy_type': toyType,
         if (releaseRegion != null) 'release_region': releaseRegion,
         if (edition != null) 'edition': edition,
         if (developers.isNotEmpty) 'developers': developers,
@@ -107,18 +112,18 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
             : const <String>[]);
 
     final rawCreators = (json['creators'] as List<dynamic>?)
-            ?.whereType<Map>()
+            ?.whereType<Map<Object?, Object?>>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList() ??
         const <Map<String, dynamic>>[];
 
     final rawLinks = <TrailerLink>[
       ...((json['trailer_urls'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<Object?, Object?>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
       ...((json['external_links'] as List<dynamic>?)
-              ?.whereType<Map>()
+              ?.whereType<Map<Object?, Object?>>()
               .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLink>[]),
     ];
@@ -127,6 +132,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
       title: (json['title'] as String?) ?? '',
       platform: json['platform'] as String? ?? rawPlatforms.firstOrNull,
       platforms: rawPlatforms,
+      toySubtype: (gameMap['toy_subtype'] ?? json['toy_subtype']) as String?,
+      toyType: (gameMap['toy_type'] ?? json['toy_type']) as String?,
       releaseRegion: json['release_region'] as String?,
       edition: json['edition'] as String?,
       developers: (json['developers'] as List<dynamic>?)

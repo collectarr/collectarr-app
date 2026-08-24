@@ -29,6 +29,8 @@ class VideoEditController {
     String? initialSeasonNumber,
     String? initialEpisodeNumber,
     Map<String, int>? initialEpisodeRatings,
+    this.initialCreators = const <Map<String, dynamic>>[],
+    this.initialDiscCount,
   })  : runtimeController = TextEditingController(
           text: initialRuntime ??
               (item.kindMetadata
@@ -62,6 +64,8 @@ class VideoEditController {
   final LibraryTypeConfig? type;
   final LibraryMetadataItem item;
   final LibraryEditDraft? draft;
+  final List<Map<String, dynamic>> initialCreators;
+  final int? initialDiscCount;
 
   final TextEditingController runtimeController;
   final TextEditingController seasonNumberController;
@@ -107,8 +111,7 @@ class VideoEditController {
     if (!isVideoKind) {
       return;
     }
-    final creators =
-        item.toCatalogItem().creators ?? const <Map<String, dynamic>>[];
+    final creators = initialCreators;
     castCredits.addAll(
       splitVideoCredits(creators, kind: VideoCreditKind.cast),
     );
@@ -353,9 +356,7 @@ class VideoEditController {
 
   List<TvReleaseMedia> buildFallbackTvReleaseMedia(TvSeries series) {
     final episodeCount = flattenTvEpisodes(series).length;
-    final discCount = (item.toCatalogItem().video?.nrDiscs ?? episodeCount)
-        .clamp(1, 20)
-        .toInt();
+    final discCount = (initialDiscCount ?? episodeCount).clamp(1, 20).toInt();
     final episodes = flattenTvEpisodes(series);
     if (discCount == 1) {
       return [

@@ -43,8 +43,8 @@ class BookLibraryKindProviderMapper
     final bookMetadata = BookCatalogMetadata.fromJson(norm);
 
     return LibraryMetadataItem(
-      identity: const LibraryItemIdentity(
-        id: '',
+      identity: LibraryItemIdentity(
+        id: envelope.providerItemId,
         mediaKind: CatalogMediaKind.book,
       ),
       common: LibraryCommonMetadata(

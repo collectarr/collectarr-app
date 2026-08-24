@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 
 class GameLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -22,7 +23,8 @@ class GameLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem?.toCatalogItem();
+    final kindMetadata = item.source.catalogItem?.kindMetadata;
+    final metadata = kindMetadata is GameCatalogMetadata ? kindMetadata : null;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -39,9 +41,8 @@ class GameLibraryMediaPresentationBuilder
         if (dto.barcode != null)
           LibraryDetailField(
               label: releaseFields.barcodeLabel, value: dto.barcode!),
-        if (catalogItem?.ageRating != null)
-          LibraryDetailField(
-              label: 'Age Rating', value: catalogItem!.ageRating!),
+        if (metadata?.ageRating != null)
+          LibraryDetailField(label: 'Age Rating', value: metadata!.ageRating!),
       ],
       contextFacts: [
         if (dto.publisher != null)
@@ -56,10 +57,10 @@ class GameLibraryMediaPresentationBuilder
                 dto.releaseDate!.year.toString(),
           ),
       ],
-      creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
-      characters: catalogItem?.characters ?? const <String>[],
-      storyArcs: catalogItem?.storyArcs ?? const <String>[],
-      genres: catalogItem?.genres ?? const <String>[],
+      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
+      characters: const <String>[],
+      storyArcs: const <String>[],
+      genres: metadata?.genres ?? const <String>[],
     );
   }
 }

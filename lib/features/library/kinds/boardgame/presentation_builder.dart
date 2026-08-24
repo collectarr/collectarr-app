@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 
 class BoardGameLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
@@ -23,9 +24,9 @@ class BoardGameLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem?.toCatalogItem();
-    final series = catalogItem?.series;
-    final boardGameStats = catalogItem?.boardGameStats;
+    final kindMetadata = item.source.catalogItem?.kindMetadata;
+    final metadata = kindMetadata is BoardGameMetadata ? kindMetadata : null;
+    final series = metadata?.series;
 
     return LibraryMetadataPresentation(
       labels: metadataLabels,
@@ -63,47 +64,41 @@ class BoardGameLibraryMediaPresentationBuilder
               formatPresentationNullableDate(dto.releaseDate) ??
                   dto.releaseDate?.year.toString(),
             )),
-        if (boardGameStats?.minPlayers != null ||
-            boardGameStats?.maxPlayers != null)
+        if (metadata?.minPlayers != null || metadata?.maxPlayers != null)
           LibraryDetailField(
             label: 'Players',
-            value: (boardGameStats?.minPlayers != null &&
-                    boardGameStats?.maxPlayers != null &&
-                    boardGameStats!.minPlayers != boardGameStats.maxPlayers)
-                ? '${boardGameStats.minPlayers}–${boardGameStats.maxPlayers}'
-                : '${boardGameStats?.maxPlayers ?? boardGameStats?.minPlayers}',
+            value: (metadata?.minPlayers != null &&
+                    metadata?.maxPlayers != null &&
+                    metadata!.minPlayers != metadata.maxPlayers)
+                ? '${metadata.minPlayers}–${metadata.maxPlayers}'
+                : '${metadata?.maxPlayers ?? metadata?.minPlayers}',
           ),
-        if (boardGameStats?.playingTimeMinutes != null ||
-            boardGameStats?.minPlayingTimeMinutes != null ||
-            boardGameStats?.maxPlayingTimeMinutes != null)
+        if (metadata?.minPlaytimeMinutes != null ||
+            metadata?.maxPlaytimeMinutes != null)
           LibraryDetailField(
             label: 'Playtime',
-            value: (boardGameStats?.minPlayingTimeMinutes != null &&
-                    boardGameStats?.maxPlayingTimeMinutes != null &&
-                    boardGameStats!.minPlayingTimeMinutes !=
-                        boardGameStats.maxPlayingTimeMinutes)
-                ? '${boardGameStats.minPlayingTimeMinutes}–${boardGameStats.maxPlayingTimeMinutes} min'
-                : '${boardGameStats?.playingTimeMinutes ?? boardGameStats?.maxPlayingTimeMinutes ?? boardGameStats?.minPlayingTimeMinutes} min',
+            value: (metadata?.minPlaytimeMinutes != null &&
+                    metadata?.maxPlaytimeMinutes != null &&
+                    metadata!.minPlaytimeMinutes != metadata.maxPlaytimeMinutes)
+                ? '${metadata.minPlaytimeMinutes}-${metadata.maxPlaytimeMinutes} min'
+                : '${metadata?.maxPlaytimeMinutes ?? metadata?.minPlaytimeMinutes} min',
           ),
-        if (boardGameStats?.minAgeYears != null)
+        if (metadata?.minimumAge != null)
           LibraryDetailField(
             label: 'Min Age',
-            value: '${boardGameStats!.minAgeYears}+',
+            value: '${metadata!.minimumAge}+',
           ),
-        if (boardGameStats?.complexityRating != null ||
-            boardGameStats?.bggWeight != null)
+        if (metadata?.complexityWeight != null)
           LibraryDetailField(
             label: 'Complexity',
-            value:
-                '${(boardGameStats?.complexityRating ?? boardGameStats?.bggWeight)!.toStringAsFixed(2)} / 5.0',
+            value: '${metadata!.complexityWeight!.toStringAsFixed(2)} / 5.0',
           ),
-        if (boardGameStats?.bggRank != null)
-          LibraryDetailField(
-              label: 'BGG Rank', value: '#${boardGameStats!.bggRank}'),
-        if (boardGameStats?.bggRating != null)
+        if (metadata?.bggRank != null)
+          LibraryDetailField(label: 'BGG Rank', value: '#${metadata!.bggRank}'),
+        if (metadata?.bggRating != null)
           LibraryDetailField(
               label: 'BGG Rating',
-              value: boardGameStats!.bggRating!.toStringAsFixed(1)),
+              value: metadata!.bggRating!.toStringAsFixed(1)),
         if (dto.country != null)
           LibraryDetailField(
               label: 'Country',
@@ -115,10 +110,10 @@ class BoardGameLibraryMediaPresentationBuilder
               value: dto.language!,
               onTap: tapFor(dto.language)),
       ],
-      creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
-      characters: catalogItem?.characters ?? const <String>[],
-      storyArcs: catalogItem?.storyArcs ?? const <String>[],
-      genres: catalogItem?.genres ?? const <String>[],
+      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
+      characters: const <String>[],
+      storyArcs: const <String>[],
+      genres: metadata?.categories ?? const <String>[],
     );
   }
 }

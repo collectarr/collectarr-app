@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
@@ -90,7 +91,15 @@ KindEditDraft createTvEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final video = ownedItem?.tvDetails;
-  final videoEdit = VideoEditController(item: item);
+  final metadata = item.kindMetadata;
+  final tv = metadata is TvSeriesMetadata ? metadata : null;
+  final videoEdit = VideoEditController(
+    item: item,
+    initialCreators: tv?.creators ?? const <Map<String, dynamic>>[],
+    initialDiscCount: tv?.releases
+        .map((release) => release.discCount ?? 0)
+        .fold<int>(0, (max, count) => count > max ? count : max),
+  );
   videoEdit.initializeVideoEditors();
 
   final payload = item.kindMetadata.toSyncPayload();
