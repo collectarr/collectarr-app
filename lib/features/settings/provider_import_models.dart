@@ -2,66 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
-enum ProviderImportId {
-  tmdb,
-  trakt,
-  simkl,
-  myAnimeList,
-  aniList,
-  kitsu,
-  imdb,
-  goodReads,
-  howLongToBeat,
-  steam,
-}
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 
-extension ProviderImportIdX on ProviderImportId {
-  String get storageValue {
-    return switch (this) {
-      ProviderImportId.tmdb => 'tmdb',
-      ProviderImportId.trakt => 'trakt',
-      ProviderImportId.simkl => 'simkl',
-      ProviderImportId.myAnimeList => 'myanimelist',
-      ProviderImportId.aniList => 'anilist',
-      ProviderImportId.kitsu => 'kitsu',
-      ProviderImportId.imdb => 'imdb',
-      ProviderImportId.goodReads => 'goodreads',
-      ProviderImportId.howLongToBeat => 'howlongtobeat',
-      ProviderImportId.steam => 'steam',
-    };
-  }
-
-  String get label {
-    return switch (this) {
-      ProviderImportId.tmdb => 'TMDB',
-      ProviderImportId.trakt => 'Trakt',
-      ProviderImportId.simkl => 'SIMKL',
-      ProviderImportId.myAnimeList => 'MyAnimeList',
-      ProviderImportId.aniList => 'AniList',
-      ProviderImportId.kitsu => 'Kitsu',
-      ProviderImportId.imdb => 'IMDB',
-      ProviderImportId.goodReads => 'GoodReads',
-      ProviderImportId.howLongToBeat => 'HowLongToBeat',
-      ProviderImportId.steam => 'Steam',
-    };
-  }
-
-  static ProviderImportId? fromStorageValue(String? value) {
-    return switch (value?.trim().toLowerCase()) {
-      'tmdb' => ProviderImportId.tmdb,
-      'trakt' => ProviderImportId.trakt,
-      'simkl' => ProviderImportId.simkl,
-      'myanimelist' => ProviderImportId.myAnimeList,
-      'anilist' => ProviderImportId.aniList,
-      'kitsu' => ProviderImportId.kitsu,
-      'imdb' => ProviderImportId.imdb,
-      'goodreads' => ProviderImportId.goodReads,
-      'howlongtobeat' => ProviderImportId.howLongToBeat,
-      'steam' => ProviderImportId.steam,
-      _ => null,
-    };
-  }
-}
+export 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 
 enum ProviderImportAvailability {
   available,
@@ -87,20 +30,7 @@ class ProviderImportDescriptor {
 }
 
 /// Icon data for each provider (Material Icons fallback for missing logos).
-IconData providerImportIcon(ProviderImportId id) {
-  return switch (id) {
-    ProviderImportId.tmdb => Icons.movie_outlined,
-    ProviderImportId.trakt => Icons.live_tv_outlined,
-    ProviderImportId.simkl => Icons.connected_tv_outlined,
-    ProviderImportId.myAnimeList => Icons.auto_awesome_outlined,
-    ProviderImportId.aniList => Icons.auto_awesome_outlined,
-    ProviderImportId.kitsu => Icons.auto_awesome_outlined,
-    ProviderImportId.imdb => Icons.theaters_outlined,
-    ProviderImportId.goodReads => Icons.menu_book_outlined,
-    ProviderImportId.howLongToBeat => Icons.sports_esports_outlined,
-    ProviderImportId.steam => Icons.sports_esports_outlined,
-  };
-}
+IconData providerImportIcon(ProviderImportId id) => id.icon;
 
 const providerImportDescriptors = <ProviderImportDescriptor>[
   ProviderImportDescriptor(
