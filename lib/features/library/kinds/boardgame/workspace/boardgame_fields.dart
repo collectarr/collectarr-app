@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
@@ -115,6 +116,71 @@ abstract final class BoardGameKindSchema {
     getValue: (context) => context.source.addedAt,
     scope: LibraryFieldScope.copy,
   );
+
+  // Rich BoardGame Metadata Fields
+  static final minPlayers = numberField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.minPlayers,
+    label: 'Min Players',
+    getValue: (dto) => dto.metadata?.minPlayers,
+  );
+
+  static final maxPlayers = numberField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.maxPlayers,
+    label: 'Max Players',
+    getValue: (dto) => dto.metadata?.maxPlayers,
+  );
+
+  static final bestPlayers = textField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.bestPlayers,
+    label: 'Best Players',
+    getValue: (dto) => dto.metadata?.bestPlayers,
+  );
+
+  static final recommendedPlayers =
+      textField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.recommendedPlayers,
+    label: 'Recommended Players',
+    getValue: (dto) => dto.metadata?.recommendedPlayers,
+  );
+
+  static final minPlaytimeMinutes =
+      numberField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.minPlaytimeMinutes,
+    label: 'Min Playtime (m)',
+    getValue: (dto) => dto.metadata?.minPlaytimeMinutes,
+  );
+
+  static final maxPlaytimeMinutes =
+      numberField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.maxPlaytimeMinutes,
+    label: 'Max Playtime (m)',
+    getValue: (dto) => dto.metadata?.maxPlaytimeMinutes,
+  );
+
+  static final complexityWeight =
+      numberField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.complexityWeight,
+    label: 'Complexity / Weight',
+    getValue: (dto) => dto.metadata?.complexityWeight,
+  );
+
+  static final bggRating = numberField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.bggRating,
+    label: 'BGG Rating',
+    getValue: (dto) => dto.metadata?.bggRating,
+  );
+
+  static final bggRank = numberField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.bggRank,
+    label: 'BGG Rank',
+    getValue: (dto) => dto.metadata?.bggRank,
+  );
+
+  static final expansionFor = textField<BoardGameKind, BoardGameWorkspaceDto>(
+    id: BoardGameFieldIds.expansionFor,
+    label: 'Expansion For',
+    getValue: (dto) => dto.metadata?.expansionFor,
+  );
 }
 
 final boardgameLibraryFieldDefinitions = [
@@ -126,6 +192,16 @@ final boardgameLibraryFieldDefinitions = [
   BoardGameKindSchema.location,
   BoardGameKindSchema.pricePaid,
   BoardGameKindSchema.barcode,
+  BoardGameKindSchema.minPlayers,
+  BoardGameKindSchema.maxPlayers,
+  BoardGameKindSchema.bestPlayers,
+  BoardGameKindSchema.recommendedPlayers,
+  BoardGameKindSchema.minPlaytimeMinutes,
+  BoardGameKindSchema.maxPlaytimeMinutes,
+  BoardGameKindSchema.complexityWeight,
+  BoardGameKindSchema.bggRating,
+  BoardGameKindSchema.bggRank,
+  BoardGameKindSchema.expansionFor,
 ];
 
 final boardGamesLibraryGroupDefinitions = [
@@ -139,6 +215,11 @@ final boardGamesLibraryGroupDefinitions = [
     BoardGameKindSchema.location,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
+  ),
+  groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    BoardGameKindSchema.bestPlayers,
+    sidebarTitle: 'Best Player Count',
+    icon: Icons.group_outlined,
   ),
 ];
 
@@ -163,6 +244,14 @@ final boardGamesLibrarySortDefinitions = [
       BoardGameKindSchema.title),
   sortFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
       BoardGameKindSchema.releaseDate,
+      defaultAscending: false),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
+      BoardGameKindSchema.bggRating,
+      defaultAscending: false),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
+      BoardGameKindSchema.bggRank),
+  sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
+      BoardGameKindSchema.complexityWeight,
       defaultAscending: false),
 ];
 
@@ -280,6 +369,46 @@ final boardgameLibraryColumnDefinitions = [
     cellValue: (context) =>
         Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
+  ),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(
+    BoardGameKindSchema.minPlayers,
+    group: 'Players',
+    isNumeric: true,
+    defaultWidth: 90,
+  ),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(
+    BoardGameKindSchema.maxPlayers,
+    group: 'Players',
+    isNumeric: true,
+    defaultWidth: 90,
+  ),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    BoardGameKindSchema.bestPlayers,
+    group: 'Players',
+    defaultWidth: 100,
+  ),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(
+    BoardGameKindSchema.complexityWeight,
+    group: 'Details',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(
+    BoardGameKindSchema.bggRating,
+    group: 'Details',
+    isNumeric: true,
+    defaultWidth: 90,
+  ),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(
+    BoardGameKindSchema.bggRank,
+    group: 'Details',
+    isNumeric: true,
+    defaultWidth: 80,
+  ),
+  columnFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+    BoardGameKindSchema.expansionFor,
+    group: 'Details',
+    defaultWidth: 150,
   ),
 ];
 

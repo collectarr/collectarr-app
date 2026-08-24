@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class BoardGameWorkspaceDto extends WorkspaceDtoAdapter {
@@ -6,6 +7,7 @@ final class BoardGameWorkspaceDto extends WorkspaceDtoAdapter {
     required this.common,
     required this.personal,
     required this.boardgame,
+    this.metadata,
   });
 
   @override
@@ -13,4 +15,5 @@ final class BoardGameWorkspaceDto extends WorkspaceDtoAdapter {
   @override
   final PersonalCopyProjection personal;
   final BoardGameCatalogItem boardgame;
+  final BoardGameMetadata? metadata;
 }

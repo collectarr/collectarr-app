@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -19,6 +20,8 @@ class BoardGameLibraryKindProviderMapper implements LibraryKindProviderMapper {
       releaseDate = DateTime.tryParse(norm['release_date'].toString());
     }
 
+    final boardGameMetadata = BoardGameMetadata.fromJson(norm);
+
     return LibraryMetadataItem(
       id: '',
       kind: 'boardgame',
@@ -28,9 +31,11 @@ class BoardGameLibraryKindProviderMapper implements LibraryKindProviderMapper {
       coverImageUrl: coverImageUrl,
       thumbnailImageUrl: coverImageUrl,
       releaseDate: releaseDate,
+      releaseYear: releaseDate?.year ?? boardGameMetadata.yearPublished,
       genres: norm['genres'] is List
           ? (norm['genres'] as List).map((g) => g.toString()).toList()
           : null,
+      kindMetadata: boardGameMetadata,
     );
   }
 

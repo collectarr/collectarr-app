@@ -33,6 +33,28 @@ abstract final class BoardGameFieldIds {
       LibraryFieldId<BoardGameKind, DateTime>('boardgame.updated_at');
   static const addedAt =
       LibraryFieldId<BoardGameKind, DateTime?>('boardgame.added_at');
+
+  // Rich BoardGame Metadata Fields
+  static const minPlayers =
+      LibraryFieldId<BoardGameKind, int?>('boardgame.min_players');
+  static const maxPlayers =
+      LibraryFieldId<BoardGameKind, int?>('boardgame.max_players');
+  static const bestPlayers =
+      LibraryFieldId<BoardGameKind, String?>('boardgame.best_players');
+  static const recommendedPlayers =
+      LibraryFieldId<BoardGameKind, String?>('boardgame.recommended_players');
+  static const minPlaytimeMinutes =
+      LibraryFieldId<BoardGameKind, int?>('boardgame.min_playtime_minutes');
+  static const maxPlaytimeMinutes =
+      LibraryFieldId<BoardGameKind, int?>('boardgame.max_playtime_minutes');
+  static const complexityWeight =
+      LibraryFieldId<BoardGameKind, double?>('boardgame.complexity_weight');
+  static const bggRating =
+      LibraryFieldId<BoardGameKind, double?>('boardgame.bgg_rating');
+  static const bggRank =
+      LibraryFieldId<BoardGameKind, int?>('boardgame.bgg_rank');
+  static const expansionFor =
+      LibraryFieldId<BoardGameKind, String?>('boardgame.expansion_for');
 }
 
 abstract final class BoardGameSortIds {
@@ -46,6 +68,10 @@ abstract final class BoardGameSortIds {
   static const rating = LibrarySortId<BoardGameKind>('boardgame.rating');
   static const pricePaid = LibrarySortId<BoardGameKind>('boardgame.price_paid');
   static const updatedAt = LibrarySortId<BoardGameKind>('boardgame.updated_at');
+  static const complexityWeight =
+      LibrarySortId<BoardGameKind>('boardgame.complexity_weight');
+  static const bggRating = LibrarySortId<BoardGameKind>('boardgame.bgg_rating');
+  static const bggRank = LibrarySortId<BoardGameKind>('boardgame.bgg_rank');
 }
 
 abstract final class BoardGameGroupIds {
@@ -60,6 +86,8 @@ abstract final class BoardGameGroupIds {
   static const rating = LibraryGroupId<BoardGameKind, int?>('boardgame.rating');
   static const playerCount =
       LibraryGroupId<BoardGameKind, String?>('boardgame.player_count');
+  static const bestPlayers =
+      LibraryGroupId<BoardGameKind, String?>('boardgame.best_players');
 }
 
 abstract final class BoardGameFacetIds {
@@ -71,4 +99,7 @@ abstract final class BoardGameFacetIds {
       LibraryFacetId<BoardGameKind, String>('boardgame.mechanic');
   static const category =
       LibraryFacetId<BoardGameKind, String>('boardgame.category');
+  static const family =
+      LibraryFacetId<BoardGameKind, String>('boardgame.family');
+  static const theme = LibraryFacetId<BoardGameKind, String>('boardgame.theme');
 }

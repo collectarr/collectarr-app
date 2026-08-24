@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -16,10 +17,16 @@ final class BoardGameWorkspaceProjector
   }) {
     final boardgame =
         BoardGameCatalogMapper.mapMetadataItemToBoardGame(source.catalogItem!);
+    BoardGameMetadata? metadata;
+    final km = source.catalogItem?.kindMetadata;
+    if (km is BoardGameMetadata) {
+      metadata = km;
+    }
     return BoardGameWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       boardgame: boardgame,
+      metadata: metadata,
     );
   }
 

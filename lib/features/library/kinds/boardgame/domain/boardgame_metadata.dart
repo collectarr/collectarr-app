@@ -1,7 +1,9 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-class BoardGameMetadata {
+class BoardGameMetadata implements LibraryKindMetadataRuntime {
   const BoardGameMetadata({
     required this.title,
     this.originalTitle,
@@ -29,6 +31,12 @@ class BoardGameMetadata {
     this.bggRatingCount,
     this.bggRank,
   });
+
+  @override
+  CatalogMediaKind get mediaKind => CatalogMediaKind.boardgame;
+
+  @override
+  Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
   final String? originalTitle;
@@ -140,9 +148,12 @@ class BoardGameMetadata {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      bggRating: (json['bgg_rating'] as num?)?.toDouble(),
-      bggRatingCount: json['bgg_rating_count'] as int?,
-      bggRank: json['bgg_rank'] as int?,
+      bggRating: (json['bgg_rating'] as num?)?.toDouble() ??
+          (json['rating'] as num?)?.toDouble(),
+      bggRatingCount: json['bgg_rating_count'] as int? ??
+          json['rating_count'] as int? ??
+          json['users_rated'] as int?,
+      bggRank: json['bgg_rank'] as int? ?? json['rank'] as int?,
     );
   }
 }
