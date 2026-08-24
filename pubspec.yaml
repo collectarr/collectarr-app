@@ -45,7 +45,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.15.1
   drift_dev: ^2.34.0
-  analyzer: ^12.1.0
+  analyzer: ^13.3.0
 
 flutter:
   uses-material-design: true
