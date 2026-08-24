@@ -1,4 +1,8 @@
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/foundation.dart';
+
+export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart'
+    show LibraryFacetId;
 
 @immutable
 class LibraryTypedFacetId<TKind, TValue> {
@@ -45,6 +49,21 @@ class LibraryFacetBucket<TValue> {
 
   @override
   int get hashCode => Object.hash(key, label, count);
+}
+
+@immutable
+class LibraryFacetQuery<TValue> {
+  const LibraryFacetQuery({
+    required this.facetId,
+    this.searchQuery,
+    this.limit = 50,
+    this.offset = 0,
+  });
+
+  final String facetId;
+  final String? searchQuery;
+  final int limit;
+  final int offset;
 }
 
 @immutable

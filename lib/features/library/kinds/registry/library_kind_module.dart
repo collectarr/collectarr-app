@@ -418,19 +418,25 @@ abstract interface class LibraryKindProviderMapper {
 
 class LibraryFacetModule {
   const LibraryFacetModule({
-    required this.loadRows,
+    this.loadRows,
     this.getFacetValues,
     this.definitions = const [],
   });
 
-  final LibraryFacetRowsLoader loadRows;
+  final LibraryFacetRowsLoader? loadRows;
   final Iterable<String> Function(
       LibraryProjectionRuntime item, String facetId)? getFacetValues;
   final List<LibraryFacetDefinition<dynamic, dynamic, dynamic>> definitions;
 }
 
-typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
-  required ApiClient api,
+typedef LibraryFacetQueryExecutor = Future<List<Map<String, dynamic>>>
+    Function({
   required String facetId,
   required Set<String> itemIds,
+});
+
+typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
+  required String facetId,
+  required Set<String> itemIds,
+  LibraryFacetQueryExecutor? queryExecutor,
 });
