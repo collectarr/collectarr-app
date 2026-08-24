@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
@@ -28,6 +29,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
+  setUpAll(() {
+    collectarrKindModules;
+  });
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });

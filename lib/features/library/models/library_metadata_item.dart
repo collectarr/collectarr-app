@@ -111,9 +111,6 @@ final class LibraryMetadataItem {
   }
 
   CatalogItem toCatalogItem() {
-    if (_interopCatalogItem != null) {
-      return _interopCatalogItem!;
-    }
     final payload = kindMetadata.toSyncPayload();
     return CatalogItem.fromJson({
       'id': id,
@@ -137,9 +134,7 @@ final class LibraryMetadataItem {
   }
 
   Map<String, dynamic> toSyncPayload() {
-    if (_interopCatalogItem != null) {
-      return _interopCatalogItem!.toSyncPayload();
-    }
+    final payload = kindMetadata.toSyncPayload();
     return {
       'snapshot_version': 1,
       'id': id,
@@ -156,9 +151,9 @@ final class LibraryMetadataItem {
       if (coverImageData != null) 'cover_image_data': coverImageData,
       'release_date': releaseDate?.toUtc().toIso8601String(),
       'release_year': releaseYear,
-      if (_editions != null)
+      if (_editions != null && !payload.containsKey('editions'))
         'editions': _editions.map((e) => e.toJson()).toList(),
-      ...kindMetadata.toSyncPayload(),
+      ...payload,
     };
   }
 }

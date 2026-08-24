@@ -1,8 +1,9 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class WorkspaceCommonProjection {
   const WorkspaceCommonProjection({
@@ -32,7 +33,12 @@ class WorkspaceCommonProjection {
     String? overrideBarcode,
     String? overrideCoverImageUrl,
   }) {
-    final item = source.catalogItem;
+    final dynamic rawItem = source.catalogItem;
+    final CatalogItemDto? catalog = () {
+      if (rawItem is CatalogItemDto) return rawItem;
+      if (rawItem is LibraryMetadataItem) return rawItem.toCatalogItem();
+      return null;
+    }();
     final edition = node is LibraryReleaseNodeRef ? node.edition : null;
     CatalogVariant? primaryVariant;
     if (edition != null) {
@@ -47,31 +53,37 @@ class WorkspaceCommonProjection {
     }
 
     return WorkspaceCommonProjection(
-      title: overrideTitle ?? item?.displayTitle ?? item?.title ?? '',
-      seriesTitle: overrideSeriesTitle ?? item?.series?.seriesTitle,
-      itemNumber: item?.itemNumber?.toString(),
-      publisher: overridePublisher ?? edition?.publisher ?? item?.publisher,
+      title: overrideTitle ?? catalog?.displayTitle ?? catalog?.title ?? '',
+      seriesTitle: overrideSeriesTitle ?? catalog?.series?.seriesTitle,
+      itemNumber: catalog?.itemNumber?.toString(),
+      publisher: overridePublisher ??
+          edition?.publisher ??
+          catalog?.publisher ??
+          catalog?.publishing?.originalPublisher,
       releaseDate:
-          overrideReleaseDate ?? edition?.releaseDate ?? item?.releaseDate,
+          overrideReleaseDate ?? edition?.releaseDate ?? catalog?.releaseDate,
       variant: overrideVariant ??
           primaryVariant?.name ??
           edition?.title ??
-          item?.variant,
+          catalog?.variant,
       barcode: overrideBarcode ??
           primaryVariant?.barcode ??
           edition?.upc ??
-          item?.barcode,
+          catalog?.barcode,
       grade: source.ownedItem?.grade,
-      country: item?.country,
-      language: edition?.language ?? item?.language,
+      country: catalog?.country ?? catalog?.publishing?.originalCountry,
+      language: edition?.language ??
+          catalog?.language ??
+          catalog?.publishing?.originalLanguage,
       currency: source.ownedItem?.currency,
       referenceFormatLabel: primaryVariant?.physicalFormatLabel ??
           edition?.physicalFormatLabel ??
-          item?.physicalFormatLabel,
+          catalog?.physicalFormatLabel ??
+          catalog?.physicalFormat,
       coverImageUrl: overrideCoverImageUrl ??
           primaryVariant?.coverImageUrl ??
           primaryVariant?.thumbnailImageUrl ??
-          item?.coverImageUrl,
+          catalog?.coverImageUrl,
     );
   }
 

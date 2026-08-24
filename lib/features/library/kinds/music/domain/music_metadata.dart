@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
@@ -147,7 +148,22 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
     this.genres = const [],
     this.credits = const [],
     this.releases = const [],
+    this.trackCount,
+    this.tracks = const [],
+    this.creators = const [],
+    this.links = const [],
     this.synopsis,
+    this.series,
+    this.music,
+    this.publishing,
+    this.editionTitle,
+    this.physicalFormat,
+    this.physicalFormatLabel,
+    this.publisher,
+    this.barcode,
+    this.variant,
+    this.country,
+    this.language,
   });
 
   @override
@@ -165,11 +181,29 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
   final List<String> genres;
   final List<MusicCredit> credits;
   final List<MusicReleaseMetadata> releases;
+  final int? trackCount;
+  final List<CatalogTrackDto> tracks;
+  final List<Map<String, dynamic>> creators;
+  final List<TrailerLink> links;
   final String? synopsis;
+  final CatalogSeriesDetailsDto? series;
+  final MusicCatalogDetailsDto? music;
+  final CatalogPublishingDetailsDto? publishing;
+  final String? editionTitle;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final String? publisher;
+  final String? barcode;
+  final String? variant;
+  final String? country;
+  final String? language;
 
   Map<String, dynamic> toJson() => {
         'title': title,
-        if (artist != null) 'artist': artist,
+        if (artist != null) ...{
+          'artist': artist,
+          'series_title': artist,
+        },
         if (originalReleaseDate != null)
           'original_release_date': originalReleaseDate!.toIso8601String(),
         if (recordingDate != null)
@@ -181,13 +215,92 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
           'credits': credits.map((e) => e.toJson()).toList(),
         if (releases.isNotEmpty)
           'releases': releases.map((e) => e.toJson()).toList(),
+        if (trackCount != null) 'track_count': trackCount,
+        if (tracks.isNotEmpty)
+          'tracks': tracks.map((e) => e.toJson()).toList(),
+        if (creators.isNotEmpty) 'creators': creators,
+        if (series != null) 'series': series!.toJson(),
+        if (music != null && music!.hasData) ...{
+          'music': music!.toJson(),
+          ...music!.toJson(),
+        },
+        if (publishing != null && publishing!.hasData) ...{
+          'publishing': publishing!.toJson(),
+          ...publishing!.toJson(),
+        },
+        if (editionTitle != null) 'edition_title': editionTitle,
+        if (physicalFormat != null) 'physical_format': physicalFormat,
+        if (physicalFormatLabel != null)
+          'physical_format_label': physicalFormatLabel,
+        if (publisher != null) 'publisher': publisher,
+        if (barcode != null) 'barcode': barcode,
+        if (variant != null) 'variant': variant,
+        if (country != null) 'country': country,
+        if (language != null) 'language': language,
+        if (links.isNotEmpty) ...{
+          if (links.any((l) => l.isTrailerLink))
+            'trailer_urls': links
+                .where((l) => l.isTrailerLink)
+                .map((e) => e.toJson())
+                .toList(),
+          if (links.any((l) => l.isExternalLink))
+            'external_links': links
+                .where((l) => l.isExternalLink)
+                .map((e) => e.toJson())
+                .toList(),
+        },
         if (synopsis != null) 'synopsis': synopsis,
       };
 
   factory MusicCatalogMetadata.fromJson(Map<String, dynamic> json) {
+    final rawLinks = <TrailerLink>[
+      ...((json['trailer_urls'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLink>[]),
+      ...((json['external_links'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLink>[]),
+    ];
+
+    final rawCreators = (json['creators'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList(growable: false) ??
+        const <Map<String, dynamic>>[];
+
+    final musicRaw = json['music'];
+    final musicMap = (musicRaw is Map)
+        ? Map<String, dynamic>.from(musicRaw)
+        : json;
+    final music = musicRaw is Map
+        ? MusicCatalogDetailsDto.fromJson(Map<String, dynamic>.from(musicRaw))
+        : MusicCatalogDetailsDto.fromJson(json);
+
+    final seriesRaw = json['series'];
+    final series = seriesRaw is Map
+        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
+        : CatalogSeriesDetailsDto.fromJson(json);
+
+    final pubRaw = json['publishing'];
+    final publishing = pubRaw is Map
+        ? CatalogPublishingDetailsDto.fromJson(Map<String, dynamic>.from(pubRaw))
+        : CatalogPublishingDetailsDto.fromJson(json);
+
+    final rawTracks = ((json['tracks'] ?? musicMap['tracks']) as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
+            .toList(growable: false) ??
+        const <CatalogTrackDto>[];
+
+    final resolvedArtist = (json['artist'] ??
+        json['series_title'] ??
+        series?.seriesTitle) as String?;
+
     return MusicCatalogMetadata(
       title: (json['title'] as String?) ?? '',
-      artist: json['artist'] as String?,
+      artist: resolvedArtist,
       originalReleaseDate: json['original_release_date'] != null
           ? DateTime.tryParse(json['original_release_date'] as String)
           : null,
@@ -195,7 +308,7 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
           ? DateTime.tryParse(json['recording_date'] as String)
           : null,
       studio: json['studio'] as String?,
-      isLive: json['is_live'] as bool? ?? false,
+      isLive: (json['is_live'] ?? musicMap['is_live']) as bool? ?? false,
       genres: (json['genres'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
@@ -209,7 +322,26 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
                   MusicReleaseMetadata.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      trackCount: (json['track_count'] ?? musicMap['track_count']) as int? ??
+          (rawTracks.isNotEmpty ? rawTracks.length : null),
+      tracks: rawTracks,
+      creators: rawCreators,
+      links: rawLinks,
       synopsis: (json['synopsis'] ?? json['description']) as String?,
+      series: series ??
+          (resolvedArtist != null
+              ? CatalogSeriesDetailsDto(seriesTitle: resolvedArtist)
+              : null),
+      music: music,
+      publishing: publishing,
+      editionTitle: json['edition_title'] as String?,
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
+      publisher: json['publisher'] as String?,
+      barcode: json['barcode'] as String?,
+      variant: json['variant'] as String?,
+      country: json['country'] as String?,
+      language: json['language'] as String?,
     );
   }
 }

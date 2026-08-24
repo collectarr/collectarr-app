@@ -139,7 +139,7 @@ class MusicLibraryMediaPresentationBuilder
     final music = catalogItem?.music;
     final series = catalogItem?.series;
     return LibraryMetadataPresentation(
-      labels: const LibraryMetadataLabels(),
+      labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),

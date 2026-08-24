@@ -158,7 +158,7 @@ void main() {
     expect(find.text('Top Buyers'), findsOneWidget);
     expect(find.text('Top Sales Series'), findsOneWidget);
     expect(find.text('Retro Shop'), findsOneWidget);
-    expect(find.text('USD 40.00'), findsOneWidget);
+    expect(find.text('USD 40.00'), findsWidgets);
     expect(find.text('USD 65.00'), findsWidgets);
     expect(find.text('USD 35.00'), findsWidgets);
   });

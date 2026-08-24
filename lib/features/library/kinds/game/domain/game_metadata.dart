@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
@@ -10,6 +11,7 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
   const GameCatalogMetadata({
     required this.title,
     this.platform,
+    this.platforms = const [],
     this.releaseRegion,
     this.edition,
     this.developers = const [],
@@ -25,6 +27,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
     this.barcode,
     this.priceChartingId,
     this.valuations,
+    this.creators = const [],
+    this.links = const [],
   });
 
   @override
@@ -35,6 +39,7 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
 
   final String title;
   final String? platform;
+  final List<String> platforms;
   final String? releaseRegion;
   final String? edition;
   final List<String> developers;
@@ -50,10 +55,13 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? barcode;
   final String? priceChartingId;
   final GameValuationSet? valuations;
+  final List<Map<String, dynamic>> creators;
+  final List<TrailerLink> links;
 
   Map<String, dynamic> toJson() => {
         'title': title,
         if (platform != null) 'platform': platform,
+        if (platforms.isNotEmpty) 'platforms': platforms,
         if (releaseRegion != null) 'release_region': releaseRegion,
         if (edition != null) 'edition': edition,
         if (developers.isNotEmpty) 'developers': developers,
@@ -69,12 +77,56 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
         if (barcode != null) 'barcode': barcode,
         if (priceChartingId != null) 'price_charting_id': priceChartingId,
         if (valuations != null) 'valuations': valuations!.toJson(),
+        if (creators.isNotEmpty) 'creators': creators,
+        if (links.isNotEmpty) ...{
+          if (links.any((l) => l.isTrailerLink))
+            'trailer_urls': links
+                .where((l) => l.isTrailerLink)
+                .map((e) => e.toJson())
+                .toList(),
+          if (links.any((l) => l.isExternalLink))
+            'external_links': links
+                .where((l) => l.isExternalLink)
+                .map((e) => e.toJson())
+                .toList(),
+        },
       };
 
   factory GameCatalogMetadata.fromJson(Map<String, dynamic> json) {
+    final gameMap = (json['game'] is Map)
+        ? Map<String, dynamic>.from(json['game'] as Map)
+        : json;
+    final rawPlatforms = (json['platforms'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        (gameMap['platforms'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        (json['platform'] != null
+            ? <String>[json['platform'].toString()]
+            : const <String>[]);
+
+    final rawCreators = (json['creators'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList() ??
+        const <Map<String, dynamic>>[];
+
+    final rawLinks = <TrailerLink>[
+      ...((json['trailer_urls'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLink>[]),
+      ...((json['external_links'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLink>[]),
+    ];
+
     return GameCatalogMetadata(
       title: (json['title'] as String?) ?? '',
-      platform: json['platform'] as String?,
+      platform: json['platform'] as String? ?? rawPlatforms.firstOrNull,
+      platforms: rawPlatforms,
       releaseRegion: json['release_region'] as String?,
       edition: json['edition'] as String?,
       developers: (json['developers'] as List<dynamic>?)
@@ -107,6 +159,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
           ? GameValuationSet.fromJson(
               json['valuations'] as Map<String, dynamic>)
           : null,
+      creators: rawCreators,
+      links: rawLinks,
     );
   }
 }

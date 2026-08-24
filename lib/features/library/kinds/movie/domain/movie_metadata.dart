@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
@@ -50,6 +51,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     this.productionCompanies = const [],
     this.country,
     this.originalLanguage,
+    this.language,
     this.releaseDate,
     this.directors = const [],
     this.writers = const [],
@@ -57,6 +59,25 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     this.cast = const [],
     this.crew = const [],
     this.trailerUrls = const [],
+    this.editionTitle,
+    this.barcode,
+    this.physicalFormat,
+    this.physicalFormatLabel,
+    this.publisher,
+    this.variant,
+    this.itemNumber,
+    this.series,
+    this.seriesTitle,
+    this.video,
+    this.audioTracks,
+    this.subtitles,
+    this.color,
+    this.nrDiscs,
+    this.screenRatio,
+    this.layers,
+    this.creators = const [],
+    this.links = const [],
+    this.releases = const [],
   });
 
   @override
@@ -77,6 +98,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   final List<String> productionCompanies;
   final String? country;
   final String? originalLanguage;
+  final String? language;
   final DateTime? releaseDate;
   final List<MoviePersonCredit> directors;
   final List<MoviePersonCredit> writers;
@@ -84,6 +106,25 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   final List<MoviePersonCredit> cast;
   final List<MoviePersonCredit> crew;
   final List<String> trailerUrls;
+  final String? editionTitle;
+  final String? barcode;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final String? publisher;
+  final String? variant;
+  final String? itemNumber;
+  final CatalogSeriesDetailsDto? series;
+  final String? seriesTitle;
+  final VideoCatalogDetailsDto? video;
+  final String? audioTracks;
+  final String? subtitles;
+  final String? color;
+  final int? nrDiscs;
+  final String? screenRatio;
+  final String? layers;
+  final List<Map<String, dynamic>> creators;
+  final List<TrailerLink> links;
+  final List<MovieReleaseMetadata> releases;
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -99,6 +140,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
           'production_companies': productionCompanies,
         if (country != null) 'country': country,
         if (originalLanguage != null) 'original_language': originalLanguage,
+        if (language != null) 'language': language,
         if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
         if (directors.isNotEmpty)
           'directors': directors.map((e) => e.toJson()).toList(),
@@ -109,19 +151,109 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
         if (cast.isNotEmpty) 'cast': cast.map((e) => e.toJson()).toList(),
         if (crew.isNotEmpty) 'crew': crew.map((e) => e.toJson()).toList(),
         if (trailerUrls.isNotEmpty) 'trailer_urls': trailerUrls,
+        if (editionTitle != null) 'edition_title': editionTitle,
+        if (barcode != null) 'barcode': barcode,
+        if (physicalFormat != null) 'physical_format': physicalFormat,
+        if (physicalFormatLabel != null)
+          'physical_format_label': physicalFormatLabel,
+        if (publisher != null) 'publisher': publisher,
+        if (variant != null) 'variant': variant,
+        if (itemNumber != null) 'item_number': itemNumber,
+        if (seriesTitle != null) 'series_title': seriesTitle,
+        if (series != null && series!.hasData) ...{
+          'series': series!.toJson(),
+          ...series!.toJson(),
+        },
+        if (audioTracks != null) 'audio_tracks': audioTracks,
+        if (subtitles != null) 'subtitles': subtitles,
+        if (color != null) 'color': color,
+        if (nrDiscs != null) 'nr_discs': nrDiscs,
+        if (screenRatio != null) 'screen_ratio': screenRatio,
+        if (layers != null) 'layers': layers,
+        if (video != null && video!.hasData) ...{
+          'video': video!.toJson(),
+          ...video!.toJson(),
+        },
+        if (creators.isNotEmpty) 'creators': creators,
+        if (links.isNotEmpty) ...{
+          if (links.any((l) => l.isTrailerLink))
+            'trailer_urls': links
+                .where((l) => l.isTrailerLink)
+                .map((e) => e.toJson())
+                .toList(),
+          if (links.any((l) => l.isExternalLink))
+            'external_links': links
+                .where((l) => l.isExternalLink)
+                .map((e) => e.toJson())
+                .toList(),
+        },
+        if (releases.isNotEmpty)
+          'releases': releases.map((e) => e.toJson()).toList(),
       };
 
   factory MovieCatalogMetadata.fromJson(Map<String, dynamic> json) {
+    final rawCreators = (json['creators'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList() ??
+        const <Map<String, dynamic>>[];
+
+    final rawLinks = <TrailerLink>[
+      ...((json['trailer_urls'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLink>[]),
+      ...((json['external_links'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLink>[]),
+    ];
+
+    final rawReleases = (json['releases'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) =>
+                MovieReleaseMetadata.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ??
+        const <MovieReleaseMetadata>[];
+
+    final rawTrailerUrls = (json['trailer_urls'] as List<dynamic>?)
+            ?.whereType<String>()
+            .toList() ??
+        const <String>[];
+
+    final seriesRaw = json['series'];
+    final series = seriesRaw is Map
+        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
+        : CatalogSeriesDetailsDto.fromJson(json);
+    final resolvedSeriesTitle =
+        (json['series_title'] ?? series.seriesTitle) as String?;
+
+    final videoRaw = json['video'];
+    final video = videoRaw is Map
+        ? VideoCatalogDetailsDto.fromJson(Map<String, dynamic>.from(videoRaw))
+        : VideoCatalogDetailsDto.fromJson(json);
+
+    final resolvedAudioTracks =
+        (json['audio_tracks'] ?? video.audioTracks) as String?;
+    final resolvedSubtitles = (json['subtitles'] ?? video.subtitles) as String?;
+    final resolvedColor = (json['color'] ?? video.color) as String?;
+    final resolvedNrDiscs =
+        (json['nr_discs'] as num?)?.toInt() ?? video.nrDiscs;
+    final resolvedScreenRatio =
+        (json['screen_ratio'] ?? video.screenRatio) as String?;
+    final resolvedLayers = (json['layers'] ?? video.layers) as String?;
+
     return MovieCatalogMetadata(
       title: (json['title'] as String?) ?? '',
       originalTitle: json['original_title'] as String?,
       sortTitle: json['sort_title'] as String?,
-      synopsis: json['synopsis'] as String?,
+      synopsis: (json['synopsis'] ?? json['description']) as String?,
       genres: (json['genres'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      runtimeMinutes: json['runtime_minutes'] as int?,
+      runtimeMinutes:
+          json['runtime_minutes'] as int? ?? video.runtimeMinutes,
       audienceRating: json['audience_rating'] as String?,
       ageRating: json['age_rating'] as String?,
       studio: json['studio'] as String?,
@@ -131,38 +263,60 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
           const [],
       country: json['country'] as String?,
       originalLanguage: json['original_language'] as String?,
+      language: json['language'] as String?,
       releaseDate: json['release_date'] != null
           ? DateTime.tryParse(json['release_date'] as String)
           : null,
       directors: (json['directors'] as List<dynamic>?)
-              ?.map(
-                  (e) => MoviePersonCredit.fromJson(e as Map<String, dynamic>))
+              ?.whereType<Map>()
+              .map((e) =>
+                  MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           const [],
       writers: (json['writers'] as List<dynamic>?)
-              ?.map(
-                  (e) => MoviePersonCredit.fromJson(e as Map<String, dynamic>))
+              ?.whereType<Map>()
+              .map((e) =>
+                  MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           const [],
       producers: (json['producers'] as List<dynamic>?)
-              ?.map(
-                  (e) => MoviePersonCredit.fromJson(e as Map<String, dynamic>))
+              ?.whereType<Map>()
+              .map((e) =>
+                  MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           const [],
       cast: (json['cast'] as List<dynamic>?)
-              ?.map(
-                  (e) => MoviePersonCredit.fromJson(e as Map<String, dynamic>))
+              ?.whereType<Map>()
+              .map((e) =>
+                  MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           const [],
       crew: (json['crew'] as List<dynamic>?)
-              ?.map(
-                  (e) => MoviePersonCredit.fromJson(e as Map<String, dynamic>))
+              ?.whereType<Map>()
+              .map((e) =>
+                  MoviePersonCredit.fromJson(Map<String, dynamic>.from(e)))
               .toList() ??
           const [],
-      trailerUrls: (json['trailer_urls'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          const [],
+      trailerUrls: rawTrailerUrls,
+      editionTitle: json['edition_title'] as String?,
+      barcode: json['barcode'] as String?,
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
+      publisher: (json['publisher'] ?? json['studio']) as String?,
+      variant: json['variant'] as String?,
+      itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
+      series: series.hasData ? series : null,
+      seriesTitle: resolvedSeriesTitle,
+      video: video,
+      audioTracks: resolvedAudioTracks,
+      subtitles: resolvedSubtitles,
+      color: resolvedColor,
+      nrDiscs: resolvedNrDiscs,
+      screenRatio: resolvedScreenRatio,
+      layers: resolvedLayers,
+      creators: rawCreators,
+      links: rawLinks,
+      releases: rawReleases,
     );
   }
 }

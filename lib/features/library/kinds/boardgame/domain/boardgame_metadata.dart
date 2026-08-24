@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
@@ -30,6 +31,16 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
     this.bggRating,
     this.bggRatingCount,
     this.bggRank,
+    this.series,
+    this.seriesTitle,
+    this.itemNumber,
+    this.physicalFormat,
+    this.physicalFormatLabel,
+    this.publisher,
+    this.barcode,
+    this.variant,
+    this.creators = const [],
+    this.links = const [],
   });
 
   @override
@@ -63,6 +74,16 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
   final double? bggRating;
   final int? bggRatingCount;
   final int? bggRank;
+  final CatalogSeriesDetailsDto? series;
+  final String? seriesTitle;
+  final String? itemNumber;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final String? publisher;
+  final String? barcode;
+  final String? variant;
+  final List<Map<String, dynamic>> creators;
+  final List<TrailerLink> links;
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -93,9 +114,58 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
         if (bggRating != null) 'bgg_rating': bggRating,
         if (bggRatingCount != null) 'bgg_rating_count': bggRatingCount,
         if (bggRank != null) 'bgg_rank': bggRank,
+        if (seriesTitle != null) 'series_title': seriesTitle,
+        if (series != null && series!.hasData) ...{
+          'series': series!.toJson(),
+          ...series!.toJson(),
+        },
+        if (itemNumber != null) 'item_number': itemNumber,
+        if (physicalFormat != null) 'physical_format': physicalFormat,
+        if (physicalFormatLabel != null)
+          'physical_format_label': physicalFormatLabel,
+        if (publisher != null) 'publisher': publisher,
+        if (barcode != null) 'barcode': barcode,
+        if (variant != null) 'variant': variant,
+        if (creators.isNotEmpty) 'creators': creators,
+        if (links.isNotEmpty) ...{
+          if (links.any((l) => l.isTrailerLink))
+            'trailer_urls': links
+                .where((l) => l.isTrailerLink)
+                .map((e) => e.toJson())
+                .toList(),
+          if (links.any((l) => l.isExternalLink))
+            'external_links': links
+                .where((l) => l.isExternalLink)
+                .map((e) => e.toJson())
+                .toList(),
+        },
       };
 
   factory BoardGameMetadata.fromJson(Map<String, dynamic> json) {
+    final seriesRaw = json['series'];
+    final series = seriesRaw is Map
+        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
+        : null;
+    final resolvedSeriesTitle =
+        (json['series_title'] ?? series?.seriesTitle) as String?;
+
+    final rawCreators = (json['creators'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList() ??
+        const <Map<String, dynamic>>[];
+
+    final rawLinks = <TrailerLink>[
+      ...((json['trailer_urls'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLink>[]),
+      ...((json['external_links'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLink>[]),
+    ];
+
     return BoardGameMetadata(
       title: (json['title'] as String?) ?? '',
       originalTitle: json['original_title'] as String?,
@@ -154,6 +224,22 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
           json['rating_count'] as int? ??
           json['users_rated'] as int?,
       bggRank: json['bgg_rank'] as int? ?? json['rank'] as int?,
+      series: series ??
+          (resolvedSeriesTitle != null
+              ? CatalogSeriesDetailsDto(seriesTitle: resolvedSeriesTitle)
+              : null),
+      seriesTitle: resolvedSeriesTitle,
+      itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
+      publisher: (json['publisher'] ??
+          ((json['publishers'] as List?)?.isNotEmpty == true
+              ? (json['publishers'] as List).first.toString()
+              : null)) as String?,
+      barcode: json['barcode'] as String?,
+      variant: json['variant'] as String?,
+      creators: rawCreators,
+      links: rawLinks,
     );
   }
 }

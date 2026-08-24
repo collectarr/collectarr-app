@@ -15,6 +15,7 @@ final class GameCatalog {
     required this.identity,
     required this.title,
     this.platform,
+    this.platforms = const [],
     this.releaseRegion,
     this.edition,
     this.developers = const [],
@@ -32,11 +33,14 @@ final class GameCatalog {
     this.valuations,
     this.coverImageUrl,
     this.thumbnailImageUrl,
+    this.creators = const [],
+    this.links = const [],
   });
 
   final LibraryItemIdentity identity;
   final String title;
   final String? platform;
+  final List<String> platforms;
   final String? releaseRegion;
   final String? edition;
   final List<String> developers;
@@ -54,6 +58,8 @@ final class GameCatalog {
   final GameValuationSet? valuations;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
+  final List<Map<String, dynamic>> creators;
+  final List<TrailerLink> links;
 
   String get id => identity.id;
   CatalogMediaKind get mediaKind => CatalogMediaKind.game;
@@ -68,10 +74,41 @@ final class GameCatalog {
       mediaKind: CatalogMediaKind.game,
     );
 
+    final gameMap = (json['game'] is Map)
+        ? Map<String, dynamic>.from(json['game'] as Map)
+        : json;
+    final rawPlatforms = (json['platforms'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        (gameMap['platforms'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        (json['platform'] != null
+            ? <String>[json['platform'].toString()]
+            : const <String>[]);
+
+    final rawCreators = (json['creators'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList() ??
+        const <Map<String, dynamic>>[];
+
+    final rawLinks = <TrailerLink>[
+      ...((json['trailer_urls'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLink>[]),
+      ...((json['external_links'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLink>[]),
+    ];
+
     return GameCatalog(
       identity: identity,
       title: (json['title'] as String?) ?? '',
-      platform: json['platform'] as String?,
+      platform: json['platform'] as String? ?? rawPlatforms.firstOrNull,
+      platforms: rawPlatforms,
       releaseRegion: json['release_region'] as String?,
       edition: json['edition'] as String?,
       developers: (json['developers'] as List<dynamic>?)
@@ -106,6 +143,8 @@ final class GameCatalog {
           : null,
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
+      creators: rawCreators,
+      links: rawLinks,
     );
   }
 
@@ -114,6 +153,7 @@ final class GameCatalog {
         'kind': 'game',
         'title': title,
         if (platform != null) 'platform': platform,
+        if (platforms.isNotEmpty) 'platforms': platforms,
         if (releaseRegion != null) 'release_region': releaseRegion,
         if (edition != null) 'edition': edition,
         if (developers.isNotEmpty) 'developers': developers,
@@ -131,6 +171,19 @@ final class GameCatalog {
         if (valuations != null) 'valuations': valuations!.toJson(),
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
+        if (creators.isNotEmpty) 'creators': creators,
+        if (links.isNotEmpty) ...{
+          if (links.any((l) => l.isTrailerLink))
+            'trailer_urls': links
+                .where((l) => l.isTrailerLink)
+                .map((e) => e.toJson())
+                .toList(),
+          if (links.any((l) => l.isExternalLink))
+            'external_links': links
+                .where((l) => l.isExternalLink)
+                .map((e) => e.toJson())
+                .toList(),
+        },
       };
 
   CatalogItemEnvelopeDto toEnvelope() {

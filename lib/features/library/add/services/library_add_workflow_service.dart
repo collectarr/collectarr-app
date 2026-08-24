@@ -91,7 +91,10 @@ class LibraryAddWorkflowService {
               'subtitle': preview.publishing!.subtitle,
               'series_group': preview.publishing!.seriesGroup,
             },
-          if (preview.music != null)
+          if (preview.music != null) ...{
+            'track_count': preview.music!.trackCount,
+            if (preview.music!.tracks.isNotEmpty)
+              'tracks': preview.music!.tracks.map((t) => t.toJson()).toList(),
             'music': {
               'track_count': preview.music!.trackCount,
               'catalog_number': preview.music!.catalogNumber,
@@ -102,6 +105,7 @@ class LibraryAddWorkflowService {
               if (preview.music!.tracks.isNotEmpty)
                 'tracks': preview.music!.tracks.map((t) => t.toJson()).toList(),
             },
+          },
           if (preview.video != null)
             'video': {
               'runtime_minutes': preview.video!.runtimeMinutes,

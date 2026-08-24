@@ -71,6 +71,71 @@ class MusicCatalogDetailsDto {
   String? get localCoverImagePath => null;
   String? get localBackImagePath => null;
   String? get localThumbnailImagePath => null;
+
+  factory MusicCatalogDetailsDto.fromJson(Map<String, dynamic> json) {
+    DateTime? parseDate(String? raw) {
+      if (raw == null || raw.trim().isEmpty) return null;
+      return DateTime.tryParse(raw.trim());
+    }
+
+    final rawTracks = (json['tracks'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
+            .toList(growable: false) ??
+        const <CatalogTrackDto>[];
+
+    final rawDiscs = (json['discs'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) => CatalogDiscDto.fromJson(Map<String, dynamic>.from(e)))
+            .toList(growable: false) ??
+        const <CatalogDiscDto>[];
+
+    return MusicCatalogDetailsDto(
+      trackCount: json['track_count'] as int? ??
+          (rawTracks.isNotEmpty ? rawTracks.length : null),
+      tracks: rawTracks,
+      discs: rawDiscs,
+      catalogNumber: json['catalog_number'] as String?,
+      releaseStatus: json['release_status'] as String?,
+      originalReleaseDate:
+          parseDate(json['original_release_date'] as String?),
+      recordingDate: parseDate(json['recording_date'] as String?),
+      studio: json['studio'] as String?,
+      rpm: json['rpm'] as String?,
+      spars: json['spars'] as String?,
+      soundType: json['sound_type'] as String?,
+      vinylColor: json['vinyl_color'] as String?,
+      vinylWeight: json['vinyl_weight'] as String?,
+      mediaCondition: json['media_condition'] as String?,
+      instrument: json['instrument'] as String?,
+      isLive: json['is_live'] as bool?,
+      composition: json['composition'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (trackCount != null) 'track_count': trackCount,
+        if (tracks.isNotEmpty)
+          'tracks': tracks.map((e) => e.toJson()).toList(),
+        if (discs.isNotEmpty) 'discs': discs.map((e) => e.toJson()).toList(),
+        if (catalogNumber != null) 'catalog_number': catalogNumber,
+        if (releaseStatus != null) 'release_status': releaseStatus,
+        if (originalReleaseDate != null)
+          'original_release_date':
+              originalReleaseDate!.toUtc().toIso8601String(),
+        if (recordingDate != null)
+          'recording_date': recordingDate!.toUtc().toIso8601String(),
+        if (studio != null) 'studio': studio,
+        if (rpm != null) 'rpm': rpm,
+        if (spars != null) 'spars': spars,
+        if (soundType != null) 'sound_type': soundType,
+        if (vinylColor != null) 'vinyl_color': vinylColor,
+        if (vinylWeight != null) 'vinyl_weight': vinylWeight,
+        if (mediaCondition != null) 'media_condition': mediaCondition,
+        if (instrument != null) 'instrument': instrument,
+        if (isLive != null) 'is_live': isLive,
+        if (composition != null) 'composition': composition,
+      };
 }
 
 typedef MusicCatalogDetails = MusicCatalogDetailsDto;

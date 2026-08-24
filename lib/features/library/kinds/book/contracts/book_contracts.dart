@@ -35,6 +35,11 @@ final class BookCatalog {
     this.originalLanguage,
     this.originalPublisher,
     this.originalPublicationDate,
+    this.country,
+    this.language,
+    this.creators = const [],
+    this.publishing,
+    this.links = const [],
     this.coverImageUrl,
     this.thumbnailImageUrl,
     this.coverImageData,
@@ -62,6 +67,11 @@ final class BookCatalog {
   final String? originalLanguage;
   final String? originalPublisher;
   final DateTime? originalPublicationDate;
+  final String? country;
+  final String? language;
+  final List<Map<String, dynamic>> creators;
+  final CatalogPublishingDetailsDto? publishing;
+  final List<TrailerLink> links;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? coverImageData;
@@ -84,6 +94,27 @@ final class BookCatalog {
             .map(BookEditionMetadata.fromJson)
             .toList(growable: false) ??
         const <BookEditionMetadata>[];
+
+    final pubMap = json['publishing'] as Map<String, dynamic>?;
+    final publishing = pubMap != null
+        ? CatalogPublishingDetailsDto.fromJson(pubMap)
+        : null;
+
+    final rawLinks = <TrailerLink>[
+      ...((json['trailer_urls'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(TrailerLink.fromJson) ??
+          const <TrailerLink>[]),
+      ...((json['external_links'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(TrailerLink.fromJson) ??
+          const <TrailerLink>[]),
+    ];
+
+    final rawCreators = (json['creators'] as List<dynamic>?)
+            ?.whereType<Map<String, dynamic>>()
+            .toList(growable: false) ??
+        const <Map<String, dynamic>>[];
 
     return BookCatalog(
       identity: identity,
@@ -139,6 +170,11 @@ final class BookCatalog {
       originalPublicationDate: json['original_publication_date'] != null
           ? DateTime.tryParse(json['original_publication_date'] as String)
           : null,
+      country: (json['country'] ?? json['original_country']) as String?,
+      language: (json['language'] ?? json['original_language']) as String?,
+      creators: rawCreators,
+      publishing: publishing,
+      links: rawLinks,
       coverImageUrl: json['cover_image_url'] as String?,
       thumbnailImageUrl: json['thumbnail_image_url'] as String?,
       coverImageData: json['cover_image_data'] as String?,
@@ -171,6 +207,22 @@ final class BookCatalog {
         if (originalPublicationDate != null)
           'original_publication_date':
               originalPublicationDate!.toIso8601String(),
+        if (country != null) 'country': country,
+        if (language != null) 'language': language,
+        if (creators.isNotEmpty) 'creators': creators,
+        if (publishing != null) 'publishing': publishing!.toJson(),
+        if (links.isNotEmpty) ...{
+          if (links.any((l) => l.isTrailerLink))
+            'trailer_urls': links
+                .where((l) => l.isTrailerLink)
+                .map((e) => e.toJson())
+                .toList(),
+          if (links.any((l) => l.isExternalLink))
+            'external_links': links
+                .where((l) => l.isExternalLink)
+                .map((e) => e.toJson())
+                .toList(),
+        },
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
         if (coverImageData != null) 'cover_image_data': coverImageData,

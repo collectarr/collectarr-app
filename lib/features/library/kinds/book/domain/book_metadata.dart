@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
@@ -110,8 +112,8 @@ class BookEditionMetadata {
 
   factory BookEditionMetadata.fromJson(Map<String, dynamic> json) {
     return BookEditionMetadata(
-      id: (json['id'] as String?) ?? '',
-      title: (json['title'] as String?) ?? '',
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
       isbn: json['isbn'] as String?,
       format: json['format'] as String?,
       publisher: json['publisher'] as String?,
@@ -165,7 +167,21 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
     this.originalLanguage,
     this.originalPublisher,
     this.originalPublicationDate,
+    this.country,
+    this.language,
+    this.creators = const [],
+    this.publishing,
+    this.links = const [],
     this.editions = const [],
+    this.publisher,
+    this.barcode,
+    this.variant,
+    this.editionTitle,
+    this.physicalFormat,
+    this.physicalFormatLabel,
+    this.itemNumber,
+    this.series,
+    this.seriesTitle,
   });
 
   @override
@@ -194,7 +210,21 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? originalLanguage;
   final String? originalPublisher;
   final DateTime? originalPublicationDate;
+  final String? country;
+  final String? language;
+  final List<Map<String, dynamic>> creators;
+  final CatalogPublishingDetailsDto? publishing;
+  final List<TrailerLink> links;
   final List<BookEditionMetadata> editions;
+  final String? publisher;
+  final String? barcode;
+  final String? variant;
+  final String? editionTitle;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
+  final String? itemNumber;
+  final CatalogSeriesDetailsDto? series;
+  final String? seriesTitle;
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -219,11 +249,74 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
         if (originalPublicationDate != null)
           'original_publication_date':
               originalPublicationDate!.toIso8601String(),
+        if (country != null) 'country': country,
+        if (language != null) 'language': language,
+        if (publisher != null) 'publisher': publisher,
+        if (barcode != null) 'barcode': barcode,
+        if (variant != null) 'variant': variant,
+        if (editionTitle != null) 'edition_title': editionTitle,
+        if (physicalFormat != null) 'physical_format': physicalFormat,
+        if (physicalFormatLabel != null)
+          'physical_format_label': physicalFormatLabel,
+        if (itemNumber != null) 'item_number': itemNumber,
+        if (seriesTitle != null) 'series_title': seriesTitle,
+        if (series != null && series!.hasData) ...{
+          'series': series!.toJson(),
+          ...series!.toJson(),
+        },
+        if (creators.isNotEmpty) 'creators': creators,
+        if (publishing != null && publishing!.hasData) ...{
+          'publishing': publishing!.toJson(),
+          ...publishing!.toJson(),
+        },
+        if (links.isNotEmpty) ...{
+          if (links.any((l) => l.isTrailerLink))
+            'trailer_urls': links
+                .where((l) => l.isTrailerLink)
+                .map((e) => e.toJson())
+                .toList(),
+          if (links.any((l) => l.isExternalLink))
+            'external_links': links
+                .where((l) => l.isExternalLink)
+                .map((e) => e.toJson())
+                .toList(),
+        },
         if (editions.isNotEmpty)
           'editions': editions.map((e) => e.toJson()).toList(),
       };
 
   factory BookCatalogMetadata.fromJson(Map<String, dynamic> json) {
+    final pubRaw = json['publishing'];
+    final pubMap = (pubRaw is Map)
+        ? Map<String, dynamic>.from(pubRaw)
+        : null;
+    final publishing = pubMap != null
+        ? CatalogPublishingDetailsDto.fromJson(pubMap)
+        : CatalogPublishingDetailsDto.fromJson(json);
+
+    final seriesRaw = json['series'];
+    final series = seriesRaw is Map
+        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
+        : null;
+    final resolvedSeriesTitle =
+        (json['series_title'] ?? series?.seriesTitle) as String?;
+
+    final rawLinks = <TrailerLink>[
+      ...((json['trailer_urls'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(TrailerLink.fromJson) ??
+          const <TrailerLink>[]),
+      ...((json['external_links'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(TrailerLink.fromJson) ??
+          const <TrailerLink>[]),
+    ];
+
+    final rawCreators = (json['creators'] as List<dynamic>?)
+            ?.whereType<Map<String, dynamic>>()
+            .toList(growable: false) ??
+        const <Map<String, dynamic>>[];
+
     return BookCatalogMetadata(
       title: (json['title'] as String?) ?? '',
       subtitle: json['subtitle'] as String?,
@@ -277,11 +370,30 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
       originalPublicationDate: json['original_publication_date'] != null
           ? DateTime.tryParse(json['original_publication_date'] as String)
           : null,
+      country: (json['country'] ?? json['original_country']) as String?,
+      language: (json['language'] ?? json['original_language']) as String?,
+      creators: rawCreators,
+      publishing: publishing,
+      links: rawLinks,
       editions: (json['editions'] as List<dynamic>?)
               ?.map((e) =>
                   BookEditionMetadata.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      publisher: (json['publisher'] ??
+          publishing.originalPublisher ??
+          json['original_publisher']) as String?,
+      barcode: json['barcode'] as String?,
+      variant: json['variant'] as String?,
+      editionTitle: json['edition_title'] as String?,
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
+      itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
+      series: series ??
+          (resolvedSeriesTitle != null
+              ? CatalogSeriesDetailsDto(seriesTitle: resolvedSeriesTitle)
+              : null),
+      seriesTitle: resolvedSeriesTitle,
     );
   }
 }

@@ -108,6 +108,10 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
     this.barcode,
     this.series,
     this.publishing,
+    this.editionTitle,
+    this.titleExtension,
+    this.physicalFormat,
+    this.physicalFormatLabel,
     this.links = const [],
     this.releases = const [],
   });
@@ -151,6 +155,10 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? barcode;
   final CatalogSeriesDetailsDto? series;
   final CatalogPublishingDetailsDto? publishing;
+  final String? editionTitle;
+  final String? titleExtension;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
   final List<ComicLink> links;
   final List<ComicRelease> releases;
 
@@ -191,8 +199,19 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
         if (variantDescription != null)
           'variant_description': variantDescription,
         if (barcode != null) 'barcode': barcode,
-        if (series != null) 'series': series!.toJson(),
-        if (publishing != null) 'publishing': publishing!.toJson(),
+        if (series != null && series!.hasData) ...{
+          'series': series!.toJson(),
+          ...series!.toJson(),
+        },
+        if (publishing != null && publishing!.hasData) ...{
+          'publishing': publishing!.toJson(),
+          ...publishing!.toJson(),
+        },
+        if (editionTitle != null) 'edition_title': editionTitle,
+        if (titleExtension != null) 'title_extension': titleExtension,
+        if (physicalFormat != null) 'physical_format': physicalFormat,
+        if (physicalFormatLabel != null)
+          'physical_format_label': physicalFormatLabel,
         if (links.isNotEmpty) ...{
           if (links.any((l) => l.isTrailerLink))
             'trailer_urls': links
@@ -320,6 +339,10 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
       barcode: json['barcode'] as String?,
       series: series.hasData ? series : null,
       publishing: publishing.hasData ? publishing : null,
+      editionTitle: json['edition_title'] as String?,
+      titleExtension: json['title_extension'] as String?,
+      physicalFormat: json['physical_format'] as String?,
+      physicalFormatLabel: json['physical_format_label'] as String?,
       links: rawLinks,
       releases: rawReleases,
     );
