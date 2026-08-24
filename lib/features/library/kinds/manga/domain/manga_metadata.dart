@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 enum MangaDemographic {
@@ -83,7 +85,7 @@ enum MangaReadingDirection {
 }
 
 @immutable
-class MangaMetadata {
+class MangaMetadata implements LibraryKindMetadataRuntime {
   const MangaMetadata({
     this.nativeTitle,
     this.romajiTitle,
@@ -111,6 +113,12 @@ class MangaMetadata {
     this.readingDirection = MangaReadingDirection.rightToLeft,
     this.relations = const [],
   });
+
+  @override
+  CatalogMediaKind get mediaKind => CatalogMediaKind.manga;
+
+  @override
+  Map<String, dynamic> toSyncPayload() => toJson();
 
   final String? nativeTitle;
   final String? romajiTitle;

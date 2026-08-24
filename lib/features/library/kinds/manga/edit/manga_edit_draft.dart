@@ -15,7 +15,11 @@ class MangaEditDraft extends KindEditDraft {
     this.obiStripPresent = false,
     this.slipcoverPresent = false,
     this.dustJacketPresent = false,
+    this.dustJacketCondition,
+    this.boxSetOuterCondition,
     this.insertsPresent = false,
+    this.printing,
+    this.localizedEdition,
     required this.pageCountController,
     required this.imprintController,
   });
@@ -24,7 +28,11 @@ class MangaEditDraft extends KindEditDraft {
   bool obiStripPresent;
   bool slipcoverPresent;
   bool dustJacketPresent;
+  String? dustJacketCondition;
+  String? boxSetOuterCondition;
   bool insertsPresent;
+  String? printing;
+  String? localizedEdition;
   final TextEditingController pageCountController;
   final TextEditingController imprintController;
 
@@ -34,7 +42,11 @@ class MangaEditDraft extends KindEditDraft {
         obiStripPresent: obiStripPresent,
         slipcoverPresent: slipcoverPresent,
         dustJacketPresent: dustJacketPresent,
+        dustJacketCondition: dustJacketCondition,
+        boxSetOuterCondition: boxSetOuterCondition,
         insertsPresent: insertsPresent,
+        printing: printing,
+        localizedEdition: localizedEdition,
       );
 
   @override
@@ -63,8 +75,8 @@ class MangaEditDraft extends KindEditDraft {
       paperType: existing.paperType,
       printedBy: existing.printedBy,
       subjects: existing.subjects,
-      dustJacketCondition: existing.dustJacketCondition,
-      dustJacket: existing.dustJacket,
+      dustJacketCondition: dustJacketCondition ?? existing.dustJacketCondition,
+      dustJacket: dustJacketPresent ? true : existing.dustJacket,
       audiobookAbridged: existing.audiobookAbridged,
       firstEdition: existing.firstEdition,
       dewey: existing.dewey,
@@ -99,7 +111,11 @@ KindEditDraft createMangaEditDraft({
     obiStripPresent: manga?.obiStripPresent ?? false,
     slipcoverPresent: manga?.slipcoverPresent ?? false,
     dustJacketPresent: manga?.dustJacketPresent ?? false,
+    dustJacketCondition: manga?.dustJacketCondition,
+    boxSetOuterCondition: manga?.boxSetOuterCondition,
     insertsPresent: manga?.insertsPresent ?? false,
+    printing: manga?.printing,
+    localizedEdition: manga?.localizedEdition,
     pageCountController: textControllers.create(
       text: item.publishing?.pageCount?.toString() ?? '',
     ),

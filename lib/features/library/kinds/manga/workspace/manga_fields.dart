@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
@@ -121,6 +123,158 @@ abstract final class MangaKindSchema {
     getValue: (context) => context.source.addedAt,
     scope: LibraryFieldScope.copy,
   );
+
+  // Manga Metadata Fields
+  static final nativeTitle = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.nativeTitle,
+    label: 'Native Title',
+    getValue: (dto) => dto.metadata?.nativeTitle,
+  );
+
+  static final romajiTitle = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.romajiTitle,
+    label: 'Romaji Title',
+    getValue: (dto) => dto.metadata?.romajiTitle,
+  );
+
+  static final englishTitle = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.englishTitle,
+    label: 'English Title',
+    getValue: (dto) => dto.metadata?.englishTitle,
+  );
+
+  static final demographic = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.demographic,
+    label: 'Demographic',
+    getValue: (dto) => dto.metadata?.demographic.label,
+  );
+
+  static final serializationPlatform = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.serializationPlatform,
+    label: 'Serialization',
+    getValue: (dto) => dto.metadata?.serializationPlatform,
+  );
+
+  static final publicationStatus = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.publicationStatus,
+    label: 'Publication Status',
+    getValue: (dto) => dto.metadata?.publicationStatus.label,
+  );
+
+  static final originalPublisher = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.originalPublisher,
+    label: 'Original Publisher',
+    getValue: (dto) => dto.metadata?.originalPublisher,
+  );
+
+  static final localizedPublisher = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.localizedPublisher,
+    label: 'Localized Publisher',
+    getValue: (dto) => dto.metadata?.localizedPublisher,
+  );
+
+  static final totalVolumes = numberField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.totalVolumes,
+    label: 'Total Volumes',
+    getValue: (dto) => dto.metadata?.totalVolumes,
+  );
+
+  static final chapterCount = numberField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.chapterCount,
+    label: 'Chapter Count',
+    getValue: (dto) => dto.metadata?.chapterCount,
+  );
+
+  static final editionFormat = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.editionFormat,
+    label: 'Edition Format',
+    getValue: (dto) => dto.metadata?.editionFormat.label,
+  );
+
+  static final readingDirection = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.readingDirection,
+    label: 'Reading Direction',
+    getValue: (dto) => dto.metadata?.readingDirection.label,
+  );
+
+  static final translator = textField<MangaKind, MangaWorkspaceDto>(
+    id: MangaFieldIds.translator,
+    label: 'Translator',
+    getValue: (dto) => dto.metadata?.translator,
+  );
+
+  // Manga Ownership Fields
+  static final obiStripPresent =
+      LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, bool>(
+    id: MangaFieldIds.obiStripPresent,
+    label: 'Obi Strip Present',
+    getValue: (context) => context.dto.ownedDetails?.obiStripPresent ?? false,
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final slipcoverPresent =
+      LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, bool>(
+    id: MangaFieldIds.slipcoverPresent,
+    label: 'Slipcover Present',
+    getValue: (context) => context.dto.ownedDetails?.slipcoverPresent ?? false,
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final dustJacketPresent =
+      LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, bool>(
+    id: MangaFieldIds.dustJacketPresent,
+    label: 'Dust Jacket Present',
+    getValue: (context) => context.dto.ownedDetails?.dustJacketPresent ?? false,
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final dustJacketCondition =
+      LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, String?>(
+    id: MangaFieldIds.dustJacketCondition,
+    label: 'Dust Jacket Condition',
+    getValue: (context) => context.dto.ownedDetails?.dustJacketCondition,
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final boxSetOuterCondition =
+      LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, String?>(
+    id: MangaFieldIds.boxSetOuterCondition,
+    label: 'Box Set Outer Condition',
+    getValue: (context) => context.dto.ownedDetails?.boxSetOuterCondition,
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final insertsPresent =
+      LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, bool>(
+    id: MangaFieldIds.insertsPresent,
+    label: 'Inserts Present',
+    getValue: (context) => context.dto.ownedDetails?.insertsPresent ?? false,
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final printing =
+      LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, String?>(
+    id: MangaFieldIds.printing,
+    label: 'Printing',
+    getValue: (context) => context.dto.ownedDetails?.printing,
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final localizedEdition =
+      LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, String?>(
+    id: MangaFieldIds.localizedEdition,
+    label: 'Localized Edition',
+    getValue: (context) => context.dto.ownedDetails?.localizedEdition,
+    scope: LibraryFieldScope.copy,
+  );
+
+  static final signedBy =
+      LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, String?>(
+    id: MangaFieldIds.signedBy,
+    label: 'Signed By',
+    getValue: (context) => context.dto.ownedDetails?.signedBy,
+    scope: LibraryFieldScope.copy,
+  );
 }
 
 final mangaLibraryFieldDefinitions = [
@@ -133,6 +287,28 @@ final mangaLibraryFieldDefinitions = [
   MangaKindSchema.location,
   MangaKindSchema.pricePaid,
   MangaKindSchema.barcode,
+  MangaKindSchema.nativeTitle,
+  MangaKindSchema.romajiTitle,
+  MangaKindSchema.englishTitle,
+  MangaKindSchema.demographic,
+  MangaKindSchema.serializationPlatform,
+  MangaKindSchema.publicationStatus,
+  MangaKindSchema.originalPublisher,
+  MangaKindSchema.localizedPublisher,
+  MangaKindSchema.totalVolumes,
+  MangaKindSchema.chapterCount,
+  MangaKindSchema.editionFormat,
+  MangaKindSchema.readingDirection,
+  MangaKindSchema.translator,
+  MangaKindSchema.obiStripPresent,
+  MangaKindSchema.slipcoverPresent,
+  MangaKindSchema.dustJacketPresent,
+  MangaKindSchema.dustJacketCondition,
+  MangaKindSchema.boxSetOuterCondition,
+  MangaKindSchema.insertsPresent,
+  MangaKindSchema.printing,
+  MangaKindSchema.localizedEdition,
+  MangaKindSchema.signedBy,
 ];
 
 final mangaLibraryGroupDefinitions = [
@@ -151,6 +327,26 @@ final mangaLibraryGroupDefinitions = [
     MangaKindSchema.location,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
+  ),
+  groupFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.demographic,
+    sidebarTitle: 'Demographics',
+    icon: Icons.people_outline,
+  ),
+  groupFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.publicationStatus,
+    sidebarTitle: 'Status',
+    icon: Icons.flag_outlined,
+  ),
+  groupFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.editionFormat,
+    sidebarTitle: 'Formats',
+    icon: Icons.book_outlined,
+  ),
+  groupFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.readingDirection,
+    sidebarTitle: 'Reading Direction',
+    icon: Icons.import_contacts_outlined,
   ),
 ];
 
@@ -178,6 +374,14 @@ final mangaLibrarySortDefinitions = [
   sortFromField<MangaKind, MangaWorkspaceDto, DateTime>(
       MangaKindSchema.releaseDate,
       defaultAscending: false),
+  sortFromField<MangaKind, MangaWorkspaceDto, String>(
+      MangaKindSchema.demographic),
+  sortFromField<MangaKind, MangaWorkspaceDto, String>(
+      MangaKindSchema.publicationStatus),
+  sortFromField<MangaKind, MangaWorkspaceDto, String>(
+      MangaKindSchema.editionFormat),
+  sortFromField<MangaKind, MangaWorkspaceDto, num>(
+      MangaKindSchema.totalVolumes),
 ];
 
 final mangaLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
@@ -295,6 +499,113 @@ final mangaLibraryColumnDefinitions = [
     cellValue: (context) =>
         Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.demographic,
+    group: 'Metadata',
+    defaultWidth: 120,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.publicationStatus,
+    group: 'Metadata',
+    defaultWidth: 120,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.editionFormat,
+    group: 'Edition',
+    defaultWidth: 120,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.readingDirection,
+    group: 'Edition',
+    defaultWidth: 150,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, num?>(
+    MangaKindSchema.totalVolumes,
+    group: 'Metadata',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, num?>(
+    MangaKindSchema.chapterCount,
+    group: 'Metadata',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.nativeTitle,
+    group: 'Metadata',
+    defaultWidth: 180,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.romajiTitle,
+    group: 'Metadata',
+    defaultWidth: 180,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.englishTitle,
+    group: 'Metadata',
+    defaultWidth: 180,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.originalPublisher,
+    group: 'Metadata',
+    defaultWidth: 140,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.localizedPublisher,
+    group: 'Edition',
+    defaultWidth: 140,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.translator,
+    group: 'Edition',
+    defaultWidth: 140,
+  ),
+  LibraryColumnDefinition<MangaKind, MangaWorkspaceDto, bool>(
+    id: MangaFieldIds.obiStripPresent,
+    label: 'Obi Strip',
+    getValue: MangaKindSchema.obiStripPresent.getValue,
+    cellValue: (context) => Text(
+      (context.dto.ownedDetails?.obiStripPresent ?? false) ? 'Yes' : 'No',
+    ),
+    group: 'Condition',
+    defaultWidth: 90,
+  ),
+  LibraryColumnDefinition<MangaKind, MangaWorkspaceDto, bool>(
+    id: MangaFieldIds.slipcoverPresent,
+    label: 'Slipcover',
+    getValue: MangaKindSchema.slipcoverPresent.getValue,
+    cellValue: (context) => Text(
+      (context.dto.ownedDetails?.slipcoverPresent ?? false) ? 'Yes' : 'No',
+    ),
+    group: 'Condition',
+    defaultWidth: 90,
+  ),
+  LibraryColumnDefinition<MangaKind, MangaWorkspaceDto, bool>(
+    id: MangaFieldIds.dustJacketPresent,
+    label: 'Dust Jacket',
+    getValue: MangaKindSchema.dustJacketPresent.getValue,
+    cellValue: (context) => Text(
+      (context.dto.ownedDetails?.dustJacketPresent ?? false) ? 'Yes' : 'No',
+    ),
+    group: 'Condition',
+    defaultWidth: 90,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.printing,
+    group: 'Edition',
+    defaultWidth: 100,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.localizedEdition,
+    group: 'Edition',
+    defaultWidth: 130,
+  ),
+  columnFromField<MangaKind, MangaWorkspaceDto, String?>(
+    MangaKindSchema.signedBy,
+    group: 'Condition',
+    defaultWidth: 130,
   ),
 ];
 
