@@ -260,9 +260,24 @@ final movieLibraryGroupDefinitions = [
     icon: Icons.star_outline,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+    MovieKindSchema.movieOrTvSeries,
+    category: 'Main',
+    icon: Icons.tv_outlined,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieKindSchema.format,
     category: 'Edition',
     icon: Icons.album_outlined,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+    MovieKindSchema.audioTracks,
+    category: 'Edition',
+    icon: Icons.audiotrack_outlined,
+  ),
+  groupFromField<MovieKind, MovieWorkspaceDto, DateTime?>(
+    MovieKindSchema.editionReleaseDate,
+    category: 'Edition',
+    icon: Icons.calendar_today_outlined,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieKindSchema.location,

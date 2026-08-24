@@ -677,6 +677,8 @@ void main() {
     expect(musicLibraryConfig.availableGroupModes, [
       'music.artist',
       'music.publisher',
+      'music.format',
+      'music.country',
       'music.condition',
       'music.location',
     ]);
@@ -689,13 +691,16 @@ void main() {
       'book.author',
       'book.publisher',
       'book.series',
+      'book.format',
       'book.condition',
       'book.location',
     ]);
     expect(gamesLibraryConfig.availableGroupModes, [
       'game.platform',
       'game.publisher',
+      'game.franchise',
       'game.location',
+      'game.completeness',
     ]);
     expect(comicsLibraryConfig.presentation.externalFacetBucketIdsByMode.keys, [
       'comic.story_arc',
