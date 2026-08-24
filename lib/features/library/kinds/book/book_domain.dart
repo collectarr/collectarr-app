@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 
+export 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';

@@ -1,3 +1,4 @@
+export 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';

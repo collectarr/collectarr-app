@@ -46,6 +46,18 @@ class CatalogSeriesDetailsDto {
       tags: json['tags'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        if (seriesId != null) 'series_id': seriesId,
+        if (seriesTitle != null) 'series_title': seriesTitle,
+        if (volumeName != null) 'volume_name': volumeName,
+        if (volumeNumber != null) 'volume_number': volumeNumber,
+        if (volumeStartYear != null) 'volume_start_year': volumeStartYear,
+        if (seasonNumber != null) 'season_number': seasonNumber,
+        if (episodeNumber != null) 'episode_number': episodeNumber,
+        if (tags != null) 'tags': tags,
+      };
 }
 
 typedef CatalogSeriesDetails = CatalogSeriesDetailsDto;
+

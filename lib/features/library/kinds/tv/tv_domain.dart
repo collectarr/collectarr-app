@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/vide
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
+export 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';

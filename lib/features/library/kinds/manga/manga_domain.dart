@@ -1,3 +1,4 @@
+export 'package:collectarr_app/features/library/kinds/manga/contracts/manga_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy.dart';
 export 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';

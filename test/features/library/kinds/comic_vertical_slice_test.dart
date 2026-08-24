@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
@@ -207,6 +208,107 @@ void main() {
       expect(meta.writers, contains('Stan Lee'));
       expect(meta.artists, contains('Steve Ditko'));
       expect(meta.isKeyComic, isTrue);
+    });
+
+    test('ComicCatalog and ComicEntry round-trip and preserve all kind fields',
+        () {
+      final catalog = ComicCatalog.fromJson({
+        'id': 'comic_123',
+        'title': 'Detective Comics #27',
+        'issue_number': '27',
+        'series': {
+          'series_id': 'series_1',
+          'series_title': 'Detective Comics',
+          'volume_number': '1',
+        },
+        'publisher': 'DC Comics',
+        'imprint': 'National Comics',
+        'release_date': '1939-03-30T00:00:00.000Z',
+        'cover_date': '1939-05-01T00:00:00.000Z',
+        'release_year': 1939,
+        'page_count': 64,
+        'country': 'US',
+        'language': 'en',
+        'age_rating': 'All Ages',
+        'crossover': 'None',
+        'synopsis': 'First appearance of Batman.',
+        'cover_image_url': 'https://example.com/cover.jpg',
+        'barcode': '123456789012',
+        'variant': 'First Printing',
+        'variant_description': 'Original newsstand edition',
+        'genres': ['Crime', 'Superhero'],
+        'creators': [
+          {'name': 'Bob Kane', 'role': 'artist'},
+          {'name': 'Bill Finger', 'role': 'writer'},
+        ],
+        'characters': ['Batman', 'Jim Gordon'],
+        'story_arcs': ['The Case of the Chemical Syndicate'],
+        'is_key_comic': true,
+        'key_reason': 'First appearance of Batman',
+        'key_events': [
+          {
+            'type': 'firstAppearance',
+            'character_or_subject': 'Batman',
+            'description': '1st Batman',
+          }
+        ],
+        'publishing': {
+          'page_count': 64,
+          'cover_price_cents': 10,
+          'currency': 'USD',
+          'original_publisher': 'DC Comics',
+          'imprint': 'National Comics',
+        },
+        'trailer_urls': [
+          {
+            'url': 'https://example.com/link',
+            'title': 'DC Database',
+            'kind': 'link',
+          }
+        ],
+        'editions': [
+          {
+            'id': 'ed_1',
+            'title': 'Newsstand',
+            'publisher': 'DC Comics',
+          }
+        ],
+      });
+
+      expect(catalog.id, 'comic_123');
+      expect(catalog.title, 'Detective Comics #27');
+      expect(catalog.issueNumber, '27');
+      expect(catalog.seriesTitle, 'Detective Comics');
+      expect(catalog.publisher, 'DC Comics');
+      expect(catalog.imprint, 'National Comics');
+      expect(catalog.country, 'US');
+      expect(catalog.language, 'en');
+      expect(catalog.ageRating, 'All Ages');
+      expect(catalog.isKeyComic, isTrue);
+      expect(catalog.characters, contains('Batman'));
+      expect(catalog.storyArcs, contains('The Case of the Chemical Syndicate'));
+      expect(catalog.links.first.url, 'https://example.com/link');
+      expect(catalog.releases.length, 1);
+      expect(catalog.releases.first.title, 'Newsstand');
+
+      final json = catalog.toJson();
+      final restored = ComicCatalog.fromJson(json);
+
+      expect(restored.id, 'comic_123');
+      expect(restored.title, 'Detective Comics #27');
+      expect(restored.issueNumber, '27');
+      expect(restored.seriesTitle, 'Detective Comics');
+      expect(restored.publisher, 'DC Comics');
+      expect(restored.country, 'US');
+      expect(restored.language, 'en');
+      expect(restored.ageRating, 'All Ages');
+      expect(restored.isKeyComic, isTrue);
+
+      final envelope = catalog.toEnvelope();
+      expect(envelope.kind, CatalogMediaKind.comic);
+      expect(envelope.ref.id, 'comic_123');
+      expect(envelope.common.title, 'Detective Comics #27');
+      expect(envelope.kindPayload['issue_number'], '27');
     });
   });
 }
