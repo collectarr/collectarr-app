@@ -26,6 +26,31 @@ abstract final class AnimeFieldIds {
   static const addedAt = LibraryFieldId<AnimeKind, DateTime?>('anime.added_at');
   static const watchStatus =
       LibraryFieldId<AnimeKind, String?>('anime.watch_status');
+
+  // Rich Anime Metadata Fields
+  static const nativeTitle =
+      LibraryFieldId<AnimeKind, String?>('anime.native_title');
+  static const romajiTitle =
+      LibraryFieldId<AnimeKind, String?>('anime.romaji_title');
+  static const englishTitle =
+      LibraryFieldId<AnimeKind, String?>('anime.english_title');
+  static const season = LibraryFieldId<AnimeKind, String?>('anime.season');
+  static const seasonYear =
+      LibraryFieldId<AnimeKind, int?>('anime.season_year');
+  static const airingStatus =
+      LibraryFieldId<AnimeKind, String?>('anime.airing_status');
+  static const episodeRuntimeMinutes =
+      LibraryFieldId<AnimeKind, int?>('anime.episode_runtime_minutes');
+  static const studios =
+      LibraryFieldId<AnimeKind, List<String>>('anime.studios');
+  static const producers =
+      LibraryFieldId<AnimeKind, List<String>>('anime.producers');
+  static const licensors =
+      LibraryFieldId<AnimeKind, List<String>>('anime.licensors');
+  static const sourceMaterial =
+      LibraryFieldId<AnimeKind, String?>('anime.source_material');
+  static const genres = LibraryFieldId<AnimeKind, List<String>>('anime.genres');
+  static const themes = LibraryFieldId<AnimeKind, List<String>>('anime.themes');
 }
 
 abstract final class AnimeSortIds {
@@ -38,6 +63,11 @@ abstract final class AnimeSortIds {
   static const rating = LibrarySortId<AnimeKind>('anime.rating');
   static const pricePaid = LibrarySortId<AnimeKind>('anime.price_paid');
   static const updatedAt = LibrarySortId<AnimeKind>('anime.updated_at');
+  static const episodeCount = LibrarySortId<AnimeKind>('anime.episode_count');
+  static const seasonYear = LibrarySortId<AnimeKind>('anime.season_year');
+  static const airingStatus = LibrarySortId<AnimeKind>('anime.airing_status');
+  static const sourceMaterial =
+      LibrarySortId<AnimeKind>('anime.source_material');
 }
 
 abstract final class AnimeGroupIds {
@@ -53,6 +83,13 @@ abstract final class AnimeGroupIds {
   static const rating = LibraryGroupId<AnimeKind, int?>('anime.rating');
   static const watchStatus =
       LibraryGroupId<AnimeKind, String?>('anime.watch_status');
+  static const season = LibraryGroupId<AnimeKind, String?>('anime.season');
+  static const seasonYear =
+      LibraryGroupId<AnimeKind, int?>('anime.season_year');
+  static const airingStatus =
+      LibraryGroupId<AnimeKind, String?>('anime.airing_status');
+  static const sourceMaterial =
+      LibraryGroupId<AnimeKind, String?>('anime.source_material');
 }
 
 abstract final class AnimeFacetIds {
@@ -60,4 +97,6 @@ abstract final class AnimeFacetIds {
   static const publisher = LibraryFacetId<AnimeKind, String>('anime.publisher');
   static const genre = LibraryFacetId<AnimeKind, String>('anime.genre');
   static const format = LibraryFacetId<AnimeKind, String>('anime.format');
+  static const theme = LibraryFacetId<AnimeKind, String>('anime.theme');
+  static const season = LibraryFacetId<AnimeKind, String>('anime.season');
 }

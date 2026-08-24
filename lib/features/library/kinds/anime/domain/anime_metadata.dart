@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 enum AnimeFormat {
@@ -133,7 +135,7 @@ class AnimeRelation {
 }
 
 @immutable
-class AnimeMetadata {
+class AnimeMetadata implements LibraryKindMetadataRuntime {
   const AnimeMetadata({
     this.nativeTitle,
     this.romajiTitle,
@@ -157,6 +159,12 @@ class AnimeMetadata {
     this.language = 'ja',
     this.relations = const [],
   });
+
+  @override
+  CatalogMediaKind get mediaKind => CatalogMediaKind.anime;
+
+  @override
+  Map<String, dynamic> toSyncPayload() => toJson();
 
   final String? nativeTitle;
   final String? romajiTitle;

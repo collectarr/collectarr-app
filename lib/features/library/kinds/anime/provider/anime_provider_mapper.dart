@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -18,8 +19,8 @@ class AnimeLibraryKindProviderMapper implements LibraryKindProviderMapper {
     final physicalFormatLabel = norm['physical_format_label']?.toString();
     final coverImageUrl = norm['cover_image_url']?.toString() ??
         (envelope.images.isNotEmpty ? envelope.images.first.url : null);
-    final country = norm['country']?.toString();
-    final language = norm['language']?.toString();
+    final country = norm['country']?.toString() ?? 'JP';
+    final language = norm['language']?.toString() ?? 'ja';
     final ageRating = norm['age_rating']?.toString();
     final audienceRating = norm['audience_rating']?.toString();
 
@@ -45,6 +46,8 @@ class AnimeLibraryKindProviderMapper implements LibraryKindProviderMapper {
         ? (norm['genres'] as List).map((g) => g.toString()).toList()
         : null;
 
+    final animeMetadata = AnimeMetadata.fromJson(norm);
+
     return LibraryMetadataItem(
       id: '',
       kind: 'anime',
@@ -58,13 +61,14 @@ class AnimeLibraryKindProviderMapper implements LibraryKindProviderMapper {
       coverImageUrl: coverImageUrl,
       thumbnailImageUrl: coverImageUrl,
       releaseDate: releaseDate,
-      releaseYear: releaseDate?.year,
+      releaseYear: releaseDate?.year ?? animeMetadata.seasonYear,
       country: country,
       language: language,
       ageRating: ageRating,
       audienceRating: audienceRating,
       creators: creators,
       genres: genres,
+      kindMetadata: animeMetadata,
     );
   }
 

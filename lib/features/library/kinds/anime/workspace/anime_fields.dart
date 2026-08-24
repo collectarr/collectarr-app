@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
@@ -123,6 +124,68 @@ abstract final class AnimeKindSchema {
     getValue: (context) => context.source.ownedItem?.readStatus,
     scope: LibraryFieldScope.copy,
   );
+
+  // Rich Anime Metadata Fields
+  static final nativeTitle = textField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.nativeTitle,
+    label: 'Native Title',
+    getValue: (dto) => dto.metadata?.nativeTitle,
+  );
+
+  static final romajiTitle = textField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.romajiTitle,
+    label: 'Romaji Title',
+    getValue: (dto) => dto.metadata?.romajiTitle,
+  );
+
+  static final englishTitle = textField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.englishTitle,
+    label: 'English Title',
+    getValue: (dto) => dto.metadata?.englishTitle,
+  );
+
+  static final format = textField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.format,
+    label: 'Format',
+    getValue: (dto) => dto.metadata?.format.label,
+  );
+
+  static final season = textField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.season,
+    label: 'Season',
+    getValue: (dto) => dto.metadata?.season?.label,
+  );
+
+  static final seasonYear = numberField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.seasonYear,
+    label: 'Season Year',
+    getValue: (dto) => dto.metadata?.seasonYear,
+  );
+
+  static final episodeCount = numberField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.episodeCount,
+    label: 'Episode Count',
+    getValue: (dto) => dto.metadata?.episodeCount,
+  );
+
+  static final episodeRuntimeMinutes =
+      numberField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.episodeRuntimeMinutes,
+    label: 'Episode Runtime (m)',
+    getValue: (dto) => dto.metadata?.episodeRuntimeMinutes,
+  );
+
+  static final airingStatus = textField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.airingStatus,
+    label: 'Airing Status',
+    getValue: (dto) => dto.metadata?.airingStatus.label,
+  );
+
+  static final sourceMaterial = textField<AnimeKind, AnimeWorkspaceDto>(
+    id: AnimeFieldIds.sourceMaterial,
+    label: 'Source Material',
+    getValue: (dto) => dto.metadata?.sourceMaterial.label,
+  );
 }
 
 final animeLibraryFieldDefinitions = [
@@ -134,6 +197,16 @@ final animeLibraryFieldDefinitions = [
   AnimeKindSchema.location,
   AnimeKindSchema.pricePaid,
   AnimeKindSchema.barcode,
+  AnimeKindSchema.nativeTitle,
+  AnimeKindSchema.romajiTitle,
+  AnimeKindSchema.englishTitle,
+  AnimeKindSchema.format,
+  AnimeKindSchema.season,
+  AnimeKindSchema.seasonYear,
+  AnimeKindSchema.episodeCount,
+  AnimeKindSchema.episodeRuntimeMinutes,
+  AnimeKindSchema.airingStatus,
+  AnimeKindSchema.sourceMaterial,
 ];
 
 final animeLibraryGroupDefinitions = [
@@ -147,6 +220,26 @@ final animeLibraryGroupDefinitions = [
     AnimeKindSchema.location,
     sidebarTitle: 'Locations',
     icon: Icons.place_outlined,
+  ),
+  groupFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.format,
+    sidebarTitle: 'Formats',
+    icon: Icons.tv_outlined,
+  ),
+  groupFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.season,
+    sidebarTitle: 'Seasons',
+    icon: Icons.wb_sunny_outlined,
+  ),
+  groupFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.airingStatus,
+    sidebarTitle: 'Airing Status',
+    icon: Icons.play_circle_outline,
+  ),
+  groupFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.sourceMaterial,
+    sidebarTitle: 'Source Material',
+    icon: Icons.import_contacts_outlined,
   ),
 ];
 
@@ -172,6 +265,14 @@ final animeLibrarySortDefinitions = [
   sortFromField<AnimeKind, AnimeWorkspaceDto, DateTime>(
       AnimeKindSchema.releaseDate,
       defaultAscending: false),
+  sortFromField<AnimeKind, AnimeWorkspaceDto, num>(AnimeKindSchema.seasonYear,
+      defaultAscending: false),
+  sortFromField<AnimeKind, AnimeWorkspaceDto, num>(AnimeKindSchema.episodeCount,
+      defaultAscending: false),
+  sortFromField<AnimeKind, AnimeWorkspaceDto, String>(
+      AnimeKindSchema.airingStatus),
+  sortFromField<AnimeKind, AnimeWorkspaceDto, String>(
+      AnimeKindSchema.sourceMaterial),
 ];
 
 final animeLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
@@ -289,6 +390,53 @@ final animeLibraryColumnDefinitions = [
     cellValue: (context) =>
         Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
+  ),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.format,
+    group: 'Metadata',
+    defaultWidth: 100,
+  ),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.season,
+    group: 'Metadata',
+    defaultWidth: 100,
+  ),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, num?>(
+    AnimeKindSchema.seasonYear,
+    group: 'Metadata',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, num?>(
+    AnimeKindSchema.episodeCount,
+    group: 'Metadata',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.airingStatus,
+    group: 'Metadata',
+    defaultWidth: 130,
+  ),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.sourceMaterial,
+    group: 'Metadata',
+    defaultWidth: 130,
+  ),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.nativeTitle,
+    group: 'Metadata',
+    defaultWidth: 180,
+  ),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.romajiTitle,
+    group: 'Metadata',
+    defaultWidth: 180,
+  ),
+  columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+    AnimeKindSchema.englishTitle,
+    group: 'Metadata',
+    defaultWidth: 180,
   ),
 ];
 
