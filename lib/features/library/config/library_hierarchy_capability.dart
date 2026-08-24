@@ -4,8 +4,11 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 
+import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_data_capability.dart';
+import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
+
 /// Encapsulates structural hierarchy, release nesting, and volume/issue scoping.
-class LibraryHierarchyCapability {
+class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   const LibraryHierarchyCapability({
     this.contentHierarchy = LibraryContentHierarchy.flat,
     this.supportsSeriesSubgroups = false,
@@ -14,6 +17,7 @@ class LibraryHierarchyCapability {
     this.showsReadingQueue = false,
     this.collectionExportTitleLabel = 'Title',
     this.mediaReleaseScopeLabel = 'Media',
+    this.fetchChildrenCallback,
   });
 
   final LibraryContentHierarchy contentHierarchy;
@@ -23,6 +27,27 @@ class LibraryHierarchyCapability {
   final bool showsReadingQueue;
   final String collectionExportTitleLabel;
   final String mediaReleaseScopeLabel;
+  final Future<List<LibraryHierarchyNode>> Function({
+    required String itemId,
+    String? provider,
+    String? providerItemId,
+  })? fetchChildrenCallback;
+
+  @override
+  Future<List<LibraryHierarchyNode>> fetchChildren({
+    required String itemId,
+    String? provider,
+    String? providerItemId,
+  }) async {
+    if (fetchChildrenCallback != null) {
+      return fetchChildrenCallback!(
+        itemId: itemId,
+        provider: provider,
+        providerItemId: providerItemId,
+      );
+    }
+    return const <LibraryHierarchyNode>[];
+  }
 
   LibraryWorkspaceBrowserMode browserModeForViewState(
     LibraryWorkspaceViewState viewState, {
