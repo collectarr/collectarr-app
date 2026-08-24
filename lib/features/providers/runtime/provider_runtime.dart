@@ -1,5 +1,3 @@
-import 'dart:async';
-
 /// Cancellation token abstraction for provider requests.
 class ProviderCancellationToken {
   ProviderCancellationToken();
