@@ -311,14 +311,15 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
+    final cat = selection!.item.toCatalogItem();
     expect(selection!.item.title, 'Over the Garden Wall');
-    expect(selection!.item.crossover, 'Image United');
-    expect(selection!.item.storyArcs, ['Finale']);
+    expect(cat.crossover, 'Image United');
+    expect(cat.storyArcs, ['Finale']);
     expect(selection!.item.country, 'Canada');
     expect(selection!.item.language, 'French');
     expect(selection!.item.ageRating, 'Teen');
-    expect(selection!.item.genres, ['Sci-Fi']);
-    expect(selection!.item.coverDate, DateTime(2026, 1, 1));
+    expect(cat.genres, ['Sci-Fi']);
+    expect(cat.coverDate, DateTime(2026, 1, 1));
     expect(selection!.item.trailerUrls, hasLength(2));
     expect(
         selection!.item.trailerUrls.first.url, 'https://example.com/original');

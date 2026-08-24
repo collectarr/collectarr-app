@@ -50,7 +50,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   BuildContext get comicContext => context;
 
   @override
-  WidgetRef get comicRef => ProviderScope.containerOf(context) as dynamic;
+  ProviderContainer get comicRef => ProviderScope.containerOf(context);
 
   @override
   Color get comicAccent => accent;

@@ -58,7 +58,8 @@ class VideoCatalogItem {
       VideoCatalogMapper.mapDtoToVideo(dto);
 
   factory VideoCatalogItem.fromMetadataItem(LibraryMetadataItem item) {
-    final v = item.video;
+    final catalog = item.toCatalogItem();
+    final v = catalog.video;
     return VideoCatalogItem(
       id: item.id,
       work: VideoWorkMetadata(
@@ -67,7 +68,7 @@ class VideoCatalogItem {
         synopsis: item.synopsis,
         releaseDate: item.releaseDate,
         originalLanguage: item.language,
-        genres: item.genres ?? const [],
+        genres: catalog.genres ?? const [],
         series: item.series,
       ),
       technical: VideoTechnicalMetadata(
@@ -78,11 +79,12 @@ class VideoCatalogItem {
         subtitles: v?.subtitles,
         ageRating: item.ageRating ?? v?.ageRating,
         audienceRating: item.audienceRating ?? v?.audienceRating,
+        nrDiscs: v?.nrDiscs,
       ),
-      releases: item.editions
+      releases: catalog.editions
           .map((edition) => VideoRelease(
                 id: edition.id,
-                title: edition.title,
+                title: edition.title ?? '',
                 publisher: edition.publisher,
                 distributor: edition.distributor,
                 barcode: edition.upc ?? edition.isbn,
@@ -99,6 +101,7 @@ class VideoCatalogItem {
                     .toList(),
               ))
           .toList(),
+      trailerUrls: item.trailerUrls,
     );
   }
 

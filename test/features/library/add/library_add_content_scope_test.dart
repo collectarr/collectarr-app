@@ -6,27 +6,33 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('tv add scope classifies series, seasons, and releases', () {
-    final series = LibraryMetadataItem(
-      id: 'tv-series',
-      kind: 'tv',
-      title: 'Example Show',
-    );
-    final season = LibraryMetadataItem(
-      id: 'tv-season',
-      kind: 'tv',
-      title: 'Example Show',
-      itemNumber: 'Season 1',
-      series: const CatalogSeriesDetails(
-        seriesTitle: 'Example Show',
-        seasonNumber: 1,
+    final series = LibraryMetadataItem.fromCatalogItem(
+      CatalogItemDto(
+        id: 'tv-series',
+        kind: 'tv',
+        title: 'Example Show',
       ),
     );
-    final release = LibraryMetadataItem(
-      id: 'tv-release',
-      kind: 'tv',
-      title: 'Example Show',
-      itemNumber: 'Disc 1',
-      physicalFormat: 'Blu-ray',
+    final season = LibraryMetadataItem.fromCatalogItem(
+      CatalogItemDto(
+        id: 'tv-season',
+        kind: 'tv',
+        title: 'Example Show',
+        itemNumber: 'Season 1',
+        series: const CatalogSeriesDetails(
+          seriesTitle: 'Example Show',
+          seasonNumber: 1,
+        ),
+      ),
+    );
+    final release = LibraryMetadataItem.fromCatalogItem(
+      CatalogItemDto(
+        id: 'tv-release',
+        kind: 'tv',
+        title: 'Example Show',
+        itemNumber: 'Disc 1',
+        physicalFormat: 'Blu-ray',
+      ),
     );
 
     expect(
@@ -44,26 +50,32 @@ void main() {
   });
 
   test('tv add scope respects scope toggles for core items', () {
-    final series = LibraryMetadataItem(
-      id: 'tv-series',
-      kind: 'tv',
-      title: 'Example Show',
-    );
-    final season = LibraryMetadataItem(
-      id: 'tv-season',
-      kind: 'tv',
-      title: 'Example Show',
-      series: const CatalogSeriesDetails(
-        seriesTitle: 'Example Show',
-        seasonNumber: 2,
+    final series = LibraryMetadataItem.fromCatalogItem(
+      CatalogItemDto(
+        id: 'tv-series',
+        kind: 'tv',
+        title: 'Example Show',
       ),
     );
-    final release = LibraryMetadataItem(
-      id: 'tv-release',
-      kind: 'tv',
-      title: 'Example Show',
-      itemNumber: 'Disc 1',
-      variant: 'Season Box Set',
+    final season = LibraryMetadataItem.fromCatalogItem(
+      CatalogItemDto(
+        id: 'tv-season',
+        kind: 'tv',
+        title: 'Example Show',
+        series: const CatalogSeriesDetails(
+          seriesTitle: 'Example Show',
+          seasonNumber: 2,
+        ),
+      ),
+    );
+    final release = LibraryMetadataItem.fromCatalogItem(
+      CatalogItemDto(
+        id: 'tv-release',
+        kind: 'tv',
+        title: 'Example Show',
+        itemNumber: 'Disc 1',
+        variant: 'Season Box Set',
+      ),
     );
 
     expect(

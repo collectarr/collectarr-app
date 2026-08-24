@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 abstract class ComicEditHost {
   BuildContext get comicContext;
-  WidgetRef get comicRef;
+  ProviderContainer get comicRef;
   Color get comicAccent;
   LibraryTypeConfig get comicLibraryType;
   LibraryMetadataItem get comicLibraryItem;

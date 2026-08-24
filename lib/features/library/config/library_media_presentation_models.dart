@@ -540,7 +540,7 @@ abstract class LibraryMediaPresentationBuilder {
       includeIdentityFacts: true,
       tapFor: _tapResolver(onFilterByValue),
     );
-    final series = item.source.catalogItem?.series;
+    final series = item.source.catalogItem?.toCatalogItem().series;
     final identityFacts = presentation.identityFacts.map((fact) {
       if (fact.label == 'Series' &&
           series?.seriesId != null &&

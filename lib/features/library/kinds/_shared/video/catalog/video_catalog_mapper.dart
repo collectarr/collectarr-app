@@ -83,55 +83,6 @@ class VideoCatalogMapper {
   }
 
   static VideoCatalogItem mapMetadataItemToVideo(LibraryMetadataItem item) {
-    final v = item.video;
-
-    final work = VideoWorkMetadata(
-      title: item.title,
-      originalTitle: item.originalTitle,
-      synopsis: item.synopsis,
-      releaseDate: item.releaseDate,
-      originalLanguage: item.language,
-      genres: item.genres ?? const [],
-      series: item.series,
-    );
-
-    final technical = VideoTechnicalMetadata(
-      runtimeMinutes: v?.runtimeMinutes,
-      color: v?.color,
-      screenRatio: v?.screenRatio,
-      audioTracks: v?.audioTracks,
-      subtitles: v?.subtitles,
-      ageRating: item.ageRating ?? v?.ageRating,
-      audienceRating: item.audienceRating ?? v?.audienceRating,
-    );
-
-    final releases = item.editions.map((edition) {
-      final media = edition.discs
-          .map((disc) => VideoMediaRef(
-                id: '${edition.id}:disc:${disc.discNumber}',
-                title: disc.discName,
-                formatLabel: disc.discFormat,
-                discNumber: disc.discNumber,
-              ))
-          .toList();
-
-      return VideoRelease(
-        id: edition.id,
-        title: edition.title,
-        publisher: edition.publisher,
-        distributor: edition.distributor,
-        barcode: edition.upc ?? edition.isbn,
-        releaseDate: edition.releaseDate,
-        formatLabel: edition.physicalFormatLabel ?? edition.physicalFormat,
-        media: media,
-      );
-    }).toList();
-
-    return VideoCatalogItem(
-      id: item.id,
-      work: work,
-      technical: technical,
-      releases: releases,
-    );
+    return mapDtoToVideo(CatalogItemDto.fromJson(item.toSyncPayload()));
   }
 }

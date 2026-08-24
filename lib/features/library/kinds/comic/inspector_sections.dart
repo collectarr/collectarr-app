@@ -478,7 +478,7 @@ final _comicSeriesItemsProvider =
 
 List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
   final dto = item.dto;
-  final publishing = item.source.catalogItem?.publishing;
+  final publishing = item.source.catalogItem?.toCatalogItem().publishing;
   final rows = <LibraryDetailField>[];
   if (dto.referenceFormatLabel?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(

@@ -355,7 +355,8 @@ class _GenericStatsDashboard extends StatelessWidget {
   static Map<String, int> _topCreatorCounts(List<ShelfEntry> entries) {
     return _countMany(
       entries,
-      (entry) => (entry.catalogItem?.creators ?? const <Map<String, dynamic>>[])
+      (entry) => (entry.catalogItem?.toCatalogItem().creators ??
+              const <Map<String, dynamic>>[])
           .map((credit) => credit['name']?.toString() ?? '')
           .where((name) => name.trim().isNotEmpty),
     );
@@ -364,16 +365,18 @@ class _GenericStatsDashboard extends StatelessWidget {
   static Map<String, int> _topCharacterCounts(List<ShelfEntry> entries) {
     return _countMany(
       entries,
-      (entry) => (entry.catalogItem?.characters ?? const <String>[])
-          .where((name) => name.trim().isNotEmpty),
+      (entry) =>
+          (entry.catalogItem?.toCatalogItem().characters ?? const <String>[])
+              .where((name) => name.trim().isNotEmpty),
     );
   }
 
   static Map<String, int> _topStoryArcCounts(List<ShelfEntry> entries) {
     return _countMany(
       entries,
-      (entry) => (entry.catalogItem?.storyArcs ?? const <String>[])
-          .where((name) => name.trim().isNotEmpty),
+      (entry) =>
+          (entry.catalogItem?.toCatalogItem().storyArcs ?? const <String>[])
+              .where((name) => name.trim().isNotEmpty),
     );
   }
 
@@ -455,7 +458,8 @@ class _GenericStatsDashboard extends StatelessWidget {
         counts[missingPublisherLabel] =
             (counts[missingPublisherLabel] ?? 0) + 1;
       }
-      if ((item.creators ?? const <Map<String, dynamic>>[]).isEmpty) {
+      if ((item.toCatalogItem().creators ?? const <Map<String, dynamic>>[])
+          .isEmpty) {
         counts['Missing creators'] = (counts['Missing creators'] ?? 0) + 1;
       }
       final seriesTitle = item.series?.seriesTitle;
@@ -493,10 +497,11 @@ class _GenericStatsDashboard extends StatelessWidget {
       10,
     );
     add(item.itemNumber != null && item.itemNumber!.trim().isNotEmpty, 6);
-    add((item.creators ?? const <Map<String, dynamic>>[]).isNotEmpty, 12);
-    add((item.characters ?? const <String>[]).isNotEmpty, 6);
-    add((item.storyArcs ?? const <String>[]).isNotEmpty, 4);
-    add((item.genres ?? const <String>[]).isNotEmpty, 4);
+    final cat = item.toCatalogItem();
+    add((cat.creators ?? const <Map<String, dynamic>>[]).isNotEmpty, 12);
+    add((cat.characters ?? const <String>[]).isNotEmpty, 6);
+    add((cat.storyArcs ?? const <String>[]).isNotEmpty, 4);
+    add((cat.genres ?? const <String>[]).isNotEmpty, 4);
     add(!itemHasMissingCover(item) && !itemHasMissingDetails(item), 4);
 
     if (score >= 85) {

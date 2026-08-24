@@ -26,8 +26,9 @@ class MusicLibraryMediaPresentationBuilder
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
     required LibraryMetadataItem item,
   }) {
+    final catalogItem = item.toCatalogItem();
     final subtitle = _firstMeaningfulMusicValue([
-      item.publishing?.subtitle,
+      catalogItem.publishing?.subtitle,
       item.series?.volumeName,
       if ((int.tryParse(item.series?.volumeNumber ?? '') ?? 0) > 1)
         'Disc ${item.series!.volumeNumber}',
@@ -39,8 +40,8 @@ class MusicLibraryMediaPresentationBuilder
     final format = item.physicalFormatLabel?.trim().isNotEmpty == true
         ? item.physicalFormatLabel!.trim()
         : item.variant?.trim();
-    final trackCount = item.music?.trackCount;
-    final catalogNumber = item.music?.catalogNumber?.trim();
+    final trackCount = catalogItem.music?.trackCount;
+    final catalogNumber = catalogItem.music?.catalogNumber?.trim();
     final detailParts = <String>[
       if (subtitle != null && subtitle.isNotEmpty) subtitle,
       if (format != null && format.isNotEmpty) format,
@@ -77,10 +78,11 @@ class MusicLibraryMediaPresentationBuilder
     final artist = item?.series?.seriesTitle ??
         preview?.series?.seriesTitle ??
         candidate?.series?.seriesTitle;
-    final releaseDetails = item?.music ?? preview?.music;
+    final releaseDetails = item?.toCatalogItem().music ?? preview?.music;
     final coverUrl =
         item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
-    final genres = item?.genres ?? preview?.genres ?? const <String>[];
+    final genres =
+        item?.toCatalogItem().genres ?? preview?.genres ?? const <String>[];
     final albumSubtitle = _musicAlbumSubtitle(item: item, preview: preview);
     final releaseLine = _musicReleaseLine(
       albumTitle: albumTitle,
@@ -101,6 +103,7 @@ class MusicLibraryMediaPresentationBuilder
       preview: preview,
       candidate: candidate,
     );
+
     final tracks = _musicPreviewTracks(item: item, preview: preview);
     return _MusicAddPreviewPane(
       accent: accent,
@@ -132,11 +135,11 @@ class MusicLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem;
+    final catalogItem = item.source.catalogItem?.toCatalogItem();
     final music = catalogItem?.music;
     final series = catalogItem?.series;
     return LibraryMetadataPresentation(
-      labels: metadataLabels,
+      labels: const LibraryMetadataLabels(),
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
@@ -228,7 +231,7 @@ class MusicLibraryMediaPresentationBuilder
     ValueChanged<String>? onFilterByValue,
   }) {
     final sections = <Widget>[];
-    final music = item.source.catalogItem?.music;
+    final music = item.source.catalogItem?.toCatalogItem().music;
     if (music?.tracks case final tracks? when tracks.isNotEmpty) {
       sections.add(
         InspectorTrackList(
@@ -817,7 +820,7 @@ String? _musicLabelCatalogLine({
     parts.add(format.trim());
   }
   final catalogNumber =
-      item?.music?.catalogNumber ?? preview?.music?.catalogNumber;
+      item?.toCatalogItem().music?.catalogNumber ?? preview?.music?.catalogNumber;
   if (catalogNumber != null && catalogNumber.trim().isNotEmpty) {
     parts.add(catalogNumber.trim());
   }
@@ -840,7 +843,7 @@ String? _musicSupportingLine({
   if (publisher != null && publisher.trim().isNotEmpty) {
     values.add(publisher.trim());
   }
-  final status = item?.music?.releaseStatus ?? preview?.music?.releaseStatus;
+  final status = item?.toCatalogItem().music?.releaseStatus ?? preview?.music?.releaseStatus;
   if (status != null && status.trim().isNotEmpty) {
     values.add(status.trim());
   }
@@ -853,7 +856,7 @@ String? _musicAlbumSubtitle({
 }) {
   final albumTitle = item?.title ?? preview?.title;
   final candidates = <String?>[
-    item?.publishing?.subtitle,
+    item?.toCatalogItem().publishing?.subtitle,
     preview?.publishing?.subtitle,
     item?.series?.volumeName,
     preview?.series?.volumeName,
@@ -882,7 +885,7 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
   required LibraryMetadataItem? item,
   required AdminProviderPreview? preview,
 }) {
-  final itemTracks = item?.music?.tracks;
+  final itemTracks = item?.toCatalogItem().music?.tracks;
   if (itemTracks != null && itemTracks.isNotEmpty) {
     return [
       for (final track in itemTracks)

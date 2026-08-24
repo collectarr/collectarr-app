@@ -7,6 +7,9 @@ import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provi
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -96,10 +99,14 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'comic_1',
-        catalogItem: LibraryMetadataItem(
-          id: 'comic_1',
-          kind: 'comic',
-          title: 'Amazing Fantasy #15',
+        catalogItem: const LibraryMetadataItem(
+          identity: LibraryItemIdentity(
+            id: 'comic_1',
+            mediaKind: CatalogMediaKind.comic,
+          ),
+          common: LibraryCommonMetadata(
+            title: 'Amazing Fantasy #15',
+          ),
           kindMetadata: comicMeta,
         ),
         ownedItem: OwnedItem(

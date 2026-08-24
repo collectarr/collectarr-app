@@ -42,34 +42,6 @@ class BoardGameCatalogMapper {
 
   static BoardGameCatalogItem mapMetadataItemToBoardGame(
       LibraryMetadataItem item) {
-    final work = BoardGameWorkMetadata(
-      title: item.title,
-      originalTitle: item.originalTitle,
-      synopsis: item.synopsis,
-      genres: item.genres ?? const [],
-    );
-
-    final stats = const BoardGameStatsMetadata(
-      bggRank: null,
-      bggRating: null,
-    );
-
-    final releases = item.editions.map((edition) {
-      return BoardGameRelease(
-        id: edition.id,
-        title: edition.title,
-        publisher: edition.publisher,
-        barcode: edition.isbn ?? edition.upc,
-        releaseDate: edition.releaseDate,
-        language: edition.language,
-      );
-    }).toList();
-
-    return BoardGameCatalogItem(
-      id: item.id,
-      work: work,
-      stats: stats,
-      releases: releases,
-    );
+    return mapDtoToBoardGame(CatalogItemDto.fromJson(item.toSyncPayload()));
   }
 }

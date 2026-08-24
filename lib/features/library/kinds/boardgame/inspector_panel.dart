@@ -96,11 +96,11 @@ class _BoardGameInspectorMain extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem;
+    final catalogItem = item.source.catalogItem?.toCatalogItem();
     final palette = appPalette(context);
     final releaseYear = dto.releaseDate?.year.toString();
     final creatorsList = catalogItem?.creators
-            ?.map((c) => (c['name'] ?? '').toString())
+            ?.map((Map<String, dynamic> c) => (c['name'] ?? '').toString())
             .where((n) => n.trim().isNotEmpty)
             .toList() ??
         const [];

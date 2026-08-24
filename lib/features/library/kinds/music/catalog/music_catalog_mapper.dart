@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class MusicCatalogMapper {
@@ -71,26 +72,6 @@ class MusicCatalogMapper {
   }
 
   static MusicCatalogItem mapMetadataItemToMusic(LibraryMetadataItem item) {
-    return mapDtoToMusic(CatalogItemDto(
-      id: item.id,
-      mediaKind: item.mediaKind,
-      title: item.title,
-      originalTitle: item.originalTitle,
-      synopsis: item.synopsis,
-      coverImageUrl: item.coverImageUrl,
-      thumbnailImageUrl: item.thumbnailImageUrl,
-      releaseDate: item.releaseDate,
-      releaseYear: item.releaseYear,
-      publisher: item.publisher,
-      genres: item.genres,
-      country: item.country,
-      language: item.language,
-      ageRating: item.ageRating,
-      creators: item.creators,
-      music: item.music,
-      series: item.series,
-      publishing: item.publishing,
-      editions: item.editions,
-    ));
+    return mapDtoToMusic(item.toCatalogItem());
   }
 }

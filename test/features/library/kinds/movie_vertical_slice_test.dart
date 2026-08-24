@@ -6,6 +6,9 @@ import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provi
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -79,9 +82,13 @@ void main() {
       final shelfEntry = ShelfEntry(
         itemId: 'movie_1',
         catalogItem: LibraryMetadataItem(
-          id: 'movie_1',
-          kind: 'movie',
-          title: 'Oppenheimer',
+          identity: const LibraryItemIdentity(
+            id: 'movie_1',
+            mediaKind: CatalogMediaKind.movie,
+          ),
+          common: const LibraryCommonMetadata(
+            title: 'Oppenheimer',
+          ),
           kindMetadata: movieMeta,
         ),
         ownedItem: OwnedItem(

@@ -2,6 +2,9 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
@@ -20,17 +23,30 @@ class LibraryProviderOrchestrationService {
     required LibraryTypeConfig type,
     required ProviderCandidate candidate,
   }) {
+    final mediaKind = type.workspace.kind;
+    final id = _workflow.buildPreviewCatalogItemId(
+      kind: mediaKind.apiValue,
+      provider: candidate.provider,
+      providerItemId: candidate.providerItemId,
+    );
     return LibraryMetadataItem(
-      id: _workflow.buildPreviewCatalogItemId(
-        kind: type.workspace.kind.apiValue,
-        provider: candidate.provider,
-        providerItemId: candidate.providerItemId,
+      identity: LibraryItemIdentity(
+        id: id,
+        mediaKind: mediaKind,
       ),
-      kind: type.workspace.kind.apiValue,
-      title: candidate.title,
-      synopsis: candidate.summary,
-      coverImageUrl: candidate.imageUrl,
-      thumbnailImageUrl: candidate.imageUrl,
+      common: LibraryCommonMetadata(
+        title: candidate.title,
+        synopsis: candidate.summary,
+        coverImageUrl: candidate.imageUrl,
+        thumbnailImageUrl: candidate.imageUrl,
+      ),
+      kindMetadata: LibraryKindMetadataDecoders.decode(mediaKind, {
+        'id': id,
+        'kind': mediaKind.apiValue,
+        'title': candidate.title,
+        'synopsis': candidate.summary,
+        'cover_image_url': candidate.imageUrl,
+      }),
     );
   }
 

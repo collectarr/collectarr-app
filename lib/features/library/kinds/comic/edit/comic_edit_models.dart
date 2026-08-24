@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
@@ -134,23 +135,34 @@ class EditableComicCharacter {
 }
 
 List<EditableComicCreator> initComicCreators(LibraryMetadataItem item) {
-  return [
-    for (final creator in item.creators ?? const <Map<String, dynamic>>[])
-      EditableComicCreator.fromMetadata(creator),
-  ];
+  final payload = item.kindMetadata.toSyncPayload();
+  final creators = payload['creators'];
+  if (creators is List) {
+    return [
+      for (final creator in creators.whereType<Map<String, dynamic>>())
+        EditableComicCreator.fromMetadata(creator),
+    ];
+  }
+  return const [];
 }
 
 List<EditableComicCharacter> initComicCharacters(LibraryMetadataItem item) {
-  if (item.characterDetails != null && item.characterDetails!.isNotEmpty) {
+  final payload = item.kindMetadata.toSyncPayload();
+  final characterDetails = payload['character_details'];
+  if (characterDetails is List && characterDetails.isNotEmpty) {
     return [
-      for (final character in item.characterDetails!)
+      for (final character in characterDetails.whereType<Map<String, dynamic>>())
         EditableComicCharacter.fromMetadata(character),
     ];
   }
-  return [
-    for (final characterName in item.characters ?? const <String>[])
-      EditableComicCharacter.custom(characterName),
-  ];
+  final characters = payload['characters'];
+  if (characters is List) {
+    return [
+      for (final characterName in characters.map((c) => c.toString()))
+        EditableComicCharacter.custom(characterName),
+    ];
+  }
+  return const [];
 }
 
 LibraryEditSelection applyComicSelectionEdits(
@@ -195,14 +207,26 @@ LibraryEditSelection applyComicSelectionEdits(
       ),
     );
   }
+  final payload = selection.item.kindMetadata.toSyncPayload();
+  final updatedPayload = {
+    ...payload,
+    if (mappedCreators.isNotEmpty) 'creators': mappedCreators,
+    if (characterDetails.isNotEmpty) 'character_details': characterDetails,
+    if (characterNames.isNotEmpty) 'characters': characterNames,
+    if (trailerLinks.isNotEmpty)
+      'external_links': trailerLinks.map((l) => l.toJson()).toList(),
+  };
+  final updatedItem = LibraryMetadataItem(
+    identity: selection.item.identity,
+    common: selection.item.common,
+    kindMetadata: LibraryKindMetadataDecoders.decode(
+      selection.item.mediaKind,
+      updatedPayload,
+    ),
+  );
   return LibraryEditSelection(
     scope: selection.scope,
-    item: selection.item.copyWith(
-      creators: mappedCreators.isEmpty ? null : mappedCreators,
-      characterDetails: characterDetails.isEmpty ? null : characterDetails,
-      characters: characterNames.isEmpty ? null : characterNames,
-      trailerUrls: trailerLinks,
-    ),
+    item: updatedItem,
     personal: selection.personal,
     wishlist: selection.wishlist,
     tracking: selection.tracking,

@@ -226,10 +226,12 @@ void main() {
     });
 
     test('selectSuggestion updates query and selects suggestion', () {
-      final suggestion = LibraryMetadataItem(
-        id: 'sugg-1',
-        kind: 'comic',
-        title: 'Daredevil',
+      final suggestion = LibraryMetadataItem.fromCatalogItem(
+        CatalogItemDto(
+          id: 'sugg-1',
+          kind: 'comic',
+          title: 'Daredevil',
+        ),
       );
 
       controller.selectSuggestion(suggestion);

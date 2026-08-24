@@ -53,61 +53,6 @@ class ComicCatalogMapper {
   }
 
   static ComicCatalogItem mapMetadataItemToComic(LibraryMetadataItem item) {
-    final pub = item.publishing;
-
-    final work = ComicWorkMetadata(
-      title: item.title,
-      issueNumber: item.itemNumber,
-      synopsis: item.synopsis,
-      coverDate: item.coverDate,
-      series: item.series,
-      creators: (item.creators
-              ?.map((c) => c['name']?.toString() ?? '')
-              .where((n) => n.isNotEmpty)
-              .toList() ??
-          const []),
-      characters: item.characters ?? const [],
-      storyArcs: item.storyArcs ?? const [],
-      genres: item.genres ?? const [],
-    );
-
-    final publishing = ComicPublishingMetadata(
-      pageCount: pub?.pageCount,
-      coverPriceCents: pub?.coverPriceCents,
-      currency: pub?.currency,
-      publisher: item.publisher,
-      imprint: pub?.imprint,
-      subtitle: pub?.subtitle,
-    );
-
-    final releases = item.editions.isNotEmpty
-        ? item.editions.map((edition) {
-            return ComicRelease(
-              id: edition.id,
-              title: edition.title,
-              publisher: edition.publisher,
-              imprint: pub?.imprint,
-              isbn: edition.isbn,
-              upc: edition.upc,
-              releaseDate: edition.releaseDate,
-            );
-          }).toList()
-        : [
-            if (item.variant != null || item.editionTitle != null)
-              ComicRelease(
-                id: item.id,
-                title: item.variant ?? item.editionTitle ?? '',
-                publisher: item.publisher,
-                imprint: pub?.imprint,
-                releaseDate: item.releaseDate,
-              ),
-          ];
-
-    return ComicCatalogItem(
-      id: item.id,
-      work: work,
-      publishing: publishing,
-      releases: releases,
-    );
+    return mapDtoToComic(item.toCatalogItem());
   }
 }

@@ -1,44 +1,31 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
+import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 LibraryMetadataItem mergeProviderAddResult({
   required LibraryMetadataItem ingested,
   required LibraryMetadataItem edited,
 }) {
-  final mergedPublishing = CatalogPublishingDetails(
-    pageCount: ingested.publishing?.pageCount,
-    coverPriceCents: ingested.publishing?.coverPriceCents,
-    currency: ingested.publishing?.currency,
-    imprint: edited.publishing?.imprint,
-    subtitle: ingested.publishing?.subtitle,
-    seriesGroup: edited.publishing?.seriesGroup,
-  );
-
-  return ingested.copyWith(
-    title: edited.title,
-    itemNumber: edited.itemNumber,
-    synopsis: edited.synopsis,
-    coverImageUrl: edited.coverImageUrl ?? ingested.coverImageUrl,
-    thumbnailImageUrl: edited.thumbnailImageUrl ?? ingested.thumbnailImageUrl,
-    editionTitle: edited.editionTitle,
-    physicalFormat: edited.physicalFormat,
-    physicalFormatLabel: edited.physicalFormatLabel,
-    publisher: edited.publisher,
-    releaseDate: edited.releaseDate,
-    releaseYear: edited.releaseYear,
-    barcode: edited.barcode,
-    variant: edited.variant,
-    series: edited.series ?? ingested.series,
-    publishing: mergedPublishing.hasData ? mergedPublishing : null,
-    creators: edited.creators ?? ingested.creators,
-    characters: edited.characters ?? ingested.characters,
-    storyArcs: edited.storyArcs ?? ingested.storyArcs,
-    genres: edited.genres ?? ingested.genres,
-    country: edited.country ?? ingested.country,
-    language: edited.language ?? ingested.language,
-    ageRating: edited.ageRating ?? ingested.ageRating,
+  return LibraryMetadataItem(
+    identity: ingested.identity,
+    common: LibraryCommonMetadata(
+      title: edited.title,
+      displayTitle: edited.displayTitle ?? ingested.displayTitle,
+      localizedTitle: edited.localizedTitle ?? ingested.localizedTitle,
+      originalTitle: edited.originalTitle ?? ingested.originalTitle,
+      titleExtension: edited.titleExtension ?? ingested.titleExtension,
+      searchAliases: edited.searchAliases ?? ingested.searchAliases,
+      sortKey: edited.sortKey ?? ingested.sortKey,
+      synopsis: edited.synopsis ?? ingested.synopsis,
+      coverImageUrl: edited.coverImageUrl ?? ingested.coverImageUrl,
+      thumbnailImageUrl: edited.thumbnailImageUrl ?? ingested.thumbnailImageUrl,
+      coverImageData: edited.coverImageData ?? ingested.coverImageData,
+      releaseDate: edited.releaseDate ?? ingested.releaseDate,
+      releaseYear: edited.releaseYear ?? ingested.releaseYear,
+    ),
+    kindMetadata: edited.kindMetadata,
   );
 }
 
@@ -46,50 +33,14 @@ LibraryMetadataItem mergeResolvedProviderAddItem({
   required LibraryMetadataItem fallback,
   required LibraryMetadataItem fullItem,
 }) {
-  var merged = fullItem;
-  if (merged.editions.isEmpty && fallback.editions.isNotEmpty) {
-    merged = merged.copyWith(editions: fallback.editions);
-  }
-  final fallbackMusic = fallback.music;
-  final currentMusic = merged.music;
-  if (fallbackMusic != null && currentMusic != null) {
-    final mergedMusic = MusicCatalogDetails(
-      trackCount: currentMusic.trackCount ?? fallbackMusic.trackCount,
-      tracks: currentMusic.tracks.isNotEmpty
-          ? currentMusic.tracks
-          : fallbackMusic.tracks,
-      discs: currentMusic.discs.isNotEmpty
-          ? currentMusic.discs
-          : fallbackMusic.discs,
-      catalogNumber: currentMusic.catalogNumber ?? fallbackMusic.catalogNumber,
-      releaseStatus: currentMusic.releaseStatus ?? fallbackMusic.releaseStatus,
-      originalReleaseDate:
-          currentMusic.originalReleaseDate ?? fallbackMusic.originalReleaseDate,
-      recordingDate: currentMusic.recordingDate ?? fallbackMusic.recordingDate,
-      studio: currentMusic.studio ?? fallbackMusic.studio,
-      rpm: currentMusic.rpm ?? fallbackMusic.rpm,
-      spars: currentMusic.spars ?? fallbackMusic.spars,
-      soundType: currentMusic.soundType ?? fallbackMusic.soundType,
-      vinylColor: currentMusic.vinylColor ?? fallbackMusic.vinylColor,
-      vinylWeight: currentMusic.vinylWeight ?? fallbackMusic.vinylWeight,
-      mediaCondition:
-          currentMusic.mediaCondition ?? fallbackMusic.mediaCondition,
-      instrument: currentMusic.instrument ?? fallbackMusic.instrument,
-      isLive: currentMusic.isLive ?? fallbackMusic.isLive,
-      composition: currentMusic.composition ?? fallbackMusic.composition,
-    );
-    if (mergedMusic.hasData) {
-      merged = merged.copyWith(music: mergedMusic);
-    }
-  } else if (currentMusic == null && fallbackMusic != null) {
-    merged = merged.copyWith(music: fallbackMusic);
-  }
-  return merged.displayCoverUrl != null
-      ? merged
-      : merged.copyWith(
-          coverImageUrl: fallback.coverImageUrl,
-          thumbnailImageUrl:
-              fallback.thumbnailImageUrl ?? fallback.coverImageUrl,
+  return fullItem.displayCoverUrl != null
+      ? fullItem
+      : fullItem.copyWith(
+          common: fullItem.common.copyWith(
+            coverImageUrl: fallback.coverImageUrl,
+            thumbnailImageUrl:
+                fallback.thumbnailImageUrl ?? fallback.coverImageUrl,
+          ),
         );
 }
 
@@ -97,20 +48,15 @@ Map<String, dynamic> mergeHydratedProviderAddResultRaw({
   required Map<String, dynamic> raw,
   required LibraryMetadataItem sourceSelection,
 }) {
+  final payload = sourceSelection.kindMetadata.toSyncPayload();
   final merged = <String, dynamic>{
     ...raw,
-    if (!raw.containsKey('editions') && sourceSelection.editions.isNotEmpty)
-      'editions': [
-        for (final edition in sourceSelection.editions) edition.toJson(),
-      ],
-    if (!raw.containsKey('track_count') &&
-        sourceSelection.music?.trackCount != null)
-      'track_count': sourceSelection.music!.trackCount,
-    if (!raw.containsKey('tracks') &&
-        (sourceSelection.music?.tracks.isNotEmpty ?? false))
-      'tracks': [
-        for (final track in sourceSelection.music!.tracks) track.toJson(),
-      ],
+    if (!raw.containsKey('editions') && payload['editions'] != null)
+      'editions': payload['editions'],
+    if (!raw.containsKey('track_count') && payload['track_count'] != null)
+      'track_count': payload['track_count'],
+    if (!raw.containsKey('tracks') && payload['tracks'] != null)
+      'tracks': payload['tracks'],
   };
   return merged;
 }
@@ -122,6 +68,7 @@ Future<void> applyProviderIngestCorrections({
   required Map<String, Object?> corrections,
   required LibraryMetadataItem edited,
 }) {
+  final payload = edited.kindMetadata.toSyncPayload();
   return api.adminUpdateCatalogItem(
     kind: kind,
     id: itemId,
@@ -136,13 +83,13 @@ Future<void> applyProviderIngestCorrections({
     synopsis: corrections['synopsis'] as String?,
     editionTitle: corrections['edition_title'] as String?,
     pageCount: corrections.containsKey('page_count')
-        ? edited.publishing?.pageCount
+        ? payload['page_count'] as int?
         : null,
     publisher: corrections['publisher'] as String?,
     releaseDate:
         corrections.containsKey('release_date') ? edited.releaseDate : null,
     runtimeMinutes: corrections.containsKey('runtime_minutes')
-        ? edited.video?.runtimeMinutes
+        ? payload['runtime_minutes'] as int?
         : null,
     imprint: corrections['imprint'] as String?,
     subtitle: corrections['subtitle'] as String?,
@@ -151,24 +98,43 @@ Future<void> applyProviderIngestCorrections({
     language: corrections['language'] as String?,
     ageRating: corrections['age_rating'] as String?,
     audienceRating: corrections['audience_rating'] as String?,
-    genres: corrections.containsKey('genres') ? edited.genres : null,
-    platforms:
-        corrections.containsKey('platforms') ? edited.game?.platforms : null,
-    tracks: corrections.containsKey('tracks') ? edited.music?.tracks : null,
-    creators: corrections.containsKey('creators')
-        ? normalizeCreators(edited.creators)
+    genres: corrections.containsKey('genres')
+        ? (payload['genres'] as List?)?.map((g) => g.toString()).toList()
         : null,
-    characters:
-        corrections.containsKey('characters') ? edited.characters : null,
-    storyArcs: corrections.containsKey('story_arcs') ? edited.storyArcs : null,
+    platforms: corrections.containsKey('platforms')
+        ? (payload['platforms'] as List?)?.map((p) => p.toString()).toList()
+        : null,
+    tracks: corrections.containsKey('tracks')
+        ? (payload['tracks'] as List?)
+            ?.whereType<Map<String, dynamic>>()
+            .map((t) => CatalogTrack.fromJson(t))
+            .toList()
+        : null,
+    creators: corrections.containsKey('creators')
+        ? normalizeCreators((payload['creators'] as List?)
+            ?.whereType<Map<String, dynamic>>()
+            .toList())
+        : null,
+    characters: corrections.containsKey('characters')
+        ? (payload['characters'] as List?)?.map((c) => c.toString()).toList()
+        : null,
+    storyArcs: corrections.containsKey('story_arcs')
+        ? (payload['story_arcs'] as List?)?.map((s) => s.toString()).toList()
+        : null,
     color: corrections['color'] as String?,
-    nrDiscs: corrections.containsKey('nr_discs') ? edited.video?.nrDiscs : null,
+    nrDiscs: corrections.containsKey('nr_discs')
+        ? payload['nr_discs'] as int?
+        : null,
     screenRatio: corrections['screen_ratio'] as String?,
     audioTracks: corrections['audio_tracks'] as String?,
     subtitles: corrections['subtitles'] as String?,
     layers: corrections['layers'] as String?,
-    externalLinks:
-        corrections.containsKey('external_links') ? edited.trailerUrls : null,
+    externalLinks: corrections.containsKey('external_links')
+        ? (payload['external_links'] as List?)
+            ?.whereType<Map<String, dynamic>>()
+            .map((l) => TrailerLink.fromJson(l))
+            .toList()
+        : null,
     crossover: corrections['crossover'] as String?,
     plotSummary: corrections['plot_summary'] as String?,
     plotDescription: corrections['plot_description'] as String?,

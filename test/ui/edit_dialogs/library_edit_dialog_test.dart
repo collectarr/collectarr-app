@@ -779,16 +779,17 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
+    final cat = selection?.item.toCatalogItem();
     expect(selection?.item.editionTitle, 'Deluxe Edition');
     expect(selection?.item.titleExtension, isNull);
     expect(selection?.item.series?.seriesTitle, 'Over the Garden Wall');
-    expect(selection?.item.crossover, 'Adventure Time');
-    expect(selection?.item.storyArcs,
+    expect(cat?.crossover, 'Adventure Time');
+    expect(cat?.storyArcs,
         const ['Unknowning', 'The Tome of the Unknown']);
     expect(selection?.item.physicalFormatLabel, 'Trade Paperback');
-    expect(selection?.item.coverDate?.year, 2016);
-    expect(selection?.item.coverDate?.month, 10);
-    expect(selection?.item.coverDate?.day, 26);
+    expect(cat?.coverDate?.year, 2016);
+    expect(cat?.coverDate?.month, 10);
+    expect(cat?.coverDate?.day, 26);
   });
 
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {
@@ -972,23 +973,24 @@ void main() {
     expect(selection?.personal?.collectionStatus, 'for_sale');
     expect(selection?.personal?.marketValueCents, 2599);
 
-    expect(selection?.item.publishing?.publicationPlace, 'New York');
-    expect(selection?.item.publishing?.originalPublisher, 'Gnome Press');
-    expect(selection?.item.publishing?.originalPublicationPlace, 'New York');
-    expect(selection?.item.publishing?.paperType, 'Pulp');
-    expect(selection?.item.publishing?.printedBy, 'Offset House');
-    expect(selection?.item.publishing?.subjects, ['Sci-Fi', 'Galactic Empire']);
-    expect(selection?.item.publishing?.firstEdition, isTrue);
-    expect(selection?.item.publishing?.dustJacket, isTrue);
+    final cat = selection?.item.toCatalogItem();
+    expect(cat?.publishing?.publicationPlace, 'New York');
+    expect(cat?.publishing?.originalPublisher, 'Gnome Press');
+    expect(cat?.publishing?.originalPublicationPlace, 'New York');
+    expect(cat?.publishing?.paperType, 'Pulp');
+    expect(cat?.publishing?.printedBy, 'Offset House');
+    expect(cat?.publishing?.subjects, ['Sci-Fi', 'Galactic Empire']);
+    expect(cat?.publishing?.firstEdition, isTrue);
+    expect(cat?.publishing?.dustJacket, isTrue);
     expect(selection?.item.trailerUrls, hasLength(1));
     expect(selection?.item.trailerUrls.first.kind, 'external');
     expect(selection?.item.trailerUrls.first.url,
         'https://www.goodreads.com/book/show/29579.Foundation');
 
-    final creators = selection?.item.creators ?? const <Map<String, dynamic>>[];
+    final creators = cat?.creators ?? const <Map<String, dynamic>>[];
     expect(
       creators.any(
-        (entry) =>
+        (Map<String, dynamic> entry) =>
             entry['name'] == 'Random Contributor' &&
             entry['role'] == 'Consultant',
       ),
@@ -996,7 +998,8 @@ void main() {
     );
     expect(
       creators.any(
-        (entry) => entry['name'] == 'Isaac Asimov' && entry['role'] == 'Author',
+        (Map<String, dynamic> entry) =>
+            entry['name'] == 'Isaac Asimov' && entry['role'] == 'Author',
       ),
       isTrue,
     );
@@ -1645,9 +1648,10 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
+    final cat = selection?.item.toCatalogItem();
     expect(selection?.item.series?.seriesTitle, 'cAd');
-    expect(selection?.item.music?.catalogNumber, 'KDCD 1022-R');
-    expect(selection?.item.creators, [
+    expect(cat?.music?.catalogNumber, 'KDCD 1022-R');
+    expect(cat?.creators, [
       {'name': 'Ad Infinitum', 'role': 'Artist'},
       {'name': 'Melissa Bonny', 'role': 'Vocals'},
       {'role': 'Songwriter', 'name': 'Melissa Bonny'},
@@ -1723,7 +1727,8 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.item.game?.platforms, ['PlayStation 5']);
+    final cat = selection?.item.toCatalogItem();
+    expect(cat?.game?.platforms, ['PlayStation 5']);
   });
 
   testWidgets('game all scope exposes release identity on its own tab',

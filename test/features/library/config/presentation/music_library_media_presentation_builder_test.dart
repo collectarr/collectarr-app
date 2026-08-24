@@ -10,19 +10,21 @@ void main() {
   test('music search result display formats album metadata', () {
     const builder = MusicLibraryMediaPresentationBuilder();
     final display = builder.buildSearchResultDisplay(
-      item: LibraryMetadataItem(
-        id: 'music-search-1',
-        kind: 'music',
-        title: 'Kinesis - Deluxe Edition',
-        physicalFormatLabel: 'CD',
-        barcode: '1234567890',
-        series: const CatalogSeriesDetails(
-          seriesTitle: 'Ad Infinitum',
-          volumeName: 'Deluxe Edition',
-        ),
-        music: const MusicCatalogDetails(
-          trackCount: 3,
-          catalogNumber: 'KDCD 1022',
+      item: LibraryMetadataItem.fromCatalogItem(
+        CatalogItemDto(
+          id: 'music-search-1',
+          kind: 'music',
+          title: 'Kinesis - Deluxe Edition',
+          physicalFormatLabel: 'CD',
+          barcode: '1234567890',
+          series: CatalogSeriesDetails(
+            seriesTitle: 'Ad Infinitum',
+            volumeName: 'Deluxe Edition',
+          ),
+          music: MusicCatalogDetails(
+            trackCount: 3,
+            catalogNumber: 'KDCD 1022',
+          ),
         ),
       ),
     );
@@ -54,31 +56,34 @@ void main() {
         series: 'Artist',
         itemCount: 'Releases',
       ),
-      item: LibraryMetadataItem(
-        id: 'music-1',
-        kind: 'music',
-        title: 'Kinesis',
-        variant: 'CD',
-        publisher: 'Inside Out',
-        releaseYear: 1998,
-        series: const CatalogSeriesDetails(seriesTitle: 'Ad Infinitum'),
-        genres: const [
-          'Rock',
-          'Progressive Rock',
-          'Art Rock',
-          'Progressive',
-        ],
-        music: const MusicCatalogDetails(
-          trackCount: 3,
-          catalogNumber: 'KDCD 1022',
-          releaseStatus: 'Album',
-          tracks: [
-            CatalogTrack(
-                title: 'Ad Infinitum', position: 1, durationSeconds: 506),
-            CatalogTrack(
-                title: 'Immortality', position: 2, durationSeconds: 421),
-            CatalogTrack(title: 'Waterline', position: 3, durationSeconds: 659),
+      item: LibraryMetadataItem.fromCatalogItem(
+        CatalogItemDto(
+          id: 'music-1',
+          kind: 'music',
+          title: 'Kinesis',
+          variant: 'CD',
+          publisher: 'Inside Out',
+          releaseYear: 1998,
+          series: CatalogSeriesDetails(seriesTitle: 'Ad Infinitum'),
+          genres: [
+            'Rock',
+            'Progressive Rock',
+            'Art Rock',
+            'Progressive',
           ],
+          music: MusicCatalogDetails(
+            trackCount: 3,
+            catalogNumber: 'KDCD 1022',
+            releaseStatus: 'Album',
+            tracks: [
+              CatalogTrack(
+                  title: 'Ad Infinitum', position: 1, durationSeconds: 506),
+              CatalogTrack(
+                  title: 'Immortality', position: 2, durationSeconds: 421),
+              CatalogTrack(
+                  title: 'Waterline', position: 3, durationSeconds: 659),
+            ],
+          ),
         ),
       ),
       candidate: null,
@@ -128,31 +133,34 @@ void main() {
         series: 'Artist',
         itemCount: 'Releases',
       ),
-      item: LibraryMetadataItem(
-        id: 'music-1',
-        kind: 'music',
-        title: 'Kinesis',
-        variant: 'CD',
-        publisher: 'Inside Out',
-        releaseYear: 1998,
-        series: const CatalogSeriesDetails(seriesTitle: 'Ad Infinitum'),
-        genres: const [
-          'Rock',
-          'Progressive Rock',
-          'Art Rock',
-          'Progressive',
-        ],
-        music: const MusicCatalogDetails(
-          trackCount: 3,
-          catalogNumber: 'KDCD 1022',
-          releaseStatus: 'Album',
-          tracks: [
-            CatalogTrack(
-                title: 'Ad Infinitum', position: 1, durationSeconds: 506),
-            CatalogTrack(
-                title: 'Immortality', position: 2, durationSeconds: 421),
-            CatalogTrack(title: 'Waterline', position: 3, durationSeconds: 659),
+      item: LibraryMetadataItem.fromCatalogItem(
+        CatalogItemDto(
+          id: 'music-1',
+          kind: 'music',
+          title: 'Kinesis',
+          variant: 'CD',
+          publisher: 'Inside Out',
+          releaseYear: 1998,
+          series: CatalogSeriesDetails(seriesTitle: 'Ad Infinitum'),
+          genres: [
+            'Rock',
+            'Progressive Rock',
+            'Art Rock',
+            'Progressive',
           ],
+          music: MusicCatalogDetails(
+            trackCount: 3,
+            catalogNumber: 'KDCD 1022',
+            releaseStatus: 'Album',
+            tracks: [
+              CatalogTrack(
+                  title: 'Ad Infinitum', position: 1, durationSeconds: 506),
+              CatalogTrack(
+                  title: 'Immortality', position: 2, durationSeconds: 421),
+              CatalogTrack(
+                  title: 'Waterline', position: 3, durationSeconds: 659),
+            ],
+          ),
         ),
       ),
       candidate: null,

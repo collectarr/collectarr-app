@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,8 @@ class GameEditController {
       splitPickListValues(developersController.text),
     );
     genreOptions = _mergePickListOptions(
-      item.genres ?? const <String>[],
+      (item.kindMetadata.toSyncPayload()['genres'] as List?)?.cast<String>() ??
+          const <String>[],
     );
     platformOptions = splitPickListValues(platformsController.text);
   }
@@ -37,14 +39,11 @@ class GameEditController {
   }
 
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final currentGame = selection.item.game;
-    final updatedGame = GameCatalogDetails(
-      platforms: splitPickListValues(platformsController.text),
-      toySubtype: currentGame?.toySubtype,
-      toyType: currentGame?.toyType,
-    );
+    final payload = selection.item.kindMetadata.toSyncPayload();
+    final platforms = splitPickListValues(platformsController.text);
 
-    final existing = selection.item.creators ?? const <Map<String, dynamic>>[];
+    final existing = (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
+        const <Map<String, dynamic>>[];
     final preserved = <Map<String, dynamic>>[];
     for (final entry in existing) {
       final role = entry['role']?.toString().toLowerCase() ?? '';
@@ -66,14 +65,23 @@ class GameEditController {
         <String, dynamic>{'name': name, 'role': 'Developer'},
     ];
 
+    final updatedPayload = {
+      ...payload,
+      'platforms': platforms,
+      if (mergedCreators.isNotEmpty) 'creators': mergedCreators,
+    };
+    final updatedItem = LibraryMetadataItem(
+      identity: selection.item.identity,
+      common: selection.item.common,
+      kindMetadata: LibraryKindMetadataDecoders.decode(
+        selection.item.mediaKind,
+        updatedPayload,
+      ),
+    );
+
     return LibraryEditSelection(
       scope: selection.scope,
-      item: selection.item.copyWith(
-        game: updatedGame.hasData ? updatedGame : null,
-        creators: mergedCreators.isEmpty
-            ? null
-            : List<Map<String, dynamic>>.unmodifiable(mergedCreators),
-      ),
+      item: updatedItem,
       personal: selection.personal,
       wishlist: selection.wishlist,
       tracking: selection.tracking,

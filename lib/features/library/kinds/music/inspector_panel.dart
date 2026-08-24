@@ -157,7 +157,7 @@ class _MusicInspectorMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catalogItem = inspector.item.source.catalogItem;
+    final catalogItem = inspector.item.source.catalogItem?.toCatalogItem();
     final music = catalogItem?.music;
     final palette = appPalette(context);
     final discGroups =
@@ -324,7 +324,7 @@ class _MusicInspectorTracks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tracks = inspector.item.source.catalogItem?.music?.tracks ??
+    final tracks = inspector.item.source.catalogItem?.toCatalogItem().music?.tracks ??
         const <CatalogTrack>[];
     final groups = _groupTracksByDisc(tracks);
     if (groups.isEmpty) {
@@ -386,7 +386,7 @@ class _MusicDiscDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catalogItem = inspector.item.source.catalogItem;
+    final catalogItem = inspector.item.source.catalogItem?.toCatalogItem();
     final music = catalogItem?.music;
     final discs = music?.discs ?? const <CatalogDisc>[];
     return Column(
@@ -435,7 +435,7 @@ class _MusicProductDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catalogItem = inspector.item.source.catalogItem;
+    final catalogItem = inspector.item.source.catalogItem?.toCatalogItem();
     final dto = inspector.item.dto;
     final music = catalogItem?.music;
     final rows = <(String, String)>[
@@ -529,7 +529,7 @@ class _MusicInspectorCredits extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final creditRows = libraryCreatorsGroupedByRole(
-        inspector.item.source.catalogItem?.creators);
+        inspector.item.source.catalogItem?.toCatalogItem().creators);
     if (creditRows.isEmpty) {
       return Text(
         '-',

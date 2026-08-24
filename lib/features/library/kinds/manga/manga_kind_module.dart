@@ -72,7 +72,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
 
 Iterable<String> _getFacetValues(
     LibraryProjectionRuntime item, String facetId) {
-  final catalog = item.source.catalogItem;
+  final catalog = item.source.catalogItem?.toCatalogItem();
   if (facetId == MangaFacetIds.character.value) {
     return catalog?.characters ?? const [];
   }

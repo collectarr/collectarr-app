@@ -302,19 +302,22 @@ class CollectionCsv {
     return const CsvEncoder(lineDelimiter: '\n').convert(rows);
   }
 
-  List<String> _catalogFields(ShelfEntry entry) => [
-        entry.itemId,
-        entry.catalogItem?.kind ?? '',
-        entry.catalogItem?.title ?? '',
-        entry.catalogItem?.itemNumber ?? '',
-        entry.catalogItem?.variant ?? '',
-        entry.catalogItem?.editionTitle ?? '',
-        entry.catalogItem?.physicalFormat ?? '',
-        entry.catalogItem?.physicalFormatLabel ?? '',
-        entry.catalogItem?.publisher ?? '',
-        _formatDate(entry.catalogItem?.releaseDate),
-        entry.catalogItem?.barcode ?? '',
-      ];
+  List<String> _catalogFields(ShelfEntry entry) {
+    final catalog = entry.catalogItem?.toCatalogItem();
+    return [
+      entry.itemId,
+      catalog?.kind ?? '',
+      catalog?.title ?? '',
+      catalog?.itemNumber ?? '',
+      catalog?.variant ?? '',
+      catalog?.editionTitle ?? '',
+      catalog?.physicalFormat ?? '',
+      catalog?.physicalFormatLabel ?? '',
+      catalog?.publisher ?? '',
+      _formatDate(catalog?.releaseDate),
+      catalog?.barcode ?? '',
+    ];
+  }
 
   List<String> _entryToRow(
     ShelfEntry entry, {

@@ -129,30 +129,34 @@ void main() {
   });
 
   test('book provider add merge preserves preview creators', () {
-    final ingested = LibraryMetadataItem(
-      id: 'book-item-1',
-      kind: 'book',
-      title: 'The Hobbit',
-      publisher: 'Allen & Unwin',
-      publishing: const CatalogPublishingDetails(
-        pageCount: 310,
+    final ingested = LibraryMetadataItem.fromCatalogItem(
+      CatalogItemDto(
+        id: 'book-item-1',
+        kind: 'book',
+        title: 'The Hobbit',
+        publisher: 'Allen & Unwin',
+        publishing: CatalogPublishingDetails(
+          pageCount: 310,
+        ),
       ),
     );
-    final edited = LibraryMetadataItem(
-      id: 'book-item-1',
-      kind: 'book',
-      title: 'The Hobbit',
-      publisher: 'Allen & Unwin',
-      creators: const [
-        {
-          'name': 'J.R.R. Tolkien',
-          'role': 'Author',
-          'image_url': 'https://cdn.example/tolkien.jpg',
-        },
-      ],
-      genres: const ['Fantasy'],
-      publishing: const CatalogPublishingDetails(
-        pageCount: 310,
+    final edited = LibraryMetadataItem.fromCatalogItem(
+      CatalogItemDto(
+        id: 'book-item-1',
+        kind: 'book',
+        title: 'The Hobbit',
+        publisher: 'Allen & Unwin',
+        creators: [
+          {
+            'name': 'J.R.R. Tolkien',
+            'role': 'Author',
+            'image_url': 'https://cdn.example/tolkien.jpg',
+          },
+        ],
+        genres: ['Fantasy'],
+        publishing: CatalogPublishingDetails(
+          pageCount: 310,
+        ),
       ),
     );
 
@@ -161,13 +165,14 @@ void main() {
       edited: edited,
     );
 
-    expect(merged.creators, isNotNull);
-    expect(merged.creators, isNotEmpty);
-    expect(merged.creators!.first['name'], 'J.R.R. Tolkien');
-    expect(merged.creators!.first['role'], 'Author');
+    final cat = merged.toCatalogItem();
+    expect(cat.creators, isNotNull);
+    expect(cat.creators, isNotEmpty);
+    expect(cat.creators!.first['name'], 'J.R.R. Tolkien');
+    expect(cat.creators!.first['role'], 'Author');
     expect(
-        merged.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
-    expect(merged.genres, contains('Fantasy'));
+        cat.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
+    expect(cat.genres, contains('Fantasy'));
   });
 
   test('local cover image preprocessor applies crop and rotation transforms',

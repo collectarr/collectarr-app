@@ -7,16 +7,18 @@ void main() {
   test('exact core match suppresses provider fallback', () {
     final shouldFallback = shouldSearchProviderForCoreResults(
       [
-        LibraryMetadataItem(
-          id: 'comic-423',
-          kind: 'comic',
-          title: 'Batman',
-          itemNumber: '423',
-          publisher: 'DC',
-          releaseYear: 1988,
-          series: CatalogSeriesDetails(
-            seriesTitle: 'Batman',
-            volumeStartYear: 1988,
+        LibraryMetadataItem.fromCatalogItem(
+          CatalogItemDto(
+            id: 'comic-423',
+            kind: 'comic',
+            title: 'Batman',
+            itemNumber: '423',
+            publisher: 'DC',
+            releaseYear: 1988,
+            series: CatalogSeriesDetails(
+              seriesTitle: 'Batman',
+              volumeStartYear: 1988,
+            ),
           ),
         ),
       ],
@@ -35,12 +37,14 @@ void main() {
   test('weak core top match keeps provider fallback enabled', () {
     final shouldFallback = shouldSearchProviderForCoreResults(
       [
-        LibraryMetadataItem(
-          id: 'movie-1',
-          kind: 'movie',
-          title: 'Blade Runner 2049',
-          publisher: 'Warner Bros.',
-          releaseYear: 2017,
+        LibraryMetadataItem.fromCatalogItem(
+          CatalogItemDto(
+            id: 'movie-1',
+            kind: 'movie',
+            title: 'Blade Runner 2049',
+            publisher: 'Warner Bros.',
+            releaseYear: 2017,
+          ),
         ),
       ],
       const LibraryAddLocalRerankHints(

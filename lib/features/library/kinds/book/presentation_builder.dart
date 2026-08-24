@@ -38,7 +38,7 @@ class BookLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem;
+    final catalogItem = item.source.catalogItem?.toCatalogItem();
     final series = catalogItem?.series;
     final publishing = catalogItem?.publishing;
     final music = catalogItem?.music;
@@ -190,7 +190,7 @@ class BookLibraryMediaPresentationBuilder
       );
     }
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem;
+    final catalogItem = item.source.catalogItem?.toCatalogItem();
     final series = catalogItem?.series;
     final sectionSpecs = <LibraryDetailSectionSpec>[];
 
@@ -695,7 +695,8 @@ String? _bookSubtitleForSelection({
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
-  final subtitle = item?.publishing?.subtitle ?? preview?.publishing?.subtitle;
+  final subtitle = item?.toCatalogItem().publishing?.subtitle ??
+      preview?.publishing?.subtitle;
   if (subtitle != null &&
       subtitle.trim().isNotEmpty &&
       subtitle.trim() != title.trim()) {
@@ -746,7 +747,8 @@ String? _bookCreatorLineForSelection({
     }
   }
 
-  for (final credit in item?.creators ?? const <Map<String, dynamic>>[]) {
+  for (final credit
+      in item?.toCatalogItem().creators ?? const <Map<String, dynamic>>[]) {
     addName(credit['name']?.toString(), credit['role']?.toString());
   }
   for (final credit in preview?.creators ?? const <ProviderPreviewCredit>[]) {
@@ -819,7 +821,8 @@ int? _bookPageCountForSelection({
   required LibraryMetadataItem? item,
   required AdminProviderPreview? preview,
 }) {
-  return item?.publishing?.pageCount ?? preview?.publishing?.pageCount;
+  return item?.toCatalogItem().publishing?.pageCount ??
+      preview?.publishing?.pageCount;
 }
 
 List<String> _bookDiscoveryTagsForSelection({
@@ -843,19 +846,19 @@ List<String> _bookDiscoveryTagsForSelection({
     }
   }
 
-  addAll(item?.genres ?? preview?.genres ?? const <String>[]);
+  addAll(item?.toCatalogItem().genres ?? preview?.genres ?? const <String>[]);
   addAll(item?.series?.tags?.split(', ') ??
       (preview?.series?.tags != null
           ? [preview!.series!.tags!]
           : const <String>[]));
   addAll(
-    item?.characters ??
+    item?.toCatalogItem().characters ??
         preview?.characters ??
         candidate?.characterPreview ??
         const <String>[],
   );
   addAll(
-    item?.storyArcs ??
+    item?.toCatalogItem().storyArcs ??
         preview?.storyArcs ??
         candidate?.storyArcPreview ??
         const <String>[],

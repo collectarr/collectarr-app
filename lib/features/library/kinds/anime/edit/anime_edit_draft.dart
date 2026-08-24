@@ -93,6 +93,7 @@ KindEditDraft createAnimeEditDraft({
   final videoEdit = VideoEditController(item: item);
   videoEdit.initializeVideoEditors();
 
+  final payload = item.kindMetadata.toSyncPayload();
   return AnimeEditDraft(
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
@@ -101,15 +102,17 @@ KindEditDraft createAnimeEditDraft({
     distributorController:
         textControllers.create(text: video?.distributor ?? ''),
     screenRatioController:
-        textControllers.create(text: item.video?.screenRatio ?? ''),
+        textControllers.create(text: payload['screen_ratio']?.toString() ?? ''),
     audioTracksController:
-        textControllers.create(text: item.video?.audioTracks ?? ''),
+        textControllers.create(text: payload['audio_tracks']?.toString() ?? ''),
     subtitlesController:
-        textControllers.create(text: item.video?.subtitles ?? ''),
-    layersController: textControllers.create(text: item.video?.layers ?? ''),
-    colorController: textControllers.create(text: item.video?.color ?? ''),
+        textControllers.create(text: payload['subtitles']?.toString() ?? ''),
+    layersController:
+        textControllers.create(text: payload['layers']?.toString() ?? ''),
+    colorController:
+        textControllers.create(text: payload['color']?.toString() ?? ''),
     nrDiscsController:
-        textControllers.create(text: item.video?.nrDiscs?.toString() ?? ''),
+        textControllers.create(text: payload['nr_discs']?.toString() ?? ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
     videoEdit: videoEdit,
   );

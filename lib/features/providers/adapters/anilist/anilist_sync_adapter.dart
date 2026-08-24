@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
@@ -74,23 +75,29 @@ query ($userName: String, $type: MediaType) {
       if (accessToken != null) 'Authorization': 'Bearer $accessToken',
     };
 
-    final response = await client.post(
-      Uri.parse(_endpoint),
-      headers: headers,
-      body: jsonEncode({
+    final response = await client.post<dynamic>(
+      _endpoint,
+      options: Options(headers: headers),
+      data: {
         'query': query,
         'variables': {
           'userName': accountId,
           'type': type,
         },
-      }),
+      },
     );
 
     if (response.statusCode != 200) {
       return const [];
     }
 
-    final data = jsonDecode(response.body) as Map<String, dynamic>?;
+    final data = response.data is Map<String, dynamic>
+        ? response.data as Map<String, dynamic>
+        : (response.data is String
+            ? jsonDecode(response.data as String) as Map<String, dynamic>?
+            : (response.data is Map
+                ? Map<String, dynamic>.from(response.data as Map)
+                : null));
     final collection = data?['data']?['MediaListCollection'] as Map?;
     final lists = collection?['lists'] as List? ?? const [];
 
@@ -220,10 +227,10 @@ mutation ($mediaId: Int, $status: MediaListStatus, $score: Float, $progress: Int
       'Authorization': 'Bearer $accessToken',
     };
 
-    await client.post(
-      Uri.parse(_endpoint),
-      headers: headers,
-      body: jsonEncode({
+    await client.post<dynamic>(
+      _endpoint,
+      options: Options(headers: headers),
+      data: {
         'query': mutation,
         'variables': {
           'mediaId': mediaIdInt,
@@ -233,7 +240,7 @@ mutation ($mediaId: Int, $status: MediaListStatus, $score: Float, $progress: Int
           'repeat': entry.repeatCount,
           if (entry.notes != null) 'notes': entry.notes,
         },
-      }),
+      },
     );
   }
 
@@ -261,15 +268,15 @@ mutation ($id: Int) {
       'Authorization': 'Bearer $accessToken',
     };
 
-    await client.post(
-      Uri.parse(_endpoint),
-      headers: headers,
-      body: jsonEncode({
+    await client.post<dynamic>(
+      _endpoint,
+      options: Options(headers: headers),
+      data: {
         'query': mutation,
         'variables': {
           'id': entryIdInt,
         },
-      }),
+      },
     );
   }
 }

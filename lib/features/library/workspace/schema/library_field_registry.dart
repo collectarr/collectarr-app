@@ -214,7 +214,8 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
     final series = item.series?.seriesTitle?.trim();
     final country = item.country?.trim();
     final language = item.language?.trim();
-    final publishing = item.publishing;
+    final cat = item.toCatalogItem();
+    final publishing = cat.publishing;
 
     yield* nonEmptyStrings([
       item.title,
@@ -227,7 +228,7 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
       language,
     ]);
     yield* nonEmptyStrings(item.searchAliases);
-    if (item.creators case final creators?) {
+    if (cat.creators case final creators?) {
       for (final credit in creators) {
         final name = credit['name']?.toString().trim();
         if (name != null && name.isNotEmpty) {
@@ -235,7 +236,7 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
         }
       }
     }
-    yield* nonEmptyStrings(item.genres);
+    yield* nonEmptyStrings(cat.genres);
 
     if (customLinkedMetadataCandidates != null) {
       yield* customLinkedMetadataCandidates!(source);

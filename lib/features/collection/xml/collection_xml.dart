@@ -20,7 +20,7 @@ class CollectionXml {
 
       for (final entry in entries) {
         builder.element('Item', nest: () {
-          final catalog = entry.catalogItem;
+          final catalog = entry.catalogItem?.toCatalogItem();
           final owned = entry.ownedItem;
 
           _textElement(builder, 'ItemId', entry.itemId);

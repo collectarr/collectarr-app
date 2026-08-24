@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -147,13 +148,15 @@ LibraryMetadataItem _item({
   String? itemNumber,
   int? releaseYear,
 }) {
-  return LibraryMetadataItem(
-    id: 'test-${title.hashCode}',
-    kind: 'comic',
-    title: title,
-    publisher: publisher,
-    itemNumber: itemNumber,
-    releaseYear: releaseYear,
-    editions: const [],
+  return LibraryMetadataItem.fromCatalogItem(
+    CatalogItemDto(
+      id: 'test-${title.hashCode}',
+      kind: 'comic',
+      title: title,
+      publisher: publisher,
+      itemNumber: itemNumber,
+      releaseYear: releaseYear,
+      editions: const [],
+    ),
   );
 }

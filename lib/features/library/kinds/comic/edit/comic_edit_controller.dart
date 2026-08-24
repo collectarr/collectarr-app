@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
@@ -11,18 +12,30 @@ class ComicEditController {
   ComicEditController({
     required this.item,
     required this.itemImages,
-  })  : crossoverController = TextEditingController(text: item.crossover ?? ''),
+  })  : crossoverController = TextEditingController(
+            text: (item.kindMetadata.toSyncPayload()['crossover'] as String?) ??
+                ''),
         storyArcsController = TextEditingController(
-            text: (item.storyArcs ?? const <String>[]).join(', ')),
-        imprintController =
-            TextEditingController(text: item.publishing?.imprint ?? ''),
+            text: ((item.kindMetadata.toSyncPayload()['story_arcs'] as List?)
+                    ?.map((e) => e.toString()) ??
+                const <String>[]).join(', ')),
+        imprintController = TextEditingController(
+            text: (item.kindMetadata.toSyncPayload()['imprint'] as String?) ??
+                ''),
         pageCountController = TextEditingController(
-            text: item.publishing?.pageCount?.toString() ?? ''),
+            text: item.kindMetadata
+                    .toSyncPayload()['page_count']
+                    ?.toString() ??
+                ''),
         ageRatingController = TextEditingController(text: item.ageRating ?? ''),
-        genresEditController =
-            TextEditingController(text: item.genres?.join(', ') ?? ''),
-        seriesGroupController =
-            TextEditingController(text: item.publishing?.seriesGroup ?? '');
+        genresEditController = TextEditingController(
+            text: ((item.kindMetadata.toSyncPayload()['genres'] as List?)
+                    ?.map((e) => e.toString()) ??
+                const <String>[]).join(', ')),
+        seriesGroupController = TextEditingController(
+            text:
+                (item.kindMetadata.toSyncPayload()['series_group'] as String?) ??
+                    '');
 
   final LibraryMetadataItem item;
   final List<ItemImage> itemImages;
@@ -95,46 +108,33 @@ class ComicEditController {
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toList();
-    final existingPublishing =
-        selection.item.publishing ?? const CatalogPublishingDetails();
-    final updatedPublishing = CatalogPublishingDetails(
-      pageCount: int.tryParse(pageCountController.text) ??
-          existingPublishing.pageCount,
-      coverPriceCents: existingPublishing.coverPriceCents,
-      currency: existingPublishing.currency,
-      imprint:
-          emptyToNull(imprintController.text) ?? existingPublishing.imprint,
-      subtitle: existingPublishing.subtitle,
-      seriesGroup: emptyToNull(seriesGroupController.text) ??
-          existingPublishing.seriesGroup,
-      publicationPlace: existingPublishing.publicationPlace,
-      originalCountry: existingPublishing.originalCountry,
-      originalLanguage: existingPublishing.originalLanguage,
-      originalPublicationDate: existingPublishing.originalPublicationDate,
-      originalPublicationPlace: existingPublishing.originalPublicationPlace,
-      originalPublisher: existingPublishing.originalPublisher,
-      paperType: existingPublishing.paperType,
-      printedBy: existingPublishing.printedBy,
-      subjects: existingPublishing.subjects,
-      dustJacketCondition: existingPublishing.dustJacketCondition,
-      dustJacket: existingPublishing.dustJacket,
-      audiobookAbridged: existingPublishing.audiobookAbridged,
-      firstEdition: existingPublishing.firstEdition,
-      dewey: existingPublishing.dewey,
-    );
-    final withMetadata = selection.copyWith(
-      item: selection.item.copyWith(
-        crossover: emptyToNull(crossoverController.text),
-        storyArcs: parsedStoryArcs.isNotEmpty
-            ? parsedStoryArcs
-            : selection.item.storyArcs,
-        ageRating: emptyToNull(ageRatingController.text),
-        genres: parsedGenres.isNotEmpty ? parsedGenres : selection.item.genres,
-        publishing: updatedPublishing.hasData
-            ? updatedPublishing
-            : selection.item.publishing,
+    final payload = selection.item.kindMetadata.toSyncPayload();
+    final updatedPayload = {
+      ...payload,
+      'crossover': emptyToNull(crossoverController.text),
+      'story_arcs': parsedStoryArcs.isNotEmpty
+          ? parsedStoryArcs
+          : (payload['story_arcs'] as List?) ?? const <String>[],
+      'age_rating': emptyToNull(ageRatingController.text),
+      'genres': parsedGenres.isNotEmpty
+          ? parsedGenres
+          : (payload['genres'] as List?) ?? const <String>[],
+      if (emptyToNull(imprintController.text) != null)
+        'imprint': emptyToNull(imprintController.text),
+      if (int.tryParse(pageCountController.text) != null)
+        'page_count': int.tryParse(pageCountController.text),
+      if (emptyToNull(seriesGroupController.text) != null)
+        'series_group': emptyToNull(seriesGroupController.text),
+    };
+    final updatedItem = LibraryMetadataItem(
+      identity: selection.item.identity,
+      common: selection.item.common,
+      kindMetadata: LibraryKindMetadataDecoders.decode(
+        selection.item.mediaKind,
+        updatedPayload,
       ),
     );
+    final withMetadata = selection.copyWith(item: updatedItem);
     return applyComicSelectionEdits(
       withMetadata,
       creators,

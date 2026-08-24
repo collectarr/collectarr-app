@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/domain/video_episode.dart';
@@ -29,7 +30,9 @@ class VideoEditController {
     String? initialEpisodeNumber,
     Map<String, int>? initialEpisodeRatings,
   })  : runtimeController = TextEditingController(
-          text: initialRuntime ?? item.video?.runtimeMinutes?.toString() ?? '',
+          text: initialRuntime ??
+              (item.kindMetadata.toSyncPayload()['runtime_minutes']?.toString() ??
+                  ''),
         ),
         seasonNumberController = TextEditingController(
           text: initialSeasonNumber ??
@@ -44,8 +47,11 @@ class VideoEditController {
         ageRatingController = TextEditingController(text: item.ageRating ?? ''),
         audienceRatingController =
             TextEditingController(text: item.audienceRating ?? ''),
-        genresEditController =
-            TextEditingController(text: item.genres?.join(', ') ?? ''),
+        genresEditController = TextEditingController(
+          text: ((item.kindMetadata.toSyncPayload()['genres'] as List?)
+                  ?.map((e) => e.toString()) ??
+              const <String>[]).join(', '),
+        ),
         episodeRatings =
             Map<String, int>.from(initialEpisodeRatings ?? const {});
 
@@ -98,7 +104,7 @@ class VideoEditController {
     if (!isVideoKind) {
       return;
     }
-    final creators = item.creators ?? const <Map<String, dynamic>>[];
+    final creators = item.toCatalogItem().creators ?? const <Map<String, dynamic>>[];
     castCredits.addAll(
       splitVideoCredits(creators, kind: VideoCreditKind.cast),
     );
@@ -168,10 +174,6 @@ class VideoEditController {
     if (!isVideoKind) {
       return selection;
     }
-    final updatedVideo = VideoCatalogDetails(
-      runtimeMinutes: int.tryParse(runtimeController.text) ??
-          selection.item.video?.runtimeMinutes,
-    );
     final currentSeries = selection.item.series;
     final updatedSeries = currentSeries == null
         ? null
@@ -197,17 +199,41 @@ class VideoEditController {
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toList();
+    final payload = selection.item.kindMetadata.toSyncPayload();
+    final updatedLinks = buildUpdatedTrailerUrls(selection.item.trailerUrls);
+    final updatedPayload = {
+      ...payload,
+      if (int.tryParse(runtimeController.text) != null)
+        'runtime_minutes': int.tryParse(runtimeController.text),
+      if (updatedSeries case final s?) ...{
+        'series_id': s.seriesId,
+        'series_title': s.seriesTitle,
+        'volume_name': s.volumeName,
+        'volume_number': s.volumeNumber,
+        'volume_start_year': s.volumeStartYear,
+        'season_number': s.seasonNumber,
+        'episode_number': s.episodeNumber,
+        'tags': s.tags,
+      },
+      'age_rating': emptyToNull(ageRatingController.text),
+      'audience_rating': emptyToNull(audienceRatingController.text),
+      if (parsedGenres.isNotEmpty) 'genres': parsedGenres,
+      if (buildUpdatedVideoCreators() != null)
+        'creators': buildUpdatedVideoCreators(),
+      if (updatedLinks != null)
+        'external_links': updatedLinks.map((l) => l.toJson()).toList(),
+    };
+    final updatedItem = LibraryMetadataItem(
+      identity: selection.item.identity,
+      common: selection.item.common,
+      kindMetadata: LibraryKindMetadataDecoders.decode(
+        selection.item.mediaKind,
+        updatedPayload,
+      ),
+    );
     return LibraryEditSelection(
       scope: selection.scope,
-      item: selection.item.copyWith(
-        video: updatedVideo.hasData ? updatedVideo : selection.item.video,
-        series: updatedSeries ?? selection.item.series,
-        ageRating: emptyToNull(ageRatingController.text),
-        audienceRating: emptyToNull(audienceRatingController.text),
-        genres: parsedGenres.isNotEmpty ? parsedGenres : selection.item.genres,
-        creators: buildUpdatedVideoCreators(),
-        trailerUrls: buildUpdatedTrailerUrls(selection.item.trailerUrls),
-      ),
+      item: updatedItem,
       personal: selection.personal,
       wishlist: selection.wishlist,
       tracking: updatedTracking ?? selection.tracking,
@@ -324,7 +350,7 @@ class VideoEditController {
   List<TvReleaseMedia> buildFallbackTvReleaseMedia(TvSeries series) {
     final episodeCount = flattenTvEpisodes(series).length;
     final discCount =
-        (item.video?.nrDiscs ?? episodeCount).clamp(1, 20).toInt();
+        (item.toCatalogItem().video?.nrDiscs ?? episodeCount).clamp(1, 20).toInt();
     final episodes = flattenTvEpisodes(series);
     if (discCount == 1) {
       return [

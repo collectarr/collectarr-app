@@ -58,7 +58,8 @@ class InspectorPersonalSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = item.dto;
-    final catalogEditions = item.source.catalogItem?.editions ?? const [];
+    final catalogEditions =
+        item.source.catalogItem?.toCatalogItem().editions ?? const [];
     final valueSnapshot = LibraryValueSnapshot.fromItem(
       item,
       ownedItem: ownedItem,

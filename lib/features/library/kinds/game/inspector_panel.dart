@@ -79,7 +79,7 @@ List<LibraryDetailSectionSpec> _buildGameSectionSpecs(
   LibraryInspectorRequest inspector,
 ) {
   final creditRows = libraryCreatorsGroupedByRole(
-    inspector.item.source.catalogItem?.creators,
+    inspector.item.source.catalogItem?.toCatalogItem().creators,
   );
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
@@ -129,7 +129,7 @@ class _GameInspectorMain extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem;
+    final catalogItem = item.source.catalogItem?.toCatalogItem();
     final palette = appPalette(context);
     final releaseYear = dto.releaseDate?.year.toString();
     final genres = catalogItem?.genres;
@@ -252,7 +252,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
   Widget build(BuildContext context) {
     final item = inspector.item;
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem;
+    final catalogItem = item.source.catalogItem?.toCatalogItem();
     final owned = item.source.ownedItem;
     final releaseYear = dto.releaseDate?.year;
     final detailRows = <(String, String)>[

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -27,7 +28,7 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
 ) {
   final barcodeBuckets = <String, _DuplicateBucket>{};
   for (final entry in entries) {
-    final item = entry.catalogItem;
+    final item = entry.catalogItem?.toCatalogItem();
     final barcode = _normalizedBarcode(item?.barcode);
     if (barcode == null) {
       continue;
@@ -52,7 +53,7 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
     if (barcodeDuplicateItemIds.contains(entry.itemId)) {
       continue;
     }
-    final item = entry.catalogItem;
+    final item = entry.catalogItem?.toCatalogItem();
     if (item == null) {
       continue;
     }
@@ -410,7 +411,7 @@ List<LibraryDuplicateGroup> _duplicateGroups(
 int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   final catalogItems = [
     for (final entry in bucket.entries)
-      if (entry.catalogItem != null) entry.catalogItem!,
+      if (entry.catalogItem != null) entry.catalogItem!.toCatalogItem(),
   ];
   if (catalogItems.length < 2) {
     return 0;
@@ -458,7 +459,7 @@ bool _allShareValue(Iterable<String?> values) {
   return normalized.length == 1 && normalized.isNotEmpty;
 }
 
-String? _releaseYearToken(LibraryMetadataItem item) {
+String? _releaseYearToken(CatalogItem item) {
   return item.releaseYear?.toString() ?? item.releaseDate?.year.toString();
 }
 
@@ -474,7 +475,7 @@ List<ShelfEntry> _sortedEntries(List<ShelfEntry> entries) {
 }
 
 String _issueDuplicateLabel(ShelfEntry entry) {
-  final item = entry.catalogItem;
+  final item = entry.catalogItem?.toCatalogItem();
   if (item == null) {
     return entry.title;
   }
@@ -491,7 +492,7 @@ String _issueDuplicateLabel(ShelfEntry entry) {
 }
 
 String _entrySubtitle(ShelfEntry entry) {
-  final item = entry.catalogItem;
+  final item = entry.catalogItem?.toCatalogItem();
   final pieces = <String>[
     if (entry.isOwned) 'Owned',
     if (entry.isWishlisted) 'Wishlist',

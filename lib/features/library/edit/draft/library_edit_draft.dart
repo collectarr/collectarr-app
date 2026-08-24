@@ -22,6 +22,9 @@ import 'package:collectarr_app/features/library/edit/edition_selection_helpers.d
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/features/library/edit/vocabulary/library_edit_vocabulary_controller.dart';
@@ -150,23 +153,24 @@ class LibraryEditDraft {
     TextEditingController create([String text = '']) =>
         textControllers.create(text: text);
 
+    final catalog = item.toCatalogItem();
     final titleController = create(item.title);
     final numberController = create(item.itemNumber ?? '');
     final publisherController = create(item.publisher ?? '');
     final coverDateController = create(
-      item.coverDate == null ? '' : formatDate(item.coverDate!),
+      catalog.coverDate == null ? '' : formatDate(catalog.coverDate!),
     );
     final coverDateYearPartController =
-        create(item.coverDate?.year.toString() ?? '');
+        create(catalog.coverDate?.year.toString() ?? '');
     final coverDateMonthPartController = create(
-      item.coverDate == null
+      catalog.coverDate == null
           ? ''
-          : item.coverDate!.month.toString().padLeft(2, '0'),
+          : catalog.coverDate!.month.toString().padLeft(2, '0'),
     );
     final coverDateDayPartController = create(
-      item.coverDate == null
+      catalog.coverDate == null
           ? ''
-          : item.coverDate!.day.toString().padLeft(2, '0'),
+          : catalog.coverDate!.day.toString().padLeft(2, '0'),
     );
     final releaseDateController = create(
       item.releaseDate == null ? '' : formatDate(item.releaseDate!),
@@ -517,33 +521,52 @@ class LibraryEditDraft {
   LibraryEditSelection buildSelection({
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
-    final baseSelection = LibraryEditSelection(
-      item: item.copyWith(
-        title: metadata.titleController.text.trim(),
-        sortKey: emptyToNull(metadata.sortKeyController.text),
-        originalTitle: emptyToNull(metadata.originalTitleController.text),
-        displayTitle: emptyToNull(metadata.displayTitleController.text),
-        searchAliases: _splitList(metadata.searchAliasesController.text),
-        itemNumber: emptyToNull(metadata.numberController.text),
-        synopsis: emptyToNull(metadata.synopsisController.text),
-        coverImageUrl: emptyToNull(metadata.coverController.text),
-        thumbnailImageUrl: emptyToNull(metadata.thumbnailController.text),
-        editionTitle: emptyToNull(metadata.editionTitleController.text),
-        physicalFormat: metadata.physicalFormatId,
-        physicalFormatLabel:
-            emptyToNull(metadata.physicalFormatLabelController.text) ??
-                physicalFormatForId(metadata.physicalFormatId)?.label,
-        publisher: emptyToNull(metadata.publisherController.text),
-        coverDate: parseDate(metadata.coverDateController.text),
-        releaseDate: parseDate(metadata.releaseDateController.text),
-        releaseYear: parseInt(metadata.releaseYearController.text),
-        barcode: emptyToNull(metadata.barcodeController.text),
-        variant: emptyToNull(metadata.variantController.text),
-        series: _buildUpdatedSeries(),
-        country: emptyToNull(metadata.countryController.text),
-        language: emptyToNull(metadata.languageController.text),
-        trailerUrls: item.trailerUrls,
+    final updatedCommon = item.common.copyWith(
+      title: metadata.titleController.text.trim(),
+      sortKey: emptyToNull(metadata.sortKeyController.text),
+      originalTitle: emptyToNull(metadata.originalTitleController.text),
+      displayTitle: emptyToNull(metadata.displayTitleController.text),
+      searchAliases: _splitList(metadata.searchAliasesController.text),
+      synopsis: emptyToNull(metadata.synopsisController.text),
+      coverImageUrl: emptyToNull(metadata.coverController.text),
+      thumbnailImageUrl: emptyToNull(metadata.thumbnailController.text),
+      releaseDate: parseDate(metadata.releaseDateController.text),
+      releaseYear: parseInt(metadata.releaseYearController.text),
+    );
+    final updatedPayload = {
+      ...item.kindMetadata.toSyncPayload(),
+      'item_number': emptyToNull(metadata.numberController.text),
+      'edition_title': emptyToNull(metadata.editionTitleController.text),
+      'physical_format': metadata.physicalFormatId,
+      'physical_format_label':
+          emptyToNull(metadata.physicalFormatLabelController.text) ??
+              physicalFormatForId(metadata.physicalFormatId)?.label,
+      'publisher': emptyToNull(metadata.publisherController.text),
+      'cover_date':
+          parseDate(metadata.coverDateController.text)?.toIso8601String(),
+      'barcode': emptyToNull(metadata.barcodeController.text),
+      'variant': emptyToNull(metadata.variantController.text),
+      if (_buildUpdatedSeries() case final s?) ...{
+        'series_id': s.seriesId,
+        'series_title': s.seriesTitle,
+        'volume_name': s.volumeName,
+        'volume_number': s.volumeNumber,
+        'volume_start_year': s.volumeStartYear,
+        'season_number': s.seasonNumber,
+        'episode_number': s.episodeNumber,
+        'tags': s.tags,
+      },
+    };
+    final updatedItem = LibraryMetadataItem(
+      identity: item.identity,
+      common: updatedCommon,
+      kindMetadata: LibraryKindMetadataDecoders.decode(
+        item.mediaKind,
+        updatedPayload,
       ),
+    );
+    final baseSelection = LibraryEditSelection(
+      item: updatedItem,
       personal: ownedItem == null
           ? null
           : LibraryPersonalEditSelection(

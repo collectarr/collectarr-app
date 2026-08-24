@@ -28,7 +28,7 @@ class VideoLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final cat = item.source.catalogItem;
+    final cat = item.source.catalogItem?.toCatalogItem();
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [

@@ -28,7 +28,7 @@ class ComicLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem;
+    final catalogItem = item.source.catalogItem?.toCatalogItem();
     final series = catalogItem?.series;
     final publishing = catalogItem?.publishing;
     final music = catalogItem?.music;

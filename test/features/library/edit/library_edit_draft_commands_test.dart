@@ -1,6 +1,10 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
+import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +15,16 @@ void main() {
 
   test('LibraryEditDraft creates AddOwnedItemCommand correctly', () {
     final item = LibraryMetadataItem(
-      id: 'comic-draft-1',
-      title: 'Spider-Man #1',
+      identity: const LibraryItemIdentity(
+        id: 'comic-draft-1',
+        mediaKind: CatalogMediaKind.comic,
+      ),
+      common: const LibraryCommonMetadata(
+        title: 'Spider-Man #1',
+      ),
+      kindMetadata: const ComicCatalogMetadata(
+        title: 'Spider-Man #1',
+      ),
     );
 
     final draft = LibraryEditDraft.fromFields(
@@ -52,8 +64,16 @@ void main() {
 
   test('LibraryEditDraft creates UpdateOwnedItemCommand correctly', () {
     final item = LibraryMetadataItem(
-      id: 'comic-draft-2',
-      title: 'X-Men #1',
+      identity: const LibraryItemIdentity(
+        id: 'comic-draft-2',
+        mediaKind: CatalogMediaKind.comic,
+      ),
+      common: const LibraryCommonMetadata(
+        title: 'X-Men #1',
+      ),
+      kindMetadata: const ComicCatalogMetadata(
+        title: 'X-Men #1',
+      ),
     );
 
     final draft = LibraryEditDraft.fromFields(

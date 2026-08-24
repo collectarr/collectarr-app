@@ -22,7 +22,7 @@ class GameLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem;
+    final catalogItem = item.source.catalogItem?.toCatalogItem();
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [

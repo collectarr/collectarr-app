@@ -463,7 +463,7 @@ class _MusicCompactMetaPill extends StatelessWidget {
 /// Returns the primary artist name for a music item.
 String? musicCardArtist(LibraryProjectionRuntime item) {
   final creators =
-      item.source.catalogItem?.creators ?? const <Map<String, dynamic>>[];
+      item.source.catalogItem?.toCatalogItem().creators ?? const <Map<String, dynamic>>[];
   String? fallbackName;
   for (final creator in creators) {
     final rawName =
@@ -495,7 +495,7 @@ String? musicCardDuration(LibraryProjectionRuntime item) {
   if (runtimeFact != null && runtimeFact.isNotEmpty) {
     return runtimeFact;
   }
-  final musicDetails = item.source.catalogItem?.music;
+  final musicDetails = item.source.catalogItem?.toCatalogItem().music;
   final totalSeconds = musicDetails?.trackCount; // Fallback estimate
   if (totalSeconds == null || totalSeconds <= 0) {
     return null;
@@ -511,7 +511,7 @@ String? musicCardDuration(LibraryProjectionRuntime item) {
 
 /// Returns the track count for the album.
 int? musicCardTrackCount(LibraryProjectionRuntime item) {
-  return item.source.catalogItem?.music?.trackCount ??
+  return item.source.catalogItem?.toCatalogItem().music?.trackCount ??
       int.tryParse(
         _metadataFactValue(
               _metadataPresentationForEntry(item),

@@ -16,7 +16,7 @@ List<Widget> buildMovieInspectorSections(
 ) {
   final item = request.item;
   final dto = item.dto;
-  final catalogItem = item.source.catalogItem;
+  final catalogItem = item.source.catalogItem?.toCatalogItem();
   final editionCount = catalogItem?.editions.length ?? 0;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Title', value: dto.title),

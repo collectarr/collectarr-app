@@ -133,7 +133,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
 
 Iterable<String> _getFacetValues(
     LibraryProjectionRuntime item, String facetId) {
-  final catalogItem = item.source.catalogItem;
+  final catalogItem = item.source.catalogItem?.toCatalogItem();
   if (facetId == ComicFacetIds.character.value) {
     return catalogItem?.characters ?? const [];
   }

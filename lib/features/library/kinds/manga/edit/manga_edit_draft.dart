@@ -9,6 +9,8 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
+
 class MangaEditDraft extends KindEditDraft {
   MangaEditDraft({
     this.signedBy,
@@ -57,37 +59,24 @@ class MangaEditDraft extends KindEditDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final existing =
-        selection.item.publishing ?? const CatalogPublishingDetails();
-    final updatedPublishing = CatalogPublishingDetails(
-      pageCount: int.tryParse(pageCountController.text) ?? existing.pageCount,
-      coverPriceCents: existing.coverPriceCents,
-      currency: existing.currency,
-      imprint: emptyToNull(imprintController.text) ?? existing.imprint,
-      subtitle: existing.subtitle,
-      seriesGroup: existing.seriesGroup,
-      publicationPlace: existing.publicationPlace,
-      originalCountry: existing.originalCountry,
-      originalLanguage: existing.originalLanguage,
-      originalPublicationDate: existing.originalPublicationDate,
-      originalPublicationPlace: existing.originalPublicationPlace,
-      originalPublisher: existing.originalPublisher,
-      paperType: existing.paperType,
-      printedBy: existing.printedBy,
-      subjects: existing.subjects,
-      dustJacketCondition: dustJacketCondition ?? existing.dustJacketCondition,
-      dustJacket: dustJacketPresent ? true : existing.dustJacket,
-      audiobookAbridged: existing.audiobookAbridged,
-      firstEdition: existing.firstEdition,
-      dewey: existing.dewey,
-    );
-    var result = selection.copyWith(
-      item: selection.item.copyWith(
-        publishing: updatedPublishing.hasData
-            ? updatedPublishing
-            : selection.item.publishing,
+    final payload = selection.item.kindMetadata.toSyncPayload();
+    final updatedPayload = {
+      ...payload,
+      if (int.tryParse(pageCountController.text) != null)
+        'page_count': int.tryParse(pageCountController.text),
+      if (emptyToNull(imprintController.text) != null)
+        'imprint': emptyToNull(imprintController.text),
+      if (dustJacketPresent) 'dust_jacket': true,
+      if (dustJacketCondition != null)
+        'dust_jacket_condition': dustJacketCondition,
+    };
+    final updatedItem = selection.item.copyWith(
+      kindMetadata: LibraryKindMetadataDecoders.decode(
+        selection.item.mediaKind,
+        updatedPayload,
       ),
     );
+    var result = selection.copyWith(item: updatedItem);
     if (result.personal != null) {
       result = result.copyWith(
         personal: result.personal!.copyWith(
@@ -106,6 +95,7 @@ KindEditDraft createMangaEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final manga = ownedItem?.mangaDetails;
+  final cat = item.toCatalogItem();
   return MangaEditDraft(
     signedBy: manga?.signedBy,
     obiStripPresent: manga?.obiStripPresent ?? false,
@@ -117,10 +107,10 @@ KindEditDraft createMangaEditDraft({
     printing: manga?.printing,
     localizedEdition: manga?.localizedEdition,
     pageCountController: textControllers.create(
-      text: item.publishing?.pageCount?.toString() ?? '',
+      text: cat.publishing?.pageCount?.toString() ?? '',
     ),
     imprintController: textControllers.create(
-      text: item.publishing?.imprint ?? '',
+      text: cat.publishing?.imprint ?? '',
     ),
   );
 }

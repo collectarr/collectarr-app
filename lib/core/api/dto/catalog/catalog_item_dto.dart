@@ -407,9 +407,9 @@ sealed class CatalogItemDto {
             CatalogEditionDto.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList(growable: false);
     return CatalogItemDto(
-      id: json['id'] as String,
-      kind: json['kind'] as String,
-      title: json['title'] as String,
+      id: json['id'] as String? ?? '',
+      kind: json['kind'] as String? ?? '',
+      title: json['title'] as String? ?? '',
       displayTitle: json['display_title'] as String?,
       localizedTitle: json['localized_title'] as String?,
       originalTitle: json['original_title'] as String?,

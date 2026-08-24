@@ -1198,10 +1198,11 @@ List<(String, String?)> _metadataRowsForItem(
   final release = type.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final series = item.series;
-  final video = item.video;
-  final music = item.music;
-  final game = item.game;
-  final publishing = item.publishing;
+  final catalogItem = item.toCatalogItem();
+  final video = catalogItem.video;
+  final music = catalogItem.music;
+  final game = catalogItem.game;
+  final publishing = catalogItem.publishing;
   return [
     if (series?.seriesTitle != null)
       (previewLabels.series, series!.seriesTitle),
@@ -1325,25 +1326,38 @@ List<_PreviewDiscoverySectionData> _discoverySections({
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
-  final creators = item?.creators
-          ?.map((credit) => credit['name']?.toString() ?? '')
+  final payload = item?.kindMetadata.toSyncPayload();
+  final itemCreators = payload?['creators'];
+  final creators = (itemCreators is List)
+      ? itemCreators
+          .whereType<Map>()
+          .map((credit) =>
+              (credit['name'] ?? credit['display_name'] ?? '').toString())
           .where((name) => name.trim().isNotEmpty)
-          .toList(growable: false) ??
-      (preview?.creators
+          .toList(growable: false)
+      : (preview?.creators
               .map((credit) => credit.role == null
                   ? credit.name
                   : '${credit.name} (${credit.role})')
               .toList(growable: false) ??
           const <String>[]);
-  final characters = item?.characters ??
+  final characters = (payload?['characters'] as List?)
+          ?.map((c) => c.toString())
+          .toList() ??
       preview?.characters ??
       candidate?.characterPreview ??
       const <String>[];
-  final storyArcs = item?.storyArcs ??
+  final storyArcs = (payload?['story_arcs'] as List?)
+          ?.map((s) => s.toString())
+          .toList() ??
       preview?.storyArcs ??
       candidate?.storyArcPreview ??
       const <String>[];
-  final genres = item?.genres ?? preview?.genres ?? const <String>[];
+  final genres = (payload?['genres'] as List?)
+          ?.map((g) => g.toString())
+          .toList() ??
+      preview?.genres ??
+      const <String>[];
 
   return [
     if (creators.isNotEmpty) _PreviewDiscoverySectionData('Creators', creators),
@@ -1560,7 +1574,7 @@ List<_PreviewTrackData> _previewTracksForSelection({
   required LibraryMetadataItem? item,
   required AdminProviderPreview? preview,
 }) {
-  final tracks = item?.music?.tracks;
+  final tracks = item?.toCatalogItem().music?.tracks;
   if (tracks != null && tracks.isNotEmpty) {
     return [
       for (final track in tracks)

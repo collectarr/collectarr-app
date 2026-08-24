@@ -69,14 +69,19 @@ KindEditDraft createGameEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final game = ownedItem?.gameDetails;
-  final developerNames = (item.creators ?? const <Map<String, dynamic>>[])
+  final payload = item.kindMetadata.toSyncPayload();
+  final creators = (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
+      const <Map<String, dynamic>>[];
+  final developerNames = creators
       .where((c) =>
           c['role']?.toString().toLowerCase().contains('developer') ?? false)
       .map((c) => c['name']?.toString().trim() ?? '')
       .where((n) => n.isNotEmpty)
       .join(', ');
+  final platforms = (payload['platforms'] as List?)?.map((e) => e.toString()) ??
+      const <String>[];
   final gameEdit = GameEditController(
-    initialPlatforms: (item.game?.platforms ?? const <String>[]).join(', '),
+    initialPlatforms: platforms.join(', '),
     initialDevelopers: developerNames,
   );
 

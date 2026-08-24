@@ -124,6 +124,7 @@ class TvSeries {
   });
 
   factory TvSeries.fromMetadataItem(LibraryMetadataItem item) {
+    final catalog = item.toCatalogItem();
     return TvSeries(
       id: item.id,
       title: item.title,
@@ -133,11 +134,11 @@ class TvSeries {
       network: item.publisher,
       originalLanguage: item.language,
       country: item.country,
-      runtimeMinutes: item.video?.runtimeMinutes,
+      runtimeMinutes: catalog.video?.runtimeMinutes,
       seriesDetails: item.series,
-      publishingDetails: item.publishing,
-      contributions: item.creators ?? const [],
-      characterAppearances: item.characterDetails ?? const [],
+      publishingDetails: catalog.publishing,
+      contributions: catalog.creators ?? const [],
+      characterAppearances: catalog.characterDetails ?? const [],
     );
   }
 

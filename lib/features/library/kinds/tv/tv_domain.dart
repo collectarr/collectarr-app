@@ -93,17 +93,8 @@ class TvWorkspaceNode {
 // ---------------------------------------------------------------------------
 extension TvVideoCatalogMapperExt on VideoCatalogMapper {
   static VideoCatalogItem fromTvMetadataItem(LibraryMetadataItem item) {
-    return VideoCatalogMapper.mapDtoToVideo(CatalogItemDto(
-      id: item.id,
-      mediaKind: item.mediaKind,
-      title: item.title,
-      originalTitle: item.originalTitle,
-      synopsis: item.synopsis,
-      releaseDate: item.releaseDate,
-      publisher: item.publisher,
-      language: item.language,
-      video: item.video,
-      editions: item.editions,
-    ));
+    return VideoCatalogMapper.mapDtoToVideo(
+      CatalogItemDto.fromJson(item.toSyncPayload()),
+    );
   }
 }

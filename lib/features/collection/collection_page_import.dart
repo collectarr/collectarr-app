@@ -962,7 +962,8 @@ class _CatalogThumb extends StatelessWidget {
 }
 
 String _catalogTitle(LibraryMetadataItem item) {
-  final issue = item.itemNumber;
+  final catalog = item.toCatalogItem();
+  final issue = catalog.itemNumber;
   if (issue == null || issue.isEmpty) {
     return item.title;
   }
@@ -970,11 +971,12 @@ String _catalogTitle(LibraryMetadataItem item) {
 }
 
 String _catalogSubtitle(LibraryMetadataItem item) {
+  final catalog = item.toCatalogItem();
   return [
-    if (item.variant != null) item.variant,
-    if (item.publisher != null) item.publisher,
+    if (catalog.variant != null) catalog.variant,
+    if (catalog.publisher != null) catalog.publisher,
     if (item.releaseYear != null) item.releaseYear.toString(),
-    if (item.barcode != null) item.barcode,
+    if (catalog.barcode != null) catalog.barcode,
   ].join(' | ');
 }
 

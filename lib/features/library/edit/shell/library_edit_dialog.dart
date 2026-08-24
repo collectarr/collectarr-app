@@ -17,8 +17,9 @@ import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -250,22 +251,35 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           ),
     ];
     var selection = _draft.toSelection(submitAction: action);
-    if (_links.isNotEmpty || (widget.item.trailerUrls?.isNotEmpty ?? false)) {
-      selection = selection.copyWith(
-        item: selection.item.copyWith(
-          trailerUrls: updatedLinks,
+    if (_links.isNotEmpty || widget.item.trailerUrls.isNotEmpty) {
+      final updatedPayload = {
+        ...selection.item.kindMetadata.toSyncPayload(),
+        'trailer_urls': updatedLinks
+            .where((l) => l.isTrailerLink)
+            .map((l) => l.toJson())
+            .toList(),
+        'external_links': updatedLinks
+            .where((l) => l.isExternalLink)
+            .map((l) => l.toJson())
+            .toList(),
+      };
+      final updatedItem = selection.item.copyWith(
+        kindMetadata: LibraryKindMetadataDecoders.decode(
+          selection.item.mediaKind,
+          updatedPayload,
         ),
       );
+      selection = selection.copyWith(item: updatedItem);
     }
-    selection = _draft.kindDetails?.applySelectionEdits(selection) ?? selection;
+    selection = _draft.kindDetails.applySelectionEdits(selection);
     Navigator.of(context).pop(selection);
   }
 
   @override
   Widget build(BuildContext context) {
     final firstCreator =
-        (widget.item.creators != null && widget.item.creators!.isNotEmpty)
-            ? widget.item.creators!.first['name']?.toString()
+        (widget.item.toCatalogItem().creators?.isNotEmpty == true)
+            ? widget.item.toCatalogItem().creators!.first['name']?.toString()
             : null;
     final yearSuffix =
         widget.item.releaseYear != null ? ' (${widget.item.releaseYear})' : '';

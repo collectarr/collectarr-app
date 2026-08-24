@@ -114,7 +114,8 @@ class LibraryDetailHero extends StatelessWidget {
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
     ];
-    final creatorsList = item.source.catalogItem?.creators ?? const [];
+    final catalog = item.source.catalogItem?.toCatalogItem();
+    final creatorsList = catalog?.creators ?? const [];
     final authorName =
         creatorsList.isEmpty ? null : creatorsList.first['name'] as String?;
 
@@ -123,7 +124,8 @@ class LibraryDetailHero extends StatelessWidget {
         color: palette.cardBackground,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: palette.divider.withValues(alpha: 0.7),
+          color: palette.divider.withValues(alpha: 0.9),
+          width: 1,
         ),
       ),
       padding: const EdgeInsets.all(20),
@@ -192,17 +194,15 @@ class LibraryDetailHero extends StatelessWidget {
               ),
             ],
           ),
-          if (authorName != null ||
-              (item.source.catalogItem?.creators ?? const []).isNotEmpty) ...[
+          if (authorName != null || creatorsList.isNotEmpty) ...[
             const SizedBox(height: 20),
             BookAuthorSpotlight(
-              creators:
-                  (item.source.catalogItem?.creators ?? const []).isNotEmpty
-                      ? (item.source.catalogItem?.creators ?? const [])
-                      : [
-                          if (authorName != null)
-                            {'name': authorName, 'role': 'Author'}
-                        ],
+              creators: creatorsList.isNotEmpty
+                  ? creatorsList
+                  : [
+                      if (authorName != null)
+                        {'name': authorName, 'role': 'Author'}
+                    ],
               accent: accent,
             ),
           ],

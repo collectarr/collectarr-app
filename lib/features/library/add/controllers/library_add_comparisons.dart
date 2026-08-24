@@ -1,5 +1,8 @@
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 bool sameStringList(List<String>? a, List<String>? b) {
@@ -148,28 +151,44 @@ List<Map<String, dynamic>> normalizeTracks(List<CatalogTrack>? values) {
   return normalized;
 }
 
+
+
 LibraryMetadataItem metadataItemFromIngestResult(AdminMetadataItem item) {
   final primaryEdition = item.primaryEdition;
   final primaryVariant = item.primaryVariant;
   final releaseDate = primaryEdition?.releaseDate;
+  final mediaKind = catalogMediaKindFromApiValue(item.kind);
   return LibraryMetadataItem(
-    id: item.id,
-    kind: item.kind,
-    title: item.title,
-    itemNumber: item.itemNumber,
-    synopsis: item.synopsis,
-    coverImageUrl: primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
-    thumbnailImageUrl:
-        primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
-    editionTitle: primaryEdition?.title,
-    physicalFormat: primaryEdition?.physicalFormat,
-    physicalFormatLabel: primaryEdition?.physicalFormatLabel,
-    publisher: primaryEdition?.publisher ?? item.publisher,
-    releaseDate: releaseDate,
-    releaseYear: releaseDate?.year ?? item.series?.volumeStartYear,
-    barcode: primaryVariant?.barcode ?? item.barcode,
-    variant: primaryVariant?.name,
-    series: item.series,
-    publishing: item.publishing,
+    identity: LibraryItemIdentity(
+      id: item.id,
+      mediaKind: mediaKind,
+    ),
+    common: LibraryCommonMetadata(
+      title: item.title,
+      synopsis: item.synopsis,
+      coverImageUrl: primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
+      thumbnailImageUrl:
+          primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
+      releaseDate: releaseDate,
+      releaseYear: releaseDate?.year ?? item.series?.volumeStartYear,
+    ),
+    kindMetadata: LibraryKindMetadataDecoders.decode(
+      mediaKind,
+      {
+        'id': item.id,
+        'kind': item.kind,
+        'title': item.title,
+        'item_number': item.itemNumber,
+        'synopsis': item.synopsis,
+        'publisher': primaryEdition?.publisher ?? item.publisher,
+        'edition_title': primaryEdition?.title,
+        'physical_format': primaryEdition?.physicalFormat,
+        'physical_format_label': primaryEdition?.physicalFormatLabel,
+        'release_date': releaseDate?.toUtc().toIso8601String(),
+        'barcode': primaryVariant?.barcode ?? item.barcode,
+        'variant': primaryVariant?.name,
+        if (item.series != null) 'series_title': item.series!.seriesTitle,
+      },
+    ),
   );
 }

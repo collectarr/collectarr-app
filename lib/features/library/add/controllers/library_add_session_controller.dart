@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart'
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -972,16 +973,27 @@ class LibraryAddSessionController
       if (searchGen != state.search.coreSearchGeneration) return;
 
       final hydratedItem = LibraryMetadataItem.fromCatalogItem(hydrated);
-      final mergedItem = hydratedItem.copyWith(
-        editions: hydratedItem.editions.isNotEmpty
-            ? hydratedItem.editions
-            : selected.editions,
+      final mergedCommon = hydratedItem.common.copyWith(
         coverImageUrl: hydratedItem.displayCoverUrl != null
             ? hydratedItem.coverImageUrl
             : selected.coverImageUrl,
         thumbnailImageUrl: hydratedItem.displayCoverUrl != null
             ? hydratedItem.thumbnailImageUrl
             : selected.thumbnailImageUrl ?? selected.coverImageUrl,
+      );
+      final hydratedPayload = hydratedItem.kindMetadata.toSyncPayload();
+      final mergedPayload = {
+        ...hydratedPayload,
+        if (hydratedItem.editions.isEmpty && selected.editions.isNotEmpty)
+          'editions': selected.editions.map((e) => e.toJson()).toList(),
+      };
+      final mergedItem = LibraryMetadataItem(
+        identity: hydratedItem.identity,
+        common: mergedCommon,
+        kindMetadata: LibraryKindMetadataDecoders.decode(
+          hydratedItem.mediaKind,
+          mergedPayload,
+        ),
       );
 
       final hydratedMap =

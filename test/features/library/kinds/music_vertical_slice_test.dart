@@ -6,6 +6,9 @@ import 'package:collectarr_app/features/library/kinds/music/provider/music_provi
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -112,10 +115,13 @@ void main() {
       final shelfEntry = ShelfEntry(
         itemId: 'music_1',
         catalogItem: LibraryMetadataItem(
-          id: 'music_1',
-          kind: 'music',
-          title: 'Abbey Road',
-          publisher: 'Apple Records',
+          identity: const LibraryItemIdentity(
+            id: 'music_1',
+            mediaKind: CatalogMediaKind.music,
+          ),
+          common: const LibraryCommonMetadata(
+            title: 'Abbey Road',
+          ),
           kindMetadata: musicMeta,
         ),
         ownedItem: OwnedItem(

@@ -11,6 +11,8 @@ import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provi
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
+import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -107,10 +109,14 @@ void main() {
 
       final shelfEntry = ShelfEntry(
         itemId: 'manga_1',
-        catalogItem: LibraryMetadataItem(
-          id: 'manga_1',
-          kind: 'manga',
-          title: 'Frieren: Beyond Journey\'s End',
+        catalogItem: const LibraryMetadataItem(
+          identity: LibraryItemIdentity(
+            id: 'manga_1',
+            mediaKind: CatalogMediaKind.manga,
+          ),
+          common: LibraryCommonMetadata(
+            title: 'Frieren: Beyond Journey\'s End',
+          ),
           kindMetadata: mangaMeta,
         ),
         ownedItem: OwnedItem(
