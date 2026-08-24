@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -20,8 +21,8 @@ class ComicLibraryKindProviderMapper implements LibraryKindProviderMapper {
         (envelope.images.isNotEmpty ? envelope.images.first.url : null);
     final variant =
         norm['variant_name']?.toString() ?? norm['variant']?.toString();
-    final country = norm['country']?.toString();
-    final language = norm['language']?.toString();
+    final country = norm['country']?.toString() ?? 'US';
+    final language = norm['language']?.toString() ?? 'en';
     final ageRating = norm['age_rating']?.toString();
     final audienceRating = norm['audience_rating']?.toString();
 
@@ -55,6 +56,8 @@ class ComicLibraryKindProviderMapper implements LibraryKindProviderMapper {
         ? (norm['genres'] as List).map((g) => g.toString()).toList()
         : null;
 
+    final comicMetadata = ComicCatalogMetadata.fromJson(norm);
+
     return LibraryMetadataItem(
       id: '',
       kind: 'comic',
@@ -78,6 +81,7 @@ class ComicLibraryKindProviderMapper implements LibraryKindProviderMapper {
       characters: characters,
       storyArcs: storyArcs,
       genres: genres,
+      kindMetadata: comicMetadata,
     );
   }
 

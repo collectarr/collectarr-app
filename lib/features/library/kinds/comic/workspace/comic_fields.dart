@@ -246,6 +246,44 @@ abstract final class ComicKindSchema {
         context.source.ownedItem?.comicDetails?.lastBagBoardDate,
     scope: LibraryFieldScope.copy,
   );
+
+  // Rich Comic Metadata Fields
+  static final writer = textField<ComicKind, ComicWorkspaceDto>(
+    id: ComicFieldIds.writer,
+    label: 'Writer',
+    getValue: (dto) => dto.writer,
+  );
+
+  static final artist = textField<ComicKind, ComicWorkspaceDto>(
+    id: ComicFieldIds.artist,
+    label: 'Artist',
+    getValue: (dto) => dto.artist,
+  );
+
+  static final coverArtist = textField<ComicKind, ComicWorkspaceDto>(
+    id: ComicFieldIds.coverArtist,
+    label: 'Cover Artist',
+    getValue: (dto) => dto.coverArtist,
+  );
+
+  static final imprint = textField<ComicKind, ComicWorkspaceDto>(
+    id: ComicFieldIds.imprint,
+    label: 'Imprint',
+    getValue: (dto) => dto.imprint,
+  );
+
+  static final variant = textField<ComicKind, ComicWorkspaceDto>(
+    id: ComicFieldIds.variant,
+    label: 'Variant',
+    getValue: (dto) => dto.variant,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final pageCount = numberField<ComicKind, ComicWorkspaceDto>(
+    id: ComicFieldIds.pageCount,
+    label: 'Page Count',
+    getValue: (dto) => dto.pageCount,
+  );
 }
 
 final comicLibraryFieldDefinitions = [
@@ -265,6 +303,12 @@ final comicLibraryFieldDefinitions = [
   ComicKindSchema.rawOrSlabbed,
   ComicKindSchema.gradingCompany,
   ComicKindSchema.signedBy,
+  ComicKindSchema.writer,
+  ComicKindSchema.artist,
+  ComicKindSchema.coverArtist,
+  ComicKindSchema.imprint,
+  ComicKindSchema.variant,
+  ComicKindSchema.pageCount,
 ];
 
 final comicLibraryGroupDefinitions = [
@@ -314,22 +358,18 @@ final comicLibrarySortDefinitions = [
   sortFromField<ComicKind, ComicWorkspaceDto, DateTime>(
       ComicKindSchema.releaseDate,
       defaultAscending: false),
-  sortFromField<ComicKind, ComicWorkspaceDto, String>(
-      ComicKindSchema.condition),
-  sortFromField<ComicKind, ComicWorkspaceDto, DateTime>(
-      ComicKindSchema.updatedAt,
-      defaultAscending: false),
 ];
 
 final comicLibraryDefaultVisibleColumns = <LibraryFieldIdRuntime>{
   ComicFieldIds.status,
   ComicFieldIds.cover,
   ComicFieldIds.series,
+  ComicFieldIds.issueNumber,
   ComicFieldIds.title,
   ComicFieldIds.publisher,
   ComicFieldIds.releaseDate,
-  ComicFieldIds.barcode,
-  ComicFieldIds.rating,
+  ComicFieldIds.grade,
+  ComicFieldIds.keyComic,
   ComicFieldIds.condition,
   ComicFieldIds.pricePaid,
   ComicFieldIds.location,
@@ -369,6 +409,9 @@ final comicLibraryColumnDefinitions = [
   ),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(ComicKindSchema.series,
       defaultWidth: 160),
+  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
+      ComicKindSchema.issueNumber,
+      defaultWidth: 80),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(ComicKindSchema.title,
       defaultWidth: 260, maxWidth: 520),
   columnFromField<ComicKind, ComicWorkspaceDto, String?>(
@@ -436,6 +479,26 @@ final comicLibraryColumnDefinitions = [
     cellValue: (context) =>
         Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
+  ),
+  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
+    ComicKindSchema.writer,
+    group: 'Credits',
+    defaultWidth: 130,
+  ),
+  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
+    ComicKindSchema.artist,
+    group: 'Credits',
+    defaultWidth: 130,
+  ),
+  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
+    ComicKindSchema.coverArtist,
+    group: 'Credits',
+    defaultWidth: 130,
+  ),
+  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
+    ComicKindSchema.imprint,
+    group: 'Publisher',
+    defaultWidth: 120,
   ),
 ];
 

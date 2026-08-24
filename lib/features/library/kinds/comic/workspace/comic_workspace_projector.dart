@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -16,10 +17,16 @@ final class ComicWorkspaceProjector
   }) {
     final comic =
         ComicCatalogMapper.mapMetadataItemToComic(source.catalogItem!);
+    ComicCatalogMetadata? metadata;
+    final km = source.catalogItem?.kindMetadata;
+    if (km is ComicCatalogMetadata) {
+      metadata = km;
+    }
     return ComicWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       comic: comic,
+      metadata: metadata,
     );
   }
 

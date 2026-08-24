@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 enum ComicKeyEventType {
@@ -68,7 +70,7 @@ class ComicCreatorCredit {
 typedef ComicMetadata = ComicCatalogMetadata;
 
 @immutable
-class ComicCatalogMetadata {
+class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
   const ComicCatalogMetadata({
     required this.title,
     this.seriesTitle,
@@ -98,6 +100,12 @@ class ComicCatalogMetadata {
     this.variantDescription,
     this.barcode,
   });
+
+  @override
+  CatalogMediaKind get mediaKind => CatalogMediaKind.comic;
+
+  @override
+  Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
   final String? seriesTitle;

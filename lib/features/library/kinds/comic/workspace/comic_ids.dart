@@ -50,6 +50,15 @@ abstract final class ComicFieldIds {
       LibraryFieldId<ComicKind, int?>('comic.cover_price');
   static const lastBagBoardDate =
       LibraryFieldId<ComicKind, DateTime?>('comic.last_bag_board_date');
+
+  // Rich Comic Metadata Fields
+  static const writer = LibraryFieldId<ComicKind, String?>('comic.writer');
+  static const artist = LibraryFieldId<ComicKind, String?>('comic.artist');
+  static const coverArtist =
+      LibraryFieldId<ComicKind, String?>('comic.cover_artist');
+  static const imprint = LibraryFieldId<ComicKind, String?>('comic.imprint');
+  static const variant = LibraryFieldId<ComicKind, String?>('comic.variant');
+  static const pageCount = LibraryFieldId<ComicKind, int?>('comic.page_count');
 }
 
 abstract final class ComicSortIds {
@@ -77,6 +86,9 @@ abstract final class ComicGroupIds {
   static const character =
       LibraryGroupId<ComicKind, String?>('comic.character');
   static const storyArc = LibraryGroupId<ComicKind, String?>('comic.story_arc');
+  static const imprint = LibraryGroupId<ComicKind, String?>('comic.imprint');
+  static const writer = LibraryGroupId<ComicKind, String?>('comic.writer');
+  static const artist = LibraryGroupId<ComicKind, String?>('comic.artist');
 }
 
 abstract final class ComicFacetIds {
@@ -84,4 +96,6 @@ abstract final class ComicFacetIds {
   static const genre = LibraryFacetId<ComicKind, String>('comic.genre');
   static const character = LibraryFacetId<ComicKind, String>('comic.character');
   static const storyArc = LibraryFacetId<ComicKind, String>('comic.story_arc');
+  static const writer = LibraryFacetId<ComicKind, String>('comic.writer');
+  static const artist = LibraryFacetId<ComicKind, String>('comic.artist');
 }
