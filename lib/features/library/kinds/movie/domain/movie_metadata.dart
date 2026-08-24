@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -34,7 +36,7 @@ class MoviePersonCredit {
 typedef MovieMetadata = MovieCatalogMetadata;
 
 @immutable
-class MovieCatalogMetadata {
+class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   const MovieCatalogMetadata({
     required this.title,
     this.originalTitle,
@@ -56,6 +58,12 @@ class MovieCatalogMetadata {
     this.crew = const [],
     this.trailerUrls = const [],
   });
+
+  @override
+  CatalogMediaKind get mediaKind => CatalogMediaKind.movie;
+
+  @override
+  Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
   final String? originalTitle;

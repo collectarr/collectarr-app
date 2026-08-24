@@ -20,13 +20,13 @@ abstract final class MovieKindSchema {
   static final director = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.director,
     label: 'Director',
-    getValue: (dto) => dto.creator,
+    getValue: (dto) => dto.director ?? dto.creator,
   );
 
   static final publisher = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.publisher,
     label: 'Studio / Publisher',
-    getValue: (dto) => dto.publisher,
+    getValue: (dto) => dto.studio ?? dto.publisher,
   );
 
   static final releaseDate = dateField<MovieKind, MovieWorkspaceDto>(
@@ -139,7 +139,7 @@ abstract final class MovieKindSchema {
   static final runtimeMinutes = numberField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.runtimeMinutes,
     label: 'Runtime (min)',
-    getValue: (dto) => dto.movie.technical.runtimeMinutes,
+    getValue: (dto) => dto.runtimeMinutes ?? dto.movie.technical.runtimeMinutes,
   );
 
   static final genre = textField<MovieKind, MovieWorkspaceDto>(
@@ -185,6 +185,31 @@ abstract final class MovieKindSchema {
         : null,
     scope: LibraryFieldScope.release,
   );
+
+  // Rich Movie Metadata Fields
+  static final originalTitle = textField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.originalTitle,
+    label: 'Original Title',
+    getValue: (dto) => dto.originalTitle,
+  );
+
+  static final writer = textField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.writer,
+    label: 'Writer',
+    getValue: (dto) => dto.writer,
+  );
+
+  static final producer = textField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.producer,
+    label: 'Producer',
+    getValue: (dto) => dto.producer,
+  );
+
+  static final ageRating = textField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.ageRating,
+    label: 'Age Rating',
+    getValue: (dto) => dto.ageRating,
+  );
 }
 
 final movieLibraryFieldDefinitions = [
@@ -197,6 +222,11 @@ final movieLibraryFieldDefinitions = [
   MovieKindSchema.location,
   MovieKindSchema.pricePaid,
   MovieKindSchema.barcode,
+  MovieKindSchema.runtimeMinutes,
+  MovieKindSchema.originalTitle,
+  MovieKindSchema.writer,
+  MovieKindSchema.producer,
+  MovieKindSchema.ageRating,
 ];
 
 final movieLibraryGroupDefinitions = [
@@ -230,24 +260,9 @@ final movieLibraryGroupDefinitions = [
     icon: Icons.star_outline,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieKindSchema.movieOrTvSeries,
-    category: 'Main',
-    icon: Icons.tv_outlined,
-  ),
-  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieKindSchema.format,
     category: 'Edition',
     icon: Icons.album_outlined,
-  ),
-  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieKindSchema.audioTracks,
-    category: 'Edition',
-    icon: Icons.audiotrack_outlined,
-  ),
-  groupFromField<MovieKind, MovieWorkspaceDto, DateTime?>(
-    MovieKindSchema.editionReleaseDate,
-    category: 'Edition',
-    icon: Icons.calendar_today_outlined,
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieKindSchema.location,
@@ -278,6 +293,9 @@ final movieLibrarySortDefinitions = [
   sortFromField<MovieKind, MovieWorkspaceDto, String>(MovieKindSchema.title),
   sortFromField<MovieKind, MovieWorkspaceDto, DateTime>(
       MovieKindSchema.releaseDate,
+      defaultAscending: false),
+  sortFromField<MovieKind, MovieWorkspaceDto, num>(
+      MovieKindSchema.runtimeMinutes,
       defaultAscending: false),
 ];
 
@@ -400,6 +418,22 @@ final movieLibraryColumnDefinitions = [
     cellValue: (context) =>
         Text(context.source.ownedItem?.rating?.toString() ?? ''),
     defaultWidth: 80,
+  ),
+  columnFromField<MovieKind, MovieWorkspaceDto, num?>(
+    MovieKindSchema.runtimeMinutes,
+    group: 'Technical',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<MovieKind, MovieWorkspaceDto, String?>(
+    MovieKindSchema.writer,
+    group: 'Cast & Crew',
+    defaultWidth: 130,
+  ),
+  columnFromField<MovieKind, MovieWorkspaceDto, String?>(
+    MovieKindSchema.producer,
+    group: 'Cast & Crew',
+    defaultWidth: 130,
   ),
 ];
 

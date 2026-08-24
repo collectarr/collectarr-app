@@ -38,6 +38,14 @@ abstract final class MovieFieldIds {
       LibraryFieldId<MovieKind, String?>('movie.audio_tracks');
   static const editionReleaseDate =
       LibraryFieldId<MovieKind, DateTime?>('movie.edition_release_date');
+
+  // Rich Movie Metadata Fields
+  static const originalTitle =
+      LibraryFieldId<MovieKind, String?>('movie.original_title');
+  static const writer = LibraryFieldId<MovieKind, String?>('movie.writer');
+  static const producer = LibraryFieldId<MovieKind, String?>('movie.producer');
+  static const ageRating =
+      LibraryFieldId<MovieKind, String?>('movie.age_rating');
 }
 
 abstract final class MovieSortIds {
@@ -67,6 +75,8 @@ abstract final class MovieGroupIds {
   static const rating = LibraryGroupId<MovieKind, int?>('movie.rating');
   static const watchStatus =
       LibraryGroupId<MovieKind, String?>('movie.watch_status');
+  static const ageRating =
+      LibraryGroupId<MovieKind, String?>('movie.age_rating');
 }
 
 abstract final class MovieFacetIds {
@@ -74,4 +84,5 @@ abstract final class MovieFacetIds {
   static const publisher = LibraryFacetId<MovieKind, String>('movie.publisher');
   static const genre = LibraryFacetId<MovieKind, String>('movie.genre');
   static const format = LibraryFacetId<MovieKind, String>('movie.format');
+  static const studio = LibraryFacetId<MovieKind, String>('movie.studio');
 }
