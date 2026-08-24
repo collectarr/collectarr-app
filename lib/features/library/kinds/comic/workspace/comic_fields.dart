@@ -422,6 +422,16 @@ final comicLibraryColumnDefinitions = [
     cellValue: (context) => Text(_formatDate(context.dto.releaseDate)),
     defaultWidth: 118,
   ),
+  columnFromField<ComicKind, ComicWorkspaceDto, String?>(
+    ComicKindSchema.grade,
+    group: 'Grading',
+    defaultWidth: 80,
+  ),
+  columnFromField<ComicKind, ComicWorkspaceDto, bool>(
+    ComicKindSchema.keyComic,
+    group: 'Key Info',
+    defaultWidth: 90,
+  ),
   LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, bool>(
     id: ComicFieldIds.wishlist,
     label: 'Wishlist',
