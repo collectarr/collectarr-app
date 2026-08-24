@@ -8,11 +8,13 @@ final class LibraryMetadataItem {
     required this.identity,
     required this.common,
     required this.kindMetadata,
-  });
+    List<CatalogEdition>? editions,
+  }) : _editions = editions;
 
   final LibraryItemIdentity identity;
   final LibraryCommonMetadata common;
   final LibraryKindMetadataRuntime kindMetadata;
+  final List<CatalogEdition>? _editions;
 
   String get id => identity.id;
   CatalogMediaKind get mediaKind => identity.mediaKind;
@@ -47,7 +49,7 @@ final class LibraryMetadataItem {
   String? get language => toCatalogItem().language;
   String? get ageRating => toCatalogItem().ageRating;
   String? get audienceRating => toCatalogItem().audienceRating;
-  List<CatalogEdition> get editions => toCatalogItem().editions;
+  List<CatalogEdition> get editions => _editions ?? toCatalogItem().editions;
   String? get displayEditionLabel => toCatalogItem().displayEditionLabel;
   List<TrailerLink> get trailerUrls => toCatalogItem().trailerUrls;
 
@@ -79,6 +81,7 @@ final class LibraryMetadataItem {
       identity: identity,
       common: common,
       kindMetadata: kindMetadata,
+      editions: item.editions,
     );
   }
 
@@ -90,11 +93,13 @@ final class LibraryMetadataItem {
     LibraryItemIdentity? identity,
     LibraryCommonMetadata? common,
     LibraryKindMetadataRuntime? kindMetadata,
+    List<CatalogEdition>? editions,
   }) {
     return LibraryMetadataItem(
       identity: identity ?? this.identity,
       common: common ?? this.common,
       kindMetadata: kindMetadata ?? this.kindMetadata,
+      editions: editions ?? _editions,
     );
   }
 
@@ -115,6 +120,8 @@ final class LibraryMetadataItem {
       if (coverImageData != null) 'cover_image_data': coverImageData,
       'release_date': releaseDate?.toUtc().toIso8601String(),
       'release_year': releaseYear,
+      if (_editions != null && !payload.containsKey('editions'))
+        'editions': _editions.map((e) => e.toJson()).toList(),
       ...payload,
     });
   }
@@ -136,6 +143,8 @@ final class LibraryMetadataItem {
       if (coverImageData != null) 'cover_image_data': coverImageData,
       'release_date': releaseDate?.toUtc().toIso8601String(),
       'release_year': releaseYear,
+      if (_editions != null)
+        'editions': _editions.map((e) => e.toJson()).toList(),
       ...kindMetadata.toSyncPayload(),
     };
   }
