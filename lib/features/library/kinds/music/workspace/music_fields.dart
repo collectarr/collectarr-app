@@ -20,7 +20,7 @@ abstract final class MusicKindSchema {
   static final artist = textField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.artist,
     label: 'Artist',
-    getValue: (dto) => dto.music.work.artist,
+    getValue: (dto) => dto.artist,
   );
 
   static final publisher = textField<MusicKind, MusicWorkspaceDto>(
@@ -38,7 +38,7 @@ abstract final class MusicKindSchema {
   static final trackCount = numberField<MusicKind, MusicWorkspaceDto>(
     id: MusicFieldIds.trackCount,
     label: 'Track count',
-    getValue: (dto) => dto.music.recording.trackCount,
+    getValue: (dto) => dto.trackCount,
   );
 
   static final barcode = textField<MusicKind, MusicWorkspaceDto>(
@@ -121,6 +121,43 @@ abstract final class MusicKindSchema {
     getValue: (context) => context.source.addedAt,
     scope: LibraryFieldScope.copy,
   );
+
+  // Rich Music Metadata Fields
+  static final catalogNumber = textField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.catalogNumber,
+    label: 'Catalog Number',
+    getValue: (dto) => dto.catalogNumber,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final format = textField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.format,
+    label: 'Format',
+    getValue: (dto) => dto.format,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final country = textField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.country,
+    label: 'Country',
+    getValue: (dto) => dto.country,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final discCount = numberField<MusicKind, MusicWorkspaceDto>(
+    id: MusicFieldIds.discCount,
+    label: 'Disc Count',
+    getValue: (dto) => dto.discCount,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final signedBy =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
+    id: MusicFieldIds.signedBy,
+    label: 'Signed By',
+    getValue: (context) => context.source.ownedItem?.signedBy,
+    scope: LibraryFieldScope.copy,
+  );
 }
 
 final musicLibraryFieldDefinitions = [
@@ -133,6 +170,11 @@ final musicLibraryFieldDefinitions = [
   MusicKindSchema.condition,
   MusicKindSchema.location,
   MusicKindSchema.pricePaid,
+  MusicKindSchema.catalogNumber,
+  MusicKindSchema.format,
+  MusicKindSchema.country,
+  MusicKindSchema.discCount,
+  MusicKindSchema.signedBy,
 ];
 
 final musicLibraryGroupDefinitions = [
@@ -147,6 +189,16 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Labels',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
+  ),
+  groupFromField<MusicKind, MusicWorkspaceDto, String?>(
+    MusicKindSchema.format,
+    sidebarTitle: 'Formats',
+    icon: Icons.album_outlined,
+  ),
+  groupFromField<MusicKind, MusicWorkspaceDto, String?>(
+    MusicKindSchema.country,
+    sidebarTitle: 'Countries',
+    icon: Icons.public_outlined,
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(
     MusicKindSchema.condition,
@@ -182,6 +234,10 @@ final musicLibrarySortDefinitions = [
   sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.title),
   sortFromField<MusicKind, MusicWorkspaceDto, DateTime>(
       MusicKindSchema.releaseDate,
+      defaultAscending: false),
+  sortFromField<MusicKind, MusicWorkspaceDto, num>(MusicKindSchema.trackCount,
+      defaultAscending: false),
+  sortFromField<MusicKind, MusicWorkspaceDto, num>(MusicKindSchema.discCount,
       defaultAscending: false),
 ];
 
@@ -304,6 +360,27 @@ final musicLibraryColumnDefinitions = [
     getValue: MusicKindSchema.rating.getValue,
     cellValue: (context) =>
         Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    defaultWidth: 80,
+  ),
+  columnFromField<MusicKind, MusicWorkspaceDto, String?>(
+    MusicKindSchema.catalogNumber,
+    group: 'Edition',
+    defaultWidth: 120,
+  ),
+  columnFromField<MusicKind, MusicWorkspaceDto, String?>(
+    MusicKindSchema.format,
+    group: 'Edition',
+    defaultWidth: 100,
+  ),
+  columnFromField<MusicKind, MusicWorkspaceDto, String?>(
+    MusicKindSchema.country,
+    group: 'Edition',
+    defaultWidth: 100,
+  ),
+  columnFromField<MusicKind, MusicWorkspaceDto, num?>(
+    MusicKindSchema.discCount,
+    group: 'Edition',
+    isNumeric: true,
     defaultWidth: 80,
   ),
 ];

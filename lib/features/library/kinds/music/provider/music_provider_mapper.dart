@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -45,6 +46,8 @@ class MusicLibraryKindProviderMapper implements LibraryKindProviderMapper {
         ? (norm['genres'] as List).map((g) => g.toString()).toList()
         : null;
 
+    final musicMetadata = MusicCatalogMetadata.fromJson(norm);
+
     return LibraryMetadataItem(
       id: '',
       kind: 'music',
@@ -65,6 +68,7 @@ class MusicLibraryKindProviderMapper implements LibraryKindProviderMapper {
       audienceRating: audienceRating,
       creators: creators,
       genres: genres,
+      kindMetadata: musicMetadata,
     );
   }
 

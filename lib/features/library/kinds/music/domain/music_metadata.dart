@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -134,7 +136,7 @@ class MusicReleaseMetadata {
 typedef MusicMetadata = MusicCatalogMetadata;
 
 @immutable
-class MusicCatalogMetadata {
+class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
   const MusicCatalogMetadata({
     required this.title,
     this.artist,
@@ -147,6 +149,12 @@ class MusicCatalogMetadata {
     this.releases = const [],
     this.synopsis,
   });
+
+  @override
+  CatalogMediaKind get mediaKind => CatalogMediaKind.music;
+
+  @override
+  Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
   final String? artist;
