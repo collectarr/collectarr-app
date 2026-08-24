@@ -140,9 +140,10 @@ void main() {
           if (id.contains('condition') ||
               id.contains('location') ||
               id.contains('pricepaid') ||
-              id.contains('rating') ||
+              id.endsWith('.rating') ||
               id.contains('wishlist') ||
-              id.contains('grade') ||
+              id.endsWith('.grade') ||
+              id.contains('.grading_') ||
               id.contains('updatedat') ||
               id.contains('addedat')) {
             expect(field.scope, equals(LibraryFieldScope.copy),
