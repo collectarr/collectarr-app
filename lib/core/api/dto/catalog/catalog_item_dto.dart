@@ -15,8 +15,12 @@ import 'package:collectarr_app/core/api/dto/catalog/comic_catalog_item_dto.dart'
 import 'package:collectarr_app/core/api/dto/catalog/music_catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/video_catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/game_catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
 import 'package:collectarr_app/core/api/dto/catalog/boardgame_catalog_item_dto.dart';
 
+export 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
+export 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
 export 'package:collectarr_app/core/models/catalog_media_kind.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
@@ -287,6 +291,15 @@ sealed class CatalogItemDto {
   }
 
   factory CatalogItemDto.fromJson(Map<String, dynamic> json) {
+    final rawKind = (json['kind'] ?? json['media_kind'])?.toString();
+    final resolvedMediaKind = catalogMediaKindFromApiValue(rawKind);
+    return catalogKindCodecFor(resolvedMediaKind).decode(json);
+  }
+
+  static CatalogItemDto decodeFromPayload(
+    CatalogMediaKind resolvedMediaKind,
+    Map<String, dynamic> json,
+  ) {
     final trailerLinks = (json['trailer_urls'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
             .map(TrailerLinkDto.fromJson)

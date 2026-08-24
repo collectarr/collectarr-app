@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -55,6 +57,7 @@ abstract interface class LibraryKindRuntime {
   LibraryKindToolbarModule? get toolbar;
   LibraryKindProviderMapper? get providerMapper;
   LibraryFacetModule? get facets;
+  CatalogKindCodec<CatalogItemDto>? get catalogCodec;
 
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json);
   OwnedItemDetails defaultOwnedDetails();
@@ -128,6 +131,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     this.toolbar,
     this.providerMapper,
     this.facets,
+    this.catalogCodec,
     LibraryCardPresentation Function(
       LibraryProjectionRuntime item, {
       required bool musicVertical,
@@ -135,6 +139,8 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   }) : _buildCardPresentation = buildCardPresentation;
 
   final OwnedDetailsCodec<TDetails> ownedDetailsCodec;
+  @override
+  final CatalogKindCodec<CatalogItemDto>? catalogCodec;
   @override
   final LibraryKindIdentity identity;
   @override

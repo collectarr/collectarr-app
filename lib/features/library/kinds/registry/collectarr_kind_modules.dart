@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
@@ -20,3 +21,20 @@ final List<LibraryKindRuntime> collectarrKindModules = [
   animeKindModule,
   musicKindModule,
 ];
+
+LibraryKindRuntime? lookupLibraryKind(CatalogMediaKind kind) {
+  for (final module in collectarrKindModules) {
+    if (module.kind == kind) {
+      return module;
+    }
+  }
+  return null;
+}
+
+LibraryKindRuntime libraryKindFor(CatalogMediaKind kind) {
+  final module = lookupLibraryKind(kind);
+  if (module != null) {
+    return module;
+  }
+  throw ArgumentError('No LibraryKindRuntime registered for kind "$kind"');
+}
