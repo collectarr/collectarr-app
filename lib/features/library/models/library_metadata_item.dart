@@ -9,12 +9,15 @@ final class LibraryMetadataItem {
     required this.common,
     required this.kindMetadata,
     List<CatalogEdition>? editions,
-  }) : _editions = editions;
+    CatalogItem? interopCatalogItem,
+  })  : _editions = editions,
+        _interopCatalogItem = interopCatalogItem;
 
   final LibraryItemIdentity identity;
   final LibraryCommonMetadata common;
   final LibraryKindMetadataRuntime kindMetadata;
   final List<CatalogEdition>? _editions;
+  final CatalogItem? _interopCatalogItem;
 
   String get id => identity.id;
   CatalogMediaKind get mediaKind => identity.mediaKind;
@@ -49,7 +52,8 @@ final class LibraryMetadataItem {
   String? get language => toCatalogItem().language;
   String? get ageRating => toCatalogItem().ageRating;
   String? get audienceRating => toCatalogItem().audienceRating;
-  List<CatalogEdition> get editions => _editions ?? toCatalogItem().editions;
+  List<CatalogEdition> get editions =>
+      _editions ?? _interopCatalogItem?.editions ?? toCatalogItem().editions;
   String? get displayEditionLabel => toCatalogItem().displayEditionLabel;
   List<TrailerLink> get trailerUrls => toCatalogItem().trailerUrls;
 
@@ -82,6 +86,7 @@ final class LibraryMetadataItem {
       common: common,
       kindMetadata: kindMetadata,
       editions: item.editions,
+      interopCatalogItem: item,
     );
   }
 
@@ -94,16 +99,21 @@ final class LibraryMetadataItem {
     LibraryCommonMetadata? common,
     LibraryKindMetadataRuntime? kindMetadata,
     List<CatalogEdition>? editions,
+    CatalogItem? interopCatalogItem,
   }) {
     return LibraryMetadataItem(
       identity: identity ?? this.identity,
       common: common ?? this.common,
       kindMetadata: kindMetadata ?? this.kindMetadata,
       editions: editions ?? _editions,
+      interopCatalogItem: interopCatalogItem ?? _interopCatalogItem,
     );
   }
 
   CatalogItem toCatalogItem() {
+    if (_interopCatalogItem != null) {
+      return _interopCatalogItem!;
+    }
     final payload = kindMetadata.toSyncPayload();
     return CatalogItem.fromJson({
       'id': id,
@@ -127,6 +137,9 @@ final class LibraryMetadataItem {
   }
 
   Map<String, dynamic> toSyncPayload() {
+    if (_interopCatalogItem != null) {
+      return _interopCatalogItem!.toSyncPayload();
+    }
     return {
       'snapshot_version': 1,
       'id': id,

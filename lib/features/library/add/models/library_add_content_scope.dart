@@ -43,22 +43,26 @@ bool libraryAddIsSeriesResult(LibraryMetadataItem item) {
 }
 
 bool libraryAddIsSeasonResult(LibraryMetadataItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
-  return payload['season_number'] != null;
+  final payload = item.toSyncPayload();
+  return payload['season_number'] != null || item.series?.seasonNumber != null;
 }
 
 bool libraryAddIsReleaseResult(LibraryMetadataItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
-  if (payload['season_number'] != null) {
+  if (libraryAddIsSeasonResult(item)) {
     return false;
   }
-  final itemNumber = payload['item_number']?.toString().trim();
-  final editionTitle = payload['edition_title']?.toString().trim();
-  final physicalFormat = payload['physical_format']?.toString().trim();
+  final payload = item.toSyncPayload();
+  final itemNumber =
+      payload['item_number']?.toString().trim() ?? item.itemNumber;
+  final editionTitle =
+      payload['edition_title']?.toString().trim() ?? item.editionTitle;
+  final physicalFormat =
+      payload['physical_format']?.toString().trim() ?? item.physicalFormat;
   final physicalFormatLabel =
-      payload['physical_format_label']?.toString().trim();
-  final barcode = payload['barcode']?.toString().trim();
-  final variant = payload['variant']?.toString().trim();
+      payload['physical_format_label']?.toString().trim() ??
+          item.physicalFormatLabel;
+  final barcode = payload['barcode']?.toString().trim() ?? item.barcode;
+  final variant = payload['variant']?.toString().trim() ?? item.variant;
   return (itemNumber != null && itemNumber.isNotEmpty) ||
       (editionTitle != null && editionTitle.isNotEmpty) ||
       (physicalFormat != null && physicalFormat.isNotEmpty) ||

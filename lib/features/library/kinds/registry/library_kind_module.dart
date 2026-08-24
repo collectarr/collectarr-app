@@ -416,6 +416,11 @@ abstract interface class LibraryKindProviderMapper {
   });
 }
 
+abstract interface class TypedLibraryKindProviderMapper<TCatalog>
+    implements LibraryKindProviderMapper {
+  TCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope);
+}
+
 class LibraryFacetModule {
   const LibraryFacetModule({
     this.loadRows,
