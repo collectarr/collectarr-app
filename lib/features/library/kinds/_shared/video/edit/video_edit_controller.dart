@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
@@ -23,12 +24,43 @@ class VideoEditController {
     this.type,
     required this.item,
     this.draft,
-  });
+    String? initialRuntime,
+    String? initialSeasonNumber,
+    String? initialEpisodeNumber,
+    Map<String, int>? initialEpisodeRatings,
+  })  : runtimeController = TextEditingController(
+          text: initialRuntime ?? item.video?.runtimeMinutes?.toString() ?? '',
+        ),
+        seasonNumberController = TextEditingController(
+          text: initialSeasonNumber ??
+              item.series?.seasonNumber?.toString() ??
+              '',
+        ),
+        episodeNumberController = TextEditingController(
+          text: initialEpisodeNumber ??
+              item.series?.episodeNumber?.toString() ??
+              '',
+        ),
+        ageRatingController = TextEditingController(text: item.ageRating ?? ''),
+        audienceRatingController =
+            TextEditingController(text: item.audienceRating ?? ''),
+        genresEditController =
+            TextEditingController(text: item.genres?.join(', ') ?? ''),
+        episodeRatings =
+            Map<String, int>.from(initialEpisodeRatings ?? const {});
 
   final WidgetRef? ref;
   final LibraryTypeConfig? type;
   final LibraryMetadataItem item;
   final LibraryEditDraft? draft;
+
+  final TextEditingController runtimeController;
+  final TextEditingController seasonNumberController;
+  final TextEditingController episodeNumberController;
+  final TextEditingController ageRatingController;
+  final TextEditingController audienceRatingController;
+  final TextEditingController genresEditController;
+  final Map<String, int> episodeRatings;
 
   final List<EditableVideoCredit> castCredits = [];
   final List<EditableVideoCredit> crewCredits = [];
@@ -45,12 +77,6 @@ class VideoEditController {
           : null;
   static final _dummyController = TextEditingController();
 
-  TextEditingController get runtimeController =>
-      draft?.metadata.runtimeController ?? _dummyController;
-  TextEditingController get seasonNumberController =>
-      draft?.tracking.seasonNumberController ?? _dummyController;
-  TextEditingController get episodeNumberController =>
-      draft?.tracking.episodeNumberController ?? _dummyController;
   TextEditingController get audioTracksController =>
       _videoDraft?.audioTracksController ?? _dummyController;
   TextEditingController get subtitlesController =>
@@ -116,6 +142,12 @@ class VideoEditController {
   }
 
   void dispose() {
+    runtimeController.dispose();
+    seasonNumberController.dispose();
+    episodeNumberController.dispose();
+    ageRatingController.dispose();
+    audienceRatingController.dispose();
+    genresEditController.dispose();
     for (final credit in castCredits) {
       credit.dispose();
     }
@@ -136,15 +168,49 @@ class VideoEditController {
     if (!isVideoKind) {
       return selection;
     }
+    final updatedVideo = VideoCatalogDetails(
+      runtimeMinutes: int.tryParse(runtimeController.text) ??
+          selection.item.video?.runtimeMinutes,
+    );
+    final currentSeries = selection.item.series;
+    final updatedSeries = currentSeries == null
+        ? null
+        : CatalogSeriesDetails(
+            seriesId: currentSeries.seriesId,
+            seriesTitle: currentSeries.seriesTitle,
+            volumeName: currentSeries.volumeName,
+            volumeNumber: currentSeries.volumeNumber,
+            volumeStartYear: currentSeries.volumeStartYear,
+            seasonNumber: int.tryParse(seasonNumberController.text) ??
+                currentSeries.seasonNumber,
+            episodeNumber: int.tryParse(episodeNumberController.text) ??
+                currentSeries.episodeNumber,
+            tags: currentSeries.tags,
+          );
+    final updatedTracking = selection.tracking?.copyWith(
+      seasonNumber: int.tryParse(seasonNumberController.text),
+      episodeNumber: int.tryParse(episodeNumberController.text),
+      episodeRatings: episodeRatings.isEmpty ? null : episodeRatings,
+    );
+    final parsedGenres = genresEditController.text
+        .split(RegExp(r'[,\r\n]+'))
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
     return LibraryEditSelection(
       scope: selection.scope,
       item: selection.item.copyWith(
+        video: updatedVideo.hasData ? updatedVideo : selection.item.video,
+        series: updatedSeries ?? selection.item.series,
+        ageRating: emptyToNull(ageRatingController.text),
+        audienceRating: emptyToNull(audienceRatingController.text),
+        genres: parsedGenres.isNotEmpty ? parsedGenres : selection.item.genres,
         creators: buildUpdatedVideoCreators(),
         trailerUrls: buildUpdatedTrailerUrls(selection.item.trailerUrls),
       ),
       personal: selection.personal,
       wishlist: selection.wishlist,
-      tracking: selection.tracking,
+      tracking: updatedTracking ?? selection.tracking,
       customFieldEdits: selection.customFieldEdits,
       itemImageEdits: selection.itemImageEdits,
       submitAction: selection.submitAction,

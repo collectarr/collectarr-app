@@ -175,15 +175,15 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   TextEditingController get comicAgeRatingController =>
-      draft.metadata.ageRatingController;
+      _comicDraft?.comicEdit.ageRatingController ?? TextEditingController();
 
   @override
   TextEditingController get comicPageCountController =>
-      draft.metadata.pageCountController;
+      _comicDraft?.comicEdit.pageCountController ?? TextEditingController();
 
   @override
   TextEditingController get comicGenresEditController =>
-      draft.metadata.genresEditController;
+      _comicDraft?.comicEdit.genresEditController ?? TextEditingController();
 
   @override
   TextEditingController get comicLanguageController =>
@@ -437,7 +437,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicCrossoverPickField({String label = 'Crossover'}) {
     return SingleValuePickField(
-      controller: draft.metadata.crossoverController,
+      controller:
+          _comicDraft?.comicEdit.crossoverController ?? TextEditingController(),
       label: label,
       options: draft.vocabulary?.crossoverOptions ?? const [],
       showPickerListAction: true,
@@ -447,7 +448,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicStoryArcPickField({String label = 'Story Arc'}) {
     return SingleValuePickField(
-      controller: draft.metadata.storyArcsController,
+      controller:
+          _comicDraft?.comicEdit.storyArcsController ?? TextEditingController(),
       label: label,
       options: draft.vocabulary?.storyArcOptions ?? const [],
       showPickerListAction: true,
@@ -542,7 +544,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicImprintField() {
     return SingleValuePickField(
-      controller: draft.metadata.imprintController,
+      controller:
+          _comicDraft?.comicEdit.imprintController ?? TextEditingController(),
       label: 'Imprint',
       options: draft.vocabulary?.imprintOptions ?? const [],
       showPickerListAction: true,
@@ -552,7 +555,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicSeriesGroupField({String label = 'Series Group'}) {
     return SingleValuePickField(
-      controller: draft.metadata.seriesGroupController,
+      controller: _comicDraft?.comicEdit.seriesGroupController ??
+          TextEditingController(),
       label: label,
       options: draft.vocabulary?.seriesGroupOptions ?? const [],
       showPickerListAction: true,

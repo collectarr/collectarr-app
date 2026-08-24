@@ -185,9 +185,6 @@ class LibraryEditDraft {
           : item.releaseDate!.day.toString().padLeft(2, '0'),
     );
     final releaseYearController = create(item.releaseYear?.toString() ?? '');
-    final pageCountController = create(
-      item.publishing?.pageCount?.toString() ?? '',
-    );
     final editionTitleController =
         create(item.editionTitle ?? item.titleExtension ?? '');
     final barcodeController = create(item.barcode ?? '');
@@ -215,25 +212,10 @@ class LibraryEditDraft {
     final searchAliasesController = create(
       (item.searchAliases ?? const <String>[]).join(', '),
     );
-    final runtimeController = create(
-      item.video?.runtimeMinutes?.toString() ?? '',
-    );
-    final audienceRatingController = create(item.audienceRating ?? '');
     final countryController = create(item.country ?? '');
     final languageController = create(item.language ?? '');
-    final ageRatingController = create(item.ageRating ?? '');
-    final genresEditController = create(item.genres?.join(', ') ?? '');
-    final crossoverController = create(item.crossover?.trim() ?? '');
-    final storyArcsController = create(
-      (item.storyArcs ?? const <String>[]).join(', '),
-    );
     final seriesTitleController = create(item.series?.seriesTitle ?? '');
-    final developersController = create(
-      _creatorNamesForRoles(item.creators, const ['developer']).join(', '),
-    );
     final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
-    final imprintController = create(item.publishing?.imprint ?? '');
-    final seriesGroupController = create(item.publishing?.seriesGroup ?? '');
     final conditionController = create(ownedItem?.condition ?? '');
     final gradeController = create(ownedItem?.grade ?? '');
     final purchaseDateController = create(
@@ -273,15 +255,6 @@ class LibraryEditDraft {
     final timesCompletedController = create(
       trackingEntry?.timesCompleted?.toString() ?? '',
     );
-    final seasonNumberController = create(
-      (trackingEntry?.seasonNumber ?? item.series?.seasonNumber)?.toString() ??
-          '',
-    );
-    final episodeNumberController = create(
-      (trackingEntry?.episodeNumber ?? item.series?.episodeNumber)
-              ?.toString() ??
-          '',
-    );
     final trackingNotesController = create(trackingEntry?.notes ?? '');
     final tagsController = create(ownedItem?.tags ?? '');
     final sellPriceController = create(
@@ -290,7 +263,6 @@ class LibraryEditDraft {
           : (ownedItem!.sellPriceCents! / 100).toStringAsFixed(2),
     );
     final soldToController = create(ownedItem?.soldTo ?? '');
-    final signedByController = create();
     final purchaseStoreController = create(ownedItem?.purchaseStore ?? '');
     final marketValueController = create(
       ownedItem?.marketValueCents == null
@@ -326,7 +298,6 @@ class LibraryEditDraft {
       releaseDateMonthPartController: releaseDateMonthPartController,
       releaseDateDayPartController: releaseDateDayPartController,
       releaseYearController: releaseYearController,
-      pageCountController: pageCountController,
       editionTitleController: editionTitleController,
       barcodeController: barcodeController,
       variantController: variantController,
@@ -339,18 +310,9 @@ class LibraryEditDraft {
       originalTitleController: originalTitleController,
       localizedTitleController: localizedTitleController,
       searchAliasesController: searchAliasesController,
-      runtimeController: runtimeController,
-      audienceRatingController: audienceRatingController,
       countryController: countryController,
       languageController: languageController,
-      ageRatingController: ageRatingController,
-      genresEditController: genresEditController,
-      crossoverController: crossoverController,
-      storyArcsController: storyArcsController,
       seriesTitleController: seriesTitleController,
-      developersController: developersController,
-      imprintController: imprintController,
-      seriesGroupController: seriesGroupController,
       physicalFormatId: initialPhysicalFormatId,
       seriesId: item.series?.seriesId,
     );
@@ -371,7 +333,6 @@ class LibraryEditDraft {
       wishlistCurrencyController: wishlistCurrencyController,
       wishlistNotesController: wishlistNotesController,
       tagsController: tagsController,
-      signedByController: signedByController,
       sellPriceController: sellPriceController,
       soldToController: soldToController,
       tagOptions: splitPickListValues(ownedItem?.tags),
@@ -404,8 +365,6 @@ class LibraryEditDraft {
       progressCurrentController: progressCurrentController,
       progressTotalController: progressTotalController,
       timesCompletedController: timesCompletedController,
-      seasonNumberController: seasonNumberController,
-      episodeNumberController: episodeNumberController,
       trackingNotesController: trackingNotesController,
       selectedTrackingEditionId:
           trackingEntry?.editionId ?? editionSelection.edition?.id,
@@ -413,8 +372,6 @@ class LibraryEditDraft {
           trackingEntry?.variantId ?? editionSelection.variant?.id,
       startedAt: trackingEntry?.startedAt ?? ownedItem?.startedAt,
       finishedAt: trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
-      episodeRatings:
-          Map<String, int>.from(trackingEntry?.episodeRatings ?? const {}),
     );
 
     final kindDetails = defaultLibraryKindRegistry
@@ -448,11 +405,23 @@ class LibraryEditDraft {
       tracking: tracking,
       kindDetails: kindDetails,
       customFieldEdits: {
-        for (final value in customFieldValues)
-          value.fieldDefinitionId: value.value,
+        for (final def in customFieldDefinitions)
+          def.id: _initialCustomFieldValue(def.id, customFieldValues),
       },
-      itemImageEdits: <ItemImageEdit>[],
+      itemImageEdits: const [],
     );
+  }
+
+  static String? _initialCustomFieldValue(
+    String definitionId,
+    List<CustomFieldValue> values,
+  ) {
+    for (final value in values) {
+      if (value.fieldDefinitionId == definitionId) {
+        return value.value;
+      }
+    }
+    return null;
   }
 
   // ---------------------------------------------------------------------------
@@ -516,7 +485,7 @@ class LibraryEditDraft {
     );
   }
 
-  void replaceMediaEdits({
+  void updateCustomFieldsAndImages({
     required Map<String, String?> customFieldEdits,
     required List<ItemImageEdit> itemImageEdits,
   }) {
@@ -524,13 +493,20 @@ class LibraryEditDraft {
     this.itemImageEdits = List<ItemImageEdit>.from(itemImageEdits);
   }
 
+  void replaceMediaEdits({
+    required Map<String, String?> customFieldEdits,
+    required List<ItemImageEdit> itemImageEdits,
+  }) =>
+      updateCustomFieldsAndImages(
+        customFieldEdits: customFieldEdits,
+        itemImageEdits: itemImageEdits,
+      );
+
   bool get showsEpisodeTrackingFields {
     final series = item.series;
     return type.trackingProfile.name == videoTrackingProfile.name ||
         series?.seasonNumber != null ||
-        series?.episodeNumber != null ||
-        tracking.seasonNumberController.text.trim().isNotEmpty ||
-        tracking.episodeNumberController.text.trim().isNotEmpty;
+        series?.episodeNumber != null;
   }
 
   LibraryEditSelection toSelection({
@@ -541,52 +517,12 @@ class LibraryEditDraft {
   LibraryEditSelection buildSelection({
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
-    final existingPublishing = item.publishing;
-    final updatedPublishing = CatalogPublishingDetails(
-      pageCount: parseInt(metadata.pageCountController.text) ??
-          existingPublishing?.pageCount,
-      coverPriceCents: existingPublishing?.coverPriceCents,
-      currency: existingPublishing?.currency,
-      imprint: emptyToNull(metadata.imprintController.text) ??
-          existingPublishing?.imprint,
-      subtitle: existingPublishing?.subtitle,
-      seriesGroup: emptyToNull(metadata.seriesGroupController.text) ??
-          existingPublishing?.seriesGroup,
-      publicationPlace: existingPublishing?.publicationPlace,
-      originalCountry: existingPublishing?.originalCountry,
-      originalLanguage: existingPublishing?.originalLanguage,
-      originalPublicationDate: existingPublishing?.originalPublicationDate,
-      originalPublicationPlace: existingPublishing?.originalPublicationPlace,
-      originalPublisher: existingPublishing?.originalPublisher,
-      paperType: existingPublishing?.paperType,
-      printedBy: existingPublishing?.printedBy,
-      subjects: existingPublishing?.subjects ?? const [],
-      dustJacketCondition: existingPublishing?.dustJacketCondition,
-      dustJacket: existingPublishing?.dustJacket,
-      audiobookAbridged: existingPublishing?.audiobookAbridged,
-      firstEdition: existingPublishing?.firstEdition,
-      dewey: existingPublishing?.dewey,
-    );
-    final parsedStoryArcs = metadata.storyArcsController.text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((storyArc) => storyArc.trim())
-        .where((storyArc) => storyArc.isNotEmpty)
-        .toList();
-    final updatedVideo = VideoCatalogDetails(
-      runtimeMinutes: int.tryParse(metadata.runtimeController.text),
-    );
-    final parsedGenres = metadata.genresEditController.text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((genre) => genre.trim())
-        .where((genre) => genre.isNotEmpty)
-        .toList();
-    return LibraryEditSelection(
+    final baseSelection = LibraryEditSelection(
       item: item.copyWith(
         title: metadata.titleController.text.trim(),
         sortKey: emptyToNull(metadata.sortKeyController.text),
         originalTitle: emptyToNull(metadata.originalTitleController.text),
         displayTitle: emptyToNull(metadata.displayTitleController.text),
-        localizedTitle: emptyToNull(metadata.localizedTitleController.text),
         searchAliases: _splitList(metadata.searchAliasesController.text),
         itemNumber: emptyToNull(metadata.numberController.text),
         synopsis: emptyToNull(metadata.synopsisController.text),
@@ -603,18 +539,9 @@ class LibraryEditDraft {
         releaseYear: parseInt(metadata.releaseYearController.text),
         barcode: emptyToNull(metadata.barcodeController.text),
         variant: emptyToNull(metadata.variantController.text),
-        crossover: emptyToNull(metadata.crossoverController.text),
         series: _buildUpdatedSeries(),
-        creators: _buildUpdatedCreators(),
         country: emptyToNull(metadata.countryController.text),
         language: emptyToNull(metadata.languageController.text),
-        ageRating: emptyToNull(metadata.ageRatingController.text),
-        audienceRating: emptyToNull(metadata.audienceRatingController.text),
-        genres: parsedGenres.isNotEmpty ? parsedGenres : item.genres,
-        storyArcs:
-            parsedStoryArcs.isNotEmpty ? parsedStoryArcs : item.storyArcs,
-        publishing: updatedPublishing.hasData ? updatedPublishing : null,
-        video: updatedVideo.hasData ? updatedVideo : null,
         trailerUrls: item.trailerUrls,
       ),
       personal: ownedItem == null
@@ -659,9 +586,7 @@ class LibraryEditDraft {
               rawOrSlabbed: null,
               gradingCompany: null,
               graderNotes: null,
-              signedBy: isDigitalFormat
-                  ? null
-                  : emptyToNull(personal.signedByController.text),
+              signedBy: null,
               labelType: null,
               pageQuality: null,
               certificationNumber: null,
@@ -717,16 +642,12 @@ class LibraryEditDraft {
               progressTotal: parseInt(tracking.progressTotalController.text),
               timesCompleted: parseInt(tracking.timesCompletedController.text),
               notes: emptyToNull(tracking.trackingNotesController.text),
-              seasonNumber: parseInt(tracking.seasonNumberController.text),
-              episodeNumber: parseInt(tracking.episodeNumberController.text),
-              episodeRatings: tracking.episodeRatings.isEmpty
-                  ? null
-                  : tracking.episodeRatings,
             ),
       customFieldEdits: customFieldEdits,
       itemImageEdits: itemImageEdits,
       submitAction: submitAction,
     );
+    return kindDetails.applySelectionEdits(baseSelection);
   }
 
   List<String>? _splitList(String value) {
@@ -761,37 +682,6 @@ class LibraryEditDraft {
       episodeNumber: currentSeries?.episodeNumber,
       tags: currentSeries?.tags,
     );
-  }
-
-  List<Map<String, dynamic>>? _buildUpdatedCreators() {
-    if (type.workspace.kind.apiValue != 'game') {
-      return item.creators;
-    }
-
-    final existing = item.creators ?? const <Map<String, dynamic>>[];
-    final preserved = <Map<String, dynamic>>[];
-    for (final entry in existing) {
-      final role = entry['role']?.toString().toLowerCase() ?? '';
-      if (role.contains('developer')) {
-        continue;
-      }
-      preserved.add(Map<String, dynamic>.from(entry));
-    }
-
-    final developerNames = metadata.developersController.text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList(growable: false);
-
-    final merged = <Map<String, dynamic>>[
-      ...preserved,
-      for (final name in developerNames)
-        <String, dynamic>{'name': name, 'role': 'Developer'},
-    ];
-    return merged.isEmpty
-        ? null
-        : List<Map<String, dynamic>>.unmodifiable(merged);
   }
 
   static List<String> _creatorNamesForRoles(

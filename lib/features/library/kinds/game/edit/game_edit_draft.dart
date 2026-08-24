@@ -69,8 +69,15 @@ KindEditDraft createGameEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final game = ownedItem?.gameDetails;
+  final developerNames = (item.creators ?? const <Map<String, dynamic>>[])
+      .where((c) =>
+          c['role']?.toString().toLowerCase().contains('developer') ?? false)
+      .map((c) => c['name']?.toString().trim() ?? '')
+      .where((n) => n.isNotEmpty)
+      .join(', ');
   final gameEdit = GameEditController(
     initialPlatforms: (item.game?.platforms ?? const <String>[]).join(', '),
+    initialDevelopers: developerNames,
   );
 
   return GameEditDraft(

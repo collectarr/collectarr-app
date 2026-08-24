@@ -318,7 +318,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         musicDraft?.storageDeviceController ?? TextEditingController();
     _storageSlotController =
         musicDraft?.storageSlotController ?? TextEditingController();
-    _signedByController = _draft.personal.signedByController;
+    _signedByController = TextEditingController(
+      text: musicDraft?.signedBy ??
+          widget.request.ownedItem?.musicDetails?.signedBy ??
+          '',
+    );
     _collectionStatusController = TextEditingController(
       text:
           _collectionStatusToLabel(widget.request.ownedItem?.collectionStatus),

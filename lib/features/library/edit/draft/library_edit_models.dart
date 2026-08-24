@@ -341,4 +341,36 @@ class LibraryTrackingEditSelection {
   final DateTime? startedAt;
   final DateTime? finishedAt;
   final Map<String, int>? episodeRatings;
+
+  LibraryTrackingEditSelection copyWith({
+    String? editionId,
+    String? variantId,
+    int? rating,
+    String? readStatus,
+    int? progressCurrent,
+    int? progressTotal,
+    int? timesCompleted,
+    String? notes,
+    int? seasonNumber,
+    int? episodeNumber,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    Map<String, int>? episodeRatings,
+  }) {
+    return LibraryTrackingEditSelection(
+      editionId: editionId ?? this.editionId,
+      variantId: variantId ?? this.variantId,
+      rating: rating ?? this.rating,
+      readStatus: readStatus ?? this.readStatus,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      episodeRatings: episodeRatings ?? this.episodeRatings,
+    );
+  }
 }

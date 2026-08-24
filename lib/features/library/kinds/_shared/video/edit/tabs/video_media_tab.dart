@@ -74,7 +74,7 @@ class VideoEditMediaTab extends StatelessWidget {
                     validator: optionalIntValidator,
                   ),
                   LibraryVocabularyField(
-                    controller: draft.metadata.genresEditController,
+                    controller: videoEdit.genresEditController,
                     options: genreOptions,
                     label: 'Genres',
                     multiSelect: true,
@@ -98,12 +98,12 @@ class VideoEditMediaTab extends StatelessWidget {
                 children: [
                   LibraryVocabularyField(
                     label: 'Age rating',
-                    controller: draft.metadata.ageRatingController,
+                    controller: videoEdit.ageRatingController,
                     options: ageRatingOptions,
                   ),
                   LibraryVocabularyField(
                     label: 'Audience rating',
-                    controller: draft.metadata.audienceRatingController,
+                    controller: videoEdit.audienceRatingController,
                     options: audienceRatingOptions,
                   ),
                 ],

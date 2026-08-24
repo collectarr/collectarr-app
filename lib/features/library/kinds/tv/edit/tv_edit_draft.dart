@@ -55,9 +55,10 @@ class TvEditDraft extends KindEditDraft implements VideoKindEditDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    if (selection.personal != null) {
-      return selection.copyWith(
-        personal: selection.personal!.copyWith(
+    var result = videoEdit.applyVideoSelectionEdits(selection);
+    if (result.personal != null) {
+      result = result.copyWith(
+        personal: result.personal!.copyWith(
           features: emptyToNull(featuresController.text),
           hdrFormats: hdrFormats.isEmpty ? null : hdrFormats,
           boxSetName: emptyToNull(boxSetNameController.text),
@@ -73,7 +74,7 @@ class TvEditDraft extends KindEditDraft implements VideoKindEditDraft {
         ),
       );
     }
-    return selection;
+    return result;
   }
 
   @override

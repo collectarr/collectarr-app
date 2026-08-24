@@ -8,9 +8,12 @@ import 'package:flutter/material.dart';
 class GameEditController {
   GameEditController({
     required String initialPlatforms,
-  }) : platformsController = TextEditingController(text: initialPlatforms);
+    String initialDevelopers = '',
+  })  : platformsController = TextEditingController(text: initialPlatforms),
+        developersController = TextEditingController(text: initialDevelopers);
 
   final TextEditingController platformsController;
+  final TextEditingController developersController;
   List<String> developerOptions = const [];
   List<String> genreOptions = const [];
   List<String> platformOptions = const [];
@@ -20,10 +23,9 @@ class GameEditController {
     required LibraryEditDraft draft,
   }) {
     developerOptions = _mergePickListOptions(
-      splitPickListValues(draft.metadata.developersController.text),
+      splitPickListValues(developersController.text),
     );
     genreOptions = _mergePickListOptions(
-      splitPickListValues(draft.metadata.genresEditController.text),
       item.genres ?? const <String>[],
     );
     platformOptions = splitPickListValues(platformsController.text);
@@ -31,6 +33,7 @@ class GameEditController {
 
   void dispose() {
     platformsController.dispose();
+    developersController.dispose();
   }
 
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
@@ -40,10 +43,36 @@ class GameEditController {
       toySubtype: currentGame?.toySubtype,
       toyType: currentGame?.toyType,
     );
+
+    final existing = selection.item.creators ?? const <Map<String, dynamic>>[];
+    final preserved = <Map<String, dynamic>>[];
+    for (final entry in existing) {
+      final role = entry['role']?.toString().toLowerCase() ?? '';
+      if (role.contains('developer')) {
+        continue;
+      }
+      preserved.add(Map<String, dynamic>.from(entry));
+    }
+
+    final developerNames = developersController.text
+        .split(RegExp(r'[,\r\n]+'))
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+
+    final mergedCreators = <Map<String, dynamic>>[
+      ...preserved,
+      for (final name in developerNames)
+        <String, dynamic>{'name': name, 'role': 'Developer'},
+    ];
+
     return LibraryEditSelection(
       scope: selection.scope,
       item: selection.item.copyWith(
         game: updatedGame.hasData ? updatedGame : null,
+        creators: mergedCreators.isEmpty
+            ? null
+            : List<Map<String, dynamic>>.unmodifiable(mergedCreators),
       ),
       personal: selection.personal,
       wishlist: selection.wishlist,

@@ -19,7 +19,6 @@ class PersonalStateDraft {
     required this.wishlistCurrencyController,
     required this.wishlistNotesController,
     required this.tagsController,
-    required this.signedByController,
     required this.sellPriceController,
     required this.soldToController,
     required this.tagOptions,
@@ -53,7 +52,6 @@ class PersonalStateDraft {
   final TextEditingController wishlistCurrencyController;
   final TextEditingController wishlistNotesController;
   final TextEditingController tagsController;
-  final TextEditingController signedByController;
   final TextEditingController sellPriceController;
   final TextEditingController soldToController;
 
