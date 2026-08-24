@@ -1,6 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -50,6 +49,15 @@ final class CatalogItemEnvelopeDto {
       'common': common.toJson(),
       'payload': kindPayload,
     };
+  }
+
+  CatalogItemDto decodeCatalogItem() {
+    return catalogKindCodecFor(kind).decode({
+      'id': ref.id,
+      'kind': kind.apiValue,
+      ...common.toJson(),
+      ...kindPayload,
+    });
   }
 
   static Map<String, dynamic>? _mapValue(Object? value) {

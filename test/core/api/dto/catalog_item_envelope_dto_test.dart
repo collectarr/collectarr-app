@@ -33,4 +33,18 @@ void main() {
       'payload': {'tracks': []},
     });
   });
+
+  test('decodes the payload through the catalog codec registry', () {
+    final envelope = CatalogItemEnvelopeDto.fromJson({
+      'id': 'book-1',
+      'kind': 'book',
+      'title': 'A book',
+      'authors': ['Author'],
+    });
+
+    final item = envelope.decodeCatalogItem();
+
+    expect(item.mediaKind, CatalogMediaKind.book);
+    expect(item.title, 'A book');
+  });
 }
