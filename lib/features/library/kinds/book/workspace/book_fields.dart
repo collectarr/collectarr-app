@@ -135,6 +135,83 @@ abstract final class BookKindSchema {
     getValue: (context) => context.source.ownedItem?.readStatus,
     scope: LibraryFieldScope.copy,
   );
+
+  // Rich Book Metadata Fields
+  static final subtitle = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.subtitle,
+    label: 'Subtitle',
+    getValue: (dto) => dto.subtitle,
+  );
+
+  static final format = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.format,
+    label: 'Format',
+    getValue: (dto) => dto.format,
+  );
+
+  static final translator = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.translator,
+    label: 'Translator',
+    getValue: (dto) => dto.translator,
+  );
+
+  static final editor = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.editor,
+    label: 'Editor',
+    getValue: (dto) => dto.editor,
+  );
+
+  static final illustrator = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.illustrator,
+    label: 'Illustrator',
+    getValue: (dto) => dto.illustrator,
+  );
+
+  static final coverArtist = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.coverArtist,
+    label: 'Cover Artist',
+    getValue: (dto) => dto.coverArtist,
+  );
+
+  static final printing = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.printing,
+    label: 'Printing',
+    getValue: (dto) => dto.printing,
+  );
+
+  static final numberLine = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.numberLine,
+    label: 'Number Line',
+    getValue: (dto) => dto.numberLine,
+  );
+
+  static final firstEdition =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, bool>(
+    id: BookFieldIds.firstEdition,
+    label: 'First Edition',
+    getValue: (context) => context.dto.firstEdition,
+    scope: LibraryFieldScope.release,
+  );
+
+  static final dewey = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.dewey,
+    label: 'Dewey Decimal',
+    getValue: (dto) => dto.dewey,
+  );
+
+  static final locClassification = textField<BookKind, BookWorkspaceDto>(
+    id: BookFieldIds.locClassification,
+    label: 'LoC Classification',
+    getValue: (dto) => dto.locClassification,
+  );
+
+  static final signedBy =
+      LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
+    id: BookFieldIds.signedBy,
+    label: 'Signed By',
+    getValue: (context) => context.source.ownedItem?.signedBy,
+    scope: LibraryFieldScope.copy,
+  );
 }
 
 final bookLibraryFieldDefinitions = [
@@ -148,6 +225,18 @@ final bookLibraryFieldDefinitions = [
   BookKindSchema.series,
   BookKindSchema.releaseDate,
   BookKindSchema.pricePaid,
+  BookKindSchema.subtitle,
+  BookKindSchema.format,
+  BookKindSchema.translator,
+  BookKindSchema.editor,
+  BookKindSchema.illustrator,
+  BookKindSchema.coverArtist,
+  BookKindSchema.printing,
+  BookKindSchema.numberLine,
+  BookKindSchema.firstEdition,
+  BookKindSchema.dewey,
+  BookKindSchema.locClassification,
+  BookKindSchema.signedBy,
 ];
 
 final bookLibraryGroupDefinitions = [
@@ -166,6 +255,11 @@ final bookLibraryGroupDefinitions = [
     BookKindSchema.series,
     sidebarTitle: 'Series',
     icon: Icons.collections_bookmark_outlined,
+  ),
+  groupFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.format,
+    sidebarTitle: 'Formats',
+    icon: Icons.book_outlined,
   ),
   groupFromField<BookKind, BookWorkspaceDto, String?>(
     BookKindSchema.condition,
@@ -319,6 +413,54 @@ final bookLibraryColumnDefinitions = [
     cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.subtitle,
+    group: 'Details',
+    defaultWidth: 180,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.format,
+    group: 'Edition',
+    defaultWidth: 110,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.translator,
+    group: 'Credits',
+    defaultWidth: 130,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.editor,
+    group: 'Credits',
+    defaultWidth: 130,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.illustrator,
+    group: 'Credits',
+    defaultWidth: 130,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.printing,
+    group: 'Edition',
+    defaultWidth: 100,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.numberLine,
+    group: 'Edition',
+    defaultWidth: 100,
+  ),
+  LibraryColumnDefinition<BookKind, BookWorkspaceDto, bool>(
+    id: BookFieldIds.firstEdition,
+    label: '1st Edition',
+    getValue: BookKindSchema.firstEdition.getValue,
+    cellValue: (context) => Text(context.dto.firstEdition ? 'Yes' : 'No'),
+    group: 'Edition',
+    defaultWidth: 90,
+  ),
+  columnFromField<BookKind, BookWorkspaceDto, String?>(
+    BookKindSchema.dewey,
+    group: 'Classification',
+    defaultWidth: 100,
   ),
 ];
 

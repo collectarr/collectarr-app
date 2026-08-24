@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -15,10 +16,16 @@ final class BookWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final book = BookCatalogMapper.mapMetadataItemToBook(source.catalogItem!);
+    BookCatalogMetadata? metadata;
+    final km = source.catalogItem?.kindMetadata;
+    if (km is BookCatalogMetadata) {
+      metadata = km;
+    }
     return BookWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
       book: book,
+      metadata: metadata,
     );
   }
 
@@ -29,11 +36,17 @@ final class BookWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final book = BookCatalogMapper.mapMetadataItemToBook(source.catalogItem!);
+    BookCatalogMetadata? metadata;
+    final km = source.catalogItem?.kindMetadata;
+    if (km is BookCatalogMetadata) {
+      metadata = km;
+    }
     return BookWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
       book: book,
+      metadata: metadata,
     );
   }
 

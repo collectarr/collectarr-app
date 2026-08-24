@@ -21,6 +21,26 @@ abstract final class BookFieldIds {
   static const updatedAt =
       LibraryFieldId<BookKind, DateTime>('book.updated_at');
   static const addedAt = LibraryFieldId<BookKind, DateTime?>('book.added_at');
+
+  // Rich Book Metadata Fields
+  static const subtitle = LibraryFieldId<BookKind, String?>('book.subtitle');
+  static const format = LibraryFieldId<BookKind, String?>('book.format');
+  static const translator =
+      LibraryFieldId<BookKind, String?>('book.translator');
+  static const editor = LibraryFieldId<BookKind, String?>('book.editor');
+  static const illustrator =
+      LibraryFieldId<BookKind, String?>('book.illustrator');
+  static const coverArtist =
+      LibraryFieldId<BookKind, String?>('book.cover_artist');
+  static const printing = LibraryFieldId<BookKind, String?>('book.printing');
+  static const numberLine =
+      LibraryFieldId<BookKind, String?>('book.number_line');
+  static const firstEdition =
+      LibraryFieldId<BookKind, bool>('book.first_edition');
+  static const dewey = LibraryFieldId<BookKind, String?>('book.dewey');
+  static const locClassification =
+      LibraryFieldId<BookKind, String?>('book.loc_classification');
+  static const signedBy = LibraryFieldId<BookKind, String?>('book.signed_by');
 }
 
 abstract final class BookSortIds {
@@ -43,10 +63,16 @@ abstract final class BookGroupIds {
   static const location = LibraryGroupId<BookKind, String?>('book.location');
   static const condition = LibraryGroupId<BookKind, String?>('book.condition');
   static const rating = LibraryGroupId<BookKind, int?>('book.rating');
+  static const format = LibraryGroupId<BookKind, String?>('book.format');
+  static const translator =
+      LibraryGroupId<BookKind, String?>('book.translator');
 }
 
 abstract final class BookFacetIds {
   static const author = LibraryFacetId<BookKind, String>('book.author');
   static const publisher = LibraryFacetId<BookKind, String>('book.publisher');
   static const genre = LibraryFacetId<BookKind, String>('book.genre');
+  static const format = LibraryFacetId<BookKind, String>('book.format');
+  static const subject = LibraryFacetId<BookKind, String>('book.subject');
+  static const translator = LibraryFacetId<BookKind, String>('book.translator');
 }

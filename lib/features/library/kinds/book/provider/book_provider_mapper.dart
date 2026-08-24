@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -31,6 +32,8 @@ class BookLibraryKindProviderMapper implements LibraryKindProviderMapper {
       }
     }
 
+    final bookMetadata = BookCatalogMetadata.fromJson(norm);
+
     return LibraryMetadataItem(
       id: '',
       kind: 'book',
@@ -40,10 +43,12 @@ class BookLibraryKindProviderMapper implements LibraryKindProviderMapper {
       coverImageUrl: coverImageUrl,
       thumbnailImageUrl: coverImageUrl,
       releaseDate: releaseDate,
+      releaseYear: releaseDate?.year,
       creators: creators,
       genres: norm['genres'] is List
           ? (norm['genres'] as List).map((g) => g.toString()).toList()
           : null,
+      kindMetadata: bookMetadata,
     );
   }
 
