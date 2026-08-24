@@ -406,11 +406,7 @@ class LibraryKindToolbarModule {
   final List<LibraryToolbarActionDescriptor> actions;
 }
 
-abstract class LibraryKindProviderMapper {
-  const LibraryKindProviderMapper();
-
-  LibraryMetadataItem metadataItemFromPreview(AdminProviderPreview preview);
-
+abstract interface class LibraryKindProviderMapper {
   LibraryMetadataItem metadataItemFromEnvelope(
       NormalizedProviderEnvelopeV1 envelope);
 
@@ -418,59 +414,6 @@ abstract class LibraryKindProviderMapper {
     required LibraryMetadataItem preview,
     required LibraryMetadataItem edited,
   });
-}
-
-class DefaultLibraryKindProviderMapper extends LibraryKindProviderMapper {
-  const DefaultLibraryKindProviderMapper();
-
-  @override
-  LibraryMetadataItem metadataItemFromEnvelope(
-      NormalizedProviderEnvelopeV1 envelope) {
-    return metadataItemFromPreview(providerPreviewFromEnvelope(envelope));
-  }
-
-  @override
-  LibraryMetadataItem metadataItemFromPreview(AdminProviderPreview preview) {
-    return LibraryMetadataItem(
-      id: '',
-      kind: preview.kind,
-      title: preview.title,
-      synopsis: preview.synopsis,
-      coverImageUrl: preview.coverImageUrl,
-      thumbnailImageUrl: preview.coverImageUrl,
-      releaseDate: preview.releaseDate,
-      barcode: preview.barcode,
-    );
-  }
-
-  @override
-  Map<String, Object?> buildCorrections({
-    required LibraryMetadataItem preview,
-    required LibraryMetadataItem edited,
-  }) {
-    final corrections = <String, Object?>{};
-    if (edited.title != preview.title) corrections['title'] = edited.title;
-    if (edited.synopsis != preview.synopsis) {
-      corrections['synopsis'] = edited.synopsis;
-    }
-    if (edited.releaseDate != preview.releaseDate) {
-      corrections['release_date'] = edited.releaseDate?.toIso8601String();
-    }
-    if (edited.barcode != preview.barcode) {
-      corrections['barcode'] = edited.barcode;
-    }
-    if (edited.coverImageUrl != preview.coverImageUrl) {
-      corrections['cover_image_url'] = edited.coverImageUrl;
-    }
-    if (edited.thumbnailImageUrl != preview.thumbnailImageUrl) {
-      corrections['thumbnail_image_url'] = edited.thumbnailImageUrl;
-    }
-    return corrections;
-  }
-}
-
-class CommonLibraryKindProviderMapper extends DefaultLibraryKindProviderMapper {
-  const CommonLibraryKindProviderMapper();
 }
 
 class LibraryFacetModule {

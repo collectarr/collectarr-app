@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 final boardGameKindModule =
@@ -55,6 +56,7 @@ final boardGameKindModule =
     boardGamesLibraryConfig,
     createDraft: createBoardGameEditDraft,
   ),
+  providerMapper: const BoardGameLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),

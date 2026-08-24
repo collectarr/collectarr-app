@@ -1344,9 +1344,12 @@ class LibraryAddSessionController
             previewState: previewController,
             providerActionService: providerActionService,
             providerOrchestrationService: providerOrchestrationService,
-            providerMapper: (libraryKindProviderMapperForType(type) ??
-                    const DefaultLibraryKindProviderMapper())
-                .buildCorrections,
+            providerMapper:
+                (libraryKindProviderMapperForType(type))?.buildCorrections ??
+                    ((
+                            {required LibraryMetadataItem edited,
+                            required LibraryMetadataItem preview}) =>
+                        const <String, Object?>{}),
             visibleProviderResults: () => state.visibleProviderResults(type),
             showEditDialog: (ctx, req) =>
                 showLibraryEditDialog(context: ctx, request: req),

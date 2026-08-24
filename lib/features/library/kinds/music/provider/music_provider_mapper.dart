@@ -1,38 +1,71 @@
-import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 
-class MusicLibraryKindProviderMapper extends CommonLibraryKindProviderMapper {
+class MusicLibraryKindProviderMapper implements LibraryKindProviderMapper {
   const MusicLibraryKindProviderMapper();
 
   @override
-  LibraryMetadataItem metadataItemFromPreview(AdminProviderPreview preview) {
-    return super.metadataItemFromPreview(preview).copyWith(
-          itemNumber: preview.itemNumber,
-          publisher: preview.publisher,
-          editionTitle: preview.editionTitle,
-          physicalFormat: preview.physicalFormat,
-          physicalFormatLabel: preview.physicalFormatLabel,
-          releaseYear:
-              preview.releaseDate?.year ?? preview.series?.volumeStartYear,
-          series: preview.series,
-          publishing: preview.publishing,
-          music: preview.music,
-          country: preview.country,
-          language: preview.language,
-          ageRating: preview.ageRating,
-          audienceRating: preview.audienceRating,
-          creators: [
-            for (final creator in preview.creators)
-              {
-                'name': creator.name,
-                if (creator.role != null) 'role': creator.role,
-                if (creator.imageUrl != null) 'image_url': creator.imageUrl,
-              },
-          ],
-          genres: preview.genres,
-        );
+  LibraryMetadataItem metadataItemFromEnvelope(
+      NormalizedProviderEnvelopeV1 envelope) {
+    final norm = envelope.normalized;
+    final title = norm['title']?.toString() ?? 'Unknown';
+    final itemNumber = norm['item_number']?.toString();
+    final synopsis = norm['synopsis']?.toString();
+    final publisher = norm['publisher']?.toString();
+    final editionTitle = norm['edition_title']?.toString();
+    final physicalFormat = norm['physical_format']?.toString();
+    final physicalFormatLabel = norm['physical_format_label']?.toString();
+    final coverImageUrl = norm['cover_image_url']?.toString() ??
+        (envelope.images.isNotEmpty ? envelope.images.first.url : null);
+    final country = norm['country']?.toString();
+    final language = norm['language']?.toString();
+    final ageRating = norm['age_rating']?.toString();
+    final audienceRating = norm['audience_rating']?.toString();
+
+    DateTime? releaseDate;
+    if (norm['release_date'] != null) {
+      releaseDate = DateTime.tryParse(norm['release_date'].toString());
+    }
+
+    final creators = <Map<String, dynamic>>[];
+    if (norm['creators'] is List) {
+      for (final c in norm['creators'] as List) {
+        if (c is Map) {
+          creators.add({
+            'name': c['name']?.toString() ?? '',
+            if (c['role'] != null) 'role': c['role']?.toString(),
+            if (c['image_url'] != null) 'image_url': c['image_url']?.toString(),
+          });
+        }
+      }
+    }
+
+    final genres = norm['genres'] is List
+        ? (norm['genres'] as List).map((g) => g.toString()).toList()
+        : null;
+
+    return LibraryMetadataItem(
+      id: '',
+      kind: 'music',
+      title: title,
+      itemNumber: itemNumber,
+      synopsis: synopsis,
+      publisher: publisher,
+      editionTitle: editionTitle,
+      physicalFormat: physicalFormat,
+      physicalFormatLabel: physicalFormatLabel,
+      coverImageUrl: coverImageUrl,
+      thumbnailImageUrl: coverImageUrl,
+      releaseDate: releaseDate,
+      releaseYear: releaseDate?.year,
+      country: country,
+      language: language,
+      ageRating: ageRating,
+      audienceRating: audienceRating,
+      creators: creators,
+      genres: genres,
+    );
   }
 
   @override
@@ -40,10 +73,11 @@ class MusicLibraryKindProviderMapper extends CommonLibraryKindProviderMapper {
     required LibraryMetadataItem preview,
     required LibraryMetadataItem edited,
   }) {
-    final corrections = super.buildCorrections(
-      preview: preview,
-      edited: edited,
-    );
+    final corrections = <String, Object?>{};
+    if (edited.title != preview.title) corrections['title'] = edited.title;
+    if (edited.synopsis != preview.synopsis) {
+      corrections['synopsis'] = edited.synopsis;
+    }
     if (edited.itemNumber != preview.itemNumber) {
       corrections['item_number'] = edited.itemNumber;
     }
@@ -56,35 +90,11 @@ class MusicLibraryKindProviderMapper extends CommonLibraryKindProviderMapper {
     if (edited.physicalFormat != preview.physicalFormat) {
       corrections['physical_format'] = edited.physicalFormat;
     }
-    if (edited.physicalFormatLabel != preview.physicalFormatLabel) {
-      corrections['physical_format_label'] = edited.physicalFormatLabel;
+    if (edited.releaseDate != preview.releaseDate) {
+      corrections['release_date'] = edited.releaseDate?.toIso8601String();
     }
-    if (!sameTracks(edited.music?.tracks, preview.music?.tracks)) {
-      corrections['tracks'] = edited.music?.tracks;
-    }
-    if (edited.music?.catalogNumber != preview.music?.catalogNumber) {
-      corrections['catalog_number'] = edited.music?.catalogNumber;
-    }
-    if (edited.music?.releaseStatus != preview.music?.releaseStatus) {
-      corrections['release_status'] = edited.music?.releaseStatus;
-    }
-    if (edited.country != preview.country) {
-      corrections['country'] = edited.country;
-    }
-    if (edited.language != preview.language) {
-      corrections['language'] = edited.language;
-    }
-    if (edited.ageRating != preview.ageRating) {
-      corrections['age_rating'] = edited.ageRating;
-    }
-    if (edited.audienceRating != preview.audienceRating) {
-      corrections['audience_rating'] = edited.audienceRating;
-    }
-    if (!sameCreators(edited.creators, preview.creators)) {
-      corrections['creators'] = edited.creators;
-    }
-    if (!sameStringList(edited.genres, preview.genres)) {
-      corrections['genres'] = edited.genres;
+    if (edited.coverImageUrl != preview.coverImageUrl) {
+      corrections['cover_image_url'] = edited.coverImageUrl;
     }
     return corrections;
   }

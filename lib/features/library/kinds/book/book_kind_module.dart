@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.
 import 'package:collectarr_app/features/library/kinds/book/book_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -60,6 +61,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     booksLibraryConfig,
     createDraft: createBookEditDraft,
   ),
+  providerMapper: const BookLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),
