@@ -248,8 +248,7 @@ List<String> libraryReferencePlatforms(LibraryProjectionRuntime item) {
   if (variantPlatform != null && variantPlatform.isNotEmpty) {
     values.add(variantPlatform);
   }
-  final rawPlatforms =
-      item.source.catalogItem?.toCatalogItem().game?.platforms;
+  final rawPlatforms = item.source.catalogItem?.toCatalogItem().game?.platforms;
   for (final platform in rawPlatforms ?? const <String>[]) {
     final normalized = platform.trim();
     if (normalized.isEmpty || values.contains(normalized)) {

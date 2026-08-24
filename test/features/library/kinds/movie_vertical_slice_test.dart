@@ -206,7 +206,8 @@ void main() {
       expect(catalog.title, 'Inception');
       expect(catalog.director, 'Christopher Nolan');
       expect(catalog.runtimeMinutes, 148);
-      expect(catalog.displayCoverUrl, 'https://example.com/inception_thumb.jpg');
+      expect(
+          catalog.displayCoverUrl, 'https://example.com/inception_thumb.jpg');
 
       final envelope = catalog.toEnvelope();
       expect(envelope.kind, CatalogMediaKind.movie);

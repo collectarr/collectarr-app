@@ -324,8 +324,9 @@ class _MusicInspectorTracks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tracks = inspector.item.source.catalogItem?.toCatalogItem().music?.tracks ??
-        const <CatalogTrack>[];
+    final tracks =
+        inspector.item.source.catalogItem?.toCatalogItem().music?.tracks ??
+            const <CatalogTrack>[];
     final groups = _groupTracksByDisc(tracks);
     if (groups.isEmpty) {
       return const SizedBox.shrink();

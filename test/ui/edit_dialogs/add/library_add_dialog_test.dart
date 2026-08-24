@@ -170,8 +170,7 @@ void main() {
     expect(cat.creators, isNotEmpty);
     expect(cat.creators!.first['name'], 'J.R.R. Tolkien');
     expect(cat.creators!.first['role'], 'Author');
-    expect(
-        cat.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
+    expect(cat.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
     expect(cat.genres, contains('Fantasy'));
   });
 

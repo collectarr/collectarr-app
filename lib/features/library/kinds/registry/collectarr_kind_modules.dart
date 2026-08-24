@@ -34,7 +34,7 @@ bool _initDecoders() {
       CatalogMediaKind.game => GameCatalogMetadata.fromJson(json),
       CatalogMediaKind.book => BookCatalogMetadata.fromJson(json),
       CatalogMediaKind.boardgame => BoardGameMetadata.fromJson(json),
-      _ => throw UnsupportedError('Unsupported media kind: $mediaKind'),
+      _ => EmptyKindMetadata(mediaKind),
     };
   });
   return true;
@@ -70,4 +70,3 @@ LibraryKindRuntime libraryKindFor(CatalogMediaKind kind) {
   }
   throw ArgumentError('No LibraryKindRuntime registered for kind "$kind"');
 }
-

@@ -38,4 +38,3 @@ class EmptyKindMetadata implements LibraryKindMetadataRuntime {
   @override
   Map<String, dynamic> toSyncPayload() => const {};
 }
-

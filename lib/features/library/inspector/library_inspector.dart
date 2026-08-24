@@ -536,9 +536,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   widget.type.grades.isNotEmpty) &&
               resolveOwnedDigitalFlag(
                     activeOwnedItem,
-                    selected.source.catalogItem
-                            ?.toCatalogItem()
-                            .editions ??
+                    selected.source.catalogItem?.toCatalogItem().editions ??
                         const [],
                     fallbackLabel: selected.dto.variant,
                   ) !=

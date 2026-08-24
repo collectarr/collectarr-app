@@ -144,15 +144,16 @@ final class ComicCatalog {
       mediaKind: CatalogMediaKind.comic,
     );
 
-    final rawLinks = (json['trailer_urls'] as List<dynamic>?)
-            ?.whereType<Map<String, dynamic>>()
-            .map(ComicLink.fromJson)
-            .toList(growable: false) ??
-        (json['external_links'] as List<dynamic>?)
-            ?.whereType<Map<String, dynamic>>()
-            .map(ComicLink.fromJson)
-            .toList(growable: false) ??
-        const <ComicLink>[];
+    final rawLinks = <ComicLink>[
+      ...((json['trailer_urls'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(ComicLink.fromJson) ??
+          const <ComicLink>[]),
+      ...((json['external_links'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(ComicLink.fromJson) ??
+          const <ComicLink>[]),
+    ];
 
     final seriesMap = json['series'] as Map<String, dynamic>?;
     final series = seriesMap != null
@@ -176,7 +177,8 @@ final class ComicCatalog {
 
     final rawReleases = (json['editions'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
-            .map((e) => ComicRelease.fromEditionDto(CatalogEditionDto.fromJson(e)))
+            .map((e) =>
+                ComicRelease.fromEditionDto(CatalogEditionDto.fromJson(e)))
             .toList(growable: false) ??
         const <ComicRelease>[];
 
@@ -204,15 +206,19 @@ final class ComicCatalog {
       barcode: json['barcode'] as String?,
       variant: json['variant'] as String?,
       variantDescription: json['variant_description'] as String?,
-      genres: (json['genres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      genres: (json['genres'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
       creators: rawCreators,
-      characters:
-          (json['characters'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-              const [],
-      storyArcs:
-          (json['story_arcs'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-              const [],
+      characters: (json['characters'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      storyArcs: (json['story_arcs'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
       keyEvents: (json['key_events'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
               .map(ComicKeyEvent.fromJson)
@@ -260,9 +266,20 @@ final class ComicCatalog {
           'key_events': keyEvents.map((e) => e.toJson()).toList(),
         if (isKeyComic) 'is_key_comic': true,
         if (keyReason != null) 'key_reason': keyReason,
-        if (publishing != null) 'publishing': publishing!.toJson(),
-        if (links.isNotEmpty)
-          'trailer_urls': links.map((e) => e.toJson()).toList(),
+        if (links.isNotEmpty) ...{
+          if (links.any((l) => l.isTrailerLink))
+            'trailer_urls': links
+                .where((l) => l.isTrailerLink)
+                .map((e) => e.toJson())
+                .toList(),
+          if (links.any((l) => l.isExternalLink))
+            'external_links': links
+                .where((l) => l.isExternalLink)
+                .map((e) => e.toJson())
+                .toList(),
+        },
+        if (releases.isNotEmpty)
+          'editions': releases.map((e) => e.toEditionDto().toJson()).toList(),
       };
 
   CatalogItemEnvelopeDto toEnvelope() {

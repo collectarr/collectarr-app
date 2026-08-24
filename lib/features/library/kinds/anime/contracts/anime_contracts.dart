@@ -117,9 +117,13 @@ final class AnimeCatalog {
           const [],
       sourceMaterial:
           AnimeSource.fromString(json['source_material'] as String?),
-      genres: (json['genres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      genres: (json['genres'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
-      themes: (json['themes'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      themes: (json['themes'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
       country: (json['country'] as String?) ?? 'JP',
       language: (json['language'] as String?) ?? 'ja',

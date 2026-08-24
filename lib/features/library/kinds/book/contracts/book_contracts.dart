@@ -91,33 +91,46 @@ final class BookCatalog {
       subtitle: json['subtitle'] as String?,
       sortTitle: json['sort_title'] as String?,
       synopsis: (json['synopsis'] ?? json['description']) as String?,
-      authors: (json['authors'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      authors: (json['authors'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
-      genres: (json['genres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      genres: (json['genres'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
-      subjects: (json['subjects'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      subjects: (json['subjects'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
-      editors: (json['editors'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      editors: (json['editors'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
-      translators:
-          (json['translators'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-              const [],
-      illustrators:
-          (json['illustrators'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-              const [],
-      photographers:
-          (json['photographers'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-              const [],
-      coverArtists:
-          (json['cover_artists'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-              const [],
+      translators: (json['translators'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      illustrators: (json['illustrators'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      photographers: (json['photographers'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      coverArtists: (json['cover_artists'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
       forewordAuthors: (json['foreword_authors'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      ghostwriters:
-          (json['ghostwriters'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
-              const [],
+      ghostwriters: (json['ghostwriters'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
       originalTitle: json['original_title'] as String?,
       originalSubtitle: json['original_subtitle'] as String?,
       originalCountry: json['original_country'] as String?,

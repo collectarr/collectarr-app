@@ -1341,23 +1341,20 @@ List<_PreviewDiscoverySectionData> _discoverySections({
                   : '${credit.name} (${credit.role})')
               .toList(growable: false) ??
           const <String>[]);
-  final characters = (payload?['characters'] as List?)
-          ?.map((c) => c.toString())
-          .toList() ??
-      preview?.characters ??
-      candidate?.characterPreview ??
-      const <String>[];
-  final storyArcs = (payload?['story_arcs'] as List?)
-          ?.map((s) => s.toString())
-          .toList() ??
-      preview?.storyArcs ??
-      candidate?.storyArcPreview ??
-      const <String>[];
-  final genres = (payload?['genres'] as List?)
-          ?.map((g) => g.toString())
-          .toList() ??
-      preview?.genres ??
-      const <String>[];
+  final characters =
+      (payload?['characters'] as List?)?.map((c) => c.toString()).toList() ??
+          preview?.characters ??
+          candidate?.characterPreview ??
+          const <String>[];
+  final storyArcs =
+      (payload?['story_arcs'] as List?)?.map((s) => s.toString()).toList() ??
+          preview?.storyArcs ??
+          candidate?.storyArcPreview ??
+          const <String>[];
+  final genres =
+      (payload?['genres'] as List?)?.map((g) => g.toString()).toList() ??
+          preview?.genres ??
+          const <String>[];
 
   return [
     if (creators.isNotEmpty) _PreviewDiscoverySectionData('Creators', creators),

@@ -546,6 +546,8 @@ class LibraryEditDraft {
           parseDate(metadata.coverDateController.text)?.toIso8601String(),
       'barcode': emptyToNull(metadata.barcodeController.text),
       'variant': emptyToNull(metadata.variantController.text),
+      'country': emptyToNull(metadata.countryController.text),
+      'language': emptyToNull(metadata.languageController.text),
       if (_buildUpdatedSeries() case final s?) ...{
         'series_id': s.seriesId,
         'series_title': s.seriesTitle,

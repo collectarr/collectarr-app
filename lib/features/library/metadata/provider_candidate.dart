@@ -93,6 +93,7 @@ class ProviderCandidate {
           'kind': kind,
           'title': title,
           'item_number': issueNumber,
+          'issue_number': issueNumber,
           'synopsis': summary,
           'cover_image_url': imageUrl,
           'variant': variantName,

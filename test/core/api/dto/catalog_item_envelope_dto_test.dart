@@ -15,7 +15,9 @@ void main() {
     expect(envelope.kind, CatalogMediaKind.book);
     expect(envelope.common.title, 'A book');
     expect(envelope.common.releaseYear, 2024);
-    expect(envelope.kindPayload, {'authors': ['Author']});
+    expect(envelope.kindPayload, {
+      'authors': ['Author']
+    });
   });
 
   test('round trips the nested envelope shape', () {

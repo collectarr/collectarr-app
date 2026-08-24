@@ -95,9 +95,13 @@ final class MangaCatalog {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      authors: (json['authors'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      authors: (json['authors'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
-      artists: (json['artists'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      artists: (json['artists'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
       demographic: MangaDemographic.fromString(json['demographic'] as String?),
       serializationPlatform: json['serialization_platform'] as String?,
@@ -119,9 +123,13 @@ final class MangaCatalog {
           MangaEditionFormat.fromString(json['edition_format'] as String?),
       language: (json['language'] as String?) ?? 'ja',
       country: (json['country'] as String?) ?? 'JP',
-      genres: (json['genres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      genres: (json['genres'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
-      themes: (json['themes'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      themes: (json['themes'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
       translator: json['translator'] as String?,
       readingDirection: MangaReadingDirection.fromString(
@@ -190,8 +198,7 @@ final class MangaCatalog {
         coverImageUrl: coverImageUrl,
         thumbnailImageUrl: thumbnailImageUrl,
         releaseDate: localizedReleaseDate ?? originalPublicationDate,
-        releaseYear:
-            (localizedReleaseDate ?? originalPublicationDate)?.year,
+        releaseYear: (localizedReleaseDate ?? originalPublicationDate)?.year,
       ),
       kindPayload: toJson(),
     );

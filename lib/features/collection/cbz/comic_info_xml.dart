@@ -39,8 +39,7 @@ class ComicInfoXml {
       _optionalElement(builder, 'Summary', item.synopsis);
       if (item.releaseDate != null) {
         _optionalElement(builder, 'Year', item.releaseDate!.year.toString());
-        _optionalElement(
-            builder, 'Month', item.releaseDate!.month.toString());
+        _optionalElement(builder, 'Month', item.releaseDate!.month.toString());
         _optionalElement(builder, 'Day', item.releaseDate!.day.toString());
       } else if (item.releaseYear != null) {
         _optionalElement(builder, 'Year', item.releaseYear.toString());

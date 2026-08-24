@@ -784,8 +784,7 @@ void main() {
     expect(selection?.item.titleExtension, isNull);
     expect(selection?.item.series?.seriesTitle, 'Over the Garden Wall');
     expect(cat?.crossover, 'Adventure Time');
-    expect(cat?.storyArcs,
-        const ['Unknowning', 'The Tome of the Unknown']);
+    expect(cat?.storyArcs, const ['Unknowning', 'The Tome of the Unknown']);
     expect(selection?.item.physicalFormatLabel, 'Trade Paperback');
     expect(cat?.coverDate?.year, 2016);
     expect(cat?.coverDate?.month, 10);

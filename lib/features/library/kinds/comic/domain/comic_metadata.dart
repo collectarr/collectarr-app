@@ -1,4 +1,7 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
@@ -82,6 +85,8 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
     this.pageCount,
     this.country = 'US',
     this.language = 'en',
+    this.ageRating,
+    this.crossover,
     this.genres = const [],
     this.synopsis,
     this.writers = const [],
@@ -92,6 +97,8 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
     this.editors = const [],
     this.coverArtists = const [],
     this.characters = const [],
+    this.characterDetails = const [],
+    this.creators = const [],
     this.storyArcs = const [],
     this.keyEvents = const [],
     this.isKeyComic = false,
@@ -99,6 +106,10 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
     this.variant,
     this.variantDescription,
     this.barcode,
+    this.series,
+    this.publishing,
+    this.links = const [],
+    this.releases = const [],
   });
 
   @override
@@ -117,6 +128,8 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
   final int? pageCount;
   final String country;
   final String language;
+  final String? ageRating;
+  final String? crossover;
   final List<String> genres;
   final String? synopsis;
   final List<String> writers;
@@ -127,6 +140,8 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
   final List<String> editors;
   final List<String> coverArtists;
   final List<String> characters;
+  final List<Map<String, dynamic>> characterDetails;
+  final List<Map<String, dynamic>> creators;
   final List<String> storyArcs;
   final List<ComicKeyEvent> keyEvents;
   final bool isKeyComic;
@@ -134,11 +149,18 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? variant;
   final String? variantDescription;
   final String? barcode;
+  final CatalogSeriesDetailsDto? series;
+  final CatalogPublishingDetailsDto? publishing;
+  final List<ComicLink> links;
+  final List<ComicRelease> releases;
 
   Map<String, dynamic> toJson() => {
         'title': title,
         if (seriesTitle != null) 'series_title': seriesTitle,
-        if (issueNumber != null) 'issue_number': issueNumber,
+        if (issueNumber != null) ...{
+          'issue_number': issueNumber,
+          'item_number': issueNumber,
+        },
         if (publisher != null) 'publisher': publisher,
         if (imprint != null) 'imprint': imprint,
         if (releaseDate != null) 'release_date': releaseDate!.toIso8601String(),
@@ -146,6 +168,8 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
         if (pageCount != null) 'page_count': pageCount,
         'country': country,
         'language': language,
+        if (ageRating != null) 'age_rating': ageRating,
+        if (crossover != null) 'crossover': crossover,
         if (genres.isNotEmpty) 'genres': genres,
         if (synopsis != null) 'synopsis': synopsis,
         if (writers.isNotEmpty) 'writers': writers,
@@ -156,6 +180,8 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
         if (editors.isNotEmpty) 'editors': editors,
         if (coverArtists.isNotEmpty) 'cover_artists': coverArtists,
         if (characters.isNotEmpty) 'characters': characters,
+        if (characterDetails.isNotEmpty) 'character_details': characterDetails,
+        if (creators.isNotEmpty) 'creators': creators,
         if (storyArcs.isNotEmpty) 'story_arcs': storyArcs,
         if (keyEvents.isNotEmpty)
           'key_events': keyEvents.map((e) => e.toJson()).toList(),
@@ -165,24 +191,80 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
         if (variantDescription != null)
           'variant_description': variantDescription,
         if (barcode != null) 'barcode': barcode,
+        if (series != null) 'series': series!.toJson(),
+        if (publishing != null) 'publishing': publishing!.toJson(),
+        if (links.isNotEmpty) ...{
+          if (links.any((l) => l.isTrailerLink))
+            'trailer_urls': links
+                .where((l) => l.isTrailerLink)
+                .map((e) => e.toJson())
+                .toList(),
+          if (links.any((l) => l.isExternalLink))
+            'external_links': links
+                .where((l) => l.isExternalLink)
+                .map((e) => e.toJson())
+                .toList(),
+        },
+        if (releases.isNotEmpty)
+          'editions': releases.map((e) => e.toEditionDto().toJson()).toList(),
       };
 
   factory ComicCatalogMetadata.fromJson(Map<String, dynamic> json) {
+    final rawLinks = <ComicLink>[
+      ...((json['trailer_urls'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(ComicLink.fromJson) ??
+          const <ComicLink>[]),
+      ...((json['external_links'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(ComicLink.fromJson) ??
+          const <ComicLink>[]),
+    ];
+
+    final seriesMap = json['series'] as Map<String, dynamic>?;
+    final series = seriesMap != null
+        ? CatalogSeriesDetailsDto.fromJson(seriesMap)
+        : CatalogSeriesDetailsDto.fromJson(json);
+
+    final pubMap = json['publishing'] as Map<String, dynamic>?;
+    final publishing = pubMap != null
+        ? CatalogPublishingDetailsDto.fromJson(pubMap)
+        : CatalogPublishingDetailsDto.fromJson(json);
+
+    final rawReleases = (json['editions'] as List<dynamic>?)
+            ?.whereType<Map<String, dynamic>>()
+            .map((e) =>
+                ComicRelease.fromEditionDto(CatalogEditionDto.fromJson(e)))
+            .toList(growable: false) ??
+        const <ComicRelease>[];
+
+    final rawCreators = (json['creators'] as List<dynamic>?)
+            ?.whereType<Map<String, dynamic>>()
+            .toList(growable: true) ??
+        <Map<String, dynamic>>[];
+
+    final rawCharDetails = (json['character_details'] as List<dynamic>?)
+            ?.whereType<Map<String, dynamic>>()
+            .toList(growable: false) ??
+        const <Map<String, dynamic>>[];
+
     return ComicCatalogMetadata(
       title: (json['title'] as String?) ?? '',
-      seriesTitle: json['series_title'] as String?,
+      seriesTitle: (json['series_title'] ?? series.seriesTitle) as String?,
       issueNumber: (json['issue_number'] ?? json['item_number']) as String?,
-      publisher: json['publisher'] as String?,
-      imprint: json['imprint'] as String?,
+      publisher: (json['publisher'] ?? publishing.originalPublisher) as String?,
+      imprint: (json['imprint'] ?? publishing.imprint) as String?,
       releaseDate: json['release_date'] != null
           ? DateTime.tryParse(json['release_date'] as String)
           : null,
       coverDate: json['cover_date'] != null
           ? DateTime.tryParse(json['cover_date'] as String)
           : null,
-      pageCount: json['page_count'] as int?,
+      pageCount: (json['page_count'] ?? publishing.pageCount) as int?,
       country: (json['country'] as String?) ?? 'US',
       language: (json['language'] as String?) ?? 'en',
+      ageRating: json['age_rating'] as String?,
+      crossover: json['crossover'] as String?,
       genres: (json['genres'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
@@ -220,12 +302,15 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
+      characterDetails: rawCharDetails,
+      creators: rawCreators,
       storyArcs: (json['story_arcs'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
       keyEvents: (json['key_events'] as List<dynamic>?)
-              ?.map((e) => ComicKeyEvent.fromJson(e as Map<String, dynamic>))
+              ?.whereType<Map<String, dynamic>>()
+              .map(ComicKeyEvent.fromJson)
               .toList() ??
           const [],
       isKeyComic: json['is_key_comic'] as bool? ?? false,
@@ -233,6 +318,10 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
       variant: json['variant'] as String?,
       variantDescription: json['variant_description'] as String?,
       barcode: json['barcode'] as String?,
+      series: series.hasData ? series : null,
+      publishing: publishing.hasData ? publishing : null,
+      links: rawLinks,
+      releases: rawReleases,
     );
   }
 }

@@ -135,4 +135,3 @@ class CatalogPublishingDetailsDto {
 }
 
 typedef CatalogPublishingDetails = CatalogPublishingDetailsDto;
-

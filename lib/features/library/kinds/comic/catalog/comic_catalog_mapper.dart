@@ -30,6 +30,7 @@ class ComicCatalogMapper {
       currency: pub?.currency,
       publisher: dto.publisher,
       imprint: pub?.imprint,
+      subtitle: pub?.subtitle,
     );
 
     final releases = dto.editions.map((edition) {

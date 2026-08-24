@@ -151,8 +151,6 @@ List<Map<String, dynamic>> normalizeTracks(List<CatalogTrack>? values) {
   return normalized;
 }
 
-
-
 LibraryMetadataItem metadataItemFromIngestResult(AdminMetadataItem item) {
   final primaryEdition = item.primaryEdition;
   final primaryVariant = item.primaryVariant;

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -83,7 +84,7 @@ class ShelfState {
     required List<WishlistItem> wishlistItems,
     List<TrackingEntry> trackingEntries = const [],
     List<WatchSession> watchSessions = const [],
-    required Map<String, LibraryMetadataItem?> catalogItems,
+    required Map<String, dynamic> catalogItems,
     List<StorageLocation> locations = const [],
     Map<String, List<ItemImage>> itemImagesByOwnedItem =
         const <String, List<ItemImage>>{},
@@ -130,7 +131,14 @@ class ShelfState {
       for (final id in ids)
         ShelfEntry(
           itemId: id,
-          catalogItem: catalogItems[id],
+          catalogItem: () {
+            final item = catalogItems[id];
+            if (item is LibraryMetadataItem) return item;
+            if (item is CatalogItemDto) {
+              return LibraryMetadataItem.fromCatalogItem(item);
+            }
+            return null;
+          }(),
           ownedItem: ownedByItemId[id],
           trackingEntry: trackingByItemId[id],
           wishlistItem: wishlistByItemId[id],

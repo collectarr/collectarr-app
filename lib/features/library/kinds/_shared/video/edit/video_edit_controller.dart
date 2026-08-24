@@ -31,7 +31,9 @@ class VideoEditController {
     Map<String, int>? initialEpisodeRatings,
   })  : runtimeController = TextEditingController(
           text: initialRuntime ??
-              (item.kindMetadata.toSyncPayload()['runtime_minutes']?.toString() ??
+              (item.kindMetadata
+                      .toSyncPayload()['runtime_minutes']
+                      ?.toString() ??
                   ''),
         ),
         seasonNumberController = TextEditingController(
@@ -49,8 +51,9 @@ class VideoEditController {
             TextEditingController(text: item.audienceRating ?? ''),
         genresEditController = TextEditingController(
           text: ((item.kindMetadata.toSyncPayload()['genres'] as List?)
-                  ?.map((e) => e.toString()) ??
-              const <String>[]).join(', '),
+                      ?.map((e) => e.toString()) ??
+                  const <String>[])
+              .join(', '),
         ),
         episodeRatings =
             Map<String, int>.from(initialEpisodeRatings ?? const {});
@@ -104,7 +107,8 @@ class VideoEditController {
     if (!isVideoKind) {
       return;
     }
-    final creators = item.toCatalogItem().creators ?? const <Map<String, dynamic>>[];
+    final creators =
+        item.toCatalogItem().creators ?? const <Map<String, dynamic>>[];
     castCredits.addAll(
       splitVideoCredits(creators, kind: VideoCreditKind.cast),
     );
@@ -349,8 +353,9 @@ class VideoEditController {
 
   List<TvReleaseMedia> buildFallbackTvReleaseMedia(TvSeries series) {
     final episodeCount = flattenTvEpisodes(series).length;
-    final discCount =
-        (item.toCatalogItem().video?.nrDiscs ?? episodeCount).clamp(1, 20).toInt();
+    final discCount = (item.toCatalogItem().video?.nrDiscs ?? episodeCount)
+        .clamp(1, 20)
+        .toInt();
     final episodes = flattenTvEpisodes(series);
     if (discCount == 1) {
       return [

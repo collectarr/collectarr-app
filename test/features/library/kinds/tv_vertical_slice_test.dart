@@ -177,14 +177,14 @@ void main() {
       expect(meta.episodeCount, 62);
     });
 
-    test('TvCatalog and TvEntry round-trip and preserve all kind fields',
-        () {
+    test('TvCatalog and TvEntry round-trip and preserve all kind fields', () {
       final catalog = TvCatalog.fromJson({
         'id': 'tv_breaking_bad',
         'kind': 'tv',
         'title': 'Breaking Bad',
         'original_title': 'Breaking Bad',
-        'synopsis': 'A high school chemistry teacher turns to meth manufacturing.',
+        'synopsis':
+            'A high school chemistry teacher turns to meth manufacturing.',
         'first_air_date': '2008-01-20T00:00:00.000Z',
         'last_air_date': '2013-09-29T00:00:00.000Z',
         'status': 'Ended',

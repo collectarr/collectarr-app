@@ -84,7 +84,9 @@ final class MovieCatalog {
       originalTitle: json['original_title'] as String?,
       sortTitle: json['sort_title'] as String?,
       synopsis: (json['synopsis'] ?? json['description']) as String?,
-      genres: (json['genres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      genres: (json['genres'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
       runtimeMinutes: json['runtime_minutes'] as int?,
       audienceRating: json['audience_rating'] as String?,

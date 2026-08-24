@@ -151,7 +151,8 @@ List<EditableComicCharacter> initComicCharacters(LibraryMetadataItem item) {
   final characterDetails = payload['character_details'];
   if (characterDetails is List && characterDetails.isNotEmpty) {
     return [
-      for (final character in characterDetails.whereType<Map<String, dynamic>>())
+      for (final character
+          in characterDetails.whereType<Map<String, dynamic>>())
         EditableComicCharacter.fromMetadata(character),
     ];
   }
@@ -190,13 +191,14 @@ LibraryEditSelection applyComicSelectionEdits(
   final trailerLinks = selection.item.trailerUrls
       .where((link) => link.isTrailerLink)
       .toList(growable: true);
+  final externalLinks = <TrailerLink>[];
   for (final link in links) {
     final title = link['title']?.text.trim() ?? '';
     final url = link['url']?.text.trim() ?? '';
     if (url.isEmpty) {
       continue;
     }
-    trailerLinks.add(
+    externalLinks.add(
       TrailerLink(
         url: url,
         title: emptyToNull(title),
@@ -213,8 +215,8 @@ LibraryEditSelection applyComicSelectionEdits(
     if (mappedCreators.isNotEmpty) 'creators': mappedCreators,
     if (characterDetails.isNotEmpty) 'character_details': characterDetails,
     if (characterNames.isNotEmpty) 'characters': characterNames,
-    if (trailerLinks.isNotEmpty)
-      'external_links': trailerLinks.map((l) => l.toJson()).toList(),
+    'trailer_urls': trailerLinks.map((l) => l.toJson()).toList(),
+    'external_links': externalLinks.map((l) => l.toJson()).toList(),
   };
   final updatedItem = LibraryMetadataItem(
     identity: selection.item.identity,

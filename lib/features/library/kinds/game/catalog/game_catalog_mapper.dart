@@ -18,7 +18,9 @@ class GameCatalogMapper {
       releaseDate: item.releaseDate,
       platforms: (payload['platforms'] as List?)?.cast<String>() ??
           (meta?.platform != null ? [meta!.platform!] : const []),
-      genres: meta?.genres ?? (payload['genres'] as List?)?.cast<String>() ?? const [],
+      genres: meta?.genres ??
+          (payload['genres'] as List?)?.cast<String>() ??
+          const [],
     );
 
     final releases = catalogItem.editions.map((edition) {

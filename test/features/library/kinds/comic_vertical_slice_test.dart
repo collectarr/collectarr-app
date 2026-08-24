@@ -310,5 +310,58 @@ void main() {
       expect(envelope.common.title, 'Detective Comics #27');
       expect(envelope.kindPayload['issue_number'], '27');
     });
+
+    test('Comic edit draft initializes and saves without generic bridge', () {
+      final comic = ComicCatalog(
+        identity: const LibraryItemIdentity(
+          id: 'comic-edit-1',
+          mediaKind: CatalogMediaKind.comic,
+        ),
+        title: 'Saga #1',
+        issueNumber: '1',
+        publisher: 'Image Comics',
+        country: 'US',
+        language: 'en',
+        ageRating: 'Mature',
+        crossover: 'None',
+        genres: const ['Sci-Fi', 'Fantasy'],
+        creators: const [
+          {'name': 'Brian K. Vaughan', 'role': 'writer'},
+          {'name': 'Fiona Staples', 'role': 'artist'},
+        ],
+        characters: const ['Alana', 'Marko'],
+        storyArcs: const ['Volume 1'],
+        links: const [
+          ComicLink(
+            url: 'https://example.com/saga-1',
+            title: 'Image Page',
+            kind: 'external',
+          ),
+        ],
+      );
+
+      final metadata = ComicCatalogMetadata.fromJson(comic.toJson());
+      final item = LibraryMetadataItem(
+        identity: comic.identity,
+        common: LibraryCommonMetadata(
+          title: comic.title,
+          releaseYear: 2012,
+        ),
+        kindMetadata: metadata,
+      );
+
+      expect(item.itemNumber, '1');
+      expect(item.publisher, 'Image Comics');
+      expect(item.country, 'US');
+      expect(item.language, 'en');
+      expect(item.ageRating, 'Mature');
+      expect(item.trailerUrls.first.url, 'https://example.com/saga-1');
+
+      final roundTripJson = item.toSyncPayload();
+      expect(roundTripJson['issue_number'], '1');
+      expect(roundTripJson['country'], 'US');
+      expect(roundTripJson['language'], 'en');
+      expect(roundTripJson['age_rating'], 'Mature');
+    });
   });
 }

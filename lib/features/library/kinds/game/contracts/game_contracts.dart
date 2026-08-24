@@ -84,7 +84,9 @@ final class GameCatalog {
           const [],
       franchise: json['franchise'] as String?,
       series: json['series'] as String?,
-      genres: (json['genres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      genres: (json['genres'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
       ageRating: json['age_rating'] as String?,
       languages: (json['languages'] as List<dynamic>?)

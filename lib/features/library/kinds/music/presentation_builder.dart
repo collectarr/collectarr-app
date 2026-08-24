@@ -819,8 +819,8 @@ String? _musicLabelCatalogLine({
   if (format != null && format.trim().isNotEmpty) {
     parts.add(format.trim());
   }
-  final catalogNumber =
-      item?.toCatalogItem().music?.catalogNumber ?? preview?.music?.catalogNumber;
+  final catalogNumber = item?.toCatalogItem().music?.catalogNumber ??
+      preview?.music?.catalogNumber;
   if (catalogNumber != null && catalogNumber.trim().isNotEmpty) {
     parts.add(catalogNumber.trim());
   }
@@ -843,7 +843,8 @@ String? _musicSupportingLine({
   if (publisher != null && publisher.trim().isNotEmpty) {
     values.add(publisher.trim());
   }
-  final status = item?.toCatalogItem().music?.releaseStatus ?? preview?.music?.releaseStatus;
+  final status = item?.toCatalogItem().music?.releaseStatus ??
+      preview?.music?.releaseStatus;
   if (status != null && status.trim().isNotEmpty) {
     values.add(status.trim());
   }

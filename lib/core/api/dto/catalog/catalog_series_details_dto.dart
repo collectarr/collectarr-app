@@ -60,4 +60,3 @@ class CatalogSeriesDetailsDto {
 }
 
 typedef CatalogSeriesDetails = CatalogSeriesDetailsDto;
-

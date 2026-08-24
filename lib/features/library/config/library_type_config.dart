@@ -327,7 +327,8 @@ class LibraryTypeConfig {
   final MediaEditFields mediaFields;
   @Deprecated('Use LibraryKindRuntime.edit.releaseFields instead')
   final ReleaseEditFields releaseFields;
-  @Deprecated('Use LibraryKindRuntime.hierarchy.collectionExportTitleLabel instead')
+  @Deprecated(
+      'Use LibraryKindRuntime.hierarchy.collectionExportTitleLabel instead')
   final String collectionExportTitleLabel;
   @Deprecated('Use LibraryKindRuntime.hierarchy.mediaReleaseScopeLabel instead')
   final String mediaReleaseScopeLabel;

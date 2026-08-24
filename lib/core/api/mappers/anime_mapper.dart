@@ -8,4 +8,3 @@ VideoCatalogItem animeSeriesFromDto(CatalogItemDto dto) =>
 
 VideoCatalogItem animeSeriesFromMetadataItem(LibraryMetadataItem item) =>
     VideoCatalogMapper.mapMetadataItemToVideo(item);
-

@@ -103,7 +103,9 @@ final class TvCatalog {
           const [],
       country: (json['country'] as String?) ?? 'US',
       originalLanguage: (json['original_language'] as String?) ?? 'en',
-      genres: (json['genres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      genres: (json['genres'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
       contentRating: (json['content_rating'] ?? json['age_rating']) as String?,
       seasonCount: json['season_count'] as int?,

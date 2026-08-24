@@ -180,14 +180,16 @@ void main() {
       expect(meta.designers, contains('Martin Wallace'));
     });
 
-    test('BoardGameCatalog and BoardGameEntry round-trip and preserve all kind fields',
+    test(
+        'BoardGameCatalog and BoardGameEntry round-trip and preserve all kind fields',
         () {
       final catalog = BoardGameCatalog.fromJson({
         'id': 'bg_brass_birmingham',
         'kind': 'boardgame',
         'title': 'Brass: Birmingham',
         'original_title': 'Brass: Birmingham',
-        'synopsis': 'Economic strategy board game in Industrial Revolution Britain.',
+        'synopsis':
+            'Economic strategy board game in Industrial Revolution Britain.',
         'year_published': 2018,
         'min_players': 2,
         'max_players': 4,

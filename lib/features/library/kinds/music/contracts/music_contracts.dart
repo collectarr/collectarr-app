@@ -76,7 +76,9 @@ final class MusicCatalog {
       recordingDate: parseDate(json['recording_date']),
       studio: json['studio'] as String?,
       isLive: json['is_live'] as bool? ?? false,
-      genres: (json['genres'] as List<dynamic>?)?.map((e) => e.toString()).toList() ??
+      genres: (json['genres'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           const [],
       credits: rawCredits,
       releases: rawReleases,

@@ -1,7 +1,11 @@
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  setUpAll(() {
+    collectarrKindModules;
+  });
   test('parses provider candidate wire format', () {
     final candidate = ProviderCandidate.fromJson(const {
       'provider': 'comicvine',

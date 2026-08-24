@@ -70,8 +70,9 @@ KindEditDraft createGameEditDraft({
 }) {
   final game = ownedItem?.gameDetails;
   final payload = item.kindMetadata.toSyncPayload();
-  final creators = (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-      const <Map<String, dynamic>>[];
+  final creators =
+      (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
+          const <Map<String, dynamic>>[];
   final developerNames = creators
       .where((c) =>
           c['role']?.toString().toLowerCase().contains('developer') ?? false)

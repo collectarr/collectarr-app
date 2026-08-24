@@ -17,25 +17,25 @@ class ComicEditController {
                 ''),
         storyArcsController = TextEditingController(
             text: ((item.kindMetadata.toSyncPayload()['story_arcs'] as List?)
-                    ?.map((e) => e.toString()) ??
-                const <String>[]).join(', ')),
+                        ?.map((e) => e.toString()) ??
+                    const <String>[])
+                .join(', ')),
         imprintController = TextEditingController(
             text: (item.kindMetadata.toSyncPayload()['imprint'] as String?) ??
                 ''),
         pageCountController = TextEditingController(
-            text: item.kindMetadata
-                    .toSyncPayload()['page_count']
-                    ?.toString() ??
+            text: item.kindMetadata.toSyncPayload()['page_count']?.toString() ??
                 ''),
         ageRatingController = TextEditingController(text: item.ageRating ?? ''),
         genresEditController = TextEditingController(
             text: ((item.kindMetadata.toSyncPayload()['genres'] as List?)
-                    ?.map((e) => e.toString()) ??
-                const <String>[]).join(', ')),
+                        ?.map((e) => e.toString()) ??
+                    const <String>[])
+                .join(', ')),
         seriesGroupController = TextEditingController(
-            text:
-                (item.kindMetadata.toSyncPayload()['series_group'] as String?) ??
-                    '');
+            text: (item.kindMetadata.toSyncPayload()['series_group']
+                    as String?) ??
+                '');
 
   final LibraryMetadataItem item;
   final List<ItemImage> itemImages;

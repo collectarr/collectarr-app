@@ -42,8 +42,9 @@ class GameEditController {
     final payload = selection.item.kindMetadata.toSyncPayload();
     final platforms = splitPickListValues(platformsController.text);
 
-    final existing = (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-        const <Map<String, dynamic>>[];
+    final existing =
+        (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
+            const <Map<String, dynamic>>[];
     final preserved = <Map<String, dynamic>>[];
     for (final entry in existing) {
       final role = entry['role']?.toString().toLowerCase() ?? '';

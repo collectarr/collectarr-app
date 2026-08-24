@@ -21,19 +21,17 @@ final class CatalogItemEnvelopeDto {
     final payloadJson = _mapValue(json['payload']);
     final rawKind = (json['kind'] ?? json['media_kind'])?.toString();
     final resolvedKind = catalogMediaKindFromApiValue(rawKind);
-    final id = (json['id'] ?? json['ref_id'] ??
-            _mapValue(json['ref'])?['id'] ??
-            '')
-        .toString();
+    final id =
+        (json['id'] ?? json['ref_id'] ?? _mapValue(json['ref'])?['id'] ?? '')
+            .toString();
     final ref = CatalogEntityRef(
       kind: resolvedKind.apiValue,
       entityType: CatalogEntityType.work,
       id: id,
     );
     final common = CatalogCommonDto.fromJson(commonJson);
-    final payload = payloadJson ??
-        Map<String, dynamic>.from(json)
-          ..removeWhere((key, _) => _commonKeys.contains(key));
+    final payload = payloadJson ?? Map<String, dynamic>.from(json)
+      ..removeWhere((key, _) => _commonKeys.contains(key));
     return CatalogItemEnvelopeDto(
       ref: ref,
       kind: resolvedKind,
