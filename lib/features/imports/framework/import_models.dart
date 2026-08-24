@@ -1,4 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 
 /// Normalized personal-list status across third-party providers (MAL, AniList,
@@ -53,6 +56,55 @@ class ImportRow {
 
   /// The untouched source payload, for debugging and re-mapping.
   final Map<String, dynamic> raw;
+
+  ProviderPersonalEntry toProviderPersonalEntry(ProviderId provider) {
+    return ProviderPersonalEntry(
+      provider: provider,
+      remoteItemId: sourceId,
+      kind: mediaKind != null
+          ? catalogMediaKindFromValue(mediaKind!)
+          : CatalogMediaKind.unknown,
+      title: title,
+      externalIds: externalIds,
+      status: switch (status) {
+        ImportItemStatus.completed => ProviderEntryStatus.completed,
+        ImportItemStatus.inProgress => ProviderEntryStatus.current,
+        ImportItemStatus.planned => ProviderEntryStatus.planning,
+        ImportItemStatus.paused => ProviderEntryStatus.paused,
+        ImportItemStatus.dropped => ProviderEntryStatus.dropped,
+        ImportItemStatus.wishlist => ProviderEntryStatus.planning,
+        ImportItemStatus.unknown => null,
+      },
+      rating: rating?.toDouble(),
+      progress: progress,
+      startedAt: startedAt,
+      completedAt: finishedAt,
+      rawPayload: raw,
+    );
+  }
+
+  factory ImportRow.fromProviderPersonalEntry(ProviderPersonalEntry entry) {
+    return ImportRow(
+      sourceId: entry.remoteItemId,
+      title: entry.title ?? '',
+      mediaKind: entry.kind.name,
+      status: switch (entry.status) {
+        ProviderEntryStatus.completed => ImportItemStatus.completed,
+        ProviderEntryStatus.current => ImportItemStatus.inProgress,
+        ProviderEntryStatus.planning => ImportItemStatus.planned,
+        ProviderEntryStatus.paused => ImportItemStatus.paused,
+        ProviderEntryStatus.dropped => ImportItemStatus.dropped,
+        ProviderEntryStatus.repeating => ImportItemStatus.inProgress,
+        null => ImportItemStatus.unknown,
+      },
+      rating: entry.rating?.round(),
+      progress: entry.progress,
+      startedAt: entry.startedAt,
+      finishedAt: entry.completedAt,
+      externalIds: entry.externalIds,
+      raw: entry.rawPayload,
+    );
+  }
 }
 
 enum ImportMappingState { matched, unmatched, ambiguous }
