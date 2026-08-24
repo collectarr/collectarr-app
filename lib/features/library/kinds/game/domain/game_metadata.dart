@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:flutter/foundation.dart';
 
+typedef GameMetadata = GameCatalogMetadata;
+
 @immutable
 class GameCatalogMetadata {
   const GameCatalogMetadata({

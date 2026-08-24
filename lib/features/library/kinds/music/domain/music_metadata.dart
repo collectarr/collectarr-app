@@ -131,6 +131,8 @@ class MusicReleaseMetadata {
   }
 }
 
+typedef MusicMetadata = MusicCatalogMetadata;
+
 @immutable
 class MusicCatalogMetadata {
   const MusicCatalogMetadata({

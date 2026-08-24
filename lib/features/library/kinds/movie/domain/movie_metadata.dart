@@ -31,6 +31,8 @@ class MoviePersonCredit {
   }
 }
 
+typedef MovieMetadata = MovieCatalogMetadata;
+
 @immutable
 class MovieCatalogMetadata {
   const MovieCatalogMetadata({

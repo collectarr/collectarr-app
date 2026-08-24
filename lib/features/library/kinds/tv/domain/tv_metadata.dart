@@ -185,6 +185,8 @@ class TvPhysicalReleaseMetadata {
   }
 }
 
+typedef TvMetadata = TvSeriesMetadata;
+
 @immutable
 class TvSeriesMetadata {
   const TvSeriesMetadata({

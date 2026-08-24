@@ -138,6 +138,8 @@ class BookEditionMetadata {
   }
 }
 
+typedef BookMetadata = BookCatalogMetadata;
+
 @immutable
 class BookCatalogMetadata {
   const BookCatalogMetadata({
