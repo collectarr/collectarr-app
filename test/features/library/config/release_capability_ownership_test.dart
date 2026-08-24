@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
-import 'package:collectarr_app/features/library/media/video/video_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';

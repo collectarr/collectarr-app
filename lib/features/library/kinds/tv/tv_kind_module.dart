@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/media/video/detail/video_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';

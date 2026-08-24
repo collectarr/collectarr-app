@@ -3,14 +3,14 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
-import 'package:collectarr_app/features/library/inspector/sections/episode_grid_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
-import 'package:collectarr_app/features/library/inspector/sections/session_history_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
-import 'package:collectarr_app/features/library/media/video/video_external_links_section.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
-import 'package:collectarr_app/features/library/media/video/catalog/video_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';

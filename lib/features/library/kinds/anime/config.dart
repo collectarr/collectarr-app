@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
-import 'package:collectarr_app/features/library/media/video/video_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';

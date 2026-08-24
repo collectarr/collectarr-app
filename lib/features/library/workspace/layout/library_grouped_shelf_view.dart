@@ -1,15 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/media/video/video_progress_presenter.dart';
-import 'package:collectarr_app/features/library/media/video/video_progress_summary.dart';
-import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
@@ -17,26 +13,11 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef LibraryGroupItemContextMenuCallback = void Function(
   LibraryProjectionItem item,
   Offset globalPosition,
 );
-
-final _tvGroupProgressProvider = FutureProvider.autoDispose
-    .family<VideoProgressSummary, CatalogEntityRef>((ref, catalogRef) async {
-  final seasons =
-      await ref.watch(seasonsByCatalogRefProvider(catalogRef).future);
-  final trackedUnits = ref.watch(trackingUnitsByCatalogRefProvider(catalogRef));
-  final watchSessions =
-      ref.watch(watchSessionsByCatalogRefProvider(catalogRef));
-  return const VideoProgressPresenter().build(
-    seasons: seasons,
-    trackedUnits: trackedUnits,
-    watchSessions: watchSessions,
-  );
-});
 
 class LibraryGroupedShelfView extends StatelessWidget {
   const LibraryGroupedShelfView({
@@ -348,7 +329,7 @@ class _GroupHeader extends StatelessWidget {
   }
 }
 
-class LibraryGroupFolderTile extends ConsumerWidget {
+class LibraryGroupFolderTile extends StatelessWidget {
   const LibraryGroupFolderTile({
     super.key,
     required this.group,
@@ -365,36 +346,10 @@ class LibraryGroupFolderTile extends ConsumerWidget {
   final VoidCallback onOpenDetails;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final palette = appPalette(context);
     final representative = group.representativeItem;
-    final isTv = showSeasonGroupProgress;
-    final catalogRef = CatalogEntityRef(
-      kind: representative.source.catalogItem?.kind ?? '',
-      entityType: CatalogEntityType.work,
-      id: representative.source.itemId,
-    );
-    final progress =
-        isTv ? ref.watch(_tvGroupProgressProvider(catalogRef)) : null;
-    final ownedSeasonCount = group.items
-        .where(
-          (item) =>
-              item.source.isOwned &&
-              (item.dto.itemNumber
-                      ?.trim()
-                      .toLowerCase()
-                      .startsWith('season ') ??
-                  false),
-        )
-        .length;
-    final missingSeasonCount = progress == null
-        ? 0
-        : math.max(
-            progress.maybeWhen(
-              data: (summary) => summary.totalSeasons - ownedSeasonCount,
-              orElse: () => 0,
-            ),
-            0);
+    final ownedCount = group.items.where((item) => item.source.isOwned).length;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -513,10 +468,7 @@ class LibraryGroupFolderTile extends ConsumerWidget {
                           ),
                           const Spacer(),
                           _GroupStats(
-                            isTv: isTv,
-                            progress: progress,
-                            ownedSeasonCount: ownedSeasonCount,
-                            missingSeasonCount: missingSeasonCount,
+                            ownedCount: ownedCount,
                             totalCount: group.count,
                           ),
                         ],
@@ -535,17 +487,11 @@ class LibraryGroupFolderTile extends ConsumerWidget {
 
 class _GroupStats extends StatelessWidget {
   const _GroupStats({
-    required this.isTv,
-    required this.progress,
-    required this.ownedSeasonCount,
-    required this.missingSeasonCount,
+    required this.ownedCount,
     required this.totalCount,
   });
 
-  final bool isTv;
-  final AsyncValue<VideoProgressSummary>? progress;
-  final int ownedSeasonCount;
-  final int missingSeasonCount;
+  final int ownedCount;
   final int totalCount;
 
   @override
@@ -553,18 +499,8 @@ class _GroupStats extends StatelessWidget {
     final palette = appPalette(context);
     final lines = <String>[
       '$totalCount items',
-      if (isTv)
-        'Owned seasons: $ownedSeasonCount'
-      else
-        '$ownedSeasonCount owned',
-      if (isTv && progress != null)
-        progress!.maybeWhen(
-          data: (summary) =>
-              '${summary.watchedSummary} · ${summary.completionSummary}',
-          orElse: () => '',
-        ),
-      if (isTv) 'Missing seasons: $missingSeasonCount',
-    ].where((line) => line.trim().isNotEmpty).toList(growable: false);
+      '$ownedCount owned',
+    ];
     return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.28),

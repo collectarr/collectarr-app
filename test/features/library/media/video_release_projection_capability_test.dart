@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/media/video/video_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
