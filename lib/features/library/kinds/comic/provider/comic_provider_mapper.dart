@@ -11,7 +11,8 @@ class ComicLibraryKindProviderMapper implements LibraryKindProviderMapper {
       NormalizedProviderEnvelopeV1 envelope) {
     final norm = envelope.normalized;
     final title = norm['title']?.toString() ?? 'Unknown';
-    final itemNumber = norm['item_number']?.toString();
+    final itemNumber =
+        norm['item_number']?.toString() ?? norm['issue_number']?.toString();
     final synopsis = norm['synopsis']?.toString();
     final publisher = norm['publisher']?.toString();
     final editionTitle = norm['edition_title']?.toString();

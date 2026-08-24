@@ -52,6 +52,7 @@ final class LibraryMetadataItem {
     LibraryItemIdentity? identity,
     LibraryCommonMetadata? common,
     LibraryKindMetadataRuntime? kindMetadata,
+    GenericKindMetadataPayload? payload,
   })  : identity = identity ??
             LibraryItemIdentity(
               id: id,
@@ -73,7 +74,7 @@ final class LibraryMetadataItem {
               releaseDate: releaseDate,
               releaseYear: releaseYear,
             ),
-        kindMetadata = kindMetadata ??
+        _payload = payload ??
             GenericKindMetadataPayload(
               mediaKind: mediaKind ?? catalogMediaKindFromApiValue(kind),
               itemNumber: itemNumber,
@@ -104,18 +105,47 @@ final class LibraryMetadataItem {
               audienceRating: audienceRating,
               boardGameStats: boardGameStats,
               trailerUrls: trailerUrls,
-            );
+            ),
+        kindMetadata = kindMetadata ??
+            (payload ??
+                GenericKindMetadataPayload(
+                  mediaKind: mediaKind ?? catalogMediaKindFromApiValue(kind),
+                  itemNumber: itemNumber,
+                  editionTitle: editionTitle,
+                  physicalFormat: physicalFormat,
+                  physicalFormatLabel: physicalFormatLabel,
+                  publisher: publisher,
+                  coverDate: coverDate,
+                  barcode: barcode,
+                  variant: variant,
+                  crossover: crossover,
+                  plotSummary: plotSummary,
+                  plotDescription: plotDescription,
+                  series: series,
+                  video: video,
+                  music: music,
+                  game: game,
+                  publishing: publishing,
+                  creators: creators,
+                  characters: characters,
+                  characterDetails: characterDetails,
+                  storyArcs: storyArcs,
+                  editions: editions,
+                  genres: genres,
+                  country: country,
+                  language: language,
+                  ageRating: ageRating,
+                  audienceRating: audienceRating,
+                  boardGameStats: boardGameStats,
+                  trailerUrls: trailerUrls,
+                ));
 
   static const _unset = Object();
 
   final LibraryItemIdentity identity;
   final LibraryCommonMetadata common;
   final LibraryKindMetadataRuntime kindMetadata;
-
-  GenericKindMetadataPayload get _payload =>
-      kindMetadata is GenericKindMetadataPayload
-          ? kindMetadata as GenericKindMetadataPayload
-          : GenericKindMetadataPayload(mediaKind: identity.mediaKind);
+  final GenericKindMetadataPayload _payload;
 
   String get id => identity.id;
   CatalogMediaKind get mediaKind => identity.mediaKind;

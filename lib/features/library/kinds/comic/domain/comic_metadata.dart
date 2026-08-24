@@ -171,7 +171,7 @@ class ComicCatalogMetadata implements LibraryKindMetadataRuntime {
     return ComicCatalogMetadata(
       title: (json['title'] as String?) ?? '',
       seriesTitle: json['series_title'] as String?,
-      issueNumber: json['issue_number'] as String?,
+      issueNumber: (json['issue_number'] ?? json['item_number']) as String?,
       publisher: json['publisher'] as String?,
       imprint: json['imprint'] as String?,
       releaseDate: json['release_date'] != null
