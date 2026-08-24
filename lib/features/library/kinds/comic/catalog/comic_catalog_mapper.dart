@@ -80,17 +80,28 @@ class ComicCatalogMapper {
       subtitle: pub?.subtitle,
     );
 
-    final releases = item.editions.map((edition) {
-      return ComicRelease(
-        id: edition.id,
-        title: edition.title,
-        publisher: edition.publisher,
-        imprint: pub?.imprint,
-        isbn: edition.isbn,
-        upc: edition.upc,
-        releaseDate: edition.releaseDate,
-      );
-    }).toList();
+    final releases = item.editions.isNotEmpty
+        ? item.editions.map((edition) {
+            return ComicRelease(
+              id: edition.id,
+              title: edition.title,
+              publisher: edition.publisher,
+              imprint: pub?.imprint,
+              isbn: edition.isbn,
+              upc: edition.upc,
+              releaseDate: edition.releaseDate,
+            );
+          }).toList()
+        : [
+            if (item.variant != null || item.editionTitle != null)
+              ComicRelease(
+                id: item.id,
+                title: item.variant ?? item.editionTitle ?? '',
+                publisher: item.publisher,
+                imprint: pub?.imprint,
+                releaseDate: item.releaseDate,
+              ),
+          ];
 
     return ComicCatalogItem(
       id: item.id,
