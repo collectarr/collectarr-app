@@ -4,6 +4,9 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +18,70 @@ const mangaWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFFFF6F91),
   preferencePrefix: 'manga',
 );
+
+final mangaTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'signedBy',
+    label: 'Signed by',
+    icon: Icons.draw_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.mangaDetails?.signedBy,
+    write: (item, value) {
+      final m = item.mangaDetails ?? const MangaOwnedDetails();
+      return item.copyWith(details: m.copyWith(signedBy: value));
+    },
+  ),
+  TransferableField(
+    key: 'gradingCompany',
+    label: 'Grading company',
+    icon: Icons.verified_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.mangaDetails?.gradingCompany,
+    write: (item, value) {
+      final m = item.mangaDetails ?? const MangaOwnedDetails();
+      return item.copyWith(details: m.copyWith(gradingCompany: value));
+    },
+  ),
+  TransferableField(
+    key: 'graderNotes',
+    label: 'Grader notes',
+    icon: Icons.note_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.mangaDetails?.graderNotes,
+    write: (item, value) {
+      final m = item.mangaDetails ?? const MangaOwnedDetails();
+      return item.copyWith(details: m.copyWith(graderNotes: value));
+    },
+  ),
+  TransferableField(
+    key: 'dustJacketPresent',
+    label: 'Dust jacket',
+    icon: Icons.book_outlined,
+    type: TransferableFieldType.boolean,
+    scope: LibraryEditScope.release,
+    read: (item) =>
+        (item.mangaDetails?.dustJacketPresent == true) ? 'true' : null,
+    write: (item, value) {
+      final m = item.mangaDetails ?? const MangaOwnedDetails();
+      return item.copyWith(
+          details: m.copyWith(dustJacketPresent: value == 'true'));
+    },
+  ),
+  TransferableField(
+    key: 'obiStripPresent',
+    label: 'Obi strip',
+    icon: Icons.bookmark_border,
+    type: TransferableFieldType.boolean,
+    scope: LibraryEditScope.release,
+    read: (item) =>
+        (item.mangaDetails?.obiStripPresent == true) ? 'true' : null,
+    write: (item, value) {
+      final m = item.mangaDetails ?? const MangaOwnedDetails();
+      return item.copyWith(
+          details: m.copyWith(obiStripPresent: value == 'true'));
+    },
+  ),
+];
 
 final mangaLibraryConfig = LibraryTypeConfig(
   workspace: mangaWorkspaceConfig,

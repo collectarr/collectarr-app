@@ -62,7 +62,9 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
   ),
-  transfer: const LibraryTransferCapability(),
+  transfer: LibraryTransferCapability(
+    kindFields: mangaTransferableFields,
+  ),
   stats: const MangaStatsCapability(),
   add: const StandardLibraryAddCapability<MangaAddDraft>(
     kind: CatalogMediaKind.manga,

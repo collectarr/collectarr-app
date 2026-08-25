@@ -74,8 +74,9 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     sectionsBuilder: buildComicInspectorSections,
     showsDefaultPersonalSection: false,
   ),
-  transfer: const LibraryTransferCapability(
+  transfer: LibraryTransferCapability(
     transferableFieldKeys: comicTransferableFieldKeys,
+    kindFields: comicTransferableFields,
   ),
   stats: const ComicStatsCapability(),
   value: const ComicValueCapability(),

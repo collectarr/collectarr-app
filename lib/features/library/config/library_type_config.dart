@@ -355,21 +355,16 @@ class LibraryTypeConfig {
   final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
 
   List<String> transferableFieldKeysForScope(LibraryEditScope scope) {
-    return switch (scope) {
-      LibraryEditScope.media => kTransferableMediaFieldKeys,
-      LibraryEditScope.release => kTransferableReleaseFieldKeys,
-      LibraryEditScope.all => kDefaultTransferableFieldKeys,
-    };
+    final module = libraryKindRuntimeForType(this);
+    return module.transfer.fieldKeysForScope(scope);
   }
 
   List<TransferableField> transferableFieldsWithCustomFieldsForScope(
     List<CustomFieldDefinition> definitions,
     LibraryEditScope scope,
   ) {
-    return TransferableField.withCustomFields(
-      definitions,
-      fieldKeys: transferableFieldKeysForScope(scope),
-    );
+    final module = libraryKindRuntimeForType(this);
+    return module.transfer.fieldsWithCustomFields(definitions, scope);
   }
 
   bool get usesTitleAsSeriesFallback =>

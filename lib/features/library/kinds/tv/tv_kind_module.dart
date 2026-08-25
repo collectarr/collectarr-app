@@ -60,7 +60,9 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     detailPageBuilder: buildVideoLibraryDetailPage,
     showsDefaultPersonalSection: false,
   ),
-  transfer: const LibraryTransferCapability(),
+  transfer: LibraryTransferCapability(
+    kindFields: tvTransferableFields,
+  ),
   stats: const TvStatsCapability(),
   add: const StandardLibraryAddCapability<TvAddDraft>(
     kind: CatalogMediaKind.tv,

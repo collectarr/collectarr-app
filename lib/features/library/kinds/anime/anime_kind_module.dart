@@ -53,7 +53,9 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
   ),
-  transfer: const LibraryTransferCapability(),
+  transfer: LibraryTransferCapability(
+    kindFields: animeTransferableFields,
+  ),
   add: const StandardLibraryAddCapability<AnimeAddDraft>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,

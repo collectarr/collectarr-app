@@ -10,6 +10,9 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +25,45 @@ const tvWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFF00A7A0),
   preferencePrefix: 'tv',
 );
+
+final tvTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'features',
+    label: 'Features',
+    icon: Icons.featured_play_list_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.tvDetails?.features,
+    write: (item, value) {
+      final d = item.tvDetails ?? const TvOwnedDetails();
+      return item.copyWith(details: d.copyWith(features: value));
+    },
+  ),
+  TransferableField(
+    key: 'boxSetName',
+    label: 'Box set name',
+    icon: Icons.inventory_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.tvDetails?.boxSetName,
+    write: (item, value) {
+      final d = item.tvDetails ?? const TvOwnedDetails();
+      return item.copyWith(details: d.copyWith(boxSetName: value));
+    },
+  ),
+  TransferableField(
+    key: 'packaging',
+    label: 'Packaging',
+    icon: Icons.inventory_2_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.tvDetails?.packaging,
+    write: (item, value) {
+      final d = item.tvDetails ?? const TvOwnedDetails();
+      return item.copyWith(details: d.copyWith(packaging: value));
+    },
+  ),
+];
 
 final tvLibraryConfig = LibraryTypeConfig(
   workspace: tvWorkspaceConfig,

@@ -54,6 +54,31 @@ class BoardgameOwnedDetails extends OwnedItemDetails {
         storageNotes: json['storage_notes'] as String?,
       );
 
+  BoardgameOwnedDetails copyWith({
+    String? editionLanguage,
+    String? editionRegion,
+    String? componentCondition,
+    String? componentCompleteness,
+    String? missingPiecesNotes,
+    bool? isSleeved,
+    bool? hasCustomInsert,
+    bool? hasPaintedMiniatures,
+    String? storageNotes,
+  }) {
+    return BoardgameOwnedDetails(
+      editionLanguage: editionLanguage ?? this.editionLanguage,
+      editionRegion: editionRegion ?? this.editionRegion,
+      componentCondition: componentCondition ?? this.componentCondition,
+      componentCompleteness:
+          componentCompleteness ?? this.componentCompleteness,
+      missingPiecesNotes: missingPiecesNotes ?? this.missingPiecesNotes,
+      isSleeved: isSleeved ?? this.isSleeved,
+      hasCustomInsert: hasCustomInsert ?? this.hasCustomInsert,
+      hasPaintedMiniatures: hasPaintedMiniatures ?? this.hasPaintedMiniatures,
+      storageNotes: storageNotes ?? this.storageNotes,
+    );
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

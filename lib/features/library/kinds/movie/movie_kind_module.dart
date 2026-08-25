@@ -57,7 +57,9 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     sectionsBuilder: buildMovieInspectorSections,
     detailPageBuilder: buildVideoLibraryDetailPage,
   ),
-  transfer: const LibraryTransferCapability(),
+  transfer: LibraryTransferCapability(
+    kindFields: movieTransferableFields,
+  ),
   stats: const MovieStatsCapability(),
   add: const StandardLibraryAddCapability<MovieAddDraft>(
     kind: CatalogMediaKind.movie,

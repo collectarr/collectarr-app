@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:flutter/material.dart';
 
 /// Describes the data type of a transferable field.
@@ -12,379 +13,312 @@ enum TransferableFieldType {
 
 /// A field on [OwnedItem] that can participate in the Transfer Field Data flow.
 class TransferableField {
-  const TransferableField._({
+  const TransferableField({
     required this.key,
     required this.label,
     required this.icon,
     required this.type,
+    this.scope = LibraryEditScope.all,
+    required this.read,
+    required this.write,
     this.customFieldId,
   });
 
-  /// Internal key matching the [OwnedItem] property name.
+  /// Internal key matching the property name or custom field ID.
   final String key;
   final String label;
   final IconData icon;
   final TransferableFieldType type;
+  final LibraryEditScope scope;
 
   /// Non-null when this represents a user-defined custom field.
   final String? customFieldId;
 
+  final String? Function(OwnedItem item) read;
+  final OwnedItem Function(OwnedItem item, String? value) write;
+
   bool get isCustomField => customFieldId != null;
 
-  /// Read the string representation of this field from an [OwnedItem].
-  String? readFrom(OwnedItem item) {
-    switch (key) {
-      case 'condition':
-        return item.condition;
-      case 'grade':
-        return item.grade;
-      case 'personalNotes':
-        return item.personalNotes;
-      case 'locationId':
-        return item.locationId;
-      case 'tags':
-        return item.tags;
-      case 'currency':
-        return item.currency;
-      case 'rawOrSlabbed':
-        return item.comicDetails?.rawOrSlabbed;
-      case 'gradingCompany':
-        return item.comicDetails?.gradingCompany;
-      case 'graderNotes':
-        return item.comicDetails?.graderNotes;
-      case 'signedBy':
-        return item.comicDetails?.signedBy;
-      case 'keyReason':
-        return item.comicDetails?.keyReason;
-      case 'readStatus':
-        return item.readStatus;
-      case 'soldTo':
-        return item.soldTo;
-      case 'features':
-        return item.videoLikeDetails?.features;
-      case 'purchaseStore':
-        return item.purchaseStore;
-      case 'boxSetName':
-        return item.videoLikeDetails?.boxSetName;
-      case 'pricePaidCents':
-        return item.pricePaidCents?.toString();
-      case 'coverPriceCents':
-        return item.comicDetails?.coverPriceCents?.toString();
-      case 'sellPriceCents':
-        return item.sellPriceCents?.toString();
-      case 'quantity':
-        return item.quantity.toString();
-      case 'indexNumber':
-        return item.indexNumber?.toString();
-      case 'rating':
-        return item.rating?.toString();
-      case 'purchaseDate':
-        return item.purchaseDate?.toIso8601String();
-      case 'startedAt':
-        return item.startedAt?.toIso8601String();
-      case 'finishedAt':
-        return item.finishedAt?.toIso8601String();
-      case 'soldAt':
-        return item.soldAt?.toIso8601String();
-      case 'keyComic':
-        return (item.comicDetails?.keyComic == true) ? 'true' : null;
-      default:
-        return null;
+  bool matchesScope(LibraryEditScope requestedScope) {
+    if (requestedScope == LibraryEditScope.all || scope == LibraryEditScope.all) {
+      return true;
     }
+    return scope == requestedScope;
   }
+
+  /// Read the string representation of this field from an [OwnedItem].
+  String? readFrom(OwnedItem item) => read(item);
 
   /// Apply [value] (or null to clear) onto [item], returning the updated copy.
-  OwnedItem writeTo(OwnedItem item, String? value) {
-    final comic = item.comicDetails;
+  OwnedItem writeTo(OwnedItem item, String? value) => write(item, value);
 
-    switch (key) {
-      case 'condition':
-        return item.copyWith(condition: value);
-      case 'grade':
-        return item.copyWith(grade: value);
-      case 'personalNotes':
-        return item.copyWith(personalNotes: value);
-      case 'locationId':
-        return item.copyWith(locationId: value);
-      case 'tags':
-        return item.copyWith(tags: value);
-      case 'currency':
-        return item.copyWith(currency: value);
-      case 'rawOrSlabbed':
-        final c = comic ?? const ComicOwnedDetails();
-        return item.copyWith(details: c.copyWith(rawOrSlabbed: value));
-      case 'gradingCompany':
-        final c = comic ?? const ComicOwnedDetails();
-        return item.copyWith(details: c.copyWith(gradingCompany: value));
-      case 'graderNotes':
-        final c = comic ?? const ComicOwnedDetails();
-        return item.copyWith(details: c.copyWith(graderNotes: value));
-      case 'signedBy':
-        final c = comic ?? const ComicOwnedDetails();
-        return item.copyWith(details: c.copyWith(signedBy: value));
-      case 'keyReason':
-        final c = comic ?? const ComicOwnedDetails();
-        return item.copyWith(details: c.copyWith(keyReason: value));
-      case 'readStatus':
-        return item.copyWith(readStatus: value);
-      case 'soldTo':
-        return item.copyWith(soldTo: value);
-      case 'features':
-        final d = item.details;
-        if (d is MovieOwnedDetails)
-          return item.copyWith(details: d.copyWith(features: value));
-        if (d is TvOwnedDetails)
-          return item.copyWith(details: d.copyWith(features: value));
-        if (d is AnimeOwnedDetails)
-          return item.copyWith(details: d.copyWith(features: value));
-        return item;
-      case 'purchaseStore':
-        return item.copyWith(purchaseStore: value);
-      case 'boxSetName':
-        final d = item.details;
-        if (d is MovieOwnedDetails)
-          return item.copyWith(details: d.copyWith(boxSetName: value));
-        if (d is TvOwnedDetails)
-          return item.copyWith(details: d.copyWith(boxSetName: value));
-        if (d is AnimeOwnedDetails)
-          return item.copyWith(details: d.copyWith(boxSetName: value));
-        return item;
-      case 'pricePaidCents':
-        return item.copyWith(
-            pricePaidCents: value != null ? int.tryParse(value) : null);
-      case 'coverPriceCents':
-        final c = comic ?? const ComicOwnedDetails();
-        return item.copyWith(
-          details: c.copyWith(
-            coverPriceCents: value != null ? int.tryParse(value) : null,
-          ),
-        );
-      case 'sellPriceCents':
-        return item.copyWith(
-            sellPriceCents: value != null ? int.tryParse(value) : null);
-      case 'quantity':
-        return item.copyWith(
-            quantity: value != null ? int.tryParse(value) ?? 1 : 1);
-      case 'indexNumber':
-        return item.copyWith(
-            indexNumber: value != null ? int.tryParse(value) : null);
-      case 'rating':
-        return item.copyWith(
-            rating: value != null ? int.tryParse(value) : null);
-      case 'purchaseDate':
-        return item.copyWith(
-            purchaseDate: value != null ? DateTime.tryParse(value) : null);
-      case 'startedAt':
-        return item.copyWith(
-            startedAt: value != null ? DateTime.tryParse(value) : null);
-      case 'finishedAt':
-        return item.copyWith(
-            finishedAt: value != null ? DateTime.tryParse(value) : null);
-      case 'soldAt':
-        return item.copyWith(
-            soldAt: value != null ? DateTime.tryParse(value) : null);
-      case 'keyComic':
-        final c = comic ?? const ComicOwnedDetails();
-        return item.copyWith(details: c.copyWith(keyComic: value == 'true'));
-      default:
-        return item;
-    }
+  factory TransferableField.customField(CustomFieldDefinition def) {
+    return TransferableField(
+      key: 'cf_${def.id}',
+      label: def.name,
+      icon: Icons.text_fields,
+      type: TransferableFieldType.text,
+      scope: LibraryEditScope.all,
+      customFieldId: def.id,
+      read: (item) => null,
+      write: (item, value) => item,
+    );
   }
 
-  /// Shared built-in transferable fields on [OwnedItem].
-  static const List<TransferableField> sharedBuiltIn = [
+  // ---------------------------------------------------------------------------
+  // Readers and Writers for universal OwnedItem properties
+  // ---------------------------------------------------------------------------
+
+  static String? _readCondition(OwnedItem item) => item.condition;
+  static OwnedItem _writeCondition(OwnedItem item, String? v) =>
+      item.copyWith(condition: v);
+
+  static String? _readGrade(OwnedItem item) => item.grade;
+  static OwnedItem _writeGrade(OwnedItem item, String? v) =>
+      item.copyWith(grade: v);
+
+  static String? _readPersonalNotes(OwnedItem item) => item.personalNotes;
+  static OwnedItem _writePersonalNotes(OwnedItem item, String? v) =>
+      item.copyWith(personalNotes: v);
+
+  static String? _readLocationId(OwnedItem item) => item.locationId;
+  static OwnedItem _writeLocationId(OwnedItem item, String? v) =>
+      item.copyWith(locationId: v);
+
+  static String? _readTags(OwnedItem item) => item.tags;
+  static OwnedItem _writeTags(OwnedItem item, String? v) =>
+      item.copyWith(tags: v);
+
+  static String? _readCurrency(OwnedItem item) => item.currency;
+  static OwnedItem _writeCurrency(OwnedItem item, String? v) =>
+      item.copyWith(currency: v);
+
+  static String? _readReadStatus(OwnedItem item) => item.readStatus;
+  static OwnedItem _writeReadStatus(OwnedItem item, String? v) =>
+      item.copyWith(readStatus: v);
+
+  static String? _readSoldTo(OwnedItem item) => item.soldTo;
+  static OwnedItem _writeSoldTo(OwnedItem item, String? v) =>
+      item.copyWith(soldTo: v);
+
+  static String? _readPurchaseStore(OwnedItem item) => item.purchaseStore;
+  static OwnedItem _writePurchaseStore(OwnedItem item, String? v) =>
+      item.copyWith(purchaseStore: v);
+
+  static String? _readPricePaidCents(OwnedItem item) =>
+      item.pricePaidCents?.toString();
+  static OwnedItem _writePricePaidCents(OwnedItem item, String? v) =>
+      item.copyWith(pricePaidCents: v != null ? int.tryParse(v) : null);
+
+  static String? _readSellPriceCents(OwnedItem item) =>
+      item.sellPriceCents?.toString();
+  static OwnedItem _writeSellPriceCents(OwnedItem item, String? v) =>
+      item.copyWith(sellPriceCents: v != null ? int.tryParse(v) : null);
+
+  static String? _readQuantity(OwnedItem item) => item.quantity.toString();
+  static OwnedItem _writeQuantity(OwnedItem item, String? v) =>
+      item.copyWith(quantity: v != null ? int.tryParse(v) ?? 1 : 1);
+
+  static String? _readIndexNumber(OwnedItem item) =>
+      item.indexNumber?.toString();
+  static OwnedItem _writeIndexNumber(OwnedItem item, String? v) =>
+      item.copyWith(indexNumber: v != null ? int.tryParse(v) : null);
+
+  static String? _readRating(OwnedItem item) => item.rating?.toString();
+  static OwnedItem _writeRating(OwnedItem item, String? v) =>
+      item.copyWith(rating: v != null ? int.tryParse(v) : null);
+
+  static String? _readPurchaseDate(OwnedItem item) =>
+      item.purchaseDate?.toIso8601String();
+  static OwnedItem _writePurchaseDate(OwnedItem item, String? v) =>
+      item.copyWith(purchaseDate: v != null ? DateTime.tryParse(v) : null);
+
+  static String? _readStartedAt(OwnedItem item) =>
+      item.startedAt?.toIso8601String();
+  static OwnedItem _writeStartedAt(OwnedItem item, String? v) =>
+      item.copyWith(startedAt: v != null ? DateTime.tryParse(v) : null);
+
+  static String? _readFinishedAt(OwnedItem item) =>
+      item.finishedAt?.toIso8601String();
+  static OwnedItem _writeFinishedAt(OwnedItem item, String? v) =>
+      item.copyWith(finishedAt: v != null ? DateTime.tryParse(v) : null);
+
+  static String? _readSoldAt(OwnedItem item) =>
+      item.soldAt?.toIso8601String();
+  static OwnedItem _writeSoldAt(OwnedItem item, String? v) =>
+      item.copyWith(soldAt: v != null ? DateTime.tryParse(v) : null);
+
+  /// Universal built-in transferable fields on [OwnedItem].
+  static const List<TransferableField> universalBuiltIn = [
     // --- Text ---
-    TransferableField._(
+    TransferableField(
       key: 'condition',
       label: 'Condition',
       icon: Icons.inventory_2_outlined,
       type: TransferableFieldType.text,
+      read: _readCondition,
+      write: _writeCondition,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'grade',
       label: 'Grade',
       icon: Icons.workspace_premium_outlined,
       type: TransferableFieldType.text,
+      read: _readGrade,
+      write: _writeGrade,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'personalNotes',
       label: 'Personal notes',
       icon: Icons.sticky_note_2_outlined,
       type: TransferableFieldType.text,
+      read: _readPersonalNotes,
+      write: _writePersonalNotes,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'locationId',
       label: 'Location',
       icon: Icons.shelves,
       type: TransferableFieldType.text,
+      read: _readLocationId,
+      write: _writeLocationId,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'tags',
       label: 'Tags',
       icon: Icons.sell_outlined,
       type: TransferableFieldType.text,
+      read: _readTags,
+      write: _writeTags,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'currency',
       label: 'Currency',
       icon: Icons.attach_money,
       type: TransferableFieldType.text,
+      read: _readCurrency,
+      write: _writeCurrency,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'readStatus',
       label: 'Read status',
       icon: Icons.auto_stories_outlined,
       type: TransferableFieldType.text,
+      read: _readReadStatus,
+      write: _writeReadStatus,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'soldTo',
       label: 'Sold to',
       icon: Icons.person_outline,
       type: TransferableFieldType.text,
+      read: _readSoldTo,
+      write: _writeSoldTo,
     ),
-    TransferableField._(
-      key: 'features',
-      label: 'Features',
-      icon: Icons.featured_play_list_outlined,
-      type: TransferableFieldType.text,
-    ),
-    TransferableField._(
+    TransferableField(
       key: 'purchaseStore',
       label: 'Purchase store',
       icon: Icons.storefront_outlined,
       type: TransferableFieldType.text,
-    ),
-    TransferableField._(
-      key: 'boxSetName',
-      label: 'Box set name',
-      icon: Icons.inventory_outlined,
-      type: TransferableFieldType.text,
+      read: _readPurchaseStore,
+      write: _writePurchaseStore,
     ),
     // --- Integers ---
-    TransferableField._(
+    TransferableField(
       key: 'pricePaidCents',
       label: 'Price paid',
       icon: Icons.payments_outlined,
       type: TransferableFieldType.integer,
+      read: _readPricePaidCents,
+      write: _writePricePaidCents,
     ),
-    TransferableField._(
-      key: 'coverPriceCents',
-      label: 'Cover price',
-      icon: Icons.price_check,
-      type: TransferableFieldType.integer,
-    ),
-    TransferableField._(
+    TransferableField(
       key: 'sellPriceCents',
       label: 'Sell price',
       icon: Icons.point_of_sale,
       type: TransferableFieldType.integer,
+      read: _readSellPriceCents,
+      write: _writeSellPriceCents,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'quantity',
       label: 'Quantity',
       icon: Icons.numbers,
       type: TransferableFieldType.integer,
+      read: _readQuantity,
+      write: _writeQuantity,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'indexNumber',
       label: 'Index number',
       icon: Icons.tag,
       type: TransferableFieldType.integer,
+      read: _readIndexNumber,
+      write: _writeIndexNumber,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'rating',
       label: 'My Rating',
       icon: Icons.star_outline,
       type: TransferableFieldType.integer,
+      read: _readRating,
+      write: _writeRating,
     ),
     // --- Dates ---
-    TransferableField._(
+    TransferableField(
       key: 'purchaseDate',
       label: 'Purchase date',
       icon: Icons.calendar_today,
       type: TransferableFieldType.date,
+      read: _readPurchaseDate,
+      write: _writePurchaseDate,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'startedAt',
       label: 'Started at',
       icon: Icons.play_arrow_outlined,
       type: TransferableFieldType.date,
+      read: _readStartedAt,
+      write: _writeStartedAt,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'finishedAt',
       label: 'Finished at',
       icon: Icons.check_circle_outline,
       type: TransferableFieldType.date,
+      read: _readFinishedAt,
+      write: _writeFinishedAt,
     ),
-    TransferableField._(
+    TransferableField(
       key: 'soldAt',
       label: 'Sold at',
       icon: Icons.receipt_long_outlined,
       type: TransferableFieldType.date,
+      read: _readSoldAt,
+      write: _writeSoldAt,
     ),
   ];
 
-  static const List<TransferableField> comicBuiltIn = [
-    TransferableField._(
-      key: 'rawOrSlabbed',
-      label: 'Raw / Slabbed',
-      icon: Icons.layers_outlined,
-      type: TransferableFieldType.text,
-    ),
-    TransferableField._(
-      key: 'gradingCompany',
-      label: 'Grading company',
-      icon: Icons.verified_outlined,
-      type: TransferableFieldType.text,
-    ),
-    TransferableField._(
-      key: 'graderNotes',
-      label: 'Grader notes',
-      icon: Icons.note_outlined,
-      type: TransferableFieldType.text,
-    ),
-    TransferableField._(
-      key: 'signedBy',
-      label: 'Signed by',
-      icon: Icons.draw_outlined,
-      type: TransferableFieldType.text,
-    ),
-    TransferableField._(
-      key: 'keyReason',
-      label: 'Key reason',
-      icon: Icons.vpn_key_outlined,
-      type: TransferableFieldType.text,
-    ),
-    // --- Boolean ---
-    TransferableField._(
-      key: 'keyComic',
-      label: 'Key issue',
-      icon: Icons.vpn_key,
-      type: TransferableFieldType.boolean,
-    ),
-  ];
-
-  static final Map<String, TransferableField> _builtInByKey = {
-    for (final field in [...sharedBuiltIn, ...comicBuiltIn]) field.key: field,
-  };
+  /// Backwards-compatible alias for universalBuiltIn.
+  static const List<TransferableField> sharedBuiltIn = universalBuiltIn;
 
   /// Build a complete field list including user-defined custom fields.
   static List<TransferableField> withCustomFields(
     List<CustomFieldDefinition> definitions, {
     Iterable<String>? fieldKeys,
+    List<TransferableField>? availableFields,
   }) {
-    final keys = fieldKeys ?? [for (final field in sharedBuiltIn) field.key];
+    final pool = availableFields ?? universalBuiltIn;
+    final map = {for (final field in pool) field.key: field};
+    final resolved = fieldKeys == null
+        ? pool
+        : [
+            for (final key in fieldKeys)
+              if (map[key] case final field?) field,
+          ];
     return [
-      for (final key in keys)
-        if (_builtInByKey[key] case final field?) field,
-      for (final def in definitions)
-        TransferableField._(
-          key: 'cf_${def.id}',
-          label: def.name,
-          icon: Icons.text_fields,
-          type: TransferableFieldType.text,
-          customFieldId: def.id,
-        ),
+      ...resolved,
+      for (final def in definitions) TransferableField.customField(def),
     ];
   }
 }

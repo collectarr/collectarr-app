@@ -60,7 +60,9 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: true,
   ),
-  transfer: const LibraryTransferCapability(),
+  transfer: LibraryTransferCapability(
+    kindFields: bookTransferableFields,
+  ),
   stats: const BookStatsCapability(),
   add: const StandardLibraryAddCapability<BookAddDraft>(
     kind: CatalogMediaKind.book,

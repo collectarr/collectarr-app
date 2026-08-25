@@ -8,6 +8,7 @@ const kTransferableReleaseFieldKeys = <String>[
   'features',
   'boxSetName',
   'coverPriceCents',
+  'packaging',
 ];
 
 const kTransferablePersonalFieldKeys = <String>[
@@ -40,14 +41,32 @@ const kDefaultTransferableFieldKeys = <String>[
 class LibraryTransferCapability {
   const LibraryTransferCapability({
     this.transferableFieldKeys = kDefaultTransferableFieldKeys,
+    this.kindFields = const <TransferableField>[],
   });
 
   final List<String> transferableFieldKeys;
+  final List<TransferableField> kindFields;
+
+  List<TransferableField> allFields() {
+    final map = <String, TransferableField>{
+      for (final field in TransferableField.universalBuiltIn) field.key: field,
+      for (final field in kindFields) field.key: field,
+    };
+    return [
+      for (final key in transferableFieldKeys)
+        if (map[key] case final field?) field,
+    ];
+  }
 
   List<String> fieldKeysForScope(LibraryEditScope scope) {
     return switch (scope) {
       LibraryEditScope.media => kTransferableMediaFieldKeys,
-      LibraryEditScope.release => kTransferableReleaseFieldKeys,
+      LibraryEditScope.release => [
+          for (final f in allFields())
+            if (f.scope == LibraryEditScope.release ||
+                kTransferableReleaseFieldKeys.contains(f.key))
+              f.key,
+        ],
       LibraryEditScope.all => transferableFieldKeys,
     };
   }
@@ -58,6 +77,7 @@ class LibraryTransferCapability {
   ) {
     return TransferableField.withCustomFields(
       definitions,
+      availableFields: allFields(),
       fieldKeys: fieldKeysForScope(scope),
     );
   }

@@ -7,6 +7,9 @@ import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -19,6 +22,44 @@ const booksWorkspaceConfig = LibraryWorkspaceConfig(
   accent: Color(0xFFBB72B6),
   preferencePrefix: 'books',
 );
+
+final bookTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'signedBy',
+    label: 'Signed by',
+    icon: Icons.draw_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.bookDetails?.signedBy,
+    write: (item, value) {
+      final b = item.bookDetails ?? const BookOwnedDetails();
+      return item.copyWith(details: b.copyWith(signedBy: value));
+    },
+  ),
+  TransferableField(
+    key: 'dustJacketPresent',
+    label: 'Dust jacket',
+    icon: Icons.book_outlined,
+    type: TransferableFieldType.boolean,
+    scope: LibraryEditScope.release,
+    read: (item) => (item.bookDetails?.dustJacketPresent == true) ? 'true' : null,
+    write: (item, value) {
+      final b = item.bookDetails ?? const BookOwnedDetails();
+      return item.copyWith(details: b.copyWith(dustJacketPresent: value == 'true'));
+    },
+  ),
+  TransferableField(
+    key: 'dustJacketCondition',
+    label: 'Dust jacket condition',
+    icon: Icons.grade_outlined,
+    type: TransferableFieldType.text,
+    scope: LibraryEditScope.release,
+    read: (item) => item.bookDetails?.dustJacketCondition,
+    write: (item, value) {
+      final b = item.bookDetails ?? const BookOwnedDetails();
+      return item.copyWith(details: b.copyWith(dustJacketCondition: value));
+    },
+  ),
+];
 
 final booksLibraryConfig = LibraryTypeConfig(
   workspace: booksWorkspaceConfig,

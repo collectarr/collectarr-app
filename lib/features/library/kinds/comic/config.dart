@@ -9,6 +9,9 @@ import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_bu
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -30,6 +33,91 @@ const comicTransferableFieldKeys = <String>[
   'signedBy',
   'keyReason',
   'keyComic',
+];
+
+final comicTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'rawOrSlabbed',
+    label: 'Raw / Slabbed',
+    icon: Icons.layers_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.comicDetails?.rawOrSlabbed,
+    write: (item, value) {
+      final c = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: c.copyWith(rawOrSlabbed: value));
+    },
+  ),
+  TransferableField(
+    key: 'gradingCompany',
+    label: 'Grading company',
+    icon: Icons.verified_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.comicDetails?.gradingCompany,
+    write: (item, value) {
+      final c = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: c.copyWith(gradingCompany: value));
+    },
+  ),
+  TransferableField(
+    key: 'graderNotes',
+    label: 'Grader notes',
+    icon: Icons.note_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.comicDetails?.graderNotes,
+    write: (item, value) {
+      final c = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: c.copyWith(graderNotes: value));
+    },
+  ),
+  TransferableField(
+    key: 'signedBy',
+    label: 'Signed by',
+    icon: Icons.draw_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.comicDetails?.signedBy,
+    write: (item, value) {
+      final c = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: c.copyWith(signedBy: value));
+    },
+  ),
+  TransferableField(
+    key: 'keyReason',
+    label: 'Key reason',
+    icon: Icons.vpn_key_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.comicDetails?.keyReason,
+    write: (item, value) {
+      final c = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: c.copyWith(keyReason: value));
+    },
+  ),
+  TransferableField(
+    key: 'keyComic',
+    label: 'Key issue',
+    icon: Icons.vpn_key,
+    type: TransferableFieldType.boolean,
+    read: (item) => (item.comicDetails?.keyComic == true) ? 'true' : null,
+    write: (item, value) {
+      final c = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(details: c.copyWith(keyComic: value == 'true'));
+    },
+  ),
+  TransferableField(
+    key: 'coverPriceCents',
+    label: 'Cover price',
+    icon: Icons.price_check,
+    type: TransferableFieldType.integer,
+    scope: LibraryEditScope.release,
+    read: (item) => item.comicDetails?.coverPriceCents?.toString(),
+    write: (item, value) {
+      final c = item.comicDetails ?? const ComicOwnedDetails();
+      return item.copyWith(
+        details: c.copyWith(
+          coverPriceCents: value != null ? int.tryParse(value) : null,
+        ),
+      );
+    },
+  ),
 ];
 
 final comicsLibraryConfig = LibraryTypeConfig(

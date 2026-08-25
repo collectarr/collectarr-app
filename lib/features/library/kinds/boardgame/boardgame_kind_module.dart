@@ -52,7 +52,9 @@ final boardGameKindModule =
   inspector: const LibraryInspectorCapability(
     showsDefaultPersonalSection: false,
   ),
-  transfer: const LibraryTransferCapability(),
+  transfer: LibraryTransferCapability(
+    kindFields: boardgameTransferableFields,
+  ),
   add: const StandardLibraryAddCapability<BoardGameAddDraft>(
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardGameAddDraft.new,
