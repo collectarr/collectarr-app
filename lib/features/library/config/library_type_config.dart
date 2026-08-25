@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
@@ -32,6 +33,7 @@ import 'package:collectarr_app/features/library/config/library_kind_identity.dar
 import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
 import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
@@ -235,6 +237,7 @@ class LibraryTypeConfig {
     this.titleCapability =
         const DefaultTitleProjectionCapability<LibraryWorkspaceDto>(),
     this.releaseCapability,
+    this.catalogItemResolver,
   });
 
   factory LibraryTypeConfig.fromCapabilities({
@@ -257,6 +260,7 @@ class LibraryTypeConfig {
     TitleProjectionCapability<LibraryWorkspaceDto> titleCapability =
         const DefaultTitleProjectionCapability<LibraryWorkspaceDto>(),
     ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability,
+    CatalogItemDto Function(LibraryMetadataItem item)? catalogItemResolver,
   }) {
     return LibraryTypeConfig(
       workspace: identity.toWorkspaceConfig(),
@@ -302,6 +306,7 @@ class LibraryTypeConfig {
       kindUiAdapter: kindUiAdapter,
       titleCapability: titleCapability,
       releaseCapability: releaseCapability,
+      catalogItemResolver: catalogItemResolver,
     );
   }
 
@@ -351,6 +356,10 @@ class LibraryTypeConfig {
   final LibraryKindUiAdapter kindUiAdapter;
   final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
   final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
+  final CatalogItemDto Function(LibraryMetadataItem item)? catalogItemResolver;
+
+  CatalogItemDto resolveCatalogItem(LibraryMetadataItem item) =>
+      catalogItemResolver?.call(item) ?? item.toCatalogItem();
 
   List<String> transferableFieldKeysForScope(LibraryEditScope scope) {
     return switch (scope) {

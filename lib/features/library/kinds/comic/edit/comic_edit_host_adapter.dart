@@ -5,13 +5,10 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.da
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
@@ -23,7 +20,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   ComicEditHostAdapter({
     required this.context,
     required this.draft,
-    required this.item,
+    required this.catalogItem,
     required this.accent,
     required this.scope,
     required this.markDirty,
@@ -31,7 +28,7 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   final BuildContext context;
   final LibraryEditDraft draft;
-  final LibraryMetadataItem item;
+  final ComicCatalogItem catalogItem;
   final Color accent;
   final LibraryEditScope scope;
   final VoidCallback markDirty;
@@ -53,16 +50,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   LibraryTypeConfig get comicLibraryType => draft.type;
 
   @override
-  ComicCatalogItem get comicCatalogItem {
-    final metadata = item.kindMetadata;
-    if (metadata is! ComicCatalogMetadata) {
-      throw StateError('Expected ComicCatalogMetadata for comic edit');
-    }
-    return ComicCatalogMapper.mapMetadataToComic(
-      metadata,
-      id: item.identity.id,
-    );
-  }
+  ComicCatalogItem get comicCatalogItem => catalogItem;
 
   @override
   List<ItemImage> get comicItemImages => draft.itemImages;

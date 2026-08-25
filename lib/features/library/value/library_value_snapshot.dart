@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 
 class LibraryValueHistoryEntry {
   const LibraryValueHistoryEntry({
@@ -39,8 +40,10 @@ class LibraryValueSnapshot {
         : dto.currency?.trim().isNotEmpty == true
             ? dto.currency!.trim()
             : null;
-    final providerValue =
-        item.source.catalogItem?.toCatalogItem().publishing?.coverPriceCents;
+    final metadata = item.source.catalogItem?.kindMetadata;
+    final providerValue = metadata is ComicCatalogMetadata
+        ? metadata.publishing?.coverPriceCents
+      : item.source.catalogItem?.toCatalogItem().publishing?.coverPriceCents;
     final manualValue = ownedItem?.marketValueCents;
     final currentValue = providerValue ?? manualValue;
     return LibraryValueSnapshot(

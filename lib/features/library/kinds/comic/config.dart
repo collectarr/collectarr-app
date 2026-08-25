@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
@@ -6,6 +7,8 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
@@ -74,6 +77,7 @@ final comicsLibraryConfig = LibraryTypeConfig(
     barcodeLabel: 'Barcode / UPC / ISBN',
     variantSeedsPhysicalFormatLabel: true,
   ),
+  catalogItemResolver: _comicCatalogItemResolver,
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     canScanCover: true,
@@ -94,6 +98,18 @@ final comicsLibraryConfig = LibraryTypeConfig(
   defaultCondition: 'Near Mint',
   defaultGrade: 'Ungraded',
 );
+
+CatalogItemDto _comicCatalogItemResolver(LibraryMetadataItem item) {
+  final metadata = item.kindMetadata;
+  if (metadata is! ComicCatalogMetadata) {
+    throw StateError('Expected ComicCatalogMetadata for comic edit');
+  }
+  return CatalogItemDto.fromJson({
+    'kind': 'comic',
+    'id': item.identity.id,
+    ...metadata.toJson(),
+  });
+}
 
 List<LibraryGroupModeCategory> buildComicGroupModeCategories(
   List<String> modes,

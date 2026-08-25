@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
@@ -15,10 +17,18 @@ Widget? buildComicCustomTabView({
   required LibraryMetadataItem item,
   required VoidCallback markDirty,
 }) {
+  final metadata = item.kindMetadata;
+  if (metadata is! ComicCatalogMetadata) {
+    throw StateError('Expected ComicCatalogMetadata for comic edit tabs');
+  }
+  final catalogItem = ComicCatalogMapper.mapMetadataToComic(
+    metadata,
+    id: item.identity.id,
+  );
   final host = ComicEditHostAdapter(
     context: context,
     draft: draft,
-    item: item,
+    catalogItem: catalogItem,
     accent: accent,
     scope: scope,
     markDirty: markDirty,

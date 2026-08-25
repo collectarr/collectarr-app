@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';
 
@@ -355,8 +356,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   static Map<String, int> _topCreatorCounts(List<ShelfEntry> entries) {
     return _countMany(
       entries,
-      (entry) => (entry.catalogItem?.toCatalogItem().creators ??
-              const <Map<String, dynamic>>[])
+      (entry) => _creatorCredits(entry)
           .map((credit) => credit['name']?.toString() ?? '')
           .where((name) => name.trim().isNotEmpty),
     );
@@ -366,8 +366,13 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _countMany(
       entries,
       (entry) =>
-          (entry.catalogItem?.toCatalogItem().characters ?? const <String>[])
-              .where((name) => name.trim().isNotEmpty),
+          _comicMetadata(entry)
+              ?.characters
+              .where((name) => name.trim().isNotEmpty) ??
+          entry.catalogItem?.toCatalogItem().characters?.where(
+                (name) => name.trim().isNotEmpty,
+              ) ??
+          const <String>[],
     );
   }
 
@@ -375,10 +380,25 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _countMany(
       entries,
       (entry) =>
-          (entry.catalogItem?.toCatalogItem().storyArcs ?? const <String>[])
-              .where((name) => name.trim().isNotEmpty),
+          _comicMetadata(entry)
+              ?.storyArcs
+              .where((name) => name.trim().isNotEmpty) ??
+          entry.catalogItem?.toCatalogItem().storyArcs?.where(
+            (name) => name.trim().isNotEmpty,
+            ) ??
+          const <String>[],
     );
   }
+
+  static ComicCatalogMetadata? _comicMetadata(ShelfEntry entry) {
+    final metadata = entry.catalogItem?.kindMetadata;
+    return metadata is ComicCatalogMetadata ? metadata : null;
+  }
+
+  static Iterable<Map<String, dynamic>> _creatorCredits(ShelfEntry entry) =>
+      _comicMetadata(entry)?.creators ??
+      entry.catalogItem?.toCatalogItem().creators ??
+      const <Map<String, dynamic>>[];
 
   static Map<String, int> _topInvestedLocations(List<ShelfEntry> entries) {
     return _sumBy(

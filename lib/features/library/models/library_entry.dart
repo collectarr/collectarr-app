@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
 class LibraryEntry {
@@ -27,6 +28,8 @@ class LibraryEntry {
     if (raw is CatalogItemDto) return LibraryMetadataItem.fromCatalogItem(raw);
     return null;
   }
+
+  LibraryKindMetadataRuntime? get kindMetadata => catalogItem?.kindMetadata;
 
   bool get isOwned => ownedItem != null;
   bool get isTracked => trackingEntry != null;

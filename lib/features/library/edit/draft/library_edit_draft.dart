@@ -153,7 +153,7 @@ class LibraryEditDraft {
     TextEditingController create([String text = '']) =>
         textControllers.create(text: text);
 
-    final catalog = item.toCatalogItem();
+    final catalog = type.resolveCatalogItem(item);
     final titleController = create(item.title);
     final numberController = create(item.itemNumber ?? '');
     final publisherController = create(item.publisher ?? '');
