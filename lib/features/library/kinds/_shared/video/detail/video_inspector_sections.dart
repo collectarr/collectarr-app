@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
@@ -135,12 +136,20 @@ String? _metadataFactValue(
 
 Widget _buildEditionFormatBadges(LibraryProjectionRuntime item) {
   final catalogItem = item.source.catalogItem;
-  if (catalogItem?.editions == null || catalogItem!.editions.isEmpty) {
+  final editionsPayload =
+      catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?;
+  final editions = editionsPayload != null
+      ? editionsPayload
+          .whereType<Map>()
+          .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+          .toList()
+      : const <CatalogEdition>[];
+  if (editions.isEmpty) {
     return const SizedBox.shrink();
   }
   final seen = <String>{};
   final badges = <Widget>[];
-  for (final edition in catalogItem.editions) {
+  for (final edition in editions) {
     final id = edition.physicalFormat;
     if (id == null || !seen.add(id)) continue;
     badges.add(

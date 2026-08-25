@@ -23,7 +23,11 @@ import 'package:url_launcher/url_launcher.dart';
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
   final metadata = item.source.catalogItem?.kindMetadata;
-  return metadata is MusicCatalogMetadata ? metadata : null;
+  if (metadata is MusicCatalogMetadata) return metadata;
+  if (metadata != null) {
+    return MusicCatalogMetadata.fromJson(metadata.toSyncPayload());
+  }
+  return null;
 }
 
 Widget buildMusicInspectorPanel(
@@ -1077,7 +1081,7 @@ Uri? _ebayUri(LibraryProjectionRuntime item) {
   if (barcode == null || barcode.isEmpty) {
     return null;
   }
-  final seriesTitle = item.source.catalogItem?.series?.seriesTitle;
+  final seriesTitle = dto.seriesTitle;
   final query = <String>[
     barcode,
     if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),

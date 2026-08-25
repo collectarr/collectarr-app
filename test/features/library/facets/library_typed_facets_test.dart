@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';

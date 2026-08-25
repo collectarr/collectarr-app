@@ -289,7 +289,7 @@ void main() {
 
     // Verify the dialog returned the edited values
     expect(selection?.item.title, 'Blade Runner: Final Cut');
-    expect(selection?.item.barcode, '883929087129');
+    expect(selection?.item.toCatalogItem().barcode, '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
     expect(selection?.personal?.pricePaidCents, 999);
@@ -785,12 +785,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     final cat = selection?.item.toCatalogItem();
-    expect(selection?.item.editionTitle, 'Deluxe Edition');
+    expect(cat?.editionTitle, 'Deluxe Edition');
     expect(selection?.item.titleExtension, isNull);
-    expect(selection?.item.series?.seriesTitle, 'Over the Garden Wall');
+    expect(cat?.series?.seriesTitle, 'Over the Garden Wall');
     expect(cat?.crossover, 'Adventure Time');
     expect(cat?.storyArcs, const ['Unknowning', 'The Tome of the Unknown']);
-    expect(selection?.item.physicalFormatLabel, 'Trade Paperback');
+    expect(cat?.physicalFormatLabel, 'Trade Paperback');
     expect(cat?.coverDate?.year, 2016);
     expect(cat?.coverDate?.month, 10);
     expect(cat?.coverDate?.day, 26);
@@ -986,9 +986,9 @@ void main() {
     expect(cat?.publishing?.subjects, ['Sci-Fi', 'Galactic Empire']);
     expect(cat?.publishing?.firstEdition, isTrue);
     expect(cat?.publishing?.dustJacket, isTrue);
-    expect(selection?.item.trailerUrls, hasLength(1));
-    expect(selection?.item.trailerUrls.first.kind, 'external');
-    expect(selection?.item.trailerUrls.first.url,
+    expect(cat?.trailerUrls, hasLength(1));
+    expect(cat?.trailerUrls.first.kind, 'external');
+    expect(cat?.trailerUrls.first.url,
         'https://www.goodreads.com/book/show/29579.Foundation');
 
     final creators = cat?.creators ?? const <Map<String, dynamic>>[];
@@ -1076,11 +1076,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    expect(selection!.item.trailerUrls, hasLength(1));
-    expect(selection!.item.trailerUrls.first.kind, 'external');
-    expect(selection!.item.trailerUrls.first.url,
+    final cat = selection!.item.toCatalogItem();
+    expect(cat.trailerUrls, hasLength(1));
+    expect(cat.trailerUrls.first.kind, 'external');
+    expect(cat.trailerUrls.first.url,
         'https://en.wikipedia.org/wiki/Dune_(novel)');
-    expect(selection!.item.trailerUrls.first.title, 'Wikipedia');
+    expect(cat.trailerUrls.first.title, 'Wikipedia');
   });
 
   testWidgets(
@@ -1653,7 +1654,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     final cat = selection?.item.toCatalogItem();
-    expect(selection?.item.series?.seriesTitle, 'cAd');
+    expect(cat?.series?.seriesTitle, 'cAd');
     expect(cat?.music?.catalogNumber, 'KDCD 1022-R');
     expect(cat?.creators, [
       {'name': 'Ad Infinitum', 'role': 'Artist'},

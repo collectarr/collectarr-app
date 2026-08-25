@@ -57,7 +57,8 @@ void main() {
         publisher: 'DC Comics',
       );
       final result = rerankLibraryMetadataItems(items, hints);
-      expect(result.first.publisher, 'DC Comics');
+      expect(
+          result.first.kindMetadata.toSyncPayload()['publisher'], 'DC Comics');
     });
 
     test('ranks matching year higher', () {
@@ -80,7 +81,7 @@ void main() {
         issueNumber: '1',
       );
       final result = rerankLibraryMetadataItems(items, hints);
-      expect(result.first.itemNumber, '1');
+      expect(result.first.kindMetadata.toSyncPayload()['item_number'], '1');
     });
   });
 

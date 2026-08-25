@@ -31,28 +31,37 @@ List<CatalogEdition> resolveVideoCatalogEditionsForCatalogItem(
   Iterable<OwnedItem> ownedItems = const <OwnedItem>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
+  final payload = item.kindMetadata.toSyncPayload();
+  final editionsPayload = payload['editions'] as List?;
+  final rawEditions = editionsPayload != null
+      ? editionsPayload
+          .whereType<Map>()
+          .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+          .toList()
+      : const <CatalogEdition>[];
   if (!_isVideoKind(item.kind)) {
-    return item.editions;
+    return rawEditions;
   }
   return _resolveVideoCatalogEditions(
     _VideoReleaseSeedInput(
       itemId: item.id,
       mediaType: item.kind,
       resolvedTitle: item.resolvedDisplayTitle,
-      editionTitle: item.editionTitle,
-      publisher: item.publisher,
+      editionTitle: payload['edition_title'] as String?,
+      publisher: (payload['publisher'] as String?) ??
+          ((payload['publishing'] as Map?)?['original_publisher'] as String?),
       releaseDate: item.releaseDate,
       releaseYear: item.releaseYear,
-      physicalFormat: item.physicalFormat,
-      physicalFormatLabel: item.physicalFormatLabel,
-      variant: item.variant,
-      language: item.language,
-      country: item.country,
-      barcode: item.barcode,
+      physicalFormat: payload['physical_format'] as String?,
+      physicalFormatLabel: payload['physical_format_label'] as String?,
+      variant: payload['variant'] as String?,
+      language: payload['language'] as String?,
+      country: payload['country'] as String?,
+      barcode: payload['barcode'] as String?,
       coverImageUrl: item.coverImageUrl,
       thumbnailImageUrl: item.thumbnailImageUrl,
     ),
-    item.editions,
+    rawEditions,
     ownedItems: ownedItems,
     wishlistItems: wishlistItems,
   );

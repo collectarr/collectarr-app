@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
@@ -5,14 +6,13 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 
 class GameCatalogMapper {
   static GameCatalogItem mapMetadataItemToGame(LibraryMetadataItem item) {
-    if (item.kindMetadata is! GameCatalogMetadata) {
-      throw ArgumentError.value(
-        item.kindMetadata,
-        'item.kindMetadata',
-        'Expected GameCatalogMetadata',
-      );
+    final rawMetadata = item.kindMetadata;
+    final GameCatalogMetadata meta;
+    if (rawMetadata is GameCatalogMetadata) {
+      meta = rawMetadata;
+    } else {
+      meta = GameCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
     }
-    final meta = item.kindMetadata as GameCatalogMetadata;
 
     final work = GameWorkMetadata(
       title: item.title,
@@ -23,7 +23,15 @@ class GameCatalogMapper {
       genres: meta.genres,
     );
 
-    final releases = item.editions.map((edition) {
+    final editionsPayload = item.kindMetadata.toSyncPayload()['editions'] as List?;
+    final editions = editionsPayload != null
+        ? editionsPayload
+            .whereType<Map>()
+            .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+            .toList()
+        : const <CatalogEdition>[];
+
+    final releases = editions.map((edition) {
       return GameRelease(
         id: edition.id,
         title: edition.title,

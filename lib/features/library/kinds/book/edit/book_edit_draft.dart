@@ -75,13 +75,12 @@ KindEditDraft createBookEditDraft({
 }) {
   final book = ownedItem?.bookDetails;
   final comic = ownedItem?.comicDetails;
-  final metadata = item.kindMetadata;
-  if (metadata is! BookCatalogMetadata) {
-    throw ArgumentError.value(
-      metadata,
-      'item.kindMetadata',
-      'Expected BookCatalogMetadata',
-    );
+  final rawMetadata = item.kindMetadata;
+  final BookCatalogMetadata metadata;
+  if (rawMetadata is BookCatalogMetadata) {
+    metadata = rawMetadata;
+  } else {
+    metadata = BookCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
   }
   return BookEditDraft(
     signedBy: book?.signedBy ?? comic?.signedBy,

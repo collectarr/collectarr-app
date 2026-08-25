@@ -114,7 +114,8 @@ final class LibraryAddSessionState {
         return false;
       }
       if (selection.hideComicVariantResults) {
-        final variantText = item.variant?.trim();
+        final variantText =
+            (item.kindMetadata.toSyncPayload()['variant'] as String?)?.trim();
         if (variantText != null && variantText.isNotEmpty) {
           return false;
         }

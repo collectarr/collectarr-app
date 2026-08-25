@@ -304,15 +304,18 @@ Widget buildLibraryAddModeBar(
                   shrinkWrap: true,
                   children: [
                     for (final suggestion in request.suggestions)
-                      ListTile(
-                        dense: true,
-                        title: Text(suggestion.title),
-                        subtitle:
-                            suggestion.itemNumber?.trim().isNotEmpty == true
-                                ? Text('Issue ${suggestion.itemNumber}')
-                                : null,
-                        onTap: () => request.onSelectSuggestion(suggestion),
-                      ),
+                      () {
+                        final itemNumber = suggestion.kindMetadata
+                            .toSyncPayload()['item_number'] as String?;
+                        return ListTile(
+                          dense: true,
+                          title: Text(suggestion.title),
+                          subtitle: itemNumber?.trim().isNotEmpty == true
+                              ? Text('Issue $itemNumber')
+                              : null,
+                          onTap: () => request.onSelectSuggestion(suggestion),
+                        );
+                      }(),
                   ],
                 ),
               ),

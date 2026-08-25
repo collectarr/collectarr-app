@@ -70,7 +70,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       final importedKind = _kindNameForPath(importedRelativePath);
       if (importedKind != null &&
           importedKind != kindName &&
-          !_isAllowedKindImport(kindName!, importedKind)) {
+          !isAllowedKindImport(kindName!, importedKind)) {
         violations.add(
           '$relativePath:$lineNumber: Cross-kind import violation ($directive $uriString)',
         );
@@ -189,22 +189,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   }
 }
 
-final _boundaryRoots = <String>[
-  'lib/features/library/generic/',
-  'lib/features/library/config/',
-  'lib/features/library/workspace/',
-  'lib/features/library/add/',
-  'lib/features/library/edit/',
-  'lib/features/library/detail/',
-  'lib/features/library/details/',
-  'lib/features/library/inspector/',
-  'lib/features/library/ui/',
-  'lib/features/library/widgets/',
-  'lib/features/library/stats/',
-  'lib/features/library/reports/',
-  'lib/features/library/tracking/',
-];
-
 const _registryRoot = 'lib/features/library/kinds/registry/';
 
 void main(List<String> arguments) {
@@ -225,7 +209,7 @@ void main(List<String> arguments) {
 
     final isRegistryFile = relativePath.startsWith(_registryRoot);
     final kindName = _kindNameForPath(relativePath);
-    final isBoundary = _isBoundaryFile(relativePath);
+    final isBoundary = isBoundaryFile(relativePath);
 
     final content = File(file).readAsStringSync();
     final lineCount = content.split('\n').length;
@@ -287,11 +271,17 @@ Iterable<String> _dartFilesUnder(Directory root) sync* {
   }
 }
 
-bool _isBoundaryFile(String relativePath) {
-  return _boundaryRoots.any(relativePath.startsWith);
+bool isBoundaryFile(String relativePath) {
+  if (!relativePath.startsWith('lib/features/library/')) {
+    return false;
+  }
+  if (relativePath.startsWith('lib/features/library/kinds/')) {
+    return false;
+  }
+  return true;
 }
 
-bool _isAllowedKindImport(String sourceKind, String importedKind) {
+bool isAllowedKindImport(String sourceKind, String importedKind) {
   return false;
 }
 

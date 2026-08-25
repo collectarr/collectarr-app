@@ -16,8 +16,13 @@ final class ComicWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final catalog = source.catalogItem;
-    final metadata = catalog?.kindMetadata;
-    if (metadata is! ComicCatalogMetadata) {
+    final rawMetadata = catalog?.kindMetadata;
+    final ComicCatalogMetadata metadata;
+    if (rawMetadata is ComicCatalogMetadata) {
+      metadata = rawMetadata;
+    } else if (rawMetadata != null) {
+      metadata = ComicCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
+    } else {
       throw StateError('Expected ComicCatalogMetadata for comic workspace');
     }
     final comic = ComicCatalogMapper.mapMetadataToComic(

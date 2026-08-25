@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -5,6 +6,7 @@ import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart'
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
@@ -88,8 +90,11 @@ KindEditDraft createMusicEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final music = ownedItem?.musicDetails;
+  final meta = item.kindMetadata is MusicCatalogMetadata
+      ? item.kindMetadata as MusicCatalogMetadata
+      : null;
   final externalLinks = [
-    for (final link in item.trailerUrls.where((l) => l.isExternalLink))
+    for (final link in (meta?.links ?? const <TrailerLink>[]).where((l) => l.isExternalLink))
       MusicExternalLinkEdit(
         url: link.url,
         description: link.description ?? link.title ?? '',

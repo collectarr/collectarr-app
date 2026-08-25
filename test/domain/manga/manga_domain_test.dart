@@ -62,7 +62,7 @@ void main() {
       );
 
       expect(dto.seriesTitle, 'Vagabond');
-      expect(shelf.catalogItem?.editions, hasLength(1));
+      expect(shelf.catalogItem?.toCatalogItem().editions, hasLength(1));
     });
 
     test('MangaMetadata serialization and deserialization roundtrip', () {

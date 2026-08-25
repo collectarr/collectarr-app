@@ -18,13 +18,13 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
   final topLevelByKind = {
     for (final type in catalog)
       if (type.isTopLevel ||
-          (type.mediaKind != CatalogMediaKind.unknown &&
+          (!type.mediaKind.isUnknown &&
               collectarrLibraryTypes.byKind(type.mediaKind) != null))
         type.kind: type,
   };
   final defaultKinds = [
     for (final config in collectarrLibraryTypes.types)
-      if (config.workspace.kind != CatalogMediaKind.unknown)
+      if (!config.workspace.kind.isUnknown)
         config.workspace.kind.apiValue,
   ];
   for (final kind in defaultKinds) {
@@ -99,7 +99,7 @@ LibraryTypeConfig libraryConfigForCatalogType(
   CatalogMediaType type,
   LibraryTypeRegistry registry,
 ) {
-  if (type.mediaKind == CatalogMediaKind.unknown) {
+  if (type.mediaKind.isUnknown) {
     return buildRuntimeCatalogLibraryTypeConfig(type);
   }
   final known = registry.byKind(type.mediaKind);

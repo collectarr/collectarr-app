@@ -66,13 +66,16 @@ List<MissingComicSeriesReport> buildMissingComicSeriesReports(
 }) {
   final resolvedNow = now ?? DateTime.now();
   final bySeries = <String, _MissingComicSeriesAccumulator>{};
-
   for (final item in items) {
     final rawMetadata = item.source.catalogItem?.kindMetadata;
-    if (rawMetadata is! ComicCatalogMetadata) {
+    final ComicCatalogMetadata metadata;
+    if (rawMetadata is ComicCatalogMetadata) {
+      metadata = rawMetadata;
+    } else if (rawMetadata != null) {
+      metadata = ComicCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
+    } else {
       continue;
     }
-    final metadata = rawMetadata;
     final issueNumber = _issueNumber(metadata.issueNumber);
     if (issueNumber == null) {
       continue;

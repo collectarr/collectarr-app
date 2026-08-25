@@ -316,7 +316,7 @@ sealed class CatalogItemDto {
         const <TrailerLinkDto>[];
 
     final series = CatalogSeriesDetailsDto.fromJson(
-      Map<String, dynamic>.from(json['series'] as Map? ?? {}),
+      Map<String, dynamic>.from(json['series'] as Map? ?? json),
     );
     final vMap = (json['video'] as Map<String, dynamic>?) ?? json;
     final video = VideoCatalogDetailsDto(

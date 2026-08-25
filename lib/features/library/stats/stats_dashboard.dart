@@ -1,11 +1,11 @@
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';
 
@@ -50,31 +50,20 @@ class _GenericStatsDashboard extends StatelessWidget {
     final sellValue = state.totalSellCents == null || state.totalSellCents == 0
         ? null
         : formatMoney(state.totalSellCents, state.primaryCurrency);
-    final missingCovers =
-        state.entries.where((e) => e.catalogItem?.coverImageUrl == null).length;
+    final missingCovers = state.entries
+        .where((e) => e.catalogItem?.common.coverImageUrl == null)
+        .length;
     final missingMetadata = _missingMetadataCount(state.entries);
     final valueCoverage =
         state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
     final metadataQualityBands = _metadataQualityBands(state.entries);
     final metadataAlertCounts = _metadataAlertCounts(state.entries, type);
-    final seriesGapSummary =
-        _seriesGapSummary(state.entries, type.workspace.kind.apiValue);
-    final volumeGapSummary = _numberedGapSummary(
-      state.entries,
-      (entry) {
-        final rawVolume = entry.catalogItem?.series?.volumeNumber;
-        if (rawVolume == null) return null;
-        final volume = double.tryParse(rawVolume);
-        if (volume == null || volume % 1 != 0) {
-          return null;
-        }
-        return volume.toInt();
-      },
-    );
-    final seasonGapSummary = _numberedGapSummary(
-      state.entries,
-      (entry) => entry.catalogItem?.series?.seasonNumber,
-    );
+
+    final kindRuntime = defaultLibraryKindRegistry.tryGet(type.workspace.kind);
+    final kindSummaryTiles =
+        kindRuntime?.stats.buildSummaryTiles(state, type) ?? const [];
+    final kindCustomCards =
+        kindRuntime?.stats.buildCustomCards(context, state, type) ?? const [];
 
     return Dialog(
       clipBehavior: Clip.antiAlias,
@@ -110,11 +99,12 @@ class _GenericStatsDashboard extends StatelessWidget {
                             label: 'Owned',
                             value: state.ownedCount.toString(),
                           ),
-                          LibraryStatsTile(
-                            icon: Icons.label_important,
-                            label: 'Key items',
-                            value: state.keyComicCount.toString(),
-                          ),
+                          for (final tile in kindSummaryTiles)
+                            LibraryStatsTile(
+                              icon: tile.icon,
+                              label: tile.label,
+                              value: tile.value,
+                            ),
                           LibraryStatsTile(
                             icon: Icons.star,
                             label: 'Wishlist',
@@ -257,37 +247,7 @@ class _GenericStatsDashboard extends StatelessWidget {
                               title: 'Metadata Alerts',
                               values: metadataAlertCounts,
                             ),
-                            LibraryStatsRankedCard(
-                              title: 'Top Creators',
-                              values: _topCreatorCounts(state.entries),
-                            ),
-                            LibraryStatsRankedCard(
-                              title: 'Top Characters',
-                              values: _topCharacterCounts(state.entries),
-                            ),
-                            LibraryStatsRankedCard(
-                              title: 'Top Story Arcs',
-                              values: _topStoryArcCounts(state.entries),
-                            ),
-                            if (seriesGapSummary != null)
-                              LibraryMissingIssuesCard(
-                                selectedSeries: seriesGapSummary.seriesTitle,
-                                missingIssues: seriesGapSummary.missingIssues,
-                              ),
-                            if (volumeGapSummary != null)
-                              LibraryMissingSequenceCard(
-                                title: 'Missing volumes',
-                                selectedSeries: volumeGapSummary.seriesTitle,
-                                missingValues: volumeGapSummary.missingNumbers,
-                                valueLabelBuilder: (value) => 'Vol. $value',
-                              ),
-                            if (seasonGapSummary != null)
-                              LibraryMissingSequenceCard(
-                                title: 'Missing seasons',
-                                selectedSeries: seasonGapSummary.seriesTitle,
-                                missingValues: seasonGapSummary.missingNumbers,
-                                valueLabelBuilder: (value) => 'Season $value',
-                              ),
+                            ...kindCustomCards,
                           ];
                           return Wrap(
                             spacing: 10,
@@ -326,17 +286,27 @@ class _GenericStatsDashboard extends StatelessWidget {
   static Map<String, int> _topSeriesCounts(List<ShelfEntry> entries) {
     return _countBy(
       entries,
-      (e) =>
-          e.catalogItem?.series?.seriesTitle ??
-          e.catalogItem?.title ??
-          'Unknown',
+      (e) {
+        final payload = e.catalogItem?.kindMetadata.toSyncPayload();
+        final series = (payload?['series_title'] ??
+            (payload?['series'] as Map?)?['series_title']) as String?;
+        return series ??
+            e.catalogItem?.common.displayTitle ??
+            e.catalogItem?.common.title ??
+            'Unknown';
+      },
     );
   }
 
   static Map<String, int> _topPublisherCounts(List<ShelfEntry> entries) {
     return _countBy(
       entries,
-      (e) => e.catalogItem?.publisher ?? 'Unknown',
+      (e) {
+        final payload = e.catalogItem?.kindMetadata.toSyncPayload();
+        final pub = (payload?['publisher'] ??
+            (payload?['publishing'] as Map?)?['original_publisher']) as String?;
+        return pub ?? 'Unknown';
+      },
     );
   }
 
@@ -344,61 +314,22 @@ class _GenericStatsDashboard extends StatelessWidget {
     var count = 0;
     for (final entry in entries) {
       final cat = entry.catalogItem;
-      if (cat == null ||
-          (cat.synopsis == null || cat.synopsis!.trim().isEmpty) &&
-              (cat.publisher == null || cat.publisher!.trim().isEmpty)) {
+      if (cat == null) {
+        count++;
+        continue;
+      }
+      final payload = cat.kindMetadata.toSyncPayload();
+      final publisher = (payload['publisher'] ??
+          (payload['publishing'] as Map?)?['original_publisher']) as String?;
+      final hasSynopsis =
+          cat.common.synopsis != null && cat.common.synopsis!.trim().isNotEmpty;
+      final hasPublisher = publisher != null && publisher.trim().isNotEmpty;
+      if (!hasSynopsis && !hasPublisher) {
         count++;
       }
     }
     return count;
   }
-
-  static Map<String, int> _topCreatorCounts(List<ShelfEntry> entries) {
-    return _countMany(
-      entries,
-      (entry) => _creatorCredits(entry)
-          .map((credit) => credit['name']?.toString() ?? '')
-          .where((name) => name.trim().isNotEmpty),
-    );
-  }
-
-  static Map<String, int> _topCharacterCounts(List<ShelfEntry> entries) {
-    return _countMany(
-      entries,
-      (entry) =>
-          _comicMetadata(entry)
-              ?.characters
-              .where((name) => name.trim().isNotEmpty) ??
-          entry.catalogItem?.toCatalogItem().characters?.where(
-                (name) => name.trim().isNotEmpty,
-              ) ??
-          const <String>[],
-    );
-  }
-
-  static Map<String, int> _topStoryArcCounts(List<ShelfEntry> entries) {
-    return _countMany(
-      entries,
-      (entry) =>
-          _comicMetadata(entry)
-              ?.storyArcs
-              .where((name) => name.trim().isNotEmpty) ??
-          entry.catalogItem?.toCatalogItem().storyArcs?.where(
-            (name) => name.trim().isNotEmpty,
-            ) ??
-          const <String>[],
-    );
-  }
-
-  static ComicCatalogMetadata? _comicMetadata(ShelfEntry entry) {
-    final metadata = entry.catalogItem?.kindMetadata;
-    return metadata is ComicCatalogMetadata ? metadata : null;
-  }
-
-  static Iterable<Map<String, dynamic>> _creatorCredits(ShelfEntry entry) =>
-      _comicMetadata(entry)?.creators ??
-      entry.catalogItem?.toCatalogItem().creators ??
-      const <Map<String, dynamic>>[];
 
   static Map<String, int> _topInvestedLocations(List<ShelfEntry> entries) {
     return _sumBy(
@@ -411,10 +342,15 @@ class _GenericStatsDashboard extends StatelessWidget {
   static Map<String, int> _topInvestedSeries(List<ShelfEntry> entries) {
     return _sumBy(
       entries,
-      (entry) =>
-          entry.catalogItem?.series?.seriesTitle ??
-          entry.catalogItem?.title ??
-          'Unknown',
+      (entry) {
+        final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
+        final series = (payload?['series_title'] ??
+            (payload?['series'] as Map?)?['series_title']) as String?;
+        return series ??
+            entry.catalogItem?.common.displayTitle ??
+            entry.catalogItem?.common.title ??
+            'Unknown';
+      },
       (entry) => entry.ownedItem?.pricePaidCents,
     );
   }
@@ -430,10 +366,15 @@ class _GenericStatsDashboard extends StatelessWidget {
   static Map<String, int> _topSalesSeries(List<ShelfEntry> entries) {
     return _sumBy(
       entries,
-      (entry) =>
-          entry.catalogItem?.series?.seriesTitle ??
-          entry.catalogItem?.title ??
-          'Unknown',
+      (entry) {
+        final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
+        final series = (payload?['series_title'] ??
+            (payload?['series'] as Map?)?['series_title']) as String?;
+        return series ??
+            entry.catalogItem?.common.displayTitle ??
+            entry.catalogItem?.common.title ??
+            'Unknown';
+      },
       (entry) => entry.ownedItem?.sellPriceCents,
     );
   }
@@ -467,23 +408,28 @@ class _GenericStatsDashboard extends StatelessWidget {
             (counts['No catalog snapshot'] ?? 0) + 1;
         continue;
       }
-      if (item.displayCoverUrl == null ||
-          item.displayCoverUrl!.trim().isEmpty) {
+      final payload = item.kindMetadata.toSyncPayload();
+      if (item.common.displayCoverUrl == null ||
+          item.common.displayCoverUrl!.trim().isEmpty) {
         counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
       }
-      if (item.synopsis == null || item.synopsis!.trim().isEmpty) {
+      if (item.common.synopsis == null ||
+          item.common.synopsis!.trim().isEmpty) {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
-      if (item.publisher == null || item.publisher!.trim().isEmpty) {
+      final publisher = (payload['publisher'] ??
+          (payload['publishing'] as Map?)?['original_publisher']) as String?;
+      if (publisher == null || publisher.trim().isEmpty) {
         counts[missingPublisherLabel] =
             (counts[missingPublisherLabel] ?? 0) + 1;
       }
-      if ((item.toCatalogItem().creators ?? const <Map<String, dynamic>>[])
-          .isEmpty) {
+      final creators = payload['creators'] as List?;
+      if (creators == null || creators.isEmpty) {
         counts['Missing creators'] = (counts['Missing creators'] ?? 0) + 1;
       }
-      final seriesTitle = item.series?.seriesTitle;
-      if (seriesTitle == null || seriesTitle.trim().isEmpty) {
+      final seriesTitle = ((payload['series_title'] ??
+          (payload['series'] as Map?)?['series_title']) as String?)?.trim();
+      if (seriesTitle == null || seriesTitle.isEmpty) {
         counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
       }
       if (item.id.startsWith('provider:')) {
@@ -506,23 +452,42 @@ class _GenericStatsDashboard extends StatelessWidget {
       }
     }
 
-    add(item.displayCoverUrl != null && item.displayCoverUrl!.trim().isNotEmpty,
-        18);
-    add(item.synopsis != null && item.synopsis!.trim().isNotEmpty, 16);
-    add(item.publisher != null && item.publisher!.trim().isNotEmpty, 10);
-    add(item.releaseDate != null || item.releaseYear != null, 10);
+    final payload = item.kindMetadata.toSyncPayload();
+    final publisher = (payload['publisher'] ??
+        (payload['publishing'] as Map?)?['original_publisher']) as String?;
+    final seriesTitle = ((payload['series_title'] ??
+        (payload['series'] as Map?)?['series_title']) as String?)?.trim();
+    final itemNumber = payload['item_number'] as String?;
+    final creators = payload['creators'] as List?;
+    final characters = payload['characters'] as List?;
+    final storyArcs = payload['story_arcs'] as List?;
+    final genres = payload['genres'] as List?;
+
     add(
-      item.series?.seriesTitle != null &&
-          item.series!.seriesTitle!.trim().isNotEmpty,
-      10,
+      item.common.displayCoverUrl != null &&
+          item.common.displayCoverUrl!.trim().isNotEmpty,
+      18,
     );
-    add(item.itemNumber != null && item.itemNumber!.trim().isNotEmpty, 6);
-    final cat = item.toCatalogItem();
-    add((cat.creators ?? const <Map<String, dynamic>>[]).isNotEmpty, 12);
-    add((cat.characters ?? const <String>[]).isNotEmpty, 6);
-    add((cat.storyArcs ?? const <String>[]).isNotEmpty, 4);
-    add((cat.genres ?? const <String>[]).isNotEmpty, 4);
-    add(!itemHasMissingCover(item) && !itemHasMissingDetails(item), 4);
+    add(
+      item.common.synopsis != null &&
+          item.common.synopsis!.trim().isNotEmpty,
+      16,
+    );
+    add(publisher != null && publisher.trim().isNotEmpty, 10);
+    add(item.releaseDate != null || item.releaseYear != null, 10);
+    add(seriesTitle != null && seriesTitle.isNotEmpty, 10);
+    add(itemNumber != null && itemNumber.trim().isNotEmpty, 6);
+    add(creators != null && creators.isNotEmpty, 12);
+    add(characters != null && characters.isNotEmpty, 6);
+    add(storyArcs != null && storyArcs.isNotEmpty, 4);
+    add(genres != null && genres.isNotEmpty, 4);
+    add(
+      item.common.displayCoverUrl != null &&
+          item.common.displayCoverUrl!.trim().isNotEmpty &&
+          item.common.synopsis != null &&
+          item.common.synopsis!.trim().isNotEmpty,
+      4,
+    );
 
     if (score >= 85) {
       return 'Strong';
@@ -549,28 +514,6 @@ class _GenericStatsDashboard extends StatelessWidget {
     return counts;
   }
 
-  static Map<String, int> _countMany(
-    Iterable<ShelfEntry> entries,
-    Iterable<String> Function(ShelfEntry entry) valuesFor,
-  ) {
-    final counts = <String, int>{};
-    for (final entry in entries) {
-      final seen = <String>{};
-      for (final raw in valuesFor(entry)) {
-        final normalized = raw.trim();
-        if (normalized.isEmpty) {
-          continue;
-        }
-        final key = normalized.toLowerCase();
-        if (!seen.add(key)) {
-          continue;
-        }
-        counts[normalized] = (counts[normalized] ?? 0) + 1;
-      }
-    }
-    return counts;
-  }
-
   static Map<String, int> _sumBy(
     Iterable<ShelfEntry> entries,
     String Function(ShelfEntry entry) keyFor,
@@ -587,97 +530,6 @@ class _GenericStatsDashboard extends StatelessWidget {
       totals[normalized] = (totals[normalized] ?? 0) + amount;
     }
     return totals;
-  }
-
-  static _SeriesGapSummary? _seriesGapSummary(
-    List<ShelfEntry> entries,
-    String mediaKind,
-  ) {
-    if (mediaKind != 'comic') {
-      return null;
-    }
-    _SeriesGapSummary? best;
-    final seriesNumbers = <String, Set<int>>{};
-    for (final entry in entries) {
-      if (!entry.isOwned) {
-        continue;
-      }
-      final seriesTitle = entry.catalogItem?.series?.seriesTitle?.trim();
-      final issueNumber = _wholeIssueNumber(entry.catalogItem?.itemNumber);
-      if (seriesTitle == null || seriesTitle.isEmpty || issueNumber == null) {
-        continue;
-      }
-      seriesNumbers.putIfAbsent(seriesTitle, () => <int>{}).add(issueNumber);
-    }
-    for (final series in seriesNumbers.entries) {
-      final sorted = series.value.toList(growable: false)..sort();
-      if (sorted.length < 2) {
-        continue;
-      }
-      final missing = <int>[];
-      for (var number = sorted.first; number <= sorted.last; number++) {
-        if (!series.value.contains(number)) {
-          missing.add(number);
-        }
-      }
-      if (missing.isEmpty) {
-        continue;
-      }
-      final summary = _SeriesGapSummary(series.key, missing);
-      if (best == null ||
-          summary.missingIssues.length > best.missingIssues.length) {
-        best = summary;
-      }
-    }
-    return best;
-  }
-
-  static _MissingNumberSummary? _numberedGapSummary(
-    List<ShelfEntry> entries,
-    int? Function(ShelfEntry entry) numberFor,
-  ) {
-    _MissingNumberSummary? best;
-    final seriesNumbers = <String, Set<int>>{};
-    for (final entry in entries) {
-      if (!entry.isOwned) {
-        continue;
-      }
-      final seriesTitle = entry.catalogItem?.series?.seriesTitle?.trim();
-      final number = numberFor(entry);
-      if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
-        continue;
-      }
-      seriesNumbers.putIfAbsent(seriesTitle, () => <int>{}).add(number);
-    }
-    for (final series in seriesNumbers.entries) {
-      final sorted = series.value.toList(growable: false)..sort();
-      if (sorted.length < 2) {
-        continue;
-      }
-      final missing = <int>[];
-      for (var number = sorted.first; number <= sorted.last; number++) {
-        if (!series.value.contains(number)) {
-          missing.add(number);
-        }
-      }
-      if (missing.isEmpty) {
-        continue;
-      }
-      final summary = _MissingNumberSummary(series.key, missing);
-      if (best == null ||
-          summary.missingNumbers.length > best.missingNumbers.length) {
-        best = summary;
-      }
-    }
-    return best;
-  }
-
-  static int? _wholeIssueNumber(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return null;
-    }
-    final match = RegExp(r'^\s*(\d+)').firstMatch(value);
-    return match == null ? null : int.tryParse(match.group(1)!);
   }
 }
 
@@ -698,18 +550,4 @@ class _TrackingStatusCard extends StatelessWidget {
     }
     return LibraryStatsDistributionCard(title: 'Tracking', values: counts);
   }
-}
-
-class _SeriesGapSummary {
-  const _SeriesGapSummary(this.seriesTitle, this.missingIssues);
-
-  final String seriesTitle;
-  final List<int> missingIssues;
-}
-
-class _MissingNumberSummary {
-  const _MissingNumberSummary(this.seriesTitle, this.missingNumbers);
-
-  final String seriesTitle;
-  final List<int> missingNumbers;
 }

@@ -19,6 +19,8 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
+import 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
+
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   type: booksLibraryConfig,
   mediaAdapter: booksMediaAdapter,
@@ -30,15 +32,15 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     singularLabel: 'Book',
     pluralLabel: 'Books',
     title: 'Books',
-    icon: Icons.menu_book_outlined,
-    accent: Color(0xFFBB72B6),
+    icon: Icons.book_outlined,
+    accent: Color(0xFFC78446),
     preferencePrefix: 'books',
   ),
-  metadata: LibraryMetadataCapability(
-    defaultProviderId: 'openlibrary',
+  metadata: const LibraryMetadataCapability(
+    defaultProviderId: 'hardcover',
     providers: [
-      openLibraryMetadataProvider,
       hardcoverMetadataProvider,
+      openLibraryMetadataProvider,
     ],
   ),
   hierarchy: const LibraryHierarchyCapability(
@@ -54,6 +56,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     showsDefaultPersonalSection: true,
   ),
   transfer: const LibraryTransferCapability(),
+  stats: const BookStatsCapability(),
   add: const StandardLibraryAddCapability<BookAddDraft>(
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,

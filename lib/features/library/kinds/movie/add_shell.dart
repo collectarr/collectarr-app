@@ -108,12 +108,14 @@ Widget buildMovieAddSearchPane(
                         final title = isCore ? item.title : candidate!.title;
                         final coverUrl =
                             isCore ? item.displayCoverUrl : candidate!.imageUrl;
+                        final publisher = (item?.kindMetadata.toSyncPayload()['publisher'] as String?) ??
+                            ((item?.kindMetadata.toSyncPayload()['publishing'] as Map?)?['original_publisher'] as String?);
                         final subtitle = isCore
                             ? [
                                 if (item.releaseYear != null)
                                   item.releaseYear.toString(),
-                                if (item.publisher?.trim().isNotEmpty == true)
-                                  item.publisher,
+                                if (publisher != null && publisher.trim().isNotEmpty)
+                                  publisher.trim(),
                               ].whereType<String>().join(' · ')
                             : [
                                 request.type
@@ -317,8 +319,10 @@ String? _movieMetadataMatchSummary(
     }
   }
 
+  final publisher = (item.kindMetadata.toSyncPayload()['publisher'] as String?) ??
+      ((item.kindMetadata.toSyncPayload()['publishing'] as Map?)?['original_publisher'] as String?);
   addIfContains('Title', queryText, [item.title]);
-  addIfContains('Studio', publisherText, [item.publisher]);
+  addIfContains('Studio', publisherText, [publisher]);
   addIfContains('Year', yearText,
       [item.releaseYear?.toString(), item.releaseDate?.year.toString()]);
   return matches.isEmpty ? null : matches.join(', ');

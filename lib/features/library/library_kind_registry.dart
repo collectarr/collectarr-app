@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,7 +69,7 @@ LibraryKindRuntime libraryKindRuntimeForKind(
   if (runtime != null) {
     return runtime;
   }
-  if (kind == CatalogMediaKind.unknown) {
+  if (kind.isUnknown) {
     return genericKindModule;
   }
   return reg.require(kind);

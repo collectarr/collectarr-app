@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -140,9 +141,17 @@ class LibraryWorkspaceCard extends StatelessWidget {
             Brightness.dark
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
+    final editionsPayload =
+        item.source.catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?;
+    final rawEditions = editionsPayload != null
+        ? editionsPayload
+            .whereType<Map>()
+            .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+            .toList()
+        : const <CatalogEdition>[];
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: item.source.catalogItem?.kind ?? '',
-      editions: item.source.catalogItem?.editions ?? const [],
+      editions: rawEditions,
       editionId: item.source.ownedItem?.editionId,
       variantId: item.source.ownedItem?.variantId,
       bundleReleaseId: item.source.ownedItem?.bundleReleaseId,

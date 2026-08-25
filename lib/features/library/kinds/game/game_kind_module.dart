@@ -22,6 +22,8 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 
+import 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capability.dart';
+
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   type: gamesLibraryConfig,
   mediaAdapter: gamesMediaAdapter,
@@ -53,6 +55,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     showsDefaultPersonalSection: false,
   ),
   transfer: const LibraryTransferCapability(),
+  stats: const GameStatsCapability(),
   add: const StandardLibraryAddCapability<GameAddDraft>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,

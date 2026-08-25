@@ -17,11 +17,10 @@ final class AnimeWorkspaceProjector
   }) {
     final video =
         VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
-    AnimeMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
-    if (km is AnimeMetadata) {
-      metadata = km;
-    }
+    final AnimeMetadata? metadata = km is AnimeMetadata
+        ? km
+        : (km != null ? AnimeMetadata.fromJson(km.toSyncPayload()) : null);
     return AnimeWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
@@ -38,11 +37,10 @@ final class AnimeWorkspaceProjector
   }) {
     final video =
         VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
-    AnimeMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
-    if (km is AnimeMetadata) {
-      metadata = km;
-    }
+    final AnimeMetadata? metadata = km is AnimeMetadata
+        ? km
+        : (km != null ? AnimeMetadata.fromJson(km.toSyncPayload()) : null);
     return AnimeWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
@@ -58,11 +56,10 @@ final class AnimeWorkspaceProjector
   }) {
     final video =
         VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
-    AnimeMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
-    if (km is AnimeMetadata) {
-      metadata = km;
-    }
+    final AnimeMetadata? metadata = km is AnimeMetadata
+        ? km
+        : (km != null ? AnimeMetadata.fromJson(km.toSyncPayload()) : null);
     return AnimeWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),

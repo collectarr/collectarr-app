@@ -104,14 +104,21 @@ class _IntegrationExportDialog extends StatelessWidget {
     buffer.writeln('Title,Issue,Series,Publisher,Barcode,Condition,Grade');
     for (final entry in shelfState.entries) {
       final cat = entry.catalogItem;
+      final payload = cat?.kindMetadata.toSyncPayload();
       final own = entry.ownedItem;
-      final series = cat?.series;
+      final seriesTitle = (payload?['series_title'] ??
+          (payload?['series'] as Map?)?['series_title']) as String?;
+      final itemNumber = (payload?['item_number'] ??
+          (payload?['publishing'] as Map?)?['issue_number']) as String?;
+      final publisher = (payload?['publisher'] ??
+          (payload?['publishing'] as Map?)?['original_publisher']) as String?;
+      final barcode = payload?['barcode'] as String?;
       buffer.writeln([
         _escapeCsv(entry.title),
-        _escapeCsv(cat?.itemNumber ?? ''),
-        _escapeCsv(series?.seriesTitle ?? ''),
-        _escapeCsv(cat?.publisher ?? ''),
-        _escapeCsv(cat?.barcode ?? ''),
+        _escapeCsv(itemNumber ?? ''),
+        _escapeCsv(seriesTitle ?? ''),
+        _escapeCsv(publisher ?? ''),
+        _escapeCsv(barcode ?? ''),
         _escapeCsv(own?.condition ?? ''),
         _escapeCsv(own?.grade ?? ''),
       ].join(','));
@@ -122,14 +129,21 @@ class _IntegrationExportDialog extends StatelessWidget {
   String _toJson() {
     final items = shelfState.entries.map((e) {
       final cat = e.catalogItem;
+      final payload = cat?.kindMetadata.toSyncPayload();
       final own = e.ownedItem;
-      final series = cat?.series;
+      final seriesTitle = (payload?['series_title'] ??
+          (payload?['series'] as Map?)?['series_title']) as String?;
+      final itemNumber = (payload?['item_number'] ??
+          (payload?['publishing'] as Map?)?['issue_number']) as String?;
+      final publisher = (payload?['publisher'] ??
+          (payload?['publishing'] as Map?)?['original_publisher']) as String?;
+      final barcode = payload?['barcode'] as String?;
       return {
         'title': e.title,
-        if (cat?.itemNumber != null) 'issue': cat!.itemNumber,
-        if (series?.seriesTitle != null) 'series': series!.seriesTitle,
-        if (cat?.publisher != null) 'publisher': cat!.publisher,
-        if (cat?.barcode != null) 'barcode': cat!.barcode,
+        if (itemNumber != null) 'issue': itemNumber,
+        if (seriesTitle != null) 'series': seriesTitle,
+        if (publisher != null) 'publisher': publisher,
+        if (barcode != null) 'barcode': barcode,
         if (own?.condition != null) 'condition': own!.condition,
         if (own?.grade != null) 'grade': own!.grade,
         if (cat?.releaseYear != null) 'year': cat!.releaseYear,
@@ -150,23 +164,28 @@ class _IntegrationExportDialog extends StatelessWidget {
         '<collection name="${_escapeXml(type.workspace.title)}" count="${shelfState.entries.length}">');
     for (final entry in shelfState.entries) {
       final cat = entry.catalogItem;
+      final payload = cat?.kindMetadata.toSyncPayload();
       final own = entry.ownedItem;
-      final series = cat?.series;
+      final seriesTitle = (payload?['series_title'] ??
+          (payload?['series'] as Map?)?['series_title']) as String?;
+      final itemNumber = (payload?['item_number'] ??
+          (payload?['publishing'] as Map?)?['issue_number']) as String?;
+      final publisher = (payload?['publisher'] ??
+          (payload?['publishing'] as Map?)?['original_publisher']) as String?;
+      final barcode = payload?['barcode'] as String?;
       buffer.writeln('  <item>');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
-      if (cat?.itemNumber != null) {
-        buffer.writeln('    <issue>${_escapeXml(cat!.itemNumber!)}</issue>');
+      if (itemNumber != null) {
+        buffer.writeln('    <issue>${_escapeXml(itemNumber)}</issue>');
       }
-      if (series?.seriesTitle != null) {
-        buffer.writeln(
-            '    <series>${_escapeXml(series!.seriesTitle!)}</series>');
+      if (seriesTitle != null) {
+        buffer.writeln('    <series>${_escapeXml(seriesTitle)}</series>');
       }
-      if (cat?.publisher != null) {
-        buffer.writeln(
-            '    <publisher>${_escapeXml(cat!.publisher!)}</publisher>');
+      if (publisher != null) {
+        buffer.writeln('    <publisher>${_escapeXml(publisher)}</publisher>');
       }
-      if (cat?.barcode != null) {
-        buffer.writeln('    <barcode>${_escapeXml(cat!.barcode!)}</barcode>');
+      if (barcode != null) {
+        buffer.writeln('    <barcode>${_escapeXml(barcode)}</barcode>');
       }
       if (own?.condition != null) {
         buffer.writeln(
@@ -186,10 +205,14 @@ class _IntegrationExportDialog extends StatelessWidget {
     buffer.writeln('');
     for (final entry in shelfState.entries) {
       final cat = entry.catalogItem;
-      final series = cat?.series;
+      final payload = cat?.kindMetadata.toSyncPayload();
+      final seriesTitle = (payload?['series_title'] ??
+          (payload?['series'] as Map?)?['series_title']) as String?;
+      final itemNumber = (payload?['item_number'] ??
+          (payload?['publishing'] as Map?)?['issue_number']) as String?;
       final parts = <String>[entry.title];
-      if (cat?.itemNumber != null) parts.add('#${cat!.itemNumber!}');
-      if (series?.seriesTitle != null) parts.add('(${series!.seriesTitle!})');
+      if (itemNumber != null) parts.add('#$itemNumber');
+      if (seriesTitle != null) parts.add('($seriesTitle)');
       buffer.writeln('- [ ] ${parts.join(' ')}');
     }
     return buffer.toString();

@@ -109,10 +109,11 @@ void main() {
     });
 
     final item = candidate.placeholderItem();
+    final payload = item.kindMetadata.toSyncPayload();
 
-    expect(item.itemNumber, '1');
+    expect(payload['item_number'], '1');
     expect(item.releaseYear, 2024);
-    expect(item.variant, 'Nick Dragotta Cover');
+    expect(payload['variant'], 'Nick Dragotta Cover');
   });
 
   test('candidate type wins over legacy variant text heuristics', () {

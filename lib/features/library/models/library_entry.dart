@@ -68,10 +68,11 @@ class LibraryEntry {
       final length = itemId.length < 8 ? itemId.length : 8;
       return 'Catalog item ${itemId.substring(0, length)}';
     }
-    if (item.itemNumber == null) {
-      return item.title;
+    final itemNumber = item.kindMetadata.toSyncPayload()['item_number'] as String?;
+    if (itemNumber == null || itemNumber.trim().isEmpty) {
+      return item.resolvedDisplayTitle;
     }
-    return '${item.title} #${item.itemNumber}';
+    return '${item.title} #$itemNumber';
   }
 
   String get subtitle {

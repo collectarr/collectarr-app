@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
@@ -40,8 +41,13 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     entityType: CatalogEntityType.work,
     id: item.node.titleItemId,
   );
+  final rawEditions = ((catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?)
+          ?.whereType<Map>()
+          .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+          .toList() ??
+      const <CatalogEdition>[]);
   final releaseOptions = [
-    for (final edition in catalogItem?.editions ?? const <CatalogEdition>[])
+    for (final edition in rawEditions)
       WatchHistoryTargetOption(
         ref: CatalogEntityRef(
           kind: seriesRef.kind,
@@ -57,6 +63,14 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ),
   ];
 
+  final tvLinks = (catalogItem?.kindMetadata is TvSeriesMetadata
+          ? (catalogItem!.kindMetadata as TvSeriesMetadata).links
+          : (catalogItem?.kindMetadata.toSyncPayload()['trailer_urls'] as List?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
+              .toList()) ??
+      const <TrailerLink>[];
+
   final ownedItem = request.ownedItem;
   final trackingEntry = request.trackingEntry;
   final facts = <LibraryDetailField>[
@@ -65,16 +79,16 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       LibraryDetailField(label: 'Studio', value: dto.publisher!),
     LibraryDetailField(
         label: 'Releases',
-        value: (catalogItem?.editions.length ?? 0).toString()),
+        value: rawEditions.length.toString()),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
     if (trackingEntry?.episodeRatings.isNotEmpty == true)
       LibraryDetailField(
           label: 'Rated episodes',
           value: trackingEntry!.episodeRatings.length.toString()),
-    if (catalogItem?.trailerUrls.isNotEmpty == true)
+    if (tvLinks.isNotEmpty)
       LibraryDetailField(
-          label: 'Trailers', value: catalogItem!.trailerUrls.length.toString()),
+          label: 'Trailers', value: tvLinks.length.toString()),
   ];
 
   return <LibraryDetailSectionSpec>[
@@ -138,7 +152,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       children: [
         VideoExternalLinksSection(
           title: 'External links',
-          links: request.item.source.catalogItem?.trailerUrls ?? const [],
+          links: tvLinks,
           accent: request.accent,
         ),
         const SizedBox(height: 8),

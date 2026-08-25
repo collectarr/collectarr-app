@@ -30,25 +30,26 @@ class MusicLibraryMediaPresentationBuilder
     final metadata = _musicMetadataItem(item);
     final subtitle = _firstMeaningfulMusicValue([
       metadata?.publishing?.subtitle,
-      item.series?.volumeName,
-      if ((int.tryParse(item.series?.volumeNumber ?? '') ?? 0) > 1)
-        'Disc ${item.series!.volumeNumber}',
+      metadata?.series?.volumeName,
+      if ((int.tryParse(metadata?.series?.volumeNumber ?? '') ?? 0) > 1)
+        'Disc ${metadata!.series!.volumeNumber}',
     ], disallow: {
       item.title.trim().toLowerCase(),
     });
     final cleanedTitle = _stripTrailingMusicDescriptor(item.title, subtitle);
-    final artist = item.series?.seriesTitle?.trim();
-    final format = item.physicalFormatLabel?.trim().isNotEmpty == true
-        ? item.physicalFormatLabel!.trim()
-        : item.variant?.trim();
-    final trackCount = metadata?.music?.trackCount;
+    final artist = metadata?.series?.seriesTitle?.trim() ?? metadata?.artist?.trim();
+    final format = metadata?.physicalFormatLabel?.trim().isNotEmpty == true
+        ? metadata!.physicalFormatLabel!.trim()
+        : metadata?.variant?.trim();
+    final trackCount = metadata?.music?.trackCount ?? metadata?.trackCount;
     final catalogNumber = metadata?.music?.catalogNumber?.trim();
+    final barcode = metadata?.barcode?.trim();
     final detailParts = <String>[
       if (subtitle != null && subtitle.isNotEmpty) subtitle,
       if (format != null && format.isNotEmpty) format,
       if (trackCount != null)
         '$trackCount ${trackCount == 1 ? 'track' : 'tracks'}',
-      if (item.barcode?.trim().isNotEmpty == true) item.barcode!.trim(),
+      if (barcode != null && barcode.isNotEmpty) barcode,
       if (catalogNumber != null && catalogNumber.isNotEmpty) catalogNumber,
     ];
     return LibraryAddSearchResultDisplay(
@@ -76,7 +77,8 @@ class MusicLibraryMediaPresentationBuilder
     if (albumTitle == null || albumTitle.trim().isEmpty) {
       return null;
     }
-    final artist = item?.series?.seriesTitle ??
+    final artist = _musicMetadataItem(item)?.series?.seriesTitle ??
+        _musicMetadataItem(item)?.artist ??
         preview?.series?.seriesTitle ??
         candidate?.series?.seriesTitle;
     final releaseDetails = _musicMetadataItem(item)?.music ?? preview?.music;
@@ -116,8 +118,9 @@ class MusicLibraryMediaPresentationBuilder
       genreLine: genreLine.isEmpty ? null : genreLine,
       subLine: subLine,
       coverUrl: coverUrl,
-      itemNumber:
-          item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber,
+      itemNumber: (item?.kindMetadata.toSyncPayload()['item_number'] as String?) ??
+          preview?.itemNumber ??
+          candidate?.issueNumber,
       tracks: tracks,
       trackCount: releaseDetails?.trackCount ?? tracks.length,
       isFetchingPreview: isFetchingPreview,
@@ -255,12 +258,20 @@ class MusicLibraryMediaPresentationBuilder
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
   final metadata = item.source.catalogItem?.kindMetadata;
-  return metadata is MusicCatalogMetadata ? metadata : null;
+  if (metadata is MusicCatalogMetadata) return metadata;
+  if (metadata != null) {
+    return MusicCatalogMetadata.fromJson(metadata.toSyncPayload());
+  }
+  return null;
 }
 
 MusicCatalogMetadata? _musicMetadataItem(LibraryMetadataItem? item) {
   final metadata = item?.kindMetadata;
-  return metadata is MusicCatalogMetadata ? metadata : null;
+  if (metadata is MusicCatalogMetadata) return metadata;
+  if (metadata != null) {
+    return MusicCatalogMetadata.fromJson(metadata.toSyncPayload());
+  }
+  return null;
 }
 
 String _stripTrailingMusicDescriptor(String title, String? descriptor) {
@@ -824,19 +835,20 @@ String? _musicLabelCatalogLine({
   required AdminProviderPreview? preview,
   required ProviderCandidate? candidate,
 }) {
+  final meta = _musicMetadataItem(item);
   final parts = <String>[];
   final format =
-      item?.variant ?? preview?.variantName ?? candidate?.variantName;
+      meta?.variant ?? preview?.variantName ?? candidate?.variantName;
   if (format != null && format.trim().isNotEmpty) {
     parts.add(format.trim());
   }
-  final catalogNumber = _musicMetadataItem(item)?.music?.catalogNumber ??
+  final catalogNumber = meta?.music?.catalogNumber ??
       preview?.music?.catalogNumber;
   if (catalogNumber != null && catalogNumber.trim().isNotEmpty) {
     parts.add(catalogNumber.trim());
   }
   final publisher =
-      item?.publisher ?? preview?.publisher ?? candidate?.publisher;
+      meta?.publisher ?? meta?.publishing?.originalPublisher ?? preview?.publisher ?? candidate?.publisher;
   if (parts.isEmpty && publisher != null && publisher.trim().isNotEmpty) {
     return publisher.trim();
   }
@@ -848,13 +860,14 @@ String? _musicSupportingLine({
   required AdminProviderPreview? preview,
   required ProviderCandidate? candidate,
 }) {
+  final meta = _musicMetadataItem(item);
   final values = <String>[];
   final publisher =
-      item?.publisher ?? preview?.publisher ?? candidate?.publisher;
+      meta?.publisher ?? meta?.publishing?.originalPublisher ?? preview?.publisher ?? candidate?.publisher;
   if (publisher != null && publisher.trim().isNotEmpty) {
     values.add(publisher.trim());
   }
-  final status = _musicMetadataItem(item)?.music?.releaseStatus ??
+  final status = meta?.music?.releaseStatus ??
       preview?.music?.releaseStatus;
   if (status != null && status.trim().isNotEmpty) {
     values.add(status.trim());
@@ -866,11 +879,12 @@ String? _musicAlbumSubtitle({
   required LibraryMetadataItem? item,
   required AdminProviderPreview? preview,
 }) {
+  final meta = _musicMetadataItem(item);
   final albumTitle = item?.title ?? preview?.title;
   final candidates = <String?>[
-    _musicMetadataItem(item)?.publishing?.subtitle,
+    meta?.publishing?.subtitle,
     preview?.publishing?.subtitle,
-    item?.series?.volumeName,
+    meta?.series?.volumeName,
     preview?.series?.volumeName,
   ];
   for (final candidate in candidates) {
@@ -885,7 +899,7 @@ String? _musicAlbumSubtitle({
     return value;
   }
   final volumeNumber =
-      item?.series?.volumeNumber ?? preview?.series?.volumeNumber;
+      meta?.series?.volumeNumber ?? preview?.series?.volumeNumber;
   final volumeInt = int.tryParse(volumeNumber ?? '');
   if (volumeInt != null && volumeInt > 1) {
     return 'Disc $volumeNumber';

@@ -1,6 +1,7 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 class LibraryValueHistoryEntry {
   const LibraryValueHistoryEntry({
@@ -33,6 +34,7 @@ class LibraryValueSnapshot {
     OwnedItem? ownedItem,
     String? providerName,
     DateTime? providerUpdatedAt,
+    int? providerValueCents,
   }) {
     final dto = item.dto;
     final currency = ownedItem?.currency?.trim().isNotEmpty == true
@@ -40,17 +42,20 @@ class LibraryValueSnapshot {
         : dto.currency?.trim().isNotEmpty == true
             ? dto.currency!.trim()
             : null;
-    final metadata = item.source.catalogItem?.kindMetadata;
-    final providerValue = metadata is ComicCatalogMetadata
-        ? metadata.publishing?.coverPriceCents
-      : item.source.catalogItem?.toCatalogItem().publishing?.coverPriceCents;
+    final providerVal = providerValueCents ??
+        defaultLibraryKindRegistry
+            .tryGet(
+              item.source.catalogItem?.mediaKind ?? CatalogMediaKind.unknown,
+            )
+            ?.value
+            ?.resolveProviderValueCents(item);
     final manualValue = ownedItem?.marketValueCents;
-    final currentValue = providerValue ?? manualValue;
+    final currentValue = providerVal ?? manualValue;
     return LibraryValueSnapshot(
       purchasePriceCents: ownedItem?.pricePaidCents,
       soldPriceCents: ownedItem?.sellPriceCents,
       manualEstimatedValueCents: manualValue,
-      providerValueCents: providerValue,
+      providerValueCents: providerVal,
       insuranceValueCents:
           currentValue ?? manualValue ?? ownedItem?.pricePaidCents,
       currency: currency,

@@ -18,7 +18,10 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionRuntime item) {
   final badges = <LibraryCardBadge>[];
   final releasePlatform = dto.referenceFormatLabel?.trim();
   final developer = dto.publisher?.trim();
-  final ageRating = item.source.catalogItem?.ageRating?.trim();
+  final ageRating = dto.ageRating?.trim() ??
+      (item.source.catalogItem?.kindMetadata.toSyncPayload()['age_rating']
+              as String?)
+          ?.trim();
   final completion = item.source.ownedItem?.collectionStatus?.trim() ??
       (item.source.isOwned ? 'Owned' : null);
 

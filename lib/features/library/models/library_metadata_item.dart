@@ -8,16 +8,11 @@ final class LibraryMetadataItem {
     required this.identity,
     required this.common,
     required this.kindMetadata,
-    List<CatalogEdition>? editions,
-    CatalogItem? interopCatalogItem,
-  })  : _editions = editions,
-        _interopCatalogItem = interopCatalogItem;
+  });
 
   final LibraryItemIdentity identity;
   final LibraryCommonMetadata common;
   final LibraryKindMetadataRuntime kindMetadata;
-  final List<CatalogEdition>? _editions;
-  final CatalogItem? _interopCatalogItem;
 
   String get id => identity.id;
   CatalogMediaKind get mediaKind => identity.mediaKind;
@@ -39,23 +34,6 @@ final class LibraryMetadataItem {
 
   String get resolvedDisplayTitle => common.resolvedDisplayTitle;
   String? get displayCoverUrl => common.displayCoverUrl;
-
-  CatalogSeriesDetailsDto? get series => toCatalogItem().series;
-  String? get itemNumber => toCatalogItem().itemNumber;
-  String? get publisher => toCatalogItem().publisher;
-  String? get editionTitle => toCatalogItem().editionTitle;
-  String? get physicalFormat => toCatalogItem().physicalFormat;
-  String? get physicalFormatLabel => toCatalogItem().physicalFormatLabel;
-  String? get barcode => toCatalogItem().barcode;
-  String? get variant => toCatalogItem().variant;
-  String? get country => toCatalogItem().country;
-  String? get language => toCatalogItem().language;
-  String? get ageRating => toCatalogItem().ageRating;
-  String? get audienceRating => toCatalogItem().audienceRating;
-  List<CatalogEdition> get editions =>
-      _editions ?? _interopCatalogItem?.editions ?? toCatalogItem().editions;
-  String? get displayEditionLabel => toCatalogItem().displayEditionLabel;
-  List<TrailerLink> get trailerUrls => toCatalogItem().trailerUrls;
 
   factory LibraryMetadataItem.fromCatalogItem(CatalogItem item) {
     final identity = LibraryItemIdentity(
@@ -85,8 +63,6 @@ final class LibraryMetadataItem {
       identity: identity,
       common: common,
       kindMetadata: kindMetadata,
-      editions: item.editions,
-      interopCatalogItem: item,
     );
   }
 
@@ -98,15 +74,11 @@ final class LibraryMetadataItem {
     LibraryItemIdentity? identity,
     LibraryCommonMetadata? common,
     LibraryKindMetadataRuntime? kindMetadata,
-    List<CatalogEdition>? editions,
-    CatalogItem? interopCatalogItem,
   }) {
     return LibraryMetadataItem(
       identity: identity ?? this.identity,
       common: common ?? this.common,
       kindMetadata: kindMetadata ?? this.kindMetadata,
-      editions: editions ?? _editions,
-      interopCatalogItem: interopCatalogItem ?? _interopCatalogItem,
     );
   }
 
@@ -125,10 +97,8 @@ final class LibraryMetadataItem {
       'cover_image_url': coverImageUrl,
       'thumbnail_image_url': thumbnailImageUrl,
       if (coverImageData != null) 'cover_image_data': coverImageData,
-      'release_date': releaseDate?.toUtc().toIso8601String(),
+      'release_date': releaseDate?.toIso8601String(),
       'release_year': releaseYear,
-      if (_editions != null && !payload.containsKey('editions'))
-        'editions': _editions.map((e) => e.toJson()).toList(),
       ...payload,
     });
   }
@@ -149,10 +119,8 @@ final class LibraryMetadataItem {
       'cover_image_url': coverImageUrl,
       'thumbnail_image_url': thumbnailImageUrl,
       if (coverImageData != null) 'cover_image_data': coverImageData,
-      'release_date': releaseDate?.toUtc().toIso8601String(),
+      'release_date': releaseDate?.toIso8601String(),
       'release_year': releaseYear,
-      if (_editions != null && !payload.containsKey('editions'))
-        'editions': _editions.map((e) => e.toJson()).toList(),
       ...payload,
     };
   }

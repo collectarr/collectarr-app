@@ -341,7 +341,10 @@ class _DuplicateEntryRow extends StatelessWidget {
                   Text(
                     item == null
                         ? entry.title
-                        : _itemTitle(item.title, item.itemNumber),
+                        : _itemTitle(
+                            item.title,
+                            item.kindMetadata.toSyncPayload()['item_number']
+                                as String?),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(

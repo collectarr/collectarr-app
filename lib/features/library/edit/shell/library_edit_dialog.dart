@@ -152,8 +152,14 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           itemImages: widget.itemImages,
         );
 
+    final initialTrailerPayload = (widget.item.kindMetadata
+                .toSyncPayload()['trailer_urls'] as List?)
+            ?.whereType<Map>()
+            .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ??
+        const <TrailerLink>[];
     _links = [
-      for (final link in widget.item.trailerUrls ?? const <TrailerLinkDto>[])
+      for (final link in initialTrailerPayload)
         _LinkEntry(
           urlController: TextEditingController(text: link.url),
           descriptionController:
@@ -251,7 +257,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           ),
     ];
     var selection = _draft.toSelection(submitAction: action);
-    if (_links.isNotEmpty || widget.item.trailerUrls.isNotEmpty) {
+    final existingTrailerUrls =
+        (widget.item.kindMetadata.toSyncPayload()['trailer_urls'] as List?) ??
+            const [];
+    if (_links.isNotEmpty || existingTrailerUrls.isNotEmpty) {
       final updatedPayload = {
         ...selection.item.kindMetadata.toSyncPayload(),
         'trailer_urls': updatedLinks

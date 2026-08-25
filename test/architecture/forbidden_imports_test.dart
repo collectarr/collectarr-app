@@ -1,5 +1,9 @@
 import 'dart:io';
+import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
+
+import '../../tool/check_library_kind_boundaries.dart';
 
 void main() {
   test('source tree does not import obsolete catalog_item_types.dart', () {
@@ -50,4 +54,63 @@ void main() {
       reason: 'Domain metadata files must remain pure models and not import UI shells.',
     );
   });
+
+  test('architecture boundary checker rejects stats importing concrete comic metadata', () {
+    final repoRoot = Directory.current.path;
+    const testCode = '''
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+
+class TestStats {}
+''';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'stats', 'stats_test.dart'),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'stats', 'stats_test.dart'),
+      relativePath: 'lib/features/library/stats/stats_test.dart',
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile('lib/features/library/stats/stats_test.dart'),
+      isRegistryFile: false,
+      kindName: null,
+      repoRoot: repoRoot,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isNotEmpty);
+    expect(
+      visitor.violations.first,
+      contains('Forbidden import of kind-specific module'),
+    );
+  });
+
+  test('architecture boundary checker rejects value importing concrete comic metadata', () {
+    final repoRoot = Directory.current.path;
+    const testCode = '''
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+
+class TestValue {}
+''';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
+      relativePath: 'lib/features/library/value/value_test.dart',
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile('lib/features/library/value/value_test.dart'),
+      isRegistryFile: false,
+      kindName: null,
+      repoRoot: repoRoot,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isNotEmpty);
+    expect(
+      visitor.violations.first,
+      contains('Forbidden import of kind-specific module'),
+    );
+  });
 }
+

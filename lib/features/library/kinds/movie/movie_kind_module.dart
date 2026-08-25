@@ -21,6 +21,8 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
+import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
+
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   type: moviesLibraryConfig,
   mediaAdapter: moviesMediaAdapter,
@@ -51,6 +53,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     detailPageBuilder: buildVideoLibraryDetailPage,
   ),
   transfer: const LibraryTransferCapability(),
+  stats: const MovieStatsCapability(),
   add: const StandardLibraryAddCapability<MovieAddDraft>(
     kind: CatalogMediaKind.movie,
     initialDraftBuilder: MovieAddDraft.new,

@@ -16,8 +16,16 @@ class VideoEditDiscsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final editionsPayload =
+        item.kindMetadata.toSyncPayload()['editions'] as List?;
+    final editions = editionsPayload != null
+        ? editionsPayload
+            .whereType<Map>()
+            .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+            .toList()
+        : const <CatalogEdition>[];
     final allDiscs = <(String, CatalogDisc)>[];
-    for (final edition in item.editions) {
+    for (final edition in editions) {
       for (final disc in edition.discs) {
         allDiscs.add((edition.title, disc));
       }

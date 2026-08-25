@@ -108,12 +108,21 @@ double _topMetadataMatchConfidence(
 
 int _scoreMetadataItem(
     LibraryMetadataItem item, LibraryAddLocalRerankHints hints) {
+  final payload = item.kindMetadata.toSyncPayload();
+  final seriesMap = payload['series'] as Map?;
+  final seriesTitle =
+      (payload['series_title'] ?? seriesMap?['series_title']) as String?;
+  final itemNumber = (payload['item_number'] ??
+      (payload['publishing'] as Map?)?['issue_number']) as String?;
+  final publisher = (payload['publisher'] ??
+      (payload['publishing'] as Map?)?['original_publisher']) as String?;
+  final volumeStartYear = (seriesMap?['volume_start_year'] as num?)?.toInt();
   return _scoreMatchFields(
     title: item.title,
-    series: item.series?.seriesTitle,
-    issueNumber: item.itemNumber,
-    publisher: item.publisher,
-    year: item.releaseYear ?? item.series?.volumeStartYear,
+    series: seriesTitle,
+    issueNumber: itemNumber,
+    publisher: publisher,
+    year: item.releaseYear ?? volumeStartYear,
     hints: hints,
   );
 }

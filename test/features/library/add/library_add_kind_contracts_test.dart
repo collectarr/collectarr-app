@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';

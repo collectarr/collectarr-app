@@ -225,6 +225,7 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
     this.variant,
     this.creators = const [],
     this.links = const [],
+    this.editions = const [],
   });
 
   @override
@@ -265,6 +266,7 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
   final String? variant;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
+  final List<CatalogEditionDto> editions;
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -317,6 +319,8 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
                 .map((e) => e.toJson())
                 .toList(),
         },
+        if (editions.isNotEmpty)
+          'editions': editions.map((e) => e.toJson()).toList(),
       };
 
   factory TvSeriesMetadata.fromJson(Map<String, dynamic> json) {
@@ -412,6 +416,12 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
       variant: json['variant'] as String?,
       creators: rawCreators,
       links: rawLinks,
+      editions: (json['editions'] as List<dynamic>?)
+              ?.whereType<Map>()
+              .map((e) =>
+                  CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+              .toList() ??
+          const <CatalogEditionDto>[],
     );
   }
 }

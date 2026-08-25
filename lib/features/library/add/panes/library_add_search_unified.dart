@@ -47,7 +47,10 @@ class LibraryAddUnifiedSearchGroup {
 
 /// Extracts the series title from a Core [LibraryMetadataItem].
 String _coreGroupTitle(LibraryMetadataItem item) {
-  final seriesTitle = item.series?.seriesTitle?.trim();
+  final payload = item.kindMetadata.toSyncPayload();
+  final seriesTitle = ((payload['series_title'] ??
+          (payload['series'] as Map?)?['series_title']) as String?)
+      ?.trim();
   if (seriesTitle != null && seriesTitle.isNotEmpty) {
     return seriesTitle;
   }
@@ -154,7 +157,10 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       ensureKey(key, groupTitle);
       coreItems[key]!.add(item);
       sourceSets[key]!.add('core');
-      publishers[key] ??= item.publisher;
+      final payload = item.kindMetadata.toSyncPayload();
+      final publisher = (payload['publisher'] ??
+          (payload['publishing'] as Map?)?['original_publisher']) as String?;
+      publishers[key] ??= publisher;
       years[key] ??= item.releaseYear;
       coverUrls[key] ??= item.displayCoverUrl;
     }
@@ -639,11 +645,16 @@ class _UnifiedCoreChildTile extends StatelessWidget {
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
     final displayTitle = _coreChildDisplayTitle(item);
+    final payload = item.kindMetadata.toSyncPayload();
+    final publisher = (payload['publisher'] ??
+        (payload['publishing'] as Map?)?['original_publisher']) as String?;
+    final physicalFormatLabel = payload['physical_format_label'] as String?;
+    final variant = payload['variant'] as String?;
     final subtitleParts = <String>[
-      if (item.publisher != null) item.publisher!,
+      if (publisher != null) publisher,
       if (item.releaseYear != null) item.releaseYear.toString(),
-      if (item.physicalFormatLabel != null) item.physicalFormatLabel!,
-      if (item.variant != null) item.variant!,
+      if (physicalFormatLabel != null) physicalFormatLabel,
+      if (variant != null) variant,
     ];
     return Material(
       color: selected ? palette.selection : Colors.transparent,
@@ -728,8 +739,11 @@ class _UnifiedCoreChildTile extends StatelessWidget {
 }
 
 String _coreChildDisplayTitle(LibraryMetadataItem item) {
-  if (item.itemNumber != null && item.itemNumber!.trim().isNotEmpty) {
-    return '${item.title} #${item.itemNumber}';
+  final itemNumber = (item.kindMetadata.toSyncPayload()['item_number'] ??
+          (item.kindMetadata.toSyncPayload()['publishing']
+              as Map?)?['issue_number']) as String?;
+  if (itemNumber != null && itemNumber.trim().isNotEmpty) {
+    return '${item.title} #$itemNumber';
   }
   return item.title;
 }

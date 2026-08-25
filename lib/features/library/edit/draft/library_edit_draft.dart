@@ -153,10 +153,23 @@ class LibraryEditDraft {
     TextEditingController create([String text = '']) =>
         textControllers.create(text: text);
 
+    final payload = item.kindMetadata.toSyncPayload();
+    final seriesMap = payload['series'] as Map?;
+    final seriesTitle = (payload['series_title'] ?? seriesMap?['series_title']) as String?;
+    final seriesId = (payload['series_id'] ?? seriesMap?['series_id']) as String?;
+    final editionTitle = (payload['edition_title'] ?? payload['title_extension']) as String?;
+    final itemNumber = (payload['item_number'] ?? (payload['publishing'] as Map?)?['issue_number']) as String?;
+    final publisher = (payload['publisher'] ?? (payload['publishing'] as Map?)?['original_publisher']) as String?;
+    final barcode = payload['barcode'] as String?;
+    final variant = payload['variant'] as String?;
+    final country = payload['country'] as String?;
+    final language = payload['language'] as String?;
+    final physicalFormatLabel = payload['physical_format_label'] as String?;
+
     final catalog = type.resolveCatalogItem(item);
     final titleController = create(item.title);
-    final numberController = create(item.itemNumber ?? '');
-    final publisherController = create(item.publisher ?? '');
+    final numberController = create(itemNumber ?? '');
+    final publisherController = create(publisher ?? '');
     final coverDateController = create(
       catalog.coverDate == null ? '' : formatDate(catalog.coverDate!),
     );
@@ -178,6 +191,7 @@ class LibraryEditDraft {
     final releaseDateYearPartController = create(
       item.releaseDate?.year.toString() ?? '',
     );
+
     final releaseDateMonthPartController = create(
       item.releaseDate == null
           ? ''
@@ -189,14 +203,13 @@ class LibraryEditDraft {
           : item.releaseDate!.day.toString().padLeft(2, '0'),
     );
     final releaseYearController = create(item.releaseYear?.toString() ?? '');
-    final editionTitleController =
-        create(item.editionTitle ?? item.titleExtension ?? '');
-    final barcodeController = create(item.barcode ?? '');
-    final variantController = create(item.variant ?? '');
+    final editionTitleController = create(editionTitle ?? '');
+    final barcodeController = create(barcode ?? '');
+    final variantController = create(variant ?? '');
     final physicalFormatLabelController = create(
-      item.physicalFormatLabel ??
+      physicalFormatLabel ??
           (type.releaseFields.variantSeedsPhysicalFormatLabel
-              ? item.variant
+              ? variant
               : null) ??
           (initialPhysicalFormatId == null
               ? null
@@ -216,9 +229,9 @@ class LibraryEditDraft {
     final searchAliasesController = create(
       (item.searchAliases ?? const <String>[]).join(', '),
     );
-    final countryController = create(item.country ?? '');
-    final languageController = create(item.language ?? '');
-    final seriesTitleController = create(item.series?.seriesTitle ?? '');
+    final countryController = create(country ?? '');
+    final languageController = create(language ?? '');
+    final seriesTitleController = create(seriesTitle ?? '');
     final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
     final conditionController = create(ownedItem?.condition ?? '');
     final gradeController = create(ownedItem?.grade ?? '');
@@ -274,19 +287,27 @@ class LibraryEditDraft {
           : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
     );
 
+    final editionsPayload = payload['editions'] as List?;
+    final editions = editionsPayload != null
+        ? editionsPayload
+            .whereType<Map>()
+            .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+            .toList()
+        : const <CatalogEdition>[];
+
     final editionSelection = resolveLibraryEditionSelection(
-      item.editions,
+      editions,
       editionId: ownedItem?.editionId ?? trackingEntry?.editionId,
-      editionTitle: item.editionTitle,
+      editionTitle: editionTitle,
       variantId: ownedItem?.variantId ?? trackingEntry?.variantId,
-      variantName: item.variant,
+      variantName: variant,
     );
     final wishlistEditionSelection = resolveLibraryEditionSelection(
-      item.editions,
+      editions,
       editionId: wishlistItem?.editionId,
-      editionTitle: item.editionTitle,
+      editionTitle: editionTitle,
       variantId: wishlistItem?.variantId,
-      variantName: item.variant,
+      variantName: variant,
     );
 
     final metadata = CommonMetadataDraft(
@@ -318,7 +339,7 @@ class LibraryEditDraft {
       languageController: languageController,
       seriesTitleController: seriesTitleController,
       physicalFormatId: initialPhysicalFormatId,
-      seriesId: item.series?.seriesId,
+      seriesId: seriesId,
     );
 
     final personal = PersonalStateDraft(
@@ -446,11 +467,12 @@ class LibraryEditDraft {
   }
 
   bool get isDigitalFormat {
+    final payload = item.kindMetadata.toSyncPayload();
     return isDigitalPhysicalMediaFormat(
       metadata.physicalFormatId,
       label: physicalFormatForId(metadata.physicalFormatId)?.label ??
           emptyToNull(metadata.physicalFormatLabelController.text) ??
-          item.physicalFormatLabel ??
+          (payload['physical_format_label'] as String?) ??
           metadata.variantController.text,
       formats: physicalFormats.isEmpty
           ? allKnownPhysicalMediaFormats
@@ -470,12 +492,20 @@ class LibraryEditDraft {
     Map<String, String?> customFieldEdits,
     List<ItemImageEdit> itemImageEdits,
   }) cloneDialogState() {
+    final payload = item.kindMetadata.toSyncPayload();
+    final editionsPayload = payload['editions'] as List?;
+    final editions = editionsPayload != null
+        ? editionsPayload
+            .whereType<Map>()
+            .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+            .toList()
+        : const <CatalogEdition>[];
     final editionSelection = resolveLibraryEditionSelection(
-      item.editions,
+      editions,
       editionId: ownedItem?.editionId ?? trackingEntry?.editionId,
-      editionTitle: item.editionTitle,
+      editionTitle: payload['edition_title'] as String?,
       variantId: ownedItem?.variantId ?? trackingEntry?.variantId,
-      variantName: item.variant,
+      variantName: payload['variant'] as String?,
     );
     return (
       selectedLocationId: personal.selectedLocationId,
@@ -507,10 +537,13 @@ class LibraryEditDraft {
       );
 
   bool get showsEpisodeTrackingFields {
-    final series = item.series;
+    final payload = item.kindMetadata.toSyncPayload();
+    final seriesMap = payload['series'] as Map?;
+    final seasonNumber = payload['season_number'] ?? seriesMap?['season_number'];
+    final episodeNumber = payload['episode_number'] ?? seriesMap?['episode_number'];
     return type.trackingProfile.name == videoTrackingProfile.name ||
-        series?.seasonNumber != null ||
-        series?.episodeNumber != null;
+        seasonNumber != null ||
+        episodeNumber != null;
   }
 
   LibraryEditSelection toSelection({
@@ -693,19 +726,31 @@ class LibraryEditDraft {
     final seriesTitle = type.editUsesTitleAsSeries
         ? emptyToNull(metadata.titleController.text)
         : typedSeriesTitle;
-    final currentSeries = item.series;
-    if (seriesTitle == null && currentSeries == null) {
+    final payload = item.kindMetadata.toSyncPayload();
+    final currentSeriesMap = payload['series'] as Map?;
+    final currentSeriesTitle = (payload['series_title'] ??
+        currentSeriesMap?['series_title']) as String?;
+    if (seriesTitle == null &&
+        currentSeriesTitle == null &&
+        currentSeriesMap == null) {
       return null;
     }
     return CatalogSeriesDetails(
       seriesId: metadata.seriesId,
-      seriesTitle: seriesTitle,
-      volumeName: currentSeries?.volumeName,
-      volumeNumber: currentSeries?.volumeNumber,
-      volumeStartYear: currentSeries?.volumeStartYear,
-      seasonNumber: currentSeries?.seasonNumber,
-      episodeNumber: currentSeries?.episodeNumber,
-      tags: currentSeries?.tags,
+      seriesTitle: seriesTitle ?? currentSeriesTitle,
+      volumeName: currentSeriesMap?['volume_name'] as String?,
+      volumeNumber: currentSeriesMap?['volume_number'] as String?,
+      volumeStartYear:
+          (currentSeriesMap?['volume_start_year'] as num?)?.toInt(),
+      seasonNumber: ((payload['season_number'] ??
+              currentSeriesMap?['season_number']) as num?)
+          ?.toInt(),
+      episodeNumber: ((payload['episode_number'] ??
+              currentSeriesMap?['episode_number']) as num?)
+          ?.toInt(),
+      tags: (currentSeriesMap?['tags'] as List?)
+          ?.map((e) => e.toString())
+          .join(', '),
     );
   }
 
@@ -739,15 +784,18 @@ class LibraryEditDraft {
     final effectiveFormats = physicalFormats.isEmpty
         ? allKnownPhysicalMediaFormats
         : physicalFormats;
-    final configured = item.physicalFormat == null
+    final payload = item.kindMetadata.toSyncPayload();
+    final physicalFormat = payload['physical_format'] as String?;
+    final physicalFormatLabel = payload['physical_format_label'] as String?;
+    final variant = payload['variant'] as String?;
+    final configured = physicalFormat == null
         ? null
-        : physicalMediaFormatById(item.physicalFormat!,
-            formats: effectiveFormats);
+        : physicalMediaFormatById(physicalFormat, formats: effectiveFormats);
     if (configured != null) {
       return configured.id;
     }
     final byLabel = physicalMediaFormatByLabelOrId(
-      item.physicalFormatLabel ?? item.variant,
+      physicalFormatLabel ?? variant,
       formats: effectiveFormats,
     );
     return byLabel?.id;

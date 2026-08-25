@@ -12,7 +12,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -631,10 +631,15 @@ class _MovieSearchResultsGrid extends StatelessWidget {
         final checked = isCore && checkedResultIds.contains(item.id);
         final title = isCore ? item.title : candidate!.title;
         final coverUrl = isCore ? item.displayCoverUrl : candidate!.imageUrl;
+        final corePublisher = isCore
+            ? ((item.kindMetadata.toSyncPayload()['publisher'] ??
+                    (item.kindMetadata.toSyncPayload()['publishing']
+                        as Map?)?['original_publisher']) as String?)
+            : null;
         final subtitle = isCore
             ? [
                 if (item.releaseYear != null) item.releaseYear.toString(),
-                if (item.publisher != null) item.publisher,
+                if (corePublisher != null) corePublisher,
               ].whereType<String>().join(' · ')
             : [
                 if (candidate != null) providerLabel(candidate.provider),
@@ -1038,13 +1043,21 @@ class SearchResultTile extends StatelessWidget {
     );
     final resultDisplay =
         type.presentation.builder.buildSearchResultDisplay(item: item);
+    final payload = item.kindMetadata.toSyncPayload();
+    final publisher = (payload['publisher'] ??
+        (payload['publishing'] as Map?)?['original_publisher']) as String?;
+    final physicalFormatLabel = payload['physical_format_label'] as String?;
+    final variant = payload['variant'] as String?;
+    final barcode = payload['barcode'] as String?;
+    final itemNumber = (payload['item_number'] ??
+        (payload['publishing'] as Map?)?['issue_number']) as String?;
     final subtitle = resultDisplay?.secondaryLine ??
         [
-          if (item.publisher != null) item.publisher,
+          if (publisher != null) publisher,
           if (item.releaseYear != null) item.releaseYear.toString(),
-          if (item.physicalFormatLabel != null) item.physicalFormatLabel,
-          if (item.variant != null) item.variant,
-          if (item.barcode != null) item.barcode,
+          if (physicalFormatLabel != null) physicalFormatLabel,
+          if (variant != null) variant,
+          if (barcode != null) barcode,
         ].whereType<String>().join(' | ');
     final detailLine = resultDisplay?.detailLine;
     final ownedTone = Theme.of(context).colorScheme.tertiary;
@@ -1105,7 +1118,7 @@ class SearchResultTile extends StatelessWidget {
                 height: 56,
                 child: LibraryCoverImage(
                   title: item.title,
-                  itemNumber: item.itemNumber,
+                  itemNumber: itemNumber,
                   imageUrl: item.displayCoverUrl,
                 ),
               ),
@@ -1134,9 +1147,9 @@ class SearchResultTile extends StatelessWidget {
                         ],
                         Text(
                           resultDisplay?.title ??
-                              (item.itemNumber == null
+                              (itemNumber == null
                                   ? item.title
-                                  : '${item.title} #${item.itemNumber}'),
+                                  : '${item.title} #$itemNumber'),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -1218,7 +1231,17 @@ String? _metadataItemMatchSummary({
 }) {
   final groupLabels = libraryMediaGroupLabels(type);
   final fieldLabels = type.mediaFields;
-  final series = item.series;
+  final payload = item.kindMetadata.toSyncPayload();
+  final seriesMap = payload['series'] as Map?;
+  final seriesTitle = (payload['series_title'] ?? seriesMap?['series_title']) as String?;
+  final publisher = (payload['publisher'] ?? (payload['publishing'] as Map?)?['original_publisher']) as String?;
+  final itemNumber = (payload['item_number'] ?? (payload['publishing'] as Map?)?['issue_number']) as String?;
+  final displayEditionLabel = (payload['edition_title'] ?? payload['title_extension']) as String?;
+  final barcode = payload['barcode'] as String?;
+  final volumeName = seriesMap?['volume_name'] as String?;
+  final volumeNumber = seriesMap?['volume_number']?.toString();
+  final seasonNumber = (payload['season_number'] ?? seriesMap?['season_number'])?.toString();
+  final episodeNumber = (payload['episode_number'] ?? seriesMap?['episode_number'])?.toString();
   final reasons = <String>[];
   final seen = <String>{};
 
@@ -1240,15 +1263,15 @@ String? _metadataItemMatchSummary({
   }
 
   addIfMatch('Title', queryText, [item.title]);
-  addIfMatch(groupLabels.series, seriesText, [series?.seriesTitle]);
-  addIfMatch(groupLabels.publisher, publisherText, [item.publisher]);
+  addIfMatch(groupLabels.series, seriesText, [seriesTitle]);
+  addIfMatch(groupLabels.publisher, publisherText, [publisher]);
   addIfMatch(fieldLabels.numberLabel, numberText, [
-    item.itemNumber,
-    series?.volumeName,
-    series?.volumeNumber?.toString(),
-    series?.seasonNumber?.toString(),
-    series?.episodeNumber?.toString(),
-    item.displayEditionLabel,
+    itemNumber,
+    volumeName,
+    volumeNumber,
+    seasonNumber,
+    episodeNumber,
+    displayEditionLabel,
   ]);
   addIfMatch('Year', yearText, [
     item.releaseYear?.toString(),
@@ -1257,16 +1280,16 @@ String? _metadataItemMatchSummary({
 
   final generalQuery = queryText.trim();
   if (generalQuery.isNotEmpty) {
-    addIfMatch(groupLabels.series, generalQuery, [series?.seriesTitle]);
-    addIfMatch(groupLabels.publisher, generalQuery, [item.publisher]);
+    addIfMatch(groupLabels.series, generalQuery, [seriesTitle]);
+    addIfMatch(groupLabels.publisher, generalQuery, [publisher]);
     addIfMatch(fieldLabels.numberLabel, generalQuery, [
-      item.itemNumber,
-      series?.volumeName,
-      series?.volumeNumber?.toString(),
-      series?.seasonNumber?.toString(),
-      series?.episodeNumber?.toString(),
-      item.displayEditionLabel,
-      item.barcode,
+      itemNumber,
+      volumeName,
+      volumeNumber,
+      seasonNumber,
+      episodeNumber,
+      displayEditionLabel,
+      barcode,
     ]);
   }
 

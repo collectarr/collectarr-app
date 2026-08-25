@@ -823,7 +823,12 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
       if (dto.referenceFormatLabel != null) dto.referenceFormatLabel,
     ].whereType<String>().join('  ·  ');
 
-    final editions = widget.item.source.catalogItem?.editions ?? [];
+    final payload = widget.item.source.catalogItem?.kindMetadata.toSyncPayload();
+    final editions = (payload?['editions'] as List?)
+            ?.whereType<Map>()
+            .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ??
+        const <CatalogEdition>[];
     final hasReleases = editions.length > 1;
 
     return DecoratedBox(

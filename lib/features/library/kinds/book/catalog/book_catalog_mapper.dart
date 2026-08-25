@@ -104,13 +104,12 @@ class BookCatalogMapper {
 
   /// Maps [LibraryMetadataItem] directly to domain [BookCatalogItem].
   static BookCatalogItem mapMetadataItemToBook(LibraryMetadataItem item) {
-    final metadata = item.kindMetadata;
-    if (metadata is! BookCatalogMetadata) {
-      throw ArgumentError.value(
-        metadata,
-        'item.kindMetadata',
-        'Expected BookCatalogMetadata',
-      );
+    final rawMetadata = item.kindMetadata;
+    final BookCatalogMetadata metadata;
+    if (rawMetadata is BookCatalogMetadata) {
+      metadata = rawMetadata;
+    } else {
+      metadata = BookCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
     }
 
     final seriesDetails = metadata.series;

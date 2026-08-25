@@ -87,7 +87,7 @@ class CatalogEditionDto {
       if (language != null) 'language': language,
       if (region != null) 'region': region,
       if (releaseDate != null)
-        'release_date': releaseDate!.toUtc().toIso8601String(),
+        'release_date': releaseDate!.toIso8601String(),
       if (physicalFormat != null) 'physical_format': physicalFormat,
       if (physicalFormatLabel != null)
         'physical_format_label': physicalFormatLabel,

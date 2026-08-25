@@ -349,7 +349,9 @@ class BookLibraryMediaPresentationBuilder
     final coverUrl =
         item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
     final itemNumber =
-        item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber;
+        (item?.kindMetadata.toSyncPayload()['item_number'] as String?) ??
+        preview?.itemNumber ??
+        candidate?.issueNumber;
     return _BookAddPreviewPane(
       accent: accent,
       title: title,
@@ -693,11 +695,13 @@ String? _bookSubtitleForSelection({
     return subtitle.trim();
   }
 
-  final seriesTitle = item?.series?.seriesTitle ??
+  final seriesTitle = _bookMetadataItem(item)?.series?.seriesTitle ??
       preview?.series?.seriesTitle ??
       candidate?.series?.seriesTitle;
   final number =
-      item?.itemNumber ?? preview?.itemNumber ?? candidate?.issueNumber;
+      (item?.kindMetadata.toSyncPayload()['item_number'] as String?) ??
+      preview?.itemNumber ??
+      candidate?.issueNumber;
   if (seriesTitle != null &&
       seriesTitle.trim().isNotEmpty &&
       seriesTitle.trim() != title.trim()) {
@@ -707,7 +711,9 @@ String? _bookSubtitleForSelection({
     return seriesTitle.trim();
   }
 
-  final edition = item?.displayEditionLabel ??
+  final edition = _bookMetadataItem(item)?.editionTitle ??
+      _bookMetadataItem(item)?.physicalFormatLabel ??
+      (item?.kindMetadata.toSyncPayload()['edition_title'] as String?) ??
       preview?.physicalFormatLabel ??
       preview?.editionTitle;
   return edition?.trim().isEmpty ?? true ? null : edition!.trim();
@@ -767,8 +773,11 @@ String? _bookPublisherYearLineForSelection({
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
-  final publisher =
-      item?.publisher ?? preview?.publisher ?? candidate?.publisher;
+  final publisher = _bookMetadataItem(item)?.publisher ??
+      _bookMetadataItem(item)?.publishing?.originalPublisher ??
+      (item?.kindMetadata.toSyncPayload()['publisher'] as String?) ??
+      preview?.publisher ??
+      candidate?.publisher;
   final year = item?.releaseDate?.year ??
       preview?.releaseDate?.year ??
       item?.releaseYear ??
@@ -784,15 +793,18 @@ String? _bookFormatLanguageLineForSelection({
   required LibraryMetadataItem? item,
   required AdminProviderPreview? preview,
 }) {
+  final meta = _bookMetadataItem(item);
+  final displayEditionLabel = meta?.editionTitle ??
+      meta?.physicalFormatLabel ??
+      (meta?.toSyncPayload()['edition_title'] as String?);
   final values = <String>[
-    if (item?.displayEditionLabel != null &&
-        item!.displayEditionLabel!.trim().isNotEmpty)
-      item.displayEditionLabel!.trim()
+    if (displayEditionLabel != null && displayEditionLabel.trim().isNotEmpty)
+      displayEditionLabel.trim()
     else if (preview?.physicalFormatLabel != null &&
         preview!.physicalFormatLabel!.trim().isNotEmpty)
       preview.physicalFormatLabel!.trim(),
-    if (item?.language != null && item!.language!.trim().isNotEmpty)
-      item.language!.trim()
+    if (meta?.language != null && meta!.language!.trim().isNotEmpty)
+      meta.language!.trim()
     else if (preview?.language != null && preview!.language!.trim().isNotEmpty)
       preview.language!.trim(),
   ];
@@ -803,7 +815,8 @@ String? _bookIsbnForSelection({
   required LibraryMetadataItem? item,
   required AdminProviderPreview? preview,
 }) {
-  final isbn = preview?.isbn ?? item?.barcode;
+  final meta = _bookMetadataItem(item);
+  final isbn = preview?.isbn ?? meta?.barcode;
   return isbn?.trim().isEmpty ?? true ? null : isbn!.trim();
 }
 
@@ -836,9 +849,9 @@ List<String> _bookDiscoveryTagsForSelection({
     }
   }
 
-  addAll(
-      _bookMetadataItem(item)?.genres ?? preview?.genres ?? const <String>[]);
-  addAll(item?.series?.tags?.split(', ') ??
+  final meta = _bookMetadataItem(item);
+  addAll(meta?.genres ?? preview?.genres ?? const <String>[]);
+  addAll(meta?.series?.tags?.split(', ') ??
       (preview?.series?.tags != null
           ? [preview!.series!.tags!]
           : const <String>[]));

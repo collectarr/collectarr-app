@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -16,11 +17,13 @@ LibraryCardPresentation buildMovieCardPresentation(
 List<LibraryCardBadge> _movieCompactBadges(LibraryProjectionRuntime item) {
   final dto = item.dto;
   final badges = <LibraryCardBadge>[];
+  final editionsPayload = item.source.catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?;
+  final firstEdition = editionsPayload != null && editionsPayload.isNotEmpty && editionsPayload.first is Map
+      ? CatalogEdition.fromJson(Map<String, dynamic>.from(editionsPayload.first as Map))
+      : null;
   final edition = item.node is LibraryReleaseNodeRef
       ? (item.node as LibraryReleaseNodeRef).edition
-      : (item.source.catalogItem?.editions.isNotEmpty == true
-          ? item.source.catalogItem!.editions.first
-          : null);
+      : firstEdition;
   final format = dto.referenceFormatLabel?.trim() ??
       edition?.format?.trim() ??
       edition?.physicalFormatLabel?.trim();

@@ -29,7 +29,9 @@ class _MovieAddPreviewPane extends StatelessWidget {
     final title = selectedBundle?.title ??
         selectedItem?.title ??
         selectedCandidate!.title;
-    final itemNumber = selectedBundle == null ? selectedItem?.itemNumber : null;
+    final itemNumber = selectedBundle == null
+        ? (selectedItem?.kindMetadata.toSyncPayload()['item_number'] as String?)
+        : null;
     final preview = request.candidatePreview;
     final synopsis = selectedItem?.synopsis ??
         preview?.synopsis ??
@@ -114,12 +116,9 @@ class _MovieAddPreviewPane extends StatelessWidget {
                               selectedItem!.releaseYear.toString(),
                               accent: request.accent,
                             ),
-                          if (selectedItem?.physicalFormatLabel
-                                  ?.trim()
-                                  .isNotEmpty ==
-                              true)
+                          if ((selectedItem?.kindMetadata.toSyncPayload()['physical_format_label'] as String?)?.trim().isNotEmpty == true)
                             LibraryAddResultBadge(
-                              selectedItem!.physicalFormatLabel!,
+                              (selectedItem!.kindMetadata.toSyncPayload()['physical_format_label'] as String).trim(),
                               accent: request.accent,
                             ),
                         ],

@@ -42,7 +42,10 @@ bool itemHasMissingCover(LibraryMetadataItem item) {
 }
 
 bool itemHasMissingDetails(LibraryMetadataItem item) {
-  return (item.publisher == null || item.publisher!.trim().isEmpty) ||
+  final payload = item.kindMetadata.toSyncPayload();
+  final publisher = (payload['publisher'] ??
+      (payload['publishing'] as Map?)?['original_publisher']) as String?;
+  return (publisher == null || publisher.trim().isEmpty) ||
       item.releaseDate == null ||
       (item.synopsis == null || item.synopsis!.trim().isEmpty);
 }

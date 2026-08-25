@@ -189,8 +189,13 @@ LibraryEditSelection applyComicSelectionEdits(
   final characterNames = characterDetails
       .map((character) => character['name']!.toString())
       .toList(growable: false);
-  final trailerLinks = selection.item.trailerUrls
-      .where((link) => link.isTrailerLink)
+  final payload = selection.item.kindMetadata.toSyncPayload();
+  final trailerLinks = ((payload['trailer_urls'] as List?)
+              ?.whereType<Map>()
+              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
+              .where((link) => link.isTrailerLink)
+              .toList() ??
+          <TrailerLink>[])
       .toList(growable: true);
   final externalLinks = <TrailerLink>[];
   for (final link in links) {
@@ -210,7 +215,6 @@ LibraryEditSelection applyComicSelectionEdits(
       ),
     );
   }
-  final payload = selection.item.kindMetadata.toSyncPayload();
   final updatedPayload = {
     ...payload,
     if (mappedCreators.isNotEmpty) 'creators': mappedCreators,

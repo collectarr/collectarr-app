@@ -16,7 +16,6 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_sess
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';

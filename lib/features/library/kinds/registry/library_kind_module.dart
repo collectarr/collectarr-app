@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/config/library_media_adapter.dar
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
+import 'package:collectarr_app/features/library/config/library_value_capability.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
@@ -35,6 +37,8 @@ export 'package:collectarr_app/features/library/config/library_inspector_capabil
 export 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 export 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
 export 'package:collectarr_app/features/library/config/library_facet_types.dart';
+export 'package:collectarr_app/features/library/config/library_stats_capability.dart';
+export 'package:collectarr_app/features/library/config/library_value_capability.dart';
 export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 
@@ -46,6 +50,8 @@ abstract interface class LibraryKindRuntime {
   LibraryInspectorCapability get inspector;
   LibraryEditCapability get edit;
   LibraryTransferCapability get transfer;
+  LibraryStatsCapability get stats;
+  LibraryValueCapability? get value;
   LibraryTypeConfig get type;
   LibraryTypeCapabilities get capabilities;
   LibraryMediaAdapter get mediaAdapter;
@@ -127,6 +133,8 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required this.hierarchy,
     required this.inspector,
     required this.transfer,
+    this.stats = const DefaultLibraryStatsCapability(),
+    this.value,
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.toolbar,
     this.providerMapper,
@@ -151,6 +159,10 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   final LibraryInspectorCapability inspector;
   @override
   final LibraryTransferCapability transfer;
+  @override
+  final LibraryStatsCapability stats;
+  @override
+  final LibraryValueCapability? value;
   @override
   final LibraryEditCapability edit;
 

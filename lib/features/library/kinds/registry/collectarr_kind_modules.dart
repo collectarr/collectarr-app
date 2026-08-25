@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.da
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
@@ -19,6 +20,8 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
+
+export 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
 
 final bool _kindDecodersInitialized = _initDecoders();
 
@@ -38,6 +41,10 @@ bool _initDecoders() {
     };
   });
   return true;
+}
+
+void ensureLibraryKindDecodersInitialized() {
+  final _ = _kindDecodersInitialized;
 }
 
 final List<LibraryKindRuntime> collectarrKindModules = [

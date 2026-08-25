@@ -78,6 +78,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     this.creators = const [],
     this.links = const [],
     this.releases = const [],
+    this.editions = const [],
   });
 
   @override
@@ -125,6 +126,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
   final List<MovieReleaseMetadata> releases;
+  final List<CatalogEditionDto> editions;
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -189,6 +191,8 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
         },
         if (releases.isNotEmpty)
           'releases': releases.map((e) => e.toJson()).toList(),
+        if (editions.isNotEmpty)
+          'editions': editions.map((e) => e.toJson()).toList(),
       };
 
   factory MovieCatalogMetadata.fromJson(Map<String, dynamic> json) {
@@ -242,6 +246,13 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     final resolvedScreenRatio =
         (json['screen_ratio'] ?? video.screenRatio) as String?;
     final resolvedLayers = (json['layers'] ?? video.layers) as String?;
+
+    final rawEditions = (json['editions'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) =>
+                CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ??
+        const <CatalogEditionDto>[];
 
     return MovieCatalogMetadata(
       title: (json['title'] as String?) ?? '',
@@ -317,6 +328,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
       creators: rawCreators,
       links: rawLinks,
       releases: rawReleases,
+      editions: rawEditions,
     );
   }
 }

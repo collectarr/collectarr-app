@@ -40,17 +40,24 @@ class VideoEditController {
         ),
         seasonNumberController = TextEditingController(
           text: initialSeasonNumber ??
-              item.series?.seasonNumber?.toString() ??
-              '',
+              (item.kindMetadata.toSyncPayload()['season_number']?.toString() ??
+                  (item.kindMetadata.toSyncPayload()['series'] as Map?)?['season_number']?.toString() ??
+                  ''),
         ),
         episodeNumberController = TextEditingController(
           text: initialEpisodeNumber ??
-              item.series?.episodeNumber?.toString() ??
+              (item.kindMetadata.toSyncPayload()['episode_number']?.toString() ??
+                  (item.kindMetadata.toSyncPayload()['series'] as Map?)?['episode_number']?.toString() ??
+                  ''),
+        ),
+        ageRatingController = TextEditingController(
+          text: (item.kindMetadata.toSyncPayload()['age_rating'] as String?) ??
+              (item.kindMetadata.toSyncPayload()['content_rating'] as String?) ??
               '',
         ),
-        ageRatingController = TextEditingController(text: item.ageRating ?? ''),
-        audienceRatingController =
-            TextEditingController(text: item.audienceRating ?? ''),
+        audienceRatingController = TextEditingController(
+          text: (item.kindMetadata.toSyncPayload()['audience_rating'] as String?) ?? '',
+        ),
         genresEditController = TextEditingController(
           text: ((item.kindMetadata.toSyncPayload()['genres'] as List?)
                       ?.map((e) => e.toString()) ??
@@ -126,9 +133,14 @@ class VideoEditController {
     }
     final db = ref!.read(localDatabaseProvider);
     final repo = UserExternalLinksCacheRepository(db);
+    final trailerPayload = ((item.kindMetadata.toSyncPayload()['trailer_urls'] as List?)
+            ?.whereType<Map>()
+            .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ??
+        const <TrailerLink>[]);
     final links = [
       ...await repo.listByItemId(item.id),
-      for (final link in item.trailerUrls.where((link) => !link.isAutomatic))
+      for (final link in trailerPayload.where((link) => !link.isAutomatic))
         UserExternalLink(
           id: 'seed-${item.id}-${link.kind}-${link.url.hashCode}',
           itemId: item.id,
@@ -181,21 +193,12 @@ class VideoEditController {
     if (!isVideoKind) {
       return selection;
     }
-    final currentSeries = selection.item.series;
-    final updatedSeries = currentSeries == null
-        ? null
-        : CatalogSeriesDetails(
-            seriesId: currentSeries.seriesId,
-            seriesTitle: currentSeries.seriesTitle,
-            volumeName: currentSeries.volumeName,
-            volumeNumber: currentSeries.volumeNumber,
-            volumeStartYear: currentSeries.volumeStartYear,
-            seasonNumber: int.tryParse(seasonNumberController.text) ??
-                currentSeries.seasonNumber,
-            episodeNumber: int.tryParse(episodeNumberController.text) ??
-                currentSeries.episodeNumber,
-            tags: currentSeries.tags,
-          );
+    final payload = selection.item.kindMetadata.toSyncPayload();
+    final currentSeriesMap = payload['series'] as Map?;
+    final updatedSeriesId = currentSeriesMap?['series_id'] as String? ??
+        (payload['series_id'] as String?);
+    final updatedSeriesTitle = currentSeriesMap?['series_title'] as String? ??
+        (payload['series_title'] as String?);
     final updatedTracking = selection.tracking?.copyWith(
       seasonNumber: int.tryParse(seasonNumberController.text),
       episodeNumber: int.tryParse(episodeNumberController.text),
@@ -206,29 +209,33 @@ class VideoEditController {
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toList();
-    final payload = selection.item.kindMetadata.toSyncPayload();
-    final updatedLinks = buildUpdatedTrailerUrls(selection.item.trailerUrls);
+    final trailerList = ((payload['trailer_urls'] as List?)
+            ?.whereType<Map>()
+            .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ??
+        const <TrailerLink>[]);
+    final updatedLinks = buildUpdatedTrailerUrls(trailerList);
     final updatedPayload = {
       ...payload,
       if (int.tryParse(runtimeController.text) != null)
         'runtime_minutes': int.tryParse(runtimeController.text),
-      if (updatedSeries case final s?) ...{
-        'series_id': s.seriesId,
-        'series_title': s.seriesTitle,
-        'volume_name': s.volumeName,
-        'volume_number': s.volumeNumber,
-        'volume_start_year': s.volumeStartYear,
-        'season_number': s.seasonNumber,
-        'episode_number': s.episodeNumber,
-        'tags': s.tags,
-      },
+      if (updatedSeriesId != null) 'series_id': updatedSeriesId,
+      if (updatedSeriesTitle != null) 'series_title': updatedSeriesTitle,
+      if (int.tryParse(seasonNumberController.text) != null)
+        'season_number': int.tryParse(seasonNumberController.text),
+      if (int.tryParse(episodeNumberController.text) != null)
+        'episode_number': int.tryParse(episodeNumberController.text),
+      if (parsedGenres.isNotEmpty) 'genres': parsedGenres,
+      if (castCredits.isNotEmpty)
+        'cast': castCredits.map((c) => c.toMap()).toList(),
+      if (crewCredits.isNotEmpty)
+        'crew': crewCredits.map((c) => c.toMap()).toList(),
       'age_rating': emptyToNull(ageRatingController.text),
       'audience_rating': emptyToNull(audienceRatingController.text),
-      if (parsedGenres.isNotEmpty) 'genres': parsedGenres,
-      if (buildUpdatedVideoCreators() != null)
-        'creators': buildUpdatedVideoCreators(),
-      if (updatedLinks != null)
+      if (updatedLinks != null) ...{
+        'trailer_urls': updatedLinks.map((l) => l.toJson()).toList(),
         'external_links': updatedLinks.map((l) => l.toJson()).toList(),
+      },
     };
     final updatedItem = LibraryMetadataItem(
       identity: selection.item.identity,
@@ -299,7 +306,9 @@ class VideoEditController {
   Future<TvSeries?> loadTvSeriesSnapshot() async {
     if (ref == null) return null;
     final api = ref!.read(apiClientProvider);
-    final seriesId = item.series?.seriesId ?? item.id;
+    final seriesId = (item.kindMetadata.toSyncPayload()['series_id'] as String?) ??
+        ((item.kindMetadata.toSyncPayload()['series'] as Map?)?['series_id'] as String?) ??
+        item.id;
     try {
       final dto = await api
           .getTvSeriesDto(seriesId)
@@ -358,13 +367,15 @@ class VideoEditController {
     final episodeCount = flattenTvEpisodes(series).length;
     final discCount = (initialDiscCount ?? episodeCount).clamp(1, 20).toInt();
     final episodes = flattenTvEpisodes(series);
+    final formatLabel = (item.kindMetadata.toSyncPayload()['physical_format_label'] as String?) ??
+        (item.kindMetadata.toSyncPayload()['physical_format'] as String?);
     if (discCount == 1) {
       return [
         TvReleaseMedia(
           id: '${series.id}:media:1',
           releaseId: series.id,
           title: 'Disc 1',
-          formatLabel: item.physicalFormatLabel,
+          formatLabel: formatLabel,
           discNumber: 1,
           sequenceNumber: 1,
           features: const <String>[],
@@ -379,7 +390,7 @@ class VideoEditController {
           id: '${series.id}:media:$i',
           releaseId: series.id,
           title: 'Disc $i',
-          formatLabel: item.physicalFormatLabel,
+          formatLabel: formatLabel,
           discNumber: i,
           sequenceNumber: i,
           features: const <String>[],

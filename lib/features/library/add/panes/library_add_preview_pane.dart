@@ -109,7 +109,9 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     final title = selectedBundle?.title ??
         selectedItem?.title ??
         selectedCandidate!.title;
-    final itemNumber = selectedBundle == null ? selectedItem?.itemNumber : null;
+    final itemNumber = selectedBundle == null
+        ? (selectedItem?.kindMetadata.toSyncPayload()['item_number'] as String?)
+        : null;
     final preview = candidatePreview;
     final synopsis = selectedItem?.synopsis ??
         preview?.synopsis ??
@@ -766,7 +768,8 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final editionAvailable = item.editions.isNotEmpty;
+    final editions = item.toCatalogItem().editions;
+    final editionAvailable = editions.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
     final selectedEdition = previewEditionForItem(item, selectedEditionId);
@@ -865,7 +868,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               const SizedBox(height: 8),
               _EditionGrid(
                 key: const ValueKey('library-add-edition-field'),
-                editions: item.editions,
+                editions: editions,
                 selectedEditionId: selectedEditionId,
                 accent: accent,
                 onEditionSelected: onEditionSelected,
@@ -1094,9 +1097,10 @@ CatalogEdition? previewEditionForItem(
   LibraryMetadataItem item,
   String? editionId,
 ) {
+  final editions = item.toCatalogItem().editions;
   final normalizedEditionId = editionId?.trim();
   if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
-    for (final edition in item.editions) {
+    for (final edition in editions) {
       if (edition.id == normalizedEditionId) {
         return edition;
       }
@@ -1123,15 +1127,16 @@ CatalogVariant? selectedVariantForEdition(
 }
 
 CatalogEdition? _previewPrimaryEditionForItem(LibraryMetadataItem item) {
-  if (item.editions.isEmpty) {
+  final editions = item.toCatalogItem().editions;
+  if (editions.isEmpty) {
     return null;
   }
-  for (final edition in item.editions) {
+  for (final edition in editions) {
     if (_previewPrimaryVariantForEdition(edition) != null) {
       return edition;
     }
   }
-  return item.editions.first;
+  return editions.first;
 }
 
 CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
@@ -1147,10 +1152,11 @@ CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
 }
 
 Widget _buildPreviewFormatBadges(LibraryMetadataItem? item) {
-  if (item == null || item.editions.isEmpty) return const SizedBox.shrink();
+  final editions = item?.toCatalogItem().editions ?? const <CatalogEdition>[];
+  if (editions.isEmpty) return const SizedBox.shrink();
   final seen = <String>{};
   final badges = <Widget>[];
-  for (final edition in item.editions) {
+  for (final edition in editions) {
     final id = edition.physicalFormat;
     if (id == null || !seen.add(id)) continue;
     badges.add(
@@ -1197,16 +1203,27 @@ List<(String, String?)> _metadataRowsForItem(
   final media = type.mediaFields;
   final release = type.releaseFields;
   final previewLabels = type.presentation.previewLabels;
-  final series = item.series;
   final catalogItem = item.toCatalogItem();
+  final payload = item.kindMetadata.toSyncPayload();
+  final seriesMap = payload['series'] as Map?;
+  final seriesTitle =
+      (payload['series_title'] ?? seriesMap?['series_title']) as String?;
+  final publisher = (payload['publisher'] ??
+      (payload['publishing'] as Map?)?['original_publisher']) as String?;
+  final itemNumber = (payload['item_number'] ??
+      (payload['publishing'] as Map?)?['issue_number']) as String?;
+  final displayEditionLabel =
+      (payload['edition_title'] ?? payload['title_extension']) as String?;
+  final barcode = payload['barcode'] as String?;
+  final country = payload['country'] as String?;
+  final language = payload['language'] as String?;
   final video = catalogItem.video;
   final music = catalogItem.music;
   final game = catalogItem.game;
   final publishing = catalogItem.publishing;
   return [
-    if (series?.seriesTitle != null)
-      (previewLabels.series, series!.seriesTitle),
-    (media.publisherLabel, item.publisher),
+    if (seriesTitle != null) (previewLabels.series, seriesTitle),
+    (media.publisherLabel, publisher),
     (
       'Released',
       item.releaseDate != null
@@ -1215,10 +1232,10 @@ List<(String, String?)> _metadataRowsForItem(
     ),
     if (video?.runtimeMinutes != null)
       ('Runtime', '${video!.runtimeMinutes} min'),
-    if (item.itemNumber != null) (media.numberLabel, item.itemNumber),
-    if (item.displayEditionLabel != null)
-      (release.variantLabel, item.displayEditionLabel),
-    (release.barcodeLabel, item.barcode),
+    if (itemNumber != null) (media.numberLabel, itemNumber),
+    if (displayEditionLabel != null)
+      (release.variantLabel, displayEditionLabel),
+    (release.barcodeLabel, barcode),
     if (type.capabilities.showsTrackData && music?.trackCount != null)
       ('Tracks', music!.trackCount.toString()),
     if (music?.catalogNumber != null) ('Catalog No.', music!.catalogNumber),
@@ -1226,9 +1243,9 @@ List<(String, String?)> _metadataRowsForItem(
       ('Platforms', platforms.join(', ')),
     if (publishing?.pageCount != null)
       ('Pages', publishing!.pageCount.toString()),
-    if (item.country != null) ('Country', item.country),
+    if (country != null) ('Country', country),
     if (music?.releaseStatus != null) ('Release Status', music!.releaseStatus),
-    if (item.language != null) ('Language', item.language),
+    if (language != null) ('Language', language),
   ];
 }
 

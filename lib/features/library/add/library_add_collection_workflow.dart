@@ -157,9 +157,13 @@ Future<void> addLibraryItemsToTarget({
 }
 
 bool? _digitalOwnedItemFlag(LibraryMetadataItem item) {
+  final payload = item.kindMetadata.toSyncPayload();
+  final physicalFormat = payload['physical_format'] as String?;
+  final physicalFormatLabel = payload['physical_format_label'] as String?;
+  final variant = payload['variant'] as String?;
   return digitalPhysicalMediaFormatFlag(
-    item.physicalFormat,
-    label: item.physicalFormatLabel ?? item.variant,
+    physicalFormat,
+    label: physicalFormatLabel ?? variant,
   );
 }
 
@@ -192,7 +196,7 @@ _ResolvedAddReference _resolveReferenceForItem(
               : editionSelection?.variantId?.trim(),
         );
       }
-      final editions = item.editions;
+      final editions = item.toCatalogItem().editions;
       if (editions.isEmpty) {
         return const _ResolvedAddReference();
       }

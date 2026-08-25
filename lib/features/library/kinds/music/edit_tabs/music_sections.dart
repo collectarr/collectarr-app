@@ -410,7 +410,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
             accent: _accent,
             child: Column(
               children: [
-                if (widget.request.item.editions.isNotEmpty) ...[
+                if (_itemEditions.isNotEmpty) ...[
                   _denseFields([
                     _editionSelectionField(),
                     _variantSelectionField(),
@@ -510,7 +510,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
             accent: _accent,
             child: Column(
               children: [
-                if (widget.request.item.editions.isNotEmpty) ...[
+                if (_itemEditions.isNotEmpty) ...[
                   _denseFields([
                     _editionSelectionField(),
                     _variantSelectionField(),

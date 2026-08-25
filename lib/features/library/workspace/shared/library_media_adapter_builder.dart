@@ -142,10 +142,16 @@ LibraryEntryFilterValues plannedMediaFilterValuesForEntry(
   ShelfEntry source,
 ) {
   final item = source.catalogItem;
+  final payload = item?.kindMetadata.toSyncPayload();
+  final series = ((payload?['series_title'] ??
+          (payload?['series'] as Map?)?['series_title']) as String?)
+      ?.trim();
+  final country = (payload?['country'] as String?)?.trim();
+  final language = (payload?['language'] as String?)?.trim();
   return LibraryEntryFilterValues(
-    series: _trimmedOrNull(item?.series?.seriesTitle),
-    country: _trimmedOrNull(item?.country),
-    language: _trimmedOrNull(item?.language),
+    series: _trimmedOrNull(series),
+    country: _trimmedOrNull(country),
+    language: _trimmedOrNull(language),
   );
 }
 

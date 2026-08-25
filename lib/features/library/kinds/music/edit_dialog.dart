@@ -186,7 +186,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       hasWishlistContext: _hasWishlistContext,
       isDigitalFormat: false,
       hasPhysicalFormats: widget.request.physicalFormats.isNotEmpty,
-      hasEditionAnchors: widget.request.item.editions.isNotEmpty,
+      hasEditionAnchors: _itemEditions.isNotEmpty,
       hasBundleReleaseAnchors: false,
       hasCustomFields: widget.request.customFieldDefinitions.isNotEmpty,
       scope: widget.request.scope ?? LibraryEditScope.all,
@@ -292,7 +292,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _soundValues =
         _splitCommaList(_soundTypeController.text) ?? const <String>[];
     _externalLinkEdits
-        .addAll(_buildInitialExternalLinkEdits(_item.trailerUrls));
+        .addAll(_buildInitialExternalLinkEdits(_itemLinks));
     _coverController = _draft.metadata.coverController;
     _thumbnailController = _draft.metadata.thumbnailController;
     _synopsisController = _draft.metadata.synopsisController;
@@ -961,7 +961,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<TrailerLink> _buildUpdatedLinks() {
-    final preservedTrailers = _item.trailerUrls
+    final preservedTrailers = _itemLinks
         .where((link) => !link.isExternalLink)
         .toList(growable: false);
     final external = <TrailerLink>[];
@@ -1938,9 +1938,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 timesCompleted: parseInt(_timesCompletedController.text),
                 notes: emptyToNull(_trackingNotesController.text),
                 seasonNumber: widget.request.trackingEntry?.seasonNumber ??
-                    _item.series?.seasonNumber,
+                    ((_item.kindMetadata.toSyncPayload()['series'] as Map?)?['season_number'] as num?)?.toInt(),
                 episodeNumber: widget.request.trackingEntry?.episodeNumber ??
-                    _item.series?.episodeNumber,
+                    ((_item.kindMetadata.toSyncPayload()['series'] as Map?)?['episode_number'] as num?)?.toInt(),
               ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,
@@ -1963,12 +1963,38 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
+  List<CatalogEdition> get _itemEditions {
+    final payload = _item.kindMetadata.toSyncPayload()['editions'] as List?;
+    if (payload != null) {
+      return payload
+          .whereType<Map>()
+          .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    }
+    return const <CatalogEdition>[];
+  }
+
+  List<TrailerLink> get _itemLinks {
+    final meta = _item.kindMetadata;
+    if (meta is MusicCatalogMetadata) {
+      return meta.links;
+    }
+    final payload = _item.kindMetadata.toSyncPayload()['trailer_urls'] as List?;
+    if (payload != null) {
+      return payload
+          .whereType<Map>()
+          .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    }
+    return const <TrailerLink>[];
+  }
+
   CatalogEdition? _selectedEdition() {
     final selectedId = _selectedEditionId;
     if (selectedId == null) {
       return null;
     }
-    for (final edition in widget.request.item.editions) {
+    for (final edition in _itemEditions) {
       if (edition.id == selectedId) {
         return edition;
       }
@@ -1988,7 +2014,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           value: '',
           child: Text('Primary / unspecified edition'),
         ),
-        for (final edition in widget.request.item.editions)
+        for (final edition in _itemEditions)
           DropdownMenuItem<String>(
             value: edition.id,
             child: Text(edition.title),
@@ -1996,7 +2022,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       ],
       onChanged: (value) {
         final edition = resolveLibraryEditionSelection(
-          widget.request.item.editions,
+          _itemEditions,
           editionId: emptyToNull(value ?? ''),
         ).edition;
         setState(() {

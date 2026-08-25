@@ -350,12 +350,13 @@ void main() {
         kindMetadata: metadata,
       );
 
-      expect(item.itemNumber, '1');
-      expect(item.publisher, 'Image Comics');
-      expect(item.country, 'US');
-      expect(item.language, 'en');
-      expect(item.ageRating, 'Mature');
-      expect(item.trailerUrls.first.url, 'https://example.com/saga-1');
+      final itemMeta = item.kindMetadata as ComicCatalogMetadata;
+      expect(itemMeta.issueNumber, '1');
+      expect(itemMeta.publisher, 'Image Comics');
+      expect(itemMeta.country, 'US');
+      expect(itemMeta.language, 'en');
+      expect(itemMeta.ageRating, 'Mature');
+      expect(itemMeta.links.first.url, 'https://example.com/saga-1');
 
       final roundTripJson = item.toSyncPayload();
       expect(roundTripJson['issue_number'], '1');

@@ -23,6 +23,8 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draf
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:flutter/material.dart';
 
+import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
+import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
@@ -71,6 +73,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   transfer: const LibraryTransferCapability(
     transferableFieldKeys: comicTransferableFieldKeys,
   ),
+  stats: const ComicStatsCapability(),
+  value: const ComicValueCapability(),
   add: const StandardLibraryAddCapability<ComicAddDraft>(
     kind: CatalogMediaKind.comic,
     initialDraftBuilder: ComicAddDraft.new,

@@ -982,10 +982,16 @@ class LibraryAddSessionController
             : selected.thumbnailImageUrl ?? selected.coverImageUrl,
       );
       final hydratedPayload = hydratedItem.kindMetadata.toSyncPayload();
+      final hydratedEditionsPayload = hydratedPayload['editions'] as List?;
+      final selectedEditionsPayload =
+          selected.kindMetadata.toSyncPayload()['editions'] as List?;
       final mergedPayload = {
         ...hydratedPayload,
-        if (hydratedItem.editions.isEmpty && selected.editions.isNotEmpty)
-          'editions': selected.editions.map((e) => e.toJson()).toList(),
+        if ((hydratedEditionsPayload == null ||
+                hydratedEditionsPayload.isEmpty) &&
+            selectedEditionsPayload != null &&
+            selectedEditionsPayload.isNotEmpty)
+          'editions': selectedEditionsPayload,
       };
       final mergedItem = LibraryMetadataItem(
         identity: hydratedItem.identity,

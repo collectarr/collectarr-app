@@ -72,25 +72,91 @@ class MusicCatalogMapper {
   }
 
   static MusicCatalogItem mapMetadataItemToMusic(LibraryMetadataItem item) {
-    final metadata = item.kindMetadata;
-    if (metadata is! MusicCatalogMetadata) {
-      throw ArgumentError.value(
-        metadata,
-        'item.kindMetadata',
-        'Expected MusicCatalogMetadata',
-      );
+    final rawMetadata = item.kindMetadata;
+    final MusicCatalogMetadata metadata;
+    if (rawMetadata is MusicCatalogMetadata) {
+      metadata = rawMetadata;
+    } else {
+      metadata = MusicCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
     }
     final music = metadata.music;
-    final releases = metadata.releases.map((release) {
-      final discsByNumber = <int, List<MusicTrackMetadata>>{};
-      for (final track in release.tracks) {
-        discsByNumber.putIfAbsent(track.disc, () => []).add(track);
+    final catalogItem = item.toCatalogItem();
+    final List<MusicRelease> releases;
+    if (metadata.releases.isNotEmpty) {
+      releases = metadata.releases.map((release) {
+        final discsByNumber = <int, List<MusicTrackMetadata>>{};
+        for (final track in release.tracks) {
+          discsByNumber.putIfAbsent(track.disc, () => []).add(track);
+        }
+        final discs = discsByNumber.entries.map((entry) {
+          final tracks = entry.value
+              .map((track) => MusicTrackRef(
+                    title: track.title,
+                    position: int.tryParse(track.number),
+                    durationSeconds: track.durationSeconds,
+                    artist: track.artist ?? metadata.artist,
+                    discNumber: entry.key,
+                  ))
+              .toList();
+          return MusicDiscRef(
+            discNumber: entry.key,
+            trackCount: tracks.length,
+            tracks: tracks,
+          );
+        }).toList();
+        return MusicRelease(
+          id: release.id,
+          title: release.title,
+          artist: metadata.artist,
+          publisher: release.label ?? metadata.publisher,
+          catalogNumber: release.catalogNumber ?? music?.catalogNumber,
+          upc: release.barcode ?? metadata.barcode,
+          releaseDate: release.releaseDate,
+          releaseStatus: music?.releaseStatus,
+          discs: discs,
+        );
+      }).toList();
+    } else if (catalogItem.editions.isNotEmpty) {
+      releases = catalogItem.editions.map((edition) {
+        final discs = edition.discs.map((disc) {
+          final tracks = disc.tracks
+              .map((t) => MusicTrackRef(
+                    title: t.title ?? '',
+                    position: int.tryParse(t.position ?? ''),
+                    durationSeconds: t.durationSeconds,
+                    artist: t.artist ?? metadata.artist,
+                    discNumber: disc.discNumber ?? 1,
+                  ))
+              .toList();
+          return MusicDiscRef(
+            discNumber: disc.discNumber ?? 1,
+            trackCount: disc.trackCount,
+            tracks: tracks,
+          );
+        }).toList();
+        return MusicRelease(
+          id: edition.id,
+          title: edition.title,
+          artist: metadata.artist,
+          publisher: edition.publisher ?? metadata.publisher,
+          catalogNumber: music?.catalogNumber,
+          upc: edition.upc ?? metadata.barcode,
+          releaseDate: edition.releaseDate,
+          releaseStatus: music?.releaseStatus,
+          discs: discs,
+        );
+      }).toList();
+    } else if (metadata.tracks.isNotEmpty) {
+      final discsByNumber = <int, List<CatalogTrackDto>>{};
+      for (final track in metadata.tracks) {
+        final discNum = track.discNumber ?? 1;
+        discsByNumber.putIfAbsent(discNum, () => []).add(track);
       }
       final discs = discsByNumber.entries.map((entry) {
         final tracks = entry.value
             .map((track) => MusicTrackRef(
-                  title: track.title,
-                  position: int.tryParse(track.number),
+                  title: track.title ?? '',
+                  position: int.tryParse(track.position ?? ''),
                   durationSeconds: track.durationSeconds,
                   artist: track.artist ?? metadata.artist,
                   discNumber: entry.key,
@@ -102,18 +168,22 @@ class MusicCatalogMapper {
           tracks: tracks,
         );
       }).toList();
-      return MusicRelease(
-        id: release.id,
-        title: release.title,
-        artist: metadata.artist,
-        publisher: release.label ?? metadata.publisher,
-        catalogNumber: release.catalogNumber ?? music?.catalogNumber,
-        upc: release.barcode ?? metadata.barcode,
-        releaseDate: release.releaseDate,
-        releaseStatus: music?.releaseStatus,
-        discs: discs,
-      );
-    }).toList();
+      releases = [
+        MusicRelease(
+          id: '${item.id}-release',
+          title: metadata.title,
+          artist: metadata.artist,
+          publisher: metadata.publisher,
+          catalogNumber: music?.catalogNumber,
+          upc: metadata.barcode,
+          releaseDate: metadata.originalReleaseDate,
+          releaseStatus: music?.releaseStatus,
+          discs: discs,
+        ),
+      ];
+    } else {
+      releases = const [];
+    }
     return MusicCatalogItem(
       id: item.id,
       work: MusicWorkMetadata(

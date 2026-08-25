@@ -337,7 +337,13 @@ class _VideoLibraryDetailPageState
             if (_isTvKind)
               VideoExternalLinksSection(
                 title: 'External links',
-                links: request.item.source.catalogItem?.trailerUrls ?? const [],
+                links: ((request.item.source.catalogItem?.kindMetadata
+                            .toSyncPayload()['trailer_urls'] as List?)
+                        ?.whereType<Map>()
+                        .map((e) => TrailerLink.fromJson(
+                            Map<String, dynamic>.from(e)))
+                        .toList()) ??
+                    const [],
                 accent: request.accent,
               ),
             if (_isTvKind) const SizedBox(height: 16),

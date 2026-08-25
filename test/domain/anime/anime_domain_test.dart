@@ -75,7 +75,7 @@ void main() {
       );
 
       expect(item.dto.seriesTitle, 'Cowboy Bebop');
-      expect(item.source.catalogItem?.editions, hasLength(1));
+      expect(item.source.catalogItem?.toCatalogItem().editions, hasLength(1));
     });
 
     test('AnimeMetadata serialization and deserialization roundtrip', () {

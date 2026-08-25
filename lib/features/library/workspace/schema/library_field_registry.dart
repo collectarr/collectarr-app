@@ -211,32 +211,43 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
   Iterable<String> linkedMetadataCandidates(ShelfEntry source) sync* {
     final item = source.catalogItem;
     if (item == null) return;
-    final series = item.series?.seriesTitle?.trim();
-    final country = item.country?.trim();
-    final language = item.language?.trim();
-    final cat = item.toCatalogItem();
-    final publishing = cat.publishing;
+    final payload = item.kindMetadata.toSyncPayload();
+    final series = ((payload['series_title'] ??
+            (payload['series'] as Map?)?['series_title']) as String?)
+        ?.trim();
+    final itemNumber = payload['item_number'] as String?;
+    final publisher = (payload['publisher'] ??
+        (payload['publishing'] as Map?)?['original_publisher']) as String?;
+    final variant = payload['variant'] as String?;
+    final country = payload['country'] as String?;
+    final language = payload['language'] as String?;
+    final imprint = (payload['publishing'] as Map?)?['imprint'] as String?;
 
     yield* nonEmptyStrings([
       item.title,
       series,
-      item.itemNumber,
-      item.publisher,
-      item.variant,
-      publishing?.imprint,
+      itemNumber,
+      publisher,
+      variant,
+      imprint,
       country,
       language,
     ]);
     yield* nonEmptyStrings(item.searchAliases);
-    if (cat.creators case final creators?) {
+    final creators = payload['creators'] as List?;
+    if (creators != null) {
       for (final credit in creators) {
-        final name = credit['name']?.toString().trim();
-        if (name != null && name.isNotEmpty) {
-          yield name;
+        if (credit is Map) {
+          final name = credit['name']?.toString().trim();
+          if (name != null && name.isNotEmpty) {
+            yield name;
+          }
         }
       }
     }
-    yield* nonEmptyStrings(cat.genres);
+    yield* nonEmptyStrings(
+      (payload['genres'] as List?)?.map((e) => e.toString()),
+    );
 
     if (customLinkedMetadataCandidates != null) {
       yield* customLinkedMetadataCandidates!(source);

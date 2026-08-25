@@ -315,18 +315,17 @@ void main() {
     expect(selection!.item.title, 'Over the Garden Wall');
     expect(cat.crossover, 'Image United');
     expect(cat.storyArcs, ['Finale']);
-    expect(selection!.item.country, 'Canada');
-    expect(selection!.item.language, 'French');
-    expect(selection!.item.ageRating, 'Teen');
+    expect(cat.country, 'Canada');
+    expect(cat.language, 'French');
+    expect(cat.ageRating, 'Teen');
     expect(cat.genres, ['Sci-Fi']);
     expect(cat.coverDate, DateTime(2026, 1, 1));
-    expect(selection!.item.trailerUrls, hasLength(2));
-    expect(
-        selection!.item.trailerUrls.first.url, 'https://example.com/original');
-    expect(selection!.item.trailerUrls.first.title, 'Original link');
-    expect(selection!.item.trailerUrls.last.url, 'https://example.com/review');
-    expect(selection!.item.trailerUrls.last.title, 'Review');
-    expect(selection!.item.trailerUrls.last.isAutomatic, isFalse);
+    expect(cat.trailerUrls, hasLength(2));
+    expect(cat.trailerUrls.first.url, 'https://example.com/original');
+    expect(cat.trailerUrls.first.title, 'Original link');
+    expect(cat.trailerUrls.last.url, 'https://example.com/review');
+    expect(cat.trailerUrls.last.title, 'Review');
+    expect(cat.trailerUrls.last.isAutomatic, isFalse);
     expect(selection!.customFieldEdits, {'cf-1': 'Signed in person'});
   });
 

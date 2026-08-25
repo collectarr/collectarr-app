@@ -21,6 +21,8 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
+import 'package:collectarr_app/features/library/kinds/tv/stats/tv_stats_capability.dart';
+
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   type: tvLibraryConfig,
   mediaAdapter: tvMediaAdapter,
@@ -54,6 +56,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     showsDefaultPersonalSection: false,
   ),
   transfer: const LibraryTransferCapability(),
+  stats: const TvStatsCapability(),
   add: const StandardLibraryAddCapability<TvAddDraft>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,

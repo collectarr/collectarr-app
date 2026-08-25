@@ -29,10 +29,14 @@ class ComicLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final rawMetadata = item.source.catalogItem?.kindMetadata;
-    if (rawMetadata is! ComicCatalogMetadata) {
+    final ComicCatalogMetadata metadata;
+    if (rawMetadata is ComicCatalogMetadata) {
+      metadata = rawMetadata;
+    } else if (rawMetadata != null) {
+      metadata = ComicCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
+    } else {
       throw StateError('Expected ComicCatalogMetadata for comic presentation');
     }
-    final metadata = rawMetadata;
     final series = metadata.series;
     final publishing = metadata.publishing;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);

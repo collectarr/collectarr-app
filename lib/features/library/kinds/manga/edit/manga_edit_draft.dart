@@ -95,13 +95,12 @@ KindEditDraft createMangaEditDraft({
   required TextControllerGroup textControllers,
 }) {
   final manga = ownedItem?.mangaDetails;
-  final metadata = item.kindMetadata;
-  if (metadata is! MangaMetadata) {
-    throw ArgumentError.value(
-      metadata,
-      'item.kindMetadata',
-      'Expected MangaMetadata',
-    );
+  final rawMetadata = item.kindMetadata;
+  final MangaMetadata metadata;
+  if (rawMetadata is MangaMetadata) {
+    metadata = rawMetadata;
+  } else {
+    metadata = MangaMetadata.fromJson(rawMetadata.toSyncPayload());
   }
   return MangaEditDraft(
     signedBy: manga?.signedBy,
