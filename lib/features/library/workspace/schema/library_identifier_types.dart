@@ -179,3 +179,8 @@ final class LibraryFacetId<TKind, TValue> {
   @override
   String toString() => value;
 }
+
+/// Strongly typed column identifier (alias for [LibraryFieldId]).
+typedef LibraryColumnId<TKind, TValue> = LibraryFieldId<TKind, TValue>;
+typedef LibraryColumnIdRuntime = LibraryFieldIdRuntime;
+typedef DynamicLibraryColumnId = DynamicLibraryFieldId;

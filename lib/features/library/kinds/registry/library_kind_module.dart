@@ -59,7 +59,7 @@ abstract interface class LibraryKindRuntime {
   LibraryTypeConfig get type;
   LibraryTypeCapabilities get capabilities;
   LibraryMediaAdapter get mediaAdapter;
-  LibraryFieldRegistry<dynamic, LibraryWorkspaceDto> get fields;
+  LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
   LibraryAddCapability get add;
 
@@ -214,7 +214,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   final LibraryMediaAdapter mediaAdapter;
 
   @override
-  final LibraryFieldRegistry<dynamic, TDto> fields;
+  final LibraryFieldRegistry<TDto> fields;
 
   @override
   final LibraryWorkspaceProjector<TDto> projector;

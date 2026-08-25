@@ -39,7 +39,7 @@ void main() {
 
     test('LibraryFieldRegistry throws StateError on duplicate column IDs', () {
       expect(
-        () => LibraryFieldRegistry<ComicKind, ComicWorkspaceDto>(
+        () => LibraryFieldRegistry<ComicWorkspaceDto>(
           kindNamespace: 'comic',
           columns: [
             comicLibraryColumnDefinitions.first,
@@ -57,7 +57,7 @@ void main() {
 
     test('LibraryFieldRegistry throws StateError on duplicate sort IDs', () {
       expect(
-        () => LibraryFieldRegistry<ComicKind, ComicWorkspaceDto>(
+        () => LibraryFieldRegistry<ComicWorkspaceDto>(
           kindNamespace: 'comic',
           columns: const [],
           sorts: [

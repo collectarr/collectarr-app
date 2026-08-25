@@ -115,7 +115,7 @@ void main() {
 
       // Creating registry with mismatched column namespace throws StateError
       expect(
-        () => LibraryFieldRegistry<dynamic, BookWorkspaceDto>(
+        () => LibraryFieldRegistry<BookWorkspaceDto>(
           kindNamespace: 'comic', // Mismatched namespace for book columns
           columns: bookKindModule.fields.columns,
           sorts: bookKindModule.fields.sorts,

@@ -17,7 +17,7 @@ class LibraryKindSchema<TKind, TDto extends LibraryWorkspaceDto> {
     this.defaultGroup,
     required this.preferenceCodec,
     this.customLinkedMetadataCandidates,
-  }) : registry = LibraryFieldRegistry<TKind, TDto>(
+  }) : registry = LibraryFieldRegistry<TDto>(
           kindNamespace: kindNamespace,
           fields: fields,
           columns: columns,
@@ -43,7 +43,7 @@ class LibraryKindSchema<TKind, TDto extends LibraryWorkspaceDto> {
   final LibraryWorkspacePreferenceCodec<TKind> preferenceCodec;
   final Iterable<String> Function(ShelfEntry)? customLinkedMetadataCandidates;
 
-  final LibraryFieldRegistry<TKind, TDto> registry;
+  final LibraryFieldRegistry<TDto> registry;
 
-  LibraryFieldRegistry<dynamic, TDto> toRegistry() => registry;
+  LibraryFieldRegistry<TDto> toRegistry() => registry;
 }

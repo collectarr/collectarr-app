@@ -3,8 +3,8 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 
-/// Strongly typed registry owning column, sort, group, and default definitions for a specific [TKind] and [TDto].
-final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
+/// Strongly typed registry owning column, sort, group, and default definitions for [TDto].
+final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   LibraryFieldRegistry({
     required this.kindNamespace,
     this.fields = const [],
@@ -21,16 +21,16 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
   }
 
   final String kindNamespace;
-  final List<LibraryFieldDefinition<TKind, TDto, Object?>> fields;
-  final List<LibraryColumnDefinition<TKind, TDto, Object?>> columns;
-  final List<LibrarySortDefinition<TKind, TDto>> sorts;
-  final List<LibraryGroupDefinition<TKind, TDto, Object?>> groups;
+  final List<LibraryFieldDefinition<dynamic, TDto, Object?>> fields;
+  final List<LibraryColumnDefinition<dynamic, TDto, Object?>> columns;
+  final List<LibrarySortDefinition<dynamic, TDto>> sorts;
+  final List<LibraryGroupDefinition<dynamic, TDto, Object?>> groups;
 
   final Set<LibraryFieldIdRuntime> defaultVisibleColumns;
-  final LibrarySortId<TKind> defaultSort;
+  final LibrarySortIdRuntime defaultSort;
   final LibraryGroupIdRuntime? defaultGroup;
 
-  final LibraryWorkspacePreferenceCodec<TKind> preferenceCodec;
+  final LibraryWorkspacePreferenceCodec<dynamic> preferenceCodec;
   final Iterable<String> Function(ShelfEntry)? customLinkedMetadataCandidates;
 
   Set<String> get defaultVisibleColumnIds =>
@@ -40,74 +40,93 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
 
   String? get defaultGroupId => defaultGroup?.value;
 
-  LibraryColumnDefinition<TKind, TDto, Object?>? columnDefinitionForId(
-      String id) {
+  LibraryColumnDefinition<dynamic, TDto, Object?>? columnDefinition(
+      LibraryFieldIdRuntime id) =>
+      findColumnDefinition(id);
+
+  LibrarySortDefinition<dynamic, TDto>? sortDefinition(
+      LibrarySortIdRuntime id) =>
+      findSortDefinition(id);
+
+  LibraryGroupDefinition<dynamic, TDto, Object?>? groupDefinition(
+      LibraryGroupIdRuntime id) =>
+      findGroupDefinition(id);
+
+  LibraryColumnDefinition<dynamic, TDto, Object?>? columnDefinitionForId(
+      Object id) {
+    final raw = id is LibraryFieldIdRuntime ? id.value : id.toString();
     for (final definition in columns) {
-      if (definition.id.value == id) return definition;
+      if (definition.id.value == raw) return definition;
     }
     return null;
   }
 
-  LibraryColumnDefinition<TKind, TDto, Object?> columnDefinitionFor(
-      String columnId) {
-    final definition = columnDefinitionForId(columnId);
+  LibraryColumnDefinition<dynamic, TDto, Object?> columnDefinitionFor(
+      Object columnId) {
+    final definition = findColumnDefinition(columnId);
     if (definition != null) return definition;
     throw StateError(
         'Missing column definition for $columnId in $kindNamespace.');
   }
 
-  LibrarySortDefinition<TKind, TDto>? sortDefinitionForId(String id) {
+  LibrarySortDefinition<dynamic, TDto>? sortDefinitionForId(Object id) {
+    final raw = id is LibrarySortIdRuntime ? id.value : id.toString();
     for (final definition in sorts) {
-      if (definition.id.value == id) return definition;
+      if (definition.id.value == raw) return definition;
     }
     return null;
   }
 
-  LibrarySortDefinition<TKind, TDto> sortDefinitionFor(String sortId) {
+  LibrarySortDefinition<dynamic, TDto> sortDefinitionFor(Object sortId) {
     final definition = findSortDefinition(sortId);
     if (definition != null) return definition;
     throw StateError('Missing sort definition for $sortId in $kindNamespace.');
   }
 
-  LibraryGroupDefinition<TKind, TDto, Object?>? groupDefinitionForId(
-      String id) {
+  LibraryGroupDefinition<dynamic, TDto, Object?>? groupDefinitionForId(
+      Object id) {
+    final raw = id is LibraryGroupIdRuntime ? id.value : id.toString();
     for (final definition in groups) {
-      if (definition.id.value == id) return definition;
+      if (definition.id.value == raw) return definition;
     }
     return null;
   }
 
-  LibraryGroupDefinition<TKind, TDto, Object?> groupDefinitionFor(
-      String groupId) {
+  LibraryGroupDefinition<dynamic, TDto, Object?> groupDefinitionFor(
+      Object groupId) {
     final definition = findGroupDefinition(groupId);
     if (definition != null) return definition;
     throw StateError(
         'Missing group definition for $groupId in $kindNamespace.');
   }
 
-  LibraryColumnDefinition<TKind, TDto, Object?>? findColumnDefinition(
-      String id) {
-    final direct = columnDefinitionForId(id);
+  LibraryColumnDefinition<dynamic, TDto, Object?>? findColumnDefinition(
+      Object id) {
+    final raw = id is LibraryFieldIdRuntime ? id.value : id.toString();
+    final direct = columnDefinitionForId(raw);
     if (direct != null) return direct;
-    final qualified = columnDefinitionForId('$kindNamespace.$id');
+    final qualified = columnDefinitionForId('$kindNamespace.$raw');
     if (qualified != null) return qualified;
-    final decoded = preferenceCodec.decodeColumn(id);
+    final decoded = preferenceCodec.decodeColumn(raw);
     if (decoded != null) return columnDefinitionForId(decoded.value);
     return null;
   }
 
-  LibrarySortDefinition<TKind, TDto>? findSortDefinition(String id) {
-    final direct = sortDefinitionForId(id);
+  LibrarySortDefinition<dynamic, TDto>? findSortDefinition(Object id) {
+    final raw = id is LibrarySortIdRuntime ? id.value : id.toString();
+    final direct = sortDefinitionForId(raw);
     if (direct != null) return direct;
-    final qualified = sortDefinitionForId('$kindNamespace.$id');
+    final qualified = sortDefinitionForId('$kindNamespace.$raw');
     if (qualified != null) return qualified;
-    final decoded = preferenceCodec.decodeSort(id);
+    final decoded = preferenceCodec.decodeSort(raw);
     if (decoded != null) return sortDefinitionForId(decoded.value);
     return null;
   }
 
-  LibraryGroupDefinition<TKind, TDto, Object?>? findGroupDefinition(String id) {
-    var normalized = id.trim();
+  LibraryGroupDefinition<dynamic, TDto, Object?>? findGroupDefinition(
+      Object id) {
+    final raw = id is LibraryGroupIdRuntime ? id.value : id.toString();
+    var normalized = raw.trim();
     if (normalized.startsWith('group.')) {
       normalized = normalized.substring(6);
     }
@@ -123,7 +142,7 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
   int compareEntries(
     LibraryProjectionRuntime left,
     LibraryProjectionRuntime right,
-    String sortId,
+    Object sortId,
   ) {
     final sortDef = findSortDefinition(sortId);
     if (sortDef == null) return 0;
@@ -158,7 +177,7 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
     return DynamicLibraryFieldId(raw);
   }
 
-  Object? getGroupValue(LibraryProjectionRuntime item, String groupId) {
+  Object? getGroupValue(LibraryProjectionRuntime item, Object groupId) {
     final groupDef = findGroupDefinition(groupId);
     if (groupDef == null) return null;
     final context = LibraryProjectionContext<TDto>(
@@ -169,7 +188,7 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
     return groupDef.getValue(context);
   }
 
-  Object? getColumnValue(LibraryProjectionRuntime item, String columnId) {
+  Object? getColumnValue(LibraryProjectionRuntime item, Object columnId) {
     final columnDef = findColumnDefinition(columnId);
     if (columnDef == null) return null;
     final context = LibraryProjectionContext<TDto>(
@@ -182,7 +201,7 @@ final class LibraryFieldRegistry<TKind, TDto extends LibraryWorkspaceDto> {
 
   void sortEntries(
     List<LibraryProjectionRuntime> items,
-    String sortId, {
+    Object sortId, {
     required bool ascending,
   }) {
     final sortDef = sortDefinitionFor(sortId);

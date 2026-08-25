@@ -7,12 +7,13 @@ import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('all library presentations declare complete group mode definitions', () {
-    final registries = <String, LibraryFieldRegistry<dynamic, dynamic>>{
+    final registries = <String, LibraryFieldRegistry<LibraryWorkspaceDto>>{
       'books': libraryKindRuntimeForType(booksLibraryConfig).fields,
       'board games': libraryKindRuntimeForType(boardGamesLibraryConfig).fields,
       'comics': libraryKindRuntimeForType(comicsLibraryConfig).fields,
@@ -45,7 +46,7 @@ void main() {
 
   test('all library presentations declare complete sort column definitions',
       () {
-    final registries = <String, LibraryFieldRegistry<dynamic, dynamic>>{
+    final registries = <String, LibraryFieldRegistry<LibraryWorkspaceDto>>{
       'books': libraryKindRuntimeForType(booksLibraryConfig).fields,
       'board games': libraryKindRuntimeForType(boardGamesLibraryConfig).fields,
       'comics': libraryKindRuntimeForType(comicsLibraryConfig).fields,
