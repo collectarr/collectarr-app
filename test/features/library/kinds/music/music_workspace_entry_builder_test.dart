@@ -19,11 +19,11 @@ void main() {
             upc: '1234567890',
           ),
         ],
-        music: MusicCatalogDetailsDto(
-          trackCount: 3,
-          catalogNumber: 'KDCD 1022',
-          releaseStatus: 'Album',
-        ),
+        music: const {
+          'track_count': 3,
+          'catalog_number': 'KDCD 1022',
+          'release_status': 'Album',
+        },
       ),
     );
 

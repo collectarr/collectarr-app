@@ -1217,10 +1217,19 @@ List<(String, String?)> _metadataRowsForItem(
   final barcode = payload['barcode'] as String?;
   final country = payload['country'] as String?;
   final language = payload['language'] as String?;
-  final video = catalogItem.video;
-  final music = catalogItem.music;
-  final game = catalogItem.game;
-  final publishing = catalogItem.publishing;
+  final video = payload['video'] as Map?;
+  final music = payload['music'] as Map?;
+  final game = payload['game'] as Map?;
+  final publishing = payload['publishing'] as Map?;
+  final runtimeMinutes = (video?['runtime_minutes'] as num?)?.toInt();
+  final pageCount = (publishing?['page_count'] as num?)?.toInt();
+  final musicTrackCount = (music?['track_count'] as num?)?.toString();
+  final musicCatalogNo = (music?['catalog_number'] as String?)?.trim();
+  final musicReleaseStatus = (music?['release_status'] as String?)?.trim();
+  final gamePlatforms = (game?['platforms'] as List<dynamic>?)
+      ?.map((e) => e.toString().trim())
+      .where((e) => e.isNotEmpty)
+      .toList();
   return [
     if (seriesTitle != null) (previewLabels.series, seriesTitle),
     (media.publisherLabel, publisher),
@@ -1230,21 +1239,23 @@ List<(String, String?)> _metadataRowsForItem(
           ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
           : item.releaseYear?.toString()
     ),
-    if (video?.runtimeMinutes != null)
-      ('Runtime', '${video!.runtimeMinutes} min'),
+    if (runtimeMinutes != null)
+      ('Runtime', '$runtimeMinutes min'),
     if (itemNumber != null) (media.numberLabel, itemNumber),
     if (displayEditionLabel != null)
       (release.variantLabel, displayEditionLabel),
     (release.barcodeLabel, barcode),
-    if (type.capabilities.showsTrackData && music?.trackCount != null)
-      ('Tracks', music!.trackCount.toString()),
-    if (music?.catalogNumber != null) ('Catalog No.', music!.catalogNumber),
-    if (game?.platforms case final platforms? when platforms.isNotEmpty)
-      ('Platforms', platforms.join(', ')),
-    if (publishing?.pageCount != null)
-      ('Pages', publishing!.pageCount.toString()),
+    if (type.capabilities.showsTrackData && musicTrackCount != null)
+      ('Tracks', musicTrackCount),
+    if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
+      ('Catalog No.', musicCatalogNo),
+    if (gamePlatforms != null && gamePlatforms.isNotEmpty)
+      ('Platforms', gamePlatforms.join(', ')),
+    if (pageCount != null)
+      ('Pages', pageCount.toString()),
     if (country != null) ('Country', country),
-    if (music?.releaseStatus != null) ('Release Status', music!.releaseStatus),
+    if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
+      ('Release Status', musicReleaseStatus),
     if (language != null) ('Language', language),
   ];
 }
@@ -1303,11 +1314,23 @@ List<(String, String?)> _metadataRowsForFullPreview(
   final releaseDateStr = preview.releaseDate != null
       ? '${preview.releaseDate!.year}-${preview.releaseDate!.month.toString().padLeft(2, '0')}-${preview.releaseDate!.day.toString().padLeft(2, '0')}'
       : null;
+  final musicTrackCount = (music?['track_count'] as num?)?.toString();
+  final musicCatalogNo = (music?['catalog_number'] as String?)?.trim();
+  final musicReleaseStatus = (music?['release_status'] as String?)?.trim();
+  final gamePlatforms = (game?['platforms'] as List<dynamic>?)
+      ?.map((e) => e.toString().trim())
+      .where((e) => e.isNotEmpty)
+      .toList();
+  final videoRuntime = (video?['runtime_minutes'] as num?)?.toInt();
+  final publishingPages = publishing?.pageCount?.toString();
+  final publishingImprint = publishing?.imprint?.trim();
+  final publishingSeriesGroup = publishing?.seriesGroup?.trim();
   return [
     if (series?.seriesTitle != null)
       (previewLabels.series, series!.seriesTitle),
     if (preview.publisher != null) (media.publisherLabel, preview.publisher),
-    if (publishing?.imprint != null) ('Imprint', publishing!.imprint),
+    if (publishingImprint != null && publishingImprint.isNotEmpty)
+      ('Imprint', publishingImprint),
     if (releaseDateStr != null) ('Released', releaseDateStr),
     if (series?.volumeStartYear != null)
       ('Year', series!.volumeStartYear.toString()),
@@ -1323,21 +1346,22 @@ List<(String, String?)> _metadataRowsForFullPreview(
     if (collectarrLibraryTypes
             .capabilitiesForKind(catalogMediaKindFromValue(preview.kind))
             .showsTrackData &&
-        music?.trackCount != null)
-      ('Tracks', music!.trackCount.toString()),
-    if (music?.catalogNumber != null) ('Catalog No.', music!.catalogNumber),
-    if (game?.platforms case final platforms? when platforms.isNotEmpty)
-      ('Platforms', platforms.join(', ')),
-    if (video?.runtimeMinutes != null)
-      ('Runtime', '${video!.runtimeMinutes} min'),
-    if (publishing?.pageCount != null)
-      ('Pages', publishing!.pageCount.toString()),
-    if (music?.releaseStatus != null) ('Release Status', music!.releaseStatus),
-    if (publishing?.seriesGroup != null)
-      ('Series Group', publishing!.seriesGroup),
+        musicTrackCount != null)
+      ('Tracks', musicTrackCount),
+    if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
+      ('Catalog No.', musicCatalogNo),
+    if (gamePlatforms != null && gamePlatforms.isNotEmpty)
+      ('Platforms', gamePlatforms.join(', ')),
+    if (videoRuntime != null)
+      ('Runtime', '$videoRuntime min'),
+    if (publishingPages != null)
+      ('Pages', publishingPages),
+    if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
+      ('Release Status', musicReleaseStatus),
+    if (publishingSeriesGroup != null && publishingSeriesGroup.isNotEmpty)
+      ('Series Group', publishingSeriesGroup),
   ];
 }
-
 List<_PreviewDiscoverySectionData> _discoverySections({
   required LibraryMetadataItem? item,
   required ProviderCandidate? candidate,
@@ -1590,10 +1614,14 @@ List<_PreviewTrackData> _previewTracksForSelection({
   required LibraryMetadataItem? item,
   required AdminProviderPreview? preview,
 }) {
-  final tracks = item?.toCatalogItem().music?.tracks;
-  if (tracks != null && tracks.isNotEmpty) {
+  final musicPayload = item?.toCatalogItem().payload['music'] as Map?;
+  final rawTracks = (musicPayload?['tracks'] as List<dynamic>?)
+      ?.whereType<Map>()
+      .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
+      .toList();
+  if (rawTracks != null && rawTracks.isNotEmpty) {
     return [
-      for (final track in tracks)
+      for (final track in rawTracks)
         _PreviewTrackData(
           title: (track.title ?? '').trim().isEmpty
               ? 'Untitled track'
@@ -1603,7 +1631,11 @@ List<_PreviewTrackData> _previewTracksForSelection({
         ),
     ];
   }
-  final previewTracks = preview?.music?.tracks;
+  final previewMusic = preview?.music;
+  final previewTracks = (previewMusic?['tracks'] as List<dynamic>?)
+      ?.whereType<Map>()
+      .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
+      .toList();
   if (previewTracks == null || previewTracks.isEmpty) {
     return const [];
   }

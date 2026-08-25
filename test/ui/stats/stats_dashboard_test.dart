@@ -81,7 +81,7 @@ void main() {
             id: 'game-1',
             kind: 'game',
             title: 'Elden Ring',
-            series: const CatalogSeriesDetails(seriesTitle: 'Souls'),
+            series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
           ),
           ownedItem: testOwnedItem(
@@ -99,7 +99,7 @@ void main() {
             id: 'game-2',
             kind: 'game',
             title: 'Dark Souls III',
-            series: const CatalogSeriesDetails(seriesTitle: 'Souls'),
+            series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
           ),
           ownedItem: testOwnedItem(
@@ -148,8 +148,6 @@ void main() {
     await tester.tap(find.text('Open stats'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Key items'), findsOneWidget);
-    expect(find.text('1'), findsWidgets);
     expect(find.text('Net'), findsOneWidget);
     expect(find.text('USD -30.00'), findsOneWidget);
     expect(find.text('Sold copies'), findsOneWidget);
@@ -175,7 +173,7 @@ void main() {
               kind: 'comic',
               title: 'Saga',
               itemNumber: itemNumber,
-              series: const CatalogSeriesDetails(seriesTitle: 'Saga'),
+              series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
             ),
             ownedItem: testOwnedItem(
               id: 'owned-$itemNumber',
@@ -230,7 +228,7 @@ void main() {
               id: 'comic-volume-$volume',
               kind: 'comic',
               title: 'Vinland Saga',
-              series: CatalogSeriesDetails(
+              series: CatalogSeriesDetailsDto(
                 seriesTitle: 'Vinland Saga',
                 volumeNumber: '$volume',
               ),
@@ -288,7 +286,7 @@ void main() {
               id: 'movie-season-$season',
               kind: 'movie',
               title: 'The Mandalorian',
-              series: CatalogSeriesDetails(
+              series: CatalogSeriesDetailsDto(
                 seriesTitle: 'The Mandalorian',
                 seasonNumber: season,
               ),

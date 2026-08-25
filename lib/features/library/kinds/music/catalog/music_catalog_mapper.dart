@@ -8,24 +8,40 @@ class MusicCatalogMapper {
   const MusicCatalogMapper._();
 
   static MusicCatalogItem mapDtoToMusic(CatalogItemDto dto) {
-    final music = dto.music;
-    final artistName = dto.creators?.firstOrNull?['name']?.toString();
+    final payload = dto.toSyncPayload();
+    final music = (payload['music'] as Map?) ?? payload;
+    final creators = (payload['creators'] as List?)
+        ?.cast<Map<String, dynamic>>();
+    final artistName = creators?.firstOrNull?['name']?.toString();
+    final genres = (payload['genres'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const [];
 
     final work = MusicWorkMetadata(
       title: dto.title,
       originalTitle: dto.originalTitle,
       synopsis: dto.synopsis,
       artist: artistName,
-      genres: dto.genres ?? const [],
+      genres: genres,
     );
 
+    final origDate = music['original_release_date'] != null
+        ? DateTime.tryParse(music['original_release_date'].toString())
+        : null;
+    final recDate = music['recording_date'] != null
+        ? DateTime.tryParse(music['recording_date'].toString())
+        : null;
+
     final recording = MusicRecordingMetadata(
-      trackCount: music?.trackCount,
-      studio: music?.studio,
-      originalReleaseDate: music?.originalReleaseDate,
-      recordingDate: music?.recordingDate,
-      isLive: music?.isLive,
-      composition: music?.composition,
+      trackCount: music['track_count'] is num
+          ? (music['track_count'] as num).toInt()
+          : null,
+      studio: music['studio']?.toString(),
+      originalReleaseDate: origDate,
+      recordingDate: recDate,
+      isLive: music['is_live'] as bool?,
+      composition: music['composition']?.toString(),
     );
 
     final releases = dto.editions.map((edition) {
@@ -55,10 +71,10 @@ class MusicCatalogMapper {
         title: edition.title,
         artist: artistName,
         publisher: edition.publisher,
-        catalogNumber: music?.catalogNumber,
+        catalogNumber: music['catalog_number']?.toString(),
         upc: edition.upc,
         releaseDate: edition.releaseDate,
-        releaseStatus: music?.releaseStatus,
+        releaseStatus: music['release_status']?.toString(),
         discs: discs,
       );
     }).toList();
@@ -109,10 +125,11 @@ class MusicCatalogMapper {
           title: release.title,
           artist: metadata.artist,
           publisher: release.label ?? metadata.publisher,
-          catalogNumber: release.catalogNumber ?? music?.catalogNumber,
+          catalogNumber:
+              release.catalogNumber ?? (music?['catalog_number'] as String?),
           upc: release.barcode ?? metadata.barcode,
           releaseDate: release.releaseDate,
-          releaseStatus: music?.releaseStatus,
+          releaseStatus: music?['release_status'] as String?,
           discs: discs,
         );
       }).toList();
@@ -139,10 +156,10 @@ class MusicCatalogMapper {
           title: edition.title,
           artist: metadata.artist,
           publisher: edition.publisher ?? metadata.publisher,
-          catalogNumber: music?.catalogNumber,
+          catalogNumber: music?['catalog_number'] as String?,
           upc: edition.upc ?? metadata.barcode,
           releaseDate: edition.releaseDate,
-          releaseStatus: music?.releaseStatus,
+          releaseStatus: music?['release_status'] as String?,
           discs: discs,
         );
       }).toList();
@@ -174,10 +191,10 @@ class MusicCatalogMapper {
           title: metadata.title,
           artist: metadata.artist,
           publisher: metadata.publisher,
-          catalogNumber: music?.catalogNumber,
+          catalogNumber: music?['catalog_number'] as String?,
           upc: metadata.barcode,
           releaseDate: metadata.originalReleaseDate,
-          releaseStatus: music?.releaseStatus,
+          releaseStatus: music?['release_status'] as String?,
           discs: discs,
         ),
       ];
@@ -195,11 +212,11 @@ class MusicCatalogMapper {
       ),
       recording: MusicRecordingMetadata(
         trackCount: metadata.trackCount,
-        studio: music?.studio ?? metadata.studio,
+        studio: (music?['studio'] as String?) ?? metadata.studio,
         originalReleaseDate: metadata.originalReleaseDate,
         recordingDate: metadata.recordingDate,
         isLive: metadata.isLive,
-        composition: music?.composition,
+        composition: music?['composition'] as String?,
       ),
       releases: releases,
     );

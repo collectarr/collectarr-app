@@ -289,7 +289,7 @@ void main() {
 
     // Verify the dialog returned the edited values
     expect(selection?.item.title, 'Blade Runner: Final Cut');
-    expect(selection?.item.toCatalogItem().barcode, '883929087129');
+    expect(selection?.item.toCatalogItem().payload['barcode'], '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
     expect(selection?.personal?.pricePaidCents, 999);
@@ -418,7 +418,7 @@ void main() {
         kind: 'movie',
         title: 'Session 9',
         releaseYear: 2001,
-        publishing: CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 123,
           imprint: 'Should stay hidden',
           seriesGroup: 'Noisy field',
@@ -594,7 +594,7 @@ void main() {
         country: 'USA',
         language: 'English',
         ageRating: 'Modern Age',
-        publishing: CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 128,
           imprint: 'KaBOOM!',
           seriesGroup: 'Miniseries',
@@ -785,15 +785,19 @@ void main() {
     await pumpUntilSettled(tester);
 
     final cat = selection?.item.toCatalogItem();
-    expect(cat?.editionTitle, 'Deluxe Edition');
+    expect(cat?.payload['edition_title'], 'Deluxe Edition');
     expect(selection?.item.titleExtension, isNull);
-    expect(cat?.series?.seriesTitle, 'Over the Garden Wall');
-    expect(cat?.crossover, 'Adventure Time');
-    expect(cat?.storyArcs, const ['Unknowning', 'The Tome of the Unknown']);
-    expect(cat?.physicalFormatLabel, 'Trade Paperback');
-    expect(cat?.coverDate?.year, 2016);
-    expect(cat?.coverDate?.month, 10);
-    expect(cat?.coverDate?.day, 26);
+    final seriesMap = cat?.payload['series'] as Map?;
+    expect(seriesMap?['series_title'], 'Over the Garden Wall');
+    expect(cat?.payload['crossover'], 'Adventure Time');
+    expect(cat?.payload['story_arcs'], const ['Unknowning', 'The Tome of the Unknown']);
+    expect(cat?.payload['physical_format_label'], 'Trade Paperback');
+    final coverDate = cat?.payload['cover_date'] != null
+        ? DateTime.tryParse(cat!.payload['cover_date'] as String)
+        : null;
+    expect(coverDate?.year, 2016);
+    expect(coverDate?.month, 10);
+    expect(coverDate?.day, 26);
   });
 
   testWidgets('book kind uses dedicated edit dialog builder', (tester) async {
@@ -813,7 +817,7 @@ void main() {
         creators: const [
           {'name': 'J.R.R. Tolkien', 'role': 'Author'},
         ],
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-1',
           seriesTitle: 'The Lord of the Rings',
           volumeNumber: '1',
@@ -882,7 +886,7 @@ void main() {
         id: 'book-preserve-1',
         kind: 'book',
         title: 'Foundation',
-        publishing: CatalogPublishingDetails(
+        publishing: CatalogPublishingDetailsDto(
           pageCount: 320,
           subtitle: 'The Foundation Trilogy, Part 1',
           publicationPlace: 'New York',
@@ -949,7 +953,7 @@ void main() {
                   selection = await showLibraryEditDialog(
                     context: context,
                     request: LibraryEditDialogRequest(
-                      type: type,
+                       type: type,
                       item: item,
                       ownedItem: ownedItem,
                       trackingEntry: trackingEntry,
@@ -978,20 +982,23 @@ void main() {
     expect(selection?.personal?.marketValueCents, 2599);
 
     final cat = selection?.item.toCatalogItem();
-    expect(cat?.publishing?.publicationPlace, 'New York');
-    expect(cat?.publishing?.originalPublisher, 'Gnome Press');
-    expect(cat?.publishing?.originalPublicationPlace, 'New York');
-    expect(cat?.publishing?.paperType, 'Pulp');
-    expect(cat?.publishing?.printedBy, 'Offset House');
-    expect(cat?.publishing?.subjects, ['Sci-Fi', 'Galactic Empire']);
-    expect(cat?.publishing?.firstEdition, isTrue);
-    expect(cat?.publishing?.dustJacket, isTrue);
+    final pubMap = cat?.payload['publishing'] as Map?;
+    expect(pubMap?['publication_place'], 'New York');
+    expect(pubMap?['original_publisher'], 'Gnome Press');
+    expect(pubMap?['original_publication_place'], 'New York');
+    expect(pubMap?['paper_type'], 'Pulp');
+    expect(pubMap?['printed_by'], 'Offset House');
+    expect(pubMap?['subjects'], ['Sci-Fi', 'Galactic Empire']);
+    expect(pubMap?['first_edition'], isTrue);
+    expect(pubMap?['dust_jacket'], isTrue);
     expect(cat?.trailerUrls, hasLength(1));
     expect(cat?.trailerUrls.first.kind, 'external');
     expect(cat?.trailerUrls.first.url,
         'https://www.goodreads.com/book/show/29579.Foundation');
 
-    final creators = cat?.creators ?? const <Map<String, dynamic>>[];
+    final creators = (cat?.payload['creators'] as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        const <Map<String, dynamic>>[];
     expect(
       creators.any(
         (Map<String, dynamic> entry) =>
@@ -1568,18 +1575,24 @@ void main() {
         barcode: '781207102222',
         releaseYear: 1998,
         releaseDate: DateTime.utc(1998, 5, 23),
-        series: const CatalogSeriesDetails(seriesTitle: 'Ad Infinitum'),
-        music: const MusicCatalogDetails(
-          trackCount: 2,
-          catalogNumber: 'KDCD 1022',
-          releaseStatus: 'Official',
-          tracks: [
-            CatalogTrack(
-                title: 'Ad Infinitum', position: 1, durationSeconds: 506),
-            CatalogTrack(
-                title: 'Immortality', position: 2, durationSeconds: 421),
+        series: const CatalogSeriesDetailsDto(seriesTitle: 'Ad Infinitum'),
+        music: const {
+          'track_count': 2,
+          'catalog_number': 'KDCD 1022',
+          'release_status': 'Official',
+          'tracks': [
+            {
+              'title': 'Ad Infinitum',
+              'position': '1',
+              'duration_seconds': 506,
+            },
+            {
+              'title': 'Immortality',
+              'position': '2',
+              'duration_seconds': 421,
+            },
           ],
-        ),
+        },
         creators: [
           {'name': 'Ad Infinitum', 'role': 'Artist'},
           {'name': 'Melissa Bonny', 'role': 'Vocals'},
@@ -1654,9 +1667,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     final cat = selection?.item.toCatalogItem();
-    expect(cat?.series?.seriesTitle, 'cAd');
-    expect(cat?.music?.catalogNumber, 'KDCD 1022-R');
-    expect(cat?.creators, [
+    final seriesMap = cat?.payload['series'] as Map?;
+    final musicMap = cat?.payload['music'] as Map?;
+    expect(seriesMap?['series_title'], 'cAd');
+    expect(musicMap?['catalog_number'], 'KDCD 1022-R');
+    final creators = (cat?.payload['creators'] as List?)?.cast<Map<String, dynamic>>();
+    expect(creators, [
       {'name': 'Ad Infinitum', 'role': 'Artist'},
       {'name': 'Melissa Bonny', 'role': 'Vocals'},
       {'role': 'Songwriter', 'name': 'Melissa Bonny'},
@@ -1684,9 +1700,9 @@ void main() {
           {'name': 'Travellers Tales', 'role': 'Developer'},
         ],
         genres: const ['Action', 'Adventure'],
-        game: const GameCatalogDetails(
-          platforms: ['PlayStation 5'],
-        ),
+        game: const {
+          'platforms': ['PlayStation 5'],
+        },
       ),
     );
     LibraryEditSelection? selection;
@@ -1733,7 +1749,8 @@ void main() {
     await pumpUntilSettled(tester);
 
     final cat = selection?.item.toCatalogItem();
-    expect(cat?.game?.platforms, ['PlayStation 5']);
+    final gameMap = cat?.payload['game'] as Map?;
+    expect(gameMap?['platforms'] ?? cat?.payload['platforms'], ['PlayStation 5']);
   });
 
   testWidgets('game all scope exposes release identity on its own tab',
@@ -1754,9 +1771,9 @@ void main() {
         sortKey: 'lego-batman',
         releaseDate: DateTime.utc(2026, 5, 19),
         publisher: 'Warner Bros Interactive',
-        game: const GameCatalogDetails(
-          platforms: ['PlayStation 5'],
-        ),
+        game: const {
+          'platforms': ['PlayStation 5'],
+        },
       ),
     );
 

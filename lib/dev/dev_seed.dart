@@ -48,13 +48,16 @@ CatalogItem _enrichSeedItem(CatalogItem item) {
     'title_extension',
     () => item.releaseYear != null ? '${item.releaseYear}' : item.itemNumber,
   );
+  final seriesMap = item.payload['series'] as Map?;
+  final seriesTitle = seriesMap?['series_title'] as String?;
+  final pubMap = item.payload['publishing'] as Map?;
   payload.putIfAbsent(
     'search_aliases',
     () => <String?>[
       item.title,
       item.displayTitle,
       item.originalTitle,
-      item.series?.seriesTitle,
+      seriesTitle,
     ].whereType<String>().toList(growable: false),
   );
   payload.putIfAbsent('cover_image_data', () => _seedCoverImageData);
@@ -69,7 +72,7 @@ CatalogItem _enrichSeedItem(CatalogItem item) {
     ].map((link) => link.toJson()).toList(growable: false),
   );
 
-  if (item.publishing != null || _shouldSeedPublishingDetails(item.kind)) {
+  if (pubMap != null || _shouldSeedPublishingDetails(item.kind)) {
     payload.putIfAbsent(
       'page_count',
       () => _seedPageCountForKind(item.kind),
@@ -81,7 +84,7 @@ CatalogItem _enrichSeedItem(CatalogItem item) {
     payload.putIfAbsent('currency', () => 'USD');
     payload.putIfAbsent('imprint', () => item.publisher);
     payload.putIfAbsent('subtitle', () => '${item.title} seed edition');
-    payload.putIfAbsent('series_group', () => item.series?.seriesTitle);
+    payload.putIfAbsent('series_group', () => seriesTitle);
     payload.putIfAbsent('publication_place', () => 'US');
     payload.putIfAbsent('original_country', () => 'US');
     payload.putIfAbsent(
@@ -98,7 +101,7 @@ CatalogItem _enrichSeedItem(CatalogItem item) {
       'subjects',
       () => <String>[
         item.kind,
-        if (item.series?.seriesTitle != null) item.series!.seriesTitle!,
+        if (seriesTitle != null) seriesTitle,
       ],
     );
     payload.putIfAbsent(
@@ -315,7 +318,7 @@ List<CatalogItem> _movieItems() => [
         ageRating: 'PG-13',
         sortKey: 'dark-knight-trilogy-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeName: 'The Dark Knight Trilogy',
@@ -331,7 +334,7 @@ List<CatalogItem> _movieItems() => [
           audioTracks: 'English DTS-HD MA 5.1, French DD 5.1',
           subtitles: 'English SDH, French, Spanish',
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 2999,
           currency: 'USD',
           imprint: 'DC Films',
@@ -399,7 +402,7 @@ List<CatalogItem> _movieItems() => [
         ageRating: 'PG-13',
         sortKey: 'dark-knight-trilogy-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeName: 'The Dark Knight Trilogy',
@@ -430,7 +433,7 @@ List<CatalogItem> _movieItems() => [
         ageRating: 'R',
         sortKey: 'blade-runner-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-blade-runner',
           seriesTitle: 'Blade Runner',
           tags: 'sci-fi, noir, dystopia, cyberpunk',
@@ -458,7 +461,7 @@ List<CatalogItem> _movieItems() => [
         country: 'US',
         language: 'en',
         sortKey: 'interstellar-0001',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-interstellar',
           seriesTitle: 'Interstellar',
         ),
@@ -567,7 +570,7 @@ List<CatalogItem> _movieItems() => [
         ageRating: 'PG-13',
         sortKey: 'dark-knight-trilogy-0003',
         itemNumber: '3',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-dark-knight',
           seriesTitle: 'The Dark Knight Trilogy',
           volumeNumber: '1',
@@ -593,7 +596,7 @@ List<CatalogItem> _movieItems() => [
         country: 'US',
         ageRating: 'R',
         sortKey: 'blade-runner-0002',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-blade-runner',
           seriesTitle: 'Blade Runner',
         ),
@@ -629,7 +632,7 @@ List<CatalogItem> _bookItems() => [
         ageRating: 'Adult',
         sortKey: 'dune-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-dune',
           seriesTitle: 'Dune',
           volumeName: 'Dune Chronicles',
@@ -637,7 +640,7 @@ List<CatalogItem> _bookItems() => [
           volumeStartYear: 1965,
           tags: 'sci-fi, politics, ecology, space opera',
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 412,
           coverPriceCents: 999,
           currency: 'USD',
@@ -687,12 +690,12 @@ List<CatalogItem> _bookItems() => [
         releaseDate: DateTime.utc(1969, 10, 1),
         sortKey: 'dune-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-dune',
           seriesTitle: 'Dune',
           volumeNumber: '1',
         ),
-        publishing: const CatalogPublishingDetails(pageCount: 256),
+        publishing: const CatalogPublishingDetailsDto(pageCount: 256),
         creators: [
           {'name': 'Frank Herbert', 'role': 'author'},
         ],
@@ -710,7 +713,7 @@ List<CatalogItem> _bookItems() => [
         releaseYear: 1951,
         releaseDate: DateTime.utc(1951, 5, 1),
         sortKey: 'foundation-0001',
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 244,
           coverPriceCents: 899,
           currency: 'USD',
@@ -734,7 +737,7 @@ List<CatalogItem> _bookItems() => [
         country: 'GB',
         language: 'en',
         sortKey: 'nineteen-eighty-four-0001',
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 328,
           imprint: 'Penguin Classics',
         ),
@@ -754,7 +757,7 @@ List<CatalogItem> _bookItems() => [
         releaseYear: 1984,
         releaseDate: DateTime.utc(1984, 7, 1),
         sortKey: 'sprawl-trilogy-0001',
-        publishing: const CatalogPublishingDetails(pageCount: 271),
+        publishing: const CatalogPublishingDetailsDto(pageCount: 271),
         creators: [
           {'name': 'William Gibson', 'role': 'author'},
         ],
@@ -772,7 +775,7 @@ List<CatalogItem> _bookItems() => [
         releaseDate: DateTime.utc(1979, 10, 12),
         country: 'GB',
         sortKey: 'hitchhikers-guide-0001',
-        publishing: const CatalogPublishingDetails(pageCount: 180),
+        publishing: const CatalogPublishingDetailsDto(pageCount: 180),
         creators: [
           {'name': 'Douglas Adams', 'role': 'author'},
         ],
@@ -796,7 +799,7 @@ List<CatalogItem> _bookItems() => [
         country: 'GB',
         sortKey: 'lord-of-the-rings-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-lotr',
           seriesTitle: 'The Lord of the Rings',
           volumeName: 'The Lord of the Rings',
@@ -804,7 +807,7 @@ List<CatalogItem> _bookItems() => [
           volumeStartYear: 1954,
           tags: 'fantasy, epic, quest',
         ),
-        publishing: const CatalogPublishingDetails(pageCount: 423),
+        publishing: const CatalogPublishingDetailsDto(pageCount: 423),
         creators: [
           {'name': 'J.R.R. Tolkien', 'role': 'author'},
         ],
@@ -824,12 +827,12 @@ List<CatalogItem> _bookItems() => [
         country: 'GB',
         sortKey: 'lord-of-the-rings-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-lotr',
           seriesTitle: 'The Lord of the Rings',
           volumeNumber: '1',
         ),
-        publishing: const CatalogPublishingDetails(pageCount: 352),
+        publishing: const CatalogPublishingDetailsDto(pageCount: 352),
         creators: [
           {'name': 'J.R.R. Tolkien', 'role': 'author'},
         ],
@@ -849,12 +852,12 @@ List<CatalogItem> _bookItems() => [
         country: 'GB',
         sortKey: 'lord-of-the-rings-0003',
         itemNumber: '3',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-lotr',
           seriesTitle: 'The Lord of the Rings',
           volumeNumber: '1',
         ),
-        publishing: const CatalogPublishingDetails(pageCount: 416),
+        publishing: const CatalogPublishingDetailsDto(pageCount: 416),
         creators: [
           {'name': 'J.R.R. Tolkien', 'role': 'author'},
         ],
@@ -872,7 +875,7 @@ List<CatalogItem> _bookItems() => [
         releaseYear: 2011,
         releaseDate: DateTime.utc(2011, 3, 1),
         sortKey: 'the-martian-0001',
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 369,
           coverPriceCents: 2400,
           currency: 'USD',
@@ -926,7 +929,7 @@ List<CatalogItem> _musicItems() => [
         language: 'en',
         sortKey: 'radiohead-0003',
         itemNumber: '3',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-radiohead',
           seriesTitle: 'Radiohead',
           tags: 'alternative rock, art rock',
@@ -951,7 +954,7 @@ List<CatalogItem> _musicItems() => [
                 title: 'Karma Police', position: 6, durationSeconds: 264),
           ],
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 2499,
           currency: 'USD',
         ),
@@ -972,7 +975,7 @@ List<CatalogItem> _musicItems() => [
         releaseYear: 2000,
         releaseDate: DateTime.utc(2000, 10, 2),
         sortKey: 'radiohead-0004',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-radiohead',
           seriesTitle: 'Radiohead',
         ),
@@ -1017,7 +1020,7 @@ List<CatalogItem> _musicItems() => [
         country: 'US',
         sortKey: 'kendrick-lamar-0002',
         music: const MusicCatalogDetails(trackCount: 12),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           imprint: 'Top Dawg Entertainment',
         ),
         creators: [
@@ -1159,7 +1162,7 @@ List<CatalogItem> _gameItems() => [
         country: 'PL',
         ageRating: 'M',
         sortKey: 'the-witcher-0003',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-witcher',
           seriesTitle: 'The Witcher',
           tags: 'RPG, open world, fantasy',
@@ -1167,7 +1170,7 @@ List<CatalogItem> _gameItems() => [
         game: const GameCatalogDetails(
           platforms: ['PC', 'PS4', 'Xbox One', 'Switch'],
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 4999,
           currency: 'USD',
         ),
@@ -1242,7 +1245,7 @@ List<CatalogItem> _gameItems() => [
         game: const GameCatalogDetails(
           platforms: ['PC', 'PS5', 'PS4', 'Xbox Series', 'Xbox One'],
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 5999,
           currency: 'USD',
         ),
@@ -1359,7 +1362,7 @@ List<CatalogItem> _gameItems() => [
         game: const GameCatalogDetails(
           platforms: ['PC', 'PS5', 'Xbox Series'],
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 7999,
           currency: 'USD',
         ),
@@ -1412,12 +1415,12 @@ List<CatalogItem> _boardgameItems() => [
         physicalFormat: 'Board Game',
         ageRating: '14+',
         sortKey: 'gloomhaven-0001',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-gloomhaven',
           seriesTitle: 'Gloomhaven',
           tags: 'cooperative, dungeon crawl, campaign',
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 14000,
           currency: 'USD',
         ),
@@ -1436,7 +1439,7 @@ List<CatalogItem> _boardgameItems() => [
         releaseYear: 2020,
         releaseDate: DateTime.utc(2020, 6, 18),
         sortKey: 'gloomhaven-0002',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-gloomhaven',
           seriesTitle: 'Gloomhaven',
         ),
@@ -1456,7 +1459,7 @@ List<CatalogItem> _boardgameItems() => [
         releaseDate: DateTime.utc(2019, 3, 8),
         ageRating: '10+',
         sortKey: 'wingspan-0001',
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 6500,
           currency: 'USD',
         ),
@@ -1491,7 +1494,7 @@ List<CatalogItem> _boardgameItems() => [
         releaseYear: 2015,
         releaseDate: DateTime.utc(2015, 10, 8),
         sortKey: 'pandemic-0002',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-pandemic',
           seriesTitle: 'Pandemic',
         ),
@@ -1514,7 +1517,7 @@ List<CatalogItem> _boardgameItems() => [
         ageRating: '12+',
         country: 'SE',
         sortKey: 'terraforming-mars-0001',
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 6999,
           currency: 'USD',
         ),
@@ -1553,7 +1556,7 @@ List<CatalogItem> _boardgameItems() => [
         releaseDate: DateTime.utc(2018, 8, 1),
         ageRating: '10+',
         sortKey: 'root-0001',
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 6000,
           currency: 'USD',
         ),
@@ -1597,7 +1600,7 @@ List<CatalogItem> _boardgameItems() => [
         releaseDate: DateTime.utc(2016, 8, 18),
         ageRating: '14+',
         sortKey: 'scythe-0001',
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 8000,
           currency: 'USD',
         ),
@@ -1631,7 +1634,7 @@ List<CatalogItem> _comicItems() => [
         ageRating: 'Mature',
         sortKey: 'saga-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-saga',
           seriesTitle: 'Saga',
           volumeName: 'Saga',
@@ -1639,7 +1642,7 @@ List<CatalogItem> _comicItems() => [
           volumeStartYear: 2012,
           tags: 'sci-fi, fantasy, romance',
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 44,
           coverPriceCents: 299,
           currency: 'USD',
@@ -1663,12 +1666,12 @@ List<CatalogItem> _comicItems() => [
         releaseDate: DateTime.utc(2012, 4, 11),
         itemNumber: '2',
         sortKey: 'saga-0002',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-saga',
           seriesTitle: 'Saga',
           volumeNumber: '2',
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 32,
           coverPriceCents: 299,
           currency: 'USD',
@@ -1691,7 +1694,7 @@ List<CatalogItem> _comicItems() => [
         releaseDate: DateTime.utc(1986, 9, 1),
         itemNumber: '1',
         sortKey: 'watchmen-0001',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-watchmen',
           seriesTitle: 'Watchmen',
           volumeName: 'Watchmen',
@@ -1699,7 +1702,7 @@ List<CatalogItem> _comicItems() => [
           volumeStartYear: 1986,
           tags: 'superhero, deconstruction, political',
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 32,
           coverPriceCents: 150,
           currency: 'USD',
@@ -1728,13 +1731,13 @@ List<CatalogItem> _comicItems() => [
         releaseDate: DateTime.utc(1989, 1, 1),
         itemNumber: '1',
         sortKey: 'sandman-0001',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-sandman',
           seriesTitle: 'The Sandman',
           volumeNumber: '1',
           tags: 'dark-fantasy, supernatural',
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 40,
           imprint: 'Vertigo',
         ),
@@ -1755,7 +1758,7 @@ List<CatalogItem> _comicItems() => [
         releaseYear: 1986,
         releaseDate: DateTime.utc(1986, 1, 1),
         sortKey: 'maus-0001',
-        publishing: const CatalogPublishingDetails(pageCount: 296),
+        publishing: const CatalogPublishingDetailsDto(pageCount: 296),
         creators: [
           {'name': 'Art Spiegelman', 'role': 'writer'},
           {'name': 'Art Spiegelman', 'role': 'artist'},
@@ -1773,7 +1776,7 @@ List<CatalogItem> _comicItems() => [
         releaseYear: 1988,
         releaseDate: DateTime.utc(1988, 3, 1),
         sortKey: 'batman-killing-joke-0001',
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 64,
           coverPriceCents: 350,
           currency: 'USD',
@@ -1797,13 +1800,13 @@ List<CatalogItem> _comicItems() => [
         releaseDate: DateTime.utc(2003, 1, 22),
         itemNumber: '1',
         sortKey: 'invincible-0001',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-invincible',
           seriesTitle: 'Invincible',
           volumeNumber: '1',
           volumeStartYear: 2003,
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 24,
           coverPriceCents: 295,
           currency: 'USD',
@@ -1826,7 +1829,7 @@ List<CatalogItem> _comicItems() => [
         releaseDate: DateTime.utc(2002, 9, 1),
         itemNumber: '1',
         sortKey: 'y-last-man-0001',
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 24,
           imprint: 'Vertigo',
         ),
@@ -1848,7 +1851,7 @@ List<CatalogItem> _comicItems() => [
         releaseDate: DateTime.utc(1991, 7, 1),
         itemNumber: '1',
         sortKey: 'bone-0001',
-        publishing: const CatalogPublishingDetails(pageCount: 28),
+        publishing: const CatalogPublishingDetailsDto(pageCount: 28),
         creators: [
           {'name': 'Jeff Smith', 'role': 'writer'},
           {'name': 'Jeff Smith', 'role': 'artist'},
@@ -1867,13 +1870,13 @@ List<CatalogItem> _comicItems() => [
         releaseDate: DateTime.utc(1994, 3, 1),
         itemNumber: '1',
         sortKey: 'hellboy-0001',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'seed-series-hellboy',
           seriesTitle: 'Hellboy',
           volumeNumber: '1',
           volumeStartYear: 1994,
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 32,
           coverPriceCents: 295,
           currency: 'USD',
@@ -1929,7 +1932,7 @@ List<CatalogItem> _tvItems() {
         ageRating: 'TV-MA',
         sortKey: 'seed-tv-${_seedOrdinal2(i + 1)}',
         itemNumber: '${i + 1}',
-        series: CatalogSeriesDetails(
+        series: CatalogSeriesDetailsDto(
           seriesId: 'seed-series-tv-${_seedOrdinal2(i + 1)}',
           seriesTitle: titles[i],
           volumeName: titles[i],
@@ -1943,7 +1946,7 @@ List<CatalogItem> _tvItems() {
           subtitles: 'English, Spanish',
           audioTracks: 'English 5.1',
         ),
-        publishing: CatalogPublishingDetails(
+        publishing: CatalogPublishingDetailsDto(
           coverPriceCents: 3999 + (i * 100),
           currency: 'USD',
           imprint: 'Collector Seed',
@@ -2003,7 +2006,7 @@ List<CatalogItem> _animeItems() {
         ageRating: '16+',
         sortKey: 'seed-anime-${_seedOrdinal2(i + 1)}',
         itemNumber: '${i + 1}',
-        series: CatalogSeriesDetails(
+        series: CatalogSeriesDetailsDto(
           seriesId: 'seed-series-anime-${_seedOrdinal2(i + 1)}',
           seriesTitle: titles[i],
           volumeName: titles[i],
@@ -2017,7 +2020,7 @@ List<CatalogItem> _animeItems() {
           subtitles: 'Japanese, English',
           audioTracks: 'Japanese 2.0, English 2.0',
         ),
-        publishing: CatalogPublishingDetails(
+        publishing: CatalogPublishingDetailsDto(
           coverPriceCents: 4599 + (i * 120),
           currency: 'USD',
           imprint: 'Seed Anime Label',
@@ -2073,7 +2076,7 @@ List<CatalogItem> _mangaItems() {
         ageRating: 'Teen',
         sortKey: 'seed-manga-${_seedOrdinal2(i + 1)}',
         itemNumber: '${i + 1}',
-        series: CatalogSeriesDetails(
+        series: CatalogSeriesDetailsDto(
           seriesId: 'seed-series-manga-${_seedOrdinal2(i + 1)}',
           seriesTitle: titles[i],
           volumeName: titles[i],
@@ -2081,7 +2084,7 @@ List<CatalogItem> _mangaItems() {
           volumeStartYear: 1999 + i,
           tags: 'manga, seed',
         ),
-        publishing: CatalogPublishingDetails(
+        publishing: CatalogPublishingDetailsDto(
           coverPriceCents: 1299 + (i * 70),
           currency: 'USD',
           imprint: 'Seed Manga Label',

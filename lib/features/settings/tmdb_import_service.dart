@@ -594,8 +594,8 @@ class TmdbImportService {
               .map((l) => <String, dynamic>{'name': l})
               .toList()
           : <Map<String, dynamic>>[],
-      if (preview.video?.runtimeMinutes != null)
-        'runtime': preview.video!.runtimeMinutes,
+      if (preview.video?['runtime_minutes'] != null)
+        'runtime': preview.video!['runtime_minutes'],
       'overview': preview.synopsis ?? '',
       if (posterPath != null) 'poster_path': posterPath,
       'tmdb_import': {
@@ -644,8 +644,9 @@ class TmdbImportService {
       if (entry.originalTitle?.trim().isNotEmpty == true)
         entry.originalTitle!.trim(),
     }.toList(growable: false);
+    final currentPayload = item.toSyncPayload();
     final tmdbGenres = _distinctNonEmptyStrings([
-      ...?item.genres,
+      ...?((currentPayload['genres'] as List?)?.map((e) => e.toString())),
       ..._tmdbNamedValues(entry.rawPayload['genres']),
     ]);
     final tmdbStudios =
@@ -659,11 +660,29 @@ class TmdbImportService {
       _normalizedText(entry.rawPayload['original_language'] as String?),
     ]);
     final runtimeMinutes = _runtimeMinutesFromPayload(entry.rawPayload);
-    final mergedVideo = runtimeMinutes == null && item.video == null
-        ? null
-        : VideoCatalogDetails(
-            runtimeMinutes: item.video?.runtimeMinutes ?? runtimeMinutes,
-          );
+    final videoPayload = (currentPayload['video'] as Map?) ?? currentPayload;
+    final mergedVideo = <String, dynamic>{
+      if (currentPayload['video'] is Map)
+        ...Map<String, dynamic>.from(currentPayload['video'] as Map),
+      if (runtimeMinutes != null || videoPayload['runtime_minutes'] != null)
+        'runtime_minutes':
+            videoPayload['runtime_minutes'] ?? runtimeMinutes,
+    };
+    final mergedPayload = <String, dynamic>{
+      ...item.payload,
+      if (runtimeMinutes != null || currentPayload['video'] != null)
+        'video': mergedVideo,
+      if (tmdbGenres.isNotEmpty) 'genres': tmdbGenres,
+      if (tmdbCountries.isNotEmpty)
+        'country': _firstNonEmptyText(
+            currentPayload['country'] as String?, tmdbCountries.join(', ')),
+      if (tmdbLanguages.isNotEmpty)
+        'language': _firstNonEmptyText(
+            currentPayload['language'] as String?, tmdbLanguages.join(', ')),
+      if (tmdbStudios.isNotEmpty)
+        'publisher': _firstNonEmptyText(
+            currentPayload['publisher'] as String?, tmdbStudios.join(', ')),
+    };
     return CatalogItem(
       id: item.id,
       mediaKind: item.mediaKind,
@@ -673,7 +692,6 @@ class TmdbImportService {
       originalTitle: item.originalTitle ?? entry.originalTitle,
       searchAliases: aliases,
       sortKey: item.sortKey,
-      itemNumber: item.itemNumber,
       synopsis: _firstNonEmptyText(item.synopsis, entry.overview),
       coverImageUrl: _firstNonEmptyText(item.coverImageUrl, entry.posterUrl),
       thumbnailImageUrl: _firstNonEmptyText(
@@ -682,28 +700,10 @@ class TmdbImportService {
         entry.posterUrl,
       ),
       coverImageData: item.coverImageData,
-      editionTitle: item.editionTitle,
-      physicalFormat: item.physicalFormat,
-      physicalFormatLabel: item.physicalFormatLabel,
-      publisher: _firstNonEmptyText(item.publisher, tmdbStudios.join(', ')),
       releaseDate: item.releaseDate ?? entry.releaseDate,
       releaseYear: item.releaseYear ?? entry.releaseYear,
-      barcode: item.barcode,
-      variant: item.variant,
-      series: item.series,
-      video: mergedVideo,
-      music: item.music,
-      game: item.game,
-      publishing: item.publishing,
-      creators: item.creators,
-      characters: item.characters,
-      storyArcs: item.storyArcs,
-      rawPlatforms: item.rawPlatforms,
-      genres: tmdbGenres.isEmpty ? item.genres : tmdbGenres,
       editions: item.editions,
-      country: _firstNonEmptyText(item.country, tmdbCountries.join(', ')),
-      language: _firstNonEmptyText(item.language, tmdbLanguages.join(', ')),
-      ageRating: item.ageRating,
+      payload: mergedPayload,
     );
   }
 

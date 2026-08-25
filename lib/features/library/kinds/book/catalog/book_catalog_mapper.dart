@@ -10,24 +10,32 @@ class BookCatalogMapper {
 
   /// Maps Core API / Cache transport DTO [CatalogItemDto] to domain [BookCatalogItem].
   static BookCatalogItem mapDtoToBook(CatalogItemDto dto) {
-    final seriesDetails = dto.series;
-    final pub = dto.publishing;
+    final payload = dto.toSyncPayload();
+    final seriesDetails = (payload['series'] as Map?) ?? payload;
+    final pub = (payload['publishing'] as Map?) ?? payload;
 
     BookSeriesRef? series;
-    if (seriesDetails != null &&
-        seriesDetails.seriesId != null &&
-        seriesDetails.seriesTitle != null) {
+    final seriesId =
+        (seriesDetails['series_id'] ?? seriesDetails['seriesId'])?.toString();
+    final seriesTitle =
+        (seriesDetails['series_title'] ?? seriesDetails['seriesTitle'])
+            ?.toString();
+    final volumeNumber =
+        (seriesDetails['volume_number'] ?? seriesDetails['volumeNumber'])
+            ?.toString();
+    if (seriesId != null && seriesTitle != null) {
       series = BookSeriesRef(
-        seriesId: seriesDetails.seriesId!,
-        seriesTitle: seriesDetails.seriesTitle!,
-        volumeNumber: seriesDetails.volumeNumber != null
-            ? double.tryParse(seriesDetails.volumeNumber!)
-            : null,
-        seriesGroup: pub?.seriesGroup,
+        seriesId: seriesId,
+        seriesTitle: seriesTitle,
+        volumeNumber:
+            volumeNumber != null ? double.tryParse(volumeNumber) : null,
+        seriesGroup: (pub['series_group'] ?? pub['seriesGroup'])?.toString(),
       );
     }
 
-    final creators = dto.creators
+    final rawCreators = (payload['creators'] as List?)
+        ?.cast<Map<String, dynamic>>();
+    final creators = rawCreators
             ?.map((creator) => BookCreatorCredit(
                   name: (creator['name'] ?? creator['display_name'] ?? '')
                       .toString(),
@@ -36,59 +44,91 @@ class BookCatalogMapper {
             .toList() ??
         const <BookCreatorCredit>[];
 
+    final subjects = (pub['subjects'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const [];
+    final genres = (payload['genres'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const [];
+    final characters = (payload['characters'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const [];
+    final storyArcs = (payload['story_arcs'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const [];
+
+    final origPubDate = pub['original_publication_date'] != null
+        ? DateTime.tryParse(pub['original_publication_date'].toString())
+        : null;
+
     final work = BookWorkMetadata(
       title: dto.title,
-      subtitle: pub?.subtitle,
+      subtitle: pub['subtitle']?.toString(),
       originalTitle: dto.originalTitle,
       synopsis: dto.synopsis,
-      originalCountry: pub?.originalCountry ?? dto.country,
-      originalLanguage: pub?.originalLanguage ?? dto.language,
-      originalPublicationDate: pub?.originalPublicationDate,
-      originalPublicationPlace: pub?.originalPublicationPlace,
-      originalPublisher: pub?.originalPublisher,
+      originalCountry: (pub['original_country'] ?? payload['country'])?.toString(),
+      originalLanguage: (pub['original_language'] ?? payload['language'])?.toString(),
+      originalPublicationDate: origPubDate,
+      originalPublicationPlace: pub['original_publication_place']?.toString(),
+      originalPublisher: (pub['original_publisher'] ?? payload['publisher'])?.toString(),
       series: series,
       creators: creators,
-      subjects: pub?.subjects ?? const [],
-      genres: dto.genres ?? const [],
-      characters: dto.characters ?? const [],
-      storyArcs: dto.storyArcs ?? const [],
+      subjects: subjects,
+      genres: genres,
+      characters: characters,
+      storyArcs: storyArcs,
     );
 
     final publishing = BookPublishingMetadata(
-      pageCount: pub?.pageCount,
-      imprint: pub?.imprint,
-      publicationPlace: pub?.publicationPlace,
-      paperType: pub?.paperType,
-      printedBy: pub?.printedBy,
-      dustJacket: pub?.dustJacket,
-      dustJacketCondition: pub?.dustJacketCondition,
-      firstEdition: pub?.firstEdition,
-      audiobookAbridged: pub?.audiobookAbridged,
-      coverPriceCents: pub?.coverPriceCents,
-      currency: pub?.currency,
-      dewey: pub?.dewey,
+      pageCount: pub['page_count'] is num
+          ? (pub['page_count'] as num).toInt()
+          : null,
+      imprint: pub['imprint']?.toString(),
+      publicationPlace: pub['publication_place']?.toString(),
+      paperType: pub['paper_type']?.toString(),
+      printedBy: pub['printed_by']?.toString(),
+      dustJacket: pub['dust_jacket'] is bool
+          ? pub['dust_jacket'] as bool
+          : (pub['dust_jacket'] != null
+              ? bool.tryParse(pub['dust_jacket'].toString())
+              : null),
+      dustJacketCondition: pub['dust_jacket_condition']?.toString(),
+      firstEdition: pub['first_edition'] as bool?,
+      audiobookAbridged: pub['audiobook_abridged'] as bool?,
+      coverPriceCents: pub['cover_price_cents'] is num
+          ? (pub['cover_price_cents'] as num).toInt()
+          : null,
+      currency: pub['currency']?.toString(),
+      dewey: pub['dewey']?.toString(),
     );
+
+    final editionTitle = (payload['edition_title'] ?? payload['variant'])?.toString();
+    final physicalFormatLabel = (payload['physical_format_label'] ?? payload['physical_format'])?.toString();
 
     final releases = dto.editions
         .map((e) => _mapEditionDtoToRelease(
               e,
               dto.coverImageUrl,
               dto.thumbnailImageUrl,
-              dto.editionTitle ?? dto.variant,
-              dto.physicalFormatLabel ?? dto.physicalFormat,
+              editionTitle,
+              physicalFormatLabel,
             ))
         .toList();
 
     if (releases.isEmpty) {
       releases.add(BookRelease(
         id: '${dto.id}-release',
-        title: dto.editionTitle ?? dto.variant ?? dto.title,
-        publisher: dto.publisher,
+        title: editionTitle ?? dto.title,
+        publisher: (payload['publisher'] ?? pub['original_publisher'])?.toString(),
         coverImageUrl: dto.coverImageUrl,
         releaseDate: dto.releaseDate,
-        physicalFormat: dto.physicalFormat,
-        physicalFormatLabel: dto.physicalFormatLabel,
-        upc: dto.barcode,
+        physicalFormat: payload['physical_format']?.toString(),
+        physicalFormatLabel: physicalFormatLabel,
+        upc: payload['barcode']?.toString(),
       ));
     }
 

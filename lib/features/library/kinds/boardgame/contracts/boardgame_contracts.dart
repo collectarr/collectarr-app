@@ -198,7 +198,7 @@ final class BoardGameCatalog {
         thumbnailImageUrl: thumbnailImageUrl,
         releaseYear: yearPublished,
       ),
-      kindPayload: toJson(),
+      payload: toJson(),
     );
   }
 }

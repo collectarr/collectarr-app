@@ -839,8 +839,8 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     );
     add(
       'Tracks',
-      item.music?.tracks.map((track) => track.title).join(', '),
-      correction.tracks?.map((track) => track.title).join(', '),
+      item.music?.tracks.map((track) => track.title ?? '').join(', '),
+      correction.tracks?.map((track) => track.title ?? '').join(', '),
     );
     add(
       'Trailer URLs',

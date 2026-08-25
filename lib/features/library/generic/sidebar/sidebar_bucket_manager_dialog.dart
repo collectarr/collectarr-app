@@ -531,21 +531,32 @@ CatalogItem? _updatedCatalogItemForBucket(
   String currentLabel, {
   String? replacement,
 }) {
+  final payload = item.toSyncPayload();
+  final pub = (payload['publishing'] as Map?) ?? payload;
+  final genresList =
+      (payload['genres'] as List?)?.map((e) => e.toString()).toList();
+  final charactersList =
+      (payload['characters'] as List?)?.map((e) => e.toString()).toList();
+  final storyArcsList =
+      (payload['story_arcs'] as List?)?.map((e) => e.toString()).toList();
+  final creatorsList = (payload['creators'] as List?)
+      ?.cast<Map<String, dynamic>>();
+
   switch (mode) {
     case 'genre':
-      final genres = _updatedStringList(item.genres, currentLabel, replacement);
+      final genres = _updatedStringList(genresList, currentLabel, replacement);
       return identical(genres, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, genres: genres);
     case 'character':
       final characters =
-          _updatedStringList(item.characters, currentLabel, replacement);
+          _updatedStringList(charactersList, currentLabel, replacement);
       return identical(characters, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, characters: characters);
     case 'story_arc':
       final storyArcs =
-          _updatedStringList(item.storyArcs, currentLabel, replacement);
+          _updatedStringList(storyArcsList, currentLabel, replacement);
       return identical(storyArcs, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, storyArcs: storyArcs);
@@ -576,43 +587,43 @@ CatalogItem? _updatedCatalogItemForBucket(
     case 'editor':
     case 'editor_in_chief':
       final creators =
-          _updatedCreators(item.creators, mode, currentLabel, replacement);
+          _updatedCreators(creatorsList, mode, currentLabel, replacement);
       return identical(creators, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, creators: creators);
     case 'publisher':
-      final publisher =
-          _updatedStringValue(item.publisher, currentLabel, replacement);
+      final publisher = _updatedStringValue(
+          payload['publisher']?.toString(), currentLabel, replacement);
       return identical(publisher, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, publisher: publisher);
     case 'country':
-      final country =
-          _updatedStringValue(item.country, currentLabel, replacement);
+      final country = _updatedStringValue(
+          payload['country']?.toString(), currentLabel, replacement);
       return identical(country, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, country: country);
     case 'language':
-      final language =
-          _updatedStringValue(item.language, currentLabel, replacement);
+      final language = _updatedStringValue(
+          payload['language']?.toString(), currentLabel, replacement);
       return identical(language, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, language: language);
     case 'age_rating':
-      final ageRating =
-          _updatedStringValue(item.ageRating, currentLabel, replacement);
+      final ageRating = _updatedStringValue(
+          payload['age_rating']?.toString(), currentLabel, replacement);
       return identical(ageRating, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, ageRating: ageRating);
     case 'crossover':
-      final crossover =
-          _updatedStringValue(item.crossover, currentLabel, replacement);
+      final crossover = _updatedStringValue(
+          payload['crossover']?.toString(), currentLabel, replacement);
       return identical(crossover, _bucketManagerNoChange)
           ? null
           : _rebuildCatalogItem(item, crossover: crossover);
     case 'imprint':
       final imprint = _updatedStringValue(
-        item.publishing?.imprint,
+        pub['imprint']?.toString(),
         currentLabel,
         replacement,
       );
@@ -621,7 +632,7 @@ CatalogItem? _updatedCatalogItemForBucket(
           : _rebuildCatalogItem(item, imprint: imprint);
     case 'series_group':
       final seriesGroup = _updatedStringValue(
-        item.publishing?.seriesGroup,
+        (pub['series_group'] ?? pub['seriesGroup'])?.toString(),
         currentLabel,
         replacement,
       );
@@ -630,7 +641,7 @@ CatalogItem? _updatedCatalogItemForBucket(
           : _rebuildCatalogItem(item, seriesGroup: seriesGroup);
     case 'audience_rating':
       final audienceRating = _updatedStringValue(
-        item.audienceRating,
+        payload['audience_rating']?.toString(),
         currentLabel,
         replacement,
       );
@@ -671,11 +682,49 @@ CatalogItem? _rebuildCatalogItem(
       identical(audienceRating, _bucketManagerUnset)) {
     return null;
   }
-  final updatedPublishing = _rebuildPublishingDetails(
-    item.publishing,
-    imprint: imprint,
-    seriesGroup: seriesGroup,
-  );
+  final payload = Map<String, dynamic>.from(item.payload);
+  final pub =
+      Map<String, dynamic>.from((payload['publishing'] as Map?) ?? const {});
+  if (!identical(imprint, _bucketManagerUnset)) {
+    pub['imprint'] = imprint;
+  }
+  if (!identical(seriesGroup, _bucketManagerUnset)) {
+    pub['series_group'] = seriesGroup;
+  }
+  if (pub.isNotEmpty) {
+    payload['publishing'] = pub;
+  }
+  if (!identical(creators, _bucketManagerUnset)) {
+    payload['creators'] = creators;
+  }
+  if (!identical(characters, _bucketManagerUnset)) {
+    payload['characters'] = characters;
+  }
+  if (!identical(storyArcs, _bucketManagerUnset)) {
+    payload['story_arcs'] = storyArcs;
+  }
+  if (!identical(genres, _bucketManagerUnset)) {
+    payload['genres'] = genres;
+  }
+  if (!identical(publisher, _bucketManagerUnset)) {
+    payload['publisher'] = publisher;
+  }
+  if (!identical(country, _bucketManagerUnset)) {
+    payload['country'] = country;
+  }
+  if (!identical(language, _bucketManagerUnset)) {
+    payload['language'] = language;
+  }
+  if (!identical(ageRating, _bucketManagerUnset)) {
+    payload['age_rating'] = ageRating;
+  }
+  if (!identical(audienceRating, _bucketManagerUnset)) {
+    payload['audience_rating'] = audienceRating;
+  }
+  if (!identical(crossover, _bucketManagerUnset)) {
+    payload['crossover'] = crossover;
+  }
+
   return CatalogItem(
     id: item.id,
     mediaKind: item.mediaKind,
@@ -686,84 +735,16 @@ CatalogItem? _rebuildCatalogItem(
     titleExtension: item.titleExtension,
     searchAliases: item.searchAliases,
     sortKey: item.sortKey,
-    itemNumber: item.itemNumber,
     synopsis: item.synopsis,
     coverImageUrl: item.coverImageUrl,
     thumbnailImageUrl: item.thumbnailImageUrl,
     coverImageData: item.coverImageData,
-    editionTitle: item.editionTitle,
-    physicalFormat: item.physicalFormat,
-    physicalFormatLabel: item.physicalFormatLabel,
-    publisher: identical(publisher, _bucketManagerUnset)
-        ? item.publisher
-        : publisher as String?,
-    coverDate: item.coverDate,
     releaseDate: item.releaseDate,
     releaseYear: item.releaseYear,
-    barcode: item.barcode,
-    variant: item.variant,
-    crossover: identical(crossover, _bucketManagerUnset)
-        ? item.crossover
-        : crossover as String?,
-    series: item.series,
-    video: item.video,
-    music: item.music,
-    game: item.game,
-    publishing: updatedPublishing,
-    creators: identical(creators, _bucketManagerUnset)
-        ? item.creators
-        : creators as List<Map<String, dynamic>>?,
-    characters: identical(characters, _bucketManagerUnset)
-        ? item.characters
-        : characters as List<String>?,
-    storyArcs: identical(storyArcs, _bucketManagerUnset)
-        ? item.storyArcs
-        : storyArcs as List<String>?,
-    rawPlatforms: item.rawPlatforms,
     trailerUrls: item.trailerUrls,
-    genres: identical(genres, _bucketManagerUnset)
-        ? item.genres
-        : genres as List<String>?,
     editions: item.editions,
-    country: identical(country, _bucketManagerUnset)
-        ? item.country
-        : country as String?,
-    language: identical(language, _bucketManagerUnset)
-        ? item.language
-        : language as String?,
-    ageRating: identical(ageRating, _bucketManagerUnset)
-        ? item.ageRating
-        : ageRating as String?,
-    audienceRating: identical(audienceRating, _bucketManagerUnset)
-        ? item.audienceRating
-        : audienceRating as String?,
+    payload: payload,
   );
-}
-
-CatalogPublishingDetails? _rebuildPublishingDetails(
-  CatalogPublishingDetails? details, {
-  Object? imprint = _bucketManagerUnset,
-  Object? seriesGroup = _bucketManagerUnset,
-}) {
-  if (identical(imprint, _bucketManagerUnset) &&
-      identical(seriesGroup, _bucketManagerUnset)) {
-    return details;
-  }
-  final nextImprint = identical(imprint, _bucketManagerUnset)
-      ? details?.imprint
-      : imprint as String?;
-  final nextSeriesGroup = identical(seriesGroup, _bucketManagerUnset)
-      ? details?.seriesGroup
-      : seriesGroup as String?;
-  final nextDetails = CatalogPublishingDetails(
-    pageCount: details?.pageCount,
-    coverPriceCents: details?.coverPriceCents,
-    currency: details?.currency,
-    imprint: nextImprint,
-    subtitle: details?.subtitle,
-    seriesGroup: nextSeriesGroup,
-  );
-  return nextDetails.hasData ? nextDetails : null;
 }
 
 Object? _updatedStringList(

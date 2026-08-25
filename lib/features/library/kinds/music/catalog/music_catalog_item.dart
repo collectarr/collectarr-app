@@ -54,7 +54,6 @@ class MusicCatalogItem {
   List<String> get genres => work.genres;
   CatalogSeriesDetails? get series => null;
   CatalogPublishingDetails? get publishing => null;
-  MusicCatalogDetails? get music => null;
   List<Map<String, dynamic>>? get contributors => null;
   String? get coverImageUrl =>
       releases.isEmpty ? null : releases.first.coverImageUrl;

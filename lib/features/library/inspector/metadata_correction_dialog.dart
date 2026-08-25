@@ -171,13 +171,14 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 
   String _initialFieldText(String key) {
+    final payload = widget.item.toSyncPayload();
     return switch (key) {
       'title' => widget.item.title,
-      'item_number' => widget.item.itemNumber ?? '',
-      'publisher' => widget.item.publisher ?? '',
+      'item_number' => (payload['item_number'] ?? payload['itemNumber'])?.toString() ?? '',
+      'publisher' => payload['publisher']?.toString() ?? '',
       'release_year' => widget.item.releaseYear?.toString() ?? '',
-      'barcode' => widget.item.barcode ?? '',
-      'variant' => widget.item.variant ?? '',
+      'barcode' => payload['barcode']?.toString() ?? '',
+      'variant' => payload['variant']?.toString() ?? '',
       'source_url' => '',
       'notes' => '',
       _ => '',
@@ -237,24 +238,35 @@ class _MetadataCorrectionDraft {
   final String notes;
 
   String queryFor(CatalogItem item) {
+    final payload = item.toSyncPayload();
+    final itemNumber =
+        (payload['item_number'] ?? payload['itemNumber'])?.toString();
+    final pub = payload['publisher']?.toString();
     return [
       title.trim().isEmpty ? item.title : title.trim(),
-      issueNumber.trim().isEmpty ? item.itemNumber : '#${issueNumber.trim()}',
-      publisher.trim().isEmpty ? item.publisher : publisher.trim(),
+      issueNumber.trim().isEmpty ? itemNumber : '#${issueNumber.trim()}',
+      publisher.trim().isEmpty ? pub : publisher.trim(),
     ].whereType<String>().where((value) => value.isNotEmpty).join(' ');
   }
 
   String summaryFor(CatalogItem item) {
+    final payload = item.toSyncPayload();
+    final itemNumber =
+        (payload['item_number'] ?? payload['itemNumber'])?.toString();
+    final pub = payload['publisher']?.toString();
+    final barcodeVal = payload['barcode']?.toString();
+    final variantVal = payload['variant']?.toString();
+
     final lines = [
       'Metadata correction proposal',
       '',
       'Original:',
       'title: ${item.title}',
-      if (item.itemNumber != null) 'issue: ${item.itemNumber}',
-      if (item.publisher != null) 'publisher: ${item.publisher}',
+      if (itemNumber != null) 'issue: $itemNumber',
+      if (pub != null) 'publisher: $pub',
       if (item.releaseYear != null) 'year: ${item.releaseYear}',
-      if (item.barcode != null) 'barcode: ${item.barcode}',
-      if (item.variant != null) 'variant: ${item.variant}',
+      if (barcodeVal != null) 'barcode: $barcodeVal',
+      if (variantVal != null) 'variant: $variantVal',
       '',
       'Suggested:',
       if (title.trim().isNotEmpty) 'title: ${title.trim()}',

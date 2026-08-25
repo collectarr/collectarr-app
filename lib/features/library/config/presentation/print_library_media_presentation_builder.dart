@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -29,9 +30,21 @@ class PrintLibraryMediaPresentationBuilder
   }) {
     final dto = item.dto;
     final catalogItem = item.source.catalogItem?.toCatalogItem();
-    final series = catalogItem?.series;
-    final publishing = catalogItem?.publishing;
-    final music = catalogItem?.music;
+    final seriesRaw = catalogItem?.payload['series'];
+    final series = seriesRaw is Map
+        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
+        : null;
+    final pubRaw = catalogItem?.payload['publishing'];
+    final publishing = pubRaw is Map
+        ? CatalogPublishingDetailsDto.fromJson(
+            Map<String, dynamic>.from(pubRaw))
+        : null;
+    final musicRaw = catalogItem?.payload['music'];
+    final music = musicRaw is Map ? Map<String, dynamic>.from(musicRaw) : null;
+    final musicCatalogNumber = music?['catalog_number'] as String?;
+    final musicReleaseStatus = music?['release_status'] as String?;
+    final ageRating = catalogItem?.payload['age_rating'] as String?;
+    final audienceRating = catalogItem?.payload['audience_rating'] as String?;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
     final referencePlatforms = libraryReferencePlatforms(item);
@@ -54,7 +67,10 @@ class PrintLibraryMediaPresentationBuilder
         if (hasVolume && !hasSeason)
           LibraryDetailField(
               label: 'Volume',
-              value: series!.volumeName ?? (series.volumeNumber ?? '')),
+              value: series!.volumeName ??
+                  libraryVolumeLabel(series.volumeNumber != null
+                      ? double.tryParse(series.volumeNumber!)
+                      : null)),
         if (hasSeason && hasEpisode)
           LibraryDetailField(
               label: 'Season / Episode',
@@ -92,9 +108,9 @@ class PrintLibraryMediaPresentationBuilder
         if (publishing?.pageCount != null)
           LibraryDetailField(
               label: 'Pages', value: publishing!.pageCount.toString()),
-        if (music?.catalogNumber != null)
+        if (musicCatalogNumber != null)
           LibraryDetailField(
-              label: 'Catalog No.', value: music!.catalogNumber!),
+              label: 'Catalog No.', value: musicCatalogNumber),
         if (publishing?.coverPriceCents != null)
           LibraryDetailField(
               label: 'Cover Price',
@@ -116,17 +132,17 @@ class PrintLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
         if (dto.country != null)
           LibraryDetailField(label: 'Country', value: dto.country!),
-        if (music?.releaseStatus != null)
+        if (musicReleaseStatus != null)
           LibraryDetailField(
-              label: 'Release Status', value: music!.releaseStatus!),
+              label: 'Release Status', value: musicReleaseStatus),
         if (dto.language != null)
           LibraryDetailField(label: 'Language', value: dto.language!),
-        if (catalogItem?.ageRating != null)
+        if (ageRating != null)
           LibraryDetailField(
-              label: 'Age Rating', value: catalogItem!.ageRating!),
-        if (catalogItem?.audienceRating != null)
+              label: 'Age Rating', value: ageRating),
+        if (audienceRating != null)
           LibraryDetailField(
-              label: 'Audience Rating', value: catalogItem!.audienceRating!),
+              label: 'Audience Rating', value: audienceRating),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
@@ -155,10 +171,21 @@ class PrintLibraryMediaPresentationBuilder
                 ? 'Missing'
                 : 'Ready'),
       ],
-      creators: catalogItem?.creators ?? const <Map<String, dynamic>>[],
-      characters: catalogItem?.characters ?? const <String>[],
-      storyArcs: catalogItem?.storyArcs ?? const <String>[],
-      genres: catalogItem?.genres ?? const <String>[],
+      creators: (catalogItem?.payload['creators'] as List?)
+              ?.cast<Map<String, dynamic>>() ??
+          const <Map<String, dynamic>>[],
+      characters: (catalogItem?.payload['characters'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const <String>[],
+      storyArcs: (catalogItem?.payload['story_arcs'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const <String>[],
+      genres: (catalogItem?.payload['genres'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const <String>[],
     );
   }
 

@@ -168,7 +168,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
   bool _matchesQuery(_ReadingQueueDialogEntry entry, String query) {
     final fields = [
       entry.label,
-      entry.catalogItem.publisher,
+      entry.catalogItem.payload['publisher']?.toString(),
       entry.ownedItem.readStatus,
       entry.ownedItem.personalNotes,
     ];
@@ -263,8 +263,10 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                 itemBuilder: (context, index) {
                                   final entry = filteredEntries[index];
                                   final details = <String>[];
-                                  final publisher =
-                                      entry.catalogItem.publisher?.trim();
+                                  final publisher = entry
+                                      .catalogItem.payload['publisher']
+                                      ?.toString()
+                                      .trim();
                                   if (publisher != null &&
                                       publisher.isNotEmpty) {
                                     details.add(publisher);
@@ -349,7 +351,9 @@ class _ReadingQueueDialogEntry {
   final CatalogItem catalogItem;
 
   String get label {
-    final itemNumber = catalogItem.itemNumber?.trim();
+    final payload = catalogItem.payload;
+    final rawNum = (payload['item_number'] ?? payload['itemNumber'])?.toString();
+    final itemNumber = rawNum?.trim();
     if (itemNumber == null || itemNumber.isEmpty) {
       return catalogItem.title;
     }

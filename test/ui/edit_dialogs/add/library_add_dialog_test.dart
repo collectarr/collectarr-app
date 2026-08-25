@@ -135,7 +135,7 @@ void main() {
         kind: 'book',
         title: 'The Hobbit',
         publisher: 'Allen & Unwin',
-        publishing: CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 310,
         ),
       ),
@@ -154,7 +154,7 @@ void main() {
           },
         ],
         genres: ['Fantasy'],
-        publishing: CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 310,
         ),
       ),
@@ -166,12 +166,13 @@ void main() {
     );
 
     final cat = merged.toCatalogItem();
-    expect(cat.creators, isNotNull);
-    expect(cat.creators, isNotEmpty);
-    expect(cat.creators!.first['name'], 'J.R.R. Tolkien');
-    expect(cat.creators!.first['role'], 'Author');
-    expect(cat.creators!.first['image_url'], 'https://cdn.example/tolkien.jpg');
-    expect(cat.genres, contains('Fantasy'));
+    final creators = cat.payload['creators'] as List?;
+    expect(creators, isNotNull);
+    expect(creators, isNotEmpty);
+    expect(creators!.first['name'], 'J.R.R. Tolkien');
+    expect(creators.first['role'], 'Author');
+    expect(creators.first['image_url'], 'https://cdn.example/tolkien.jpg');
+    expect(cat.payload['genres'], contains('Fantasy'));
   });
 
   test('local cover image preprocessor applies crop and rotation transforms',
@@ -751,7 +752,7 @@ void main() {
           kind: 'comic',
           publisher: 'DC',
           issueNumber: '423',
-          series: CatalogSeriesDetails(
+          series: const CatalogSeriesDetailsDto(
             seriesTitle: 'Detective Comics',
             volumeStartYear: 1988,
           ),
@@ -763,7 +764,7 @@ void main() {
           kind: 'comic',
           publisher: 'DC',
           issueNumber: '423',
-          series: CatalogSeriesDetails(
+          series: const CatalogSeriesDetailsDto(
             seriesTitle: 'Batman',
             volumeStartYear: 1988,
           ),
@@ -2477,9 +2478,10 @@ class _FakeLibraryAddApiClient extends ApiClient {
           id: 'book-item-1',
           kind: 'book',
           title: 'The Hobbit',
-          series: CatalogSeriesDetails(seriesTitle: 'Middle-earth Tales'),
+          series:
+              const CatalogSeriesDetailsDto(seriesTitle: 'Middle-earth Tales'),
           publisher: 'Allen & Unwin',
-          publishing: CatalogPublishingDetails(pageCount: 310),
+          publishing: const CatalogPublishingDetailsDto(pageCount: 310),
           providerLinks: [
             AdminProviderLink(
               provider: 'openlibrary',

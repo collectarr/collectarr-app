@@ -169,6 +169,7 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
     this.publisher,
     this.barcode,
     this.variant,
+    this.editions = const [],
     this.creators = const [],
     this.links = const [],
   });
@@ -210,6 +211,7 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
   final String? publisher;
   final String? barcode;
   final String? variant;
+  final List<CatalogEditionDto> editions;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
 
@@ -250,6 +252,8 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
         if (publisher != null) 'publisher': publisher,
         if (barcode != null) 'barcode': barcode,
         if (variant != null) 'variant': variant,
+        if (editions.isNotEmpty)
+          'editions': editions.map((e) => e.toJson()).toList(),
         if (creators.isNotEmpty) 'creators': creators,
         if (links.isNotEmpty) ...{
           if (links.any((l) => l.isTrailerLink))
@@ -272,6 +276,13 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
         : null;
     final resolvedSeriesTitle =
         (json['series_title'] ?? series?.seriesTitle) as String?;
+
+    final rawEditions = (json['editions'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) =>
+                CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ??
+        const <CatalogEditionDto>[];
 
     final rawCreators = (json['creators'] as List<dynamic>?)
             ?.whereType<Map>()
@@ -357,6 +368,7 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
               : null)) as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant'] as String?,
+      editions: rawEditions,
       creators: rawCreators,
       links: rawLinks,
     );

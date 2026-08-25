@@ -391,14 +391,16 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
 
       expect(merged.coverImageUrl, entry.posterUrl);
       expect(merged.thumbnailImageUrl, entry.posterUrl);
-      expect(merged.publisher, 'Miramax');
+      expect(merged.payload['publisher'], 'Miramax');
       expect(merged.synopsis, contains('burger-loving hitman'));
       expect(merged.releaseDate, DateTime.utc(1994, 9, 10));
       expect(merged.releaseYear, 1994);
-      expect(merged.video?.runtimeMinutes, 154);
-      expect(merged.genres, containsAll(['Crime', 'Drama']));
-      expect(merged.country, 'United States of America');
-      expect(merged.language, 'English');
+      final videoMap = merged.payload['video'] as Map?;
+      expect(videoMap?['runtime_minutes'] ?? merged.payload['runtime_minutes'],
+          154);
+      expect(merged.payload['genres'], containsAll(['Crime', 'Drama']));
+      expect(merged.payload['country'], 'United States of America');
+      expect(merged.payload['language'], 'English');
     });
   });
 }

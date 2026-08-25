@@ -287,9 +287,12 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _countBy(
       entries,
       (e) {
-        final payload = e.catalogItem?.kindMetadata.toSyncPayload();
+        final payload = e.catalogItem?.payload;
+        final seriesRaw = payload?['series'];
         final series = (payload?['series_title'] ??
-            (payload?['series'] as Map?)?['series_title']) as String?;
+            (seriesRaw is Map
+                ? seriesRaw['series_title']
+                : seriesRaw)) as String?;
         return series ??
             e.catalogItem?.common.displayTitle ??
             e.catalogItem?.common.title ??
@@ -302,9 +305,12 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _countBy(
       entries,
       (e) {
-        final payload = e.catalogItem?.kindMetadata.toSyncPayload();
+        final payload = e.catalogItem?.payload;
+        final pubRaw = payload?['publishing'];
         final pub = (payload?['publisher'] ??
-            (payload?['publishing'] as Map?)?['original_publisher']) as String?;
+            (pubRaw is Map
+                ? pubRaw['original_publisher']
+                : null)) as String?;
         return pub ?? 'Unknown';
       },
     );
@@ -318,9 +324,10 @@ class _GenericStatsDashboard extends StatelessWidget {
         count++;
         continue;
       }
-      final payload = cat.kindMetadata.toSyncPayload();
+      final payload = cat.payload;
+      final pubRaw = payload['publishing'];
       final publisher = (payload['publisher'] ??
-          (payload['publishing'] as Map?)?['original_publisher']) as String?;
+          (pubRaw is Map ? pubRaw['original_publisher'] : null)) as String?;
       final hasSynopsis =
           cat.common.synopsis != null && cat.common.synopsis!.trim().isNotEmpty;
       final hasPublisher = publisher != null && publisher.trim().isNotEmpty;
@@ -343,9 +350,12 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _sumBy(
       entries,
       (entry) {
-        final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
+        final payload = entry.catalogItem?.payload;
+        final seriesRaw = payload?['series'];
         final series = (payload?['series_title'] ??
-            (payload?['series'] as Map?)?['series_title']) as String?;
+            (seriesRaw is Map
+                ? seriesRaw['series_title']
+                : seriesRaw)) as String?;
         return series ??
             entry.catalogItem?.common.displayTitle ??
             entry.catalogItem?.common.title ??
@@ -367,9 +377,12 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _sumBy(
       entries,
       (entry) {
-        final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
+        final payload = entry.catalogItem?.payload;
+        final seriesRaw = payload?['series'];
         final series = (payload?['series_title'] ??
-            (payload?['series'] as Map?)?['series_title']) as String?;
+            (seriesRaw is Map
+                ? seriesRaw['series_title']
+                : seriesRaw)) as String?;
         return series ??
             entry.catalogItem?.common.displayTitle ??
             entry.catalogItem?.common.title ??
@@ -408,7 +421,7 @@ class _GenericStatsDashboard extends StatelessWidget {
             (counts['No catalog snapshot'] ?? 0) + 1;
         continue;
       }
-      final payload = item.kindMetadata.toSyncPayload();
+      final payload = item.payload;
       if (item.common.displayCoverUrl == null ||
           item.common.displayCoverUrl!.trim().isEmpty) {
         counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
@@ -417,8 +430,9 @@ class _GenericStatsDashboard extends StatelessWidget {
           item.common.synopsis!.trim().isEmpty) {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
+      final pubRaw = payload['publishing'];
       final publisher = (payload['publisher'] ??
-          (payload['publishing'] as Map?)?['original_publisher']) as String?;
+          (pubRaw is Map ? pubRaw['original_publisher'] : null)) as String?;
       if (publisher == null || publisher.trim().isEmpty) {
         counts[missingPublisherLabel] =
             (counts[missingPublisherLabel] ?? 0) + 1;
@@ -427,8 +441,11 @@ class _GenericStatsDashboard extends StatelessWidget {
       if (creators == null || creators.isEmpty) {
         counts['Missing creators'] = (counts['Missing creators'] ?? 0) + 1;
       }
+      final seriesRaw = payload['series'];
       final seriesTitle = ((payload['series_title'] ??
-          (payload['series'] as Map?)?['series_title']) as String?)?.trim();
+          (seriesRaw is Map
+              ? seriesRaw['series_title']
+              : seriesRaw)) as String?)?.trim();
       if (seriesTitle == null || seriesTitle.isEmpty) {
         counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
       }
@@ -452,11 +469,15 @@ class _GenericStatsDashboard extends StatelessWidget {
       }
     }
 
-    final payload = item.kindMetadata.toSyncPayload();
+    final payload = item.payload;
+    final pubRaw = payload['publishing'];
     final publisher = (payload['publisher'] ??
-        (payload['publishing'] as Map?)?['original_publisher']) as String?;
+        (pubRaw is Map ? pubRaw['original_publisher'] : null)) as String?;
+    final seriesRaw = payload['series'];
     final seriesTitle = ((payload['series_title'] ??
-        (payload['series'] as Map?)?['series_title']) as String?)?.trim();
+        (seriesRaw is Map
+            ? seriesRaw['series_title']
+            : seriesRaw)) as String?)?.trim();
     final itemNumber = payload['item_number'] as String?;
     final creators = payload['creators'] as List?;
     final characters = payload['characters'] as List?;

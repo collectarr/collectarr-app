@@ -922,7 +922,7 @@ class _FakeAdminApiClient extends ApiClient {
         kind: 'comic',
         title: catalogUpdated ? 'Absolute Batman Deluxe' : 'Absolute Batman',
         itemNumber: '1A',
-        series: const CatalogSeriesDetails(seriesTitle: 'Absolute Batman'),
+        series: const CatalogSeriesDetailsDto(seriesTitle: 'Absolute Batman'),
         publisher: 'DC Comics',
         barcode: '76194138584600111',
         editions: const [
@@ -1399,7 +1399,7 @@ class _FakeAdminApiClient extends ApiClient {
         kind: 'comic',
         title: 'Absolute Batman',
         itemNumber: '1A',
-        series: CatalogSeriesDetails(seriesTitle: 'Absolute Batman'),
+        series: CatalogSeriesDetailsDto(seriesTitle: 'Absolute Batman'),
         publisher: 'DC Comics',
         editions: [
           AdminEdition(
@@ -1441,10 +1441,10 @@ class _FakeAdminApiClient extends ApiClient {
       kind: 'comic',
       title: 'Absolute Batman',
       itemNumber: '1B',
-      series: CatalogSeriesDetails(seriesTitle: 'Absolute Batman'),
+      series: CatalogSeriesDetailsDto(seriesTitle: 'Absolute Batman'),
       publisher: 'DC Comics',
       barcode: '76194138584600121',
-      publishing: CatalogPublishingDetails(pageCount: 48),
+      publishing: CatalogPublishingDetailsDto(pageCount: 48),
       providerLinks: [
         AdminProviderLink(
           provider: 'gcd',
@@ -1586,10 +1586,10 @@ class _FakeAdminApiClient extends ApiClient {
         kind: 'comic',
         title: 'Absolute Batman',
         itemNumber: '1A',
-        series: CatalogSeriesDetails(seriesTitle: 'Absolute Batman'),
+        series: CatalogSeriesDetailsDto(seriesTitle: 'Absolute Batman'),
         publisher: 'DC Comics',
         barcode: '76194138584600111',
-        publishing: CatalogPublishingDetails(pageCount: 48),
+        publishing: CatalogPublishingDetailsDto(pageCount: 48),
         coverDate: null,
         storeDate: null,
         providerLinks: [
@@ -1761,13 +1761,13 @@ class _BookAdminApiClient extends _FakeAdminApiClient {
         itemNumber: '1',
         synopsis: 'The first journey into Middle-earth.',
         publisher: 'Allen & Unwin',
-        series: CatalogSeriesDetails(
+        series: CatalogSeriesDetailsDto(
           seriesId: 'series-book-1',
           seriesTitle: 'The Lord of the Rings',
           volumeNumber: '1',
           tags: lastSeriesTags?.join(', ') ?? 'Fantasy',
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           subtitle: 'Being the First Part',
           pageCount: 423,
         ),

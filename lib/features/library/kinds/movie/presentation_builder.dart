@@ -40,6 +40,11 @@ class VideoLibraryMediaPresentationBuilder
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
+    final runtime = metadata?.runtimeMinutes ??
+        (video?['runtime_minutes'] as num?)?.toInt();
+    final screenRatio = (video?['screen_ratio'] as String?)?.trim();
+    final audioTracks = (video?['audio_tracks'] as String?)?.trim();
+    final subtitles = (video?['subtitles'] as String?)?.trim();
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
@@ -48,6 +53,15 @@ class VideoLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'ID', value: item.node.titleItemId),
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
+        if (metadata?.editionTitle != null)
+          LibraryDetailField(
+              label: 'Edition', value: metadata!.editionTitle!),
+        if (metadata?.originalTitle != null)
+          LibraryDetailField(
+              label: 'Original Title', value: metadata!.originalTitle!),
+        if (metadata?.sortTitle != null)
+          LibraryDetailField(
+              label: 'Sort Title', value: metadata!.sortTitle!),
         if (series?.seriesTitle != null)
           LibraryDetailField(
               label: 'Series',
@@ -94,15 +108,15 @@ class VideoLibraryMediaPresentationBuilder
               formatPresentationNullableDate(dto.releaseDate) ??
                   dto.releaseDate?.year.toString(),
             )),
-        if (video?.runtimeMinutes != null)
+        if (runtime != null)
           LibraryDetailField(
-              label: 'Runtime', value: '${video!.runtimeMinutes} min'),
-        if (video?.screenRatio != null)
-          LibraryDetailField(label: 'Aspect Ratio', value: video!.screenRatio!),
-        if (video?.audioTracks != null)
-          LibraryDetailField(label: 'Audio', value: video!.audioTracks!),
-        if (video?.subtitles != null)
-          LibraryDetailField(label: 'Subtitles', value: video!.subtitles!),
+              label: 'Runtime', value: '$runtime min'),
+        if (screenRatio != null && screenRatio.isNotEmpty)
+          LibraryDetailField(label: 'Aspect Ratio', value: screenRatio),
+        if (audioTracks != null && audioTracks.isNotEmpty)
+          LibraryDetailField(label: 'Audio', value: audioTracks),
+        if (subtitles != null && subtitles.isNotEmpty)
+          LibraryDetailField(label: 'Subtitles', value: subtitles),
         if (dto.country != null)
           LibraryDetailField(
               label: 'Country',

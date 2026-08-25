@@ -27,11 +27,11 @@ void main() {
         title: 'The Department of Truth: Complete Conspiracy',
         physicalFormatLabel: 'Hardcover',
         publisher: 'Image Comics',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-1',
           seriesTitle: 'The Department of Truth',
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           imprint: 'DSTLRY',
           seriesGroup: 'Deluxe Hardcovers',
         ),

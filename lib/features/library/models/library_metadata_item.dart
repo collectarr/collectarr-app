@@ -34,6 +34,7 @@ final class LibraryMetadataItem {
 
   String get resolvedDisplayTitle => common.resolvedDisplayTitle;
   String? get displayCoverUrl => common.displayCoverUrl;
+  Map<String, dynamic> get payload => kindMetadata.toSyncPayload();
 
   factory LibraryMetadataItem.fromCatalogItem(CatalogItem item) {
     final identity = LibraryItemIdentity(

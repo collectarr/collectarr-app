@@ -348,13 +348,13 @@ void main() {
         kind: 'book',
         title: 'The Fellowship of the Ring',
         sortKey: 'lord-of-the-rings-001',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-1',
           seriesTitle: 'The Lord of the Rings',
           volumeNumber: '1',
           tags: 'Epic Fantasy, Middle-earth',
         ),
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           subtitle: 'Being the First Part',
         ),
       ),
@@ -364,8 +364,14 @@ void main() {
 
     expect(item, isA<CatalogItem>());
     expect(item!.sortKey, 'lord-of-the-rings-001');
-    expect(item.series?.tags, 'Epic Fantasy, Middle-earth');
-    expect(item.publishing?.subtitle, 'Being the First Part');
+    final seriesMap = item.payload['series'] is Map
+        ? item.payload['series'] as Map
+        : null;
+    expect(seriesMap?['tags'], 'Epic Fantasy, Middle-earth');
+    final pubMap = item.payload['publishing'] is Map
+        ? item.payload['publishing'] as Map
+        : null;
+    expect(pubMap?['subtitle'], 'Being the First Part');
   });
 
   test('catalog cache repository preserves editions and variants', () async {

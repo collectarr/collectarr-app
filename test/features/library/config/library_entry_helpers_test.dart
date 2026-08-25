@@ -113,7 +113,7 @@ void main() {
         id: 'movie-2',
         kind: 'movie',
         title: 'Example Movie',
-        series: CatalogSeriesDetails(seriesTitle: 'Example Movie'),
+        series: CatalogSeriesDetailsDto(seriesTitle: 'Example Movie'),
       ),
     );
     final node = LibraryReleaseNodeRef(

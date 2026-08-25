@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
 
 class TvEpisode {
   const TvEpisode({
@@ -222,7 +223,7 @@ class TvRelease {
   final String? language;
   final List<TvReleaseMedia> media;
   final CatalogPublishingDetails? publishingDetails;
-  final VideoCatalogDetails? videoDetails;
+  final VideoTechnicalMetadata? videoDetails;
   final List<TvReleaseEpisodeMap> episodeMappings;
 }
 

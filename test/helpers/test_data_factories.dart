@@ -35,11 +35,11 @@ CatalogItem testCatalogItem({
   List<String>? storyArcs,
   List<Map<String, dynamic>>? creators,
   List<CatalogEdition>? editions,
-  CatalogSeriesDetails? series,
-  VideoCatalogDetails? video,
-  MusicCatalogDetails? music,
-  GameCatalogDetails? game,
-  CatalogPublishingDetails? publishing,
+  CatalogSeriesDetailsDto? series,
+  dynamic video,
+  dynamic music,
+  dynamic game,
+  CatalogPublishingDetailsDto? publishing,
 }) {
   return CatalogItem(
     id: id,
@@ -76,7 +76,7 @@ CatalogItem testCatalogItem({
     game: game,
     publishing: publishing ??
         (kind == 'comic'
-            ? const CatalogPublishingDetails(
+            ? const CatalogPublishingDetailsDto(
                 imprint: 'IDW', subtitle: 'Director Cut')
             : null),
   );

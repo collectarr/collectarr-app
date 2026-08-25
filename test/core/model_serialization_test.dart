@@ -61,7 +61,7 @@ void main() {
     });
 
     expect(item.title, 'Spider-Man');
-    expect(item.itemNumber, '1');
+    expect(item.payload['item_number'], '1');
     expect(item.coverImageUrl, 'https://cdn.example/full.jpg');
     expect(item.thumbnailImageUrl, 'https://cdn.example/thumb.jpg');
     expect(item.displayCoverUrl, 'https://cdn.example/thumb.jpg');
@@ -144,14 +144,14 @@ void main() {
       ],
     });
 
-    expect(item.music, isNotNull);
     expect(MusicCatalogMapper.mapDtoToMusic(item), isA<MusicCatalogItem>());
-    expect(item.music!.catalogNumber, 'DISC-2001');
-    expect(item.music!.trackCount, 2);
-    expect(item.music!.tracks, hasLength(2));
-    expect(item.music!.tracks.first.title, 'One More Time');
-    expect(item.rawPlatforms, ['CD', 'Digital']);
-    expect(item.music!.releaseStatus, 'Official');
+    expect(item.payload['catalog_number'], 'DISC-2001');
+    expect(item.payload['track_count'], 2);
+    final tracks = item.payload['tracks'] as List;
+    expect(tracks, hasLength(2));
+    expect(tracks.first['title'], 'One More Time');
+    expect(item.payload['platforms'], ['CD', 'Digital']);
+    expect(item.payload['release_status'], 'Official');
     expect(item.editions, hasLength(1));
     expect(item.editions.single.title, 'Deluxe CD');
     expect(item.editions.single.variants, hasLength(1));

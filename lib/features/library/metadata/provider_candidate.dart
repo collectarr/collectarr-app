@@ -49,7 +49,7 @@ class ProviderCandidate {
         'Provider candidate response did not include kind',
       );
     }
-    final series = CatalogSeriesDetails(
+    final series = CatalogSeriesDetailsDto(
       seriesTitle: json['series_title'] as String?,
       volumeStartYear: json['volume_start_year'] as int?,
     );

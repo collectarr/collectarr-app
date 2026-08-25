@@ -169,13 +169,12 @@ class _MusicInspectorMain extends StatelessWidget {
   Widget build(BuildContext context) {
     final metadata = _musicMetadata(inspector.item);
     final music = metadata?.music;
+    final tracks = metadata?.tracks ?? const <CatalogTrackDto>[];
     final palette = appPalette(context);
-    final discGroups =
-        _groupTracksByDisc(music?.tracks ?? const <CatalogTrack>[]);
+    final discGroups = _groupTracksByDisc(tracks);
     final discCount = discGroups.length;
-    final totalTracks = music?.trackCount ?? (music?.tracks.length ?? 0);
-    final totalDuration =
-        _formatTotalDuration(music?.tracks ?? const <CatalogTrack>[]);
+    final totalTracks = metadata?.trackCount ?? tracks.length;
+    final totalDuration = _formatTotalDuration(tracks);
     final releaseYear = metadata?.originalReleaseDate?.year.toString();
     final genreText =
         metadata?.genres.isEmpty != false ? null : metadata!.genres.join(' | ');
@@ -211,32 +210,24 @@ class _MusicInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (dto.publisher?.isNotEmpty == true || releaseYear != null)
+                  Text(
+                    dto.title,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: palette.textPrimary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  if (dto.seriesTitle?.trim().isNotEmpty == true) ...[
+                    const SizedBox(height: 2),
                     Text(
-                      [
-                        if (dto.publisher?.isNotEmpty == true) dto.publisher!,
-                        if (releaseYear != null) '($releaseYear)',
-                      ].join(' '),
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
-                    ),
-                  if (genreText != null) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      genreText,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      dto.seriesTitle!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: palette.textMuted,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                           ),
                     ),
                   ],
                   const SizedBox(height: 8),
-                  if (dto.barcode?.isNotEmpty == true)
-                    LibraryInspectorInfoLine(
-                      icon: Icons.qr_code_2,
-                      text: dto.barcode!,
-                    ),
                   LibraryInspectorInfoLine(
                     icon: Icons.album_outlined,
                     text: [
@@ -248,10 +239,10 @@ class _MusicInspectorMain extends StatelessWidget {
                       if (totalDuration != null) totalDuration,
                     ].join(' | '),
                   ),
-                  if (music?.catalogNumber?.isNotEmpty == true)
+                  if (music?['catalog_number']?.toString().trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.confirmation_number_outlined,
-                      text: 'Cat No ${music!.catalogNumber!}',
+                      text: 'Cat No ${music!['catalog_number']}',
                     ),
                   if (discGroups.isNotEmpty) ...[
                     const SizedBox(height: 10),
@@ -396,41 +387,40 @@ class _MusicDiscDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final metadata = _musicMetadata(inspector.item);
     final music = metadata?.music;
-    final discs = music?.discs ?? const <CatalogDisc>[];
+    final expectedMediaCount = music?['expected_media_count'] as num?;
+    final ownedMediaCount = music?['owned_media_count'] as num?;
+    final missingMediaCount = music?['missing_media_count'] as num?;
+    final missingDiscNumbers =
+        (music?['missing_disc_numbers'] as List<dynamic>?)
+            ?.map((e) => e.toString())
+            .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LibraryDetailFieldTable(
           fields: [
-            if (music?.expectedMediaCount != null)
+            if (expectedMediaCount != null)
               LibraryDetailField(
                 label: 'Expected discs',
-                value: music!.expectedMediaCount.toString(),
+                value: expectedMediaCount.toString(),
               ),
-            if (music?.ownedMediaCount != null)
+            if (ownedMediaCount != null)
               LibraryDetailField(
                 label: 'Owned discs',
-                value: music!.ownedMediaCount.toString(),
+                value: ownedMediaCount.toString(),
               ),
-            if (music?.missingMediaCount != null)
+            if (missingMediaCount != null)
               LibraryDetailField(
                 label: 'Missing discs',
-                value: music!.missingMediaCount.toString(),
+                value: missingMediaCount.toString(),
               ),
-            if (music?.missingDiscNumbers.isNotEmpty == true)
+            if (missingDiscNumbers != null && missingDiscNumbers.isNotEmpty)
               LibraryDetailField(
                 label: 'Missing disc #',
-                value: music!.missingDiscNumbers.join(', '),
+                value: missingDiscNumbers.join(', '),
               ),
           ],
         ),
-        if (discs.isNotEmpty) ...[
-          const SizedBox(height: 10),
-          for (var index = 0; index < discs.length; index++) ...[
-            _MusicDiscCardSection(disc: discs[index], accent: inspector.accent),
-            if (index < discs.length - 1) const SizedBox(height: 10),
-          ],
-        ],
       ],
     );
   }
@@ -448,36 +438,39 @@ class _MusicProductDetails extends StatelessWidget {
     final music = metadata?.music;
     final rows = <(String, String)>[
       if (dto.publisher?.trim().isNotEmpty == true) ('Label', dto.publisher!),
-      if (music?.catalogNumber?.trim().isNotEmpty == true)
-        ('Catalog number', music!.catalogNumber!),
-      if (music?.upc?.trim().isNotEmpty == true) ('UPC', music!.upc!),
+      if (music?['catalog_number']?.toString().trim().isNotEmpty == true)
+        ('Catalog number', music!['catalog_number'].toString()),
+      if (music?['upc']?.toString().trim().isNotEmpty == true)
+        ('UPC', music!['upc'].toString()),
       if (dto.barcode?.trim().isNotEmpty == true) ('Barcode', dto.barcode!),
       if (dto.referenceFormatLabel?.trim().isNotEmpty == true ||
           dto.variant?.trim().isNotEmpty == true)
         ('Format', dto.referenceFormatLabel ?? dto.variant ?? '-'),
-      if (music?.releaseStatus?.trim().isNotEmpty == true)
-        ('Release status', music!.releaseStatus!),
-      if (music?.originalReleaseDate != null)
-        ('Original release', formatDate(music!.originalReleaseDate!)),
-      if (music?.recordingDate != null)
-        ('Recording date', formatDate(music!.recordingDate!)),
+      if (music?['release_status']?.toString().trim().isNotEmpty == true)
+        ('Release status', music!['release_status'].toString()),
+      if (metadata?.originalReleaseDate != null)
+        ('Original release', formatDate(metadata!.originalReleaseDate!)),
+      if (metadata?.recordingDate != null)
+        ('Recording date', formatDate(metadata!.recordingDate!)),
       if (metadata?.country?.trim().isNotEmpty == true)
         ('Country', metadata!.country!),
       if (metadata?.language?.trim().isNotEmpty == true)
         ('Language', metadata!.language!),
-      if (music?.rpm?.trim().isNotEmpty == true) ('RPM', music!.rpm!),
-      if (music?.soundType?.trim().isNotEmpty == true)
-        ('Sound', music!.soundType!),
-      if (music?.vinylColor?.trim().isNotEmpty == true)
-        ('Vinyl color', music!.vinylColor!),
-      if (music?.vinylWeight?.trim().isNotEmpty == true)
-        ('Vinyl weight', music!.vinylWeight!),
-      if (music?.localCoverImagePath?.trim().isNotEmpty == true)
-        ('Local cover', music!.localCoverImagePath!),
-      if (music?.localBackImagePath?.trim().isNotEmpty == true)
-        ('Local back', music!.localBackImagePath!),
-      if (music?.localThumbnailImagePath?.trim().isNotEmpty == true)
-        ('Local thumbnail', music!.localThumbnailImagePath!),
+      if (music?['rpm']?.toString().trim().isNotEmpty == true)
+        ('RPM', music!['rpm'].toString()),
+      if (music?['sound_type']?.toString().trim().isNotEmpty == true)
+        ('Sound', music!['sound_type'].toString()),
+      if (music?['vinyl_color']?.toString().trim().isNotEmpty == true)
+        ('Vinyl color', music!['vinyl_color'].toString()),
+      if (music?['vinyl_weight']?.toString().trim().isNotEmpty == true)
+        ('Vinyl weight', music!['vinyl_weight'].toString()),
+      if (music?['local_cover_image_path']?.toString().trim().isNotEmpty == true)
+        ('Local cover', music!['local_cover_image_path'].toString()),
+      if (music?['local_back_image_path']?.toString().trim().isNotEmpty == true)
+        ('Local back', music!['local_back_image_path'].toString()),
+      if (music?['local_thumbnail_image_path']?.toString().trim().isNotEmpty ==
+          true)
+        ('Local thumbnail', music!['local_thumbnail_image_path'].toString()),
     ];
     return LibraryDetailFieldTable(
       fields: [
@@ -565,7 +558,7 @@ class _MusicDiscTable extends StatelessWidget {
   });
 
   final int discNumber;
-  final List<CatalogTrack> tracks;
+  final List<CatalogTrackDto> tracks;
   final List<String> highlightTerms;
   final ValueChanged<String>? onFilterByValue;
 
@@ -618,7 +611,7 @@ class _MusicTrackRow extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final CatalogTrack track;
+  final CatalogTrackDto track;
   final bool highlight;
   final ValueChanged<String>? onFilterByValue;
 
@@ -710,7 +703,7 @@ Color inspectorActionColor(BuildContext context) {
 
 Future<void> _copyTracks(
   BuildContext context,
-  List<CatalogTrack> tracks,
+  List<CatalogTrackDto> tracks,
 ) async {
   final rows = <List<String>>[
     ['Disc', 'Track', 'Artist', 'Duration'],
@@ -736,7 +729,7 @@ Future<void> _copyTracks(
 
 Future<void> _printTracks(
   BuildContext context,
-  List<CatalogTrack> tracks,
+  List<CatalogTrackDto> tracks,
 ) async {
   final rows = <List<String>>[
     ['Disc', 'Track', 'Artist', 'Duration'],
@@ -1004,17 +997,17 @@ class _DiscTrackGroup {
   });
 
   final int discNumber;
-  final List<CatalogTrack> tracks;
+  final List<CatalogTrackDto> tracks;
 }
 
-List<_DiscTrackGroup> _groupTracksByDisc(List<CatalogTrack> tracks) {
+List<_DiscTrackGroup> _groupTracksByDisc(List<CatalogTrackDto> tracks) {
   if (tracks.isEmpty) {
     return const <_DiscTrackGroup>[];
   }
-  final byDisc = <int, List<CatalogTrack>>{};
+  final byDisc = <int, List<CatalogTrackDto>>{};
   for (final track in tracks) {
     final disc = track.discNumber ?? 1;
-    final grouped = byDisc.putIfAbsent(disc, () => <CatalogTrack>[]);
+    final grouped = byDisc.putIfAbsent(disc, () => <CatalogTrackDto>[]);
     grouped.add(track);
   }
   final groups = <_DiscTrackGroup>[];
@@ -1036,7 +1029,7 @@ String _formatTrackDuration(int totalSeconds) {
   return '$minutes:${seconds.toString().padLeft(2, '0')}';
 }
 
-String? _formatTotalDuration(List<CatalogTrack> tracks) {
+String? _formatTotalDuration(List<CatalogTrackDto> tracks) {
   var total = 0;
   for (final track in tracks) {
     final duration = track.durationSeconds;
@@ -1063,7 +1056,7 @@ List<String> _musicSearchTerms(String? query) {
       .toList(growable: false);
 }
 
-bool _matchesTrackTerms(CatalogTrack track, List<String> terms) {
+bool _matchesTrackTerms(CatalogTrackDto track, List<String> terms) {
   if (terms.isEmpty) {
     return false;
   }

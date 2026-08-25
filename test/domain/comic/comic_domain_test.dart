@@ -37,10 +37,10 @@ void main() {
       itemNumber: '1',
       publisher: 'IDW Publishing',
       synopsis: 'The final turtle seeks justice in a ruined future.',
-      series: const CatalogSeriesDetails(
+      series: const CatalogSeriesDetailsDto(
         seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
       ),
-      publishing: const CatalogPublishingDetails(
+      publishing: const CatalogPublishingDetailsDto(
         imprint: 'IDW',
         subtitle: 'Director Cut',
         seriesGroup: 'TMNT Event',

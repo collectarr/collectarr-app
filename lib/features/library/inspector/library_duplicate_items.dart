@@ -28,15 +28,16 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
 ) {
   final barcodeBuckets = <String, _DuplicateBucket>{};
   for (final entry in entries) {
-    final item = entry.catalogItem?.toCatalogItem();
-    final barcode = _normalizedBarcode(item?.barcode);
+    final payload = entry.catalogItem?.toSyncPayload() ?? const {};
+    final rawBarcode = payload['barcode']?.toString();
+    final barcode = _normalizedBarcode(rawBarcode);
     if (barcode == null) {
       continue;
     }
     _addToBucket(
       barcodeBuckets,
       key: 'barcode:$barcode',
-      label: 'Barcode ${item!.barcode!.trim()}',
+      label: 'Barcode ${rawBarcode!.trim()}',
       reason: 'Same barcode',
       entry: entry,
     );
@@ -53,19 +54,22 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
     if (barcodeDuplicateItemIds.contains(entry.itemId)) {
       continue;
     }
-    final item = entry.catalogItem?.toCatalogItem();
+    final item = entry.catalogItem;
     if (item == null) {
       continue;
     }
-    final title = _normalizedText(item.title);
-    final issue = _normalizedText(item.itemNumber);
+    final payload = item.toSyncPayload();
+    final title = _normalizedText(item.common.title);
+    final issue = _normalizedText(
+        (payload['item_number'] ?? payload['itemNumber'])?.toString());
     if (title == null || issue == null) {
       continue;
     }
-    final publisher = _normalizedText(item.publisher) ?? '';
-    final year =
-        item.releaseYear?.toString() ?? item.releaseDate?.year.toString() ?? '';
-    final variant = _normalizedText(item.variant) ?? '';
+    final publisher = _normalizedText(payload['publisher']?.toString()) ?? '';
+    final year = item.common.releaseYear?.toString() ??
+        item.common.releaseDate?.year.toString() ??
+        '';
+    final variant = _normalizedText(payload['variant']?.toString()) ?? '';
     _addToBucket(
       issueBuckets,
       key: 'issue:$title|$issue|$publisher|$year|$variant',
@@ -430,12 +434,19 @@ int _duplicateConfidenceScore(_DuplicateBucket bucket) {
     score += 8;
   }
   if (_allShareValue(
-    catalogItems.map((item) => _normalizedText(item.itemNumber)),
+    catalogItems.map((item) {
+      final payload = item.toSyncPayload();
+      return _normalizedText(
+          (payload['item_number'] ?? payload['itemNumber'])?.toString());
+    }),
   )) {
     score += 5;
   }
   if (_allShareValue(
-    catalogItems.map((item) => _normalizedText(item.publisher)),
+    catalogItems.map((item) {
+      final payload = item.toSyncPayload();
+      return _normalizedText(payload['publisher']?.toString());
+    }),
   )) {
     score += 4;
   }
@@ -443,7 +454,10 @@ int _duplicateConfidenceScore(_DuplicateBucket bucket) {
     score += 3;
   }
   if (_allShareValue(
-    catalogItems.map((item) => _normalizedText(item.variant)),
+    catalogItems.map((item) {
+      final payload = item.toSyncPayload();
+      return _normalizedText(payload['variant']?.toString());
+    }),
   )) {
     score += 2;
   }
@@ -478,33 +492,43 @@ List<ShelfEntry> _sortedEntries(List<ShelfEntry> entries) {
 }
 
 String _issueDuplicateLabel(ShelfEntry entry) {
-  final item = entry.catalogItem?.toCatalogItem();
-  if (item == null) {
+  final catalogItem = entry.catalogItem;
+  if (catalogItem == null) {
     return entry.title;
   }
+  final payload = catalogItem.toSyncPayload();
+  final itemNumber =
+      (payload['item_number'] ?? payload['itemNumber'])?.toString();
+  final publisher = payload['publisher']?.toString();
+  final variant = payload['variant']?.toString();
+
   final pieces = [
-    _itemTitle(item.title, item.itemNumber),
-    if (_hasText(item.publisher)) item.publisher!.trim(),
-    if (item.releaseYear != null)
-      item.releaseYear.toString()
-    else if (item.releaseDate != null)
-      item.releaseDate!.year.toString(),
-    if (_hasText(item.variant)) item.variant!.trim(),
+    _itemTitle(catalogItem.common.title, itemNumber),
+    if (_hasText(publisher)) publisher!.trim(),
+    if (catalogItem.common.releaseYear != null)
+      catalogItem.common.releaseYear.toString()
+    else if (catalogItem.common.releaseDate != null)
+      catalogItem.common.releaseDate!.year.toString(),
+    if (_hasText(variant)) variant!.trim(),
   ];
   return pieces.join(' - ');
 }
 
 String _entrySubtitle(ShelfEntry entry) {
-  final item = entry.catalogItem?.toCatalogItem();
+  final catalogItem = entry.catalogItem;
+  final payload = catalogItem?.toSyncPayload() ?? const {};
+  final publisher = payload['publisher']?.toString();
+  final barcode = payload['barcode']?.toString();
+
   final pieces = <String>[
     if (entry.isOwned) 'Owned',
     if (entry.isWishlisted) 'Wishlist',
-    if (_hasText(item?.publisher)) item!.publisher!.trim(),
-    if (item?.releaseYear != null)
-      item!.releaseYear.toString()
-    else if (item?.releaseDate != null)
-      item!.releaseDate!.year.toString(),
-    if (_hasText(item?.barcode)) 'Barcode ${item!.barcode!.trim()}',
+    if (_hasText(publisher)) publisher!.trim(),
+    if (catalogItem?.common.releaseYear != null)
+      catalogItem!.common.releaseYear.toString()
+    else if (catalogItem?.common.releaseDate != null)
+      catalogItem!.common.releaseDate!.year.toString(),
+    if (_hasText(barcode)) 'Barcode ${barcode!.trim()}',
     'ID ${entry.itemId}',
   ];
   return pieces.join(' - ');

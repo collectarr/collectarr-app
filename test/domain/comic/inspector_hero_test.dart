@@ -19,10 +19,10 @@ LibraryProjectionItem _itemFixture() {
     kind: 'comic',
     title: 'The Last Ronin',
     synopsis: 'The final turtle seeks justice in a ruined future.',
-    series: const CatalogSeriesDetails(
+    series: const CatalogSeriesDetailsDto(
       seriesTitle: 'Teenage Mutant Ninja Turtles: The Last Ronin',
     ),
-    publishing: const CatalogPublishingDetails(
+    publishing: const CatalogPublishingDetailsDto(
       imprint: 'IDW',
       subtitle: 'Director Cut',
       seriesGroup: 'TMNT Event',

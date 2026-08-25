@@ -554,7 +554,7 @@ void main() {
       expect(cachedItem, isNotNull);
       expect(cachedItem!.id, expectedProvisionalId);
       expect(cachedItem.title, 'Action Comics #1');
-      expect(cachedItem.publisher, 'DC Comics');
+      expect(cachedItem.payload['publisher'], 'DC Comics');
 
       // Verify owned item record exists in DB
       final ownedItem = await db.managers.ownedItemsCache

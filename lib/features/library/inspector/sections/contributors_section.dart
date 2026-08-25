@@ -14,9 +14,11 @@ class InspectorContributorsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final creators =
-        request.item.source.catalogItem?.toCatalogItem().creators ??
-            const <Map<String, dynamic>>[];
+    final payload =
+        request.item.source.catalogItem?.toSyncPayload() ?? const {};
+    final creators = (payload['creators'] as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        const <Map<String, dynamic>>[];
     if (creators.isEmpty) {
       return const SizedBox.shrink();
     }

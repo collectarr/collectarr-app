@@ -32,7 +32,7 @@ void main() {
         id: 'comic-1',
         kind: 'comic',
         title: 'Issue 1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-a',
           seriesTitle: 'Amazing Adventures',
         ),
@@ -41,7 +41,7 @@ void main() {
         id: 'comic-2',
         kind: 'comic',
         title: 'Issue 2',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-b',
           seriesTitle: 'Beta Squad',
         ),
@@ -101,7 +101,7 @@ void main() {
         id: 'comic-1',
         kind: 'comic',
         title: 'Issue 1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-a',
           seriesTitle: 'Amazing Adventures',
         ),
@@ -110,7 +110,7 @@ void main() {
         id: 'comic-2',
         kind: 'comic',
         title: 'Issue 2',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-b',
           seriesTitle: 'Beta Squad',
         ),
@@ -173,7 +173,7 @@ void main() {
         id: 'comic-1',
         kind: 'comic',
         title: 'Issue 1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-a',
           seriesTitle: 'Amazing Adventures',
         ),

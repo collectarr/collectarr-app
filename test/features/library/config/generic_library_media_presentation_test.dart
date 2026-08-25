@@ -15,7 +15,8 @@ LibraryProjectionRuntime _makeItem(String id,
     kind: 'comic',
     title: title ?? 'Batman #1',
     series: seriesTitle != null
-        ? CatalogSeriesDetails(seriesId: '$id-series', seriesTitle: seriesTitle)
+        ? CatalogSeriesDetailsDto(
+            seriesId: '$id-series', seriesTitle: seriesTitle)
         : null,
   );
   final source = ShelfEntry(itemId: id, catalogItem: cat);

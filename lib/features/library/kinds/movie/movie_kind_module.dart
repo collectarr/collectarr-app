@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   type: moviesLibraryConfig,
@@ -29,6 +30,10 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   projector: const MovieWorkspaceProjector(),
   ownedDetailsCodec: const MovieOwnedDetailsCodec(),
   fields: movieLibraryKindSchema.toRegistry(),
+  catalogCodec: const DefaultCatalogKindCodec<MovieCatalogMetadata>(
+    MovieCatalogMetadata.fromJson,
+    _encodeMovieMetadata,
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.movie,
     singularLabel: 'Movie',
@@ -74,3 +79,6 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   ),
   buildCardPresentation: buildMovieCardPresentation,
 );
+
+Map<String, dynamic> _encodeMovieMetadata(MovieCatalogMetadata m) => m.toJson();
+

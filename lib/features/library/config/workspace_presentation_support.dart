@@ -13,7 +13,11 @@ String defaultLibraryBucketLabel(
   final item = context.item;
   final dto = item.dto;
   final source = context.source;
-  final cat = source.catalogItem?.toCatalogItem();
+  final payload = source.catalogItem?.toSyncPayload() ?? const {};
+  final pub = (payload['publishing'] as Map?) ?? payload;
+  final video = (payload['video'] as Map?) ?? payload;
+  final music = (payload['music'] as Map?) ?? payload;
+  final game = (payload['game'] as Map?) ?? payload;
   final publisher = dto.publisher?.trim();
   return switch (context.groupMode) {
     'series' => _seriesBucket(item, labels.unknownSeries),
@@ -23,12 +27,20 @@ String defaultLibraryBucketLabel(
     'audience_rating' => dto.audienceRating?.trim().isNotEmpty == true
         ? dto.audienceRating!
         : 'No audience rating',
-    'color' => _stringBucket(cat?.video?.color, 'No color'),
+    'color' => _stringBucket(video['color']?.toString(), 'No color'),
     'publisher' => publisher == null || publisher.isEmpty
         ? labels.unknownPublisher
         : publisher,
-    'genre' => _firstOrDefault(cat?.genres, overrides.noGenre),
-    'platform' => _firstOrDefault(cat?.game?.platforms, 'No platform'),
+    'genre' => _firstOrDefault(
+        (payload['genres'] as List?)?.map((e) => e.toString()).toList(),
+        overrides.noGenre,
+      ),
+    'platform' => _firstOrDefault(
+        ((game['platforms'] ?? payload['platforms']) as List?)
+            ?.map((e) => e.toString())
+            .toList(),
+        'No platform',
+      ),
     'developer' => _creatorBucketByRole(item, 'developer'),
     'country' => dto.country?.trim().isNotEmpty == true
         ? dto.country!
@@ -38,10 +50,13 @@ String defaultLibraryBucketLabel(
         : overrides.unknownLanguage,
     'age_rating' =>
       dto.ageRating?.trim().isNotEmpty == true ? dto.ageRating! : 'Unrated',
-    'crossover' => _stringBucket(cat?.crossover, 'No crossover'),
-    'imprint' => _stringBucket(cat?.publishing?.imprint, 'No imprint'),
-    'series_group' =>
-      _stringBucket(cat?.publishing?.seriesGroup, 'No series group'),
+    'crossover' =>
+      _stringBucket(payload['crossover']?.toString(), 'No crossover'),
+    'imprint' => _stringBucket(pub['imprint']?.toString(), 'No imprint'),
+    'series_group' => _stringBucket(
+        (pub['series_group'] ?? pub['seriesGroup'])?.toString(),
+        'No series group',
+      ),
     'movie_or_tv_series' => _movieOrTvSeriesBucket(item),
     'release_date' => _dateBucket(dto.releaseDate, 'Unknown release date'),
     'release_month' =>
@@ -51,60 +66,78 @@ String defaultLibraryBucketLabel(
         'Unknown release year',
       ),
     'publication_place' => _stringBucket(
-        cat?.publishing?.publicationPlace, 'Unknown publication place'),
+        (pub['publication_place'] ?? pub['original_publication_place'])
+            ?.toString(),
+        'Unknown publication place',
+      ),
     'original_release_date' => _dateBucket(
-        cat?.music?.originalReleaseDate,
+        DateTime.tryParse(music['original_release_date']?.toString() ?? ''),
         'Unknown original release date',
       ),
     'original_release_month' => _monthBucket(
-        cat?.music?.originalReleaseDate,
+        DateTime.tryParse(music['original_release_date']?.toString() ?? ''),
         fallback: 'Unknown original release month',
       ),
     'original_release_year' => _yearBucket(
-        cat?.music?.originalReleaseDate,
+        DateTime.tryParse(music['original_release_date']?.toString() ?? ''),
         'Unknown original release year',
       ),
     'original_country' => _stringBucket(
-        cat?.publishing?.originalCountry, 'Unknown original country'),
+        (pub['original_country'] ?? payload['country'])?.toString(),
+        'Unknown original country',
+      ),
     'original_language' => _stringBucket(
-        cat?.publishing?.originalLanguage, 'Unknown original language'),
+        (pub['original_language'] ?? payload['language'])?.toString(),
+        'Unknown original language',
+      ),
     'original_publication_date' => _dateBucket(
-        cat?.publishing?.originalPublicationDate,
+        DateTime.tryParse(pub['original_publication_date']?.toString() ?? ''),
         'Unknown original publication date',
       ),
     'original_publication_month' => _monthBucket(
-        cat?.publishing?.originalPublicationDate,
+        DateTime.tryParse(pub['original_publication_date']?.toString() ?? ''),
         fallback: 'Unknown original publication month',
       ),
     'original_publication_year' => _yearBucket(
-        cat?.publishing?.originalPublicationDate,
+        DateTime.tryParse(pub['original_publication_date']?.toString() ?? ''),
         'Unknown original publication year',
       ),
     'original_publication_place' => _stringBucket(
-        cat?.publishing?.originalPublicationPlace,
+        pub['original_publication_place']?.toString(),
         'Unknown original publication place',
       ),
     'original_publisher' => _stringBucket(
-        cat?.publishing?.originalPublisher,
+        (pub['original_publisher'] ?? payload['publisher'])?.toString(),
         'Unknown original publisher',
       ),
     'recording_date' => _dateBucket(
-        cat?.music?.recordingDate,
+        DateTime.tryParse(music['recording_date']?.toString() ?? ''),
         'Unknown recording date',
       ),
     'recording_month' => _monthBucket(
-        cat?.music?.recordingDate,
+        DateTime.tryParse(music['recording_date']?.toString() ?? ''),
         fallback: 'Unknown recording month',
       ),
     'recording_year' => _yearBucket(
-        cat?.music?.recordingDate,
+        DateTime.tryParse(music['recording_date']?.toString() ?? ''),
         'Unknown recording year',
       ),
-    'cover_date' => _dateBucket(cat?.coverDate, 'Unknown cover date'),
-    'cover_month' =>
-      _monthBucket(cat?.coverDate, fallback: 'Unknown cover month'),
-    'cover_year' => _yearBucket(cat?.coverDate, 'Unknown cover year'),
-    'audio_tracks' => _stringBucket(cat?.video?.audioTracks, 'No audio tracks'),
+    'cover_date' => _dateBucket(
+        DateTime.tryParse(payload['cover_date']?.toString() ?? ''),
+        'Unknown cover date',
+      ),
+    'cover_month' => _monthBucket(
+        DateTime.tryParse(payload['cover_date']?.toString() ?? ''),
+        fallback: 'Unknown cover month',
+      ),
+    'cover_year' => _yearBucket(
+        DateTime.tryParse(payload['cover_date']?.toString() ?? ''),
+        'Unknown cover year',
+      ),
+    'audio_tracks' => _stringBucket(
+        (video['audio_tracks'] ?? video['audioTracks'])?.toString(),
+        'No audio tracks',
+      ),
     'box_set' => _stringBucket(
         source.ownedItem?.videoLikeDetails?.boxSetName,
         'No box set',
@@ -117,32 +150,41 @@ String defaultLibraryBucketLabel(
         ? 'Locked'
         : 'Unlocked',
     'dust_jacket_condition' => _stringBucket(
-        cat?.publishing?.dustJacketCondition, 'No dust jacket condition'),
+        pub['dust_jacket_condition']?.toString(),
+        'No dust jacket condition',
+      ),
     'distributor' => _stringBucket(
         source.ownedItem?.videoLikeDetails?.distributor,
         'No distributor',
       ),
-    'instrument' => _stringBucket(cat?.music?.instrument, 'No instrument'),
-    'is_live' => cat?.music?.isLive == true ? 'Live' : 'Not live',
-    'media_condition' =>
-      _stringBucket(cat?.music?.mediaCondition, 'No media condition'),
-    'rpm' => _stringBucket(cat?.music?.rpm, 'No RPM'),
-    'spars' => _stringBucket(cat?.music?.spars, 'No SPARS'),
-    'sound_type' => _stringBucket(cat?.music?.soundType, 'No sound'),
-    'studio' => _stringBucket(cat?.music?.studio, 'No studio'),
-    'vinyl_color' => _stringBucket(cat?.music?.vinylColor, 'No vinyl color'),
-    'toy_subtype' => _stringBucket(cat?.game?.toySubtype, 'No subtype'),
-    'toy_type' => _stringBucket(cat?.game?.toyType, 'No type'),
+    'instrument' =>
+      _stringBucket(music['instrument']?.toString(), 'No instrument'),
+    'is_live' => music['is_live'] == true ? 'Live' : 'Not live',
+    'media_condition' => _stringBucket(
+        music['media_condition']?.toString(),
+        'No media condition',
+      ),
+    'rpm' => _stringBucket(music['rpm']?.toString(), 'No RPM'),
+    'spars' => _stringBucket(music['spars']?.toString(), 'No SPARS'),
+    'sound_type' =>
+      _stringBucket(music['sound_type']?.toString(), 'No sound'),
+    'studio' => _stringBucket(music['studio']?.toString(), 'No studio'),
+    'vinyl_color' =>
+      _stringBucket(music['vinyl_color']?.toString(), 'No vinyl color'),
+    'toy_subtype' =>
+      _stringBucket(game['toy_subtype']?.toString(), 'No subtype'),
+    'toy_type' => _stringBucket(game['toy_type']?.toString(), 'No type'),
     'edition' => _stringBucket(dto.variant ?? dto.editionLabel, 'No edition'),
-    'audiobook_abridged' => cat?.publishing?.audiobookAbridged == true
+    'audiobook_abridged' => pub['audiobook_abridged'] == true
         ? 'Abridged'
         : 'Unabridged / Unknown',
-    'first_edition' => cat?.publishing?.firstEdition == true
-        ? 'First edition'
-        : 'Not first edition',
+    'first_edition' =>
+      pub['first_edition'] == true ? 'First edition' : 'Not first edition',
     'narrator' => _creatorBucketByRole(item, 'narrator'),
-    'paper_type' => _stringBucket(cat?.publishing?.paperType, 'No paper type'),
-    'printed_by' => _stringBucket(cat?.publishing?.printedBy, 'No printer'),
+    'paper_type' =>
+      _stringBucket(pub['paper_type']?.toString(), 'No paper type'),
+    'printed_by' =>
+      _stringBucket(pub['printed_by']?.toString(), 'No printer'),
     'edition_release_date' => _dateBucket(
         _referenceEditionForEntry(item)?.releaseDate,
         'Unknown edition release date',
@@ -164,19 +206,23 @@ String defaultLibraryBucketLabel(
         source.ownedItem?.videoLikeDetails?.hdrFormats,
         'No HDR',
       ),
-    'layers' => _stringBucket(cat?.video?.layers, 'No layers'),
+    'layers' => _stringBucket(video['layers']?.toString(), 'No layers'),
     'packaging' => _stringBucket(
         source.ownedItem?.videoLikeDetails?.packaging,
         'No packaging',
       ),
     'regions' => _stringBucket(_referenceRegionFor(source, item), 'No region'),
-    'screen_ratios' =>
-      _stringBucket(cat?.video?.screenRatio, 'No screen ratio'),
-    'subtitles' => _stringBucket(cat?.video?.subtitles, 'No subtitles'),
+    'screen_ratios' => _stringBucket(
+        (video['screen_ratio'] ?? video['screenRatio'])?.toString(),
+        'No screen ratio',
+      ),
+    'subtitles' =>
+      _stringBucket(video['subtitles']?.toString(), 'No subtitles'),
     'actor' => _creatorBucketByRole(item, 'actor'),
     'chorus' => _creatorBucketByRole(item, 'chorus'),
     'composer' => _creatorBucketByRole(item, 'composer'),
-    'composition' => _stringBucket(cat?.music?.composition, 'No composition'),
+    'composition' =>
+      _stringBucket(music['composition']?.toString(), 'No composition'),
     'conductor' => _creatorBucketByRole(item, 'conductor'),
     'engineer' => _creatorBucketByRole(item, 'engineer'),
     'director' => _creatorBucketByRole(item, 'director'),
@@ -293,10 +339,13 @@ String defaultLibraryBucketLabel(
         source.ownedItem?.musicDetails?.storageDevice,
         'No storage device',
       ),
-    'dust_jacket' => cat?.publishing?.dustJacket == true
+    'dust_jacket' => pub['dust_jacket'] == true
         ? 'Has dust jacket'
         : 'No dust jacket',
-    'subject' => _firstOrDefault(cat?.publishing?.subjects, 'No subject'),
+    'subject' => _firstOrDefault(
+        (pub['subjects'] as List?)?.map((e) => e.toString()).toList(),
+        'No subject',
+      ),
     'tags' => _firstOrDefault(
         source.ownedItem?.tags
             ?.split(',')

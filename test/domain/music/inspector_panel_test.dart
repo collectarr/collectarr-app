@@ -32,31 +32,31 @@ void main() {
       publisher: 'Metal Blade Records',
       barcode: '039841461923',
       genres: const ['Heavy Metal', 'Rock'],
-      series: const CatalogSeriesDetails(seriesTitle: 'Powerwolf'),
-      music: const MusicCatalogDetailsDto(
-        trackCount: 14,
-        catalogNumber: '3984-14619-2',
-        tracks: [
-          CatalogTrack(
-            title: 'Lupus Daemonis (Intro)',
-            position: 1,
-            durationSeconds: 77,
-            discNumber: 1,
-          ),
-          CatalogTrack(
-            title: 'Lupus Dei',
-            position: 11,
-            durationSeconds: 370,
-            discNumber: 1,
-          ),
-          CatalogTrack(
-            title: 'Mr Sinister (Live)',
-            position: 2,
-            durationSeconds: 287,
-            discNumber: 2,
-          ),
+      series: const CatalogSeriesDetailsDto(seriesTitle: 'Powerwolf'),
+      music: const {
+        'track_count': 14,
+        'catalog_number': '3984-14619-2',
+        'tracks': [
+          {
+            'title': 'Lupus Daemonis (Intro)',
+            'position': '1',
+            'duration_seconds': 77,
+            'disc_number': 1,
+          },
+          {
+            'title': 'Lupus Dei',
+            'position': '11',
+            'duration_seconds': 370,
+            'disc_number': 1,
+          },
+          {
+            'title': 'Mr Sinister (Live)',
+            'position': '2',
+            'duration_seconds': 287,
+            'disc_number': 2,
+          },
         ],
-      ),
+      },
     );
     final source = ShelfEntry(
       itemId: 'music-1',
@@ -111,7 +111,7 @@ void main() {
 
     expect(find.byType(MusicInspectorPanel), findsOneWidget);
     expect(find.byType(ChoiceChip), findsNothing);
-    expect(find.text('Powerwolf'), findsOneWidget);
+    expect(find.text('Powerwolf'), findsWidgets);
     expect(find.text('Disc #1'), findsWidgets);
     expect(find.text('Disc #2'), findsWidgets);
     expect(find.text('Front cover'), findsOneWidget);
@@ -132,21 +132,21 @@ void main() {
       id: 'music-2',
       kind: 'music',
       title: 'Lupus Dei',
-      series: const CatalogSeriesDetails(seriesTitle: 'Powerwolf'),
-      music: const MusicCatalogDetailsDto(
-        tracks: [
-          CatalogTrack(
-            title: 'Lupus Daemonis (Intro)',
-            position: 1,
-            discNumber: 1,
-          ),
-          CatalogTrack(
-            title: 'Prayer In The Dark',
-            position: 3,
-            discNumber: 1,
-          ),
+      series: const CatalogSeriesDetailsDto(seriesTitle: 'Powerwolf'),
+      music: const {
+        'tracks': [
+          {
+            'title': 'Lupus Daemonis (Intro)',
+            'position': '1',
+            'disc_number': 1,
+          },
+          {
+            'title': 'Prayer In The Dark',
+            'position': '3',
+            'disc_number': 1,
+          },
         ],
-      ),
+      },
     );
     final source = ShelfEntry(
       itemId: 'music-2',

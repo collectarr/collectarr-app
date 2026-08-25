@@ -19,7 +19,7 @@ void main() {
         kind: 'tv',
         title: 'Example Show',
         itemNumber: 'Season 1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesTitle: 'Example Show',
           seasonNumber: 1,
         ),
@@ -62,7 +62,7 @@ void main() {
         id: 'tv-season',
         kind: 'tv',
         title: 'Example Show',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesTitle: 'Example Show',
           seasonNumber: 2,
         ),

@@ -243,44 +243,45 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _editionTitleController = _draft.metadata.editionTitleController;
     _variantController = _draft.metadata.variantController;
     _barcodeController = _draft.metadata.barcodeController;
+    final musicMap = metadata.music;
     _catalogNumberController =
-        TextEditingController(text: metadata.music?.catalogNumber ?? '');
+        TextEditingController(text: (musicMap?['catalog_number'] as String?) ?? '');
     _releaseDateController = _draft.metadata.releaseDateController;
     _originalReleaseDateController = TextEditingController(
-      text: metadata.music?.originalReleaseDate == null
+      text: metadata.originalReleaseDate == null
           ? ''
-          : formatDate(metadata.music!.originalReleaseDate!),
+          : formatDate(metadata.originalReleaseDate!),
     );
     _recordingDateController = TextEditingController(
-      text: metadata.music?.recordingDate == null
+      text: metadata.recordingDate == null
           ? ''
-          : formatDate(metadata.music!.recordingDate!),
+          : formatDate(metadata.recordingDate!),
     );
     _releaseYearController = _draft.metadata.releaseYearController;
     _releaseStatusController =
-        TextEditingController(text: metadata.music?.releaseStatus ?? '');
+        TextEditingController(text: (musicMap?['release_status'] as String?) ?? '');
     _studioController =
-        TextEditingController(text: metadata.music?.studio ?? '');
+        TextEditingController(text: metadata.studio ?? (musicMap?['studio'] as String?) ?? '');
     _packagingController = TextEditingController();
     _mediaConditionController = TextEditingController(
-      text: metadata.music?.mediaCondition ?? '',
+      text: (musicMap?['media_condition'] as String?) ?? '',
     );
     _soundTypeController = TextEditingController(
-      text: metadata.music?.soundType ?? '',
+      text: (musicMap?['sound_type'] as String?) ?? '',
     );
     _vinylColorController = TextEditingController(
-      text: metadata.music?.vinylColor ?? '',
+      text: (musicMap?['vinyl_color'] as String?) ?? '',
     );
     _vinylWeightController = TextEditingController(
-      text: metadata.music?.vinylWeight ?? '',
+      text: (musicMap?['vinyl_weight'] as String?) ?? '',
     );
-    _rpmController = TextEditingController(text: metadata.music?.rpm ?? '');
-    _sparsController = TextEditingController(text: metadata.music?.spars ?? '');
+    _rpmController = TextEditingController(text: (musicMap?['rpm'] as String?) ?? '');
+    _sparsController = TextEditingController(text: (musicMap?['spars'] as String?) ?? '');
     _instrumentController = TextEditingController(
-      text: metadata.music?.instrument ?? '',
+      text: (musicMap?['instrument'] as String?) ?? '',
     );
     _compositionController = TextEditingController(
-      text: metadata.music?.composition ?? '',
+      text: (musicMap?['composition'] as String?) ?? '',
     );
     _extrasController = TextEditingController();
     _countryController = _draft.metadata.countryController;
@@ -351,7 +352,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _selectedVariantId = dialogState.selectedVariantId;
     _customFieldEdits = dialogState.customFieldEdits;
     _itemImageEdits = dialogState.itemImageEdits;
-    _isLive = metadata.music?.isLive ?? metadata.isLive;
+    _isLive = (metadata.music?['is_live'] as bool?) ?? metadata.isLive;
     _composerCredits = _creatorsForRole(const ['composer']);
     _conductorCredits = _creatorsForRole(const ['conductor']);
     _orchestraCredits = _creatorsForRole(const ['orchestra', 'ensemble']);
@@ -660,18 +661,22 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           durationLabel: _secondsLabel(track.durationSeconds),
         ),
     ];
-    final existingDiscs = metadata.music?.discs ?? const <CatalogDisc>[];
+    final rawDiscs = (metadata.music?['discs'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList() ??
+        const <Map<String, dynamic>>[];
     for (final disc in _discNumbersFromTracks) {
-      final source = existingDiscs.firstWhere(
-        (entry) => entry.discNumber == disc,
-        orElse: () => CatalogDisc(discNumber: disc),
+      final source = rawDiscs.cast<Map<String, dynamic>?>().firstWhere(
+        (entry) => entry?['disc_number'] == disc,
+        orElse: () => null,
       );
       _discDrafts[disc] = _MusicDiscDraft(
-        discTitle: source.discName ?? 'Disc #$disc',
-        storageDevice: source.storageDevice ?? '',
-        slot: source.slot ?? '',
-        matrixSideA: source.matrixSideA ?? '',
-        matrixSideB: source.matrixSideB ?? '',
+        discTitle: (source?['disc_name'] as String?) ?? 'Disc #$disc',
+        storageDevice: (source?['storage_device'] as String?) ?? '',
+        slot: (source?['slot'] as String?) ?? '',
+        matrixSideA: (source?['matrix_side_a'] as String?) ?? '',
+        matrixSideB: (source?['matrix_side_b'] as String?) ?? '',
       );
     }
     _selectedTrackDisc = _discNumbersFromTracks.first;
@@ -1794,7 +1799,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     final currentTracks = _buildSubmittedTracks();
     final currentDiscs = _buildSubmittedDiscMetadata();
     final metadata = _musicMetadata;
-    final updatedSeries = CatalogSeriesDetails(
+    final updatedSeries = CatalogSeriesDetailsDto(
       seriesId: metadata.series?.seriesId,
       seriesTitle: emptyToNull(_artistController.text),
       volumeName: metadata.series?.volumeName,
@@ -1804,7 +1809,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       episodeNumber: metadata.series?.episodeNumber,
       tags: metadata.series?.tags,
     );
-    final updatedPublishing = CatalogPublishingDetails(
+    final updatedPublishing = CatalogPublishingDetailsDto(
       pageCount: metadata.publishing?.pageCount,
       coverPriceCents: metadata.publishing?.coverPriceCents,
       currency: metadata.publishing?.currency,
@@ -1812,26 +1817,42 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       subtitle: emptyToNull(_subtitleController.text),
       seriesGroup: metadata.publishing?.seriesGroup,
     );
-    final updatedMusic = MusicCatalogDetails(
-      trackCount: metadata.music?.trackCount ??
-          (currentTracks.isEmpty ? null : currentTracks.length),
-      tracks: currentTracks,
-      discs: currentDiscs,
-      catalogNumber: emptyToNull(_catalogNumberController.text),
-      releaseStatus: emptyToNull(_releaseStatusController.text),
-      originalReleaseDate: parseDate(_originalReleaseDateController.text),
-      recordingDate: parseDate(_recordingDateController.text),
-      studio: emptyToNull(_studioController.text),
-      rpm: emptyToNull(_rpmController.text),
-      spars: emptyToNull(_sparsController.text),
-      soundType: emptyToNull(_soundTypeController.text),
-      vinylColor: emptyToNull(_vinylColorController.text),
-      vinylWeight: emptyToNull(_vinylWeightController.text),
-      mediaCondition: emptyToNull(_mediaConditionController.text),
-      instrument: emptyToNull(_instrumentController.text),
-      isLive: _isLive,
-      composition: emptyToNull(_compositionController.text),
-    );
+    final updatedMusic = <String, dynamic>{
+      if (currentTracks.isNotEmpty) 'track_count': currentTracks.length,
+      if (currentTracks.isNotEmpty)
+        'tracks': currentTracks.map((e) => e.toJson()).toList(),
+      if (currentDiscs.isNotEmpty)
+        'discs': currentDiscs.map((e) => e.toJson()).toList(),
+      if (emptyToNull(_catalogNumberController.text) != null)
+        'catalog_number': emptyToNull(_catalogNumberController.text),
+      if (emptyToNull(_releaseStatusController.text) != null)
+        'release_status': emptyToNull(_releaseStatusController.text),
+      if (parseDate(_originalReleaseDateController.text) != null)
+        'original_release_date':
+            parseDate(_originalReleaseDateController.text)!.toIso8601String(),
+      if (parseDate(_recordingDateController.text) != null)
+        'recording_date':
+            parseDate(_recordingDateController.text)!.toIso8601String(),
+      if (emptyToNull(_studioController.text) != null)
+        'studio': emptyToNull(_studioController.text),
+      if (emptyToNull(_rpmController.text) != null)
+        'rpm': emptyToNull(_rpmController.text),
+      if (emptyToNull(_sparsController.text) != null)
+        'spars': emptyToNull(_sparsController.text),
+      if (emptyToNull(_soundTypeController.text) != null)
+        'sound_type': emptyToNull(_soundTypeController.text),
+      if (emptyToNull(_vinylColorController.text) != null)
+        'vinyl_color': emptyToNull(_vinylColorController.text),
+      if (emptyToNull(_vinylWeightController.text) != null)
+        'vinyl_weight': emptyToNull(_vinylWeightController.text),
+      if (emptyToNull(_mediaConditionController.text) != null)
+        'media_condition': emptyToNull(_mediaConditionController.text),
+      if (emptyToNull(_instrumentController.text) != null)
+        'instrument': emptyToNull(_instrumentController.text),
+      'is_live': _isLive,
+      if (emptyToNull(_compositionController.text) != null)
+        'composition': emptyToNull(_compositionController.text),
+    };
 
     final updatedCommon = _item.common.copyWith(
       title: _titleController.text.trim(),
@@ -1864,7 +1885,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       country: emptyToNull(_countryController.text),
       language: emptyToNull(_languageController.text),
       series: updatedSeries.hasData ? updatedSeries : null,
-      music: updatedMusic.hasData ? updatedMusic : null,
+      music: updatedMusic.isNotEmpty ? updatedMusic : null,
       publishing: updatedPublishing.hasData ? updatedPublishing : null,
       creators: _buildCreatorsForSubmit(),
       genres: _splitCommaList(_genresController.text),

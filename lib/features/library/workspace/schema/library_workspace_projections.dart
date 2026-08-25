@@ -52,34 +52,38 @@ class WorkspaceCommonProjection {
           edition.variants.isEmpty ? null : edition.variants.first;
     }
 
+    final payload = catalog?.toSyncPayload() ?? const {};
+    final seriesPayload = (payload['series'] as Map?) ?? payload;
+    final pubPayload = (payload['publishing'] as Map?) ?? payload;
+
     return WorkspaceCommonProjection(
       title: overrideTitle ?? catalog?.displayTitle ?? catalog?.title ?? '',
-      seriesTitle: overrideSeriesTitle ?? catalog?.series?.seriesTitle,
-      itemNumber: catalog?.itemNumber?.toString(),
+      seriesTitle: overrideSeriesTitle ??
+          (seriesPayload['series_title'] ?? seriesPayload['seriesTitle'])
+              ?.toString(),
+      itemNumber: (payload['item_number'] ?? payload['itemNumber'])?.toString(),
       publisher: overridePublisher ??
           edition?.publisher ??
-          catalog?.publisher ??
-          catalog?.publishing?.originalPublisher,
+          (payload['publisher'] ?? pubPayload['original_publisher'])?.toString(),
       releaseDate:
           overrideReleaseDate ?? edition?.releaseDate ?? catalog?.releaseDate,
       variant: overrideVariant ??
           primaryVariant?.name ??
           edition?.title ??
-          catalog?.variant,
+          payload['variant']?.toString(),
       barcode: overrideBarcode ??
           primaryVariant?.barcode ??
           edition?.upc ??
-          catalog?.barcode,
+          payload['barcode']?.toString(),
       grade: source.ownedItem?.grade,
-      country: catalog?.country ?? catalog?.publishing?.originalCountry,
+      country: (payload['country'] ?? pubPayload['original_country'])?.toString(),
       language: edition?.language ??
-          catalog?.language ??
-          catalog?.publishing?.originalLanguage,
+          (payload['language'] ?? pubPayload['original_language'])?.toString(),
       currency: source.ownedItem?.currency,
       referenceFormatLabel: primaryVariant?.physicalFormatLabel ??
           edition?.physicalFormatLabel ??
-          catalog?.physicalFormatLabel ??
-          catalog?.physicalFormat,
+          (payload['physical_format_label'] ?? payload['physical_format'])
+              ?.toString(),
       coverImageUrl: overrideCoverImageUrl ??
           primaryVariant?.coverImageUrl ??
           primaryVariant?.thumbnailImageUrl ??

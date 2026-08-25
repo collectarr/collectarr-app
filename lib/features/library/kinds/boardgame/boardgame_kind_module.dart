@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 final boardGameKindModule =
@@ -24,6 +25,10 @@ final boardGameKindModule =
   projector: const BoardGameWorkspaceProjector(),
   ownedDetailsCodec: const BoardgameOwnedDetailsCodec(),
   fields: boardgameLibraryKindSchema.toRegistry(),
+  catalogCodec: const DefaultCatalogKindCodec<BoardGameMetadata>(
+    BoardGameMetadata.fromJson,
+    _encodeBoardGameMetadata,
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.boardgame,
     singularLabel: 'Board Game',
@@ -61,3 +66,7 @@ final boardGameKindModule =
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),
 );
+
+Map<String, dynamic> _encodeBoardGameMetadata(BoardGameMetadata m) =>
+    m.toJson();
+

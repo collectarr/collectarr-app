@@ -186,7 +186,7 @@ final class AnimeCatalog {
         releaseDate: startDate,
         releaseYear: startDate?.year ?? seasonYear,
       ),
-      kindPayload: toJson(),
+      payload: toJson(),
     );
   }
 }

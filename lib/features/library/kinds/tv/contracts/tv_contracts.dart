@@ -178,7 +178,7 @@ final class TvCatalog {
         releaseDate: firstAirDate,
         releaseYear: firstAirDate?.year,
       ),
-      kindPayload: toJson(),
+      payload: toJson(),
     );
   }
 }

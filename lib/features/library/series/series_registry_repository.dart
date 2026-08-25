@@ -189,8 +189,15 @@ class SeriesRegistryRepository {
     for (final item in items) {
       final type =
           collectarrLibraryTypes.byKind(catalogMediaKindFromValue(item.kind));
+      final seriesPayload =
+          item.payload['series'] as Map? ?? item.payload;
+      final seriesTitle = (seriesPayload['series_title'] ??
+              seriesPayload['seriesTitle'])
+          ?.toString();
+      final seriesId =
+          (seriesPayload['series_id'] ?? seriesPayload['seriesId'])?.toString();
       final title = _emptyToNull(
-        item.series?.seriesTitle ??
+        seriesTitle ??
             (type?.usesTitleAsSeriesFallback ?? false ? item.title : null),
       );
       final normalizedTitle = _normalize(title);
@@ -198,7 +205,7 @@ class SeriesRegistryRepository {
         continue;
       }
       final mediaKind = item.kind.trim().toLowerCase();
-      final coreSeriesId = _emptyToNull(item.series?.seriesId);
+      final coreSeriesId = _emptyToNull(seriesId);
       final key = _seriesKey(
         coreSeriesId: coreSeriesId,
         normalizedTitle: normalizedTitle,

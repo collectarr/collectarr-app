@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
 import 'package:collectarr_app/features/library/kinds/tv/stats/tv_stats_capability.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   type: tvLibraryConfig,
@@ -29,6 +30,10 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   projector: const TvWorkspaceProjector(),
   ownedDetailsCodec: const TvOwnedDetailsCodec(),
   fields: tvLibraryKindSchema.toRegistry(),
+  catalogCodec: const DefaultCatalogKindCodec<TvSeriesMetadata>(
+    TvSeriesMetadata.fromJson,
+    _encodeTvMetadata,
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.tv,
     singularLabel: 'TV Show',
@@ -80,6 +85,9 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
 );
 
 String _tvChildrenTitle(int count) => 'Seasons ($count)';
+
+Map<String, dynamic> _encodeTvMetadata(TvSeriesMetadata m) => m.toJson();
+
 
 Future<List<LibraryHierarchyNode>> _fetchTvSeasons({
   required ApiClient api,

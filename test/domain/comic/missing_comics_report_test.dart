@@ -11,7 +11,7 @@ void main() {
   });
 
   test('builds missing comic series reports with variant grouping', () {
-    final series = CatalogSeriesDetails(
+    final series = CatalogSeriesDetailsDto(
       seriesId: 'series-1',
       seriesTitle: 'Amazing Spider-Man',
     );

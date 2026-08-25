@@ -365,7 +365,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     if (owned == null) {
       return null;
     }
-    return _catalogById[owned.itemId]?.barcode;
+    return _catalogById[owned.itemId]?.payload['barcode'] as String?;
   }
 }
 

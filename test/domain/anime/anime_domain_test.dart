@@ -31,7 +31,7 @@ void main() {
         id: 'anime-1',
         kind: 'anime',
         title: 'Cowboy Bebop',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesTitle: 'Cowboy Bebop',
         ),
         editions: const [
@@ -42,9 +42,9 @@ void main() {
             physicalFormatLabel: 'Blu-ray',
           ),
         ],
-        video: const VideoCatalogDetails(
-          runtimeMinutes: 24,
-        ),
+        video: const {
+          'runtime_minutes': 24,
+        },
       );
 
       final shelf = ShelfEntry(

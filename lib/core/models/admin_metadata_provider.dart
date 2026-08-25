@@ -455,9 +455,9 @@ class AdminProviderPreview {
   final String? coverImageUrl;
   final CatalogSeriesDetails? series;
   final CatalogPublishingDetails? publishing;
-  final VideoCatalogDetails? video;
-  final MusicCatalogDetails? music;
-  final GameCatalogDetails? game;
+  final Map<String, dynamic>? video;
+  final Map<String, dynamic>? music;
+  final Map<String, dynamic>? game;
   final String? country;
   final String? language;
   final String? ageRating;
@@ -467,8 +467,12 @@ class AdminProviderPreview {
   final List<String> storyArcs;
   final List<String> genres;
 
-  int? get trackCount => music?.trackCount;
-  List<CatalogTrack> get tracks => music?.tracks ?? const <CatalogTrack>[];
+  int? get trackCount => (music?['track_count'] as num?)?.toInt();
+  List<CatalogTrack> get tracks => (music?['tracks'] as List?)
+          ?.whereType<Map>()
+          .map((e) => CatalogTrack.fromJson(Map<String, dynamic>.from(e)))
+          .toList() ??
+      const <CatalogTrack>[];
 
   factory AdminProviderPreview.fromJson(Map<String, dynamic> json) {
     final tracks = (json['tracks'] as List<dynamic>?)
@@ -497,21 +501,29 @@ class AdminProviderPreview {
       subtitle: json['subtitle'] as String?,
       seriesGroup: json['series_group'] as String?,
     );
-    final video = VideoCatalogDetails(
-      runtimeMinutes: json['runtime_minutes'] as int?,
-    );
-    final music = MusicCatalogDetails(
-      trackCount: json['track_count'] as int?,
-      tracks: tracks,
-      catalogNumber: json['catalog_number'] as String?,
-      releaseStatus: json['release_status'] as String?,
-    );
-    final game = GameCatalogDetails(
-      platforms: (json['platforms'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList(growable: false) ??
-          const [],
-    );
+    final video = json['video'] is Map
+        ? Map<String, dynamic>.from(json['video'] as Map)
+        : <String, dynamic>{
+            if (json['runtime_minutes'] != null)
+              'runtime_minutes': json['runtime_minutes'],
+          };
+    final music = json['music'] is Map
+        ? Map<String, dynamic>.from(json['music'] as Map)
+        : <String, dynamic>{
+            if (json['track_count'] != null)
+              'track_count': json['track_count'],
+            if (tracks.isNotEmpty)
+              'tracks': tracks.map((e) => e.toJson()).toList(),
+            if (json['catalog_number'] != null)
+              'catalog_number': json['catalog_number'],
+            if (json['release_status'] != null)
+              'release_status': json['release_status'],
+          };
+    final game = json['game'] is Map
+        ? Map<String, dynamic>.from(json['game'] as Map)
+        : <String, dynamic>{
+            if (json['platforms'] != null) 'platforms': json['platforms'],
+          };
     return AdminProviderPreview(
       provider: json['provider'] as String,
       providerItemId: json['provider_item_id'] as String,
@@ -533,9 +545,9 @@ class AdminProviderPreview {
       coverImageUrl: json['cover_image_url'] as String?,
       series: series.hasData ? series : null,
       publishing: publishing.hasData ? publishing : null,
-      video: video.hasData ? video : null,
-      music: music.hasData ? music : null,
-      game: game.hasData ? game : null,
+      video: video.isNotEmpty ? video : null,
+      music: music.isNotEmpty ? music : null,
+      game: game.isNotEmpty ? game : null,
       country: json['country'] as String?,
       language: json['language'] as String?,
       ageRating: json['age_rating'] as String?,

@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capability.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   type: gamesLibraryConfig,
@@ -30,6 +31,10 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   projector: const GameWorkspaceProjector(),
   ownedDetailsCodec: const GameOwnedDetailsCodec(),
   fields: gameLibraryKindSchema.toRegistry(),
+  catalogCodec: const DefaultCatalogKindCodec<GameCatalogMetadata>(
+    GameCatalogMetadata.fromJson,
+    _encodeGameMetadata,
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.game,
     singularLabel: 'Game',
@@ -71,3 +76,6 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   ),
   buildCardPresentation: buildGameCardPresentation,
 );
+
+Map<String, dynamic> _encodeGameMetadata(GameCatalogMetadata m) => m.toJson();
+

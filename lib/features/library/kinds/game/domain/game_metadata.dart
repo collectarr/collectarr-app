@@ -70,7 +70,10 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
         if (releaseRegion != null) 'release_region': releaseRegion,
         if (edition != null) 'edition': edition,
         if (developers.isNotEmpty) 'developers': developers,
-        if (publishers.isNotEmpty) 'publishers': publishers,
+        if (publishers.isNotEmpty) ...{
+          'publishers': publishers,
+          'publisher': publishers.first,
+        },
         if (franchise != null) 'franchise': franchise,
         if (series != null) 'series': series,
         if (genres.isNotEmpty) 'genres': genres,
@@ -143,9 +146,13 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
       publishers: (json['publishers'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
-          const [],
+          (json['publisher'] != null
+              ? <String>[json['publisher'].toString()]
+              : const []),
       franchise: json['franchise'] as String?,
-      series: json['series'] as String?,
+      series: json['series'] is Map
+          ? (json['series'] as Map)['series_title'] as String?
+          : (json['series'] as String? ?? json['series_title'] as String?),
       genres: (json['genres'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??

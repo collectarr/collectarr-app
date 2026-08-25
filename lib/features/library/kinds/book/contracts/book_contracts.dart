@@ -249,7 +249,7 @@ final class BookCatalog {
         releaseDate: originalPublicationDate,
         releaseYear: originalPublicationDate?.year,
       ),
-      kindPayload: toJson(),
+      payload: toJson(),
     );
   }
 }

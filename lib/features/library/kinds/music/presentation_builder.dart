@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -41,8 +42,10 @@ class MusicLibraryMediaPresentationBuilder
     final format = metadata?.physicalFormatLabel?.trim().isNotEmpty == true
         ? metadata!.physicalFormatLabel!.trim()
         : metadata?.variant?.trim();
-    final trackCount = metadata?.music?.trackCount ?? metadata?.trackCount;
-    final catalogNumber = metadata?.music?.catalogNumber?.trim();
+    final trackCount =
+        (metadata?.music?['track_count'] as num?)?.toInt() ?? metadata?.trackCount;
+    final catalogNumber =
+        (metadata?.music?['catalog_number'] ?? metadata?.barcode)?.toString().trim();
     final barcode = metadata?.barcode?.trim();
     final detailParts = <String>[
       if (subtitle != null && subtitle.isNotEmpty) subtitle,
@@ -122,7 +125,7 @@ class MusicLibraryMediaPresentationBuilder
           preview?.itemNumber ??
           candidate?.issueNumber,
       tracks: tracks,
-      trackCount: releaseDetails?.trackCount ?? tracks.length,
+      trackCount: (releaseDetails?['track_count'] as num?)?.toInt() ?? tracks.length,
       isFetchingPreview: isFetchingPreview,
       hasCoreMetadata: item != null,
       providerLabel: item == null ? providerLabel : singularLabel,
@@ -186,26 +189,29 @@ class MusicLibraryMediaPresentationBuilder
               formatPresentationNullableDate(dto.releaseDate) ??
                   dto.releaseDate?.year.toString(),
             )),
-        if (music?.trackCount != null)
+        if (music?['track_count'] != null)
           LibraryDetailField(
-              label: 'Tracks', value: music!.trackCount.toString()),
-        if (music?.discCount case final discCount?)
-          LibraryDetailField(label: 'Disc count', value: discCount.toString()),
-        if (music?.catalogNumber != null)
-          LibraryDetailField(label: 'Catalog #', value: music!.catalogNumber!),
-        if (music?.releaseStatus != null)
+              label: 'Tracks', value: music!['track_count'].toString()),
+        if (music?['disc_count'] != null)
           LibraryDetailField(
-              label: 'Release Status', value: music!.releaseStatus!),
+              label: 'Disc count', value: music!['disc_count'].toString()),
+        if (music?['catalog_number'] != null)
+          LibraryDetailField(
+              label: 'Catalog #', value: music!['catalog_number'].toString()),
+        if (music?['release_status'] != null)
+          LibraryDetailField(
+              label: 'Release Status',
+              value: music!['release_status'].toString()),
         if (dto.country != null)
           LibraryDetailField(label: 'Country', value: dto.country!),
         if (dto.language != null)
           LibraryDetailField(label: 'Language', value: dto.language!),
-        if (music?.length != null)
-          LibraryDetailField(label: 'Length', value: music!.length!),
-        if (music?.vinylColor != null)
-          LibraryDetailField(label: 'Vinyl color', value: music!.vinylColor!),
-        if (music?.rpm != null)
-          LibraryDetailField(label: 'RPM', value: music!.rpm!),
+        if (music?['length'] != null)
+          LibraryDetailField(label: 'Length', value: music!['length'].toString()),
+        if (music?['vinyl_color'] != null)
+          LibraryDetailField(label: 'Vinyl color', value: music!['vinyl_color'].toString()),
+        if (music?['rpm'] != null)
+          LibraryDetailField(label: 'RPM', value: music!['rpm'].toString()),
         if (dto.audienceRating != null)
           LibraryDetailField(
               label: 'Audience Rating', value: dto.audienceRating!),
@@ -236,18 +242,24 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final sections = <Widget>[];
     final music = _musicMetadata(item)?.music;
-    if (music?.tracks case final tracks? when tracks.isNotEmpty) {
+    final rawTracks = music?['tracks'] as List?;
+    final tracks = rawTracks
+        ?.whereType<Map>()
+        .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+    final trackCount = (music?['track_count'] as num?)?.toInt();
+    if (tracks != null && tracks.isNotEmpty) {
       sections.add(
         InspectorTrackList(
           tracks: tracks,
-          trackCount: music?.trackCount,
+          trackCount: trackCount,
           accent: accent,
         ),
       );
-    } else if (music?.trackCount != null) {
+    } else if (trackCount != null) {
       sections.add(
         InspectorTrackListUnavailable(
-          trackCount: music!.trackCount!,
+          trackCount: trackCount,
           accent: accent,
         ),
       );
@@ -842,8 +854,9 @@ String? _musicLabelCatalogLine({
   if (format != null && format.trim().isNotEmpty) {
     parts.add(format.trim());
   }
-  final catalogNumber = meta?.music?.catalogNumber ??
-      preview?.music?.catalogNumber;
+  final catalogNumber = (meta?.music?['catalog_number'] ??
+          preview?.music?['catalog_number'])
+      ?.toString();
   if (catalogNumber != null && catalogNumber.trim().isNotEmpty) {
     parts.add(catalogNumber.trim());
   }
@@ -867,8 +880,9 @@ String? _musicSupportingLine({
   if (publisher != null && publisher.trim().isNotEmpty) {
     values.add(publisher.trim());
   }
-  final status = meta?.music?.releaseStatus ??
-      preview?.music?.releaseStatus;
+  final status = (meta?.music?['release_status'] ??
+          preview?.music?['release_status'])
+      ?.toString();
   if (status != null && status.trim().isNotEmpty) {
     values.add(status.trim());
   }
@@ -925,7 +939,7 @@ List<_MusicPreviewTrackData> _musicPreviewTracks({
         ),
     ];
   }
-  final previewTracks = preview?.music?.tracks;
+  final previewTracks = preview?.tracks;
   if (previewTracks == null || previewTracks.isEmpty) {
     return const [];
   }

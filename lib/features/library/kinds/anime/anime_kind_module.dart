@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 
 final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
@@ -25,6 +26,10 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   projector: const AnimeWorkspaceProjector(),
   ownedDetailsCodec: const AnimeOwnedDetailsCodec(),
   fields: animeLibraryKindSchema.toRegistry(),
+  catalogCodec: const DefaultCatalogKindCodec<AnimeMetadata>(
+    AnimeMetadata.fromJson,
+    _encodeAnimeMetadata,
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.anime,
     singularLabel: 'Anime',
@@ -72,3 +77,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
 );
 
 String _animeChildrenTitle(int count) => 'Seasons ($count)';
+
+Map<String, dynamic> _encodeAnimeMetadata(AnimeMetadata m) => m.toJson();
+

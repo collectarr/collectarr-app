@@ -286,10 +286,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final firstCreator =
-        (widget.item.toCatalogItem().creators?.isNotEmpty == true)
-            ? widget.item.toCatalogItem().creators!.first['name']?.toString()
-            : null;
+    final payload = widget.item.toSyncPayload();
+    final creators =
+        (payload['creators'] as List?)?.cast<Map<String, dynamic>>();
+    final firstCreator = (creators?.isNotEmpty == true)
+        ? creators!.first['name']?.toString()
+        : null;
     final yearSuffix =
         widget.item.releaseYear != null ? ' (${widget.item.releaseYear})' : '';
     final title = widget.item.displayTitle ??

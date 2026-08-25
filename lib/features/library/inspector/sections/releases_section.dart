@@ -14,10 +14,17 @@ class InspectorReleasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final catalogItem = request.item.source.catalogItem?.toCatalogItem();
-    final video = catalogItem?.video;
-    final editions = catalogItem?.editions ?? const [];
-    final discCount = video?.nrDiscs ??
+    final payload =
+        request.item.source.catalogItem?.toSyncPayload() ?? const {};
+    final video = (payload['video'] as Map?) ?? payload;
+    final nrDiscs =
+        video['nr_discs'] is num ? (video['nr_discs'] as num).toInt() : null;
+    final runtimeMinutes = video['runtime_minutes'] is num
+        ? (video['runtime_minutes'] as num).toInt()
+        : null;
+    final editions =
+        request.item.source.catalogItem?.toCatalogItem().editions ?? const [];
+    final discCount = nrDiscs ??
         editions.fold<int>(
           0,
           (total, edition) => total + edition.discs.length,
@@ -34,9 +41,9 @@ class InspectorReleasesSection extends StatelessWidget {
             LibraryDetailField(
                 label: 'Releases', value: editions.length.toString()),
             LibraryDetailField(label: 'Discs', value: discCount.toString()),
-            if (video?.runtimeMinutes != null)
+            if (runtimeMinutes != null)
               LibraryDetailField(
-                  label: 'Runtime', value: '${video!.runtimeMinutes} min'),
+                  label: 'Runtime', value: '$runtimeMinutes min'),
           ],
         ),
         if (editions.isNotEmpty) ...[

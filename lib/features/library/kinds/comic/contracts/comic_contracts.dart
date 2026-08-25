@@ -310,7 +310,7 @@ final class ComicCatalog {
                 ))
             .toList(),
       ),
-      kindPayload: toJson(),
+      payload: toJson(),
     );
   }
 }

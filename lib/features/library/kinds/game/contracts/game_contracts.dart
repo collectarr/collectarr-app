@@ -203,7 +203,7 @@ final class GameCatalog {
         releaseDate: releaseDate,
         releaseYear: releaseDate?.year,
       ),
-      kindPayload: toJson(),
+      payload: toJson(),
     );
   }
 }

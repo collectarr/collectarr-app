@@ -178,12 +178,17 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<Map<String, dynamic>> _characterList(CatalogItem item) {
-    final details = item.characterDetails;
+    final payload = item.toSyncPayload();
+    final details = (payload['character_details'] as List?)
+        ?.cast<Map<String, dynamic>>();
     if (details != null && details.isNotEmpty) {
       return details;
     }
+    final chars = (payload['characters'] as List?)
+        ?.map((e) => e.toString())
+        .toList();
     return [
-      for (final name in item.characters ?? const <String>[])
+      for (final name in chars ?? const <String>[])
         <String, dynamic>{
           'name': name,
         },
@@ -191,6 +196,8 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<MetadataDiffEntry> _baseEntries(CatalogItem local, CatalogItem server) {
+    final localP = local.toSyncPayload();
+    final serverP = server.toSyncPayload();
     return [
       MetadataDiffEntry(
         label: 'Title',
@@ -204,8 +211,8 @@ class _LibraryMetadataCompareDialogState
       ),
       MetadataDiffEntry(
         label: 'Publisher',
-        localValue: _text(local.publisher),
-        serverValue: _text(server.publisher),
+        localValue: _text(localP['publisher']?.toString()),
+        serverValue: _text(serverP['publisher']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Release date',
@@ -214,163 +221,213 @@ class _LibraryMetadataCompareDialogState
       ),
       MetadataDiffEntry(
         label: 'Variant',
-        localValue: _text(local.variant),
-        serverValue: _text(server.variant),
+        localValue: _text(localP['variant']?.toString()),
+        serverValue: _text(serverP['variant']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Edition title',
-        localValue: _text(local.editionTitle),
-        serverValue: _text(server.editionTitle),
+        localValue: _text(localP['edition_title']?.toString()),
+        serverValue: _text(serverP['edition_title']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Barcode',
-        localValue: _text(local.barcode),
-        serverValue: _text(server.barcode),
+        localValue: _text(localP['barcode']?.toString()),
+        serverValue: _text(serverP['barcode']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Country',
-        localValue: _text(local.country),
-        serverValue: _text(server.country),
+        localValue: _text(localP['country']?.toString()),
+        serverValue: _text(serverP['country']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Language',
-        localValue: _text(local.language),
-        serverValue: _text(server.language),
+        localValue: _text(localP['language']?.toString()),
+        serverValue: _text(serverP['language']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Genres',
-        localValue: _list(local.genres),
-        serverValue: _list(server.genres),
+        localValue: _list((localP['genres'] as List?)
+            ?.map((e) => e.toString())
+            .toList()),
+        serverValue: _list((serverP['genres'] as List?)
+            ?.map((e) => e.toString())
+            .toList()),
       ),
       MetadataDiffEntry(
         label: 'Story arcs',
-        localValue: _list(local.storyArcs),
-        serverValue: _list(server.storyArcs),
+        localValue: _list((localP['story_arcs'] as List?)
+            ?.map((e) => e.toString())
+            .toList()),
+        serverValue: _list((serverP['story_arcs'] as List?)
+            ?.map((e) => e.toString())
+            .toList()),
       ),
     ];
   }
 
   List<MetadataDiffEntry> _comicEntries(CatalogItem local, CatalogItem server) {
+    final localP = local.toSyncPayload();
+    final serverP = server.toSyncPayload();
+    final localSeries = (localP['series'] as Map?) ?? localP;
+    final serverSeries = (serverP['series'] as Map?) ?? serverP;
+    final localPub = (localP['publishing'] as Map?) ?? localP;
+    final serverPub = (serverP['publishing'] as Map?) ?? serverP;
     return [
       ..._baseEntries(local, server),
       MetadataDiffEntry(
         label: 'Series',
-        localValue: _text(local.series?.seriesTitle),
-        serverValue: _text(server.series?.seriesTitle),
+        localValue: _text((localSeries['series_title'] ??
+                localSeries['seriesTitle'])
+            ?.toString()),
+        serverValue: _text((serverSeries['series_title'] ??
+                serverSeries['seriesTitle'])
+            ?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Issue number',
-        localValue: _text(local.itemNumber),
-        serverValue: _text(server.itemNumber),
+        localValue: _text((localP['item_number'] ?? localP['itemNumber'])
+            ?.toString()),
+        serverValue: _text((serverP['item_number'] ?? serverP['itemNumber'])
+            ?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Cover date',
-        localValue: _date(local.coverDate),
-        serverValue: _date(server.coverDate),
+        localValue: _date(localP['cover_date'] != null
+            ? DateTime.tryParse(localP['cover_date'].toString())
+            : null),
+        serverValue: _date(serverP['cover_date'] != null
+            ? DateTime.tryParse(serverP['cover_date'].toString())
+            : null),
       ),
       MetadataDiffEntry(
         label: 'Imprint',
-        localValue: _text(local.publishing?.imprint),
-        serverValue: _text(server.publishing?.imprint),
+        localValue: _text(localPub['imprint']?.toString()),
+        serverValue: _text(serverPub['imprint']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Page count',
-        localValue: _text(local.publishing?.pageCount?.toString()),
-        serverValue: _text(server.publishing?.pageCount?.toString()),
+        localValue: _text(localPub['page_count']?.toString()),
+        serverValue: _text(serverPub['page_count']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Plot summary',
-        localValue: _text(local.plotSummary),
-        serverValue: _text(server.plotSummary),
+        localValue: _text(localP['plot_summary']?.toString()),
+        serverValue: _text(serverP['plot_summary']?.toString()),
       ),
     ];
   }
 
   List<MetadataDiffEntry> _musicEntries(CatalogItem local, CatalogItem server) {
+    final localP = local.toSyncPayload();
+    final serverP = server.toSyncPayload();
+    final localSeries = (localP['series'] as Map?) ?? localP;
+    final serverSeries = (serverP['series'] as Map?) ?? serverP;
+    final localPub = (localP['publishing'] as Map?) ?? localP;
+    final serverPub = (serverP['publishing'] as Map?) ?? serverP;
+    final localMusic = (localP['music'] as Map?) ?? localP;
+    final serverMusic = (serverP['music'] as Map?) ?? serverP;
     return [
       ..._baseEntries(local, server),
       MetadataDiffEntry(
         label: 'Artist',
-        localValue: _text(local.series?.seriesTitle),
-        serverValue: _text(server.series?.seriesTitle),
+        localValue: _text((localSeries['series_title'] ??
+                localSeries['seriesTitle'])
+            ?.toString()),
+        serverValue: _text((serverSeries['series_title'] ??
+                serverSeries['seriesTitle'])
+            ?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Subtitle',
-        localValue: _text(local.publishing?.subtitle),
-        serverValue: _text(server.publishing?.subtitle),
+        localValue: _text(localPub['subtitle']?.toString()),
+        serverValue: _text(serverPub['subtitle']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Catalog number',
-        localValue: _text(local.music?.catalogNumber),
-        serverValue: _text(server.music?.catalogNumber),
+        localValue: _text(localMusic['catalog_number']?.toString()),
+        serverValue: _text(serverMusic['catalog_number']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Release status',
-        localValue: _text(local.music?.releaseStatus),
-        serverValue: _text(server.music?.releaseStatus),
+        localValue: _text(localMusic['release_status']?.toString()),
+        serverValue: _text(serverMusic['release_status']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Original release date',
-        localValue: _date(local.music?.originalReleaseDate),
-        serverValue: _date(server.music?.originalReleaseDate),
+        localValue: _date(localMusic['original_release_date'] != null
+            ? DateTime.tryParse(localMusic['original_release_date'].toString())
+            : null),
+        serverValue: _date(serverMusic['original_release_date'] != null
+            ? DateTime.tryParse(serverMusic['original_release_date'].toString())
+            : null),
       ),
       MetadataDiffEntry(
         label: 'Recording date',
-        localValue: _date(local.music?.recordingDate),
-        serverValue: _date(server.music?.recordingDate),
+        localValue: _date(localMusic['recording_date'] != null
+            ? DateTime.tryParse(localMusic['recording_date'].toString())
+            : null),
+        serverValue: _date(serverMusic['recording_date'] != null
+            ? DateTime.tryParse(serverMusic['recording_date'].toString())
+            : null),
       ),
       MetadataDiffEntry(
         label: 'RPM',
-        localValue: _text(local.music?.rpm),
-        serverValue: _text(server.music?.rpm),
+        localValue: _text(localMusic['rpm']?.toString()),
+        serverValue: _text(serverMusic['rpm']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'SPARS',
-        localValue: _text(local.music?.spars),
-        serverValue: _text(server.music?.spars),
+        localValue: _text(localMusic['spars']?.toString()),
+        serverValue: _text(serverMusic['spars']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Sound',
-        localValue: _text(local.music?.soundType),
-        serverValue: _text(server.music?.soundType),
+        localValue: _text(localMusic['sound_type']?.toString()),
+        serverValue: _text(serverMusic['sound_type']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Vinyl color',
-        localValue: _text(local.music?.vinylColor),
-        serverValue: _text(server.music?.vinylColor),
+        localValue: _text(localMusic['vinyl_color']?.toString()),
+        serverValue: _text(serverMusic['vinyl_color']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Vinyl weight',
-        localValue: _text(local.music?.vinylWeight),
-        serverValue: _text(server.music?.vinylWeight),
+        localValue: _text(localMusic['vinyl_weight']?.toString()),
+        serverValue: _text(serverMusic['vinyl_weight']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Media condition',
-        localValue: _text(local.music?.mediaCondition),
-        serverValue: _text(server.music?.mediaCondition),
+        localValue: _text(localMusic['media_condition']?.toString()),
+        serverValue: _text(serverMusic['media_condition']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Composition',
-        localValue: _text(local.music?.composition),
-        serverValue: _text(server.music?.composition),
+        localValue: _text(localMusic['composition']?.toString()),
+        serverValue: _text(serverMusic['composition']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Instrument',
-        localValue: _text(local.music?.instrument),
-        serverValue: _text(server.music?.instrument),
+        localValue: _text(localMusic['instrument']?.toString()),
+        serverValue: _text(serverMusic['instrument']?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Live recording',
-        localValue: (local.music?.isLive ?? false) ? 'Yes' : 'No',
-        serverValue: (server.music?.isLive ?? false) ? 'Yes' : 'No',
+        localValue: (localMusic['is_live'] == true) ? 'Yes' : 'No',
+        serverValue: (serverMusic['is_live'] == true) ? 'Yes' : 'No',
       ),
     ];
   }
 
   List<MetadataDiffEntry> _creatorsEntries(
       CatalogItem local, CatalogItem server) {
-    final localCreators = local.creators ?? const <Map<String, dynamic>>[];
-    final serverCreators = server.creators ?? const <Map<String, dynamic>>[];
+    final localP = local.toSyncPayload();
+    final serverP = server.toSyncPayload();
+    final localCreators = (localP['creators'] as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        const <Map<String, dynamic>>[];
+    final serverCreators = (serverP['creators'] as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        const <Map<String, dynamic>>[];
     final count = math.max(localCreators.length, serverCreators.length);
     return [
       for (var i = 0; i < count; i++)
@@ -406,13 +463,27 @@ class _LibraryMetadataCompareDialogState
   }
 
   List<MetadataDiffEntry> _discEntries(CatalogItem local, CatalogItem server) {
+    final localP = local.toSyncPayload();
+    final serverP = server.toSyncPayload();
+    final localMusic = (localP['music'] as Map?) ?? localP;
+    final serverMusic = (serverP['music'] as Map?) ?? serverP;
+    final localRawDiscs = (localMusic['discs'] as List?) ?? const [];
+    final serverRawDiscs = (serverMusic['discs'] as List?) ?? const [];
     final localDiscs = {
-      for (final disc in local.music?.discs ?? const <CatalogDisc>[])
-        disc.discNumber: disc
+      for (final raw in localRawDiscs)
+        if (raw is CatalogDisc)
+          raw.discNumber: raw
+        else if (raw is Map)
+          (raw['disc_number'] as int? ?? 0):
+              CatalogDisc.fromJson(Map<String, dynamic>.from(raw))
     };
     final serverDiscs = {
-      for (final disc in server.music?.discs ?? const <CatalogDisc>[])
-        disc.discNumber: disc
+      for (final raw in serverRawDiscs)
+        if (raw is CatalogDisc)
+          raw.discNumber: raw
+        else if (raw is Map)
+          (raw['disc_number'] as int? ?? 0):
+              CatalogDisc.fromJson(Map<String, dynamic>.from(raw))
     };
     final all = <int>{
       ...localDiscs.keys.whereType<int>(),

@@ -170,20 +170,23 @@ class LibraryEditDraft {
     final titleController = create(item.title);
     final numberController = create(itemNumber ?? '');
     final publisherController = create(publisher ?? '');
+    final coverDate = payload['cover_date'] != null
+        ? DateTime.tryParse(payload['cover_date'].toString())
+        : null;
     final coverDateController = create(
-      catalog.coverDate == null ? '' : formatDate(catalog.coverDate!),
+      coverDate == null ? '' : formatDate(coverDate),
     );
     final coverDateYearPartController =
-        create(catalog.coverDate?.year.toString() ?? '');
+        create(coverDate?.year.toString() ?? '');
     final coverDateMonthPartController = create(
-      catalog.coverDate == null
+      coverDate == null
           ? ''
-          : catalog.coverDate!.month.toString().padLeft(2, '0'),
+          : coverDate.month.toString().padLeft(2, '0'),
     );
     final coverDateDayPartController = create(
-      catalog.coverDate == null
+      coverDate == null
           ? ''
-          : catalog.coverDate!.day.toString().padLeft(2, '0'),
+          : coverDate.day.toString().padLeft(2, '0'),
     );
     final releaseDateController = create(
       item.releaseDate == null ? '' : formatDate(item.releaseDate!),
@@ -735,7 +738,7 @@ class LibraryEditDraft {
         currentSeriesMap == null) {
       return null;
     }
-    return CatalogSeriesDetails(
+    return CatalogSeriesDetailsDto(
       seriesId: metadata.seriesId,
       seriesTitle: seriesTitle ?? currentSeriesTitle,
       volumeName: currentSeriesMap?['volume_name'] as String?,

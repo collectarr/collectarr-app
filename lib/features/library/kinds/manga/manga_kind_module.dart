@@ -27,6 +27,10 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   projector: const MangaWorkspaceProjector(),
   ownedDetailsCodec: const MangaOwnedDetailsCodec(),
   fields: mangaLibraryKindSchema.toRegistry(),
+  catalogCodec: const DefaultCatalogKindCodec<MangaMetadata>(
+    MangaMetadata.fromJson,
+    _encodeMangaMetadata,
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.manga,
     singularLabel: 'Manga',
@@ -92,6 +96,8 @@ Iterable<String> _getFacetValues(
   }
   return const [];
 }
+
+Map<String, dynamic> _encodeMangaMetadata(MangaMetadata m) => m.toJson();
 
 String _mangaChildrenTitle(int count) => 'Volumes ($count)';
 

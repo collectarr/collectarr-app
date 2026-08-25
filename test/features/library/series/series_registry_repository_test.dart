@@ -24,7 +24,7 @@ void main() {
         id: 'comic-1',
         kind: 'comic',
         title: 'Issue 1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-1',
           seriesTitle: 'Original Series',
         ),
@@ -39,7 +39,8 @@ void main() {
     );
 
     final updated = await catalog.findById('comic-1');
-    expect(updated?.series?.seriesTitle, 'Renamed Series');
+    final seriesMap = updated?.payload['series'] as Map?;
+    expect(seriesMap?['series_title'], 'Renamed Series');
   });
 
   test(
@@ -50,7 +51,7 @@ void main() {
         id: 'comic-1',
         kind: 'comic',
         title: 'Issue 1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-a',
           seriesTitle: 'Series A',
         ),
@@ -59,7 +60,7 @@ void main() {
         id: 'comic-2',
         kind: 'comic',
         title: 'Issue 2',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-b',
           seriesTitle: 'Series B',
         ),
@@ -78,8 +79,9 @@ void main() {
     );
 
     final updated = await catalog.findById('comic-2');
-    expect(updated?.series?.seriesId, 'series-a');
-    expect(updated?.series?.seriesTitle, 'Series A');
+    final updatedSeriesMap = updated?.payload['series'] as Map?;
+    expect(updatedSeriesMap?['series_id'], 'series-a');
+    expect(updatedSeriesMap?['series_title'], 'Series A');
 
     final refreshedEntries = await registry.searchEntries(mediaKind: 'comic');
     expect(

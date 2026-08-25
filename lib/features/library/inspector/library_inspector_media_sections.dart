@@ -18,7 +18,7 @@ class InspectorTrackList extends StatelessWidget {
     this.title,
   });
 
-  final List<CatalogTrack> tracks;
+  final List<CatalogTrackDto> tracks;
   final int? trackCount;
   final Color accent;
   final String? coverUrl;

@@ -30,11 +30,11 @@ void main() {
         kind: 'manga',
         title: 'Vagabond',
         itemNumber: '1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-1',
           seriesTitle: 'Vagabond',
         ),
-        publishing: const CatalogPublishingDetails(subtitle: 'Vol. 1'),
+        publishing: const CatalogPublishingDetailsDto(subtitle: 'Vol. 1'),
         editions: const [
           CatalogEditionDto(id: 'edition-1', title: 'Volume 1'),
         ],

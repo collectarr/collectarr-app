@@ -126,7 +126,7 @@ final class MusicCatalog {
         releaseDate: originalReleaseDate,
         releaseYear: originalReleaseDate?.year,
       ),
-      kindPayload: toJson(),
+      payload: toJson(),
     );
   }
 }

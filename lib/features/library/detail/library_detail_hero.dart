@@ -114,8 +114,10 @@ class LibraryDetailHero extends StatelessWidget {
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
     ];
-    final catalog = item.source.catalogItem?.toCatalogItem();
-    final creatorsList = catalog?.creators ?? const [];
+    final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
+    final creatorsList =
+        (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
+            const [];
     final authorName =
         creatorsList.isEmpty ? null : creatorsList.first['name'] as String?;
 

@@ -74,8 +74,12 @@ class CollectionXml {
               _textElement(builder, 'Publisher', catalog.publisher);
               _textElement(builder, 'Barcode', catalog.barcode);
               _textElement(builder, 'Variant', catalog.variant);
-              _textElement(builder, 'SeriesTitle', catalog.series?.seriesTitle);
-              _textElement(builder, 'VolumeName', catalog.series?.volumeName);
+              final seriesMap = catalog.payload['series'] as Map?;
+              final pubMap = catalog.payload['publishing'] as Map?;
+              _textElement(
+                  builder, 'SeriesTitle', seriesMap?['series_title'] as String?);
+              _textElement(
+                  builder, 'VolumeName', seriesMap?['volume_name'] as String?);
               if (catalog.releaseDate != null) {
                 _textElement(builder, 'ReleaseDate',
                     catalog.releaseDate!.toIso8601String().split('T').first);
@@ -84,9 +88,9 @@ class CollectionXml {
                 _textElement(
                     builder, 'ReleaseYear', catalog.releaseYear.toString());
               }
-              if (catalog.publishing?.pageCount != null) {
-                _textElement(builder, 'PageCount',
-                    catalog.publishing!.pageCount.toString());
+              if (pubMap?['page_count'] != null) {
+                _textElement(
+                    builder, 'PageCount', pubMap!['page_count'].toString());
               }
               _textElement(builder, 'Synopsis', catalog.synopsis);
               _textElement(builder, 'CoverImageUrl', catalog.coverImageUrl);

@@ -200,7 +200,7 @@ final class MangaCatalog {
         releaseDate: localizedReleaseDate ?? originalPublicationDate,
         releaseYear: (localizedReleaseDate ?? originalPublicationDate)?.year,
       ),
-      kindPayload: toJson(),
+      payload: toJson(),
     );
   }
 }

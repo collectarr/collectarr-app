@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   type: musicLibraryConfig,
@@ -27,6 +28,10 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
   fields: musicLibraryKindSchema.toRegistry(),
+  catalogCodec: const DefaultCatalogKindCodec<MusicCatalogMetadata>(
+    MusicCatalogMetadata.fromJson,
+    _encodeMusicMetadata,
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.music,
     singularLabel: 'Music',
@@ -71,3 +76,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
 );
 
 String _musicChildrenTitle(int count) => 'Discs ($count)';
+
+Map<String, dynamic> _encodeMusicMetadata(MusicCatalogMetadata m) => m.toJson();
+

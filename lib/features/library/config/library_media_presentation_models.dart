@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -540,7 +541,11 @@ abstract class LibraryMediaPresentationBuilder {
       includeIdentityFacts: true,
       tapFor: _tapResolver(onFilterByValue),
     );
-    final series = item.source.catalogItem?.toCatalogItem().series;
+    final seriesRaw =
+        item.source.catalogItem?.toCatalogItem().payload['series'];
+    final series = seriesRaw is Map
+        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
+        : null;
     final identityFacts = presentation.identityFacts.map((fact) {
       if (fact.label == 'Series' &&
           series?.seriesId != null &&

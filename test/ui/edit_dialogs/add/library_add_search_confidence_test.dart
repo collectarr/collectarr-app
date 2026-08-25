@@ -15,7 +15,7 @@ void main() {
             itemNumber: '423',
             publisher: 'DC',
             releaseYear: 1988,
-            series: CatalogSeriesDetails(
+            series: const CatalogSeriesDetailsDto(
               seriesTitle: 'Batman',
               volumeStartYear: 1988,
             ),

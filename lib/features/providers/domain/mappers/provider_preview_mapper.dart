@@ -63,9 +63,9 @@ AdminProviderPreview providerPreviewFromEnvelope(
   }
 
   // Handle kind-specific details
-  CatalogSeriesDetails? series;
+  CatalogSeriesDetailsDto? series;
   if (norm.containsKey('series_title') || norm.containsKey('volume_name')) {
-    series = CatalogSeriesDetails(
+    series = CatalogSeriesDetailsDto(
       seriesTitle: norm['series_title']?.toString(),
       volumeName: norm['volume_name']?.toString(),
       volumeStartYear: norm['volume_start_year'] is num
@@ -80,33 +80,33 @@ AdminProviderPreview providerPreviewFromEnvelope(
     );
   }
 
-  CatalogPublishingDetails? publishing;
+  CatalogPublishingDetailsDto? publishing;
   if (norm.containsKey('page_count') || norm.containsKey('isbn')) {
-    publishing = CatalogPublishingDetails(
+    publishing = CatalogPublishingDetailsDto(
       pageCount: norm['page_count'] is num
           ? (norm['page_count'] as num).toInt()
           : null,
     );
   }
 
-  GameCatalogDetails? game;
+  Map<String, dynamic>? game;
   if (norm.containsKey('platforms') && norm['platforms'] is List) {
     final platforms = (norm['platforms'] as List)
         .map((p) => p?.toString() ?? '')
         .where((p) => p.isNotEmpty)
         .toList();
-    game = GameCatalogDetails(
-      platforms: platforms,
-    );
+    game = {
+      'platforms': platforms,
+    };
   }
 
-  MusicCatalogDetails? music;
+  Map<String, dynamic>? music;
   if (norm.containsKey('tracks') && norm['tracks'] is List) {
-    final tracks = <CatalogTrack>[];
+    final tracks = <CatalogTrackDto>[];
     for (final t in norm['tracks'] as List) {
       if (t is Map) {
         tracks.add(
-          CatalogTrack(
+          CatalogTrackDto(
             title: t['title']?.toString() ?? '',
             position: t['position'] is num ? (t['position'] as num).toInt() : 1,
             durationSeconds: t['duration_seconds'] is num
@@ -116,19 +116,18 @@ AdminProviderPreview providerPreviewFromEnvelope(
         );
       }
     }
-    music = MusicCatalogDetails(
-      trackCount: tracks.length,
-      tracks: tracks,
-    );
+    music = {
+      'track_count': tracks.length,
+      'tracks': tracks.map((e) => e.toJson()).toList(),
+    };
   }
 
-  VideoCatalogDetails? video;
+  Map<String, dynamic>? video;
   if (norm.containsKey('runtime_minutes')) {
-    video = VideoCatalogDetails(
-      runtimeMinutes: norm['runtime_minutes'] is num
-          ? (norm['runtime_minutes'] as num).toInt()
-          : null,
-    );
+    video = {
+      if (norm['runtime_minutes'] is num)
+        'runtime_minutes': (norm['runtime_minutes'] as num).toInt(),
+    };
   }
 
   return AdminProviderPreview(

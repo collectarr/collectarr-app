@@ -497,7 +497,7 @@ String? musicCardDuration(LibraryProjectionRuntime item) {
     return runtimeFact;
   }
   final musicDetails = _musicMetadata(item)?.music;
-  final totalSeconds = musicDetails?.trackCount; // Fallback estimate
+  final totalSeconds = (musicDetails?['track_count'] as num?)?.toInt();
   if (totalSeconds == null || totalSeconds <= 0) {
     return null;
   }

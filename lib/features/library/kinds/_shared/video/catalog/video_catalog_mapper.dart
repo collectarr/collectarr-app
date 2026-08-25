@@ -7,38 +7,61 @@ class VideoCatalogMapper {
   const VideoCatalogMapper._();
 
   static VideoCatalogItem mapDtoToVideo(CatalogItemDto dto) {
-    final v = dto.video;
+    final payload = dto.toSyncPayload();
+    final v = (payload['video'] as Map?) ?? payload;
+
+    final runtimeMinutes = v['runtime_minutes'] is num
+        ? (v['runtime_minutes'] as num).toInt()
+        : null;
+    final color = v['color']?.toString();
+    final screenRatio =
+        (v['screen_ratio'] ?? v['screenRatio'])?.toString();
+    final audioTracks =
+        (v['audio_tracks'] ?? v['audioTracks'])?.toString();
+    final subtitles = v['subtitles']?.toString();
+    final ageRating =
+        (payload['age_rating'] ?? v['age_rating'])?.toString();
+    final audienceRating =
+        (payload['audience_rating'] ?? v['audience_rating'])?.toString();
+    final language =
+        (payload['language'] ?? payload['original_language'])?.toString();
+    final genres = (payload['genres'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const [];
 
     final work = VideoWorkMetadata(
       title: dto.title,
       originalTitle: dto.originalTitle,
       synopsis: dto.synopsis,
       releaseDate: dto.releaseDate,
-      originalLanguage: dto.language,
-      genres: dto.genres ?? const [],
+      originalLanguage: language,
+      genres: genres,
     );
 
     final technical = VideoTechnicalMetadata(
-      runtimeMinutes: v?.runtimeMinutes,
-      color: v?.color,
-      screenRatio: v?.screenRatio,
-      audioTracks: v?.audioTracks,
-      subtitles: v?.subtitles,
-      ageRating: dto.ageRating ?? v?.ageRating,
-      audienceRating: dto.audienceRating ?? v?.audienceRating,
+      runtimeMinutes: runtimeMinutes,
+      color: color,
+      screenRatio: screenRatio,
+      audioTracks: audioTracks,
+      subtitles: subtitles,
+      ageRating: ageRating,
+      audienceRating: audienceRating,
     );
 
     final releases = dto.editions.map((edition) {
       final audioTracksStr = edition.metadata?['audio_tracks'] as String? ??
-          dto.video?.audioTracks;
-      final audioTracks = audioTracksStr != null && audioTracksStr.isNotEmpty
-          ? [audioTracksStr]
-          : const <String>[];
+          audioTracks;
+      final audioTracksList =
+          audioTracksStr != null && audioTracksStr.isNotEmpty
+              ? [audioTracksStr]
+              : const <String>[];
       final subtitlesStr =
-          edition.metadata?['subtitles'] as String? ?? dto.video?.subtitles;
-      final subtitles = subtitlesStr != null && subtitlesStr.isNotEmpty
-          ? [subtitlesStr]
-          : const <String>[];
+          edition.metadata?['subtitles'] as String? ?? subtitles;
+      final subtitlesList =
+          subtitlesStr != null && subtitlesStr.isNotEmpty
+              ? [subtitlesStr]
+              : const <String>[];
 
       final media = edition.discs
           .map((disc) => VideoMediaRef(
@@ -46,8 +69,8 @@ class VideoCatalogMapper {
                 title: disc.discName,
                 formatLabel: disc.discFormat,
                 discNumber: disc.discNumber,
-                audioTracks: audioTracks,
-                subtitles: subtitles,
+                audioTracks: audioTracksList,
+                subtitles: subtitlesList,
               ))
           .toList();
 
@@ -61,13 +84,13 @@ class VideoCatalogMapper {
         formatLabel: edition.physicalFormatLabel ?? edition.physicalFormat,
         media: media,
         videoDetails: VideoTechnicalMetadata(
-          runtimeMinutes: dto.video?.runtimeMinutes,
-          color: dto.video?.color,
-          screenRatio: dto.video?.screenRatio,
-          audioTracks: dto.video?.audioTracks,
-          subtitles: dto.video?.subtitles,
-          ageRating: dto.video?.ageRating,
-          audienceRating: dto.video?.audienceRating,
+          runtimeMinutes: runtimeMinutes,
+          color: color,
+          screenRatio: screenRatio,
+          audioTracks: audioTracks,
+          subtitles: subtitles,
+          ageRating: ageRating,
+          audienceRating: audienceRating,
           nrDiscs: edition.discs.length,
         ),
       );

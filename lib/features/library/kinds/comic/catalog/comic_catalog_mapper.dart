@@ -7,30 +7,54 @@ class ComicCatalogMapper {
   const ComicCatalogMapper._();
 
   static ComicCatalogItem mapDtoToComic(CatalogItemDto dto) {
-    final pub = dto.publishing;
+    final payload = dto.toSyncPayload();
+    final pub = (payload['publishing'] as Map?) ?? payload;
+
+    final creators = (payload['creators'] as List?)
+            ?.map((c) => (c is Map ? c['name'] : c)?.toString() ?? '')
+            .where((n) => n.isNotEmpty)
+            .toList() ??
+        const [];
+    final characters = (payload['characters'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const [];
+    final storyArcs = (payload['story_arcs'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const [];
+    final genres = (payload['genres'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const [];
+    final coverDate = payload['cover_date'] != null
+        ? DateTime.tryParse(payload['cover_date'].toString())
+        : null;
+    final itemNumber =
+        (payload['item_number'] ?? payload['itemNumber'])?.toString();
 
     final work = ComicWorkMetadata(
       title: dto.title,
-      issueNumber: dto.itemNumber,
+      issueNumber: itemNumber,
       synopsis: dto.synopsis,
-      coverDate: dto.coverDate,
-      creators: (dto.creators
-              ?.map((c) => c['name']?.toString() ?? '')
-              .where((n) => n.isNotEmpty)
-              .toList() ??
-          const []),
-      characters: dto.characters ?? const [],
-      storyArcs: dto.storyArcs ?? const [],
-      genres: dto.genres ?? const [],
+      coverDate: coverDate,
+      creators: creators,
+      characters: characters,
+      storyArcs: storyArcs,
+      genres: genres,
     );
 
     final publishing = ComicPublishingMetadata(
-      pageCount: pub?.pageCount,
-      coverPriceCents: pub?.coverPriceCents,
-      currency: pub?.currency,
-      publisher: dto.publisher,
-      imprint: pub?.imprint,
-      subtitle: pub?.subtitle,
+      pageCount: pub['page_count'] is num
+          ? (pub['page_count'] as num).toInt()
+          : null,
+      coverPriceCents: pub['cover_price_cents'] is num
+          ? (pub['cover_price_cents'] as num).toInt()
+          : null,
+      currency: pub['currency']?.toString(),
+      publisher: (payload['publisher'] ?? pub['original_publisher'])?.toString(),
+      imprint: pub['imprint']?.toString(),
+      subtitle: pub['subtitle']?.toString(),
     );
 
     final releases = dto.editions.map((edition) {
@@ -38,7 +62,7 @@ class ComicCatalogMapper {
         id: edition.id,
         title: edition.title,
         publisher: edition.publisher,
-        imprint: pub?.imprint,
+        imprint: pub['imprint']?.toString(),
         isbn: edition.isbn,
         upc: edition.upc,
         releaseDate: edition.releaseDate,

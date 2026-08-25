@@ -47,7 +47,7 @@ void main() {
         id: 'catalog-1',
         kind: 'comic',
         title: 'Saga #1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-1',
           seriesTitle: 'Saga',
         ),
@@ -56,7 +56,7 @@ void main() {
         id: 'catalog-2',
         kind: 'comic',
         title: 'OTGW #1',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-2',
           seriesTitle: 'Over the Garden Wall',
         ),
@@ -112,7 +112,7 @@ void main() {
         crossover: 'Event Prelude',
         plotSummary: 'Old summary',
         plotDescription: 'Old description',
-        series: const CatalogSeriesDetails(
+        series: const CatalogSeriesDetailsDto(
           seriesId: 'series-1',
           seriesTitle: 'Saga',
         ),
@@ -121,7 +121,7 @@ void main() {
         country: 'US',
         language: 'English',
         ageRating: 'Mature',
-        publishing: const CatalogPublishingDetails(
+        publishing: const CatalogPublishingDetailsDto(
           pageCount: 32,
           imprint: 'Skybound',
           seriesGroup: 'Saga Universe',
@@ -313,13 +313,14 @@ void main() {
     expect(selection, isNotNull);
     final cat = selection!.item.toCatalogItem();
     expect(selection!.item.title, 'Over the Garden Wall');
-    expect(cat.crossover, 'Image United');
-    expect(cat.storyArcs, ['Finale']);
-    expect(cat.country, 'Canada');
-    expect(cat.language, 'French');
-    expect(cat.ageRating, 'Teen');
-    expect(cat.genres, ['Sci-Fi']);
-    expect(cat.coverDate, DateTime(2026, 1, 1));
+    expect(cat.payload['crossover'], 'Image United');
+    expect(cat.payload['story_arcs'], ['Finale']);
+    expect(cat.payload['country'], 'Canada');
+    expect(cat.payload['language'], 'French');
+    expect(cat.payload['age_rating'], 'Teen');
+    expect(cat.payload['genres'], ['Sci-Fi']);
+    expect(DateTime.tryParse(cat.payload['cover_date'] as String),
+        DateTime(2026, 1, 1));
     expect(cat.trailerUrls, hasLength(2));
     expect(cat.trailerUrls.first.url, 'https://example.com/original');
     expect(cat.trailerUrls.first.title, 'Original link');

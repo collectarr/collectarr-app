@@ -301,7 +301,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
   }
 
   CatalogItem _catalogFromCache(CatalogCacheData row) {
-    final series = CatalogSeriesDetails(
+    final series = CatalogSeriesDetailsDto(
       seriesId: row.seriesId,
       seriesTitle: row.seriesTitle,
       volumeName: row.volumeName,
@@ -311,29 +311,33 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       episodeNumber: row.episodeNumber,
       tags: _decodeStringList(row.seriesTagsJson)?.join(', '),
     );
-    final video = VideoCatalogDetails(
-      runtimeMinutes: row.runtimeMinutes,
-      color: row.color,
-      nrDiscs: row.nrDiscs,
-      screenRatio: row.screenRatio,
-      audioTracks: row.audioTracksJson,
-      subtitles: row.subtitlesJson,
-      layers: row.layers,
-    );
+    final video = <String, dynamic>{
+      if (row.runtimeMinutes != null) 'runtime_minutes': row.runtimeMinutes,
+      if (row.color != null) 'color': row.color,
+      if (row.nrDiscs != null) 'nr_discs': row.nrDiscs,
+      if (row.screenRatio != null) 'screen_ratio': row.screenRatio,
+      if (row.audioTracksJson != null) 'audio_tracks': row.audioTracksJson,
+      if (row.subtitlesJson != null) 'subtitles': row.subtitlesJson,
+      if (row.layers != null) 'layers': row.layers,
+    };
     final tracks = _decodeTracks(row.tracksJson);
     final discs = _decodeDiscs(row.discsJson);
     final editions = _decodeEditions(row.editionsJson);
     final rawPlatforms = _decodeStringList(row.platformsJson);
-    final music = MusicCatalogDetails(
-      trackCount: row.trackCount,
-      tracks: tracks ?? const <CatalogTrack>[],
-      discs: discs ?? const <CatalogDisc>[],
-      catalogNumber: row.catalogNumber,
-      releaseStatus: row.releaseStatus,
-    );
-    final game =
-        GameCatalogDetails(platforms: rawPlatforms ?? const <String>[]);
-    final publishing = CatalogPublishingDetails(
+    final music = <String, dynamic>{
+      if (row.trackCount != null) 'track_count': row.trackCount,
+      if (tracks != null && tracks.isNotEmpty)
+        'tracks': tracks.map((e) => e.toJson()).toList(),
+      if (discs != null && discs.isNotEmpty)
+        'discs': discs.map((e) => e.toJson()).toList(),
+      if (row.catalogNumber != null) 'catalog_number': row.catalogNumber,
+      if (row.releaseStatus != null) 'release_status': row.releaseStatus,
+    };
+    final game = <String, dynamic>{
+      if (rawPlatforms != null && rawPlatforms.isNotEmpty)
+        'platforms': rawPlatforms,
+    };
+    final publishing = CatalogPublishingDetailsDto(
       pageCount: row.pageCount,
       coverPriceCents: row.coverPriceCents,
       currency: row.catalogCurrency,
@@ -364,9 +368,9 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       characterDetails: _decodeListOfMaps(row.characterDetailsJson),
       storyArcs: _decodeStringList(row.storyArcsJson),
       series: series,
-      video: video,
-      music: music,
-      game: game,
+      video: video.isNotEmpty ? video : null,
+      music: music.isNotEmpty ? music : null,
+      game: game.isNotEmpty ? game : null,
       publishing: publishing,
       editions: editions ?? const <CatalogEdition>[],
     );

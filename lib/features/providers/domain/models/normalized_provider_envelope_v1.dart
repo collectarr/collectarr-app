@@ -68,19 +68,14 @@ class NormalizedProviderEnvelopeV1 {
         if (preview.publishing != null)
           'publishing': preview.publishing!.toJson(),
         if (preview.music != null) ...{
-          'track_count': preview.music!.trackCount,
-          if (preview.music!.tracks.isNotEmpty)
-            'tracks':
-                preview.music!.tracks.map((track) => track.toJson()).toList(),
-          'music': preview.music!.toJson(),
+          if (preview.music!['track_count'] != null)
+            'track_count': preview.music!['track_count'],
+          if (preview.music!['tracks'] != null)
+            'tracks': preview.music!['tracks'],
+          'music': preview.music!,
         },
-        if (preview.video != null) 'video': preview.video!.toJson(),
-        if (preview.game != null)
-          'game': {
-            'platforms': preview.game!.platforms,
-            'toy_subtype': preview.game!.toySubtype,
-            'toy_type': preview.game!.toyType,
-          },
+        if (preview.video != null) 'video': preview.video!,
+        if (preview.game != null) 'game': preview.game!,
       },
       provenance: const ProviderProvenance(fetchedAt: ''),
       images: preview.coverImageUrl == null

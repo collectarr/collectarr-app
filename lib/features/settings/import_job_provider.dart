@@ -962,13 +962,9 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         current.synopsis != next.synopsis ||
         current.coverImageUrl != next.coverImageUrl ||
         current.thumbnailImageUrl != next.thumbnailImageUrl ||
-        current.publisher != next.publisher ||
-        current.coverDate != next.coverDate ||
         current.releaseDate != next.releaseDate ||
         current.releaseYear != next.releaseYear ||
-        current.country != next.country ||
-        current.language != next.language ||
-        current.video?.runtimeMinutes != next.video?.runtimeMinutes ||
+        current.payload != next.payload ||
         current.displayCoverUrl != next.displayCoverUrl;
   }
 

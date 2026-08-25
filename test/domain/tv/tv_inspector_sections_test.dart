@@ -25,12 +25,12 @@ void main() {
         id: 'series-1',
         kind: 'tv',
         title: 'Cowboy Bebop',
-        video: const VideoCatalogDetailsDto(
-          runtimeMinutes: 24,
-          audioTracks: 'Stereo',
-          subtitles: 'English',
-          layers: 'Dual layer',
-        ),
+        video: const {
+          'runtime_minutes': 24,
+          'audio_tracks': 'Stereo',
+          'subtitles': 'English',
+          'layers': 'Dual layer',
+        },
         editions: [
           CatalogEdition(
             id: 'release-1',

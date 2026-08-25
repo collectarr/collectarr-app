@@ -32,9 +32,9 @@ CatalogItem testCatalogItem({
   List<Map<String, dynamic>>? creators,
   List<CatalogEdition>? editions,
   CatalogSeriesDetails? series,
-  VideoCatalogDetails? video,
-  MusicCatalogDetails? music,
-  GameCatalogDetails? game,
+  dynamic video,
+  dynamic music,
+  dynamic game,
   CatalogPublishingDetails? publishing,
 }) {
   return CatalogItem(

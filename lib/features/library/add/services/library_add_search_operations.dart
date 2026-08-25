@@ -167,7 +167,7 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
                     summary: r.summary,
                     imageUrl: r.imageUrl,
                     series: r.seriesTitle != null
-                        ? CatalogSeriesDetails(seriesTitle: r.seriesTitle)
+                        ? CatalogSeriesDetailsDto(seriesTitle: r.seriesTitle)
                         : null,
                     issueNumber: r.issueNumber,
                   ))
@@ -190,7 +190,7 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
                     summary: r.summary,
                     imageUrl: r.imageUrl,
                     series: r.seriesTitle != null
-                        ? CatalogSeriesDetails(seriesTitle: r.seriesTitle)
+                        ? CatalogSeriesDetailsDto(seriesTitle: r.seriesTitle)
                         : null,
                     issueNumber: r.issueNumber,
                   ))

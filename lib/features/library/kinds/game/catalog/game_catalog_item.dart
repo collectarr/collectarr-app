@@ -62,6 +62,4 @@ class GameCatalogItem {
   String? get audienceRating => null;
   CatalogSeriesDetails? get series => null;
   CatalogPublishingDetails? get publishingDetails => null;
-  GameCatalogDetails? get videoDetails => null;
-  GameCatalogDetails? get game => null;
 }

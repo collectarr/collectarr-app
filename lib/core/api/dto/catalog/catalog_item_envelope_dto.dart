@@ -8,13 +8,16 @@ final class CatalogItemEnvelopeDto {
     required this.ref,
     required this.kind,
     required this.common,
-    required this.kindPayload,
+    required this.payload,
   });
 
   final CatalogEntityRef ref;
   final CatalogMediaKind kind;
   final CatalogCommonDto common;
-  final Map<String, dynamic> kindPayload;
+  final Map<String, dynamic> payload;
+
+  String get id => ref.id;
+  Map<String, dynamic> get kindPayload => payload;
 
   factory CatalogItemEnvelopeDto.fromJson(Map<String, dynamic> json) {
     final commonJson = _mapValue(json['common']) ?? json;
@@ -30,13 +33,13 @@ final class CatalogItemEnvelopeDto {
       id: id,
     );
     final common = CatalogCommonDto.fromJson(commonJson);
-    final payload = payloadJson ?? Map<String, dynamic>.from(json)
+    final rawPayload = payloadJson ?? Map<String, dynamic>.from(json)
       ..removeWhere((key, _) => _commonKeys.contains(key));
     return CatalogItemEnvelopeDto(
       ref: ref,
       kind: resolvedKind,
       common: common,
-      kindPayload: Map<String, dynamic>.unmodifiable(payload),
+      payload: Map<String, dynamic>.unmodifiable(rawPayload),
     );
   }
 
@@ -45,17 +48,12 @@ final class CatalogItemEnvelopeDto {
       'ref': ref.toJson(),
       'kind': kind.apiValue,
       'common': common.toJson(),
-      'payload': kindPayload,
+      'payload': payload,
     };
   }
 
   CatalogItemDto decodeCatalogItem() {
-    return catalogKindCodecFor(kind).decode({
-      'id': ref.id,
-      'kind': kind.apiValue,
-      ...common.toJson(),
-      ...kindPayload,
-    });
+    return CatalogItemDto.fromEnvelope(this);
   }
 
   static Map<String, dynamic>? _mapValue(Object? value) {

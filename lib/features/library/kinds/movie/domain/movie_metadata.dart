@@ -116,7 +116,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? itemNumber;
   final CatalogSeriesDetailsDto? series;
   final String? seriesTitle;
-  final VideoCatalogDetailsDto? video;
+  final Map<String, dynamic>? video;
   final String? audioTracks;
   final String? subtitles;
   final String? color;
@@ -172,9 +172,9 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
         if (nrDiscs != null) 'nr_discs': nrDiscs,
         if (screenRatio != null) 'screen_ratio': screenRatio,
         if (layers != null) 'layers': layers,
-        if (video != null && video!.hasData) ...{
-          'video': video!.toJson(),
-          ...video!.toJson(),
+        if (video != null && video!.isNotEmpty) ...{
+          'video': video!,
+          ...video!,
         },
         if (creators.isNotEmpty) 'creators': creators,
         if (links.isNotEmpty) ...{
@@ -232,20 +232,22 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     final resolvedSeriesTitle =
         (json['series_title'] ?? series.seriesTitle) as String?;
 
-    final videoRaw = json['video'];
-    final video = videoRaw is Map
-        ? VideoCatalogDetailsDto.fromJson(Map<String, dynamic>.from(videoRaw))
-        : VideoCatalogDetailsDto.fromJson(json);
+    final videoRaw = (json['video'] is Map)
+        ? (json['video'] as Map)
+        : json;
+    final video = json['video'] is Map
+        ? Map<String, dynamic>.from(json['video'] as Map)
+        : null;
 
     final resolvedAudioTracks =
-        (json['audio_tracks'] ?? video.audioTracks) as String?;
-    final resolvedSubtitles = (json['subtitles'] ?? video.subtitles) as String?;
-    final resolvedColor = (json['color'] ?? video.color) as String?;
+        (json['audio_tracks'] ?? videoRaw['audio_tracks'] ?? videoRaw['audioTracks']) as String?;
+    final resolvedSubtitles = (json['subtitles'] ?? videoRaw['subtitles']) as String?;
+    final resolvedColor = (json['color'] ?? videoRaw['color']) as String?;
     final resolvedNrDiscs =
-        (json['nr_discs'] as num?)?.toInt() ?? video.nrDiscs;
+        (json['nr_discs'] as num?)?.toInt() ?? (videoRaw['nr_discs'] as num?)?.toInt();
     final resolvedScreenRatio =
-        (json['screen_ratio'] ?? video.screenRatio) as String?;
-    final resolvedLayers = (json['layers'] ?? video.layers) as String?;
+        (json['screen_ratio'] ?? videoRaw['screen_ratio'] ?? videoRaw['screenRatio']) as String?;
+    final resolvedLayers = (json['layers'] ?? videoRaw['layers']) as String?;
 
     final rawEditions = (json['editions'] as List<dynamic>?)
             ?.whereType<Map>()
@@ -263,8 +265,8 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      runtimeMinutes:
-          json['runtime_minutes'] as int? ?? video.runtimeMinutes,
+      runtimeMinutes: (json['runtime_minutes'] as num?)?.toInt() ??
+          (videoRaw['runtime_minutes'] as num?)?.toInt(),
       audienceRating: json['audience_rating'] as String?,
       ageRating: json['age_rating'] as String?,
       studio: json['studio'] as String?,

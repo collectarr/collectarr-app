@@ -17,14 +17,14 @@ void main() {
           title: 'Kinesis - Deluxe Edition',
           physicalFormatLabel: 'CD',
           barcode: '1234567890',
-          series: CatalogSeriesDetails(
+          series: const CatalogSeriesDetailsDto(
             seriesTitle: 'Ad Infinitum',
             volumeName: 'Deluxe Edition',
           ),
-          music: MusicCatalogDetails(
-            trackCount: 3,
-            catalogNumber: 'KDCD 1022',
-          ),
+          music: const {
+            'track_count': 3,
+            'catalog_number': 'KDCD 1022',
+          },
         ),
       ),
     );
@@ -64,26 +64,35 @@ void main() {
           variant: 'CD',
           publisher: 'Inside Out',
           releaseYear: 1998,
-          series: CatalogSeriesDetails(seriesTitle: 'Ad Infinitum'),
-          genres: [
+          series: const CatalogSeriesDetailsDto(seriesTitle: 'Ad Infinitum'),
+          genres: const [
             'Rock',
             'Progressive Rock',
             'Art Rock',
             'Progressive',
           ],
-          music: MusicCatalogDetails(
-            trackCount: 3,
-            catalogNumber: 'KDCD 1022',
-            releaseStatus: 'Album',
-            tracks: [
-              CatalogTrack(
-                  title: 'Ad Infinitum', position: 1, durationSeconds: 506),
-              CatalogTrack(
-                  title: 'Immortality', position: 2, durationSeconds: 421),
-              CatalogTrack(
-                  title: 'Waterline', position: 3, durationSeconds: 659),
+          music: const {
+            'track_count': 3,
+            'catalog_number': 'KDCD 1022',
+            'release_status': 'Album',
+            'tracks': [
+              {
+                'title': 'Ad Infinitum',
+                'position': '1',
+                'duration_seconds': 506,
+              },
+              {
+                'title': 'Immortality',
+                'position': '2',
+                'duration_seconds': 421,
+              },
+              {
+                'title': 'Waterline',
+                'position': '3',
+                'duration_seconds': 659,
+              },
             ],
-          ),
+          },
         ),
       ),
       candidate: null,
@@ -141,26 +150,35 @@ void main() {
           variant: 'CD',
           publisher: 'Inside Out',
           releaseYear: 1998,
-          series: CatalogSeriesDetails(seriesTitle: 'Ad Infinitum'),
-          genres: [
+          series: const CatalogSeriesDetailsDto(seriesTitle: 'Ad Infinitum'),
+          genres: const [
             'Rock',
             'Progressive Rock',
             'Art Rock',
             'Progressive',
           ],
-          music: MusicCatalogDetails(
-            trackCount: 3,
-            catalogNumber: 'KDCD 1022',
-            releaseStatus: 'Album',
-            tracks: [
-              CatalogTrack(
-                  title: 'Ad Infinitum', position: 1, durationSeconds: 506),
-              CatalogTrack(
-                  title: 'Immortality', position: 2, durationSeconds: 421),
-              CatalogTrack(
-                  title: 'Waterline', position: 3, durationSeconds: 659),
+          music: const {
+            'track_count': 3,
+            'catalog_number': 'KDCD 1022',
+            'release_status': 'Album',
+            'tracks': [
+              {
+                'title': 'Ad Infinitum',
+                'position': '1',
+                'duration_seconds': 506,
+              },
+              {
+                'title': 'Immortality',
+                'position': '2',
+                'duration_seconds': 421,
+              },
+              {
+                'title': 'Waterline',
+                'position': '3',
+                'duration_seconds': 659,
+              },
             ],
-          ),
+          },
         ),
       ),
       candidate: null,

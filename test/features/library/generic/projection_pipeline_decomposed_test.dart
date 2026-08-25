@@ -73,7 +73,7 @@ void main() {
         kind: 'comic',
         title: title,
         series: seriesTitle != null
-            ? CatalogSeriesDetails(seriesTitle: seriesTitle)
+            ? CatalogSeriesDetailsDto(seriesTitle: seriesTitle)
             : null,
         itemNumber: itemNumber,
         publisher: publisher ?? 'Marvel',

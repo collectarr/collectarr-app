@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 
 abstract interface class LibraryKindMetadataRuntime {
   CatalogMediaKind get mediaKind;
@@ -21,7 +22,11 @@ abstract final class LibraryKindMetadataDecoders {
     CatalogMediaKind mediaKind,
     Map<String, dynamic> json,
   ) {
-    final decoder = _globalDecoder;
+    var decoder = _globalDecoder;
+    if (decoder == null) {
+      ensureLibraryKindDecodersInitialized();
+      decoder = _globalDecoder;
+    }
     if (decoder != null) {
       return decoder(mediaKind, json);
     }

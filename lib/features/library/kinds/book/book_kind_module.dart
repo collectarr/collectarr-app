@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   type: booksLibraryConfig,
@@ -27,6 +28,10 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   projector: const BookWorkspaceProjector(),
   ownedDetailsCodec: const BookOwnedDetailsCodec(),
   fields: bookLibraryKindSchema.toRegistry(),
+  catalogCodec: const DefaultCatalogKindCodec<BookCatalogMetadata>(
+    BookCatalogMetadata.fromJson,
+    _encodeBookMetadata,
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.book,
     singularLabel: 'Book',
@@ -76,6 +81,15 @@ Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
   required String itemId,
   String? provider,
   String? providerItemId,
+}) async {
+  return const [];
+}
+
+Map<String, dynamic> _encodeBookMetadata(BookCatalogMetadata m) => m.toJson();
+
+Future<List<LibraryHierarchyNode>> _fetchBookVolumesFromApi({
+  required ApiClient api,
+  required String itemId,
 }) async {
   final volumes = await api
       .getItemVolumes(itemId, kind: CatalogMediaKind.book.apiValue)

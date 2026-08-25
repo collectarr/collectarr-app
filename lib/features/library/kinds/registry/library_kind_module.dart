@@ -1,8 +1,12 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+
+export 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
+export 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -63,7 +67,7 @@ abstract interface class LibraryKindRuntime {
   LibraryKindToolbarModule? get toolbar;
   LibraryKindProviderMapper? get providerMapper;
   LibraryFacetModule? get facets;
-  CatalogKindCodec<CatalogItemDto>? get catalogCodec;
+  CatalogKindCodec<LibraryKindMetadataRuntime>? get catalogCodec;
 
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json);
   OwnedItemDetails defaultOwnedDetails();
@@ -148,7 +152,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
 
   final OwnedDetailsCodec<TDetails> ownedDetailsCodec;
   @override
-  final CatalogKindCodec<CatalogItemDto>? catalogCodec;
+  final CatalogKindCodec<LibraryKindMetadataRuntime>? catalogCodec;
   @override
   final LibraryKindIdentity identity;
   @override

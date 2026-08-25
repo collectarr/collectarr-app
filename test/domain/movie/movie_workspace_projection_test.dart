@@ -12,7 +12,7 @@ void main() {
         id: 'movie-1',
         title: 'The Matrix',
         synopsis: 'A hacker discovers reality is a simulation.',
-        video: const VideoCatalogDetailsDto(runtimeMinutes: 136),
+        video: const {'runtime_minutes': 136},
         kind: 'movie',
       ),
     );

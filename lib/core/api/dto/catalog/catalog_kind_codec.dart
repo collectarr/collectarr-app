@@ -1,12 +1,12 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 
-abstract interface class CatalogKindCodec<T extends CatalogItemDto> {
+abstract interface class CatalogKindCodec<T extends LibraryKindMetadataRuntime> {
   T decode(Map<String, dynamic> payload);
-  Map<String, dynamic> encode(T value);
+  Map<String, dynamic> encode(LibraryKindMetadataRuntime value);
 }
 
-final class DefaultCatalogKindCodec<T extends CatalogItemDto>
+final class DefaultCatalogKindCodec<T extends LibraryKindMetadataRuntime>
     implements CatalogKindCodec<T> {
   const DefaultCatalogKindCodec(this._decoder, this._encoder);
 
@@ -17,48 +17,41 @@ final class DefaultCatalogKindCodec<T extends CatalogItemDto>
   T decode(Map<String, dynamic> payload) => _decoder(payload);
 
   @override
-  Map<String, dynamic> encode(T value) => _encoder(value);
+  Map<String, dynamic> encode(LibraryKindMetadataRuntime value) {
+    if (value is T) {
+      return _encoder(value);
+    }
+    return const <String, dynamic>{};
+  }
 }
 
-final Map<CatalogMediaKind, CatalogKindCodec<CatalogItemDto>>
-    _catalogKindCodecs = <CatalogMediaKind, CatalogKindCodec<CatalogItemDto>>{};
+final Map<CatalogMediaKind, CatalogKindCodec<LibraryKindMetadataRuntime>>
+    _catalogKindCodecs =
+    <CatalogMediaKind, CatalogKindCodec<LibraryKindMetadataRuntime>>{};
 
-void registerCatalogKindCodec<T extends CatalogItemDto>(
+void registerCatalogKindCodec<T extends LibraryKindMetadataRuntime>(
   CatalogMediaKind kind,
   CatalogKindCodec<T> codec,
 ) {
   _catalogKindCodecs[kind] = _CatalogKindCodecAdapter<T>(codec);
 }
 
-CatalogKindCodec<CatalogItemDto> catalogKindCodecFor(CatalogMediaKind kind) {
-  final codec = _catalogKindCodecs[kind];
-  if (codec != null) {
-    return codec;
-  }
-  return _FallbackCatalogKindCodec(kind);
+CatalogKindCodec<LibraryKindMetadataRuntime>? catalogKindCodecFor(
+    CatalogMediaKind kind) {
+  return _catalogKindCodecs[kind];
 }
 
-class _CatalogKindCodecAdapter<T extends CatalogItemDto>
-    implements CatalogKindCodec<CatalogItemDto> {
+class _CatalogKindCodecAdapter<T extends LibraryKindMetadataRuntime>
+    implements CatalogKindCodec<LibraryKindMetadataRuntime> {
   const _CatalogKindCodecAdapter(this._inner);
   final CatalogKindCodec<T> _inner;
 
   @override
-  CatalogItemDto decode(Map<String, dynamic> payload) => _inner.decode(payload);
+  LibraryKindMetadataRuntime decode(Map<String, dynamic> payload) =>
+      _inner.decode(payload);
 
   @override
-  Map<String, dynamic> encode(CatalogItemDto value) =>
+  Map<String, dynamic> encode(LibraryKindMetadataRuntime value) =>
       _inner.encode(value as T);
 }
 
-class _FallbackCatalogKindCodec implements CatalogKindCodec<CatalogItemDto> {
-  const _FallbackCatalogKindCodec(this.kind);
-  final CatalogMediaKind kind;
-
-  @override
-  CatalogItemDto decode(Map<String, dynamic> payload) =>
-      CatalogItemDto.decodeFromPayload(kind, payload);
-
-  @override
-  Map<String, dynamic> encode(CatalogItemDto value) => value.toSyncPayload();
-}

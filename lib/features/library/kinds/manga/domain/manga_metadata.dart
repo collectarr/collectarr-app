@@ -122,6 +122,7 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
     this.publisher,
     this.barcode,
     this.variant,
+    this.editions = const [],
     this.creators = const [],
     this.links = const [],
   });
@@ -169,6 +170,7 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
   final String? publisher;
   final String? barcode;
   final String? variant;
+  final List<CatalogEditionDto> editions;
   final List<Map<String, dynamic>> creators;
   final List<TrailerLink> links;
 
@@ -218,6 +220,8 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
         if (publisher != null) 'publisher': publisher,
         if (barcode != null) 'barcode': barcode,
         if (variant != null) 'variant': variant,
+        if (editions.isNotEmpty)
+          'editions': editions.map((e) => e.toJson()).toList(),
         if (creators.isNotEmpty) 'creators': creators,
         if (links.isNotEmpty) ...{
           if (links.any((l) => l.isTrailerLink))
@@ -240,6 +244,13 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
         : null;
     final resolvedSeriesTitle =
         (json['series_title'] ?? series?.seriesTitle) as String?;
+
+    final rawEditions = (json['editions'] as List<dynamic>?)
+            ?.whereType<Map>()
+            .map((e) =>
+                CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ??
+        const <CatalogEditionDto>[];
 
     final rawCreators = (json['creators'] as List<dynamic>?)
             ?.whereType<Map<Object?, Object?>>()
@@ -281,9 +292,9 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
           json['publication_status'] as String?),
       originalPublisher: json['original_publisher'] as String?,
       localizedPublisher: json['localized_publisher'] as String?,
-      volumeNumber: json['volume_number'] as int?,
-      totalVolumes: json['total_volumes'] as int?,
-      chapterCount: json['chapter_count'] as int?,
+      volumeNumber: (json['volume_number'] as num?)?.toInt(),
+      totalVolumes: (json['total_volumes'] as num?)?.toInt(),
+      chapterCount: (json['chapter_count'] as num?)?.toInt(),
       originalPublicationDate: json['original_publication_date'] != null
           ? DateTime.tryParse(json['original_publication_date'] as String)
           : null,
@@ -310,22 +321,19 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      series: series ??
-          (resolvedSeriesTitle != null
-              ? CatalogSeriesDetailsDto(seriesTitle: resolvedSeriesTitle)
-              : null),
+      series: series,
       seriesTitle: resolvedSeriesTitle,
-      itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
+      itemNumber: (json['item_number'] ?? json['volume_number']?.toString())
+          as String?,
       editionTitle: json['edition_title'] as String?,
-      pageCount: json['page_count'] as int?,
+      pageCount: (json['page_count'] as num?)?.toInt(),
       imprint: json['imprint'] as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
-      publisher: (json['publisher'] ??
-          json['localized_publisher'] ??
-          json['original_publisher']) as String?,
+      publisher: json['publisher'] as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant'] as String?,
+      editions: rawEditions,
       creators: rawCreators,
       links: rawLinks,
     );

@@ -185,7 +185,7 @@ final class MovieCatalog {
         releaseDate: releaseDate,
         releaseYear: releaseDate?.year,
       ),
-      kindPayload: toJson(),
+      payload: toJson(),
     );
   }
 }
