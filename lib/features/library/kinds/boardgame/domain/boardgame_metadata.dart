@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
 
+typedef BoardGameCatalogMetadata = BoardGameMetadata;
+
 @immutable
 class BoardGameMetadata implements LibraryKindMetadataRuntime {
   const BoardGameMetadata({
@@ -140,6 +142,83 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
                 .toList(),
         },
       };
+
+  BoardGameCatalogMetadata copyWith({
+    String? title,
+    String? originalTitle,
+    String? synopsis,
+    int? yearPublished,
+    int? minPlayers,
+    int? maxPlayers,
+    String? recommendedPlayers,
+    String? bestPlayers,
+    int? minPlaytimeMinutes,
+    int? maxPlaytimeMinutes,
+    int? minimumAge,
+    double? complexityWeight,
+    List<String>? designers,
+    List<String>? artists,
+    List<String>? publishers,
+    List<String>? mechanics,
+    List<String>? categories,
+    List<String>? families,
+    List<String>? themes,
+    List<String>? expansions,
+    String? expansionFor,
+    List<String>? languages,
+    double? bggRating,
+    int? bggRatingCount,
+    int? bggRank,
+    CatalogSeriesDetailsDto? series,
+    String? seriesTitle,
+    String? itemNumber,
+    String? physicalFormat,
+    String? physicalFormatLabel,
+    String? publisher,
+    String? barcode,
+    String? variant,
+    List<Map<String, dynamic>>? creators,
+    List<TrailerLink>? links,
+  }) {
+    return BoardGameCatalogMetadata(
+      title: title ?? this.title,
+      originalTitle: originalTitle ?? this.originalTitle,
+      synopsis: synopsis ?? this.synopsis,
+      yearPublished: yearPublished ?? this.yearPublished,
+      minPlayers: minPlayers ?? this.minPlayers,
+      maxPlayers: maxPlayers ?? this.maxPlayers,
+      recommendedPlayers: recommendedPlayers ?? this.recommendedPlayers,
+      bestPlayers: bestPlayers ?? this.bestPlayers,
+      minPlaytimeMinutes: minPlaytimeMinutes ?? this.minPlaytimeMinutes,
+      maxPlaytimeMinutes: maxPlaytimeMinutes ?? this.maxPlaytimeMinutes,
+      minimumAge: minimumAge ?? this.minimumAge,
+      complexityWeight: complexityWeight ?? this.complexityWeight,
+      designers: designers ?? this.designers,
+      artists: artists ?? this.artists,
+      publishers: publishers ?? this.publishers,
+      mechanics: mechanics ?? this.mechanics,
+      categories: categories ?? this.categories,
+      families: families ?? this.families,
+      themes: themes ?? this.themes,
+      expansions: expansions ?? this.expansions,
+      expansionFor: expansionFor ?? this.expansionFor,
+      languages: languages ?? this.languages,
+      bggRating: bggRating ?? this.bggRating,
+      bggRatingCount: bggRatingCount ?? this.bggRatingCount,
+      bggRank: bggRank ?? this.bggRank,
+      series: series ?? this.series,
+      seriesTitle: seriesTitle ?? this.seriesTitle,
+      itemNumber: itemNumber ?? this.itemNumber,
+      physicalFormat: physicalFormat ?? this.physicalFormat,
+      physicalFormatLabel:
+          physicalFormatLabel ?? this.physicalFormatLabel,
+      publisher: publisher ?? this.publisher,
+      barcode: barcode ?? this.barcode,
+      variant: variant ?? this.variant,
+      creators: creators ?? this.creators,
+      links: links ?? this.links,
+    );
+  }
 
   factory BoardGameMetadata.fromJson(Map<String, dynamic> json) {
     final seriesRaw = json['series'];

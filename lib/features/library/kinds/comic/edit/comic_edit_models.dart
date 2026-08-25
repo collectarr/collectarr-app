@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
@@ -189,56 +189,35 @@ LibraryEditSelection applyComicSelectionEdits(
   final characterNames = characterDetails
       .map((character) => character['name']!.toString())
       .toList(growable: false);
-  final payload = selection.item.kindMetadata.toSyncPayload();
-  final trailerLinks = ((payload['trailer_urls'] as List?)
-              ?.whereType<Map>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
-              .where((link) => link.isTrailerLink)
-              .toList() ??
-          <TrailerLink>[])
-      .toList(growable: true);
-  final externalLinks = <TrailerLink>[];
-  for (final link in links) {
-    final title = link['title']?.text.trim() ?? '';
-    final url = link['url']?.text.trim() ?? '';
-    if (url.isEmpty) {
-      continue;
-    }
-    externalLinks.add(
-      TrailerLink(
-        url: url,
-        title: emptyToNull(title),
-        description: emptyToNull(title),
-        source: 'manual',
-        isAutomatic: false,
-        kind: 'external',
-      ),
-    );
-  }
-  final updatedPayload = {
-    ...payload,
-    if (mappedCreators.isNotEmpty) 'creators': mappedCreators,
-    if (characterDetails.isNotEmpty) 'character_details': characterDetails,
-    if (characterNames.isNotEmpty) 'characters': characterNames,
-    'trailer_urls': trailerLinks.map((l) => l.toJson()).toList(),
-    'external_links': externalLinks.map((l) => l.toJson()).toList(),
-  };
-  final updatedItem = LibraryMetadataItem(
-    identity: selection.item.identity,
-    common: selection.item.common,
-    kindMetadata: LibraryKindMetadataDecoders.decode(
-      selection.item.mediaKind,
-      updatedPayload,
-    ),
+  final current = selection.item.kindMetadata is ComicCatalogMetadata
+      ? selection.item.kindMetadata as ComicCatalogMetadata
+      : ComicCatalogMetadata.fromJson(selection.item.kindMetadata.toSyncPayload());
+
+  final existingTrailerLinks = current.links.where((l) => l.isTrailerLink);
+  final newComicLinks = <ComicLink>[
+    ...existingTrailerLinks,
+    for (final l in links)
+      if ((l['url']?.text.trim() ?? '').isNotEmpty)
+        ComicLink(
+          url: l['url']!.text.trim(),
+          title: emptyToNull(l['title']?.text ?? ''),
+          description: emptyToNull(l['title']?.text ?? ''),
+          source: 'manual',
+          isAutomatic: false,
+          kind: 'external',
+        ),
+  ];
+
+  final updatedMetadata = current.copyWith(
+    creators: mappedCreators.isNotEmpty ? mappedCreators : current.creators,
+    characterDetails:
+        characterDetails.isNotEmpty ? characterDetails : current.characterDetails,
+    characters: characterNames.isNotEmpty ? characterNames : current.characters,
+    links: newComicLinks,
   );
-  return LibraryEditSelection(
-    scope: selection.scope,
-    item: updatedItem,
-    personal: selection.personal,
-    wishlist: selection.wishlist,
-    tracking: selection.tracking,
-    customFieldEdits: selection.customFieldEdits,
-    itemImageEdits: selection.itemImageEdits,
-    submitAction: selection.submitAction,
+
+  final updatedItem = selection.item.copyWith(
+    kindMetadata: updatedMetadata,
   );
+  return selection.copyWith(item: updatedItem);
 }

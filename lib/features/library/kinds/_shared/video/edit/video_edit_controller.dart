@@ -7,6 +7,9 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -65,7 +68,39 @@ class VideoEditController {
               .join(', '),
         ),
         episodeRatings =
-            Map<String, int>.from(initialEpisodeRatings ?? const {});
+            Map<String, int>.from(initialEpisodeRatings ?? const {}),
+        editionTitleController = TextEditingController(
+          text: (item.kindMetadata.toSyncPayload()['edition_title'] ??
+                  item.kindMetadata.toSyncPayload()['title_extension'])
+                  ?.toString() ??
+              '',
+        ),
+        variantController = TextEditingController(
+          text: item.kindMetadata.toSyncPayload()['variant']?.toString() ?? '',
+        ),
+        barcodeController = TextEditingController(
+          text: item.kindMetadata.toSyncPayload()['barcode']?.toString() ?? '',
+        ),
+        physicalFormatLabelController = TextEditingController(
+          text: item.kindMetadata.toSyncPayload()['physical_format_label']
+                  ?.toString() ??
+              '',
+        ),
+        physicalFormatId = item.kindMetadata.toSyncPayload()['physical_format']
+            ?.toString(),
+        publisherController = TextEditingController(
+          text: (item.kindMetadata.toSyncPayload()['publisher'] ??
+                  (item.kindMetadata.toSyncPayload()['publishing'] as Map?)?[
+                      'original_publisher'])
+                  ?.toString() ??
+              '',
+        ),
+        countryController = TextEditingController(
+          text: item.kindMetadata.toSyncPayload()['country']?.toString() ?? '',
+        ),
+        languageController = TextEditingController(
+          text: item.kindMetadata.toSyncPayload()['language']?.toString() ?? '',
+        );
 
   final WidgetRef? ref;
   final LibraryTypeConfig? type;
@@ -81,6 +116,15 @@ class VideoEditController {
   final TextEditingController audienceRatingController;
   final TextEditingController genresEditController;
   final Map<String, int> episodeRatings;
+
+  final TextEditingController editionTitleController;
+  final TextEditingController variantController;
+  final TextEditingController barcodeController;
+  final TextEditingController physicalFormatLabelController;
+  String? physicalFormatId;
+  final TextEditingController publisherController;
+  final TextEditingController countryController;
+  final TextEditingController languageController;
 
   final List<EditableVideoCredit> castCredits = [];
   final List<EditableVideoCredit> crewCredits = [];
@@ -173,6 +217,13 @@ class VideoEditController {
     ageRatingController.dispose();
     audienceRatingController.dispose();
     genresEditController.dispose();
+    editionTitleController.dispose();
+    variantController.dispose();
+    barcodeController.dispose();
+    physicalFormatLabelController.dispose();
+    publisherController.dispose();
+    countryController.dispose();
+    languageController.dispose();
     for (final credit in castCredits) {
       credit.dispose();
     }
@@ -215,35 +266,88 @@ class VideoEditController {
             .toList() ??
         const <TrailerLink>[]);
     final updatedLinks = buildUpdatedTrailerUrls(trailerList);
-    final updatedPayload = {
-      ...payload,
-      if (int.tryParse(runtimeController.text) != null)
-        'runtime_minutes': int.tryParse(runtimeController.text),
-      if (updatedSeriesId != null) 'series_id': updatedSeriesId,
-      if (updatedSeriesTitle != null) 'series_title': updatedSeriesTitle,
-      if (int.tryParse(seasonNumberController.text) != null)
-        'season_number': int.tryParse(seasonNumberController.text),
-      if (int.tryParse(episodeNumberController.text) != null)
-        'episode_number': int.tryParse(episodeNumberController.text),
-      if (parsedGenres.isNotEmpty) 'genres': parsedGenres,
-      if (castCredits.isNotEmpty)
-        'cast': castCredits.map((c) => c.toMap()).toList(),
-      if (crewCredits.isNotEmpty)
-        'crew': crewCredits.map((c) => c.toMap()).toList(),
-      'age_rating': emptyToNull(ageRatingController.text),
-      'audience_rating': emptyToNull(audienceRatingController.text),
-      if (updatedLinks != null) ...{
-        'trailer_urls': updatedLinks.map((l) => l.toJson()).toList(),
-        'external_links': updatedLinks.map((l) => l.toJson()).toList(),
-      },
-    };
-    final updatedItem = LibraryMetadataItem(
-      identity: selection.item.identity,
-      common: selection.item.common,
-      kindMetadata: LibraryKindMetadataDecoders.decode(
-        selection.item.mediaKind,
-        updatedPayload,
-      ),
+    final meta = selection.item.kindMetadata;
+    final LibraryKindMetadataRuntime updatedMetadata;
+    if (meta is MovieCatalogMetadata) {
+      updatedMetadata = meta.copyWith(
+        runtimeMinutes: int.tryParse(runtimeController.text),
+        genres: parsedGenres.isNotEmpty ? parsedGenres : meta.genres,
+        cast: castCredits
+            .map((c) => MoviePersonCredit(
+                  name: c.nameController.text.trim(),
+                  role: emptyToNull(c.roleController.text.trim()),
+                ))
+            .where((c) => c.name.isNotEmpty)
+            .toList(),
+        crew: crewCredits
+            .map((c) => MoviePersonCredit(
+                  name: c.nameController.text.trim(),
+                  role: emptyToNull(c.roleController.text.trim()),
+                ))
+            .where((c) => c.name.isNotEmpty)
+            .toList(),
+        ageRating: emptyToNull(ageRatingController.text),
+        audienceRating: emptyToNull(audienceRatingController.text),
+        editionTitle: emptyToNull(editionTitleController.text),
+        variant: emptyToNull(variantController.text),
+        barcode: emptyToNull(barcodeController.text),
+        physicalFormat: physicalFormatId,
+        physicalFormatLabel: emptyToNull(physicalFormatLabelController.text),
+        publisher: emptyToNull(publisherController.text),
+        country: emptyToNull(countryController.text) ?? meta.country,
+        language: emptyToNull(languageController.text) ?? meta.language,
+        links: updatedLinks,
+      );
+    } else if (meta is TvSeriesMetadata) {
+      updatedMetadata = meta.copyWith(
+        episodeRuntimeMinutes: int.tryParse(runtimeController.text),
+        genres: parsedGenres.isNotEmpty ? parsedGenres : meta.genres,
+        cast: castCredits
+            .map((c) => TvPersonCredit(
+                  name: c.nameController.text.trim(),
+                  role: emptyToNull(c.roleController.text.trim()),
+                ))
+            .where((c) => c.name.isNotEmpty)
+            .toList(),
+        crew: crewCredits
+            .map((c) => TvPersonCredit(
+                  name: c.nameController.text.trim(),
+                  role: emptyToNull(c.roleController.text.trim()),
+                ))
+            .where((c) => c.name.isNotEmpty)
+            .toList(),
+        contentRating: emptyToNull(ageRatingController.text),
+        seasonNumber: int.tryParse(seasonNumberController.text),
+        episodeNumber: int.tryParse(episodeNumberController.text),
+        variant: emptyToNull(variantController.text),
+        barcode: emptyToNull(barcodeController.text),
+        physicalFormat: physicalFormatId,
+        physicalFormatLabel: emptyToNull(physicalFormatLabelController.text),
+        publisher: emptyToNull(publisherController.text),
+        country: emptyToNull(countryController.text) ?? meta.country,
+        originalLanguage: emptyToNull(languageController.text) ?? meta.originalLanguage,
+        links: updatedLinks,
+      );
+    } else if (meta is AnimeMetadata) {
+      updatedMetadata = meta.copyWith(
+        episodeRuntimeMinutes: int.tryParse(runtimeController.text),
+        genres: parsedGenres.isNotEmpty ? parsedGenres : meta.genres,
+        editionTitle: emptyToNull(editionTitleController.text),
+        variant: emptyToNull(variantController.text),
+        barcode: emptyToNull(barcodeController.text),
+        physicalFormat: physicalFormatId,
+        physicalFormatLabel: emptyToNull(physicalFormatLabelController.text),
+        publisher: emptyToNull(publisherController.text),
+        country: emptyToNull(countryController.text) ?? meta.country,
+        language: emptyToNull(languageController.text) ?? meta.language,
+        links: updatedLinks,
+      );
+    } else {
+      updatedMetadata = meta;
+    }
+
+    final updatedItem = selection.item.copyWith(
+      kindMetadata: updatedMetadata,
     );
     return LibraryEditSelection(
       scope: selection.scope,

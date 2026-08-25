@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.da
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_kind_edit_draft.dart';
 import 'package:flutter/material.dart';
 
 class VideoEditEditionTab extends StatelessWidget {
@@ -22,19 +23,31 @@ class VideoEditEditionTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final releaseFields = type.releaseFields;
+    final videoEdit = (draft.kindDetails is VideoKindEditDraft)
+        ? (draft.kindDetails as VideoKindEditDraft).videoEdit
+        : null;
+
+    final editionTitleController = videoEdit?.editionTitleController ??
+        TextEditingController();
+    final variantController = videoEdit?.variantController ??
+        TextEditingController();
+    final barcodeController = videoEdit?.barcodeController ??
+        TextEditingController();
+    final physicalFormatController = videoEdit?.physicalFormatLabelController ??
+        TextEditingController();
+
     return EditTabShell(
       children: [
         EditSection(
           title: 'Edition',
           accent: accent,
           child: LibraryReleaseIdentityFields(
-            editionTitleController: draft.metadata.editionTitleController,
-            variantController: draft.metadata.variantController,
-            barcodeController: draft.metadata.barcodeController,
+            editionTitleController: editionTitleController,
+            variantController: variantController,
+            barcodeController: barcodeController,
             releaseDateController: draft.metadata.releaseDateController,
             releaseYearController: draft.metadata.releaseYearController,
-            physicalFormatController:
-                draft.metadata.physicalFormatLabelController,
+            physicalFormatController: physicalFormatController,
             physicalFormatOptions: [
               for (final format in physicalFormats) format.label,
             ],
@@ -42,13 +55,15 @@ class VideoEditEditionTab extends StatelessWidget {
               final normalized = emptyToNull(value ?? '');
               final selected = _physicalFormatForLabel(normalized);
               final previousLabel =
-                  _physicalFormatLabelForId(draft.metadata.physicalFormatId);
-              final variant = draft.metadata.variantController.text.trim();
+                  _physicalFormatLabelForId(videoEdit?.physicalFormatId);
+              final variant = variantController.text.trim();
               final shouldReplaceVariant =
                   variant.isEmpty || previousLabel == variant;
-              draft.metadata.physicalFormatId = selected?.id;
+              if (videoEdit != null) {
+                videoEdit.physicalFormatId = selected?.id;
+              }
               if (selected != null && shouldReplaceVariant) {
-                draft.metadata.variantController.text = selected.label;
+                variantController.text = selected.label;
               }
             },
             editionTitleLabel: releaseFields.editionTitleLabel,

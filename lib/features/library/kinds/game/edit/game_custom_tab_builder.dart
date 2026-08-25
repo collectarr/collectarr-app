@@ -49,14 +49,16 @@ Widget? buildGameCustomTabView({
                 label: 'Original title',
               ),
               LibraryEditTextField(
-                controller: draft.metadata.seriesTitleController,
+                controller: gameDraft?.gameEdit.seriesTitleController ??
+                    TextEditingController(),
                 label: 'Series',
               ),
             ]),
             const SizedBox(height: 10),
             LibraryEditResponsiveRow(children: [
               LibraryEditTextField(
-                controller: draft.metadata.publisherController,
+                controller: gameDraft?.gameEdit.publisherController ??
+                    TextEditingController(),
                 label: draft.type.mediaFields.publisherLabel,
               ),
               LibraryEditTextField(

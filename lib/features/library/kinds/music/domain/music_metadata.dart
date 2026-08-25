@@ -252,6 +252,63 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
         if (synopsis != null) 'synopsis': synopsis,
       };
 
+  MusicCatalogMetadata copyWith({
+    String? title,
+    String? artist,
+    DateTime? originalReleaseDate,
+    DateTime? recordingDate,
+    String? studio,
+    bool? isLive,
+    List<String>? genres,
+    List<MusicCredit>? credits,
+    List<MusicReleaseMetadata>? releases,
+    int? trackCount,
+    List<CatalogTrackDto>? tracks,
+    List<Map<String, dynamic>>? creators,
+    List<TrailerLink>? links,
+    String? synopsis,
+    CatalogSeriesDetailsDto? series,
+    Map<String, dynamic>? music,
+    CatalogPublishingDetailsDto? publishing,
+    String? editionTitle,
+    String? physicalFormat,
+    String? physicalFormatLabel,
+    String? publisher,
+    String? barcode,
+    String? variant,
+    String? country,
+    String? language,
+  }) {
+    return MusicCatalogMetadata(
+      title: title ?? this.title,
+      artist: artist ?? this.artist,
+      originalReleaseDate: originalReleaseDate ?? this.originalReleaseDate,
+      recordingDate: recordingDate ?? this.recordingDate,
+      studio: studio ?? this.studio,
+      isLive: isLive ?? this.isLive,
+      genres: genres ?? this.genres,
+      credits: credits ?? this.credits,
+      releases: releases ?? this.releases,
+      trackCount: trackCount ?? this.trackCount,
+      tracks: tracks ?? this.tracks,
+      creators: creators ?? this.creators,
+      links: links ?? this.links,
+      synopsis: synopsis ?? this.synopsis,
+      series: series ?? this.series,
+      music: music ?? this.music,
+      publishing: publishing ?? this.publishing,
+      editionTitle: editionTitle ?? this.editionTitle,
+      physicalFormat: physicalFormat ?? this.physicalFormat,
+      physicalFormatLabel:
+          physicalFormatLabel ?? this.physicalFormatLabel,
+      publisher: publisher ?? this.publisher,
+      barcode: barcode ?? this.barcode,
+      variant: variant ?? this.variant,
+      country: country ?? this.country,
+      language: language ?? this.language,
+    );
+  }
+
   factory MusicCatalogMetadata.fromJson(Map<String, dynamic> json) {
     final rawLinks = <TrailerLink>[
       ...((json['trailer_urls'] as List<dynamic>?)

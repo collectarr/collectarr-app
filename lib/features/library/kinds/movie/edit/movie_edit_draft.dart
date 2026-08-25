@@ -57,6 +57,22 @@ class MovieEditDraft extends KindEditDraft implements VideoKindEditDraft {
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = videoEdit.applyVideoSelectionEdits(selection);
+    final meta = result.item.kindMetadata is MovieCatalogMetadata
+        ? result.item.kindMetadata as MovieCatalogMetadata
+        : null;
+    if (meta != null) {
+      final updatedMeta = meta.copyWith(
+        screenRatio: emptyToNull(screenRatioController.text),
+        audioTracks: emptyToNull(audioTracksController.text),
+        subtitles: emptyToNull(subtitlesController.text),
+        layers: emptyToNull(layersController.text),
+        color: emptyToNull(colorController.text),
+        nrDiscs: int.tryParse(nrDiscsController.text),
+      );
+      result = result.copyWith(
+        item: result.item.copyWith(kindMetadata: updatedMeta),
+      );
+    }
     if (result.personal != null) {
       result = result.copyWith(
         personal: result.personal!.copyWith(

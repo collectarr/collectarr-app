@@ -12,12 +12,12 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -114,6 +114,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final TabController _tabController;
   late List<LibraryEditTabSpec> _tabSpecs;
   late final List<_LinkEntry> _links;
+  late final TextEditingController _editionTitleController;
+  late final TextEditingController _variantController;
+  late final TextEditingController _barcodeController;
+  late final TextEditingController _physicalFormatController;
 
   bool get _isOwned => _draft.isOwned;
 
@@ -123,10 +127,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         isTrackingOnly: _draft.isTrackingOnly,
         hasTrackingContext: _draft.hasTrackingContext,
         hasWishlistContext: _draft.hasWishlistContext,
-        isDigitalFormat: _draft.metadata.physicalFormatLabelController.text
-                .trim()
-                .toLowerCase() ==
-            'digital',
+        isDigitalFormat: _draft.isDigitalFormat,
         hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
         hasEditionAnchors: false,
         hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
@@ -137,6 +138,19 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   @override
   void initState() {
     super.initState();
+    final payload = widget.item.kindMetadata.toSyncPayload();
+    _editionTitleController = TextEditingController(
+      text: (payload['edition_title'] ?? payload['title_extension'])?.toString() ?? '',
+    );
+    _variantController = TextEditingController(
+      text: payload['variant']?.toString() ?? '',
+    );
+    _barcodeController = TextEditingController(
+      text: payload['barcode']?.toString() ?? '',
+    );
+    _physicalFormatController = TextEditingController(
+      text: payload['physical_format_label']?.toString() ?? '',
+    );
     _draft = widget.draft ??
         LibraryEditDraft.fromItem(
           type: widget.type,
@@ -182,20 +196,20 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Future<void> _loadVocabulary() async {
     final db = ref.read(localDatabaseProvider);
+    final payload = widget.item.kindMetadata.toSyncPayload();
     final vocab =
         await const LibraryEditVocabularyController().loadVocabularyOptions(
       LibraryEditVocabularyRequest(
         db: db,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedPublisher: _draft.metadata.publisherController.text,
+        selectedPublisher: payload['publisher']?.toString() ?? '',
         selectedImprint: null,
         selectedSeriesGroup: null,
-        selectedPhysicalFormat:
-            _draft.metadata.physicalFormatLabelController.text,
+        selectedPhysicalFormat: payload['physical_format_label']?.toString() ?? '',
         selectedCondition: _draft.personal.conditionController.text,
         selectedGrade: _draft.personal.gradeController.text,
-        selectedCountry: _draft.metadata.countryController.text,
-        selectedLanguage: _draft.metadata.languageController.text,
+        selectedCountry: payload['country']?.toString() ?? '',
+        selectedLanguage: payload['language']?.toString() ?? '',
         selectedAgeRating: null,
         selectedAudienceRating: null,
         selectedRegion: null,
@@ -213,7 +227,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         selectedKeyCategory: null,
         selectedGenreValues: null,
         selectedTagValues: _draft.personal.tagsController.text,
-        selectedSeriesTitle: _draft.metadata.seriesTitleController.text,
+        selectedSeriesTitle: payload['series_title']?.toString() ?? '',
         selectedSeriesId: null,
         builtInPhysicalFormats: widget.physicalFormats,
       ),
@@ -229,6 +243,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   @override
   void dispose() {
     _tabController.dispose();
+    _editionTitleController.dispose();
+    _variantController.dispose();
+    _barcodeController.dispose();
+    _physicalFormatController.dispose();
     for (final link in _links) {
       link.dispose();
     }
@@ -244,43 +262,22 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   void _submit(LibraryEditSubmitAction action) {
     if (_formKey.currentState?.validate() == false) return;
-    final updatedLinks = [
-      for (final link in _links)
-        if (link.urlController.text.trim().isNotEmpty)
-          TrailerLinkDto(
-            url: link.urlController.text.trim(),
-            title: emptyToNull(link.descriptionController.text.trim()),
-            description: emptyToNull(link.descriptionController.text.trim()),
-            kind: link.original?.kind ?? 'external',
-            source: link.original?.source ?? 'External Link',
-            isAutomatic: link.original?.isAutomatic ?? false,
-          ),
-    ];
-    var selection = _draft.toSelection(submitAction: action);
-    final existingTrailerUrls =
-        (widget.item.kindMetadata.toSyncPayload()['trailer_urls'] as List?) ??
-            const [];
-    if (_links.isNotEmpty || existingTrailerUrls.isNotEmpty) {
-      final updatedPayload = {
-        ...selection.item.kindMetadata.toSyncPayload(),
-        'trailer_urls': updatedLinks
-            .where((l) => l.isTrailerLink)
-            .map((l) => l.toJson())
-            .toList(),
-        'external_links': updatedLinks
-            .where((l) => l.isExternalLink)
-            .map((l) => l.toJson())
-            .toList(),
-      };
-      final updatedItem = selection.item.copyWith(
-        kindMetadata: LibraryKindMetadataDecoders.decode(
-          selection.item.mediaKind,
-          updatedPayload,
-        ),
-      );
-      selection = selection.copyWith(item: updatedItem);
+    if (_links.isNotEmpty) {
+      final updatedLinks = <TrailerLinkDto>[
+        for (final l in _links)
+          if (l.urlController.text.trim().isNotEmpty)
+            TrailerLinkDto(
+              url: l.urlController.text.trim(),
+              title: emptyToNull(l.descriptionController.text.trim()),
+              description: emptyToNull(l.descriptionController.text.trim()),
+              source: l.original?.source ?? 'manual',
+              isAutomatic: l.original?.isAutomatic ?? false,
+              kind: l.original?.kind ?? 'external',
+            ),
+      ];
+      _draft.kindDetails.setExternalLinks(updatedLinks);
     }
-    selection = _draft.kindDetails.applySelectionEdits(selection);
+    final selection = _draft.toSelection(submitAction: action);
     Navigator.of(context).pop(selection);
   }
 
@@ -298,23 +295,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         (firstCreator != null
             ? '${widget.item.title} / $firstCreator'
             : '${widget.item.title}$yearSuffix');
-    final subtitle = widget.type.singularLabel;
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,
-      title: title,
-      icon: widget.type.workspace.icon,
-      badges: [
-        Text(
-          subtitle,
-          style: TextStyle(
-            color: widget.accent,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
       accent: widget.accent,
+      icon: widget.type.workspace.icon,
+      title: title,
+      badges: const <Widget>[],
       tabController: _tabController,
       tabs: [
         for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)
@@ -325,8 +312,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       onSave: () => _submit(LibraryEditSubmitAction.save),
       onPrevious: widget.onPrevious,
       onNext: widget.onNext,
-      footerContent: _isOwned ? _ownedSharedFooterRow() : null,
-      tabOrderKey: 'edit_tab_order_${widget.type.workspace.kind.apiValue}',
     );
   }
 
@@ -379,7 +364,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _mainTab() {
-    final hasSeparateReleaseTab = _tabSpecs.any((t) => t.id == 'release');
     return EditTabShell(
       children: [
         EditSection(
@@ -406,41 +390,21 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   label: 'Original title',
                 ),
                 LibraryEditTextField(
-                  controller: _draft.metadata.seriesTitleController,
-                  label: 'Series',
+                  controller: _draft.metadata.localizedTitleController,
+                  label: 'Localized title',
                 ),
               ]),
               const SizedBox(height: 10),
               LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
-                  controller: _draft.metadata.numberController,
-                  label: widget.type.mediaFields.numberLabel,
+                  controller: _draft.metadata.displayTitleController,
+                  label: 'Display title',
                 ),
-                LibraryEditTextField(
-                  controller: _draft.metadata.publisherController,
-                  label: widget.type.mediaFields.publisherLabel,
-                ),
-              ]),
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
                   controller: _draft.metadata.releaseDateController,
                   label: widget.type.mediaFields.releaseDateLabel,
                 ),
               ]),
-              if (!hasSeparateReleaseTab) ...[
-                const SizedBox(height: 10),
-                LibraryEditResponsiveRow(children: [
-                  LibraryEditTextField(
-                    controller: _draft.metadata.barcodeController,
-                    label: widget.type.releaseFields.barcodeLabel,
-                  ),
-                  LibraryEditTextField(
-                    controller: _draft.metadata.physicalFormatLabelController,
-                    label: widget.type.releaseFields.variantLabel,
-                  ),
-                ]),
-              ],
             ],
           ),
         ),
@@ -461,27 +425,24 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: _draft.metadata.editionTitleController,
-                  label: 'Edition title',
-                ),
-                LibraryEditTextField(
-                  controller: _draft.metadata.variantController,
-                  label: widget.type.releaseFields.variantLabel,
-                ),
-              ]),
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: _draft.metadata.barcodeController,
-                  label: widget.type.releaseFields.barcodeLabel,
-                ),
-                LibraryEditTextField(
-                  controller: _draft.metadata.physicalFormatLabelController,
-                  label: 'Format',
-                ),
-              ]),
+              LibraryReleaseIdentityFields(
+                editionTitleController: _editionTitleController,
+                variantController: _variantController,
+                barcodeController: _barcodeController,
+                releaseDateController: _draft.metadata.releaseDateController,
+                releaseYearController: _draft.metadata.releaseYearController,
+                physicalFormatController: _physicalFormatController,
+                physicalFormatOptions: [
+                  for (final format in widget.physicalFormats) format.label,
+                ],
+                onPhysicalFormatChanged: (value) {
+                  _physicalFormatController.text = value ?? '';
+                },
+                editionTitleLabel: widget.type.releaseFields.editionTitleLabel,
+                variantLabel: widget.type.releaseFields.variantLabel,
+                barcodeLabel: widget.type.releaseFields.barcodeLabel,
+                releaseDateLabel: widget.type.mediaFields.releaseDateLabel,
+              ),
             ],
           ),
         ),

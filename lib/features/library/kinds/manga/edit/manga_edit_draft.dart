@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 
 class MangaEditDraft extends KindEditDraft {
   MangaEditDraft({
@@ -59,22 +58,19 @@ class MangaEditDraft extends KindEditDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final payload = selection.item.kindMetadata.toSyncPayload();
-    final updatedPayload = {
-      ...payload,
-      if (int.tryParse(pageCountController.text) != null)
-        'page_count': int.tryParse(pageCountController.text),
-      if (emptyToNull(imprintController.text) != null)
-        'imprint': emptyToNull(imprintController.text),
-      if (dustJacketPresent) 'dust_jacket': true,
-      if (dustJacketCondition != null)
-        'dust_jacket_condition': dustJacketCondition,
-    };
+    final meta = selection.item.kindMetadata is MangaMetadata
+        ? (selection.item.kindMetadata as MangaMetadata)
+        : null;
+    final count = int.tryParse(pageCountController.text);
+    final impr = emptyToNull(imprintController.text);
+
+    final updatedMetadata = meta?.copyWith(
+      pageCount: count ?? meta.pageCount,
+      imprint: impr ?? meta.imprint,
+    ) ?? selection.item.kindMetadata;
+
     final updatedItem = selection.item.copyWith(
-      kindMetadata: LibraryKindMetadataDecoders.decode(
-        selection.item.mediaKind,
-        updatedPayload,
-      ),
+      kindMetadata: updatedMetadata,
     );
     var result = selection.copyWith(item: updatedItem);
     if (result.personal != null) {

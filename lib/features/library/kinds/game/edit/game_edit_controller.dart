@@ -1,7 +1,7 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +10,17 @@ class GameEditController {
   GameEditController({
     required String initialPlatforms,
     String initialDevelopers = '',
+    String initialSeriesTitle = '',
+    String initialPublisher = '',
   })  : platformsController = TextEditingController(text: initialPlatforms),
-        developersController = TextEditingController(text: initialDevelopers);
+        developersController = TextEditingController(text: initialDevelopers),
+        seriesTitleController = TextEditingController(text: initialSeriesTitle),
+        publisherController = TextEditingController(text: initialPublisher);
 
   final TextEditingController platformsController;
   final TextEditingController developersController;
+  final TextEditingController seriesTitleController;
+  final TextEditingController publisherController;
   List<String> developerOptions = const [];
   List<String> genreOptions = const [];
   List<String> platformOptions = const [];
@@ -36,15 +42,17 @@ class GameEditController {
   void dispose() {
     platformsController.dispose();
     developersController.dispose();
+    seriesTitleController.dispose();
+    publisherController.dispose();
   }
 
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final payload = selection.item.kindMetadata.toSyncPayload();
+    final meta = selection.item.kindMetadata is GameCatalogMetadata
+        ? (selection.item.kindMetadata as GameCatalogMetadata)
+        : null;
     final platforms = splitPickListValues(platformsController.text);
 
-    final existing =
-        (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-            const <Map<String, dynamic>>[];
+    final existing = meta?.creators ?? const <Map<String, dynamic>>[];
     final preserved = <Map<String, dynamic>>[];
     for (final entry in existing) {
       final role = entry['role']?.toString().toLowerCase() ?? '';
@@ -66,18 +74,18 @@ class GameEditController {
         <String, dynamic>{'name': name, 'role': 'Developer'},
     ];
 
-    final updatedPayload = {
-      ...payload,
-      'platforms': platforms,
-      if (mergedCreators.isNotEmpty) 'creators': mergedCreators,
-    };
-    final updatedItem = LibraryMetadataItem(
-      identity: selection.item.identity,
-      common: selection.item.common,
-      kindMetadata: LibraryKindMetadataDecoders.decode(
-        selection.item.mediaKind,
-        updatedPayload,
-      ),
+    final updatedPub = emptyToNull(publisherController.text);
+
+    final updatedMetadata = meta?.copyWith(
+      platforms: platforms,
+      platform: platforms.firstOrNull ?? meta.platform,
+      creators: mergedCreators.isNotEmpty ? mergedCreators : meta.creators,
+      series: emptyToNull(seriesTitleController.text) ?? meta.series,
+      publishers: updatedPub != null ? [updatedPub] : meta.publishers,
+    ) ?? selection.item.kindMetadata;
+
+    final updatedItem = selection.item.copyWith(
+      kindMetadata: updatedMetadata,
     );
 
     return LibraryEditSelection(

@@ -84,6 +84,12 @@ KindEditDraft createGameEditDraft({
   final gameEdit = GameEditController(
     initialPlatforms: platforms.join(', '),
     initialDevelopers: developerNames,
+    initialSeriesTitle: (payload['series_title'] ??
+            (payload['series'] as Map?)?['series_title'])?.toString() ??
+        '',
+    initialPublisher: (payload['publisher'] ??
+            (payload['publishing'] as Map?)?['original_publisher'])?.toString() ??
+        '',
   );
 
   return GameEditDraft(

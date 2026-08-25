@@ -239,10 +239,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _artistController = TextEditingController(text: metadata.artist ?? '');
     _subtitleController =
         TextEditingController(text: metadata.publishing?.subtitle ?? '');
-    _publisherController = _draft.metadata.publisherController;
-    _editionTitleController = _draft.metadata.editionTitleController;
-    _variantController = _draft.metadata.variantController;
-    _barcodeController = _draft.metadata.barcodeController;
+    _publisherController = TextEditingController(
+      text: metadata.publisher ?? metadata.publishing?.originalPublisher ?? '',
+    );
+    _editionTitleController =
+        TextEditingController(text: metadata.editionTitle ?? '');
+    _variantController = TextEditingController(text: metadata.variant ?? '');
+    _barcodeController = TextEditingController(text: metadata.barcode ?? '');
     final musicMap = metadata.music;
     _catalogNumberController =
         TextEditingController(text: (musicMap?['catalog_number'] as String?) ?? '');
@@ -284,8 +287,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       text: (musicMap?['composition'] as String?) ?? '',
     );
     _extrasController = TextEditingController();
-    _countryController = _draft.metadata.countryController;
-    _languageController = _draft.metadata.languageController;
+    _countryController = TextEditingController(text: metadata.country);
+    _languageController = TextEditingController(text: metadata.language);
     _genresController = TextEditingController(
       text: metadata.genres.join(', '),
     );
@@ -342,7 +345,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           _collectionStatusToLabel(widget.request.ownedItem?.collectionStatus),
     );
 
-    _physicalFormatId = _draft.metadata.physicalFormatId;
+    _physicalFormatId = metadata.physicalFormat;
     final dialogState = _draft.cloneDialogState();
     _selectedLocationId = dialogState.selectedLocationId;
     _startedAt = dialogState.startedAt;
@@ -395,6 +398,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _tabController.dispose();
     _artistController.dispose();
     _subtitleController.dispose();
+    _publisherController.dispose();
+    _editionTitleController.dispose();
+    _variantController.dispose();
+    _barcodeController.dispose();
+    _countryController.dispose();
+    _languageController.dispose();
     _catalogNumberController.dispose();
     _originalReleaseDateController.dispose();
     _recordingDateController.dispose();
@@ -1791,7 +1800,6 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _draft.tracking.startedAt = _startedAt;
     _draft.tracking.finishedAt = _finishedAt;
     _draft.personal.soldAt = _soldAt;
-    _draft.metadata.physicalFormatId = _physicalFormatId;
     _draft.replaceMediaEdits(
       customFieldEdits: _customFieldEdits,
       itemImageEdits: _itemImageEdits,
@@ -1863,19 +1871,15 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       releaseDate: parseDate(_releaseDateController.text),
       releaseYear: parseInt(_releaseYearController.text),
     );
-    final fullCatalogItem = CatalogItemDto(
-      id: _item.id,
-      mediaKind: _item.mediaKind,
+    final fullCatalogItem = MusicCatalogMetadata(
       title: updatedCommon.title,
-      displayTitle: updatedCommon.displayTitle,
-      localizedTitle: updatedCommon.localizedTitle,
-      originalTitle: updatedCommon.originalTitle,
-      sortKey: updatedCommon.sortKey,
-      synopsis: updatedCommon.synopsis,
-      coverImageUrl: updatedCommon.coverImageUrl,
-      thumbnailImageUrl: updatedCommon.thumbnailImageUrl,
-      releaseDate: updatedCommon.releaseDate,
-      releaseYear: updatedCommon.releaseYear,
+      artist: emptyToNull(_artistController.text),
+      originalReleaseDate: parseDate(_originalReleaseDateController.text),
+      recordingDate: parseDate(_recordingDateController.text),
+      studio: emptyToNull(_studioController.text),
+      isLive: _isLive,
+      genres: _splitCommaList(_genresController.text) ?? const [],
+      tracks: currentTracks,
       editionTitle: emptyToNull(_editionTitleController.text),
       physicalFormat: _physicalFormatId,
       physicalFormatLabel: _physicalFormatForId(_physicalFormatId)?.label,
@@ -1887,18 +1891,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
       series: updatedSeries.hasData ? updatedSeries : null,
       music: updatedMusic.isNotEmpty ? updatedMusic : null,
       publishing: updatedPublishing.hasData ? updatedPublishing : null,
-      creators: _buildCreatorsForSubmit(),
-      genres: _splitCommaList(_genresController.text),
-      trailerUrls: _buildUpdatedLinks(),
+      creators: _buildCreatorsForSubmit() ?? const [],
+      links: _buildUpdatedLinks() ?? const [],
     );
-    final updatedPayload = fullCatalogItem.toSyncPayload();
     final updatedItem = LibraryMetadataItem(
       identity: _item.identity,
       common: updatedCommon,
-      kindMetadata: LibraryKindMetadataDecoders.decode(
-        _item.mediaKind,
-        updatedPayload,
-      ),
+      kindMetadata: fullCatalogItem,
     );
 
     Navigator.of(context).pop(

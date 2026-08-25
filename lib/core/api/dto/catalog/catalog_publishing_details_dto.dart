@@ -132,6 +132,54 @@ class CatalogPublishingDetailsDto {
         if (firstEdition != null) 'first_edition': firstEdition,
         if (dewey != null) 'dewey': dewey,
       };
+
+  CatalogPublishingDetailsDto copyWith({
+    int? pageCount,
+    int? coverPriceCents,
+    String? currency,
+    String? imprint,
+    String? subtitle,
+    String? seriesGroup,
+    String? publicationPlace,
+    String? originalCountry,
+    String? originalLanguage,
+    DateTime? originalPublicationDate,
+    String? originalPublicationPlace,
+    String? originalPublisher,
+    String? paperType,
+    String? printedBy,
+    List<String>? subjects,
+    String? dustJacketCondition,
+    bool? dustJacket,
+    bool? audiobookAbridged,
+    bool? firstEdition,
+    String? dewey,
+  }) {
+    return CatalogPublishingDetailsDto(
+      pageCount: pageCount ?? this.pageCount,
+      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
+      currency: currency ?? this.currency,
+      imprint: imprint ?? this.imprint,
+      subtitle: subtitle ?? this.subtitle,
+      seriesGroup: seriesGroup ?? this.seriesGroup,
+      publicationPlace: publicationPlace ?? this.publicationPlace,
+      originalCountry: originalCountry ?? this.originalCountry,
+      originalLanguage: originalLanguage ?? this.originalLanguage,
+      originalPublicationDate:
+          originalPublicationDate ?? this.originalPublicationDate,
+      originalPublicationPlace:
+          originalPublicationPlace ?? this.originalPublicationPlace,
+      originalPublisher: originalPublisher ?? this.originalPublisher,
+      paperType: paperType ?? this.paperType,
+      printedBy: printedBy ?? this.printedBy,
+      subjects: subjects ?? this.subjects,
+      dustJacketCondition: dustJacketCondition ?? this.dustJacketCondition,
+      dustJacket: dustJacket ?? this.dustJacket,
+      audiobookAbridged: audiobookAbridged ?? this.audiobookAbridged,
+      firstEdition: firstEdition ?? this.firstEdition,
+      dewey: dewey ?? this.dewey,
+    );
+  }
 }
 
 typedef CatalogPublishingDetails = CatalogPublishingDetailsDto;

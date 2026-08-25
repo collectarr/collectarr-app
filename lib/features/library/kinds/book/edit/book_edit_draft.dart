@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -8,8 +10,6 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:flutter/material.dart';
-
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 
 class BookEditDraft extends KindEditDraft {
   BookEditDraft({
@@ -39,21 +39,40 @@ class BookEditDraft extends KindEditDraft {
     imprintController.dispose();
   }
 
+  List<TrailerLink> _externalLinks = const [];
+
+  @override
+  void setExternalLinks(List<TrailerLinkDto> links) {
+    _externalLinks = links;
+  }
+
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final payload = selection.item.kindMetadata.toSyncPayload();
-    final updatedPayload = {
-      ...payload,
-      if (int.tryParse(pageCountController.text) != null)
-        'page_count': int.tryParse(pageCountController.text),
-      if (emptyToNull(imprintController.text) != null)
-        'imprint': emptyToNull(imprintController.text),
-    };
+    final meta = selection.item.kindMetadata is BookCatalogMetadata
+        ? (selection.item.kindMetadata as BookCatalogMetadata)
+        : null;
+    final count = int.tryParse(pageCountController.text);
+    final impr = emptyToNull(imprintController.text);
+
+    final updatedPublishing = meta?.publishing != null
+        ? meta!.publishing!.copyWith(
+            pageCount: count ?? meta.publishing?.pageCount,
+            imprint: impr ?? meta.publishing?.imprint,
+          )
+        : ((count != null || impr != null)
+            ? CatalogPublishingDetailsDto(
+                imprint: impr,
+                pageCount: count,
+              )
+            : null);
+
+    final updatedMetadata = meta?.copyWith(
+      publishing: updatedPublishing != null && updatedPublishing.hasData ? updatedPublishing : null,
+      links: _externalLinks.isNotEmpty ? _externalLinks : meta.links,
+    ) ?? selection.item.kindMetadata;
+
     final updatedItem = selection.item.copyWith(
-      kindMetadata: LibraryKindMetadataDecoders.decode(
-        selection.item.mediaKind,
-        updatedPayload,
-      ),
+      kindMetadata: updatedMetadata,
     );
     var result = selection.copyWith(item: updatedItem);
     if (result.personal != null) {

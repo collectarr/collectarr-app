@@ -100,6 +100,56 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
         },
       };
 
+  GameCatalogMetadata copyWith({
+    String? title,
+    String? platform,
+    List<String>? platforms,
+    String? toySubtype,
+    String? toyType,
+    String? releaseRegion,
+    String? edition,
+    List<String>? developers,
+    List<String>? publishers,
+    String? franchise,
+    String? series,
+    List<String>? genres,
+    String? ageRating,
+    List<String>? languages,
+    String? country,
+    String? synopsis,
+    DateTime? releaseDate,
+    String? barcode,
+    String? priceChartingId,
+    GameValuationSet? valuations,
+    List<Map<String, dynamic>>? creators,
+    List<TrailerLink>? links,
+  }) {
+    return GameCatalogMetadata(
+      title: title ?? this.title,
+      platform: platform ?? this.platform,
+      platforms: platforms ?? this.platforms,
+      toySubtype: toySubtype ?? this.toySubtype,
+      toyType: toyType ?? this.toyType,
+      releaseRegion: releaseRegion ?? this.releaseRegion,
+      edition: edition ?? this.edition,
+      developers: developers ?? this.developers,
+      publishers: publishers ?? this.publishers,
+      franchise: franchise ?? this.franchise,
+      series: series ?? this.series,
+      genres: genres ?? this.genres,
+      ageRating: ageRating ?? this.ageRating,
+      languages: languages ?? this.languages,
+      country: country ?? this.country,
+      synopsis: synopsis ?? this.synopsis,
+      releaseDate: releaseDate ?? this.releaseDate,
+      barcode: barcode ?? this.barcode,
+      priceChartingId: priceChartingId ?? this.priceChartingId,
+      valuations: valuations ?? this.valuations,
+      creators: creators ?? this.creators,
+      links: links ?? this.links,
+    );
+  }
+
   factory GameCatalogMetadata.fromJson(Map<String, dynamic> json) {
     final gameMap = (json['game'] is Map)
         ? Map<String, dynamic>.from(json['game'] as Map)

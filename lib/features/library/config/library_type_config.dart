@@ -237,7 +237,6 @@ class LibraryTypeConfig {
     this.titleCapability =
         const DefaultTitleProjectionCapability<LibraryWorkspaceDto>(),
     this.releaseCapability,
-    this.catalogItemResolver,
   });
 
   factory LibraryTypeConfig.fromCapabilities({
@@ -260,7 +259,6 @@ class LibraryTypeConfig {
     TitleProjectionCapability<LibraryWorkspaceDto> titleCapability =
         const DefaultTitleProjectionCapability<LibraryWorkspaceDto>(),
     ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability,
-    CatalogItemDto Function(LibraryMetadataItem item)? catalogItemResolver,
   }) {
     return LibraryTypeConfig(
       workspace: identity.toWorkspaceConfig(),
@@ -306,7 +304,6 @@ class LibraryTypeConfig {
       kindUiAdapter: kindUiAdapter,
       titleCapability: titleCapability,
       releaseCapability: releaseCapability,
-      catalogItemResolver: catalogItemResolver,
     );
   }
 
@@ -356,10 +353,6 @@ class LibraryTypeConfig {
   final LibraryKindUiAdapter kindUiAdapter;
   final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
   final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
-  final CatalogItemDto Function(LibraryMetadataItem item)? catalogItemResolver;
-
-  CatalogItemDto resolveCatalogItem(LibraryMetadataItem item) =>
-      catalogItemResolver?.call(item) ?? item.toCatalogItem();
 
   List<String> transferableFieldKeysForScope(LibraryEditScope scope) {
     return switch (scope) {

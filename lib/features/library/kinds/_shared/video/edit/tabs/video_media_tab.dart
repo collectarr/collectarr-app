@@ -56,7 +56,7 @@ class VideoEditMediaTab extends StatelessWidget {
                     label: 'Custom display title',
                   ),
                   LibraryEditTextField(
-                    controller: draft.metadata.publisherController,
+                    controller: videoEdit.publisherController,
                     label: 'Studios',
                   ),
                 ],
@@ -117,12 +117,12 @@ class VideoEditMediaTab extends StatelessWidget {
                 children: [
                   LibraryVocabularyField(
                     label: 'Country',
-                    controller: draft.metadata.countryController,
+                    controller: videoEdit.countryController,
                     options: countryOptions,
                   ),
                   LibraryVocabularyField(
                     label: 'Language',
-                    controller: draft.metadata.languageController,
+                    controller: videoEdit.languageController,
                     options: languageOptions,
                   ),
                 ],

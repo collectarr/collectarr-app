@@ -57,6 +57,28 @@ class CatalogSeriesDetailsDto {
         if (episodeNumber != null) 'episode_number': episodeNumber,
         if (tags != null) 'tags': tags,
       };
+
+  CatalogSeriesDetailsDto copyWith({
+    String? seriesId,
+    String? seriesTitle,
+    String? volumeName,
+    String? volumeNumber,
+    int? volumeStartYear,
+    int? seasonNumber,
+    int? episodeNumber,
+    String? tags,
+  }) {
+    return CatalogSeriesDetailsDto(
+      seriesId: seriesId ?? this.seriesId,
+      seriesTitle: seriesTitle ?? this.seriesTitle,
+      volumeName: volumeName ?? this.volumeName,
+      volumeNumber: volumeNumber ?? this.volumeNumber,
+      volumeStartYear: volumeStartYear ?? this.volumeStartYear,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      tags: tags ?? this.tags,
+    );
+  }
 }
 
 typedef CatalogSeriesDetails = CatalogSeriesDetailsDto;

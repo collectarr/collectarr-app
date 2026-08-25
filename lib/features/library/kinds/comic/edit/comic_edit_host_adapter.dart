@@ -63,9 +63,10 @@ class ComicEditHostAdapter implements ComicEditHost {
           isTrackingOnly: draft.isTrackingOnly,
           hasTrackingContext: draft.hasTrackingContext,
           hasWishlistContext: draft.hasWishlistContext,
-          isDigitalFormat: draft.metadata.physicalFormatLabelController.text
-                  .trim()
-                  .toLowerCase() ==
+          isDigitalFormat: (_comicDraft?.comicEdit.physicalFormatLabelController.text
+                      .trim()
+                      .toLowerCase() ??
+                  '') ==
               'digital',
           hasPhysicalFormats: true,
           hasEditionAnchors: false,
@@ -102,39 +103,43 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   TextEditingController get comicEditionTitleController =>
-      draft.metadata.editionTitleController;
+      _comicDraft?.comicEdit.editionTitleController ?? TextEditingController();
 
   @override
   TextEditingController get comicVariantController =>
-      draft.metadata.variantController;
+      _comicDraft?.comicEdit.variantController ?? TextEditingController();
 
   @override
   TextEditingController get comicNumberController =>
-      draft.metadata.numberController;
+      _comicDraft?.comicEdit.numberController ?? TextEditingController();
 
   @override
   TextEditingController get comicBarcodeController =>
-      draft.metadata.barcodeController;
+      _comicDraft?.comicEdit.barcodeController ?? TextEditingController();
 
   @override
   TextEditingController get comicPhysicalFormatLabelController =>
-      draft.metadata.physicalFormatLabelController;
+      _comicDraft?.comicEdit.physicalFormatLabelController ??
+      TextEditingController();
 
   @override
   TextEditingController get comicCoverDateController =>
-      draft.metadata.coverDateController;
+      _comicDraft?.comicEdit.coverDateController ?? TextEditingController();
 
   @override
   TextEditingController get comicCoverDateYearPartController =>
-      draft.metadata.coverDateYearPartController;
+      _comicDraft?.comicEdit.coverDateYearPartController ??
+      TextEditingController();
 
   @override
   TextEditingController get comicCoverDateMonthPartController =>
-      draft.metadata.coverDateMonthPartController;
+      _comicDraft?.comicEdit.coverDateMonthPartController ??
+      TextEditingController();
 
   @override
   TextEditingController get comicCoverDateDayPartController =>
-      draft.metadata.coverDateDayPartController;
+      _comicDraft?.comicEdit.coverDateDayPartController ??
+      TextEditingController();
 
   @override
   TextEditingController get comicReleaseDateController =>
@@ -178,7 +183,7 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   TextEditingController get comicLanguageController =>
-      draft.metadata.languageController;
+      _comicDraft?.comicEdit.languageController ?? TextEditingController();
 
   @override
   TextEditingController get comicOwnerLabelController =>
@@ -359,8 +364,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   bool get comicShowPhysicalOwnedFields =>
       draft.isOwned &&
-      draft.metadata.physicalFormatLabelController.text.trim().toLowerCase() !=
-          'digital';
+      (_comicDraft?.comicEdit.physicalFormatLabelController.text.trim().toLowerCase() !=
+          'digital');
 
   @override
   String get comicSelectedOwnedAnchorType =>
@@ -446,7 +451,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicCountryPickField({String label = 'Country'}) {
     return SingleValuePickField(
-      controller: draft.metadata.countryController,
+      controller: _comicDraft?.comicEdit.countryController ??
+          TextEditingController(),
       label: label,
       options: draft.vocabulary?.countryOptions ?? const [],
       showPickerListAction: true,
@@ -489,7 +495,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicSeriesField() {
     return SingleValuePickField(
-      controller: draft.metadata.seriesTitleController,
+      controller: _comicDraft?.comicEdit.seriesTitleController ??
+          TextEditingController(),
       label: 'Series',
       options: comicSeriesOptions,
       showPickerListAction: true,
@@ -506,10 +513,13 @@ class ComicEditHostAdapter implements ComicEditHost {
           context: context,
           db: db,
           mediaKind: draft.type.workspace.kind.apiValue,
-          selectedTitle: draft.metadata.seriesTitleController.text,
+          selectedTitle: _comicDraft?.comicEdit.seriesTitleController.text ?? '',
         );
         if (entry != null) {
-          draft.metadata.seriesTitleController.text = entry.title;
+          if (_comicDraft != null) {
+            _comicDraft!.comicEdit.seriesTitleController.text = entry.title;
+            _comicDraft!.comicEdit.seriesId = entry.id;
+          }
           draft.metadata.titleController.text = entry.title;
           markDirty();
         }
@@ -521,7 +531,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicPublisherField({String label = 'Publisher'}) {
     return SingleValuePickField(
-      controller: draft.metadata.publisherController,
+      controller: _comicDraft?.comicEdit.publisherController ??
+          TextEditingController(),
       label: label,
       options: draft.vocabulary?.publisherOptions ?? const [],
       showPickerListAction: true,
@@ -553,7 +564,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicPhysicalFormatField({String label = 'Format'}) {
     return SingleValuePickField(
-      controller: draft.metadata.physicalFormatLabelController,
+      controller: _comicDraft?.comicEdit.physicalFormatLabelController ??
+          TextEditingController(),
       label: label,
       options: draft.vocabulary?.physicalFormatOptions ??
           const [
