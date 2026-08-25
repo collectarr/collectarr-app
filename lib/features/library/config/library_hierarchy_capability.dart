@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/config/library_type_capabilities.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
@@ -30,6 +31,7 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   final String mediaReleaseScopeLabel;
   final String Function(int count)? childrenTitleBuilder;
   final Future<List<LibraryHierarchyNode>> Function({
+    required ApiClient api,
     required String itemId,
     String? provider,
     String? providerItemId,
@@ -37,12 +39,14 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
 
   @override
   Future<List<LibraryHierarchyNode>> fetchChildren({
+    required ApiClient api,
     required String itemId,
     String? provider,
     String? providerItemId,
   }) async {
     if (fetchChildrenCallback != null) {
       return fetchChildrenCallback!(
+        api: api,
         itemId: itemId,
         provider: provider,
         providerItemId: providerItemId,

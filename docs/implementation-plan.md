@@ -22,10 +22,20 @@ interoperability only and is scheduled for removal.
 
 ### Current Rebaseline (2026-08-24)
 
-- Focused provider-envelope and add-ranking tests pass.
+- Commit `73aad4e2` records the validated metadata-ownership migration batch.
+- Provider preview mapping now crosses the generic workflow through
+  `NormalizedProviderEnvelopeV1` and the registered kind provider mapper.
+- All nine provider mappers preserve the envelope item identity; the generic
+  add workflow no longer assembles concrete publishing/music/video/game maps.
 - The comic catalog/workspace/presentation/inspector projection slice now reads
 	`ComicCatalogMetadata` directly and has no `toCatalogItem()` usage under
 	`kinds/comic/`.
+- The migrated kind surfaces for game, boardgame, movie, manga, book, and
+	music no longer use `toCatalogItem()`; TV now owns its metadata-to-video
+	conversion and anime/TV/movie video edit drafts provide typed semantic inputs.
+- Shared video no longer contains active `toCatalogItem()` calls or the two
+	unused metadata factories; remaining generic bridges are outside the kind
+	verticals.
 - The architecture checker reports no AST boundary violations.
 - The current transition work is not the final de-generalized architecture.
 - `LibraryMetadataItem`, `LibraryCommonMetadata`, `LibraryTypeConfig`, and the
@@ -37,6 +47,9 @@ interoperability only and is scheduled for removal.
 	provider registry is still active in several paths.
 - The importer framework exists, but still uses `ImportRow` and
 	`ProviderImportId` in runtime paths.
+- Focused kind/provider tests and analysis are green. The full Flutter suite
+	currently has four contract-hash failures requiring a Core snapshot sync via
+	`tool/update_core_contracts.ps1`; these are separate from the migration batch.
 - Global Activity, manual ICS, CSV/CLZ import-export, and TMDb import exist.
 	Live subscribable ICS and local notifications remain pending.
 
@@ -143,19 +156,35 @@ interoperability only and is scheduled for removal.
 
 ### 🧱 Library De-Generalization (active)
 - [ ] Complete PR1: remove `LibraryMetadataItem` semantic runtime ownership
-	- Migrate the current 59-file transition without adding more compatibility behavior.
+	- Continue migrating generic detail, stats, edit, workspace, and export callers
+	  without adding more compatibility behavior.
 	- Remove `common`, `interopCatalogItem`, `toCatalogItem()`, and semantic forwarding paths after callers move.
+
+- [x] Complete the first typed kind migration batch
+	- Provider preview envelope and all nine mapper identities are kind-owned.
+	- Game, boardgame, movie, manga, book, and music caller surfaces migrated;
+	  TV video conversion moved into the TV kind and shared video edit inputs are
+	  supplied by movie/TV/anime drafts.
+	- Focused vertical tests, focused analysis, formatting, and architecture
+	  checks pass.
+
 - [ ] Complete the comic vertical slice
 	- Comic catalog, workspace, presentation, inspector, and focused tests now use comic-owned types.
 	- Provider mapper, add, edit, detail, export, hierarchy, and entry ownership still need migration.
-- [ ] Migrate the remaining eight kinds
-	- Use the same vertical checklist for book, manga, anime, movie, tv, music, game, and boardgame.
+- [ ] Finish remaining kind caller surfaces
+	- Anime and TV still need their non-video generic caller surfaces reviewed.
+	- Book, manga, movie, and music still have generic detail/export/entry callers
+	  to migrate where they depend on the facade.
 - [ ] Simplify `LibraryTypeConfig`
 	- Retain labels, icon, identity, and presentation aliases only; move behavior to registered kind capabilities.
 - [ ] Replace the public dynamic field registry
 	- Keep typed IDs through sort/group/column operations and hide registry implementation details.
-- [ ] Delete generic semantic hierarchy providers
-	- Remove `seasons_provider.dart` and `volumes_provider.dart`; route hierarchy through `LibraryHierarchyCapability`.
+- [x] Delete generic semantic hierarchy providers
+			 - `volumes_provider.dart` is removed. Core hierarchy hydration for TV,
+				 comic, book, and manga now runs through kind-owned
+				 `LibraryHierarchyCapability` callbacks.
+			 - `seasons_provider.dart` is removed; video season loading now belongs
+				 to the shared video kind module.
 - [ ] Remove generic edit semantic fields
 	- Reduce `CommonMetadataDraft` and the generic edit shell to technical layout/personal-state hosts.
 

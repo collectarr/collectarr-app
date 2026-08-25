@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -83,8 +83,11 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
   final rawCatalog = item.source.catalogItem;
   final ComicCatalogItem? catalogItem = rawCatalog is ComicCatalogItem
       ? rawCatalog as ComicCatalogItem
-      : (rawCatalog is LibraryMetadataItem
-          ? ComicCatalogMapper.mapMetadataItemToComic(rawCatalog)
+      : (rawCatalog?.kindMetadata is ComicCatalogMetadata
+          ? ComicCatalogMapper.mapMetadataToComic(
+              rawCatalog!.kindMetadata as ComicCatalogMetadata,
+              id: rawCatalog.identity.id,
+            )
           : null);
   final synopsis = dto.synopsis?.trim().isNotEmpty == true
       ? dto.synopsis!.trim()
@@ -250,8 +253,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
               ],
             ),
           ],
-          if (request.item.source.catalogItem?.trailerUrls.isNotEmpty ??
-              false) ...[
+          if (_comicLinks(request.item).any((link) => link.isTrailerLink)) ...[
             const SizedBox(height: 8),
             InspectorLinksTrailersSection(request: request),
           ],
@@ -301,7 +303,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seriesId = request.item.source.catalogItem?.series?.seriesId;
+    final seriesId = _comicMetadata(request.item)?.series?.seriesId;
     if (seriesId == null || seriesId.trim().isEmpty) {
       return LibraryDetailSection(
         title: 'Series completeness',
@@ -339,9 +341,9 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
               fields: [
                 LibraryDetailField(
                     label: 'Series',
-                    value:
-                        request.item.source.catalogItem?.series?.seriesTitle ??
-                            request.item.dto.title),
+                    value: _comicMetadata(request.item)?.series?.seriesTitle ??
+                        _comicMetadata(request.item)?.title ??
+                        request.item.dto.title),
                 LibraryDetailField(
                     label: 'Items', value: items.length.toString()),
                 LibraryDetailField(
@@ -690,13 +692,13 @@ List<LibraryDetailField> _noteFacts(
 }
 
 List<LibraryDetailField> _linkFacts(LibraryProjectionRuntime item) {
-  final trailerUrls = item.source.catalogItem?.trailerUrls ?? const [];
-  if (trailerUrls.isEmpty) {
+  final links = _comicLinks(item);
+  if (links.isEmpty) {
     return const [];
   }
 
   return [
-    for (final trailer in trailerUrls)
+    for (final trailer in links)
       LibraryDetailField(
           label: trailer.source?.trim().isNotEmpty == true
               ? trailer.source!.trim()
@@ -707,6 +709,14 @@ List<LibraryDetailField> _linkFacts(LibraryProjectionRuntime item) {
           onTap: () => _launchUrl(trailer.url)),
   ];
 }
+
+ComicCatalogMetadata? _comicMetadata(LibraryProjectionRuntime item) {
+  final metadata = item.source.catalogItem?.kindMetadata;
+  return metadata is ComicCatalogMetadata ? metadata : null;
+}
+
+List<ComicLink> _comicLinks(LibraryProjectionRuntime item) =>
+    _comicMetadata(item)?.links ?? const <ComicLink>[];
 
 List<int> _computeMissingIssues(
   List<dynamic> items,

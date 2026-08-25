@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class ComicCatalogMapper {
   const ComicCatalogMapper._();
@@ -52,17 +51,6 @@ class ComicCatalogMapper {
       publishing: publishing,
       releases: releases,
     );
-  }
-
-  static ComicCatalogItem mapMetadataItemToComic(LibraryMetadataItem item) {
-    final metadata = item.kindMetadata;
-    if (metadata is! ComicCatalogMetadata) {
-      throw StateError(
-        'Expected ComicCatalogMetadata, got ${metadata.runtimeType}',
-      );
-    }
-
-    return mapMetadataToComic(metadata, id: item.identity.id);
   }
 
   static ComicCatalogItem mapMetadataToComic(

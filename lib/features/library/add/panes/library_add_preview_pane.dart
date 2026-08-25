@@ -1330,9 +1330,11 @@ List<_PreviewDiscoverySectionData> _discoverySections({
   final itemCreators = payload?['creators'];
   final creators = (itemCreators is List)
       ? itemCreators
-          .whereType<Map>()
-          .map((credit) =>
-              (credit['name'] ?? credit['display_name'] ?? '').toString())
+          .whereType<Map<dynamic, dynamic>>()
+          .map((rawCredit) {
+            final credit = Map<String, Object?>.from(rawCredit);
+            return (credit['name'] ?? credit['display_name'] ?? '').toString();
+          })
           .where((name) => name.trim().isNotEmpty)
           .toList(growable: false)
       : (preview?.creators
@@ -1613,7 +1615,13 @@ class _PreviewSeasonsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
     final seasonsAsync = ref.watch(
-      seasonsProvider((provider: provider, providerItemId: providerItemId)),
+      libraryHierarchyProvider((
+        kind: CatalogMediaKind.tv,
+        provider: provider,
+        providerItemId: providerItemId,
+        itemId: null,
+        canHydrateFromCore: false,
+      )),
     );
 
     return seasonsAsync.when(
@@ -1638,7 +1646,7 @@ class _PreviewSeasonsSection extends ConsumerWidget {
         if (seasons.isEmpty) return const SizedBox.shrink();
         final totalEpisodes = seasons.fold<int>(
           0,
-          (sum, s) => sum + (s.episodeCount ?? s.episodes.length),
+          (sum, season) => sum + (season.totalCount ?? season.children.length),
         );
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1661,7 +1669,7 @@ class _PreviewSeasonsSection extends ConsumerWidget {
 class _PreviewSeasonNode extends StatefulWidget {
   const _PreviewSeasonNode({required this.season, required this.accent});
 
-  final Season season;
+  final LibraryHierarchyNode season;
   final Color accent;
 
   @override
@@ -1675,24 +1683,24 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final season = widget.season;
-    final episodeCount = season.episodeCount ?? season.episodes.length;
+    final episodeCount = season.totalCount ?? season.children.length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
           borderRadius: BorderRadius.circular(4),
-          onTap: season.episodes.isNotEmpty
+          onTap: season.children.isNotEmpty
               ? () => setState(() => _expanded = !_expanded)
               : null,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
               children: [
-                if (season.posterUrl != null) ...[
+                if (season.imageUrl != null) ...[
                   ClipRRect(
                     borderRadius: BorderRadius.circular(3),
                     child: Image.network(
-                      season.posterUrl!,
+                      season.imageUrl!,
                       width: 28,
                       height: 42,
                       fit: BoxFit.cover,
@@ -1706,7 +1714,7 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        season.title,
+                        season.label,
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
@@ -1715,7 +1723,7 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
                       Text(
                         [
                           '$episodeCount episodes',
-                          if (season.airDate != null) season.airDate!,
+                          if (_airDate(season) != null) _airDate(season)!,
                         ].join(' · '),
                         style: TextStyle(
                           color: palette.textMuted,
@@ -1725,7 +1733,7 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
                     ],
                   ),
                 ),
-                if (season.episodes.isNotEmpty)
+                if (season.children.isNotEmpty)
                   Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more,
                     size: 18,
@@ -1740,7 +1748,7 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
             padding: const EdgeInsets.only(left: 36, bottom: 4),
             child: Column(
               children: [
-                for (final ep in season.episodes)
+                for (final episode in season.children)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 3),
                     child: Row(
@@ -1748,7 +1756,7 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
                         SizedBox(
                           width: 26,
                           child: Text(
-                            '${ep.episodeNumber}',
+                            _episodeNumber(episode),
                             style: TextStyle(
                               color: widget.accent.withValues(alpha: 0.7),
                               fontWeight: FontWeight.w700,
@@ -1758,7 +1766,7 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
                         ),
                         Expanded(
                           child: Text(
-                            ep.title,
+                            episode.label,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -1767,9 +1775,9 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
                             ),
                           ),
                         ),
-                        if (ep.runtimeMinutes != null)
+                        if (_runtimeMinutes(episode) != null)
                           Text(
-                            '${ep.runtimeMinutes} min',
+                            '${_runtimeMinutes(episode)} min',
                             style: TextStyle(
                               color: palette.textMuted,
                               fontSize: 13,
@@ -1784,6 +1792,28 @@ class _PreviewSeasonNodeState extends State<_PreviewSeasonNode> {
       ],
     );
   }
+}
+
+String? _airDate(LibraryHierarchyNode node) =>
+    (node.metadata['air_date'] ?? node.metadata['airDate'])?.toString();
+
+String _episodeNumber(LibraryHierarchyNode node) =>
+    (node.metadata['episode_number'] ??
+            node.metadata['episodeNumber'] ??
+            node.metadata['number'] ??
+            node.id)
+        .toString();
+
+int? _runtimeMinutes(LibraryHierarchyNode node) {
+  final value = node.metadata['runtime_minutes'] ??
+      node.metadata['runtimeMinutes'] ??
+      node.metadata['runtime'];
+  return switch (value) {
+    int value => value,
+    num value => value.toInt(),
+    String value => int.tryParse(value),
+    _ => null,
+  };
 }
 
 class _EditionGrid extends StatelessWidget {

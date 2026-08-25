@@ -1,8 +1,10 @@
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
@@ -23,6 +25,7 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
+import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   type: comicsLibraryConfig,
@@ -51,6 +54,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.volumes,
+    fetchChildrenCallback: _fetchComicVolumes,
     childrenTitleBuilder: _comicChildrenTitle,
     supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: false,
@@ -133,11 +137,40 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
 
 String _comicChildrenTitle(int count) => 'Volumes ($count)';
 
+Future<List<LibraryHierarchyNode>> _fetchComicVolumes({
+  required ApiClient api,
+  required String itemId,
+  String? provider,
+  String? providerItemId,
+}) async {
+  final volumes = await api
+      .getItemVolumes(itemId, kind: CatalogMediaKind.comic.apiValue)
+      .timeout(const Duration(seconds: 60));
+  return [
+    for (final volume in volumes)
+      LibraryHierarchyNode(
+        id: 'volume_${volume.seasonNumber}',
+        label: volume.title,
+        secondaryLabel:
+            volume.episodeCount != null ? '${volume.episodeCount} items' : null,
+        level: LibraryHierarchyLevel.container,
+        imageUrl: volume.posterUrl,
+        totalCount: volume.episodeCount,
+        metadata: {
+          'number': volume.seasonNumber,
+          'airDate': volume.airDate,
+        },
+      ),
+  ];
+}
+
 Iterable<String> _getFacetValues(
     LibraryProjectionRuntime item, String facetId) {
   final source = item.source.catalogItem;
-  final catalogItem =
-      source == null ? null : ComicCatalogMapper.mapMetadataItemToComic(source);
+  final metadata = source?.kindMetadata;
+  final catalogItem = metadata is ComicCatalogMetadata
+      ? ComicCatalogMapper.mapMetadataToComic(metadata, id: source!.identity.id)
+      : null;
   if (facetId == ComicFacetIds.character.value) {
     return catalogItem?.characters ?? const [];
   }

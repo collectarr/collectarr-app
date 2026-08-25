@@ -1,10 +1,9 @@
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
@@ -20,6 +19,7 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_prese
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
+import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   type: tvLibraryConfig,
@@ -42,6 +42,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.seasons,
+    fetchChildrenCallback: _fetchTvSeasons,
     childrenTitleBuilder: _tvChildrenTitle,
     supportsMediaReleaseSplit: true,
     collectionExportTitleLabel: 'Title',
@@ -76,3 +77,31 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
 );
 
 String _tvChildrenTitle(int count) => 'Seasons ($count)';
+
+Future<List<LibraryHierarchyNode>> _fetchTvSeasons({
+  required ApiClient api,
+  required String itemId,
+  String? provider,
+  String? providerItemId,
+}) async {
+  final seasons = await api
+      .getTvSeriesSeasonsDto(itemId)
+      .timeout(const Duration(seconds: 60));
+  return [
+    for (final season in seasons)
+      LibraryHierarchyNode(
+        id: season.id,
+        label: season.title,
+        secondaryLabel: season.episodeCount != null
+            ? '${season.episodeCount} episodes'
+            : null,
+        level: LibraryHierarchyLevel.container,
+        imageUrl: season.coverImageUrlValue,
+        totalCount: season.episodeCount,
+        metadata: {
+          'seasonNumber': season.seasonNumber,
+          'airDate': season.airDateValue?.toIso8601String(),
+        },
+      ),
+  ];
+}

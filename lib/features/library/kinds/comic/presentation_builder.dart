@@ -28,11 +28,13 @@ class ComicLibraryMediaPresentationBuilder
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
-    final dto = item.dto;
     final rawMetadata = item.source.catalogItem?.kindMetadata;
-    final metadata = rawMetadata is ComicCatalogMetadata ? rawMetadata : null;
-    final series = metadata?.series;
-    final publishing = metadata?.publishing;
+    if (rawMetadata is! ComicCatalogMetadata) {
+      throw StateError('Expected ComicCatalogMetadata for comic presentation');
+    }
+    final metadata = rawMetadata;
+    final series = metadata.series;
+    final publishing = metadata.publishing;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
     final referencePlatforms = libraryReferencePlatforms(item);
@@ -45,7 +47,7 @@ class ComicLibraryMediaPresentationBuilder
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
           LibraryDetailField(label: 'ID', value: item.node.titleItemId),
-          LibraryDetailField(label: 'Title', value: dto.title),
+          LibraryDetailField(label: 'Title', value: metadata.title),
         ],
         if (series?.seriesTitle != null)
           LibraryDetailField(
@@ -69,26 +71,26 @@ class ComicLibraryMediaPresentationBuilder
               label: 'Episode', value: 'Ep. ${series!.episodeNumber}'),
         LibraryDetailField(
             label: mediaFields.numberLabel,
-            value: genericLibraryDash(dto.itemNumber),
-            onTap: tapFor(dto.itemNumber)),
+            value: genericLibraryDash(metadata.issueNumber),
+            onTap: tapFor(metadata.issueNumber)),
         LibraryDetailField(
             label: releaseFields.variantLabel,
-            value: genericLibraryDash(dto.variant),
-            onTap: tapFor(dto.variant)),
+            value: genericLibraryDash(metadata.variant),
+            onTap: tapFor(metadata.variant)),
         LibraryDetailField(
             label: releaseFields.barcodeLabel,
-            value: genericLibraryDash(dto.barcode)),
+            value: genericLibraryDash(metadata.barcode)),
       ],
       contextFacts: [
         LibraryDetailField(
             label: mediaFields.publisherLabel,
-            value: genericLibraryDash(dto.publisher),
-            onTap: tapFor(dto.publisher)),
+            value: genericLibraryDash(metadata.publisher),
+            onTap: tapFor(metadata.publisher)),
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
-              formatPresentationNullableDate(dto.releaseDate) ??
-                  dto.releaseDate?.year.toString(),
+              formatPresentationNullableDate(metadata.releaseDate) ??
+                  metadata.releaseDate?.year.toString(),
             )),
         if (publishing?.pageCount != null)
           LibraryDetailField(
@@ -107,12 +109,10 @@ class ComicLibraryMediaPresentationBuilder
               onTap: tapFor(publishing.imprint)),
         if (publishing?.subtitle != null)
           LibraryDetailField(label: 'Subtitle', value: publishing!.subtitle!),
-        if (dto.country != null)
-          LibraryDetailField(label: 'Country', value: dto.country!),
-        if (dto.language != null)
-          LibraryDetailField(label: 'Language', value: dto.language!),
-        if (metadata?.ageRating != null)
-          LibraryDetailField(label: 'Age Rating', value: metadata!.ageRating!),
+        LibraryDetailField(label: 'Country', value: metadata.country),
+        LibraryDetailField(label: 'Language', value: metadata.language),
+        if (metadata.ageRating != null)
+          LibraryDetailField(label: 'Age Rating', value: metadata.ageRating!),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryDetailField(label: 'Variant Type', value: variantType.trim()),
@@ -132,19 +132,17 @@ class ComicLibraryMediaPresentationBuilder
               value: referencePlatforms.join(', ')),
         LibraryDetailField(
             label: 'Cover',
-            value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
-                ? 'Missing'
-                : 'Ready'),
+            value: metadata.releases.isEmpty ? 'Missing' : 'Ready'),
         LibraryDetailField(
             label: 'Metadata',
-            value: dto.publisher == null || dto.publisher!.isEmpty
+            value: metadata.publisher == null || metadata.publisher!.isEmpty
                 ? 'Missing'
                 : 'Ready'),
       ],
-      creators: metadata?.creators ?? const <Map<String, dynamic>>[],
-      characters: metadata?.characters ?? const <String>[],
-      storyArcs: metadata?.storyArcs ?? const <String>[],
-      genres: metadata?.genres ?? const <String>[],
+      creators: metadata.creators,
+      characters: metadata.characters,
+      storyArcs: metadata.storyArcs,
+      genres: metadata.genres,
     );
   }
 

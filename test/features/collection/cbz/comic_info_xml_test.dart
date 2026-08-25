@@ -1,7 +1,29 @@
 import 'package:collectarr_app/features/collection/cbz/comic_info_xml.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('ComicInfo XML serializes comic-owned metadata and personal state', () {
+    final metadata = ComicCatalogMetadata(
+      title: 'Amazing Fantasy',
+      seriesTitle: 'Amazing Fantasy',
+      issueNumber: '15',
+      synopsis: 'A public synopsis',
+      publisher: 'Marvel Comics',
+      releaseDate: DateTime(1962, 8, 10),
+      physicalFormatLabel: 'Softcover',
+    );
+
+    final xml = const ComicInfoXml().serialize(metadata);
+
+    expect(xml, contains('<Title>Amazing Fantasy</Title>'));
+    expect(xml, contains('<Series>Amazing Fantasy</Series>'));
+    expect(xml, contains('<Number>15</Number>'));
+    expect(xml, contains('<Publisher>Marvel Comics</Publisher>'));
+    expect(xml, contains('<Format>Softcover</Format>'));
+    expect(xml, contains('<Year>1962</Year>'));
+  });
+
   test('ComicInfo XML splits canonical metadata from personal local state', () {
     const xml = '''
 <ComicInfo>

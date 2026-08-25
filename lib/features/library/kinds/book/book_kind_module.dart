@@ -1,5 +1,5 @@
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
@@ -11,13 +11,13 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
+import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   type: booksLibraryConfig,
@@ -43,6 +43,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.volumes,
+    fetchChildrenCallback: _fetchBookVolumes,
     supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: true,
     showsReadingQueue: true,
@@ -66,3 +67,30 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   ),
 );
+
+Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
+  required ApiClient api,
+  required String itemId,
+  String? provider,
+  String? providerItemId,
+}) async {
+  final volumes = await api
+      .getItemVolumes(itemId, kind: CatalogMediaKind.book.apiValue)
+      .timeout(const Duration(seconds: 60));
+  return [
+    for (final volume in volumes)
+      LibraryHierarchyNode(
+        id: 'volume_${volume.seasonNumber}',
+        label: volume.title,
+        secondaryLabel:
+            volume.episodeCount != null ? '${volume.episodeCount} items' : null,
+        level: LibraryHierarchyLevel.container,
+        imageUrl: volume.posterUrl,
+        totalCount: volume.episodeCount,
+        metadata: {
+          'number': volume.seasonNumber,
+          'airDate': volume.airDate,
+        },
+      ),
+  ];
+}

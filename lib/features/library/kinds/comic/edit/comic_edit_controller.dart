@@ -1,7 +1,7 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
@@ -13,31 +13,26 @@ class ComicEditController {
     required this.item,
     required this.itemImages,
   })  : crossoverController = TextEditingController(
-            text: (item.kindMetadata.toSyncPayload()['crossover'] as String?) ??
-                ''),
+            text: (item.toSyncPayload()['crossover'] as String?) ?? ''),
         storyArcsController = TextEditingController(
-            text: ((item.kindMetadata.toSyncPayload()['story_arcs'] as List?)
+            text: ((item.toSyncPayload()['story_arcs'] as List?)
                         ?.map((e) => e.toString()) ??
                     const <String>[])
                 .join(', ')),
         imprintController = TextEditingController(
-            text: (item.kindMetadata.toSyncPayload()['imprint'] as String?) ??
-                ''),
+            text: (item.toSyncPayload()['imprint'] as String?) ?? ''),
         pageCountController = TextEditingController(
-            text: item.kindMetadata.toSyncPayload()['page_count']?.toString() ??
-                ''),
+            text: item.toSyncPayload()['page_count']?.toString() ?? ''),
         ageRatingController = TextEditingController(text: item.ageRating ?? ''),
         genresEditController = TextEditingController(
-            text: ((item.kindMetadata.toSyncPayload()['genres'] as List?)
+            text: ((item.toSyncPayload()['genres'] as List?)
                         ?.map((e) => e.toString()) ??
                     const <String>[])
                 .join(', ')),
         seriesGroupController = TextEditingController(
-            text: (item.kindMetadata.toSyncPayload()['series_group']
-                    as String?) ??
-                '');
+            text: (item.toSyncPayload()['series_group'] as String?) ?? '');
 
-  final LibraryMetadataItem item;
+  final ComicCatalogMetadata item;
   final List<ItemImage> itemImages;
 
   final TextEditingController crossoverController;
@@ -57,8 +52,7 @@ class ComicEditController {
   void initialize() {
     creators.addAll(initComicCreators(item));
     characters.addAll(initComicCharacters(item));
-    for (final link
-        in item.trailerUrls.where((entry) => entry.isExternalLink)) {
+    for (final link in item.links.where((entry) => entry.isExternalLink)) {
       links.add(createLinkControllers(
         title: link.title ?? link.description ?? '',
         url: link.url,

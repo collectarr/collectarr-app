@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_progress_presenter.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_progress_summary.dart';
-import 'package:collectarr_app/features/library/providers/seasons_provider.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/providers/video_seasons_provider.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';

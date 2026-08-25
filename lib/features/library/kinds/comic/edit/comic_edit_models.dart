@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
@@ -134,8 +135,8 @@ class EditableComicCharacter {
   }
 }
 
-List<EditableComicCreator> initComicCreators(LibraryMetadataItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
+List<EditableComicCreator> initComicCreators(ComicCatalogMetadata item) {
+  final payload = item.toSyncPayload();
   final creators = payload['creators'];
   if (creators is List) {
     return [
@@ -146,8 +147,8 @@ List<EditableComicCreator> initComicCreators(LibraryMetadataItem item) {
   return const [];
 }
 
-List<EditableComicCharacter> initComicCharacters(LibraryMetadataItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
+List<EditableComicCharacter> initComicCharacters(ComicCatalogMetadata item) {
+  final payload = item.toSyncPayload();
   final characterDetails = payload['character_details'];
   if (characterDetails is List && characterDetails.isNotEmpty) {
     return [

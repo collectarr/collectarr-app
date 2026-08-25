@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -41,8 +41,11 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final rawCatalog = item.source.catalogItem;
     final ComicCatalogItem? comic = rawCatalog is ComicCatalogItem
         ? rawCatalog as ComicCatalogItem
-        : (rawCatalog is LibraryMetadataItem
-            ? ComicCatalogMapper.mapMetadataItemToComic(rawCatalog)
+        : (rawCatalog?.kindMetadata is ComicCatalogMetadata
+            ? ComicCatalogMapper.mapMetadataToComic(
+                rawCatalog!.kindMetadata as ComicCatalogMetadata,
+                id: rawCatalog.identity.id,
+              )
             : null);
     final ownedItem = request.ownedItem;
     final surface = palette.surface;

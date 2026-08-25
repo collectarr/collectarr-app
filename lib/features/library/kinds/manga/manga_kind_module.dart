@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -17,6 +18,7 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fiel
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
 final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   type: mangaLibraryConfig,
@@ -44,6 +46,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   ),
   hierarchy: const LibraryHierarchyCapability(
     contentHierarchy: LibraryContentHierarchy.volumes,
+    fetchChildrenCallback: _fetchMangaVolumes,
     childrenTitleBuilder: _mangaChildrenTitle,
     supportsSeriesSubgroups: true,
     supportsMediaReleaseSplit: true,
@@ -89,3 +92,30 @@ Iterable<String> _getFacetValues(
 }
 
 String _mangaChildrenTitle(int count) => 'Volumes ($count)';
+
+Future<List<LibraryHierarchyNode>> _fetchMangaVolumes({
+  required ApiClient api,
+  required String itemId,
+  String? provider,
+  String? providerItemId,
+}) async {
+  final volumes = await api
+      .getItemVolumes(itemId, kind: CatalogMediaKind.manga.apiValue)
+      .timeout(const Duration(seconds: 60));
+  return [
+    for (final volume in volumes)
+      LibraryHierarchyNode(
+        id: 'volume_${volume.seasonNumber}',
+        label: volume.title,
+        secondaryLabel:
+            volume.episodeCount != null ? '${volume.episodeCount} items' : null,
+        level: LibraryHierarchyLevel.container,
+        imageUrl: volume.posterUrl,
+        totalCount: volume.episodeCount,
+        metadata: {
+          'number': volume.seasonNumber,
+          'airDate': volume.airDate,
+        },
+      ),
+  ];
+}

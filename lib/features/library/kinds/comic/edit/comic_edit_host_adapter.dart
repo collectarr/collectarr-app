@@ -1,24 +1,18 @@
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_editor_dialog.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/comic_creator_roles.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
-import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
@@ -59,7 +53,16 @@ class ComicEditHostAdapter implements ComicEditHost {
   LibraryTypeConfig get comicLibraryType => draft.type;
 
   @override
-  LibraryMetadataItem get comicLibraryItem => item;
+  ComicCatalogItem get comicCatalogItem {
+    final metadata = item.kindMetadata;
+    if (metadata is! ComicCatalogMetadata) {
+      throw StateError('Expected ComicCatalogMetadata for comic edit');
+    }
+    return ComicCatalogMapper.mapMetadataToComic(
+      metadata,
+      id: item.identity.id,
+    );
+  }
 
   @override
   List<ItemImage> get comicItemImages => draft.itemImages;
@@ -251,7 +254,6 @@ class ComicEditHostAdapter implements ComicEditHost {
   TextEditingController get comicLabelTypeController =>
       _comicDraft?.labelTypeController ?? TextEditingController();
 
-  @override
   TextEditingController get comicPageQualityController =>
       _comicDraft?.pageQualityController ?? TextEditingController();
 
@@ -380,17 +382,14 @@ class ComicEditHostAdapter implements ComicEditHost {
   List<ItemImageEdit> get comicItemImageEdits => draft.itemImageEdits;
 
   @override
-  @override
   set comicItemImageEdits(List<ItemImageEdit> value) {
     draft.itemImageEdits = List.of(value);
     markDirty();
   }
 
-  @override
   List<String> get comicSeriesOptions =>
       draft.seriesEntries.map((e) => e.title).toList();
 
-  @override
   @override
   List<String> get comicGenreOptions =>
       draft.vocabulary?.genreOptions ??

@@ -15,14 +15,15 @@ final class ComicWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final comic =
-        ComicCatalogMapper.mapMetadataItemToComic(source.catalogItem!);
-    ComicCatalogMetadata? metadata;
     final catalog = source.catalogItem;
-    final km = catalog?.kindMetadata;
-    if (km is ComicCatalogMetadata) {
-      metadata = km;
+    final metadata = catalog?.kindMetadata;
+    if (metadata is! ComicCatalogMetadata) {
+      throw StateError('Expected ComicCatalogMetadata for comic workspace');
     }
+    final comic = ComicCatalogMapper.mapMetadataToComic(
+      metadata,
+      id: catalog!.identity.id,
+    );
     return ComicWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),

@@ -1,6 +1,6 @@
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/season.dart';
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +17,8 @@ final seasonsProvider = FutureProvider.autoDispose
       if (envelope.normalized['seasons'] is List) {
         final seasonsList = envelope.normalized['seasons'] as List;
         return seasonsList
-            .map((s) => Season.fromJson(Map<String, dynamic>.from(s as Map)))
+            .map((season) =>
+                Season.fromJson(Map<String, dynamic>.from(season as Map)))
             .toList();
       }
     } catch (_) {}
@@ -44,8 +45,7 @@ final tvSeasonsBySeriesRefProvider = FutureProvider.autoDispose
 final seasonsByCatalogRefProvider =
     FutureProvider.autoDispose.family<List<Season>, CatalogEntityRef>(
   (ref, catalogRef) async {
-    final kind = catalogRef.kind.trim().toLowerCase();
-    if (kind == 'tv') {
+    if (catalogRef.kind.trim().toLowerCase() == 'tv') {
       return ref.watch(tvSeasonsBySeriesRefProvider(catalogRef.id).future);
     }
     return const <Season>[];

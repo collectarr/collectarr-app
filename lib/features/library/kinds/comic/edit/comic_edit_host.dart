@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,7 +12,7 @@ abstract class ComicEditHost {
   ProviderContainer get comicRef;
   Color get comicAccent;
   LibraryTypeConfig get comicLibraryType;
-  LibraryMetadataItem get comicLibraryItem;
+  ComicCatalogItem get comicCatalogItem;
   List<ItemImage> get comicItemImages;
   LibraryEditPresentationState get comicEditPresentation;
 

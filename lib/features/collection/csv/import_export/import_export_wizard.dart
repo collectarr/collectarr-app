@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/xml/collection_xml.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/theme/theme_primitives.dart';
 import 'package:flutter/material.dart';
@@ -298,13 +299,15 @@ class _ExportWizardPane extends StatelessWidget {
       final entry = comics[i];
       final catalog = entry.catalogItem;
       if (catalog == null) continue;
+      final comic = catalog.kindMetadata;
+      if (comic is! ComicCatalogMetadata) continue;
       final owned = entry.ownedItem;
       if (i > 0) {
         buffer.writeln();
         buffer.writeln('<!-- ─── next issue ─── -->');
         buffer.writeln();
       }
-      buffer.write(xml.serialize(catalog, owned));
+      buffer.write(xml.serialize(comic, owned));
     }
     return buffer.toString();
   }

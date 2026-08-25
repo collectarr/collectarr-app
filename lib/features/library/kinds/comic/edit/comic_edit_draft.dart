@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart'
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
@@ -97,7 +98,7 @@ KindEditDraft createComicEditDraft({
 }) {
   final comic = ownedItem?.comicDetails;
   final comicEdit = ComicEditController(
-    item: item,
+    item: item.kindMetadata as ComicCatalogMetadata,
     itemImages: const [],
   );
   comicEdit.initialize();

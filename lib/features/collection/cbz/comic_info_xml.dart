@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:xml/xml.dart';
 
 /// Serializes and deserializes ComicInfo.xml (ComicRack/Kavita/Komga standard).
@@ -8,8 +8,7 @@ class ComicInfoXml {
   const ComicInfoXml();
 
   /// Build a ComicInfo.xml string from catalog + owned data.
-  String serialize(LibraryMetadataItem catalog, [OwnedItem? owned]) {
-    final item = catalog.toCatalogItem();
+  String serialize(ComicCatalogMetadata catalog, [OwnedItem? owned]) {
     final builder = XmlBuilder();
     builder.processing('xml', 'version="1.0" encoding="utf-8"');
     builder.element('ComicInfo', nest: () {
@@ -22,30 +21,29 @@ class ComicInfoXml {
         'http://www.w3.org/2001/XMLSchema',
       );
 
-      _optionalElement(builder, 'Title', item.title);
+      _optionalElement(builder, 'Title', catalog.title);
       _optionalElement(
         builder,
         'Series',
-        item.series?.seriesTitle ?? item.title,
+        catalog.seriesTitle ?? catalog.title,
       );
-      _optionalElement(builder, 'Number', item.itemNumber);
-      if (item.series?.volumeNumber != null) {
+      _optionalElement(builder, 'Number', catalog.issueNumber);
+      if (catalog.series?.volumeNumber != null) {
         _optionalElement(
           builder,
           'Volume',
-          item.series!.volumeNumber.toString(),
+          catalog.series!.volumeNumber.toString(),
         );
       }
-      _optionalElement(builder, 'Summary', item.synopsis);
-      if (item.releaseDate != null) {
-        _optionalElement(builder, 'Year', item.releaseDate!.year.toString());
-        _optionalElement(builder, 'Month', item.releaseDate!.month.toString());
-        _optionalElement(builder, 'Day', item.releaseDate!.day.toString());
-      } else if (item.releaseYear != null) {
-        _optionalElement(builder, 'Year', item.releaseYear.toString());
+      _optionalElement(builder, 'Summary', catalog.synopsis);
+      if (catalog.releaseDate != null) {
+        _optionalElement(builder, 'Year', catalog.releaseDate!.year.toString());
+        _optionalElement(
+            builder, 'Month', catalog.releaseDate!.month.toString());
+        _optionalElement(builder, 'Day', catalog.releaseDate!.day.toString());
       }
-      _optionalElement(builder, 'Publisher', item.publisher);
-      _optionalElement(builder, 'Format', item.physicalFormatLabel);
+      _optionalElement(builder, 'Publisher', catalog.publisher);
+      _optionalElement(builder, 'Format', catalog.physicalFormatLabel);
 
       // Collection-specific fields from OwnedItem
       if (owned != null) {

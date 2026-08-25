@@ -1460,7 +1460,7 @@ extension ComicEditTabBuilders on ComicEditHost {
 
   String _buildComicMarketSearchQuery() {
     return [
-      comicLibraryItem.title,
+      comicCatalogItem.title,
       if (emptyToNull(comicNumberController.text) case final issue?) '#$issue',
       if (emptyToNull(comicPhysicalFormatLabelController.text)
           case final format?)
@@ -1472,7 +1472,7 @@ extension ComicEditTabBuilders on ComicEditHost {
   Widget buildComicCoverTab() {
     final coverUrl = emptyToNull(comicCoverController.text) ??
         emptyToNull(comicThumbnailController.text) ??
-        comicLibraryItem.displayCoverUrl;
+        comicCatalogItem.displayCoverUrl;
     final resolvedImages = _resolvedEditImages();
     final backCover = firstResolvedComicEditImageOfType(
       resolvedImages,

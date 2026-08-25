@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:xml/xml.dart';
 
 /// Exports a generic collection XML containing all shelf entries.
@@ -20,7 +21,10 @@ class CollectionXml {
 
       for (final entry in entries) {
         builder.element('Item', nest: () {
-          final catalog = entry.catalogItem?.toCatalogItem();
+          final metadata = entry.catalogItem?.kindMetadata;
+          final catalog = metadata is ComicCatalogMetadata
+              ? null
+              : entry.catalogItem?.toCatalogItem();
           final owned = entry.ownedItem;
 
           _textElement(builder, 'ItemId', entry.itemId);
@@ -33,7 +37,34 @@ class CollectionXml {
                       ? 'wishlist'
                       : 'tracked');
 
-          if (catalog != null) {
+          if (metadata is ComicCatalogMetadata) {
+            builder.element('Catalog', nest: () {
+              _textElement(builder, 'Kind', 'comic');
+              _textElement(builder, 'Title', metadata.title);
+              _textElement(builder, 'ItemNumber', metadata.issueNumber);
+              _textElement(builder, 'EditionTitle', metadata.editionTitle);
+              _textElement(builder, 'PhysicalFormat', metadata.physicalFormat);
+              _textElement(builder, 'Publisher', metadata.publisher);
+              _textElement(builder, 'Barcode', metadata.barcode);
+              _textElement(builder, 'Variant', metadata.variant);
+              _textElement(builder, 'SeriesTitle', metadata.seriesTitle);
+              if (metadata.series?.volumeNumber != null) {
+                _textElement(
+                    builder, 'VolumeName', metadata.series!.volumeName);
+              }
+              if (metadata.releaseDate != null) {
+                _textElement(builder, 'ReleaseDate',
+                    metadata.releaseDate!.toIso8601String().split('T').first);
+                _textElement(builder, 'ReleaseYear',
+                    metadata.releaseDate!.year.toString());
+              }
+              if (metadata.pageCount != null) {
+                _textElement(
+                    builder, 'PageCount', metadata.pageCount.toString());
+              }
+              _textElement(builder, 'Synopsis', metadata.synopsis);
+            });
+          } else if (catalog != null) {
             builder.element('Catalog', nest: () {
               _textElement(builder, 'Kind', catalog.kind);
               _textElement(builder, 'Title', catalog.title);
