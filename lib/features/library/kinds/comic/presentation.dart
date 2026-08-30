@@ -112,8 +112,8 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   previewLabels: comicsPreviewLabels,
   usesTreeProviderCandidates: true,
   externalFacetBucketIdsByMode: const {
-    'comic.story_arc': LibraryFacetId.comicStoryArc,
-    'comic.character': LibraryFacetId.comicCharacter,
+    'comic.story_arc': ComicFacetIds.storyArc,
+    'comic.character': ComicFacetIds.character,
   },
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,

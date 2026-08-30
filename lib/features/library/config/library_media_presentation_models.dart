@@ -11,6 +11,9 @@ import 'package:collectarr_app/features/library/config/library_kind_workspace_be
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 export 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart'
     show LibraryGroupPresentation, LibraryGroupPresentationLabels;
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart'
+    show LibraryFacetId, LibraryFacetIdRuntime, DynamicLibraryFacetId;
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -719,7 +722,7 @@ class LibraryMediaPresentation {
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final bool usesTreeProviderCandidates;
-  final Map<String, String> externalFacetBucketIdsByMode;
+  final Map<String, LibraryFacetIdRuntime> externalFacetBucketIdsByMode;
   final bool supportsSeriesIssueJump;
   final bool usesTrackListCard;
   final bool showsSeasonGroupProgress;
@@ -765,33 +768,6 @@ String definitionIdFor(Object value) {
     return normalized;
   }
   return normalized.contains('.') ? normalized.split('.').last : normalized;
-}
-
-class LibraryFacetId {
-  const LibraryFacetId(this.value);
-
-  final String value;
-
-  static const comicStoryArc = 'comic.story_arc';
-  static const comicCharacter = 'comic.character';
-  static const mediaCharacter = 'media.character';
-
-  static const comicStoryArcId = LibraryFacetId('comic.story_arc');
-  static const comicCharacterId = LibraryFacetId('comic.character');
-  static const mediaCharacterId = LibraryFacetId('media.character');
-
-  @override
-  bool operator ==(Object other) {
-    if (other is LibraryFacetId) return other.value == value;
-    if (other is String) return other == value;
-    return false;
-  }
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => value;
 }
 
 String librarySortColumnFallbackLabel(String column) {

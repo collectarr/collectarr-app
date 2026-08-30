@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'library_workspace_query.dart';
 
@@ -191,7 +192,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
             if (selectedValues.isEmpty) {
               continue;
             }
-            final values = module.facets?.getFacetValues?.call(item, facetId) ??
+            final values = module.facets?.getFacetValues
+                    ?.call(item, DynamicLibraryFacetId(facetId)) ??
                 const <String>[];
             final hasMatch = values.any((val) => selectedValues.contains(val));
             if (!hasMatch) {
@@ -270,7 +272,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
           if (selectedValues.isEmpty) {
             continue;
           }
-          final values = module.facets?.getFacetValues?.call(item, facetId) ??
+          final values = module.facets?.getFacetValues
+                  ?.call(item, DynamicLibraryFacetId(facetId)) ??
               const <String>[];
           final hasMatch = values.any((val) => selectedValues.contains(val));
           if (!hasMatch) {

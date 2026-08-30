@@ -182,7 +182,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   ProviderSubscription<LibraryFilterState>? _filtersSubscription;
   ProviderSubscription<LibraryViewConfigState>? _viewConfigSubscription;
   String? _lastFacetEnsureSignature;
-  String? _lastFacetEnsureFacetId;
+  LibraryFacetIdRuntime? _lastFacetEnsureFacetId;
   LibraryKindBrowserDelegate _kindBrowserDelegate =
       LibraryNoopBrowserDelegate();
 
@@ -372,7 +372,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return _LibraryFacetControllerOps.usesExternalFacetBuckets(this, mode);
   }
 
-  String? _facetIdForMode(String mode) {
+  LibraryFacetIdRuntime? _facetIdForMode(String mode) {
     return _LibraryFacetControllerOps.facetIdForMode(this, mode);
   }
 
@@ -383,7 +383,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return _LibraryFacetControllerOps.facetBucketsForMode(this, mode, shelf);
   }
 
-  String _facetLoadKey(String facetId, String signature) {
+  String _facetLoadKey(LibraryFacetIdRuntime facetId, String signature) {
     return _LibraryFacetControllerOps.facetLoadKey(this, facetId, signature);
   }
 

@@ -47,7 +47,7 @@ abstract final class _LibraryFacetControllerOps {
     return facetIdForMode(state, mode) != null;
   }
 
-  static String? facetIdForMode(
+  static LibraryFacetIdRuntime? facetIdForMode(
     GenericLibraryPageState state,
     String mode,
   ) {
@@ -84,7 +84,7 @@ abstract final class _LibraryFacetControllerOps {
     GenericLibraryPageState state,
     ShelfState shelf,
     String mode,
-    String facetId,
+    LibraryFacetIdRuntime facetId,
   ) {
     final signature = genericShelfSignature(state, shelf);
     final cached = _controllerState(state).bucketsByFacetId[facetId];
@@ -105,7 +105,7 @@ abstract final class _LibraryFacetControllerOps {
   static Future<void> loadFacetBuckets(
     GenericLibraryPageState state,
     String mode,
-    String facetId,
+    LibraryFacetIdRuntime facetId,
     ShelfState shelf,
     String signature,
   ) async {
@@ -183,10 +183,10 @@ abstract final class _LibraryFacetControllerOps {
 
   static String facetLoadKey(
     GenericLibraryPageState state,
-    String facetId,
+    LibraryFacetIdRuntime facetId,
     String signature,
   ) {
-    return '${state.widget.type.workspace.kind.apiValue}|$facetId|$signature';
+    return '${state.widget.type.workspace.kind.apiValue}|${facetId.value}|$signature';
   }
 
   static String genericShelfSignature(

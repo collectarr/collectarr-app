@@ -80,8 +80,8 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   statsLabels: mangaStatsLabels,
   usesTreeProviderCandidates: true,
   externalFacetBucketIdsByMode: const {
-    'manga.genre': 'manga.genre',
-    'manga.demographic': 'manga.demographic',
+    'manga.genre': MangaFacetIds.genre,
+    'manga.demographic': MangaFacetIds.demographic,
   },
   supportsSeriesIssueJump: true,
   usesCompactTableLayout: true,

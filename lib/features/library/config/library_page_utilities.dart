@@ -8,8 +8,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
-import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart'
-    hide LibraryFacetId;
+import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -117,7 +116,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   /// Fetch facet rows from the API and build [FacetBuckets].
   Future<FacetBuckets> fetchFacetBuckets({
     required LibraryTypeConfig type,
-    required String facetId,
+    required LibraryFacetIdRuntime facetId,
     required Set<String> itemIds,
     required String signature,
     String? allBucketLabel,
@@ -135,11 +134,11 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
             facetId: facetId,
             itemIds: itemIds,
             queryExecutor: ({
-              required String facetId,
+              required LibraryFacetIdRuntime facetId,
               required Set<String> itemIds,
             }) {
               final api = ref.read(apiClientProvider);
-              return switch (facetId) {
+              return switch (facetId.value) {
                 'comic.story_arc' => api.storyArcFacets(itemIds),
                 'comic.character' ||
                 'media.character' =>
@@ -162,7 +161,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   }
 
   static Future<List<Map<String, dynamic>>> libraryFacetRowsForId({
-    required String facetId,
+    required LibraryFacetIdRuntime facetId,
     required Set<String> itemIds,
     LibraryFacetQueryExecutor? queryExecutor,
   }) {

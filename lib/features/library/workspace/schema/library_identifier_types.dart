@@ -162,10 +162,16 @@ final class DynamicLibraryGroupId implements LibraryGroupIdRuntime {
   String toString() => value;
 }
 
+/// Controlled runtime interface for facet identifiers to allow heterogeneous collection handling without type erasure to dynamic.
+abstract interface class LibraryFacetIdRuntime {
+  String get value;
+}
+
 /// Strongly typed facet identifier bound to a concrete kind [TKind] and facet value type [TValue].
-final class LibraryFacetId<TKind, TValue> {
+final class LibraryFacetId<TKind, TValue> implements LibraryFacetIdRuntime {
   const LibraryFacetId(this.value);
 
+  @override
   final String value;
 
   @override
@@ -175,6 +181,24 @@ final class LibraryFacetId<TKind, TValue> {
 
   @override
   int get hashCode => Object.hash(TKind, TValue, value);
+
+  @override
+  String toString() => value;
+}
+
+/// Dynamic or decoded runtime facet identifier.
+final class DynamicLibraryFacetId implements LibraryFacetIdRuntime {
+  const DynamicLibraryFacetId(this.value);
+
+  @override
+  final String value;
+
+  @override
+  bool operator ==(Object other) =>
+      other is LibraryFacetIdRuntime && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
 
   @override
   String toString() => value;

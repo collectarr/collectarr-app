@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryFacetControllerState {
@@ -7,11 +8,11 @@ class LibraryFacetControllerState {
     this.loadsInFlight = const {},
   });
 
-  final Map<String, FacetBuckets> bucketsByFacetId;
+  final Map<LibraryFacetIdRuntime, FacetBuckets> bucketsByFacetId;
   final Set<String> loadsInFlight;
 
   LibraryFacetControllerState copyWith({
-    Map<String, FacetBuckets>? bucketsByFacetId,
+    Map<LibraryFacetIdRuntime, FacetBuckets>? bucketsByFacetId,
     Set<String>? loadsInFlight,
   }) {
     return LibraryFacetControllerState(
@@ -52,8 +53,8 @@ class LibraryFacetControllerNotifier
     state = state.copyWith(loadsInFlight: next);
   }
 
-  void setBuckets(String facetId, FacetBuckets buckets) {
-    final next = Map<String, FacetBuckets>.from(state.bucketsByFacetId)
+  void setBuckets(LibraryFacetIdRuntime facetId, FacetBuckets buckets) {
+    final next = Map<LibraryFacetIdRuntime, FacetBuckets>.from(state.bucketsByFacetId)
       ..[facetId] = buckets;
     state = state.copyWith(bucketsByFacetId: next);
   }

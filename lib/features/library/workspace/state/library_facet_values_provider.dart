@@ -5,6 +5,8 @@ import 'package:collectarr_app/features/library/workspace/data/library_workspace
 import 'package:collectarr_app/features/library/workspace/data/library_workspace_query.dart';
 import 'library_workspace_key.dart';
 
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+
 /// Input parameters for the [libraryLocalFacetValuesProvider].
 class LibraryFacetValuesInput {
   const LibraryFacetValuesInput({
@@ -13,7 +15,7 @@ class LibraryFacetValuesInput {
   });
 
   final LibraryWorkspaceKey key;
-  final String facetId;
+  final LibraryFacetIdRuntime facetId;
 
   @override
   bool operator ==(Object other) =>
@@ -33,8 +35,8 @@ class LibraryFacetValuesInput {
 final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
     .family<List<String>, LibraryFacetValuesInput>((ref, input) {
   final module = libraryKindRuntimeForKind(input.key.kind);
-  final groupDef = module.fields.findGroupDefinition(input.facetId);
-  final columnDef = module.fields.findColumnDefinition(input.facetId);
+  final groupDef = module.fields.findGroupDefinition(input.facetId.value);
+  final columnDef = module.fields.findColumnDefinition(input.facetId.value);
 
   if (groupDef == null &&
       columnDef == null &&

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/workspace/state/library_search_debounce_provider.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_providers.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
 import '../../../../helpers/test_data_factories.dart';
 
 void main() {
@@ -250,13 +251,13 @@ void main() {
 
       final sub = container.listen(
         libraryLocalFacetValuesProvider(
-            LibraryFacetValuesInput(key: key, facetId: 'publisher')),
+            LibraryFacetValuesInput(key: key, facetId: ComicFacetIds.publisher)),
         (previous, next) {},
       );
 
       final publishers = await container.read(
         libraryLocalFacetValuesProvider(
-                LibraryFacetValuesInput(key: key, facetId: 'publisher'))
+                LibraryFacetValuesInput(key: key, facetId: ComicFacetIds.publisher))
             .future,
       );
 

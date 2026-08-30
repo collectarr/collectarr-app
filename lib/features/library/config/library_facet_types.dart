@@ -2,27 +2,10 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 import 'package:flutter/foundation.dart';
 
 export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart'
-    show LibraryFacetId;
+    show LibraryFacetId, LibraryFacetIdRuntime, DynamicLibraryFacetId;
 
-@immutable
-class LibraryTypedFacetId<TKind, TValue> {
-  const LibraryTypedFacetId(this.value);
-
-  final String value;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is LibraryTypedFacetId &&
-          runtimeType == other.runtimeType &&
-          value == other.value;
-
-  @override
-  int get hashCode => value.hashCode;
-
-  @override
-  String toString() => 'LibraryTypedFacetId($value)';
-}
+/// Backwards compatibility alias for [LibraryFacetId].
+typedef LibraryTypedFacetId<TKind, TValue> = LibraryFacetId<TKind, TValue>;
 
 @immutable
 class LibraryFacetBucket<TValue> {
@@ -60,7 +43,7 @@ class LibraryFacetQuery<TValue> {
     this.offset = 0,
   });
 
-  final String facetId;
+  final LibraryFacetIdRuntime facetId;
   final String? searchQuery;
   final int limit;
   final int offset;
@@ -74,7 +57,7 @@ class LibraryFacetDefinition<TKind, TDto, TValue> {
     required this.extractValues,
   });
 
-  final LibraryTypedFacetId<TKind, TValue> id;
+  final LibraryFacetId<TKind, TValue> id;
   final String label;
   final Iterable<TValue> Function(TDto dto) extractValues;
 }
