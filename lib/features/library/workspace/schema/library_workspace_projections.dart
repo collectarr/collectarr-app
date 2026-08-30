@@ -53,18 +53,27 @@ class WorkspaceCommonProjection {
     }
 
     final payload = catalog?.toSyncPayload() ?? const {};
-    final seriesPayload = (payload['series'] as Map?) ?? payload;
-    final pubPayload = (payload['publishing'] as Map?) ?? payload;
+    final rawSeries = payload['series'];
+    final seriesMap = rawSeries is Map ? rawSeries : null;
+    final rawPub = payload['publishing'];
+    final pubMap = rawPub is Map ? rawPub : null;
 
     return WorkspaceCommonProjection(
       title: overrideTitle ?? catalog?.displayTitle ?? catalog?.title ?? '',
       seriesTitle: overrideSeriesTitle ??
-          (seriesPayload['series_title'] ?? seriesPayload['seriesTitle'])
+          (seriesMap?['series_title'] ??
+                  seriesMap?['seriesTitle'] ??
+                  (rawSeries is String ? rawSeries : null) ??
+                  payload['series_title'] ??
+                  payload['seriesTitle'])
               ?.toString(),
       itemNumber: (payload['item_number'] ?? payload['itemNumber'])?.toString(),
       publisher: overridePublisher ??
           edition?.publisher ??
-          (payload['publisher'] ?? pubPayload['original_publisher'])?.toString(),
+          (payload['publisher'] ??
+                  pubMap?['original_publisher'] ??
+                  (rawPub is String ? rawPub : null))
+              ?.toString(),
       releaseDate:
           overrideReleaseDate ?? edition?.releaseDate ?? catalog?.releaseDate,
       variant: overrideVariant ??
@@ -76,9 +85,9 @@ class WorkspaceCommonProjection {
           edition?.upc ??
           payload['barcode']?.toString(),
       grade: source.ownedItem?.grade,
-      country: (payload['country'] ?? pubPayload['original_country'])?.toString(),
+      country: (payload['country'] ?? pubMap?['original_country'])?.toString(),
       language: edition?.language ??
-          (payload['language'] ?? pubPayload['original_language'])?.toString(),
+          (payload['language'] ?? pubMap?['original_language'])?.toString(),
       currency: source.ownedItem?.currency,
       referenceFormatLabel: primaryVariant?.physicalFormatLabel ??
           edition?.physicalFormatLabel ??

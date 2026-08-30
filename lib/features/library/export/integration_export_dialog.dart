@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -86,11 +88,12 @@ class _IntegrationExportDialog extends StatelessWidget {
   }
 
   void _export(BuildContext context, ExportFormat format) {
+    final module = libraryKindRuntimeForType(type);
     final data = switch (format) {
-      ExportFormat.csv => _toCsv(),
-      ExportFormat.json => _toJson(),
-      ExportFormat.xml => _toXml(),
-      ExportFormat.markdown => _toMarkdown(),
+      ExportFormat.csv => _toCsv(module),
+      ExportFormat.json => _toJson(module),
+      ExportFormat.xml => _toXml(module),
+      ExportFormat.markdown => _toMarkdown(module),
     };
     Clipboard.setData(ClipboardData(text: data));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -99,26 +102,24 @@ class _IntegrationExportDialog extends StatelessWidget {
     Navigator.pop(context);
   }
 
-  String _toCsv() {
+  String _toCsv(LibraryKindRuntime module) {
     final buffer = StringBuffer();
-    buffer.writeln('Title,Issue,Series,Publisher,Barcode,Condition,Grade');
+    buffer.writeln('Title,Number,Series,Publisher,Barcode,Condition,Grade');
     for (final entry in shelfState.entries) {
-      final cat = entry.catalogItem;
-      final payload = cat?.kindMetadata.toSyncPayload();
+      final projection = module.project(
+        source: entry,
+        node: LibraryTitleNodeRef(
+          titleItemId: entry.catalogItem?.id ?? entry.itemId,
+        ),
+      );
+      final dto = projection.dto;
       final own = entry.ownedItem;
-      final seriesTitle = (payload?['series_title'] ??
-          (payload?['series'] as Map?)?['series_title']) as String?;
-      final itemNumber = (payload?['item_number'] ??
-          (payload?['publishing'] as Map?)?['issue_number']) as String?;
-      final publisher = (payload?['publisher'] ??
-          (payload?['publishing'] as Map?)?['original_publisher']) as String?;
-      final barcode = payload?['barcode'] as String?;
       buffer.writeln([
         _escapeCsv(entry.title),
-        _escapeCsv(itemNumber ?? ''),
-        _escapeCsv(seriesTitle ?? ''),
-        _escapeCsv(publisher ?? ''),
-        _escapeCsv(barcode ?? ''),
+        _escapeCsv(dto.itemNumber ?? ''),
+        _escapeCsv(dto.seriesTitle ?? ''),
+        _escapeCsv(dto.publisher ?? ''),
+        _escapeCsv(dto.barcode ?? ''),
         _escapeCsv(own?.condition ?? ''),
         _escapeCsv(own?.grade ?? ''),
       ].join(','));
@@ -126,24 +127,23 @@ class _IntegrationExportDialog extends StatelessWidget {
     return buffer.toString();
   }
 
-  String _toJson() {
+  String _toJson(LibraryKindRuntime module) {
     final items = shelfState.entries.map((e) {
+      final projection = module.project(
+        source: e,
+        node: LibraryTitleNodeRef(
+          titleItemId: e.catalogItem?.id ?? e.itemId,
+        ),
+      );
+      final dto = projection.dto;
       final cat = e.catalogItem;
-      final payload = cat?.kindMetadata.toSyncPayload();
       final own = e.ownedItem;
-      final seriesTitle = (payload?['series_title'] ??
-          (payload?['series'] as Map?)?['series_title']) as String?;
-      final itemNumber = (payload?['item_number'] ??
-          (payload?['publishing'] as Map?)?['issue_number']) as String?;
-      final publisher = (payload?['publisher'] ??
-          (payload?['publishing'] as Map?)?['original_publisher']) as String?;
-      final barcode = payload?['barcode'] as String?;
       return {
         'title': e.title,
-        if (itemNumber != null) 'issue': itemNumber,
-        if (seriesTitle != null) 'series': seriesTitle,
-        if (publisher != null) 'publisher': publisher,
-        if (barcode != null) 'barcode': barcode,
+        if (dto.itemNumber != null) 'number': dto.itemNumber,
+        if (dto.seriesTitle != null) 'series': dto.seriesTitle,
+        if (dto.publisher != null) 'publisher': dto.publisher,
+        if (dto.barcode != null) 'barcode': dto.barcode,
         if (own?.condition != null) 'condition': own!.condition,
         if (own?.grade != null) 'grade': own!.grade,
         if (cat?.releaseYear != null) 'year': cat!.releaseYear,
@@ -157,35 +157,33 @@ class _IntegrationExportDialog extends StatelessWidget {
     });
   }
 
-  String _toXml() {
+  String _toXml(LibraryKindRuntime module) {
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     buffer.writeln(
         '<collection name="${_escapeXml(type.workspace.title)}" count="${shelfState.entries.length}">');
     for (final entry in shelfState.entries) {
-      final cat = entry.catalogItem;
-      final payload = cat?.kindMetadata.toSyncPayload();
+      final projection = module.project(
+        source: entry,
+        node: LibraryTitleNodeRef(
+          titleItemId: entry.catalogItem?.id ?? entry.itemId,
+        ),
+      );
+      final dto = projection.dto;
       final own = entry.ownedItem;
-      final seriesTitle = (payload?['series_title'] ??
-          (payload?['series'] as Map?)?['series_title']) as String?;
-      final itemNumber = (payload?['item_number'] ??
-          (payload?['publishing'] as Map?)?['issue_number']) as String?;
-      final publisher = (payload?['publisher'] ??
-          (payload?['publishing'] as Map?)?['original_publisher']) as String?;
-      final barcode = payload?['barcode'] as String?;
       buffer.writeln('  <item>');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
-      if (itemNumber != null) {
-        buffer.writeln('    <issue>${_escapeXml(itemNumber)}</issue>');
+      if (dto.itemNumber != null) {
+        buffer.writeln('    <number>${_escapeXml(dto.itemNumber!)}</number>');
       }
-      if (seriesTitle != null) {
-        buffer.writeln('    <series>${_escapeXml(seriesTitle)}</series>');
+      if (dto.seriesTitle != null) {
+        buffer.writeln('    <series>${_escapeXml(dto.seriesTitle!)}</series>');
       }
-      if (publisher != null) {
-        buffer.writeln('    <publisher>${_escapeXml(publisher)}</publisher>');
+      if (dto.publisher != null) {
+        buffer.writeln('    <publisher>${_escapeXml(dto.publisher!)}</publisher>');
       }
-      if (barcode != null) {
-        buffer.writeln('    <barcode>${_escapeXml(barcode)}</barcode>');
+      if (dto.barcode != null) {
+        buffer.writeln('    <barcode>${_escapeXml(dto.barcode!)}</barcode>');
       }
       if (own?.condition != null) {
         buffer.writeln(
@@ -197,22 +195,27 @@ class _IntegrationExportDialog extends StatelessWidget {
     return buffer.toString();
   }
 
-  String _toMarkdown() {
+  String _toMarkdown(LibraryKindRuntime module) {
     final buffer = StringBuffer();
     buffer.writeln('# ${type.workspace.title}');
     buffer.writeln('');
     buffer.writeln('**${shelfState.entries.length} items**');
     buffer.writeln('');
     for (final entry in shelfState.entries) {
-      final cat = entry.catalogItem;
-      final payload = cat?.kindMetadata.toSyncPayload();
-      final seriesTitle = (payload?['series_title'] ??
-          (payload?['series'] as Map?)?['series_title']) as String?;
-      final itemNumber = (payload?['item_number'] ??
-          (payload?['publishing'] as Map?)?['issue_number']) as String?;
+      final projection = module.project(
+        source: entry,
+        node: LibraryTitleNodeRef(
+          titleItemId: entry.catalogItem?.id ?? entry.itemId,
+        ),
+      );
+      final dto = projection.dto;
       final parts = <String>[entry.title];
-      if (itemNumber != null) parts.add('#$itemNumber');
-      if (seriesTitle != null) parts.add('($seriesTitle)');
+      if (dto.itemNumber != null && dto.itemNumber!.isNotEmpty) {
+        parts.add('#${dto.itemNumber}');
+      }
+      if (dto.seriesTitle != null && dto.seriesTitle!.isNotEmpty) {
+        parts.add('(${dto.seriesTitle})');
+      }
       buffer.writeln('- [ ] ${parts.join(' ')}');
     }
     return buffer.toString();

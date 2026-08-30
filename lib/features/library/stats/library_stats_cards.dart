@@ -168,7 +168,7 @@ class LibraryStatsHealthCard extends StatelessWidget {
   });
 
   final String title;
-  final List<ComicsStatsHealthRow> rows;
+  final List<LibraryStatsHealthRow> rows;
 
   @override
   Widget build(BuildContext context) {
@@ -188,8 +188,8 @@ class LibraryStatsHealthCard extends StatelessWidget {
   }
 }
 
-class ComicsStatsHealthRow {
-  const ComicsStatsHealthRow({
+class LibraryStatsHealthRow {
+  const LibraryStatsHealthRow({
     required this.label,
     required this.fraction,
   });
@@ -197,6 +197,8 @@ class ComicsStatsHealthRow {
   final String label;
   final double fraction;
 }
+
+typedef ComicsStatsHealthRow = LibraryStatsHealthRow;
 
 class LibraryMissingIssuesCard extends StatelessWidget {
   const LibraryMissingIssuesCard({

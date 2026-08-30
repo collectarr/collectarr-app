@@ -38,10 +38,16 @@ class InsuranceValueRepository {
   final LocalDatabase _db;
 
   Future<InsuranceValueSummary> getSummary({String? mediaKind}) async {
+    final whereKindOwned =
+        mediaKind != null ? " AND c.kind = '$mediaKind'" : '';
+    final joinCatalog = mediaKind != null
+        ? ' INNER JOIN catalog_cache c ON o.item_id = c.id'
+        : '';
+
     // Count total owned items
     final countResult = await _db
         .customSelect(
-          'SELECT COUNT(*) as cnt FROM owned_items_cache WHERE deleted_at IS NULL',
+          'SELECT COUNT(*) as cnt FROM owned_items_cache o$joinCatalog WHERE o.deleted_at IS NULL$whereKindOwned',
         )
         .getSingle();
     final totalItems = countResult.data['cnt'] as int;
@@ -49,8 +55,8 @@ class InsuranceValueRepository {
     // Sum price_paid_cents
     final paidResult = await _db
         .customSelect(
-          'SELECT COUNT(*) as cnt, COALESCE(SUM(price_paid_cents), 0) as total '
-          'FROM owned_items_cache WHERE deleted_at IS NULL AND price_paid_cents IS NOT NULL',
+          'SELECT COUNT(*) as cnt, COALESCE(SUM(o.price_paid_cents), 0) as total '
+          'FROM owned_items_cache o$joinCatalog WHERE o.deleted_at IS NULL AND o.price_paid_cents IS NOT NULL$whereKindOwned',
         )
         .getSingle();
     final itemsWithValue = paidResult.data['cnt'] as int;
@@ -62,7 +68,7 @@ class InsuranceValueRepository {
           'SELECT COALESCE(SUM(c.cover_price_cents), 0) as total '
           'FROM owned_items_cache o '
           'INNER JOIN catalog_cache c ON o.item_id = c.id '
-          'WHERE o.deleted_at IS NULL AND c.cover_price_cents IS NOT NULL',
+          'WHERE o.deleted_at IS NULL AND c.cover_price_cents IS NOT NULL$whereKindOwned',
         )
         .getSingle();
     final totalCoverPrice = coverResult.data['total'] as int;

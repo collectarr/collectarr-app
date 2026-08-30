@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';
 
@@ -32,38 +33,38 @@ class _GenericStatsDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = libraryStatsColors(context);
-    final totalValue = state.totalPaidCents == null
-        ? '-'
-        : formatMoney(state.totalPaidCents, state.primaryCurrency);
-    final netValue =
-        state.totalPaidCents == null || state.totalSellCents == null
-            ? null
-            : formatMoney(
-                state.totalSellCents! - state.totalPaidCents!,
-                state.primaryCurrency,
-              );
-    final collectionValue = state.hasMixedCoverPriceCurrencies
-        ? '${state.coverPricedCount} valued'
-        : state.totalCoverPriceCents == null || state.totalCoverPriceCents == 0
-            ? null
-            : formatMoney(state.totalCoverPriceCents, state.coverPriceCurrency);
-    final sellValue = state.totalSellCents == null || state.totalSellCents == 0
-        ? null
-        : formatMoney(state.totalSellCents, state.primaryCurrency);
-    final missingCovers = state.entries
-        .where((e) => e.catalogItem?.common.coverImageUrl == null)
-        .length;
-    final missingMetadata = _missingMetadataCount(state.entries);
-    final valueCoverage =
-        state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
-    final metadataQualityBands = _metadataQualityBands(state.entries);
-    final metadataAlertCounts = _metadataAlertCounts(state.entries, type);
+      final totalValue = state.totalPaidCents == null
+          ? '-'
+          : formatMoney(state.totalPaidCents, state.primaryCurrency);
+      final netValue =
+          state.totalPaidCents == null || state.totalSellCents == null
+              ? null
+              : formatMoney(
+                  state.totalSellCents! - state.totalPaidCents!,
+                  state.primaryCurrency,
+                );
+      final collectionValue = state.hasMixedCoverPriceCurrencies
+          ? '${state.coverPricedCount} valued'
+          : state.totalCoverPriceCents == null || state.totalCoverPriceCents == 0
+              ? null
+              : formatMoney(state.totalCoverPriceCents, state.coverPriceCurrency);
+      final sellValue = state.totalSellCents == null || state.totalSellCents == 0
+          ? null
+          : formatMoney(state.totalSellCents, state.primaryCurrency);
+      final missingCovers = state.entries
+          .where((e) => e.catalogItem?.common.coverImageUrl == null)
+          .length;
+      final module = libraryKindRuntimeForType(type);
+      final missingMetadata = _missingMetadataCount(state.entries, module);
+      final valueCoverage =
+          state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
+      final metadataQualityBands = _metadataQualityBands(state.entries, module);
+      final metadataAlertCounts = _metadataAlertCounts(state.entries, type, module);
 
-    final kindRuntime = defaultLibraryKindRegistry.tryGet(type.workspace.kind);
-    final kindSummaryTiles =
-        kindRuntime?.stats.buildSummaryTiles(state, type) ?? const [];
-    final kindCustomCards =
-        kindRuntime?.stats.buildCustomCards(context, state, type) ?? const [];
+      final kindSummaryTiles =
+          module.stats.buildSummaryTiles(state, type);
+      final kindCustomCards =
+          module.stats.buildCustomCards(context, state, type);
 
     return Dialog(
       clipBehavior: Clip.antiAlias,
@@ -162,11 +163,11 @@ class _GenericStatsDashboard extends StatelessWidget {
                           final children = <Widget>[
                             LibraryStatsRankedCard(
                               title: _seriesLabel,
-                              values: _topSeriesCounts(state.entries),
+                              values: _topSeriesCounts(state.entries, module),
                             ),
                             LibraryStatsRankedCard(
                               title: _publisherLabel,
-                              values: _topPublisherCounts(state.entries),
+                              values: _topPublisherCounts(state.entries, module),
                             ),
                             if (state.gradeCounts.isNotEmpty)
                               LibraryStatsDistributionCard(
@@ -189,7 +190,7 @@ class _GenericStatsDashboard extends StatelessWidget {
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Most Invested Series',
-                                values: _topInvestedSeries(state.entries),
+                                values: _topInvestedSeries(state.entries, module),
                                 currency: state.primaryCurrency,
                               ),
                             if (!state.hasMixedCurrencies &&
@@ -203,18 +204,18 @@ class _GenericStatsDashboard extends StatelessWidget {
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Top Sales Series',
-                                values: _topSalesSeries(state.entries),
+                                values: _topSalesSeries(state.entries, module),
                                 currency: state.primaryCurrency,
                               ),
                             _TrackingStatusCard(entries: state.entries),
                             LibraryStatsHealthCard(
                               title: 'Data Health',
                               rows: [
-                                ComicsStatsHealthRow(
+                                LibraryStatsHealthRow(
                                   label: 'Value coverage',
                                   fraction: valueCoverage,
                                 ),
-                                ComicsStatsHealthRow(
+                                LibraryStatsHealthRow(
                                   label: 'Graded coverage',
                                   fraction: state.ownedCount == 0
                                       ? 0.0
@@ -222,7 +223,7 @@ class _GenericStatsDashboard extends StatelessWidget {
                                               state.missingGradeCount) /
                                           state.ownedCount,
                                 ),
-                                ComicsStatsHealthRow(
+                                LibraryStatsHealthRow(
                                   label: 'Metadata coverage',
                                   fraction: state.entries.isEmpty
                                       ? 0.0
@@ -230,7 +231,7 @@ class _GenericStatsDashboard extends StatelessWidget {
                                               missingMetadata) /
                                           state.entries.length,
                                 ),
-                                ComicsStatsHealthRow(
+                                LibraryStatsHealthRow(
                                   label: 'Cover coverage',
                                   fraction: state.entries.isEmpty
                                       ? 0.0
@@ -283,40 +284,51 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _statsLabels.topPublisher;
   }
 
-  static Map<String, int> _topSeriesCounts(List<ShelfEntry> entries) {
+  static Map<String, int> _topSeriesCounts(
+    List<ShelfEntry> entries,
+    LibraryKindRuntime module,
+  ) {
     return _countBy(
       entries,
       (e) {
-        final payload = e.catalogItem?.payload;
-        final seriesRaw = payload?['series'];
-        final series = (payload?['series_title'] ??
-            (seriesRaw is Map
-                ? seriesRaw['series_title']
-                : seriesRaw)) as String?;
-        return series ??
-            e.catalogItem?.common.displayTitle ??
-            e.catalogItem?.common.title ??
-            'Unknown';
+        final dto = module
+            .project(
+              source: e,
+              node: LibraryTitleNodeRef(
+                titleItemId: e.catalogItem?.id ?? e.itemId,
+              ),
+            )
+            .dto;
+        return dto.seriesTitle ??
+            dto.title;
       },
     );
   }
 
-  static Map<String, int> _topPublisherCounts(List<ShelfEntry> entries) {
+  static Map<String, int> _topPublisherCounts(
+    List<ShelfEntry> entries,
+    LibraryKindRuntime module,
+  ) {
     return _countBy(
       entries,
       (e) {
-        final payload = e.catalogItem?.payload;
-        final pubRaw = payload?['publishing'];
-        final pub = (payload?['publisher'] ??
-            (pubRaw is Map
-                ? pubRaw['original_publisher']
-                : null)) as String?;
-        return pub ?? 'Unknown';
+        final dto = module
+            .project(
+              source: e,
+              node: LibraryTitleNodeRef(
+                titleItemId: e.catalogItem?.id ?? e.itemId,
+              ),
+            )
+            .dto;
+        return dto.publisher ?? 'Unknown';
       },
     );
   }
 
-  static int _missingMetadataCount(List<ShelfEntry> entries) {
+  static int _missingMetadataCount(
+    List<ShelfEntry> entries,
+    LibraryKindRuntime module,
+  ) {
     var count = 0;
     for (final entry in entries) {
       final cat = entry.catalogItem;
@@ -324,13 +336,17 @@ class _GenericStatsDashboard extends StatelessWidget {
         count++;
         continue;
       }
-      final payload = cat.payload;
-      final pubRaw = payload['publishing'];
-      final publisher = (payload['publisher'] ??
-          (pubRaw is Map ? pubRaw['original_publisher'] : null)) as String?;
+      final dto = module
+          .project(
+            source: entry,
+            node: LibraryTitleNodeRef(
+              titleItemId: cat.id,
+            ),
+          )
+          .dto;
       final hasSynopsis =
           cat.common.synopsis != null && cat.common.synopsis!.trim().isNotEmpty;
-      final hasPublisher = publisher != null && publisher.trim().isNotEmpty;
+      final hasPublisher = dto.publisher != null && dto.publisher!.trim().isNotEmpty;
       if (!hasSynopsis && !hasPublisher) {
         count++;
       }
@@ -346,20 +362,23 @@ class _GenericStatsDashboard extends StatelessWidget {
     );
   }
 
-  static Map<String, int> _topInvestedSeries(List<ShelfEntry> entries) {
+  static Map<String, int> _topInvestedSeries(
+    List<ShelfEntry> entries,
+    LibraryKindRuntime module,
+  ) {
     return _sumBy(
       entries,
       (entry) {
-        final payload = entry.catalogItem?.payload;
-        final seriesRaw = payload?['series'];
-        final series = (payload?['series_title'] ??
-            (seriesRaw is Map
-                ? seriesRaw['series_title']
-                : seriesRaw)) as String?;
-        return series ??
-            entry.catalogItem?.common.displayTitle ??
-            entry.catalogItem?.common.title ??
-            'Unknown';
+        final dto = module
+            .project(
+              source: entry,
+              node: LibraryTitleNodeRef(
+                titleItemId: entry.catalogItem?.id ?? entry.itemId,
+              ),
+            )
+            .dto;
+        return dto.seriesTitle ??
+            dto.title;
       },
       (entry) => entry.ownedItem?.pricePaidCents,
     );
@@ -373,26 +392,32 @@ class _GenericStatsDashboard extends StatelessWidget {
     );
   }
 
-  static Map<String, int> _topSalesSeries(List<ShelfEntry> entries) {
+  static Map<String, int> _topSalesSeries(
+    List<ShelfEntry> entries,
+    LibraryKindRuntime module,
+  ) {
     return _sumBy(
       entries,
       (entry) {
-        final payload = entry.catalogItem?.payload;
-        final seriesRaw = payload?['series'];
-        final series = (payload?['series_title'] ??
-            (seriesRaw is Map
-                ? seriesRaw['series_title']
-                : seriesRaw)) as String?;
-        return series ??
-            entry.catalogItem?.common.displayTitle ??
-            entry.catalogItem?.common.title ??
-            'Unknown';
+        final dto = module
+            .project(
+              source: entry,
+              node: LibraryTitleNodeRef(
+                titleItemId: entry.catalogItem?.id ?? entry.itemId,
+              ),
+            )
+            .dto;
+        return dto.seriesTitle ??
+            dto.title;
       },
       (entry) => entry.ownedItem?.sellPriceCents,
     );
   }
 
-  static Map<String, int> _metadataQualityBands(List<ShelfEntry> entries) {
+  static Map<String, int> _metadataQualityBands(
+    List<ShelfEntry> entries,
+    LibraryKindRuntime module,
+  ) {
     final counts = <String, int>{
       'Strong': 0,
       'Usable': 0,
@@ -400,7 +425,7 @@ class _GenericStatsDashboard extends StatelessWidget {
       'Needs work': 0,
     };
     for (final entry in entries) {
-      final band = _metadataBand(entry);
+      final band = _metadataBand(entry, module);
       counts[band] = (counts[band] ?? 0) + 1;
     }
     return counts;
@@ -409,6 +434,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   static Map<String, int> _metadataAlertCounts(
     List<ShelfEntry> entries,
     LibraryTypeConfig type,
+    LibraryKindRuntime module,
   ) {
     final labels = libraryMediaGroupLabels(type);
     final missingPublisherLabel = 'Missing ${labels.publisher.toLowerCase()}';
@@ -421,7 +447,14 @@ class _GenericStatsDashboard extends StatelessWidget {
             (counts['No catalog snapshot'] ?? 0) + 1;
         continue;
       }
-      final payload = item.payload;
+      final dto = module
+          .project(
+            source: entry,
+            node: LibraryTitleNodeRef(
+              titleItemId: item.id,
+            ),
+          )
+          .dto;
       if (item.common.displayCoverUrl == null ||
           item.common.displayCoverUrl!.trim().isEmpty) {
         counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
@@ -430,23 +463,11 @@ class _GenericStatsDashboard extends StatelessWidget {
           item.common.synopsis!.trim().isEmpty) {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
-      final pubRaw = payload['publishing'];
-      final publisher = (payload['publisher'] ??
-          (pubRaw is Map ? pubRaw['original_publisher'] : null)) as String?;
-      if (publisher == null || publisher.trim().isEmpty) {
+      if (dto.publisher == null || dto.publisher!.trim().isEmpty) {
         counts[missingPublisherLabel] =
             (counts[missingPublisherLabel] ?? 0) + 1;
       }
-      final creators = payload['creators'] as List?;
-      if (creators == null || creators.isEmpty) {
-        counts['Missing creators'] = (counts['Missing creators'] ?? 0) + 1;
-      }
-      final seriesRaw = payload['series'];
-      final seriesTitle = ((payload['series_title'] ??
-          (seriesRaw is Map
-              ? seriesRaw['series_title']
-              : seriesRaw)) as String?)?.trim();
-      if (seriesTitle == null || seriesTitle.isEmpty) {
+      if (dto.seriesTitle == null || dto.seriesTitle!.isEmpty) {
         counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
       }
       if (item.id.startsWith('provider:')) {
@@ -457,7 +478,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     return counts;
   }
 
-  static String _metadataBand(ShelfEntry entry) {
+  static String _metadataBand(ShelfEntry entry, LibraryKindRuntime module) {
     final item = entry.catalogItem;
     if (item == null) {
       return 'Needs work';
@@ -469,54 +490,37 @@ class _GenericStatsDashboard extends StatelessWidget {
       }
     }
 
-    final payload = item.payload;
-    final pubRaw = payload['publishing'];
-    final publisher = (payload['publisher'] ??
-        (pubRaw is Map ? pubRaw['original_publisher'] : null)) as String?;
-    final seriesRaw = payload['series'];
-    final seriesTitle = ((payload['series_title'] ??
-        (seriesRaw is Map
-            ? seriesRaw['series_title']
-            : seriesRaw)) as String?)?.trim();
-    final itemNumber = payload['item_number'] as String?;
-    final creators = payload['creators'] as List?;
-    final characters = payload['characters'] as List?;
-    final storyArcs = payload['story_arcs'] as List?;
-    final genres = payload['genres'] as List?;
+    final dto = module
+        .project(
+          source: entry,
+          node: LibraryTitleNodeRef(
+            titleItemId: item.id,
+          ),
+        )
+        .dto;
 
     add(
       item.common.displayCoverUrl != null &&
           item.common.displayCoverUrl!.trim().isNotEmpty,
-      18,
+      25,
     );
     add(
       item.common.synopsis != null &&
           item.common.synopsis!.trim().isNotEmpty,
-      16,
+      25,
     );
-    add(publisher != null && publisher.trim().isNotEmpty, 10);
-    add(item.releaseDate != null || item.releaseYear != null, 10);
-    add(seriesTitle != null && seriesTitle.isNotEmpty, 10);
-    add(itemNumber != null && itemNumber.trim().isNotEmpty, 6);
-    add(creators != null && creators.isNotEmpty, 12);
-    add(characters != null && characters.isNotEmpty, 6);
-    add(storyArcs != null && storyArcs.isNotEmpty, 4);
-    add(genres != null && genres.isNotEmpty, 4);
-    add(
-      item.common.displayCoverUrl != null &&
-          item.common.displayCoverUrl!.trim().isNotEmpty &&
-          item.common.synopsis != null &&
-          item.common.synopsis!.trim().isNotEmpty,
-      4,
-    );
+    add(dto.publisher != null && dto.publisher!.trim().isNotEmpty, 15);
+    add(item.releaseDate != null || item.releaseYear != null || dto.releaseDate != null, 15);
+    add(dto.seriesTitle != null && dto.seriesTitle!.isNotEmpty, 10);
+    add(dto.itemNumber != null && dto.itemNumber!.trim().isNotEmpty, 10);
 
-    if (score >= 85) {
+    if (score >= 80) {
       return 'Strong';
     }
-    if (score >= 65) {
+    if (score >= 60) {
       return 'Usable';
     }
-    if (score >= 45) {
+    if (score >= 40) {
       return 'Thin';
     }
     return 'Needs work';

@@ -20,6 +20,8 @@ final class GameWorkspaceProjector
     final km = source.catalogItem?.kindMetadata;
     if (km is GameCatalogMetadata) {
       metadata = km;
+    } else if (km != null) {
+      metadata = GameCatalogMetadata.fromJson(km.toSyncPayload());
     }
     return GameWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
@@ -40,6 +42,8 @@ final class GameWorkspaceProjector
     final km = source.catalogItem?.kindMetadata;
     if (km is GameCatalogMetadata) {
       metadata = km;
+    } else if (km != null) {
+      metadata = GameCatalogMetadata.fromJson(km.toSyncPayload());
     }
     return GameWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
