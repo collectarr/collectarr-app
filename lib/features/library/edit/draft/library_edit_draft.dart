@@ -333,8 +333,7 @@ class LibraryEditDraft {
       finishedAt: trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
     );
 
-    final kindDetails = defaultLibraryKindRegistry
-        .getByKind(type.workspace.kind)
+    final kindDetails = libraryKindRuntimeForKind(type.workspace.kind)
         .edit
         .createDraft(
           item: item,
@@ -643,10 +642,9 @@ class LibraryEditDraft {
     );
   }
 
-  OwnedDetailsDraft buildDetailsDraft() => defaultLibraryKindRegistry
-      .getByKind(type.workspace.kind)
-      .edit
-      .buildDetailsDraft(kindDetails);
+  OwnedDetailsDraft buildDetailsDraft() => libraryKindRuntimeForKind(
+        type.workspace.kind,
+      ).edit.buildDetailsDraft(kindDetails);
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
     return AddOwnedItemCommand(
@@ -661,8 +659,7 @@ class LibraryEditDraft {
   }
 
   UpdateOwnedItemCommand toUpdateOwnedItemCommand(String ownedItemId) {
-    return defaultLibraryKindRegistry
-        .getByKind(type.workspace.kind)
+    return libraryKindRuntimeForKind(type.workspace.kind)
         .edit
         .buildUpdateCommand(
           session: this,

@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/owned_details_codec.dart'
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
@@ -65,8 +66,18 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     kind: CatalogMediaKind.movie,
     initialDraftBuilder: MovieAddDraft.new,
   ),
-  edit: LibraryEditCapability.fromTypeConfig(
-    moviesLibraryConfig,
+  edit: LibraryEditCapability(
+    editDialogBuilder: buildMovieLibraryEditDialog,
+    presentation: movieLibraryEditPresentation,
+    mediaFields: const MediaEditFields(
+      numberLabel: 'Edition no.',
+      publisherLabel: 'Studio',
+      releaseDateLabel: 'Release Date',
+    ),
+    releaseFields: const ReleaseEditFields(
+      variantLabel: 'Format / Edition',
+      barcodeLabel: 'UPC / Barcode',
+    ),
     createDraft: createMovieEditDraft,
   ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(

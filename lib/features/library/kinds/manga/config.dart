@@ -98,24 +98,11 @@ final mangaLibraryConfig = LibraryTypeConfig(
   presentation: mangaLibraryMediaPresentation,
   editDialogBuilder: buildMangaLibraryEditDialog,
   inspectorSectionsBuilder: _emptyInspectorSectionsBuilder,
-  editChrome: LibraryEditChromeConfig(
+  editChrome: const LibraryEditChromeConfig(
     titleUsesItemTitle: true,
     synopsisLabel: 'Plot',
     showsIssueBadge: true,
     showsPhysicalFormatBadge: true,
-  ),
-  mediaFields: MediaEditFields.print(
-    numberLabel: 'Chapter / Vol.',
-    publisherLabel: 'Publisher / Studio / Creator',
-    releaseDateLabel: 'First published',
-  ),
-  collectionExportTitleLabel: 'Series',
-  manualAddUsesTitleAsSeries: true,
-  editUsesTitleAsSeries: true,
-  releaseFields: ReleaseEditFields(
-    variantLabel: 'Edition / Variant / Format',
-    barcodeLabel: 'Barcode / UPC / ISBN',
-    variantSeedsPhysicalFormatLabel: true,
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,

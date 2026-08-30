@@ -96,17 +96,7 @@ final moviesLibraryConfig = LibraryTypeConfig(
     ],
     defaultVideoKindFilters: {'movie'},
   ),
-  editPresentation: movieLibraryEditPresentation,
   inspectorSectionsBuilder: buildMovieInspectorSections,
-  mediaFields: MediaEditFields(
-    numberLabel: 'Edition no.',
-    publisherLabel: 'Studio',
-    releaseDateLabel: 'Release Date',
-  ),
-  releaseFields: ReleaseEditFields(
-    variantLabel: 'Format / Edition',
-    barcodeLabel: 'UPC / Barcode',
-  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     canScanCover: true,

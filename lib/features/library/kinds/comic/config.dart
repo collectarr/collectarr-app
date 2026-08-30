@@ -139,28 +139,12 @@ final comicsLibraryConfig = LibraryTypeConfig(
   inspectorSectionsBuilder: buildComicInspectorSections,
   showsDefaultInspectorPersonalSection: false,
   presentation: comicLibraryMediaPresentation,
-  editPresentation: comicsLibraryEditPresentation,
   addChrome: const LibraryAddChromeConfig(),
   editChrome: LibraryEditChromeConfig(
     titleUsesItemTitle: true,
     synopsisLabel: 'Plot',
     showsIssueBadge: true,
     showsPhysicalFormatBadge: true,
-  ),
-  mediaFields: MediaEditFields.print(
-    numberLabel: 'No. / Vol.',
-    publisherLabel: 'Publisher / Studio / Creator',
-    releaseDateLabel: 'Cover date',
-  ),
-  collectionExportTitleLabel: 'Series',
-  mediaReleaseScopeLabel: 'Series',
-  manualAddUsesTitleAsSeries: true,
-  editUsesTitleAsSeries: true,
-  transferableFieldKeys: comicTransferableFieldKeys,
-  releaseFields: ReleaseEditFields(
-    variantLabel: 'Edition / Variant / Format',
-    barcodeLabel: 'Barcode / UPC / ISBN',
-    variantSeedsPhysicalFormatLabel: true,
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,

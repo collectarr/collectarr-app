@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.
 import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
@@ -70,8 +71,26 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     kind: CatalogMediaKind.manga,
     initialDraftBuilder: MangaAddDraft.new,
   ),
-  edit: LibraryEditCapability.fromTypeConfig(
-    mangaLibraryConfig,
+  edit: LibraryEditCapability(
+    editDialogBuilder: buildMangaLibraryEditDialog,
+    editChrome: const LibraryEditChromeConfig(
+      titleUsesItemTitle: true,
+      synopsisLabel: 'Plot',
+      showsIssueBadge: true,
+      showsPhysicalFormatBadge: true,
+    ),
+    mediaFields: const MediaEditFields.print(
+      numberLabel: 'Chapter / Vol.',
+      publisherLabel: 'Publisher / Studio / Creator',
+      releaseDateLabel: 'First published',
+    ),
+    manualAddUsesTitleAsSeries: true,
+    editUsesTitleAsSeries: true,
+    releaseFields: const ReleaseEditFields(
+      variantLabel: 'Edition / Variant / Format',
+      barcodeLabel: 'Barcode / UPC / ISBN',
+      variantSeedsPhysicalFormatLabel: true,
+    ),
     createDraft: createMangaEditDraft,
   ),
   providerMapper: const MangaLibraryKindProviderMapper(),
@@ -83,16 +102,16 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
 );
 
 Iterable<String> _getFacetValues(
-    LibraryProjectionRuntime item, String facetId) {
+    LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId) {
   final kindMetadata = item.source.catalogItem?.kindMetadata;
   final metadata = kindMetadata is MangaMetadata ? kindMetadata : null;
-  if (facetId == MangaFacetIds.character.value) {
+  if (facetId == MangaFacetIds.character) {
     return const [];
   }
-  if (facetId == MangaFacetIds.genre.value) {
+  if (facetId == MangaFacetIds.genre) {
     return metadata?.genres ?? const [];
   }
-  if (facetId == MangaFacetIds.publisher.value) {
+  if (facetId == MangaFacetIds.publisher) {
     final pub = metadata?.publisher;
     return pub != null ? [pub] : const [];
   }

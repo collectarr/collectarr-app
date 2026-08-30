@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_ad
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 import 'package:flutter/material.dart';
@@ -59,8 +61,18 @@ final boardGameKindModule =
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardGameAddDraft.new,
   ),
-  edit: LibraryEditCapability.fromTypeConfig(
-    boardGamesLibraryConfig,
+  edit: LibraryEditCapability(
+    editDialogBuilder: buildBoardGameLibraryEditDialog,
+    presentation: boardGamesLibraryEditPresentation,
+    mediaFields: const MediaEditFields(
+      numberLabel: 'Edition',
+      publisherLabel: 'Publisher / Designer',
+      releaseDateLabel: 'Release date',
+    ),
+    releaseFields: const ReleaseEditFields(
+      variantLabel: 'Expansion / Edition',
+      barcodeLabel: 'Barcode',
+    ),
     createDraft: createBoardGameEditDraft,
   ),
   providerMapper: const BoardGameLibraryKindProviderMapper(),

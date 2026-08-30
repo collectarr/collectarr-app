@@ -50,31 +50,19 @@ void main() {
 
     final type = LibraryTypeConfig(
       workspace: const LibraryWorkspaceConfig(
-        kind: CatalogMediaKind.movie,
-        title: 'Movies',
-        icon: Icons.movie_outlined,
+        kind: CatalogMediaKind.unknown,
+        title: 'Generic',
+        icon: Icons.category_outlined,
         accent: Colors.red,
-        preferencePrefix: 'movies-test',
+        preferencePrefix: 'generic-test',
       ),
-      singularLabel: 'Movie',
-      pluralLabel: 'Movies',
-      defaultMetadataProvider: 'tmdb',
+      singularLabel: 'Item',
+      pluralLabel: 'Items',
+      defaultMetadataProvider: '',
       metadataProviders: const [],
-      trackingProfile: videoTrackingProfile,
+      trackingProfile: readingTrackingProfile,
       presentation: genericLibraryMediaPresentation,
-      editPresentation: const LibraryEditPresentation(
-        builder: DefaultLibraryEditPresentationBuilder(),
-      ),
-      mediaFields: const MediaEditFields(
-        numberLabel: 'Edition no.',
-        publisherLabel: 'Studio',
-        releaseDateLabel: 'Work release date',
-      ),
-      releaseFields: const ReleaseEditFields(
-        variantLabel: 'Format / Edition',
-        barcodeLabel: 'UPC / Barcode',
-      ),
-      capabilities: LibraryTypeCapabilities(
+      capabilities: const LibraryTypeCapabilities(
         supportsMediaReleaseSplit: true,
       ),
     );
@@ -124,7 +112,7 @@ void main() {
     );
 
     await tester.tap(find.text('Open media scope'));
-    await pumpUntilSettled(tester);
+    await tester.pumpAndSettle();
 
     expect(find.text('Main'), findsOneWidget);
     expect(find.text('Cover'), findsOneWidget);
@@ -135,7 +123,7 @@ void main() {
     expect(find.text('Tracking'), findsNothing);
     expect(find.text('Condition'), findsNothing);
     expect(find.text('Purchase date'), findsNothing);
-    expect(find.text('Work release date'), findsOneWidget);
+    expect(find.text('Release date'), findsOneWidget);
   });
 
   testWidgets(

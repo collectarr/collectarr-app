@@ -85,15 +85,6 @@ final animeLibraryConfig = LibraryTypeConfig(
     ],
     defaultVideoKindFilters: {'anime'},
   ),
-  mediaFields: MediaEditFields(
-    numberLabel: 'Edition no.',
-    publisherLabel: 'Studio',
-    releaseDateLabel: 'First aired',
-  ),
-  releaseFields: ReleaseEditFields(
-    variantLabel: 'Format / Edition',
-    barcodeLabel: 'UPC / Barcode',
-  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     supportsMediaReleaseSplit: true,

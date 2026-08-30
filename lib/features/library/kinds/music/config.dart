@@ -31,7 +31,6 @@ final musicLibraryConfig = LibraryTypeConfig(
   inspectorSectionsBuilder: _emptyInspectorSectionsBuilder,
   showsDefaultInspectorPersonalSection: false,
   presentation: musicLibraryMediaPresentation,
-  editPresentation: musicLibraryEditPresentation,
   addChrome: LibraryAddChromeConfig(
     mediaReferenceLabel: 'Album',
     trackScopeSummary:
@@ -39,16 +38,6 @@ final musicLibraryConfig = LibraryTypeConfig(
     mediaReferenceHelperLabel: 'Track or save the album itself.',
     editionReferenceHelperLabel:
         'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
-  ),
-  mediaFields: MediaEditFields(
-    numberLabel: 'Disc / Volume',
-    publisherLabel: 'Label',
-    releaseDateLabel: 'Original release date',
-  ),
-  collectionExportTitleLabel: 'Release',
-  releaseFields: ReleaseEditFields(
-    variantLabel: 'Format / Edition',
-    barcodeLabel: 'Barcode / Catalog no.',
   ),
   capabilities: LibraryTypeCapabilities(
     showsTrackData: true,

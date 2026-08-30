@@ -60,18 +60,8 @@ final boardGamesLibraryConfig = LibraryTypeConfig(
   trackingProfile: gameTrackingProfile,
   editDialogBuilder: buildBoardGameLibraryEditDialog,
   inspectorSectionsBuilder: _emptyInspectorSectionsBuilder,
-  editPresentation: boardGamesLibraryEditPresentation,
   kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
   presentation: boardGamesLibraryMediaPresentation,
-  mediaFields: MediaEditFields(
-    numberLabel: 'Edition',
-    publisherLabel: 'Publisher / Designer',
-    releaseDateLabel: 'Release date',
-  ),
-  releaseFields: ReleaseEditFields(
-    variantLabel: 'Expansion / Edition',
-    barcodeLabel: 'Barcode',
-  ),
   capabilities: LibraryTypeCapabilities(
     canScanCover: true,
     supportsSeriesSubgroups: true,

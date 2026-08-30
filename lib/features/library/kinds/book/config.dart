@@ -72,23 +72,9 @@ final booksLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: readingTrackingProfile,
   presentation: bookLibraryMediaPresentation,
-  editPresentation: LibraryEditPresentation(
-    builder: BookLibraryMediaEditPresentationBuilder(),
-    mediaBuilder: BookLibraryMediaEditPresentationBuilder(),
-    releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
-  ),
   editDialogBuilder: buildBookLibraryEditDialog,
   kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
   inspectorSectionsBuilder: (_, __) => const [],
-  mediaFields: MediaEditFields.print(
-    numberLabel: 'Volume',
-    publisherLabel: 'Publisher',
-    releaseDateLabel: 'First published',
-  ),
-  releaseFields: ReleaseEditFields(
-    variantLabel: 'Edition / Binding',
-    barcodeLabel: 'ISBN / Barcode',
-  ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,
     showsCreatorSpotlight: true,

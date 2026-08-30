@@ -58,5 +58,8 @@ LibraryKindRuntime libraryKindFor(CatalogMediaKind kind) {
   if (module != null) {
     return module;
   }
+  if (kind.isUnknown) {
+    return genericKindModule;
+  }
   throw ArgumentError('No LibraryKindRuntime registered for kind "$kind"');
 }

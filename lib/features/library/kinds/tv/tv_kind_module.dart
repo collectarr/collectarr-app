@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit_presentation_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
@@ -68,8 +70,18 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
   ),
-  edit: LibraryEditCapability.fromTypeConfig(
-    tvLibraryConfig,
+  edit: LibraryEditCapability(
+    editDialogBuilder: buildTvLibraryEditDialog,
+    presentation: tvLibraryEditPresentation,
+    mediaFields: const MediaEditFields(
+      numberLabel: 'Edition no.',
+      publisherLabel: 'Studio',
+      releaseDateLabel: 'First aired',
+    ),
+    releaseFields: const ReleaseEditFields(
+      variantLabel: 'Format / Edition',
+      barcodeLabel: 'UPC / Barcode',
+    ),
     createDraft: createTvEditDraft,
   ),
   workspaceBehavior: LibraryKindWorkspaceBehavior(

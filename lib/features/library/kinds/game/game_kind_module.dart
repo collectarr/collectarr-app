@@ -18,6 +18,8 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_capabi
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
@@ -65,8 +67,18 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
   ),
-  edit: LibraryEditCapability.fromTypeConfig(
-    gamesLibraryConfig,
+  edit: LibraryEditCapability(
+    editDialogBuilder: buildGameLibraryEditDialog,
+    presentation: gameLibraryEditPresentation,
+    mediaFields: const MediaEditFields(
+      numberLabel: 'Version',
+      publisherLabel: 'Publisher / Studio',
+      releaseDateLabel: 'Release date',
+    ),
+    releaseFields: const ReleaseEditFields(
+      variantLabel: 'Platform / Edition',
+      barcodeLabel: 'UPC / Barcode',
+    ),
     createDraft: createGameEditDraft,
   ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(),

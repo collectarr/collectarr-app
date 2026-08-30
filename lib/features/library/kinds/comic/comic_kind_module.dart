@@ -21,6 +21,8 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_capabi
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
@@ -84,8 +86,27 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     kind: CatalogMediaKind.comic,
     initialDraftBuilder: ComicAddDraft.new,
   ),
-  edit: LibraryEditCapability.fromTypeConfig(
-    comicsLibraryConfig,
+  edit: LibraryEditCapability(
+    editDialogBuilder: buildComicLibraryEditDialog,
+    presentation: comicsLibraryEditPresentation,
+    editChrome: const LibraryEditChromeConfig(
+      titleUsesItemTitle: true,
+      synopsisLabel: 'Plot',
+      showsIssueBadge: true,
+      showsPhysicalFormatBadge: true,
+    ),
+    mediaFields: const MediaEditFields.print(
+      numberLabel: 'No. / Vol.',
+      publisherLabel: 'Publisher / Studio / Creator',
+      releaseDateLabel: 'Cover date',
+    ),
+    releaseFields: const ReleaseEditFields(
+      variantLabel: 'Edition / Variant / Format',
+      barcodeLabel: 'Barcode / UPC / ISBN',
+      variantSeedsPhysicalFormatLabel: true,
+    ),
+    manualAddUsesTitleAsSeries: true,
+    editUsesTitleAsSeries: true,
     createDraft: createComicEditDraft,
   ),
   workspaceBehavior: LibraryKindWorkspaceBehavior(
@@ -174,22 +195,22 @@ Future<List<LibraryHierarchyNode>> _fetchComicVolumes({
 }
 
 Iterable<String> _getFacetValues(
-    LibraryProjectionRuntime item, String facetId) {
+    LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId) {
   final source = item.source.catalogItem;
   final metadata = source?.kindMetadata;
   final catalogItem = metadata is ComicCatalogMetadata
       ? ComicCatalogMapper.mapMetadataToComic(metadata, id: source!.identity.id)
       : null;
-  if (facetId == ComicFacetIds.character.value) {
+  if (facetId == ComicFacetIds.character) {
     return catalogItem?.characters ?? const [];
   }
-  if (facetId == ComicFacetIds.storyArc.value) {
+  if (facetId == ComicFacetIds.storyArc) {
     return catalogItem?.storyArcs ?? const [];
   }
-  if (facetId == ComicFacetIds.genre.value) {
+  if (facetId == ComicFacetIds.genre) {
     return catalogItem?.genres ?? const [];
   }
-  if (facetId == ComicFacetIds.publisher.value) {
+  if (facetId == ComicFacetIds.publisher) {
     final pub = catalogItem?.publisher;
     return pub != null ? [pub] : const [];
   }

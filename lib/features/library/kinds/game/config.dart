@@ -29,19 +29,9 @@ final gamesLibraryConfig = LibraryTypeConfig(
   ],
   trackingProfile: gameTrackingProfile,
   editDialogBuilder: buildGameLibraryEditDialog,
-  editPresentation: gameLibraryEditPresentation,
   inspectorSectionsBuilder: buildGameInspectorSections,
   kindBrowserDelegateBuilder: buildReleaseFolderBrowserDelegate,
   presentation: gamesLibraryMediaPresentation,
-  mediaFields: MediaEditFields(
-    numberLabel: 'Version',
-    publisherLabel: 'Publisher / Studio',
-    releaseDateLabel: 'Release date',
-  ),
-  releaseFields: ReleaseEditFields(
-    variantLabel: 'Platform / Edition',
-    barcodeLabel: 'UPC / Barcode',
-  ),
   capabilities: LibraryTypeCapabilities(
     canScanCover: true,
     supportsMediaReleaseSplit: true,

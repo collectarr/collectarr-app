@@ -14,6 +14,10 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 
+export 'package:collectarr_app/features/library/config/edit_field_config.dart';
+export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
+export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+
 typedef KindEditDraftFactory = KindEditDraft Function({
   required LibraryMetadataItem item,
   OwnedItem? ownedItem,

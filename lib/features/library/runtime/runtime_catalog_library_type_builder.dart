@@ -50,7 +50,6 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
     metadataProviders: _resolveRuntimeMetadataProviders(normalizedType),
     trackingProfile: catalogTrackingProfileForKind(mediaKind),
     presentation: presentation,
-    editPresentation: editPresentation,
     workspaceBehavior:
         knownType?.workspaceBehavior ?? const LibraryKindWorkspaceBehavior(),
   );

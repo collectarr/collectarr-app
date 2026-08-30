@@ -446,18 +446,18 @@ class LibraryFacetModule {
 
   final LibraryFacetRowsLoader? loadRows;
   final Iterable<String> Function(
-      LibraryProjectionRuntime item, String facetId)? getFacetValues;
+      LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId)? getFacetValues;
   final List<LibraryFacetDefinition<dynamic, dynamic, dynamic>> definitions;
 }
 
 typedef LibraryFacetQueryExecutor = Future<List<Map<String, dynamic>>>
     Function({
-  required String facetId,
+  required LibraryFacetIdRuntime facetId,
   required Set<String> itemIds,
 });
 
 typedef LibraryFacetRowsLoader = Future<List<Map<String, dynamic>>> Function({
-  required String facetId,
+  required LibraryFacetIdRuntime facetId,
   required Set<String> itemIds,
   LibraryFacetQueryExecutor? queryExecutor,
 });

@@ -4,11 +4,11 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_capabi
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_codec.dart';
@@ -60,8 +60,17 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,
   ),
-  edit: LibraryEditCapability.fromTypeConfig(
-    animeLibraryConfig,
+  edit: LibraryEditCapability(
+    editDialogBuilder: buildAnimeLibraryEditDialog,
+    mediaFields: const MediaEditFields(
+      numberLabel: 'Edition no.',
+      publisherLabel: 'Studio',
+      releaseDateLabel: 'First aired',
+    ),
+    releaseFields: const ReleaseEditFields(
+      variantLabel: 'Format / Edition',
+      barcodeLabel: 'UPC / Barcode',
+    ),
     createDraft: createAnimeEditDraft,
   ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(

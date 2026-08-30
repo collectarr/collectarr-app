@@ -77,7 +77,6 @@ final tvLibraryConfig = LibraryTypeConfig(
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
   presentation: tvLibraryMediaPresentation,
-  editPresentation: tvLibraryEditPresentation,
   editDialogBuilder: buildTvLibraryEditDialog,
   detailPageBuilder: buildVideoLibraryDetailPage,
   inspectorSectionsBuilder: buildTvInspectorSections,
@@ -90,15 +89,6 @@ final tvLibraryConfig = LibraryTypeConfig(
       ),
     ],
     defaultVideoKindFilters: {'tv'},
-  ),
-  mediaFields: MediaEditFields(
-    numberLabel: 'Edition no.',
-    publisherLabel: 'Studio',
-    releaseDateLabel: 'First aired',
-  ),
-  releaseFields: ReleaseEditFields(
-    variantLabel: 'Format / Edition',
-    barcodeLabel: 'UPC / Barcode',
   ),
   capabilities: LibraryTypeCapabilities(
     showsSynopsis: true,

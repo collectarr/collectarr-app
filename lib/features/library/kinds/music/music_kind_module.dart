@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/library/config/owned_details_codec.dart'
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -61,8 +63,18 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
   ),
-  edit: LibraryEditCapability.fromTypeConfig(
-    musicLibraryConfig,
+  edit: LibraryEditCapability(
+    editDialogBuilder: buildMusicLibraryEditDialog,
+    presentation: musicLibraryEditPresentation,
+    mediaFields: const MediaEditFields(
+      numberLabel: 'Disc / Volume',
+      publisherLabel: 'Label',
+      releaseDateLabel: 'Original release date',
+    ),
+    releaseFields: const ReleaseEditFields(
+      variantLabel: 'Format / Edition',
+      barcodeLabel: 'Barcode / Catalog no.',
+    ),
     createDraft: createMusicEditDraft,
   ),
   workspaceBehavior: const LibraryKindWorkspaceBehavior(

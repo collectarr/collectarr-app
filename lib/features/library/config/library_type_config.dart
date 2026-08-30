@@ -212,18 +212,8 @@ class LibraryTypeConfig {
     this.capabilities = const LibraryTypeCapabilities(),
     this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.presentation = genericLibraryMediaPresentation,
-    this.editPresentation = const LibraryEditPresentation(
-      builder: DefaultLibraryEditPresentationBuilder(),
-    ),
     this.addChrome = const LibraryAddChromeConfig(),
     this.editChrome = const LibraryEditChromeConfig(),
-    this.mediaFields = const MediaEditFields(),
-    this.releaseFields = const ReleaseEditFields(),
-    this.collectionExportTitleLabel = 'Title',
-    this.mediaReleaseScopeLabel = 'Media',
-    this.manualAddUsesTitleAsSeries = false,
-    this.editUsesTitleAsSeries = false,
-    this.transferableFieldKeys = kDefaultTransferableFieldKeys,
     this.addDialogLauncher,
     this.editDialogBuilder,
     this.mediaEditDialogBuilder,
@@ -281,16 +271,8 @@ class LibraryTypeConfig {
       ),
       workspaceBehavior: workspaceBehavior,
       presentation: presentation,
-      editPresentation: edit.presentation,
       addChrome: const LibraryAddChromeConfig(),
       editChrome: edit.editChrome,
-      mediaFields: edit.mediaFields,
-      releaseFields: edit.releaseFields,
-      collectionExportTitleLabel: hierarchy.collectionExportTitleLabel,
-      mediaReleaseScopeLabel: hierarchy.mediaReleaseScopeLabel,
-      manualAddUsesTitleAsSeries: edit.manualAddUsesTitleAsSeries,
-      editUsesTitleAsSeries: edit.editUsesTitleAsSeries,
-      transferableFieldKeys: transfer.transferableFieldKeys,
       addDialogLauncher: addDialogLauncher,
       editDialogBuilder: edit.editDialogBuilder,
       mediaEditDialogBuilder: edit.mediaEditDialogBuilder,
@@ -321,25 +303,8 @@ class LibraryTypeConfig {
   final LibraryTypeCapabilities capabilities;
   final LibraryKindWorkspaceBehavior workspaceBehavior;
   final LibraryMediaPresentation presentation;
-  @Deprecated('Use LibraryKindRuntime.edit.presentation instead')
-  final LibraryEditPresentation editPresentation;
   final LibraryAddChromeConfig addChrome;
   final LibraryEditChromeConfig editChrome;
-  @Deprecated('Use LibraryKindRuntime.edit.mediaFields instead')
-  final MediaEditFields mediaFields;
-  @Deprecated('Use LibraryKindRuntime.edit.releaseFields instead')
-  final ReleaseEditFields releaseFields;
-  @Deprecated(
-      'Use LibraryKindRuntime.hierarchy.collectionExportTitleLabel instead')
-  final String collectionExportTitleLabel;
-  @Deprecated('Use LibraryKindRuntime.hierarchy.mediaReleaseScopeLabel instead')
-  final String mediaReleaseScopeLabel;
-  @Deprecated('Use LibraryKindRuntime.edit.manualAddUsesTitleAsSeries instead')
-  final bool manualAddUsesTitleAsSeries;
-  @Deprecated('Use LibraryKindRuntime.edit.editUsesTitleAsSeries instead')
-  final bool editUsesTitleAsSeries;
-  @Deprecated('Use LibraryKindRuntime.transfer.transferableFieldKeys instead')
-  final List<String> transferableFieldKeys;
   final LibraryAddDialogLauncher? addDialogLauncher;
   final LibraryEditDialogBuilder? editDialogBuilder;
   final LibraryEditDialogBuilder? mediaEditDialogBuilder;
@@ -353,6 +318,39 @@ class LibraryTypeConfig {
   final LibraryKindUiAdapter kindUiAdapter;
   final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
   final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
+
+  @Deprecated('Use LibraryKindRuntime.edit.presentation instead')
+  LibraryEditPresentation get editPresentation =>
+      libraryKindRuntimeForType(this).edit.presentation;
+
+  @Deprecated('Use LibraryKindRuntime.edit.mediaFields instead')
+  MediaEditFields get mediaFields =>
+      libraryKindRuntimeForType(this).edit.mediaFields;
+
+  @Deprecated('Use LibraryKindRuntime.edit.releaseFields instead')
+  ReleaseEditFields get releaseFields =>
+      libraryKindRuntimeForType(this).edit.releaseFields;
+
+  @Deprecated(
+      'Use LibraryKindRuntime.hierarchy.collectionExportTitleLabel instead')
+  String get collectionExportTitleLabel =>
+      libraryKindRuntimeForType(this).hierarchy.collectionExportTitleLabel;
+
+  @Deprecated('Use LibraryKindRuntime.hierarchy.mediaReleaseScopeLabel instead')
+  String get mediaReleaseScopeLabel =>
+      libraryKindRuntimeForType(this).hierarchy.mediaReleaseScopeLabel;
+
+  @Deprecated('Use LibraryKindRuntime.edit.manualAddUsesTitleAsSeries instead')
+  bool get manualAddUsesTitleAsSeries =>
+      libraryKindRuntimeForType(this).edit.manualAddUsesTitleAsSeries;
+
+  @Deprecated('Use LibraryKindRuntime.edit.editUsesTitleAsSeries instead')
+  bool get editUsesTitleAsSeries =>
+      libraryKindRuntimeForType(this).edit.editUsesTitleAsSeries;
+
+  @Deprecated('Use LibraryKindRuntime.transfer.transferableFieldKeys instead')
+  List<String> get transferableFieldKeys =>
+      libraryKindRuntimeForType(this).transfer.transferableFieldKeys;
 
   List<String> transferableFieldKeysForScope(LibraryEditScope scope) {
     final module = libraryKindRuntimeForType(this);
