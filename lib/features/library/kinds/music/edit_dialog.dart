@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
@@ -194,7 +195,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<LibraryEditTabSpec> get _tabSpecs {
-    return widget.request.type.editPresentation
+    return musicKindModule.edit.presentation
         .builderForScope(widget.request.scope ?? LibraryEditScope.all)
         .buildTabs(
           context: _editPresentationContext,
@@ -458,7 +459,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<String> _tabSectionIds(String tabId) {
-    return widget.request.type.editPresentation
+    return musicKindModule.edit.presentation
         .builderForScope(widget.request.scope ?? LibraryEditScope.all)
         .buildTabSectionIds(
           context: _editPresentationContext,

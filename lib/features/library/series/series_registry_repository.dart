@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -187,8 +187,8 @@ class SeriesRegistryRepository {
     final now = DateTime.now().toUtc();
     final candidates = <String, _SeriesCandidate>{};
     for (final item in items) {
-      final type =
-          collectarrLibraryTypes.byKind(catalogMediaKindFromValue(item.kind));
+      final module =
+          defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(item.kind));
       final seriesPayload =
           item.payload['series'] as Map? ?? item.payload;
       final seriesTitle = (seriesPayload['series_title'] ??
@@ -198,7 +198,7 @@ class SeriesRegistryRepository {
           (seriesPayload['series_id'] ?? seriesPayload['seriesId'])?.toString();
       final title = _emptyToNull(
         seriesTitle ??
-            (type?.usesTitleAsSeriesFallback ?? false ? item.title : null),
+            (module?.edit.usesTitleAsSeriesFallback ?? false ? item.title : null),
       );
       final normalizedTitle = _normalize(title);
       if (normalizedTitle == null) {

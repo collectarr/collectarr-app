@@ -2,8 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:csv/csv.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 class CollectionCsvRow {
   const CollectionCsvRow({
@@ -304,23 +303,6 @@ class CollectionCsv {
   }
 
   List<String> _catalogFields(ShelfEntry entry) {
-    final metadata = entry.catalogItem?.kindMetadata;
-    if (metadata is ComicCatalogMetadata) {
-      return [
-        entry.itemId,
-        'comic',
-        metadata.title,
-        metadata.issueNumber ?? '',
-        metadata.variant ?? '',
-        metadata.editionTitle ?? '',
-        metadata.physicalFormat ?? '',
-        metadata.physicalFormatLabel ?? '',
-        metadata.publisher ?? '',
-        _formatDate(metadata.releaseDate),
-        metadata.barcode ?? '',
-      ];
-    }
-
     final catalog = entry.catalogItem?.toCatalogItem();
     return [
       entry.itemId,
@@ -508,14 +490,15 @@ class CollectionCsv {
   }
 
   List<String> _clzFriendlyHeaderForKind(String kind) {
-    final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(kind));
-    if (type == null) {
+    final mediaKind = catalogMediaKindFromValue(kind);
+    final module = defaultLibraryKindRegistry.tryGet(mediaKind);
+    if (module == null) {
       return clzFriendlyHeader;
     }
-    final media = type.mediaFields;
-    final release = type.releaseFields;
+    final media = module.edit.mediaFields;
+    final release = module.edit.releaseFields;
     return _clzFriendlyHeader(
-      title: type.collectionExportTitleLabel,
+      title: module.hierarchy.collectionExportTitleLabel,
       number: media.numberLabel,
       variant: release.variantLabel,
       editionTitle: 'Edition Title',

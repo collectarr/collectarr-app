@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_shell.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -109,8 +110,8 @@ class _MovieManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final media = request.type.mediaFields;
-    final release = request.type.releaseFields;
+    final media = movieKindModule.edit.mediaFields;
+    final release = movieKindModule.edit.releaseFields;
     final copyTypeLabel = ownedCopyTypeLabel(
       digitalPhysicalMediaFormatFlag(
         request.physicalFormatId,

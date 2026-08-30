@@ -18,10 +18,6 @@ LibraryTypeConfig buildRuntimeCatalogLibraryTypeConfig(CatalogMediaType type) {
   final knownType = collectarrLibraryTypes.byKind(mediaKind);
   final presentation =
       knownType?.presentation ?? genericLibraryMediaPresentation;
-  final editPresentation = knownType?.editPresentation ??
-      const LibraryEditPresentation(
-        builder: DefaultLibraryEditPresentationBuilder(),
-      );
   return LibraryTypeConfig(
     workspace: LibraryWorkspaceConfig(
       kind: mediaKind,

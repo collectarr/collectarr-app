@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 class VideoEditEditionTab extends StatelessWidget {
@@ -22,7 +23,9 @@ class VideoEditEditionTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final releaseFields = type.releaseFields;
+    final runtime = libraryKindRuntimeForType(type);
+    final releaseFields = runtime.edit.releaseFields;
+    final mediaFields = runtime.edit.mediaFields;
     final videoEdit = (draft.kindDetails is VideoKindEditDraft)
         ? (draft.kindDetails as VideoKindEditDraft).videoEdit
         : null;
@@ -69,7 +72,7 @@ class VideoEditEditionTab extends StatelessWidget {
             editionTitleLabel: releaseFields.editionTitleLabel,
             variantLabel: releaseFields.variantLabel,
             barcodeLabel: releaseFields.barcodeLabel,
-            releaseDateLabel: type.mediaFields.releaseDateLabel,
+            releaseDateLabel: mediaFields.releaseDateLabel,
           ),
         ),
       ],

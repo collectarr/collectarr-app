@@ -530,13 +530,13 @@ MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionRuntime item,
 ) {
-  final type = collectarrLibraryTypes
-      .byKind(catalogMediaKindFromValue(item.source.catalogItem?.kind));
-  if (type == null) return null;
-  return type.presentation.builder.buildMetadataPresentation(
-    singularLabel: type.singularLabel,
-    mediaFields: type.mediaFields,
-    releaseFields: type.releaseFields,
+  final runtime = defaultLibraryKindRegistry
+      .tryGet(catalogMediaKindFromValue(item.source.catalogItem?.kind));
+  if (runtime == null) return null;
+  return runtime.type.presentation.builder.buildMetadataPresentation(
+    singularLabel: runtime.identity.singularLabel,
+    mediaFields: runtime.edit.mediaFields,
+    releaseFields: runtime.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

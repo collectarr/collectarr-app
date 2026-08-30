@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
@@ -8,17 +9,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('video libraries use physical edition terminology', () {
-    expect(moviesLibraryConfig.mediaFields.publisherLabel, 'Studio');
-    expect(moviesLibraryConfig.releaseFields.variantLabel, 'Format / Edition');
-    expect(moviesLibraryConfig.releaseFields.barcodeLabel, 'UPC / Barcode');
-    expect(moviesLibraryConfig.mediaFields.numberLabel, 'Edition no.');
+    expect(movieKindModule.edit.mediaFields.publisherLabel, 'Studio');
+    expect(movieKindModule.edit.releaseFields.variantLabel, 'Format / Edition');
+    expect(movieKindModule.edit.releaseFields.barcodeLabel, 'UPC / Barcode');
+    expect(movieKindModule.edit.mediaFields.numberLabel, 'Edition no.');
   });
 
   test('books and games use media-specific barcode and edition labels', () {
-    expect(booksLibraryConfig.releaseFields.barcodeLabel, 'ISBN / Barcode');
-    expect(booksLibraryConfig.releaseFields.variantLabel, 'Edition / Binding');
-    expect(gamesLibraryConfig.releaseFields.variantLabel, 'Platform / Edition');
-    expect(gamesLibraryConfig.mediaFields.publisherLabel, 'Publisher / Studio');
+    expect(bookKindModule.edit.releaseFields.barcodeLabel, 'ISBN / Barcode');
+    expect(bookKindModule.edit.releaseFields.variantLabel, 'Edition / Binding');
+    expect(gameKindModule.edit.releaseFields.variantLabel, 'Platform / Edition');
+    expect(gameKindModule.edit.mediaFields.publisherLabel, 'Publisher / Studio');
   });
 
   test('music search labels use artist terminology', () {

@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/game/game_media_adapter.da
 import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart'
     show moviesMediaAdapter;
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -85,7 +86,7 @@ void main() {
     );
     expect(comicsLibraryConfig.inspectorSectionsBuilder,
         same(buildComicInspectorSections));
-    expect(comicsLibraryConfig.editUsesTitleAsSeries, isTrue);
+    expect(comicKindModule.edit.editUsesTitleAsSeries, isTrue);
     expect(comicsLibraryConfig.countLabel(1), 'Comic');
     expect(comicsLibraryConfig.countLabel(2), 'Comics');
   });
@@ -107,19 +108,19 @@ void main() {
   test('movies library config uses the dedicated add dialog launcher', () {
     expect(
         moviesLibraryConfig.addDialogLauncher, same(showMovieLibraryAddDialog));
-    expect(moviesLibraryConfig.editUsesTitleAsSeries, isFalse);
-    expect(moviesLibraryConfig.mediaReleaseScopeLabel, 'Media');
+    expect(movieKindModule.edit.editUsesTitleAsSeries, isFalse);
+    expect(movieKindModule.hierarchy.mediaReleaseScopeLabel, 'Media');
     expect(moviesWorkspaceConfig.accent, const Color(0xFF42AA55));
     expect(
         libraryAccentForKind(CatalogMediaKind.anime), const Color(0xFFC94DFF));
     expect(libraryIconForKind(CatalogMediaKind.tv), Icons.tv_outlined);
-    expect(moviesLibraryConfig.collectionExportTitleLabel, 'Title');
+    expect(movieKindModule.hierarchy.collectionExportTitleLabel, 'Title');
   });
 
   test('media/release scope labels are kind-owned', () {
-    expect(comicsLibraryConfig.mediaReleaseScopeLabel, 'Series');
-    expect(musicLibraryConfig.mediaReleaseScopeLabel, 'Media');
-    expect(booksLibraryConfig.mediaReleaseScopeLabel, 'Media');
+    expect(comicKindModule.hierarchy.mediaReleaseScopeLabel, 'Series');
+    expect(musicKindModule.hierarchy.mediaReleaseScopeLabel, 'Media');
+    expect(bookKindModule.hierarchy.mediaReleaseScopeLabel, 'Media');
   });
 
   test('books do not create series subgroups for volume metadata', () {
@@ -222,10 +223,10 @@ void main() {
       hasCustomFields: false,
     );
 
-    final mediaTabs = tvLibraryConfig.editPresentation
+    final mediaTabs = tvKindModule.edit.presentation
         .builderForScope(LibraryEditScope.media)
         .buildTabs(context: context);
-    final releaseTabs = tvLibraryConfig.editPresentation
+    final releaseTabs = tvKindModule.edit.presentation
         .builderForScope(LibraryEditScope.release)
         .buildTabs(context: context);
 
@@ -245,9 +246,9 @@ void main() {
   });
 
   test('collection export title labels are kind-owned', () {
-    expect(comicsLibraryConfig.collectionExportTitleLabel, 'Series');
-    expect(musicLibraryConfig.collectionExportTitleLabel, 'Release');
-    expect(booksLibraryConfig.collectionExportTitleLabel, 'Title');
+    expect(comicKindModule.hierarchy.collectionExportTitleLabel, 'Series');
+    expect(musicKindModule.hierarchy.collectionExportTitleLabel, 'Release');
+    expect(bookKindModule.hierarchy.collectionExportTitleLabel, 'Title');
   });
 
   test('books library config enables creator spotlight in shared hero chrome',
@@ -517,14 +518,14 @@ void main() {
   });
 
   test('transferable field keys are kind-owned', () {
-    expect(booksLibraryConfig.transferableFieldKeys,
+    expect(bookKindModule.transfer.transferableFieldKeys,
         kDefaultTransferableFieldKeys);
     expect(
-      comicsLibraryConfig.transferableFieldKeys,
+      comicKindModule.transfer.transferableFieldKeys,
       containsAll(comicTransferableFieldKeys),
     );
     expect(
-        booksLibraryConfig.transferableFieldKeys, isNot(contains('keyComic')));
+        bookKindModule.transfer.transferableFieldKeys, isNot(contains('keyComic')));
   });
 
   test('add wording chrome is kind-owned', () {

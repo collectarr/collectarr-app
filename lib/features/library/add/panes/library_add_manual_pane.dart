@@ -112,7 +112,9 @@ class LibraryAddManualPaneState extends State<LibraryAddManualPane> {
                                   controller: widget.request.numberController,
                                   textAlign: TextAlign.center,
                                   decoration: InputDecoration(
-                                      labelText: widget.request.type.mediaFields
+                                      labelText: libraryKindRuntimeForType(widget.request.type)
+                                          .edit
+                                          .mediaFields
                                           .numberLabel),
                                 ),
                               ),
@@ -135,16 +137,20 @@ class LibraryAddManualPaneState extends State<LibraryAddManualPane> {
                           SingleValuePickField(
                             controller: widget.request.publisherController,
                             options: widget.request.publisherOptions,
-                            label:
-                                widget.request.type.mediaFields.publisherLabel,
+                            label: libraryKindRuntimeForType(widget.request.type)
+                                .edit
+                                .mediaFields
+                                .publisherLabel,
                             onManage: widget.request.onManagePublishers,
                           ),
                           const SizedBox(height: 8),
                           TextField(
                             controller: widget.request.variantController,
                             decoration: InputDecoration(
-                              labelText: widget
-                                  .request.type.releaseFields.variantLabel,
+                              labelText: libraryKindRuntimeForType(widget.request.type)
+                                  .edit
+                                  .releaseFields
+                                  .variantLabel,
                               prefixIcon: const Icon(
                                   Icons.auto_awesome_motion_outlined),
                             ),
@@ -170,8 +176,10 @@ class LibraryAddManualPaneState extends State<LibraryAddManualPane> {
                             controller: widget.request.barcodeController,
                             textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
-                              labelText: widget
-                                  .request.type.releaseFields.barcodeLabel,
+                              labelText: libraryKindRuntimeForType(widget.request.type)
+                                  .edit
+                                  .releaseFields
+                                  .barcodeLabel,
                               prefixIcon: const Icon(Icons.qr_code_2),
                             ),
                           ),

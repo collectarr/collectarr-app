@@ -1,51 +1,46 @@
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
-import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/config.dart';
-import 'package:collectarr_app/features/library/kinds/music/config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('every registered kind has non-empty field labels', () {
-    for (final type in collectarrLibraryTypes.types) {
-      expect(type.mediaFields.numberLabel, isNotEmpty,
-          reason: '${type.singularLabel} mediaFields.numberLabel is empty');
-      expect(type.mediaFields.publisherLabel, isNotEmpty,
-          reason: '${type.singularLabel} mediaFields.publisherLabel is empty');
-      expect(type.releaseFields.variantLabel, isNotEmpty,
-          reason: '${type.singularLabel} releaseFields.variantLabel is empty');
-      expect(type.releaseFields.barcodeLabel, isNotEmpty,
-          reason: '${type.singularLabel} releaseFields.barcodeLabel is empty');
+    for (final module in collectarrKindModules) {
+      expect(module.edit.mediaFields.numberLabel, isNotEmpty,
+          reason: '${module.identity.singularLabel} mediaFields.numberLabel is empty');
+      expect(module.edit.mediaFields.publisherLabel, isNotEmpty,
+          reason: '${module.identity.singularLabel} mediaFields.publisherLabel is empty');
+      expect(module.edit.releaseFields.variantLabel, isNotEmpty,
+          reason: '${module.identity.singularLabel} releaseFields.variantLabel is empty');
+      expect(module.edit.releaseFields.barcodeLabel, isNotEmpty,
+          reason: '${module.identity.singularLabel} releaseFields.barcodeLabel is empty');
     }
   });
 
   test('print media kinds enable page count, imprint, and series group', () {
-    for (final type in [comicsLibraryConfig, booksLibraryConfig]) {
-      expect(type.mediaFields.showPageCount, isTrue,
-          reason: '${type.singularLabel} should show page count');
-      expect(type.mediaFields.showImprint, isTrue,
-          reason: '${type.singularLabel} should show imprint');
-      expect(type.mediaFields.showSeriesGroup, isTrue,
-          reason: '${type.singularLabel} should show series group');
+    for (final module in [comicKindModule, bookKindModule]) {
+      expect(module.edit.mediaFields.showPageCount, isTrue,
+          reason: '${module.identity.singularLabel} should show page count');
+      expect(module.edit.mediaFields.showImprint, isTrue,
+          reason: '${module.identity.singularLabel} should show imprint');
+      expect(module.edit.mediaFields.showSeriesGroup, isTrue,
+          reason: '${module.identity.singularLabel} should show series group');
     }
   });
 
   test('non-print media kinds disable book-specific fields', () {
-    for (final type in [
-      moviesLibraryConfig,
-      gamesLibraryConfig,
-      boardGamesLibraryConfig,
-      musicLibraryConfig,
+    for (final module in [
+      movieKindModule,
+      gameKindModule,
+      boardGameKindModule,
+      musicKindModule,
     ]) {
-      expect(type.mediaFields.showPageCount, isFalse,
-          reason: '${type.singularLabel} should not show page count');
-      expect(type.mediaFields.showImprint, isFalse,
-          reason: '${type.singularLabel} should not show imprint');
-      expect(type.mediaFields.showSeriesGroup, isFalse,
-          reason: '${type.singularLabel} should not show series group');
+      expect(module.edit.mediaFields.showPageCount, isFalse,
+          reason: '${module.identity.singularLabel} should not show page count');
+      expect(module.edit.mediaFields.showImprint, isFalse,
+          reason: '${module.identity.singularLabel} should not show imprint');
+      expect(module.edit.mediaFields.showSeriesGroup, isFalse,
+          reason: '${module.identity.singularLabel} should not show series group');
     }
   });
 
@@ -57,8 +52,8 @@ void main() {
   });
 
   test('merged movie and comic configs expose the kept labels', () {
-    expect(moviesLibraryConfig.mediaFields.publisherLabel, 'Studio');
-    expect(comicsLibraryConfig.mediaFields.publisherLabel,
+    expect(movieKindModule.edit.mediaFields.publisherLabel, 'Studio');
+    expect(comicKindModule.edit.mediaFields.publisherLabel,
         'Publisher / Studio / Creator');
   });
 
@@ -75,12 +70,12 @@ void main() {
       () {
     // Verify that the labels on mediaFields/releaseFields are the single
     // source of truth for all display label needs.
-    expect(moviesLibraryConfig.mediaFields.publisherLabel, 'Studio');
-    expect(moviesLibraryConfig.releaseFields.variantLabel, 'Format / Edition');
-    expect(moviesLibraryConfig.releaseFields.barcodeLabel, 'UPC / Barcode');
+    expect(movieKindModule.edit.mediaFields.publisherLabel, 'Studio');
+    expect(movieKindModule.edit.releaseFields.variantLabel, 'Format / Edition');
+    expect(movieKindModule.edit.releaseFields.barcodeLabel, 'UPC / Barcode');
 
-    expect(booksLibraryConfig.releaseFields.barcodeLabel, 'ISBN / Barcode');
-    expect(gamesLibraryConfig.releaseFields.variantLabel, 'Platform / Edition');
-    expect(musicLibraryConfig.mediaFields.publisherLabel, 'Label');
+    expect(bookKindModule.edit.releaseFields.barcodeLabel, 'ISBN / Barcode');
+    expect(gameKindModule.edit.releaseFields.variantLabel, 'Platform / Edition');
+    expect(musicKindModule.edit.mediaFields.publisherLabel, 'Label');
   });
 }

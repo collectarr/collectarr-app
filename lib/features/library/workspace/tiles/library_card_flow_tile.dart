@@ -290,14 +290,15 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionRuntime item,
 ) {
   final kind = item.source.catalogItem?.kind ?? '';
-  final type = collectarrLibraryTypes.byKind(catalogMediaKindFromValue(kind));
-  if (type == null) {
+  final runtime =
+      defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
+  if (runtime == null) {
     return null;
   }
-  return type.presentation.builder.buildMetadataPresentation(
-    singularLabel: type.singularLabel,
-    mediaFields: type.mediaFields,
-    releaseFields: type.releaseFields,
+  return runtime.type.presentation.builder.buildMetadataPresentation(
+    singularLabel: runtime.identity.singularLabel,
+    mediaFields: runtime.edit.mediaFields,
+    releaseFields: runtime.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

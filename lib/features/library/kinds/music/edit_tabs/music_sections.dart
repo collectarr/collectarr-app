@@ -24,14 +24,14 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                 _field(controller: _subtitleController, label: 'Subtitle'),
                 _field(
                     controller: _publisherController,
-                    label: widget.request.type.mediaFields.publisherLabel),
+                    label: musicKindModule.edit.mediaFields.publisherLabel),
                 _field(
                   controller: _editionTitleController,
-                  label: widget.request.type.releaseFields.editionTitleLabel,
+                  label: musicKindModule.edit.releaseFields.editionTitleLabel,
                 ),
                 _field(
                     controller: _variantController,
-                    label: widget.request.type.releaseFields.variantLabel),
+                    label: musicKindModule.edit.releaseFields.variantLabel),
               ]),
             ],
           ),
@@ -45,7 +45,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
               _denseFields([
                 _field(
                     controller: _barcodeController,
-                    label: widget.request.type.releaseFields.barcodeLabel),
+                    label: musicKindModule.edit.releaseFields.barcodeLabel),
                 _field(
                     controller: _catalogNumberController,
                     label: 'Catalog number'),
@@ -71,7 +71,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
                 ),
                 _field(controller: _studioController, label: 'Studio'),
               ]),
-              if (widget.request.type.releaseFields.showPhysicalFormat &&
+              if (musicKindModule.edit.releaseFields.showPhysicalFormat &&
                   widget.request.physicalFormats.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
@@ -794,7 +794,7 @@ extension _MusicSections on _MusicLibraryEditDialogState {
           child: _denseFields([
             _field(
                 controller: _barcodeController,
-                label: widget.request.type.releaseFields.barcodeLabel),
+                label: musicKindModule.edit.releaseFields.barcodeLabel),
             _field(
                 controller: _catalogNumberController, label: 'Catalog number'),
             _field(controller: _coverController, label: 'Front cover URL'),

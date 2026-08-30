@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/models/library_metadata_item.dar
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 
+import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
 import 'game_edit_draft.dart';
 
 Widget? buildGameCustomTabView({
@@ -59,11 +60,11 @@ Widget? buildGameCustomTabView({
               LibraryEditTextField(
                 controller: gameDraft?.gameEdit.publisherController ??
                     TextEditingController(),
-                label: draft.type.mediaFields.publisherLabel,
+                label: gameKindModule.edit.mediaFields.publisherLabel,
               ),
               LibraryEditTextField(
                 controller: draft.metadata.releaseDateController,
-                label: draft.type.mediaFields.releaseDateLabel,
+                label: gameKindModule.edit.mediaFields.releaseDateLabel,
               ),
             ]),
             if (gameDraft != null) ...[

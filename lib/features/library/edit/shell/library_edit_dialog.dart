@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -182,7 +183,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         ),
     ];
 
-    _tabSpecs = widget.type.editPresentation
+    _tabSpecs = libraryKindRuntimeForType(widget.type)
+        .edit
+        .presentation
         .builderForScope(widget.scope)
         .buildTabs(context: _editPresentationContext);
 
@@ -323,7 +326,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _tabViewFor(String id) {
-    final customView = widget.type.editPresentation
+    final customView = libraryKindRuntimeForType(widget.type)
+        .edit
+        .presentation
         .builderForScope(widget.scope)
         .buildCustomTabView(
           tabId: id,
@@ -402,7 +407,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 ),
                 LibraryEditTextField(
                   controller: _draft.metadata.releaseDateController,
-                  label: widget.type.mediaFields.releaseDateLabel,
+                  label: libraryKindRuntimeForType(widget.type)
+                      .edit
+                      .mediaFields
+                      .releaseDateLabel,
                 ),
               ]),
             ],
@@ -417,6 +425,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget _genericMediaTab() => _mainTab();
 
   Widget _releaseTab() {
+    final runtime = libraryKindRuntimeForType(widget.type);
     return EditTabShell(
       children: [
         EditSection(
@@ -438,10 +447,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 onPhysicalFormatChanged: (value) {
                   _physicalFormatController.text = value ?? '';
                 },
-                editionTitleLabel: widget.type.releaseFields.editionTitleLabel,
-                variantLabel: widget.type.releaseFields.variantLabel,
-                barcodeLabel: widget.type.releaseFields.barcodeLabel,
-                releaseDateLabel: widget.type.mediaFields.releaseDateLabel,
+                editionTitleLabel: runtime.edit.releaseFields.editionTitleLabel,
+                variantLabel: runtime.edit.releaseFields.variantLabel,
+                barcodeLabel: runtime.edit.releaseFields.barcodeLabel,
+                releaseDateLabel: runtime.edit.mediaFields.releaseDateLabel,
               ),
             ],
           ),

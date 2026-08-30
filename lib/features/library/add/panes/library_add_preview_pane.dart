@@ -163,12 +163,13 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     if (launcherPreview != null) {
       return launcherPreview;
     }
+    final runtime = libraryKindRuntimeForType(type);
     final customPreview = type.presentation.builder.buildAddPreviewPane(
       context: context,
       accent: accent,
       singularLabel: type.singularLabel,
-      mediaFields: type.mediaFields,
-      releaseFields: type.releaseFields,
+      mediaFields: runtime.edit.mediaFields,
+      releaseFields: runtime.edit.releaseFields,
       previewLabels: type.presentation.previewLabels,
       item: selectedItem,
       candidate: selectedCandidate,
@@ -1177,8 +1178,9 @@ List<(String, String?)> _metadataRowsForCandidate(
   ProviderCandidate candidate,
   LibraryTypeConfig type,
 ) {
-  final media = type.mediaFields;
-  final release = type.releaseFields;
+  final runtime = libraryKindRuntimeForType(type);
+  final media = runtime.edit.mediaFields;
+  final release = runtime.edit.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   return [
     if (candidate.series?.seriesTitle != null)
@@ -1200,8 +1202,9 @@ List<(String, String?)> _metadataRowsForItem(
   LibraryMetadataItem item,
   LibraryTypeConfig type,
 ) {
-  final media = type.mediaFields;
-  final release = type.releaseFields;
+  final runtime = libraryKindRuntimeForType(type);
+  final media = runtime.edit.mediaFields;
+  final release = runtime.edit.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final catalogItem = item.toCatalogItem();
   final payload = item.kindMetadata.toSyncPayload();
@@ -1303,8 +1306,9 @@ List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
   LibraryTypeConfig type,
 ) {
-  final media = type.mediaFields;
-  final release = type.releaseFields;
+  final runtime = libraryKindRuntimeForType(type);
+  final media = runtime.edit.mediaFields;
+  final release = runtime.edit.releaseFields;
   final previewLabels = type.presentation.previewLabels;
   final series = preview.series;
   final publishing = preview.publishing;

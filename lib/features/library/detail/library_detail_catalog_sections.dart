@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/details/library_detail_field_tab
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailCatalogSections({
@@ -14,11 +15,12 @@ List<Widget> buildLibraryDetailCatalogSections({
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
+  final runtime = libraryKindRuntimeForType(type);
   return type.presentation.builder.buildDetailCatalogSections(
     context: context,
     singularLabel: type.singularLabel,
-    mediaFields: type.mediaFields,
-    releaseFields: type.releaseFields,
+    mediaFields: runtime.edit.mediaFields,
+    releaseFields: runtime.edit.releaseFields,
     item: item,
     accent: accent,
     onFilterByValue: onFilterByValue,
@@ -41,11 +43,12 @@ class LibraryDetailMetadataSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final runtime = libraryKindRuntimeForType(type);
     return type.presentation.builder.buildDetailIdentitySection(
       context: context,
       singularLabel: type.singularLabel,
-      mediaFields: type.mediaFields,
-      releaseFields: type.releaseFields,
+      mediaFields: runtime.edit.mediaFields,
+      releaseFields: runtime.edit.releaseFields,
       item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -69,11 +72,12 @@ class LibraryDetailContextSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final runtime = libraryKindRuntimeForType(type);
     return type.presentation.builder.buildDetailContextSection(
       context: context,
       singularLabel: type.singularLabel,
-      mediaFields: type.mediaFields,
-      releaseFields: type.releaseFields,
+      mediaFields: runtime.edit.mediaFields,
+      releaseFields: runtime.edit.releaseFields,
       item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -97,11 +101,12 @@ class LibraryDetailCreditsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final runtime = libraryKindRuntimeForType(type);
     return type.presentation.builder.buildDetailCreditsSection(
       context: context,
       singularLabel: type.singularLabel,
-      mediaFields: type.mediaFields,
-      releaseFields: type.releaseFields,
+      mediaFields: runtime.edit.mediaFields,
+      releaseFields: runtime.edit.releaseFields,
       item: item,
       accent: accent,
       onFilterByValue: onFilterByValue,
@@ -362,10 +367,11 @@ _MetadataHealth _buildMetadataHealth(
 ) {
   var score = 0;
   final missingSignals = <String>[];
+  final runtime = libraryKindRuntimeForType(type);
   final metadata = type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,
-    mediaFields: type.mediaFields,
-    releaseFields: type.releaseFields,
+    mediaFields: runtime.edit.mediaFields,
+    releaseFields: runtime.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/details/library_detail_chip.dart
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 class InspectorVideoTitleMetadataSection extends StatelessWidget {
@@ -109,10 +110,11 @@ LibraryMetadataPresentation _metadataPresentationForEntry(
   LibraryTypeConfig type,
   LibraryProjectionRuntime item,
 ) {
+  final runtime = libraryKindRuntimeForType(type);
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,
-    mediaFields: type.mediaFields,
-    releaseFields: type.releaseFields,
+    mediaFields: runtime.edit.mediaFields,
+    releaseFields: runtime.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

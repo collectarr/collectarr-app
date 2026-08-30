@@ -319,39 +319,6 @@ class LibraryTypeConfig {
   final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
   final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
 
-  @Deprecated('Use LibraryKindRuntime.edit.presentation instead')
-  LibraryEditPresentation get editPresentation =>
-      libraryKindRuntimeForType(this).edit.presentation;
-
-  @Deprecated('Use LibraryKindRuntime.edit.mediaFields instead')
-  MediaEditFields get mediaFields =>
-      libraryKindRuntimeForType(this).edit.mediaFields;
-
-  @Deprecated('Use LibraryKindRuntime.edit.releaseFields instead')
-  ReleaseEditFields get releaseFields =>
-      libraryKindRuntimeForType(this).edit.releaseFields;
-
-  @Deprecated(
-      'Use LibraryKindRuntime.hierarchy.collectionExportTitleLabel instead')
-  String get collectionExportTitleLabel =>
-      libraryKindRuntimeForType(this).hierarchy.collectionExportTitleLabel;
-
-  @Deprecated('Use LibraryKindRuntime.hierarchy.mediaReleaseScopeLabel instead')
-  String get mediaReleaseScopeLabel =>
-      libraryKindRuntimeForType(this).hierarchy.mediaReleaseScopeLabel;
-
-  @Deprecated('Use LibraryKindRuntime.edit.manualAddUsesTitleAsSeries instead')
-  bool get manualAddUsesTitleAsSeries =>
-      libraryKindRuntimeForType(this).edit.manualAddUsesTitleAsSeries;
-
-  @Deprecated('Use LibraryKindRuntime.edit.editUsesTitleAsSeries instead')
-  bool get editUsesTitleAsSeries =>
-      libraryKindRuntimeForType(this).edit.editUsesTitleAsSeries;
-
-  @Deprecated('Use LibraryKindRuntime.transfer.transferableFieldKeys instead')
-  List<String> get transferableFieldKeys =>
-      libraryKindRuntimeForType(this).transfer.transferableFieldKeys;
-
   List<String> transferableFieldKeysForScope(LibraryEditScope scope) {
     final module = libraryKindRuntimeForType(this);
     return module.transfer.fieldKeysForScope(scope);
@@ -364,9 +331,6 @@ class LibraryTypeConfig {
     final module = libraryKindRuntimeForType(this);
     return module.transfer.fieldsWithCustomFields(definitions, scope);
   }
-
-  bool get usesTitleAsSeriesFallback =>
-      manualAddUsesTitleAsSeries || editUsesTitleAsSeries;
 
   List<String> get availableGroupModes {
     final module = libraryKindRuntimeForType(this);

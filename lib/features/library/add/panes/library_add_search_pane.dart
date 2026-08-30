@@ -1230,7 +1230,7 @@ String? _metadataItemMatchSummary({
   required String yearText,
 }) {
   final groupLabels = libraryMediaGroupLabels(type);
-  final fieldLabels = type.mediaFields;
+  final fieldLabels = libraryKindRuntimeForType(type).edit.mediaFields;
   final payload = item.kindMetadata.toSyncPayload();
   final seriesMap = payload['series'] as Map?;
   final seriesTitle = (payload['series_title'] ?? seriesMap?['series_title']) as String?;
@@ -1465,7 +1465,7 @@ String? _providerCandidateMatchSummary({
   required String yearText,
 }) {
   final groupLabels = libraryMediaGroupLabels(type);
-  final fieldLabels = type.mediaFields;
+  final fieldLabels = libraryKindRuntimeForType(type).edit.mediaFields;
   final reasons = <String>[];
   final seen = <String>{};
 

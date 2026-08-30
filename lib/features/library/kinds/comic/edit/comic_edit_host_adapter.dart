@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.da
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
@@ -57,7 +58,7 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   LibraryEditPresentationState get comicEditPresentation =>
-      draft.type.editPresentation.builder.build(
+      comicKindModule.edit.presentation.builder.build(
         context: LibraryEditPresentationContext(
           isOwned: draft.isOwned,
           isTrackingOnly: draft.isTrackingOnly,

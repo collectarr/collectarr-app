@@ -198,8 +198,6 @@ class LibraryStatsHealthRow {
   final double fraction;
 }
 
-typedef ComicsStatsHealthRow = LibraryStatsHealthRow;
-
 class LibraryMissingIssuesCard extends StatelessWidget {
   const LibraryMissingIssuesCard({
     super.key,

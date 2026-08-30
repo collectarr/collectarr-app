@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
@@ -998,7 +999,7 @@ extension ComicEditTabBuilders on ComicEditHost {
   }
 
   Widget _ownedComicMainOverviewCard() {
-    final mediaFields = comicLibraryType.mediaFields;
+    final mediaFields = comicKindModule.edit.mediaFields;
     final palette = appPalette(comicContext);
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),

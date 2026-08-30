@@ -960,10 +960,11 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   if (type == null) {
     return null;
   }
+  final runtime = libraryKindRuntimeForType(type);
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.singularLabel,
-    mediaFields: type.mediaFields,
-    releaseFields: type.releaseFields,
+    mediaFields: runtime.edit.mediaFields,
+    releaseFields: runtime.edit.releaseFields,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,
