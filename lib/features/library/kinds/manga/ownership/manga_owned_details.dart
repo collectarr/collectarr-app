@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/ownership/primitives/grading_details.dart';
-import 'package:collectarr_app/features/library/ownership/primitives/signature_details.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/ownership/grading_details.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/ownership/signature_details.dart';
 
 const Object _mangaDetailsUnset = Object();
 

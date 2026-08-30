@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/ownership/primitives/video_physical_copy_details.dart';
-import 'package:collectarr_app/features/library/ownership/primitives/video_like_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/ownership/video_like_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/ownership/video_physical_copy_details.dart';
 
 const Object _tvDetailsUnset = Object();
 

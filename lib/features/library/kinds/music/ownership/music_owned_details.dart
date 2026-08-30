@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/ownership/primitives/storage_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/storage_details.dart';
 
 const Object _musicDetailsUnset = Object();
 

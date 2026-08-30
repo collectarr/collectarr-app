@@ -28,6 +28,113 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   final List<String> violations = [];
   final List<String> complexityWarnings = [];
 
+  static const _forbiddenKindDomainTypes = {
+    // Comic
+    'ComicCatalogMetadata',
+    'ComicMetadata',
+    'ComicWorkspaceDto',
+    'ComicCatalogItem',
+    'ComicOwnedDetails',
+    'ComicStoryArc',
+    'ComicGrade',
+    'ComicKeyDraft',
+    'ComicKeyReason',
+    // Movie & Video
+    'MovieCatalogMetadata',
+    'MovieMetadata',
+    'MovieWorkspaceDto',
+    'MovieCatalogItem',
+    'MovieOwnedDetails',
+    // Tv
+    'TvCatalogMetadata',
+    'TvMetadata',
+    'TvWorkspaceDto',
+    'TvCatalogItem',
+    'TvOwnedDetails',
+    // Anime
+    'AnimeCatalogMetadata',
+    'AnimeMetadata',
+    'AnimeWorkspaceDto',
+    'AnimeCatalogItem',
+    'AnimeOwnedDetails',
+    // Book
+    'BookCatalogMetadata',
+    'BookMetadata',
+    'BookWorkspaceDto',
+    'BookCatalogItem',
+    'BookOwnedDetails',
+    // Manga
+    'MangaCatalogMetadata',
+    'MangaMetadata',
+    'MangaWorkspaceDto',
+    'MangaCatalogItem',
+    'MangaOwnedDetails',
+    // Game
+    'GameCatalogMetadata',
+    'GameMetadata',
+    'GameWorkspaceDto',
+    'GameCatalogItem',
+    'GameOwnedDetails',
+    // BoardGame
+    'BoardGameCatalogMetadata',
+    'BoardGameMetadata',
+    'BoardGameWorkspaceDto',
+    'BoardGameCatalogItem',
+    'BoardGameOwnedDetails',
+    // Music
+    'MusicCatalogMetadata',
+    'MusicMetadata',
+    'MusicWorkspaceDto',
+    'MusicCatalogItem',
+    'MusicOwnedDetails',
+  };
+
+  static const _forbiddenContextualMemberNames = {
+    'storyArc',
+    'storyArcs',
+    'comicGrade',
+    'keyComic',
+    'keyReason',
+    'rawOrSlabbed',
+    'gradingCompany',
+    'graderNotes',
+  };
+
+  @override
+  void visitPropertyAccess(PropertyAccess node) {
+    if (_isStrictGenericContext(relativePath)) {
+      final propertyName = node.propertyName.name;
+      if (_forbiddenContextualMemberNames.contains(propertyName)) {
+        final line = lineInfo.getLocation(node.offset).lineNumber;
+        violations.add(
+          '$relativePath:$line: Forbidden contextual semantic member access "$propertyName" in generic library code',
+        );
+      }
+    }
+    super.visitPropertyAccess(node);
+  }
+
+  @override
+  void visitMethodInvocation(MethodInvocation node) {
+    if (_isStrictGenericContext(relativePath)) {
+      final methodName = node.methodName.name;
+      if (_forbiddenContextualMemberNames.contains(methodName)) {
+        final line = lineInfo.getLocation(node.offset).lineNumber;
+        violations.add(
+          '$relativePath:$line: Forbidden contextual semantic method/getter call "$methodName" in generic library code',
+        );
+      }
+    }
+    super.visitMethodInvocation(node);
+  }
+
+  bool _isStrictGenericContext(String path) {
+    return path.startsWith('lib/features/library/generic/') ||
+        path.startsWith('lib/features/library/stats/') ||
+        path.startsWith('lib/features/library/value/') ||
+        path.startsWith('lib/features/library/export/');
+  }
+
   @override
   void visitImportDirective(ImportDirective node) {
     _checkDirective(node.uri.stringValue, node.offset, 'import');
@@ -58,6 +165,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         .startsWith('lib/features/library/kinds/registry/')) {
       return;
     }
+    if (importedRelativePath
+        .startsWith('lib/features/library/kinds/_shared/')) {
+      return;
+    }
 
     if (isBoundaryFile) {
       violations.add(
@@ -76,6 +187,50 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         );
       }
     }
+  }
+
+  @override
+  void visitNamedType(NamedType node) {
+    if (isBoundaryFile) {
+      final typeName = node.name.lexeme;
+      if (_forbiddenKindDomainTypes.contains(typeName)) {
+        final line = lineInfo.getLocation(node.offset).lineNumber;
+        violations.add(
+          '$relativePath:$line: Forbidden concrete kind domain type "$typeName" in generic boundary code',
+        );
+      }
+      if (typeName == 'LibraryFieldRegistry') {
+        final typeArgs = node.typeArguments?.arguments;
+        if (typeArgs != null &&
+            typeArgs.isNotEmpty &&
+            (typeArgs.first.toSource() == 'dynamic' ||
+                typeArgs.first.toSource() == 'Object?')) {
+          final line = lineInfo.getLocation(node.offset).lineNumber;
+          violations.add(
+            '$relativePath:$line: Forbidden dynamic field registry "LibraryFieldRegistry<dynamic>" in generic boundary code',
+          );
+        }
+      }
+    }
+    super.visitNamedType(node);
+  }
+
+  @override
+  void visitSimpleIdentifier(SimpleIdentifier node) {
+    if (isBoundaryFile) {
+      final idName = node.name;
+      if (_forbiddenKindDomainTypes.contains(idName)) {
+        final parent = node.parent;
+        // Don't duplicate if already caught as NamedType
+        if (parent is! NamedType) {
+          final line = lineInfo.getLocation(node.offset).lineNumber;
+          violations.add(
+            '$relativePath:$line: Forbidden concrete kind reference "$idName" in generic boundary code',
+          );
+        }
+      }
+    }
+    super.visitSimpleIdentifier(node);
   }
 
   @override

@@ -1,7 +1,28 @@
 import 'dart:io';
 import 'package:analyzer/dart/analysis/utilities.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
+
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
+import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
+import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
+import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 import '../../tool/check_library_kind_boundaries.dart';
 
@@ -112,5 +133,251 @@ class TestValue {}
       contains('Forbidden import of kind-specific module'),
     );
   });
+  test('architecture boundary checker rejects generic referencing concrete ComicMetadata', () {
+    final repoRoot = Directory.current.path;
+    const testCode = '''
+class GenericClass {
+  void doSomething(ComicMetadata metadata) {}
 }
+''';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      relativePath: 'lib/features/library/generic/generic_test.dart',
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile('lib/features/library/generic/generic_test.dart'),
+      isRegistryFile: false,
+      kindName: null,
+      repoRoot: repoRoot,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isNotEmpty);
+    expect(
+      visitor.violations.any((v) => v.contains('Forbidden concrete kind')),
+      isTrue,
+    );
+  });
+
+  test('architecture boundary checker rejects value referencing concrete ComicOwnedDetails', () {
+    final repoRoot = Directory.current.path;
+    const testCode = '''
+class ValueClass {
+  void calculate(ComicOwnedDetails details) {}
+}
+''';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
+      relativePath: 'lib/features/library/value/value_test.dart',
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile('lib/features/library/value/value_test.dart'),
+      isRegistryFile: false,
+      kindName: null,
+      repoRoot: repoRoot,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isNotEmpty);
+    expect(
+      visitor.violations.any((v) => v.contains('ComicOwnedDetails')),
+      isTrue,
+    );
+  });
+
+  test('architecture boundary checker rejects generic CatalogMediaKind.movie switch or branch', () {
+    final repoRoot = Directory.current.path;
+    const testCode = '''
+void checkKind(CatalogMediaKind kind) {
+  if (kind == CatalogMediaKind.movie) {}
+}
+''';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      relativePath: 'lib/features/library/generic/generic_test.dart',
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile('lib/features/library/generic/generic_test.dart'),
+      isRegistryFile: false,
+      kindName: null,
+      repoRoot: repoRoot,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isNotEmpty);
+    expect(
+      visitor.violations.any((v) => v.contains('CatalogMediaKind')),
+      isTrue,
+    );
+  });
+
+  test('architecture boundary checker rejects dynamic registry in generic boundary code', () {
+    final repoRoot = Directory.current.path;
+    const testCode = '''
+class GenericFieldHandler {
+  final LibraryFieldRegistry<dynamic> registry;
+  GenericFieldHandler(this.registry);
+}
+''';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      relativePath: 'lib/features/library/generic/generic_test.dart',
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile('lib/features/library/generic/generic_test.dart'),
+      isRegistryFile: false,
+      kindName: null,
+      repoRoot: repoRoot,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isNotEmpty);
+    expect(
+      visitor.violations.any((v) => v.contains('LibraryFieldRegistry<dynamic>')),
+      isTrue,
+    );
+  });
+
+  test('architecture boundary checker rejects cross-kind concrete import (comic -> manga)', () {
+    final repoRoot = Directory.current.path;
+    const testCode = '''
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+
+class ComicFeature {}
+''';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'kinds', 'comic', 'comic_test.dart'),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'kinds', 'comic', 'comic_test.dart'),
+      relativePath: 'lib/features/library/kinds/comic/comic_test.dart',
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile('lib/features/library/kinds/comic/comic_test.dart'),
+      isRegistryFile: false,
+      kindName: 'comic',
+      repoRoot: repoRoot,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isNotEmpty);
+    expect(
+      visitor.violations.any((v) => v.contains('Cross-kind import violation')),
+      isTrue,
+    );
+  });
+
+  test('extensibility: custom fake kind "foo" registers and operates without generic library edits', () {
+    final fooKindConfig = LibraryTypeConfig(
+      workspace: const LibraryWorkspaceConfig(
+        kind: CatalogMediaKind.unknown,
+        title: 'Foo',
+        icon: Icons.extension,
+        accent: Color(0xFF673AB7),
+        preferencePrefix: 'foo',
+      ),
+      singularLabel: 'Foo',
+      pluralLabel: 'Foos',
+      defaultMetadataProvider: '',
+      metadataProviders: const [],
+      trackingProfile: readingTrackingProfile,
+      presentation: genericLibraryMediaPresentation,
+      workspaceBehavior: const LibraryKindWorkspaceBehavior(),
+    );
+
+    final fooKindModule = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
+      type: fooKindConfig,
+      mediaAdapter: collectarrMediaAdapter(fooKindConfig),
+      projector: const GenericWorkspaceProjector(),
+      ownedDetailsCodec: const GenericOwnedDetailsCodec(),
+      fields: genericLibraryKindSchema.toRegistry(),
+      identity: const LibraryKindIdentity(
+        kind: CatalogMediaKind.unknown,
+        singularLabel: 'Foo',
+        pluralLabel: 'Foos',
+        title: 'Foo',
+        icon: Icons.extension,
+        accent: Color(0xFF673AB7),
+        preferencePrefix: 'foo',
+      ),
+      metadata: const LibraryMetadataCapability(
+        defaultProviderId: '',
+        providers: [],
+      ),
+      hierarchy: const LibraryHierarchyCapability(),
+      inspector: const LibraryInspectorCapability(),
+      transfer: const LibraryTransferCapability(),
+      add: const StandardLibraryAddCapability<GenericAddDraft>(
+        kind: CatalogMediaKind.unknown,
+        initialDraftBuilder: GenericAddDraft.new,
+      ),
+      edit: const LibraryEditCapability(),
+      workspaceBehavior: const LibraryKindWorkspaceBehavior(),
+      buildCardPresentation: (item, {required musicVertical}) =>
+          const LibraryCardPresentation(),
+    );
+
+    // Verify operations through the generic interface
+    expect(fooKindModule.identity.title, equals('Foo'));
+    expect(fooKindModule.identity.singularLabel, equals('Foo'));
+    expect(fooKindModule.type.singularLabel, equals('Foo'));
+
+    final entry = ShelfEntry(
+      itemId: 'foo-1',
+      catalogItem: CatalogItem(
+        id: 'foo-1',
+        kind: 'unknown',
+        title: 'Foo Item 1',
+      ),
+      ownedItem: OwnedItem(
+        id: 'owned-foo-1',
+        catalogRef: const CatalogEntityRef(
+          entityType: CatalogEntityType.work,
+          kind: 'unknown',
+          id: 'foo-1',
+        ),
+        updatedAt: DateTime.utc(2026, 1, 1),
+      ),
+    );
+
+    final projection = fooKindModule.project(
+      source: entry,
+      node: const LibraryTitleNodeRef(titleItemId: 'foo-1'),
+    );
+
+    expect(projection.dto.title, equals('Foo Item 1'));
+    expect(
+      fooKindModule.stats.buildSummaryTiles(
+        const ShelfState(
+          entries: [],
+          ownedCount: 0,
+          wishlistCount: 0,
+          missingGradeCount: 0,
+          keyComicCount: 0,
+          pricedCount: 0,
+          totalPaidCents: 0,
+          primaryCurrency: 'USD',
+          hasMixedCurrencies: false,
+          soldCount: 0,
+          totalSellCents: 0,
+        ),
+        fooKindConfig,
+      ),
+      isEmpty,
+    );
+  });
+}
+
 
