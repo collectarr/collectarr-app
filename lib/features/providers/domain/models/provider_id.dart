@@ -52,10 +52,3 @@ enum ProviderId {
 
   static ProviderId? fromStorageValue(String? value) => fromValue(value);
 }
-
-typedef ProviderImportId = ProviderId;
-
-extension ProviderImportIdX on ProviderImportId {
-  static ProviderId? fromStorageValue(String? value) =>
-      ProviderId.fromValue(value);
-}

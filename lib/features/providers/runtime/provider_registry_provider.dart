@@ -23,26 +23,26 @@ final secureProviderCredentialStoreProvider =
   return SecureProviderCredentialStore();
 });
 
-/// Constructs an [InMemoryProviderRegistry] populated with all supported adapters.
-ProviderRegistry buildDefaultProviderRegistry({
+/// Constructs an [InMemoryProviderConnectorRegistry] populated with all supported connectors.
+ProviderConnectorRegistry buildDefaultProviderRegistry({
   ComicVineCredentials? comicVineCredentials,
   HardcoverCredentials? hardcoverCredentials,
   TmdbCredentials? tmdbCredentials,
   BggCredentials? bggCredentials,
   IgdbCredentials? igdbCredentials,
 }) {
-  final registry = InMemoryProviderRegistry();
+  final registry = InMemoryProviderConnectorRegistry();
 
-  registry.register(OpenLibraryProvider());
-  registry.register(AniListProvider());
-  registry.register(MusicBrainzProvider());
-  registry.register(MangaDexProvider());
-  registry.register(GCDProvider());
-  registry.register(ComicVineProvider(credentials: comicVineCredentials));
-  registry.register(HardcoverProvider(credentials: hardcoverCredentials));
-  registry.register(TMDbProvider(credentials: tmdbCredentials));
-  registry.register(BGGProvider(credentials: bggCredentials));
-  registry.register(IGDBProvider(credentials: igdbCredentials));
+  registry.register(OpenLibraryProvider().toConnector());
+  registry.register(AniListProvider().toConnector());
+  registry.register(MusicBrainzProvider().toConnector());
+  registry.register(MangaDexProvider().toConnector());
+  registry.register(GCDProvider().toConnector());
+  registry.register(ComicVineProvider(credentials: comicVineCredentials).toConnector());
+  registry.register(HardcoverProvider(credentials: hardcoverCredentials).toConnector());
+  registry.register(TMDbProvider(credentials: tmdbCredentials).toConnector());
+  registry.register(BGGProvider(credentials: bggCredentials).toConnector());
+  registry.register(IGDBProvider(credentials: igdbCredentials).toConnector());
 
   return registry;
 }

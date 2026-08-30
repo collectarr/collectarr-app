@@ -184,7 +184,7 @@ class ImportRunConfig {
     this.conflictPolicy = ImportConflictPolicy.keepLocal,
   });
 
-  final ProviderImportId provider;
+  final ProviderId provider;
   final String collectionLabel;
   final String sourceLabel;
 
@@ -258,7 +258,7 @@ class ImportResult {
   }
 
   // Set by ImportRunner so toHistoryEntry can reproduce the run context.
-  ProviderImportId _providerId = ProviderImportId.tmdb;
+  ProviderId _providerId = ProviderId.tmdb;
   String _collectionLabel = '';
   String _sourceLabel = '';
 

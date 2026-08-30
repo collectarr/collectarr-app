@@ -21,7 +21,7 @@ class ProviderImportDescriptor {
     this.availability = ProviderImportAvailability.available,
   });
 
-  final ProviderImportId id;
+  final ProviderId id;
   final String title;
   final String summary;
   final bool supportsAccountSync;
@@ -30,11 +30,11 @@ class ProviderImportDescriptor {
 }
 
 /// Icon data for each provider (Material Icons fallback for missing logos).
-IconData providerImportIcon(ProviderImportId id) => id.icon;
+IconData providerImportIcon(ProviderId id) => id.icon;
 
 const providerImportDescriptors = <ProviderImportDescriptor>[
   ProviderImportDescriptor(
-    id: ProviderImportId.tmdb,
+    id: ProviderId.tmdb,
     title: 'TMDB',
     summary:
         'Import rated and watchlist movies from TMDB account sync or TMDB export files.',
@@ -42,7 +42,7 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
     supportsFileImport: true,
   ),
   ProviderImportDescriptor(
-    id: ProviderImportId.trakt,
+    id: ProviderId.trakt,
     title: 'Trakt',
     summary: 'Import TV shows and movies.',
     supportsAccountSync: true,
@@ -50,7 +50,7 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
     availability: ProviderImportAvailability.comingSoon,
   ),
   ProviderImportDescriptor(
-    id: ProviderImportId.simkl,
+    id: ProviderId.simkl,
     title: 'SIMKL',
     summary: 'Import TV shows, movies and anime.',
     supportsAccountSync: true,
@@ -58,7 +58,7 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
     availability: ProviderImportAvailability.comingSoon,
   ),
   ProviderImportDescriptor(
-    id: ProviderImportId.myAnimeList,
+    id: ProviderId.myAnimeList,
     title: 'MyAnimeList',
     summary: 'Import anime and manga XML exports.',
     supportsAccountSync: false,
@@ -66,7 +66,7 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
     availability: ProviderImportAvailability.available,
   ),
   ProviderImportDescriptor(
-    id: ProviderImportId.aniList,
+    id: ProviderId.aniList,
     title: 'AniList',
     summary: 'Import anime and manga XML exports.',
     supportsAccountSync: false,
@@ -74,7 +74,7 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
     availability: ProviderImportAvailability.available,
   ),
   ProviderImportDescriptor(
-    id: ProviderImportId.kitsu,
+    id: ProviderId.kitsu,
     title: 'Kitsu',
     summary: 'Import anime and manga.',
     supportsAccountSync: true,
@@ -82,7 +82,7 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
     availability: ProviderImportAvailability.comingSoon,
   ),
   ProviderImportDescriptor(
-    id: ProviderImportId.imdb,
+    id: ProviderId.imdb,
     title: 'IMDB',
     summary: 'Import movies and TV shows from your ratings.',
     supportsAccountSync: false,
@@ -90,7 +90,7 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
     availability: ProviderImportAvailability.comingSoon,
   ),
   ProviderImportDescriptor(
-    id: ProviderImportId.goodReads,
+    id: ProviderId.goodReads,
     title: 'GoodReads',
     summary: 'Import from GoodReads backup.',
     supportsAccountSync: false,
@@ -98,7 +98,7 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
     availability: ProviderImportAvailability.comingSoon,
   ),
   ProviderImportDescriptor(
-    id: ProviderImportId.howLongToBeat,
+    id: ProviderId.howLongToBeat,
     title: 'HowLongToBeat',
     summary: 'Import games.',
     supportsAccountSync: false,
@@ -106,7 +106,7 @@ const providerImportDescriptors = <ProviderImportDescriptor>[
     availability: ProviderImportAvailability.comingSoon,
   ),
   ProviderImportDescriptor(
-    id: ProviderImportId.steam,
+    id: ProviderId.steam,
     title: 'Steam',
     summary: 'Import games from your Steam library.',
     supportsAccountSync: true,
@@ -154,7 +154,7 @@ class ProviderImportHistoryEntry {
   });
 
   final String id;
-  final ProviderImportId provider;
+  final ProviderId provider;
   final ProviderImportHistoryStatus status;
   final String collectionLabel;
   final String sourceLabel;
@@ -171,8 +171,8 @@ class ProviderImportHistoryEntry {
     return ProviderImportHistoryEntry(
       id: json['id'] as String? ?? '',
       provider:
-          ProviderImportIdX.fromStorageValue(json['provider'] as String?) ??
-              ProviderImportId.tmdb,
+          ProviderId.fromStorageValue(json['provider'] as String?) ??
+              ProviderId.tmdb,
       status: ProviderImportHistoryStatusX.fromStorageValue(
         json['status'] as String?,
       ),

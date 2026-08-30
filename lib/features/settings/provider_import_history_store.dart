@@ -10,7 +10,7 @@ class ProviderImportHistoryStore {
   static const _maxEntries = 30;
 
   Future<List<ProviderImportHistoryEntry>> read({
-    ProviderImportId? provider,
+    ProviderId? provider,
     int? limit,
   }) async {
     final prefs = await SharedPreferences.getInstance();
@@ -34,7 +34,7 @@ class ProviderImportHistoryStore {
     await _write(next);
   }
 
-  Future<void> clear({ProviderImportId? provider}) async {
+  Future<void> clear({ProviderId? provider}) async {
     if (provider == null) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_key);

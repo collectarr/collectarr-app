@@ -1,71 +1,111 @@
-import 'package:collectarr_app/features/providers/domain/contracts/metadata_provider.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 
-/// Registry holding active client-side [MetadataProvider] instances.
-abstract class ProviderRegistry {
-  /// Register or replace a provider in the registry.
-  void register(MetadataProvider provider);
+/// Composition root registry holding active client-side [ProviderConnector] instances.
+abstract class ProviderConnectorRegistry {
+  /// Register or replace a connector in the registry.
+  void register(ProviderConnector connector);
 
-  /// Unregister a provider by [name].
-  void unregister(String name);
+  /// Unregister a connector by [id].
+  void unregister(ProviderId id);
 
-  /// Retrieve a registered provider by [name], or return `null` if not registered.
-  MetadataProvider? get(String name);
+  /// Retrieve a registered connector by [ProviderId] or [String] name.
+  ProviderConnector? get(Object idOrName);
 
-  /// Retrieve all registered providers.
-  List<MetadataProvider> getAll();
+  /// Retrieve a registered connector by typed [ProviderId].
+  ProviderConnector? getById(ProviderId id);
 
-  /// Retrieve all registered providers that support the given [kind].
-  List<MetadataProvider> getForKind(String kind);
+  /// Retrieve a registered connector by string [name].
+  ProviderConnector? getByName(String name);
 
-  /// Retrieve descriptors for all registered providers.
+  /// Retrieve all registered connectors.
+  List<ProviderConnector> getAll();
+
+  /// Retrieve all registered connectors that support the given [kind].
+  List<ProviderConnector> getForKind(Object kind);
+
+  /// Retrieve descriptors for all registered connectors.
   List<ProviderDescriptor> getDescriptors();
 }
 
-/// In-memory implementation of [ProviderRegistry].
-class InMemoryProviderRegistry implements ProviderRegistry {
-  InMemoryProviderRegistry([List<MetadataProvider>? initialProviders]) {
-    if (initialProviders != null) {
-      for (final provider in initialProviders) {
-        register(provider);
+/// In-memory implementation of [ProviderConnectorRegistry].
+class InMemoryProviderConnectorRegistry implements ProviderConnectorRegistry {
+  InMemoryProviderConnectorRegistry([List<ProviderConnector>? initialConnectors]) {
+    if (initialConnectors != null) {
+      for (final connector in initialConnectors) {
+        register(connector);
       }
     }
   }
 
-  final Map<String, MetadataProvider> _providers = {};
+  final Map<String, ProviderConnector> _connectors = {};
+  final Map<ProviderId, ProviderConnector> _byId = {};
 
   @override
-  void register(MetadataProvider provider) {
-    _providers[provider.name.trim().toLowerCase()] = provider;
+  void register(ProviderConnector connector) {
+    _connectors[connector.descriptor.name.toLowerCase()] = connector;
+    _connectors[connector.id.value.toLowerCase()] = connector;
+    _byId[connector.id] = connector;
   }
 
   @override
-  void unregister(String name) {
-    _providers.remove(name.trim().toLowerCase());
+  void unregister(ProviderId id) {
+    final connector = _byId.remove(id);
+    if (connector != null) {
+      _connectors.remove(connector.descriptor.name.toLowerCase());
+      _connectors.remove(connector.id.value.toLowerCase());
+    }
   }
 
   @override
-  MetadataProvider? get(String name) {
-    return _providers[name.trim().toLowerCase()];
+  ProviderConnector? get(Object idOrName) {
+    if (idOrName is ProviderId) {
+      return _byId[idOrName] ?? _connectors[idOrName.value.toLowerCase()];
+    }
+    final normalized = idOrName.toString().trim().toLowerCase();
+    final direct = _connectors[normalized];
+    if (direct != null) return direct;
+    final providerId = ProviderId.fromValue(normalized);
+    if (providerId != null) {
+      return _byId[providerId] ?? _connectors[providerId.value.toLowerCase()];
+    }
+    return null;
   }
 
   @override
-  List<MetadataProvider> getAll() {
-    return List.unmodifiable(_providers.values);
+  ProviderConnector? getById(ProviderId id) =>
+      _byId[id] ?? _connectors[id.value.toLowerCase()];
+
+  @override
+  ProviderConnector? getByName(String name) => get(name);
+
+  @override
+  List<ProviderConnector> getAll() {
+    final unique = <ProviderConnector>{..._connectors.values, ..._byId.values};
+    return List.unmodifiable(unique);
   }
 
   @override
-  List<MetadataProvider> getForKind(String kind) {
-    final normalizedKind = kind.trim().toLowerCase();
-    return _providers.values
-        .where((provider) => provider.descriptor.supportsKind(normalizedKind))
+  List<ProviderConnector> getForKind(Object kind) {
+    final kindStr = kind is CatalogMediaKind
+        ? kind.apiValue
+        : kind.toString().trim().toLowerCase();
+    final unique = <ProviderConnector>{..._connectors.values, ..._byId.values};
+    return unique
+        .where((connector) => connector.descriptor.supportsKind(kindStr))
         .toList(growable: false);
   }
 
   @override
   List<ProviderDescriptor> getDescriptors() {
-    return _providers.values
-        .map((provider) => provider.descriptor)
+    return getAll()
+        .map((connector) => connector.descriptor)
         .toList(growable: false);
   }
 }
+
+typedef ProviderRegistry = ProviderConnectorRegistry;
+typedef InMemoryProviderRegistry = InMemoryProviderConnectorRegistry;
+

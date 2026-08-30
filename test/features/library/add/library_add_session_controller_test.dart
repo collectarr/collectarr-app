@@ -353,8 +353,8 @@ void main() {
             throw Exception('Broken network connection!'),
       );
 
-      registry.register(goodProvider);
-      registry.register(brokenProvider);
+      registry.register(goodProvider.toConnector());
+      registry.register(brokenProvider.toConnector());
 
       final sessionController = LibraryAddSessionController(
         kind: CatalogMediaKind.comic,
@@ -424,7 +424,7 @@ void main() {
         ),
       );
 
-      registry.register(testProvider);
+      registry.register(testProvider.toConnector());
 
       final sessionController = LibraryAddSessionController(
         kind: CatalogMediaKind.book,
@@ -508,7 +508,7 @@ void main() {
         ),
       );
 
-      registry.register(comicProvider);
+      registry.register(comicProvider.toConnector());
 
       final catalog = CatalogCacheRepository(db);
 
@@ -568,7 +568,7 @@ void main() {
   });
 }
 
-class _MockProvider extends MetadataProvider {
+class _MockProvider implements MetadataProvider, MetadataCapability {
   _MockProvider({
     required this.name,
     required this.kind,
@@ -603,11 +603,11 @@ class _MockProvider extends MetadataProvider {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    Object? kind,
     int limit = 25,
   }) async {
     if (searchHandler != null) {
-      return searchHandler!(query, kind: kind, limit: limit);
+      return searchHandler!(query, kind: kind?.toString(), limit: limit);
     }
     return [];
   }
@@ -615,13 +615,19 @@ class _MockProvider extends MetadataProvider {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    Object? kind,
   }) async {
     if (fetchHandler != null) {
-      return fetchHandler!(providerItemId, kind: kind);
+      return fetchHandler!(providerItemId, kind: kind?.toString());
     }
     throw UnimplementedError();
   }
+
+  ProviderConnector toConnector() => ProviderConnector(
+        id: ProviderId.fromValue(name) ?? ProviderId.comicVine,
+        descriptor: descriptor,
+        metadata: this,
+      );
 }
 
 extension on ComicAddDraft {

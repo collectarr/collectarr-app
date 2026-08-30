@@ -1,27 +1,28 @@
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _FakeTestProvider implements MetadataProvider {
+class _FakeTestProvider implements MetadataCapability {
   _FakeTestProvider({
     required this.descriptor,
   });
 
-  @override
   final ProviderDescriptor descriptor;
 
-  @override
   bool get isConfigured => true;
-
-  @override
   String get statusMessage => 'OK';
-
-  @override
   String get name => descriptor.name;
+  ProviderId get id => ProviderId.fromValue(descriptor.name) ?? ProviderId.tmdb;
+
+  ProviderConnector toConnector() => ProviderConnector(
+        id: id,
+        descriptor: descriptor,
+        metadata: this,
+      );
 
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    Object? kind,
     int limit = 25,
   }) async {
     return [
@@ -29,7 +30,7 @@ class _FakeTestProvider implements MetadataProvider {
         provider: name,
         providerItemId: 'item-1',
         title: 'Search Result: $query',
-        kind: kind ?? descriptor.kind,
+        kind: kind?.toString() ?? descriptor.kind,
       ),
     ];
   }
@@ -37,12 +38,12 @@ class _FakeTestProvider implements MetadataProvider {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    Object? kind,
   }) async {
     return NormalizedProviderEnvelopeV1(
       provider: name,
       providerItemId: providerItemId,
-      kind: kind ?? descriptor.kind,
+      kind: kind?.toString() ?? descriptor.kind,
       normalized: {'title': 'Item $providerItemId'},
       provenance: const ProviderProvenance(fetchedAt: '2026-08-17T12:00:00Z'),
       images: [
@@ -132,41 +133,42 @@ void main() {
     test(
         'InMemoryProviderRegistry registers, filters, and unregisters providers',
         () {
-      final bookProvider = _FakeTestProvider(
+      final bookConnector = _FakeTestProvider(
         descriptor: const ProviderDescriptor(
-          name: 'book_prov',
+          name: 'openlibrary',
           displayName: 'Book Provider',
           kind: 'book',
           supportedKinds: ['book'],
         ),
-      );
-      final multiProvider = _FakeTestProvider(
+      ).toConnector();
+      final multiConnector = _FakeTestProvider(
         descriptor: const ProviderDescriptor(
-          name: 'multi_prov',
+          name: 'mangadex',
           displayName: 'Multi Provider',
           kind: 'manga',
           supportedKinds: ['manga', 'anime'],
         ),
-      );
+      ).toConnector();
 
-      final registry = InMemoryProviderRegistry([bookProvider]);
+      final registry = InMemoryProviderConnectorRegistry([bookConnector]);
       expect(registry.getAll(), hasLength(1));
-      expect(registry.get('book_prov'), equals(bookProvider));
-      expect(registry.get('BOOK_PROV'), equals(bookProvider));
+      expect(registry.get('openlibrary'), equals(bookConnector));
+      expect(registry.get('OPENLIBRARY'), equals(bookConnector));
+      expect(registry.get(ProviderId.openLibrary), equals(bookConnector));
 
-      registry.register(multiProvider);
+      registry.register(multiConnector);
       expect(registry.getAll(), hasLength(2));
-      expect(registry.getForKind('book'), contains(bookProvider));
-      expect(registry.getForKind('book'), isNot(contains(multiProvider)));
-      expect(registry.getForKind('manga'), contains(multiProvider));
-      expect(registry.getForKind('anime'), contains(multiProvider));
+      expect(registry.getForKind('book'), contains(bookConnector));
+      expect(registry.getForKind('book'), isNot(contains(multiConnector)));
+      expect(registry.getForKind('manga'), contains(multiConnector));
+      expect(registry.getForKind('anime'), contains(multiConnector));
 
       final descriptors = registry.getDescriptors();
       expect(descriptors.map((d) => d.name),
-          containsAll(['book_prov', 'multi_prov']));
+          containsAll(['openlibrary', 'mangadex']));
 
-      registry.unregister('book_prov');
-      expect(registry.get('book_prov'), isNull);
+      registry.unregister(ProviderId.openLibrary);
+      expect(registry.get(ProviderId.openLibrary), isNull);
       expect(registry.getAll(), hasLength(1));
     });
 

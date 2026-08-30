@@ -93,8 +93,8 @@ class _ImportSourcesGrid extends ConsumerWidget {
         )
         .where(
           (d) =>
-              d.id != ProviderImportId.myAnimeList &&
-              d.id != ProviderImportId.aniList,
+              d.id != ProviderId.myAnimeList &&
+              d.id != ProviderId.aniList,
         )
         .toList(growable: false);
     final comingSoonDescriptors = providerImportDescriptors
@@ -103,12 +103,12 @@ class _ImportSourcesGrid extends ConsumerWidget {
         )
         .where(
           (d) =>
-              d.id != ProviderImportId.trakt &&
-              d.id != ProviderImportId.simkl &&
-              d.id != ProviderImportId.kitsu &&
-              d.id != ProviderImportId.imdb &&
-              d.id != ProviderImportId.goodReads &&
-              d.id != ProviderImportId.howLongToBeat,
+              d.id != ProviderId.trakt &&
+              d.id != ProviderId.simkl &&
+              d.id != ProviderId.kitsu &&
+              d.id != ProviderId.imdb &&
+              d.id != ProviderId.goodReads &&
+              d.id != ProviderId.howLongToBeat,
         )
         .toList(growable: false);
     return LayoutBuilder(
@@ -158,7 +158,7 @@ class _AnimeListImportCard extends ConsumerStatefulWidget {
 }
 
 class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
-  ProviderImportId _provider = ProviderImportId.myAnimeList;
+  ProviderId _provider = ProviderId.myAnimeList;
   bool _keepUnmatchedLocally = true;
   bool _isWorking = false;
 
@@ -259,7 +259,7 @@ class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<ProviderImportId>(
+            DropdownButtonFormField<ProviderId>(
               initialValue: _provider,
               isExpanded: true,
               decoration: const InputDecoration(
@@ -271,8 +271,8 @@ class _AnimeListImportCardState extends ConsumerState<_AnimeListImportCard> {
               ),
               style: theme.textTheme.bodySmall,
               items: const [
-                ProviderImportId.myAnimeList,
-                ProviderImportId.aniList,
+                ProviderId.myAnimeList,
+                ProviderId.aniList,
               ].map((provider) {
                 return DropdownMenuItem(
                   value: provider,
@@ -334,17 +334,17 @@ class _ProviderCsvImportCard extends ConsumerStatefulWidget {
 
 class _ProviderCsvImportCardState
     extends ConsumerState<_ProviderCsvImportCard> {
-  ProviderImportId _provider = ProviderImportId.trakt;
+  ProviderId _provider = ProviderId.trakt;
   bool _keepUnmatchedLocally = true;
   bool _isWorking = false;
 
-  static const _csvProviders = <ProviderImportId>[
-    ProviderImportId.trakt,
-    ProviderImportId.simkl,
-    ProviderImportId.kitsu,
-    ProviderImportId.imdb,
-    ProviderImportId.goodReads,
-    ProviderImportId.howLongToBeat,
+  static const _csvProviders = <ProviderId>[
+    ProviderId.trakt,
+    ProviderId.simkl,
+    ProviderId.kitsu,
+    ProviderId.imdb,
+    ProviderId.goodReads,
+    ProviderId.howLongToBeat,
   ];
 
   Future<void> _pickAndImportFile() async {
@@ -444,7 +444,7 @@ class _ProviderCsvImportCardState
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<ProviderImportId>(
+            DropdownButtonFormField<ProviderId>(
               initialValue: _provider,
               isExpanded: true,
               decoration: const InputDecoration(

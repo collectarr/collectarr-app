@@ -18,7 +18,7 @@ tt0944947,Game of Thrones,tvSeries,8,2011,2011-04-17
     final rows = service.parseFileBytes(
       Uint8List.fromList(utf8.encode(csv)),
       fileName: 'imdb.csv',
-      provider: ProviderImportId.imdb,
+      provider: ProviderId.imdb,
     );
 
     expect(rows, hasLength(2));
@@ -41,7 +41,7 @@ Book Id,Title,Author,My Rating,Exclusive Shelf,Date Read
     final rows = service.parseFileBytes(
       Uint8List.fromList(utf8.encode(csv)),
       fileName: 'goodreads.csv',
-      provider: ProviderImportId.goodReads,
+      provider: ProviderId.goodReads,
     );
 
     expect(rows, hasLength(1));

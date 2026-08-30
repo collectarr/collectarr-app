@@ -10,7 +10,7 @@ class ProviderCsvImportService {
   List<ImportRow> parseFileBytes(
     Uint8List bytes, {
     required String fileName,
-    required ProviderImportId provider,
+    required ProviderId provider,
   }) {
     final text = utf8.decode(bytes, allowMalformed: true);
     return parsePayload(text, provider: provider);
@@ -18,7 +18,7 @@ class ProviderCsvImportService {
 
   List<ImportRow> parsePayload(
     String text, {
-    required ProviderImportId provider,
+    required ProviderId provider,
   }) {
     final normalized = text.trim();
     if (normalized.isEmpty) {
@@ -104,24 +104,24 @@ class ProviderCsvImportService {
   }
 
   String _sourceId(
-    ProviderImportId provider,
+    ProviderId provider,
     Map<String, int> index,
     List<String> values,
     String title,
     int rowIndex,
   ) {
     final candidates = switch (provider) {
-      ProviderImportId.imdb => const ['const', 'id'],
-      ProviderImportId.goodReads => const [
+      ProviderId.imdb => const ['const', 'id'],
+      ProviderId.goodReads => const [
           'book_id',
           'book id',
           'id',
           'isbn13'
         ],
-      ProviderImportId.howLongToBeat => const ['id', 'game_id'],
-      ProviderImportId.trakt => const ['trakt_id', 'id', 'slug'],
-      ProviderImportId.simkl => const ['id', 'simkl_id'],
-      ProviderImportId.kitsu => const ['id', 'kitsu_id'],
+      ProviderId.howLongToBeat => const ['id', 'game_id'],
+      ProviderId.trakt => const ['trakt_id', 'id', 'slug'],
+      ProviderId.simkl => const ['id', 'simkl_id'],
+      ProviderId.kitsu => const ['id', 'kitsu_id'],
       _ => const ['id'],
     };
     final source = _value(index, values, candidates);
@@ -132,7 +132,7 @@ class ProviderCsvImportService {
   }
 
   String? _mediaKind(
-    ProviderImportId provider,
+    ProviderId provider,
     Map<String, int> index,
     List<String> values,
   ) {
@@ -151,22 +151,22 @@ class ProviderCsvImportService {
       if (direct.contains('movie') || direct.contains('film')) return 'movie';
     }
     return switch (provider) {
-      ProviderImportId.goodReads => 'book',
-      ProviderImportId.howLongToBeat => 'game',
-      ProviderImportId.myAnimeList ||
-      ProviderImportId.aniList ||
-      ProviderImportId.kitsu =>
+      ProviderId.goodReads => 'book',
+      ProviderId.howLongToBeat => 'game',
+      ProviderId.myAnimeList ||
+      ProviderId.aniList ||
+      ProviderId.kitsu =>
         'anime',
-      ProviderImportId.trakt ||
-      ProviderImportId.simkl ||
-      ProviderImportId.imdb =>
+      ProviderId.trakt ||
+      ProviderId.simkl ||
+      ProviderId.imdb =>
         'movie',
       _ => null,
     };
   }
 
   ImportItemStatus _status(
-    ProviderImportId provider,
+    ProviderId provider,
     Map<String, int> index,
     List<String> values,
   ) {
@@ -180,7 +180,7 @@ class ProviderCsvImportService {
     ])?.toLowerCase();
     if (raw == null || raw.isEmpty) {
       return switch (provider) {
-        ProviderImportId.goodReads => ImportItemStatus.completed,
+        ProviderId.goodReads => ImportItemStatus.completed,
         _ => ImportItemStatus.unknown,
       };
     }
@@ -217,7 +217,7 @@ class ProviderCsvImportService {
   }
 
   int? _rating(
-    ProviderImportId provider,
+    ProviderId provider,
     Map<String, int> index,
     List<String> values,
   ) {
@@ -232,14 +232,14 @@ class ProviderCsvImportService {
       return null;
     }
     return switch (provider) {
-      ProviderImportId.goodReads => (numeric * 20).round().clamp(0, 100),
-      ProviderImportId.imdb => (numeric * 10).round().clamp(0, 100),
+      ProviderId.goodReads => (numeric * 20).round().clamp(0, 100),
+      ProviderId.imdb => (numeric * 10).round().clamp(0, 100),
       _ => (numeric * 10).round().clamp(0, 100),
     };
   }
 
   int? _progress(
-    ProviderImportId provider,
+    ProviderId provider,
     Map<String, int> index,
     List<String> values,
   ) {
@@ -262,7 +262,7 @@ class ProviderCsvImportService {
   }
 
   Map<String, String> _externalIds(
-    ProviderImportId provider,
+    ProviderId provider,
     Map<String, int> index,
     List<String> values,
     String sourceId,

@@ -326,7 +326,7 @@ class TmdbImportSource implements ImportSource {
   final List<TmdbImportEntry> entries;
 
   @override
-  ProviderImportId get provider => ProviderImportId.tmdb;
+  ProviderId get provider => ProviderId.tmdb;
 
   @override
   Future<List<ImportRow>> readRows() async {
@@ -756,7 +756,7 @@ class TmdbImportService {
     final result = await runner.runSource(
       source,
       ImportRunConfig(
-        provider: ProviderImportId.tmdb,
+        provider: ProviderId.tmdb,
         collectionLabel: preview.collection.label,
         sourceLabel: 'TMDB import',
         proposeUnmatched: true,

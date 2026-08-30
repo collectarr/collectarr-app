@@ -33,7 +33,7 @@ void main() {
     final rows = service.parseFileBytes(
       Uint8List.fromList(utf8.encode(xml)),
       fileName: 'mal.xml',
-      provider: ProviderImportId.myAnimeList,
+      provider: ProviderId.myAnimeList,
     );
 
     expect(rows, hasLength(2));

@@ -11,7 +11,7 @@ class AnimeListImportService {
   List<ImportRow> parseFileBytes(
     Uint8List bytes, {
     required String fileName,
-    required ProviderImportId provider,
+    required ProviderId provider,
   }) {
     final text = utf8.decode(bytes, allowMalformed: true);
     return parsePayload(text, provider: provider);
@@ -19,7 +19,7 @@ class AnimeListImportService {
 
   List<ImportRow> parsePayload(
     String text, {
-    required ProviderImportId provider,
+    required ProviderId provider,
   }) {
     final normalized = text.trim();
     if (normalized.isEmpty) {

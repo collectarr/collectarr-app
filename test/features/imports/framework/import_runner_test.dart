@@ -26,7 +26,7 @@ class _Source implements ImportSource {
   final List<ImportRow> rows;
 
   @override
-  ProviderImportId get provider => ProviderImportId.myAnimeList;
+  ProviderId get provider => ProviderId.myAnimeList;
 
   @override
   Future<List<ImportRow>> readRows() async => rows;
@@ -34,7 +34,7 @@ class _Source implements ImportSource {
 
 void main() {
   const config = ImportRunConfig(
-    provider: ProviderImportId.myAnimeList,
+    provider: ProviderId.myAnimeList,
     collectionLabel: 'Anime',
     sourceLabel: 'mal-export.xml',
     proposeUnmatched: true,
@@ -131,7 +131,7 @@ void main() {
       createdAt: DateTime.utc(2026, 7, 7),
     );
 
-    expect(entry.provider, ProviderImportId.myAnimeList);
+    expect(entry.provider, ProviderId.myAnimeList);
     expect(entry.collectionLabel, 'Anime');
     expect(entry.sourceLabel, 'mal-export.xml');
     expect(entry.rows, 1);

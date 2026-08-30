@@ -2657,22 +2657,27 @@ Future<Uint8List> _generateSolidPngBytes({
 
 ProviderRegistry _buildTestProviderRegistry() {
   return InMemoryProviderRegistry([
-    _FakeMetadataProvider(name: 'anilist', defaultKind: 'comic'),
-    _FakeMetadataProvider(name: 'tmdb', defaultKind: 'movie'),
-    _FakeMetadataProvider(name: 'musicbrainz', defaultKind: 'music'),
-    _FakeMetadataProvider(name: 'openlibrary', defaultKind: 'book'),
-    _FakeMetadataProvider(name: 'comicvine', defaultKind: 'comic'),
-    _FakeMetadataProvider(name: 'gcd', defaultKind: 'comic'),
-    _FakeMetadataProvider(name: 'igdb', defaultKind: 'game'),
+    _FakeMetadataProvider(name: 'anilist', defaultKind: 'comic').toConnector(),
+    _FakeMetadataProvider(name: 'tmdb', defaultKind: 'movie').toConnector(),
+    _FakeMetadataProvider(name: 'musicbrainz', defaultKind: 'music').toConnector(),
+    _FakeMetadataProvider(name: 'openlibrary', defaultKind: 'book').toConnector(),
+    _FakeMetadataProvider(name: 'comicvine', defaultKind: 'comic').toConnector(),
+    _FakeMetadataProvider(name: 'gcd', defaultKind: 'comic').toConnector(),
+    _FakeMetadataProvider(name: 'igdb', defaultKind: 'game').toConnector(),
   ]);
 }
 
-class _FakeMetadataProvider implements MetadataProvider {
+class _FakeMetadataProvider implements MetadataCapability {
   _FakeMetadataProvider({required this.name, required this.defaultKind});
 
-  @override
   final String name;
   final String defaultKind;
+
+  ProviderConnector toConnector() => ProviderConnector(
+        id: ProviderId.fromValue(name) ?? ProviderId.tmdb,
+        descriptor: descriptor,
+        metadata: this,
+      );
 
   @override
   ProviderDescriptor get descriptor => ProviderDescriptor(
@@ -2691,7 +2696,7 @@ class _FakeMetadataProvider implements MetadataProvider {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    Object? kind,
     int limit = 25,
   }) async {
     if (name == 'anilist' || query == 'Naruto') {
@@ -2700,7 +2705,7 @@ class _FakeMetadataProvider implements MetadataProvider {
           provider: 'anilist',
           providerItemId: 'anilist-1',
           title: 'Naruto Vol. 1',
-          kind: kind ?? defaultKind,
+          kind: kind?.toString() ?? defaultKind,
           summary: 'A ninja candidate.',
           imageUrl: 'https://example.test/naruto.jpg',
         ),
@@ -2727,7 +2732,7 @@ class _FakeMetadataProvider implements MetadataProvider {
         provider: name,
         providerItemId: '$name-1',
         title: displayTitle,
-        kind: kind ?? defaultKind,
+        kind: kind?.toString() ?? defaultKind,
         summary: 'Provider summary',
         imageUrl: 'https://example.test/$name.jpg',
       ),
@@ -2737,7 +2742,7 @@ class _FakeMetadataProvider implements MetadataProvider {
   @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
-    String? kind,
+    Object? kind,
   }) async {
     if (providerItemId == 'musicbrainz-1' ||
         kind == 'music' ||
@@ -2772,7 +2777,7 @@ class _FakeMetadataProvider implements MetadataProvider {
     return NormalizedProviderEnvelopeV1(
       provider: name,
       providerItemId: providerItemId,
-      kind: kind ?? defaultKind,
+      kind: kind?.toString() ?? defaultKind,
       normalized: {
         'title': 'Provider item $providerItemId',
       },

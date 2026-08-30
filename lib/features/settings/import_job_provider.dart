@@ -51,7 +51,7 @@ class ImportJobState {
   });
 
   final String id;
-  final ProviderImportId provider;
+  final ProviderId provider;
   final String label;
   final ImportJobPhase phase;
   final int total;
@@ -166,7 +166,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       ...state,
       ImportJobState(
         id: jobId,
-        provider: ProviderImportId.tmdb,
+        provider: ProviderId.tmdb,
         label: 'TMDB · ${collection.label}',
         startedAt: DateTime.now(),
       ),
@@ -214,7 +214,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       ...state,
       ImportJobState(
         id: jobId,
-        provider: ProviderImportId.tmdb,
+        provider: ProviderId.tmdb,
         label: 'TMDB · $fileName',
         startedAt: DateTime.now(),
       ),
@@ -257,7 +257,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   Future<void> startAnimeListFileImport({
     required Uint8List bytes,
     required String fileName,
-    required ProviderImportId provider,
+    required ProviderId provider,
     required bool keepUnmatchedLocally,
   }) async {
     final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
@@ -306,7 +306,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   Future<void> startProviderCsvFileImport({
     required Uint8List bytes,
     required String fileName,
-    required ProviderImportId provider,
+    required ProviderId provider,
     required bool keepUnmatchedLocally,
   }) async {
     final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
@@ -354,7 +354,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
 
   Future<void> _matchAndImportImportRows({
     required String jobId,
-    required ProviderImportId provider,
+    required ProviderId provider,
     required List<ImportRow> rows,
     required String sourceLabel,
     required bool keepUnmatchedLocally,
@@ -688,7 +688,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     await _historyStore.append(
       ProviderImportHistoryEntry(
         id: DateTime.now().toUtc().microsecondsSinceEpoch.toString(),
-        provider: ProviderImportId.tmdb,
+        provider: ProviderId.tmdb,
         status: ProviderImportHistoryStatus.success,
         collectionLabel: collection.label,
         sourceLabel: sourceLabel,
@@ -916,7 +916,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   CatalogItem _syntheticImportCatalogItem(
-    ProviderImportId provider,
+    ProviderId provider,
     ImportRow row,
   ) {
     final kind = switch (row.mediaKind?.trim().toLowerCase()) {
