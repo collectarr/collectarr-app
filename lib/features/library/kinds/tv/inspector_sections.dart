@@ -41,11 +41,12 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     entityType: CatalogEntityType.work,
     id: item.node.titleItemId,
   );
-  final rawEditions = ((catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?)
-          ?.whereType<Map>()
-          .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
-          .toList() ??
-      const <CatalogEdition>[]);
+  final rawEditions =
+      ((catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?)
+              ?.whereType<Map>()
+              .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
+              .toList() ??
+          const <CatalogEdition>[]);
   final releaseOptions = [
     for (final edition in rawEditions)
       WatchHistoryTargetOption(
@@ -77,9 +78,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     LibraryDetailField(label: 'Display title', value: dto.title),
     if (dto.publisher?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Studio', value: dto.publisher!),
-    LibraryDetailField(
-        label: 'Releases',
-        value: rawEditions.length.toString()),
+    LibraryDetailField(label: 'Releases', value: rawEditions.length.toString()),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
     if (trackingEntry?.episodeRatings.isNotEmpty == true)
@@ -87,8 +86,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           label: 'Rated episodes',
           value: trackingEntry!.episodeRatings.length.toString()),
     if (tvLinks.isNotEmpty)
-      LibraryDetailField(
-          label: 'Trailers', value: tvLinks.length.toString()),
+      LibraryDetailField(label: 'Trailers', value: tvLinks.length.toString()),
   ];
 
   return <LibraryDetailSectionSpec>[

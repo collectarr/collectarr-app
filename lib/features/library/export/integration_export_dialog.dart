@@ -180,7 +180,8 @@ class _IntegrationExportDialog extends StatelessWidget {
         buffer.writeln('    <series>${_escapeXml(dto.seriesTitle!)}</series>');
       }
       if (dto.publisher != null) {
-        buffer.writeln('    <publisher>${_escapeXml(dto.publisher!)}</publisher>');
+        buffer.writeln(
+            '    <publisher>${_escapeXml(dto.publisher!)}</publisher>');
       }
       if (dto.barcode != null) {
         buffer.writeln('    <barcode>${_escapeXml(dto.barcode!)}</barcode>');

@@ -1,9 +1,11 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +73,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     kind: CatalogMediaKind.manga,
     initialDraftBuilder: MangaAddDraft.new,
     manualDraftBuilder: MangaAddManualDraft.new,
+    advancedFilterFieldsBuilder: buildMangaAddAdvancedFilterFields,
     manualPaneBuilder: buildMangaAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -150,3 +153,30 @@ Future<List<LibraryHierarchyNode>> _fetchMangaVolumes({
       ),
   ];
 }
+
+List<LibraryAddAdvancedFilterField> buildMangaAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+    [
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-series-field'),
+        label: 'Series',
+        controller: req.seriesController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-number-field'),
+        label: 'Volume',
+        controller: req.numberController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Publisher',
+        controller: req.publisherController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        controller: req.yearController,
+        width: 120,
+      ),
+    ];

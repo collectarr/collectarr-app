@@ -665,8 +665,7 @@ class TmdbImportService {
       if (currentPayload['video'] is Map)
         ...Map<String, dynamic>.from(currentPayload['video'] as Map),
       if (runtimeMinutes != null || videoPayload['runtime_minutes'] != null)
-        'runtime_minutes':
-            videoPayload['runtime_minutes'] ?? runtimeMinutes,
+        'runtime_minutes': videoPayload['runtime_minutes'] ?? runtimeMinutes,
     };
     final mergedPayload = <String, dynamic>{
       ...item.payload,

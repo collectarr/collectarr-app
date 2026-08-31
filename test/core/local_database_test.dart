@@ -365,9 +365,8 @@ void main() {
 
     expect(item, isA<CatalogItem>());
     expect(item!.sortKey, 'lord-of-the-rings-001');
-    final seriesMap = item.payload['series'] is Map
-        ? item.payload['series'] as Map
-        : null;
+    final seriesMap =
+        item.payload['series'] is Map ? item.payload['series'] as Map : null;
     expect(seriesMap?['tags'], 'Epic Fantasy, Middle-earth');
     final pubMap = item.payload['publishing'] is Map
         ? item.payload['publishing'] as Map

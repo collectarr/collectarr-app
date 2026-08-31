@@ -53,12 +53,10 @@ class LibraryEmptyState extends StatelessWidget {
                                 ? 'No matching ${type.pluralLabel.toLowerCase()}'
                                 : 'Your local ${type.pluralLabel.toLowerCase()} shelf is empty',
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .panelTitle
-                                .copyWith(
-                                  color: palette.textPrimary,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.panelTitle.copyWith(
+                                      color: palette.textPrimary,
+                                    ),
                           ),
                           const SizedBox(height: 8),
                           Text(

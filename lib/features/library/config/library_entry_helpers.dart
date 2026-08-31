@@ -255,9 +255,8 @@ List<String> libraryReferencePlatforms(LibraryProjectionRuntime item) {
   final payload = catalogItem?.payload;
   final gameMap = payload?['game'];
   final rawPlatforms = (gameMap is Map
-          ? gameMap['platforms']
-          : payload?['platforms'])
-      as List<dynamic>?;
+      ? gameMap['platforms']
+      : payload?['platforms']) as List<dynamic>?;
   for (final platform in rawPlatforms ?? const <dynamic>[]) {
     final normalized = platform?.toString().trim() ?? '';
     if (normalized.isEmpty || values.contains(normalized)) {

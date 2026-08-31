@@ -280,8 +280,8 @@ class LibraryFilterEngine {
     if (normalized.isEmpty) {
       return true;
     }
-    for (final candidate
-        in libraryKindRuntimeForType(type).linkedMetadataCandidatesForEntry(item.source)) {
+    for (final candidate in libraryKindRuntimeForType(type)
+        .linkedMetadataCandidatesForEntry(item.source)) {
       if (candidate.trim().toLowerCase() == normalized) {
         return true;
       }

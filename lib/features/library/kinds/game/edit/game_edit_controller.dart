@@ -77,12 +77,13 @@ class GameEditController {
     final updatedPub = emptyToNull(publisherController.text);
 
     final updatedMetadata = meta?.copyWith(
-      platforms: platforms,
-      platform: platforms.firstOrNull ?? meta.platform,
-      creators: mergedCreators.isNotEmpty ? mergedCreators : meta.creators,
-      series: emptyToNull(seriesTitleController.text) ?? meta.series,
-      publishers: updatedPub != null ? [updatedPub] : meta.publishers,
-    ) ?? selection.item.kindMetadata;
+          platforms: platforms,
+          platform: platforms.firstOrNull ?? meta.platform,
+          creators: mergedCreators.isNotEmpty ? mergedCreators : meta.creators,
+          series: emptyToNull(seriesTitleController.text) ?? meta.series,
+          publishers: updatedPub != null ? [updatedPub] : meta.publishers,
+        ) ??
+        selection.item.kindMetadata;
 
     final updatedItem = selection.item.copyWith(
       kindMetadata: updatedMetadata,

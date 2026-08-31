@@ -56,7 +56,8 @@ class TvStatsCapability implements LibraryStatsCapability {
               (payload?['series'] as Map?)?['series_title']) as String?)
           ?.trim();
       final number = numberFor(entry);
-      if (seriesTitle == null || seriesTitle.isEmpty || number == null) continue;
+      if (seriesTitle == null || seriesTitle.isEmpty || number == null)
+        continue;
       seriesNumbers.putIfAbsent(seriesTitle, () => <int>{}).add(number);
     }
     for (final series in seriesNumbers.entries) {

@@ -386,8 +386,7 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
       episodeNumber: episodeNumber ?? this.episodeNumber,
       itemNumber: itemNumber ?? this.itemNumber,
       physicalFormat: physicalFormat ?? this.physicalFormat,
-      physicalFormatLabel:
-          physicalFormatLabel ?? this.physicalFormatLabel,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
@@ -420,12 +419,12 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
           const <TrailerLink>[]),
     ];
 
-    final resolvedSeasonNumber = (json['season_number'] as num?)?.toInt() ??
-        series?.seasonNumber;
-    final resolvedEpisodeNumber = (json['episode_number'] as num?)?.toInt() ??
-        series?.episodeNumber;
-    final resolvedSeriesTitle = (json['series_title'] ??
-        series?.seriesTitle) as String?;
+    final resolvedSeasonNumber =
+        (json['season_number'] as num?)?.toInt() ?? series?.seasonNumber;
+    final resolvedEpisodeNumber =
+        (json['episode_number'] as num?)?.toInt() ?? series?.episodeNumber;
+    final resolvedSeriesTitle =
+        (json['series_title'] ?? series?.seriesTitle) as String?;
 
     return TvSeriesMetadata(
       title: (json['title'] as String?) ?? '',
@@ -485,7 +484,8 @@ class TvSeriesMetadata implements LibraryKindMetadataRuntime {
       itemNumber: (json['item_number'] ?? json['issue_number']) as String?,
       physicalFormat: json['physical_format'] as String?,
       physicalFormatLabel: json['physical_format_label'] as String?,
-      publisher: (json['publisher'] ?? json['network'] ?? json['studio']) as String?,
+      publisher:
+          (json['publisher'] ?? json['network'] ?? json['studio']) as String?,
       barcode: json['barcode'] as String?,
       variant: json['variant'] as String?,
       creators: rawCreators,

@@ -7,8 +7,7 @@ abstract class ProviderAdapter implements MetadataProvider, MetadataCapability {
   @override
   String get name => descriptor.name;
 
-  ProviderId get id =>
-      ProviderId.fromValue(descriptor.name) ?? ProviderId.tmdb;
+  ProviderId get id => ProviderId.fromValue(descriptor.name) ?? ProviderId.tmdb;
 
   ProviderConnector toConnector({
     PersonalListReadCapability? personalRead,

@@ -213,14 +213,16 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         : widget.onAddWishlist;
     final onEdit =
         widget.onEdit == null ? null : () => widget.onEdit!(activeOwnedItem);
-    final onCorrectMetadata = widget.type.supportedMetadataProviders.isNotEmpty && selected.source.catalogItem != null
-        ? () => showMetadataCorrectionDialog(
-              context: context,
-              ref: ref,
-              item: selected.source.catalogItem!,
-              type: widget.type,
-            )
-        : null;
+    final onCorrectMetadata =
+        widget.type.supportedMetadataProviders.isNotEmpty &&
+                selected.source.catalogItem != null
+            ? () => showMetadataCorrectionDialog(
+                  context: context,
+                  ref: ref,
+                  item: selected.source.catalogItem!,
+                  type: widget.type,
+                )
+            : null;
     final onDuplicate = activeOwnedItem == null
         ? null
         : () => _duplicateOwnedCopy(selected, activeOwnedItem);
@@ -352,8 +354,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (ownedCopies.isNotEmpty) {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
         copies: ownedCopies,
-        editions:
-            selected.source.catalogItem?.editions ?? const [],
+        editions: selected.source.catalogItem?.editions ?? const [],
         selectedOwnedItemId: activeOwnedItem?.id,
         accent: widget.accent,
         onAddCopy: () => _addOwnedCopy(
@@ -527,8 +528,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   widget.type.grades.isNotEmpty) &&
               resolveOwnedDigitalFlag(
                     activeOwnedItem,
-                    selected.source.catalogItem?.editions ??
-                        const [],
+                    selected.source.catalogItem?.editions ?? const [],
                     fallbackLabel: selected.dto.variant,
                   ) !=
                   true) ...[

@@ -41,10 +41,12 @@ final bookTransferableFields = <TransferableField>[
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
     scope: LibraryEditScope.release,
-    read: (item) => (item.bookDetails?.dustJacketPresent == true) ? 'true' : null,
+    read: (item) =>
+        (item.bookDetails?.dustJacketPresent == true) ? 'true' : null,
     write: (item, value) {
       final b = item.bookDetails ?? const BookOwnedDetails();
-      return item.copyWith(details: b.copyWith(dustJacketPresent: value == 'true'));
+      return item.copyWith(
+          details: b.copyWith(dustJacketPresent: value == 'true'));
     },
   ),
   TransferableField(

@@ -50,7 +50,9 @@ void main() {
     );
   });
 
-  test('kind domain metadata models do not import UI widgets or edit dialog shells', () {
+  test(
+      'kind domain metadata models do not import UI widgets or edit dialog shells',
+      () {
     final kindsDir = Directory('lib/features/library/kinds');
     expect(kindsDir.existsSync(), isTrue);
 
@@ -59,7 +61,8 @@ void main() {
     for (final entity in kindsDir.listSync(recursive: true)) {
       if (entity is File &&
           entity.path.endsWith('.dart') &&
-          entity.path.contains('${Platform.pathSeparator}domain${Platform.pathSeparator}')) {
+          entity.path.contains(
+              '${Platform.pathSeparator}domain${Platform.pathSeparator}')) {
         final content = entity.readAsStringSync();
         if (content.contains('library_edit_dialog.dart') ||
             content.contains('package:flutter/material.dart')) {
@@ -71,11 +74,14 @@ void main() {
     expect(
       domainViolations,
       isEmpty,
-      reason: 'Domain metadata files must remain pure models and not import UI shells.',
+      reason:
+          'Domain metadata files must remain pure models and not import UI shells.',
     );
   });
 
-  test('architecture boundary checker rejects stats importing concrete comic metadata', () {
+  test(
+      'architecture boundary checker rejects stats importing concrete comic metadata',
+      () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
@@ -84,14 +90,17 @@ class TestStats {}
 ''';
     final parseResult = parseString(
       content: testCode,
-      path: p.join(repoRoot, 'lib', 'features', 'library', 'stats', 'stats_test.dart'),
+      path: p.join(
+          repoRoot, 'lib', 'features', 'library', 'stats', 'stats_test.dart'),
       throwIfDiagnostics: false,
     );
     final visitor = ArchitectureRuleVisitor(
-      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'stats', 'stats_test.dart'),
+      filePath: p.join(
+          repoRoot, 'lib', 'features', 'library', 'stats', 'stats_test.dart'),
       relativePath: 'lib/features/library/stats/stats_test.dart',
       lineInfo: parseResult.lineInfo,
-      isBoundaryFile: isBoundaryFile('lib/features/library/stats/stats_test.dart'),
+      isBoundaryFile:
+          isBoundaryFile('lib/features/library/stats/stats_test.dart'),
       isRegistryFile: false,
       kindName: null,
       repoRoot: repoRoot,
@@ -104,7 +113,9 @@ class TestStats {}
     );
   });
 
-  test('architecture boundary checker rejects value importing concrete comic metadata', () {
+  test(
+      'architecture boundary checker rejects value importing concrete comic metadata',
+      () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
@@ -113,14 +124,17 @@ class TestValue {}
 ''';
     final parseResult = parseString(
       content: testCode,
-      path: p.join(repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
+      path: p.join(
+          repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
       throwIfDiagnostics: false,
     );
     final visitor = ArchitectureRuleVisitor(
-      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
+      filePath: p.join(
+          repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
       relativePath: 'lib/features/library/value/value_test.dart',
       lineInfo: parseResult.lineInfo,
-      isBoundaryFile: isBoundaryFile('lib/features/library/value/value_test.dart'),
+      isBoundaryFile:
+          isBoundaryFile('lib/features/library/value/value_test.dart'),
       isRegistryFile: false,
       kindName: null,
       repoRoot: repoRoot,
@@ -132,7 +146,9 @@ class TestValue {}
       contains('Forbidden import of kind-specific module'),
     );
   });
-  test('architecture boundary checker rejects generic referencing concrete ComicMetadata', () {
+  test(
+      'architecture boundary checker rejects generic referencing concrete ComicMetadata',
+      () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 class GenericClass {
@@ -141,14 +157,17 @@ class GenericClass {
 ''';
     final parseResult = parseString(
       content: testCode,
-      path: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'generic',
+          'generic_test.dart'),
       throwIfDiagnostics: false,
     );
     final visitor = ArchitectureRuleVisitor(
-      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'generic',
+          'generic_test.dart'),
       relativePath: 'lib/features/library/generic/generic_test.dart',
       lineInfo: parseResult.lineInfo,
-      isBoundaryFile: isBoundaryFile('lib/features/library/generic/generic_test.dart'),
+      isBoundaryFile:
+          isBoundaryFile('lib/features/library/generic/generic_test.dart'),
       isRegistryFile: false,
       kindName: null,
       repoRoot: repoRoot,
@@ -161,7 +180,9 @@ class GenericClass {
     );
   });
 
-  test('architecture boundary checker rejects value referencing concrete ComicOwnedDetails', () {
+  test(
+      'architecture boundary checker rejects value referencing concrete ComicOwnedDetails',
+      () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 class ValueClass {
@@ -170,14 +191,17 @@ class ValueClass {
 ''';
     final parseResult = parseString(
       content: testCode,
-      path: p.join(repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
+      path: p.join(
+          repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
       throwIfDiagnostics: false,
     );
     final visitor = ArchitectureRuleVisitor(
-      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
+      filePath: p.join(
+          repoRoot, 'lib', 'features', 'library', 'value', 'value_test.dart'),
       relativePath: 'lib/features/library/value/value_test.dart',
       lineInfo: parseResult.lineInfo,
-      isBoundaryFile: isBoundaryFile('lib/features/library/value/value_test.dart'),
+      isBoundaryFile:
+          isBoundaryFile('lib/features/library/value/value_test.dart'),
       isRegistryFile: false,
       kindName: null,
       repoRoot: repoRoot,
@@ -190,7 +214,9 @@ class ValueClass {
     );
   });
 
-  test('architecture boundary checker rejects generic CatalogMediaKind.movie switch or branch', () {
+  test(
+      'architecture boundary checker rejects generic CatalogMediaKind.movie switch or branch',
+      () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 void checkKind(CatalogMediaKind kind) {
@@ -199,14 +225,17 @@ void checkKind(CatalogMediaKind kind) {
 ''';
     final parseResult = parseString(
       content: testCode,
-      path: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'generic',
+          'generic_test.dart'),
       throwIfDiagnostics: false,
     );
     final visitor = ArchitectureRuleVisitor(
-      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'generic',
+          'generic_test.dart'),
       relativePath: 'lib/features/library/generic/generic_test.dart',
       lineInfo: parseResult.lineInfo,
-      isBoundaryFile: isBoundaryFile('lib/features/library/generic/generic_test.dart'),
+      isBoundaryFile:
+          isBoundaryFile('lib/features/library/generic/generic_test.dart'),
       isRegistryFile: false,
       kindName: null,
       repoRoot: repoRoot,
@@ -219,7 +248,9 @@ void checkKind(CatalogMediaKind kind) {
     );
   });
 
-  test('architecture boundary checker rejects dynamic registry in generic boundary code', () {
+  test(
+      'architecture boundary checker rejects dynamic registry in generic boundary code',
+      () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 class GenericFieldHandler {
@@ -229,14 +260,17 @@ class GenericFieldHandler {
 ''';
     final parseResult = parseString(
       content: testCode,
-      path: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'generic',
+          'generic_test.dart'),
       throwIfDiagnostics: false,
     );
     final visitor = ArchitectureRuleVisitor(
-      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'generic', 'generic_test.dart'),
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'generic',
+          'generic_test.dart'),
       relativePath: 'lib/features/library/generic/generic_test.dart',
       lineInfo: parseResult.lineInfo,
-      isBoundaryFile: isBoundaryFile('lib/features/library/generic/generic_test.dart'),
+      isBoundaryFile:
+          isBoundaryFile('lib/features/library/generic/generic_test.dart'),
       isRegistryFile: false,
       kindName: null,
       repoRoot: repoRoot,
@@ -244,12 +278,15 @@ class GenericFieldHandler {
     parseResult.unit.accept(visitor);
     expect(visitor.violations, isNotEmpty);
     expect(
-      visitor.violations.any((v) => v.contains('LibraryFieldRegistry<dynamic>')),
+      visitor.violations
+          .any((v) => v.contains('LibraryFieldRegistry<dynamic>')),
       isTrue,
     );
   });
 
-  test('architecture boundary checker rejects cross-kind concrete import (comic -> manga)', () {
+  test(
+      'architecture boundary checker rejects cross-kind concrete import (comic -> manga)',
+      () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
@@ -258,14 +295,17 @@ class ComicFeature {}
 ''';
     final parseResult = parseString(
       content: testCode,
-      path: p.join(repoRoot, 'lib', 'features', 'library', 'kinds', 'comic', 'comic_test.dart'),
+      path: p.join(repoRoot, 'lib', 'features', 'library', 'kinds', 'comic',
+          'comic_test.dart'),
       throwIfDiagnostics: false,
     );
     final visitor = ArchitectureRuleVisitor(
-      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'kinds', 'comic', 'comic_test.dart'),
+      filePath: p.join(repoRoot, 'lib', 'features', 'library', 'kinds', 'comic',
+          'comic_test.dart'),
       relativePath: 'lib/features/library/kinds/comic/comic_test.dart',
       lineInfo: parseResult.lineInfo,
-      isBoundaryFile: isBoundaryFile('lib/features/library/kinds/comic/comic_test.dart'),
+      isBoundaryFile:
+          isBoundaryFile('lib/features/library/kinds/comic/comic_test.dart'),
       isRegistryFile: false,
       kindName: 'comic',
       repoRoot: repoRoot,
@@ -278,7 +318,9 @@ class ComicFeature {}
     );
   });
 
-  test('extensibility: custom fake kind "foo" registers and operates without generic library edits', () {
+  test(
+      'extensibility: custom fake kind "foo" registers and operates without generic library edits',
+      () {
     final fooKindConfig = LibraryTypeConfig(
       workspace: const LibraryWorkspaceConfig(
         kind: CatalogMediaKind.unknown,
@@ -295,7 +337,8 @@ class ComicFeature {}
       presentation: genericLibraryMediaPresentation,
     );
 
-    final fooKindModule = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
+    final fooKindModule =
+        LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
       type: fooKindConfig,
       projector: const GenericWorkspaceProjector(),
       ownedDetailsCodec: const GenericOwnedDetailsCodec(),
@@ -375,5 +418,3 @@ class ComicFeature {}
     );
   });
 }
-
-

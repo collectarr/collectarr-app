@@ -97,11 +97,12 @@ class LibraryProjectionEngine {
       }
     }
 
-    filteredItems.sort((a, b) => libraryKindRuntimeForType(type).compareEntriesByRules(
-          a,
-          b,
-          viewState.sortRules,
-        ));
+    filteredItems
+        .sort((a, b) => libraryKindRuntimeForType(type).compareEntriesByRules(
+              a,
+              b,
+              viewState.sortRules,
+            ));
 
     final counts = statsCalculator.calculate(
       allItems: allItems,

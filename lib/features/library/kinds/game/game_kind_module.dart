@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
@@ -15,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/game/inspector_panel.dart'
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
@@ -66,6 +68,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
     manualDraftBuilder: GameAddManualDraft.new,
+    advancedFilterFieldsBuilder: buildGameAddAdvancedFilterFields,
     manualPaneBuilder: buildGameAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -91,3 +94,24 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
 
 Map<String, dynamic> _encodeGameMetadata(GameCatalogMetadata m) => m.toJson();
 
+List<LibraryAddAdvancedFilterField> buildGameAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+    [
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-series-field'),
+        label: 'Franchise / Developer',
+        controller: req.seriesController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Publisher',
+        controller: req.publisherController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        controller: req.yearController,
+        width: 120,
+      ),
+    ];

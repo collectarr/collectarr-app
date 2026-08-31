@@ -81,9 +81,8 @@ class LibraryAddSessionController
                 selection: const LibraryAddSelectionState(),
                 preview: const LibraryAddPreviewState.initial(),
                 commonDraft: const LibraryAddCommonDraft(),
-                manualDraft: libraryKindRuntimeForKind(kind)
-                    .add
-                    .createInitialDraft(),
+                manualDraft:
+                    libraryKindRuntimeForKind(kind).add.createInitialDraft(),
                 submitState: const AsyncValue.data(null),
               ),
         );

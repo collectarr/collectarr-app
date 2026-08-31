@@ -106,8 +106,7 @@ class GenericLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Pages', value: publishing!.pageCount.toString()),
         if (musicCatalogNumber != null)
-          LibraryDetailField(
-              label: 'Catalog No.', value: musicCatalogNumber),
+          LibraryDetailField(label: 'Catalog No.', value: musicCatalogNumber),
         if (publishing?.coverPriceCents != null)
           LibraryDetailField(
               label: 'Cover Price',
@@ -144,9 +143,7 @@ class GenericLibraryMediaPresentationBuilder
               onTap: tapFor(dto.language)),
         if (ageRating != null)
           LibraryDetailField(
-              label: 'Age Rating',
-              value: ageRating,
-              onTap: tapFor(ageRating)),
+              label: 'Age Rating', value: ageRating, onTap: tapFor(ageRating)),
         if (audienceRating != null)
           LibraryDetailField(
               label: 'Audience Rating',

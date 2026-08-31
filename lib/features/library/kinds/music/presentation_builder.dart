@@ -38,14 +38,17 @@ class MusicLibraryMediaPresentationBuilder
       item.title.trim().toLowerCase(),
     });
     final cleanedTitle = _stripTrailingMusicDescriptor(item.title, subtitle);
-    final artist = metadata?.series?.seriesTitle?.trim() ?? metadata?.artist?.trim();
+    final artist =
+        metadata?.series?.seriesTitle?.trim() ?? metadata?.artist?.trim();
     final format = metadata?.physicalFormatLabel?.trim().isNotEmpty == true
         ? metadata!.physicalFormatLabel!.trim()
         : metadata?.variant?.trim();
-    final trackCount =
-        (metadata?.music?['track_count'] as num?)?.toInt() ?? metadata?.trackCount;
+    final trackCount = (metadata?.music?['track_count'] as num?)?.toInt() ??
+        metadata?.trackCount;
     final catalogNumber =
-        (metadata?.music?['catalog_number'] ?? metadata?.barcode)?.toString().trim();
+        (metadata?.music?['catalog_number'] ?? metadata?.barcode)
+            ?.toString()
+            .trim();
     final barcode = metadata?.barcode?.trim();
     final detailParts = <String>[
       if (subtitle != null && subtitle.isNotEmpty) subtitle,
@@ -121,11 +124,13 @@ class MusicLibraryMediaPresentationBuilder
       genreLine: genreLine.isEmpty ? null : genreLine,
       subLine: subLine,
       coverUrl: coverUrl,
-      itemNumber: (item?.kindMetadata.toSyncPayload()['item_number'] as String?) ??
-          preview?.itemNumber ??
-          candidate?.issueNumber,
+      itemNumber:
+          (item?.kindMetadata.toSyncPayload()['item_number'] as String?) ??
+              preview?.itemNumber ??
+              candidate?.issueNumber,
       tracks: tracks,
-      trackCount: (releaseDetails?['track_count'] as num?)?.toInt() ?? tracks.length,
+      trackCount:
+          (releaseDetails?['track_count'] as num?)?.toInt() ?? tracks.length,
       isFetchingPreview: isFetchingPreview,
       hasCoreMetadata: item != null,
       providerLabel: item == null ? providerLabel : singularLabel,
@@ -207,9 +212,11 @@ class MusicLibraryMediaPresentationBuilder
         if (dto.language != null)
           LibraryDetailField(label: 'Language', value: dto.language!),
         if (music?['length'] != null)
-          LibraryDetailField(label: 'Length', value: music!['length'].toString()),
+          LibraryDetailField(
+              label: 'Length', value: music!['length'].toString()),
         if (music?['vinyl_color'] != null)
-          LibraryDetailField(label: 'Vinyl color', value: music!['vinyl_color'].toString()),
+          LibraryDetailField(
+              label: 'Vinyl color', value: music!['vinyl_color'].toString()),
         if (music?['rpm'] != null)
           LibraryDetailField(label: 'RPM', value: music!['rpm'].toString()),
         if (dto.audienceRating != null)
@@ -249,8 +256,8 @@ class MusicLibraryMediaPresentationBuilder
             .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
         (musicMeta?.tracks.isNotEmpty == true ? musicMeta!.tracks : null);
-    final trackCount = (music?['track_count'] as num?)?.toInt() ??
-        musicMeta?.trackCount;
+    final trackCount =
+        (music?['track_count'] as num?)?.toInt() ?? musicMeta?.trackCount;
     if (tracks != null && tracks.isNotEmpty) {
       sections.add(
         InspectorTrackList(
@@ -865,14 +872,16 @@ String? _musicLabelCatalogLine({
   if (format != null && format.trim().isNotEmpty) {
     parts.add(format.trim());
   }
-  final catalogNumber = (meta?.music?['catalog_number'] ??
-          preview?.music?['catalog_number'])
-      ?.toString();
+  final catalogNumber =
+      (meta?.music?['catalog_number'] ?? preview?.music?['catalog_number'])
+          ?.toString();
   if (catalogNumber != null && catalogNumber.trim().isNotEmpty) {
     parts.add(catalogNumber.trim());
   }
-  final publisher =
-      meta?.publisher ?? meta?.publishing?.originalPublisher ?? preview?.publisher ?? candidate?.publisher;
+  final publisher = meta?.publisher ??
+      meta?.publishing?.originalPublisher ??
+      preview?.publisher ??
+      candidate?.publisher;
   if (parts.isEmpty && publisher != null && publisher.trim().isNotEmpty) {
     return publisher.trim();
   }
@@ -886,14 +895,16 @@ String? _musicSupportingLine({
 }) {
   final meta = _musicMetadataItem(item);
   final values = <String>[];
-  final publisher =
-      meta?.publisher ?? meta?.publishing?.originalPublisher ?? preview?.publisher ?? candidate?.publisher;
+  final publisher = meta?.publisher ??
+      meta?.publishing?.originalPublisher ??
+      preview?.publisher ??
+      candidate?.publisher;
   if (publisher != null && publisher.trim().isNotEmpty) {
     values.add(publisher.trim());
   }
-  final status = (meta?.music?['release_status'] ??
-          preview?.music?['release_status'])
-      ?.toString();
+  final status =
+      (meta?.music?['release_status'] ?? preview?.music?['release_status'])
+          ?.toString();
   if (status != null && status.trim().isNotEmpty) {
     values.add(status.trim());
   }

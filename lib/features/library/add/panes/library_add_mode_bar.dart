@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'library_add_pane_dependencies.dart';
 
 class LibraryAddBarcodePrefillBanner extends StatelessWidget {
@@ -72,6 +73,8 @@ class LibraryAddModeBar extends StatelessWidget {
     required this.numberController,
     required this.publisherController,
     required this.yearController,
+    this.advancedFilterFields = const [],
+    this.advancedFiltersBuilder,
     this.videoKindFilters,
     this.onVideoKindFilterChanged,
   });
@@ -102,6 +105,9 @@ class LibraryAddModeBar extends StatelessWidget {
   final TextEditingController numberController;
   final TextEditingController publisherController;
   final TextEditingController yearController;
+  final List<LibraryAddAdvancedFilterField> advancedFilterFields;
+  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
+      advancedFiltersBuilder;
   final Set<String>? videoKindFilters;
   final void Function(String kind, bool checked)? onVideoKindFilterChanged;
 

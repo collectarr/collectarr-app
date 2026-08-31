@@ -1,4 +1,4 @@
-﻿enum VideoDisplayLevel {
+enum VideoDisplayLevel {
   titleWork,
   series,
   season,

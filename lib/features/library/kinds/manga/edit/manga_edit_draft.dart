@@ -65,9 +65,10 @@ class MangaEditDraft extends KindEditDraft {
     final impr = emptyToNull(imprintController.text);
 
     final updatedMetadata = meta?.copyWith(
-      pageCount: count ?? meta.pageCount,
-      imprint: impr ?? meta.imprint,
-    ) ?? selection.item.kindMetadata;
+          pageCount: count ?? meta.pageCount,
+          imprint: impr ?? meta.imprint,
+        ) ??
+        selection.item.kindMetadata;
 
     final updatedItem = selection.item.copyWith(
       kindMetadata: updatedMetadata,

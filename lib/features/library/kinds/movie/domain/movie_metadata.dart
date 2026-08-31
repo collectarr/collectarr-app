@@ -261,8 +261,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
       editionTitle: editionTitle ?? this.editionTitle,
       barcode: barcode ?? this.barcode,
       physicalFormat: physicalFormat ?? this.physicalFormat,
-      physicalFormatLabel:
-          physicalFormatLabel ?? this.physicalFormatLabel,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
       variant: variant ?? this.variant,
       itemNumber: itemNumber ?? this.itemNumber,
@@ -319,27 +318,28 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     final resolvedSeriesTitle =
         (json['series_title'] ?? series.seriesTitle) as String?;
 
-    final videoRaw = (json['video'] is Map)
-        ? (json['video'] as Map)
-        : json;
+    final videoRaw = (json['video'] is Map) ? (json['video'] as Map) : json;
     final video = json['video'] is Map
         ? Map<String, dynamic>.from(json['video'] as Map)
         : null;
 
-    final resolvedAudioTracks =
-        (json['audio_tracks'] ?? videoRaw['audio_tracks'] ?? videoRaw['audioTracks']) as String?;
-    final resolvedSubtitles = (json['subtitles'] ?? videoRaw['subtitles']) as String?;
+    final resolvedAudioTracks = (json['audio_tracks'] ??
+        videoRaw['audio_tracks'] ??
+        videoRaw['audioTracks']) as String?;
+    final resolvedSubtitles =
+        (json['subtitles'] ?? videoRaw['subtitles']) as String?;
     final resolvedColor = (json['color'] ?? videoRaw['color']) as String?;
-    final resolvedNrDiscs =
-        (json['nr_discs'] as num?)?.toInt() ?? (videoRaw['nr_discs'] as num?)?.toInt();
-    final resolvedScreenRatio =
-        (json['screen_ratio'] ?? videoRaw['screen_ratio'] ?? videoRaw['screenRatio']) as String?;
+    final resolvedNrDiscs = (json['nr_discs'] as num?)?.toInt() ??
+        (videoRaw['nr_discs'] as num?)?.toInt();
+    final resolvedScreenRatio = (json['screen_ratio'] ??
+        videoRaw['screen_ratio'] ??
+        videoRaw['screenRatio']) as String?;
     final resolvedLayers = (json['layers'] ?? videoRaw['layers']) as String?;
 
     final rawEditions = (json['editions'] as List<dynamic>?)
             ?.whereType<Map>()
-            .map((e) =>
-                CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .map(
+                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
         const <CatalogEditionDto>[];
 

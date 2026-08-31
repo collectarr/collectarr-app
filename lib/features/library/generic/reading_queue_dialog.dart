@@ -352,7 +352,8 @@ class _ReadingQueueDialogEntry {
 
   String get label {
     final payload = catalogItem.payload;
-    final rawNum = (payload['item_number'] ?? payload['itemNumber'])?.toString();
+    final rawNum =
+        (payload['item_number'] ?? payload['itemNumber'])?.toString();
     final itemNumber = rawNum?.trim();
     if (itemNumber == null || itemNumber.isEmpty) {
       return catalogItem.title;

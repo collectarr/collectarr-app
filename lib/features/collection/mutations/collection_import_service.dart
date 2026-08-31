@@ -152,8 +152,7 @@ final class CollectionImportService {
         final wishlistItem = WishlistItem(
           id: idGenerator(),
           catalogRef: CatalogEntityRef(
-            kind:
-                row.kind ?? catItemKind ?? CatalogMediaKind.unknown.apiValue,
+            kind: row.kind ?? catItemKind ?? CatalogMediaKind.unknown.apiValue,
             entityType: CatalogEntityType.work,
             id: row.itemId,
           ),
@@ -311,7 +310,8 @@ final class CollectionImportService {
       if (row.variant != null) 'variant': row.variant,
       if (row.editionTitle != null) 'edition_title': row.editionTitle,
       if (row.physicalFormat != null) 'physical_format': row.physicalFormat,
-      if (row.physicalFormatLabel != null) 'physical_format_label': row.physicalFormatLabel,
+      if (row.physicalFormatLabel != null)
+        'physical_format_label': row.physicalFormatLabel,
       if (row.barcode != null) 'barcode': row.barcode,
     });
   }

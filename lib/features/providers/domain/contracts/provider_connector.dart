@@ -94,7 +94,8 @@ final class ProviderConnector implements MetadataCapability {
 
   String get name => id.value;
   bool get isConfigured => !descriptor.requiresUserKey;
-  String get statusMessage => descriptor.requiresUserKey ? 'Requires API Key' : 'Ready';
+  String get statusMessage =>
+      descriptor.requiresUserKey ? 'Requires API Key' : 'Ready';
 
   bool get supportsMetadata => metadata != null;
   bool get supportsPersonalRead => personalRead != null;

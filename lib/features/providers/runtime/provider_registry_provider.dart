@@ -38,8 +38,10 @@ ProviderConnectorRegistry buildDefaultProviderRegistry({
   registry.register(MusicBrainzProvider().toConnector());
   registry.register(MangaDexProvider().toConnector());
   registry.register(GCDProvider().toConnector());
-  registry.register(ComicVineProvider(credentials: comicVineCredentials).toConnector());
-  registry.register(HardcoverProvider(credentials: hardcoverCredentials).toConnector());
+  registry.register(
+      ComicVineProvider(credentials: comicVineCredentials).toConnector());
+  registry.register(
+      HardcoverProvider(credentials: hardcoverCredentials).toConnector());
   registry.register(TMDbProvider(credentials: tmdbCredentials).toConnector());
   registry.register(BGGProvider(credentials: bggCredentials).toConnector());
   registry.register(IGDBProvider(credentials: igdbCredentials).toConnector());

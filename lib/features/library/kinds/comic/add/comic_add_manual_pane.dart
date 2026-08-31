@@ -233,8 +233,7 @@ class ComicAddManualPane extends StatelessWidget {
                                 controller: comicDraft.pageQualityController,
                                 decoration: const InputDecoration(
                                   labelText: 'Page Quality',
-                                  prefixIcon:
-                                      Icon(Icons.auto_stories_outlined),
+                                  prefixIcon: Icon(Icons.auto_stories_outlined),
                                 ),
                               ),
                             ),

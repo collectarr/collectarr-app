@@ -250,14 +250,14 @@ void main() {
       addTearDown(container.dispose);
 
       final sub = container.listen(
-        libraryLocalFacetValuesProvider(
-            LibraryFacetValuesInput(key: key, facetId: ComicFacetIds.publisher)),
+        libraryLocalFacetValuesProvider(LibraryFacetValuesInput(
+            key: key, facetId: ComicFacetIds.publisher)),
         (previous, next) {},
       );
 
       final publishers = await container.read(
-        libraryLocalFacetValuesProvider(
-                LibraryFacetValuesInput(key: key, facetId: ComicFacetIds.publisher))
+        libraryLocalFacetValuesProvider(LibraryFacetValuesInput(
+                key: key, facetId: ComicFacetIds.publisher))
             .future,
       );
 

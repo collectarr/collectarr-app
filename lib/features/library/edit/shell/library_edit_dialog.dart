@@ -141,7 +141,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     super.initState();
     final payload = widget.item.kindMetadata.toSyncPayload();
     _editionTitleController = TextEditingController(
-      text: (payload['edition_title'] ?? payload['title_extension'])?.toString() ?? '',
+      text: (payload['edition_title'] ?? payload['title_extension'])
+              ?.toString() ??
+          '',
     );
     _variantController = TextEditingController(
       text: payload['variant']?.toString() ?? '',
@@ -209,7 +211,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         selectedPublisher: payload['publisher']?.toString() ?? '',
         selectedImprint: null,
         selectedSeriesGroup: null,
-        selectedPhysicalFormat: payload['physical_format_label']?.toString() ?? '',
+        selectedPhysicalFormat:
+            payload['physical_format_label']?.toString() ?? '',
         selectedCondition: _draft.personal.conditionController.text,
         selectedGrade: _draft.personal.gradeController.text,
         selectedCountry: payload['country']?.toString() ?? '',

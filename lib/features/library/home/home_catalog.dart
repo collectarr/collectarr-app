@@ -24,8 +24,7 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
   };
   final defaultKinds = [
     for (final config in collectarrLibraryTypes.types)
-      if (!config.workspace.kind.isUnknown)
-        config.workspace.kind.apiValue,
+      if (!config.workspace.kind.isUnknown) config.workspace.kind.apiValue,
   ];
   for (final kind in defaultKinds) {
     topLevelByKind.putIfAbsent(kind, () {

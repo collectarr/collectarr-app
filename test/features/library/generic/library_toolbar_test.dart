@@ -45,7 +45,9 @@ void main() {
             body: LibraryToolbar(
               type: moviesLibraryConfig,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults(),
+              viewState: libraryKindRuntimeForType(moviesLibraryConfig)
+                  .viewProfile
+                  .defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -224,27 +226,33 @@ void main() {
 
     await expectScanCover(
       type: moviesLibraryConfig,
-      viewState: libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults(),
+      viewState:
+          libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: booksLibraryConfig,
-      viewState: libraryKindRuntimeForType(booksLibraryConfig).viewProfile.defaults(),
+      viewState:
+          libraryKindRuntimeForType(booksLibraryConfig).viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: gamesLibraryConfig,
-      viewState: libraryKindRuntimeForType(gamesLibraryConfig).viewProfile.defaults(),
+      viewState:
+          libraryKindRuntimeForType(gamesLibraryConfig).viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: boardGamesLibraryConfig,
-      viewState: libraryKindRuntimeForType(boardGamesLibraryConfig).viewProfile.defaults(),
+      viewState: libraryKindRuntimeForType(boardGamesLibraryConfig)
+          .viewProfile
+          .defaults(),
       expected: true,
     );
     await expectScanCover(
       type: comicsLibraryConfig,
-      viewState: libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
+      viewState:
+          libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
       expected: true,
     );
   });
@@ -266,7 +274,9 @@ void main() {
             body: LibraryToolbar(
               type: moviesLibraryConfig,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults(),
+              viewState: libraryKindRuntimeForType(moviesLibraryConfig)
+                  .viewProfile
+                  .defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -304,7 +314,9 @@ void main() {
             body: LibraryToolbar(
               type: booksLibraryConfig,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(booksLibraryConfig).viewProfile.defaults(),
+              viewState: libraryKindRuntimeForType(booksLibraryConfig)
+                  .viewProfile
+                  .defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -352,7 +364,9 @@ void main() {
             body: LibraryToolbar(
               type: moviesLibraryConfig,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults(),
+              viewState: libraryKindRuntimeForType(moviesLibraryConfig)
+                  .viewProfile
+                  .defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -389,7 +403,9 @@ void main() {
             body: LibraryToolbar(
               type: comicsLibraryConfig,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
+              viewState: libraryKindRuntimeForType(comicsLibraryConfig)
+                  .viewProfile
+                  .defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -436,7 +452,9 @@ void main() {
             body: LibraryToolbar(
               type: comicsLibraryConfig,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
+              viewState: libraryKindRuntimeForType(comicsLibraryConfig)
+                  .viewProfile
+                  .defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -487,7 +505,9 @@ void main() {
             body: LibraryToolbar(
               type: comicsLibraryConfig,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
+              viewState: libraryKindRuntimeForType(comicsLibraryConfig)
+                  .viewProfile
+                  .defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -543,7 +563,9 @@ void main() {
             body: LibraryToolbar(
               type: comicsLibraryConfig,
               searchController: searchController,
-              viewState: libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
+              viewState: libraryKindRuntimeForType(comicsLibraryConfig)
+                  .viewProfile
+                  .defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},

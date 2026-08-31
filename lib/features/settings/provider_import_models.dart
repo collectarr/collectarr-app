@@ -170,9 +170,8 @@ class ProviderImportHistoryEntry {
   factory ProviderImportHistoryEntry.fromJson(Map<String, dynamic> json) {
     return ProviderImportHistoryEntry(
       id: json['id'] as String? ?? '',
-      provider:
-          ProviderId.fromStorageValue(json['provider'] as String?) ??
-              ProviderId.tmdb,
+      provider: ProviderId.fromStorageValue(json['provider'] as String?) ??
+          ProviderId.tmdb,
       status: ProviderImportHistoryStatusX.fromStorageValue(
         json['status'] as String?,
       ),

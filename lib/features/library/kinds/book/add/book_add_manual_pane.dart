@@ -141,8 +141,7 @@ class BookAddManualPane extends StatelessWidget {
                                 controller: draft.editionTitleController,
                                 decoration: const InputDecoration(
                                   labelText: 'Edition Title',
-                                  prefixIcon:
-                                      Icon(Icons.auto_stories_outlined),
+                                  prefixIcon: Icon(Icons.auto_stories_outlined),
                                 ),
                               ),
                             ),

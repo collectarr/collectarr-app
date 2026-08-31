@@ -191,7 +191,8 @@ LibraryEditSelection applyComicSelectionEdits(
       .toList(growable: false);
   final current = selection.item.kindMetadata is ComicCatalogMetadata
       ? selection.item.kindMetadata as ComicCatalogMetadata
-      : ComicCatalogMetadata.fromJson(selection.item.kindMetadata.toSyncPayload());
+      : ComicCatalogMetadata.fromJson(
+          selection.item.kindMetadata.toSyncPayload());
 
   final existingTrailerLinks = current.links.where((l) => l.isTrailerLink);
   final newComicLinks = <ComicLink>[
@@ -210,8 +211,9 @@ LibraryEditSelection applyComicSelectionEdits(
 
   final updatedMetadata = current.copyWith(
     creators: mappedCreators.isNotEmpty ? mappedCreators : current.creators,
-    characterDetails:
-        characterDetails.isNotEmpty ? characterDetails : current.characterDetails,
+    characterDetails: characterDetails.isNotEmpty
+        ? characterDetails
+        : current.characterDetails,
     characters: characterNames.isNotEmpty ? characterNames : current.characters,
     links: newComicLinks,
   );

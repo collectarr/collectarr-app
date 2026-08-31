@@ -283,7 +283,8 @@ void main() {
     addTearDown(container.dispose);
 
     await CatalogCacheRepository(db).upsertAll([
-      testCatalogItem(id: 'music-1', kind: 'music', title: 'Blessed & Possessed'),
+      testCatalogItem(
+          id: 'music-1', kind: 'music', title: 'Blessed & Possessed'),
     ]);
 
     await container.read(trackingMutationsProvider).upsertTrackingEntry(

@@ -633,8 +633,8 @@ class _MovieSearchResultsGrid extends StatelessWidget {
         final coverUrl = isCore ? item.displayCoverUrl : candidate!.imageUrl;
         final corePublisher = isCore
             ? ((item.kindMetadata.toSyncPayload()['publisher'] ??
-                    (item.kindMetadata.toSyncPayload()['publishing']
-                        as Map?)?['original_publisher']) as String?)
+                (item.kindMetadata.toSyncPayload()['publishing']
+                    as Map?)?['original_publisher']) as String?)
             : null;
         final subtitle = isCore
             ? [
@@ -1233,15 +1233,21 @@ String? _metadataItemMatchSummary({
   final fieldLabels = libraryKindRuntimeForType(type).edit.mediaFields;
   final payload = item.kindMetadata.toSyncPayload();
   final seriesMap = payload['series'] as Map?;
-  final seriesTitle = (payload['series_title'] ?? seriesMap?['series_title']) as String?;
-  final publisher = (payload['publisher'] ?? (payload['publishing'] as Map?)?['original_publisher']) as String?;
-  final itemNumber = (payload['item_number'] ?? (payload['publishing'] as Map?)?['issue_number']) as String?;
-  final displayEditionLabel = (payload['edition_title'] ?? payload['title_extension']) as String?;
+  final seriesTitle =
+      (payload['series_title'] ?? seriesMap?['series_title']) as String?;
+  final publisher = (payload['publisher'] ??
+      (payload['publishing'] as Map?)?['original_publisher']) as String?;
+  final itemNumber = (payload['item_number'] ??
+      (payload['publishing'] as Map?)?['issue_number']) as String?;
+  final displayEditionLabel =
+      (payload['edition_title'] ?? payload['title_extension']) as String?;
   final barcode = payload['barcode'] as String?;
   final volumeName = seriesMap?['volume_name'] as String?;
   final volumeNumber = seriesMap?['volume_number']?.toString();
-  final seasonNumber = (payload['season_number'] ?? seriesMap?['season_number'])?.toString();
-  final episodeNumber = (payload['episode_number'] ?? seriesMap?['episode_number'])?.toString();
+  final seasonNumber =
+      (payload['season_number'] ?? seriesMap?['season_number'])?.toString();
+  final episodeNumber =
+      (payload['episode_number'] ?? seriesMap?['episode_number'])?.toString();
   final reasons = <String>[];
   final seen = <String>{};
 

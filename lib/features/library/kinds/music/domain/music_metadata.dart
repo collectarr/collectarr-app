@@ -216,8 +216,7 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
         if (releases.isNotEmpty)
           'releases': releases.map((e) => e.toJson()).toList(),
         if (trackCount != null) 'track_count': trackCount,
-        if (tracks.isNotEmpty)
-          'tracks': tracks.map((e) => e.toJson()).toList(),
+        if (tracks.isNotEmpty) 'tracks': tracks.map((e) => e.toJson()).toList(),
         if (creators.isNotEmpty) 'creators': creators,
         if (series != null) 'series': series!.toJson(),
         if (music != null && music!.isNotEmpty) ...{
@@ -299,8 +298,7 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
       publishing: publishing ?? this.publishing,
       editionTitle: editionTitle ?? this.editionTitle,
       physicalFormat: physicalFormat ?? this.physicalFormat,
-      physicalFormatLabel:
-          physicalFormatLabel ?? this.physicalFormatLabel,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
@@ -345,7 +343,8 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
     final CatalogSeriesDetailsDto? series = seriesRaw is CatalogSeriesDetailsDto
         ? seriesRaw
         : (seriesRaw is Map
-            ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
+            ? CatalogSeriesDetailsDto.fromJson(
+                Map<String, dynamic>.from(seriesRaw))
             : (seriesRaw != null
                 ? () {
                     try {

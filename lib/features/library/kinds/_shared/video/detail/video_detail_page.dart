@@ -340,8 +340,8 @@ class _VideoLibraryDetailPageState
                 links: ((request.item.source.catalogItem?.kindMetadata
                             .toSyncPayload()['trailer_urls'] as List?)
                         ?.whereType<Map>()
-                        .map((e) => TrailerLink.fromJson(
-                            Map<String, dynamic>.from(e)))
+                        .map((e) =>
+                            TrailerLink.fromJson(Map<String, dynamic>.from(e)))
                         .toList()) ??
                     const [],
                 accent: request.accent,

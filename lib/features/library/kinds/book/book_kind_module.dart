@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
@@ -15,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
@@ -71,6 +73,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,
     manualDraftBuilder: BookAddManualDraft.new,
+    advancedFilterFieldsBuilder: buildBookAddAdvancedFilterFields,
     manualPaneBuilder: buildBookAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -133,3 +136,25 @@ Future<List<LibraryHierarchyNode>> _fetchBookVolumesFromApi({
       ),
   ];
 }
+
+List<LibraryAddAdvancedFilterField> buildBookAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+    [
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-series-field'),
+        label: 'Author / Series',
+        controller: req.seriesController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Publisher',
+        controller: req.publisherController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        controller: req.yearController,
+        width: 120,
+      ),
+    ];

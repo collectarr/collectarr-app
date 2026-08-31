@@ -166,8 +166,7 @@ void main() {
     expect(animeLibraryConfig.workspace.kind, CatalogMediaKind.anime);
     expect(animeLibraryConfig.defaultMetadataProvider, 'anilist');
     expect(animeLibraryConfig.supportsMetadataProvider('anilist'), isTrue);
-    expect(
-        animeLibraryConfig.presentation.videoSeriesEntryTypes, {'anime'});
+    expect(animeLibraryConfig.presentation.videoSeriesEntryTypes, {'anime'});
 
     expect(
       animeLibraryConfig.presentation.defaultVideoDisplayLevel,
@@ -531,8 +530,8 @@ void main() {
       comicKindModule.transfer.transferableFieldKeys,
       containsAll(comicTransferableFieldKeys),
     );
-    expect(
-        bookKindModule.transfer.transferableFieldKeys, isNot(contains('keyComic')));
+    expect(bookKindModule.transfer.transferableFieldKeys,
+        isNot(contains('keyComic')));
   });
 
   test('add wording chrome is kind-owned', () {
@@ -639,16 +638,12 @@ void main() {
       'anime',
       'music',
     ]);
-    expect(libraryKindRuntime(CatalogMediaKind.book).type,
-        booksLibraryConfig);
+    expect(libraryKindRuntime(CatalogMediaKind.book).type, booksLibraryConfig);
     expect(libraryKindRuntime(CatalogMediaKind.boardgame).type,
         boardGamesLibraryConfig);
-    expect(libraryKindRuntime(CatalogMediaKind.manga).type,
-        mangaLibraryConfig);
-    expect(libraryKindRuntime(CatalogMediaKind.tv).type,
-        tvLibraryConfig);
-    expect(libraryKindRuntime(CatalogMediaKind.anime).type,
-        animeLibraryConfig);
+    expect(libraryKindRuntime(CatalogMediaKind.manga).type, mangaLibraryConfig);
+    expect(libraryKindRuntime(CatalogMediaKind.tv).type, tvLibraryConfig);
+    expect(libraryKindRuntime(CatalogMediaKind.anime).type, animeLibraryConfig);
     expect(
       libraryKindRuntime(CatalogMediaKind.movie)
           .viewProfile
@@ -657,8 +652,7 @@ void main() {
           .contains('movie.title'),
       isTrue,
     );
-    expect(libraryKindRuntime(CatalogMediaKind.music).type,
-        musicLibraryConfig);
+    expect(libraryKindRuntime(CatalogMediaKind.music).type, musicLibraryConfig);
     expect(
       libraryKindRuntime(CatalogMediaKind.game).columnSort('game.release_date'),
       'game.release_date',

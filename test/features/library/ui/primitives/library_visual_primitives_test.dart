@@ -20,7 +20,8 @@ Widget _wrap(Widget child, {Size size = const Size(800, 600)}) {
 
 void main() {
   group('LibraryTextTheme Extension Tests', () {
-    testWidgets('semantic text style tokens are accessible and structured', (tester) async {
+    testWidgets('semantic text style tokens are accessible and structured',
+        (tester) async {
       late TextTheme theme;
       await tester.pumpWidget(
         _wrap(
@@ -63,7 +64,8 @@ void main() {
   });
 
   group('LibraryResponsiveFormRow Tests', () {
-    testWidgets('lays out horizontally when width >= breakpoint', (tester) async {
+    testWidgets('lays out horizontally when width >= breakpoint',
+        (tester) async {
       await tester.pumpWidget(
         _wrap(
           const LibraryResponsiveFormRow(
@@ -142,7 +144,8 @@ void main() {
   });
 
   group('LibraryActionFooter Tests', () {
-    testWidgets('renders cancel and submit actions with callbacks', (tester) async {
+    testWidgets('renders cancel and submit actions with callbacks',
+        (tester) async {
       var cancelled = false;
       var submitted = false;
 
@@ -169,7 +172,8 @@ void main() {
       expect(submitted, isTrue);
     });
 
-    testWidgets('disables actions and shows progress indicator when loading', (tester) async {
+    testWidgets('disables actions and shows progress indicator when loading',
+        (tester) async {
       await tester.pumpWidget(
         _wrap(
           LibraryActionFooter(
@@ -181,7 +185,8 @@ void main() {
       );
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      final outlinedBtn = tester.widget<OutlinedButton>(find.byType(OutlinedButton));
+      final outlinedBtn =
+          tester.widget<OutlinedButton>(find.byType(OutlinedButton));
       expect(outlinedBtn.onPressed, isNull);
       final filledBtn = tester.widget<FilledButton>(find.byType(FilledButton));
       expect(filledBtn.onPressed, isNull);
@@ -189,7 +194,8 @@ void main() {
   });
 
   group('LibraryPanelHeader Tests', () {
-    testWidgets('renders title, subtitle, icon, close, and back buttons', (tester) async {
+    testWidgets('renders title, subtitle, icon, close, and back buttons',
+        (tester) async {
       var closed = false;
       var backed = false;
 
@@ -220,7 +226,8 @@ void main() {
   });
 
   group('LibraryEmptyVisualState Tests', () {
-    testWidgets('renders empty state with primary and secondary actions', (tester) async {
+    testWidgets('renders empty state with primary and secondary actions',
+        (tester) async {
       var primaryAction = false;
       var secondaryAction = false;
 
@@ -293,7 +300,8 @@ void main() {
   });
 
   group('LibraryResultRow Tests', () {
-    testWidgets('renders result row components and handles taps', (tester) async {
+    testWidgets('renders result row components and handles taps',
+        (tester) async {
       var tapped = false;
       var doubleTapped = false;
 

@@ -780,7 +780,8 @@ void main() {
     final seriesMap = payload?['series'] as Map?;
     expect(seriesMap?['series_title'], 'Over the Garden Wall');
     expect(payload?['crossover'], 'Adventure Time');
-    expect(payload?['story_arcs'], const ['Unknowning', 'The Tome of the Unknown']);
+    expect(payload?['story_arcs'],
+        const ['Unknowning', 'The Tome of the Unknown']);
     expect(payload?['physical_format_label'], 'Trade Paperback');
     final coverDate = payload?['cover_date'] != null
         ? DateTime.tryParse(payload!['cover_date'] as String)
@@ -943,7 +944,7 @@ void main() {
                   selection = await showLibraryEditDialog(
                     context: context,
                     request: LibraryEditDialogRequest(
-                       type: type,
+                      type: type,
                       item: item,
                       ownedItem: ownedItem,
                       trackingEntry: trackingEntry,
@@ -987,9 +988,9 @@ void main() {
     expect(item?.trailerUrls.first.url,
         'https://www.goodreads.com/book/show/29579.Foundation');
 
-    final creators = (payload?['creators'] as List?)
-            ?.cast<Map<String, dynamic>>() ??
-        const <Map<String, dynamic>>[];
+    final creators =
+        (payload?['creators'] as List?)?.cast<Map<String, dynamic>>() ??
+            const <Map<String, dynamic>>[];
     expect(
       creators.any(
         (Map<String, dynamic> entry) =>
@@ -1662,7 +1663,8 @@ void main() {
     final musicMap = payload?['music'] as Map?;
     expect(seriesMap?['series_title'], 'cAd');
     expect(musicMap?['catalog_number'], 'KDCD 1022-R');
-    final creators = (payload?['creators'] as List?)?.cast<Map<String, dynamic>>();
+    final creators =
+        (payload?['creators'] as List?)?.cast<Map<String, dynamic>>();
     expect(creators, [
       {'name': 'Ad Infinitum', 'role': 'Artist'},
       {'name': 'Melissa Bonny', 'role': 'Vocals'},
@@ -1741,7 +1743,8 @@ void main() {
 
     final itemPayload = selection?.item.payload;
     final gameMap = itemPayload?['game'] as Map?;
-    expect(gameMap?['platforms'] ?? itemPayload?['platforms'], ['PlayStation 5']);
+    expect(
+        gameMap?['platforms'] ?? itemPayload?['platforms'], ['PlayStation 5']);
   });
 
   testWidgets('game all scope exposes release identity on its own tab',

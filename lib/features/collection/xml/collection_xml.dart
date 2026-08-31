@@ -69,20 +69,32 @@ class CollectionXml {
               final seriesMap = payload['series'] as Map?;
               _textElement(builder, 'Kind', item.kind);
               _textElement(builder, 'Title', item.title);
-              _textElement(builder, 'ItemNumber',
-                  (payload['item_number'] ?? pubMap?['issue_number']) as String?);
-              _textElement(builder, 'EditionTitle',
-                  (payload['edition_title'] ?? pubMap?['edition_title']) as String?);
-              _textElement(builder, 'PhysicalFormat',
-                  (payload['physical_format'] ?? pubMap?['physical_format']) as String?);
-              _textElement(builder, 'Publisher',
-                  (payload['publisher'] ?? pubMap?['original_publisher']) as String?);
+              _textElement(
+                  builder,
+                  'ItemNumber',
+                  (payload['item_number'] ?? pubMap?['issue_number'])
+                      as String?);
+              _textElement(
+                  builder,
+                  'EditionTitle',
+                  (payload['edition_title'] ?? pubMap?['edition_title'])
+                      as String?);
+              _textElement(
+                  builder,
+                  'PhysicalFormat',
+                  (payload['physical_format'] ?? pubMap?['physical_format'])
+                      as String?);
+              _textElement(
+                  builder,
+                  'Publisher',
+                  (payload['publisher'] ?? pubMap?['original_publisher'])
+                      as String?);
               _textElement(builder, 'Barcode',
                   (payload['barcode'] ?? pubMap?['barcode']) as String?);
               _textElement(builder, 'Variant',
                   (payload['variant'] ?? pubMap?['variant']) as String?);
-              _textElement(
-                  builder, 'SeriesTitle', seriesMap?['series_title'] as String?);
+              _textElement(builder, 'SeriesTitle',
+                  seriesMap?['series_title'] as String?);
               _textElement(
                   builder, 'VolumeName', seriesMap?['volume_name'] as String?);
               if (item.releaseDate != null) {

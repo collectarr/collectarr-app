@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 
-abstract interface class CatalogKindCodec<T extends LibraryKindMetadataRuntime> {
+abstract interface class CatalogKindCodec<
+    T extends LibraryKindMetadataRuntime> {
   T decode(Map<String, dynamic> payload);
   Map<String, dynamic> encode(LibraryKindMetadataRuntime value);
 }
@@ -54,4 +55,3 @@ class _CatalogKindCodecAdapter<T extends LibraryKindMetadataRuntime>
   Map<String, dynamic> encode(LibraryKindMetadataRuntime value) =>
       _inner.encode(value as T);
 }
-

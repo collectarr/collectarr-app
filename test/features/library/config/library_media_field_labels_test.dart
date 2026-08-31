@@ -18,8 +18,10 @@ void main() {
   test('books and games use media-specific barcode and edition labels', () {
     expect(bookKindModule.edit.releaseFields.barcodeLabel, 'ISBN / Barcode');
     expect(bookKindModule.edit.releaseFields.variantLabel, 'Edition / Binding');
-    expect(gameKindModule.edit.releaseFields.variantLabel, 'Platform / Edition');
-    expect(gameKindModule.edit.mediaFields.publisherLabel, 'Publisher / Studio');
+    expect(
+        gameKindModule.edit.releaseFields.variantLabel, 'Platform / Edition');
+    expect(
+        gameKindModule.edit.mediaFields.publisherLabel, 'Publisher / Studio');
   });
 
   test('music search labels use artist terminology', () {

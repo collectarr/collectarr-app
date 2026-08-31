@@ -7,13 +7,17 @@ void main() {
   test('every registered kind has non-empty field labels', () {
     for (final module in collectarrKindModules) {
       expect(module.edit.mediaFields.numberLabel, isNotEmpty,
-          reason: '${module.identity.singularLabel} mediaFields.numberLabel is empty');
+          reason:
+              '${module.identity.singularLabel} mediaFields.numberLabel is empty');
       expect(module.edit.mediaFields.publisherLabel, isNotEmpty,
-          reason: '${module.identity.singularLabel} mediaFields.publisherLabel is empty');
+          reason:
+              '${module.identity.singularLabel} mediaFields.publisherLabel is empty');
       expect(module.edit.releaseFields.variantLabel, isNotEmpty,
-          reason: '${module.identity.singularLabel} releaseFields.variantLabel is empty');
+          reason:
+              '${module.identity.singularLabel} releaseFields.variantLabel is empty');
       expect(module.edit.releaseFields.barcodeLabel, isNotEmpty,
-          reason: '${module.identity.singularLabel} releaseFields.barcodeLabel is empty');
+          reason:
+              '${module.identity.singularLabel} releaseFields.barcodeLabel is empty');
     }
   });
 
@@ -36,11 +40,13 @@ void main() {
       musicKindModule,
     ]) {
       expect(module.edit.mediaFields.showPageCount, isFalse,
-          reason: '${module.identity.singularLabel} should not show page count');
+          reason:
+              '${module.identity.singularLabel} should not show page count');
       expect(module.edit.mediaFields.showImprint, isFalse,
           reason: '${module.identity.singularLabel} should not show imprint');
       expect(module.edit.mediaFields.showSeriesGroup, isFalse,
-          reason: '${module.identity.singularLabel} should not show series group');
+          reason:
+              '${module.identity.singularLabel} should not show series group');
     }
   });
 
@@ -75,7 +81,8 @@ void main() {
     expect(movieKindModule.edit.releaseFields.barcodeLabel, 'UPC / Barcode');
 
     expect(bookKindModule.edit.releaseFields.barcodeLabel, 'ISBN / Barcode');
-    expect(gameKindModule.edit.releaseFields.variantLabel, 'Platform / Edition');
+    expect(
+        gameKindModule.edit.releaseFields.variantLabel, 'Platform / Edition');
     expect(musicKindModule.edit.mediaFields.publisherLabel, 'Label');
   });
 }

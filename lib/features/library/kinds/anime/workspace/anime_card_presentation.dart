@@ -17,9 +17,13 @@ LibraryCardPresentation buildAnimeCardPresentation(
 List<LibraryCardBadge> _animeCompactBadges(LibraryProjectionRuntime item) {
   final dto = item.dto;
   final badges = <LibraryCardBadge>[];
-  final editionsPayload = item.source.catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?;
-  final firstEdition = editionsPayload != null && editionsPayload.isNotEmpty && editionsPayload.first is Map
-      ? CatalogEdition.fromJson(Map<String, dynamic>.from(editionsPayload.first as Map))
+  final editionsPayload = item.source.catalogItem?.kindMetadata
+      .toSyncPayload()['editions'] as List?;
+  final firstEdition = editionsPayload != null &&
+          editionsPayload.isNotEmpty &&
+          editionsPayload.first is Map
+      ? CatalogEdition.fromJson(
+          Map<String, dynamic>.from(editionsPayload.first as Map))
       : null;
   final edition = item.node is LibraryReleaseNodeRef
       ? (item.node as LibraryReleaseNodeRef).edition

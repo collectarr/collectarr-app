@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_pane.dart';
@@ -21,6 +22,7 @@ import 'package:collectarr_app/features/library/config/library_toolbar_config.da
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
@@ -95,6 +97,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     previewPaneBuilder: buildComicAddPreviewPane,
     searchPaneBuilder: buildComicAddSearchPane,
     bottomBarBuilder: buildComicAddBottomBar,
+    advancedFilterFieldsBuilder: buildComicAddAdvancedFilterFields,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildComicLibraryEditDialog,
@@ -272,3 +275,29 @@ Future<void> _showJumpToIssueDialog(
 
 Map<String, dynamic> _encodeComicMetadata(ComicCatalogMetadata m) => m.toJson();
 
+List<LibraryAddAdvancedFilterField> buildComicAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+    [
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-series-field'),
+        label: 'Series',
+        controller: req.seriesController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-number-field'),
+        label: 'Issue',
+        controller: req.numberController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Publisher',
+        controller: req.publisherController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        controller: req.yearController,
+        width: 120,
+      ),
+    ];

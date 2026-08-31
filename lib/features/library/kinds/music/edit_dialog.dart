@@ -248,8 +248,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _variantController = TextEditingController(text: metadata.variant ?? '');
     _barcodeController = TextEditingController(text: metadata.barcode ?? '');
     final musicMap = metadata.music;
-    _catalogNumberController =
-        TextEditingController(text: (musicMap?['catalog_number'] as String?) ?? '');
+    _catalogNumberController = TextEditingController(
+        text: (musicMap?['catalog_number'] as String?) ?? '');
     _releaseDateController = _draft.metadata.releaseDateController;
     _originalReleaseDateController = TextEditingController(
       text: metadata.originalReleaseDate == null
@@ -262,10 +262,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
           : formatDate(metadata.recordingDate!),
     );
     _releaseYearController = _draft.metadata.releaseYearController;
-    _releaseStatusController =
-        TextEditingController(text: (musicMap?['release_status'] as String?) ?? '');
-    _studioController =
-        TextEditingController(text: metadata.studio ?? (musicMap?['studio'] as String?) ?? '');
+    _releaseStatusController = TextEditingController(
+        text: (musicMap?['release_status'] as String?) ?? '');
+    _studioController = TextEditingController(
+        text: metadata.studio ?? (musicMap?['studio'] as String?) ?? '');
     _packagingController = TextEditingController();
     _mediaConditionController = TextEditingController(
       text: (musicMap?['media_condition'] as String?) ?? '',
@@ -279,8 +279,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _vinylWeightController = TextEditingController(
       text: (musicMap?['vinyl_weight'] as String?) ?? '',
     );
-    _rpmController = TextEditingController(text: (musicMap?['rpm'] as String?) ?? '');
-    _sparsController = TextEditingController(text: (musicMap?['spars'] as String?) ?? '');
+    _rpmController =
+        TextEditingController(text: (musicMap?['rpm'] as String?) ?? '');
+    _sparsController =
+        TextEditingController(text: (musicMap?['spars'] as String?) ?? '');
     _instrumentController = TextEditingController(
       text: (musicMap?['instrument'] as String?) ?? '',
     );
@@ -296,8 +298,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _genreValues = _splitCommaList(_genresController.text) ?? const <String>[];
     _soundValues =
         _splitCommaList(_soundTypeController.text) ?? const <String>[];
-    _externalLinkEdits
-        .addAll(_buildInitialExternalLinkEdits(_itemLinks));
+    _externalLinkEdits.addAll(_buildInitialExternalLinkEdits(_itemLinks));
     _coverController = _draft.metadata.coverController;
     _thumbnailController = _draft.metadata.thumbnailController;
     _synopsisController = _draft.metadata.synopsisController;
@@ -678,9 +679,9 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         const <Map<String, dynamic>>[];
     for (final disc in _discNumbersFromTracks) {
       final source = rawDiscs.cast<Map<String, dynamic>?>().firstWhere(
-        (entry) => entry?['disc_number'] == disc,
-        orElse: () => null,
-      );
+            (entry) => entry?['disc_number'] == disc,
+            orElse: () => null,
+          );
       _discDrafts[disc] = _MusicDiscDraft(
         discTitle: (source?['disc_name'] as String?) ?? 'Disc #$disc',
         storageDevice: (source?['storage_device'] as String?) ?? '',
@@ -1959,9 +1960,13 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
                 timesCompleted: parseInt(_timesCompletedController.text),
                 notes: emptyToNull(_trackingNotesController.text),
                 seasonNumber: widget.request.trackingEntry?.seasonNumber ??
-                    ((_item.kindMetadata.toSyncPayload()['series'] as Map?)?['season_number'] as num?)?.toInt(),
+                    ((_item.kindMetadata.toSyncPayload()['series']
+                            as Map?)?['season_number'] as num?)
+                        ?.toInt(),
                 episodeNumber: widget.request.trackingEntry?.episodeNumber ??
-                    ((_item.kindMetadata.toSyncPayload()['series'] as Map?)?['episode_number'] as num?)?.toInt(),
+                    ((_item.kindMetadata.toSyncPayload()['series']
+                            as Map?)?['episode_number'] as num?)
+                        ?.toInt(),
               ),
         customFieldEdits: _customFieldEdits,
         itemImageEdits: _itemImageEdits,

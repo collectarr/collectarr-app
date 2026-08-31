@@ -1,8 +1,10 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
@@ -61,6 +63,7 @@ final boardGameKindModule =
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardgameAddDraft.new,
     manualDraftBuilder: BoardgameAddManualDraft.new,
+    advancedFilterFieldsBuilder: buildBoardGameAddAdvancedFilterFields,
     manualPaneBuilder: buildBoardgameAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -86,3 +89,24 @@ final boardGameKindModule =
 Map<String, dynamic> _encodeBoardGameMetadata(BoardGameMetadata m) =>
     m.toJson();
 
+List<LibraryAddAdvancedFilterField> buildBoardGameAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+    [
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-series-field'),
+        label: 'Franchise / Designer',
+        controller: req.seriesController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Publisher',
+        controller: req.publisherController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        controller: req.yearController,
+        width: 120,
+      ),
+    ];

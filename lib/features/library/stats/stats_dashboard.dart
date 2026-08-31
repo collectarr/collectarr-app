@@ -33,38 +33,37 @@ class _GenericStatsDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = libraryStatsColors(context);
-      final totalValue = state.totalPaidCents == null
-          ? '-'
-          : formatMoney(state.totalPaidCents, state.primaryCurrency);
-      final netValue =
-          state.totalPaidCents == null || state.totalSellCents == null
-              ? null
-              : formatMoney(
-                  state.totalSellCents! - state.totalPaidCents!,
-                  state.primaryCurrency,
-                );
-      final collectionValue = state.hasMixedCoverPriceCurrencies
-          ? '${state.coverPricedCount} valued'
-          : state.totalCoverPriceCents == null || state.totalCoverPriceCents == 0
-              ? null
-              : formatMoney(state.totalCoverPriceCents, state.coverPriceCurrency);
-      final sellValue = state.totalSellCents == null || state.totalSellCents == 0
-          ? null
-          : formatMoney(state.totalSellCents, state.primaryCurrency);
-      final missingCovers = state.entries
-          .where((e) => e.catalogItem?.common.coverImageUrl == null)
-          .length;
-      final module = libraryKindRuntimeForType(type);
-      final missingMetadata = _missingMetadataCount(state.entries, module);
-      final valueCoverage =
-          state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
-      final metadataQualityBands = _metadataQualityBands(state.entries, module);
-      final metadataAlertCounts = _metadataAlertCounts(state.entries, type, module);
+    final totalValue = state.totalPaidCents == null
+        ? '-'
+        : formatMoney(state.totalPaidCents, state.primaryCurrency);
+    final netValue =
+        state.totalPaidCents == null || state.totalSellCents == null
+            ? null
+            : formatMoney(
+                state.totalSellCents! - state.totalPaidCents!,
+                state.primaryCurrency,
+              );
+    final collectionValue = state.hasMixedCoverPriceCurrencies
+        ? '${state.coverPricedCount} valued'
+        : state.totalCoverPriceCents == null || state.totalCoverPriceCents == 0
+            ? null
+            : formatMoney(state.totalCoverPriceCents, state.coverPriceCurrency);
+    final sellValue = state.totalSellCents == null || state.totalSellCents == 0
+        ? null
+        : formatMoney(state.totalSellCents, state.primaryCurrency);
+    final missingCovers = state.entries
+        .where((e) => e.catalogItem?.common.coverImageUrl == null)
+        .length;
+    final module = libraryKindRuntimeForType(type);
+    final missingMetadata = _missingMetadataCount(state.entries, module);
+    final valueCoverage =
+        state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
+    final metadataQualityBands = _metadataQualityBands(state.entries, module);
+    final metadataAlertCounts =
+        _metadataAlertCounts(state.entries, type, module);
 
-      final kindSummaryTiles =
-          module.stats.buildSummaryTiles(state, type);
-      final kindCustomCards =
-          module.stats.buildCustomCards(context, state, type);
+    final kindSummaryTiles = module.stats.buildSummaryTiles(state, type);
+    final kindCustomCards = module.stats.buildCustomCards(context, state, type);
 
     return Dialog(
       clipBehavior: Clip.antiAlias,
@@ -167,7 +166,8 @@ class _GenericStatsDashboard extends StatelessWidget {
                             ),
                             LibraryStatsRankedCard(
                               title: _publisherLabel,
-                              values: _topPublisherCounts(state.entries, module),
+                              values:
+                                  _topPublisherCounts(state.entries, module),
                             ),
                             if (state.gradeCounts.isNotEmpty)
                               LibraryStatsDistributionCard(
@@ -190,7 +190,8 @@ class _GenericStatsDashboard extends StatelessWidget {
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Most Invested Series',
-                                values: _topInvestedSeries(state.entries, module),
+                                values:
+                                    _topInvestedSeries(state.entries, module),
                                 currency: state.primaryCurrency,
                               ),
                             if (!state.hasMixedCurrencies &&
@@ -299,8 +300,7 @@ class _GenericStatsDashboard extends StatelessWidget {
               ),
             )
             .dto;
-        return dto.seriesTitle ??
-            dto.title;
+        return dto.seriesTitle ?? dto.title;
       },
     );
   }
@@ -346,7 +346,8 @@ class _GenericStatsDashboard extends StatelessWidget {
           .dto;
       final hasSynopsis =
           cat.common.synopsis != null && cat.common.synopsis!.trim().isNotEmpty;
-      final hasPublisher = dto.publisher != null && dto.publisher!.trim().isNotEmpty;
+      final hasPublisher =
+          dto.publisher != null && dto.publisher!.trim().isNotEmpty;
       if (!hasSynopsis && !hasPublisher) {
         count++;
       }
@@ -377,8 +378,7 @@ class _GenericStatsDashboard extends StatelessWidget {
               ),
             )
             .dto;
-        return dto.seriesTitle ??
-            dto.title;
+        return dto.seriesTitle ?? dto.title;
       },
       (entry) => entry.ownedItem?.pricePaidCents,
     );
@@ -407,8 +407,7 @@ class _GenericStatsDashboard extends StatelessWidget {
               ),
             )
             .dto;
-        return dto.seriesTitle ??
-            dto.title;
+        return dto.seriesTitle ?? dto.title;
       },
       (entry) => entry.ownedItem?.sellPriceCents,
     );
@@ -505,12 +504,15 @@ class _GenericStatsDashboard extends StatelessWidget {
       25,
     );
     add(
-      item.common.synopsis != null &&
-          item.common.synopsis!.trim().isNotEmpty,
+      item.common.synopsis != null && item.common.synopsis!.trim().isNotEmpty,
       25,
     );
     add(dto.publisher != null && dto.publisher!.trim().isNotEmpty, 15);
-    add(item.releaseDate != null || item.releaseYear != null || dto.releaseDate != null, 15);
+    add(
+        item.releaseDate != null ||
+            item.releaseYear != null ||
+            dto.releaseDate != null,
+        15);
     add(dto.seriesTitle != null && dto.seriesTitle!.isNotEmpty, 10);
     add(dto.itemNumber != null && dto.itemNumber!.trim().isNotEmpty, 10);
 

@@ -166,8 +166,7 @@ String defaultLibraryBucketLabel(
       ),
     'rpm' => _stringBucket(music['rpm']?.toString(), 'No RPM'),
     'spars' => _stringBucket(music['spars']?.toString(), 'No SPARS'),
-    'sound_type' =>
-      _stringBucket(music['sound_type']?.toString(), 'No sound'),
+    'sound_type' => _stringBucket(music['sound_type']?.toString(), 'No sound'),
     'studio' => _stringBucket(music['studio']?.toString(), 'No studio'),
     'vinyl_color' =>
       _stringBucket(music['vinyl_color']?.toString(), 'No vinyl color'),
@@ -175,16 +174,14 @@ String defaultLibraryBucketLabel(
       _stringBucket(game['toy_subtype']?.toString(), 'No subtype'),
     'toy_type' => _stringBucket(game['toy_type']?.toString(), 'No type'),
     'edition' => _stringBucket(dto.variant ?? dto.editionLabel, 'No edition'),
-    'audiobook_abridged' => pub['audiobook_abridged'] == true
-        ? 'Abridged'
-        : 'Unabridged / Unknown',
+    'audiobook_abridged' =>
+      pub['audiobook_abridged'] == true ? 'Abridged' : 'Unabridged / Unknown',
     'first_edition' =>
       pub['first_edition'] == true ? 'First edition' : 'Not first edition',
     'narrator' => _creatorBucketByRole(item, 'narrator'),
     'paper_type' =>
       _stringBucket(pub['paper_type']?.toString(), 'No paper type'),
-    'printed_by' =>
-      _stringBucket(pub['printed_by']?.toString(), 'No printer'),
+    'printed_by' => _stringBucket(pub['printed_by']?.toString(), 'No printer'),
     'edition_release_date' => _dateBucket(
         _referenceEditionForEntry(item)?.releaseDate,
         'Unknown edition release date',
@@ -339,9 +336,8 @@ String defaultLibraryBucketLabel(
         source.ownedItem?.musicDetails?.storageDevice,
         'No storage device',
       ),
-    'dust_jacket' => pub['dust_jacket'] == true
-        ? 'Has dust jacket'
-        : 'No dust jacket',
+    'dust_jacket' =>
+      pub['dust_jacket'] == true ? 'Has dust jacket' : 'No dust jacket',
     'subject' => _firstOrDefault(
         (pub['subjects'] as List?)?.map((e) => e.toString()).toList(),
         'No subject',

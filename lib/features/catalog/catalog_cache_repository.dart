@@ -46,13 +46,13 @@ class CatalogCacheRepository {
               final gameMap = _asMap(payload['game']);
               final tracks = (musicMap?['tracks'] as List?)
                   ?.whereType<Map>()
-                  .map((e) => CatalogTrackDto.fromJson(
-                      Map<String, dynamic>.from(e)))
+                  .map((e) =>
+                      CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
                   .toList();
               final discs = (musicMap?['discs'] as List?)
                   ?.whereType<Map>()
-                  .map((e) => CatalogDiscDto.fromJson(
-                      Map<String, dynamic>.from(e)))
+                  .map((e) =>
+                      CatalogDiscDto.fromJson(Map<String, dynamic>.from(e)))
                   .toList();
               final platforms = (gameMap?['platforms'] as List?)
                       ?.map((e) => e.toString())
@@ -78,22 +78,50 @@ class CatalogCacheRepository {
                   ?.map((e) => e.toString())
                   .toList();
               final volumeNumberStr = seriesMap?['volume_number']?.toString();
-              final itemNumber = (payload['item_number'] ?? payload['itemNumber'])?.toString();
-              final editionTitle = (payload['edition_title'] ?? payload['editionTitle'])?.toString();
-              final physicalFormat = (payload['physical_format'] ?? payload['physicalFormat'])?.toString();
-              final physicalFormatLabel = (payload['physical_format_label'] ?? payload['physicalFormatLabel'])?.toString();
-              final publisher = (payload['publisher'] ?? publishingMap?['original_publisher'] ?? publishingMap?['publisher'])?.toString();
-              final barcode = (payload['barcode'] ?? payload['upc'])?.toString();
+              final itemNumber =
+                  (payload['item_number'] ?? payload['itemNumber'])?.toString();
+              final editionTitle =
+                  (payload['edition_title'] ?? payload['editionTitle'])
+                      ?.toString();
+              final physicalFormat =
+                  (payload['physical_format'] ?? payload['physicalFormat'])
+                      ?.toString();
+              final physicalFormatLabel = (payload['physical_format_label'] ??
+                      payload['physicalFormatLabel'])
+                  ?.toString();
+              final publisher = (payload['publisher'] ??
+                      publishingMap?['original_publisher'] ??
+                      publishingMap?['publisher'])
+                  ?.toString();
+              final barcode =
+                  (payload['barcode'] ?? payload['upc'])?.toString();
               final variant = payload['variant']?.toString();
-              final country = (payload['country'] ?? publishingMap?['original_country'] ?? publishingMap?['country'])?.toString();
-              final language = (payload['language'] ?? publishingMap?['original_language'] ?? publishingMap?['language'])?.toString();
-              final ageRating = (payload['age_rating'] ?? publishingMap?['age_rating'])?.toString();
-              final audienceRating = (payload['audience_rating'] ?? videoMap?['audience_rating'])?.toString();
-              final coverDate = payload['cover_date'] != null ? DateTime.tryParse(payload['cover_date'].toString()) : null;
+              final country = (payload['country'] ??
+                      publishingMap?['original_country'] ??
+                      publishingMap?['country'])
+                  ?.toString();
+              final language = (payload['language'] ??
+                      publishingMap?['original_language'] ??
+                      publishingMap?['language'])
+                  ?.toString();
+              final ageRating =
+                  (payload['age_rating'] ?? publishingMap?['age_rating'])
+                      ?.toString();
+              final audienceRating =
+                  (payload['audience_rating'] ?? videoMap?['audience_rating'])
+                      ?.toString();
+              final coverDate = payload['cover_date'] != null
+                  ? DateTime.tryParse(payload['cover_date'].toString())
+                  : null;
               final crossover = payload['crossover']?.toString();
-              final plotSummary = (payload['plot_summary'] ?? payload['plotSummary'])?.toString();
-              final plotDescription = (payload['plot_description'] ?? payload['plotDescription'])?.toString();
-              final rawSeriesTags = payload['series_tags'] ?? seriesMap?['tags'];
+              final plotSummary =
+                  (payload['plot_summary'] ?? payload['plotSummary'])
+                      ?.toString();
+              final plotDescription =
+                  (payload['plot_description'] ?? payload['plotDescription'])
+                      ?.toString();
+              final rawSeriesTags =
+                  payload['series_tags'] ?? seriesMap?['tags'];
               final seriesTags = rawSeriesTags is List
                   ? rawSeriesTags.map((e) => e.toString()).toList()
                   : (rawSeriesTags is String
@@ -103,21 +131,51 @@ class CatalogCacheRepository {
                           .where((e) => e.isNotEmpty)
                           .toList()
                       : null);
-              final id = item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
-              final kind = item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
-              final title = item is LibraryMetadataItem ? item.title : (item as CatalogItem).title;
-              final displayTitle = item is LibraryMetadataItem ? item.displayTitle : (item as CatalogItem).displayTitle;
-              final localizedTitle = item is LibraryMetadataItem ? item.localizedTitle : (item as CatalogItem).localizedTitle;
-              final originalTitle = item is LibraryMetadataItem ? item.originalTitle : (item as CatalogItem).originalTitle;
-              final titleExtension = item is LibraryMetadataItem ? item.titleExtension : (item as CatalogItem).titleExtension;
-              final searchAliases = item is LibraryMetadataItem ? item.searchAliases : (item as CatalogItem).searchAliases;
-              final sortKey = item is LibraryMetadataItem ? item.sortKey : (item as CatalogItem).sortKey;
-              final synopsis = item is LibraryMetadataItem ? item.synopsis : (item as CatalogItem).synopsis;
-              final coverImageUrl = item is LibraryMetadataItem ? item.coverImageUrl : (item as CatalogItem).coverImageUrl;
-              final thumbnailImageUrl = item is LibraryMetadataItem ? item.thumbnailImageUrl : (item as CatalogItem).thumbnailImageUrl;
-              final coverImageData = item is LibraryMetadataItem ? item.coverImageData : (item as CatalogItem).coverImageData;
-              final releaseDate = item is LibraryMetadataItem ? item.releaseDate : (item as CatalogItem).releaseDate;
-              final releaseYear = item is LibraryMetadataItem ? item.releaseYear : (item as CatalogItem).releaseYear;
+              final id = item is LibraryMetadataItem
+                  ? item.id
+                  : (item as CatalogItem).id;
+              final kind = item is LibraryMetadataItem
+                  ? item.kind
+                  : (item as CatalogItem).kind;
+              final title = item is LibraryMetadataItem
+                  ? item.title
+                  : (item as CatalogItem).title;
+              final displayTitle = item is LibraryMetadataItem
+                  ? item.displayTitle
+                  : (item as CatalogItem).displayTitle;
+              final localizedTitle = item is LibraryMetadataItem
+                  ? item.localizedTitle
+                  : (item as CatalogItem).localizedTitle;
+              final originalTitle = item is LibraryMetadataItem
+                  ? item.originalTitle
+                  : (item as CatalogItem).originalTitle;
+              final titleExtension = item is LibraryMetadataItem
+                  ? item.titleExtension
+                  : (item as CatalogItem).titleExtension;
+              final searchAliases = item is LibraryMetadataItem
+                  ? item.searchAliases
+                  : (item as CatalogItem).searchAliases;
+              final sortKey = item is LibraryMetadataItem
+                  ? item.sortKey
+                  : (item as CatalogItem).sortKey;
+              final synopsis = item is LibraryMetadataItem
+                  ? item.synopsis
+                  : (item as CatalogItem).synopsis;
+              final coverImageUrl = item is LibraryMetadataItem
+                  ? item.coverImageUrl
+                  : (item as CatalogItem).coverImageUrl;
+              final thumbnailImageUrl = item is LibraryMetadataItem
+                  ? item.thumbnailImageUrl
+                  : (item as CatalogItem).thumbnailImageUrl;
+              final coverImageData = item is LibraryMetadataItem
+                  ? item.coverImageData
+                  : (item as CatalogItem).coverImageData;
+              final releaseDate = item is LibraryMetadataItem
+                  ? item.releaseDate
+                  : (item as CatalogItem).releaseDate;
+              final releaseYear = item is LibraryMetadataItem
+                  ? item.releaseYear
+                  : (item as CatalogItem).releaseYear;
               return CatalogCacheCompanion.insert(
                 id: id,
                 kind: kind,
@@ -163,8 +221,7 @@ class CatalogCacheRepository {
                     Value((seriesMap?['episode_number'] as num?)?.toInt()),
                 runtimeMinutes:
                     Value((videoMap?['runtime_minutes'] as num?)?.toInt()),
-                trackCount:
-                    Value((musicMap?['track_count'] as num?)?.toInt()),
+                trackCount: Value((musicMap?['track_count'] as num?)?.toInt()),
                 tracksJson: Value(
                   tracks != null && tracks.isNotEmpty
                       ? jsonEncode(
@@ -232,19 +289,15 @@ class CatalogCacheRepository {
                     Value((publishingMap?['page_count'] as num?)?.toInt()),
                 coverPriceCents: Value(
                     (publishingMap?['cover_price_cents'] as num?)?.toInt()),
-                catalogCurrency:
-                    Value(publishingMap?['currency'] as String?),
-                catalogNumber:
-                    Value(musicMap?['catalog_number'] as String?),
-                releaseStatus:
-                    Value(musicMap?['release_status'] as String?),
+                catalogCurrency: Value(publishingMap?['currency'] as String?),
+                catalogNumber: Value(musicMap?['catalog_number'] as String?),
+                releaseStatus: Value(musicMap?['release_status'] as String?),
                 language: Value(language),
                 ageRating: Value(ageRating),
                 audienceRating: Value(audienceRating),
                 imprint: Value(publishingMap?['imprint'] as String?),
                 subtitle: Value(publishingMap?['subtitle'] as String?),
-                seriesGroup:
-                    Value(publishingMap?['series_group'] as String?),
+                seriesGroup: Value(publishingMap?['series_group'] as String?),
                 trailerUrlsJson: Value(
                   trailerUrls.isNotEmpty
                       ? jsonEncode(
@@ -282,7 +335,8 @@ class CatalogCacheRepository {
           ? item.payload
           : (item as CatalogItem).payload;
       byKind
-          .putIfAbsent(kind.trim().toLowerCase(), () => <Map<String, dynamic>>[])
+          .putIfAbsent(
+              kind.trim().toLowerCase(), () => <Map<String, dynamic>>[])
           .add(payload);
     }
 
@@ -307,7 +361,8 @@ class CatalogCacheRepository {
         );
         await pickLists.captureValuesWithoutTransaction(
           kAudienceRatingPickListName,
-          scopedPayloads.map((payload) => payload['audience_rating'] as String?),
+          scopedPayloads
+              .map((payload) => payload['audience_rating'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
@@ -318,14 +373,14 @@ class CatalogCacheRepository {
         );
         await pickLists.captureValuesWithoutTransaction(
           kLayersPickListName,
-          scopedPayloads.map((payload) =>
-              _asMap(payload['video'])?['layers'] as String?),
+          scopedPayloads
+              .map((payload) => _asMap(payload['video'])?['layers'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kColorPickListName,
-          scopedPayloads.map((payload) =>
-              _asMap(payload['video'])?['color'] as String?),
+          scopedPayloads
+              .map((payload) => _asMap(payload['video'])?['color'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
@@ -336,8 +391,8 @@ class CatalogCacheRepository {
         );
         await pickLists.captureValuesWithoutTransaction(
           kSubtitlePickListName,
-          scopedPayloads.map((payload) =>
-              _asMap(payload['video'])?['subtitles'] as String?),
+          scopedPayloads.map(
+              (payload) => _asMap(payload['video'])?['subtitles'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
@@ -353,9 +408,8 @@ class CatalogCacheRepository {
         );
         await pickLists.captureValuesWithoutTransaction(
           kMusicFormatPickListName,
-          scopedPayloads.map((payload) =>
-              (payload['physical_format_label'] ?? payload['physical_format'])
-                  as String?),
+          scopedPayloads.map((payload) => (payload['physical_format_label'] ??
+              payload['physical_format']) as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
@@ -378,9 +432,8 @@ class CatalogCacheRepository {
         await pickLists.captureValuesWithoutTransaction(
           kPhysicalFormatPickListName,
           scopedPayloads.map(
-            (payload) =>
-                (payload['physical_format_label'] ?? payload['physical_format'])
-                    as String?,
+            (payload) => (payload['physical_format_label'] ??
+                payload['physical_format']) as String?,
           ),
           mediaKind: mediaKind,
         );
@@ -546,8 +599,7 @@ class CatalogCacheRepository {
           if (row.trackCount != null) 'track_count': row.trackCount,
           if (row.tracksJson != null)
             'tracks': _decodeListOfMaps(row.tracksJson),
-          if (row.discsJson != null)
-            'discs': _decodeListOfMaps(row.discsJson),
+          if (row.discsJson != null) 'discs': _decodeListOfMaps(row.discsJson),
           if (row.catalogNumber != null) 'catalog_number': row.catalogNumber,
           if (row.releaseStatus != null) 'release_status': row.releaseStatus,
         },

@@ -1,16 +1,12 @@
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
 import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/add/models/movie_add_chrome_scope.dart';
 import 'package:flutter/material.dart';
 
-/// Kind-specific copy for the shared add-dialog chrome (header + mode bar).
-///
-/// Everything structural is shared; only labels and a few feature toggles vary
-/// between kinds, so each kind supplies a small [LibraryAddChromeLabels] instead
-/// of duplicating the whole header/mode-bar widget tree.
+/// Kind-specific copy and filter configuration for the shared add-dialog chrome.
 class LibraryAddChromeLabels {
   const LibraryAddChromeLabels({
     required this.searchFieldLabel,
@@ -19,33 +15,17 @@ class LibraryAddChromeLabels {
     this.searchButtonLabel,
     this.showCoverScanSuffix = false,
     this.showSuggestions = false,
-    this.seriesFieldLabel = 'Series',
-    this.issueFieldLabel,
-    this.publisherFieldLabel = 'Publisher',
-    this.yearFieldLabel = 'Year',
+    this.advancedFiltersBuilder,
   });
 
-  /// Header title. Defaults to `Add <plural label>`.
   final String? title;
-
   final String searchFieldLabel;
   final String searchFieldHint;
-
-  /// Search button label. Defaults to `Search <plural label>`.
   final String? searchButtonLabel;
-
-  /// Whether the search field shows the inline cover-scan camera button.
   final bool showCoverScanSuffix;
-
-  /// Whether the mode bar renders the type-ahead suggestions dropdown.
   final bool showSuggestions;
-
-  final String seriesFieldLabel;
-
-  /// When null the issue/number advanced field is hidden.
-  final String? issueFieldLabel;
-  final String publisherFieldLabel;
-  final String yearFieldLabel;
+  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
+      advancedFiltersBuilder;
 }
 
 /// Shared add-dialog header. Icon and title derive from the kind config.
@@ -90,7 +70,7 @@ Widget buildLibraryAddHeader(
   );
 }
 
-/// Shared add-dialog mode bar (search/barcode/manual + advanced filters).
+/// Shared add-dialog mode bar (search/barcode/manual + kind-owned advanced filter slot).
 Widget buildLibraryAddModeBar(
   BuildContext context,
   LibraryAddModeBarRequest request,
@@ -100,7 +80,6 @@ Widget buildLibraryAddModeBar(
   final isBusy = request.isSearching || request.isSearchingProvider;
   final isBarcode = request.mode == LibraryAddDialogMode.barcode;
   final isSearch = request.mode == LibraryAddDialogMode.search;
-  final movieScope = MovieAddChromeScope.maybeOf(context);
   final searchButtonLabel =
       labels.searchButtonLabel ?? 'Search ${request.type.pluralLabel}';
   return DecoratedBox(
@@ -220,71 +199,54 @@ Widget buildLibraryAddModeBar(
               ],
             ],
           ),
-          if (isSearch && movieScope?.showVideoKindFilters == true) ...[
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                FilterChip(
-                  selected: movieScope!.videoKindFilters.contains('movie'),
-                  label: const Text('Movies'),
-                  onSelected: (value) =>
-                      movieScope.onVideoKindFilterChanged('movie', value),
-                ),
-                FilterChip(
-                  selected: movieScope.videoKindFilters.contains('collection'),
-                  label: const Text('Box Sets'),
-                  onSelected: (value) =>
-                      movieScope.onVideoKindFilterChanged('collection', value),
-                ),
-              ],
-            ),
-          ],
           if (isSearch && request.showAdvanced) ...[
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    key: const ValueKey('library-add-series-field'),
-                    controller: request.seriesController,
-                    decoration:
-                        InputDecoration(labelText: labels.seriesFieldLabel),
-                  ),
-                ),
-                if (labels.issueFieldLabel != null) ...[
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      key: const ValueKey('library-add-number-field'),
-                      controller: request.numberController,
-                      decoration:
-                          InputDecoration(labelText: labels.issueFieldLabel),
-                    ),
-                  ),
+            if (labels.advancedFiltersBuilder != null)
+              labels.advancedFiltersBuilder!(context, request)
+            else if (request.advancedFiltersBuilder != null)
+              request.advancedFiltersBuilder!(context, request)
+            else if (request.advancedFilterFields.isNotEmpty)
+              Row(
+                children: [
+                  for (var i = 0;
+                      i < request.advancedFilterFields.length;
+                      i++) ...[
+                    if (i > 0) const SizedBox(width: 8),
+                    if (request.advancedFilterFields[i].width != null)
+                      SizedBox(
+                        width: request.advancedFilterFields[i].width,
+                        child: TextField(
+                          key: request.advancedFilterFields[i].key,
+                          controller:
+                              request.advancedFilterFields[i].controller,
+                          keyboardType:
+                              request.advancedFilterFields[i].keyboardType,
+                          onSubmitted: (_) => request.onSearch(),
+                          decoration: InputDecoration(
+                            labelText: request.advancedFilterFields[i].label,
+                            hintText: request.advancedFilterFields[i].hintText,
+                          ),
+                        ),
+                      )
+                    else
+                      Expanded(
+                        flex: request.advancedFilterFields[i].flex,
+                        child: TextField(
+                          key: request.advancedFilterFields[i].key,
+                          controller:
+                              request.advancedFilterFields[i].controller,
+                          keyboardType:
+                              request.advancedFilterFields[i].keyboardType,
+                          onSubmitted: (_) => request.onSearch(),
+                          decoration: InputDecoration(
+                            labelText: request.advancedFilterFields[i].label,
+                            hintText: request.advancedFilterFields[i].hintText,
+                          ),
+                        ),
+                      ),
+                  ],
                 ],
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    key: const ValueKey('library-add-publisher-field'),
-                    controller: request.publisherController,
-                    decoration:
-                        InputDecoration(labelText: labels.publisherFieldLabel),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 120,
-                  child: TextField(
-                    key: const ValueKey('library-add-year-field'),
-                    controller: request.yearController,
-                    decoration:
-                        InputDecoration(labelText: labels.yearFieldLabel),
-                  ),
-                ),
-              ],
-            ),
+              ),
           ],
           if (labels.showSuggestions &&
               isSearch &&

@@ -34,8 +34,8 @@ class _ComicAddPreviewPane extends StatelessWidget {
         : null;
     final displayEditionLabel = (selectedItem?.kindMetadata
             .toSyncPayload()['edition_title'] as String?) ??
-        (selectedItem?.kindMetadata
-            .toSyncPayload()['physical_format_label'] as String?);
+        (selectedItem?.kindMetadata.toSyncPayload()['physical_format_label']
+            as String?);
     final preview = request.candidatePreview;
     final synopsis = selectedItem?.synopsis ??
         preview?.synopsis ??

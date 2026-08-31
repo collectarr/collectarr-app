@@ -350,8 +350,8 @@ class BookLibraryMediaPresentationBuilder
         item?.displayCoverUrl ?? preview?.coverImageUrl ?? candidate?.imageUrl;
     final itemNumber =
         (item?.kindMetadata.toSyncPayload()['item_number'] as String?) ??
-        preview?.itemNumber ??
-        candidate?.issueNumber;
+            preview?.itemNumber ??
+            candidate?.issueNumber;
     return _BookAddPreviewPane(
       accent: accent,
       title: title,
@@ -700,8 +700,8 @@ String? _bookSubtitleForSelection({
       candidate?.series?.seriesTitle;
   final number =
       (item?.kindMetadata.toSyncPayload()['item_number'] as String?) ??
-      preview?.itemNumber ??
-      candidate?.issueNumber;
+          preview?.itemNumber ??
+          candidate?.issueNumber;
   if (seriesTitle != null &&
       seriesTitle.trim().isNotEmpty &&
       seriesTitle.trim() != title.trim()) {

@@ -64,7 +64,8 @@ class ComicEditHostAdapter implements ComicEditHost {
           isTrackingOnly: draft.isTrackingOnly,
           hasTrackingContext: draft.hasTrackingContext,
           hasWishlistContext: draft.hasWishlistContext,
-          isDigitalFormat: (_comicDraft?.comicEdit.physicalFormatLabelController.text
+          isDigitalFormat: (_comicDraft
+                      ?.comicEdit.physicalFormatLabelController.text
                       .trim()
                       .toLowerCase() ??
                   '') ==
@@ -365,7 +366,9 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   bool get comicShowPhysicalOwnedFields =>
       draft.isOwned &&
-      (_comicDraft?.comicEdit.physicalFormatLabelController.text.trim().toLowerCase() !=
+      (_comicDraft?.comicEdit.physicalFormatLabelController.text
+              .trim()
+              .toLowerCase() !=
           'digital');
 
   @override
@@ -452,8 +455,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicCountryPickField({String label = 'Country'}) {
     return SingleValuePickField(
-      controller: _comicDraft?.comicEdit.countryController ??
-          TextEditingController(),
+      controller:
+          _comicDraft?.comicEdit.countryController ?? TextEditingController(),
       label: label,
       options: draft.vocabulary?.countryOptions ?? const [],
       showPickerListAction: true,
@@ -514,7 +517,8 @@ class ComicEditHostAdapter implements ComicEditHost {
           context: context,
           db: db,
           mediaKind: draft.type.workspace.kind.apiValue,
-          selectedTitle: _comicDraft?.comicEdit.seriesTitleController.text ?? '',
+          selectedTitle:
+              _comicDraft?.comicEdit.seriesTitleController.text ?? '',
         );
         if (entry != null) {
           if (_comicDraft != null) {
@@ -532,8 +536,8 @@ class ComicEditHostAdapter implements ComicEditHost {
   @override
   Widget buildComicPublisherField({String label = 'Publisher'}) {
     return SingleValuePickField(
-      controller: _comicDraft?.comicEdit.publisherController ??
-          TextEditingController(),
+      controller:
+          _comicDraft?.comicEdit.publisherController ?? TextEditingController(),
       label: label,
       options: draft.vocabulary?.publisherOptions ?? const [],
       showPickerListAction: true,

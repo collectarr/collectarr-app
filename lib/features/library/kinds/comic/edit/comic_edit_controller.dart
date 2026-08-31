@@ -15,16 +15,16 @@ class ComicEditController {
   })  : crossoverController = TextEditingController(text: item.crossover ?? ''),
         storyArcsController =
             TextEditingController(text: item.storyArcs.join(', ')),
-        imprintController =
-            TextEditingController(text: item.imprint ?? item.publishing?.imprint ?? ''),
+        imprintController = TextEditingController(
+            text: item.imprint ?? item.publishing?.imprint ?? ''),
         pageCountController = TextEditingController(
-            text: (item.pageCount ?? item.publishing?.pageCount)?.toString() ?? ''),
+            text: (item.pageCount ?? item.publishing?.pageCount)?.toString() ??
+                ''),
         ageRatingController = TextEditingController(text: item.ageRating ?? ''),
         genresEditController =
             TextEditingController(text: item.genres.join(', ')),
         seriesGroupController = TextEditingController(),
-        numberController = TextEditingController(
-            text: item.issueNumber ?? ''),
+        numberController = TextEditingController(text: item.issueNumber ?? ''),
         publisherController = TextEditingController(
             text: item.publisher ?? item.publishing?.originalPublisher ?? ''),
         editionTitleController =
@@ -36,8 +36,8 @@ class ComicEditController {
         physicalFormatId = item.physicalFormat,
         coverDateController = TextEditingController(
             text: item.coverDate == null ? '' : formatDate(item.coverDate!)),
-        coverDateYearPartController = TextEditingController(
-            text: item.coverDate?.year.toString() ?? ''),
+        coverDateYearPartController =
+            TextEditingController(text: item.coverDate?.year.toString() ?? ''),
         coverDateMonthPartController = TextEditingController(
             text: item.coverDate == null
                 ? ''
@@ -185,9 +185,8 @@ class ComicEditController {
 
     final updatedMeta = currentMeta.copyWith(
       crossover: emptyToNull(crossoverController.text),
-      storyArcs: parsedStoryArcs.isNotEmpty
-          ? parsedStoryArcs
-          : currentMeta.storyArcs,
+      storyArcs:
+          parsedStoryArcs.isNotEmpty ? parsedStoryArcs : currentMeta.storyArcs,
       ageRating: emptyToNull(ageRatingController.text),
       genres: parsedGenres.isNotEmpty ? parsedGenres : currentMeta.genres,
       imprint: emptyToNull(imprintController.text),
@@ -205,8 +204,11 @@ class ComicEditController {
       language: emptyToNull(languageController.text) ?? currentMeta.language,
       country: emptyToNull(countryController.text) ?? currentMeta.country,
       seriesTitle: emptyToNull(seriesTitleController.text),
-      series: updatedSeries != null && updatedSeries.hasData ? updatedSeries : null,
-      publishing: updatedPublishing != null && updatedPublishing.hasData ? updatedPublishing : null,
+      series:
+          updatedSeries != null && updatedSeries.hasData ? updatedSeries : null,
+      publishing: updatedPublishing != null && updatedPublishing.hasData
+          ? updatedPublishing
+          : null,
     );
 
     final updatedItem = selection.item.copyWith(

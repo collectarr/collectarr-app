@@ -210,8 +210,7 @@ class BoardGameMetadata implements LibraryKindMetadataRuntime {
       seriesTitle: seriesTitle ?? this.seriesTitle,
       itemNumber: itemNumber ?? this.itemNumber,
       physicalFormat: physicalFormat ?? this.physicalFormat,
-      physicalFormatLabel:
-          physicalFormatLabel ?? this.physicalFormatLabel,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,

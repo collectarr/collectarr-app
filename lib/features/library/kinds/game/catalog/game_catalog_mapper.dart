@@ -23,7 +23,8 @@ class GameCatalogMapper {
       genres: meta.genres,
     );
 
-    final editionsPayload = item.kindMetadata.toSyncPayload()['editions'] as List?;
+    final editionsPayload =
+        item.kindMetadata.toSyncPayload()['editions'] as List?;
     final editions = editionsPayload != null
         ? editionsPayload
             .whereType<Map>()

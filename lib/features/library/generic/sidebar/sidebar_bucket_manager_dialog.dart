@@ -540,8 +540,8 @@ LibraryMetadataItem? _updatedCatalogItemForBucket(
       (payload['characters'] as List?)?.map((e) => e.toString()).toList();
   final storyArcsList =
       (payload['story_arcs'] as List?)?.map((e) => e.toString()).toList();
-  final creatorsList = (payload['creators'] as List?)
-      ?.cast<Map<String, dynamic>>();
+  final creatorsList =
+      (payload['creators'] as List?)?.cast<Map<String, dynamic>>();
 
   switch (mode) {
     case 'genre':

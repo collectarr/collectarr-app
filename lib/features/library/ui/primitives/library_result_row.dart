@@ -41,9 +41,7 @@ class LibraryResultRow extends StatelessWidget {
     final theme = Theme.of(context);
     final rowAccent = accent ?? palette.accent;
 
-    final backgroundColor = isSelected
-        ? palette.selection
-        : Colors.transparent;
+    final backgroundColor = isSelected ? palette.selection : Colors.transparent;
 
     return Material(
       color: backgroundColor,

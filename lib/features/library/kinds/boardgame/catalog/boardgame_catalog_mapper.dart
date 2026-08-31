@@ -14,9 +14,7 @@ class BoardGameCatalogMapper {
       title: dto.title,
       originalTitle: dto.originalTitle,
       synopsis: dto.synopsis,
-      genres: (payload['genres'] as List?)
-              ?.map((e) => e.toString())
-              .toList() ??
+      genres: (payload['genres'] as List?)?.map((e) => e.toString()).toList() ??
           const [],
     );
 

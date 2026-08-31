@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/metadata/provider_candidate.dart
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 
 // Pluggable pane builder typedefs and their request payloads for the
 // library add dialog. Extracted from library_add_dialog.dart to keep the
@@ -288,6 +289,8 @@ class LibraryAddModeBarRequest {
     required this.numberController,
     required this.publisherController,
     required this.yearController,
+    this.advancedFilterFields = const [],
+    this.advancedFiltersBuilder,
   });
 
   final LibraryTypeConfig type;
@@ -316,6 +319,9 @@ class LibraryAddModeBarRequest {
   final TextEditingController numberController;
   final TextEditingController publisherController;
   final TextEditingController yearController;
+  final List<LibraryAddAdvancedFilterField> advancedFilterFields;
+  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
+      advancedFiltersBuilder;
 }
 
 class LibraryAddSearchPaneRequest {

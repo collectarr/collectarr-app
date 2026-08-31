@@ -80,7 +80,8 @@ class LibraryEmptyVisualState extends StatelessWidget {
                   runSpacing: 8,
                   alignment: WrapAlignment.center,
                   children: [
-                    if (onSecondaryAction != null && secondaryActionLabel != null)
+                    if (onSecondaryAction != null &&
+                        secondaryActionLabel != null)
                       OutlinedButton.icon(
                         onPressed: onSecondaryAction,
                         icon: secondaryActionIcon != null

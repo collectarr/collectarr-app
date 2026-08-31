@@ -10,13 +10,12 @@ class MusicCatalogMapper {
   static MusicCatalogItem mapDtoToMusic(CatalogItemDto dto) {
     final payload = dto.toSyncPayload();
     final music = (payload['music'] as Map?) ?? payload;
-    final creators = (payload['creators'] as List?)
-        ?.cast<Map<String, dynamic>>();
+    final creators =
+        (payload['creators'] as List?)?.cast<Map<String, dynamic>>();
     final artistName = creators?.firstOrNull?['name']?.toString();
-    final genres = (payload['genres'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const [];
+    final genres =
+        (payload['genres'] as List?)?.map((e) => e.toString()).toList() ??
+            const [];
 
     final work = MusicWorkMetadata(
       title: dto.title,

@@ -1,9 +1,11 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
@@ -69,6 +71,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
     manualDraftBuilder: TvAddManualDraft.new,
+    advancedFilterFieldsBuilder: buildTvAddAdvancedFilterFields,
     manualPaneBuilder: buildTvAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -95,7 +98,6 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
 String _tvChildrenTitle(int count) => 'Seasons ($count)';
 
 Map<String, dynamic> _encodeTvMetadata(TvSeriesMetadata m) => m.toJson();
-
 
 Future<List<LibraryHierarchyNode>> _fetchTvSeasons({
   required ApiClient api,
@@ -124,3 +126,25 @@ Future<List<LibraryHierarchyNode>> _fetchTvSeasons({
       ),
   ];
 }
+
+List<LibraryAddAdvancedFilterField> buildTvAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+    [
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-series-field'),
+        label: 'Show / Series',
+        controller: req.seriesController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Network',
+        controller: req.publisherController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        controller: req.yearController,
+        width: 120,
+      ),
+    ];

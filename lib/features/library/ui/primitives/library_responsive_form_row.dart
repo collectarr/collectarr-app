@@ -51,8 +51,7 @@ class LibraryResponsiveFormRow extends StatelessWidget {
             children: [
               for (var index = 0; index < children.length; index++) ...[
                 children[index].child,
-                if (index != children.length - 1)
-                  SizedBox(height: verticalGap),
+                if (index != children.length - 1) SizedBox(height: verticalGap),
               ],
             ],
           );
@@ -66,8 +65,7 @@ class LibraryResponsiveFormRow extends StatelessWidget {
                 flex: children[index].flex,
                 child: children[index].child,
               ),
-              if (index != children.length - 1)
-                SizedBox(width: horizontalGap),
+              if (index != children.length - 1) SizedBox(width: horizontalGap),
             ],
           ],
         );

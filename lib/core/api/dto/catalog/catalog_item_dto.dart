@@ -98,7 +98,6 @@ class MusicCatalogDetails {
       };
 }
 
-
 @immutable
 final class CatalogItemDto {
   const CatalogItemDto.raw({
@@ -131,31 +130,22 @@ final class CatalogItemDto {
   List<TrailerLinkDto> get trailerUrls => common.trailerUrls;
   List<CatalogEditionDto> get editions => common.editions;
 
-  String? get itemNumber =>
-      (payload['item_number'] ?? (payload['publishing'] as Map?)?['issue_number'])
-          as String?;
+  String? get itemNumber => (payload['item_number'] ??
+      (payload['publishing'] as Map?)?['issue_number']) as String?;
   String? get variant =>
       (payload['variant'] ?? (payload['publishing'] as Map?)?['variant'])
           as String?;
-  String? get publisher =>
-      (payload['publisher'] ??
-              (payload['publishing'] as Map?)?['original_publisher'])
-          as String?;
+  String? get publisher => (payload['publisher'] ??
+      (payload['publishing'] as Map?)?['original_publisher']) as String?;
   String? get barcode =>
       (payload['barcode'] ?? (payload['publishing'] as Map?)?['barcode'])
           as String?;
-  String? get physicalFormat =>
-      (payload['physical_format'] ??
-              (payload['publishing'] as Map?)?['physical_format'])
-          as String?;
-  String? get physicalFormatLabel =>
-      (payload['physical_format_label'] ??
-              (payload['publishing'] as Map?)?['physical_format_label'])
-          as String?;
-  String? get editionTitle =>
-      (payload['edition_title'] ??
-              (payload['publishing'] as Map?)?['edition_title'])
-          as String?;
+  String? get physicalFormat => (payload['physical_format'] ??
+      (payload['publishing'] as Map?)?['physical_format']) as String?;
+  String? get physicalFormatLabel => (payload['physical_format_label'] ??
+      (payload['publishing'] as Map?)?['physical_format_label']) as String?;
+  String? get editionTitle => (payload['edition_title'] ??
+      (payload['publishing'] as Map?)?['edition_title']) as String?;
 
   String get resolvedDisplayTitle => common.resolvedDisplayTitle;
   String? get displayCoverUrl => common.displayCoverUrl;
@@ -273,4 +263,3 @@ final class CatalogItemDto {
 
 typedef CatalogItem = CatalogItemDto;
 typedef TrailerLink = TrailerLinkDto;
-

@@ -30,14 +30,14 @@ class VideoEditEditionTab extends StatelessWidget {
         ? (draft.kindDetails as VideoKindEditDraft).videoEdit
         : null;
 
-    final editionTitleController = videoEdit?.editionTitleController ??
-        TextEditingController();
-    final variantController = videoEdit?.variantController ??
-        TextEditingController();
-    final barcodeController = videoEdit?.barcodeController ??
-        TextEditingController();
-    final physicalFormatController = videoEdit?.physicalFormatLabelController ??
-        TextEditingController();
+    final editionTitleController =
+        videoEdit?.editionTitleController ?? TextEditingController();
+    final variantController =
+        videoEdit?.variantController ?? TextEditingController();
+    final barcodeController =
+        videoEdit?.barcodeController ?? TextEditingController();
+    final physicalFormatController =
+        videoEdit?.physicalFormatLabelController ?? TextEditingController();
 
     return EditTabShell(
       children: [

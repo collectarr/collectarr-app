@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/add/add_bottom_bar.dart';
-import 'package:collectarr_app/features/library/add/models/comic_add_search_options_scope.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_add_search_options_scope.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -32,10 +32,6 @@ Widget buildComicAddModeBar(
       searchButtonLabel: 'Search Comics',
       showCoverScanSuffix: true,
       showSuggestions: true,
-      seriesFieldLabel: 'Series',
-      issueFieldLabel: 'Issue',
-      publisherFieldLabel: 'Publisher',
-      yearFieldLabel: 'Year',
     ),
   );
 }
@@ -54,65 +50,88 @@ Widget buildComicAddBottomBar(
   return buildKindAddBottomBar(context, request);
 }
 
-class _ComicAddSearchPane extends StatelessWidget {
+// Reduced widths to avoid horizontal overflow in various test viewports
+const _comicSeriesWidth = 144.0;
+const _comicIssueWidth = 60.0;
+const _comicEditionWidth = 145.0;
+const _comicPublisherWidth = 120.0;
+const _comicReleaseWidth = 95.0;
+const _comicFormatWidth = 90.0;
+
+class _ComicAddSearchPane extends StatefulWidget {
   const _ComicAddSearchPane({required this.request});
 
   final LibraryAddSearchPaneRequest request;
 
-  // Reduced widths to avoid horizontal overflow in various test viewports
-  static const _seriesWidth = 144.0;
-  static const _issueWidth = 60.0;
-  static const _editionWidth = 145.0;
-  static const _publisherWidth = 120.0;
-  static const _releaseWidth = 95.0;
-  static const _formatWidth = 90.0;
+  @override
+  State<_ComicAddSearchPane> createState() => _ComicAddSearchPaneState();
+}
+
+class _ComicAddSearchPaneState extends State<_ComicAddSearchPane> {
+  bool _hideOwnedResults = false;
+  bool _hideVariantResults = false;
+  bool _compactIssues = false;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final entries = [
-      for (final item in request.results) _ComicSearchEntry.core(item),
-      for (final candidate in request.providerResults)
+      for (final item in widget.request.results)
+        if (!_hideOwnedResults ||
+            !widget.request.ownedCatalogItemIds.contains(item.id))
+          _ComicSearchEntry.core(item),
+      for (final candidate in widget.request.providerResults)
         _ComicSearchEntry.provider(candidate),
     ];
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panelRaised,
-        border: Border(right: BorderSide(color: palette.divider)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (request.error != null) AppErrorBanner(request.error!),
-          if (request.isWideLayout) _ComicFilterBar(request: request),
-          _tableHeader(context),
-          Expanded(
-            child: request.isBusy && entries.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : entries.isEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Text(
-                            'Search to see comic matches arranged by series, issue, and edition.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: palette.textMuted,
-                              fontWeight: FontWeight.w700,
+    return ComicAddSearchOptionsScope(
+      hideOwnedResults: _hideOwnedResults,
+      hideVariantResults: _hideVariantResults,
+      compactIssues: _compactIssues,
+      onHideOwnedResultsChanged: (v) => setState(() => _hideOwnedResults = v),
+      onHideVariantResultsChanged: (v) =>
+          setState(() => _hideVariantResults = v),
+      onCompactIssuesChanged: (v) => setState(() => _compactIssues = v),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: palette.panelRaised,
+          border: Border(right: BorderSide(color: palette.divider)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.request.error != null)
+              AppErrorBanner(widget.request.error!),
+            if (widget.request.isWideLayout)
+              _ComicFilterBar(request: widget.request),
+            _tableHeader(context),
+            Expanded(
+              child: widget.request.isBusy && entries.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : entries.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              'Search to see comic matches arranged by series, issue, and edition.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: palette.textMuted,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
+                        )
+                      : ListView.builder(
+                          itemCount: entries.length,
+                          itemBuilder: (context, index) => _ComicSearchRow(
+                            request: widget.request,
+                            entry: entries[index],
+                            odd: index.isOdd,
+                          ),
                         ),
-                      )
-                    : ListView.builder(
-                        itemCount: entries.length,
-                        itemBuilder: (context, index) => _ComicSearchRow(
-                          request: request,
-                          entry: entries[index],
-                          odd: index.isOdd,
-                        ),
-                      ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -131,14 +150,15 @@ class _ComicAddSearchPane extends StatelessWidget {
           child: Row(
             children: [
               SizedBox(width: 36),
-              _ComicFixedHeaderCell(label: 'Series', width: _seriesWidth),
-              _ComicFixedHeaderCell(label: 'Issue', width: _issueWidth),
+              _ComicFixedHeaderCell(label: 'Series', width: _comicSeriesWidth),
+              _ComicFixedHeaderCell(label: 'Issue', width: _comicIssueWidth),
               _ComicFixedHeaderCell(
-                  label: 'Variant Description', width: _editionWidth),
-              _ComicFixedHeaderCell(label: 'Publisher', width: _publisherWidth),
+                  label: 'Variant Description', width: _comicEditionWidth),
               _ComicFixedHeaderCell(
-                  label: 'Release Date', width: _releaseWidth),
-              _ComicFixedHeaderCell(label: 'Format', width: _formatWidth),
+                  label: 'Publisher', width: _comicPublisherWidth),
+              _ComicFixedHeaderCell(
+                  label: 'Release Date', width: _comicReleaseWidth),
+              _ComicFixedHeaderCell(label: 'Format', width: _comicFormatWidth),
             ],
           ),
         ),
@@ -323,7 +343,7 @@ class _ComicSearchRow extends StatelessWidget {
   Widget _seriesCell(BuildContext context, bool owned) {
     final palette = appPalette(context);
     return SizedBox(
-      width: _ComicAddSearchPane._seriesWidth,
+      width: _comicSeriesWidth,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,7 +388,7 @@ class _ComicSearchRow extends StatelessWidget {
     final palette = appPalette(context);
     final options = ComicAddSearchOptionsScope.maybeOf(context);
     return SizedBox(
-      width: _ComicAddSearchPane._issueWidth,
+      width: _comicIssueWidth,
       child: Align(
         alignment: Alignment.centerLeft,
         child: options?.compactIssues == true
@@ -400,12 +420,11 @@ class _ComicSearchRow extends StatelessWidget {
 
   Widget _cell(String text) {
     final width = switch (text) {
-      _ when identical(text, _issueText) => _ComicAddSearchPane._issueWidth,
-      _ when identical(text, _editionText) => _ComicAddSearchPane._editionWidth,
-      _ when identical(text, _publisherText) =>
-        _ComicAddSearchPane._publisherWidth,
-      _ when identical(text, _releaseText) => _ComicAddSearchPane._releaseWidth,
-      _ => _ComicAddSearchPane._formatWidth,
+      _ when identical(text, _issueText) => _comicIssueWidth,
+      _ when identical(text, _editionText) => _comicEditionWidth,
+      _ when identical(text, _publisherText) => _comicPublisherWidth,
+      _ when identical(text, _releaseText) => _comicReleaseWidth,
+      _ => _comicFormatWidth,
     };
     return SizedBox(
       width: width,

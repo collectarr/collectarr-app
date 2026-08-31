@@ -67,9 +67,12 @@ class BookEditDraft extends KindEditDraft {
             : null);
 
     final updatedMetadata = meta?.copyWith(
-      publishing: updatedPublishing != null && updatedPublishing.hasData ? updatedPublishing : null,
-      links: _externalLinks.isNotEmpty ? _externalLinks : meta.links,
-    ) ?? selection.item.kindMetadata;
+          publishing: updatedPublishing != null && updatedPublishing.hasData
+              ? updatedPublishing
+              : null,
+          links: _externalLinks.isNotEmpty ? _externalLinks : meta.links,
+        ) ??
+        selection.item.kindMetadata;
 
     final updatedItem = selection.item.copyWith(
       kindMetadata: updatedMetadata,

@@ -334,8 +334,7 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
       itemNumber: itemNumber ?? this.itemNumber,
       editionTitle: editionTitle ?? this.editionTitle,
       physicalFormat: physicalFormat ?? this.physicalFormat,
-      physicalFormatLabel:
-          physicalFormatLabel ?? this.physicalFormatLabel,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
@@ -355,8 +354,8 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
 
     final rawEditions = (json['editions'] as List<dynamic>?)
             ?.whereType<Map>()
-            .map((e) =>
-                CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .map(
+                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
         const <CatalogEditionDto>[];
 

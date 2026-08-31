@@ -152,7 +152,8 @@ class LibraryEditDraft {
 
     final payload = item.kindMetadata.toSyncPayload();
     final variant = payload['variant'] as String?;
-    final editionTitle = (payload['edition_title'] ?? payload['title_extension']) as String?;
+    final editionTitle =
+        (payload['edition_title'] ?? payload['title_extension']) as String?;
 
     final titleController = create(item.title);
     final releaseDateController = create(
@@ -241,7 +242,8 @@ class LibraryEditDraft {
     final editions = editionsPayload != null
         ? editionsPayload
             .whereType<Map>()
-            .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .map(
+                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList()
         : const <CatalogEditionDto>[];
 
@@ -334,14 +336,13 @@ class LibraryEditDraft {
       finishedAt: trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
     );
 
-    final kindDetails = libraryKindRuntimeForKind(type.workspace.kind)
-        .edit
-        .createDraft(
-          item: item,
-          ownedItem: ownedItem,
-          trackingEntry: trackingEntry,
-          textControllers: textControllers,
-        );
+    final kindDetails =
+        libraryKindRuntimeForKind(type.workspace.kind).edit.createDraft(
+              item: item,
+              ownedItem: ownedItem,
+              trackingEntry: trackingEntry,
+              textControllers: textControllers,
+            );
 
     return LibraryEditDraft._(
       textControllers: textControllers,
@@ -407,7 +408,8 @@ class LibraryEditDraft {
         payload['variant'] as String?;
     return isDigitalPhysicalMediaFormat(
       physicalFormatId,
-      label: physicalFormatForId(physicalFormatId)?.label ?? physicalFormatLabel,
+      label:
+          physicalFormatForId(physicalFormatId)?.label ?? physicalFormatLabel,
       formats: physicalFormats.isEmpty
           ? allKnownPhysicalMediaFormats
           : physicalFormats,
@@ -431,7 +433,8 @@ class LibraryEditDraft {
     final editions = editionsPayload != null
         ? editionsPayload
             .whereType<Map>()
-            .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .map(
+                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList()
         : const <CatalogEditionDto>[];
     final editionSelection = resolveLibraryEditionSelection(
@@ -581,7 +584,7 @@ class LibraryEditDraft {
                   ? personal.selectedWishlistEditionId
                   : null,
               variantId: personal.selectedWishlistAnchorType ==
-                       PersonalItemAnchorType.variant
+                      PersonalItemAnchorType.variant
                   ? personal.selectedWishlistVariantId
                   : null,
               bundleReleaseId: personal.selectedWishlistAnchorType ==

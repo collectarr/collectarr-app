@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
+import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
@@ -21,17 +22,60 @@ Widget buildMovieAddModeBar(
   BuildContext context,
   LibraryAddModeBarRequest request,
 ) {
-  return buildLibraryAddModeBar(
+  final baseModeBar = buildLibraryAddModeBar(
     context,
     request,
     const LibraryAddChromeLabels(
       searchFieldLabel: 'Find movies or box sets',
       searchFieldHint: 'Search by title, studio, year, or release...',
       searchButtonLabel: 'Search Movies',
-      seriesFieldLabel: 'Series / Franchise',
-      publisherFieldLabel: 'Studio',
-      yearFieldLabel: 'Year',
     ),
+  );
+  if (request.type.addChrome.videoKindFilterOptions.isEmpty ||
+      request.mode != LibraryAddDialogMode.search) {
+    return baseModeBar;
+  }
+  final palette = appPalette(context);
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      baseModeBar,
+      DecoratedBox(
+        decoration: BoxDecoration(
+          color: palette.panel,
+          border: Border(bottom: BorderSide(color: palette.divider)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          child: Row(
+            children: [
+              for (final opt
+                  in request.type.addChrome.videoKindFilterOptions) ...[
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(opt.icon, size: 14, color: request.accent),
+                      const SizedBox(width: 4),
+                      Text(
+                        opt.label,
+                        style: TextStyle(
+                          color: palette.textPrimary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    ],
   );
 }
 

@@ -32,7 +32,8 @@ abstract class ProviderConnectorRegistry {
 
 /// In-memory implementation of [ProviderConnectorRegistry].
 class InMemoryProviderConnectorRegistry implements ProviderConnectorRegistry {
-  InMemoryProviderConnectorRegistry([List<ProviderConnector>? initialConnectors]) {
+  InMemoryProviderConnectorRegistry(
+      [List<ProviderConnector>? initialConnectors]) {
     if (initialConnectors != null) {
       for (final connector in initialConnectors) {
         register(connector);
@@ -108,4 +109,3 @@ class InMemoryProviderConnectorRegistry implements ProviderConnectorRegistry {
 
 typedef ProviderRegistry = ProviderConnectorRegistry;
 typedef InMemoryProviderRegistry = InMemoryProviderConnectorRegistry;
-

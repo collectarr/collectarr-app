@@ -54,8 +54,9 @@ class LibraryFacetControllerNotifier
   }
 
   void setBuckets(LibraryFacetIdRuntime facetId, FacetBuckets buckets) {
-    final next = Map<LibraryFacetIdRuntime, FacetBuckets>.from(state.bucketsByFacetId)
-      ..[facetId] = buckets;
+    final next =
+        Map<LibraryFacetIdRuntime, FacetBuckets>.from(state.bucketsByFacetId)
+          ..[facetId] = buckets;
     state = state.copyWith(bucketsByFacetId: next);
   }
 }

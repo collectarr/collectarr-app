@@ -298,8 +298,7 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
       chapterCount: chapterCount ?? this.chapterCount,
       originalPublicationDate:
           originalPublicationDate ?? this.originalPublicationDate,
-      localizedReleaseDate:
-          localizedReleaseDate ?? this.localizedReleaseDate,
+      localizedReleaseDate: localizedReleaseDate ?? this.localizedReleaseDate,
       isbn: isbn ?? this.isbn,
       editionFormat: editionFormat ?? this.editionFormat,
       language: language ?? this.language,
@@ -316,8 +315,7 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
       pageCount: pageCount ?? this.pageCount,
       imprint: imprint ?? this.imprint,
       physicalFormat: physicalFormat ?? this.physicalFormat,
-      physicalFormatLabel:
-          physicalFormatLabel ?? this.physicalFormatLabel,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       publisher: publisher ?? this.publisher,
       barcode: barcode ?? this.barcode,
       variant: variant ?? this.variant,
@@ -337,8 +335,8 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
 
     final rawEditions = (json['editions'] as List<dynamic>?)
             ?.whereType<Map>()
-            .map((e) =>
-                CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .map(
+                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
         const <CatalogEditionDto>[];
 
@@ -413,8 +411,8 @@ class MangaMetadata implements LibraryKindMetadataRuntime {
           const [],
       series: series,
       seriesTitle: resolvedSeriesTitle,
-      itemNumber: (json['item_number'] ?? json['volume_number']?.toString())
-          as String?,
+      itemNumber:
+          (json['item_number'] ?? json['volume_number']?.toString()) as String?,
       editionTitle: json['edition_title'] as String?,
       pageCount: (json['page_count'] as num?)?.toInt(),
       imprint: json['imprint'] as String?,

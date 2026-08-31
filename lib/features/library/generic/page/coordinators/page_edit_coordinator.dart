@@ -70,7 +70,7 @@ class LibraryPageEditCoordinator {
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
     final cached = (await CatalogCacheRepository(db)
-            .findByIds({catalogItem.id}))[catalogItem.id];
+        .findByIds({catalogItem.id}))[catalogItem.id];
     final freshMetadataItem = cached != null
         ? LibraryMetadataItem.fromCatalogItem(cached)
         : catalogItem;
@@ -89,9 +89,7 @@ class LibraryPageEditCoordinator {
       }
     }
     owned ??= item.source.ownedItem;
-    if (owned == null ||
-        owned.isDeleted ||
-        owned.itemId != catalogItem.id) {
+    if (owned == null || owned.isDeleted || owned.itemId != catalogItem.id) {
       for (final candidate in ownedItems) {
         if (!candidate.isDeleted && candidate.itemId == catalogItem.id) {
           owned = candidate;

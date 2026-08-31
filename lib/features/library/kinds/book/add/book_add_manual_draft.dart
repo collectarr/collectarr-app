@@ -46,7 +46,8 @@ class BookAddManualDraft implements LibraryKindAddDraft {
         countryController = countryController ?? TextEditingController(),
         editionTitleController =
             editionTitleController ?? TextEditingController(),
-        releaseDateController = releaseDateController ?? TextEditingController(),
+        releaseDateController =
+            releaseDateController ?? TextEditingController(),
         signedByController = signedByController ?? TextEditingController();
 
   final TextEditingController numberController;

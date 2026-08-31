@@ -9,8 +9,7 @@ abstract final class LibraryPageShellPresenter {
     final ownedCopiesValue = state.ref.watch(collectionProvider);
     final wishlistValue = state.ref.watch(wishlistProvider);
     final switchSnapshot = state.widget.switchLayoutSnapshot;
-    final baseViewState =
-        state._viewState ?? state._viewProfile.defaults();
+    final baseViewState = state._viewState ?? state._viewProfile.defaults();
     final viewState = switchSnapshot == null
         ? baseViewState
         : baseViewState.withLayoutSnapshot(switchSnapshot);
@@ -212,8 +211,7 @@ abstract final class LibraryPageShellPresenter {
       onSetCollapsedGroupBuckets: state._setCollapsedGroupBuckets,
       onGroupModeChanged: state._setGroupMode,
       onSortChanged: (column) => state._updateViewState(
-        (stateValue) =>
-            stateValue.withSortColumn(column, state._viewProfile),
+        (stateValue) => stateValue.withSortColumn(column, state._viewProfile),
       ),
       onColumnWidthChanged: (column, width) => state._updateViewState(
         (stateValue) => stateValue.withColumnWidth(

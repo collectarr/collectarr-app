@@ -27,8 +27,7 @@ final boardgameTransferableFields = <TransferableField>[
     label: 'Sleeved',
     icon: Icons.shield_outlined,
     type: TransferableFieldType.boolean,
-    read: (item) =>
-        (item.boardgameDetails?.isSleeved == true) ? 'true' : null,
+    read: (item) => (item.boardgameDetails?.isSleeved == true) ? 'true' : null,
     write: (item, value) {
       final b = item.boardgameDetails ?? const BoardgameOwnedDetails();
       return item.copyWith(details: b.copyWith(isSleeved: value == 'true'));

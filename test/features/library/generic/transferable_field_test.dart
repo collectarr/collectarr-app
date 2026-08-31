@@ -67,7 +67,15 @@ void main() {
       );
 
       final keys = fields.map((f) => f.key).toSet();
-      expect(keys, containsAll(['rawOrSlabbed', 'gradingCompany', 'graderNotes', 'signedBy', 'keyComic']));
+      expect(
+          keys,
+          containsAll([
+            'rawOrSlabbed',
+            'gradingCompany',
+            'graderNotes',
+            'signedBy',
+            'keyComic'
+          ]));
 
       final keyComicField = fields.firstWhere((f) => f.key == 'keyComic');
       final item = OwnedItem(

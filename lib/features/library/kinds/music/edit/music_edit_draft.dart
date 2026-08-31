@@ -94,7 +94,8 @@ KindEditDraft createMusicEditDraft({
       ? item.kindMetadata as MusicCatalogMetadata
       : null;
   final externalLinks = [
-    for (final link in (meta?.links ?? const <TrailerLink>[]).where((l) => l.isExternalLink))
+    for (final link in (meta?.links ?? const <TrailerLink>[])
+        .where((l) => l.isExternalLink))
       MusicExternalLinkEdit(
         url: link.url,
         description: link.description ?? link.title ?? '',

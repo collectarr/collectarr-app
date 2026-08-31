@@ -207,8 +207,7 @@ class LibraryPageDialogCoordinator {
         return;
       }
       _page.updateViewState(
-        (state) =>
-            state.withSortRules(filteredRules, _page.viewProfile),
+        (state) => state.withSortRules(filteredRules, _page.viewProfile),
       );
     }
   }

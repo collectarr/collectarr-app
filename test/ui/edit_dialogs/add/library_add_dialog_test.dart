@@ -2656,9 +2656,12 @@ ProviderRegistry _buildTestProviderRegistry() {
   return InMemoryProviderRegistry([
     _FakeMetadataProvider(name: 'anilist', defaultKind: 'comic').toConnector(),
     _FakeMetadataProvider(name: 'tmdb', defaultKind: 'movie').toConnector(),
-    _FakeMetadataProvider(name: 'musicbrainz', defaultKind: 'music').toConnector(),
-    _FakeMetadataProvider(name: 'openlibrary', defaultKind: 'book').toConnector(),
-    _FakeMetadataProvider(name: 'comicvine', defaultKind: 'comic').toConnector(),
+    _FakeMetadataProvider(name: 'musicbrainz', defaultKind: 'music')
+        .toConnector(),
+    _FakeMetadataProvider(name: 'openlibrary', defaultKind: 'book')
+        .toConnector(),
+    _FakeMetadataProvider(name: 'comicvine', defaultKind: 'comic')
+        .toConnector(),
     _FakeMetadataProvider(name: 'gcd', defaultKind: 'comic').toConnector(),
     _FakeMetadataProvider(name: 'igdb', defaultKind: 'game').toConnector(),
   ]);

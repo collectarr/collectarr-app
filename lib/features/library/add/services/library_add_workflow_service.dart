@@ -76,7 +76,8 @@ class LibraryAddWorkflowService {
     final cachedPreview =
         previewState.providerPreviewFor(candidate.localCatalogId);
     if (cachedPreview != null) {
-      return metadataItemFromPreview(cachedPreview, itemId: candidate.localCatalogId);
+      return metadataItemFromPreview(cachedPreview,
+          itemId: candidate.localCatalogId);
     }
     return candidate.placeholderItem();
   }

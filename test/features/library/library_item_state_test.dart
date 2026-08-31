@@ -34,7 +34,8 @@ void main() {
   });
 
   test('library entry exposes tracking-only rows', () {
-    final item = testCatalogItem(id: 'comic-2', kind: 'comic', title: 'Comic 2');
+    final item =
+        testCatalogItem(id: 'comic-2', kind: 'comic', title: 'Comic 2');
     final entry = LibraryEntry(itemId: item.id, catalogItem: item);
 
     expect(entry.isOwned, isFalse);

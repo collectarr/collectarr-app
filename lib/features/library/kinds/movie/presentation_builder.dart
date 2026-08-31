@@ -54,14 +54,12 @@ class VideoLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Title', value: dto.title),
         ],
         if (metadata?.editionTitle != null)
-          LibraryDetailField(
-              label: 'Edition', value: metadata!.editionTitle!),
+          LibraryDetailField(label: 'Edition', value: metadata!.editionTitle!),
         if (metadata?.originalTitle != null)
           LibraryDetailField(
               label: 'Original Title', value: metadata!.originalTitle!),
         if (metadata?.sortTitle != null)
-          LibraryDetailField(
-              label: 'Sort Title', value: metadata!.sortTitle!),
+          LibraryDetailField(label: 'Sort Title', value: metadata!.sortTitle!),
         if (series?.seriesTitle != null)
           LibraryDetailField(
               label: 'Series',
@@ -109,8 +107,7 @@ class VideoLibraryMediaPresentationBuilder
                   dto.releaseDate?.year.toString(),
             )),
         if (runtime != null)
-          LibraryDetailField(
-              label: 'Runtime', value: '$runtime min'),
+          LibraryDetailField(label: 'Runtime', value: '$runtime min'),
         if (screenRatio != null && screenRatio.isNotEmpty)
           LibraryDetailField(label: 'Aspect Ratio', value: screenRatio),
         if (audioTracks != null && audioTracks.isNotEmpty)

@@ -92,9 +92,7 @@ class _ImportSourcesGrid extends ConsumerWidget {
           (d) => d.availability == ProviderImportAvailability.available,
         )
         .where(
-          (d) =>
-              d.id != ProviderId.myAnimeList &&
-              d.id != ProviderId.aniList,
+          (d) => d.id != ProviderId.myAnimeList && d.id != ProviderId.aniList,
         )
         .toList(growable: false);
     final comingSoonDescriptors = providerImportDescriptors

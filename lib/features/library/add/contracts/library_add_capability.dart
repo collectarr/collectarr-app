@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
@@ -26,6 +27,11 @@ abstract interface class LibraryAddCapability<
   LibraryAddPreviewPaneBuilder? get previewPaneBuilder;
   LibraryAddSearchPaneBuilder? get searchPaneBuilder;
   LibraryAddBottomBarBuilder? get bottomBarBuilder;
+
+  List<LibraryAddAdvancedFilterField> Function(LibraryAddModeBarRequest request)?
+      get advancedFilterFieldsBuilder;
+  Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
+      get advancedFiltersBuilder;
 
   Widget? buildPreviewPane(
     BuildContext context,
@@ -57,6 +63,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.previewPaneBuilder,
     this.searchPaneBuilder,
     this.bottomBarBuilder,
+    this.advancedFilterFieldsBuilder,
+    this.advancedFiltersBuilder,
   });
 
   @override
@@ -75,6 +83,12 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddSearchPaneBuilder? searchPaneBuilder;
   @override
   final LibraryAddBottomBarBuilder? bottomBarBuilder;
+  @override
+  final List<LibraryAddAdvancedFilterField> Function(LibraryAddModeBarRequest request)?
+      advancedFilterFieldsBuilder;
+  @override
+  final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
+      advancedFiltersBuilder;
 
   @override
   TDraft createInitialDraft() => initialDraftBuilder();
@@ -88,8 +102,10 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     BuildContext context,
     LibraryAddManualPaneRequest request,
   ) {
-    return manualPaneBuilder?.call(context, request) ??
-        LibraryAddUnsupportedManualPane(request: request);
+    if (manualPaneBuilder != null) {
+      return manualPaneBuilder!(context, request);
+    }
+    return LibraryAddUnsupportedManualPane(request: request);
   }
 
   @override
@@ -109,8 +125,8 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
-        kind: item.kind,
-        entityType: CatalogEntityType.work,
+        kind: kind.apiValue,
+        entityType: CatalogEntityType.ownedCopy,
         id: item.id,
       ),
       common: common.toOwnedItemCommonDraft(),

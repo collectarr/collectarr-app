@@ -14,21 +14,17 @@ class VideoCatalogMapper {
         ? (v['runtime_minutes'] as num).toInt()
         : null;
     final color = v['color']?.toString();
-    final screenRatio =
-        (v['screen_ratio'] ?? v['screenRatio'])?.toString();
-    final audioTracks =
-        (v['audio_tracks'] ?? v['audioTracks'])?.toString();
+    final screenRatio = (v['screen_ratio'] ?? v['screenRatio'])?.toString();
+    final audioTracks = (v['audio_tracks'] ?? v['audioTracks'])?.toString();
     final subtitles = v['subtitles']?.toString();
-    final ageRating =
-        (payload['age_rating'] ?? v['age_rating'])?.toString();
+    final ageRating = (payload['age_rating'] ?? v['age_rating'])?.toString();
     final audienceRating =
         (payload['audience_rating'] ?? v['audience_rating'])?.toString();
     final language =
         (payload['language'] ?? payload['original_language'])?.toString();
-    final genres = (payload['genres'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const [];
+    final genres =
+        (payload['genres'] as List?)?.map((e) => e.toString()).toList() ??
+            const [];
 
     final work = VideoWorkMetadata(
       title: dto.title,
@@ -50,18 +46,17 @@ class VideoCatalogMapper {
     );
 
     final releases = dto.editions.map((edition) {
-      final audioTracksStr = edition.metadata?['audio_tracks'] as String? ??
-          audioTracks;
+      final audioTracksStr =
+          edition.metadata?['audio_tracks'] as String? ?? audioTracks;
       final audioTracksList =
           audioTracksStr != null && audioTracksStr.isNotEmpty
               ? [audioTracksStr]
               : const <String>[];
       final subtitlesStr =
           edition.metadata?['subtitles'] as String? ?? subtitles;
-      final subtitlesList =
-          subtitlesStr != null && subtitlesStr.isNotEmpty
-              ? [subtitlesStr]
-              : const <String>[];
+      final subtitlesList = subtitlesStr != null && subtitlesStr.isNotEmpty
+          ? [subtitlesStr]
+          : const <String>[];
 
       final media = edition.discs
           .map((disc) => VideoMediaRef(

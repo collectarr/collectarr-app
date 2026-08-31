@@ -180,14 +180,13 @@ class _LibraryMetadataCompareDialogState
 
   List<Map<String, dynamic>> _characterList(LibraryMetadataItem item) {
     final payload = item.toSyncPayload();
-    final details = (payload['character_details'] as List?)
-        ?.cast<Map<String, dynamic>>();
+    final details =
+        (payload['character_details'] as List?)?.cast<Map<String, dynamic>>();
     if (details != null && details.isNotEmpty) {
       return details;
     }
-    final chars = (payload['characters'] as List?)
-        ?.map((e) => e.toString())
-        .toList();
+    final chars =
+        (payload['characters'] as List?)?.map((e) => e.toString()).toList();
     return [
       for (final name in chars ?? const <String>[])
         <String, dynamic>{
@@ -248,18 +247,15 @@ class _LibraryMetadataCompareDialogState
       ),
       MetadataDiffEntry(
         label: 'Genres',
-        localValue: _list((localP['genres'] as List?)
-            ?.map((e) => e.toString())
-            .toList()),
-        serverValue: _list((serverP['genres'] as List?)
-            ?.map((e) => e.toString())
-            .toList()),
+        localValue: _list(
+            (localP['genres'] as List?)?.map((e) => e.toString()).toList()),
+        serverValue: _list(
+            (serverP['genres'] as List?)?.map((e) => e.toString()).toList()),
       ),
       MetadataDiffEntry(
         label: 'Story arcs',
-        localValue: _list((localP['story_arcs'] as List?)
-            ?.map((e) => e.toString())
-            .toList()),
+        localValue: _list(
+            (localP['story_arcs'] as List?)?.map((e) => e.toString()).toList()),
         serverValue: _list((serverP['story_arcs'] as List?)
             ?.map((e) => e.toString())
             .toList()),
@@ -279,19 +275,19 @@ class _LibraryMetadataCompareDialogState
       ..._baseEntries(local, server),
       MetadataDiffEntry(
         label: 'Series',
-        localValue: _text((localSeries['series_title'] ??
-                localSeries['seriesTitle'])
-            ?.toString()),
-        serverValue: _text((serverSeries['series_title'] ??
-                serverSeries['seriesTitle'])
-            ?.toString()),
+        localValue: _text(
+            (localSeries['series_title'] ?? localSeries['seriesTitle'])
+                ?.toString()),
+        serverValue: _text(
+            (serverSeries['series_title'] ?? serverSeries['seriesTitle'])
+                ?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Issue number',
-        localValue: _text((localP['item_number'] ?? localP['itemNumber'])
-            ?.toString()),
-        serverValue: _text((serverP['item_number'] ?? serverP['itemNumber'])
-            ?.toString()),
+        localValue:
+            _text((localP['item_number'] ?? localP['itemNumber'])?.toString()),
+        serverValue: _text(
+            (serverP['item_number'] ?? serverP['itemNumber'])?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Cover date',
@@ -334,12 +330,12 @@ class _LibraryMetadataCompareDialogState
       ..._baseEntries(local, server),
       MetadataDiffEntry(
         label: 'Artist',
-        localValue: _text((localSeries['series_title'] ??
-                localSeries['seriesTitle'])
-            ?.toString()),
-        serverValue: _text((serverSeries['series_title'] ??
-                serverSeries['seriesTitle'])
-            ?.toString()),
+        localValue: _text(
+            (localSeries['series_title'] ?? localSeries['seriesTitle'])
+                ?.toString()),
+        serverValue: _text(
+            (serverSeries['series_title'] ?? serverSeries['seriesTitle'])
+                ?.toString()),
       ),
       MetadataDiffEntry(
         label: 'Subtitle',
@@ -426,12 +422,12 @@ class _LibraryMetadataCompareDialogState
       LibraryMetadataItem local, LibraryMetadataItem server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
-    final localCreators = (localP['creators'] as List?)
-            ?.cast<Map<String, dynamic>>() ??
-        const <Map<String, dynamic>>[];
-    final serverCreators = (serverP['creators'] as List?)
-            ?.cast<Map<String, dynamic>>() ??
-        const <Map<String, dynamic>>[];
+    final localCreators =
+        (localP['creators'] as List?)?.cast<Map<String, dynamic>>() ??
+            const <Map<String, dynamic>>[];
+    final serverCreators =
+        (serverP['creators'] as List?)?.cast<Map<String, dynamic>>() ??
+            const <Map<String, dynamic>>[];
     final count = math.max(localCreators.length, serverCreators.length);
     return [
       for (var i = 0; i < count; i++)

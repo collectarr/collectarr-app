@@ -15,18 +15,15 @@ class ComicCatalogMapper {
             .where((n) => n.isNotEmpty)
             .toList() ??
         const [];
-    final characters = (payload['characters'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const [];
-    final storyArcs = (payload['story_arcs'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const [];
-    final genres = (payload['genres'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const [];
+    final characters =
+        (payload['characters'] as List?)?.map((e) => e.toString()).toList() ??
+            const [];
+    final storyArcs =
+        (payload['story_arcs'] as List?)?.map((e) => e.toString()).toList() ??
+            const [];
+    final genres =
+        (payload['genres'] as List?)?.map((e) => e.toString()).toList() ??
+            const [];
     final coverDate = payload['cover_date'] != null
         ? DateTime.tryParse(payload['cover_date'].toString())
         : null;
@@ -45,14 +42,14 @@ class ComicCatalogMapper {
     );
 
     final publishing = ComicPublishingMetadata(
-      pageCount: pub['page_count'] is num
-          ? (pub['page_count'] as num).toInt()
-          : null,
+      pageCount:
+          pub['page_count'] is num ? (pub['page_count'] as num).toInt() : null,
       coverPriceCents: pub['cover_price_cents'] is num
           ? (pub['cover_price_cents'] as num).toInt()
           : null,
       currency: pub['currency']?.toString(),
-      publisher: (payload['publisher'] ?? pub['original_publisher'])?.toString(),
+      publisher:
+          (payload['publisher'] ?? pub['original_publisher'])?.toString(),
       imprint: pub['imprint']?.toString(),
       subtitle: pub['subtitle']?.toString(),
     );

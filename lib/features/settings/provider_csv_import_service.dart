@@ -112,12 +112,7 @@ class ProviderCsvImportService {
   ) {
     final candidates = switch (provider) {
       ProviderId.imdb => const ['const', 'id'],
-      ProviderId.goodReads => const [
-          'book_id',
-          'book id',
-          'id',
-          'isbn13'
-        ],
+      ProviderId.goodReads => const ['book_id', 'book id', 'id', 'isbn13'],
       ProviderId.howLongToBeat => const ['id', 'game_id'],
       ProviderId.trakt => const ['trakt_id', 'id', 'slug'],
       ProviderId.simkl => const ['id', 'simkl_id'],
@@ -157,10 +152,7 @@ class ProviderCsvImportService {
       ProviderId.aniList ||
       ProviderId.kitsu =>
         'anime',
-      ProviderId.trakt ||
-      ProviderId.simkl ||
-      ProviderId.imdb =>
-        'movie',
+      ProviderId.trakt || ProviderId.simkl || ProviderId.imdb => 'movie',
       _ => null,
     };
   }

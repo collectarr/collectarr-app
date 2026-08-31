@@ -271,7 +271,8 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
         searchCatalog: (entry) async {
           if (entry.tmdbId == 603) {
             return [
-              testCatalogItem(id: 'movie-603', kind: 'movie', title: 'The Matrix'),
+              testCatalogItem(
+                  id: 'movie-603', kind: 'movie', title: 'The Matrix'),
             ];
           }
           return const <CatalogItem>[];

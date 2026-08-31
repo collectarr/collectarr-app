@@ -1,8 +1,10 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
@@ -60,9 +62,32 @@ final genericKindModule =
     kind: CatalogMediaKind.unknown,
     initialDraftBuilder: GenericAddDraft.new,
     manualDraftBuilder: GenericAddManualDraft.new,
+    advancedFilterFieldsBuilder: buildGenericAddAdvancedFilterFields,
     manualPaneBuilder: buildGenericAddManualPane,
   ),
   edit: const LibraryEditCapability(),
   buildCardPresentation: (item, {required musicVertical}) =>
       const LibraryCardPresentation(),
 );
+
+List<LibraryAddAdvancedFilterField> buildGenericAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+    [
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-series-field'),
+        label: 'Series / Group',
+        controller: req.seriesController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Publisher / Brand',
+        controller: req.publisherController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        controller: req.yearController,
+        width: 120,
+      ),
+    ];

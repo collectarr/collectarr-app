@@ -42,7 +42,7 @@ enum ReportColumn {
       ReportColumn.barcodeImage => dto.barcode ?? '',
       ReportColumn.year => dto.releaseDate?.year.toString() ?? '',
       ReportColumn.format =>
-          dto.referenceFormatLabel ?? dto.format ?? dto.variant ?? '',
+        dto.referenceFormatLabel ?? dto.format ?? dto.variant ?? '',
       ReportColumn.creator => dto.creator ?? '',
       ReportColumn.tags => item.source.tags ?? '',
       ReportColumn.location => item.source.locationPath ?? '',

@@ -191,18 +191,18 @@ class SeriesRegistryRepository {
     for (final item in list) {
       final kind =
           item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
-      final titleStr =
-          item is LibraryMetadataItem ? item.title : (item as CatalogItem).title;
+      final titleStr = item is LibraryMetadataItem
+          ? item.title
+          : (item as CatalogItem).title;
       final payload = item is LibraryMetadataItem
           ? item.payload
           : (item as CatalogItem).payload;
       final module =
           defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
-      final seriesPayload =
-          payload['series'] as Map? ?? payload;
-      final seriesTitle = (seriesPayload['series_title'] ??
-              seriesPayload['seriesTitle'])
-          ?.toString();
+      final seriesPayload = payload['series'] as Map? ?? payload;
+      final seriesTitle =
+          (seriesPayload['series_title'] ?? seriesPayload['seriesTitle'])
+              ?.toString();
       final seriesId =
           (seriesPayload['series_id'] ?? seriesPayload['seriesId'])?.toString();
       final title = _emptyToNull(

@@ -463,8 +463,8 @@ class _MusicCompactMetaPill extends StatelessWidget {
 
 /// Returns the primary artist name for a music item.
 String? musicCardArtist(LibraryProjectionRuntime item) {
-  final creators = _musicMetadata(item)?.creators ??
-      const <Map<String, dynamic>>[];
+  final creators =
+      _musicMetadata(item)?.creators ?? const <Map<String, dynamic>>[];
   String? fallbackName;
   for (final creator in creators) {
     final rawName =

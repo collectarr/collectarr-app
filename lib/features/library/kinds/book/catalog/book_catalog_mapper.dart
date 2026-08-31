@@ -33,8 +33,8 @@ class BookCatalogMapper {
       );
     }
 
-    final rawCreators = (payload['creators'] as List?)
-        ?.cast<Map<String, dynamic>>();
+    final rawCreators =
+        (payload['creators'] as List?)?.cast<Map<String, dynamic>>();
     final creators = rawCreators
             ?.map((creator) => BookCreatorCredit(
                   name: (creator['name'] ?? creator['display_name'] ?? '')
@@ -44,22 +44,18 @@ class BookCatalogMapper {
             .toList() ??
         const <BookCreatorCredit>[];
 
-    final subjects = (pub['subjects'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const [];
-    final genres = (payload['genres'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const [];
-    final characters = (payload['characters'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const [];
-    final storyArcs = (payload['story_arcs'] as List?)
-            ?.map((e) => e.toString())
-            .toList() ??
-        const [];
+    final subjects =
+        (pub['subjects'] as List?)?.map((e) => e.toString()).toList() ??
+            const [];
+    final genres =
+        (payload['genres'] as List?)?.map((e) => e.toString()).toList() ??
+            const [];
+    final characters =
+        (payload['characters'] as List?)?.map((e) => e.toString()).toList() ??
+            const [];
+    final storyArcs =
+        (payload['story_arcs'] as List?)?.map((e) => e.toString()).toList() ??
+            const [];
 
     final origPubDate = pub['original_publication_date'] != null
         ? DateTime.tryParse(pub['original_publication_date'].toString())
@@ -70,11 +66,14 @@ class BookCatalogMapper {
       subtitle: pub['subtitle']?.toString(),
       originalTitle: dto.originalTitle,
       synopsis: dto.synopsis,
-      originalCountry: (pub['original_country'] ?? payload['country'])?.toString(),
-      originalLanguage: (pub['original_language'] ?? payload['language'])?.toString(),
+      originalCountry:
+          (pub['original_country'] ?? payload['country'])?.toString(),
+      originalLanguage:
+          (pub['original_language'] ?? payload['language'])?.toString(),
       originalPublicationDate: origPubDate,
       originalPublicationPlace: pub['original_publication_place']?.toString(),
-      originalPublisher: (pub['original_publisher'] ?? payload['publisher'])?.toString(),
+      originalPublisher:
+          (pub['original_publisher'] ?? payload['publisher'])?.toString(),
       series: series,
       creators: creators,
       subjects: subjects,
@@ -84,9 +83,8 @@ class BookCatalogMapper {
     );
 
     final publishing = BookPublishingMetadata(
-      pageCount: pub['page_count'] is num
-          ? (pub['page_count'] as num).toInt()
-          : null,
+      pageCount:
+          pub['page_count'] is num ? (pub['page_count'] as num).toInt() : null,
       imprint: pub['imprint']?.toString(),
       publicationPlace: pub['publication_place']?.toString(),
       paperType: pub['paper_type']?.toString(),
@@ -106,8 +104,11 @@ class BookCatalogMapper {
       dewey: pub['dewey']?.toString(),
     );
 
-    final editionTitle = (payload['edition_title'] ?? payload['variant'])?.toString();
-    final physicalFormatLabel = (payload['physical_format_label'] ?? payload['physical_format'])?.toString();
+    final editionTitle =
+        (payload['edition_title'] ?? payload['variant'])?.toString();
+    final physicalFormatLabel =
+        (payload['physical_format_label'] ?? payload['physical_format'])
+            ?.toString();
 
     final releases = dto.editions
         .map((e) => _mapEditionDtoToRelease(
@@ -123,7 +124,8 @@ class BookCatalogMapper {
       releases.add(BookRelease(
         id: '${dto.id}-release',
         title: editionTitle ?? dto.title,
-        publisher: (payload['publisher'] ?? pub['original_publisher'])?.toString(),
+        publisher:
+            (payload['publisher'] ?? pub['original_publisher'])?.toString(),
         coverImageUrl: dto.coverImageUrl,
         releaseDate: dto.releaseDate,
         physicalFormat: payload['physical_format']?.toString(),

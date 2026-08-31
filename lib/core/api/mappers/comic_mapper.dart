@@ -6,13 +6,13 @@ ComicCatalogItem comicWorkFromDto(CatalogItemDto dto) =>
     ComicCatalogMapper.mapDtoToComic(dto);
 
 ComicCatalogItem comicWorkFromMetadataItem(ShelfEntry source) {
-    final catalog = source.catalogItem;
-    final metadata = catalog?.kindMetadata;
-    if (catalog == null || metadata is! ComicCatalogMetadata) {
-        throw StateError('Expected ComicCatalogMetadata for comic source');
-    }
-    return ComicCatalogMapper.mapMetadataToComic(
-        metadata,
-        id: catalog.identity.id,
-    );
+  final catalog = source.catalogItem;
+  final metadata = catalog?.kindMetadata;
+  if (catalog == null || metadata is! ComicCatalogMetadata) {
+    throw StateError('Expected ComicCatalogMetadata for comic source');
+  }
+  return ComicCatalogMapper.mapMetadataToComic(
+    metadata,
+    id: catalog.identity.id,
+  );
 }

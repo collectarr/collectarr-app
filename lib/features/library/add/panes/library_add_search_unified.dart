@@ -740,8 +740,8 @@ class _UnifiedCoreChildTile extends StatelessWidget {
 
 String _coreChildDisplayTitle(LibraryMetadataItem item) {
   final itemNumber = (item.kindMetadata.toSyncPayload()['item_number'] ??
-          (item.kindMetadata.toSyncPayload()['publishing']
-              as Map?)?['issue_number']) as String?;
+      (item.kindMetadata.toSyncPayload()['publishing']
+          as Map?)?['issue_number']) as String?;
   if (itemNumber != null && itemNumber.trim().isNotEmpty) {
     return '${item.title} #$itemNumber';
   }

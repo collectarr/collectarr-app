@@ -41,15 +41,15 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   String? get defaultGroupId => defaultGroup?.value;
 
   LibraryColumnDefinition<dynamic, TDto, Object?>? columnDefinition(
-      LibraryFieldIdRuntime id) =>
+          LibraryFieldIdRuntime id) =>
       findColumnDefinition(id);
 
   LibrarySortDefinition<dynamic, TDto>? sortDefinition(
-      LibrarySortIdRuntime id) =>
+          LibrarySortIdRuntime id) =>
       findSortDefinition(id);
 
   LibraryGroupDefinition<dynamic, TDto, Object?>? groupDefinition(
-      LibraryGroupIdRuntime id) =>
+          LibraryGroupIdRuntime id) =>
       findGroupDefinition(id);
 
   LibraryColumnDefinition<dynamic, TDto, Object?>? columnDefinitionForId(

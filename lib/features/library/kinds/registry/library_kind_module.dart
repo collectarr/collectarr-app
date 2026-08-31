@@ -589,7 +589,8 @@ class LibraryFacetModule {
 
   final LibraryFacetRowsLoader? loadRows;
   final Iterable<String> Function(
-      LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId)? getFacetValues;
+          LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId)?
+      getFacetValues;
   final List<LibraryFacetDefinition<dynamic, dynamic, dynamic>> definitions;
 }
 

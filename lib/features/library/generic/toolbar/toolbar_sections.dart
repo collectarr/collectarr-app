@@ -317,14 +317,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 child: LibraryCoverSizeSlider(
                                   viewMode: viewState.viewMode,
                                   coverSize: viewState.coverSize,
-                                  minCoverSize:
-                                      libraryKindRuntimeForType(type)
-                                          .viewProfile
-                                          .minCoverSize,
-                                  maxCoverSize:
-                                      libraryKindRuntimeForType(type)
-                                          .viewProfile
-                                          .maxCoverSize,
+                                  minCoverSize: libraryKindRuntimeForType(type)
+                                      .viewProfile
+                                      .minCoverSize,
+                                  maxCoverSize: libraryKindRuntimeForType(type)
+                                      .viewProfile
+                                      .maxCoverSize,
                                   onChanged: onCoverSizeChanged,
                                 ),
                               ),

@@ -239,7 +239,8 @@ class _MusicInspectorMain extends StatelessWidget {
                       if (totalDuration != null) totalDuration,
                     ].join(' | '),
                   ),
-                  if (music?['catalog_number']?.toString().trim().isNotEmpty == true)
+                  if (music?['catalog_number']?.toString().trim().isNotEmpty ==
+                      true)
                     LibraryInspectorInfoLine(
                       icon: Icons.confirmation_number_outlined,
                       text: 'Cat No ${music!['catalog_number']}',
@@ -464,7 +465,8 @@ class _MusicProductDetails extends StatelessWidget {
         ('Vinyl color', music!['vinyl_color'].toString()),
       if (music?['vinyl_weight']?.toString().trim().isNotEmpty == true)
         ('Vinyl weight', music!['vinyl_weight'].toString()),
-      if (music?['local_cover_image_path']?.toString().trim().isNotEmpty == true)
+      if (music?['local_cover_image_path']?.toString().trim().isNotEmpty ==
+          true)
         ('Local cover', music!['local_cover_image_path'].toString()),
       if (music?['local_back_image_path']?.toString().trim().isNotEmpty == true)
         ('Local back', music!['local_back_image_path'].toString()),

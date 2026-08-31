@@ -468,7 +468,8 @@ class AdminProviderPreview {
   final List<String> genres;
 
   int? get trackCount => (music?['track_count'] as num?)?.toInt();
-  List<CatalogTrack> get tracks => (music?['tracks'] as List?)
+  List<CatalogTrack> get tracks =>
+      (music?['tracks'] as List?)
           ?.whereType<Map>()
           .map((e) => CatalogTrack.fromJson(Map<String, dynamic>.from(e)))
           .toList() ??
@@ -510,8 +511,7 @@ class AdminProviderPreview {
     final music = json['music'] is Map
         ? Map<String, dynamic>.from(json['music'] as Map)
         : <String, dynamic>{
-            if (json['track_count'] != null)
-              'track_count': json['track_count'],
+            if (json['track_count'] != null) 'track_count': json['track_count'],
             if (tracks.isNotEmpty)
               'tracks': tracks.map((e) => e.toJson()).toList(),
             if (json['catalog_number'] != null)

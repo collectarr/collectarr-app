@@ -1040,14 +1040,12 @@ LibraryMetadataItem? _confidentImportMatch(
       ? null
       : MetadataSearchQuery.normalizeBarcode(row.barcode!);
   if (barcode != null && barcode.isNotEmpty) {
-    final barcodeMatches = results
-        .where((item) {
-          final itemBarcode =
-              item.kindMetadata.toSyncPayload()['barcode'] as String?;
-          return itemBarcode != null &&
-              MetadataSearchQuery.normalizeBarcode(itemBarcode) == barcode;
-        })
-        .toList(growable: false);
+    final barcodeMatches = results.where((item) {
+      final itemBarcode =
+          item.kindMetadata.toSyncPayload()['barcode'] as String?;
+      return itemBarcode != null &&
+          MetadataSearchQuery.normalizeBarcode(itemBarcode) == barcode;
+    }).toList(growable: false);
     if (barcodeMatches.length == 1) {
       return barcodeMatches.single;
     }

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_shell.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_pane.dart';
@@ -5,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
@@ -73,6 +75,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
     previewPaneBuilder: buildMovieAddPreviewPane,
     searchPaneBuilder: buildMovieAddSearchPane,
     bottomBarBuilder: buildMovieAddBottomBar,
+    advancedFilterFieldsBuilder: buildMovieAddAdvancedFilterFields,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildMovieLibraryEditDialog,
@@ -97,3 +100,24 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
 
 Map<String, dynamic> _encodeMovieMetadata(MovieCatalogMetadata m) => m.toJson();
 
+List<LibraryAddAdvancedFilterField> buildMovieAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+    [
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-series-field'),
+        label: 'Series / Franchise',
+        controller: req.seriesController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Studio',
+        controller: req.publisherController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        controller: req.yearController,
+        width: 120,
+      ),
+    ];

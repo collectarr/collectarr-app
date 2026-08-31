@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
@@ -62,6 +64,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
     manualDraftBuilder: MusicAddManualDraft.new,
+    advancedFilterFieldsBuilder: buildMusicAddAdvancedFilterFields,
     manualPaneBuilder: buildMusicAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -89,3 +92,24 @@ String _musicChildrenTitle(int count) => 'Discs ($count)';
 
 Map<String, dynamic> _encodeMusicMetadata(MusicCatalogMetadata m) => m.toJson();
 
+List<LibraryAddAdvancedFilterField> buildMusicAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+    [
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-series-field'),
+        label: 'Artist',
+        controller: req.seriesController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Record Label',
+        controller: req.publisherController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        controller: req.yearController,
+        width: 120,
+      ),
+    ];

@@ -96,9 +96,8 @@ final class BookCatalog {
         const <BookEditionMetadata>[];
 
     final pubMap = json['publishing'] as Map<String, dynamic>?;
-    final publishing = pubMap != null
-        ? CatalogPublishingDetailsDto.fromJson(pubMap)
-        : null;
+    final publishing =
+        pubMap != null ? CatalogPublishingDetailsDto.fromJson(pubMap) : null;
 
     final rawLinks = <TrailerLink>[
       ...((json['trailer_urls'] as List<dynamic>?)

@@ -110,8 +110,7 @@ class PrintLibraryMediaPresentationBuilder
           LibraryDetailField(
               label: 'Pages', value: publishing!.pageCount.toString()),
         if (musicCatalogNumber != null)
-          LibraryDetailField(
-              label: 'Catalog No.', value: musicCatalogNumber),
+          LibraryDetailField(label: 'Catalog No.', value: musicCatalogNumber),
         if (publishing?.coverPriceCents != null)
           LibraryDetailField(
               label: 'Cover Price',
@@ -139,11 +138,9 @@ class PrintLibraryMediaPresentationBuilder
         if (dto.language != null)
           LibraryDetailField(label: 'Language', value: dto.language!),
         if (ageRating != null)
-          LibraryDetailField(
-              label: 'Age Rating', value: ageRating),
+          LibraryDetailField(label: 'Age Rating', value: ageRating),
         if (audienceRating != null)
-          LibraryDetailField(
-              label: 'Audience Rating', value: audienceRating),
+          LibraryDetailField(label: 'Audience Rating', value: audienceRating),
         if (referenceVariant?.variantType case final variantType?
             when variantType.trim().isNotEmpty)
           LibraryDetailField(label: 'Variant Type', value: variantType.trim()),

@@ -1,8 +1,10 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
@@ -59,6 +61,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,
     manualDraftBuilder: AnimeAddManualDraft.new,
+    advancedFilterFieldsBuilder: buildAnimeAddAdvancedFilterFields,
     manualPaneBuilder: buildAnimeAddManualPane,
   ),
   edit: LibraryEditCapability(
@@ -85,3 +88,24 @@ String _animeChildrenTitle(int count) => 'Seasons ($count)';
 
 Map<String, dynamic> _encodeAnimeMetadata(AnimeMetadata m) => m.toJson();
 
+List<LibraryAddAdvancedFilterField> buildAnimeAddAdvancedFilterFields(
+  LibraryAddModeBarRequest req,
+) =>
+    [
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-series-field'),
+        label: 'Series',
+        controller: req.seriesController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-publisher-field'),
+        label: 'Studio',
+        controller: req.publisherController,
+      ),
+      LibraryAddAdvancedFilterField(
+        key: const ValueKey('library-add-year-field'),
+        label: 'Year',
+        controller: req.yearController,
+        width: 120,
+      ),
+    ];

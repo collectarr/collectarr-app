@@ -116,9 +116,15 @@ class _MovieAddPreviewPane extends StatelessWidget {
                               selectedItem!.releaseYear.toString(),
                               accent: request.accent,
                             ),
-                          if ((selectedItem?.kindMetadata.toSyncPayload()['physical_format_label'] as String?)?.trim().isNotEmpty == true)
+                          if ((selectedItem?.kindMetadata.toSyncPayload()[
+                                      'physical_format_label'] as String?)
+                                  ?.trim()
+                                  .isNotEmpty ==
+                              true)
                             LibraryAddResultBadge(
-                              (selectedItem!.kindMetadata.toSyncPayload()['physical_format_label'] as String).trim(),
+                              (selectedItem!.kindMetadata.toSyncPayload()[
+                                      'physical_format_label'] as String)
+                                  .trim(),
                               accent: request.accent,
                             ),
                         ],

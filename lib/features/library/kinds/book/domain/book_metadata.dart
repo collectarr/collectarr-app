@@ -355,8 +355,7 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
       variant: variant ?? this.variant,
       editionTitle: editionTitle ?? this.editionTitle,
       physicalFormat: physicalFormat ?? this.physicalFormat,
-      physicalFormatLabel:
-          physicalFormatLabel ?? this.physicalFormatLabel,
+      physicalFormatLabel: physicalFormatLabel ?? this.physicalFormatLabel,
       itemNumber: itemNumber ?? this.itemNumber,
       series: series ?? this.series,
       seriesTitle: seriesTitle ?? this.seriesTitle,
@@ -365,9 +364,7 @@ class BookCatalogMetadata implements LibraryKindMetadataRuntime {
 
   factory BookCatalogMetadata.fromJson(Map<String, dynamic> json) {
     final pubRaw = json['publishing'];
-    final pubMap = (pubRaw is Map)
-        ? Map<String, dynamic>.from(pubRaw)
-        : null;
+    final pubMap = (pubRaw is Map) ? Map<String, dynamic>.from(pubRaw) : null;
     final publishing = pubMap != null
         ? CatalogPublishingDetailsDto.fromJson(pubMap)
         : CatalogPublishingDetailsDto.fromJson(json);

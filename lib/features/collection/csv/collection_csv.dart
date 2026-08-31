@@ -308,21 +308,19 @@ class CollectionCsv {
     final pub = payload['publishing'] as Map?;
     final itemNumber =
         (payload['item_number'] ?? pub?['issue_number'])?.toString() ?? '';
-    final variant =
-        (payload['variant'] ?? pub?['variant'])?.toString() ?? '';
+    final variant = (payload['variant'] ?? pub?['variant'])?.toString() ?? '';
     final editionTitle =
         (payload['edition_title'] ?? pub?['edition_title'])?.toString() ?? '';
     final physicalFormat =
         (payload['physical_format'] ?? pub?['physical_format'])?.toString() ??
             '';
-    final physicalFormatLabel = (payload['physical_format_label'] ??
-            pub?['physical_format_label'])
-        ?.toString() ??
-        '';
+    final physicalFormatLabel =
+        (payload['physical_format_label'] ?? pub?['physical_format_label'])
+                ?.toString() ??
+            '';
     final publisher =
         (payload['publisher'] ?? pub?['original_publisher'])?.toString() ?? '';
-    final barcode =
-        (payload['barcode'] ?? pub?['barcode'])?.toString() ?? '';
+    final barcode = (payload['barcode'] ?? pub?['barcode'])?.toString() ?? '';
 
     return [
       entry.itemId,

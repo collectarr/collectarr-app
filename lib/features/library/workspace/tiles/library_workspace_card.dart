@@ -141,8 +141,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
             Brightness.dark
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
-    final editionsPayload =
-        item.source.catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?;
+    final editionsPayload = item.source.catalogItem?.kindMetadata
+        .toSyncPayload()['editions'] as List?;
     final rawEditions = editionsPayload != null
         ? editionsPayload
             .whereType<Map>()

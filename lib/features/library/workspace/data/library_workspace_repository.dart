@@ -383,8 +383,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
           if (row.trackCount != null) 'track_count': row.trackCount,
           if (row.tracksJson != null)
             'tracks': _decodeListOfMaps(row.tracksJson),
-          if (row.discsJson != null)
-            'discs': _decodeListOfMaps(row.discsJson),
+          if (row.discsJson != null) 'discs': _decodeListOfMaps(row.discsJson),
           if (row.catalogNumber != null) 'catalog_number': row.catalogNumber,
           if (row.releaseStatus != null) 'release_status': row.releaseStatus,
         },

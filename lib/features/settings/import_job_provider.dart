@@ -939,8 +939,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       'localized_title': row.title,
       'original_title': row.title,
       'search_aliases': [row.title],
-      if (row.startedAt != null) 'release_date': row.startedAt!.toIso8601String()
-      else if (row.finishedAt != null) 'release_date': row.finishedAt!.toIso8601String(),
+      if (row.startedAt != null)
+        'release_date': row.startedAt!.toIso8601String()
+      else if (row.finishedAt != null)
+        'release_date': row.finishedAt!.toIso8601String(),
     });
   }
 

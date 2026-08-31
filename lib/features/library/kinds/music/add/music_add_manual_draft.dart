@@ -38,7 +38,8 @@ class MusicAddManualDraft implements LibraryKindAddDraft {
         countryController = countryController ?? TextEditingController(),
         editionTitleController =
             editionTitleController ?? TextEditingController(),
-        releaseDateController = releaseDateController ?? TextEditingController();
+        releaseDateController =
+            releaseDateController ?? TextEditingController();
 
   final TextEditingController numberController;
   final TextEditingController publisherController;

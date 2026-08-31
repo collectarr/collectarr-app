@@ -1189,7 +1189,7 @@ List<(String, String?)> _metadataRowsForCandidate(
       (media.numberLabel, candidate.issueNumber),
     if (candidate.publisher != null)
       (media.publisherLabel, candidate.publisher),
-      if (candidate.series?.volumeStartYear != null)
+    if (candidate.series?.volumeStartYear != null)
       ('Year', candidate.series!.volumeStartYear.toString()),
     if (candidate.variantName != null)
       (release.variantLabel, candidate.variantName),
@@ -1229,9 +1229,7 @@ List<(String, String)> _variantDropdownEntries(
       if (variant.id.isNotEmpty)
         (
           variant.id,
-          variant.name.isNotEmpty
-              ? variant.name
-              : variant.id,
+          variant.name.isNotEmpty ? variant.name : variant.id,
         ),
   ];
 }
@@ -1295,8 +1293,7 @@ List<(String, String?)> _metadataRowsForItem(
           ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
           : item.releaseYear?.toString()
     ),
-    if (runtimeMinutes != null)
-      ('Runtime', '$runtimeMinutes min'),
+    if (runtimeMinutes != null) ('Runtime', '$runtimeMinutes min'),
     if (itemNumber != null) (media.numberLabel, itemNumber),
     if (displayEditionLabel != null)
       (release.variantLabel, displayEditionLabel),
@@ -1307,8 +1304,7 @@ List<(String, String?)> _metadataRowsForItem(
       ('Catalog No.', musicCatalogNo),
     if (gamePlatforms != null && gamePlatforms.isNotEmpty)
       ('Platforms', gamePlatforms.join(', ')),
-    if (pageCount != null)
-      ('Pages', pageCount.toString()),
+    if (pageCount != null) ('Pages', pageCount.toString()),
     if (country != null) ('Country', country),
     if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
       ('Release Status', musicReleaseStatus),
@@ -1409,16 +1405,15 @@ List<(String, String?)> _metadataRowsForFullPreview(
       ('Catalog No.', musicCatalogNo),
     if (gamePlatforms != null && gamePlatforms.isNotEmpty)
       ('Platforms', gamePlatforms.join(', ')),
-    if (videoRuntime != null)
-      ('Runtime', '$videoRuntime min'),
-    if (publishingPages != null)
-      ('Pages', publishingPages),
+    if (videoRuntime != null) ('Runtime', '$videoRuntime min'),
+    if (publishingPages != null) ('Pages', publishingPages),
     if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
       ('Release Status', musicReleaseStatus),
     if (publishingSeriesGroup != null && publishingSeriesGroup.isNotEmpty)
       ('Series Group', publishingSeriesGroup),
   ];
 }
+
 List<_PreviewDiscoverySectionData> _discoverySections({
   required LibraryMetadataItem? item,
   required ProviderCandidate? candidate,

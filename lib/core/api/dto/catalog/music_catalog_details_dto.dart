@@ -97,8 +97,7 @@ class MusicCatalogDetailsDto {
       discs: rawDiscs,
       catalogNumber: json['catalog_number'] as String?,
       releaseStatus: json['release_status'] as String?,
-      originalReleaseDate:
-          parseDate(json['original_release_date'] as String?),
+      originalReleaseDate: parseDate(json['original_release_date'] as String?),
       recordingDate: parseDate(json['recording_date'] as String?),
       studio: json['studio'] as String?,
       rpm: json['rpm'] as String?,
@@ -115,8 +114,7 @@ class MusicCatalogDetailsDto {
 
   Map<String, dynamic> toJson() => {
         if (trackCount != null) 'track_count': trackCount,
-        if (tracks.isNotEmpty)
-          'tracks': tracks.map((e) => e.toJson()).toList(),
+        if (tracks.isNotEmpty) 'tracks': tracks.map((e) => e.toJson()).toList(),
         if (discs.isNotEmpty) 'discs': discs.map((e) => e.toJson()).toList(),
         if (catalogNumber != null) 'catalog_number': catalogNumber,
         if (releaseStatus != null) 'release_status': releaseStatus,

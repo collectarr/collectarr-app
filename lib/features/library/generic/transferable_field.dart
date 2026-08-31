@@ -40,7 +40,8 @@ class TransferableField {
   bool get isCustomField => customFieldId != null;
 
   bool matchesScope(LibraryEditScope requestedScope) {
-    if (requestedScope == LibraryEditScope.all || scope == LibraryEditScope.all) {
+    if (requestedScope == LibraryEditScope.all ||
+        scope == LibraryEditScope.all) {
       return true;
     }
     return scope == requestedScope;
@@ -143,8 +144,7 @@ class TransferableField {
   static OwnedItem _writeFinishedAt(OwnedItem item, String? v) =>
       item.copyWith(finishedAt: v != null ? DateTime.tryParse(v) : null);
 
-  static String? _readSoldAt(OwnedItem item) =>
-      item.soldAt?.toIso8601String();
+  static String? _readSoldAt(OwnedItem item) => item.soldAt?.toIso8601String();
   static OwnedItem _writeSoldAt(OwnedItem item, String? v) =>
       item.copyWith(soldAt: v != null ? DateTime.tryParse(v) : null);
 
