@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
@@ -18,6 +19,62 @@ class AniListSyncAdapter
   final String? accessToken;
 
   static const _endpoint = 'https://graphql.anilist.co';
+
+  /// Fetches the authenticated viewer's profile from AniList.
+  Future<ProviderAccount?> fetchViewer({String? token}) async {
+    final effectiveToken = token ?? accessToken;
+    if (effectiveToken == null) return null;
+
+    const query = r'''
+query {
+  Viewer {
+    id
+    name
+    avatar {
+      large
+    }
+  }
+}
+''';
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $effectiveToken',
+    };
+
+    final response = await client.post<dynamic>(
+      _endpoint,
+      options: Options(headers: headers),
+      data: {'query': query},
+    );
+
+    if (response.statusCode != 200) return null;
+
+    final data = response.data is Map<String, dynamic>
+        ? response.data as Map<String, dynamic>
+        : (response.data is String
+            ? jsonDecode(response.data as String) as Map<String, dynamic>?
+            : null);
+    final viewer = data?['data']?['Viewer'] as Map?;
+    if (viewer == null) return null;
+
+    final id = viewer['id']?.toString() ?? '';
+    final name = viewer['name']?.toString() ?? 'AniList User';
+    final avatar = (viewer['avatar'] as Map?)?['large']?.toString();
+
+    return ProviderAccount(
+      id: 'anilist-$id',
+      provider: ProviderId.aniList,
+      displayName: name,
+      authType: ProviderAuthType.oauth2,
+      remoteAccountId: id,
+      remoteHandle: name,
+      avatarUrl: avatar,
+      connectedAt: DateTime.now().toUtc(),
+      enabledCapabilities: const {'personalRead', 'personalWrite'},
+    );
+  }
 
   @override
   Future<List<ProviderPersonalEntry>> readPersonalList({
