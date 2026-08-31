@@ -21,7 +21,7 @@ import 'package:collectarr_app/features/library/add/models/comic_add_search_opti
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/movie_add_chrome_scope.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_bottom_bar.dart';
-import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_unsupported_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
@@ -61,11 +61,6 @@ String buildPreviewCatalogItemId({
 }) {
   final previewKey = '$kind:$provider:$providerItemId';
   return 'preview-$kind-${const Uuid().v5(Namespace.url.value, previewKey)}';
-}
-
-Widget buildDefaultManualPane(
-    BuildContext context, LibraryAddManualPaneRequest request) {
-  return LibraryAddManualPane(request: request);
 }
 
 class LibraryAddDialog extends ConsumerStatefulWidget {
@@ -1084,9 +1079,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     context,
                     _buildManualPaneRequest(state, accent),
                   ) ??
-                  buildDefaultManualPane(
-                    context,
-                    _buildManualPaneRequest(state, accent),
+                  LibraryAddUnsupportedManualPane(
+                    request: _buildManualPaneRequest(state, accent),
                   ),
             },
           ),
