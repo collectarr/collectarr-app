@@ -1,24 +1,24 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/add/library_add_manual_intro_card.dart';
+import 'package:collectarr_app/features/library/add/library_add_registry.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:collectarr_app/features/library/add/library_add_registry.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-
-import 'package:collectarr_app/ui/adaptive/window_class.dart';
 
 Future<LibraryAddDialogResult?> showComicLibraryAddDialog(
   BuildContext context,
@@ -93,46 +93,6 @@ void registerComicAddBuilders() {
     CatalogMediaKind.comic,
     buildComicManualPane,
   );
-  // Provide comic-specific controllers so comics own their manual inputs.
-  LibraryAddRegistry.registerManualKindSpecificFactory(
-    CatalogMediaKind.comic,
-    () => {
-      'numberController': TextEditingController(),
-      'publisherController': TextEditingController(),
-      'yearController': TextEditingController(),
-      'barcodeController': TextEditingController(),
-      'variantController': TextEditingController(),
-      'coverController': TextEditingController(),
-      'editionTitleController': TextEditingController(),
-      'releaseDateController': TextEditingController(),
-      'pageCountController': TextEditingController(),
-      'imprintController': TextEditingController(),
-      'seriesGroupController': TextEditingController(),
-      'countryController': TextEditingController(),
-      'languageController': TextEditingController(),
-      'ageRatingController': TextEditingController(),
-      'genresEditController': TextEditingController(),
-      'synopsisController': TextEditingController(),
-      'tagsController': TextEditingController(),
-      'creatorsController': TextEditingController(),
-      'charactersController': TextEditingController(),
-      'linksController': TextEditingController(),
-      'personalNotesController': TextEditingController(),
-      'rawOrSlabbedController': TextEditingController(),
-      'gradingCompanyController': TextEditingController(),
-      'graderNotesController': TextEditingController(),
-      'signedByController': TextEditingController(),
-      'labelTypeController': TextEditingController(),
-      'pageQualityController': TextEditingController(),
-      'certificationNumberController': TextEditingController(),
-      'coverPriceController': TextEditingController(),
-      'purchasePriceController': TextEditingController(),
-      'purchaseDateController': TextEditingController(),
-      'purchaseStoreController': TextEditingController(),
-      'soldPriceController': TextEditingController(),
-      'ownerLabelController': TextEditingController(),
-    },
-  );
   LibraryAddRegistry.registerPreviewBuilder(
     CatalogMediaKind.comic,
     buildComicAddPreviewPane,
@@ -142,7 +102,6 @@ void registerComicAddBuilders() {
     buildComicAddBottomBar,
   );
 }
-
 class _ComicManualPane extends StatelessWidget {
   const _ComicManualPane({required this.request});
 
@@ -151,23 +110,7 @@ class _ComicManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    TextEditingController? kindSpecificController(String key) {
-      final value = request.kindSpecific[key];
-      return value is TextEditingController ? value : null;
-    }
-
-    final rawOrSlabbedController =
-        kindSpecificController('rawOrSlabbedController');
-    final gradingCompanyController =
-        kindSpecificController('gradingCompanyController');
-    final signedByController = kindSpecificController('signedByController');
-    final labelTypeController = kindSpecificController('labelTypeController');
-    final pageQualityController =
-        kindSpecificController('pageQualityController');
-    final certificationNumberController =
-        kindSpecificController('certificationNumberController');
-    final graderNotesController =
-        kindSpecificController('graderNotesController');
+    final comicDraft = request.manualDraftAs<ComicAddManualDraft>();
     final copyTypeLabel = ownedCopyTypeLabel(
       digitalPhysicalMediaFormatFlag(
         request.physicalFormatId,
@@ -230,7 +173,7 @@ class _ComicManualPane extends StatelessWidget {
                             ),
                             LibraryResponsiveFormItem(
                               child: TextField(
-                                controller: request.numberController,
+                                controller: comicDraft.numberController,
                                 textAlign: TextAlign.center,
                                 decoration: const InputDecoration(
                                   labelText: 'Issue No.',
@@ -241,7 +184,7 @@ class _ComicManualPane extends StatelessWidget {
                             ),
                             LibraryResponsiveFormItem(
                               child: TextField(
-                                controller: request.variantController,
+                                controller: comicDraft.variantController,
                                 decoration: const InputDecoration(
                                   labelText: 'Variant',
                                   prefixIcon:
@@ -257,7 +200,7 @@ class _ComicManualPane extends StatelessWidget {
                             LibraryResponsiveFormItem(
                               flex: 2,
                               child: TextField(
-                                controller: request.barcodeController,
+                                controller: comicDraft.barcodeController,
                                 decoration: const InputDecoration(
                                   labelText: 'Barcode',
                                   prefixIcon: Icon(Icons.qr_code_2),
@@ -283,7 +226,7 @@ class _ComicManualPane extends StatelessWidget {
                               ),
                             LibraryResponsiveFormItem(
                               child: TextField(
-                                controller: request.yearController,
+                                controller: comicDraft.yearController,
                                 textAlign: TextAlign.center,
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [
@@ -304,7 +247,7 @@ class _ComicManualPane extends StatelessWidget {
                             LibraryResponsiveFormItem(
                               flex: 2,
                               child: SingleValuePickField(
-                                controller: request.publisherController,
+                                controller: comicDraft.publisherController,
                                 options: request.publisherOptions,
                                 label: 'Publisher',
                                 onManage: request.onManagePublishers,
@@ -313,7 +256,7 @@ class _ComicManualPane extends StatelessWidget {
                             LibraryResponsiveFormItem(
                               flex: 2,
                               child: TextField(
-                                controller: request.coverController,
+                                controller: comicDraft.coverController,
                                 decoration: const InputDecoration(
                                   labelText: 'Cover image URL',
                                   prefixIcon: Icon(Icons.image_outlined),
@@ -333,30 +276,30 @@ class _ComicManualPane extends StatelessWidget {
                       children: [
                         LibraryResponsiveFormRow(
                           children: [
-                            if (rawOrSlabbedController != null)
+                            if (comicDraft.rawOrSlabbedController.text.isNotEmpty || true)
                               LibraryResponsiveFormItem(
                                 child: TextField(
-                                  controller: rawOrSlabbedController,
+                                  controller: comicDraft.rawOrSlabbedController,
                                   decoration: const InputDecoration(
                                     labelText: 'Raw / Slabbed',
                                     prefixIcon: Icon(Icons.layers_outlined),
                                   ),
                                 ),
                               ),
-                            if (gradingCompanyController != null)
+                            if (true)
                               LibraryResponsiveFormItem(
                                 child: TextField(
-                                  controller: gradingCompanyController,
+                                  controller: comicDraft.gradingCompanyController,
                                   decoration: const InputDecoration(
                                     labelText: 'Grading Co.',
                                     prefixIcon: Icon(Icons.verified_outlined),
                                   ),
                                 ),
                               ),
-                            if (certificationNumberController != null)
+                            if (true)
                               LibraryResponsiveFormItem(
                                 child: TextField(
-                                  controller: certificationNumberController,
+                                  controller: comicDraft.certificationNumberController,
                                   decoration: const InputDecoration(
                                     labelText: 'Certification No.',
                                     prefixIcon: Icon(Icons.pin_outlined),
@@ -368,20 +311,20 @@ class _ComicManualPane extends StatelessWidget {
                         const SizedBox(height: 10),
                         LibraryResponsiveFormRow(
                           children: [
-                            if (labelTypeController != null)
+                            if (true)
                               LibraryResponsiveFormItem(
                                 child: TextField(
-                                  controller: labelTypeController,
+                                  controller: comicDraft.labelTypeController,
                                   decoration: const InputDecoration(
                                     labelText: 'Label Type',
                                     prefixIcon: Icon(Icons.label_outline),
                                   ),
                                 ),
                               ),
-                            if (pageQualityController != null)
+                            if (true)
                               LibraryResponsiveFormItem(
                                 child: TextField(
-                                  controller: pageQualityController,
+                                  controller: comicDraft.pageQualityController,
                                   decoration: const InputDecoration(
                                     labelText: 'Page Quality',
                                     prefixIcon:
@@ -389,10 +332,10 @@ class _ComicManualPane extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            if (signedByController != null)
+                            if (true)
                               LibraryResponsiveFormItem(
                                 child: TextField(
-                                  controller: signedByController,
+                                  controller: comicDraft.signedByController,
                                   decoration: const InputDecoration(
                                     labelText: 'Signed by',
                                     prefixIcon: Icon(Icons.draw_outlined),
@@ -401,10 +344,10 @@ class _ComicManualPane extends StatelessWidget {
                               ),
                           ],
                         ),
-                        if (graderNotesController != null) ...[
+                        if (true) ...[
                           const SizedBox(height: 10),
                           TextField(
-                            controller: graderNotesController,
+                            controller: comicDraft.graderNotesController,
                             minLines: 2,
                             maxLines: 4,
                             decoration: const InputDecoration(

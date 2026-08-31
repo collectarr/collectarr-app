@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
@@ -84,6 +85,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   add: const StandardLibraryAddCapability<ComicAddDraft>(
     kind: CatalogMediaKind.comic,
     initialDraftBuilder: ComicAddDraft.new,
+    manualDraftBuilder: ComicAddManualDraft.new,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildComicLibraryEditDialog,

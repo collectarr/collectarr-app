@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -56,6 +57,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   add: const StandardLibraryAddCapability<AnimeAddDraft>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,
+    manualDraftBuilder: AnimeAddManualDraft.new,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildAnimeLibraryEditDialog,

@@ -15,15 +15,7 @@ void registerLibraryAddBuilders() {
       module.type.workspace.kind,
       buildDefaultManualPane,
     );
-    LibraryAddRegistry.registerManualKindSpecificFactory(
-      module.type.workspace.kind,
-      () => <String, dynamic>{},
-    );
   }
   registerComicAddBuilders();
   registerMovieAddBuilders();
 }
-
-// NOTE: registration should be invoked from application init (e.g. main())
-// to avoid module-load ordering issues in tests. Call `registerLibraryAddBuilders()`
-// from a centralized initialization point when the app starts.

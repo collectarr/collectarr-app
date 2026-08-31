@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_contra
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_session_state.dart';
 import 'package:collectarr_app/features/library/add/library_add_registry.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/comic_add_search_options_scope.dart';
@@ -29,6 +30,7 @@ import 'package:collectarr_app/features/library/add/shell/library_add_shell.dart
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -108,6 +110,12 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
 
 class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryAddSessionController _controller;
+  List<String> _publisherOptions = const [];
+  List<String> _imprintOptions = const [];
+  List<String> _seriesGroupOptions = const [];
+  List<String> _physicalFormatOptions = const [];
+  List<SeriesRegistryEntry> _seriesEntries = const [];
+  String? _selectedSeriesId;
   late final LibraryAddManualDraft _manualDraft;
 
   late final TextEditingController _queryController;
@@ -166,8 +174,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _manualDraft = LibraryAddManualDraft(
       customFieldValues: widget.customFieldValues,
       itemImages: widget.itemImages,
+      kindDraft: libraryKindRuntimeForKind(widget.type.workspace.kind)
+          .add
+          .createManualDraft(),
     );
-    _manualDraft.syncKindSpecificFactoryValues(widget.type.workspace.kind);
     _manualDraft.titleController.text = _queryController.text;
 
     _controller = LibraryAddSessionController(
@@ -245,23 +255,15 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   void didUpdateWidget(covariant LibraryAddDialog oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.type.workspace.kind != widget.type.workspace.kind) {
-      _manualDraft.disposeKindSpecificFactoryValues();
-      _manualDraft.syncKindSpecificFactoryValues(widget.type.workspace.kind);
+      _manualDraft.dispose();
+      _manualDraft = LibraryAddManualDraft(
+        customFieldValues: widget.customFieldValues,
+        itemImages: widget.itemImages,
+        kindDraft: libraryKindRuntimeForKind(widget.type.workspace.kind)
+            .add
+            .createManualDraft(),
+      );
     }
-  }
-
-  @override
-  void dispose() {
-    _controller.removeListener(_onControllerStateChanged);
-    _controller.dispose();
-    _queryController.dispose();
-    _barcodeController.dispose();
-    _searchSeriesController.dispose();
-    _searchNumberController.dispose();
-    _searchPublisherController.dispose();
-    _searchYearController.dispose();
-    _manualDraft.dispose();
-    super.dispose();
   }
 
   Future<void> _loadAvailableLocations() async {
@@ -315,19 +317,19 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         db,
         listName: kPublisherPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _manualDraft.publisherController.text,
+        selectedValue: _fallbackPublisherController.text,
       ),
       loadSingleValuePickListOptions(
         db,
         listName: kImprintPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _manualDraft.imprintController.text,
+        selectedValue: _fallbackImprintController.text,
       ),
       loadSingleValuePickListOptions(
         db,
         listName: kSeriesGroupPickListName,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedValue: _manualDraft.seriesGroupController.text,
+        selectedValue: _fallbackSeriesGroupController.text,
       ),
       loadSingleValuePickListOptions(
         db,
@@ -336,12 +338,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         builtInValues: [
           for (final format in _currentPhysicalFormats()) format.label,
         ],
-        selectedValue: _manualDraft.physicalFormatLabelController.text,
+        selectedValue: _fallbackPhysicalFormatLabelController.text,
       ),
       SeriesRegistryRepository(db).searchEntries(
         mediaKind: widget.type.workspace.kind.apiValue,
         selectedTitle: _manualDraft.titleController.text,
-        selectedSeriesId: _manualDraft.selectedSeriesId,
+        selectedSeriesId: _selectedSeriesId,
       ),
     ]);
     if (!mounted) return;
@@ -349,15 +351,15 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _conditionOptions = options.conditions;
       _gradeOptions = options.grades;
       _tagOptions = tagOptions;
-      _manualDraft.publisherOptions =
+      _publisherOptions =
           List<String>.from(vocabularyResults[0] as List<String>);
-      _manualDraft.imprintOptions =
+      _imprintOptions =
           List<String>.from(vocabularyResults[1] as List<String>);
-      _manualDraft.seriesGroupOptions =
+      _seriesGroupOptions =
           List<String>.from(vocabularyResults[2] as List<String>);
-      _manualDraft.physicalFormatOptions =
+      _physicalFormatOptions =
           List<String>.from(vocabularyResults[3] as List<String>);
-      _manualDraft.seriesEntries = List<SeriesRegistryEntry>.from(
+      _seriesEntries = List<SeriesRegistryEntry>.from(
         vocabularyResults[4] as List<SeriesRegistryEntry>,
       );
     });
@@ -396,11 +398,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       db: ref.read(localDatabaseProvider),
       mediaKind: widget.type.workspace.kind.apiValue,
       selectedTitle: _manualDraft.titleController.text,
-      selectedSeriesId: _manualDraft.selectedSeriesId,
+      selectedSeriesId: _selectedSeriesId,
     );
     if (!mounted || selected == null) return;
     setState(() {
-      _manualDraft.selectedSeriesId = selected.coreSeriesId;
+      _selectedSeriesId = selected.coreSeriesId;
       _manualDraft.titleController.value = TextEditingValue(
         text: selected.title,
         selection: TextSelection.collapsed(offset: selected.title.length),
@@ -412,14 +414,14 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   void _setManualSeries(String? value) {
     final normalized = (value ?? '').trim();
     final match =
-        _manualDraft.seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
+        _seriesEntries.cast<SeriesRegistryEntry?>().firstWhere(
               (entry) =>
                   entry != null &&
                   entry.title.trim().toLowerCase() == normalized.toLowerCase(),
               orElse: () => null,
             );
     setState(() {
-      _manualDraft.selectedSeriesId = match?.coreSeriesId;
+      _selectedSeriesId = match?.coreSeriesId;
     });
   }
 
@@ -503,6 +505,177 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       currentPhysicalFormats: _currentPhysicalFormats,
       showEditDialog: (ctx, req) =>
           showLibraryEditDialog(context: ctx, request: req),
+    );
+  }
+
+  final _fallbackNumberController = TextEditingController();
+  final _fallbackPublisherController = TextEditingController();
+  final _fallbackYearController = TextEditingController();
+  final _fallbackVariantController = TextEditingController();
+  final _fallbackPhysicalFormatLabelController = TextEditingController();
+  final _fallbackCoverController = TextEditingController();
+  final _fallbackBackCoverController = TextEditingController();
+  final _fallbackCreatorsController = TextEditingController();
+  final _fallbackCharactersController = TextEditingController();
+  final _fallbackEditionTitleController = TextEditingController();
+  final _fallbackReleaseDateController = TextEditingController();
+  final _fallbackPageCountController = TextEditingController();
+  final _fallbackImprintController = TextEditingController();
+  final _fallbackSeriesGroupController = TextEditingController();
+  final _fallbackCountryController = TextEditingController();
+  final _fallbackLanguageController = TextEditingController();
+  final _fallbackAgeRatingController = TextEditingController();
+  final _fallbackGenresEditController = TextEditingController();
+  final _fallbackSynopsisController = TextEditingController();
+
+  @override
+  void dispose() {
+    _fallbackNumberController.dispose();
+    _fallbackPublisherController.dispose();
+    _fallbackYearController.dispose();
+    _fallbackVariantController.dispose();
+    _fallbackPhysicalFormatLabelController.dispose();
+    _fallbackCoverController.dispose();
+    _fallbackBackCoverController.dispose();
+    _fallbackCreatorsController.dispose();
+    _fallbackCharactersController.dispose();
+    _fallbackEditionTitleController.dispose();
+    _fallbackReleaseDateController.dispose();
+    _fallbackPageCountController.dispose();
+    _fallbackImprintController.dispose();
+    _fallbackSeriesGroupController.dispose();
+    _fallbackCountryController.dispose();
+    _fallbackLanguageController.dispose();
+    _fallbackAgeRatingController.dispose();
+    _fallbackGenresEditController.dispose();
+    _fallbackSynopsisController.dispose();
+    _manualDraft.dispose();
+    _queryController.dispose();
+    _barcodeController.dispose();
+    _searchSeriesController.dispose();
+    _searchNumberController.dispose();
+    _searchPublisherController.dispose();
+    _searchYearController.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  LibraryAddManualPaneRequest _buildManualPaneRequest(
+    LibraryAddSessionState state,
+    Color accent,
+  ) {
+    return LibraryAddManualPaneRequest(
+      kind: widget.type.workspace.kind,
+      accent: accent,
+      type: widget.type,
+      commonDraft: state.commonDraft,
+      kindDraft: state.manualDraft,
+      manualDraft: _manualDraft.kindDraft,
+      onCommonDraftChanged: (common) =>
+          _controller.updateCommonDraft((_) => common),
+      onKindDraftChanged: (draft) =>
+          _controller.updateKindDraft((_) => draft),
+      titleController: _manualDraft.titleController,
+      numberController: _fallbackNumberController,
+      publisherController: _fallbackPublisherController,
+      yearController: _fallbackYearController,
+      barcodeController: _barcodeController,
+      variantController: _fallbackVariantController,
+      physicalFormatLabelController: _fallbackPhysicalFormatLabelController,
+      coverController: _fallbackCoverController,
+      backCoverController: _fallbackBackCoverController,
+      creatorsController: _fallbackCreatorsController,
+      charactersController: _fallbackCharactersController,
+      physicalFormats: _currentPhysicalFormats(),
+      physicalFormatId: state.physicalFormatId,
+      onPhysicalFormatChanged: _controller.setPhysicalFormatId,
+      onPhysicalFormatLabelChanged: (label) {
+        _fallbackPhysicalFormatLabelController.text = label ?? '';
+      },
+      isAdding: state.isAdding || state.submitState.isLoading,
+      defaultCondition: state.defaultCondition,
+      defaultGrade: state.defaultGrade,
+      defaultLocationLabel:
+          locationPathForId(_availableLocations, state.defaultLocationId),
+      defaultPurchaseDate: state.defaultPurchaseDate,
+      defaultTags: state.defaultTags,
+      onAddOwned: () =>
+          _controller.submitCurrentSelection(context: context),
+      onAddWishlist: () {
+        _controller.setTarget(LibraryAddTarget.wishlist);
+        _controller.submitCurrentSelection(context: context);
+      },
+      onAddTrack: () {
+        _controller.setTarget(LibraryAddTarget.track);
+        _controller.submitCurrentSelection(context: context);
+      },
+      editionTitleController: _fallbackEditionTitleController,
+      releaseDateController: _fallbackReleaseDateController,
+      pageCountController: _fallbackPageCountController,
+      imprintController: _fallbackImprintController,
+      seriesGroupController: _fallbackSeriesGroupController,
+      countryController: _fallbackCountryController,
+      languageController: _fallbackLanguageController,
+      ageRatingController: _fallbackAgeRatingController,
+      genresEditController: _fallbackGenresEditController,
+      synopsisController: _fallbackSynopsisController,
+      tagsController: _manualDraft.tagsController,
+      personalNotesController: _manualDraft.personalNotesController,
+      coverPriceController: _manualDraft.coverPriceController,
+      priceController: _manualDraft.priceController,
+      purchaseDateController: _manualDraft.purchaseDateController,
+      purchaseStoreController: _manualDraft.purchaseStoreController,
+      sellPriceController: _manualDraft.sellPriceController,
+      soldDateController: _manualDraft.soldDateController,
+      ownerLabelController: _manualDraft.ownerLabelController,
+      linksController: _manualDraft.linksController,
+      publisherOptions: _publisherOptions,
+      imprintOptions: _imprintOptions,
+      seriesGroupOptions: _seriesGroupOptions,
+      physicalFormatOptions: _physicalFormatOptions,
+      seriesEntries: _seriesEntries,
+      onManagePublishers: () => _manageSingleValuePickList(
+        listName: kPublisherPickListName,
+        label: 'Publisher',
+      ),
+      onManageImprints: () => _manageSingleValuePickList(
+        listName: kImprintPickListName,
+        label: 'Imprint',
+      ),
+      onManageSeriesGroups: () => _manageSingleValuePickList(
+        listName: kSeriesGroupPickListName,
+        label: 'Series Group',
+      ),
+      onManagePhysicalFormats: () => _manageSingleValuePickList(
+        listName: kPhysicalFormatPickListName,
+        label: 'Format',
+      ),
+      onManageSeries: _openManualSeriesPicker,
+      onSeriesChanged: _setManualSeries,
+      customFieldDefinitions: widget.customFieldDefinitions,
+      customFieldValues: _manualDraft.customFieldValues,
+      onCustomFieldValuesChanged: (vals) {
+        setState(() {
+          _manualDraft.customFieldValues = vals;
+        });
+      },
+      itemImages: _manualDraft.itemImages,
+      onItemImagesChanged: (imgs) {
+        setState(() {
+          _manualDraft.itemImages = imgs
+              .where((e) => !e.deleted && e.imageData != null)
+              .map((e) => ItemImage(
+                    id: e.id,
+                    ownedItemId: 'draft',
+                    imageData: e.imageData!,
+                    imageType: e.imageType,
+                    caption: e.caption,
+                    sortOrder: e.sortOrder,
+                    createdAt: e.createdAt ?? DateTime.now().toUtc(),
+                  ))
+              .toList();
+        });
+      },
     );
   }
 
@@ -909,223 +1082,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 ),
               LibraryAddDialogMode.manual => manualPaneBuilder?.call(
                     context,
-                    LibraryAddManualPaneRequest(
-                      kind: widget.type.workspace.kind,
-                      accent: accent,
-                      type: widget.type,
-                      commonDraft: state.commonDraft,
-                      kindDraft: state.manualDraft,
-                      onCommonDraftChanged: (common) =>
-                          _controller.updateCommonDraft((_) => common),
-                      onKindDraftChanged: (draft) =>
-                          _controller.updateKindDraft((_) => draft),
-                      titleController: _manualDraft.titleController,
-                      numberController: _manualDraft.numberController,
-                      publisherController: _manualDraft.publisherController,
-                      yearController: _manualDraft.yearController,
-                      barcodeController: _barcodeController,
-                      variantController: _manualDraft.variantController,
-                      physicalFormatLabelController:
-                          _manualDraft.physicalFormatLabelController,
-                      coverController: _manualDraft.coverController,
-                      backCoverController: _manualDraft.backCoverController,
-                      creatorsController: _manualDraft.creatorsController,
-                      charactersController: _manualDraft.charactersController,
-                      physicalFormats: _currentPhysicalFormats(),
-                      physicalFormatId: state.physicalFormatId,
-                      onPhysicalFormatChanged: _controller.setPhysicalFormatId,
-                      onPhysicalFormatLabelChanged: (label) {
-                        _manualDraft.physicalFormatLabelController.text =
-                            label ?? '';
-                      },
-                      isAdding: state.isAdding || state.submitState.isLoading,
-                      defaultCondition: state.defaultCondition,
-                      defaultGrade: state.defaultGrade,
-                      defaultLocationLabel: locationPathForId(
-                          _availableLocations, state.defaultLocationId),
-                      defaultPurchaseDate: state.defaultPurchaseDate,
-                      defaultTags: state.defaultTags,
-                      onAddOwned: () =>
-                          _controller.submitCurrentSelection(context: context),
-                      onAddWishlist: () {
-                        _controller.setTarget(LibraryAddTarget.wishlist);
-                        _controller.submitCurrentSelection(context: context);
-                      },
-                      onAddTrack: () {
-                        _controller.setTarget(LibraryAddTarget.track);
-                        _controller.submitCurrentSelection(context: context);
-                      },
-                      editionTitleController:
-                          _manualDraft.editionTitleController,
-                      releaseDateController: _manualDraft.releaseDateController,
-                      pageCountController: _manualDraft.pageCountController,
-                      imprintController: _manualDraft.imprintController,
-                      seriesGroupController: _manualDraft.seriesGroupController,
-                      countryController: _manualDraft.countryController,
-                      languageController: _manualDraft.languageController,
-                      ageRatingController: _manualDraft.ageRatingController,
-                      genresEditController: _manualDraft.genresEditController,
-                      synopsisController: _manualDraft.synopsisController,
-                      tagsController: _manualDraft.tagsController,
-                      publisherOptions: _manualDraft.publisherOptions,
-                      imprintOptions: _manualDraft.imprintOptions,
-                      seriesGroupOptions: _manualDraft.seriesGroupOptions,
-                      physicalFormatOptions: _manualDraft.physicalFormatOptions,
-                      seriesEntries: _manualDraft.seriesEntries,
-                      onManagePublishers: () => _manageSingleValuePickList(
-                        listName: kPublisherPickListName,
-                        label: 'Publisher',
-                      ),
-                      onManageImprints: () => _manageSingleValuePickList(
-                        listName: kImprintPickListName,
-                        label: 'Imprint',
-                      ),
-                      onManageSeriesGroups: () => _manageSingleValuePickList(
-                        listName: kSeriesGroupPickListName,
-                        label: 'Series Group',
-                      ),
-                      onManagePhysicalFormats: () => _manageSingleValuePickList(
-                        listName: kPhysicalFormatPickListName,
-                        label: 'Format',
-                      ),
-                      onManageSeries: _openManualSeriesPicker,
-                      onSeriesChanged: _setManualSeries,
-                      customFieldDefinitions: widget.customFieldDefinitions,
-                      customFieldValues: _manualDraft.customFieldValues,
-                      onCustomFieldValuesChanged: (vals) {
-                        setState(() {
-                          _manualDraft.customFieldValues = vals;
-                        });
-                      },
-                      itemImages: _manualDraft.itemImages,
-                      onItemImagesChanged: (imgs) {
-                        setState(() {
-                          _manualDraft.itemImages = imgs
-                              .where((e) => !e.deleted && e.imageData != null)
-                              .map((e) => ItemImage(
-                                    id: e.id,
-                                    ownedItemId: 'draft',
-                                    imageData: e.imageData!,
-                                    imageType: e.imageType,
-                                    caption: e.caption,
-                                    sortOrder: e.sortOrder,
-                                    createdAt:
-                                        e.createdAt ?? DateTime.now().toUtc(),
-                                  ))
-                              .toList();
-                        });
-                      },
-                    ),
+                    _buildManualPaneRequest(state, accent),
                   ) ??
                   buildDefaultManualPane(
                     context,
-                    LibraryAddManualPaneRequest(
-                      kind: widget.type.workspace.kind,
-                      accent: accent,
-                      type: widget.type,
-                      commonDraft: state.commonDraft,
-                      kindDraft: state.manualDraft,
-                      onCommonDraftChanged: (common) =>
-                          _controller.updateCommonDraft((_) => common),
-                      onKindDraftChanged: (draft) =>
-                          _controller.updateKindDraft((_) => draft),
-                      titleController: _manualDraft.titleController,
-                      numberController: _manualDraft.numberController,
-                      publisherController: _manualDraft.publisherController,
-                      yearController: _manualDraft.yearController,
-                      barcodeController: _barcodeController,
-                      variantController: _manualDraft.variantController,
-                      physicalFormatLabelController:
-                          _manualDraft.physicalFormatLabelController,
-                      coverController: _manualDraft.coverController,
-                      backCoverController: _manualDraft.backCoverController,
-                      creatorsController: _manualDraft.creatorsController,
-                      charactersController: _manualDraft.charactersController,
-                      physicalFormats: _currentPhysicalFormats(),
-                      physicalFormatId: state.physicalFormatId,
-                      onPhysicalFormatChanged: _controller.setPhysicalFormatId,
-                      onPhysicalFormatLabelChanged: (label) {
-                        _manualDraft.physicalFormatLabelController.text =
-                            label ?? '';
-                      },
-                      isAdding: state.isAdding || state.submitState.isLoading,
-                      defaultCondition: state.defaultCondition,
-                      defaultGrade: state.defaultGrade,
-                      defaultLocationLabel: locationPathForId(
-                          _availableLocations, state.defaultLocationId),
-                      defaultPurchaseDate: state.defaultPurchaseDate,
-                      defaultTags: state.defaultTags,
-                      onAddOwned: () =>
-                          _controller.submitCurrentSelection(context: context),
-                      onAddWishlist: () {
-                        _controller.setTarget(LibraryAddTarget.wishlist);
-                        _controller.submitCurrentSelection(context: context);
-                      },
-                      onAddTrack: () {
-                        _controller.setTarget(LibraryAddTarget.track);
-                        _controller.submitCurrentSelection(context: context);
-                      },
-                      editionTitleController:
-                          _manualDraft.editionTitleController,
-                      releaseDateController: _manualDraft.releaseDateController,
-                      pageCountController: _manualDraft.pageCountController,
-                      imprintController: _manualDraft.imprintController,
-                      seriesGroupController: _manualDraft.seriesGroupController,
-                      countryController: _manualDraft.countryController,
-                      languageController: _manualDraft.languageController,
-                      ageRatingController: _manualDraft.ageRatingController,
-                      genresEditController: _manualDraft.genresEditController,
-                      synopsisController: _manualDraft.synopsisController,
-                      tagsController: _manualDraft.tagsController,
-                      publisherOptions: _manualDraft.publisherOptions,
-                      imprintOptions: _manualDraft.imprintOptions,
-                      seriesGroupOptions: _manualDraft.seriesGroupOptions,
-                      physicalFormatOptions: _manualDraft.physicalFormatOptions,
-                      seriesEntries: _manualDraft.seriesEntries,
-                      onManagePublishers: () => _manageSingleValuePickList(
-                        listName: kPublisherPickListName,
-                        label: 'Publisher',
-                      ),
-                      onManageImprints: () => _manageSingleValuePickList(
-                        listName: kImprintPickListName,
-                        label: 'Imprint',
-                      ),
-                      onManageSeriesGroups: () => _manageSingleValuePickList(
-                        listName: kSeriesGroupPickListName,
-                        label: 'Series Group',
-                      ),
-                      onManagePhysicalFormats: () => _manageSingleValuePickList(
-                        listName: kPhysicalFormatPickListName,
-                        label: 'Format',
-                      ),
-                      onManageSeries: _openManualSeriesPicker,
-                      onSeriesChanged: _setManualSeries,
-                      customFieldDefinitions: widget.customFieldDefinitions,
-                      customFieldValues: _manualDraft.customFieldValues,
-                      onCustomFieldValuesChanged: (vals) {
-                        setState(() {
-                          _manualDraft.customFieldValues = vals;
-                        });
-                      },
-                      itemImages: _manualDraft.itemImages,
-                      onItemImagesChanged: (imgs) {
-                        setState(() {
-                          _manualDraft.itemImages = imgs
-                              .where((e) => !e.deleted && e.imageData != null)
-                              .map((e) => ItemImage(
-                                    id: e.id,
-                                    ownedItemId: 'draft',
-                                    imageData: e.imageData!,
-                                    imageType: e.imageType,
-                                    caption: e.caption,
-                                    sortOrder: e.sortOrder,
-                                    createdAt:
-                                        e.createdAt ?? DateTime.now().toUtc(),
-                                  ))
-                              .toList();
-                        });
-                      },
-                    ),
+                    _buildManualPaneRequest(state, accent),
                   ),
             },
           ),

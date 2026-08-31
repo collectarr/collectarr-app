@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 abstract interface class LibraryAddCapability<
@@ -10,6 +11,7 @@ abstract interface class LibraryAddCapability<
   CatalogMediaKind get kind;
 
   TDraft createInitialDraft();
+  LibraryKindAddDraft createManualDraft();
 
   AddOwnedItemCommand buildCommand(
     LibraryMetadataItem item,
@@ -18,19 +20,31 @@ abstract interface class LibraryAddCapability<
   );
 }
 
+class _EmptyKindAddDraft implements LibraryKindAddDraft {
+  const _EmptyKindAddDraft();
+  @override
+  void dispose() {}
+}
+
 class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     implements LibraryAddCapability<TDraft> {
   const StandardLibraryAddCapability({
     required this.kind,
     required this.initialDraftBuilder,
+    this.manualDraftBuilder,
   });
 
   @override
   final CatalogMediaKind kind;
   final TDraft Function() initialDraftBuilder;
+  final LibraryKindAddDraft Function()? manualDraftBuilder;
 
   @override
   TDraft createInitialDraft() => initialDraftBuilder();
+
+  @override
+  LibraryKindAddDraft createManualDraft() =>
+      manualDraftBuilder?.call() ?? const _EmptyKindAddDraft();
 
   @override
   AddOwnedItemCommand buildCommand(

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -57,6 +58,7 @@ final genericKindModule =
   add: const StandardLibraryAddCapability<GenericAddDraft>(
     kind: CatalogMediaKind.unknown,
     initialDraftBuilder: GenericAddDraft.new,
+    manualDraftBuilder: GenericAddManualDraft.new,
   ),
   edit: const LibraryEditCapability(),
   buildCardPresentation: (item, {required musicVertical}) =>

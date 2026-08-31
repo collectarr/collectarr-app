@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -58,6 +59,7 @@ final boardGameKindModule =
   add: const StandardLibraryAddCapability<BoardgameAddDraft>(
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardgameAddDraft.new,
+    manualDraftBuilder: BoardgameAddManualDraft.new,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildBoardGameLibraryEditDialog,

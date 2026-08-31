@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
@@ -59,6 +60,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   add: const StandardLibraryAddCapability<MusicAddDraft>(
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
+    manualDraftBuilder: MusicAddManualDraft.new,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildMusicLibraryEditDialog,

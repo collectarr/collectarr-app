@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
@@ -66,6 +67,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   add: const StandardLibraryAddCapability<TvAddDraft>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
+    manualDraftBuilder: TvAddManualDraft.new,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildTvLibraryEditDialog,

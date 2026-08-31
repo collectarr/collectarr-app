@@ -27,33 +27,6 @@ class LibraryAddManualPaneState extends State<LibraryAddManualPane> {
     EditTab(icon: Icons.link, label: 'Links'),
   ];
 
-  final _fallbackPurchasePriceController = TextEditingController();
-  final _fallbackPurchaseDateController = TextEditingController();
-  final _fallbackCoverPriceController = TextEditingController();
-  final _fallbackSoldPriceController = TextEditingController();
-  final _fallbackOwnerLabelController = TextEditingController();
-  final _fallbackPersonalNotesController = TextEditingController();
-  final _fallbackLinksController = TextEditingController();
-
-  TextEditingController _kindSpecificController(
-    String key,
-    TextEditingController fallback,
-  ) {
-    final controller = widget.request.kindSpecific[key];
-    return controller is TextEditingController ? controller : fallback;
-  }
-
-  @override
-  void dispose() {
-    _fallbackPurchasePriceController.dispose();
-    _fallbackPurchaseDateController.dispose();
-    _fallbackCoverPriceController.dispose();
-    _fallbackSoldPriceController.dispose();
-    _fallbackOwnerLabelController.dispose();
-    _fallbackPersonalNotesController.dispose();
-    _fallbackLinksController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -300,29 +273,20 @@ class LibraryAddManualPaneState extends State<LibraryAddManualPane> {
                             Row(children: [
                               Expanded(
                                   child: TextField(
-                                      controller: _kindSpecificController(
-                                        'purchasePriceController',
-                                        _fallbackPurchasePriceController,
-                                      ),
+                                      controller: widget.request.priceController,
                                       decoration: const InputDecoration(
                                           labelText: 'Purchase Price'))),
                               const SizedBox(width: 8),
                               Expanded(
                                   child:
                                       ValueListenableBuilder<TextEditingValue>(
-                                valueListenable: _kindSpecificController(
-                                  'purchaseDateController',
-                                  _fallbackPurchaseDateController,
-                                ),
+                                valueListenable: widget.request.purchaseDateController,
                                 builder: (context, value, _) {
                                   return LibraryDateFieldButton(
                                     label: 'Purchase date',
                                     value: parseDate(value.text),
                                     onChanged: (picked) {
-                                      _kindSpecificController(
-                                        'purchaseDateController',
-                                        _fallbackPurchaseDateController,
-                                      ).text = picked == null
+                                      widget.request.purchaseDateController.text = picked == null
                                           ? ''
                                           : formatDate(picked);
                                     },
@@ -334,19 +298,13 @@ class LibraryAddManualPaneState extends State<LibraryAddManualPane> {
                             Row(children: [
                               Expanded(
                                   child: TextField(
-                                      controller: _kindSpecificController(
-                                        'coverPriceController',
-                                        _fallbackCoverPriceController,
-                                      ),
+                                      controller: widget.request.coverPriceController,
                                       decoration: const InputDecoration(
                                           labelText: 'Cover Price'))),
                               const SizedBox(width: 8),
                               Expanded(
                                   child: TextField(
-                                      controller: _kindSpecificController(
-                                        'soldPriceController',
-                                        _fallbackSoldPriceController,
-                                      ),
+                                      controller: widget.request.sellPriceController,
                                       decoration: const InputDecoration(
                                           labelText: 'Sold Price'))),
                             ]),
@@ -363,10 +321,7 @@ class LibraryAddManualPaneState extends State<LibraryAddManualPane> {
                             Row(children: [
                               Expanded(
                                   child: TextField(
-                                      controller: _kindSpecificController(
-                                        'ownerLabelController',
-                                        _fallbackOwnerLabelController,
-                                      ),
+                                      controller: widget.request.ownerLabelController,
                                       decoration: const InputDecoration(
                                           labelText: 'Owner'))),
                               const SizedBox(width: 8),
@@ -378,10 +333,7 @@ class LibraryAddManualPaneState extends State<LibraryAddManualPane> {
                             ]),
                             const SizedBox(height: 8),
                             TextField(
-                                controller: _kindSpecificController(
-                                  'personalNotesController',
-                                  _fallbackPersonalNotesController,
-                                ),
+                                controller: widget.request.personalNotesController,
                                 decoration:
                                     const InputDecoration(labelText: 'Notes'),
                                 maxLines: 4),
@@ -495,10 +447,7 @@ class LibraryAddManualPaneState extends State<LibraryAddManualPane> {
                                 ),
                                 const SizedBox(height: 10),
                                 TextField(
-                                    controller: _kindSpecificController(
-                                      'linksController',
-                                      _fallbackLinksController,
-                                    ),
+                                    controller: widget.request.linksController,
                                     maxLines: 3,
                                     decoration: const InputDecoration(
                                         labelText: 'Links (one per line)')),

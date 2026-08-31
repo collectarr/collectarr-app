@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
 
-typedef LibraryAddManualKindSpecificFactory = Map<String, dynamic> Function();
-
 class LibraryAddRegistry {
   static final Map<CatalogMediaKind, LibraryAddManualPaneBuilder>
       _manualBuilders = {};
@@ -16,8 +14,6 @@ class LibraryAddRegistry {
       _searchBuilders = {};
   static final Map<CatalogMediaKind, LibraryAddBottomBarBuilder>
       _bottomBuilders = {};
-  static final Map<CatalogMediaKind, LibraryAddManualKindSpecificFactory>
-      _manualKindSpecificFactories = {};
 
   static void registerManualBuilder(
     CatalogMediaKind kind,
@@ -80,18 +76,6 @@ class LibraryAddRegistry {
     LibraryAddBottomBarBuilder builder,
   ) {
     _bottomBuilders[kind] = builder;
-  }
-
-  static void registerManualKindSpecificFactory(
-    CatalogMediaKind kind,
-    LibraryAddManualKindSpecificFactory factory,
-  ) {
-    _manualKindSpecificFactories[kind] = factory;
-  }
-
-  static LibraryAddManualKindSpecificFactory? manualKindSpecificFactoryFor(
-      CatalogMediaKind kind) {
-    return _manualKindSpecificFactories[kind];
   }
 
   static LibraryAddBottomBarBuilder? bottomBarBuilderFor(

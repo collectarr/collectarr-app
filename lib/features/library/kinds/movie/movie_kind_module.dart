@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
@@ -62,6 +63,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   add: const StandardLibraryAddCapability<MovieAddDraft>(
     kind: CatalogMediaKind.movie,
     initialDraftBuilder: MovieAddDraft.new,
+    manualDraftBuilder: MovieAddManualDraft.new,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildMovieLibraryEditDialog,

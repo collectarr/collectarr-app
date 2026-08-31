@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -105,7 +106,16 @@ class LibraryAddManualPaneRequest {
     required this.onManagePhysicalFormats,
     required this.onManageSeries,
     required this.onSeriesChanged,
-    this.kindSpecific = const {},
+    required this.manualDraft,
+    required this.personalNotesController,
+    required this.coverPriceController,
+    required this.priceController,
+    required this.purchaseDateController,
+    required this.purchaseStoreController,
+    required this.sellPriceController,
+    required this.soldDateController,
+    required this.ownerLabelController,
+    required this.linksController,
     required this.customFieldDefinitions,
     required this.customFieldValues,
     required this.onCustomFieldValuesChanged,
@@ -118,6 +128,7 @@ class LibraryAddManualPaneRequest {
   final LibraryTypeConfig type;
   final LibraryAddCommonDraft? commonDraft;
   final LibraryAddKindDraft? kindDraft;
+  final LibraryKindAddDraft manualDraft;
   final ValueChanged<LibraryAddCommonDraft>? onCommonDraftChanged;
   final ValueChanged<LibraryAddKindDraft>? onKindDraftChanged;
   final TextEditingController titleController;
@@ -157,6 +168,15 @@ class LibraryAddManualPaneRequest {
   final TextEditingController genresEditController;
   final TextEditingController synopsisController;
   final TextEditingController tagsController;
+  final TextEditingController personalNotesController;
+  final TextEditingController coverPriceController;
+  final TextEditingController priceController;
+  final TextEditingController purchaseDateController;
+  final TextEditingController purchaseStoreController;
+  final TextEditingController sellPriceController;
+  final TextEditingController soldDateController;
+  final TextEditingController ownerLabelController;
+  final TextEditingController linksController;
   final List<String> publisherOptions;
   final List<String> imprintOptions;
   final List<String> seriesGroupOptions;
@@ -168,7 +188,6 @@ class LibraryAddManualPaneRequest {
   final VoidCallback onManagePhysicalFormats;
   final VoidCallback onManageSeries;
   final ValueChanged<String?> onSeriesChanged;
-  final Map<String, dynamic> kindSpecific;
 
   // Custom fields and images
   final List<CustomFieldDefinition> customFieldDefinitions;
@@ -177,7 +196,8 @@ class LibraryAddManualPaneRequest {
   final List<ItemImage> itemImages;
   final ValueChanged<List<ItemImageEdit>> onItemImagesChanged;
 
-  // (kindSpecific declared above)
+  TDraft manualDraftAs<TDraft extends LibraryKindAddDraft>() =>
+      manualDraft as TDraft;
 }
 
 class LibraryAddPreviewPaneRequest {
