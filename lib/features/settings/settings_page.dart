@@ -39,6 +39,7 @@ import 'package:collectarr_app/features/library/metadata/metadata_proposal_store
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
+import 'package:collectarr_app/features/providers/ui/external_services_page.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -836,6 +837,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               const _ImportJobsPanel(),
               const SizedBox(height: 12),
               const _TmdbPendingImportsPanel(),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ExternalServicesPage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.hub_outlined),
+                label: const Text('Manage External Services & Integrations'),
+              ),
               const SizedBox(height: 12),
               _ImportSourcesGrid(
                 tmdbSettings: tmdbImportSettings,
