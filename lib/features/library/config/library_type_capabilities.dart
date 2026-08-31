@@ -1,4 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
+import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
+
+export 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 
 enum LibraryContentHierarchy {
   flat,
@@ -10,48 +13,16 @@ class LibraryTypeCapabilities {
   const LibraryTypeCapabilities.empty() : this();
 
   const LibraryTypeCapabilities({
-    this.showsSynopsis = false,
-    this.showsImprint = false,
-    this.showsGenre = true,
-    this.showsRating = false,
-    this.showsAudienceRating = false,
-    this.showsLanguage = false,
-    this.showsCountry = false,
-    this.showsOriginalLanguage = false,
-    this.showsOriginalCountry = false,
-    this.showsOriginalTitle = false,
-    this.showsCondition = true,
-    this.showsGrade = false,
-    this.showsGradingNotes = false,
-    this.showsGradingCertificate = false,
-    this.showsGradingCompany = false,
-    this.showsSignedBy = false,
-    this.showsKeyReason = false,
-    this.showsLocation = true,
-    this.showsStorageBox = false,
-    this.showsQuantity = false,
-    this.showsCurrency = true,
-    this.showsPricePaid = true,
-    this.showsEstimatedValue = false,
-    this.showsNotes = true,
-    this.showsTags = true,
+    this.showsSynopsis = true,
+    this.showsCreatorSpotlight = false,
+    this.showsTrackData = false,
     bool showsReadingQueue = false,
     bool? supportsReadingQueue,
-    this.showsReadingProgress = false,
-    this.showsReadingDates = false,
-    this.showsReadStatus = false,
-    this.showsCreatorSpotlight = false,
-    this.showsTrackSpotlight = false,
-    this.showsTrackData = false,
     bool showsIndexReassignment = false,
     bool? supportsIndexReassignment,
-    this.showsBarcodeScan = true,
-    this.showsCoverImageScan = true,
-    this.showsBulkEdit = true,
-    this.showsExport = true,
-    this.canScanBarcode = true,
     this.canScanCover = true,
     this.prefersSquareCovers = false,
+    this.coverAspectRatio = 1.53,
     this.supportsOwnedItemImages = true,
     this.supportsMediaReleaseSplit = false,
     bool supportsMetadataCompareWithServer = false,
@@ -71,45 +42,13 @@ class LibraryTypeCapabilities {
             supportsMetadataCompare ?? supportsMetadataCompareWithServer;
 
   final bool showsSynopsis;
-  final bool showsImprint;
-  final bool showsGenre;
-  final bool showsRating;
-  final bool showsAudienceRating;
-  final bool showsLanguage;
-  final bool showsCountry;
-  final bool showsOriginalLanguage;
-  final bool showsOriginalCountry;
-  final bool showsOriginalTitle;
-  final bool showsCondition;
-  final bool showsGrade;
-  final bool showsGradingNotes;
-  final bool showsGradingCertificate;
-  final bool showsGradingCompany;
-  final bool showsSignedBy;
-  final bool showsKeyReason;
-  final bool showsLocation;
-  final bool showsStorageBox;
-  final bool showsQuantity;
-  final bool showsCurrency;
-  final bool showsPricePaid;
-  final bool showsEstimatedValue;
-  final bool showsNotes;
-  final bool showsTags;
-  final bool showsReadingQueue;
-  final bool showsReadingProgress;
-  final bool showsReadingDates;
-  final bool showsReadStatus;
   final bool showsCreatorSpotlight;
-  final bool showsTrackSpotlight;
   final bool showsTrackData;
+  final bool showsReadingQueue;
   final bool showsIndexReassignment;
-  final bool showsBarcodeScan;
-  final bool showsCoverImageScan;
-  final bool showsBulkEdit;
-  final bool showsExport;
-  final bool canScanBarcode;
   final bool canScanCover;
   final bool prefersSquareCovers;
+  final double coverAspectRatio;
   final bool supportsOwnedItemImages;
   final bool supportsMediaReleaseSplit;
   final bool supportsMetadataCompareWithServer;
@@ -136,4 +75,12 @@ class LibraryTypeCapabilities {
           releaseScopeGroupIds != null ||
           mediaScopeSortIds != null ||
           releaseScopeSortIds != null);
+
+  LibraryUiPolicy get uiPolicy => LibraryUiPolicy(
+        coverAspectRatio: prefersSquareCovers ? 1.0 : coverAspectRatio,
+        wideDialog: wideDialog,
+        prefersSquareCovers: prefersSquareCovers,
+        canScanCover: canScanCover,
+        supportsOwnedItemImages: supportsOwnedItemImages,
+      );
 }

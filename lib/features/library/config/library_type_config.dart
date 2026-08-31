@@ -301,6 +301,7 @@ class LibraryTypeConfig {
   final String? defaultCondition;
   final String? defaultGrade;
   final LibraryTypeCapabilities capabilities;
+  LibraryUiPolicy get uiPolicy => capabilities.uiPolicy;
   final LibraryKindWorkspaceBehavior workspaceBehavior;
   final LibraryMediaPresentation presentation;
   final LibraryAddChromeConfig addChrome;

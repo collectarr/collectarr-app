@@ -58,6 +58,7 @@ abstract interface class LibraryKindRuntime {
   LibraryValueCapability? get value;
   LibraryTypeConfig get type;
   LibraryTypeCapabilities get capabilities;
+  LibraryUiPolicy get uiPolicy => type.uiPolicy;
   LibraryMediaAdapter get mediaAdapter;
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
@@ -209,6 +210,9 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
 
   @override
   LibraryTypeCapabilities get capabilities => type.capabilities;
+
+  @override
+  LibraryUiPolicy get uiPolicy => type.uiPolicy;
 
   @override
   final LibraryMediaAdapter mediaAdapter;
