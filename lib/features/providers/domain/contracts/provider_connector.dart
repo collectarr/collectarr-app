@@ -107,6 +107,10 @@ final class ProviderConnector implements MetadataCapability {
   bool get supportsBidirectionalSync =>
       personalRead != null && personalWrite != null;
 
+  bool get canImport => supportsFileImport;
+  bool get canPull => supportsPersonalRead;
+  bool get canPush => supportsPersonalWrite;
+
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {

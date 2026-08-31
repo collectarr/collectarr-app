@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 
 const gcdMetadataProvider = LibraryMetadataProviderOption(
   id: 'gcd',
@@ -134,38 +136,29 @@ const collectarrKnownMetadataProviders = [
 ];
 
 class LibraryMetadataProviderRegistry {
-  const LibraryMetadataProviderRegistry(this.providers);
+  const LibraryMetadataProviderRegistry([this._registry]);
 
-  final List<LibraryMetadataProviderOption> providers;
+  final ProviderConnectorRegistry? _registry;
+
+  ProviderConnectorRegistry get registry =>
+      _registry ?? defaultProviderConnectorRegistry;
 
   LibraryMetadataProviderOption? byId(String id) {
-    final normalized = id.trim();
-    for (final provider in providers) {
-      if (provider.id == normalized) {
-        return provider;
-      }
-    }
-    return null;
+    final connector = registry.get(id);
+    if (connector == null) return null;
+    return LibraryMetadataProviderOption.fromConnector(connector);
   }
 
   List<LibraryMetadataProviderOption> forKind(String kind) {
-    final normalized = kind.trim();
+    final connectors = registry.getForKind(kind);
     return [
-      for (final provider in providers)
-        if (provider.supportsKind(catalogMediaKindFromValue(normalized)))
-          provider,
+      for (final connector in connectors)
+        if (connector.supportsMetadata)
+          LibraryMetadataProviderOption.fromConnector(connector),
     ];
   }
 
-  List<String> get supportedKinds {
-    final kinds = <String>{};
-    for (final provider in providers) {
-      kinds.addAll(provider.supportedKinds);
-    }
-    return kinds.toList(growable: false);
-  }
+  List<String> get supportedKinds => registry.supportedKinds;
 }
 
-const collectarrMetadataProviderRegistry = LibraryMetadataProviderRegistry(
-  collectarrKnownMetadataProviders,
-);
+const collectarrMetadataProviderRegistry = LibraryMetadataProviderRegistry();

@@ -3,24 +3,26 @@ import 'package:collectarr_app/core/models/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_registry.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
+import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 
 extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
   LibraryTypeConfig resolveWithCatalog(
     Iterable<CatalogMediaType> catalog, {
-    LibraryMetadataProviderRegistry providerRegistry =
-        collectarrMetadataProviderRegistry,
+    ProviderConnectorRegistry? providerRegistry,
   }) {
     final rawMediaType = _mediaTypeForKind(catalog, workspace.kind);
     if (rawMediaType == null) {
       return this;
     }
+    final effectiveRegistry =
+        providerRegistry ?? defaultProviderConnectorRegistry;
     final mediaType = normalizeCatalogMediaTypeDefaults(rawMediaType);
     final resolvedProviders = _resolveProviderOptions(
       mediaType.providers,
       kind: mediaType.kind,
       fallback: metadataProviders,
-      registry: providerRegistry,
+      registry: effectiveRegistry,
     );
     return LibraryTypeConfig(
       workspace: workspace,
@@ -58,8 +60,7 @@ extension LibraryTypeConfigCatalogResolution on LibraryTypeConfig {
 extension LibraryTypeRegistryCatalogResolution on LibraryTypeRegistry {
   LibraryTypeRegistry resolveWithCatalog(
     Iterable<CatalogMediaType> catalog, {
-    LibraryMetadataProviderRegistry providerRegistry =
-        collectarrMetadataProviderRegistry,
+    ProviderConnectorRegistry? providerRegistry,
   }) {
     return LibraryTypeRegistry([
       for (final type in types)
@@ -85,7 +86,7 @@ List<LibraryMetadataProviderOption> _resolveProviderOptions(
   Iterable<String> providerIds, {
   required String kind,
   required List<LibraryMetadataProviderOption> fallback,
-  required LibraryMetadataProviderRegistry registry,
+  required ProviderConnectorRegistry registry,
 }) {
   final normalizedKind = kind.trim().toLowerCase();
   final fallbackById = {
@@ -106,9 +107,13 @@ LibraryMetadataProviderOption _providerOptionForId(
   String providerId, {
   required String kind,
   required LibraryMetadataProviderOption? fallback,
-  required LibraryMetadataProviderRegistry registry,
+  required ProviderConnectorRegistry registry,
 }) {
-  final option = fallback ?? registry.byId(providerId);
+  final connector = registry.get(providerId);
+  final option = fallback ??
+      (connector != null
+          ? LibraryMetadataProviderOption.fromConnector(connector)
+          : null);
   if (option == null) {
     return LibraryMetadataProviderOption(
       id: providerId,

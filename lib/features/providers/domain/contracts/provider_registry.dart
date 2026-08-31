@@ -20,14 +20,23 @@ abstract class ProviderConnectorRegistry {
   /// Retrieve a registered connector by string [name].
   ProviderConnector? getByName(String name);
 
+  /// Retrieve a registered connector by [ProviderId] or string identifier.
+  ProviderConnector? byId(Object idOrName);
+
   /// Retrieve all registered connectors.
   List<ProviderConnector> getAll();
 
   /// Retrieve all registered connectors that support the given [kind].
   List<ProviderConnector> getForKind(Object kind);
 
+  /// Retrieve all registered connectors that support the given [kind].
+  List<ProviderConnector> forKind(Object kind);
+
   /// Retrieve descriptors for all registered connectors.
   List<ProviderDescriptor> getDescriptors();
+
+  /// Retrieve unique supported media kinds across all registered connectors.
+  List<String> get supportedKinds;
 }
 
 /// In-memory implementation of [ProviderConnectorRegistry].
@@ -83,6 +92,9 @@ class InMemoryProviderConnectorRegistry implements ProviderConnectorRegistry {
   ProviderConnector? getByName(String name) => get(name);
 
   @override
+  ProviderConnector? byId(Object idOrName) => get(idOrName);
+
+  @override
   List<ProviderConnector> getAll() {
     final unique = <ProviderConnector>{..._connectors.values, ..._byId.values};
     return List.unmodifiable(unique);
@@ -100,10 +112,22 @@ class InMemoryProviderConnectorRegistry implements ProviderConnectorRegistry {
   }
 
   @override
+  List<ProviderConnector> forKind(Object kind) => getForKind(kind);
+
+  @override
   List<ProviderDescriptor> getDescriptors() {
     return getAll()
         .map((connector) => connector.descriptor)
         .toList(growable: false);
+  }
+
+  @override
+  List<String> get supportedKinds {
+    final kinds = <String>{};
+    for (final connector in getAll()) {
+      kinds.addAll(connector.descriptor.allSupportedKinds);
+    }
+    return kinds.toList(growable: false);
   }
 }
 
