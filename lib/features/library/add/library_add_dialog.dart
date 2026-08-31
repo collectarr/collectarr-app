@@ -25,7 +25,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_preview_pa
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
-import 'package:collectarr_app/features/library/add/shell/library_add_shell.dart';
+import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
@@ -38,6 +38,7 @@ import 'package:collectarr_app/features/library/series/series_registry_repositor
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/state/api_provider.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -781,8 +782,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       advancedFiltersBuilder: addCapability.advancedFiltersBuilder,
     );
 
-    return LibraryAddShell(
+    final palette = appPalette(context);
+    final dialogTheme = buildLibraryAddDialogTheme(accent, palette);
+
+    return LibraryDialogScaffold(
       accent: accent,
+      themeData: dialogTheme,
       width: _dialogWidth ?? _defaultDialogWidth,
       height: _dialogHeight ?? _defaultDialogHeight,
       minWidth: _minDialogWidth,
@@ -797,70 +802,72 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         _dialogHeight = ((_dialogHeight ?? _defaultDialogHeight) + delta)
             .clamp(_minDialogHeight, _maxDialogHeight);
       }),
-      header: const SizedBox.shrink(),
-      body: Column(
+      header: widget.headerBuilder?.call(context, headerRequest) ??
+          addCapability.headerBuilder?.call(context, headerRequest) ??
+          AccentDialogHeader(
+            title: 'Add ${widget.type.pluralLabel}',
+            accent: accent,
+            icon: widget.type.workspace.icon,
+            onClose: () => Navigator.of(context).pop(),
+          ),
+      contextBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          widget.headerBuilder?.call(context, headerRequest) ??
-              addCapability.headerBuilder?.call(context, headerRequest) ??
-              AccentDialogHeader(
-                title: 'Add ${widget.type.pluralLabel}',
-                accent: accent,
-                icon: widget.type.workspace.icon,
-                onClose: () => Navigator.of(context).pop(),
-              ),
           Builder(
             builder: (scopedContext) =>
                 widget.modeBarBuilder?.call(scopedContext, modeBarRequest) ??
                 addCapability.modeBarBuilder
                     ?.call(scopedContext, modeBarRequest) ??
                 LibraryAddModeBar(
-                    type: modeBarRequest.type,
-                    accent: modeBarRequest.accent,
-                    isMovieDesktopChrome: isMovieDesktopChrome,
-                    mode: modeBarRequest.mode,
-                    queryController: modeBarRequest.queryController,
-                    barcodeController: modeBarRequest.barcodeController,
-                    isSearching: modeBarRequest.isSearching,
-                    isSearchingProvider: modeBarRequest.isSearchingProvider,
-                    onModeChanged: modeBarRequest.onModeChanged,
-                    onSearch: modeBarRequest.onSearch,
-                    onQueryChanged: modeBarRequest.onQueryChanged,
-                    suggestions: modeBarRequest.suggestions,
-                    showSuggestions: modeBarRequest.showSuggestions,
-                    onSelectSuggestion: modeBarRequest.onSelectSuggestion,
-                    onDismissSuggestions: modeBarRequest.onDismissSuggestions,
-                    canScanCover: modeBarRequest.canScanCover,
-                    isScanningCover: modeBarRequest.isScanningCover,
-                    onScanCover: modeBarRequest.onScanCover,
-                    onLookupBarcode: modeBarRequest.onLookupBarcode,
-                    onManual: modeBarRequest.onManual,
-                    showAdvanced: modeBarRequest.showAdvanced,
-                    onToggleAdvanced: modeBarRequest.onToggleAdvanced,
-                    seriesController: modeBarRequest.seriesController,
-                    numberController: modeBarRequest.numberController,
-                    publisherController: modeBarRequest.publisherController,
-                    yearController: modeBarRequest.yearController,
-                    advancedFilterFields: modeBarRequest.advancedFilterFields,
-                    advancedFiltersBuilder:
-                        modeBarRequest.advancedFiltersBuilder,
-                    videoKindFilters:
-                        widget.type.addChrome.videoKindFilterOptions.isNotEmpty
-                            ? state.search.videoKindFilters
-                            : null,
-                    onVideoKindFilterChanged:
-                        widget.type.addChrome.videoKindFilterOptions.isNotEmpty
-                            ? (k, checked) =>
-                                _controller.setVideoKindFilter(k, checked)
-                            : null,
-                  ),
-            ),
+                  type: modeBarRequest.type,
+                  accent: modeBarRequest.accent,
+                  isMovieDesktopChrome: isMovieDesktopChrome,
+                  mode: modeBarRequest.mode,
+                  queryController: modeBarRequest.queryController,
+                  barcodeController: modeBarRequest.barcodeController,
+                  isSearching: modeBarRequest.isSearching,
+                  isSearchingProvider: modeBarRequest.isSearchingProvider,
+                  onModeChanged: modeBarRequest.onModeChanged,
+                  onSearch: modeBarRequest.onSearch,
+                  onQueryChanged: modeBarRequest.onQueryChanged,
+                  suggestions: modeBarRequest.suggestions,
+                  showSuggestions: modeBarRequest.showSuggestions,
+                  onSelectSuggestion: modeBarRequest.onSelectSuggestion,
+                  onDismissSuggestions: modeBarRequest.onDismissSuggestions,
+                  canScanCover: modeBarRequest.canScanCover,
+                  isScanningCover: modeBarRequest.isScanningCover,
+                  onScanCover: modeBarRequest.onScanCover,
+                  onLookupBarcode: modeBarRequest.onLookupBarcode,
+                  onManual: modeBarRequest.onManual,
+                  showAdvanced: modeBarRequest.showAdvanced,
+                  onToggleAdvanced: modeBarRequest.onToggleAdvanced,
+                  seriesController: modeBarRequest.seriesController,
+                  numberController: modeBarRequest.numberController,
+                  publisherController: modeBarRequest.publisherController,
+                  yearController: modeBarRequest.yearController,
+                  advancedFilterFields: modeBarRequest.advancedFilterFields,
+                  advancedFiltersBuilder:
+                      modeBarRequest.advancedFiltersBuilder,
+                  videoKindFilters:
+                      widget.type.addChrome.videoKindFilterOptions.isNotEmpty
+                          ? state.search.videoKindFilters
+                          : null,
+                  onVideoKindFilterChanged:
+                      widget.type.addChrome.videoKindFilterOptions.isNotEmpty
+                          ? (k, checked) =>
+                              _controller.setVideoKindFilter(k, checked)
+                          : null,
+                ),
+          ),
           if (_barcodeController.text.trim().isNotEmpty)
             LibraryAddBarcodePrefillBanner(
               type: widget.type,
               barcode: _barcodeController.text.trim(),
             ),
-          Expanded(
-            child: switch (state.mode) {
+        ],
+      ),
+      body: switch (state.mode) {
               LibraryAddDialogMode.search ||
               LibraryAddDialogMode.barcode =>
                 LayoutBuilder(
@@ -1089,9 +1096,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     _buildManualPaneRequest(state, accent),
                   ),
             },
-          ),
-        ],
-      ),
       footer: () {
         final bottomBarRequest = LibraryAddBottomBarRequest(
           type: widget.type,
