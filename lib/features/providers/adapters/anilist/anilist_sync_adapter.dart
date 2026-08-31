@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_http_client.dart';
@@ -22,6 +23,7 @@ class AniListSyncAdapter
   Future<List<ProviderPersonalEntry>> readPersonalList({
     required String accountId,
     CatalogMediaKind? kind,
+    ProviderAccountContext? context,
   }) async {
     final type = kind == CatalogMediaKind.manga ? 'MANGA' : 'ANIME';
     const query = r'''
@@ -69,10 +71,14 @@ query ($userName: String, $type: MediaType) {
 }
 ''';
 
+    final effectiveUsername =
+        context?.remoteHandle ?? context?.remoteAccountId ?? accountId;
+    final token = context?.accessToken ?? accessToken;
+
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+      if (token != null) 'Authorization': 'Bearer $token',
     };
 
     final response = await client.post<dynamic>(
@@ -81,7 +87,7 @@ query ($userName: String, $type: MediaType) {
       data: {
         'query': query,
         'variables': {
-          'userName': accountId,
+          'userName': effectiveUsername,
           'type': type,
         },
       },
@@ -107,6 +113,7 @@ query ($userName: String, $type: MediaType) {
       final entries = list['entries'] as List? ?? const [];
       for (final raw in entries) {
         if (raw is! Map) continue;
+        final listEntryId = raw['id']?.toString();
         final media = raw['media'] as Map? ?? const {};
         final mediaId = (raw['mediaId'] ?? media['id'])?.toString() ?? '';
         final mediaType = media['type']?.toString();
@@ -170,6 +177,7 @@ query ($userName: String, $type: MediaType) {
           ProviderPersonalEntry(
             provider: ProviderId.aniList,
             remoteItemId: mediaId,
+            remoteEntryId: listEntryId,
             kind: entryKind,
             title: title,
             externalIds: externalIds,
@@ -195,12 +203,15 @@ query ($userName: String, $type: MediaType) {
   Future<void> writePersonalEntry({
     required String accountId,
     required ProviderPersonalEntry entry,
+    ProviderAccountContext? context,
   }) async {
-    if (accessToken == null) return;
+    final token = context?.accessToken ?? accessToken;
+    if (token == null) return;
     const mutation = r'''
-mutation ($mediaId: Int, $status: MediaListStatus, $score: Float, $progress: Int, $repeat: Int, $notes: String) {
-  SaveMediaListEntry(mediaId: $mediaId, status: $status, score: $score, progress: $progress, repeat: $repeat, notes: $notes) {
+mutation ($id: Int, $mediaId: Int, $status: MediaListStatus, $score: Float, $progress: Int, $repeat: Int, $notes: String) {
+  SaveMediaListEntry(id: $id, mediaId: $mediaId, status: $status, score: $score, progress: $progress, repeat: $repeat, notes: $notes) {
     id
+    mediaId
     status
     score
     progress
@@ -209,7 +220,10 @@ mutation ($mediaId: Int, $status: MediaListStatus, $score: Float, $progress: Int
 ''';
 
     final mediaIdInt = int.tryParse(entry.remoteItemId);
-    if (mediaIdInt == null) return;
+    final listEntryIdInt = entry.remoteEntryId != null
+        ? int.tryParse(entry.remoteEntryId!)
+        : null;
+    if (mediaIdInt == null && listEntryIdInt == null) return;
 
     final aniListStatus = switch (entry.status) {
       ProviderEntryStatus.current => 'CURRENT',
@@ -224,7 +238,7 @@ mutation ($mediaId: Int, $status: MediaListStatus, $score: Float, $progress: Int
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': 'Bearer $accessToken',
+      'Authorization': 'Bearer $token',
     };
 
     await client.post<dynamic>(
@@ -233,7 +247,8 @@ mutation ($mediaId: Int, $status: MediaListStatus, $score: Float, $progress: Int
       data: {
         'query': mutation,
         'variables': {
-          'mediaId': mediaIdInt,
+          if (listEntryIdInt != null) 'id': listEntryIdInt,
+          if (mediaIdInt != null) 'mediaId': mediaIdInt,
           if (aniListStatus != null) 'status': aniListStatus,
           if (entry.rating != null) 'score': entry.rating,
           if (entry.progress != null) 'progress': entry.progress,
@@ -248,9 +263,12 @@ mutation ($mediaId: Int, $status: MediaListStatus, $score: Float, $progress: Int
   Future<void> deletePersonalEntry({
     required String accountId,
     required String remoteItemId,
+    String? remoteEntryId,
     CatalogMediaKind? kind,
+    ProviderAccountContext? context,
   }) async {
-    if (accessToken == null) return;
+    final token = context?.accessToken ?? accessToken;
+    if (token == null) return;
     const mutation = r'''
 mutation ($id: Int) {
   DeleteMediaListEntry(id: $id) {
@@ -259,13 +277,15 @@ mutation ($id: Int) {
 }
 ''';
 
-    final entryIdInt = int.tryParse(remoteItemId);
+    // AniList delete REQUIRES the list entry ID ($id), NOT the mediaId!
+    final targetId = remoteEntryId ?? remoteItemId;
+    final entryIdInt = int.tryParse(targetId);
     if (entryIdInt == null) return;
 
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': 'Bearer $accessToken',
+      'Authorization': 'Bearer $token',
     };
 
     await client.post<dynamic>(

@@ -16,18 +16,27 @@ final class ProviderAccount {
     required this.provider,
     required this.displayName,
     required this.authType,
-    this.username,
+    this.remoteAccountId,
+    this.remoteHandle,
+    String? username,
     this.avatarUrl,
     this.connectedAt,
     this.lastSyncAt,
     this.enabledCapabilities = const {},
-  });
+  }) : _username = username;
 
+  /// Internal unique ID for the account
   final String id;
   final ProviderId provider;
   final String displayName;
   final ProviderAuthType authType;
-  final String? username;
+  /// External provider account/user ID
+  final String? remoteAccountId;
+  /// External username/handle
+  final String? remoteHandle;
+  final String? _username;
+
+  String? get username => remoteHandle ?? _username;
   final String? avatarUrl;
   final DateTime? connectedAt;
   final DateTime? lastSyncAt;
@@ -38,6 +47,8 @@ final class ProviderAccount {
         'provider': provider.value,
         'displayName': displayName,
         'authType': authType.name,
+        if (remoteAccountId != null) 'remoteAccountId': remoteAccountId,
+        if (remoteHandle != null) 'remoteHandle': remoteHandle,
         if (username != null) 'username': username,
         if (avatarUrl != null) 'avatarUrl': avatarUrl,
         if (connectedAt != null) 'connectedAt': connectedAt!.toIso8601String(),
@@ -53,6 +64,8 @@ final class ProviderAccount {
       displayName: json['displayName']?.toString() ?? '',
       authType: ProviderAuthType.values.asNameMap()[json['authType']] ??
           ProviderAuthType.accessToken,
+      remoteAccountId: json['remoteAccountId']?.toString(),
+      remoteHandle: json['remoteHandle']?.toString() ?? json['username']?.toString(),
       username: json['username']?.toString(),
       avatarUrl: json['avatarUrl']?.toString(),
       connectedAt: json['connectedAt'] != null

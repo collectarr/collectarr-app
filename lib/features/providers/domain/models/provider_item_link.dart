@@ -8,6 +8,7 @@ final class ProviderItemLink {
     required this.accountId,
     required this.provider,
     required this.remoteItemId,
+    this.remoteEntryId,
     required this.localEntityRef,
     this.lastPulledAt,
     this.lastPushedAt,
@@ -18,6 +19,7 @@ final class ProviderItemLink {
   final String accountId;
   final ProviderId provider;
   final String remoteItemId;
+  final String? remoteEntryId;
   final CatalogEntityRef localEntityRef;
   final DateTime? lastPulledAt;
   final DateTime? lastPushedAt;
@@ -28,6 +30,7 @@ final class ProviderItemLink {
         'accountId': accountId,
         'provider': provider.value,
         'remoteItemId': remoteItemId,
+        if (remoteEntryId != null) 'remoteEntryId': remoteEntryId,
         'localEntityRef': {
           'id': localEntityRef.id,
           'kind': localEntityRef.kind,
@@ -47,6 +50,7 @@ final class ProviderItemLink {
       provider: ProviderId.fromValue(json['provider']?.toString()) ??
           ProviderId.aniList,
       remoteItemId: json['remoteItemId']?.toString() ?? '',
+      remoteEntryId: json['remoteEntryId']?.toString(),
       localEntityRef: CatalogEntityRef(
         id: refMap['id']?.toString() ?? '',
         kind: refMap['kind']?.toString() ?? '',

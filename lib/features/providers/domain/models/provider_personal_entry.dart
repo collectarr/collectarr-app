@@ -16,6 +16,7 @@ final class ProviderPersonalEntry {
   const ProviderPersonalEntry({
     required this.provider,
     required this.remoteItemId,
+    this.remoteEntryId,
     required this.kind,
     this.title,
     this.externalIds = const {},
@@ -34,6 +35,7 @@ final class ProviderPersonalEntry {
 
   final ProviderId provider;
   final String remoteItemId;
+  final String? remoteEntryId;
   final CatalogMediaKind kind;
   final String? title;
   final Map<String, String> externalIds;
@@ -52,6 +54,7 @@ final class ProviderPersonalEntry {
   Map<String, dynamic> toJson() => {
         'provider': provider.value,
         'remoteItemId': remoteItemId,
+        if (remoteEntryId != null) 'remoteEntryId': remoteEntryId,
         'kind': kind.apiValue,
         if (title != null) 'title': title,
         'externalIds': externalIds,
@@ -73,6 +76,7 @@ final class ProviderPersonalEntry {
       provider:
           ProviderId.fromValue(json['provider']?.toString()) ?? ProviderId.tmdb,
       remoteItemId: json['remoteItemId']?.toString() ?? '',
+      remoteEntryId: json['remoteEntryId']?.toString(),
       kind: catalogMediaKindFromApiValue(json['kind']?.toString() ?? 'movie'),
       title: json['title']?.toString(),
       externalIds: Map<String, String>.from(

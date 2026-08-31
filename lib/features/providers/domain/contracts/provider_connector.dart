@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
@@ -23,6 +24,7 @@ abstract interface class PersonalListReadCapability {
   Future<List<ProviderPersonalEntry>> readPersonalList({
     required String accountId,
     CatalogMediaKind? kind,
+    ProviderAccountContext? context,
   });
 }
 
@@ -30,12 +32,15 @@ abstract interface class PersonalListWriteCapability {
   Future<void> writePersonalEntry({
     required String accountId,
     required ProviderPersonalEntry entry,
+    ProviderAccountContext? context,
   });
 
   Future<void> deletePersonalEntry({
     required String accountId,
     required String remoteItemId,
+    String? remoteEntryId,
     CatalogMediaKind? kind,
+    ProviderAccountContext? context,
   });
 }
 
