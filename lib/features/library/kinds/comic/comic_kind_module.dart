@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
@@ -86,6 +89,12 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     kind: CatalogMediaKind.comic,
     initialDraftBuilder: ComicAddDraft.new,
     manualDraftBuilder: ComicAddManualDraft.new,
+    manualPaneBuilder: buildComicAddManualPane,
+    headerBuilder: buildComicAddHeader,
+    modeBarBuilder: buildComicAddModeBar,
+    previewPaneBuilder: buildComicAddPreviewPane,
+    searchPaneBuilder: buildComicAddSearchPane,
+    bottomBarBuilder: buildComicAddBottomBar,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildComicLibraryEditDialog,

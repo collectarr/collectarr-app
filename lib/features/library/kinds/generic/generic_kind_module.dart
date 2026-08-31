@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
@@ -59,6 +60,7 @@ final genericKindModule =
     kind: CatalogMediaKind.unknown,
     initialDraftBuilder: GenericAddDraft.new,
     manualDraftBuilder: GenericAddManualDraft.new,
+    manualPaneBuilder: buildGenericAddManualPane,
   ),
   edit: const LibraryEditCapability(),
   buildCardPresentation: (item, {required musicVertical}) =>

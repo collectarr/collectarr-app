@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
@@ -70,6 +71,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,
     manualDraftBuilder: BookAddManualDraft.new,
+    manualPaneBuilder: buildBookAddManualPane,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildBookLibraryEditDialog,

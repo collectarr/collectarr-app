@@ -141,3 +141,10 @@ class MusicAddManualPane extends StatelessWidget {
     );
   }
 }
+
+Widget buildMusicAddManualPane(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+) {
+  return MusicAddManualPane(request: request);
+}

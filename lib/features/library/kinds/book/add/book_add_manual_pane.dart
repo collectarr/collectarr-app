@@ -191,3 +191,10 @@ class BookAddManualPane extends StatelessWidget {
     );
   }
 }
+
+Widget buildBookAddManualPane(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+) {
+  return BookAddManualPane(request: request);
+}

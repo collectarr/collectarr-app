@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
@@ -65,6 +66,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
     manualDraftBuilder: GameAddManualDraft.new,
+    manualPaneBuilder: buildGameAddManualPane,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildGameLibraryEditDialog,

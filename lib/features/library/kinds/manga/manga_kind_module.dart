@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -70,6 +71,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
     kind: CatalogMediaKind.manga,
     initialDraftBuilder: MangaAddDraft.new,
     manualDraftBuilder: MangaAddManualDraft.new,
+    manualPaneBuilder: buildMangaAddManualPane,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildMangaLibraryEditDialog,

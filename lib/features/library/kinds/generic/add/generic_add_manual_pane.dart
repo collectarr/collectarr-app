@@ -57,3 +57,10 @@ class GenericAddManualPane extends StatelessWidget {
     );
   }
 }
+
+Widget buildGenericAddManualPane(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+) {
+  return GenericAddManualPane(request: request);
+}

@@ -274,3 +274,10 @@ class ComicAddManualPane extends StatelessWidget {
     );
   }
 }
+
+Widget buildComicAddManualPane(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+) {
+  return ComicAddManualPane(request: request);
+}

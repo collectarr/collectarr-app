@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -15,7 +16,6 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_state.dart';
-import 'package:collectarr_app/features/library/add/library_add_registry.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/comic_add_search_options_scope.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -26,6 +26,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.d
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
+import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_shell.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -691,18 +692,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final selectedItem = state.selectedItem;
 
     final kind = widget.type.workspace.kind;
-    final headerBuilder =
-        widget.headerBuilder ?? LibraryAddRegistry.headerBuilderFor(kind);
-    final modeBarBuilder =
-        widget.modeBarBuilder ?? LibraryAddRegistry.modeBarBuilderFor(kind);
-    final searchPaneBuilder =
-        widget.searchPaneBuilder ?? LibraryAddRegistry.searchBuilderFor(kind);
-    final manualPaneBuilder =
-        widget.manualPaneBuilder ?? LibraryAddRegistry.manualBuilderFor(kind);
-    final previewPaneBuilder =
-        widget.previewPaneBuilder ?? LibraryAddRegistry.previewBuilderFor(kind);
-    final bottomBarBuilder =
-        widget.bottomBarBuilder ?? LibraryAddRegistry.bottomBarBuilderFor(kind);
+    final addCapability = libraryKindRuntimeForKind(kind).add;
 
     final headerRequest = LibraryAddHeaderRequest(
       type: widget.type,
@@ -784,7 +774,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       header: const SizedBox.shrink(),
       body: Column(
         children: [
-          headerBuilder?.call(context, headerRequest) ??
+          widget.headerBuilder?.call(context, headerRequest) ??
+              addCapability.headerBuilder?.call(context, headerRequest) ??
               AccentDialogHeader(
                 title: 'Add ${widget.type.pluralLabel}',
                 accent: accent,
@@ -801,7 +792,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             },
             child: Builder(
               builder: (scopedContext) =>
-                  modeBarBuilder?.call(scopedContext, modeBarRequest) ??
+                  widget.modeBarBuilder?.call(scopedContext, modeBarRequest) ??
+                  addCapability.modeBarBuilder?.call(scopedContext, modeBarRequest) ??
                   LibraryAddModeBar(
                     type: modeBarRequest.type,
                     accent: modeBarRequest.accent,
@@ -907,7 +899,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       onHideVariantResultsChanged:
                           _controller.setHideComicVariantResults,
                       onCompactIssuesChanged: _controller.setCompactComicIssues,
-                      child: searchPaneBuilder?.call(
+                      child: widget.searchPaneBuilder?.call(
+                              context, searchPaneRequest) ??
+                          addCapability.searchPaneBuilder?.call(
                               context, searchPaneRequest) ??
                           LibraryAddSearchPane(
                             type: searchPaneRequest.type,
@@ -990,7 +984,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                       type: widget.type,
                       accent: accent,
                       isMovieDesktopChrome: isMovieDesktopChrome,
-                      previewPaneBuilder: previewPaneBuilder,
+                      previewPaneBuilder: widget.previewPaneBuilder ??
+                          addCapability.previewPaneBuilder,
                       item: selectedItem,
                       candidate: selectedCandidate,
                       candidatePreview: selectedCandidate == null
@@ -1075,76 +1070,77 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     );
                   },
                 ),
-              LibraryAddDialogMode.manual => manualPaneBuilder?.call(
+              LibraryAddDialogMode.manual => widget.manualPaneBuilder?.call(
                     context,
                     _buildManualPaneRequest(state, accent),
                   ) ??
-                  LibraryAddUnsupportedManualPane(
-                    request: _buildManualPaneRequest(state, accent),
+                  addCapability.buildManualPane(
+                    context,
+                    _buildManualPaneRequest(state, accent),
                   ),
             },
           ),
         ],
       ),
-      footer: bottomBarBuilder?.call(
-            context,
-            LibraryAddBottomBarRequest(
-              type: widget.type,
-              conditions: _conditionOptions,
-              grades: _gradeOptions,
-              defaultTags: state.defaultTags,
-              accent: accent,
-              selectedItem: selectedItem,
-              selectedCandidate: selectedCandidate,
-              selectedQueuedIngest: selectedCandidate != null
-                  ? state.preview
-                      .queuedProviderIngests[selectedCandidate.localCatalogId]
-                  : null,
-              providerLabel: selectedCandidate == null
-                  ? widget.type
-                      .metadataProviderLabel(state.search.selectedProvider)
-                  : widget.type
-                      .metadataProviderLabel(selectedCandidate.provider),
-              addTarget: state.target,
-              addCount: state.selection.checkedResultIds.length > 1
-                  ? state.selection.checkedResultIds.length
-                  : 1,
-              isAdding: state.isAdding || state.submitState.isLoading,
-              isQueueingIngest: state.preview.isQueueingIngest,
-              isAdmin: ref.watch(authControllerProvider).isAdmin,
-              defaultCondition: state.defaultCondition,
-              defaultGrade: state.defaultGrade,
-              defaultLocationLabel: locationPathForId(
-                  _availableLocations, state.defaultLocationId),
-              defaultPurchaseDate: state.defaultPurchaseDate,
-              onAddTargetChanged: _controller.setTarget,
-              onDefaultConditionChanged: _controller.setDefaultCondition,
-              onDefaultGradeChanged: _controller.setDefaultGrade,
-              onEditDefaultTagsPressed: _showDefaultTagsEditor,
-              onDefaultLocationPressed: _pickDefaultLocation,
-              onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,
-              onAdd: () async {
-                final navigator = Navigator.of(context);
-                final success = await _controller.submitCurrentSelection(
-                  context: context,
-                  isAdmin: ref.read(authControllerProvider).isAdmin,
-                );
-                if (success && mounted) {
-                  navigator.pop(true);
-                }
-              },
-              onQueueIngest: selectedCandidate != null
-                  ? () => _controller.queueProviderIngest(
-                        selectedCandidate,
-                        context: context,
-                      )
-                  : null,
-              onPropose: selectedCandidate != null
-                  ? () => _proposeCandidate(selectedCandidate)
-                  : null,
-            ),
-          ) ??
-          LibraryAddBottomBar(
+      footer: () {
+        final bottomBarRequest = LibraryAddBottomBarRequest(
+          type: widget.type,
+          conditions: _conditionOptions,
+          grades: _gradeOptions,
+          defaultTags: state.defaultTags,
+          accent: accent,
+          selectedItem: selectedItem,
+          selectedCandidate: selectedCandidate,
+          selectedQueuedIngest: selectedCandidate != null
+              ? state.preview
+                  .queuedProviderIngests[selectedCandidate.localCatalogId]
+              : null,
+          providerLabel: selectedCandidate == null
+              ? widget.type
+                  .metadataProviderLabel(state.search.selectedProvider)
+              : widget.type
+                  .metadataProviderLabel(selectedCandidate.provider),
+          addTarget: state.target,
+          addCount: state.selection.checkedResultIds.length > 1
+              ? state.selection.checkedResultIds.length
+              : 1,
+          isAdding: state.isAdding || state.submitState.isLoading,
+          isQueueingIngest: state.preview.isQueueingIngest,
+          isAdmin: ref.watch(authControllerProvider).isAdmin,
+          defaultCondition: state.defaultCondition,
+          defaultGrade: state.defaultGrade,
+          defaultLocationLabel: locationPathForId(
+              _availableLocations, state.defaultLocationId),
+          defaultPurchaseDate: state.defaultPurchaseDate,
+          onAddTargetChanged: _controller.setTarget,
+          onDefaultConditionChanged: _controller.setDefaultCondition,
+          onDefaultGradeChanged: _controller.setDefaultGrade,
+          onEditDefaultTagsPressed: _showDefaultTagsEditor,
+          onDefaultLocationPressed: _pickDefaultLocation,
+          onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,
+          onAdd: () async {
+            final navigator = Navigator.of(context);
+            final success = await _controller.submitCurrentSelection(
+              context: context,
+              isAdmin: ref.read(authControllerProvider).isAdmin,
+            );
+            if (success && mounted) {
+              navigator.pop(true);
+            }
+          },
+          onQueueIngest: selectedCandidate != null
+              ? () => _controller.queueProviderIngest(
+                    selectedCandidate,
+                    context: context,
+                  )
+              : null,
+          onPropose: selectedCandidate != null
+              ? () => _proposeCandidate(selectedCandidate)
+              : null,
+        );
+        return widget.bottomBarBuilder?.call(context, bottomBarRequest) ??
+            addCapability.bottomBarBuilder?.call(context, bottomBarRequest) ??
+            LibraryAddBottomBar(
             type: widget.type,
             isMovieDesktopChrome: isMovieDesktopChrome,
             conditions: _conditionOptions,
@@ -1198,7 +1194,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
             onPropose: selectedCandidate != null
                 ? () => _proposeCandidate(selectedCandidate)
                 : null,
-          ),
+          );
+      }(),
     );
   }
 }

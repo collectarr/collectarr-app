@@ -172,3 +172,10 @@ class MangaAddManualPane extends StatelessWidget {
     );
   }
 }
+
+Widget buildMangaAddManualPane(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+) {
+  return MangaAddManualPane(request: request);
+}

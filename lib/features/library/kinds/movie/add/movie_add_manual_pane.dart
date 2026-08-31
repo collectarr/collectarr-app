@@ -152,3 +152,10 @@ class MovieAddManualPane extends StatelessWidget {
     );
   }
 }
+
+Widget buildMovieAddManualPane(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+) {
+  return MovieAddManualPane(request: request);
+}

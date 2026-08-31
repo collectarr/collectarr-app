@@ -150,3 +150,10 @@ class BoardgameAddManualPane extends StatelessWidget {
     );
   }
 }
+
+Widget buildBoardgameAddManualPane(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+) {
+  return BoardgameAddManualPane(request: request);
+}

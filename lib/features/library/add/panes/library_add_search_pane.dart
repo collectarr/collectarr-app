@@ -1075,6 +1075,7 @@ class SearchResultTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     return InkWell(
+      key: ValueKey('library-add-search-result-${item.id}'),
       onTap: onSelect,
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -1350,6 +1351,7 @@ class ProviderCandidateTile extends StatelessWidget {
       candidate.providerItemId,
     ].whereType<String>().join(' | ');
     return InkWell(
+      key: ValueKey('library-add-search-result-${candidate.localCatalogId}'),
       onTap: onSelect,
       child: DecoratedBox(
         decoration: BoxDecoration(

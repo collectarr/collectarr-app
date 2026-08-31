@@ -144,3 +144,10 @@ class AnimeAddManualPane extends StatelessWidget {
     );
   }
 }
+
+Widget buildAnimeAddManualPane(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+) {
+  return AnimeAddManualPane(request: request);
+}

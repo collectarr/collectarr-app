@@ -103,8 +103,6 @@ Future<void> tapGestureByKey(WidgetTester tester, String keyName) async {
 void main() {
   setUpAll(() {
     drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
-    // Ensure per-kind LibraryAdd builders are registered (normally done in app init).
-    registerLibraryAddBuilders();
   });
   setUp(() {
     resetMediaCatalogCacheForTesting();

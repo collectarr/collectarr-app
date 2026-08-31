@@ -144,3 +144,10 @@ class TvAddManualPane extends StatelessWidget {
     );
   }
 }
+
+Widget buildTvAddManualPane(
+  BuildContext context,
+  LibraryAddManualPaneRequest request,
+) {
+  return TvAddManualPane(request: request);
+}

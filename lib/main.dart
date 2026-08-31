@@ -30,9 +30,6 @@ void main() {
             );
       };
 
-      // Register per-kind LibraryAdd builders so the generic add dialog
-      // can discover custom panes at runtime.
-      registerLibraryAddBuilders();
       await _logFontDiagnostics(container!);
 
       runApp(

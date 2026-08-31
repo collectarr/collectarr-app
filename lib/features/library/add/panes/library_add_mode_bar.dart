@@ -160,6 +160,14 @@ class LibraryAddModeBar extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    _LibraryAddModeButton(
+                      label: 'Search ${type.pluralLabel}',
+                      icon: Icons.search,
+                      accent: accent,
+                      isBusy: isSearching,
+                      onPressed: isBusy ? null : onSearch,
+                    ),
                   ] else if (mode == LibraryAddDialogMode.barcode) ...[
                     _LibraryAddModeButton(
                       label: 'Lookup',
@@ -285,24 +293,29 @@ class LibraryAddModeBar extends StatelessWidget {
                           accent: accent,
                           onPressed: onToggleAdvanced,
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         Expanded(
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: LibraryToolbarSearch(
-                              textFieldKey:
-                                  const ValueKey('library-add-query-field'),
-                              controller: queryController,
-                              hintText: searchLabels.queryHint,
-                              onSearch: (_) => onSearch(),
-                              onChanged: onQueryChanged,
-                              onScanBarcode: () =>
-                                  onModeChanged(LibraryAddDialogMode.barcode),
-                              onScanCover: canScanCover ? onScanCover : null,
-                              selectionColor: accent,
-                              maxWidth: 620,
-                            ),
+                          child: LibraryToolbarSearch(
+                            textFieldKey:
+                                const ValueKey('library-add-query-field'),
+                            controller: queryController,
+                            hintText: searchLabels.queryHint,
+                            onSearch: (_) => onSearch(),
+                            onChanged: onQueryChanged,
+                            onScanBarcode: () =>
+                                onModeChanged(LibraryAddDialogMode.barcode),
+                            onScanCover: canScanCover ? onScanCover : null,
+                            selectionColor: accent,
+                            maxWidth: 620,
                           ),
+                        ),
+                        const SizedBox(width: 8),
+                        _LibraryAddModeButton(
+                          label: 'Search ${type.pluralLabel}',
+                          icon: Icons.search,
+                          accent: accent,
+                          isBusy: isSearching,
+                          onPressed: isBusy ? null : onSearch,
                         ),
                       ],
                     ),
