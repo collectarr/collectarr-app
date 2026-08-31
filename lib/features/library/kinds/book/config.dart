@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
@@ -86,6 +87,7 @@ final booksLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     supportsReadingQueue: true,
     supportsSeriesSubgroups: true,
+    vocabulary: StandardKindVocabularyCapability(BookVocabularies.all),
     mediaScopeGroupIds: _bookMediaGroupModes,
     releaseScopeGroupIds: _bookReleaseGroupModes,
     mediaScopeSortIds: _bookMediaSortColumns,

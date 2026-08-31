@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -36,6 +37,7 @@ final gamesLibraryConfig = LibraryTypeConfig(
     canScanCover: true,
     supportsMediaReleaseSplit: true,
     supportsSeriesSubgroups: true,
+    vocabulary: StandardKindVocabularyCapability(GameVocabularies.all),
   ),
   showsDefaultInspectorPersonalSection: false,
 );

@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/kinds/tv/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
@@ -94,6 +95,7 @@ final tvLibraryConfig = LibraryTypeConfig(
     supportsMediaReleaseSplit: true,
     contentHierarchy: LibraryContentHierarchy.seasons,
     wideDialog: true,
+    vocabulary: StandardKindVocabularyCapability(TvVocabularies.all),
   ),
   showsDefaultInspectorPersonalSection: false,
 );

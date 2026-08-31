@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -101,6 +102,7 @@ final moviesLibraryConfig = LibraryTypeConfig(
     canScanCover: true,
     supportsMediaReleaseSplit: true,
     wideDialog: true,
+    vocabulary: StandardKindVocabularyCapability(MovieVocabularies.all),
     mediaScopeGroupIds: _movieMediaGroupModes,
     releaseScopeGroupIds: _movieEditionGroupModes,
     mediaScopeSortIds: _movieMediaSortColumns,

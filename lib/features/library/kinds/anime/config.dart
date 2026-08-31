@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -88,6 +89,7 @@ final animeLibraryConfig = LibraryTypeConfig(
     showsSynopsis: true,
     supportsMediaReleaseSplit: true,
     wideDialog: true,
+    vocabulary: StandardKindVocabularyCapability(AnimeVocabularies.all),
   ),
   showsDefaultInspectorPersonalSection: false,
 );
