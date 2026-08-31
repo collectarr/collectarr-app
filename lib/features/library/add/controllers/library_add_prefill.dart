@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/pick_list/pick_list_options.d
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 
 LibraryAddLocalRerankHints buildLibraryAddLocalRerankHints({
   required String query,

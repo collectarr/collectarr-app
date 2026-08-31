@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';

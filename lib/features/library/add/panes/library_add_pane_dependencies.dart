@@ -27,7 +27,7 @@ export 'package:collectarr_app/features/library/library_kind_registry.dart';
 export 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 export 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 export 'package:collectarr_app/features/library/hierarchy/providers/library_hierarchy_provider.dart';
-export 'package:collectarr_app/features/library/series/series_registry_repository.dart';
+export 'package:collectarr_app/features/library/kinds/_shared/serial/authority/series_registry_repository.dart';
 export 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 export 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 export 'package:collectarr_app/features/library/widgets/format_badge.dart';

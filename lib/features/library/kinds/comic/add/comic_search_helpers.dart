@@ -1,4 +1,4 @@
-import 'library_add_pane_dependencies.dart';
+import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 
 // Comic candidate helper utilities (used by unified search and legacy code)
 

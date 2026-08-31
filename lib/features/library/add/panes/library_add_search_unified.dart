@@ -1,5 +1,5 @@
 import 'library_add_pane_dependencies.dart';
-import 'library_add_search_comic.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_search_helpers.dart';
 import 'library_add_search_pane.dart';
 
 // ---------------------------------------------------------------------------
