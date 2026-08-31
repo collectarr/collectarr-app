@@ -21,6 +21,9 @@ class LibraryCommonMetadata {
     this.releaseYear,
     this.editions = const <CatalogEditionDto>[],
     this.trailerUrls = const <TrailerLinkDto>[],
+    this.creatorsSummary,
+    this.physicalFormat,
+    this.physicalFormatLabel,
   });
 
   static const _unset = Object();
@@ -40,9 +43,15 @@ class LibraryCommonMetadata {
   final int? releaseYear;
   final List<CatalogEditionDto> editions;
   final List<TrailerLinkDto> trailerUrls;
+  final String? creatorsSummary;
+  final String? physicalFormat;
+  final String? physicalFormatLabel;
 
   String get resolvedDisplayTitle =>
-      displayTitle ?? localizedTitle ?? originalTitle ?? title;
+      displayTitle ??
+      (creatorsSummary != null && creatorsSummary!.isNotEmpty
+          ? '$title / $creatorsSummary'
+          : (localizedTitle ?? originalTitle ?? title));
 
   String? get displayCoverUrl => thumbnailImageUrl ?? coverImageUrl;
 

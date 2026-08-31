@@ -150,10 +150,7 @@ class LibraryEditDraft {
     TextEditingController create([String text = '']) =>
         textControllers.create(text: text);
 
-    final payload = item.kindMetadata.toSyncPayload();
-    final variant = payload['variant'] as String?;
-    final editionTitle =
-        (payload['edition_title'] ?? payload['title_extension']) as String?;
+    final editionTitle = item.titleExtension;
 
     final titleController = create(item.title);
     final releaseDateController = create(
@@ -238,28 +235,19 @@ class LibraryEditDraft {
           : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
     );
 
-    final editionsPayload = payload['editions'] as List?;
-    final editions = editionsPayload != null
-        ? editionsPayload
-            .whereType<Map>()
-            .map(
-                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
-            .toList()
-        : const <CatalogEditionDto>[];
+    final editions = item.editions;
 
     final editionSelection = resolveLibraryEditionSelection(
       editions,
       editionId: ownedItem?.editionId ?? trackingEntry?.editionId,
       editionTitle: editionTitle,
       variantId: ownedItem?.variantId ?? trackingEntry?.variantId,
-      variantName: variant,
     );
     final wishlistEditionSelection = resolveLibraryEditionSelection(
       editions,
       editionId: wishlistItem?.editionId,
       editionTitle: editionTitle,
       variantId: wishlistItem?.variantId,
-      variantName: variant,
     );
 
     final metadata = CommonMetadataDraft(
@@ -402,18 +390,18 @@ class LibraryEditDraft {
   }
 
   bool get isDigitalFormat {
-    final payload = item.kindMetadata.toSyncPayload();
-    final physicalFormatId = payload['physical_format'] as String?;
-    final physicalFormatLabel = payload['physical_format_label'] as String? ??
-        payload['variant'] as String?;
-    return isDigitalPhysicalMediaFormat(
-      physicalFormatId,
-      label:
-          physicalFormatForId(physicalFormatId)?.label ?? physicalFormatLabel,
-      formats: physicalFormats.isEmpty
-          ? allKnownPhysicalMediaFormats
-          : physicalFormats,
-    );
+    final format = item.common.physicalFormatLabel ??
+        item.common.physicalFormat ??
+        item.titleExtension ??
+        '';
+    return format.toLowerCase() == 'digital' ||
+        isDigitalPhysicalMediaFormat(
+          item.common.physicalFormat,
+          label: format,
+          formats: physicalFormats.isEmpty
+              ? allKnownPhysicalMediaFormats
+              : physicalFormats,
+        );
   }
 
   bool get showPhysicalOwnedFields => isOwned && !isDigitalFormat;
@@ -428,21 +416,12 @@ class LibraryEditDraft {
     Map<String, String?> customFieldEdits,
     List<ItemImageEdit> itemImageEdits,
   }) cloneDialogState() {
-    final payload = item.kindMetadata.toSyncPayload();
-    final editionsPayload = payload['editions'] as List?;
-    final editions = editionsPayload != null
-        ? editionsPayload
-            .whereType<Map>()
-            .map(
-                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
-            .toList()
-        : const <CatalogEditionDto>[];
+    final editions = item.editions;
     final editionSelection = resolveLibraryEditionSelection(
       editions,
       editionId: ownedItem?.editionId ?? trackingEntry?.editionId,
-      editionTitle: payload['edition_title'] as String?,
+      editionTitle: item.titleExtension,
       variantId: ownedItem?.variantId ?? trackingEntry?.variantId,
-      variantName: payload['variant'] as String?,
     );
     return (
       selectedLocationId: personal.selectedLocationId,

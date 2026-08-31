@@ -115,10 +115,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   late final TabController _tabController;
   late List<LibraryEditTabSpec> _tabSpecs;
   late final List<_LinkEntry> _links;
-  late final TextEditingController _editionTitleController;
-  late final TextEditingController _variantController;
-  late final TextEditingController _barcodeController;
-  late final TextEditingController _physicalFormatController;
 
   bool get _isOwned => _draft.isOwned;
 
@@ -139,21 +135,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   @override
   void initState() {
     super.initState();
-    final payload = widget.item.kindMetadata.toSyncPayload();
-    _editionTitleController = TextEditingController(
-      text: (payload['edition_title'] ?? payload['title_extension'])
-              ?.toString() ??
-          '',
-    );
-    _variantController = TextEditingController(
-      text: payload['variant']?.toString() ?? '',
-    );
-    _barcodeController = TextEditingController(
-      text: payload['barcode']?.toString() ?? '',
-    );
-    _physicalFormatController = TextEditingController(
-      text: payload['physical_format_label']?.toString() ?? '',
-    );
     _draft = widget.draft ??
         LibraryEditDraft.fromItem(
           type: widget.type,
@@ -169,13 +150,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           itemImages: widget.itemImages,
         );
 
-    final initialLinks = widget.item.trailerUrls.isNotEmpty
-        ? widget.item.trailerUrls
-        : ((widget.item.kindMetadata.toSyncPayload()['trailer_urls'] as List?)
-                ?.whereType<Map>()
-                .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
-                .toList() ??
-            const <TrailerLinkDto>[]);
+    final initialLinks = widget.item.trailerUrls;
     _links = [
       for (final link in initialLinks)
         _LinkEntry(
@@ -202,21 +177,19 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Future<void> _loadVocabulary() async {
     final db = ref.read(localDatabaseProvider);
-    final payload = widget.item.kindMetadata.toSyncPayload();
     final vocab =
         await const LibraryEditVocabularyController().loadVocabularyOptions(
       LibraryEditVocabularyRequest(
         db: db,
         mediaKind: widget.type.workspace.kind.apiValue,
-        selectedPublisher: payload['publisher']?.toString() ?? '',
+        selectedPublisher: '',
         selectedImprint: null,
         selectedSeriesGroup: null,
-        selectedPhysicalFormat:
-            payload['physical_format_label']?.toString() ?? '',
+        selectedPhysicalFormat: '',
         selectedCondition: _draft.personal.conditionController.text,
         selectedGrade: _draft.personal.gradeController.text,
-        selectedCountry: payload['country']?.toString() ?? '',
-        selectedLanguage: payload['language']?.toString() ?? '',
+        selectedCountry: '',
+        selectedLanguage: '',
         selectedAgeRating: null,
         selectedAudienceRating: null,
         selectedRegion: null,
@@ -234,7 +207,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         selectedKeyCategory: null,
         selectedGenreValues: null,
         selectedTagValues: _draft.personal.tagsController.text,
-        selectedSeriesTitle: payload['series_title']?.toString() ?? '',
+        selectedSeriesTitle: '',
         selectedSeriesId: null,
         builtInPhysicalFormats: widget.physicalFormats,
       ),
@@ -250,10 +223,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   @override
   void dispose() {
     _tabController.dispose();
-    _editionTitleController.dispose();
-    _variantController.dispose();
-    _barcodeController.dispose();
-    _physicalFormatController.dispose();
     for (final link in _links) {
       link.dispose();
     }
@@ -290,16 +259,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final payload = widget.item.toSyncPayload();
-    final creators =
-        (payload['creators'] as List?)?.cast<Map<String, dynamic>>();
-    final firstCreator = (creators?.isNotEmpty == true)
-        ? creators!.first['name']?.toString()
-        : null;
+    final firstCreator = widget.item.common.creatorsSummary;
     final yearSuffix =
         widget.item.releaseYear != null ? ' (${widget.item.releaseYear})' : '';
     final title = widget.item.displayTitle ??
-        (firstCreator != null
+        (firstCreator != null && firstCreator.isNotEmpty
             ? '${widget.item.title} / $firstCreator'
             : '${widget.item.title}$yearSuffix');
 
@@ -351,7 +315,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       'details' => _detailsTab(),
       'main' => _mainTab(),
       'media' => _genericMediaTab(),
-      'release' => _releaseTab(),
       'value' => _valueTab(),
       'personal' => _personalTab(),
       'read_history' || 'tracking' => _trackingTab(),
@@ -427,41 +390,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget _detailsTab() => _mainTab();
 
   Widget _genericMediaTab() => _mainTab();
-
-  Widget _releaseTab() {
-    final runtime = libraryKindRuntimeForType(widget.type);
-    return EditTabShell(
-      children: [
-        EditSection(
-          title: 'Release Details',
-          accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LibraryReleaseIdentityFields(
-                editionTitleController: _editionTitleController,
-                variantController: _variantController,
-                barcodeController: _barcodeController,
-                releaseDateController: _draft.metadata.releaseDateController,
-                releaseYearController: _draft.metadata.releaseYearController,
-                physicalFormatController: _physicalFormatController,
-                physicalFormatOptions: [
-                  for (final format in widget.physicalFormats) format.label,
-                ],
-                onPhysicalFormatChanged: (value) {
-                  _physicalFormatController.text = value ?? '';
-                },
-                editionTitleLabel: runtime.edit.releaseFields.editionTitleLabel,
-                variantLabel: runtime.edit.releaseFields.variantLabel,
-                barcodeLabel: runtime.edit.releaseFields.barcodeLabel,
-                releaseDateLabel: runtime.edit.mediaFields.releaseDateLabel,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _linksTab() {
     return EditTabShell(

@@ -110,6 +110,12 @@ final class LibraryMetadataItem {
       releaseYear: item.releaseYear,
       editions: item.editions,
       trailerUrls: item.trailerUrls,
+      creatorsSummary: (item.payload['creators'] as List?)
+          ?.whereType<Map>()
+          .firstOrNull?['name']
+          ?.toString(),
+      physicalFormat: item.physicalFormat,
+      physicalFormatLabel: item.physicalFormatLabel,
     );
     final kindMetadata = LibraryKindMetadataDecoders.decode(
       item.mediaKind,
@@ -128,6 +134,11 @@ final class LibraryMetadataItem {
       id: envelope.id,
       mediaKind: envelope.kind,
     );
+    final rawCreators = json['creators'] as List?;
+    final firstCreator =
+        rawCreators?.isNotEmpty == true ? rawCreators!.first : null;
+    final creatorName = firstCreator is Map ? firstCreator['name']?.toString() : null;
+
     final common = LibraryCommonMetadata(
       title: envelope.common.title,
       displayTitle: envelope.common.displayTitle,
@@ -144,6 +155,9 @@ final class LibraryMetadataItem {
       releaseYear: envelope.common.releaseYear,
       editions: envelope.common.editions,
       trailerUrls: envelope.common.trailerUrls,
+      creatorsSummary: creatorName,
+      physicalFormat: (json['physical_format'] ?? json['format'])?.toString(),
+      physicalFormatLabel: json['physical_format_label']?.toString(),
     );
     final kindMetadata = LibraryKindMetadataDecoders.decode(
       envelope.kind,

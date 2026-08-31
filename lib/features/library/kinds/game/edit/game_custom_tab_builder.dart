@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
@@ -17,6 +18,37 @@ Widget? buildGameCustomTabView({
   required LibraryMetadataItem item,
   required VoidCallback markDirty,
 }) {
+  if (tabId == 'release') {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Release Details',
+          accent: accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LibraryReleaseIdentityFields(
+                editionTitleController: TextEditingController(
+                  text: item.titleExtension ?? '',
+                ),
+                variantController: TextEditingController(),
+                barcodeController: TextEditingController(),
+                releaseDateController: draft.metadata.releaseDateController,
+                releaseYearController: draft.metadata.releaseYearController,
+                physicalFormatController: TextEditingController(),
+                physicalFormatOptions: const [],
+                onPhysicalFormatChanged: (_) {},
+                editionTitleLabel: 'Edition title',
+                variantLabel: 'Variant',
+                barcodeLabel: 'UPC / Barcode',
+                releaseDateLabel: 'Release date',
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
   if (tabId != 'main') return null;
   final gameDraft = draft.kindDetails is GameEditDraft
       ? draft.kindDetails as GameEditDraft

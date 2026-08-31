@@ -1,5 +1,10 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 
 const _boardGameTabs0 = LibraryEditTabSpec(
@@ -69,6 +74,49 @@ class BoardGameLibraryEditPresentationBuilder
         );
 }
 
+Widget? buildBoardGameCustomTabView({
+  required String tabId,
+  required BuildContext context,
+  required LibraryEditDraft draft,
+  required Color accent,
+  required LibraryEditScope scope,
+  required LibraryMetadataItem item,
+  required VoidCallback markDirty,
+}) {
+  if (tabId == 'release') {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Release Details',
+          accent: accent,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LibraryReleaseIdentityFields(
+                editionTitleController: TextEditingController(
+                  text: item.titleExtension ?? '',
+                ),
+                variantController: TextEditingController(),
+                barcodeController: TextEditingController(),
+                releaseDateController: draft.metadata.releaseDateController,
+                releaseYearController: draft.metadata.releaseYearController,
+                physicalFormatController: TextEditingController(),
+                physicalFormatOptions: const [],
+                onPhysicalFormatChanged: (_) {},
+                editionTitleLabel: 'Edition title',
+                variantLabel: 'Variant',
+                barcodeLabel: 'UPC / Barcode',
+                releaseDateLabel: 'Release date',
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+  return null;
+}
+
 class BoardGameLibraryCombinedEditPresentationBuilder
     extends DefaultLibraryEditPresentationBuilder {
   const BoardGameLibraryCombinedEditPresentationBuilder()
@@ -76,6 +124,7 @@ class BoardGameLibraryCombinedEditPresentationBuilder
           ownedTabs: _boardGameCombinedTabs,
           trackedTabs: _boardGameCombinedTabs,
           catalogTabs: _boardGameCombinedTabs,
+          customTabBuilder: buildBoardGameCustomTabView,
         );
 }
 
