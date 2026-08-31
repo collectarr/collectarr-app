@@ -15,6 +15,13 @@ import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_ad
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_pane.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -124,6 +131,99 @@ void main() {
         expect(runtime.add.kind, isNot(CatalogMediaKind.unknown));
         expect(runtime.add.createInitialDraft(), isNot(isA<GenericAddDraft>()));
       }
+    });
+
+    testWidgets('ComicAddManualPane uses standard visual primitives',
+        (tester) async {
+      final comicRuntime = libraryKindRuntimeForKind(CatalogMediaKind.comic);
+      final draft = comicRuntime.add.createManualDraft() as ComicAddManualDraft;
+
+      final request = LibraryAddManualPaneRequest(
+        kind: CatalogMediaKind.comic,
+        accent: Colors.blue,
+        type: comicsLibraryConfig,
+        manualDraft: draft,
+        titleController: TextEditingController(text: 'Batman'),
+        numberController: draft.numberController,
+        publisherController: draft.publisherController,
+        yearController: draft.yearController,
+        barcodeController: draft.barcodeController,
+        variantController: draft.variantController,
+        physicalFormatLabelController: TextEditingController(),
+        coverController: draft.coverController,
+        backCoverController: TextEditingController(),
+        creatorsController: TextEditingController(),
+        charactersController: TextEditingController(),
+        physicalFormats: const [],
+        physicalFormatId: null,
+        onPhysicalFormatChanged: (_) {},
+        onPhysicalFormatLabelChanged: (_) {},
+        isAdding: false,
+        defaultCondition: 'Near Mint',
+        defaultGrade: '9.4',
+        defaultLocationLabel: null,
+        defaultPurchaseDate: null,
+        defaultTags: null,
+        onAddOwned: () {},
+        onAddWishlist: () {},
+        onAddTrack: () {},
+        editionTitleController: TextEditingController(),
+        releaseDateController: TextEditingController(),
+        pageCountController: TextEditingController(),
+        imprintController: TextEditingController(),
+        seriesGroupController: TextEditingController(),
+        countryController: TextEditingController(),
+        languageController: TextEditingController(),
+        ageRatingController: TextEditingController(),
+        genresEditController: TextEditingController(),
+        synopsisController: TextEditingController(),
+        tagsController: TextEditingController(),
+        personalNotesController: TextEditingController(),
+        coverPriceController: TextEditingController(),
+        priceController: TextEditingController(),
+        purchaseDateController: TextEditingController(),
+        purchaseStoreController: TextEditingController(),
+        sellPriceController: TextEditingController(),
+        soldDateController: TextEditingController(),
+        ownerLabelController: TextEditingController(),
+        linksController: TextEditingController(),
+        seriesEntries: const [],
+        onSeriesChanged: (_) {},
+        onManageSeries: () {},
+        publisherOptions: const [],
+        onManagePublishers: () {},
+        imprintOptions: const [],
+        onManageImprints: () {},
+        seriesGroupOptions: const [],
+        onManageSeriesGroups: () {},
+        physicalFormatOptions: const [],
+        onManagePhysicalFormats: () {},
+        customFieldDefinitions: const [],
+        customFieldValues: const {},
+        onCustomFieldValuesChanged: (_) {},
+        itemImages: const [],
+        onItemImagesChanged: (_) {},
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ComicAddManualPane(request: request),
+          ),
+        ),
+      );
+
+      expect(find.byType(LibraryFormSection), findsNWidgets(2));
+      expect(find.byType(LibraryResponsiveFormRow), findsWidgets);
+      expect(find.byType(LibraryAddManualActionBar), findsOneWidget);
+      expect(find.text('Main'), findsOneWidget);
+      expect(find.text('Collector'), findsOneWidget);
+      expect(find.text('Series'), findsOneWidget);
+      expect(find.text('Issue No.'), findsOneWidget);
+      expect(find.text('Variant'), findsOneWidget);
+      expect(find.text('Raw / Slabbed'), findsOneWidget);
+      expect(find.text('Grading Co.'), findsOneWidget);
+      expect(find.text('Certification No.'), findsOneWidget);
     });
   });
 }
