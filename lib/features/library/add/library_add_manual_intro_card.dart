@@ -21,6 +21,7 @@ class LibraryAddManualIntroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panelRaised,
@@ -41,20 +42,16 @@ class LibraryAddManualIntroCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
+                        style: theme.textTheme.panelTitle.copyWith(
                           color: palette.textPrimary,
-                          fontSize: 15.5,
-                          fontWeight: FontWeight.w900,
                         ),
                       ),
                       if (subtitle?.trim().isNotEmpty == true) ...[
                         const SizedBox(height: 4),
                         Text(
                           subtitle!.trim(),
-                          style: TextStyle(
+                          style: theme.textTheme.supportingText.copyWith(
                             color: palette.textMuted,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],

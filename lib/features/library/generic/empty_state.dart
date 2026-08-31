@@ -53,11 +53,12 @@ class LibraryEmptyState extends StatelessWidget {
                                 ? 'No matching ${type.pluralLabel.toLowerCase()}'
                                 : 'Your local ${type.pluralLabel.toLowerCase()} shelf is empty',
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: palette.textPrimary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w900,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .panelTitle
+                                .copyWith(
+                                  color: palette.textPrimary,
+                                ),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -65,11 +66,12 @@ class LibraryEmptyState extends StatelessWidget {
                                 ? 'Clear filters to return to your local shelf.'
                                 : _emptyStateSummary(type),
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: palette.textMuted,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .supportingText
+                                .copyWith(
+                                  color: palette.textMuted,
+                                ),
                           ),
                           const SizedBox(height: 16),
                           if (hasActiveFilter)

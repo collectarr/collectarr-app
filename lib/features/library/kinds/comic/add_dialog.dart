@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/config/library_type_config.dart'
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -206,14 +207,14 @@ class _ComicManualPane extends StatelessWidget {
             Expanded(
               child: ListView(
                 children: [
-                  _ComicManualSection(
+                  LibraryFormSection(
                     title: 'Main',
                     accent: request.accent,
                     child: Column(
                       children: [
-                        _ComicManualResponsiveRow(
+                        LibraryResponsiveFormRow(
                           children: [
-                            _ComicManualResponsiveItem(
+                            LibraryResponsiveFormItem(
                               flex: 3,
                               child: SingleValuePickField(
                                 controller: request.titleController,
@@ -227,7 +228,7 @@ class _ComicManualPane extends StatelessWidget {
                                 manageTooltip: 'Select or manage series',
                               ),
                             ),
-                            _ComicManualResponsiveItem(
+                            LibraryResponsiveFormItem(
                               child: TextField(
                                 controller: request.numberController,
                                 textAlign: TextAlign.center,
@@ -238,7 +239,7 @@ class _ComicManualPane extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            _ComicManualResponsiveItem(
+                            LibraryResponsiveFormItem(
                               child: TextField(
                                 controller: request.variantController,
                                 decoration: const InputDecoration(
@@ -251,9 +252,9 @@ class _ComicManualPane extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        _ComicManualResponsiveRow(
+                        LibraryResponsiveFormRow(
                           children: [
-                            _ComicManualResponsiveItem(
+                            LibraryResponsiveFormItem(
                               flex: 2,
                               child: TextField(
                                 controller: request.barcodeController,
@@ -268,7 +269,7 @@ class _ComicManualPane extends StatelessWidget {
                                 request.physicalFormatLabelController.text
                                     .trim()
                                     .isNotEmpty)
-                              _ComicManualResponsiveItem(
+                              LibraryResponsiveFormItem(
                                 flex: 2,
                                 child: SingleValuePickField(
                                   controller:
@@ -280,7 +281,7 @@ class _ComicManualPane extends StatelessWidget {
                                   onManage: request.onManagePhysicalFormats,
                                 ),
                               ),
-                            _ComicManualResponsiveItem(
+                            LibraryResponsiveFormItem(
                               child: TextField(
                                 controller: request.yearController,
                                 textAlign: TextAlign.center,
@@ -298,9 +299,9 @@ class _ComicManualPane extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        _ComicManualResponsiveRow(
+                        LibraryResponsiveFormRow(
                           children: [
-                            _ComicManualResponsiveItem(
+                            LibraryResponsiveFormItem(
                               flex: 2,
                               child: SingleValuePickField(
                                 controller: request.publisherController,
@@ -309,7 +310,7 @@ class _ComicManualPane extends StatelessWidget {
                                 onManage: request.onManagePublishers,
                               ),
                             ),
-                            _ComicManualResponsiveItem(
+                            LibraryResponsiveFormItem(
                               flex: 2,
                               child: TextField(
                                 controller: request.coverController,
@@ -325,15 +326,15 @@ class _ComicManualPane extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  _ComicManualSection(
+                  LibraryFormSection(
                     title: 'Collector',
                     accent: request.accent,
                     child: Column(
                       children: [
-                        _ComicManualResponsiveRow(
+                        LibraryResponsiveFormRow(
                           children: [
                             if (rawOrSlabbedController != null)
-                              _ComicManualResponsiveItem(
+                              LibraryResponsiveFormItem(
                                 child: TextField(
                                   controller: rawOrSlabbedController,
                                   decoration: const InputDecoration(
@@ -343,7 +344,7 @@ class _ComicManualPane extends StatelessWidget {
                                 ),
                               ),
                             if (gradingCompanyController != null)
-                              _ComicManualResponsiveItem(
+                              LibraryResponsiveFormItem(
                                 child: TextField(
                                   controller: gradingCompanyController,
                                   decoration: const InputDecoration(
@@ -353,7 +354,7 @@ class _ComicManualPane extends StatelessWidget {
                                 ),
                               ),
                             if (certificationNumberController != null)
-                              _ComicManualResponsiveItem(
+                              LibraryResponsiveFormItem(
                                 child: TextField(
                                   controller: certificationNumberController,
                                   decoration: const InputDecoration(
@@ -365,10 +366,10 @@ class _ComicManualPane extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 10),
-                        _ComicManualResponsiveRow(
+                        LibraryResponsiveFormRow(
                           children: [
                             if (labelTypeController != null)
-                              _ComicManualResponsiveItem(
+                              LibraryResponsiveFormItem(
                                 child: TextField(
                                   controller: labelTypeController,
                                   decoration: const InputDecoration(
@@ -378,7 +379,7 @@ class _ComicManualPane extends StatelessWidget {
                                 ),
                               ),
                             if (pageQualityController != null)
-                              _ComicManualResponsiveItem(
+                              LibraryResponsiveFormItem(
                                 child: TextField(
                                   controller: pageQualityController,
                                   decoration: const InputDecoration(
@@ -389,7 +390,7 @@ class _ComicManualPane extends StatelessWidget {
                                 ),
                               ),
                             if (signedByController != null)
-                              _ComicManualResponsiveItem(
+                              LibraryResponsiveFormItem(
                                 child: TextField(
                                   controller: signedByController,
                                   decoration: const InputDecoration(
@@ -446,94 +447,6 @@ class _ComicManualPane extends StatelessWidget {
   }
 }
 
-class _ComicManualSection extends StatelessWidget {
-  const _ComicManualSection({
-    required this.title,
-    required this.accent,
-    required this.child,
-  });
-
-  final String title;
-  final Color accent;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.canvas,
-        border: Border.all(color: palette.divider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                color: accent,
-                fontSize: 13,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 10),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ComicManualResponsiveRow extends StatelessWidget {
-  const _ComicManualResponsiveRow({required this.children});
-
-  final List<_ComicManualResponsiveItem> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isStacked = constraints.maxWidth < 780;
-        if (isStacked) {
-          return Column(
-            children: [
-              for (var index = 0; index < children.length; index++) ...[
-                children[index].child,
-                if (index != children.length - 1) const SizedBox(height: 10),
-              ],
-            ],
-          );
-        }
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (var index = 0; index < children.length; index++) ...[
-              Expanded(
-                flex: children[index].flex,
-                child: children[index].child,
-              ),
-              if (index != children.length - 1) const SizedBox(width: 10),
-            ],
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _ComicManualResponsiveItem {
-  const _ComicManualResponsiveItem({
-    required this.child,
-    this.flex = 1,
-  });
-
-  final Widget child;
-  final int flex;
-}
-
 class _ManualDefaultsCard extends StatelessWidget {
   const _ManualDefaultsCard({
     required this.accent,
@@ -550,6 +463,7 @@ class _ManualDefaultsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -562,18 +476,15 @@ class _ManualDefaultsCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: TextStyle(
+              style: theme.textTheme.sectionTitle.copyWith(
                 color: accent,
-                fontWeight: FontWeight.w900,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: TextStyle(
+              style: theme.textTheme.supportingText.copyWith(
                 color: palette.textMuted,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
