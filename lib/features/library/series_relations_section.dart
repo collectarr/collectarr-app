@@ -4,10 +4,17 @@ import 'package:collectarr_app/features/library/providers/series_relations_provi
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SeriesRelationsSection extends ConsumerWidget {
-  const SeriesRelationsSection({super.key, required this.seriesId});
+typedef SeriesRelationsSection = LibraryRelationStrip;
+
+class LibraryRelationStrip extends ConsumerWidget {
+  const LibraryRelationStrip({
+    super.key,
+    required this.seriesId,
+    this.title = 'Related Series',
+  });
 
   final String seriesId;
+  final String title;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
