@@ -29,7 +29,6 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
-import 'package:collectarr_app/features/library/edit/vocabulary/library_edit_vocabulary_controller.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:flutter/material.dart';
 
@@ -83,7 +82,10 @@ class LibraryEditDraft {
   Map<String, String?> customFieldEdits;
   List<ItemImageEdit> itemImageEdits;
   List<SeriesRegistryEntry> seriesEntries = const [];
-  LibraryEditVocabularyOptions? vocabulary;
+  List<String> locationOptions = const [];
+  List<String> ownerOptions = const [];
+  List<String> tagOptions = const [];
+  Map<String, List<String>> kindVocabularies = const {};
 
   // ---------------------------------------------------------------------------
   // Factory Constructors

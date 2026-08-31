@@ -26,7 +26,10 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_status_f
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
-import 'package:collectarr_app/features/library/edit/vocabulary/library_edit_vocabulary_controller.dart';
+import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/vocabulary/vocabulary_repository.dart';
+import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -177,45 +180,42 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Future<void> _loadVocabulary() async {
     final db = ref.read(localDatabaseProvider);
-    final vocab =
-        await const LibraryEditVocabularyController().loadVocabularyOptions(
-      LibraryEditVocabularyRequest(
-        db: db,
-        mediaKind: widget.type.workspace.kind.apiValue,
-        selectedPublisher: '',
-        selectedImprint: null,
-        selectedSeriesGroup: null,
-        selectedPhysicalFormat: '',
-        selectedCondition: _draft.personal.conditionController.text,
-        selectedGrade: _draft.personal.gradeController.text,
-        selectedCountry: '',
-        selectedLanguage: '',
-        selectedAgeRating: null,
-        selectedAudienceRating: null,
-        selectedRegion: null,
-        selectedPackaging: null,
-        selectedDistributor: null,
-        selectedScreenRatio: null,
-        selectedAudioTracks: null,
-        selectedSubtitles: null,
-        selectedLayers: null,
-        selectedColor: null,
-        selectedGamePlatforms: null,
-        selectedCrossover: null,
-        selectedStoryArc: null,
-        selectedPageQuality: null,
-        selectedKeyCategory: null,
-        selectedGenreValues: null,
-        selectedTagValues: _draft.personal.tagsController.text,
-        selectedSeriesTitle: '',
-        selectedSeriesId: null,
-        builtInPhysicalFormats: widget.physicalFormats,
-      ),
+    final mediaKind = widget.type.workspace.kind.apiValue;
+    final locations = await LocationRepository(db).getAll();
+    final owners = await loadSingleValuePickListOptions(
+      db,
+      listName: 'owners',
+      mediaKind: mediaKind,
     );
+    final tags = await loadTagPickListOptions(
+      db,
+      mediaKind: mediaKind,
+      selectedTags: splitPickListValues(_draft.personal.tagsController.text),
+    );
+    final series = await SeriesRegistryRepository(db).searchEntries(
+      mediaKind: mediaKind,
+    );
+
+    final kindVocabs = <String, List<String>>{};
+    final vocCapability = widget.type.capabilities.vocabulary;
+    if (vocCapability != null) {
+      final repo = DatabaseVocabularyRepository(db);
+      for (final def in vocCapability.definitions) {
+        final options = await repo.loadOptions(
+          mediaKind: mediaKind,
+          definition: def,
+        );
+        kindVocabs[def.key] = options;
+      }
+    }
+
     if (mounted) {
       setState(() {
-        _draft.vocabulary = vocab;
-        _draft.seriesEntries = vocab.seriesEntries;
+        _draft.locationOptions = locations.map((l) => l.name).toList();
+        _draft.ownerOptions = owners;
+        _draft.tagOptions = tags;
+        _draft.seriesEntries = series;
+        _draft.kindVocabularies = kindVocabs;
       });
     }
   }

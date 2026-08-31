@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.da
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -388,9 +389,7 @@ class ComicEditHostAdapter implements ComicEditHost {
       draft.seriesEntries.map((e) => e.title).toList();
 
   @override
-  List<String> get comicGenreOptions =>
-      draft.vocabulary?.genreOptions ??
-      const [
+  List<String> get comicGenreOptions => const [
         'Action',
         'Adventure',
         'Fantasy',
@@ -402,11 +401,10 @@ class ComicEditHostAdapter implements ComicEditHost {
       ];
 
   @override
-  List<String> get comicTagOptions => draft.vocabulary?.tagOptions ?? const [];
+  List<String> get comicTagOptions => draft.tagOptions;
 
   @override
-  List<String> get comicOwnerOptions =>
-      draft.vocabulary?.ownerOptions ?? const [];
+  List<String> get comicOwnerOptions => draft.ownerOptions;
 
   @override
   void comicMutateState(VoidCallback fn) {
@@ -436,7 +434,8 @@ class ComicEditHostAdapter implements ComicEditHost {
       controller:
           _comicDraft?.comicEdit.crossoverController ?? TextEditingController(),
       label: label,
-      options: draft.vocabulary?.crossoverOptions ?? const [],
+      options: draft.kindVocabularies[ComicVocabularyIds.crossover.value] ??
+          const [],
       showPickerListAction: true,
     );
   }
@@ -447,7 +446,8 @@ class ComicEditHostAdapter implements ComicEditHost {
       controller:
           _comicDraft?.comicEdit.storyArcsController ?? TextEditingController(),
       label: label,
-      options: draft.vocabulary?.storyArcOptions ?? const [],
+      options: draft.kindVocabularies[ComicVocabularyIds.storyArc.value] ??
+          const [],
       showPickerListAction: true,
     );
   }
@@ -458,7 +458,7 @@ class ComicEditHostAdapter implements ComicEditHost {
       controller:
           _comicDraft?.comicEdit.countryController ?? TextEditingController(),
       label: label,
-      options: draft.vocabulary?.countryOptions ?? const [],
+      options: const ['United States', 'United Kingdom', 'Japan', 'France'],
       showPickerListAction: true,
     );
   }
@@ -468,14 +468,8 @@ class ComicEditHostAdapter implements ComicEditHost {
     return SingleValuePickField(
       controller: comicPageQualityController,
       label: label,
-      options: const [
-        'White',
-        'Off-White to White',
-        'Off-White',
-        'Cream to Off-White',
-        'Cream',
-        'Slightly Brittle',
-      ],
+      options: draft.kindVocabularies[ComicVocabularyIds.pageQuality.value] ??
+          ComicVocabularies.pageQuality.builtIns,
     );
   }
 
@@ -484,15 +478,8 @@ class ComicEditHostAdapter implements ComicEditHost {
     return SingleValuePickField(
       controller: comicKeyCategoryController,
       label: label,
-      options: const [
-        '1st Appearance',
-        'Origin',
-        'Death',
-        'Iconic Cover',
-        'First Issue',
-        'Cameo',
-        'Major Event',
-      ],
+      options: draft.kindVocabularies[ComicVocabularyIds.keyCategory.value] ??
+          ComicVocabularies.keyCategory.builtIns,
     );
   }
 
@@ -539,7 +526,8 @@ class ComicEditHostAdapter implements ComicEditHost {
       controller:
           _comicDraft?.comicEdit.publisherController ?? TextEditingController(),
       label: label,
-      options: draft.vocabulary?.publisherOptions ?? const [],
+      options: draft.kindVocabularies[ComicVocabularyIds.publisher.value] ??
+          ComicVocabularies.publisher.builtIns,
       showPickerListAction: true,
     );
   }
@@ -550,7 +538,8 @@ class ComicEditHostAdapter implements ComicEditHost {
       controller:
           _comicDraft?.comicEdit.imprintController ?? TextEditingController(),
       label: 'Imprint',
-      options: draft.vocabulary?.imprintOptions ?? const [],
+      options: draft.kindVocabularies[ComicVocabularyIds.imprint.value] ??
+          ComicVocabularies.imprint.builtIns,
       showPickerListAction: true,
     );
   }
@@ -561,7 +550,8 @@ class ComicEditHostAdapter implements ComicEditHost {
       controller: _comicDraft?.comicEdit.seriesGroupController ??
           TextEditingController(),
       label: label,
-      options: draft.vocabulary?.seriesGroupOptions ?? const [],
+      options: draft.kindVocabularies[ComicVocabularyIds.seriesGroup.value] ??
+          ComicVocabularies.seriesGroup.builtIns,
       showPickerListAction: true,
     );
   }
@@ -572,14 +562,9 @@ class ComicEditHostAdapter implements ComicEditHost {
       controller: _comicDraft?.comicEdit.physicalFormatLabelController ??
           TextEditingController(),
       label: label,
-      options: draft.vocabulary?.physicalFormatOptions ??
-          const [
-            'Floppy',
-            'Trade Paperback',
-            'Hardcover',
-            'Omnibus',
-            'Digital'
-          ],
+      options:
+          draft.kindVocabularies[ComicVocabularyIds.physicalFormat.value] ??
+              ComicVocabularies.physicalFormat.builtIns,
       showPickerListAction: true,
     );
   }
@@ -588,7 +573,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   Widget buildComicTagsDropdownField({String label = 'Tags'}) {
     return TagPickListField(
       controller: draft.personal.tagsController,
-      options: draft.vocabulary?.tagOptions ?? const [],
+      options: draft.tagOptions,
       label: label,
     );
   }
@@ -598,7 +583,7 @@ class ComicEditHostAdapter implements ComicEditHost {
     return SingleValuePickField(
       controller: draft.personal.ownerLabelController,
       label: label,
-      options: const [],
+      options: draft.ownerOptions,
     );
   }
 
