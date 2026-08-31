@@ -1,7 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_runner.dart';
-import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 ImportRow _row(String id, String title, {String kind = 'anime'}) {
@@ -9,7 +13,7 @@ ImportRow _row(String id, String title, {String kind = 'anime'}) {
     sourceId: id,
     title: title,
     mediaKind: kind,
-    status: ImportItemStatus.completed,
+    status: ProviderEntryStatus.completed,
     rating: 80,
   );
 }
@@ -65,7 +69,7 @@ void main() {
       matcher: (row) async => ImportMapping.matched(row, _ref('anime-1')),
       conflictDetector: (mapping) async => [
         ImportConflict(
-          row: mapping.row,
+          entry: mapping.entry,
           kind: ImportConflictKind.ratingDiffers,
           description: 'Local rating differs from imported rating',
           target: mapping.target,
@@ -136,5 +140,59 @@ void main() {
     expect(entry.sourceLabel, 'mal-export.xml');
     expect(entry.rows, 1);
     expect(entry.imported, 1);
+  });
+
+  test('runner integrates with ProviderPersonalEntry and ExternalStateEngine diff', () async {
+    const engine = ExternalStateEngine();
+    const entry = ProviderPersonalEntry(
+      provider: ProviderId.myAnimeList,
+      remoteItemId: '1',
+      kind: CatalogMediaKind.anime,
+      title: 'Death Note',
+      status: ProviderEntryStatus.completed,
+      rating: 90.0,
+      progress: 37,
+    );
+
+    final diff = engine.diffEntry(
+      remote: entry,
+      base: null,
+      local: const ProviderPersonalEntry(
+        provider: ProviderId.myAnimeList,
+        remoteItemId: '1',
+        kind: CatalogMediaKind.anime,
+        status: ProviderEntryStatus.current,
+        rating: 80.0,
+      ),
+      mode: SyncEngineMode.oneShotImport,
+    );
+
+    expect(diff.hasConflicts, isTrue);
+
+    final runner = ImportRunner(
+      engine: engine,
+      matcher: (e) async => ImportMapping.matched(
+        e,
+        _ref('anime-1'),
+        diff: diff,
+      ),
+      conflictDetector: (mapping) async => [
+        if (mapping.diff?.hasConflicts ?? false)
+          ImportConflict(
+            entry: mapping.entry,
+            kind: ImportConflictKind.statusDiffers,
+            description: 'Status or rating conflict detected',
+            target: mapping.target,
+            diff: mapping.diff?.diffs.firstWhere((d) => d.hasConflict),
+          ),
+      ],
+      applier: (mapping, cfg) async => ImportRowOutcome.imported,
+    );
+
+    final result = await runner.run([entry], config);
+    expect(result.rows, 1);
+    expect(result.matched, 1);
+    expect(result.hasConflicts, isTrue);
+    expect(result.conflicts.first.diff?.field, SyncField.status);
   });
 }

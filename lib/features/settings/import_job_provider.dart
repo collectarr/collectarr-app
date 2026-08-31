@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_propos
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/settings/anime_list_import_service.dart';
 import 'package:collectarr_app/features/settings/provider_csv_import_service.dart';
 import 'package:collectarr_app/features/settings/provider_import_history_store.dart';
@@ -286,10 +287,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           total: rows.length,
         ),
       );
-      await _matchAndImportImportRows(
+      await _matchAndImportEntries(
         jobId: jobId,
         provider: provider,
-        rows: rows,
+        entries: rows,
         sourceLabel: fileName,
         keepUnmatchedLocally: keepUnmatchedLocally,
       );
@@ -335,10 +336,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           total: rows.length,
         ),
       );
-      await _matchAndImportImportRows(
+      await _matchAndImportEntries(
         jobId: jobId,
         provider: provider,
-        rows: rows,
+        entries: rows,
         sourceLabel: fileName,
         keepUnmatchedLocally: keepUnmatchedLocally,
       );
@@ -354,10 +355,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     }
   }
 
-  Future<void> _matchAndImportImportRows({
+  Future<void> _matchAndImportEntries({
     required String jobId,
     required ProviderId provider,
-    required List<ImportRow> rows,
+    required List<ProviderPersonalEntry> entries,
     required String sourceLabel,
     required bool keepUnmatchedLocally,
   }) async {
@@ -366,24 +367,24 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final trackingMutations = ref.read(trackingMutationsProvider);
     final matches = <_GenericImportMatch>[];
 
-    for (final row in rows) {
-      final type = _resolvedTypeForImportRow(row);
+    for (final entry in entries) {
+      final type = _resolvedTypeForEntry(entry);
       if (type == null) {
-        matches.add(_GenericImportMatch(row: row, catalogItem: null));
+        matches.add(_GenericImportMatch(entry: entry, catalogItem: null));
         continue;
       }
-      final year = row.startedAt?.year ?? row.finishedAt?.year;
+      final year = entry.startedAt?.year ?? entry.completedAt?.year;
       final candidates = await searchLibraryMetadata(
         api,
         type,
-        query: row.title,
+        query: entry.title ?? '',
         year: year,
         limit: 10,
       );
       matches.add(
         _GenericImportMatch(
-          row: row,
-          catalogItem: _bestImportMatch(row, candidates),
+          entry: entry,
+          catalogItem: _bestImportMatch(entry, candidates),
         ),
       );
     }
@@ -409,20 +410,20 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     for (final match in matches) {
       final item = match.catalogItem;
       if (item != null) {
-        await _applyImportRow(
+        await _applyEntry(
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
           item: item,
-          row: match.row,
+          entry: match.entry,
         );
         importedCount += 1;
       } else if (keepUnmatchedLocally) {
-        final localItem = _syntheticImportCatalogItem(provider, match.row);
-        await _applyLocalOnlyImportRow(
+        final localItem = _syntheticImportCatalogItem(provider, match.entry);
+        await _applyLocalOnlyEntry(
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
           item: localItem,
-          row: match.row,
+          entry: match.entry,
         );
         keptLocalCount += 1;
       } else {
@@ -491,7 +492,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       collection: collection,
       entries: entries,
       searchCatalog: (entry) {
-        final type = _resolvedTypeForEntry(entry);
+        final type = _resolvedTypeForTmdbEntry(entry);
         return searchLibraryMetadata(
           api,
           type,
@@ -603,7 +604,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             enrichmentCache,
             apiKey,
           );
-          final type = _resolvedTypeForEntry(enriched);
+          final type = _resolvedTypeForTmdbEntry(enriched);
           try {
             final truncatedQuery = enriched.query.length > 255
                 ? enriched.query.substring(0, 255)
@@ -741,7 +742,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     }
   }
 
-  LibraryTypeConfig _resolvedTypeForEntry(TmdbImportEntry entry) {
+  LibraryTypeConfig _resolvedTypeForTmdbEntry(TmdbImportEntry entry) {
     final config = entry.looksLikeAnime
         ? moviesLibraryConfig
         : switch (entry.mediaType) {
@@ -817,16 +818,15 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     return value.round().clamp(1, 10);
   }
 
-  LibraryTypeConfig? _resolvedTypeForImportRow(ImportRow row) {
-    final kind = row.mediaKind?.trim().toLowerCase();
-    final config = switch (kind) {
-      'anime' => animeLibraryConfig,
-      'manga' => mangaLibraryConfig,
-      'book' => booksLibraryConfig,
-      'game' => gamesLibraryConfig,
-      'boardgame' => boardGamesLibraryConfig,
-      'movie' => moviesLibraryConfig,
-      'tv' => tvLibraryConfig,
+  LibraryTypeConfig? _resolvedTypeForEntry(ProviderPersonalEntry entry) {
+    final config = switch (entry.kind) {
+      CatalogMediaKind.anime => animeLibraryConfig,
+      CatalogMediaKind.manga => mangaLibraryConfig,
+      CatalogMediaKind.book => booksLibraryConfig,
+      CatalogMediaKind.game => gamesLibraryConfig,
+      CatalogMediaKind.boardgame => boardGamesLibraryConfig,
+      CatalogMediaKind.movie => moviesLibraryConfig,
+      CatalogMediaKind.tv => tvLibraryConfig,
       _ => null,
     };
     if (config == null) {
@@ -836,11 +836,12 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   LibraryMetadataItem? _bestImportMatch(
-      ImportRow row, List<LibraryMetadataItem> candidates) {
+      ProviderPersonalEntry entry, List<LibraryMetadataItem> candidates) {
     if (candidates.isEmpty) {
       return null;
     }
-    final normalizedTitle = row.title.trim().toLowerCase();
+    final title = entry.title ?? '';
+    final normalizedTitle = title.trim().toLowerCase();
     for (final candidate in candidates) {
       final names = <String?>[
         candidate.title,
@@ -858,13 +859,13 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     return candidates.first;
   }
 
-  Future<void> _applyImportRow({
+  Future<void> _applyEntry({
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
     required LibraryMetadataItem item,
-    required ImportRow row,
+    required ProviderPersonalEntry entry,
   }) async {
-    final trackingStatus = _trackingStatusForImportRow(row);
+    final trackingStatus = _trackingStatusForEntry(entry);
     if (trackingStatus == null) {
       await wishlistMutations.addToWishlist(
         item.id,
@@ -881,24 +882,24 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       TrackingTarget.catalog(catalogRef),
       sourceType: TrackingSourceType.streaming,
       status: trackingStatus,
-      rating: row.rating == null || row.rating == 0
+      rating: entry.rating == null || entry.rating == 0
           ? null
-          : (row.rating! / 10).round().clamp(1, 10),
-      startedAt: row.startedAt,
-      finishedAt: row.finishedAt,
-      progressCurrent: row.progress,
+          : (entry.rating! / 10).round().clamp(1, 10),
+      startedAt: entry.startedAt,
+      finishedAt: entry.completedAt,
+      progressCurrent: entry.progress,
       timesCompleted:
           trackingStatus == MediaTrackingStatus.completed ? 1 : null,
     );
   }
 
-  Future<void> _applyLocalOnlyImportRow({
+  Future<void> _applyLocalOnlyEntry({
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
     required dynamic item,
-    required ImportRow row,
+    required ProviderPersonalEntry entry,
   }) async {
-    final trackingStatus = _trackingStatusForImportRow(row);
+    final trackingStatus = _trackingStatusForEntry(entry);
     if (trackingStatus == null) {
       await wishlistMutations.addLocalOnlyWishlistItem(item);
       return;
@@ -907,12 +908,12 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       item,
       sourceType: TrackingSourceType.streaming,
       status: trackingStatus,
-      rating: row.rating == null || row.rating == 0
+      rating: entry.rating == null || entry.rating == 0
           ? null
-          : (row.rating! / 10).round().clamp(1, 10),
-      startedAt: row.startedAt,
-      finishedAt: row.finishedAt,
-      progressCurrent: row.progress,
+          : (entry.rating! / 10).round().clamp(1, 10),
+      startedAt: entry.startedAt,
+      finishedAt: entry.completedAt,
+      progressCurrent: entry.progress,
       timesCompleted:
           trackingStatus == MediaTrackingStatus.completed ? 1 : null,
       allowEmpty: true,
@@ -921,41 +922,37 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
 
   LibraryMetadataItem _syntheticImportCatalogItem(
     ProviderId provider,
-    ImportRow row,
+    ProviderPersonalEntry entry,
   ) {
-    final kind = switch (row.mediaKind?.trim().toLowerCase()) {
-      'manga' => CatalogMediaKind.manga,
-      'anime' => CatalogMediaKind.anime,
-      _ => CatalogMediaKind.anime,
-    };
-    final sourceKey = row.sourceId.trim().isEmpty
-        ? row.title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
-        : row.sourceId.trim();
+    final title = entry.title ?? 'Untitled';
+    final sourceKey = entry.remoteItemId.trim().isEmpty
+        ? title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        : entry.remoteItemId.trim();
     return LibraryMetadataItem.fromMetadataMap({
       'id': '${provider.storageValue}-local:$sourceKey',
-      'kind': kind.apiValue,
-      'title': row.title,
-      'display_title': row.title,
-      'localized_title': row.title,
-      'original_title': row.title,
-      'search_aliases': [row.title],
-      if (row.startedAt != null)
-        'release_date': row.startedAt!.toIso8601String()
-      else if (row.finishedAt != null)
-        'release_date': row.finishedAt!.toIso8601String(),
+      'kind': entry.kind.apiValue,
+      'title': title,
+      'display_title': title,
+      'localized_title': title,
+      'original_title': title,
+      'search_aliases': [title],
+      if (entry.startedAt != null)
+        'release_date': entry.startedAt!.toIso8601String()
+      else if (entry.completedAt != null)
+        'release_date': entry.completedAt!.toIso8601String(),
     });
   }
 
-  MediaTrackingStatus? _trackingStatusForImportRow(ImportRow row) {
-    return switch (row.status) {
-      ImportItemStatus.completed => MediaTrackingStatus.completed,
-      ImportItemStatus.inProgress => MediaTrackingStatus.inProgress,
-      ImportItemStatus.paused => MediaTrackingStatus.paused,
-      ImportItemStatus.dropped => MediaTrackingStatus.dropped,
-      ImportItemStatus.planned ||
-      ImportItemStatus.wishlist ||
-      ImportItemStatus.unknown =>
-        row.progress != null && row.progress! > 0
+  MediaTrackingStatus? _trackingStatusForEntry(ProviderPersonalEntry entry) {
+    return switch (entry.status) {
+      ProviderEntryStatus.completed => MediaTrackingStatus.completed,
+      ProviderEntryStatus.current ||
+      ProviderEntryStatus.repeating =>
+        MediaTrackingStatus.inProgress,
+      ProviderEntryStatus.paused => MediaTrackingStatus.paused,
+      ProviderEntryStatus.dropped => MediaTrackingStatus.dropped,
+      ProviderEntryStatus.planning || null =>
+        entry.progress != null && entry.progress! > 0
             ? MediaTrackingStatus.inProgress
             : null,
     };
@@ -1011,10 +1008,12 @@ final importJobsProvider =
 
 class _GenericImportMatch {
   const _GenericImportMatch({
-    required this.row,
+    required this.entry,
     required this.catalogItem,
   });
 
-  final ImportRow row;
+  final ProviderPersonalEntry entry;
   final LibraryMetadataItem? catalogItem;
+
+  ProviderPersonalEntry get row => entry;
 }

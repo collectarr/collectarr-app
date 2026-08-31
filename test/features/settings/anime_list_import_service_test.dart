@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/settings/anime_list_import_service.dart';
-import 'package:collectarr_app/features/settings/provider_import_models.dart';
-import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('parses MAL-style anime and manga XML exports', () {
+  test('parses MAL-style anime and manga XML exports into ProviderPersonalEntry', () {
     const xml = '''
 <myanimelist>
   <anime>
@@ -30,28 +31,28 @@ void main() {
 ''';
 
     final service = AnimeListImportService();
-    final rows = service.parseFileBytes(
+    final entries = service.parseFileBytes(
       Uint8List.fromList(utf8.encode(xml)),
       fileName: 'mal.xml',
       provider: ProviderId.myAnimeList,
     );
 
-    expect(rows, hasLength(2));
-    expect(rows[0].sourceId, 'myanimelist:1');
-    expect(rows[0].title, 'Cowboy Bebop');
-    expect(rows[0].mediaKind, 'anime');
-    expect(rows[0].status, ImportItemStatus.completed);
-    expect(rows[0].rating, 90);
-    expect(rows[0].progress, 26);
-    expect(rows[0].startedAt?.toIso8601String(), '2020-01-01T00:00:00.000');
-    expect(rows[0].finishedAt?.toIso8601String(), '2020-01-10T00:00:00.000');
-    expect(rows[0].externalIds['myanimelist'], '1');
+    expect(entries, hasLength(2));
+    expect(entries[0].remoteItemId, '1');
+    expect(entries[0].title, 'Cowboy Bebop');
+    expect(entries[0].kind, CatalogMediaKind.anime);
+    expect(entries[0].status, ProviderEntryStatus.completed);
+    expect(entries[0].rating, 90.0);
+    expect(entries[0].progress, 26);
+    expect(entries[0].startedAt?.toIso8601String(), '2020-01-01T00:00:00.000');
+    expect(entries[0].completedAt?.toIso8601String(), '2020-01-10T00:00:00.000');
+    expect(entries[0].externalIds['myanimelist'], '1');
 
-    expect(rows[1].sourceId, 'myanimelist:2');
-    expect(rows[1].title, 'Death Note');
-    expect(rows[1].mediaKind, 'manga');
-    expect(rows[1].status, ImportItemStatus.inProgress);
-    expect(rows[1].rating, 80);
-    expect(rows[1].progress, 12);
+    expect(entries[1].remoteItemId, '2');
+    expect(entries[1].title, 'Death Note');
+    expect(entries[1].kind, CatalogMediaKind.manga);
+    expect(entries[1].status, ProviderEntryStatus.current);
+    expect(entries[1].rating, 80.0);
+    expect(entries[1].progress, 12);
   });
 }

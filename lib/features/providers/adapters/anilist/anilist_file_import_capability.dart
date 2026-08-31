@@ -12,12 +12,9 @@ class AniListFileImportCapability implements FileImportCapability {
     String content, {
     String? filename,
   }) async {
-    final rows = const AnimeListImportService().parsePayload(
+    return const AnimeListImportService().parsePayload(
       content,
       provider: ProviderId.aniList,
     );
-    return [
-      for (final row in rows) row.toProviderPersonalEntry(ProviderId.aniList),
-    ];
   }
 }

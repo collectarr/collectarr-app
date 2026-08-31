@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:collectarr_app/features/imports/framework/import_models.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 
 class ProviderCsvImportService {
   const ProviderCsvImportService();
 
-  List<ImportRow> parseFileBytes(
+  List<ProviderPersonalEntry> parseFileBytes(
     Uint8List bytes, {
     required String fileName,
     required ProviderId provider,
@@ -16,7 +18,7 @@ class ProviderCsvImportService {
     return parsePayload(text, provider: provider);
   }
 
-  List<ImportRow> parsePayload(
+  List<ProviderPersonalEntry> parsePayload(
     String text, {
     required ProviderId provider,
   }) {
@@ -34,7 +36,7 @@ class ProviderCsvImportService {
         if (header[i].isNotEmpty) _normalizeKey(header[i]): i,
     };
 
-    final entries = <ImportRow>[];
+    final entries = <ProviderPersonalEntry>[];
     for (var i = 1; i < rows.length; i++) {
       final values = rows[i].map(_cellText).toList(growable: false);
       final title = _value(index, values, const [
@@ -49,24 +51,28 @@ class ProviderCsvImportService {
         continue;
       }
       final sourceId = _sourceId(provider, index, values, title, i);
-      final mediaKind = _mediaKind(provider, index, values);
+      final mediaKindStr = _mediaKind(provider, index, values);
+      final mediaKind = mediaKindStr != null
+          ? catalogMediaKindFromValue(mediaKindStr)
+          : CatalogMediaKind.unknown;
       final status = _status(provider, index, values);
       final rating = _rating(provider, index, values);
       final progress = _progress(provider, index, values);
       entries.add(
-        ImportRow(
-          sourceId: sourceId,
+        ProviderPersonalEntry(
+          provider: provider,
+          remoteItemId: sourceId,
           title: title,
-          mediaKind: mediaKind,
+          kind: mediaKind,
           status: status,
-          rating: rating,
+          rating: rating?.toDouble(),
           startedAt: _date(_value(index, values, const [
             'started_at',
             'start_date',
             'created',
             'date_started',
           ])),
-          finishedAt: _date(_value(index, values, const [
+          completedAt: _date(_value(index, values, const [
             'finished_at',
             'finish_date',
             'date_read',
@@ -75,7 +81,7 @@ class ProviderCsvImportService {
           ])),
           progress: progress,
           externalIds: _externalIds(provider, index, values, sourceId),
-          raw: {
+          rawPayload: {
             for (final entry in index.entries)
               entry.key: entry.value < values.length ? values[entry.value] : '',
           },
@@ -157,7 +163,7 @@ class ProviderCsvImportService {
     };
   }
 
-  ImportItemStatus _status(
+  ProviderEntryStatus? _status(
     ProviderId provider,
     Map<String, int> index,
     List<String> values,
@@ -172,40 +178,38 @@ class ProviderCsvImportService {
     ])?.toLowerCase();
     if (raw == null || raw.isEmpty) {
       return switch (provider) {
-        ProviderId.goodReads => ImportItemStatus.completed,
-        _ => ImportItemStatus.unknown,
+        ProviderId.goodReads => ProviderEntryStatus.completed,
+        _ => null,
       };
     }
     if (raw.contains('read') ||
         raw.contains('watched') ||
         raw.contains('completed')) {
-      return ImportItemStatus.completed;
+      return ProviderEntryStatus.completed;
     }
     if (raw.contains('currently') ||
         raw.contains('watching') ||
         raw.contains('reading') ||
         raw.contains('playing') ||
         raw.contains('in progress')) {
-      return ImportItemStatus.inProgress;
+      return ProviderEntryStatus.current;
     }
     if (raw.contains('plan') ||
         raw.contains('to read') ||
         raw.contains('to watch') ||
-        raw.contains('backlog')) {
-      return ImportItemStatus.planned;
-    }
-    if (raw.contains('hold') || raw.contains('paused')) {
-      return ImportItemStatus.paused;
-    }
-    if (raw.contains('drop') || raw.contains('abandon')) {
-      return ImportItemStatus.dropped;
-    }
-    if (raw.contains('wish') ||
+        raw.contains('backlog') ||
+        raw.contains('wish') ||
         raw.contains('favorite') ||
         raw.contains('favourite')) {
-      return ImportItemStatus.wishlist;
+      return ProviderEntryStatus.planning;
     }
-    return ImportItemStatus.unknown;
+    if (raw.contains('hold') || raw.contains('paused')) {
+      return ProviderEntryStatus.paused;
+    }
+    if (raw.contains('drop') || raw.contains('abandon')) {
+      return ProviderEntryStatus.dropped;
+    }
+    return null;
   }
 
   int? _rating(

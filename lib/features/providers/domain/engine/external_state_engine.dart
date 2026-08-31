@@ -45,15 +45,18 @@ final class EntrySyncDiff {
     this.localEntityRef,
     this.link,
     this.diffs = const [],
+    this.mode = SyncEngineMode.pullSync,
   });
 
   final ProviderPersonalEntry remoteEntry;
   final CatalogEntityRef? localEntityRef;
   final ProviderItemLink? link;
   final List<FieldDiff<dynamic>> diffs;
+  final SyncEngineMode mode;
 
   bool get hasConflicts => diffs.any((d) => d.hasConflict);
   bool get isMatched => localEntityRef != null;
+  bool get hasChanges => diffs.any((d) => d.state != FieldDiffState.unchanged);
 }
 
 class ExternalStateEngine {
@@ -66,6 +69,7 @@ class ExternalStateEngine {
     CatalogEntityRef? localRef,
     ProviderItemLink? link,
     ProviderSyncPolicy policy = const ProviderSyncPolicy(),
+    SyncEngineMode mode = SyncEngineMode.pullSync,
   }) {
     final diffs = <FieldDiff<dynamic>>[];
 
@@ -76,6 +80,7 @@ class ExternalStateEngine {
         base: base?.status,
         local: local?.status,
         remote: remote.status,
+        mode: mode,
       ));
     }
 
@@ -86,6 +91,7 @@ class ExternalStateEngine {
         base: base?.rating,
         local: local?.rating,
         remote: remote.rating,
+        mode: mode,
       ));
     }
 
@@ -96,6 +102,7 @@ class ExternalStateEngine {
         base: base?.progress,
         local: local?.progress,
         remote: remote.progress,
+        mode: mode,
       ));
     }
 
@@ -104,6 +111,7 @@ class ExternalStateEngine {
       localEntityRef: localRef,
       link: link,
       diffs: diffs,
+      mode: mode,
     );
   }
 
@@ -112,7 +120,39 @@ class ExternalStateEngine {
     required T? base,
     required T? local,
     required T? remote,
+    required SyncEngineMode mode,
   }) {
+    if (mode == SyncEngineMode.oneShotImport) {
+      if (local == null) {
+        return FieldDiff<T>(
+          field: field,
+          baseValue: base,
+          localValue: local,
+          remoteValue: remote,
+          state: FieldDiffState.remoteChanged,
+          resolvedValue: remote,
+        );
+      }
+      if (local == remote) {
+        return FieldDiff<T>(
+          field: field,
+          baseValue: base,
+          localValue: local,
+          remoteValue: remote,
+          state: FieldDiffState.unchanged,
+          resolvedValue: local,
+        );
+      }
+      return FieldDiff<T>(
+        field: field,
+        baseValue: base,
+        localValue: local,
+        remoteValue: remote,
+        state: FieldDiffState.conflictBothChanged,
+        resolvedValue: null,
+      );
+    }
+
     final localChanged = local != base;
     final remoteChanged = remote != base;
 

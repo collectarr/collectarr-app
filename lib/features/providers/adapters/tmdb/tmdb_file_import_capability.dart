@@ -12,12 +12,9 @@ class TmdbFileImportCapability implements FileImportCapability {
     String content, {
     String? filename,
   }) async {
-    final rows = const ProviderCsvImportService().parsePayload(
+    return const ProviderCsvImportService().parsePayload(
       content,
       provider: ProviderId.tmdb,
     );
-    return [
-      for (final row in rows) row.toProviderPersonalEntry(ProviderId.tmdb),
-    ];
   }
 }

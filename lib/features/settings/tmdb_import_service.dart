@@ -209,23 +209,31 @@ class TmdbImportEntry {
     return 'https://image.tmdb.org/t/p/w500$path';
   }
 
-  ImportRow toImportRow() {
-    return ImportRow(
-      sourceId: providerItemId,
+  ProviderPersonalEntry toProviderPersonalEntry() {
+    return ProviderPersonalEntry(
+      provider: ProviderId.tmdb,
+      remoteItemId: providerItemId,
+      kind: looksLikeAnime
+          ? CatalogMediaKind.anime
+          : (mediaType == TmdbMediaType.tv
+              ? CatalogMediaKind.tv
+              : CatalogMediaKind.movie),
       title: title,
-      mediaKind: looksLikeAnime ? 'anime' : mediaType.name,
       status: collection.isRated
-          ? ImportItemStatus.completed
-          : ImportItemStatus.planned,
+          ? ProviderEntryStatus.completed
+          : ProviderEntryStatus.planning,
       rating: rating == null
           ? null
-          : (rating!.toDouble() * 10).round().clamp(0, 100).toInt(),
+          : (rating!.toDouble() * 10).round().clamp(0, 100).toDouble(),
       externalIds: <String, String>{
         'tmdb': tmdbId.toString(),
       },
-      raw: toJson(),
+      rawPayload: toJson(),
     );
   }
+
+  ImportRow toImportRow() =>
+      ImportRow.fromProviderPersonalEntry(toProviderPersonalEntry());
 
   TmdbImportEntry copyWith({
     int? tmdbId,

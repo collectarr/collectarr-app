@@ -13,7 +13,7 @@ void main() {
         sourceId: 'item-100',
         title: 'Chainsaw Man',
         mediaKind: 'manga',
-        status: ImportItemStatus.completed,
+        status: ProviderEntryStatus.completed,
         rating: 90,
         progress: 100,
         startedAt: started,
@@ -59,7 +59,7 @@ void main() {
       expect(row.sourceId, 'md-999');
       expect(row.title, 'Berserk');
       expect(row.mediaKind, 'manga');
-      expect(row.status, ImportItemStatus.inProgress);
+      expect(row.status, ProviderEntryStatus.current);
       expect(row.rating, 95);
       expect(row.progress, 364);
       expect(row.startedAt, started);

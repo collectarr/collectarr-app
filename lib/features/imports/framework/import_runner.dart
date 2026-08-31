@@ -1,28 +1,29 @@
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
+import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 
-/// Reads normalized [ImportRow]s from a specific third-party provider (a MAL
+/// Reads normalized entries from a specific third-party provider (a MAL
 /// XML export, an AniList GraphQL response, a Trakt CSV, ...). Implementations
 /// live next to their provider; the rest of the pipeline stays provider-neutral.
 abstract class ImportSource {
   ProviderId get provider;
 
-  /// Produce normalized rows from already-loaded source content (file bytes,
-  /// decoded JSON, an authenticated API response, ...).
-  Future<List<ImportRow>> readRows();
+  /// Produce normalized rows / entries from already-loaded source content.
+  Future<List<dynamic>> readRows();
 }
 
-/// Resolves a normalized row against the catalog.
-typedef ImportMatcher = Future<ImportMapping> Function(ImportRow row);
+/// Resolves an incoming entry against the catalog.
+typedef ImportMatcher = Future<ImportMapping> Function(dynamic rowOrEntry);
 
 /// Detects conflicts between a matched mapping and existing local state.
 typedef ImportConflictDetector = Future<List<ImportConflict>> Function(
   ImportMapping mapping,
 );
 
-/// Handles rows that did not resolve to a catalog target.
+/// Handles entries that did not resolve to a catalog target.
 typedef ImportUnmatchedHandler = Future<void> Function(
-  ImportRow row,
+  dynamic rowOrEntry,
   ImportRunConfig config,
 );
 
@@ -32,23 +33,21 @@ typedef ImportApplier = Future<ImportRowOutcome> Function(
   ImportRunConfig config,
 );
 
-/// Provider-agnostic import pipeline.
-///
-/// The matching, conflict detection, and applying steps are injected so this
-/// runner can be unit-tested with pure functions and reused unchanged for every
-/// provider ([ImportSource]).
+/// Provider-agnostic import pipeline backed by [ExternalStateEngine].
 class ImportRunner {
   const ImportRunner({
     required this.matcher,
     required this.applier,
     this.conflictDetector,
     this.unmatchedHandler,
+    this.engine = const ExternalStateEngine(),
   });
 
   final ImportMatcher matcher;
   final ImportApplier applier;
   final ImportConflictDetector? conflictDetector;
   final ImportUnmatchedHandler? unmatchedHandler;
+  final ExternalStateEngine engine;
 
   Future<ImportResult> runSource(
     ImportSource source,
@@ -58,7 +57,7 @@ class ImportRunner {
   }
 
   Future<ImportResult> run(
-    List<ImportRow> rows,
+    List<dynamic> rows,
     ImportRunConfig config,
   ) async {
     final result = ImportResult()..bindContext(config);

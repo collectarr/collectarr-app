@@ -1,32 +1,33 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 
-/// Normalized personal-list status across third-party providers (MAL, AniList,
-/// Trakt, Simkl, Kitsu, ...). Each source maps its own vocabulary onto these.
-enum ImportItemStatus {
-  completed,
-  inProgress,
-  planned,
-  paused,
-  dropped,
-  wishlist,
-  unknown,
+export 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart'
+    show ProviderEntryStatus;
+
+/// Legacy alias for [ProviderEntryStatus].
+typedef ImportItemStatus = ProviderEntryStatus;
+
+extension ImportItemStatusCompatibility on ProviderEntryStatus {
+  static const completed = ProviderEntryStatus.completed;
+  static const inProgress = ProviderEntryStatus.current;
+  static const planned = ProviderEntryStatus.planning;
+  static const paused = ProviderEntryStatus.paused;
+  static const dropped = ProviderEntryStatus.dropped;
+  static const wishlist = ProviderEntryStatus.planning;
+  static const unknown = ProviderEntryStatus.planning;
 }
 
-/// A single normalized row read from any [ImportSource].
-///
-/// This is the provider-agnostic shape the rest of the pipeline operates on, so
-/// matching, conflict detection, and applying are written once and reused for
-/// every provider.
+/// A single normalized row read from any [ImportSource], now backed by [ProviderPersonalEntry].
 class ImportRow {
   const ImportRow({
     required this.sourceId,
     required this.title,
     this.mediaKind,
-    this.status = ImportItemStatus.unknown,
+    this.status = ProviderEntryStatus.planning,
     this.rating,
     this.startedAt,
     this.finishedAt,
@@ -41,7 +42,7 @@ class ImportRow {
 
   /// Target app kind if known (`movie`, `tv`, `anime`, `book`, ...).
   final String? mediaKind;
-  final ImportItemStatus status;
+  final ProviderEntryStatus? status;
 
   /// Normalized rating on a 0-100 scale, or null when unrated.
   final int? rating;
@@ -57,24 +58,21 @@ class ImportRow {
   /// The untouched source payload, for debugging and re-mapping.
   final Map<String, dynamic> raw;
 
-  ProviderPersonalEntry toProviderPersonalEntry(ProviderId provider) {
+  ProviderPersonalEntry toProviderPersonalEntry([ProviderId? provider]) {
+    final effectiveProvider = provider ??
+        ProviderId.fromValue(
+          externalIds.keys.isNotEmpty ? externalIds.keys.first : 'tmdb',
+        ) ??
+        ProviderId.tmdb;
     return ProviderPersonalEntry(
-      provider: provider,
+      provider: effectiveProvider,
       remoteItemId: sourceId,
       kind: mediaKind != null
           ? catalogMediaKindFromValue(mediaKind!)
           : CatalogMediaKind.unknown,
       title: title,
       externalIds: externalIds,
-      status: switch (status) {
-        ImportItemStatus.completed => ProviderEntryStatus.completed,
-        ImportItemStatus.inProgress => ProviderEntryStatus.current,
-        ImportItemStatus.planned => ProviderEntryStatus.planning,
-        ImportItemStatus.paused => ProviderEntryStatus.paused,
-        ImportItemStatus.dropped => ProviderEntryStatus.dropped,
-        ImportItemStatus.wishlist => ProviderEntryStatus.planning,
-        ImportItemStatus.unknown => null,
-      },
+      status: status,
       rating: rating?.toDouble(),
       progress: progress,
       startedAt: startedAt,
@@ -88,15 +86,7 @@ class ImportRow {
       sourceId: entry.remoteItemId,
       title: entry.title ?? '',
       mediaKind: entry.kind.name,
-      status: switch (entry.status) {
-        ProviderEntryStatus.completed => ImportItemStatus.completed,
-        ProviderEntryStatus.current => ImportItemStatus.inProgress,
-        ProviderEntryStatus.planning => ImportItemStatus.planned,
-        ProviderEntryStatus.paused => ImportItemStatus.paused,
-        ProviderEntryStatus.dropped => ImportItemStatus.dropped,
-        ProviderEntryStatus.repeating => ImportItemStatus.inProgress,
-        null => ImportItemStatus.unknown,
-      },
+      status: entry.status,
       rating: entry.rating?.round(),
       progress: entry.progress,
       startedAt: entry.startedAt,
@@ -109,32 +99,41 @@ class ImportRow {
 
 enum ImportMappingState { matched, unmatched, ambiguous }
 
-/// The result of resolving an [ImportRow] against the catalog.
+/// The result of resolving an incoming entry against the catalog.
 class ImportMapping {
   const ImportMapping({
-    required this.row,
+    required this.entry,
     required this.state,
     this.target,
     this.candidates = const <CatalogEntityRef>[],
+    this.diff,
   });
 
-  const ImportMapping.matched(this.row, CatalogEntityRef this.target)
-      : state = ImportMappingState.matched,
+  const ImportMapping.matched(
+    this.entry,
+    CatalogEntityRef this.target, {
+    this.diff,
+  })  : state = ImportMappingState.matched,
         candidates = const <CatalogEntityRef>[];
 
-  const ImportMapping.unmatched(this.row)
+  const ImportMapping.unmatched(this.entry)
       : state = ImportMappingState.unmatched,
         target = null,
-        candidates = const <CatalogEntityRef>[];
+        candidates = const <CatalogEntityRef>[],
+        diff = null;
 
-  const ImportMapping.ambiguous(this.row, this.candidates)
+  const ImportMapping.ambiguous(this.entry, this.candidates)
       : state = ImportMappingState.ambiguous,
-        target = null;
+        target = null,
+        diff = null;
 
-  final ImportRow row;
+  final dynamic entry;
   final ImportMappingState state;
   final CatalogEntityRef? target;
   final List<CatalogEntityRef> candidates;
+  final EntrySyncDiff? diff;
+
+  dynamic get row => entry;
 }
 
 enum ImportConflictKind {
@@ -144,19 +143,23 @@ enum ImportConflictKind {
   statusDiffers,
 }
 
-/// A conflict between an incoming row and existing local state.
+/// A conflict between an incoming entry and existing local state.
 class ImportConflict {
   const ImportConflict({
-    required this.row,
+    required this.entry,
     required this.kind,
     required this.description,
     this.target,
+    this.diff,
   });
 
-  final ImportRow row;
+  final dynamic entry;
   final ImportConflictKind kind;
   final String description;
   final CatalogEntityRef? target;
+  final FieldDiff<dynamic>? diff;
+
+  dynamic get row => entry;
 }
 
 /// What happened to a single row after a run.

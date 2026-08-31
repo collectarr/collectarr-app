@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:collectarr_app/features/imports/framework/import_models.dart';
-import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:xml/xml.dart';
 
 class AnimeListImportService {
   const AnimeListImportService();
 
-  List<ImportRow> parseFileBytes(
+  List<ProviderPersonalEntry> parseFileBytes(
     Uint8List bytes, {
     required String fileName,
     required ProviderId provider,
@@ -17,7 +18,7 @@ class AnimeListImportService {
     return parsePayload(text, provider: provider);
   }
 
-  List<ImportRow> parsePayload(
+  List<ProviderPersonalEntry> parsePayload(
     String text, {
     required ProviderId provider,
   }) {
@@ -32,9 +33,12 @@ class AnimeListImportService {
           'Anime list export does not contain entries.');
     }
 
-    final rows = <ImportRow>[];
+    final rows = <ProviderPersonalEntry>[];
     for (final entry in entries) {
-      final kind = _mediaKindForEntry(entry);
+      final kindStr = _mediaKindForEntry(entry);
+      final kind = kindStr == 'manga'
+          ? CatalogMediaKind.manga
+          : CatalogMediaKind.anime;
       final title = _text(
             entry,
             const [
@@ -46,10 +50,10 @@ class AnimeListImportService {
             ],
           ) ??
           'Untitled';
-      final id = _providerEntryId(entry, kind, title);
+      final id = _providerEntryId(entry, kindStr, title);
       final status = _statusForEntry(entry);
       final score = _int(_text(entry, const ['my_score', 'score']));
-      final progress = _progressForEntry(entry, kind);
+      final progress = _progressForEntry(entry, kindStr);
       final startedAt = _date(
         _text(entry, const ['my_start_date', 'start_date', 'started_at']),
       );
@@ -57,19 +61,20 @@ class AnimeListImportService {
         _text(entry, const ['my_finish_date', 'finish_date', 'completed_at']),
       );
       rows.add(
-        ImportRow(
-          sourceId: '${provider.storageValue}:$id',
+        ProviderPersonalEntry(
+          provider: provider,
+          remoteItemId: id,
+          kind: kind,
           title: title,
-          mediaKind: kind,
           status: status,
-          rating: score == null ? null : (score * 10).clamp(0, 100).toInt(),
+          rating: score == null ? null : (score * 10).clamp(0, 100).toDouble(),
           startedAt: startedAt,
-          finishedAt: finishedAt,
+          completedAt: finishedAt,
           progress: progress,
           externalIds: {
             provider.storageValue: id,
           },
-          raw: _rawPayload(entry),
+          rawPayload: _rawPayload(entry),
         ),
       );
     }
@@ -134,35 +139,36 @@ class AnimeListImportService {
     return title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-');
   }
 
-  ImportItemStatus _statusForEntry(XmlElement entry) {
+  ProviderEntryStatus? _statusForEntry(XmlElement entry) {
     final raw = _text(entry, const ['my_status', 'status']);
     final normalized = raw?.trim().toLowerCase();
     if (normalized == null || normalized.isEmpty) {
-      return ImportItemStatus.unknown;
+      return null;
     }
     return switch (normalized) {
       '1' ||
       'watching' ||
       'reading' ||
       'in progress' =>
-        ImportItemStatus.inProgress,
+        ProviderEntryStatus.current,
       '2' ||
       'completed' ||
       'finish' ||
       'finished' =>
-        ImportItemStatus.completed,
-      '3' || 'on hold' || 'paused' => ImportItemStatus.paused,
-      '4' || 'dropped' => ImportItemStatus.dropped,
+        ProviderEntryStatus.completed,
+      '3' || 'on hold' || 'paused' => ProviderEntryStatus.paused,
+      '4' || 'dropped' => ProviderEntryStatus.dropped,
       '6' ||
       'plan to watch' ||
       'plan to read' ||
-      'plan to listen' =>
-        ImportItemStatus.planned,
+      'plan to listen' ||
       'wishlist' ||
       'want to watch' ||
       'want to read' =>
-        ImportItemStatus.wishlist,
-      _ => ImportItemStatus.unknown,
+        ProviderEntryStatus.planning,
+      'repeating' || 'rewatching' || 'rereading' =>
+        ProviderEntryStatus.repeating,
+      _ => null,
     };
   }
 
