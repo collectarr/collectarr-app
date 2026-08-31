@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +35,6 @@ final genericLibraryConfig = LibraryTypeConfig(
 final genericKindModule =
     LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
   type: genericLibraryConfig,
-  mediaAdapter: collectarrMediaAdapter(genericLibraryConfig),
   projector: const GenericWorkspaceProjector(),
   ownedDetailsCodec: const GenericOwnedDetailsCodec(),
   fields: genericLibraryKindSchema.toRegistry(),

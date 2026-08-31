@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -23,7 +22,6 @@ class LibraryGroupedShelfView extends StatelessWidget {
   const LibraryGroupedShelfView({
     super.key,
     required this.type,
-    required this.adapter,
     required this.groups,
     required this.viewState,
     required this.selectedId,
@@ -45,7 +43,6 @@ class LibraryGroupedShelfView extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryMediaAdapter adapter;
   final List<GroupShelfEntry> groups;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
@@ -118,8 +115,8 @@ class LibraryGroupedShelfView extends StatelessWidget {
     bool showSeasonGroupProgress,
   ) {
     final defaultCoverSize = viewState.coverSize;
-    final mainAxisExtent =
-        defaultCoverSize * adapter.viewProfile.coverGridHeightFactor;
+    final mainAxisExtent = defaultCoverSize *
+        libraryKindRuntimeForType(type).viewProfile.coverGridHeightFactor;
     return ColoredBox(
       color: appPalette(context).gridCanvas,
       child: CustomScrollView(
@@ -242,13 +239,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
                     selectionColor: accent,
                     mutedTextColor: appPalette(context).textMuted,
                   );
-                  return adapter.workspaceCardBuilder == null
-                      ? child
-                      : adapter.workspaceCardBuilder!(
-                          context,
-                          item,
-                          child,
-                        );
+                  return child;
                 },
               ),
             ),

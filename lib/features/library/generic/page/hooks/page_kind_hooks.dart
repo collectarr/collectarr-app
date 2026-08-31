@@ -3,8 +3,8 @@ part of '../generic_library_page.dart';
 // ignore_for_file: invalid_use_of_protected_member, unused_element
 
 extension _PageKindHooks on GenericLibraryPageState {
-  LibraryMediaAdapter get _adapter =>
-      libraryKindRuntimeForType(widget.type).mediaAdapter;
+  LibraryWorkspaceViewProfile get _viewProfile =>
+      libraryKindRuntimeForType(widget.type).viewProfile;
 
   bool get _supportsTrackSearch =>
       widget.type.kindUiAdapter.supportsTrackSearch(widget.type);
@@ -32,7 +32,7 @@ extension _PageKindHooks on GenericLibraryPageState {
   LibraryWorkspaceBrowserMode get _activeBrowserMode {
     return widget.type.kindUiAdapter.browserModeForViewState(
       widget.type,
-      _viewState ?? _adapter.viewProfile.defaults(),
+      _viewState ?? _viewProfile.defaults(),
       releaseFolderTitleItemId: activeReleaseFolderTitleItemId,
     );
   }

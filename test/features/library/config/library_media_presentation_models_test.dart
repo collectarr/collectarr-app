@@ -131,7 +131,7 @@ void main() {
       // Test preset visible columns
       for (final preset in LibraryWorkspacePreset.values) {
         final presetConfig =
-            module.mediaAdapter.viewProfile.presetConfig(preset);
+            module.viewProfile.presetConfig(preset);
         for (final columnId in presetConfig.visibleColumns) {
           final idStr = columnId.toString();
           final isSupported = module.fields.columns.any(

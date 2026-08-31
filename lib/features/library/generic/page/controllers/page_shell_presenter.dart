@@ -10,7 +10,7 @@ abstract final class LibraryPageShellPresenter {
     final wishlistValue = state.ref.watch(wishlistProvider);
     final switchSnapshot = state.widget.switchLayoutSnapshot;
     final baseViewState =
-        state._viewState ?? state._adapter.viewProfile.defaults();
+        state._viewState ?? state._viewProfile.defaults();
     final viewState = switchSnapshot == null
         ? baseViewState
         : baseViewState.withLayoutSnapshot(switchSnapshot);
@@ -167,7 +167,6 @@ abstract final class LibraryPageShellPresenter {
         : LibrarySeriesCompletionScope.all;
     return LibraryBody(
       type: state.widget.type,
-      adapter: state._adapter,
       projection: projection,
       viewState: viewState,
       selectedId: state._selectedId,
@@ -214,13 +213,13 @@ abstract final class LibraryPageShellPresenter {
       onGroupModeChanged: state._setGroupMode,
       onSortChanged: (column) => state._updateViewState(
         (stateValue) =>
-            stateValue.withSortColumn(column, state._adapter.viewProfile),
+            stateValue.withSortColumn(column, state._viewProfile),
       ),
       onColumnWidthChanged: (column, width) => state._updateViewState(
         (stateValue) => stateValue.withColumnWidth(
           column,
           width,
-          state._adapter.viewProfile,
+          state._viewProfile,
         ),
       ),
       onColumnReordered: (column, beforeColumn) => state._updateViewState(
@@ -314,7 +313,6 @@ abstract final class LibraryPageShellPresenter {
       desktopToolbarBand: LibraryDesktopSecondaryToolbar(
         type: state.widget.type,
         viewState: viewState,
-        adapter: state._adapter,
         counts: projection.counts,
         onEditColumns: state._dialogCoordinator.showColumnChooserFlow,
         columnFavoritePresets: state._columnFavoritePresets,

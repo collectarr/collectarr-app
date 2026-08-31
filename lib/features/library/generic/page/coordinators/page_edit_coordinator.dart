@@ -121,7 +121,7 @@ class LibraryPageEditCoordinator {
       owned,
     );
     final shelfState = _s.ref.read(shelfProvider).asData?.value;
-    final viewState = _s._viewState ?? _s._adapter.viewProfile.defaults();
+    final viewState = _s._viewState ?? _s._viewProfile.defaults();
     final projection = shelfState == null
         ? null
         : _s._projectionForShelf(shelfState, viewState);

@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 export 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-export 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
 
 final class LibraryKindRegistry {
   LibraryKindRegistry(
@@ -59,6 +58,12 @@ final defaultLibraryKindRegistry = LibraryKindRegistry(collectarrKindModules);
 final libraryKindRegistryProvider = Provider<LibraryKindRegistry>((ref) {
   return defaultLibraryKindRegistry;
 });
+
+LibraryKindRuntime libraryKindRuntime(
+  CatalogMediaKind kind, {
+  LibraryKindRegistry? registry,
+}) =>
+    libraryKindRuntimeForKind(kind, registry: registry);
 
 LibraryKindRuntime libraryKindRuntimeForKind(
   CatalogMediaKind kind, {

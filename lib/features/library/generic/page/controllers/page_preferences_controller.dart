@@ -171,7 +171,7 @@ abstract final class LibraryPagePreferencesControllerOps {
   ) {
     state._updateViewState((viewState) => viewState.withPreset(
           preset,
-          state._adapter.viewProfile,
+          state._viewProfile,
         ));
   }
 
@@ -193,7 +193,7 @@ abstract final class LibraryPagePreferencesControllerOps {
   ) {
     state._updateViewState(
       (viewState) =>
-          viewState.withSortRules(favorite.rules, state._adapter.viewProfile),
+          viewState.withSortRules(favorite.rules, state._viewProfile),
     );
   }
 
@@ -232,7 +232,7 @@ abstract final class LibraryPagePreferencesControllerOps {
   }
 
   static String? activeColumnFavoriteLabel(GenericLibraryPageState state) {
-    final viewState = state._viewState ?? state._adapter.viewProfile.defaults();
+    final viewState = state._viewState ?? state._viewProfile.defaults();
     for (final preset in state._columnFavoritePresets) {
       if (setEquals(preset.columns, viewState.visibleColumns)) {
         return preset.label;
@@ -243,7 +243,7 @@ abstract final class LibraryPagePreferencesControllerOps {
 
   static LibrarySortFavorite? activeSortFavorite(
       GenericLibraryPageState state) {
-    final viewState = state._viewState ?? state._adapter.viewProfile.defaults();
+    final viewState = state._viewState ?? state._viewProfile.defaults();
     for (final favorite in state._sortFavorites) {
       if (state._sameSortRules(favorite.rules, viewState.sortRules)) {
         return favorite;
@@ -255,9 +255,9 @@ abstract final class LibraryPagePreferencesControllerOps {
   static LibraryWorkspacePreset? activeViewPreset(
     GenericLibraryPageState state,
   ) {
-    final viewState = state._viewState ?? state._adapter.viewProfile.defaults();
+    final viewState = state._viewState ?? state._viewProfile.defaults();
     for (final preset in LibraryWorkspacePreset.values) {
-      final config = state._adapter.viewProfile.presetConfig(preset);
+      final config = state._viewProfile.presetConfig(preset);
       if (viewState.viewMode == config.viewMode &&
           viewState.detailsLayout == config.detailsLayout &&
           viewState.coverSize == config.coverSize &&

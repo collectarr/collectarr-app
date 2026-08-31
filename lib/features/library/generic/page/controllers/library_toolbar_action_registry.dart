@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_actions.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
@@ -37,7 +36,6 @@ class LibraryToolbarViewContext {
     required this.type,
     required this.activeBrowserMode,
     required this.activeReleaseFolderTitleItemId,
-    required this.adapter,
     required this.onShowAddDialogFlow,
     required this.onShowColumnChooserFlow,
     required this.onShowSortDialogFlow,
@@ -60,7 +58,9 @@ class LibraryToolbarViewContext {
   final LibraryTypeConfig type;
   final LibraryWorkspaceBrowserMode activeBrowserMode;
   final String? activeReleaseFolderTitleItemId;
-  final LibraryMediaAdapter adapter;
+
+  LibraryWorkspaceViewProfile get viewProfile =>
+      libraryKindRuntimeForType(type).viewProfile;
   final VoidCallback onShowAddDialogFlow;
   final VoidCallback onShowColumnChooserFlow;
   final VoidCallback onShowSortDialogFlow;
@@ -237,7 +237,7 @@ class LibraryToolbarActionRegistry {
           : () {},
       onSortChanged: (String column) => actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) =>
-            next.withSortColumn(column, actionContext.view.adapter.viewProfile),
+            next.withSortColumn(column, actionContext.view.viewProfile),
       ),
       onEditSort: actionContext.view.onShowSortDialogFlow,
       onSidebarVisibilityChanged:

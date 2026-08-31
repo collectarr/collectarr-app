@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/book/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
@@ -27,7 +26,6 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.
 
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   type: booksLibraryConfig,
-  mediaAdapter: booksMediaAdapter,
   projector: const BookWorkspaceProjector(),
   ownedDetailsCodec: const BookOwnedDetailsCodec(),
   fields: bookLibraryKindSchema.toRegistry(),

@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
@@ -26,7 +25,6 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadat
 
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
   type: moviesLibraryConfig,
-  mediaAdapter: moviesMediaAdapter,
   projector: const MovieWorkspaceProjector(),
   ownedDetailsCodec: const MovieOwnedDetailsCodec(),
   fields: movieLibraryKindSchema.toRegistry(),

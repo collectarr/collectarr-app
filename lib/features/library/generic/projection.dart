@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -313,7 +312,6 @@ class LibraryProjection {
   factory LibraryProjection.fromShelf({
     required ShelfState shelf,
     required LibraryTypeConfig type,
-    required LibraryMediaAdapter adapter,
     required LibraryWorkspaceViewState viewState,
     LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
     String? releaseFolderTitleItemId,
@@ -339,7 +337,6 @@ class LibraryProjection {
     return const LibraryProjectionService().build(
       shelf: shelf,
       type: type,
-      adapter: adapter,
       viewState: viewState,
       browserMode: browserMode,
       releaseFolderTitleItemId: releaseFolderTitleItemId,
@@ -465,14 +462,14 @@ List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
 bool libraryEntryMatchesLinkedMetadataFilter(
   LibraryProjectionRuntime item,
   String value,
-  LibraryMediaAdapter adapter,
+  LibraryTypeConfig type,
 ) {
   final normalized = value.trim().toLowerCase();
   if (normalized.isEmpty) {
     return true;
   }
   for (final candidate
-      in adapter.linkedMetadataCandidatesForEntry(item.source)) {
+      in libraryKindRuntimeForType(type).linkedMetadataCandidatesForEntry(item.source)) {
     if (candidate.trim().toLowerCase() == normalized) {
       return true;
     }

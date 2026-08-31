@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
@@ -10,9 +9,7 @@ import 'package:collectarr_app/features/library/kinds/game/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_media_adapter.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -48,8 +45,7 @@ void main() {
             body: LibraryToolbar(
               type: moviesLibraryConfig,
               searchController: searchController,
-              viewState: moviesMediaAdapter.viewProfile.defaults(),
-              adapter: moviesMediaAdapter,
+              viewState: libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -185,7 +181,6 @@ void main() {
 
     Future<void> expectScanCover({
       required LibraryTypeConfig type,
-      required LibraryMediaAdapter adapter,
       required LibraryWorkspaceViewState viewState,
       required bool expected,
     }) async {
@@ -197,7 +192,6 @@ void main() {
                 type: type,
                 searchController: searchController,
                 viewState: viewState,
-                adapter: adapter,
                 counts: const LibraryToolbarCounts(),
                 onAdd: () {},
                 onScan: () {},
@@ -230,44 +224,27 @@ void main() {
 
     await expectScanCover(
       type: moviesLibraryConfig,
-      adapter: moviesMediaAdapter,
-      viewState: moviesMediaAdapter.viewProfile.defaults(),
+      viewState: libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: booksLibraryConfig,
-      adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.book)!,
-      viewState: collectarrMediaAdapters
-          .byKind(CatalogMediaKind.book)!
-          .viewProfile
-          .defaults(),
+      viewState: libraryKindRuntimeForType(booksLibraryConfig).viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: gamesLibraryConfig,
-      adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.game)!,
-      viewState: collectarrMediaAdapters
-          .byKind(CatalogMediaKind.game)!
-          .viewProfile
-          .defaults(),
+      viewState: libraryKindRuntimeForType(gamesLibraryConfig).viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: boardGamesLibraryConfig,
-      adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.boardgame)!,
-      viewState: collectarrMediaAdapters
-          .byKind(CatalogMediaKind.boardgame)!
-          .viewProfile
-          .defaults(),
+      viewState: libraryKindRuntimeForType(boardGamesLibraryConfig).viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
       type: comicsLibraryConfig,
-      adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!,
-      viewState: collectarrMediaAdapters
-          .byKind(CatalogMediaKind.comic)!
-          .viewProfile
-          .defaults(),
+      viewState: libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
       expected: true,
     );
   });
@@ -289,8 +266,7 @@ void main() {
             body: LibraryToolbar(
               type: moviesLibraryConfig,
               searchController: searchController,
-              viewState: moviesMediaAdapter.viewProfile.defaults(),
-              adapter: moviesMediaAdapter,
+              viewState: libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -328,8 +304,7 @@ void main() {
             body: LibraryToolbar(
               type: booksLibraryConfig,
               searchController: searchController,
-              viewState: booksMediaAdapter.viewProfile.defaults(),
-              adapter: booksMediaAdapter,
+              viewState: libraryKindRuntimeForType(booksLibraryConfig).viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -377,8 +352,7 @@ void main() {
             body: LibraryToolbar(
               type: moviesLibraryConfig,
               searchController: searchController,
-              viewState: moviesMediaAdapter.viewProfile.defaults(),
-              adapter: moviesMediaAdapter,
+              viewState: libraryKindRuntimeForType(moviesLibraryConfig).viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -415,11 +389,7 @@ void main() {
             body: LibraryToolbar(
               type: comicsLibraryConfig,
               searchController: searchController,
-              viewState: collectarrMediaAdapters
-                  .byKind(CatalogMediaKind.comic)!
-                  .viewProfile
-                  .defaults(),
-              adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!,
+              viewState: libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -466,11 +436,7 @@ void main() {
             body: LibraryToolbar(
               type: comicsLibraryConfig,
               searchController: searchController,
-              viewState: collectarrMediaAdapters
-                  .byKind(CatalogMediaKind.comic)!
-                  .viewProfile
-                  .defaults(),
-              adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!,
+              viewState: libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -521,11 +487,7 @@ void main() {
             body: LibraryToolbar(
               type: comicsLibraryConfig,
               searchController: searchController,
-              viewState: collectarrMediaAdapters
-                  .byKind(CatalogMediaKind.comic)!
-                  .viewProfile
-                  .defaults(),
-              adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!,
+              viewState: libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -581,11 +543,7 @@ void main() {
             body: LibraryToolbar(
               type: comicsLibraryConfig,
               searchController: searchController,
-              viewState: collectarrMediaAdapters
-                  .byKind(CatalogMediaKind.comic)!
-                  .viewProfile
-                  .defaults(),
-              adapter: collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!,
+              viewState: libraryKindRuntimeForType(comicsLibraryConfig).viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -645,12 +603,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     for (final type in collectarrLibraryTypes.types) {
-      final adapter = collectarrMediaAdapters.byKind(type.workspace.kind);
-      expect(
-        adapter,
-        isNotNull,
-        reason: 'Missing adapter for ${type.workspace.kind.apiValue}',
-      );
+      final runtime = libraryKindRuntimeForType(type);
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -658,8 +611,7 @@ void main() {
               body: LibraryToolbar(
                 type: type,
                 searchController: searchController,
-                viewState: adapter!.viewProfile.defaults(),
-                adapter: adapter,
+                viewState: runtime.viewProfile.defaults(),
                 counts: const LibraryToolbarCounts(),
                 onAdd: () {},
                 onScan: () {},

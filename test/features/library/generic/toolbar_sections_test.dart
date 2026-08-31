@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliar
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -16,7 +16,7 @@ void main() {
     tester,
   ) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
-    final adapter = collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!;
+    final runtime = libraryKindRuntime(CatalogMediaKind.comic);
     var sortColumnsCount = 0;
     var manageSortFavoritesCount = 0;
     String? appliedSortFavorite;
@@ -37,11 +37,10 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: adapter.viewProfile.defaults().copyWith(
+              viewState: runtime.viewProfile.defaults().copyWith(
                     viewMode: LibraryViewMode.list,
                     detailsLayout: LibraryDetailsLayout.right,
                   ),
-              adapter: adapter,
               counts: const LibraryToolbarCounts(shown: 18, total: 42),
               onEditColumns: () {},
               onSidebarVisibilityChanged: (_) {},
@@ -99,7 +98,7 @@ void main() {
       'desktop secondary toolbar hides details layout control when the details panel is visible',
       (tester) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
-    final adapter = collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!;
+    final runtime = libraryKindRuntime(CatalogMediaKind.comic);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -108,11 +107,10 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: adapter.viewProfile.defaults().copyWith(
+              viewState: runtime.viewProfile.defaults().copyWith(
                     viewMode: LibraryViewMode.list,
                     detailsLayout: LibraryDetailsLayout.right,
                   ),
-              adapter: adapter,
               counts: const LibraryToolbarCounts(shown: 18, total: 42),
               onEditColumns: () {},
               onSidebarVisibilityChanged: (_) {},
@@ -140,7 +138,7 @@ void main() {
       'desktop secondary toolbar shows details layout control when the details panel is hidden',
       (tester) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
-    final adapter = collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!;
+    final runtime = libraryKindRuntime(CatalogMediaKind.comic);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -149,11 +147,10 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: adapter.viewProfile.defaults().copyWith(
+              viewState: runtime.viewProfile.defaults().copyWith(
                     viewMode: LibraryViewMode.list,
                     detailsLayout: LibraryDetailsLayout.hidden,
                   ),
-              adapter: adapter,
               counts: const LibraryToolbarCounts(shown: 18, total: 42),
               onEditColumns: () {},
               onSidebarVisibilityChanged: (_) {},
@@ -181,7 +178,7 @@ void main() {
     tester,
   ) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
-    final adapter = collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!;
+    final runtime = libraryKindRuntime(CatalogMediaKind.comic);
     var manageColumnsCount = 0;
     String? appliedPreset;
     final essentialPreset = LibraryTableColumnPreset(
@@ -207,11 +204,10 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: adapter.viewProfile.defaults().copyWith(
+              viewState: runtime.viewProfile.defaults().copyWith(
                     viewMode: LibraryViewMode.list,
                     detailsLayout: LibraryDetailsLayout.right,
                   ),
-              adapter: adapter,
               counts: const LibraryToolbarCounts(shown: 18, total: 42),
               onEditColumns: () => manageColumnsCount++,
               columnFavoritePresets: [essentialPreset, pricingPreset],
@@ -329,7 +325,7 @@ void main() {
     tester,
   ) async {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
-    final adapter = collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!;
+    final runtime = libraryKindRuntime(CatalogMediaKind.comic);
     LibraryFolderPreset? changedPreset;
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
@@ -343,11 +339,10 @@ void main() {
             width: 1200,
             child: LibraryDesktopSecondaryToolbar(
               type: type,
-              viewState: adapter.viewProfile.defaults().copyWith(
+              viewState: runtime.viewProfile.defaults().copyWith(
                     viewMode: LibraryViewMode.list,
                     detailsLayout: LibraryDetailsLayout.right,
                   ),
-              adapter: adapter,
               counts: const LibraryToolbarCounts(shown: 10, total: 20),
               onEditColumns: () {},
               onSidebarVisibilityChanged: (_) {},

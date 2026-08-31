@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -50,7 +50,6 @@ class LibraryPageCoordinatorContext {
     required LibraryTypeConfig Function() getType,
     required Color Function() getAccent,
     required bool Function() getMounted,
-    required LibraryMediaAdapter Function() getAdapter,
     required LibraryViewPreferenceStore Function() getViewPrefs,
     required String Function() getSearchQuery,
     required void Function(String? query) setSearchQuery,
@@ -123,7 +122,6 @@ class LibraryPageCoordinatorContext {
   })  : _getType = getType,
         _getAccent = getAccent,
         _getMounted = getMounted,
-        _getAdapter = getAdapter,
         _getViewPrefs = getViewPrefs,
         _getSearchQuery = getSearchQuery,
         _setSearchQuery = setSearchQuery,
@@ -183,7 +181,6 @@ class LibraryPageCoordinatorContext {
   final LibraryTypeConfig Function() _getType;
   final Color Function() _getAccent;
   final bool Function() _getMounted;
-  final LibraryMediaAdapter Function() _getAdapter;
   final LibraryViewPreferenceStore Function() _getViewPrefs;
   final String Function() _getSearchQuery;
   final void Function(String? query) _setSearchQuery;
@@ -256,7 +253,8 @@ class LibraryPageCoordinatorContext {
   LibraryTypeConfig get type => _getType();
   Color get accent => _getAccent();
   bool get mounted => _getMounted();
-  LibraryMediaAdapter get adapter => _getAdapter();
+  LibraryWorkspaceViewProfile get viewProfile =>
+      libraryKindRuntimeForType(type).viewProfile;
   LibraryViewPreferenceStore get viewPrefs => _getViewPrefs();
   String get searchQuery => _getSearchQuery();
 

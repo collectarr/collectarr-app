@@ -1,47 +1,33 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_media_adapters.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_media_adapter.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('registry resolves adapters for normalized kind values', () {
-    expect(
-      collectarrMediaAdapters.byKind(CatalogMediaKind.comic),
-      same(comicsMediaAdapter),
-    );
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.unknown), isNull);
-  });
-
-  test('supportedKinds stays unique across built-in adapters', () {
-    final supportedKinds = collectarrMediaAdapters.supportedKinds;
-
-    expect(supportedKinds, containsAll(['comic', 'book', 'game', 'music']));
-    expect(supportedKinds.toSet().length, supportedKinds.length);
-    expect(supportedKinds.length, collectarrMediaAdapters.adapters.length);
+  test('registry resolves runtime for normalized kind values', () {
+    final comicRuntime = libraryKindRuntime(CatalogMediaKind.comic);
+    expect(comicRuntime.identity.kind, equals(CatalogMediaKind.comic));
   });
 
   test('music uses square cover grid factor while comics keep portrait factor',
       () {
-    final music = collectarrMediaAdapters.byKind(CatalogMediaKind.music)!;
-    final comics = collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!;
+    final music = libraryKindRuntime(CatalogMediaKind.music);
+    final comics = libraryKindRuntime(CatalogMediaKind.comic);
 
     expect(music.viewProfile.coverGridHeightFactor, equals(1.0));
     expect(comics.viewProfile.coverGridHeightFactor, equals(1.53));
-    expect(musicMediaAdapter.viewProfile.coverGridHeightFactor, equals(1.0));
   });
 
-  test('workspace grid height follows the adapter cover profile', () {
-    final music = collectarrMediaAdapters.byKind(CatalogMediaKind.music)!;
-    final comics = collectarrMediaAdapters.byKind(CatalogMediaKind.comic)!;
+  test('workspace grid height follows the view profile', () {
+    final music = libraryKindRuntime(CatalogMediaKind.music);
+    final comics = libraryKindRuntime(CatalogMediaKind.comic);
 
     expect(
-      libraryWorkspaceGridMainAxisExtent(adapter: music, coverSize: 128),
+      libraryWorkspaceGridMainAxisExtent(type: music.type, coverSize: 128),
       equals(128),
     );
     expect(
-      libraryWorkspaceGridMainAxisExtent(adapter: comics, coverSize: 128),
+      libraryWorkspaceGridMainAxisExtent(type: comics.type, coverSize: 128),
       closeTo(195.84, 0.001),
     );
   });

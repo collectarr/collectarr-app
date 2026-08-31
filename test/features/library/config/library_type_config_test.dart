@@ -9,10 +9,6 @@ import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_media_adapter.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_media_adapter.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_media_adapter.dart'
-    show moviesMediaAdapter;
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
@@ -144,7 +140,8 @@ void main() {
     );
 
     expect(
-      booksMediaAdapter.subgroupKeyForEntry(item, 'series'),
+      libraryKindRuntimeForType(booksLibraryConfig)
+          .subgroupKeyForEntry(item, 'series'),
       isNull,
     );
   });
@@ -503,16 +500,26 @@ void main() {
     }
   });
 
-  test('media adapter registry covers all active kinds', () {
+  test('library kind registry covers all active kinds', () {
     expect(
-      collectarrMediaAdapters.supportedKinds,
-      containsAll(collectarrLibraryTypes.supportedKinds),
+      collectarrLibraryTypes.supportedKinds,
+      containsAll([
+        'comic',
+        'manga',
+        'book',
+        'game',
+        'boardgame',
+        'movie',
+        'tv',
+        'anime',
+        'music',
+      ]),
     );
     for (final kind in collectarrLibraryTypes.supportedKinds) {
       expect(
-        collectarrMediaAdapters.byKind(catalogMediaKindFromValue(kind)),
+        libraryKindRuntime(catalogMediaKindFromValue(kind)),
         isNotNull,
-        reason: 'Missing media adapter for $kind.',
+        reason: 'Missing runtime for $kind.',
       );
     }
   });
@@ -592,21 +599,22 @@ void main() {
     expect(physicalMediaFormatById('digital')?.variantType, 'digital');
   });
 
-  test('comics media adapter exposes reusable workspace table behavior', () {
-    expect(comicsMediaAdapter.type, comicsLibraryConfig);
+  test('comics runtime exposes reusable workspace table behavior', () {
+    final comicRuntime = libraryKindRuntime(CatalogMediaKind.comic);
+    expect(comicRuntime.type, comicsLibraryConfig);
     expect(
-      comicsMediaAdapter.viewProfile.type.workspace.kind,
+      comicRuntime.viewProfile.type.workspace.kind,
       CatalogMediaKind.comic,
     );
-    expect(comicsMediaAdapter.columnDisplayName('comic.series'), 'Series');
-    expect(comicsMediaAdapter.columnLabel('cover'), '');
+    expect(comicRuntime.columnDisplayName('comic.series'), 'Series');
+    expect(comicRuntime.columnLabel('cover'), '');
     expect(
-      comicsMediaAdapter.columnGroup('location'),
+      comicRuntime.columnGroup('location'),
       LibraryTableColumnGroup.personal,
     );
-    expect(comicsMediaAdapter.columnIsNumeric('price'), isTrue);
+    expect(comicRuntime.columnIsNumeric('price'), isTrue);
     expect(
-      comicsMediaAdapter.columnSort('comic.release_date'),
+      comicRuntime.columnSort('comic.release_date'),
       'comic.release_date',
     );
     expect(
@@ -614,13 +622,13 @@ void main() {
       ['Essential', 'Ownership', 'Value', 'Full'],
     );
     expect(
-      comicsMediaAdapter.orderedTableColumns(const {}).first,
+      comicRuntime.orderedTableColumns(const {}).first,
       'comic.status',
     );
   });
 
-  test('media adapters cover workspace defaults', () {
-    expect(collectarrMediaAdapters.supportedKinds, [
+  test('kind runtimes cover workspace defaults', () {
+    expect(collectarrLibraryTypes.supportedKinds, [
       'comic',
       'manga',
       'book',
@@ -631,45 +639,44 @@ void main() {
       'anime',
       'music',
     ]);
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.book)?.type,
+    expect(libraryKindRuntime(CatalogMediaKind.book).type,
         booksLibraryConfig);
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.boardgame)?.type,
+    expect(libraryKindRuntime(CatalogMediaKind.boardgame).type,
         boardGamesLibraryConfig);
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.manga)?.type,
+    expect(libraryKindRuntime(CatalogMediaKind.manga).type,
         mangaLibraryConfig);
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.tv)?.type,
+    expect(libraryKindRuntime(CatalogMediaKind.tv).type,
         tvLibraryConfig);
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.anime)?.type,
+    expect(libraryKindRuntime(CatalogMediaKind.anime).type,
         animeLibraryConfig);
     expect(
-      collectarrMediaAdapters
-          .byKind(CatalogMediaKind.movie)
-          ?.viewProfile
+      libraryKindRuntime(CatalogMediaKind.movie)
+          .viewProfile
           .defaults()
           .visibleColumns
           .contains('movie.title'),
       isTrue,
     );
-    expect(collectarrMediaAdapters.byKind(CatalogMediaKind.music)?.type,
+    expect(libraryKindRuntime(CatalogMediaKind.music).type,
         musicLibraryConfig);
     expect(
-      gamesMediaAdapter.columnSort('game.release_date'),
+      libraryKindRuntime(CatalogMediaKind.game).columnSort('game.release_date'),
       'game.release_date',
     );
     expect(
-      moviesMediaAdapter.columnLabel('variant'),
+      libraryKindRuntime(CatalogMediaKind.movie).columnLabel('variant'),
       'Variant',
     );
     expect(
-      gamesMediaAdapter.columnLabel('variant'),
+      libraryKindRuntime(CatalogMediaKind.game).columnLabel('variant'),
       'Variant',
     );
     expect(
-      booksMediaAdapter.columnLabel('barcode'),
+      libraryKindRuntime(CatalogMediaKind.book).columnLabel('barcode'),
       'Barcode',
     );
     expect(
-      booksMediaAdapter.tableColumnWidth(
+      libraryKindRuntime(CatalogMediaKind.book).tableColumnWidth(
         'title',
         {'title': 999},
       ),

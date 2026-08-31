@@ -18,7 +18,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       },
     );
     unawaited(state._warmViewStateCachesOnce());
-    state._viewState = state._adapter.viewProfile.defaults();
+    state._viewState = state._viewProfile.defaults();
 
     // Hydrate & persist Riverpod state
     state.ref.read(libraryWorkspaceHydrationProvider(state.workspaceKey));
@@ -225,7 +225,7 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._primeCachedViewPreferences();
       // Start from the next kind's own cached defaults/chrome to avoid
       // a one-frame layout jump (e.g. right -> bottom details panel).
-      state._viewState = state._adapter.viewProfile.defaults();
+      state._viewState = state._viewProfile.defaults();
       unawaited(state._loadViewState());
       unawaited(state._loadViewPreferences());
       unawaited(state._loadColumnFavoritePresets());

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_series_sidebar.dart';
@@ -32,7 +32,6 @@ class LibraryProjectionEngine {
   LibraryProjection execute({
     required ShelfState shelf,
     required LibraryTypeConfig type,
-    required LibraryMediaAdapter adapter,
     required LibraryWorkspaceViewState viewState,
     required LibraryProjectionQuery query,
     LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
@@ -89,7 +88,6 @@ class LibraryProjectionEngine {
         query: query,
         searchDoc: searchDoc,
         type: type,
-        adapter: adapter,
         index: index,
         activeLoanOwnedItemIds: activeLoanOwnedItemIds,
         customFieldValuesByDefinitionByItem:
@@ -99,7 +97,7 @@ class LibraryProjectionEngine {
       }
     }
 
-    filteredItems.sort((a, b) => adapter.compareEntriesByRules(
+    filteredItems.sort((a, b) => libraryKindRuntimeForType(type).compareEntriesByRules(
           a,
           b,
           viewState.sortRules,

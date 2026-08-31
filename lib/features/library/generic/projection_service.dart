@@ -6,7 +6,6 @@ class LibraryProjectionService {
   LibraryProjection build({
     required ShelfState shelf,
     required LibraryTypeConfig type,
-    required LibraryMediaAdapter adapter,
     required LibraryWorkspaceViewState viewState,
     LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
     String? releaseFolderTitleItemId,
@@ -46,7 +45,6 @@ class LibraryProjectionService {
     return engine.execute(
       shelf: shelf,
       type: type,
-      adapter: adapter,
       viewState: viewState,
       query: projectionQuery,
       browserMode: browserMode,

@@ -72,9 +72,9 @@ void main() {
         expect(runtime.projector, isNotNull,
             reason: '$kind must have a workspace projector');
 
-        // Media Adapter, Hierarchy, Metadata, Inspector, Transfer
-        expect(runtime.mediaAdapter, isNotNull,
-            reason: '$kind must have a media adapter');
+        // View Profile, Hierarchy, Metadata, Inspector, Transfer
+        expect(runtime.viewProfile, isNotNull,
+            reason: '$kind must have a view profile');
         expect(runtime.hierarchy, isNotNull,
             reason: '$kind must have hierarchy capability');
         expect(runtime.metadata, isNotNull,

@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
@@ -16,69 +16,6 @@ const double kPlannedMediaDefaultCoverSize = 128;
 const double kPlannedMediaMaxCoverSize = 188;
 const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
-
-LibraryMediaAdapter plannedMediaAdapter(
-  LibraryTypeConfig type, {
-  LibraryEntryColumnComparator? compareEntriesByColumn,
-  LibraryWorkspaceCardBuilder? workspaceCardBuilder,
-}) {
-  final viewProfile = plannedMediaWorkspaceViewProfile(type);
-  return LibraryMediaAdapter(
-    type: type,
-    viewProfile: viewProfile,
-    orderedTableColumns: (columns) => orderedLibraryTableColumns(
-      columns: columns,
-      defaultColumns:
-          libraryKindRuntimeForType(type).fields.defaultVisibleColumnIds,
-    ),
-    tableWidthForColumns: (columns, customWidths) =>
-        plannedMediaTableWidthForColumns(
-      type: type,
-      columns: columns,
-      customWidths: customWidths,
-    ),
-    tableColumnWidth: (column, customWidths) =>
-        plannedMediaTableColumnWidth(type, column, customWidths),
-    defaultTableColumnWidth: (column) =>
-        defaultPlannedMediaTableColumnWidth(type, column),
-    columnLabel: (column) => plannedMediaTableColumnLabelForType(type, column),
-    columnDisplayName: (column) =>
-        plannedMediaTableColumnDisplayNameForType(type, column),
-    columnGroup: (column) => plannedMediaTableColumnGroup(type, column),
-    columnGroupLabel: plannedMediaTableColumnGroupLabel,
-    columnIsNumeric: (column) => plannedMediaTableColumnIsNumeric(type, column),
-    columnSort: (column) => plannedMediaTableColumnSort(type, column),
-    tableCellBuilder: (item, column) =>
-        plannedMediaTableCell(type, item, column),
-    compareEntriesByColumn: compareEntriesByColumn ??
-        (left, right, column) => libraryKindRuntimeForType(type)
-            .fields
-            .sortDefinitionFor(column)
-            .compare(
-              LibraryProjectionContext(
-                  source: left.source, node: left.node, dto: left.dto),
-              LibraryProjectionContext(
-                  source: right.source, node: right.node, dto: right.dto),
-            ),
-    entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
-    entryLinkedMetadataCandidatesBuilder: (source) =>
-        plannedMediaLinkedMetadataCandidatesForEntry(type, source),
-    entrySubgroupKeyBuilder: (item, groupMode) =>
-        plannedMediaSubgroupKeyForEntry(type, item, groupMode),
-    compareSubgroupKeys: plannedMediaCompareSubgroupKeys,
-    workspaceCardBuilder: workspaceCardBuilder,
-  );
-}
-
-LibraryMediaAdapter collectarrMediaAdapter(
-  LibraryTypeConfig type, {
-  LibraryEntryColumnComparator? compareEntriesByColumn,
-}) {
-  return plannedMediaAdapter(
-    type,
-    compareEntriesByColumn: compareEntriesByColumn,
-  );
-}
 
 LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
   LibraryTypeConfig type,

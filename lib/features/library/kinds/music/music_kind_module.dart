@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/music/provider/music_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
@@ -25,7 +24,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_metadat
 
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
   type: musicLibraryConfig,
-  mediaAdapter: musicMediaAdapter,
   projector: const MusicWorkspaceProjector(),
   ownedDetailsCodec: const MusicOwnedDetailsCodec(),
   fields: musicLibraryKindSchema.toRegistry(),

@@ -258,7 +258,7 @@ abstract final class _LibraryScopeControllerOps {
         if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
           state._viewState = state._viewState!.withSortRules(
             smartList.sortRules!,
-            state._adapter.viewProfile,
+            state._viewProfile,
           );
         } else if (smartList.sortColumn != null) {
           state._viewState = state._viewState!.copyWith(

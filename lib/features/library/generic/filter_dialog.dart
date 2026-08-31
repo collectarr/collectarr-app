@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/config/library_media_field_labels.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -437,7 +437,6 @@ class LibraryFilterOptions {
 
   factory LibraryFilterOptions.fromEntries(
     List<LibraryProjectionRuntime> entries, {
-    required LibraryMediaAdapter adapter,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
@@ -460,7 +459,7 @@ class LibraryFilterOptions {
     for (final entry in entries) {
       final dto = entry.dto;
       final source = entry.source;
-      final filterValues = adapter.filterValuesForEntry(source);
+      final filterValues = plannedMediaFilterValuesForEntry(source);
       final seriesTitle = filterValues.series;
       if (seriesTitle != null && seriesTitle.isNotEmpty) {
         series.add(seriesTitle);
@@ -556,10 +555,9 @@ Set<String> _customFieldPresetOptions(CustomFieldDefinition definition) {
 bool libraryFilterMatches(
   LibraryProjectionRuntime item,
   LibraryFilterSelection filters,
-  LibraryMediaAdapter adapter,
 ) {
   final source = item.source;
-  final filterValues = adapter.filterValuesForEntry(item.source);
+  final filterValues = plannedMediaFilterValuesForEntry(item.source);
   if (filters.ownershipFilter == LibraryOwnershipFilter.owned &&
       !source.isOwned) {
     return false;

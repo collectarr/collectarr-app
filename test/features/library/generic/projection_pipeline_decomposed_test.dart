@@ -340,7 +340,6 @@ void main() {
       final projection = engine.execute(
         shelf: shelf,
         type: comicType,
-        adapter: comicModule.mediaAdapter,
         viewState: LibraryWorkspaceViewState(
           viewMode: LibraryViewMode.grid,
           detailsLayout: LibraryDetailsLayout.hidden,

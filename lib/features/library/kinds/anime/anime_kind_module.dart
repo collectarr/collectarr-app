@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -21,7 +20,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 
 final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
   type: animeLibraryConfig,
-  mediaAdapter: animeMediaAdapter,
   projector: const AnimeWorkspaceProjector(),
   ownedDetailsCodec: const AnimeOwnedDetailsCodec(),
   fields: animeLibraryKindSchema.toRegistry(),

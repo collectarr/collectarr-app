@@ -80,7 +80,6 @@ class LibraryPageToolbarController {
     final presentation = LibraryToolbarPresentation(
       config: LibraryToolbarConfig(
         type: _s.widget.type,
-        adapter: _s._adapter,
         browserMode: _s._activeBrowserMode,
         supportsMediaReleaseSplit: _s._supportsMediaReleaseSplit,
         includeDesktopSecondaryBand: false,
@@ -165,7 +164,6 @@ class LibraryPageToolbarController {
             type: _s.widget.type,
             activeBrowserMode: _s._activeBrowserMode,
             activeReleaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
-            adapter: _s._adapter,
             onShowAddDialogFlow: _s._dialogCoordinator.showAddDialogFlow,
             onShowColumnChooserFlow:
                 _s._dialogCoordinator.showColumnChooserFlow,

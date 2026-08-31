@@ -10,7 +10,6 @@ export 'package:collectarr_app/features/library/models/library_kind_metadata_run
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
@@ -22,8 +21,13 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
+import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/providers/domain/mappers/provider_preview_mapper.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
@@ -58,7 +62,6 @@ abstract interface class LibraryKindRuntime {
   LibraryTypeConfig get type;
   LibraryTypeCapabilities get capabilities;
   LibraryUiPolicy get uiPolicy => type.uiPolicy;
-  LibraryMediaAdapter get mediaAdapter;
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
   LibraryAddCapability get add;
@@ -67,6 +70,39 @@ abstract interface class LibraryKindRuntime {
   LibraryKindProviderMapper? get providerMapper;
   LibraryFacetModule? get facets;
   CatalogKindCodec<LibraryKindMetadataRuntime>? get catalogCodec;
+
+  LibraryWorkspaceViewProfile get viewProfile;
+
+  Set<String> defaultTableColumns();
+  List<String> orderedTableColumns(Set<String> columns);
+  double tableWidthForColumns(
+    Set<String> columns,
+    Map<String, double> customWidths,
+  );
+  double tableColumnWidth(
+    String column,
+    Map<String, double> customWidths,
+  );
+  double defaultTableColumnWidth(String column);
+  String columnLabel(String column);
+  String columnDisplayName(String column);
+  LibraryTableColumnGroup columnGroup(String column);
+  String columnGroupLabel(LibraryTableColumnGroup group);
+  bool columnIsNumeric(String column);
+  String? columnSort(String column);
+  Widget buildTableCell(LibraryProjectionRuntime item, String column);
+  int compareEntriesByRules(
+    LibraryProjectionRuntime left,
+    LibraryProjectionRuntime right,
+    Iterable<LibrarySortRule> rules,
+  );
+  LibraryEntryFilterValues filterValuesForEntry(ShelfEntry source);
+  Iterable<String> linkedMetadataCandidatesForEntry(ShelfEntry source);
+  String? subgroupKeyForEntry(
+    LibraryProjectionRuntime item,
+    String groupMode,
+  );
+  int compareSubgroupKeys(String left, String right, String groupMode);
 
   OwnedItemDetails decodeOwnedDetails(Map<String, dynamic> json);
   OwnedItemDetails defaultOwnedDetails();
@@ -125,7 +161,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     TDetails extends OwnedItemDetails> implements LibraryKindRuntime {
   const LibraryKindSpec({
     required this.type,
-    required this.mediaAdapter,
     required this.fields,
     required this.projector,
     required this.ownedDetailsCodec,
@@ -142,11 +177,13 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     this.providerMapper,
     this.facets,
     this.catalogCodec,
+    LibraryWorkspaceViewProfile? viewProfile,
     LibraryCardPresentation Function(
       LibraryProjectionRuntime item, {
       required bool musicVertical,
     })? buildCardPresentation,
-  }) : _buildCardPresentation = buildCardPresentation;
+  })  : _viewProfile = viewProfile,
+        _buildCardPresentation = buildCardPresentation;
 
   final OwnedDetailsCodec<TDetails> ownedDetailsCodec;
   @override
@@ -211,8 +248,115 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   @override
   LibraryUiPolicy get uiPolicy => type.uiPolicy;
 
+  final LibraryWorkspaceViewProfile? _viewProfile;
+
   @override
-  final LibraryMediaAdapter mediaAdapter;
+  LibraryWorkspaceViewProfile get viewProfile =>
+      _viewProfile ?? plannedMediaWorkspaceViewProfile(type);
+
+  @override
+  Set<String> defaultTableColumns() => Set.of(fields.defaultVisibleColumnIds);
+
+  @override
+  List<String> orderedTableColumns(Set<String> columns) =>
+      orderedLibraryTableColumns(
+        columns: columns,
+        defaultColumns: fields.defaultVisibleColumnIds,
+      );
+
+  @override
+  double tableWidthForColumns(
+    Set<String> columns,
+    Map<String, double> customWidths,
+  ) =>
+      plannedMediaTableWidthForColumns(
+        type: type,
+        columns: columns,
+        customWidths: customWidths,
+      );
+
+  @override
+  double tableColumnWidth(
+    String column,
+    Map<String, double> customWidths,
+  ) =>
+      plannedMediaTableColumnWidth(type, column, customWidths);
+
+  @override
+  double defaultTableColumnWidth(String column) =>
+      defaultPlannedMediaTableColumnWidth(type, column);
+
+  @override
+  String columnLabel(String column) =>
+      plannedMediaTableColumnLabelForType(type, column);
+
+  @override
+  String columnDisplayName(String column) =>
+      plannedMediaTableColumnDisplayNameForType(type, column);
+
+  @override
+  LibraryTableColumnGroup columnGroup(String column) =>
+      plannedMediaTableColumnGroup(type, column);
+
+  @override
+  String columnGroupLabel(LibraryTableColumnGroup group) =>
+      plannedMediaTableColumnGroupLabel(group);
+
+  @override
+  bool columnIsNumeric(String column) =>
+      plannedMediaTableColumnIsNumeric(type, column);
+
+  @override
+  String? columnSort(String column) =>
+      plannedMediaTableColumnSort(type, column);
+
+  @override
+  Widget buildTableCell(LibraryProjectionRuntime item, String column) =>
+      plannedMediaTableCell(type, item, column);
+
+  @override
+  int compareEntriesByRules(
+    LibraryProjectionRuntime left,
+    LibraryProjectionRuntime right,
+    Iterable<LibrarySortRule> rules,
+  ) {
+    for (final rule in rules) {
+      final sortDef = fields.findSortDefinition(rule.column);
+      if (sortDef != null) {
+        final result = sortDef.compare(
+          LibraryProjectionContext(
+              source: left.source, node: left.node, dto: left.dto as TDto),
+          LibraryProjectionContext(
+              source: right.source, node: right.node, dto: right.dto as TDto),
+        );
+        if (result != 0) {
+          return rule.ascending ? result : -result;
+        }
+      }
+    }
+    return left.dto.title.toLowerCase().compareTo(
+          right.dto.title.toLowerCase(),
+        );
+  }
+
+  @override
+  LibraryEntryFilterValues filterValuesForEntry(ShelfEntry source) =>
+      plannedMediaFilterValuesForEntry(source);
+
+  @override
+  Iterable<String> linkedMetadataCandidatesForEntry(ShelfEntry source) =>
+      plannedMediaLinkedMetadataCandidatesForEntry(type, source);
+
+  @override
+  String? subgroupKeyForEntry(
+    LibraryProjectionRuntime item,
+    String groupMode,
+  ) =>
+      plannedMediaSubgroupKeyForEntry(type, item, groupMode);
+
+  @override
+  int compareSubgroupKeys(String left, String right, String groupMode) =>
+      plannedMediaCompareSubgroupKeys(left, right, groupMode);
 
   @override
   final LibraryFieldRegistry<TDto> fields;

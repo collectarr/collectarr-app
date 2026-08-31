@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 class LibraryFilterEngine {
@@ -18,7 +18,6 @@ class LibraryFilterEngine {
     required LibraryProjectionQuery query,
     required LibrarySearchDocument searchDoc,
     required LibraryTypeConfig type,
-    required LibraryMediaAdapter adapter,
     LibraryProjectionIndex? index,
     Set<String> activeLoanOwnedItemIds = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
@@ -49,13 +48,12 @@ class LibraryFilterEngine {
     if (!_matchesFilter(
       item,
       query.filterSelection,
-      adapter,
       activeLoanOwnedItemIds,
       customFieldValuesByDefinitionByItem,
     )) {
       return false;
     }
-    if (!_matchesLinkedMetadata(item, query.linkedMetadataFilter, adapter)) {
+    if (!_matchesLinkedMetadata(item, query.linkedMetadataFilter, type)) {
       return false;
     }
     return true;
@@ -146,14 +144,13 @@ class LibraryFilterEngine {
   bool _matchesFilter(
     LibraryProjectionItem item,
     LibraryFilterSelection filters,
-    LibraryMediaAdapter adapter,
     Set<String> activeLoanOwnedItemIds,
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
   ) {
     if (!filters.hasActiveFilters) {
       return true;
     }
-    if (!libraryFilterMatches(item, filters, adapter)) {
+    if (!libraryFilterMatches(item, filters)) {
       return false;
     }
     if (!libraryTrackingStatusMatchesFilter(
@@ -274,7 +271,7 @@ class LibraryFilterEngine {
   bool _matchesLinkedMetadata(
     LibraryProjectionItem item,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
-    LibraryMediaAdapter adapter,
+    LibraryTypeConfig type,
   ) {
     if (linkedMetadataFilter == null) {
       return true;
@@ -284,7 +281,7 @@ class LibraryFilterEngine {
       return true;
     }
     for (final candidate
-        in adapter.linkedMetadataCandidatesForEntry(item.source)) {
+        in libraryKindRuntimeForType(type).linkedMetadataCandidatesForEntry(item.source)) {
       if (candidate.trim().toLowerCase() == normalized) {
         return true;
       }

@@ -6,8 +6,8 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/empty_state.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
@@ -30,10 +30,11 @@ typedef LibraryItemContextMenuCallback = void Function(
 );
 
 double libraryWorkspaceGridMainAxisExtent({
-  required LibraryMediaAdapter adapter,
+  required LibraryTypeConfig type,
   required double coverSize,
 }) {
-  return coverSize * adapter.viewProfile.coverGridHeightFactor;
+  return coverSize *
+      libraryKindRuntimeForType(type).viewProfile.coverGridHeightFactor;
 }
 
 bool libraryShouldUseSeriesSubgroups(LibraryTypeConfig type) {
@@ -44,7 +45,6 @@ class LibraryWorkspace extends ConsumerWidget {
   const LibraryWorkspace({
     super.key,
     required this.type,
-    required this.adapter,
     required this.items,
     required this.viewState,
     required this.selectedId,
@@ -76,7 +76,6 @@ class LibraryWorkspace extends ConsumerWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryMediaAdapter adapter;
   final List<LibraryProjectionItem> items;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
@@ -159,7 +158,8 @@ class LibraryWorkspace extends ConsumerWidget {
     final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
-    final defaultCoverSize = adapter.viewProfile.defaultCoverSize;
+    final runtime = libraryKindRuntimeForType(type);
+    final defaultCoverSize = runtime.viewProfile.defaultCoverSize;
     final isMusicLibrary = type.capabilities.prefersSquareCovers;
     final density = viewState.densityPreset;
     final cardScale = defaultCoverSize > 0
@@ -187,7 +187,7 @@ class LibraryWorkspace extends ConsumerWidget {
         .clamp(224.0, 360.0)
         .toDouble();
     final coverMainAxisExtent = libraryWorkspaceGridMainAxisExtent(
-      adapter: adapter,
+      type: type,
       coverSize: viewState.coverSize,
     );
     if (_showGrouped && items.isNotEmpty) {
@@ -199,7 +199,6 @@ class LibraryWorkspace extends ConsumerWidget {
       );
       return LibraryGroupedShelfView(
         type: type,
-        adapter: adapter,
         groups: groups,
         viewState: viewState,
         selectedId: selectedId,
@@ -358,7 +357,8 @@ class LibraryWorkspace extends ConsumerWidget {
         final palette = appPalette(context);
         final compact = type.presentation.usesCompactTableLayout;
         final density = viewState.densityPreset;
-        final tableWidth = adapter.tableWidthForColumns(
+        final runtime = libraryKindRuntimeForType(type);
+        final tableWidth = runtime.tableWidthForColumns(
           viewState.visibleColumns,
           viewState.columnWidths,
         );
@@ -373,18 +373,18 @@ class LibraryWorkspace extends ConsumerWidget {
                 child: LibraryWorkspaceTable<LibraryProjectionItem>(
                   entries: items,
                   columns:
-                      adapter.orderedTableColumns(viewState.visibleColumns),
+                      runtime.orderedTableColumns(viewState.visibleColumns),
                   sortColumn: viewState.sortColumn,
                   sortAscending: viewState.sortAscending,
                   sortRules: viewState.sortRules,
-                  columnWidthFor: (column) => adapter.tableColumnWidth(
+                  columnWidthFor: (column) => runtime.tableColumnWidth(
                     column,
                     viewState.columnWidths,
                   ),
-                  defaultColumnWidthFor: adapter.defaultTableColumnWidth,
-                  columnSortFor: adapter.columnSort,
-                  columnLabelFor: adapter.columnLabel,
-                  columnIsNumeric: adapter.columnIsNumeric,
+                  defaultColumnWidthFor: runtime.defaultTableColumnWidth,
+                  columnSortFor: runtime.columnSort,
+                  columnLabelFor: runtime.columnLabel,
+                  columnIsNumeric: runtime.columnIsNumeric,
                   cellBuilder: (entry, column) => _tableCell(entry, column),
                   isSelected: _isHighlighted,
                   onEntryTap: (item) => _selectionTap(item)(),
@@ -478,7 +478,7 @@ class LibraryWorkspace extends ConsumerWidget {
   }
 
   Widget _tableCell(LibraryProjectionItem item, String column) {
-    return adapter.buildTableCell(item, column);
+    return libraryKindRuntimeForType(type).buildTableCell(item, column);
   }
 }
 

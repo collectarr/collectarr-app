@@ -109,7 +109,6 @@ class LibraryPageDialogCoordinator {
     final allEntries = projection?.allItems ?? const [];
     final options = LibraryFilterOptions.fromEntries(
       allEntries,
-      adapter: _page.adapter,
       customFieldDefinitions: customFieldCache.definitions,
       customFieldValuesByDefinitionByItem:
           customFieldCache.valuesByDefinitionByItem,
@@ -172,7 +171,7 @@ class LibraryPageDialogCoordinator {
           if (result.sortRules != null && result.sortRules!.isNotEmpty) {
             _page.viewState = viewState.withSortRules(
               result.sortRules!,
-              _page.adapter.viewProfile,
+              _page.viewProfile,
             );
           } else if (result.sortColumn != null) {
             _page.viewState = viewState.copyWith(
@@ -195,7 +194,7 @@ class LibraryPageDialogCoordinator {
       context: _page.context,
       type: _page.type,
       currentRules: viewState.sortRules,
-      defaultAscendingForColumn: _page.adapter.viewProfile.initialSortAscending,
+      defaultAscendingForColumn: _page.viewProfile.initialSortAscending,
       availableColumns: _page.scopeAvailableSortColumns,
     );
     if (sortRules != null && _page.mounted) {
@@ -209,7 +208,7 @@ class LibraryPageDialogCoordinator {
       }
       _page.updateViewState(
         (state) =>
-            state.withSortRules(filteredRules, _page.adapter.viewProfile),
+            state.withSortRules(filteredRules, _page.viewProfile),
       );
     }
   }
@@ -309,11 +308,10 @@ class LibraryPageDialogCoordinator {
   // ---------------------------------------------------------------------------
 
   Future<void> showColumnChooserFlow() async {
-    final viewState = _page.viewState ?? _page.adapter.viewProfile.defaults();
+    final viewState = _page.viewState ?? _page.viewProfile.defaults();
     final selected = await showGenericLibraryColumnChooser(
       context: _page.context,
       type: _page.type,
-      adapter: _page.adapter,
       viewState: viewState,
       pinnedFavoriteKeys: _page.pinnedColumnFavoriteKeys,
       onTogglePinnedFavorite: _page.togglePinnedColumnFavorite,

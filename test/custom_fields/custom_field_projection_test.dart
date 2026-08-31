@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -32,7 +31,6 @@ LibraryProjection _project({
   return LibraryProjection.fromShelf(
     shelf: shelf,
     type: comicsLibraryConfig,
-    adapter: comicsMediaAdapter,
     viewState: _defaultViewState,
     query: query,
     selectedBucket: null,

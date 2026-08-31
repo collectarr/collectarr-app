@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
@@ -27,7 +26,6 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto, TvOwnedDetails>(
   type: tvLibraryConfig,
-  mediaAdapter: tvMediaAdapter,
   projector: const TvWorkspaceProjector(),
   ownedDetailsCodec: const TvOwnedDetailsCodec(),
   fields: tvLibraryKindSchema.toRegistry(),

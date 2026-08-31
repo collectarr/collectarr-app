@@ -47,13 +47,14 @@ import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/generic/facet_controller_provider.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
@@ -278,7 +279,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       getType: () => widget.type,
       getAccent: () => widget.accent,
       getMounted: () => mounted,
-      getAdapter: () => _adapter,
       getViewPrefs: () => _viewPrefs,
       getSearchQuery: () => _searchControllerOps.state.query,
       setSearchQuery: (query) {

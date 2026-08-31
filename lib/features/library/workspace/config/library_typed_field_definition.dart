@@ -47,6 +47,18 @@ extension LibraryGroupPresentationLabels on LibraryGroupPresentation {
   }
 }
 
+class LibraryEntryFilterValues {
+  const LibraryEntryFilterValues({
+    this.series,
+    this.country,
+    this.language,
+  });
+
+  final String? series;
+  final String? country;
+  final String? language;
+}
+
 class LibraryCellValue {
   const LibraryCellValue._(this.value);
 

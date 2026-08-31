@@ -1,11 +1,9 @@
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 
 const double kComicsMinCoverSize = 104;
 const double kComicsDefaultCoverSize = 128;
@@ -29,46 +27,6 @@ final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
   hideDetailsWhenSelectionEmpty: false,
   sortAscendingForColumn: comicInitialSortAscending,
 );
-
-final comicsMediaAdapter = LibraryMediaAdapter(
-  type: comicsLibraryConfig,
-  viewProfile: comicsWorkspaceViewProfile,
-  orderedTableColumns: orderedComicTableColumns,
-  tableWidthForColumns: comicTableWidthForColumns,
-  tableColumnWidth: comicTableColumnWidth,
-  defaultTableColumnWidth: (column) =>
-      defaultPlannedMediaTableColumnWidth(comicsLibraryConfig, column),
-  columnLabel: (column) =>
-      plannedMediaTableColumnLabelForType(comicsLibraryConfig, column),
-  columnDisplayName: (column) =>
-      plannedMediaTableColumnDisplayNameForType(comicsLibraryConfig, column),
-  columnGroup: (column) =>
-      plannedMediaTableColumnGroup(comicsLibraryConfig, column),
-  columnGroupLabel: plannedMediaTableColumnGroupLabel,
-  columnIsNumeric: (column) =>
-      plannedMediaTableColumnIsNumeric(comicsLibraryConfig, column),
-  columnSort: (column) =>
-      plannedMediaTableColumnSort(comicsLibraryConfig, column),
-  tableCellBuilder: (entry, column) =>
-      plannedMediaTableCell(comicsLibraryConfig, entry, column),
-  compareEntriesByColumn: compareComicEntriesByColumn,
-  entryFilterValuesBuilder: plannedMediaFilterValuesForEntry,
-  entryLinkedMetadataCandidatesBuilder: (entry) =>
-      plannedMediaLinkedMetadataCandidatesForEntry(comicsLibraryConfig, entry),
-  entrySubgroupKeyBuilder: (entry, groupMode) =>
-      plannedMediaSubgroupKeyForEntry(comicsLibraryConfig, entry, groupMode),
-  compareSubgroupKeys: plannedMediaCompareSubgroupKeys,
-);
-
-int compareComicEntriesByColumn(
-  LibraryProjectionRuntime left,
-  LibraryProjectionRuntime right,
-  Object column,
-) {
-  final sortId = column.toString();
-  final module = libraryKindRuntimeForType(comicsLibraryConfig);
-  return module.compare(left, right, module.fields.decodeSortId(sortId));
-}
 
 const comicsTableColumnPresets = [
   LibraryTableColumnPreset(

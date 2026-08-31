@@ -32,7 +32,7 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
   type: comicsLibraryConfig,
-  mediaAdapter: comicsMediaAdapter,
+  viewProfile: comicsWorkspaceViewProfile,
   projector: const ComicWorkspaceProjector(),
   ownedDetailsCodec: const ComicOwnedDetailsCodec(),
   fields: comicLibraryKindSchema.toRegistry(),

@@ -5,7 +5,7 @@ abstract final class _LibraryViewStateControllerOps {
     try {
       final token = ++state._viewStateLoadToken;
       final expectedKind = state.widget.type.workspace.kind;
-      final loaded = await state._adapter.viewProfile.load();
+      final loaded = await state._viewProfile.load();
       if (state.mounted &&
           token == state._viewStateLoadToken &&
           state.widget.type.workspace.kind == expectedKind) {
@@ -33,9 +33,9 @@ abstract final class _LibraryViewStateControllerOps {
       return;
     }
     GenericLibraryPageState._viewStateCacheWarmupStarted = true;
-    for (final adapter in collectarrMediaAdapters.adapters) {
+    for (final module in collectarrKindModules) {
       try {
-        await adapter.viewProfile.load();
+        await module.viewProfile.load();
       } catch (error, stackTrace) {
         logRecoverableError(
           source: 'library_page',
@@ -83,7 +83,7 @@ abstract final class _LibraryViewStateControllerOps {
   ) {
     state._viewStateSaveDebounce?.cancel();
     state._viewStateSaveDebounce = Timer(const Duration(milliseconds: 120), () {
-      unawaited(state._adapter.viewProfile.save(persistedState));
+      unawaited(state._viewProfile.save(persistedState));
     });
   }
 

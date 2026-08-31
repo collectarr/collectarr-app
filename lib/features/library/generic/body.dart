@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
@@ -79,7 +79,6 @@ class LibraryBody extends StatelessWidget {
   const LibraryBody({
     super.key,
     required this.type,
-    required this.adapter,
     required this.projection,
     required this.viewState,
     required this.selectedId,
@@ -162,7 +161,6 @@ class LibraryBody extends StatelessWidget {
   });
 
   final LibraryTypeConfig type;
-  final LibraryMediaAdapter adapter;
   final LibraryProjection projection;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
@@ -265,12 +263,13 @@ class LibraryBody extends StatelessWidget {
           selectedBucketLabel: resolvedSelectedBucket,
           ancestorScopeDepth: sidebarAncestorScopeLabels.length,
         );
+        final runtime = libraryKindRuntimeForType(type);
         final detailsLayout = resolveEffectiveLibraryDetailsLayout(
           preferredLayout: viewState.detailsLayout,
           compact: compact,
           hasSelection: selected != null,
           hideWhenSelectionEmpty:
-              adapter.viewProfile.hideDetailsWhenSelectionEmpty,
+              runtime.viewProfile.hideDetailsWhenSelectionEmpty,
         );
         final requestedDetailsWidth = clampLibraryPaneWidth(
           viewState.detailsWidth,
@@ -312,12 +311,11 @@ class LibraryBody extends StatelessWidget {
             LibraryCtrlScrollZoom(
               viewMode: viewState.viewMode,
               coverSize: viewState.coverSize,
-              minCoverSize: adapter.viewProfile.minCoverSize,
-              maxCoverSize: adapter.viewProfile.maxCoverSize,
+              minCoverSize: runtime.viewProfile.minCoverSize,
+              maxCoverSize: runtime.viewProfile.maxCoverSize,
               onCoverSizeChanged: onCoverSizeChanged,
               child: LibraryWorkspace(
                 type: type,
-                adapter: adapter,
                 items: letterFilteredItems,
                 viewState: viewState,
                 selectedId: selectedId,

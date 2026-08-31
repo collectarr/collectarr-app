@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_kind_draf
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
@@ -23,7 +22,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 final boardGameKindModule =
     LibraryKindSpec<BoardGameWorkspaceDto, BoardgameOwnedDetails>(
   type: boardGamesLibraryConfig,
-  mediaAdapter: boardGamesMediaAdapter,
   projector: const BoardGameWorkspaceProjector(),
   ownedDetailsCodec: const BoardgameOwnedDetailsCodec(),
   fields: boardgameLibraryKindSchema.toRegistry(),
@@ -57,9 +55,9 @@ final boardGameKindModule =
   transfer: LibraryTransferCapability(
     kindFields: boardgameTransferableFields,
   ),
-  add: const StandardLibraryAddCapability<BoardGameAddDraft>(
+  add: const StandardLibraryAddCapability<BoardgameAddDraft>(
     kind: CatalogMediaKind.boardgame,
-    initialDraftBuilder: BoardGameAddDraft.new,
+    initialDraftBuilder: BoardgameAddDraft.new,
   ),
   edit: LibraryEditCapability(
     editDialogBuilder: buildBoardGameLibraryEditDialog,

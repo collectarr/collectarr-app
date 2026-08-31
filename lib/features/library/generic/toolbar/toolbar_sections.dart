@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -30,7 +29,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     super.key,
     required this.type,
     required this.viewState,
-    required this.adapter,
     required this.counts,
     required this.onEditColumns,
     this.columnFavoritePresets = const [],
@@ -78,9 +76,9 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraActions = const [],
-    this.groupMode,
+    this.groupMode = 'all',
     this.folderPreset,
-    this.groupPresentation,
+    this.groupPresentation = LibraryGroupPresentation.inlineHeaders,
     this.availableGroupModes,
     this.pinnedFolderPresets = const [],
     this.onPinnedFolderPresetsChanged,
@@ -94,7 +92,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
 
   final LibraryTypeConfig type;
   final LibraryWorkspaceViewState viewState;
-  final LibraryMediaAdapter adapter;
   final LibraryToolbarCounts counts;
   final VoidCallback onEditColumns;
   final List<LibraryTableColumnPreset> columnFavoritePresets;
@@ -321,9 +318,13 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                   viewMode: viewState.viewMode,
                                   coverSize: viewState.coverSize,
                                   minCoverSize:
-                                      adapter.viewProfile.minCoverSize,
+                                      libraryKindRuntimeForType(type)
+                                          .viewProfile
+                                          .minCoverSize,
                                   maxCoverSize:
-                                      adapter.viewProfile.maxCoverSize,
+                                      libraryKindRuntimeForType(type)
+                                          .viewProfile
+                                          .maxCoverSize,
                                   onChanged: onCoverSizeChanged,
                                 ),
                               ),

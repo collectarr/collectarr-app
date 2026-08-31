@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/config.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/game/provider/game_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_card_presentation.dart';
@@ -28,7 +27,6 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.
 
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
   type: gamesLibraryConfig,
-  mediaAdapter: gamesMediaAdapter,
   projector: const GameWorkspaceProjector(),
   ownedDetailsCodec: const GameOwnedDetailsCodec(),
   fields: gameLibraryKindSchema.toRegistry(),

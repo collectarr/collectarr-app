@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
@@ -31,7 +30,6 @@ class LibraryToolbar extends StatelessWidget {
     required this.type,
     required this.searchController,
     required this.viewState,
-    required this.adapter,
     required this.counts,
     required this.onAdd,
     required this.onScan,
@@ -130,7 +128,6 @@ class LibraryToolbar extends StatelessWidget {
   })  : type = config.type,
         searchController = state.searchController,
         viewState = state.viewState,
-        adapter = config.adapter,
         counts = state.counts,
         onAdd = actions.onAdd,
         onScan = actions.onScan,
@@ -221,7 +218,6 @@ class LibraryToolbar extends StatelessWidget {
   final LibraryTypeConfig type;
   final TextEditingController searchController;
   final LibraryWorkspaceViewState viewState;
-  final LibraryMediaAdapter adapter;
   final LibraryToolbarCounts counts;
   final VoidCallback onAdd;
   final VoidCallback onScan;
@@ -437,7 +433,6 @@ class LibraryToolbar extends StatelessWidget {
                     LibraryDesktopSecondaryToolbar(
                       type: type,
                       viewState: viewState,
-                      adapter: adapter,
                       counts: counts,
                       onEditColumns: onEditColumns,
                       columnFavoritePresets: columnFavoritePresets,

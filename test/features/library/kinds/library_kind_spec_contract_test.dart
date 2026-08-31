@@ -23,7 +23,7 @@ void main() {
         expect(spec.kind, isNotNull);
         expect(spec.type, isNotNull);
         expect(spec.capabilities, isNotNull);
-        expect(spec.mediaAdapter, isNotNull);
+        expect(spec.viewProfile, isNotNull);
         expect(spec.fields, isNotNull);
         expect(spec.projector, isNotNull);
         expect(spec.add, isNotNull);
@@ -96,7 +96,7 @@ void main() {
       final mismatchedTypeSpec =
           LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
         type: bookKindModule.type, // Book config with comic schema
-        mediaAdapter: comicKindModule.mediaAdapter,
+        viewProfile: comicKindModule.viewProfile,
         fields: comicKindModule.fields,
         projector: comicKindModule.projector,
         ownedDetailsCodec: comicKindModule.ownedDetailsCodec,

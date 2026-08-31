@@ -49,7 +49,6 @@ abstract final class _LibraryProjectionControllerOps {
         LibraryProjectionRequest(
           shelf: shelf,
           type: state.widget.type,
-          adapter: state._adapter,
           viewState: viewState,
           browserMode: browserMode,
           releaseFolderTitleItemId: releaseFolderTitleItemId,

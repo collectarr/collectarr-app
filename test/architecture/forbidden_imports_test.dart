@@ -21,7 +21,6 @@ import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 import '../../tool/check_library_kind_boundaries.dart';
@@ -298,7 +297,6 @@ class ComicFeature {}
 
     final fooKindModule = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
       type: fooKindConfig,
-      mediaAdapter: collectarrMediaAdapter(fooKindConfig),
       projector: const GenericWorkspaceProjector(),
       ownedDetailsCodec: const GenericOwnedDetailsCodec(),
       fields: genericLibraryKindSchema.toRegistry(),

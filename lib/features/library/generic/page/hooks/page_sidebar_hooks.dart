@@ -4,7 +4,7 @@ part of '../generic_library_page.dart';
 
 extension _PageSidebarHooks on GenericLibraryPageState {
   String? get _activeSidebarGroupMode {
-    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    final viewState = _viewState ?? _viewProfile.defaults();
     if (!viewState.isSidebarVisible) {
       return null;
     }
@@ -49,7 +49,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
         for (final rule in viewState.sortRules)
           if (allowedSort.contains(rule.column)) rule,
       ];
-      final defaults = _adapter.viewProfile.defaults().sortRules;
+      final defaults = _viewProfile.defaults().sortRules;
       final fallbackRules = [
         for (final rule in defaults)
           if (allowedSort.contains(rule.column)) rule,
@@ -142,7 +142,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
   }
 
   LibraryRouteState _buildRouteState() {
-    final viewState = _viewState ?? _adapter.viewProfile.defaults();
+    final viewState = _viewState ?? _viewProfile.defaults();
     final allowedSortColumns = _scopeAvailableSortColumns.toSet();
     final scopedSortRules = [
       for (final rule in viewState.sortRules)
@@ -191,7 +191,7 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     if (!routeState.hasExplicitViewState) {
       return;
     }
-    final currentViewState = _viewState ?? _adapter.viewProfile.defaults();
+    final currentViewState = _viewState ?? _viewProfile.defaults();
     final allowedSortColumns = _scopeAvailableSortColumns.toSet();
     final routeSortRules = [
       for (final rule in (routeState.sortRules ?? currentViewState.sortRules))

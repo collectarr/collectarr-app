@@ -5,7 +5,6 @@ class LibraryProjectionRequest {
   const LibraryProjectionRequest({
     required this.shelf,
     required this.type,
-    required this.adapter,
     required this.viewState,
     required this.browserMode,
     required this.releaseFolderTitleItemId,
@@ -29,7 +28,6 @@ class LibraryProjectionRequest {
 
   final ShelfState shelf;
   final LibraryTypeConfig type;
-  final LibraryMediaAdapter adapter;
   final LibraryWorkspaceViewState viewState;
   final LibraryWorkspaceBrowserMode browserMode;
   final String? releaseFolderTitleItemId;
@@ -55,7 +53,6 @@ class LibraryProjectionRequest {
     return other is LibraryProjectionRequest &&
         shelf == other.shelf &&
         type == other.type &&
-        adapter == other.adapter &&
         viewState == other.viewState &&
         browserMode == other.browserMode &&
         releaseFolderTitleItemId == other.releaseFolderTitleItemId &&
@@ -87,7 +84,6 @@ class LibraryProjectionRequest {
   int get hashCode => Object.hashAll([
         shelf,
         type,
-        adapter,
         viewState,
         browserMode,
         releaseFolderTitleItemId,
@@ -191,7 +187,6 @@ final libraryProjectionProvider = Provider.autoDispose
   return LibraryProjection.fromShelf(
     shelf: request.shelf,
     type: request.type,
-    adapter: request.adapter,
     viewState: request.viewState,
     browserMode: request.browserMode,
     releaseFolderTitleItemId: request.releaseFolderTitleItemId,

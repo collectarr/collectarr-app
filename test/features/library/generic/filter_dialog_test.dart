@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/music/config.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -112,7 +111,6 @@ void main() {
         const LibraryFilterSelection(
           location: 'Office > Shelf 2 > Short Box 1',
         ),
-        comicsMediaAdapter,
       ),
       isTrue,
     );
@@ -120,7 +118,6 @@ void main() {
       libraryFilterMatches(
         item,
         const LibraryFilterSelection(location: 'Office > Shelf 2'),
-        comicsMediaAdapter,
       ),
       isFalse,
     );
@@ -152,7 +149,6 @@ void main() {
       libraryFilterMatches(
         item,
         const LibraryFilterSelection(tag: 'signed'),
-        comicsMediaAdapter,
       ),
       isTrue,
     );
@@ -160,7 +156,6 @@ void main() {
       libraryFilterMatches(
         item,
         const LibraryFilterSelection(tag: 'Exclusive'),
-        comicsMediaAdapter,
       ),
       isFalse,
     );
@@ -239,8 +234,7 @@ void main() {
       dto: dto2,
     );
 
-    final options = LibraryFilterOptions.fromEntries([item1, item2],
-        adapter: comicsMediaAdapter);
+    final options = LibraryFilterOptions.fromEntries([item1, item2]);
 
     expect(options.tags, ['Signed', 'Sketched', 'Variant']);
   });
@@ -263,7 +257,6 @@ void main() {
                   current: LibraryFilterSelection.none,
                   options: LibraryFilterOptions.fromEntries(
                     const [],
-                    adapter: comicsMediaAdapter,
                     customFieldDefinitions: [
                       CustomFieldDefinition(
                         id: 'cf-location',

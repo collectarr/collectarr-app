@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/kinds/manga/config.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_media_adapter.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
@@ -24,7 +23,6 @@ import 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_ca
 
 final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto, MangaOwnedDetails>(
   type: mangaLibraryConfig,
-  mediaAdapter: mangaMediaAdapter,
   projector: const MangaWorkspaceProjector(),
   ownedDetailsCodec: const MangaOwnedDetailsCodec(),
   fields: mangaLibraryKindSchema.toRegistry(),
