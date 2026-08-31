@@ -972,6 +972,7 @@ class _ResultSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
@@ -980,10 +981,8 @@ class _ResultSectionHeader extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(
+        style: theme.textTheme.tableHeader.copyWith(
           color: palette.textMuted,
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
         ),
       ),
     );

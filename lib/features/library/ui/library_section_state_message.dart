@@ -14,6 +14,7 @@ class LibrarySectionStateMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.surface.withValues(alpha: 0.72),
@@ -30,10 +31,8 @@ class LibrarySectionStateMessage extends StatelessWidget {
             Expanded(
               child: Text(
                 message,
-                style: TextStyle(
+                style: theme.textTheme.supportingText.copyWith(
                   color: palette.textMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),

@@ -623,15 +623,15 @@ class _ManualSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     return Row(
       children: [
         Icon(icon, size: 18, color: palette.accent),
         const SizedBox(width: 8),
         Text(
           label,
-          style: TextStyle(
+          style: theme.textTheme.sectionTitle.copyWith(
             color: palette.textPrimary,
-            fontWeight: FontWeight.w900,
           ),
         ),
       ],

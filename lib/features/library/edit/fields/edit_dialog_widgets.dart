@@ -414,7 +414,7 @@ class LibraryEditDenseFields extends StatelessWidget {
     this.wideColumns = 2,
     this.ultraWideColumns = 3,
     this.wideBreakpoint = kAppStackedBreakpoint,
-    this.ultraWideBreakpoint = 780,
+    this.ultraWideBreakpoint = kAppSpacedBreakpoint,
     this.spacing = 10,
   });
 
