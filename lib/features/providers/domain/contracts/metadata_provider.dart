@@ -1,12 +1,10 @@
+import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_result.dart';
 
-/// Core contract for client-side metadata providers.
-///
-/// Implementations must not expose raw JSON maps publicly. All responses
-/// must be strongly-typed domain models ([ProviderSearchResult] and [NormalizedProviderEnvelopeV1]).
-abstract class MetadataProvider {
+/// Core contract for client-side metadata providers, unified with [MetadataCapability].
+abstract class MetadataProvider implements MetadataCapability {
   /// Static capabilities and metadata for this provider.
   ProviderDescriptor get descriptor;
 
@@ -22,14 +20,14 @@ abstract class MetadataProvider {
   /// Search for metadata items matching [query].
   ///
   /// Optional [kind] can be specified to restrict search scope where supported.
+  @override
   Future<List<ProviderSearchResult>> search(
     String query, {
     String? kind,
     int limit = 25,
   });
 
-  /// Fetch full details for a specific item identified by [providerItemId]
-  /// and return a standardized [NormalizedProviderEnvelopeV1].
+  @override
   Future<NormalizedProviderEnvelopeV1> fetchItem(
     String providerItemId, {
     String? kind,

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
-import '../../domain/contracts/metadata_provider.dart';
 import '../../domain/models/normalized_provider_envelope_v1.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';

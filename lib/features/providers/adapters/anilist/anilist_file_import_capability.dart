@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';

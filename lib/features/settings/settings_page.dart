@@ -841,7 +841,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               OutlinedButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                       builder: (context) => const ExternalServicesPage(),
                     ),
                   );

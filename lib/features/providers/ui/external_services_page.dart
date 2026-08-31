@@ -1,13 +1,12 @@
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
-import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
 import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
 import 'package:collectarr_app/features/providers/domain/engine/provider_sync_coordinator.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -116,7 +115,7 @@ class _ExternalServicesPageState extends ConsumerState<ExternalServicesPage> {
     BuildContext context, {
     required ProviderConnector connector,
     required ProviderAccount? account,
-    required dynamic palette,
+    required AppThemePalette palette,
   }) {
     final isConnected = account != null;
     final isSyncing = isConnected && _syncingAccounts.contains(account.id);
@@ -247,7 +246,7 @@ class _ExternalServicesPageState extends ConsumerState<ExternalServicesPage> {
   Widget _capabilityChip(
     String label,
     IconData icon,
-    dynamic palette, {
+    AppThemePalette palette, {
     bool isHighlight = false,
   }) {
     return Container(

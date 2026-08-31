@@ -219,6 +219,7 @@ class MusicBrainzProvider extends ProviderAdapter {
       'kind': 'music',
       'title': title,
       if (publisher != null) 'publisher': publisher,
+      if (catalogNumber != null) 'catalog_number': catalogNumber,
       if (releaseDate != null)
         'release_date': releaseDate.toIso8601String().split('T').first,
       if (barcode != null) 'barcode': barcode,
