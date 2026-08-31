@@ -27,8 +27,27 @@ final class MutationOrigin {
   static const user = MutationOrigin(source: MutationSourceType.user);
   static const collectarrSync =
       MutationOrigin(source: MutationSourceType.collectarrSync);
+  static const fileImport =
+      MutationOrigin(source: MutationSourceType.fileImport);
+
+  static MutationOrigin externalProvider(ProviderId provider, [String? accountId]) =>
+      MutationOrigin(
+        source: MutationSourceType.externalProvider,
+        provider: provider,
+        accountId: accountId,
+      );
 
   bool get shouldEchoToExternalProvider =>
       source == MutationSourceType.user ||
       source == MutationSourceType.collectarrSync;
+
+  bool shouldPushTo(ProviderId targetProvider) {
+    if (source == MutationSourceType.externalProvider && provider == targetProvider) {
+      return false;
+    }
+    if (source == MutationSourceType.collectarrSync) {
+      return false;
+    }
+    return true;
+  }
 }
