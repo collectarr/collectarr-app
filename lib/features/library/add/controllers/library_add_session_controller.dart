@@ -306,6 +306,12 @@ class LibraryAddSessionController
       state = state.copyWith(
         search: state.search.copyWith(isSearching: false),
       );
+      if (type.supportedMetadataProviders.isNotEmpty) {
+        await searchProvider(
+          queryOverride: query,
+          bypassDebounce: true,
+        );
+      }
       return;
     }
 
@@ -348,13 +354,23 @@ class LibraryAddSessionController
         if (await _handleAuthExpiration(error, 'Core search')) {
           return;
         }
+        final canFallbackToProvider =
+            type.supportedMetadataProviders.isNotEmpty;
         state = state.copyWith(
           search: state.search.copyWith(
             isSearching: false,
-            error:
-                'Core search failed: ${ConnectionDiagnostics.metadataError(error, api!.baseUrl)} Manual add still works.',
+            error: canFallbackToProvider
+                ? null
+                : 'Core search failed: ${ConnectionDiagnostics.metadataError(error, api?.baseUrl ?? '')} Manual add still works.',
           ),
         );
+
+        if (canFallbackToProvider) {
+          await searchProvider(
+            queryOverride: query,
+            bypassDebounce: true,
+          );
+        }
       }
     } finally {
       if (searchGeneration == state.search.coreSearchGeneration &&
@@ -434,7 +450,7 @@ class LibraryAddSessionController
       ),
     );
 
-    if (api == null) {
+    if (api == null && providerRegistry == null) {
       state = state.copyWith(
         search: state.search.copyWith(isSearchingProvider: false),
       );
@@ -543,7 +559,7 @@ class LibraryAddSessionController
           search: state.search.copyWith(
             isSearchingProvider: false,
             error:
-                'Provider search failed: ${ConnectionDiagnostics.metadataError(error, api!.baseUrl)}',
+                'Provider search failed: ${ConnectionDiagnostics.metadataError(error, api?.baseUrl ?? '')}',
           ),
         );
       }
@@ -758,6 +774,9 @@ class LibraryAddSessionController
       state = state.copyWith(
         search: state.search.copyWith(isSearching: false),
       );
+      if (type.supportedMetadataProviders.isNotEmpty) {
+        await searchProvider(queryOverride: code);
+      }
       return;
     }
 
@@ -796,13 +815,20 @@ class LibraryAddSessionController
         if (await _handleAuthExpiration(error, 'Barcode lookup')) {
           return;
         }
+        final canFallbackToProvider =
+            type.supportedMetadataProviders.isNotEmpty;
         state = state.copyWith(
           search: state.search.copyWith(
             isSearching: false,
-            error:
-                'Barcode lookup failed: ${ConnectionDiagnostics.metadataError(error, api!.baseUrl)} Manual add keeps the scanned code.',
+            error: canFallbackToProvider
+                ? null
+                : 'Barcode lookup failed: ${ConnectionDiagnostics.metadataError(error, api?.baseUrl ?? '')} Manual add keeps the scanned code.',
           ),
         );
+
+        if (canFallbackToProvider) {
+          await searchProvider(queryOverride: code);
+        }
       }
     } finally {
       if (searchGeneration == state.search.coreSearchGeneration &&
