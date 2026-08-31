@@ -43,7 +43,7 @@ void main() {
     addTearDown(db.close);
 
     final catalogItems = [
-      CatalogItem(
+      testCatalogItem(
         id: 'catalog-1',
         kind: 'comic',
         title: 'Saga #1',
@@ -52,7 +52,7 @@ void main() {
           seriesTitle: 'Saga',
         ),
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'catalog-2',
         kind: 'comic',
         title: 'OTGW #1',
@@ -97,7 +97,7 @@ void main() {
 
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Saga',
@@ -109,18 +109,20 @@ void main() {
         publisher: 'Image',
         releaseDate: DateTime.utc(2026, 1, 15),
         releaseYear: 2026,
-        crossover: 'Event Prelude',
-        plotSummary: 'Old summary',
-        plotDescription: 'Old description',
+        payload: const {
+          'crossover': 'Event Prelude',
+          'plot_summary': 'Old summary',
+          'plot_description': 'Old description',
+          'country': 'US',
+          'language': 'English',
+          'age_rating': 'Mature',
+        },
         series: const CatalogSeriesDetailsDto(
           seriesId: 'series-1',
           seriesTitle: 'Saga',
         ),
         storyArcs: const ['Opening'],
         genres: const ['Sci-Fi'],
-        country: 'US',
-        language: 'English',
-        ageRating: 'Mature',
         publishing: const CatalogPublishingDetailsDto(
           pageCount: 32,
           imprint: 'Skybound',
@@ -128,7 +130,7 @@ void main() {
         ),
         synopsis: 'A long war begins.',
         trailerUrls: const [
-          TrailerLink(
+          TrailerLinkDto(
             url: 'https://example.com/original',
             title: 'Original link',
             isAutomatic: false,
@@ -311,22 +313,23 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    final cat = selection!.item.toCatalogItem();
-    expect(selection!.item.title, 'Over the Garden Wall');
-    expect(cat.payload['crossover'], 'Image United');
-    expect(cat.payload['story_arcs'], ['Finale']);
-    expect(cat.payload['country'], 'Canada');
-    expect(cat.payload['language'], 'French');
-    expect(cat.payload['age_rating'], 'Teen');
-    expect(cat.payload['genres'], ['Sci-Fi']);
-    expect(DateTime.tryParse(cat.payload['cover_date'] as String),
+    final savedItem = selection!.item;
+    final payload = savedItem.payload;
+    expect(savedItem.title, 'Over the Garden Wall');
+    expect(payload['crossover'], 'Image United');
+    expect(payload['story_arcs'], ['Finale']);
+    expect(payload['country'], 'Canada');
+    expect(payload['language'], 'French');
+    expect(payload['age_rating'], 'Teen');
+    expect(payload['genres'], ['Sci-Fi']);
+    expect(DateTime.tryParse(payload['cover_date'] as String),
         DateTime(2026, 1, 1));
-    expect(cat.trailerUrls, hasLength(2));
-    expect(cat.trailerUrls.first.url, 'https://example.com/original');
-    expect(cat.trailerUrls.first.title, 'Original link');
-    expect(cat.trailerUrls.last.url, 'https://example.com/review');
-    expect(cat.trailerUrls.last.title, 'Review');
-    expect(cat.trailerUrls.last.isAutomatic, isFalse);
+    expect(savedItem.trailerUrls, hasLength(2));
+    expect(savedItem.trailerUrls.first.url, 'https://example.com/original');
+    expect(savedItem.trailerUrls.first.title, 'Original link');
+    expect(savedItem.trailerUrls.last.url, 'https://example.com/review');
+    expect(savedItem.trailerUrls.last.title, 'Review');
+    expect(savedItem.trailerUrls.last.isAutomatic, isFalse);
     expect(selection!.customFieldEdits, {'cf-1': 'Signed in person'});
   });
 
@@ -336,28 +339,12 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    SharedPreferences.setMockInitialValues({
-      'edit_tab_order_comic': [
-        '9',
-        '0',
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '10'
-      ],
-    });
-
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-restore-order',
         kind: 'comic',
         title: 'Saga',
@@ -443,7 +430,7 @@ void main() {
 
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-2',
         kind: 'comic',
         title: 'Paper Girls',

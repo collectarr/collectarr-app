@@ -50,7 +50,7 @@ void main() {
         entries: [
           ShelfEntry(
             itemId: 'comic-1',
-            catalogItem: CatalogItem(
+            catalogItem: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -69,7 +69,7 @@ void main() {
           ),
           ShelfEntry(
             itemId: 'comic-2',
-            catalogItem: CatalogItem(
+            catalogItem: testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
@@ -114,7 +114,7 @@ void main() {
         entries: [
           ShelfEntry(
             itemId: 'comic-1',
-            catalogItem: CatalogItem(
+            catalogItem: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -142,7 +142,7 @@ void main() {
           ShelfEntry(
             itemId: 'movie-1',
             catalogItem: LibraryMetadataItem.fromCatalogItem(
-              CatalogItem(
+              testCatalogItem(
                 id: 'movie-1',
                 kind: 'comic',
                 title: 'Kimi no Na wa.',
@@ -176,7 +176,7 @@ void main() {
         entries: [
           ShelfEntry(
             itemId: 'comic-1',
-            catalogItem: CatalogItem(
+            catalogItem: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -184,7 +184,7 @@ void main() {
           ),
           ShelfEntry(
             itemId: 'comic-2',
-            catalogItem: CatalogItem(
+            catalogItem: testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
@@ -210,7 +210,7 @@ void main() {
         entries: [
           ShelfEntry(
             itemId: 'comic-1',
-            catalogItem: CatalogItem(
+            catalogItem: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -224,7 +224,7 @@ void main() {
           ),
           ShelfEntry(
             itemId: 'comic-2',
-            catalogItem: CatalogItem(
+            catalogItem: testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',

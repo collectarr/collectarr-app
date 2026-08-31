@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -10,7 +11,7 @@ import 'package:collectarr_app/features/library/config/generic_library_workspace
 
 LibraryProjectionRuntime _makeItem(String id,
     {String? seriesTitle, String? title}) {
-  final cat = CatalogItemDto(
+  final cat = testCatalogItem(
     id: id,
     kind: 'comic',
     title: title ?? 'Batman #1',

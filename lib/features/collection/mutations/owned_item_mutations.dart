@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -70,12 +71,12 @@ final class OwnedItemMutations {
       action: () async {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
-          await catalogCache.upsertAll([
-            CatalogItem(
-              id: catalogRef.id,
-              kind: catalogRef.kind,
-              title: catalogRef.id,
-            ),
+          await catalogCache.upsertMetadataItems([
+            LibraryMetadataItem.fromMetadataMap({
+              'id': catalogRef.id,
+              'kind': catalogRef.kind,
+              'title': catalogRef.id,
+            }),
           ]);
         }
 
@@ -322,20 +323,22 @@ final class OwnedItemMutations {
   }
 
   Future<void> updateCatalogSnapshot(
-    CatalogItem item,
+    dynamic item,
   ) async {
     final now = DateTime.now().toUtc();
+    final itemId =
+        item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
     await mutationRunner.run(
       action: () async {
         await catalogCache.upsertAll([item]);
         await syncQueue.enqueue(_syncChangeForCatalogItem(item, now));
       },
-      eventsToEmit: [CatalogItemChanged(item.id)],
+      eventsToEmit: [CatalogItemChanged(itemId)],
     );
   }
 
   Future<void> updateCatalogSnapshots(
-    Iterable<CatalogItem> items,
+    Iterable<dynamic> items,
   ) async {
     final pendingItems = items.toList(growable: false);
     if (pendingItems.isEmpty) return;
@@ -349,7 +352,10 @@ final class OwnedItemMutations {
         ]);
       },
       eventsToEmit: [
-        for (final item in pendingItems) CatalogItemChanged(item.id),
+        for (final item in pendingItems)
+          CatalogItemChanged(
+            item is LibraryMetadataItem ? item.id : (item as CatalogItem).id,
+          ),
       ],
     );
   }
@@ -505,13 +511,18 @@ final class OwnedItemMutations {
     );
   }
 
-  SyncChange _syncChangeForCatalogItem(CatalogItem item, DateTime now) {
+  SyncChange _syncChangeForCatalogItem(dynamic item, DateTime now) {
+    final itemId =
+        item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
+    final payload = item is LibraryMetadataItem
+        ? item.payload
+        : (item as CatalogItem).toSyncPayload();
     return SyncChange(
-      id: 'catalog:${item.id}:upsert:${now.millisecondsSinceEpoch}',
+      id: 'catalog:$itemId:upsert:${now.millisecondsSinceEpoch}',
       entityType: 'catalog_item',
-      entityId: item.id,
+      entityId: itemId,
       action: 'upsert',
-      payload: item.toSyncPayload(),
+      payload: payload,
       clientChangedAt: now,
     );
   }

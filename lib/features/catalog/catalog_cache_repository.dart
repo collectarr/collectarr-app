@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:drift/drift.dart';
 
@@ -14,8 +15,12 @@ class CatalogCacheRepository {
 
   final LocalDatabase _db;
 
-  Future<void> upsertAll(List<CatalogItem> items) async {
-    if (items.isEmpty) {
+  Future<void> upsertMetadataItems(List<LibraryMetadataItem> items) =>
+      upsertAll(items);
+
+  Future<void> upsertAll(Iterable<dynamic> items) async {
+    final list = items.toList(growable: false);
+    if (list.isEmpty) {
       return;
     }
     final now = DateTime.now().toUtc();
@@ -23,14 +28,22 @@ class CatalogCacheRepository {
       batch.insertAll(
         _db.catalogCache,
         [
-          for (final item in items)
+          for (final item in list)
             () {
-              final payload = item.payload;
-              final seriesMap = payload['series'] as Map?;
-              final publishingMap = payload['publishing'] as Map?;
-              final videoMap = payload['video'] as Map?;
-              final musicMap = payload['music'] as Map?;
-              final gameMap = payload['game'] as Map?;
+              final payload = item is LibraryMetadataItem
+                  ? item.payload
+                  : (item as CatalogItem).payload;
+              final editions = item is LibraryMetadataItem
+                  ? item.editions
+                  : (item as CatalogItem).editions;
+              final trailerUrls = item is LibraryMetadataItem
+                  ? item.trailerUrls
+                  : (item as CatalogItem).trailerUrls;
+              final seriesMap = _asMap(payload['series']);
+              final publishingMap = _asMap(payload['publishing']);
+              final videoMap = _asMap(payload['video']);
+              final musicMap = _asMap(payload['music']);
+              final gameMap = _asMap(payload['game']);
               final tracks = (musicMap?['tracks'] as List?)
                   ?.whereType<Map>()
                   .map((e) => CatalogTrackDto.fromJson(
@@ -64,46 +77,75 @@ class CatalogCacheRepository {
               final genres = (payload['genres'] as List?)
                   ?.map((e) => e.toString())
                   .toList();
-              final country = payload['country'] as String?;
-              final language = payload['language'] as String?;
-              final ageRating = payload['age_rating'] as String?;
-              final audienceRating = payload['audience_rating'] as String?;
-              final coverDate = payload['cover_date'] != null
-                  ? DateTime.tryParse(payload['cover_date'].toString())
-                  : null;
-              final crossover = payload['crossover'] as String?;
-              final plotSummary = payload['plot_summary'] as String?;
-              final plotDescription = payload['plot_description'] as String?;
-              final seriesTags = seriesMap?['tags'] as String?;
               final volumeNumberStr = seriesMap?['volume_number']?.toString();
+              final itemNumber = (payload['item_number'] ?? payload['itemNumber'])?.toString();
+              final editionTitle = (payload['edition_title'] ?? payload['editionTitle'])?.toString();
+              final physicalFormat = (payload['physical_format'] ?? payload['physicalFormat'])?.toString();
+              final physicalFormatLabel = (payload['physical_format_label'] ?? payload['physicalFormatLabel'])?.toString();
+              final publisher = (payload['publisher'] ?? publishingMap?['original_publisher'] ?? publishingMap?['publisher'])?.toString();
+              final barcode = (payload['barcode'] ?? payload['upc'])?.toString();
+              final variant = payload['variant']?.toString();
+              final country = (payload['country'] ?? publishingMap?['original_country'] ?? publishingMap?['country'])?.toString();
+              final language = (payload['language'] ?? publishingMap?['original_language'] ?? publishingMap?['language'])?.toString();
+              final ageRating = (payload['age_rating'] ?? publishingMap?['age_rating'])?.toString();
+              final audienceRating = (payload['audience_rating'] ?? videoMap?['audience_rating'])?.toString();
+              final coverDate = payload['cover_date'] != null ? DateTime.tryParse(payload['cover_date'].toString()) : null;
+              final crossover = payload['crossover']?.toString();
+              final plotSummary = (payload['plot_summary'] ?? payload['plotSummary'])?.toString();
+              final plotDescription = (payload['plot_description'] ?? payload['plotDescription'])?.toString();
+              final rawSeriesTags = payload['series_tags'] ?? seriesMap?['tags'];
+              final seriesTags = rawSeriesTags is List
+                  ? rawSeriesTags.map((e) => e.toString()).toList()
+                  : (rawSeriesTags is String
+                      ? rawSeriesTags
+                          .split(',')
+                          .map((e) => e.trim())
+                          .where((e) => e.isNotEmpty)
+                          .toList()
+                      : null);
+              final id = item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
+              final kind = item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
+              final title = item is LibraryMetadataItem ? item.title : (item as CatalogItem).title;
+              final displayTitle = item is LibraryMetadataItem ? item.displayTitle : (item as CatalogItem).displayTitle;
+              final localizedTitle = item is LibraryMetadataItem ? item.localizedTitle : (item as CatalogItem).localizedTitle;
+              final originalTitle = item is LibraryMetadataItem ? item.originalTitle : (item as CatalogItem).originalTitle;
+              final titleExtension = item is LibraryMetadataItem ? item.titleExtension : (item as CatalogItem).titleExtension;
+              final searchAliases = item is LibraryMetadataItem ? item.searchAliases : (item as CatalogItem).searchAliases;
+              final sortKey = item is LibraryMetadataItem ? item.sortKey : (item as CatalogItem).sortKey;
+              final synopsis = item is LibraryMetadataItem ? item.synopsis : (item as CatalogItem).synopsis;
+              final coverImageUrl = item is LibraryMetadataItem ? item.coverImageUrl : (item as CatalogItem).coverImageUrl;
+              final thumbnailImageUrl = item is LibraryMetadataItem ? item.thumbnailImageUrl : (item as CatalogItem).thumbnailImageUrl;
+              final coverImageData = item is LibraryMetadataItem ? item.coverImageData : (item as CatalogItem).coverImageData;
+              final releaseDate = item is LibraryMetadataItem ? item.releaseDate : (item as CatalogItem).releaseDate;
+              final releaseYear = item is LibraryMetadataItem ? item.releaseYear : (item as CatalogItem).releaseYear;
               return CatalogCacheCompanion.insert(
-                id: item.id,
-                kind: item.kind,
-                title: item.title,
-                displayTitle: Value(item.displayTitle),
-                localizedTitle: Value(item.localizedTitle),
-                originalTitle: Value(item.originalTitle),
-                titleExtension: Value(item.titleExtension),
+                id: id,
+                kind: kind,
+                title: title,
+                displayTitle: Value(displayTitle),
+                localizedTitle: Value(localizedTitle),
+                originalTitle: Value(originalTitle),
+                titleExtension: Value(titleExtension),
                 searchAliasesJson: Value(
-                  item.searchAliases != null && item.searchAliases!.isNotEmpty
-                      ? jsonEncode(item.searchAliases)
+                  searchAliases != null && searchAliases.isNotEmpty
+                      ? jsonEncode(searchAliases)
                       : null,
                 ),
-                sortKey: Value(item.sortKey),
-                itemNumber: Value(item.itemNumber),
-                synopsis: Value(item.synopsis),
-                coverImageUrl: Value(item.coverImageUrl),
-                thumbnailImageUrl: Value(item.thumbnailImageUrl),
-                coverImageData: Value(item.coverImageData),
-                editionTitle: Value(item.editionTitle),
-                physicalFormat: Value(item.physicalFormat),
-                physicalFormatLabel: Value(item.physicalFormatLabel),
-                publisher: Value(item.publisher),
+                sortKey: Value(sortKey),
+                itemNumber: Value(itemNumber),
+                synopsis: Value(synopsis),
+                coverImageUrl: Value(coverImageUrl),
+                thumbnailImageUrl: Value(thumbnailImageUrl),
+                coverImageData: Value(coverImageData),
+                editionTitle: Value(editionTitle),
+                physicalFormat: Value(physicalFormat),
+                physicalFormatLabel: Value(physicalFormatLabel),
+                publisher: Value(publisher),
                 coverDate: Value(coverDate),
-                releaseDate: Value(item.releaseDate),
-                releaseYear: Value(item.releaseYear),
-                barcode: Value(item.barcode),
-                variant: Value(item.variant),
+                releaseDate: Value(releaseDate),
+                releaseYear: Value(releaseYear),
+                barcode: Value(barcode),
+                variant: Value(variant),
                 crossover: Value(crossover),
                 plotSummary: Value(plotSummary),
                 plotDescription: Value(plotDescription),
@@ -142,9 +184,9 @@ class CatalogCacheRepository {
                       : null,
                 ),
                 editionsJson: Value(
-                  item.editions.isNotEmpty
+                  editions.isNotEmpty
                       ? jsonEncode(
-                          item.editions
+                          editions
                               .map((edition) => edition.toJson())
                               .toList(growable: false),
                         )
@@ -170,7 +212,11 @@ class CatalogCacheRepository {
                       ? jsonEncode(storyArcs)
                       : null,
                 ),
-                seriesTagsJson: Value(seriesTags),
+                seriesTagsJson: Value(
+                  seriesTags != null && seriesTags.isNotEmpty
+                      ? jsonEncode(seriesTags)
+                      : null,
+                ),
                 platformsJson: Value(
                   platforms != null && platforms.isNotEmpty
                       ? jsonEncode(platforms)
@@ -181,6 +227,7 @@ class CatalogCacheRepository {
                       ? jsonEncode(genres)
                       : null,
                 ),
+                country: Value(country),
                 pageCount:
                     Value((publishingMap?['page_count'] as num?)?.toInt()),
                 coverPriceCents: Value(
@@ -189,7 +236,6 @@ class CatalogCacheRepository {
                     Value(publishingMap?['currency'] as String?),
                 catalogNumber:
                     Value(musicMap?['catalog_number'] as String?),
-                country: Value(country),
                 releaseStatus:
                     Value(musicMap?['release_status'] as String?),
                 language: Value(language),
@@ -200,9 +246,9 @@ class CatalogCacheRepository {
                 seriesGroup:
                     Value(publishingMap?['series_group'] as String?),
                 trailerUrlsJson: Value(
-                  item.trailerUrls.isNotEmpty
+                  trailerUrls.isNotEmpty
                       ? jsonEncode(
-                          item.trailerUrls
+                          trailerUrls
                               .map((t) => t.toJson())
                               .toList(growable: false),
                         )
@@ -224,74 +270,80 @@ class CatalogCacheRepository {
     await _captureDerivedVocabulary(items);
   }
 
-  Future<void> _captureDerivedVocabulary(List<CatalogItem> items) async {
+  Future<void> _captureDerivedVocabulary(Iterable<dynamic> items) async {
+    final list = items.toList(growable: false);
     final pickLists = PickListRepository(_db);
     final seriesRegistry = SeriesRegistryRepository(_db);
-    final byKind = <String, List<CatalogItem>>{};
-    for (final item in items) {
+    final byKind = <String, List<Map<String, dynamic>>>{};
+    for (final item in list) {
+      final kind =
+          item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
+      final payload = item is LibraryMetadataItem
+          ? item.payload
+          : (item as CatalogItem).payload;
       byKind
-          .putIfAbsent(item.kind.trim().toLowerCase(), () => <CatalogItem>[])
-          .add(item);
+          .putIfAbsent(kind.trim().toLowerCase(), () => <Map<String, dynamic>>[])
+          .add(payload);
     }
 
     await _db.transaction(() async {
       for (final entry in byKind.entries) {
         final mediaKind = entry.key;
-        final scopedItems = entry.value;
+        final scopedPayloads = entry.value;
         await pickLists.captureValuesWithoutTransaction(
           kCountryPickListName,
-          scopedItems.map((item) => item.payload['country'] as String?),
+          scopedPayloads.map((payload) => payload['country'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kLanguagePickListName,
-          scopedItems.map((item) => item.payload['language'] as String?),
+          scopedPayloads.map((payload) => payload['language'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kAgeRatingPickListName,
-          scopedItems.map((item) => item.payload['age_rating'] as String?),
+          scopedPayloads.map((payload) => payload['age_rating'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kAudienceRatingPickListName,
-          scopedItems.map((item) => item.payload['audience_rating'] as String?),
+          scopedPayloads.map((payload) => payload['audience_rating'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kScreenRatioPickListName,
-          scopedItems.map((item) =>
-              (item.payload['video'] as Map?)?['screen_ratio'] as String?),
+          scopedPayloads.map((payload) =>
+              _asMap(payload['video'])?['screen_ratio'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kLayersPickListName,
-          scopedItems.map((item) =>
-              (item.payload['video'] as Map?)?['layers'] as String?),
+          scopedPayloads.map((payload) =>
+              _asMap(payload['video'])?['layers'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kColorPickListName,
-          scopedItems.map((item) =>
-              (item.payload['video'] as Map?)?['color'] as String?),
+          scopedPayloads.map((payload) =>
+              _asMap(payload['video'])?['color'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kAudioTrackPickListName,
-          scopedItems.map((item) =>
-              (item.payload['video'] as Map?)?['audio_tracks'] as String?),
+          scopedPayloads.map((payload) =>
+              _asMap(payload['video'])?['audio_tracks'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kSubtitlePickListName,
-          scopedItems.map((item) =>
-              (item.payload['video'] as Map?)?['subtitles'] as String?),
+          scopedPayloads.map((payload) =>
+              _asMap(payload['video'])?['subtitles'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kGamePlatformPickListName,
-          scopedItems.expand((item) {
-            final gameMap = item.payload['game'] as Map?;
+          scopedPayloads.expand((payload) {
+            final gameMap = _asMap(payload['game']);
             final platforms = (gameMap?['platforms'] as List?)
                 ?.map((e) => e.toString())
                 .toList();
@@ -301,36 +353,39 @@ class CatalogCacheRepository {
         );
         await pickLists.captureValuesWithoutTransaction(
           kMusicFormatPickListName,
-          scopedItems
-              .map((item) => item.physicalFormatLabel ?? item.physicalFormat),
+          scopedPayloads.map((payload) =>
+              (payload['physical_format_label'] ?? payload['physical_format'])
+                  as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kPublisherPickListName,
-          scopedItems.map((item) => item.publisher),
+          scopedPayloads.map((payload) => payload['publisher'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kImprintPickListName,
-          scopedItems.map((item) =>
-              (item.payload['publishing'] as Map?)?['imprint'] as String?),
+          scopedPayloads.map((payload) =>
+              _asMap(payload['publishing'])?['imprint'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kSeriesGroupPickListName,
-          scopedItems.map((item) =>
-              (item.payload['publishing'] as Map?)?['series_group'] as String?),
+          scopedPayloads.map((payload) =>
+              _asMap(payload['publishing'])?['series_group'] as String?),
           mediaKind: mediaKind,
         );
         await pickLists.captureValuesWithoutTransaction(
           kPhysicalFormatPickListName,
-          scopedItems.map(
-            (item) => item.physicalFormatLabel ?? item.physicalFormat,
+          scopedPayloads.map(
+            (payload) =>
+                (payload['physical_format_label'] ?? payload['physical_format'])
+                    as String?,
           ),
           mediaKind: mediaKind,
         );
       }
-      await seriesRegistry.captureCatalogItemsWithoutTransaction(items);
+      await seriesRegistry.captureCatalogItemsWithoutTransaction(list);
     });
   }
 
@@ -431,7 +486,14 @@ class CatalogCacheRepository {
       if (row.plotSummary != null) 'plot_summary': row.plotSummary,
       if (row.plotDescription != null) 'plot_description': row.plotDescription,
       if (row.coverDate != null) 'cover_date': row.coverDate?.toIso8601String(),
-      if (row.seriesId != null || row.seriesTitle != null)
+      if (row.seriesId != null ||
+          row.seriesTitle != null ||
+          row.volumeName != null ||
+          row.volumeNumber != null ||
+          row.volumeStartYear != null ||
+          row.seasonNumber != null ||
+          row.episodeNumber != null ||
+          row.seriesTagsJson != null)
         'series': {
           if (row.seriesId != null) 'series_id': row.seriesId,
           if (row.seriesTitle != null) 'series_title': row.seriesTitle,
@@ -442,7 +504,8 @@ class CatalogCacheRepository {
             'volume_start_year': row.volumeStartYear,
           if (row.seasonNumber != null) 'season_number': row.seasonNumber,
           if (row.episodeNumber != null) 'episode_number': row.episodeNumber,
-          if (row.seriesTagsJson != null) 'tags': row.seriesTagsJson,
+          if (row.seriesTagsJson != null)
+            'tags': _decodeStringList(row.seriesTagsJson)?.join(', '),
         },
       if (row.pageCount != null ||
           row.coverPriceCents != null ||
@@ -505,9 +568,7 @@ class CatalogCacheRepository {
         'genres': _decodeStringList(row.genresJson) ?? const [],
     };
 
-    return CatalogItemDto.fromFields(
-      id: row.id,
-      mediaKind: catalogMediaKindFromValue(row.kind),
+    final common = CatalogCommonDto(
       title: row.title,
       displayTitle: row.displayTitle,
       localizedTitle: row.localizedTitle,
@@ -525,6 +586,12 @@ class CatalogCacheRepository {
           _decodeEditions(row.editionsJson) ?? const <CatalogEditionDto>[],
       trailerUrls:
           _decodeTrailerUrls(row.trailerUrlsJson) ?? const <TrailerLinkDto>[],
+    );
+
+    return CatalogItemDto.raw(
+      id: row.id,
+      mediaKind: catalogMediaKindFromValue(row.kind),
+      common: common,
       payload: payload,
     );
   }
@@ -593,5 +660,15 @@ class CatalogCacheRepository {
 
   String _compactBarcode(String value) {
     return value.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '');
+  }
+
+  static Map<String, dynamic>? _asMap(dynamic value) {
+    if (value == null) return null;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    try {
+      final dynamic json = (value as dynamic).toJson();
+      if (json is Map) return Map<String, dynamic>.from(json);
+    } catch (_) {}
+    return null;
   }
 }

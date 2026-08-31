@@ -22,9 +22,7 @@ class CollectionXml {
       for (final entry in entries) {
         builder.element('Item', nest: () {
           final metadata = entry.catalogItem?.kindMetadata;
-          final catalog = metadata is ComicCatalogMetadata
-              ? null
-              : entry.catalogItem?.toCatalogItem();
+          final item = entry.catalogItem;
           final owned = entry.ownedItem;
 
           _textElement(builder, 'ItemId', entry.itemId);
@@ -64,36 +62,43 @@ class CollectionXml {
               }
               _textElement(builder, 'Synopsis', metadata.synopsis);
             });
-          } else if (catalog != null) {
+          } else if (item != null) {
             builder.element('Catalog', nest: () {
-              _textElement(builder, 'Kind', catalog.kind);
-              _textElement(builder, 'Title', catalog.title);
-              _textElement(builder, 'ItemNumber', catalog.itemNumber);
-              _textElement(builder, 'EditionTitle', catalog.editionTitle);
-              _textElement(builder, 'PhysicalFormat', catalog.physicalFormat);
-              _textElement(builder, 'Publisher', catalog.publisher);
-              _textElement(builder, 'Barcode', catalog.barcode);
-              _textElement(builder, 'Variant', catalog.variant);
-              final seriesMap = catalog.payload['series'] as Map?;
-              final pubMap = catalog.payload['publishing'] as Map?;
+              final payload = item.payload;
+              final pubMap = payload['publishing'] as Map?;
+              final seriesMap = payload['series'] as Map?;
+              _textElement(builder, 'Kind', item.kind);
+              _textElement(builder, 'Title', item.title);
+              _textElement(builder, 'ItemNumber',
+                  (payload['item_number'] ?? pubMap?['issue_number']) as String?);
+              _textElement(builder, 'EditionTitle',
+                  (payload['edition_title'] ?? pubMap?['edition_title']) as String?);
+              _textElement(builder, 'PhysicalFormat',
+                  (payload['physical_format'] ?? pubMap?['physical_format']) as String?);
+              _textElement(builder, 'Publisher',
+                  (payload['publisher'] ?? pubMap?['original_publisher']) as String?);
+              _textElement(builder, 'Barcode',
+                  (payload['barcode'] ?? pubMap?['barcode']) as String?);
+              _textElement(builder, 'Variant',
+                  (payload['variant'] ?? pubMap?['variant']) as String?);
               _textElement(
                   builder, 'SeriesTitle', seriesMap?['series_title'] as String?);
               _textElement(
                   builder, 'VolumeName', seriesMap?['volume_name'] as String?);
-              if (catalog.releaseDate != null) {
+              if (item.releaseDate != null) {
                 _textElement(builder, 'ReleaseDate',
-                    catalog.releaseDate!.toIso8601String().split('T').first);
+                    item.releaseDate!.toIso8601String().split('T').first);
               }
-              if (catalog.releaseYear != null) {
+              if (item.releaseYear != null) {
                 _textElement(
-                    builder, 'ReleaseYear', catalog.releaseYear.toString());
+                    builder, 'ReleaseYear', item.releaseYear.toString());
               }
               if (pubMap?['page_count'] != null) {
                 _textElement(
                     builder, 'PageCount', pubMap!['page_count'].toString());
               }
-              _textElement(builder, 'Synopsis', catalog.synopsis);
-              _textElement(builder, 'CoverImageUrl', catalog.coverImageUrl);
+              _textElement(builder, 'Synopsis', item.synopsis);
+              _textElement(builder, 'CoverImageUrl', item.coverImageUrl);
             });
           }
 

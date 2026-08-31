@@ -25,22 +25,23 @@ class GenericLibraryMediaPresentationBuilder
     required LibraryMetadataFactTapResolver tapFor,
   }) {
     final dto = item.dto;
-    final catalogItem = item.source.catalogItem?.toCatalogItem();
-    final seriesRaw = catalogItem?.payload['series'];
+    final catalogItem = item.source.catalogItem;
+    final payload = catalogItem?.payload;
+    final seriesRaw = payload?['series'];
     final series = seriesRaw is Map
         ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
         : null;
-    final pubRaw = catalogItem?.payload['publishing'];
+    final pubRaw = payload?['publishing'];
     final publishing = pubRaw is Map
         ? CatalogPublishingDetailsDto.fromJson(
             Map<String, dynamic>.from(pubRaw))
         : null;
-    final musicRaw = catalogItem?.payload['music'];
+    final musicRaw = payload?['music'];
     final music = musicRaw is Map ? Map<String, dynamic>.from(musicRaw) : null;
     final musicCatalogNumber = music?['catalog_number'] as String?;
     final musicReleaseStatus = music?['release_status'] as String?;
-    final ageRating = catalogItem?.payload['age_rating'] as String?;
-    final audienceRating = catalogItem?.payload['audience_rating'] as String?;
+    final ageRating = payload?['age_rating'] as String?;
+    final audienceRating = payload?['audience_rating'] as String?;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
     final referencePlatforms = libraryReferencePlatforms(item);

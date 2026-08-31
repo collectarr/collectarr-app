@@ -2,13 +2,14 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('book workspace projector builds typed book dto', () {
     final source = ShelfEntry(
       itemId: 'book-1',
-      catalogItem: CatalogItemDto(
+      catalogItem: testCatalogItem(
         id: 'book-1',
         title: 'Guards! Guards!',
         publisher: 'Victor Gollancz Ltd',

@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/movie/config.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -16,7 +17,7 @@ void main() {
       (tester) async {
     final source = ShelfEntry(
       itemId: 'movie-1',
-      catalogItem: CatalogItemDto(
+      catalogItem: testCatalogItem(
         id: 'movie-1',
         title: 'The Matrix',
         synopsis: 'A hacker discovers reality is a simulation.',

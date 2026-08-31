@@ -6,7 +6,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('library entry resolves combined owned and wishlist state', () {
-    final item = CatalogItem(id: 'comic-1', kind: 'comic', title: 'Comic');
+    final item = testCatalogItem(id: 'comic-1', kind: 'comic', title: 'Comic');
     final owned = testOwnedItem(
       id: 'owned-1',
       itemId: 'comic-1',
@@ -34,7 +34,7 @@ void main() {
   });
 
   test('library entry exposes tracking-only rows', () {
-    final item = CatalogItem(id: 'comic-2', kind: 'comic', title: 'Comic 2');
+    final item = testCatalogItem(id: 'comic-2', kind: 'comic', title: 'Comic 2');
     final entry = LibraryEntry(itemId: item.id, catalogItem: item);
 
     expect(entry.isOwned, isFalse);

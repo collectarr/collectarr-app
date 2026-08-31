@@ -6,27 +6,25 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('prefers catalog editions from core over local anchor synthesis', () {
-    final catalogItem = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
-        id: 'movie-1',
-        kind: 'movie',
-        title: 'Blade Runner',
-        editions: [
-          CatalogEdition(
-            id: 'edition-core',
-            title: 'Final Cut 4K release',
-            releaseDate: DateTime.utc(1982, 6, 25),
-            variants: [
-              CatalogVariant(
-                id: 'variant-core',
-                name: '4K UHD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+    final catalogItem = LibraryMetadataItem.fromMetadataMap({
+      'id': 'movie-1',
+      'kind': 'movie',
+      'title': 'Blade Runner',
+      'editions': [
+        {
+          'id': 'edition-core',
+          'title': 'Final Cut 4K release',
+          'release_date': DateTime.utc(1982, 6, 25).toIso8601String(),
+          'variants': [
+            {
+              'id': 'variant-core',
+              'name': '4K UHD',
+              'is_primary': true,
+            },
+          ],
+        },
+      ],
+    });
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
@@ -47,14 +45,12 @@ void main() {
   });
 
   test('keeps local release synthesis when video item has no editions', () {
-    final catalogItem = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
-        id: 'tmdb-local:movie:2',
-        kind: 'movie',
-        title: 'Dune',
-        physicalFormatLabel: '4K UHD',
-      ),
-    );
+    final catalogItem = LibraryMetadataItem.fromMetadataMap({
+      'id': 'tmdb-local:movie:2',
+      'kind': 'movie',
+      'title': 'Dune',
+      'physical_format_label': '4K UHD',
+    });
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
@@ -75,14 +71,12 @@ void main() {
 
   test('treats tv items as video library kinds for local release synthesis',
       () {
-    final catalogItem = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
-        id: 'tmdb-local:tv:2',
-        kind: 'tv',
-        title: 'Severance',
-        physicalFormatLabel: 'Blu-ray',
-      ),
-    );
+    final catalogItem = LibraryMetadataItem.fromMetadataMap({
+      'id': 'tmdb-local:tv:2',
+      'kind': 'tv',
+      'title': 'Severance',
+      'physical_format_label': 'Blu-ray',
+    });
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
@@ -103,13 +97,11 @@ void main() {
 
   test('does not synthesize title snapshot fallback for refreshed core items',
       () {
-    final catalogItem = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
-        id: 'movie-3',
-        kind: 'movie',
-        title: 'Arrival',
-      ),
-    );
+    final catalogItem = LibraryMetadataItem.fromMetadataMap({
+      'id': 'movie-3',
+      'kind': 'movie',
+      'title': 'Arrival',
+    });
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(catalogItem);
 
@@ -117,15 +109,13 @@ void main() {
   });
 
   test('keeps title snapshot fallback for local synthetic video items', () {
-    final catalogItem = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
-        id: 'tmdb-local:movie:4',
-        kind: 'movie',
-        title: 'Heat',
-        physicalFormatLabel: 'Blu-ray',
-        releaseDate: DateTime.utc(1995, 12, 15),
-      ),
-    );
+    final catalogItem = LibraryMetadataItem.fromMetadataMap({
+      'id': 'tmdb-local:movie:4',
+      'kind': 'movie',
+      'title': 'Heat',
+      'physical_format_label': 'Blu-ray',
+      'release_date': DateTime.utc(1995, 12, 15).toIso8601String(),
+    });
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(catalogItem);
 

@@ -13,7 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('ComicCatalogMapper maps dto to ComicCatalogItem', () {
-    final dto = CatalogItemDto(
+    final dto = testCatalogItem(
       id: 'comic-work-1',
       title: 'Saga',
       itemNumber: '1',
@@ -30,7 +30,7 @@ void main() {
   });
 
   test('projects Comic item from shelf entry', () {
-    final catalogItem = CatalogItemDto(
+    final catalogItem = testCatalogItem(
       id: 'comic-2',
       kind: 'comic',
       title: 'The Last Ronin',
@@ -77,7 +77,7 @@ void main() {
   });
 
   test('ComicKindSchema exposes complete ComicOwnedDetails surface', () {
-    final catalogItem = CatalogItemDto(
+    final catalogItem = testCatalogItem(
       id: 'comic-key-1',
       kind: 'comic',
       title: 'Amazing Fantasy #15',

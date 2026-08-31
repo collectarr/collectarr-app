@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
@@ -16,7 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 Future<void> showMetadataCorrectionDialog({
   required BuildContext context,
   required WidgetRef ref,
-  required CatalogItem item,
+  required dynamic item,
   required LibraryTypeConfig type,
 }) async {
   final draft = await showDialog<_MetadataCorrectionDraft>(
@@ -28,7 +29,10 @@ Future<void> showMetadataCorrectionDialog({
   try {
     final resolvedType = ref.read(resolvedLibraryTypeProvider(type));
     final query = draft.queryFor(item);
-    final title = draft.title.trim().isEmpty ? item.title : draft.title.trim();
+    final itemTitle =
+        item is LibraryMetadataItem ? item.title : (item as CatalogItem).title;
+    final String title =
+        draft.title.trim().isEmpty ? itemTitle : draft.title.trim();
     final response = await createLibraryMetadataProposal(
       api: ref.read(apiClientProvider),
       type: resolvedType,
@@ -82,7 +86,7 @@ String _describeMetadataCorrectionError(Object error) {
 class _MetadataCorrectionDialog extends StatefulWidget {
   const _MetadataCorrectionDialog({required this.item});
 
-  final CatalogItem item;
+  final dynamic item;
 
   @override
   State<_MetadataCorrectionDialog> createState() =>
@@ -171,12 +175,21 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 
   String _initialFieldText(String key) {
-    final payload = widget.item.toSyncPayload();
+    final payload = widget.item is LibraryMetadataItem
+        ? (widget.item as LibraryMetadataItem).payload
+        : (widget.item as CatalogItem).toSyncPayload();
+    final title = widget.item is LibraryMetadataItem
+        ? (widget.item as LibraryMetadataItem).title
+        : (widget.item as CatalogItem).title;
+    final releaseYear = widget.item is LibraryMetadataItem
+        ? (widget.item as LibraryMetadataItem).releaseYear
+        : (widget.item as CatalogItem).releaseYear;
     return switch (key) {
-      'title' => widget.item.title,
-      'item_number' => (payload['item_number'] ?? payload['itemNumber'])?.toString() ?? '',
+      'title' => title,
+      'item_number' =>
+        (payload['item_number'] ?? payload['itemNumber'])?.toString() ?? '',
       'publisher' => payload['publisher']?.toString() ?? '',
-      'release_year' => widget.item.releaseYear?.toString() ?? '',
+      'release_year' => releaseYear?.toString() ?? '',
       'barcode' => payload['barcode']?.toString() ?? '',
       'variant' => payload['variant']?.toString() ?? '',
       'source_url' => '',
@@ -237,7 +250,7 @@ class _MetadataCorrectionDraft {
   final String sourceUrl;
   final String notes;
 
-  String queryFor(CatalogItem item) {
+  String queryFor(dynamic item) {
     final payload = item.toSyncPayload();
     final itemNumber =
         (payload['item_number'] ?? payload['itemNumber'])?.toString();
@@ -249,7 +262,7 @@ class _MetadataCorrectionDraft {
     ].whereType<String>().where((value) => value.isNotEmpty).join(' ');
   }
 
-  String summaryFor(CatalogItem item) {
+  String summaryFor(dynamic item) {
     final payload = item.toSyncPayload();
     final itemNumber =
         (payload['item_number'] ?? payload['itemNumber'])?.toString();

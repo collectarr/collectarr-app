@@ -213,20 +213,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         : widget.onAddWishlist;
     final onEdit =
         widget.onEdit == null ? null : () => widget.onEdit!(activeOwnedItem);
-    final onCorrectMetadata = widget.type.supportedMetadataProviders.isNotEmpty
+    final onCorrectMetadata = widget.type.supportedMetadataProviders.isNotEmpty && selected.source.catalogItem != null
         ? () => showMetadataCorrectionDialog(
               context: context,
               ref: ref,
-              item: CatalogItem(
-                id: selected.source.catalogItem!.id,
-                kind: widget.type.workspace.kind.apiValue,
-                title: selected.dto.title,
-                itemNumber: selected.dto.itemNumber,
-                publisher: selected.dto.publisher,
-                releaseYear: selected.dto.releaseDate?.year,
-                barcode: selected.dto.barcode,
-                variant: selected.dto.variant,
-              ),
+              item: selected.source.catalogItem!,
               type: widget.type,
             )
         : null;
@@ -362,7 +353,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
         copies: ownedCopies,
         editions:
-            selected.source.catalogItem?.toCatalogItem().editions ?? const [],
+            selected.source.catalogItem?.editions ?? const [],
         selectedOwnedItemId: activeOwnedItem?.id,
         accent: widget.accent,
         onAddCopy: () => _addOwnedCopy(
@@ -386,7 +377,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         (widget.type.conditions.isNotEmpty || widget.type.grades.isNotEmpty) &&
         resolveOwnedDigitalFlag(
               activeOwnedItem,
-              selected.source.catalogItem?.toCatalogItem().editions ?? const [],
+              selected.source.catalogItem?.editions ?? const [],
               fallbackLabel: selected.dto.variant,
             ) !=
             true) {
@@ -536,7 +527,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   widget.type.grades.isNotEmpty) &&
               resolveOwnedDigitalFlag(
                     activeOwnedItem,
-                    selected.source.catalogItem?.toCatalogItem().editions ??
+                    selected.source.catalogItem?.editions ??
                         const [],
                     fallbackLabel: selected.dto.variant,
                   ) !=

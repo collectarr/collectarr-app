@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -16,6 +18,10 @@ CatalogItem testCatalogItem({
   String kind = 'comic',
   String title = 'Test Item',
   String? displayTitle,
+  String? localizedTitle,
+  String? originalTitle,
+  String? titleExtension,
+  List<String>? searchAliases,
   String? synopsis,
   String? coverImageUrl,
   String? thumbnailImageUrl,
@@ -23,6 +29,9 @@ CatalogItem testCatalogItem({
   String? publisher,
   String? barcode,
   String? variant,
+  String? country,
+  String? language,
+  String? ageRating,
   String? itemNumber,
   String? editionTitle,
   String? physicalFormat,
@@ -31,54 +40,80 @@ CatalogItem testCatalogItem({
   int? releaseYear,
   DateTime? releaseDate,
   List<String>? genres,
+  List<String>? platforms,
+  List<String>? rawPlatforms,
   List<String>? characters,
   List<String>? storyArcs,
   List<Map<String, dynamic>>? creators,
-  List<CatalogEdition>? editions,
+  List<CatalogEditionDto>? editions,
+  List<TrailerLinkDto>? trailerUrls,
   CatalogSeriesDetailsDto? series,
   dynamic video,
   dynamic music,
   dynamic game,
   CatalogPublishingDetailsDto? publishing,
+  Map<String, dynamic>? payload,
 }) {
-  return CatalogItem(
-    id: id,
-    kind: kind,
+  final resolvedPublisher = publisher ?? (kind == 'comic' ? 'IDW' : null);
+  final resolvedCreators = creators ??
+      (kind == 'book'
+          ? const [
+              {'name': 'J.R.R. Tolkien', 'role': 'Author'}
+            ]
+          : null);
+  final resolvedPublishing = publishing ??
+      (kind == 'comic'
+          ? const CatalogPublishingDetailsDto(
+              imprint: 'IDW', subtitle: 'Director Cut')
+          : null);
+  final mergedPayload = <String, dynamic>{
+    if (itemNumber != null) 'item_number': itemNumber,
+    if (editionTitle != null) 'edition_title': editionTitle,
+    if (physicalFormat != null) 'physical_format': physicalFormat,
+    if (physicalFormatLabel != null)
+      'physical_format_label': physicalFormatLabel,
+    if (resolvedPublisher != null) 'publisher': resolvedPublisher,
+    if (barcode != null) 'barcode': barcode,
+    if (variant != null) 'variant': variant,
+    if (country != null) 'country': country,
+    if (language != null) 'language': language,
+    if (ageRating != null) 'age_rating': ageRating,
+    if (genres != null) 'genres': genres,
+    if (platforms != null || rawPlatforms != null)
+      'platforms': platforms ?? rawPlatforms,
+    if (rawPlatforms != null) 'raw_platforms': rawPlatforms,
+    if (characters != null) 'characters': characters,
+    if (storyArcs != null) 'story_arcs': storyArcs,
+    if (resolvedCreators != null) 'creators': resolvedCreators,
+    if (series != null) 'series': series.toJson(),
+    if (video != null) 'video': video,
+    if (music != null) 'music': music,
+    if (game != null) 'game': game,
+    if (resolvedPublishing != null) 'publishing': resolvedPublishing.toJson(),
+    if (payload != null) ...payload,
+  };
+  final common = CatalogCommonDto(
     title: title,
     displayTitle: displayTitle,
+    localizedTitle: localizedTitle,
+    originalTitle: originalTitle,
+    titleExtension: titleExtension,
+    searchAliases: searchAliases,
     synopsis: synopsis,
     coverImageUrl: coverImageUrl,
     thumbnailImageUrl: thumbnailImageUrl,
     coverImageData: coverImageData,
-    publisher: publisher ?? (kind == 'comic' ? 'IDW' : null),
-    barcode: barcode,
-    variant: variant,
-    itemNumber: itemNumber,
-    editionTitle: editionTitle,
-    physicalFormat: physicalFormat,
-    physicalFormatLabel: physicalFormatLabel,
     sortKey: sortKey,
-    releaseYear: releaseYear,
     releaseDate: releaseDate,
-    genres: genres,
-    characters: characters,
-    storyArcs: storyArcs,
-    creators: creators ??
-        (kind == 'book'
-            ? const [
-                {'name': 'J.R.R. Tolkien', 'role': 'Author'}
-              ]
-            : null),
-    editions: editions,
-    series: series,
-    video: video,
-    music: music,
-    game: game,
-    publishing: publishing ??
-        (kind == 'comic'
-            ? const CatalogPublishingDetailsDto(
-                imprint: 'IDW', subtitle: 'Director Cut')
-            : null),
+    releaseYear: releaseYear,
+    editions: editions ?? const [],
+    trailerUrls: trailerUrls ?? const [],
+  );
+  return CatalogItemDto.raw(
+    id: id,
+    mediaKind: catalogMediaKindFromValue(kind),
+    common: common,
+    payload: mergedPayload,
   );
 }
 

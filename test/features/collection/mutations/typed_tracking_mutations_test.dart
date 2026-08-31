@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -86,7 +87,7 @@ void main() {
         updatedAt: DateTime.now().toUtc(),
       );
       await catalogCache.upsertAll([
-        CatalogItem(id: 'book-77', kind: 'book', title: 'Test Book'),
+        testCatalogItem(id: 'book-77', kind: 'book', title: 'Test Book'),
       ]);
       await ownedItems.upsert(owned);
 

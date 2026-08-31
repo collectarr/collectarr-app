@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:uuid/uuid.dart';
 
 typedef IdGenerator = String Function();
@@ -93,7 +94,7 @@ final class WishlistMutations {
   }
 
   Future<void> addLocalOnlyWishlistItem(
-    CatalogItem item, {
+    dynamic item, {
     String? anchorType,
     String? editionId,
     String? variantId,
@@ -101,12 +102,14 @@ final class WishlistMutations {
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
-    final isLocalItem = item.id.startsWith('tmdb-local:');
+    final itemId =
+        item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
+    final isLocalItem = itemId.startsWith('tmdb-local:');
     await mutationRunner.run(
       action: () async {
         await catalogCache.upsertAll([item]);
         final existing = await wishlist.findActiveByItemAnchor(
-          item.id,
+          itemId,
           anchorType: anchorType,
           editionId: editionId,
           variantId: variantId,
@@ -122,7 +125,7 @@ final class WishlistMutations {
           final wishlistItem = WishlistItem(
             id: idGenerator(),
             catalogRef: _catalogRefForItem(
-              item.id,
+              itemId,
               item,
               anchorType: normalizedAnchorType,
               editionId: editionId,
@@ -143,7 +146,7 @@ final class WishlistMutations {
           }
         }
       },
-      eventsToEmit: [WishlistChanged(item.id)],
+      eventsToEmit: [WishlistChanged(itemId)],
     );
   }
 
@@ -301,14 +304,22 @@ final class WishlistMutations {
 
   CatalogEntityRef _catalogRefForItem(
     String itemId,
-    CatalogItem? item, {
+    dynamic item, {
     String? fallbackKind,
     String? anchorType,
     String? editionId,
     String? variantId,
     String? bundleReleaseId,
   }) {
-    if (item != null) {
+    if (item is CatalogItem) {
+      return item.catalogRefForAnchor(
+        anchorType: anchorType,
+        editionId: editionId,
+        variantId: variantId,
+        bundleReleaseId: bundleReleaseId,
+      );
+    }
+    if (item is LibraryMetadataItem) {
       return item.catalogRefForAnchor(
         anchorType: anchorType,
         editionId: editionId,

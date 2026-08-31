@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/repositories/pick_list_reposi
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   late LocalDatabase db;
@@ -21,7 +22,7 @@ void main() {
   test('upsertAll captures single-value catalog vocabulary and comic series',
       () async {
     await catalog.upsertAll([
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'The Department of Truth: Complete Conspiracy',

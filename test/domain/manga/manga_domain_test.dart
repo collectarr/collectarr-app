@@ -25,7 +25,7 @@ void main() {
     });
 
     test('Manga projector keeps work and personal data together', () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'manga-1',
         kind: 'manga',
         title: 'Vagabond',
@@ -62,7 +62,7 @@ void main() {
       );
 
       expect(dto.seriesTitle, 'Vagabond');
-      expect(shelf.catalogItem?.toCatalogItem().editions, hasLength(1));
+      expect(shelf.catalogItem?.editions, hasLength(1));
     });
 
     test('MangaMetadata serialization and deserialization roundtrip', () {

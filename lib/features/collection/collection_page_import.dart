@@ -159,9 +159,8 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     if (item == null || !mounted || _preview == null) {
       return;
     }
-    final catalogItem = item.toCatalogItem();
     await CatalogCacheRepository(ref.read(localDatabaseProvider))
-        .upsertAll([catalogItem]);
+        .upsertMetadataItems([item]);
     final resolvedRow = row.copyWith(itemId: item.id);
     setState(() {
       final preview = _preview!;
@@ -190,7 +189,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     try {
       final resolvedRows = [...preview.resolvedRows];
       final unresolvedRows = <CollectionCsvRow>[];
-      final resolvedItems = <CatalogItem>[];
+      final resolvedItems = <LibraryMetadataItem>[];
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
           ref,
@@ -204,10 +203,10 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
           continue;
         }
         resolvedRows.add(row.copyWith(itemId: match.id));
-        resolvedItems.add(match.toCatalogItem());
+        resolvedItems.add(match);
       }
       await CatalogCacheRepository(ref.read(localDatabaseProvider))
-          .upsertAll(resolvedItems);
+          .upsertMetadataItems(resolvedItems);
       if (!mounted) {
         return;
       }
@@ -962,8 +961,9 @@ class _CatalogThumb extends StatelessWidget {
 }
 
 String _catalogTitle(LibraryMetadataItem item) {
-  final catalog = item.toCatalogItem();
-  final issue = catalog.itemNumber;
+  final payload = item.payload;
+  final pub = payload['publishing'] as Map?;
+  final issue = (payload['item_number'] ?? pub?['issue_number'])?.toString();
   if (issue == null || issue.isEmpty) {
     return item.title;
   }
@@ -971,12 +971,17 @@ String _catalogTitle(LibraryMetadataItem item) {
 }
 
 String _catalogSubtitle(LibraryMetadataItem item) {
-  final catalog = item.toCatalogItem();
+  final payload = item.payload;
+  final pub = payload['publishing'] as Map?;
+  final variant = (payload['variant'] ?? pub?['variant'])?.toString();
+  final publisher =
+      (payload['publisher'] ?? pub?['original_publisher'])?.toString();
+  final barcode = (payload['barcode'] ?? pub?['barcode'])?.toString();
   return [
-    if (catalog.variant != null) catalog.variant,
-    if (catalog.publisher != null) catalog.publisher,
+    if (variant != null && variant.isNotEmpty) variant,
+    if (publisher != null && publisher.isNotEmpty) publisher,
     if (item.releaseYear != null) item.releaseYear.toString(),
-    if (catalog.barcode != null) catalog.barcode,
+    if (barcode != null && barcode.isNotEmpty) barcode,
   ].join(' | ');
 }
 

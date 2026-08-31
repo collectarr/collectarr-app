@@ -65,13 +65,11 @@ void main() {
 LibraryEditDialogRequest _bookEditRequest() {
   return LibraryEditDialogRequest(
     type: booksLibraryConfig,
-    item: LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
-        id: 'book-1',
-        kind: 'book',
-        title: 'The Return of the King',
-      ),
-    ),
+    item: LibraryMetadataItem.fromMetadataMap({
+      'id': 'book-1',
+      'kind': 'book',
+      'title': 'The Return of the King',
+    }),
     ownedItem: null,
     accent: Colors.orange,
   );

@@ -68,7 +68,7 @@ void main() {
     );
 
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'movie-default-1',
         kind: 'movie',
         title: 'Blade Runner',
@@ -152,7 +152,7 @@ void main() {
         );
 
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
-    final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
+    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
       id: 'movie-1',
       kind: 'movie',
       title: 'Blade Runner',
@@ -277,7 +277,7 @@ void main() {
 
     // Verify the dialog returned the edited values
     expect(selection?.item.title, 'Blade Runner: Final Cut');
-    expect(selection?.item.toCatalogItem().payload['barcode'], '883929087129');
+    expect(selection?.item.payload['barcode'], '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
     expect(selection?.personal?.pricePaidCents, 999);
@@ -298,7 +298,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
-    final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
+    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
       id: 'movie-edition-1',
       kind: 'movie',
       title: 'Blade Runner',
@@ -401,7 +401,7 @@ void main() {
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'movie-publishing-1',
         kind: 'movie',
         title: 'Session 9',
@@ -468,7 +468,7 @@ void main() {
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'movie-readonly-1',
         kind: 'movie',
         title: 'Blade Runner',
@@ -570,7 +570,7 @@ void main() {
 
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.comic)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Over the Garden Wall',
@@ -579,9 +579,11 @@ void main() {
         releaseDate: DateTime.utc(2017, 3, 22),
         variant: 'Trade Paperback',
         barcode: '9781608869404',
-        country: 'USA',
-        language: 'English',
-        ageRating: 'Modern Age',
+        payload: const {
+          'country': 'USA',
+          'language': 'English',
+          'age_rating': 'Modern Age',
+        },
         publishing: const CatalogPublishingDetailsDto(
           pageCount: 128,
           imprint: 'KaBOOM!',
@@ -772,16 +774,16 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final cat = selection?.item.toCatalogItem();
-    expect(cat?.payload['edition_title'], 'Deluxe Edition');
+    final payload = selection?.item.payload;
+    expect(payload?['edition_title'], 'Deluxe Edition');
     expect(selection?.item.titleExtension, isNull);
-    final seriesMap = cat?.payload['series'] as Map?;
+    final seriesMap = payload?['series'] as Map?;
     expect(seriesMap?['series_title'], 'Over the Garden Wall');
-    expect(cat?.payload['crossover'], 'Adventure Time');
-    expect(cat?.payload['story_arcs'], const ['Unknowning', 'The Tome of the Unknown']);
-    expect(cat?.payload['physical_format_label'], 'Trade Paperback');
-    final coverDate = cat?.payload['cover_date'] != null
-        ? DateTime.tryParse(cat!.payload['cover_date'] as String)
+    expect(payload?['crossover'], 'Adventure Time');
+    expect(payload?['story_arcs'], const ['Unknowning', 'The Tome of the Unknown']);
+    expect(payload?['physical_format_label'], 'Trade Paperback');
+    final coverDate = payload?['cover_date'] != null
+        ? DateTime.tryParse(payload!['cover_date'] as String)
         : null;
     expect(coverDate?.year, 2016);
     expect(coverDate?.month, 10);
@@ -798,7 +800,7 @@ void main() {
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Fellowship of the Ring',
@@ -870,7 +872,7 @@ void main() {
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'book-preserve-1',
         kind: 'book',
         title: 'Foundation',
@@ -969,8 +971,9 @@ void main() {
     expect(selection?.personal?.collectionStatus, 'for_sale');
     expect(selection?.personal?.marketValueCents, 2599);
 
-    final cat = selection?.item.toCatalogItem();
-    final pubMap = cat?.payload['publishing'] as Map?;
+    final savedItem = selection?.item;
+    final payload = savedItem?.payload;
+    final pubMap = payload?['publishing'] as Map?;
     expect(pubMap?['publication_place'], 'New York');
     expect(pubMap?['original_publisher'], 'Gnome Press');
     expect(pubMap?['original_publication_place'], 'New York');
@@ -979,12 +982,12 @@ void main() {
     expect(pubMap?['subjects'], ['Sci-Fi', 'Galactic Empire']);
     expect(pubMap?['first_edition'], isTrue);
     expect(pubMap?['dust_jacket'], isTrue);
-    expect(cat?.trailerUrls, hasLength(1));
-    expect(cat?.trailerUrls.first.kind, 'external');
-    expect(cat?.trailerUrls.first.url,
+    expect(item?.trailerUrls, hasLength(1));
+    expect(item?.trailerUrls.first.kind, 'external');
+    expect(item?.trailerUrls.first.url,
         'https://www.goodreads.com/book/show/29579.Foundation');
 
-    final creators = (cat?.payload['creators'] as List?)
+    final creators = (payload?['creators'] as List?)
             ?.cast<Map<String, dynamic>>() ??
         const <Map<String, dynamic>>[];
     expect(
@@ -1015,7 +1018,7 @@ void main() {
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.book)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'book-links-1',
         kind: 'book',
         title: 'Dune',
@@ -1071,12 +1074,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    final cat = selection!.item.toCatalogItem();
-    expect(cat.trailerUrls, hasLength(1));
-    expect(cat.trailerUrls.first.kind, 'external');
-    expect(cat.trailerUrls.first.url,
+    final savedItem = selection!.item;
+    expect(savedItem.trailerUrls, hasLength(1));
+    expect(savedItem.trailerUrls.first.kind, 'external');
+    expect(savedItem.trailerUrls.first.url,
         'https://en.wikipedia.org/wiki/Dune_(novel)');
-    expect(cat.trailerUrls.first.title, 'Wikipedia');
+    expect(savedItem.trailerUrls.first.title, 'Wikipedia');
   });
 
   testWidgets(
@@ -1090,7 +1093,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
-    final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
+    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
       id: 'movie-tracked-1',
       kind: 'movie',
       title: 'Dune',
@@ -1181,7 +1184,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
-    final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
+    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
       id: 'movie-bundle-1',
       kind: 'movie',
       title: 'Alien Anthology',
@@ -1279,7 +1282,7 @@ void main() {
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'movie-bundle-existing-1',
         kind: 'movie',
         title: 'Alien',
@@ -1358,7 +1361,7 @@ void main() {
 
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'movie-digital-1',
         kind: 'movie',
         title: 'Ghost in the Shell',
@@ -1439,7 +1442,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
-    final item = LibraryMetadataItem.fromCatalogItem(CatalogItem(
+    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
       id: 'movie-wishlist-1',
       kind: 'movie',
       title: 'Akira',
@@ -1554,7 +1557,7 @@ void main() {
         );
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.music)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Ad Infinitum',
@@ -1654,12 +1657,12 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final cat = selection?.item.toCatalogItem();
-    final seriesMap = cat?.payload['series'] as Map?;
-    final musicMap = cat?.payload['music'] as Map?;
+    final payload = selection?.item.payload;
+    final seriesMap = payload?['series'] as Map?;
+    final musicMap = payload?['music'] as Map?;
     expect(seriesMap?['series_title'], 'cAd');
     expect(musicMap?['catalog_number'], 'KDCD 1022-R');
-    final creators = (cat?.payload['creators'] as List?)?.cast<Map<String, dynamic>>();
+    final creators = (payload?['creators'] as List?)?.cast<Map<String, dynamic>>();
     expect(creators, [
       {'name': 'Ad Infinitum', 'role': 'Artist'},
       {'name': 'Melissa Bonny', 'role': 'Vocals'},
@@ -1676,22 +1679,22 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.game)!;
-    final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
-        id: 'game-1',
-        kind: 'game',
-        title: 'LEGO Batman',
-        sortKey: 'lego-batman',
-        releaseDate: DateTime.utc(2026, 5, 19),
-        publisher: 'Warner Bros Interactive',
-        creators: const [
+    final item = LibraryMetadataItem.fromMetadataMap(
+      {
+        'id': 'game-1',
+        'kind': 'game',
+        'title': 'LEGO Batman',
+        'sort_key': 'lego-batman',
+        'release_date': '2026-05-19T00:00:00.000Z',
+        'publisher': 'Warner Bros Interactive',
+        'creators': const [
           {'name': 'Travellers Tales', 'role': 'Developer'},
         ],
-        genres: const ['Action', 'Adventure'],
-        game: const {
+        'genres': const ['Action', 'Adventure'],
+        'game': const {
           'platforms': ['PlayStation 5'],
         },
-      ),
+      },
     );
     LibraryEditSelection? selection;
 
@@ -1736,9 +1739,9 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final cat = selection?.item.toCatalogItem();
-    final gameMap = cat?.payload['game'] as Map?;
-    expect(gameMap?['platforms'] ?? cat?.payload['platforms'], ['PlayStation 5']);
+    final itemPayload = selection?.item.payload;
+    final gameMap = itemPayload?['game'] as Map?;
+    expect(gameMap?['platforms'] ?? itemPayload?['platforms'], ['PlayStation 5']);
   });
 
   testWidgets('game all scope exposes release identity on its own tab',
@@ -1752,7 +1755,7 @@ void main() {
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.game)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'game-1',
         kind: 'game',
         title: 'LEGO Batman',
@@ -1819,7 +1822,7 @@ void main() {
     addTearDown(db.close);
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.boardgame)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'bg-1',
         kind: 'boardgame',
         title: 'Gloomhaven',

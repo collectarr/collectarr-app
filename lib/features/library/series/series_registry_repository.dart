@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -180,17 +181,25 @@ class SeriesRegistryRepository {
   }
 
   Future<void> captureCatalogItemsWithoutTransaction(
-      List<CatalogItem> items) async {
-    if (items.isEmpty) {
+      Iterable<dynamic> items) async {
+    final list = items.toList(growable: false);
+    if (list.isEmpty) {
       return;
     }
     final now = DateTime.now().toUtc();
     final candidates = <String, _SeriesCandidate>{};
-    for (final item in items) {
+    for (final item in list) {
+      final kind =
+          item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
+      final titleStr =
+          item is LibraryMetadataItem ? item.title : (item as CatalogItem).title;
+      final payload = item is LibraryMetadataItem
+          ? item.payload
+          : (item as CatalogItem).payload;
       final module =
-          defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(item.kind));
+          defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
       final seriesPayload =
-          item.payload['series'] as Map? ?? item.payload;
+          payload['series'] as Map? ?? payload;
       final seriesTitle = (seriesPayload['series_title'] ??
               seriesPayload['seriesTitle'])
           ?.toString();
@@ -198,13 +207,13 @@ class SeriesRegistryRepository {
           (seriesPayload['series_id'] ?? seriesPayload['seriesId'])?.toString();
       final title = _emptyToNull(
         seriesTitle ??
-            (module?.edit.usesTitleAsSeriesFallback ?? false ? item.title : null),
+            (module?.edit.usesTitleAsSeriesFallback ?? false ? titleStr : null),
       );
       final normalizedTitle = _normalize(title);
       if (normalizedTitle == null) {
         continue;
       }
-      final mediaKind = item.kind.trim().toLowerCase();
+      final mediaKind = kind.trim().toLowerCase();
       final coreSeriesId = _emptyToNull(seriesId);
       final key = _seriesKey(
         coreSeriesId: coreSeriesId,

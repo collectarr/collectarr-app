@@ -52,12 +52,12 @@ void main() {
                     ),
                   ],
                   catalogItemsById: {
-                    'book-1': CatalogItem(
+                    'book-1': testCatalogItem(
                       id: 'book-1',
                       kind: 'book',
                       title: 'Dune',
                     ),
-                    'book-2': CatalogItem(
+                    'book-2': testCatalogItem(
                       id: 'book-2',
                       kind: 'book',
                       title: 'Foundation',

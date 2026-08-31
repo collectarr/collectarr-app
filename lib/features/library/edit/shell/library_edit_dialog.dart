@@ -167,14 +167,15 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           itemImages: widget.itemImages,
         );
 
-    final initialTrailerPayload = (widget.item.kindMetadata
-                .toSyncPayload()['trailer_urls'] as List?)
-            ?.whereType<Map>()
-            .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
-            .toList() ??
-        const <TrailerLink>[];
+    final initialLinks = widget.item.trailerUrls.isNotEmpty
+        ? widget.item.trailerUrls
+        : ((widget.item.kindMetadata.toSyncPayload()['trailer_urls'] as List?)
+                ?.whereType<Map>()
+                .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
+                .toList() ??
+            const <TrailerLinkDto>[]);
     _links = [
-      for (final link in initialTrailerPayload)
+      for (final link in initialLinks)
         _LinkEntry(
           urlController: TextEditingController(text: link.url),
           descriptionController:
@@ -278,7 +279,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               kind: l.original?.kind ?? 'external',
             ),
       ];
-      _draft.kindDetails.setExternalLinks(updatedLinks);
+      _draft.setExternalLinks(updatedLinks);
     }
     final selection = _draft.toSelection(submitAction: action);
     Navigator.of(context).pop(selection);

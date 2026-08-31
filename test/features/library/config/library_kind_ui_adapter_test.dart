@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
@@ -70,9 +71,9 @@ void main() {
     final source = ShelfEntry(
       itemId: 'comic-1',
       catalogItem: LibraryMetadataItem.fromCatalogItem(
-        CatalogItem(
+        testCatalogItem(
           id: 'comic-1',
-          mediaKind: CatalogMediaKind.comic,
+          kind: 'comic',
           title: 'Alpha',
         ),
       ),

@@ -17,6 +17,10 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
+import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:uuid/uuid.dart';
 
 export 'package:collectarr_app/core/models/tracking_target.dart';
@@ -132,12 +136,12 @@ final class TrackingMutations {
       action: () async {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
-          await catalogCache.upsertAll([
-            CatalogItem(
-              id: catalogRef.id,
-              kind: catalogRef.kind,
-              title: catalogRef.id,
-            ),
+          await catalogCache.upsertMetadataItems([
+            LibraryMetadataItem.fromMetadataMap({
+              'id': catalogRef.id,
+              'kind': catalogRef.kind,
+              'title': catalogRef.id,
+            }),
           ]);
         }
         final entry = TrackingEntry(
@@ -257,7 +261,7 @@ final class TrackingMutations {
   }
 
   Future<void> addLocalOnlyTrackingEntry(
-    CatalogItem item, {
+    dynamic item, {
     String? anchorType,
     String? editionId,
     String? variantId,
@@ -276,7 +280,11 @@ final class TrackingMutations {
     bool allowEmpty = false,
   }) async {
     final now = DateTime.now().toUtc();
-    final isLocalItem = item.id.startsWith('tmdb-local:');
+    final itemId =
+        item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
+    final itemKind =
+        item is LibraryMetadataItem ? item.kind : (item as CatalogItem).kind;
+    final isLocalItem = itemId.startsWith('tmdb-local:');
     final entryId = idGenerator();
     await mutationRunner.run(
       action: () async {
@@ -287,14 +295,27 @@ final class TrackingMutations {
           variantId: variantId,
           bundleReleaseId: bundleReleaseId,
         );
+        final catalogRef = item is CatalogItem
+            ? item.catalogRefForAnchor(
+                anchorType: normalizedAnchorType,
+                editionId: editionId,
+                variantId: variantId,
+                bundleReleaseId: bundleReleaseId,
+              )
+            : CatalogEntityRef(
+                kind: itemKind,
+                entityType: normalizedAnchorType == 'edition'
+                    ? CatalogEntityType.edition
+                    : (normalizedAnchorType == 'variant'
+                        ? CatalogEntityType.release
+                        : (normalizedAnchorType == 'bundle_release'
+                            ? CatalogEntityType.bundleRelease
+                            : CatalogEntityType.work)),
+                id: variantId ?? editionId ?? bundleReleaseId ?? itemId,
+              );
         final entry = TrackingEntry(
           id: entryId,
-          catalogRef: item.catalogRefForAnchor(
-            anchorType: normalizedAnchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
-          ),
+          catalogRef: catalogRef,
           editionId: editionId,
           variantId: variantId,
           bundleReleaseId: bundleReleaseId,

@@ -7,20 +7,18 @@ void main() {
   test('exact core match suppresses provider fallback', () {
     final shouldFallback = shouldSearchProviderForCoreResults(
       [
-        LibraryMetadataItem.fromCatalogItem(
-          CatalogItemDto(
-            id: 'comic-423',
-            kind: 'comic',
-            title: 'Batman',
-            itemNumber: '423',
-            publisher: 'DC',
-            releaseYear: 1988,
-            series: const CatalogSeriesDetailsDto(
-              seriesTitle: 'Batman',
-              volumeStartYear: 1988,
-            ),
-          ),
-        ),
+        LibraryMetadataItem.fromMetadataMap({
+          'id': 'comic-423',
+          'kind': 'comic',
+          'title': 'Batman',
+          'item_number': '423',
+          'publisher': 'DC',
+          'release_year': 1988,
+          'series': {
+            'series_title': 'Batman',
+            'volume_start_year': 1988,
+          },
+        }),
       ],
       const LibraryAddLocalRerankHints(
         query: 'Batman',
@@ -37,15 +35,13 @@ void main() {
   test('weak core top match keeps provider fallback enabled', () {
     final shouldFallback = shouldSearchProviderForCoreResults(
       [
-        LibraryMetadataItem.fromCatalogItem(
-          CatalogItemDto(
-            id: 'movie-1',
-            kind: 'movie',
-            title: 'Blade Runner 2049',
-            publisher: 'Warner Bros.',
-            releaseYear: 2017,
-          ),
-        ),
+        LibraryMetadataItem.fromMetadataMap({
+          'id': 'movie-1',
+          'kind': 'movie',
+          'title': 'Blade Runner 2049',
+          'publisher': 'Warner Bros.',
+          'release_year': 2017,
+        }),
       ],
       const LibraryAddLocalRerankHints(
         query: 'Blade Runner',

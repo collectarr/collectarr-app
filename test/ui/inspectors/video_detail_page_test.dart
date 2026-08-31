@@ -29,7 +29,7 @@ void main() {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final source1 = ShelfEntry(
       itemId: 'movie-1',
-      catalogItem: CatalogItemDto(
+      catalogItem: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
@@ -157,7 +157,7 @@ void main() {
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.movie)!;
     final source2 = ShelfEntry(
       itemId: 'movie-1',
-      catalogItem: CatalogItemDto(
+      catalogItem: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',

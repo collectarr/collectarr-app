@@ -27,7 +27,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final now = DateTime.utc(2026, 5, 15);
-    final game = CatalogItem(
+    final game = testCatalogItem(
       id: 'game-1',
       kind: 'game',
       title: 'Hades',
@@ -96,7 +96,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final now = DateTime.utc(2026, 5, 15);
-    final game = CatalogItem(
+    final game = testCatalogItem(
       id: 'game-1',
       kind: 'game',
       title: 'Hades',
@@ -160,7 +160,7 @@ void main() {
       isTopLevel: true,
     );
     final now = DateTime.utc(2026, 5, 15);
-    final podcast = CatalogItem(
+    final podcast = testCatalogItem(
       id: 'podcast-1',
       kind: 'podcast',
       title: 'The Library Feed',
@@ -224,7 +224,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final now = DateTime.utc(2026, 5, 15);
-    final game = CatalogItem(
+    final game = testCatalogItem(
       id: 'game-rail-1',
       kind: 'game',
       title: 'Celeste',
@@ -275,7 +275,7 @@ void main() {
     addTearDown(db.close);
 
     final now = DateTime.utc(2026, 5, 15);
-    final game = CatalogItem(
+    final game = testCatalogItem(
       id: 'game-overdue-1',
       kind: 'game',
       title: 'Citizen Sleeper',

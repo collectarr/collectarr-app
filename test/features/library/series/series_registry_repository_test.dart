@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
 import 'package:drift/native.dart';
@@ -20,7 +21,7 @@ void main() {
 
   test('renameEntry updates matching catalog cache rows', () async {
     await catalog.upsertAll([
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Issue 1',
@@ -47,7 +48,7 @@ void main() {
       'mergeEntries moves catalog rows onto the target series and removes the source entry',
       () async {
     await catalog.upsertAll([
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Issue 1',
@@ -56,7 +57,7 @@ void main() {
           seriesTitle: 'Series A',
         ),
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-2',
         kind: 'comic',
         title: 'Issue 2',
@@ -94,12 +95,12 @@ void main() {
       'captureCatalogItems uses config-driven title fallback for kinds that treat title as series',
       () async {
     await registry.captureCatalogItemsWithoutTransaction([
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-untitled-series',
         kind: 'comic',
         title: 'Batman',
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'book-no-series',
         kind: 'book',
         title: 'The Hobbit',

@@ -303,19 +303,39 @@ class CollectionCsv {
   }
 
   List<String> _catalogFields(ShelfEntry entry) {
-    final catalog = entry.catalogItem?.toCatalogItem();
+    final catalog = entry.catalogItem;
+    final payload = catalog?.payload ?? const <String, dynamic>{};
+    final pub = payload['publishing'] as Map?;
+    final itemNumber =
+        (payload['item_number'] ?? pub?['issue_number'])?.toString() ?? '';
+    final variant =
+        (payload['variant'] ?? pub?['variant'])?.toString() ?? '';
+    final editionTitle =
+        (payload['edition_title'] ?? pub?['edition_title'])?.toString() ?? '';
+    final physicalFormat =
+        (payload['physical_format'] ?? pub?['physical_format'])?.toString() ??
+            '';
+    final physicalFormatLabel = (payload['physical_format_label'] ??
+            pub?['physical_format_label'])
+        ?.toString() ??
+        '';
+    final publisher =
+        (payload['publisher'] ?? pub?['original_publisher'])?.toString() ?? '';
+    final barcode =
+        (payload['barcode'] ?? pub?['barcode'])?.toString() ?? '';
+
     return [
       entry.itemId,
       catalog?.kind ?? '',
       catalog?.title ?? '',
-      catalog?.itemNumber ?? '',
-      catalog?.variant ?? '',
-      catalog?.editionTitle ?? '',
-      catalog?.physicalFormat ?? '',
-      catalog?.physicalFormatLabel ?? '',
-      catalog?.publisher ?? '',
+      itemNumber,
+      variant,
+      editionTitle,
+      physicalFormat,
+      physicalFormatLabel,
+      publisher,
       _formatDate(catalog?.releaseDate),
-      catalog?.barcode ?? '',
+      barcode,
     ];
   }
 

@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -72,14 +74,15 @@ void main() {
             fail('Unknown kind is not an active kind');
         }
 
-        final item = CatalogItem(
+        final item = testCatalogItem(
           id: '${kind.apiValue}-test-1',
           kind: kind.apiValue,
           title: 'Test Item',
         );
         const common = LibraryAddCommonDraft(condition: 'Near Mint', rating: 9);
 
-        final command = addCap.buildCommand(item, common, initialDraft);
+        final metadataItem = LibraryMetadataItem.fromCatalogItem(item);
+        final command = addCap.buildCommand(metadataItem, common, initialDraft);
         expect(command.catalogRef.id, item.id);
         expect(command.common.condition, 'Near Mint');
         expect(command.common.rating, 9);

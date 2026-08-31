@@ -25,7 +25,7 @@ void main() {
               entries: [
                 ShelfEntry(
                   itemId: 'comic-1',
-                  catalogItem: CatalogItem(
+                  catalogItem: testCatalogItem(
                     id: 'comic-1',
                     kind: 'comic',
                     title: 'The Amazing Spider-Man',

@@ -69,8 +69,7 @@ Future<void> addLibraryItemsToTarget({
     return;
   }
 
-  final catalogItems = [for (final item in values) item.toCatalogItem()];
-  await catalog.upsertAll(catalogItems);
+  await catalog.upsertMetadataItems(values);
 
   final baseCommon = commonDraft ?? defaults.toCommonDraft();
 
@@ -113,7 +112,7 @@ Future<void> addLibraryItemsToTarget({
         final itemKind = catalogMediaKindFromApiValue(item.kind);
         final capability = libraryKindRuntimeForKind(itemKind).add;
         final addCmd = capability.buildCommand(
-          item.toCatalogItem(),
+          item,
           itemCommon,
           kindDraftsByItemId[item.id] ?? capability.createInitialDraft(),
         );
@@ -141,7 +140,7 @@ Future<void> addLibraryItemsToTarget({
         break;
       case LibraryAddTarget.track:
         await trackingMutations.addLocalOnlyTrackingEntry(
-          item.toCatalogItem(),
+          item,
           anchorType: reference.anchorType,
           editionId: reference.editionId,
           variantId: reference.variantId,
@@ -158,13 +157,27 @@ Future<void> addLibraryItemsToTarget({
 
 bool? _digitalOwnedItemFlag(LibraryMetadataItem item) {
   final payload = item.kindMetadata.toSyncPayload();
-  final physicalFormat = payload['physical_format'] as String?;
-  final physicalFormatLabel = payload['physical_format_label'] as String?;
-  final variant = payload['variant'] as String?;
-  return digitalPhysicalMediaFormatFlag(
-    physicalFormat,
-    label: physicalFormatLabel ?? variant,
-  );
+  if (payload['is_digital'] is bool) {
+    return payload['is_digital'] as bool;
+  }
+  final physicalFormat =
+      (payload['physical_format'] ?? payload['physical_format_label'])
+          ?.toString()
+          .toLowerCase();
+  if (physicalFormat == 'digital' ||
+      physicalFormat == 'ebook' ||
+      physicalFormat == 'web') {
+    return true;
+  }
+  final dynamic series = payload['series'];
+  if (series is Map && series['is_digital'] is bool) {
+    return series['is_digital'] as bool;
+  }
+  final dynamic publishing = payload['publishing'];
+  if (publishing is Map && publishing['is_digital'] is bool) {
+    return publishing['is_digital'] as bool;
+  }
+  return null;
 }
 
 _ResolvedAddReference _resolveReferenceForItem(
@@ -177,13 +190,9 @@ _ResolvedAddReference _resolveReferenceForItem(
     case LibraryAddReferenceType.media:
       return const _ResolvedAddReference();
     case LibraryAddReferenceType.bundleRelease:
-      final normalizedBundleId = bundleReleaseId?.trim();
-      if (normalizedBundleId == null || normalizedBundleId.isEmpty) {
-        return const _ResolvedAddReference();
-      }
       return _ResolvedAddReference(
         anchorType: 'bundle_release',
-        bundleReleaseId: normalizedBundleId,
+        bundleReleaseId: bundleReleaseId,
       );
     case LibraryAddReferenceType.edition:
       final explicitEditionId = editionSelection?.editionId.trim();
@@ -196,7 +205,7 @@ _ResolvedAddReference _resolveReferenceForItem(
               : editionSelection?.variantId?.trim(),
         );
       }
-      final editions = item.toCatalogItem().editions;
+      final editions = item.editions;
       if (editions.isEmpty) {
         return const _ResolvedAddReference();
       }

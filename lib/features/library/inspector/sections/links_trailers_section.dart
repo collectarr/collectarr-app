@@ -15,7 +15,7 @@ class InspectorLinksTrailersSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final trailerUrls =
-        request.item.source.catalogItem?.toCatalogItem().trailerUrls ??
+        request.item.source.catalogItem?.trailerUrls ??
             const <TrailerLinkDto>[];
     if (trailerUrls.isEmpty) {
       return const SizedBox.shrink();

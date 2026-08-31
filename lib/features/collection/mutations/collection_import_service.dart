@@ -13,6 +13,8 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_cach
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:uuid/uuid.dart';
 
 typedef IdGenerator = String Function();
@@ -44,10 +46,10 @@ final class CollectionImportService {
     final resolvedRows = [...preview.resolvedRows, ...preview.conflictRows];
     if (resolvedRows.isEmpty) return 0;
 
-    final catalogItems = await catalogCache.findByIds(
+    final catalogItems = Map<String, dynamic>.from(await catalogCache.findByIds(
       resolvedRows.map((row) => row.itemId),
-    );
-    final importedCatalogItems = <CatalogItem>[];
+    ));
+    final importedCatalogItems = <dynamic>[];
     for (final row in resolvedRows) {
       final snapshot = _catalogItemFromCsvRow(
         row,
@@ -86,15 +88,21 @@ final class CollectionImportService {
 
       imported++;
       final catItem = catalogItems[row.itemId];
-      if (catItem != null && !snapshotItemIds.contains(catItem.id)) {
-        snapshotItemIds.add(catItem.id);
+      final catItemId = catItem is LibraryMetadataItem
+          ? catItem.id
+          : (catItem as CatalogItem?)?.id;
+      final catItemKind = catItem is LibraryMetadataItem
+          ? catItem.kind
+          : (catItem as CatalogItem?)?.kind;
+      if (catItemId != null && !snapshotItemIds.contains(catItemId)) {
+        snapshotItemIds.add(catItemId);
         syncChanges.add(
           SyncChange(
-            id: 'catalog:${catItem.id}:upsert:${now.millisecondsSinceEpoch}',
+            id: 'catalog:$catItemId:upsert:${now.millisecondsSinceEpoch}',
             entityType: 'catalog_item',
-            entityId: catItem.id,
+            entityId: catItemId,
             action: 'upsert',
-            payload: {'id': catItem.id},
+            payload: {'id': catItemId},
             clientChangedAt: now,
           ),
         );
@@ -145,7 +153,7 @@ final class CollectionImportService {
           id: idGenerator(),
           catalogRef: CatalogEntityRef(
             kind:
-                row.kind ?? catItem?.kind ?? CatalogMediaKind.unknown.apiValue,
+                row.kind ?? catItemKind ?? CatalogMediaKind.unknown.apiValue,
             entityType: CatalogEntityType.work,
             id: row.itemId,
           ),
@@ -191,7 +199,11 @@ final class CollectionImportService {
         for (final item in wishlistUpserts) WishlistChanged(item.itemId),
         for (final item in wishlistDeletes) WishlistChanged(item.itemId),
         for (final catItem in importedCatalogItems)
-          CatalogItemChanged(catItem.id),
+          CatalogItemChanged(
+            catItem is LibraryMetadataItem
+                ? catItem.id
+                : (catItem as CatalogItem).id,
+          ),
       ],
     );
 
@@ -283,22 +295,25 @@ final class CollectionImportService {
     );
   }
 
-  CatalogItem? _catalogItemFromCsvRow(
+  LibraryMetadataItem? _catalogItemFromCsvRow(
     CollectionCsvRow row, {
-    CatalogItem? existing,
+    dynamic existing,
   }) {
-    if (existing != null) return existing;
-    return CatalogItem(
-      id: row.itemId,
-      kind: row.kind ?? CatalogMediaKind.unknown.apiValue,
-      title: row.title ?? row.itemId,
-      itemNumber: row.itemNumber,
-      variant: row.variant,
-      editionTitle: row.editionTitle,
-      physicalFormat: row.physicalFormat,
-      physicalFormatLabel: row.physicalFormatLabel,
-      barcode: row.barcode,
-    );
+    if (existing is LibraryMetadataItem) return existing;
+    if (existing is CatalogItem) {
+      return LibraryMetadataItem.fromCatalogItem(existing);
+    }
+    return LibraryMetadataItem.fromMetadataMap({
+      'id': row.itemId,
+      'kind': row.kind ?? CatalogMediaKind.unknown.apiValue,
+      'title': row.title ?? row.itemId,
+      if (row.itemNumber != null) 'item_number': row.itemNumber,
+      if (row.variant != null) 'variant': row.variant,
+      if (row.editionTitle != null) 'edition_title': row.editionTitle,
+      if (row.physicalFormat != null) 'physical_format': row.physicalFormat,
+      if (row.physicalFormatLabel != null) 'physical_format_label': row.physicalFormatLabel,
+      if (row.barcode != null) 'barcode': row.barcode,
+    });
   }
 
   OwnedItem _ownedItemFromCsvRow(

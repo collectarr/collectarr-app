@@ -96,7 +96,6 @@ class MusicCatalogMapper {
       metadata = MusicCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
     }
     final music = metadata.music;
-    final catalogItem = item.toCatalogItem();
     final List<MusicRelease> releases;
     if (metadata.releases.isNotEmpty) {
       releases = metadata.releases.map((release) {
@@ -133,8 +132,8 @@ class MusicCatalogMapper {
           discs: discs,
         );
       }).toList();
-    } else if (catalogItem.editions.isNotEmpty) {
-      releases = catalogItem.editions.map((edition) {
+    } else if (item.editions.isNotEmpty) {
+      releases = item.editions.map((edition) {
         final discs = edition.discs.map((disc) {
           final tracks = disc.tracks
               .map((t) => MusicTrackRef(

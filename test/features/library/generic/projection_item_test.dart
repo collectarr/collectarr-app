@@ -70,7 +70,7 @@ void main() {
     final source2 = ShelfEntry(
       itemId: 'comic-3',
       catalogItem: LibraryMetadataItem.fromCatalogItem(
-        CatalogItem(
+        testCatalogItem(
           id: 'comic-3',
           kind: 'comic',
           title: 'Detective Comics',

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -61,7 +62,7 @@ void main() {
         'resolved catalog item in cache retains its own kind on wishlist mutation',
         () async {
       await catalogCache.upsertAll([
-        CatalogItem(
+        testCatalogItem(
           id: 'movie-100',
           kind: 'movie',
           title: 'The Matrix',

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/library/series/series_registry_dialog.dart';
 import 'package:collectarr_app/features/library/series/series_registry_repository.dart';
@@ -28,7 +29,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await catalog.upsertAll([
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Issue 1',
@@ -37,7 +38,7 @@ void main() {
           seriesTitle: 'Amazing Adventures',
         ),
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-2',
         kind: 'comic',
         title: 'Issue 2',
@@ -97,7 +98,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await catalog.upsertAll([
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Issue 1',
@@ -106,7 +107,7 @@ void main() {
           seriesTitle: 'Amazing Adventures',
         ),
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-2',
         kind: 'comic',
         title: 'Issue 2',
@@ -169,7 +170,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     await catalog.upsertAll([
-      CatalogItem(
+      testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Issue 1',

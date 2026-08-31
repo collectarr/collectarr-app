@@ -683,15 +683,12 @@ class TmdbImportService {
         'publisher': _firstNonEmptyText(
             currentPayload['publisher'] as String?, tmdbStudios.join(', ')),
     };
-    return CatalogItem(
-      id: item.id,
-      mediaKind: item.mediaKind,
+    final common = CatalogCommonDto(
       title: item.title,
       displayTitle: item.displayTitle ?? entry.title,
       localizedTitle: item.localizedTitle ?? entry.title,
       originalTitle: item.originalTitle ?? entry.originalTitle,
       searchAliases: aliases,
-      sortKey: item.sortKey,
       synopsis: _firstNonEmptyText(item.synopsis, entry.overview),
       coverImageUrl: _firstNonEmptyText(item.coverImageUrl, entry.posterUrl),
       thumbnailImageUrl: _firstNonEmptyText(
@@ -703,6 +700,11 @@ class TmdbImportService {
       releaseDate: item.releaseDate ?? entry.releaseDate,
       releaseYear: item.releaseYear ?? entry.releaseYear,
       editions: item.editions,
+    );
+    return CatalogItemDto.raw(
+      id: item.id,
+      mediaKind: item.mediaKind,
+      common: common,
       payload: mergedPayload,
     );
   }
@@ -772,12 +774,11 @@ class TmdbImportService {
     return 'tmdb-local:${entry.mediaType.name}:${entry.tmdbId}';
   }
 
-  CatalogItem localSyntheticCatalogItem(TmdbImportEntry entry) {
-    return CatalogItem(
-      id: localSyntheticItemId(entry),
-      kind: entry.mediaType == TmdbMediaType.tv
-          ? CatalogMediaKind.tv.apiValue
-          : CatalogMediaKind.movie.apiValue,
+  CatalogItemDto localSyntheticCatalogItem(TmdbImportEntry entry) {
+    final kind = entry.mediaType == TmdbMediaType.tv
+        ? CatalogMediaKind.tv
+        : CatalogMediaKind.movie;
+    final common = CatalogCommonDto(
       title: entry.title,
       displayTitle: entry.title,
       localizedTitle: entry.title,
@@ -793,6 +794,12 @@ class TmdbImportService {
       releaseDate: entry.releaseDate,
       releaseYear: entry.releaseYear,
     );
+    return CatalogItemDto.raw(
+      id: localSyntheticItemId(entry),
+      mediaKind: kind,
+      common: common,
+      payload: const {},
+    );
   }
 
   String localSyntheticSeasonItemId(
@@ -805,16 +812,14 @@ class TmdbImportService {
     return 'tmdb-local:${seriesEntry.mediaType.name}:${seriesEntry.tmdbId}:season:$seasonNumber';
   }
 
-  CatalogItem localSyntheticSeasonCatalogItem(
+  CatalogItemDto localSyntheticSeasonCatalogItem(
     TmdbImportEntry seriesEntry,
     TmdbImportEntry seasonEntry,
   ) {
     final seasonNumber =
         (seasonEntry.rawPayload['season_number'] as num?)?.toInt() ??
             seasonEntry.tmdbId;
-    return CatalogItem(
-      id: localSyntheticSeasonItemId(seriesEntry, seasonEntry),
-      kind: CatalogMediaKind.tv.apiValue,
+    final common = CatalogCommonDto(
       title: seasonEntry.title,
       displayTitle: seasonEntry.title,
       localizedTitle: seasonEntry.title,
@@ -825,12 +830,19 @@ class TmdbImportService {
           seasonEntry.originalTitle!,
         'Season $seasonNumber',
       ],
-      itemNumber: 'Season $seasonNumber',
       synopsis: seasonEntry.overview,
       coverImageUrl: seasonEntry.posterUrl,
       thumbnailImageUrl: seasonEntry.posterUrl,
       releaseDate: seasonEntry.releaseDate,
       releaseYear: seasonEntry.releaseYear,
+    );
+    return CatalogItemDto.raw(
+      id: localSyntheticSeasonItemId(seriesEntry, seasonEntry),
+      mediaKind: CatalogMediaKind.tv,
+      common: common,
+      payload: {
+        'item_number': 'Season $seasonNumber',
+      },
     );
   }
 

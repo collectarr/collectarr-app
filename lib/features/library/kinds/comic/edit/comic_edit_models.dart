@@ -216,7 +216,24 @@ LibraryEditSelection applyComicSelectionEdits(
     links: newComicLinks,
   );
 
+  final effectiveTrailerUrls = newComicLinks.isNotEmpty
+      ? [
+          for (final l in newComicLinks)
+            TrailerLinkDto(
+              url: l.url,
+              title: l.title,
+              description: l.description,
+              source: l.source,
+              isAutomatic: l.isAutomatic,
+              kind: l.kind,
+            ),
+        ]
+      : selection.item.common.trailerUrls;
+
   final updatedItem = selection.item.copyWith(
+    common: selection.item.common.copyWith(
+      trailerUrls: effectiveTrailerUrls,
+    ),
     kindMetadata: updatedMetadata,
   );
   return selection.copyWith(item: updatedItem);

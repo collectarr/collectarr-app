@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -87,7 +88,7 @@ void main() {
       () {
     final source = ShelfEntry(
       itemId: 'comic-5',
-      catalogItem: CatalogItemDto(
+      catalogItem: testCatalogItem(
         id: 'comic-5',
         kind: 'comic',
         title: 'Example Comic',
@@ -109,7 +110,7 @@ void main() {
     final edition = CatalogEdition(id: 'rel-2', title: '');
     final source = ShelfEntry(
       itemId: 'movie-2',
-      catalogItem: CatalogItemDto(
+      catalogItem: testCatalogItem(
         id: 'movie-2',
         kind: 'movie',
         title: 'Example Movie',
@@ -144,7 +145,7 @@ void main() {
       () {
     final source = ShelfEntry(
       itemId: 'movie-1',
-      catalogItem: CatalogItemDto(
+      catalogItem: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Spirited Away',

@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('music work maps metadata into a workspace entry', () {
     final work = MusicCatalogMapper.mapDtoToMusic(
-      CatalogItemDto(
+      testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Kinesis',

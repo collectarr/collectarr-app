@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_types.dart';
@@ -23,7 +24,7 @@ void main() {
 
     final type = collectarrLibraryTypes.byKind(CatalogMediaKind.music)!;
     final item = LibraryMetadataItem.fromCatalogItem(
-      CatalogItem(
+      testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Test Album',

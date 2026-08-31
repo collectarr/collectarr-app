@@ -23,7 +23,7 @@ class InspectorReleasesSection extends StatelessWidget {
         ? (video['runtime_minutes'] as num).toInt()
         : null;
     final editions =
-        request.item.source.catalogItem?.toCatalogItem().editions ?? const [];
+        request.item.source.catalogItem?.editions ?? const [];
     final discCount = nrDiscs ??
         editions.fold<int>(
           0,

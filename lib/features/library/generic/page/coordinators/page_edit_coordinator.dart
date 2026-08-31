@@ -69,12 +69,11 @@ class LibraryPageEditCoordinator {
     final db = _s.ref.read(localDatabaseProvider);
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
-    final freshCatalogItem = (await CatalogCacheRepository(db)
-            .findByIds({catalogItem.id}))[catalogItem.id] ??
-        catalogItem.toCatalogItem();
-    final freshMetadataItem = LibraryMetadataItem.fromCatalogItem(
-      freshCatalogItem,
-    );
+    final cached = (await CatalogCacheRepository(db)
+            .findByIds({catalogItem.id}))[catalogItem.id];
+    final freshMetadataItem = cached != null
+        ? LibraryMetadataItem.fromCatalogItem(cached)
+        : catalogItem;
     final ownedItems = _s.ref.read(collectionProvider).maybeWhen(
           data: (value) => value,
           orElse: () => const <OwnedItem>[],
@@ -83,7 +82,7 @@ class LibraryPageEditCoordinator {
     final overrideOwnedId = owned?.id;
     if (overrideOwnedId != null) {
       for (final candidate in ownedItems) {
-        if (!candidate.isDeleted && candidate.id == overrideOwnedId) {
+        if (candidate.id == overrideOwnedId) {
           owned = candidate;
           break;
         }
@@ -92,9 +91,9 @@ class LibraryPageEditCoordinator {
     owned ??= item.source.ownedItem;
     if (owned == null ||
         owned.isDeleted ||
-        owned.itemId != freshCatalogItem.id) {
+        owned.itemId != catalogItem.id) {
       for (final candidate in ownedItems) {
-        if (!candidate.isDeleted && candidate.itemId == freshCatalogItem.id) {
+        if (!candidate.isDeleted && candidate.itemId == catalogItem.id) {
           owned = candidate;
           break;
         }
@@ -107,17 +106,17 @@ class LibraryPageEditCoordinator {
     WishlistItem? wishlist = item.source.wishlistItem;
     if (wishlist == null ||
         wishlist.isDeleted ||
-        wishlist.itemId != freshCatalogItem.id) {
+        wishlist.itemId != catalogItem.id) {
       wishlist = null;
       for (final candidate in wishlistItems) {
-        if (!candidate.isDeleted && candidate.itemId == freshCatalogItem.id) {
+        if (!candidate.isDeleted && candidate.itemId == catalogItem.id) {
           wishlist = candidate;
           break;
         }
       }
     }
     final activeTrackingEntry = resolveActiveTrackingEntry(
-      _s.ref.read(trackingEntriesByCatalogItemProvider)[freshCatalogItem.id] ??
+      _s.ref.read(trackingEntriesByCatalogItemProvider)[catalogItem.id] ??
           const <TrackingEntry>[],
       owned,
     );
@@ -133,7 +132,7 @@ class LibraryPageEditCoordinator {
     );
     if (currentIndex < 0) {
       currentIndex = viewItems.indexWhere(
-        (candidate) => candidate.source.catalogItem?.id == freshCatalogItem.id,
+        (candidate) => candidate.source.catalogItem?.id == catalogItem.id,
       );
     }
     final previousItem = currentIndex > 0 ? viewItems[currentIndex - 1] : null;
@@ -227,7 +226,7 @@ class LibraryPageEditCoordinator {
         owned: owned,
         wishlist: wishlist,
         activeTrackingEntry: activeTrackingEntry,
-        catalogItem: freshCatalogItem,
+        catalogItem: catalogItem,
         customFieldRepo: customFieldRepo,
         itemImageRepo: itemImageRepo,
       );
@@ -261,7 +260,7 @@ class LibraryPageEditCoordinator {
     required OwnedItem? owned,
     required WishlistItem? wishlist,
     required TrackingEntry? activeTrackingEntry,
-    required CatalogItem catalogItem,
+    required LibraryMetadataItem catalogItem,
     required CustomFieldRepository customFieldRepo,
     required ItemImageRepository itemImageRepo,
   }) async {
@@ -271,7 +270,7 @@ class LibraryPageEditCoordinator {
     final trackingMutations = _s.ref.read(trackingMutationsProvider);
 
     await ownedMutations.updateCatalogSnapshot(
-      result.item.toCatalogItem(),
+      result.item,
     );
     final personal = result.personal;
     if (owned != null && personal != null) {

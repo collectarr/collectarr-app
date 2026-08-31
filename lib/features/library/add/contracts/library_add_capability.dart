@@ -1,8 +1,9 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 abstract interface class LibraryAddCapability<
     TDraft extends LibraryAddKindDraft> {
@@ -11,7 +12,7 @@ abstract interface class LibraryAddCapability<
   TDraft createInitialDraft();
 
   AddOwnedItemCommand buildCommand(
-    CatalogItem item,
+    LibraryMetadataItem item,
     LibraryAddCommonDraft common,
     LibraryAddKindDraft draft,
   );
@@ -33,7 +34,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   AddOwnedItemCommand buildCommand(
-    CatalogItem item,
+    LibraryMetadataItem item,
     LibraryAddCommonDraft common,
     LibraryAddKindDraft draft,
   ) {

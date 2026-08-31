@@ -545,7 +545,7 @@ abstract class LibraryMediaPresentationBuilder {
       tapFor: _tapResolver(onFilterByValue),
     );
     final seriesRaw =
-        item.source.catalogItem?.toCatalogItem().payload['series'];
+        item.source.catalogItem?.payload['series'];
     final series = seriesRaw is Map
         ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
         : null;

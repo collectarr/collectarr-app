@@ -33,12 +33,7 @@ class WorkspaceCommonProjection {
     String? overrideBarcode,
     String? overrideCoverImageUrl,
   }) {
-    final dynamic rawItem = source.catalogItem;
-    final CatalogItemDto? catalog = () {
-      if (rawItem is CatalogItemDto) return rawItem;
-      if (rawItem is LibraryMetadataItem) return rawItem.toCatalogItem();
-      return null;
-    }();
+    final catalog = source.catalogItem;
     final edition = node is LibraryReleaseNodeRef ? node.edition : null;
     CatalogVariant? primaryVariant;
     if (edition != null) {
@@ -52,7 +47,7 @@ class WorkspaceCommonProjection {
           edition.variants.isEmpty ? null : edition.variants.first;
     }
 
-    final payload = catalog?.toSyncPayload() ?? const {};
+    final payload = catalog?.payload ?? const {};
     final rawSeries = payload['series'];
     final seriesMap = rawSeries is Map ? rawSeries : null;
     final rawPub = payload['publishing'];

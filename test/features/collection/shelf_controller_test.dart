@@ -53,7 +53,7 @@ void main() {
         ),
       ],
       catalogItems: {
-        'comic-1': CatalogItem(
+        'comic-1': testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Saga',
@@ -128,7 +128,7 @@ void main() {
         ),
       ],
       catalogItems: {
-        'book-1': CatalogItem(
+        'book-1': testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Catalog keyed by ref',

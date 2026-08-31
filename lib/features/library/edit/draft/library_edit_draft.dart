@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -472,6 +473,13 @@ class LibraryEditDraft {
   bool get showsEpisodeTrackingFields =>
       type.trackingProfile.name == videoTrackingProfile.name;
 
+  List<TrailerLinkDto>? _externalLinks;
+
+  void setExternalLinks(List<TrailerLinkDto> links) {
+    _externalLinks = links;
+    kindDetails.setExternalLinks(links);
+  }
+
   LibraryEditSelection toSelection({
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) =>
@@ -492,6 +500,7 @@ class LibraryEditDraft {
       thumbnailImageUrl: emptyToNull(metadata.thumbnailController.text),
       releaseDate: parseDate(metadata.releaseDateController.text),
       releaseYear: parseInt(metadata.releaseYearController.text),
+      trailerUrls: _externalLinks ?? item.common.trailerUrls,
     );
     final baseItem = LibraryMetadataItem(
       identity: item.identity,

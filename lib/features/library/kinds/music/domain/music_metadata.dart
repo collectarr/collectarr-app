@@ -327,23 +327,57 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
             .toList(growable: false) ??
         const <Map<String, dynamic>>[];
 
-    final musicRaw = json['music'];
-    final musicMap = (musicRaw is Map)
+    final dynamic musicRaw = json['music'];
+    final Map<String, dynamic>? music = musicRaw is Map
         ? Map<String, dynamic>.from(musicRaw)
-        : json;
-    final music = musicRaw is Map
-        ? Map<String, dynamic>.from(musicRaw)
-        : null;
+        : (musicRaw != null
+            ? () {
+                try {
+                  final dynamic res = (musicRaw as dynamic).toJson();
+                  if (res is Map) return Map<String, dynamic>.from(res);
+                } catch (_) {}
+                return null;
+              }()
+            : null);
+    final musicMap = music ?? json;
 
-    final seriesRaw = json['series'];
-    final series = seriesRaw is Map
-        ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
-        : CatalogSeriesDetailsDto.fromJson(json);
+    final dynamic seriesRaw = json['series'];
+    final CatalogSeriesDetailsDto? series = seriesRaw is CatalogSeriesDetailsDto
+        ? seriesRaw
+        : (seriesRaw is Map
+            ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
+            : (seriesRaw != null
+                ? () {
+                    try {
+                      final dynamic res = (seriesRaw as dynamic).toJson();
+                      if (res is Map) {
+                        return CatalogSeriesDetailsDto.fromJson(
+                            Map<String, dynamic>.from(res));
+                      }
+                    } catch (_) {}
+                    return null;
+                  }()
+                : CatalogSeriesDetailsDto.fromJson(json)));
 
-    final pubRaw = json['publishing'];
-    final publishing = pubRaw is Map
-        ? CatalogPublishingDetailsDto.fromJson(Map<String, dynamic>.from(pubRaw))
-        : CatalogPublishingDetailsDto.fromJson(json);
+    final dynamic pubRaw = json['publishing'];
+    final CatalogPublishingDetailsDto? publishing =
+        pubRaw is CatalogPublishingDetailsDto
+            ? pubRaw
+            : (pubRaw is Map
+                ? CatalogPublishingDetailsDto.fromJson(
+                    Map<String, dynamic>.from(pubRaw))
+                : (pubRaw != null
+                    ? () {
+                        try {
+                          final dynamic res = (pubRaw as dynamic).toJson();
+                          if (res is Map) {
+                            return CatalogPublishingDetailsDto.fromJson(
+                                Map<String, dynamic>.from(res));
+                          }
+                        } catch (_) {}
+                        return null;
+                      }()
+                    : CatalogPublishingDetailsDto.fromJson(json)));
 
     final rawTracks = ((json['tracks'] ?? musicMap['tracks']) as List<dynamic>?)
             ?.whereType<Map>()

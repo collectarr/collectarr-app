@@ -4,10 +4,12 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config.dart';
 import 'package:collectarr_app/features/library/kinds/book/config.dart';
@@ -381,11 +383,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       matches.add(
         _GenericImportMatch(
           row: row,
-          catalogItem: _bestImportMatch(
-              row,
-              candidates
-                  .map((item) => item.toCatalogItem())
-                  .toList(growable: false)),
+          catalogItem: _bestImportMatch(row, candidates),
         ),
       );
     }
@@ -837,7 +835,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     return ref.read(resolvedLibraryTypeProvider(config));
   }
 
-  CatalogItem? _bestImportMatch(ImportRow row, List<CatalogItem> candidates) {
+  LibraryMetadataItem? _bestImportMatch(
+      ImportRow row, List<LibraryMetadataItem> candidates) {
     if (candidates.isEmpty) {
       return null;
     }
@@ -862,7 +861,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   Future<void> _applyImportRow({
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required CatalogItem item,
+    required LibraryMetadataItem item,
     required ImportRow row,
   }) async {
     final trackingStatus = _trackingStatusForImportRow(row);
@@ -873,8 +872,13 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       );
       return;
     }
+    final catalogRef = CatalogEntityRef(
+      kind: item.kind,
+      entityType: CatalogEntityType.work,
+      id: item.id,
+    );
     await trackingMutations.upsertTrackingEntry(
-      TrackingTarget.catalog(item.catalogRef),
+      TrackingTarget.catalog(catalogRef),
       sourceType: TrackingSourceType.streaming,
       status: trackingStatus,
       rating: row.rating == null || row.rating == 0
@@ -891,7 +895,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   Future<void> _applyLocalOnlyImportRow({
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required CatalogItem item,
+    required dynamic item,
     required ImportRow row,
   }) async {
     final trackingStatus = _trackingStatusForImportRow(row);
@@ -915,7 +919,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     );
   }
 
-  CatalogItem _syntheticImportCatalogItem(
+  LibraryMetadataItem _syntheticImportCatalogItem(
     ProviderId provider,
     ImportRow row,
   ) {
@@ -927,17 +931,17 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final sourceKey = row.sourceId.trim().isEmpty
         ? row.title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
         : row.sourceId.trim();
-    return CatalogItem(
-      id: '${provider.storageValue}-local:$sourceKey',
-      kind: kind.apiValue,
-      title: row.title,
-      displayTitle: row.title,
-      localizedTitle: row.title,
-      originalTitle: row.title,
-      searchAliases: [row.title],
-      releaseDate: row.startedAt ?? row.finishedAt,
-      releaseYear: row.startedAt?.year ?? row.finishedAt?.year,
-    );
+    return LibraryMetadataItem.fromMetadataMap({
+      'id': '${provider.storageValue}-local:$sourceKey',
+      'kind': kind.apiValue,
+      'title': row.title,
+      'display_title': row.title,
+      'localized_title': row.title,
+      'original_title': row.title,
+      'search_aliases': [row.title],
+      if (row.startedAt != null) 'release_date': row.startedAt!.toIso8601String()
+      else if (row.finishedAt != null) 'release_date': row.finishedAt!.toIso8601String(),
+    });
   }
 
   MediaTrackingStatus? _trackingStatusForImportRow(ImportRow row) {
@@ -1010,5 +1014,5 @@ class _GenericImportMatch {
   });
 
   final ImportRow row;
-  final CatalogItem? catalogItem;
+  final LibraryMetadataItem? catalogItem;
 }

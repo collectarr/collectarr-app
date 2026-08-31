@@ -1,3 +1,6 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -16,6 +19,8 @@ class LibraryCommonMetadata {
     this.coverImageData,
     this.releaseDate,
     this.releaseYear,
+    this.editions = const <CatalogEditionDto>[],
+    this.trailerUrls = const <TrailerLinkDto>[],
   });
 
   static const _unset = Object();
@@ -33,6 +38,8 @@ class LibraryCommonMetadata {
   final String? coverImageData;
   final DateTime? releaseDate;
   final int? releaseYear;
+  final List<CatalogEditionDto> editions;
+  final List<TrailerLinkDto> trailerUrls;
 
   String get resolvedDisplayTitle =>
       displayTitle ?? localizedTitle ?? originalTitle ?? title;
@@ -53,6 +60,8 @@ class LibraryCommonMetadata {
     Object? coverImageData = _unset,
     Object? releaseDate = _unset,
     Object? releaseYear = _unset,
+    List<CatalogEditionDto>? editions,
+    List<TrailerLinkDto>? trailerUrls,
   }) {
     return LibraryCommonMetadata(
       title: title ?? this.title,
@@ -89,6 +98,8 @@ class LibraryCommonMetadata {
       releaseYear: identical(releaseYear, _unset)
           ? this.releaseYear
           : releaseYear as int?,
+      editions: editions ?? this.editions,
+      trailerUrls: trailerUrls ?? this.trailerUrls,
     );
   }
 }

@@ -115,7 +115,7 @@ class LibraryPageMetadataCoordinator {
     }
     await showLibraryMetadataCompareDialog(
       context: _page.context,
-      localItem: localItem.toCatalogItem(),
+      localItem: localItem,
       accent: _page.accent,
     );
   }

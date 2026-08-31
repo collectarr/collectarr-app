@@ -149,15 +149,12 @@ LibraryMetadataItem _item({
   String? itemNumber,
   int? releaseYear,
 }) {
-  return LibraryMetadataItem.fromCatalogItem(
-    CatalogItemDto(
-      id: 'test-${title.hashCode}',
-      kind: 'comic',
-      title: title,
-      publisher: publisher,
-      itemNumber: itemNumber,
-      releaseYear: releaseYear,
-      editions: const [],
-    ),
-  );
+  return LibraryMetadataItem.fromMetadataMap({
+    'id': 'test-${title.hashCode}',
+    'kind': 'comic',
+    'title': title,
+    if (publisher != null) 'publisher': publisher,
+    if (itemNumber != null) 'item_number': itemNumber,
+    if (releaseYear != null) 'release_year': releaseYear,
+  });
 }

@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -342,22 +343,22 @@ void main() {
     addTearDown(db.close);
     final repo = CatalogCacheRepository(db);
 
-    await repo.upsertAll([
-      CatalogItem(
-        id: 'book-1',
-        kind: 'book',
-        title: 'The Fellowship of the Ring',
-        sortKey: 'lord-of-the-rings-001',
-        series: const CatalogSeriesDetailsDto(
-          seriesId: 'series-1',
-          seriesTitle: 'The Lord of the Rings',
-          volumeNumber: '1',
-          tags: 'Epic Fantasy, Middle-earth',
-        ),
-        publishing: const CatalogPublishingDetailsDto(
-          subtitle: 'Being the First Part',
-        ),
-      ),
+    await repo.upsertMetadataItems([
+      LibraryMetadataItem.fromMetadataMap({
+        'id': 'book-1',
+        'kind': 'book',
+        'title': 'The Fellowship of the Ring',
+        'sort_key': 'lord-of-the-rings-001',
+        'series': {
+          'series_id': 'series-1',
+          'series_title': 'The Lord of the Rings',
+          'volume_number': '1',
+          'tags': 'Epic Fantasy, Middle-earth',
+        },
+        'publishing': {
+          'subtitle': 'Being the First Part',
+        },
+      }),
     ]);
 
     final item = await repo.findById('book-1');
@@ -379,25 +380,25 @@ void main() {
     addTearDown(db.close);
     final repo = CatalogCacheRepository(db);
 
-    await repo.upsertAll([
-      CatalogItem(
-        id: 'album-1',
-        kind: 'music',
-        title: 'The Sacrament of Sin',
-        editions: [
-          CatalogEdition(
-            id: 'edition-deluxe',
-            title: 'Deluxe Box',
-            variants: [
-              CatalogVariant(
-                id: 'variant-red',
-                name: 'Red Vinyl',
-                isPrimary: true,
-              ),
+    await repo.upsertMetadataItems([
+      LibraryMetadataItem.fromMetadataMap({
+        'id': 'album-1',
+        'kind': 'music',
+        'title': 'The Sacrament of Sin',
+        'editions': [
+          {
+            'id': 'edition-deluxe',
+            'title': 'Deluxe Box',
+            'variants': [
+              {
+                'id': 'variant-red',
+                'name': 'Red Vinyl',
+                'is_primary': true,
+              },
             ],
-          ),
+          },
         ],
-      ),
+      }),
     ]);
 
     final item = await repo.findById('album-1');

@@ -336,13 +336,10 @@ class _LibraryDetailToolbar extends StatelessWidget {
                       LibraryDenseMenuEntry<String>(
                         value: ownedCopies[index].id,
                         label: ownedCopies[index].id == selectedOwnedItemId
-                            ? 'Viewing ${buildOwnedCopyLabel(ownedCopies[index], item.source.catalogItem?.toCatalogItem().editions ?? const [], index)}'
+                            ? 'Viewing ${buildOwnedCopyLabel(ownedCopies[index], item.source.catalogItem?.editions ?? const [], index)}'
                             : buildOwnedCopyLabel(
                                 ownedCopies[index],
-                                item.source.catalogItem
-                                        ?.toCatalogItem()
-                                        .editions ??
-                                    const [],
+                                item.source.catalogItem?.editions ?? const [],
                                 index,
                               ),
                         icon: ownedCopies[index].id == selectedOwnedItemId

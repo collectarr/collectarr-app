@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
@@ -41,7 +42,7 @@ String libraryBucketManagerListLabel(
       genericGroupModeSidebarTitle(mode, type);
 }
 
-CatalogItem? renameLibraryGroupBucketValue(
+LibraryMetadataItem? renameLibraryGroupBucketValue(
   LibraryMetadataItem item,
   String mode,
   String currentLabel,
@@ -52,19 +53,19 @@ CatalogItem? renameLibraryGroupBucketValue(
     return null;
   }
   return _updatedCatalogItemForBucket(
-    item.toCatalogItem(),
+    item,
     mode,
     currentLabel,
     replacement: normalizedNext,
   );
 }
 
-CatalogItem? deleteLibraryGroupBucketValue(
+LibraryMetadataItem? deleteLibraryGroupBucketValue(
   LibraryMetadataItem item,
   String mode,
   String currentLabel,
 ) {
-  return _updatedCatalogItemForBucket(item.toCatalogItem(), mode, currentLabel);
+  return _updatedCatalogItemForBucket(item, mode, currentLabel);
 }
 
 Future<void> showLibraryBucketManagerDialog({
@@ -525,8 +526,8 @@ class _LibraryBucketManagerDialogState
   }
 }
 
-CatalogItem? _updatedCatalogItemForBucket(
-  CatalogItem item,
+LibraryMetadataItem? _updatedCatalogItemForBucket(
+  LibraryMetadataItem item,
   String mode,
   String currentLabel, {
   String? replacement,
@@ -653,8 +654,8 @@ CatalogItem? _updatedCatalogItemForBucket(
   }
 }
 
-CatalogItem? _rebuildCatalogItem(
-  CatalogItem item, {
+LibraryMetadataItem? _rebuildCatalogItem(
+  LibraryMetadataItem item, {
   Object? creators = _bucketManagerUnset,
   Object? characters = _bucketManagerUnset,
   Object? storyArcs = _bucketManagerUnset,
@@ -725,25 +726,14 @@ CatalogItem? _rebuildCatalogItem(
     payload['crossover'] = crossover;
   }
 
-  return CatalogItem(
-    id: item.id,
-    mediaKind: item.mediaKind,
-    title: item.title,
-    displayTitle: item.displayTitle,
-    localizedTitle: item.localizedTitle,
-    originalTitle: item.originalTitle,
-    titleExtension: item.titleExtension,
-    searchAliases: item.searchAliases,
-    sortKey: item.sortKey,
-    synopsis: item.synopsis,
-    coverImageUrl: item.coverImageUrl,
-    thumbnailImageUrl: item.thumbnailImageUrl,
-    coverImageData: item.coverImageData,
-    releaseDate: item.releaseDate,
-    releaseYear: item.releaseYear,
-    trailerUrls: item.trailerUrls,
-    editions: item.editions,
-    payload: payload,
+  final kindMetadata = LibraryKindMetadataDecoders.decode(
+    item.mediaKind,
+    payload,
+  );
+  return LibraryMetadataItem(
+    identity: item.identity,
+    common: item.common,
+    kindMetadata: kindMetadata,
   );
 }
 

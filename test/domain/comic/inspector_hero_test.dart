@@ -14,7 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 LibraryProjectionItem _itemFixture() {
-  final cat = CatalogItemDto(
+  final cat = testCatalogItem(
     id: 'comic-hero-fixture',
     kind: 'comic',
     title: 'The Last Ronin',

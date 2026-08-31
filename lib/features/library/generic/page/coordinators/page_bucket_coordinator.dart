@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class LibraryPageBucketCoordinator {
   const LibraryPageBucketCoordinator(this._page);
@@ -54,7 +55,7 @@ class LibraryPageBucketCoordinator {
     String currentLabel, {
     String? replacement,
   }) async {
-    final updates = <CatalogItem>[];
+    final updates = <LibraryMetadataItem>[];
     for (final item in projection.allItems) {
       final catalogItem = item.source.catalogItem;
       if (catalogItem == null ||

@@ -29,13 +29,17 @@ import 'package:uuid/uuid.dart';
 class LibraryAddWorkflowService {
   const LibraryAddWorkflowService();
 
-  LibraryMetadataItem metadataItemFromPreview(AdminProviderPreview preview) {
+  LibraryMetadataItem metadataItemFromPreview(
+    AdminProviderPreview preview, {
+    String? itemId,
+  }) {
     final mediaKind = catalogMediaKindFromApiValue(preview.kind);
-    final id = buildPreviewCatalogItemId(
-      kind: preview.kind,
-      provider: preview.provider,
-      providerItemId: preview.providerItemId,
-    );
+    final id = itemId ??
+        buildPreviewCatalogItemId(
+          kind: preview.kind,
+          provider: preview.provider,
+          providerItemId: preview.providerItemId,
+        );
     final mapper = libraryKindRuntimeForKind(mediaKind).providerMapper;
     if (mapper == null) {
       throw StateError('No provider mapper registered for ${preview.kind}');
@@ -72,7 +76,7 @@ class LibraryAddWorkflowService {
     final cachedPreview =
         previewState.providerPreviewFor(candidate.localCatalogId);
     if (cachedPreview != null) {
-      return metadataItemFromPreview(cachedPreview);
+      return metadataItemFromPreview(cachedPreview, itemId: candidate.localCatalogId);
     }
     return candidate.placeholderItem();
   }

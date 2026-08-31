@@ -25,7 +25,7 @@ void main() {
       createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
       updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
     );
-    final cat = CatalogItemDto(
+    final cat = testCatalogItem(
       id: 'music-1',
       kind: 'music',
       title: 'Lupus Dei',
@@ -128,7 +128,7 @@ void main() {
       createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
       updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
     );
-    final cat = CatalogItemDto(
+    final cat = testCatalogItem(
       id: 'music-2',
       kind: 'music',
       title: 'Lupus Dei',

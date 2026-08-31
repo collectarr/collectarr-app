@@ -19,7 +19,7 @@ void main() {
       entries: [
         ShelfEntry(
           itemId: 'music-1',
-          catalogItem: CatalogItem(
+          catalogItem: testCatalogItem(
             id: 'music-1',
             kind: 'music',
             title: 'Discovery',
@@ -77,7 +77,7 @@ void main() {
         ShelfEntry(
           itemId: 'game-1',
           locationPath: 'Office › Shelf A',
-          catalogItem: CatalogItem(
+          catalogItem: testCatalogItem(
             id: 'game-1',
             kind: 'game',
             title: 'Elden Ring',
@@ -95,7 +95,7 @@ void main() {
         ShelfEntry(
           itemId: 'game-2',
           locationPath: 'Office › Shelf B',
-          catalogItem: CatalogItem(
+          catalogItem: testCatalogItem(
             id: 'game-2',
             kind: 'game',
             title: 'Dark Souls III',
@@ -168,7 +168,7 @@ void main() {
         for (final itemNumber in ['1', '2', '4'])
           ShelfEntry(
             itemId: 'comic-$itemNumber',
-            catalogItem: CatalogItem(
+            catalogItem: testCatalogItem(
               id: 'comic-$itemNumber',
               kind: 'comic',
               title: 'Saga',
@@ -224,7 +224,7 @@ void main() {
         for (final volume in [1, 3])
           ShelfEntry(
             itemId: 'comic-volume-$volume',
-            catalogItem: CatalogItem(
+            catalogItem: testCatalogItem(
               id: 'comic-volume-$volume',
               kind: 'comic',
               title: 'Vinland Saga',
@@ -282,7 +282,7 @@ void main() {
         for (final season in [1, 3])
           ShelfEntry(
             itemId: 'movie-season-$season',
-            catalogItem: CatalogItem(
+            catalogItem: testCatalogItem(
               id: 'movie-season-$season',
               kind: 'movie',
               title: 'The Mandalorian',

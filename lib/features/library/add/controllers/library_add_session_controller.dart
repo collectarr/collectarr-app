@@ -1271,7 +1271,7 @@ class LibraryAddSessionController
     );
   }
 
-  Future<bool> submitSelectedItem(CatalogItem item) async {
+  Future<bool> submitSelectedItem(LibraryMetadataItem item) async {
     if (state.isAdding || state.submitState.isLoading) return false;
     state = state.copyWith(
       isAdding: true,
@@ -1385,31 +1385,20 @@ class LibraryAddSessionController
           // Local-only add without Core ingest using deterministic provisional provider identity
           final preview = state.preview
               .providerPreviewFor(selectedCandidate.localCatalogId);
-          final catalogItem = CatalogItem(
-            id: selectedCandidate.localCatalogId,
-            kind: selectedCandidate.kind,
-            title: preview?.title ?? selectedCandidate.title,
-            synopsis: preview?.synopsis ?? selectedCandidate.summary,
-            coverImageUrl: preview?.coverImageUrl ?? selectedCandidate.imageUrl,
-            thumbnailImageUrl:
-                preview?.coverImageUrl ?? selectedCandidate.imageUrl,
-            publisher: preview?.publisher ?? selectedCandidate.publisher,
-            releaseYear: preview?.releaseDate?.year ??
-                selectedCandidate.series?.volumeStartYear,
-            series: preview?.series ?? selectedCandidate.series,
-            publishing: preview?.publishing,
-            game: preview?.game,
-            music: preview?.music,
-            video: preview?.video,
-          );
+          final metadataItem = preview != null
+              ? workflowService.metadataItemFromPreview(
+                  preview,
+                  itemId: selectedCandidate.localCatalogId,
+                )
+              : selectedCandidate.placeholderItem();
 
           if (catalog != null) {
-            await catalog!.upsertAll([catalogItem]);
+            await catalog!.upsertMetadataItems([metadataItem]);
           }
 
           final capability = libraryKindRuntimeForKind(kind).add;
           final command = capability.buildCommand(
-            catalogItem,
+            metadataItem,
             state.commonDraft,
             state.manualDraft,
           );
@@ -1419,11 +1408,11 @@ class LibraryAddSessionController
               await ownedMutations.addOwnedItem(command);
             case LibraryAddTarget.wishlist:
               await wishlistMutations.addToWishlist(
-                catalogItem.id,
-                fallbackKind: catalogItem.kind,
+                metadataItem.id,
+                fallbackKind: metadataItem.kind,
               );
             case LibraryAddTarget.track:
-              await trackingMutations.addLocalOnlyTrackingEntry(catalogItem);
+              await trackingMutations.addLocalOnlyTrackingEntry(metadataItem);
           }
         }
       } else if (checkedResults.isNotEmpty) {
@@ -1457,14 +1446,9 @@ class LibraryAddSessionController
           );
         }
       } else if (selectedResult != null) {
-        final item = CatalogItem(
-          id: selectedResult.id,
-          kind: selectedResult.kind,
-          title: selectedResult.title,
-        );
         final capability = libraryKindRuntimeForKind(kind).add;
         final command = capability.buildCommand(
-          item,
+          selectedResult,
           state.commonDraft,
           state.manualDraft,
         );
@@ -1474,11 +1458,11 @@ class LibraryAddSessionController
             await ownedMutations.addOwnedItem(command);
           case LibraryAddTarget.wishlist:
             await wishlistMutations.addToWishlist(
-              item.id,
-              fallbackKind: item.kind,
+              selectedResult.id,
+              fallbackKind: selectedResult.kind,
             );
           case LibraryAddTarget.track:
-            await trackingMutations.addLocalOnlyTrackingEntry(item);
+            await trackingMutations.addLocalOnlyTrackingEntry(selectedResult);
         }
       }
 

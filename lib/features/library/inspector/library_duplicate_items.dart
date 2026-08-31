@@ -418,7 +418,7 @@ List<LibraryDuplicateGroup> _duplicateGroups(
 int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   final catalogItems = [
     for (final entry in bucket.entries)
-      if (entry.catalogItem != null) entry.catalogItem!.toCatalogItem(),
+      if (entry.catalogItem != null) entry.catalogItem!,
   ];
   if (catalogItems.length < 2) {
     return 0;
@@ -476,7 +476,7 @@ bool _allShareValue(Iterable<String?> values) {
   return normalized.length == 1 && normalized.isNotEmpty;
 }
 
-String? _releaseYearToken(CatalogItem item) {
+String? _releaseYearToken(LibraryMetadataItem item) {
   return item.releaseYear?.toString() ?? item.releaseDate?.year.toString();
 }
 

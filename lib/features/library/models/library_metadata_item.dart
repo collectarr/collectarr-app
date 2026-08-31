@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/models/library_common_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
@@ -31,10 +33,61 @@ final class LibraryMetadataItem {
   String? get coverImageData => common.coverImageData;
   DateTime? get releaseDate => common.releaseDate;
   int? get releaseYear => common.releaseYear;
+  List<CatalogEditionDto> get editions => common.editions;
+  List<TrailerLinkDto> get trailerUrls => common.trailerUrls;
 
   String get resolvedDisplayTitle => common.resolvedDisplayTitle;
   String? get displayCoverUrl => common.displayCoverUrl;
   Map<String, dynamic> get payload => kindMetadata.toSyncPayload();
+
+  CatalogEntityRef get catalogRef => catalogRefForAnchor();
+
+  CatalogEntityRef catalogRefForAnchor({
+    String? anchorType,
+    String? editionId,
+    String? variantId,
+    String? bundleReleaseId,
+  }) {
+    final anchor = PersonalItemAnchor.fromRaw(
+      anchorType: anchorType,
+      editionId: editionId,
+      variantId: variantId,
+      bundleReleaseId: bundleReleaseId,
+    );
+    if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
+      return CatalogEntityRef(
+        kind: kind,
+        entityType: CatalogEntityType.work,
+        id: id,
+      );
+    }
+    switch (anchor.type) {
+      case PersonalItemAnchorType.edition:
+        return CatalogEntityRef(
+          kind: kind,
+          entityType: CatalogEntityType.edition,
+          id: anchor.editionId ?? id,
+        );
+      case PersonalItemAnchorType.variant:
+        return CatalogEntityRef(
+          kind: kind,
+          entityType: CatalogEntityType.release,
+          id: anchor.variantId ?? anchor.editionId ?? id,
+        );
+      case PersonalItemAnchorType.bundleRelease:
+        return CatalogEntityRef(
+          kind: kind,
+          entityType: CatalogEntityType.bundleRelease,
+          id: anchor.bundleReleaseId ?? id,
+        );
+      default:
+        return CatalogEntityRef(
+          kind: kind,
+          entityType: CatalogEntityType.work,
+          id: id,
+        );
+    }
+  }
 
   factory LibraryMetadataItem.fromCatalogItem(CatalogItem item) {
     final identity = LibraryItemIdentity(
@@ -55,6 +108,8 @@ final class LibraryMetadataItem {
       coverImageData: item.coverImageData,
       releaseDate: item.releaseDate,
       releaseYear: item.releaseYear,
+      editions: item.editions,
+      trailerUrls: item.trailerUrls,
     );
     final kindMetadata = LibraryKindMetadataDecoders.decode(
       item.mediaKind,
@@ -68,7 +123,37 @@ final class LibraryMetadataItem {
   }
 
   factory LibraryMetadataItem.fromMetadataMap(Map<String, dynamic> json) {
-    return LibraryMetadataItem.fromCatalogItem(CatalogItem.fromJson(json));
+    final envelope = CatalogItemEnvelopeDto.fromJson(json);
+    final identity = LibraryItemIdentity(
+      id: envelope.id,
+      mediaKind: envelope.kind,
+    );
+    final common = LibraryCommonMetadata(
+      title: envelope.common.title,
+      displayTitle: envelope.common.displayTitle,
+      localizedTitle: envelope.common.localizedTitle,
+      originalTitle: envelope.common.originalTitle,
+      titleExtension: envelope.common.titleExtension,
+      searchAliases: envelope.common.searchAliases,
+      sortKey: envelope.common.sortKey,
+      synopsis: envelope.common.synopsis,
+      coverImageUrl: envelope.common.coverImageUrl,
+      thumbnailImageUrl: envelope.common.thumbnailImageUrl,
+      coverImageData: envelope.common.coverImageData,
+      releaseDate: envelope.common.releaseDate,
+      releaseYear: envelope.common.releaseYear,
+      editions: envelope.common.editions,
+      trailerUrls: envelope.common.trailerUrls,
+    );
+    final kindMetadata = LibraryKindMetadataDecoders.decode(
+      envelope.kind,
+      json,
+    );
+    return LibraryMetadataItem(
+      identity: identity,
+      common: common,
+      kindMetadata: kindMetadata,
+    );
   }
 
   LibraryMetadataItem copyWith({

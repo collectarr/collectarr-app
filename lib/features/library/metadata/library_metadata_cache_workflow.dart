@@ -77,8 +77,7 @@ Future<List<LibraryMetadataItem>> searchAndCacheLibraryMetadata({
     barcode: input.barcode,
     limit: input.limit,
   );
-  final catalogItems = [for (final item in items) item.toCatalogItem()];
-  await catalog.upsertAll(catalogItems);
+  await catalog.upsertMetadataItems(items);
   return items;
 }
 
@@ -90,12 +89,11 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   LibraryBarcodeLookupResultCallback? onResult,
 }) async {
   final results = <LibraryBarcodeLookupResult>[];
-  final foundItems = <CatalogItem>[];
+  final foundItems = <LibraryMetadataItem>[];
   for (final barcode in barcodes) {
     try {
       final item = await lookupLibraryBarcode(api, type, barcode);
-      final catalogItem = item.toCatalogItem();
-      foundItems.add(catalogItem);
+      foundItems.add(item);
       final result = LibraryBarcodeLookupResult.found(
         barcode: barcode,
         item: item,
@@ -111,6 +109,6 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
       onResult?.call(result);
     }
   }
-  await catalog.upsertAll(foundItems);
+  await catalog.upsertMetadataItems(foundItems);
   return results;
 }

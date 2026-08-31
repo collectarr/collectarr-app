@@ -500,7 +500,7 @@ String _firstOrDefault(List<String>? values, String fallback) {
 
 String _editionFormatBucket(LibraryProjectionRuntime item) {
   for (final CatalogEditionDto edition
-      in item.source.catalogItem?.toCatalogItem().editions ?? const []) {
+      in item.source.catalogItem?.editions ?? const []) {
     final label = edition.physicalFormatLabel ?? edition.physicalFormat;
     if (label != null && label.trim().isNotEmpty) {
       return label.trim();
@@ -522,7 +522,7 @@ String _movieOrTvSeriesBucket(LibraryProjectionRuntime item) {
 }
 
 CatalogEdition? _referenceEditionForEntry(LibraryProjectionRuntime item) {
-  return item.source.catalogItem?.toCatalogItem().editions.firstOrNull;
+  return item.source.catalogItem?.editions.firstOrNull;
 }
 
 String? _referenceRegionFor(ShelfEntry source, LibraryProjectionRuntime item) {

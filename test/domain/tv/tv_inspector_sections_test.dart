@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,7 +22,7 @@ void main() {
     late List<Widget> sections;
     final source = ShelfEntry(
       itemId: 'series-1',
-      catalogItem: CatalogItemDto(
+      catalogItem: testCatalogItem(
         id: 'series-1',
         kind: 'tv',
         title: 'Cowboy Bebop',

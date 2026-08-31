@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
@@ -138,10 +140,12 @@ void main() {
     test(
         'submits selected item to owned items using capability command building',
         () async {
-      final item = CatalogItem(
-        id: 'comic-sub-1',
-        kind: 'comic',
-        title: 'Amazing Fantasy #15',
+      final item = LibraryMetadataItem.fromCatalogItem(
+        testCatalogItem(
+          id: 'comic-sub-1',
+          kind: 'comic',
+          title: 'Amazing Fantasy #15',
+        ),
       );
 
       final success = await controller.submitSelectedItem(item);
@@ -153,10 +157,12 @@ void main() {
 
     test('submits item to wishlist target', () async {
       controller.setTarget(LibraryAddTarget.wishlist);
-      final item = CatalogItem(
-        id: 'comic-wish-1',
-        kind: 'comic',
-        title: 'Action Comics #1',
+      final item = LibraryMetadataItem.fromCatalogItem(
+        testCatalogItem(
+          id: 'comic-wish-1',
+          kind: 'comic',
+          title: 'Action Comics #1',
+        ),
       );
 
       final success = await controller.submitSelectedItem(item);
@@ -168,10 +174,12 @@ void main() {
 
     test('submits item to tracking target', () async {
       controller.setTarget(LibraryAddTarget.track);
-      final item = CatalogItem(
-        id: 'comic-track-1',
-        kind: 'comic',
-        title: 'Detective Comics #27',
+      final item = LibraryMetadataItem.fromCatalogItem(
+        testCatalogItem(
+          id: 'comic-track-1',
+          kind: 'comic',
+          title: 'Detective Comics #27',
+        ),
       );
 
       final success = await controller.submitSelectedItem(item);
@@ -225,13 +233,11 @@ void main() {
     });
 
     test('selectSuggestion updates query and selects suggestion', () {
-      final suggestion = LibraryMetadataItem.fromCatalogItem(
-        CatalogItemDto(
-          id: 'sugg-1',
-          kind: 'comic',
-          title: 'Daredevil',
-        ),
-      );
+      final suggestion = LibraryMetadataItem.fromMetadataMap({
+        'id': 'sugg-1',
+        'kind': 'comic',
+        'title': 'Daredevil',
+      });
 
       controller.selectSuggestion(suggestion);
 
@@ -276,7 +282,9 @@ void main() {
 
   group('Kind-Specific Add Draft to Command Capability Tests', () {
     test('ComicAddDraft produces valid AddOwnedItemCommand', () {
-      final item = CatalogItem(id: 'c1', kind: 'comic', title: 'Comic 1');
+      final item = LibraryMetadataItem.fromCatalogItem(
+        testCatalogItem(id: 'c1', kind: 'comic', title: 'Comic 1'),
+      );
       const common = LibraryAddCommonDraft(condition: 'NM', rating: 10);
       const draft = ComicAddDraft(gradingCompany: 'CBCS', signedBy: 'Stan Lee');
 
@@ -290,7 +298,9 @@ void main() {
     });
 
     test('MovieAddDraft produces valid AddOwnedItemCommand', () {
-      final item = CatalogItem(id: 'v1', kind: 'movie', title: 'Video 1');
+      final item = LibraryMetadataItem.fromCatalogItem(
+        testCatalogItem(id: 'v1', kind: 'movie', title: 'Video 1'),
+      );
       const common = LibraryAddCommonDraft(condition: 'New');
       const draft = MovieAddDraft(packaging: 'SteelBook', region: 'Region A');
 
@@ -303,7 +313,9 @@ void main() {
     });
 
     test('GameAddDraft produces valid AddOwnedItemCommand', () {
-      final item = CatalogItem(id: 'g1', kind: 'game', title: 'Game 1');
+      final item = LibraryMetadataItem.fromCatalogItem(
+        testCatalogItem(id: 'g1', kind: 'game', title: 'Game 1'),
+      );
       const common = LibraryAddCommonDraft(quantity: 2);
       const draft = GameAddDraft(completeness: 'CIB', hasBox: true);
 
@@ -316,7 +328,9 @@ void main() {
     });
 
     test('MusicAddDraft produces valid AddOwnedItemCommand', () {
-      final item = CatalogItem(id: 'm1', kind: 'music', title: 'Music 1');
+      final item = LibraryMetadataItem.fromCatalogItem(
+        testCatalogItem(id: 'm1', kind: 'music', title: 'Music 1'),
+      );
       const common = LibraryAddCommonDraft();
       const draft = MusicAddDraft(storageDevice: 'Shelf A', storageSlot: '12');
 

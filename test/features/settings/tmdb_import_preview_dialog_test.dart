@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_preview_dialog.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,7 +23,7 @@ void main() {
             rating: 9,
             rawPayload: <String, dynamic>{'id': 603, 'title': 'The Matrix'},
           ),
-          catalogItem: CatalogItem(
+          catalogItem: testCatalogItem(
             id: 'movie-603',
             kind: 'movie',
             title: 'The Matrix',

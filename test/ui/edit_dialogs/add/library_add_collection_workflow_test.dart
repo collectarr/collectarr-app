@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -318,7 +319,7 @@ class _WorkflowFixture {
 
 LibraryMetadataItem _comic(String id) {
   return LibraryMetadataItem.fromCatalogItem(
-    CatalogItem(
+    testCatalogItem(
       id: id,
       kind: 'comic',
       title: 'Superman, Vol. 4',
@@ -332,7 +333,7 @@ LibraryMetadataItem _comic(String id) {
 
 LibraryMetadataItem _comicWithRelease(String id) {
   return LibraryMetadataItem.fromCatalogItem(
-    CatalogItem(
+    testCatalogItem(
       id: id,
       kind: 'comic',
       title: 'Batman #1',
@@ -360,7 +361,7 @@ LibraryMetadataItem _comicWithRelease(String id) {
 
 LibraryMetadataItem _digitalMovie(String id) {
   return LibraryMetadataItem.fromCatalogItem(
-    CatalogItem(
+    testCatalogItem(
       id: id,
       kind: 'movie',
       title: 'Akira',
@@ -373,7 +374,7 @@ LibraryMetadataItem _digitalMovie(String id) {
 
 LibraryMetadataItem _comicWithMultipleReleases(String id) {
   return LibraryMetadataItem.fromCatalogItem(
-    CatalogItem(
+    testCatalogItem(
       id: id,
       kind: 'comic',
       title: 'Detective Comics #27',

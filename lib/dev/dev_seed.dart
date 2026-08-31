@@ -15,6 +15,7 @@ import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -296,7 +297,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 //  MOVIES (10)
 // ==========================================================================
 List<CatalogItem> _movieItems() => [
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-movie-01',
         kind: 'movie',
         title: 'Batman Begins',
@@ -386,7 +387,7 @@ List<CatalogItem> _movieItems() => [
           ),
         ],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-movie-02',
         kind: 'movie',
         title: 'The Dark Knight',
@@ -417,7 +418,7 @@ List<CatalogItem> _movieItems() => [
         characters: ['Bruce Wayne', 'The Joker', 'Harvey Dent'],
         genres: ['superhero', 'crime', 'thriller'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-movie-03',
         kind: 'movie',
         title: 'Blade Runner',
@@ -448,7 +449,7 @@ List<CatalogItem> _movieItems() => [
         storyArcs: ['Replicant Hunt'],
         genres: ['sci-fi', 'noir'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-movie-04',
         kind: 'movie',
         title: 'Interstellar',
@@ -473,7 +474,7 @@ List<CatalogItem> _movieItems() => [
         characters: ['Cooper', 'Murph', 'Dr. Brand'],
         genres: ['sci-fi', 'drama', 'space'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-movie-05',
         kind: 'movie',
         title: 'Mad Max: Fury Road',
@@ -492,7 +493,7 @@ List<CatalogItem> _movieItems() => [
         characters: ['Max Rockatansky', 'Furiosa', 'Immortan Joe'],
         genres: ['action', 'post-apocalyptic'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-movie-06',
         kind: 'movie',
         title: 'Alien',
@@ -513,7 +514,7 @@ List<CatalogItem> _movieItems() => [
         storyArcs: ['Xenomorph Saga'],
         genres: ['sci-fi', 'horror'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-movie-07',
         kind: 'movie',
         title: 'Aliens',
@@ -533,7 +534,7 @@ List<CatalogItem> _movieItems() => [
         storyArcs: ['Xenomorph Saga'],
         genres: ['sci-fi', 'action', 'horror'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-movie-08',
         kind: 'movie',
         title: 'The Matrix',
@@ -557,7 +558,7 @@ List<CatalogItem> _movieItems() => [
         characters: ['Neo', 'Morpheus', 'Agent Smith', 'Trinity'],
         genres: ['sci-fi', 'action', 'cyberpunk'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-movie-09',
         kind: 'movie',
         title: 'The Dark Knight Rises',
@@ -584,7 +585,7 @@ List<CatalogItem> _movieItems() => [
         characters: ['Bruce Wayne', 'Bane', 'Selina Kyle'],
         genres: ['superhero', 'action'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-movie-10',
         kind: 'movie',
         title: 'Blade Runner 2049',
@@ -614,7 +615,7 @@ List<CatalogItem> _movieItems() => [
 //  BOOKS (10)
 // ==========================================================================
 List<CatalogItem> _bookItems() => [
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-book-01',
         kind: 'book',
         title: 'Dune',
@@ -679,7 +680,7 @@ List<CatalogItem> _bookItems() => [
           ),
         ],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-book-02',
         kind: 'book',
         title: 'Dune Messiah',
@@ -703,7 +704,7 @@ List<CatalogItem> _bookItems() => [
         storyArcs: ['Arrakis Saga'],
         genres: ['sci-fi', 'politics'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-book-03',
         kind: 'book',
         title: 'Foundation',
@@ -725,7 +726,7 @@ List<CatalogItem> _bookItems() => [
         characters: ['Hari Seldon', 'Salvor Hardin'],
         genres: ['sci-fi', 'galactic empire'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-book-04',
         kind: 'book',
         title: '1984',
@@ -747,7 +748,7 @@ List<CatalogItem> _bookItems() => [
         characters: ['Winston Smith', 'Big Brother', 'Julia', 'O\'Brien'],
         genres: ['dystopia', 'political fiction', 'classic'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-book-05',
         kind: 'book',
         title: 'Neuromancer',
@@ -764,7 +765,7 @@ List<CatalogItem> _bookItems() => [
         characters: ['Case', 'Molly Millions', 'Wintermute'],
         genres: ['cyberpunk', 'sci-fi'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-book-06',
         kind: 'book',
         title: 'The Hitchhiker\'s Guide to the Galaxy',
@@ -787,7 +788,7 @@ List<CatalogItem> _bookItems() => [
         ],
         genres: ['sci-fi', 'comedy', 'satire'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-book-07',
         kind: 'book',
         title: 'The Fellowship of the Ring',
@@ -815,7 +816,7 @@ List<CatalogItem> _bookItems() => [
         storyArcs: ['War of the Ring'],
         genres: ['fantasy', 'epic'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-book-08',
         kind: 'book',
         title: 'The Two Towers',
@@ -840,7 +841,7 @@ List<CatalogItem> _bookItems() => [
         storyArcs: ['War of the Ring'],
         genres: ['fantasy', 'epic', 'war'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-book-09',
         kind: 'book',
         title: 'The Return of the King',
@@ -865,7 +866,7 @@ List<CatalogItem> _bookItems() => [
         storyArcs: ['War of the Ring'],
         genres: ['fantasy', 'epic'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-book-10',
         kind: 'book',
         title: 'The Martian',
@@ -913,7 +914,7 @@ List<CatalogItem> _bookItems() => [
 //  MUSIC (10)
 // ==========================================================================
 List<CatalogItem> _musicItems() => [
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-music-01',
         kind: 'music',
         title: 'OK Computer',
@@ -965,7 +966,7 @@ List<CatalogItem> _musicItems() => [
         ],
         genres: ['alternative rock', 'art rock', 'electronic'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-music-02',
         kind: 'music',
         title: 'Kid A',
@@ -986,7 +987,7 @@ List<CatalogItem> _musicItems() => [
         ],
         genres: ['electronic', 'experimental'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-music-03',
         kind: 'music',
         title: 'The Dark Side of the Moon',
@@ -1008,7 +1009,7 @@ List<CatalogItem> _musicItems() => [
         storyArcs: ['The Human Condition'],
         genres: ['progressive rock', 'art rock', 'concept album'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-music-04',
         kind: 'music',
         title: 'good kid, m.A.A.d city',
@@ -1030,7 +1031,7 @@ List<CatalogItem> _musicItems() => [
         storyArcs: ['Compton Chronicles'],
         genres: ['hip hop', 'concept album', 'west coast'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-music-05',
         kind: 'music',
         title: 'To Pimp a Butterfly',
@@ -1047,7 +1048,7 @@ List<CatalogItem> _musicItems() => [
         ],
         genres: ['hip hop', 'funk', 'jazz rap'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-music-06',
         kind: 'music',
         title: 'Discovery',
@@ -1066,7 +1067,7 @@ List<CatalogItem> _musicItems() => [
         ],
         genres: ['electronic', 'house', 'french touch'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-music-07',
         kind: 'music',
         title: 'Kind of Blue',
@@ -1088,7 +1089,7 @@ List<CatalogItem> _musicItems() => [
         ],
         genres: ['jazz', 'modal jazz', 'cool jazz'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-music-08',
         kind: 'music',
         title: 'Homogenic',
@@ -1106,7 +1107,7 @@ List<CatalogItem> _musicItems() => [
         ],
         genres: ['electronic', 'experimental', 'trip hop'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-music-09',
         kind: 'music',
         title: 'Mezzanine',
@@ -1124,7 +1125,7 @@ List<CatalogItem> _musicItems() => [
         ],
         genres: ['trip hop', 'electronic', 'dark ambient'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-music-10',
         kind: 'music',
         title: 'Dummy',
@@ -1148,7 +1149,7 @@ List<CatalogItem> _musicItems() => [
 //  GAMES (10)
 // ==========================================================================
 List<CatalogItem> _gameItems() => [
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-game-01',
         kind: 'game',
         title: 'The Witcher 3: Wild Hunt',
@@ -1188,7 +1189,7 @@ List<CatalogItem> _gameItems() => [
         rawPlatforms: ['PC', 'PS4', 'Xbox One', 'Switch'],
         genres: ['RPG', 'open world', 'fantasy'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-game-02',
         kind: 'game',
         title: 'Dark Souls',
@@ -1209,7 +1210,7 @@ List<CatalogItem> _gameItems() => [
         rawPlatforms: ['PC', 'PS3', 'Xbox 360'],
         genres: ['RPG', 'action', 'souls-like'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-game-03',
         kind: 'game',
         title: 'Dark Souls III',
@@ -1229,7 +1230,7 @@ List<CatalogItem> _gameItems() => [
         rawPlatforms: ['PC', 'PS4', 'Xbox One'],
         genres: ['RPG', 'action', 'souls-like'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-game-04',
         kind: 'game',
         title: 'Elden Ring',
@@ -1257,7 +1258,7 @@ List<CatalogItem> _gameItems() => [
         rawPlatforms: ['PC', 'PS5', 'PS4', 'Xbox Series', 'Xbox One'],
         genres: ['RPG', 'open world', 'souls-like'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-game-05',
         kind: 'game',
         title: 'Hollow Knight',
@@ -1284,7 +1285,7 @@ List<CatalogItem> _gameItems() => [
         rawPlatforms: ['PC', 'PS4', 'Xbox One', 'Switch'],
         genres: ['metroidvania', 'indie', 'platformer'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-game-06',
         kind: 'game',
         title: 'Disco Elysium',
@@ -1305,7 +1306,7 @@ List<CatalogItem> _gameItems() => [
         rawPlatforms: ['PC', 'PS5', 'PS4', 'Xbox Series', 'Switch'],
         genres: ['RPG', 'detective', 'narrative'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-game-07',
         kind: 'game',
         title: 'Hades',
@@ -1326,7 +1327,7 @@ List<CatalogItem> _gameItems() => [
         rawPlatforms: ['PC', 'PS5', 'PS4', 'Xbox Series', 'Switch'],
         genres: ['roguelike', 'action', 'mythology'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-game-08',
         kind: 'game',
         title: 'Outer Wilds',
@@ -1346,7 +1347,7 @@ List<CatalogItem> _gameItems() => [
         rawPlatforms: ['PC', 'PS4', 'Xbox One'],
         genres: ['exploration', 'puzzle', 'time loop'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-game-09',
         kind: 'game',
         title: 'Baldur\'s Gate 3',
@@ -1375,7 +1376,7 @@ List<CatalogItem> _gameItems() => [
         rawPlatforms: ['PC', 'PS5', 'Xbox Series'],
         genres: ['RPG', 'turn-based', 'D&D'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-game-10',
         kind: 'game',
         title: 'Celeste',
@@ -1402,7 +1403,7 @@ List<CatalogItem> _gameItems() => [
 //  BOARD GAMES (10)
 // ==========================================================================
 List<CatalogItem> _boardgameItems() => [
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-boardgame-01',
         kind: 'boardgame',
         title: 'Gloomhaven',
@@ -1430,7 +1431,7 @@ List<CatalogItem> _boardgameItems() => [
         characters: ['Brute', 'Spellweaver', 'Scoundrel'],
         genres: ['cooperative', 'dungeon crawl', 'tactical'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-boardgame-02',
         kind: 'boardgame',
         title: 'Gloomhaven: Jaws of the Lion',
@@ -1449,7 +1450,7 @@ List<CatalogItem> _boardgameItems() => [
         characters: ['Valrath Red Guard', 'Inox Hatchet'],
         genres: ['cooperative', 'dungeon crawl'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-boardgame-03',
         kind: 'boardgame',
         title: 'Wingspan',
@@ -1468,7 +1469,7 @@ List<CatalogItem> _boardgameItems() => [
         ],
         genres: ['engine building', 'card game', 'nature'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-boardgame-04',
         kind: 'boardgame',
         title: 'Pandemic',
@@ -1484,7 +1485,7 @@ List<CatalogItem> _boardgameItems() => [
         characters: ['Medic', 'Scientist', 'Researcher'],
         genres: ['cooperative', 'strategy'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-boardgame-05',
         kind: 'boardgame',
         title: 'Pandemic Legacy: Season 1',
@@ -1505,7 +1506,7 @@ List<CatalogItem> _boardgameItems() => [
         storyArcs: ['Legacy Campaign'],
         genres: ['cooperative', 'legacy', 'campaign'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-boardgame-06',
         kind: 'boardgame',
         title: 'Terraforming Mars',
@@ -1526,7 +1527,7 @@ List<CatalogItem> _boardgameItems() => [
         ],
         genres: ['engine building', 'science', 'corporate'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-boardgame-07',
         kind: 'boardgame',
         title: 'Spirit Island',
@@ -1545,7 +1546,7 @@ List<CatalogItem> _boardgameItems() => [
         ],
         genres: ['cooperative', 'strategy', 'asymmetric'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-boardgame-08',
         kind: 'boardgame',
         title: 'Root',
@@ -1572,7 +1573,7 @@ List<CatalogItem> _boardgameItems() => [
         ],
         genres: ['asymmetric', 'war game', 'area control'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-boardgame-09',
         kind: 'boardgame',
         title: 'Brass: Birmingham',
@@ -1589,7 +1590,7 @@ List<CatalogItem> _boardgameItems() => [
         ],
         genres: ['economic', 'network building', 'industrial'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-boardgame-10',
         kind: 'boardgame',
         title: 'Scythe',
@@ -1617,7 +1618,7 @@ List<CatalogItem> _boardgameItems() => [
 //  COMICS (10)
 // ==========================================================================
 List<CatalogItem> _comicItems() => [
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-comic-01',
         kind: 'comic',
         title: 'Saga',
@@ -1655,7 +1656,7 @@ List<CatalogItem> _comicItems() => [
         characters: ['Alana', 'Marko', 'Hazel', 'The Will'],
         genres: ['sci-fi', 'fantasy', 'romance'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-comic-02',
         kind: 'comic',
         title: 'Saga',
@@ -1683,7 +1684,7 @@ List<CatalogItem> _comicItems() => [
         characters: ['Alana', 'Marko', 'The Stalk'],
         genres: ['sci-fi', 'fantasy'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-comic-03',
         kind: 'comic',
         title: 'Watchmen',
@@ -1720,7 +1721,7 @@ List<CatalogItem> _comicItems() => [
         ],
         genres: ['superhero', 'deconstruction'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-comic-04',
         kind: 'comic',
         title: 'Sandman',
@@ -1748,7 +1749,7 @@ List<CatalogItem> _comicItems() => [
         characters: ['Morpheus', 'Death', 'Lucifer'],
         genres: ['fantasy', 'horror', 'mythology'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-comic-05',
         kind: 'comic',
         title: 'Maus',
@@ -1766,7 +1767,7 @@ List<CatalogItem> _comicItems() => [
         characters: ['Vladek Spiegelman', 'Art Spiegelman'],
         genres: ['biography', 'historical', 'graphic novel'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-comic-06',
         kind: 'comic',
         title: 'Batman: The Killing Joke',
@@ -1789,7 +1790,7 @@ List<CatalogItem> _comicItems() => [
         characters: ['Batman', 'The Joker', 'Barbara Gordon'],
         genres: ['superhero', 'psychological'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-comic-07',
         kind: 'comic',
         title: 'Invincible',
@@ -1818,7 +1819,7 @@ List<CatalogItem> _comicItems() => [
         characters: ['Mark Grayson', 'Nolan Grayson', 'Atom Eve'],
         genres: ['superhero', 'action'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-comic-08',
         kind: 'comic',
         title: 'Y: The Last Man',
@@ -1840,7 +1841,7 @@ List<CatalogItem> _comicItems() => [
         characters: ['Yorick Brown', 'Agent 355', 'Ampersand'],
         genres: ['sci-fi', 'post-apocalyptic'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-comic-09',
         kind: 'comic',
         title: 'Bone',
@@ -1859,7 +1860,7 @@ List<CatalogItem> _comicItems() => [
         characters: ['Fone Bone', 'Phoney Bone', 'Thorn'],
         genres: ['fantasy', 'adventure', 'comedy'],
       ),
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-comic-10',
         kind: 'comic',
         title: 'Hellboy: Seed of Destruction',
@@ -1910,7 +1911,7 @@ List<CatalogItem> _tvItems() {
   ];
   return [
     for (var i = 0; i < titles.length; i++)
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-tv-${_seedOrdinal2(i + 1)}',
         kind: 'tv',
         title: titles[i],
@@ -1984,7 +1985,7 @@ List<CatalogItem> _animeItems() {
   ];
   return [
     for (var i = 0; i < titles.length; i++)
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-anime-${_seedOrdinal2(i + 1)}',
         kind: 'anime',
         title: titles[i],
@@ -2054,7 +2055,7 @@ List<CatalogItem> _mangaItems() {
   ];
   return [
     for (var i = 0; i < titles.length; i++)
-      CatalogItem(
+      testCatalogItem(
         id: 'seed-manga-${_seedOrdinal2(i + 1)}',
         kind: 'manga',
         title: titles[i],

@@ -5,6 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -135,12 +136,12 @@ void main() {
         collection: TmdbImportCollection.ratedMovies,
         entries: [entry],
         searchCatalog: (_) async => [
-          CatalogItem(
+          testCatalogItem(
               id: 'movie-1984',
               kind: 'movie',
               title: 'Dune',
               releaseYear: 1984),
-          CatalogItem(
+          testCatalogItem(
               id: 'movie-2021',
               kind: 'movie',
               title: 'Dune',
@@ -270,7 +271,7 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
         searchCatalog: (entry) async {
           if (entry.tmdbId == 603) {
             return [
-              CatalogItem(id: 'movie-603', kind: 'movie', title: 'The Matrix'),
+              testCatalogItem(id: 'movie-603', kind: 'movie', title: 'The Matrix'),
             ];
           }
           return const <CatalogItem>[];
@@ -354,7 +355,7 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
     });
 
     test('merges matched catalog items with richer TMDB details', () {
-      final item = CatalogItem(
+      final item = testCatalogItem(
         id: 'movie-680',
         kind: 'movie',
         title: 'Pulp Fiction',

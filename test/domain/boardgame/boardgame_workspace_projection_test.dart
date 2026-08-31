@@ -2,13 +2,14 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('boardgame workspace projector builds typed boardgame dto', () {
     final source = ShelfEntry(
       itemId: 'boardgame-1',
-      catalogItem: CatalogItemDto(
+      catalogItem: testCatalogItem(
         id: 'boardgame-1',
         title: 'Catan',
         kind: 'boardgame',

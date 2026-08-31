@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/_shared/video/video_releas
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -17,7 +18,7 @@ void main() {
     final typeConfig = libraryKindRuntimeForKind(CatalogMediaKind.movie).type;
 
     test('no edition returns empty list', () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
         title: 'Empty Movie',
@@ -37,7 +38,7 @@ void main() {
     });
 
     test('single edition projects single release item', () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
         title: 'Single Edition Movie',
@@ -76,7 +77,7 @@ void main() {
     });
 
     test('multiple editions project multiple release items', () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
         title: 'Multi Edition Movie',
@@ -104,7 +105,7 @@ void main() {
     });
 
     test('owned release sets isOwned flag on projected release', () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
         title: 'Owned Release Movie',
@@ -139,7 +140,7 @@ void main() {
     });
 
     test('wishlist release sets isWishlisted flag on projected release', () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
         title: 'Wishlisted Release Movie',
@@ -175,7 +176,7 @@ void main() {
     });
 
     test('variant match links owned item variant correctly', () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
         title: 'Variant Movie',
@@ -218,7 +219,7 @@ void main() {
     });
 
     test('bundle match links owned bundle release', () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
         title: 'Bundle Movie',
@@ -254,7 +255,7 @@ void main() {
 
     test('release cover, release date, and release barcode projected cleanly',
         () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
         title: 'Detailed Movie',
@@ -293,7 +294,7 @@ void main() {
     });
 
     test('custom field target IDs include release ID', () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
         title: 'Custom Field Movie',
@@ -314,7 +315,7 @@ void main() {
     });
 
     test('requestedTitleId filters out unrelated titles (navigation)', () {
-      final catalogItem = CatalogItemDto(
+      final catalogItem = testCatalogItem(
         id: 'movie_1',
         kind: 'movie',
         title: 'Nav Movie',
@@ -356,7 +357,7 @@ void main() {
         entries: [
           ShelfEntry(
             itemId: 'comic_1',
-            catalogItem: CatalogItemDto(
+            catalogItem: testCatalogItem(
               id: 'comic_1',
               kind: 'comic',
               title: 'Spider-Man #1',

@@ -69,7 +69,7 @@ void main() {
   });
 
   test('catalog item builds sync snapshot payload', () {
-    final item = CatalogItem(
+    final item = testCatalogItem(
       id: 'comic-1',
       kind: 'comic',
       title: 'Absolute Batman',

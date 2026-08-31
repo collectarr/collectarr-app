@@ -104,7 +104,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
       children: [
         LibraryDetailTrailersSection(
           trailerUrls:
-              item.source.catalogItem?.toCatalogItem().trailerUrls ?? const [],
+              item.source.catalogItem?.trailerUrls ?? const [],
           accent: accent,
         ),
       ],

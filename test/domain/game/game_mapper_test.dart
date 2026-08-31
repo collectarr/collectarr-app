@@ -31,7 +31,7 @@ void main() {
   });
 
   test('GameKindSchema exposes complete GameOwnedDetails surface', () {
-    final catalogItem = CatalogItemDto(
+    final catalogItem = testCatalogItem(
       id: 'game-10',
       kind: 'game',
       title: 'Super Mario 64',

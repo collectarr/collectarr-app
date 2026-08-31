@@ -769,7 +769,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final editions = item.toCatalogItem().editions;
+    final editions = item.editions;
     final editionAvailable = editions.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
@@ -1098,7 +1098,7 @@ CatalogEdition? previewEditionForItem(
   LibraryMetadataItem item,
   String? editionId,
 ) {
-  final editions = item.toCatalogItem().editions;
+  final editions = item.editions;
   final normalizedEditionId = editionId?.trim();
   if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
     for (final edition in editions) {
@@ -1128,7 +1128,7 @@ CatalogVariant? selectedVariantForEdition(
 }
 
 CatalogEdition? _previewPrimaryEditionForItem(LibraryMetadataItem item) {
-  final editions = item.toCatalogItem().editions;
+  final editions = item.editions;
   if (editions.isEmpty) {
     return null;
   }
@@ -1153,7 +1153,7 @@ CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
 }
 
 Widget _buildPreviewFormatBadges(LibraryMetadataItem? item) {
-  final editions = item?.toCatalogItem().editions ?? const <CatalogEdition>[];
+  final editions = item?.editions ?? const <CatalogEdition>[];
   if (editions.isEmpty) return const SizedBox.shrink();
   final seen = <String>{};
   final badges = <Widget>[];
@@ -1189,13 +1189,67 @@ List<(String, String?)> _metadataRowsForCandidate(
       (media.numberLabel, candidate.issueNumber),
     if (candidate.publisher != null)
       (media.publisherLabel, candidate.publisher),
-    if (candidate.series?.volumeStartYear != null)
+      if (candidate.series?.volumeStartYear != null)
       ('Year', candidate.series!.volumeStartYear.toString()),
     if (candidate.variantName != null)
       (release.variantLabel, candidate.variantName),
     if (candidate.issueCount != null)
       (previewLabels.itemCount, candidate.issueCount.toString()),
   ];
+}
+
+List<(String, String)> _editionDropdownEntries(LibraryMetadataItem item) {
+  final editions = item.editions;
+  if (editions.isEmpty) {
+    return const [];
+  }
+  return [
+    for (final edition in editions)
+      if (edition.id.isNotEmpty && edition.title.isNotEmpty)
+        (edition.id, edition.title),
+  ];
+}
+
+List<(String, String)> _variantDropdownEntries(
+  LibraryMetadataItem item,
+  String? editionId,
+) {
+  final editions = item.editions;
+  if (editions.isEmpty) {
+    return const [];
+  }
+  final selectedEdition = editionId == null || editionId.isEmpty
+      ? editions.first
+      : editions.firstWhere(
+          (e) => e.id == editionId,
+          orElse: () => editions.first,
+        );
+  return [
+    for (final variant in selectedEdition.variants)
+      if (variant.id.isNotEmpty)
+        (
+          variant.id,
+          variant.name.isNotEmpty
+              ? variant.name
+              : variant.id,
+        ),
+  ];
+}
+
+CatalogEditionDto? _findMatchingEdition(
+  LibraryMetadataItem? item,
+  String? editionId,
+) {
+  if (item == null || editionId == null || editionId.isEmpty) {
+    return null;
+  }
+  final editions = item.editions;
+  for (final edition in editions) {
+    if (edition.id == editionId) {
+      return edition;
+    }
+  }
+  return null;
 }
 
 List<(String, String?)> _metadataRowsForItem(
@@ -1206,7 +1260,6 @@ List<(String, String?)> _metadataRowsForItem(
   final media = runtime.edit.mediaFields;
   final release = runtime.edit.releaseFields;
   final previewLabels = type.presentation.previewLabels;
-  final catalogItem = item.toCatalogItem();
   final payload = item.kindMetadata.toSyncPayload();
   final seriesMap = payload['series'] as Map?;
   final seriesTitle =
@@ -1618,7 +1671,7 @@ List<_PreviewTrackData> _previewTracksForSelection({
   required LibraryMetadataItem? item,
   required AdminProviderPreview? preview,
 }) {
-  final musicPayload = item?.toCatalogItem().payload['music'] as Map?;
+  final musicPayload = item?.payload['music'] as Map?;
   final rawTracks = (musicPayload?['tracks'] as List<dynamic>?)
       ?.whereType<Map>()
       .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))

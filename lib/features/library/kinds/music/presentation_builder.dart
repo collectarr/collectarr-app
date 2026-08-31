@@ -241,13 +241,16 @@ class MusicLibraryMediaPresentationBuilder
     ValueChanged<String>? onFilterByValue,
   }) {
     final sections = <Widget>[];
-    final music = _musicMetadata(item)?.music;
+    final musicMeta = _musicMetadata(item);
+    final music = musicMeta?.music;
     final rawTracks = music?['tracks'] as List?;
     final tracks = rawTracks
-        ?.whereType<Map>()
-        .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
-    final trackCount = (music?['track_count'] as num?)?.toInt();
+            ?.whereType<Map>()
+            .map((e) => CatalogTrackDto.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ??
+        (musicMeta?.tracks.isNotEmpty == true ? musicMeta!.tracks : null);
+    final trackCount = (music?['track_count'] as num?)?.toInt() ??
+        musicMeta?.trackCount;
     if (tracks != null && tracks.isNotEmpty) {
       sections.add(
         InspectorTrackList(
@@ -269,19 +272,27 @@ class MusicLibraryMediaPresentationBuilder
 }
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
-  final metadata = item.source.catalogItem?.kindMetadata;
+  return _musicMetadataItem(item.source.catalogItem);
+}
+
+MusicCatalogMetadata? _musicMetadataItem(LibraryMetadataItem? item) {
+  if (item == null) return null;
+  final metadata = item.kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
   if (metadata != null) {
     return MusicCatalogMetadata.fromJson(metadata.toSyncPayload());
   }
-  return null;
-}
-
-MusicCatalogMetadata? _musicMetadataItem(LibraryMetadataItem? item) {
-  final metadata = item?.kindMetadata;
-  if (metadata is MusicCatalogMetadata) return metadata;
-  if (metadata != null) {
-    return MusicCatalogMetadata.fromJson(metadata.toSyncPayload());
+  final musicVal = item.payload['music'];
+  if (musicVal is Map) {
+    return MusicCatalogMetadata.fromJson(Map<String, dynamic>.from(musicVal));
+  }
+  if (musicVal != null) {
+    try {
+      final dynamic json = (musicVal as dynamic).toJson();
+      if (json is Map) {
+        return MusicCatalogMetadata.fromJson(Map<String, dynamic>.from(json));
+      }
+    } catch (_) {}
   }
   return null;
 }

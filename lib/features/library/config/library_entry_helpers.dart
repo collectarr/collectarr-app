@@ -240,7 +240,7 @@ String? preferredVideoEditionVariantId(CatalogEdition edition) {
     variantId: releaseNode != null
         ? preferredVideoEditionVariantId(releaseNode.edition)
         : null,
-    editions: item.source.catalogItem?.toCatalogItem().editions ?? const [],
+    editions: item.source.catalogItem?.editions ?? const [],
   );
 }
 
@@ -251,10 +251,12 @@ List<String> libraryReferencePlatforms(LibraryProjectionRuntime item) {
   if (variantPlatform != null && variantPlatform.isNotEmpty) {
     values.add(variantPlatform);
   }
-  final gameMap = item.source.catalogItem?.toCatalogItem().payload['game'];
+  final catalogItem = item.source.catalogItem;
+  final payload = catalogItem?.payload;
+  final gameMap = payload?['game'];
   final rawPlatforms = (gameMap is Map
           ? gameMap['platforms']
-          : item.source.catalogItem?.toCatalogItem().payload['platforms'])
+          : payload?['platforms'])
       as List<dynamic>?;
   for (final platform in rawPlatforms ?? const <dynamic>[]) {
     final normalized = platform?.toString().trim() ?? '';

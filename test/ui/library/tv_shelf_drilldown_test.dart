@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/config/generic_library_workspace
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +20,7 @@ void main() {
   ) async {
     final source = ShelfEntry(
       itemId: 'series-1',
-      catalogItem: CatalogItemDto(
+      catalogItem: testCatalogItem(
         id: 'series-1',
         kind: 'tv',
         title: 'Cowboy Bebop',

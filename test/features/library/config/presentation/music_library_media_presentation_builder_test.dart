@@ -10,23 +10,21 @@ void main() {
   test('music search result display formats album metadata', () {
     const builder = MusicLibraryMediaPresentationBuilder();
     final display = builder.buildSearchResultDisplay(
-      item: LibraryMetadataItem.fromCatalogItem(
-        CatalogItemDto(
-          id: 'music-search-1',
-          kind: 'music',
-          title: 'Kinesis - Deluxe Edition',
-          physicalFormatLabel: 'CD',
-          barcode: '1234567890',
-          series: const CatalogSeriesDetailsDto(
-            seriesTitle: 'Ad Infinitum',
-            volumeName: 'Deluxe Edition',
-          ),
-          music: const {
-            'track_count': 3,
-            'catalog_number': 'KDCD 1022',
-          },
-        ),
-      ),
+      item: LibraryMetadataItem.fromMetadataMap({
+        'id': 'music-search-1',
+        'kind': 'music',
+        'title': 'Kinesis - Deluxe Edition',
+        'physical_format_label': 'CD',
+        'barcode': '1234567890',
+        'series': {
+          'series_title': 'Ad Infinitum',
+          'volume_name': 'Deluxe Edition',
+        },
+        'music': {
+          'track_count': 3,
+          'catalog_number': 'KDCD 1022',
+        },
+      }),
     );
 
     expect(display, isNotNull);
@@ -56,45 +54,45 @@ void main() {
         series: 'Artist',
         itemCount: 'Releases',
       ),
-      item: LibraryMetadataItem.fromCatalogItem(
-        CatalogItemDto(
-          id: 'music-1',
-          kind: 'music',
-          title: 'Kinesis',
-          variant: 'CD',
-          publisher: 'Inside Out',
-          releaseYear: 1998,
-          series: const CatalogSeriesDetailsDto(seriesTitle: 'Ad Infinitum'),
-          genres: const [
-            'Rock',
-            'Progressive Rock',
-            'Art Rock',
-            'Progressive',
+      item: LibraryMetadataItem.fromMetadataMap({
+        'id': 'music-1',
+        'kind': 'music',
+        'title': 'Kinesis',
+        'variant': 'CD',
+        'publisher': 'Inside Out',
+        'release_year': 1998,
+        'series': {
+          'series_title': 'Ad Infinitum',
+        },
+        'genres': [
+          'Rock',
+          'Progressive Rock',
+          'Art Rock',
+          'Progressive',
+        ],
+        'music': {
+          'track_count': 3,
+          'catalog_number': 'KDCD 1022',
+          'release_status': 'Album',
+          'tracks': [
+            {
+              'title': 'Ad Infinitum',
+              'position': '1',
+              'duration_seconds': 506,
+            },
+            {
+              'title': 'Immortality',
+              'position': '2',
+              'duration_seconds': 421,
+            },
+            {
+              'title': 'Waterline',
+              'position': '3',
+              'duration_seconds': 659,
+            },
           ],
-          music: const {
-            'track_count': 3,
-            'catalog_number': 'KDCD 1022',
-            'release_status': 'Album',
-            'tracks': [
-              {
-                'title': 'Ad Infinitum',
-                'position': '1',
-                'duration_seconds': 506,
-              },
-              {
-                'title': 'Immortality',
-                'position': '2',
-                'duration_seconds': 421,
-              },
-              {
-                'title': 'Waterline',
-                'position': '3',
-                'duration_seconds': 659,
-              },
-            ],
-          },
-        ),
-      ),
+        },
+      }),
       candidate: null,
       preview: null,
       isFetchingPreview: false,
@@ -142,45 +140,45 @@ void main() {
         series: 'Artist',
         itemCount: 'Releases',
       ),
-      item: LibraryMetadataItem.fromCatalogItem(
-        CatalogItemDto(
-          id: 'music-1',
-          kind: 'music',
-          title: 'Kinesis',
-          variant: 'CD',
-          publisher: 'Inside Out',
-          releaseYear: 1998,
-          series: const CatalogSeriesDetailsDto(seriesTitle: 'Ad Infinitum'),
-          genres: const [
-            'Rock',
-            'Progressive Rock',
-            'Art Rock',
-            'Progressive',
+      item: LibraryMetadataItem.fromMetadataMap({
+        'id': 'music-1',
+        'kind': 'music',
+        'title': 'Kinesis',
+        'variant': 'CD',
+        'publisher': 'Inside Out',
+        'release_year': 1998,
+        'series': {
+          'series_title': 'Ad Infinitum',
+        },
+        'genres': [
+          'Rock',
+          'Progressive Rock',
+          'Art Rock',
+          'Progressive',
+        ],
+        'music': {
+          'track_count': 3,
+          'catalog_number': 'KDCD 1022',
+          'release_status': 'Album',
+          'tracks': [
+            {
+              'title': 'Ad Infinitum',
+              'position': '1',
+              'duration_seconds': 506,
+            },
+            {
+              'title': 'Immortality',
+              'position': '2',
+              'duration_seconds': 421,
+            },
+            {
+              'title': 'Waterline',
+              'position': '3',
+              'duration_seconds': 659,
+            },
           ],
-          music: const {
-            'track_count': 3,
-            'catalog_number': 'KDCD 1022',
-            'release_status': 'Album',
-            'tracks': [
-              {
-                'title': 'Ad Infinitum',
-                'position': '1',
-                'duration_seconds': 506,
-              },
-              {
-                'title': 'Immortality',
-                'position': '2',
-                'duration_seconds': 421,
-              },
-              {
-                'title': 'Waterline',
-                'position': '3',
-                'duration_seconds': 659,
-              },
-            ],
-          },
-        ),
-      ),
+        },
+      }),
       candidate: null,
       preview: null,
       isFetchingPreview: false,

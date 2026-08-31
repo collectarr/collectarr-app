@@ -130,7 +130,7 @@ void main() {
 
   test('book provider add merge preserves preview creators', () {
     final ingested = LibraryMetadataItem.fromCatalogItem(
-      CatalogItemDto(
+      testCatalogItem(
         id: 'book-item-1',
         kind: 'book',
         title: 'The Hobbit',
@@ -141,7 +141,7 @@ void main() {
       ),
     );
     final edited = LibraryMetadataItem.fromCatalogItem(
-      CatalogItemDto(
+      testCatalogItem(
         id: 'book-item-1',
         kind: 'book',
         title: 'The Hobbit',
@@ -165,14 +165,13 @@ void main() {
       edited: edited,
     );
 
-    final cat = merged.toCatalogItem();
-    final creators = cat.payload['creators'] as List?;
+    final creators = merged.payload['creators'] as List?;
     expect(creators, isNotNull);
     expect(creators, isNotEmpty);
     expect(creators!.first['name'], 'J.R.R. Tolkien');
     expect(creators.first['role'], 'Author');
     expect(creators.first['image_url'], 'https://cdn.example/tolkien.jpg');
-    expect(cat.payload['genres'], contains('Fantasy'));
+    expect(merged.payload['genres'], contains('Fantasy'));
   });
 
   test('local cover image preprocessor applies crop and rotation transforms',
