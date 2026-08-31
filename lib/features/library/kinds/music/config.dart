@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_presentation_builder.dart';
@@ -45,9 +44,6 @@ final musicLibraryConfig = LibraryTypeConfig(
     supportsMetadataCompare: true,
     supportsSeriesSubgroups: true,
     prefersSquareCovers: true,
-  ),
-  workspaceBehavior: const LibraryKindWorkspaceBehavior(
-    supportsTrackSearch: true,
   ),
 );
 

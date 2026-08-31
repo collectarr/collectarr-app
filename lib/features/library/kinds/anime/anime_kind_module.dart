@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
@@ -72,13 +71,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto, AnimeOwnedDetails>(
       barcodeLabel: 'UPC / Barcode',
     ),
     createDraft: createAnimeEditDraft,
-  ),
-  workspaceBehavior: const LibraryKindWorkspaceBehavior(
-    supportsSeriesIssueJump: true,
-    defaultVideoDisplayLevel: VideoDisplayLevel.season,
-    defaultVideoGrouping: VideoGroupingDefault.bySeries,
-    videoSeriesEntryTypes: {'anime'},
-    videoShelfDrilldownEntryTypes: {'anime'},
   ),
   providerMapper: const AnimeLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(

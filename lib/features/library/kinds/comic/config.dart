@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/config/collection_defaults.dart'
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
@@ -156,10 +155,6 @@ final comicsLibraryConfig = LibraryTypeConfig(
     mediaScopeGroupIds: _comicMediaGroupModes,
     releaseScopeGroupIds: _comicReleaseGroupModes,
     groupModeCategoriesBuilder: buildComicGroupModeCategories,
-  ),
-  workspaceBehavior: LibraryKindWorkspaceBehavior(
-    supportsSeriesIssueJump: true,
-    issueSortNumber: comicIssueSortNumber,
   ),
   conditions: kComicConditions,
   grades: kComicGrades,

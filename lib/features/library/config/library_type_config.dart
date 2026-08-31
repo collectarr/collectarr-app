@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/library/config/owned_details_codec.dart'
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -71,7 +70,7 @@ class LibraryKindUiAdapter {
   }
 
   bool supportsTrackSearch(LibraryTypeConfig type) {
-    return type.workspaceBehavior.supportsTrackSearch;
+    return type.presentation.supportsTrackSearch;
   }
 
   bool showsReadingQueue(LibraryTypeConfig type) {
@@ -140,8 +139,7 @@ class LibraryKindUiAdapter {
     if (groupDef == null || !groupDef.supportsJump) {
       return false;
     }
-    final issueSortNumber =
-        type.workspaceBehavior.issueSortNumber ?? _issueSortNumber;
+    final issueSortNumber = _issueSortNumber;
     return projection.allItems.any(
       (item) =>
           runtime.groupValue(item, groupDef.id) == selectedBucket &&
@@ -210,7 +208,6 @@ class LibraryTypeConfig {
     this.defaultCondition,
     this.defaultGrade,
     this.capabilities = const LibraryTypeCapabilities(),
-    this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.presentation = genericLibraryMediaPresentation,
     this.addChrome = const LibraryAddChromeConfig(),
     this.editChrome = const LibraryEditChromeConfig(),
@@ -239,8 +236,6 @@ class LibraryTypeConfig {
     LibraryInspectorCapability inspector = const LibraryInspectorCapability(),
     LibraryEditCapability edit = const LibraryEditCapability(),
     LibraryTransferCapability transfer = const LibraryTransferCapability(),
-    LibraryKindWorkspaceBehavior workspaceBehavior =
-        const LibraryKindWorkspaceBehavior(),
     LibraryMediaPresentation presentation = genericLibraryMediaPresentation,
     MediaTrackingProfile trackingProfile = readingTrackingProfile,
     LibraryAddDialogLauncher? addDialogLauncher,
@@ -269,7 +264,6 @@ class LibraryTypeConfig {
         supportsMetadataCompareWithServer: metadata.supportsServerCompare,
         showsReadingQueue: hierarchy.showsReadingQueue,
       ),
-      workspaceBehavior: workspaceBehavior,
       presentation: presentation,
       addChrome: const LibraryAddChromeConfig(),
       editChrome: edit.editChrome,
@@ -302,7 +296,6 @@ class LibraryTypeConfig {
   final String? defaultGrade;
   final LibraryTypeCapabilities capabilities;
   LibraryUiPolicy get uiPolicy => capabilities.uiPolicy;
-  final LibraryKindWorkspaceBehavior workspaceBehavior;
   final LibraryMediaPresentation presentation;
   final LibraryAddChromeConfig addChrome;
   final LibraryEditChromeConfig editChrome;
@@ -359,9 +352,7 @@ class LibraryTypeConfig {
 
   bool get supportsIndexReassignment => capabilities.supportsIndexReassignment;
 
-  bool get supportsSeriesIssueJump =>
-      workspaceBehavior.supportsSeriesIssueJump ||
-      presentation.supportsSeriesIssueJump;
+  bool get supportsSeriesIssueJump => presentation.supportsSeriesIssueJump;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;

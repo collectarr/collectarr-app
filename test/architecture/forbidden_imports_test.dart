@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_capabi
 import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -295,7 +294,6 @@ class ComicFeature {}
       metadataProviders: const [],
       trackingProfile: readingTrackingProfile,
       presentation: genericLibraryMediaPresentation,
-      workspaceBehavior: const LibraryKindWorkspaceBehavior(),
     );
 
     final fooKindModule = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
@@ -325,7 +323,6 @@ class ComicFeature {}
         initialDraftBuilder: GenericAddDraft.new,
       ),
       edit: const LibraryEditCapability(),
-      workspaceBehavior: const LibraryKindWorkspaceBehavior(),
       buildCardPresentation: (item, {required musicVertical}) =>
           const LibraryCardPresentation(),
     );

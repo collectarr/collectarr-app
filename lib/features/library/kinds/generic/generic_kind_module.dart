@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_dr
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
@@ -32,7 +31,6 @@ final genericLibraryConfig = LibraryTypeConfig(
   metadataProviders: const [],
   trackingProfile: readingTrackingProfile,
   presentation: genericLibraryMediaPresentation,
-  workspaceBehavior: const LibraryKindWorkspaceBehavior(),
 );
 
 final genericKindModule =
@@ -63,7 +61,6 @@ final genericKindModule =
     initialDraftBuilder: GenericAddDraft.new,
   ),
   edit: const LibraryEditCapability(),
-  workspaceBehavior: const LibraryKindWorkspaceBehavior(),
   buildCardPresentation: (item, {required musicVertical}) =>
       const LibraryCardPresentation(),
 );

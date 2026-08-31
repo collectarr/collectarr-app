@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_worksp
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/game/inspector_panel.dart';
@@ -81,7 +80,6 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto, GameOwnedDetails>(
     ),
     createDraft: createGameEditDraft,
   ),
-  workspaceBehavior: const LibraryKindWorkspaceBehavior(),
   providerMapper: const GameLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(
     loadRows: LibraryPageUtilities.libraryFacetRowsForId,

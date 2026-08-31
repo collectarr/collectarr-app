@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
@@ -76,9 +75,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto, MusicOwnedDetails>(
       barcodeLabel: 'Barcode / Catalog no.',
     ),
     createDraft: createMusicEditDraft,
-  ),
-  workspaceBehavior: const LibraryKindWorkspaceBehavior(
-    supportsTrackSearch: true,
   ),
   providerMapper: const MusicLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(

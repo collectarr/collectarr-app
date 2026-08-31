@@ -66,6 +66,7 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: musicLibraryBucketLabelBuilder,
   previewLabels: musicPreviewLabels,
   statsLabels: musicStatsLabels,
+  supportsTrackSearch: true,
   usesTrackListCard: true,
   referenceLabels: const LibraryReferenceLabels(itemScope: 'Album'),
   compactBucketIcon: Icons.person_2_outlined,

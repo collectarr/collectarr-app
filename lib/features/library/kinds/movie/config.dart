@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/movie/edit_dialog.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_workspace_controller.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/detail/video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
@@ -106,12 +105,6 @@ final moviesLibraryConfig = LibraryTypeConfig(
     releaseScopeGroupIds: _movieEditionGroupModes,
     mediaScopeSortIds: _movieMediaSortColumns,
     releaseScopeSortIds: _movieEditionSortColumns,
-  ),
-  workspaceBehavior: const LibraryKindWorkspaceBehavior(
-    defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
-    defaultVideoGrouping: VideoGroupingDefault.none,
-    videoSeriesEntryTypes: {'tv'},
-    videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},
   ),
   showsDefaultInspectorPersonalSection: false,
 );

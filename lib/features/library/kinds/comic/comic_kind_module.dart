@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart'
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -108,10 +107,6 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto, ComicOwnedDetails>(
     manualAddUsesTitleAsSeries: true,
     editUsesTitleAsSeries: true,
     createDraft: createComicEditDraft,
-  ),
-  workspaceBehavior: LibraryKindWorkspaceBehavior(
-    supportsSeriesIssueJump: true,
-    issueSortNumber: comicIssueSortNumber,
   ),
   toolbar: LibraryKindToolbarModule(
     actions: [

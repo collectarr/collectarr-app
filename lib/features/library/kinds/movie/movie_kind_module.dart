@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
@@ -79,12 +78,6 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto, MovieOwnedDetails>(
       barcodeLabel: 'UPC / Barcode',
     ),
     createDraft: createMovieEditDraft,
-  ),
-  workspaceBehavior: const LibraryKindWorkspaceBehavior(
-    defaultVideoDisplayLevel: VideoDisplayLevel.titleWork,
-    defaultVideoGrouping: VideoGroupingDefault.none,
-    videoSeriesEntryTypes: {'tv'},
-    videoShelfDrilldownEntryTypes: {'movie', 'tv', 'anime'},
   ),
   providerMapper: const MovieLibraryKindProviderMapper(),
   facets: const LibraryFacetModule(

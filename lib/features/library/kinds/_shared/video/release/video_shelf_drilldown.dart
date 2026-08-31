@@ -39,7 +39,7 @@ bool canOpenVideoShelfDrilldown(
   final kind = item.source.catalogItem?.kind.trim().toLowerCase();
   if (kind == null) return false;
   if (type != null &&
-      type.workspaceBehavior.videoShelfDrilldownEntryTypes.contains(kind)) {
+      type.presentation.videoShelfDrilldownEntryTypes.contains(kind)) {
     return true;
   }
   return kind == 'movie' || kind == 'tv' || kind == 'anime';

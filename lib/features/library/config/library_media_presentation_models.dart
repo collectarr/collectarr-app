@@ -7,7 +7,8 @@ import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
+export 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 export 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart'
     show LibraryGroupPresentation, LibraryGroupPresentationLabels;
@@ -694,6 +695,7 @@ class LibraryMediaPresentation {
     this.usesTreeProviderCandidates = false,
     this.externalFacetBucketIdsByMode = const {},
     this.supportsSeriesIssueJump = false,
+    this.supportsTrackSearch = false,
     this.usesTrackListCard = false,
     this.showsSeasonGroupProgress = false,
     this.defaultVideoDisplayLevel,
@@ -724,6 +726,7 @@ class LibraryMediaPresentation {
   final bool usesTreeProviderCandidates;
   final Map<String, LibraryFacetIdRuntime> externalFacetBucketIdsByMode;
   final bool supportsSeriesIssueJump;
+  final bool supportsTrackSearch;
   final bool usesTrackListCard;
   final bool showsSeasonGroupProgress;
   final VideoDisplayLevel? defaultVideoDisplayLevel;

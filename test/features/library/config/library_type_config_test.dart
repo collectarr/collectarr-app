@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config.dart';
@@ -170,14 +170,14 @@ void main() {
     expect(animeLibraryConfig.defaultMetadataProvider, 'anilist');
     expect(animeLibraryConfig.supportsMetadataProvider('anilist'), isTrue);
     expect(
-        animeLibraryConfig.workspaceBehavior.videoSeriesEntryTypes, {'anime'});
+        animeLibraryConfig.presentation.videoSeriesEntryTypes, {'anime'});
 
     expect(
-      animeLibraryConfig.workspaceBehavior.defaultVideoDisplayLevel,
+      animeLibraryConfig.presentation.defaultVideoDisplayLevel,
       VideoDisplayLevel.season,
     );
     expect(
-      animeLibraryConfig.workspaceBehavior.defaultVideoGrouping,
+      animeLibraryConfig.presentation.defaultVideoGrouping,
       VideoGroupingDefault.bySeries,
     );
     expect(animeLibraryConfig.editDialogBuilder, isNotNull);
@@ -185,13 +185,13 @@ void main() {
     expect(tvLibraryConfig.workspace.kind, CatalogMediaKind.tv);
     expect(tvLibraryConfig.defaultMetadataProvider, 'tmdb');
     expect(tvLibraryConfig.supportsMetadataProvider('tmdb'), isTrue);
-    expect(tvLibraryConfig.workspaceBehavior.videoSeriesEntryTypes, {'tv'});
+    expect(tvLibraryConfig.presentation.videoSeriesEntryTypes, {'tv'});
     expect(
-      tvLibraryConfig.workspaceBehavior.defaultVideoDisplayLevel,
+      tvLibraryConfig.presentation.defaultVideoDisplayLevel,
       VideoDisplayLevel.season,
     );
     expect(
-      tvLibraryConfig.workspaceBehavior.defaultVideoGrouping,
+      tvLibraryConfig.presentation.defaultVideoGrouping,
       VideoGroupingDefault.none,
     );
     expect(tvLibraryConfig.editDialogBuilder, isNotNull);
@@ -201,11 +201,11 @@ void main() {
 
   test('movie library config keeps flat title/work defaults', () {
     expect(
-      moviesLibraryConfig.workspaceBehavior.defaultVideoDisplayLevel,
+      moviesLibraryConfig.presentation.defaultVideoDisplayLevel,
       VideoDisplayLevel.titleWork,
     );
     expect(
-      moviesLibraryConfig.workspaceBehavior.defaultVideoGrouping,
+      moviesLibraryConfig.presentation.defaultVideoGrouping,
       VideoGroupingDefault.none,
     );
   });
@@ -546,11 +546,11 @@ void main() {
       'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
     );
     expect(
-      moviesLibraryConfig.workspaceBehavior.videoSeriesEntryTypes,
+      moviesLibraryConfig.presentation.videoSeriesEntryTypes,
       {'tv'},
     );
     expect(
-      moviesLibraryConfig.workspaceBehavior.videoShelfDrilldownEntryTypes,
+      moviesLibraryConfig.presentation.videoShelfDrilldownEntryTypes,
       {'movie', 'tv', 'anime'},
     );
     expect(

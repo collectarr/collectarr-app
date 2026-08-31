@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
+import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_preference_codec.dart';

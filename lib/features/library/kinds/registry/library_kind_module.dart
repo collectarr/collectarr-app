@@ -11,7 +11,6 @@ import 'package:collectarr_app/core/models/owned_item_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_adapter.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
 import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
@@ -64,7 +63,6 @@ abstract interface class LibraryKindRuntime {
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
   LibraryAddCapability get add;
 
-  LibraryKindWorkspaceBehavior get workspaceBehavior;
   LibraryKindToolbarModule? get toolbar;
   LibraryKindProviderMapper? get providerMapper;
   LibraryFacetModule? get facets;
@@ -140,7 +138,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
     required this.transfer,
     this.stats = const DefaultLibraryStatsCapability(),
     this.value,
-    this.workspaceBehavior = const LibraryKindWorkspaceBehavior(),
     this.toolbar,
     this.providerMapper,
     this.facets,
@@ -223,8 +220,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto,
   @override
   final LibraryWorkspaceProjector<TDto> projector;
 
-  @override
-  final LibraryKindWorkspaceBehavior workspaceBehavior;
   @override
   final LibraryAddCapability add;
   @override

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/edit_field_config.dart';
 import 'package:collectarr_app/features/library/config/library_type_config.dart';
-import 'package:collectarr_app/features/library/config/library_kind_workspace_behavior.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
@@ -89,13 +88,6 @@ final animeLibraryConfig = LibraryTypeConfig(
     showsSynopsis: true,
     supportsMediaReleaseSplit: true,
     wideDialog: true,
-  ),
-  workspaceBehavior: const LibraryKindWorkspaceBehavior(
-    supportsSeriesIssueJump: true,
-    defaultVideoDisplayLevel: VideoDisplayLevel.season,
-    defaultVideoGrouping: VideoGroupingDefault.bySeries,
-    videoSeriesEntryTypes: {'anime'},
-    videoShelfDrilldownEntryTypes: {'anime'},
   ),
   showsDefaultInspectorPersonalSection: false,
 );
